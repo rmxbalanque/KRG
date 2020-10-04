@@ -1,0 +1,105 @@
+#pragma once
+
+#include "Engine/Core/_Module/API.h"
+#include "Engine/Core/DebugUI/DebugUISystem.h"
+#include "System/Input/InputSystem.h"
+#include "System/Core/Settings/SettingsRegistry.h"
+#include "System/Render/RenderDevice/RenderDevice.h"
+#include "System/Render/RendererRegistry.h"
+#include "System/Entity/EntityWorld.h"
+#include "System/Resource/ResourceSystem.h"
+#include "System/TypeSystem/TypeRegistry.h"
+#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Systems/SystemRegistry.h"
+
+//-------------------------------------------------------------------------
+// Module Initialization Context
+//-------------------------------------------------------------------------
+// This is passed through all modules so that they can register their various systems
+// It is owned by the engine core module, which is also responsible for creating all core systems
+
+namespace KRG
+{
+    class KRG_ENGINE_CORE_API ModuleContext
+    {
+        friend class EngineApplication;
+
+    public:
+
+        ModuleContext() = default;
+
+        // Core Engine Systems
+        //-------------------------------------------------------------------------
+
+        inline SettingsRegistry* GetSettingsRegistry() { return m_pSettingsRegistry; }
+        inline SettingsRegistry const* GetSettingsRegistry() const { return m_pSettingsRegistry; }
+
+        inline SystemRegistry* GetSystemRegistry() { return m_pSystemRegistry; }
+        inline SystemRegistry const* GetSystemRegistry() const { return m_pSystemRegistry; }
+
+        inline TaskSystem* GetTaskSystem() { return m_pTaskSystem; }
+        inline TaskSystem const* GetTaskSystem() const { return m_pTaskSystem; }
+
+        inline TypeSystem::TypeRegistry* GetTypeRegistry() { return m_pTypeRegistry; }
+        inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_pTypeRegistry; }
+
+        inline Resource::ResourceSystem* GetResourceSystem() { return m_pResourceSystem; }
+        inline Resource::ResourceSystem const* GetResourceSystem() const { return m_pResourceSystem; }
+
+        inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
+        inline Render::RenderDevice const* GetRenderDevice() const { return m_pRenderDevice; }
+
+        inline EntityWorld* GetWorld() { return m_pWorld; }
+        inline EntityWorld const* GetWorld() const { return m_pWorld; }
+
+        // ResourceLoader Registration
+        //-------------------------------------------------------------------------
+
+        inline void RegisterResourceLoader( Resource::ResourceLoader* pLoader ) { return m_pResourceSystem->RegisterResourceLoader( pLoader ); }
+        inline void UnregisterResourceLoader( Resource::ResourceLoader* pLoader ) { return m_pResourceSystem->UnregisterResourceLoader( pLoader ); }
+
+        // Engine System Registration
+        //-------------------------------------------------------------------------
+
+        template<typename T> inline T* GetSystem() const { return m_pSystemRegistry->GetSystem<T>(); }
+        inline void RegisterSystem( ISystem& system ) { return m_pSystemRegistry->RegisterSystem( &system ); }
+        inline void UnregisterSystem( ISystem& system ) { return m_pSystemRegistry->UnregisterSystem( &system ); }
+
+        // Entity System Registration
+        //-------------------------------------------------------------------------
+
+        inline void RegisterGlobalSystem( IGlobalEntitySystem* pSystem ) { m_pWorld->RegisterGlobalSystem( pSystem ); }
+        inline void UnregisterGlobalSystem( IGlobalEntitySystem* pSystem ) { m_pWorld->UnregisterGlobalSystem( pSystem ); }
+
+        // Renderer Registration
+        //-------------------------------------------------------------------------
+
+        inline void RegisterRenderer( Render::IRenderer* pRenderer ) { m_pRendererRegistry->RegisterRenderer( pRenderer ); }
+        inline void UnregisterRenderer( Render::IRenderer* pRenderer ) { m_pRendererRegistry->UnregisterRenderer( pRenderer ); }
+
+        // Debug UI System
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEBUG_INSTRUMENTATION
+        inline Debug::DebugUISystem* GetDebugUISystem() { return m_pDebugUISystem; }
+        inline Debug::DebugUISystem const* GetDebugUISystem() const { return m_pDebugUISystem; }
+        inline void RegisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUISystem->RegisterDebugView( pDebugView ); }
+        inline void UnregisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUISystem->UnregisterDebugView( pDebugView ); }
+        #endif
+
+    private:
+
+        SettingsRegistry*                   m_pSettingsRegistry = nullptr;
+        TaskSystem*                         m_pTaskSystem = nullptr;
+        TypeSystem::TypeRegistry*           m_pTypeRegistry = nullptr;
+        Resource::ResourceSystem*           m_pResourceSystem = nullptr;
+        SystemRegistry*                     m_pSystemRegistry = nullptr;
+        EntityWorld*                        m_pWorld = nullptr;
+        Render::RenderDevice*               m_pRenderDevice = nullptr;
+        Render::RendererRegistry*           m_pRendererRegistry = nullptr;
+
+        #if KRG_DEBUG_INSTRUMENTATION
+        Debug::DebugUISystem*               m_pDebugUISystem = nullptr;
+        #endif
+    };
+}

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="KRG::StringID">
+    <Expand>
+      <CustomListItems>
+        <Variable Name="buckets" InitialValue="{,,KRG.System.Core} KRG::StringID::StringIDMap.mpBucketArray" />
+        <Variable Name="num_buckets" InitialValue="{,,KRG.System.Core} KRG::StringID::StringIDMap.mnBucketCount" />
+        <Variable Name="start_bucket" InitialValue="m_ID % num_buckets" />
+        <Variable Name="i" InitialValue="start_bucket" />
+        <Variable Name="bucket_item" InitialValue="buckets[i]"/>
+        <Loop>
+          <If Condition="bucket_item == 0">
+            <Item Name="Value">"Invalid"</Item>
+            <Break />
+          </If>
+          <If Condition="bucket_item->mValue.first == m_ID">
+            <Item Name="Value">bucket_item->mValue.second, na</Item>
+            <Break />
+          </If>
+          <Exec>bucket_item = bucket_item->mpNext</Exec>
+        </Loop>
+      </CustomListItems>
+      <Item Name="ID">m_ID</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="KRG::Degrees">
+    <DisplayString>{m_value}</DisplayString>
+    <Expand>
+      <Item Name="Degrees">m_value</Item>
+      <Item Name="Radians">m_value * KRG::Math::DegreesToRadians</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="KRG::Radians">
+    <DisplayString>{m_value} ({m_value * KRG::Math::RadiansToDegrees})</DisplayString>
+    <Expand>
+      <Item Name="Radians">m_value</Item>
+      <Item Name="Degrees">m_value * KRG::Math::RadiansToDegrees</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="KRG::Float4">
+    <DisplayString>{{x={x} y={y} z={z} w={w}}}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::Vector">
+    <DisplayString>{{x={x} y={y} z={z} w={w}}}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::Quaternion">
+    <DisplayString>{{x={x} y={y} z={z} w={w}}}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::TypeSystem::TypeID">
+    <DisplayString>Test = {m_ID}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::UUID">
+    <DisplayString>{(GUID*)this,na}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::AABB">
+    <DisplayString>{{Ctr( {m_center.x}, {m_center.y}, {m_center.z} ), Ext( {m_extents.x}, {m_extents.y}, {m_extents.z} )}}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::OBB">
+    <DisplayString>{{Ctr( {m_center.x}, {m_center.y}, {m_center.z} ), Ext( {m_extents.x}, {m_extents.y}, {m_extents.z} ), Rot( {m_orientation} )}}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::DataPath">
+    <DisplayString>{m_path}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::FileSystemPath">
+    <DisplayString>{m_fullpath}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::ResourceTypeID">
+    <DisplayString>{m_ID} - {((char*)&amp;m_ID)[3]}{((char*)&amp;m_ID)[2]}{((char*)&amp;m_ID)[1]}{((char*)&amp;m_ID)[0]}</DisplayString>
+  </Type>
+  
+  <Type Name="KRG::ResourceID">
+    <DisplayString>{m_dataPath}, Type: {m_type.m_ID}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::TResourcePtr&lt;*&gt;">
+    <DisplayString>{m_resourceID}</DisplayString>
+    <Expand>
+      <Item Name="ID">m_resourceID</Item>
+      <Item Name="Data">($T1*) m_pResource->m_pResource</Item>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>

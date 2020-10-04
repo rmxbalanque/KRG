@@ -1,0 +1,1763 @@
+#pragma once
+
+#include "System/Core\_Module\API.h"
+#include "System/Core\Math\Math.h"
+#include "SIMD.h"
+
+//-------------------------------------------------------------------------
+// The Kruger math library is heavily based on the DirectX math library 
+//-------------------------------------------------------------------------
+// https://github.com/Microsoft/DirectXMath
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    class KRG_SYSTEM_CORE_API alignas( 16 ) Vector
+    {
+        KRG_SERIALIZE_MEMBERS( x, y, z, w );
+
+    public:
+
+        static Vector const UnitX;
+        static Vector const UnitY;
+        static Vector const UnitZ;
+        static Vector const UnitW;
+
+        static Vector const WorldForward;
+        static Vector const WorldUp;
+        static Vector const WorldRight;
+
+        static Vector const NegativeOne;
+        static Vector const Zero;
+        static Vector const Half;
+        static Vector const One;
+        static Vector const Epsilon;
+        static Vector const LargeEpsilon;
+        static Vector const OneMinusEpsilon;
+        static Vector const EpsilonMinusOne;
+        static Vector const Pi;
+        static Vector const PiDivTwo;
+        static Vector const TwoPi;
+        static Vector const OneDivTwoPi;
+        static Vector const NoScale;
+
+        static Vector const Select0000;
+        static Vector const Select0001;
+        static Vector const Select0010;
+        static Vector const Select0011;
+        static Vector const Select0100;
+        static Vector const Select0101;
+        static Vector const Select0110;
+        static Vector const Select0111;
+        static Vector const Select1000;
+        static Vector const Select1001;
+        static Vector const Select1010;
+        static Vector const Select1011;
+        static Vector const Select1100;
+        static Vector const Select1101;
+        static Vector const Select1110;
+        static Vector const Select1111;
+
+        static Vector const Infinity;
+        static Vector const QNaN;
+
+        static Vector const BoxCorners[8];
+
+        KRG_FORCE_INLINE static Vector Cross2( Vector const& v0, Vector const& v1 ) { return v0.Cross2( v1 ); }
+        KRG_FORCE_INLINE static Vector Cross3( Vector const& v0, Vector const& v1 ) { return v0.Cross3( v1 ); }
+        KRG_FORCE_INLINE static Vector Dot2( Vector const& v0, Vector const& v1 ) { return v0.Dot2( v1 ); }
+        KRG_FORCE_INLINE static Vector Dot3( Vector const& v0, Vector const& v1 ) { return v0.Dot3( v1 ); }
+        KRG_FORCE_INLINE static Vector Dot4( Vector const& v0, Vector const& v1 ) { return v0.Dot4( v1 ); }
+        KRG_FORCE_INLINE static Vector Average2( Vector const& v0, Vector const& v1 );
+        KRG_FORCE_INLINE static Vector Average3( Vector const& v0, Vector const& v1 );
+        KRG_FORCE_INLINE static Vector Average4( Vector const& v0, Vector const& v1 );
+        KRG_FORCE_INLINE static Vector Min( Vector const& v0, Vector const& v1 );
+        KRG_FORCE_INLINE static Vector Max( Vector const& v0, Vector const& v1 );
+        KRG_FORCE_INLINE static Vector Clamp( Vector const& v, Vector const& min, Vector const& max );
+        KRG_FORCE_INLINE static Vector MultiplyAdd( Vector const& vec, Vector const& multiplier, Vector const& add );
+        KRG_FORCE_INLINE static Vector NegativeMultiplySubtract( Vector const& vec, Vector const& multiplier, Vector const& subtrahend );
+        KRG_FORCE_INLINE static Vector Xor( Vector const& vec0, Vector const& vec1 );
+        KRG_FORCE_INLINE static Vector LinearCombination( Vector const& v0, Vector const& v1, F32 scale0, F32 scale1 ) { return ( v0 * scale0 ) + ( v1 * scale1 ); }
+
+        KRG_FORCE_INLINE static Vector Sin( Vector const& vec );
+        KRG_FORCE_INLINE static Vector Cos( Vector const& vec );
+        KRG_FORCE_INLINE static Vector Tan( Vector const& vec );
+        KRG_FORCE_INLINE static Vector ASin( Vector const& vec );
+        KRG_FORCE_INLINE static Vector ACos( Vector const& vec );
+        KRG_FORCE_INLINE static Vector ATan( Vector const& vec );
+        KRG_FORCE_INLINE static Vector ATan2( Vector const& vec0, Vector const& vec1 );
+
+        KRG_FORCE_INLINE static Vector SinEst( Vector const& vec );
+        KRG_FORCE_INLINE static Vector CosEst( Vector const& vec );
+        KRG_FORCE_INLINE static Vector TanEst( Vector const& vec );
+        KRG_FORCE_INLINE static Vector ASinEst( Vector const& vec );
+        KRG_FORCE_INLINE static Vector ACosEst( Vector const& vec );
+        KRG_FORCE_INLINE static Vector ATanEst( Vector const& vec );
+        KRG_FORCE_INLINE static Vector ATan2Est( Vector const& vec0, Vector const& vec1 );
+
+        KRG_FORCE_INLINE static void SinCos( Vector& sin, Vector& cos, F32 angle ) { return SinCos( sin, cos, Vector( angle ) ); }
+        KRG_FORCE_INLINE static void SinCos( Vector& sin, Vector& cos, Vector const& angle );
+
+        KRG_FORCE_INLINE static Vector AngleMod2Pi( Vector const& angles );
+        KRG_FORCE_INLINE static Vector AngleBetweenVectors( Vector const& v0, Vector const& v1 ) { return v0.AngleBetween( v1 ); }
+        KRG_FORCE_INLINE static Radians GetAngleBetweenVectors( Vector const& v0, Vector const& v1 ) { return v0.GetAngleBetween( v1 ); }
+
+        KRG_FORCE_INLINE static Vector Lerp( Vector const& from, Vector const& to, F32 t ); // Linear interpolation
+        KRG_FORCE_INLINE static Vector NLerp( Vector const& from, Vector const& to, F32 t ); // Normalized linear interpolation of a vector
+        static Vector SLerp( Vector const& from, Vector const& to, F32 t ); // Spherical interpolation of a vector
+
+        //-------------------------------------------------------------------------
+
+        // Combine the two vectors based on the control: 0 means select from v0, 1 means select from v1. E.G. To select XY from v0 and ZW from v1, control = Vector( 0, 0, 1, 1 )
+        KRG_FORCE_INLINE static Vector Select( Vector const& v0, Vector const& v1, Vector const& control );
+
+        // Get a permutation of two vectors, each template argument represents the element index to select ( v0: 0-3, v1: 4-7 );
+        template<U32 PermuteX, U32 PermuteY, U32 PermuteZ, U32 PermuteW>
+        KRG_FORCE_INLINE static Vector Permute( Vector const& v0, Vector const& v1 );
+
+    public:
+
+        KRG_FORCE_INLINE operator __m128&() { return m_data; }
+        KRG_FORCE_INLINE operator __m128 const&() const { return m_data; }
+
+        KRG_FORCE_INLINE Vector() {}
+        KRG_FORCE_INLINE explicit Vector( Axis axis );
+        KRG_FORCE_INLINE explicit Vector( ZeroInit ) { memset( this, 0, sizeof( Vector ) ); }
+        KRG_FORCE_INLINE explicit Vector( F32 v ) { m_data = _mm_shuffle_ps( _mm_load_ss( &v ), _mm_load_ss( &v ), _MM_SHUFFLE( 0, 0, 0, 0 ) ); }
+        KRG_FORCE_INLINE Vector( __m128 v ) : m_data( v ) {}
+        KRG_FORCE_INLINE Vector( F32 ix, F32 iy, F32 iz, F32 iw = 1.0f ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
+
+        KRG_FORCE_INLINE Vector( Float2 const& v, F32 iz = 0.0f, F32 iw = 0.0f ) { m_data = _mm_set_ps( iw, iz, v.y, v.x ); }
+        KRG_FORCE_INLINE Vector( Float3 const& v, F32 iw = 1.0f ) { m_data = _mm_set_ps( iw, v.z, v.y, v.x ); } // Default behavior: create points (w=1)
+        KRG_FORCE_INLINE Vector( Float4 const& v ) { m_data = _mm_loadu_ps( &v.x ); }
+
+        //-------------------------------------------------------------------------
+
+        KRG_FORCE_INLINE bool IsValid() const { return !IsNaN4() && !IsInfinite4(); }
+
+        //-------------------------------------------------------------------------
+
+        KRG_FORCE_INLINE void StoreFloat( F32& value ) const;
+        KRG_FORCE_INLINE void StoreFloat2( Float2& value ) const;
+        KRG_FORCE_INLINE void StoreFloat3( Float3& value ) const;
+        KRG_FORCE_INLINE void StoreFloat4( Float4& value ) const;
+
+        KRG_FORCE_INLINE F32 ToFloat() const;
+        KRG_FORCE_INLINE Float2 ToFloat2() const;
+        KRG_FORCE_INLINE Float3 ToFloat3() const;
+        KRG_FORCE_INLINE Float4 ToFloat4() const;
+
+        KRG_FORCE_INLINE operator Float2() const { return ToFloat2(); }
+        KRG_FORCE_INLINE operator Float3() const { return ToFloat3(); }
+        KRG_FORCE_INLINE operator Float4() const { return ToFloat4(); }
+
+        //-------------------------------------------------------------------------
+
+        KRG_FORCE_INLINE Vector& SetW0() { w = 0.0f; return *this; }
+        KRG_FORCE_INLINE Vector& SetW1() { w = 1.0f; return *this; }
+
+        F32& operator[]( U32 i ) { KRG_ASSERT( i < 4 ); return ( ( F32* ) this )[i]; }
+        F32 const& operator[]( U32 i ) const { KRG_ASSERT( i < 4 ); return ( ( F32* ) this )[i]; }
+
+        // Element access (while you can still access the individual elements via the union, that is not performant, and it is preferable to call these functions to go between scalar and vector)
+        KRG_FORCE_INLINE F32 GetX() const { return _mm_cvtss_f32( m_data ); }
+        KRG_FORCE_INLINE F32 GetY() const { auto vTemp = GetSplatY(); return _mm_cvtss_f32( vTemp ); }
+        KRG_FORCE_INLINE F32 GetZ() const { auto vTemp = GetSplatZ(); return _mm_cvtss_f32( vTemp ); }
+        KRG_FORCE_INLINE F32 GetW() const { auto vTemp = GetSplatW(); return _mm_cvtss_f32( vTemp ); }
+
+        // Algebraic operators
+        KRG_FORCE_INLINE Vector operator+( Vector const& v ) const { return _mm_add_ps( m_data, v ); }
+        KRG_FORCE_INLINE Vector& operator+=( Vector const& v ) { m_data = _mm_add_ps( m_data, v ); return *this; }
+        KRG_FORCE_INLINE Vector operator-( Vector const& v ) const { return _mm_sub_ps( m_data, v ); }
+        KRG_FORCE_INLINE Vector& operator-=( Vector const& v ) { m_data = _mm_sub_ps( m_data, v ); return *this; }
+        KRG_FORCE_INLINE Vector operator*( Vector const& v ) const { return _mm_mul_ps( m_data, v ); }
+        KRG_FORCE_INLINE Vector& operator*=( Vector const& v ) { m_data = _mm_mul_ps( m_data, v ); return *this; }
+        KRG_FORCE_INLINE Vector operator/( Vector const& v ) const { return _mm_div_ps( m_data, v ); }
+        KRG_FORCE_INLINE Vector& operator/=( Vector const& v ) { m_data = _mm_div_ps( m_data, v ); return *this; }
+
+        KRG_FORCE_INLINE Vector operator*( F32 const f ) const { return operator*( Vector( f ) ); }
+        KRG_FORCE_INLINE Vector& operator*=( F32 const f ) { return operator*=( Vector( f ) ); }
+        KRG_FORCE_INLINE Vector operator/( F32 const f ) const { return operator/( Vector( f ) ); }
+        KRG_FORCE_INLINE Vector& operator/=( F32 const f ) { return operator/=( Vector( f ) ); }
+
+        KRG_FORCE_INLINE Vector operator-() const { return GetNegated(); }
+        KRG_FORCE_INLINE Vector& operator-() { Negate(); return *this; }
+
+        KRG_FORCE_INLINE Vector Cross2( Vector const& other ) const;
+        KRG_FORCE_INLINE Vector Cross3( Vector const& other ) const;
+        KRG_FORCE_INLINE Vector Dot2( Vector const& other ) const;
+        KRG_FORCE_INLINE Vector Dot3( Vector const& other ) const;
+        KRG_FORCE_INLINE Vector Dot4( Vector const& other ) const;
+
+        KRG_FORCE_INLINE Vector ScalarProjection( Vector const& other ) const;
+        KRG_FORCE_INLINE F32 GetScalarProjection( Vector const& other ) const { return ScalarProjection( other ).ToFloat(); }
+        KRG_FORCE_INLINE Vector VectorProjection( Vector const& other ) const;
+
+        // Transformations
+        KRG_FORCE_INLINE Vector& Invert() { m_data = _mm_div_ps( Vector::One, m_data ); return *this; }
+        KRG_FORCE_INLINE Vector GetInverse() const { return _mm_div_ps( Vector::One, m_data ); }
+
+        KRG_FORCE_INLINE Vector& InvertEst() { m_data = _mm_rcp_ps( m_data ); return *this; }
+        KRG_FORCE_INLINE Vector GetInverseEst() const { return _mm_rcp_ps( m_data ); }
+
+        KRG_FORCE_INLINE Vector& Negate() { m_data = _mm_sub_ps( Vector::Zero, m_data ); return *this; }
+        KRG_FORCE_INLINE Vector GetNegated() const { return _mm_sub_ps( Vector::Zero, m_data ); }
+
+        KRG_FORCE_INLINE Vector& Abs() { m_data = _mm_max_ps( _mm_sub_ps( Vector::Zero, m_data ), m_data ); return *this; }
+        KRG_FORCE_INLINE Vector GetAbs() const { return _mm_max_ps( _mm_sub_ps( Vector::Zero, m_data ), m_data ); }
+
+        KRG_FORCE_INLINE Vector& Normalize2();
+        KRG_FORCE_INLINE Vector& Normalize3();
+        KRG_FORCE_INLINE Vector& Normalize4();
+
+        KRG_FORCE_INLINE Vector GetNormalized2() const;
+        KRG_FORCE_INLINE Vector GetNormalized3() const;
+        KRG_FORCE_INLINE Vector GetNormalized4() const;
+
+        KRG_FORCE_INLINE Vector& Floor();
+        KRG_FORCE_INLINE Vector GetFloor() const;
+        KRG_FORCE_INLINE Vector& Ceil();
+        KRG_FORCE_INLINE Vector GetCeil() const;
+        KRG_FORCE_INLINE Vector& Round();
+        KRG_FORCE_INLINE Vector GetRound() const;
+
+        KRG_FORCE_INLINE Vector GetSign() const;
+
+        // Permutations
+        KRG_FORCE_INLINE Vector GetSplatX() const { return _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 0, 0, 0, 0 ) ); }
+        KRG_FORCE_INLINE Vector GetSplatY() const { return _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 1, 1, 1, 1 ) ); }
+        KRG_FORCE_INLINE Vector GetSplatZ() const { return _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 2, 2, 2, 2 ) ); }
+        KRG_FORCE_INLINE Vector GetSplatW() const { return _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 3, 3, 3, 3 ) ); }
+
+        // Get a shuffled version of the vector, each template argument represents the element index in the original vector
+        template<U32 ElementX, U32 ElementY, U32 ElementZ, U32 ElementW>
+        KRG_FORCE_INLINE Vector Swizzle() const
+        {
+            static_assert( ElementX <= 3, "Element index parameter out of range" );
+            static_assert( ElementY <= 3, "Element index parameter out of range" );
+            static_assert( ElementZ <= 3, "Element index parameter out of range" );
+            static_assert( ElementW <= 3, "Element index parameter out of range" );
+            return _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( ElementW, ElementZ, ElementY, ElementX ) );
+        }
+
+        KRG_FORCE_INLINE Vector Shuffle( U32 xIdx, U32 yIdx, U32 zIdx, U32 wIdx ) const
+        {
+            KRG_ASSERT( xIdx < 4 && yIdx < 4 && zIdx < 4 && wIdx < 4 );
+            Vector result( (*this)[xIdx], ( *this )[yIdx], ( *this )[zIdx], ( *this )[wIdx] );
+            return result;
+        }
+
+        // Queries
+        KRG_FORCE_INLINE bool IsPoint() const { return w == 1.0f; }
+        KRG_FORCE_INLINE Vector const& MakePoint() { SetW1(); return *this; }
+        KRG_FORCE_INLINE Vector const GetAsPoint() const { Vector p = *this; return p.MakePoint(); }
+
+        KRG_FORCE_INLINE bool IsVector() const { return w == 0.0f; }
+        KRG_FORCE_INLINE Vector const& MakeVector() { SetW0(); return *this; }
+        KRG_FORCE_INLINE Vector const GetAsVector() const { Vector p = *this; return p.MakeVector(); }
+
+        KRG_FORCE_INLINE Vector Length2() const;
+        KRG_FORCE_INLINE Vector Length3() const;
+        KRG_FORCE_INLINE Vector Length4() const;
+
+        KRG_FORCE_INLINE F32 GetLength2() const { return Length2().GetX(); }
+        KRG_FORCE_INLINE F32 GetLength3() const { return Length3().GetX(); }
+        KRG_FORCE_INLINE F32 GetLength4() const { return Length4().GetX(); }
+
+        KRG_FORCE_INLINE Vector InverseLength2() const;
+        KRG_FORCE_INLINE Vector InverseLength3() const;
+        KRG_FORCE_INLINE Vector InverseLength4() const;
+
+        KRG_FORCE_INLINE F32 GetInverseLength2() const { return InverseLength2().GetX(); }
+        KRG_FORCE_INLINE F32 GetInverseLength3() const { return InverseLength3().GetX(); }
+        KRG_FORCE_INLINE F32 GetInverseLength4() const { return InverseLength4().GetX(); }
+
+        KRG_FORCE_INLINE Vector LengthSquared2() const { return Vector::Dot2( m_data, m_data ); }
+        KRG_FORCE_INLINE Vector LengthSquared3() const { return Vector::Dot3( m_data, m_data ); }
+        KRG_FORCE_INLINE Vector LengthSquared4() const { return Vector::Dot4( m_data, m_data ); }
+
+        KRG_FORCE_INLINE F32 GetLengthSquared2() const { return LengthSquared2().GetX(); }
+        KRG_FORCE_INLINE F32 GetLengthSquared3() const { return LengthSquared3().GetX(); }
+        KRG_FORCE_INLINE F32 GetLengthSquared4() const { return LengthSquared4().GetX(); }
+
+        KRG_FORCE_INLINE Vector Distance2( Vector const& to ) const { return ( to - *this ).Length2(); }
+        KRG_FORCE_INLINE Vector Distance3( Vector const& to ) const { return ( to - *this ).Length3(); }
+        KRG_FORCE_INLINE Vector Distance4( Vector const& to ) const { return ( to - *this ).Length4(); }
+
+        KRG_FORCE_INLINE F32 GetDistance2( Vector const& to ) const { return ( to - *this ).Length2().GetX(); }
+        KRG_FORCE_INLINE F32 GetDistance3( Vector const& to ) const { return ( to - *this ).Length3().GetX(); }
+        KRG_FORCE_INLINE F32 GetDistance4( Vector const& to ) const { return ( to - *this ).Length4().GetX(); }
+
+        KRG_FORCE_INLINE Vector DistanceSquared2( Vector const& to ) const { return ( to - *this ).LengthSquared2(); }
+        KRG_FORCE_INLINE Vector DistanceSquared3( Vector const& to ) const { return ( to - *this ).LengthSquared3(); }
+        KRG_FORCE_INLINE Vector DistanceSquared4( Vector const& to ) const { return ( to - *this ).LengthSquared4(); }
+
+        KRG_FORCE_INLINE F32 GetDistanceSquared2( Vector const& to ) const { return ( to - *this ).GetLengthSquared2(); }
+        KRG_FORCE_INLINE F32 GetDistanceSquared3( Vector const& to ) const { return ( to - *this ).GetLengthSquared3(); }
+        KRG_FORCE_INLINE F32 GetDistanceSquared4( Vector const& to ) const { return ( to - *this ).GetLengthSquared4(); }
+
+        KRG_FORCE_INLINE bool IsNormalized2() const { return ( LengthSquared2() - Vector::One ).Abs().IsLessThanEqual4( Vector::Epsilon ); }
+        KRG_FORCE_INLINE bool IsNormalized3() const { return ( LengthSquared3() - Vector::One ).Abs().IsLessThanEqual4( Vector::Epsilon ); }
+        KRG_FORCE_INLINE bool IsNormalized4() const { return ( LengthSquared4() - Vector::One ).Abs().IsLessThanEqual4( Vector::Epsilon ); }
+
+        KRG_FORCE_INLINE Vector InBounds( Vector const& bounds ) const; // Is this vector within the range [-bounds, bounds]
+
+        KRG_FORCE_INLINE bool IsInBounds2( Vector const& bounds ) const { return ( _mm_movemask_ps( InBounds( bounds ) ) & 0x3 ) == 0x3 != 0; }
+        KRG_FORCE_INLINE bool IsInBounds3( Vector const& bounds ) const { return ( _mm_movemask_ps( InBounds( bounds ) ) & 0x7 ) == 0x7 != 0; }
+        KRG_FORCE_INLINE bool IsInBounds4( Vector const& bounds ) const { return ( _mm_movemask_ps( InBounds( bounds ) ) == 0x0f ) != 0; }
+
+        KRG_FORCE_INLINE Vector Equal( Vector const& v ) const { return _mm_cmpeq_ps( *this, v ); }
+
+        KRG_FORCE_INLINE bool IsEqual2( Vector const& v ) const { return ( ( ( _mm_movemask_ps( Equal( v ) ) & 3 ) == 3 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsEqual3( Vector const& v ) const { return ( ( ( _mm_movemask_ps( Equal( v ) ) & 7 ) == 7 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsEqual4( Vector const& v ) const { return ( ( _mm_movemask_ps( Equal( v ) ) == 0x0f ) != 0 ); }
+
+        KRG_FORCE_INLINE Vector NearEqual( Vector const& v, Vector const& epsilon ) const;
+
+        KRG_FORCE_INLINE bool IsNearEqual2( Vector const& v, F32 epsilon ) const { return IsNearEqual2( v, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearEqual3( Vector const& v, F32 epsilon ) const { return IsNearEqual3( v, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearEqual4( Vector const& v, F32 epsilon ) const { return IsNearEqual4( v, Vector( epsilon ) ); }
+
+        KRG_FORCE_INLINE bool IsNearEqual2( Vector const& v, Vector const& epsilon = Vector::Epsilon ) const { return ( ( ( _mm_movemask_ps( NearEqual( v, epsilon ) ) & 3 ) == 0x3 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsNearEqual3( Vector const& v, Vector const& epsilon = Vector::Epsilon ) const { return ( ( ( _mm_movemask_ps( NearEqual( v, epsilon ) ) & 7 ) == 0x7 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsNearEqual4( Vector const& v, Vector const& epsilon = Vector::Epsilon ) const { return ( ( _mm_movemask_ps( NearEqual( v, epsilon ) ) == 0xf ) != 0 ); }
+
+        KRG_FORCE_INLINE Vector GreaterThan( Vector const& v ) const { return _mm_cmpgt_ps( m_data, v ); }
+        KRG_FORCE_INLINE bool IsAnyGreaterThan( Vector const& v ) const { return !GreaterThan( v ).IsZero4(); }
+
+        KRG_FORCE_INLINE bool IsGreaterThan2( Vector const& v ) const { return ( ( ( _mm_movemask_ps( GreaterThan( v ) ) & 3 ) == 3 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsGreaterThan3( Vector const& v ) const { return ( ( ( _mm_movemask_ps( GreaterThan( v ) ) & 7 ) == 7 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsGreaterThan4( Vector const& v ) const { return ( ( _mm_movemask_ps( GreaterThan( v ) ) == 0x0f ) != 0 ); }
+
+        KRG_FORCE_INLINE Vector GreaterThanEqual( Vector const& v ) const { return _mm_cmpge_ps( m_data, v ); }
+        KRG_FORCE_INLINE bool IsAnyGreaterThanEqual( Vector const& v ) const { return !GreaterThanEqual( v ).IsZero4(); }
+
+        KRG_FORCE_INLINE bool IsGreaterThanEqual2( Vector const& v ) const { return ( ( _mm_movemask_ps( GreaterThanEqual( v ) ) & 3 ) == 3 ) != 0; }
+        KRG_FORCE_INLINE bool IsGreaterThanEqual3( Vector const& v ) const { return ( ( _mm_movemask_ps( GreaterThanEqual( v ) ) & 7 ) == 7 ) != 0; }
+        KRG_FORCE_INLINE bool IsGreaterThanEqual4( Vector const& v ) const { return ( _mm_movemask_ps( GreaterThanEqual( v ) ) == 0x0f ) != 0; }
+
+        KRG_FORCE_INLINE Vector LessThan( Vector const& v ) const { return _mm_cmplt_ps( m_data, v ); }
+        KRG_FORCE_INLINE bool IsAnyLessThan( Vector const& v ) const { return !LessThan( v ).IsZero4(); }
+
+        KRG_FORCE_INLINE bool IsLessThan2( Vector const& v ) const { return ( ( ( _mm_movemask_ps( LessThan( v ) ) & 3 ) == 3 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsLessThan3( Vector const& v ) const { return ( ( ( _mm_movemask_ps( LessThan( v ) ) & 7 ) == 7 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsLessThan4( Vector const& v ) const { return ( ( _mm_movemask_ps( LessThan( v ) ) == 0x0f ) != 0 ); }
+
+        KRG_FORCE_INLINE Vector LessThanEqual( Vector const& v ) const { return _mm_cmple_ps( m_data, v ); }
+        KRG_FORCE_INLINE bool IsAnyLessThanEqual( Vector const& v ) const { return !LessThanEqual( v ).IsZero4(); }
+
+        KRG_FORCE_INLINE bool IsLessThanEqual2( Vector const& v ) const { return ( ( ( _mm_movemask_ps( LessThanEqual( v ) ) & 3 ) == 3 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsLessThanEqual3( Vector const& v ) const { return ( ( ( _mm_movemask_ps( LessThanEqual( v ) ) & 7 ) == 7 ) != 0 ); }
+        KRG_FORCE_INLINE bool IsLessThanEqual4( Vector const& v ) const { return ( ( _mm_movemask_ps( LessThanEqual( v ) ) == 0x0f ) != 0 ); }
+
+        KRG_FORCE_INLINE Vector EqualsZero() const { return Equal( Vector::Zero ); }
+        KRG_FORCE_INLINE bool IsAnyEqualsZero() const { return !EqualsZero().IsZero4(); }
+
+        KRG_FORCE_INLINE bool IsZero2() const { return IsEqual2( Vector::Zero ); }
+        KRG_FORCE_INLINE bool IsZero3() const { return IsEqual3( Vector::Zero ); }
+        KRG_FORCE_INLINE bool IsZero4() const { return IsEqual4( Vector::Zero ); }
+
+        KRG_FORCE_INLINE Vector NearEqualsZero( F32 epsilon = Math::Epsilon ) const { return NearEqual( Vector::Zero, Vector( epsilon ) ); }
+
+        KRG_FORCE_INLINE bool IsNearZero2( F32 epsilon = Math::Epsilon ) const { return IsNearEqual2( Vector::Zero, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearZero3( F32 epsilon = Math::Epsilon ) const { return IsNearEqual3( Vector::Zero, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearZero4( F32 epsilon = Math::Epsilon ) const { return IsNearEqual4( Vector::Zero, Vector( epsilon ) ); }
+
+        KRG_FORCE_INLINE Vector EqualsInfinity() const { __m128 vTemp = _mm_and_ps( m_data, SIMD::g_absMask ); return _mm_cmpeq_ps( vTemp, Vector::Infinity ); }
+
+        KRG_FORCE_INLINE bool IsInfinite2() const { return ( _mm_movemask_ps( EqualsInfinity() ) & 3 ) != 0; }
+        KRG_FORCE_INLINE bool IsInfinite3() const { return ( _mm_movemask_ps( EqualsInfinity() ) & 7 ) != 0; }
+        KRG_FORCE_INLINE bool IsInfinite4() const { return ( _mm_movemask_ps( EqualsInfinity() ) != 0 ); }
+
+        KRG_FORCE_INLINE Vector EqualsNaN() const { return _mm_cmpneq_ps( m_data, m_data ); }
+
+        KRG_FORCE_INLINE bool IsNaN2() const { return ( _mm_movemask_ps( EqualsNaN() ) & 3 ) != 0; }
+        KRG_FORCE_INLINE bool IsNaN3() const { return ( _mm_movemask_ps( EqualsNaN() ) & 7 ) != 0; }
+        KRG_FORCE_INLINE bool IsNaN4() const { return ( _mm_movemask_ps( EqualsNaN() ) != 0 ); }
+
+        KRG_FORCE_INLINE Vector AngleBetween( Vector const& other ) const;
+        KRG_FORCE_INLINE Radians GetAngleBetween( Vector const& other ) const { return AngleBetween( other ).ToFloat(); }
+        KRG_FORCE_INLINE bool IsParallelTo( Vector const& v ) const;
+
+        KRG_FORCE_INLINE void ToDirectionAndLength2( Vector& direction, Vector& length );
+        KRG_FORCE_INLINE void ToDirectionAndLength3( Vector& direction, Vector& length );
+
+        bool operator==( Vector const& rhs ) const { return IsEqual4( rhs ); }
+        bool operator!=( Vector const& rhs ) const { return !IsEqual4( rhs ); }
+
+    public:
+
+        union
+        {
+            struct { F32 x, y, z, w; };
+            __m128 m_data;
+        };
+    };
+
+    //-------------------------------------------------------------------------
+
+    static_assert( sizeof( Vector ) == 16, "Vector size must be 16 bytes!" );
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE void Vector::StoreFloat( F32& value ) const
+    {
+        _mm_store_ss( &value, m_data );
+    }
+
+    KRG_FORCE_INLINE void Vector::StoreFloat2( Float2& value ) const
+    {
+        auto yVec = _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        _mm_store_ss( &value.x, m_data );
+        _mm_store_ss( &value.y, yVec );
+    }
+
+    KRG_FORCE_INLINE void Vector::StoreFloat3( Float3& value ) const
+    {
+        auto yVec = _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        auto zVec = _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        _mm_store_ss( &value.x, m_data );
+        _mm_store_ss( &value.y, yVec );
+        _mm_store_ss( &value.z, zVec );
+    }
+
+    KRG_FORCE_INLINE void Vector::StoreFloat4( Float4& value ) const
+    {
+        _mm_storeu_ps( &value.x, m_data );
+    }
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE F32 Vector::ToFloat() const
+    {
+        F32 v;
+        StoreFloat( v );
+        return v;
+    }
+
+    KRG_FORCE_INLINE Float2 Vector::ToFloat2() const
+    {
+        Float2 v;
+        StoreFloat2( v );
+        return v;
+    }
+
+    KRG_FORCE_INLINE Float3 Vector::ToFloat3() const
+    {
+        Float3 v;
+        StoreFloat3( v );
+        return v;
+    }
+
+    KRG_FORCE_INLINE Float4 Vector::ToFloat4() const
+    {
+        Float4 v;
+        StoreFloat4( v );
+        return v;
+    }
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE Vector& Vector::Normalize2()
+    {
+        // Perform the dot product on x and y only
+        auto vLengthSq = _mm_mul_ps( m_data, m_data );
+        auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        vLengthSq = _mm_add_ss( vLengthSq, vTemp );
+        vLengthSq = _mm_shuffle_ps( vLengthSq,  vLengthSq, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        // Prepare for the division
+        auto vResult = _mm_sqrt_ps( vLengthSq );
+        // Create zero with a single instruction
+        auto vZeroMask = _mm_setzero_ps();
+        // Test for a divide by zero (Must be FP to detect -0.0)
+        vZeroMask = _mm_cmpneq_ps( vZeroMask, vResult );
+        // Failsafe on zero (Or epsilon) length planes
+        // If the length is infinity, set the elements to zero
+        vLengthSq = _mm_cmpneq_ps( vLengthSq, Vector::Infinity );
+        // Divide to perform the normalization
+        vResult = _mm_div_ps( m_data, vResult );
+        // Any that are infinity, set to zero
+        vResult = _mm_and_ps( vResult, vZeroMask );
+        // Select qnan or result based on infinite length
+        auto vTemp1 = _mm_andnot_ps( vLengthSq, Vector::QNaN );
+        auto vTemp2 = _mm_and_ps( vResult, vLengthSq );
+        m_data = _mm_or_ps( vTemp1, vTemp2 );
+
+        return *this;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::GetNormalized2() const
+    {
+        Vector v = *this;
+        v.Normalize2();
+        return v;
+    }
+
+    KRG_FORCE_INLINE Vector& Vector::Normalize3()
+    {
+        // Perform the dot product on x,y and z only
+        auto vLengthSq = _mm_mul_ps( m_data, m_data );
+        auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 2, 1, 2, 1 ) );
+        vLengthSq = _mm_add_ss( vLengthSq, vTemp );
+        vTemp = _mm_shuffle_ps( vTemp, vTemp, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        vLengthSq = _mm_add_ss( vLengthSq, vTemp );
+        vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        // Prepare for the division
+        auto vResult = _mm_sqrt_ps( vLengthSq );
+        // Create zero with a single instruction
+        auto vZeroMask = _mm_setzero_ps();
+        // Test for a divide by zero (Must be FP to detect -0.0)
+        vZeroMask = _mm_cmpneq_ps( vZeroMask, vResult );
+        // Failsafe on zero (Or epsilon) length planes
+        // If the length is infinity, set the elements to zero
+        vLengthSq = _mm_cmpneq_ps( vLengthSq, Vector::Infinity );
+        // Divide to perform the normalization
+        vResult = _mm_div_ps( m_data, vResult );
+        // Any that are infinity, set to zero
+        vResult = _mm_and_ps( vResult, vZeroMask );
+        // Select qnan or result based on infinite length
+        auto vTemp1 = _mm_andnot_ps( vLengthSq, Vector::QNaN );
+        auto vTemp2 = _mm_and_ps( vResult, vLengthSq );
+        m_data = _mm_or_ps( vTemp1, vTemp2 );
+
+        return *this;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::GetNormalized3() const
+    {
+        Vector v = *this;
+        v.Normalize3();
+        return v;
+    }
+
+    KRG_FORCE_INLINE Vector& Vector::Normalize4()
+    {
+        // Perform the dot product on x,y,z and w
+        auto vLengthSq = _mm_mul_ps( m_data, m_data );
+        // vTemp has z and w
+        auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+        // x+z, y+w
+        vLengthSq = _mm_add_ps( vLengthSq, vTemp );
+        // x+z,x+z,x+z,y+w
+        vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 0, 0, 0 ) );
+        // ??,??,y+w,y+w
+        vTemp = _mm_shuffle_ps( vTemp, vLengthSq, _MM_SHUFFLE( 3, 3, 0, 0 ) );
+        // ??,??,x+z+y+w,??
+        vLengthSq = _mm_add_ps( vLengthSq, vTemp );
+        // Splat the length
+        vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        // Prepare for the division
+        auto vResult = _mm_sqrt_ps( vLengthSq );
+        // Create zero with a single instruction
+        auto vZeroMask = _mm_setzero_ps();
+        // Test for a divide by zero (Must be FP to detect -0.0)
+        vZeroMask = _mm_cmpneq_ps( vZeroMask, vResult );
+        // Failsafe on zero (Or epsilon) length planes
+        // If the length is infinity, set the elements to zero
+        vLengthSq = _mm_cmpneq_ps( vLengthSq, Vector::Infinity );
+        // Divide to perform the normalization
+        vResult = _mm_div_ps( m_data, vResult );
+        // Any that are infinity, set to zero
+        vResult = _mm_and_ps( vResult, vZeroMask );
+        // Select qnan or result based on infinite length
+        auto vTemp1 = _mm_andnot_ps( vLengthSq, Vector::QNaN );
+        auto vTemp2 = _mm_and_ps( vResult, vLengthSq );
+        m_data = _mm_or_ps( vTemp1, vTemp2 );
+
+        return *this;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::GetNormalized4() const
+    {
+        Vector v = *this;
+        v.Normalize4();
+        return v;
+    }
+
+    KRG_FORCE_INLINE Vector& Vector::Floor()
+    {
+        Vector result;
+
+        // To handle NAN, INF and numbers greater than 8388608, use masking
+        __m128i vTest = _mm_and_si128( _mm_castps_si128( m_data ), SIMD::g_absMask );
+        vTest = _mm_cmplt_epi32( vTest, SIMD::g_noFraction );
+        // Truncate
+        __m128i vInt = _mm_cvttps_epi32( m_data );
+        result = _mm_cvtepi32_ps( vInt );
+        __m128 vLarger = _mm_cmpgt_ps( result, m_data );
+        // 0 -> 0, 0xffffffff -> -1.0f
+        vLarger = _mm_cvtepi32_ps( _mm_castps_si128( vLarger ) );
+        result = _mm_add_ps( result, vLarger );
+        // All numbers less than 8388608 will use the round to int
+        result = _mm_and_ps( result, _mm_castsi128_ps( vTest ) );
+        // All others, use the ORIGINAL value
+        vTest = _mm_andnot_si128( vTest, _mm_castps_si128( m_data ) );
+        result = _mm_or_ps( result, _mm_castsi128_ps( vTest ) );
+
+        m_data = result;
+        return *this;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::GetFloor() const
+    {
+        Vector v = *this;
+        v.Floor();
+        return v;
+    }
+
+    KRG_FORCE_INLINE Vector& Vector::Ceil()
+    {
+        Vector result;
+
+        // To handle NAN, INF and numbers greater than 8388608, use masking
+        __m128i vTest = _mm_and_si128( _mm_castps_si128( m_data ), SIMD::g_absMask );
+        vTest = _mm_cmplt_epi32( vTest, SIMD::g_noFraction );
+        // Truncate
+        __m128i vInt = _mm_cvttps_epi32( m_data );
+        result = _mm_cvtepi32_ps( vInt );
+        __m128 vSmaller = _mm_cmplt_ps( result, m_data );
+        // 0 -> 0, 0xffffffff -> -1.0f
+        vSmaller = _mm_cvtepi32_ps( _mm_castps_si128( vSmaller ) );
+        result = _mm_sub_ps( result, vSmaller );
+        // All numbers less than 8388608 will use the round to int
+        result = _mm_and_ps( result, _mm_castsi128_ps( vTest ) );
+        // All others, use the ORIGINAL value
+        vTest = _mm_andnot_si128( vTest, _mm_castps_si128( m_data ) );
+        result = _mm_or_ps( result, _mm_castsi128_ps( vTest ) );
+
+        m_data = result;
+        return *this;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::GetCeil() const
+    {
+        Vector v = *this;
+        v.Ceil();
+        return v;
+    }
+
+    KRG_FORCE_INLINE Vector& Vector::Round()
+    {
+        __m128 sign = _mm_and_ps( m_data, SIMD::g_signMask );
+        __m128 sMagic = _mm_or_ps( SIMD::g_noFraction, sign );
+        __m128 R1 = _mm_add_ps( m_data, sMagic );
+        R1 = _mm_sub_ps( R1, sMagic );
+        __m128 R2 = _mm_and_ps( m_data, SIMD::g_absMask );
+        __m128 mask = _mm_cmple_ps( R2, SIMD::g_noFraction );
+        R2 = _mm_andnot_ps( mask, m_data );
+        R1 = _mm_and_ps( R1, mask );
+        m_data = _mm_xor_ps( R1, R2 );
+        return  *this;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::GetRound() const
+    {
+        Vector v = *this;
+        v.Round();
+        return v;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::GetSign() const
+    {
+        Vector const selectMask = GreaterThanEqual( Vector::Zero );
+        return Vector::Select( Vector::NegativeOne, Vector::One, selectMask );
+    }
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE Vector Vector::Length2() const
+    {
+        Vector result;
+
+        result = _mm_mul_ps( m_data, m_data );
+        auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        // x+y
+        result = _mm_add_ss( result, vTemp );
+        result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        result = _mm_sqrt_ps( result );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Length3() const
+    {
+        Vector result;
+
+        // Perform the dot product on x,y and z
+        result = _mm_mul_ps( m_data, m_data );
+        // vTemp has z and y
+        auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 2, 1, 2 ) );
+        // x+z, y
+        result = _mm_add_ss( result, vTemp );
+        // y,y,y,y
+        vTemp = _mm_shuffle_ps( vTemp, vTemp, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        // x+z+y,??,??,??
+        result = _mm_add_ss( result, vTemp );
+        // Splat the length squared
+        result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        // Get the length
+        result = _mm_sqrt_ps( result );
+
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Length4() const
+    {
+        Vector result;
+
+        // Perform the dot product on x,y,z and w
+        result = _mm_mul_ps( m_data, m_data );
+        // vTemp has z and w
+        auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+        // x+z, y+w
+        result = _mm_add_ps( result, vTemp );
+        // x+z,x+z,x+z,y+w
+        result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 0, 0, 0 ) );
+        // ??,??,y+w,y+w
+        vTemp = _mm_shuffle_ps( vTemp, result, _MM_SHUFFLE( 3, 3, 0, 0 ) );
+        // ??,??,x+z+y+w,??
+        result = _mm_add_ps( result, vTemp );
+        // Splat the length
+        result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        // Get the length
+        result = _mm_sqrt_ps( result );
+
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::InverseLength2() const
+    {
+        // Perform the dot product on x and y
+        auto vLengthSq = _mm_mul_ps( m_data, m_data );
+        // vTemp has y splatted
+        auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        // x+y
+        vLengthSq = _mm_add_ss( vLengthSq, vTemp );
+        vLengthSq = _mm_sqrt_ss( vLengthSq );
+        vLengthSq = _mm_div_ss( Vector::One, vLengthSq );
+        vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        return vLengthSq;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::InverseLength3() const
+    {
+        // Perform the dot product
+        auto vDot = _mm_mul_ps( m_data, m_data );
+        // x=Dot.y, y=Dot.z
+        auto vTemp = _mm_shuffle_ps( vDot, vDot, _MM_SHUFFLE( 2, 1, 2, 1 ) );
+        // Result.x = x+y
+        vDot = _mm_add_ss( vDot, vTemp );
+        // x=Dot.z
+        vTemp = _mm_shuffle_ps( vTemp, vTemp, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        // Result.x = (x+y)+z
+        vDot = _mm_add_ss( vDot, vTemp );
+        // Splat x
+        vDot = _mm_shuffle_ps( vDot, vDot, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        // Get the reciprocal
+        vDot = _mm_sqrt_ps( vDot );
+        // Get the reciprocal
+        vDot = _mm_div_ps( Vector::One, vDot );
+        return vDot;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::InverseLength4() const
+    {
+        // Perform the dot product on x,y,z and w
+        auto vLengthSq = _mm_mul_ps( m_data, m_data );
+        // vTemp has z and w
+        auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+        // x+z, y+w
+        vLengthSq = _mm_add_ps( vLengthSq, vTemp );
+        // x+z,x+z,x+z,y+w
+        vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 0, 0, 0 ) );
+        // ??,??,y+w,y+w
+        vTemp = _mm_shuffle_ps( vTemp, vLengthSq, _MM_SHUFFLE( 3, 3, 0, 0 ) );
+        // ??,??,x+z+y+w,??
+        vLengthSq = _mm_add_ps( vLengthSq, vTemp );
+        // Splat the length
+        vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        // Get the reciprocal
+        vLengthSq = _mm_sqrt_ps( vLengthSq );
+        // Accurate!
+        vLengthSq = _mm_div_ps( Vector::One, vLengthSq );
+        return vLengthSq;
+    }
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE Vector Vector::NearEqual( Vector const& v, Vector const& epsilon ) const
+    {
+        // Get the difference
+        auto vDelta = _mm_sub_ps( m_data, v );
+        // Get the absolute value of the difference
+        auto vTemp = _mm_setzero_ps();
+        vTemp = _mm_sub_ps( vTemp, vDelta );
+        vTemp = _mm_max_ps( vTemp, vDelta );
+        vTemp = _mm_cmple_ps( vTemp, epsilon );
+        return vTemp;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::InBounds( Vector const& bounds ) const
+    {
+        // Test if less than or equal
+        auto vTemp1 = _mm_cmple_ps( m_data, bounds );
+        // Negate the bounds
+        auto vTemp2 = _mm_mul_ps( bounds, Vector::NegativeOne );
+        // Test if greater or equal (Reversed)
+        vTemp2 = _mm_cmple_ps( vTemp2, m_data );
+        // Blend answers
+        vTemp1 = _mm_and_ps( vTemp1, vTemp2 );
+        return vTemp1;
+    }
+
+    KRG_FORCE_INLINE bool Vector::IsParallelTo( Vector const& v ) const
+    {
+        Vector const& vAbsDot = Vector::Dot3( *this, v ).GetAbs();
+        Vector const& vAbsDelta = Vector::One - vAbsDot;
+        return vAbsDelta.IsLessThanEqual4( Vector::Epsilon );
+    }
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE Vector::Vector( Axis axis )
+    {
+        switch ( axis )
+        {
+            case Axis::X: *this = Vector::UnitX; break;
+            case Axis::Y: *this = Vector::UnitY; break;
+            case Axis::Z: *this = Vector::UnitZ; break;
+            default: KRG_HALT(); break;
+        }
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Cross2( Vector const& other ) const
+    {
+        Vector result;
+
+        // Swap x and y
+        result = _mm_shuffle_ps( other, other, _MM_SHUFFLE( 0, 1, 0, 1 ) );
+        // Perform the muls
+        result = _mm_mul_ps( result, m_data );
+        // Splat y
+        auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        // Sub the values
+        result = _mm_sub_ss( result, vTemp );
+        // Splat the cross product
+        result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Cross3( Vector const& other ) const
+    {
+        // y1,z1,x1,w1
+        auto vTemp1 = _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 3, 0, 2, 1 ) );
+        // z2,x2,y2,w2
+        auto vTemp2 = _mm_shuffle_ps( other, other, _MM_SHUFFLE( 3, 1, 0, 2 ) );
+        // Perform the left operation
+        Vector result = _mm_mul_ps( vTemp1, vTemp2 );
+        // z1,x1,y1,w1
+        vTemp1 = _mm_shuffle_ps( vTemp1, vTemp1, _MM_SHUFFLE( 3, 0, 2, 1 ) );
+        // y2,z2,x2,w2
+        vTemp2 = _mm_shuffle_ps( vTemp2, vTemp2, _MM_SHUFFLE( 3, 1, 0, 2 ) );
+        // Perform the right operation
+        vTemp1 = _mm_mul_ps( vTemp1, vTemp2 );
+        // Subtract the right from left, and return answer
+        result = _mm_sub_ps( result, vTemp1 );
+        // Set w to zero
+        result = _mm_and_ps( result, SIMD::g_maskXYZ0 );
+
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Dot2( Vector const& other ) const
+    {
+        // Perform the dot product on x and y
+        Vector result = _mm_mul_ps( m_data, other );
+        // vTemp has y splatted
+        auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        // x+y
+        result = _mm_add_ss( result, vTemp );
+        result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Dot3( Vector const& vOther ) const
+    {
+        // Perform the dot product
+        auto vDot = _mm_mul_ps( m_data, vOther );
+        // x=Dot.vector4_f32[1], y=Dot.vector4_f32[2]
+        auto vTemp = _mm_shuffle_ps( vDot, vDot, _MM_SHUFFLE( 2, 1, 2, 1 ) );
+        // Result.vector4_f32[0] = x+y
+        vDot = _mm_add_ss( vDot, vTemp );
+        // x=Dot.vector4_f32[2]
+        vTemp = _mm_shuffle_ps( vTemp, vTemp, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        // Result.vector4_f32[0] = (x+y)+z
+        vDot = _mm_add_ss( vDot, vTemp );
+        // Splat x
+        Vector result = _mm_shuffle_ps( vDot, vDot, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Dot4( Vector const& other ) const
+    {
+        auto vTemp2 = other;
+        auto vTemp = _mm_mul_ps( m_data, vTemp2 );
+        vTemp2 = _mm_shuffle_ps( vTemp2, vTemp, _MM_SHUFFLE( 1, 0, 0, 0 ) ); // Copy X to the Z position and Y to the W position
+        vTemp2 = _mm_add_ps( vTemp2, vTemp ); // Add Z = X+Z; W = Y+W;
+        vTemp = _mm_shuffle_ps( vTemp, vTemp2, _MM_SHUFFLE( 0, 3, 0, 0 ) );  // Copy W to the Z position
+        vTemp = _mm_add_ps( vTemp, vTemp2 ); // Add Z and W together
+        return _mm_shuffle_ps( vTemp, vTemp, _MM_SHUFFLE( 2, 2, 2, 2 ) ); // Splat Z and return
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ScalarProjection( Vector const& other ) const
+    {
+        Vector const normalizedThis = GetNormalized3();
+        Vector const projection = other.Dot3( normalizedThis );
+        return projection;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::VectorProjection( Vector const& other ) const
+    {
+        Vector const normalizedThis = GetNormalized3();
+        Vector const dotOther = other.Dot3( normalizedThis );
+        Vector const projection = normalizedThis * dotOther;
+        return projection;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Average2( Vector const& v0, Vector const& v1 )
+    {
+        auto avg4 = Average4( v0, v1 );
+        return Vector::Select( avg4, Vector::Zero, Vector( 0, 0, 1, 1 ) );
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Average3( Vector const& v0, Vector const& v1 )
+    {
+        auto avg4 = Average4( v0, v1 );
+        return Vector::Select( avg4, Vector::Zero, Vector( 0, 0, 0, 1 ) );
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Average4( Vector const& v0, Vector const& v1 )
+    {
+        return ( v0 + v1 ) * Vector::Half;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Min( Vector const& v0, Vector const& v1 )
+    {
+        Vector result;
+        result = _mm_min_ps( v0, v1 );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Max( Vector const& v0, Vector const& v1 )
+    {
+        Vector result;
+        result = _mm_max_ps( v0, v1 );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Clamp( Vector const& v, Vector const& min, Vector const& max )
+    {
+        Vector result;
+        result = _mm_max_ps( min, v );
+        result = _mm_min_ps( result, max );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::MultiplyAdd( Vector const& v, Vector const& multiplier, Vector const& add )
+    {
+        Vector result;
+        result = _mm_mul_ps( v, multiplier );
+        result = _mm_add_ps( result, add );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::NegativeMultiplySubtract( Vector const& vec, Vector const& multiplier, Vector const& subtrahend )
+    {
+        // result = subtrahend - ( vec * multiplier )
+        auto r = _mm_mul_ps( vec, multiplier );
+        return _mm_sub_ps( subtrahend, r );
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Xor( Vector const& v0, Vector const& v1 )
+    {
+        __m128i V = _mm_xor_si128( _mm_castps_si128( v0 ), _mm_castps_si128( v1 ) );
+
+        Vector result;
+        result = _mm_castsi128_ps( V );
+        return result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Select( Vector const& v0, Vector const& v1, Vector const& control )
+    {
+        auto const ctrl = _mm_cmpneq_ps( control, Vector::Zero );
+
+        Vector result;
+        auto vTemp1 = _mm_andnot_ps( ctrl, v0 );
+        auto vTemp2 = _mm_and_ps( v1, ctrl );
+        result = _mm_or_ps( vTemp1, vTemp2 );
+        return result;
+    }
+
+    template<U32 PermuteX, U32 PermuteY, U32 PermuteZ, U32 PermuteW>
+    KRG_FORCE_INLINE Vector Vector::Permute( Vector const& v0, Vector const& v1 )
+    {
+        static_assert( PermuteX <= 7, "Element index parameter out of range" );
+        static_assert( PermuteY <= 7, "Element index parameter out of range" );
+        static_assert( PermuteZ <= 7, "Element index parameter out of range" );
+        static_assert( PermuteW <= 7, "Element index parameter out of range" );
+
+        U32 const shuffle = _MM_SHUFFLE( PermuteW & 3, PermuteZ & 3, PermuteY & 3, PermuteX & 3 );
+        bool const whichX = PermuteX > 3;
+        bool const whichY = PermuteY > 3;
+        bool const whichZ = PermuteZ > 3;
+        bool const whichW = PermuteW > 3;
+
+        static SIMD::UIntMask const selectMask = { whichX ? 0xFFFFFFFF : 0, whichY ? 0xFFFFFFFF : 0, whichZ ? 0xFFFFFFFF : 0, whichW ? 0xFFFFFFFF : 0 };
+        __m128 shuffled1 = _mm_shuffle_ps( v0, v0, shuffle );
+        __m128 shuffled2 = _mm_shuffle_ps( v1, v1, shuffle );
+        __m128 masked1 = _mm_andnot_ps( selectMask, shuffled1 );
+        __m128 masked2 = _mm_and_ps( selectMask, shuffled2 );
+        return _mm_or_ps( masked1, masked2 );
+    }
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE Vector Vector::Sin( Vector const& vec )
+    {
+        // Force the value within the bounds of pi
+        auto x = Vector::AngleMod2Pi( vec );
+
+        // Map in [-pi/2,pi/2] with sin(y) = sin(x).
+        __m128 sign = _mm_and_ps( x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
+        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
+        __m128 rflx = _mm_sub_ps( c, x );
+        __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
+        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select1 = _mm_andnot_ps( comp, rflx );
+        x = _mm_or_ps( select0, select1 );
+
+        __m128 x2 = _mm_mul_ps( x, x );
+
+        // Compute polynomial approximation
+        const auto SC1 = SIMD::g_sinCoefficients1;
+        auto vConstants = _mm_shuffle_ps( SC1, SC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        __m128 Result = _mm_mul_ps( vConstants, x2 );
+
+        const auto SC0 = SIMD::g_sinCoefficients0;
+        vConstants = _mm_shuffle_ps( SC0, SC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( SC0, SC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( SC0, SC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( SC0, SC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+        Result = _mm_add_ps( Result, Vector::One );
+        Result = _mm_mul_ps( Result, x );
+        return Result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Cos( Vector const& vec )
+    {
+        // Map V to x in [-pi,pi].
+        auto x = Vector::AngleMod2Pi( vec );
+
+        // Map in [-pi/2,pi/2] with cos(y) = sign*cos(x).
+        auto sign = _mm_and_ps( x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
+        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
+        __m128 rflx = _mm_sub_ps( c, x );
+        __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
+        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select1 = _mm_andnot_ps( comp, rflx );
+        x = _mm_or_ps( select0, select1 );
+        select0 = _mm_and_ps( comp, Vector::One );
+        select1 = _mm_andnot_ps( comp, Vector::NegativeOne );
+        sign = _mm_or_ps( select0, select1 );
+
+        __m128 x2 = _mm_mul_ps( x, x );
+
+        // Compute polynomial approximation
+        const auto CC1 = SIMD::g_cosCoefficients1;
+        auto vConstants = _mm_shuffle_ps( CC1, CC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        __m128 Result = _mm_mul_ps( vConstants, x2 );
+
+        const auto CC0 = SIMD::g_cosCoefficients0;
+        vConstants = _mm_shuffle_ps( CC0, CC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( CC0, CC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( CC0, CC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( CC0, CC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+        Result = _mm_add_ps( Result, Vector::One );
+        Result = _mm_mul_ps( Result, sign );
+        return Result;
+    }
+
+    void Vector::SinCos( Vector& sin, Vector& cos, Vector const& angle )
+    {
+        // Force the value within the bounds of pi
+        auto x = Vector::AngleMod2Pi( angle );
+
+        // Map in [-pi/2,pi/2] with sin(y) = sin(x), cos(y) = sign*cos(x).
+        auto sign = _mm_and_ps( x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
+        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
+        __m128 rflx = _mm_sub_ps( c, x );
+        __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
+        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select1 = _mm_andnot_ps( comp, rflx );
+        x = _mm_or_ps( select0, select1 );
+        select0 = _mm_and_ps( comp, Vector::One );
+        select1 = _mm_andnot_ps( comp, Vector::NegativeOne );
+        sign = _mm_or_ps( select0, select1 );
+
+        __m128 x2 = _mm_mul_ps( x, x );
+
+        // Compute polynomial approximation of sine
+        const auto SC1 = SIMD::g_sinCoefficients1;
+        auto vConstants = _mm_shuffle_ps( SC1, SC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        __m128 Result = _mm_mul_ps( vConstants, x2 );
+
+        const auto SC0 = SIMD::g_sinCoefficients0;
+        vConstants = _mm_shuffle_ps( SC0, SC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( SC0, SC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( SC0, SC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( SC0, SC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+        Result = _mm_add_ps( Result, Vector::One );
+        Result = _mm_mul_ps( Result, x );
+        sin = Result;
+
+        // Compute polynomial approximation of cosine
+        const auto CC1 = SIMD::g_cosCoefficients1;
+        vConstants = _mm_shuffle_ps( CC1, CC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Result = _mm_mul_ps( vConstants, x2 );
+
+        const auto CC0 = SIMD::g_cosCoefficients0;
+        vConstants = _mm_shuffle_ps( CC0, CC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( CC0, CC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( CC0, CC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( CC0, CC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+        Result = _mm_add_ps( Result, Vector::One );
+        Result = _mm_mul_ps( Result, sign );
+        cos = Result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::Tan( Vector const& vec )
+    {
+        static const Vector tanCoefficients0 = { 1.0f, -4.667168334e-1f, 2.566383229e-2f, -3.118153191e-4f };
+        static const Vector tanCoefficients1 = { 4.981943399e-7f, -1.333835001e-1f, 3.424887824e-3f, -1.786170734e-5f };
+        static const Vector tanConstants = { 1.570796371f, 6.077100628e-11f, 0.000244140625f, 0.63661977228f /*2 / Pi*/ };
+        static const SIMD::UIntMask mask = { 0x1, 0x1, 0x1, 0x1 };
+
+        Vector TwoDivPi = tanConstants.GetSplatW();
+        Vector C0 = tanConstants.GetSplatX();
+        Vector C1 = tanConstants.GetSplatY();
+        Vector vEpsilon = tanConstants.GetSplatZ();
+
+        Vector VA = ( vec * TwoDivPi ).Round();
+        Vector VC = Vector::NegativeMultiplySubtract( VA, C0, vec );
+        Vector VB = VA.GetAbs();
+        VC = Vector::NegativeMultiplySubtract( VA, C1, VC );
+        reinterpret_cast<__m128i *>( &VB )[0] = _mm_cvttps_epi32( VB );
+
+        Vector VC2 = VC * VC;
+        Vector T7 = tanCoefficients1.GetSplatW();
+        Vector T6 = tanCoefficients1.GetSplatZ();
+        Vector T4 = tanCoefficients1.GetSplatX();
+        Vector T3 = tanCoefficients0.GetSplatW();
+        Vector T5 = tanCoefficients1.GetSplatY();
+        Vector T2 = tanCoefficients0.GetSplatZ();
+        Vector T1 = tanCoefficients0.GetSplatY();
+        Vector T0 = tanCoefficients0.GetSplatX();
+
+        Vector VBIsEven = _mm_and_ps( VB, mask );
+        VBIsEven = _mm_castsi128_ps( _mm_cmpeq_epi32( _mm_castps_si128( VBIsEven ), _mm_castps_si128( Vector::Zero ) ) );
+
+        Vector N = Vector::MultiplyAdd( VC2, T7, T6 );
+        Vector D = Vector::MultiplyAdd( VC2, T4, T3 );
+        N = Vector::MultiplyAdd( VC2, N, T5 );
+        D = Vector::MultiplyAdd( VC2, D, T2 );
+        N = VC2 * N;
+        D = Vector::MultiplyAdd( VC2, D, T1 );
+        N = Vector::MultiplyAdd( VC, N, VC );
+        Vector VCNearZero = VC.InBounds( vEpsilon );
+        D = Vector::MultiplyAdd( VC2, D, T0 );
+
+        N = Vector::Select( N, VC, VCNearZero );
+        D = Vector::Select( D, Vector::One, VCNearZero );
+
+        Vector R0 = N.GetNegated();
+        Vector R1 = N / D;
+        R0 = D / R0;
+
+        Vector VIsZero = vec.EqualsZero();
+        Vector Result = Vector::Select( R0, R1, VBIsEven );
+        Result = Vector::Select( Result, Zero, VIsZero );
+
+        return Result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ASin( Vector const& vec )
+    {
+        __m128 nonnegative = _mm_cmpge_ps( vec, Vector::Zero );
+        __m128 mvalue = _mm_sub_ps( Vector::Zero, vec );
+        __m128 x = _mm_max_ps( vec, mvalue );  // |vec|
+
+        // Compute (1-|vec|), clamp to zero to avoid sqrt of negative number.
+        __m128 oneMValue = _mm_sub_ps( Vector::One, x );
+        __m128 clampOneMValue = _mm_max_ps( Vector::Zero, oneMValue );
+        __m128 root = _mm_sqrt_ps( clampOneMValue );  // sqrt(1-|vec|)
+
+        // Compute polynomial approximation
+        const auto AC1 = SIMD::g_arcCoefficients1;
+        auto vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        __m128 t0 = _mm_mul_ps( vConstants, x );
+
+        vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        const auto AC0 = SIMD::g_arcCoefficients0;
+        vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, root );
+
+        __m128 t1 = _mm_sub_ps( Vector::Pi, t0 );
+        t0 = _mm_and_ps( nonnegative, t0 );
+        t1 = _mm_andnot_ps( nonnegative, t1 );
+        t0 = _mm_or_ps( t0, t1 );
+        t0 = _mm_sub_ps( Vector::PiDivTwo, t0 );
+        return t0;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ACos( Vector const& vec )
+    {
+        __m128 nonnegative = _mm_cmpge_ps( vec, Vector::Zero );
+        __m128 mvalue = _mm_sub_ps( Vector::Zero, vec );
+        __m128 x = _mm_max_ps( vec, mvalue );  // |vec|
+
+        // Compute (1-|vec|), clamp to zero to avoid sqrt of negative number.
+        __m128 oneMValue = _mm_sub_ps( Vector::One, x );
+        __m128 clampOneMValue = _mm_max_ps( Vector::Zero, oneMValue );
+        __m128 root = _mm_sqrt_ps( clampOneMValue );  // sqrt(1-|vec|)
+
+        // Compute polynomial approximation
+        const auto AC1 = SIMD::g_arcCoefficients1;
+        auto vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        __m128 t0 = _mm_mul_ps( vConstants, x );
+
+        vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        const auto AC0 = SIMD::g_arcCoefficients0;
+        vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, root );
+
+        __m128 t1 = _mm_sub_ps( Vector::Pi, t0 );
+        t0 = _mm_and_ps( nonnegative, t0 );
+        t1 = _mm_andnot_ps( nonnegative, t1 );
+        t0 = _mm_or_ps( t0, t1 );
+        return t0;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ATan( Vector const& vec )
+    {
+        __m128 absV = vec.GetAbs();
+        __m128 invV = _mm_div_ps( Vector::One, vec );
+        __m128 comp = _mm_cmpgt_ps( vec, Vector::One );
+        __m128 select0 = _mm_and_ps( comp, Vector::One );
+        __m128 select1 = _mm_andnot_ps( comp, Vector::NegativeOne );
+        __m128 sign = _mm_or_ps( select0, select1 );
+        comp = _mm_cmple_ps( absV, Vector::One );
+        select0 = _mm_and_ps( comp, Vector::Zero );
+        select1 = _mm_andnot_ps( comp, sign );
+        sign = _mm_or_ps( select0, select1 );
+        select0 = _mm_and_ps( comp, vec );
+        select1 = _mm_andnot_ps( comp, invV );
+        __m128 x = _mm_or_ps( select0, select1 );
+
+        __m128 x2 = _mm_mul_ps( x, x );
+
+        // Compute polynomial approximation
+        Vector const TC1 = SIMD::g_aTanCoefficients1;
+        Vector vConstants = _mm_shuffle_ps( TC1, TC1, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        __m128 Result = _mm_mul_ps( vConstants, x2 );
+
+        vConstants = _mm_shuffle_ps( TC1, TC1, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( TC1, TC1, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( TC1, TC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        Vector const TC0 = SIMD::g_aTanCoefficients0;
+        vConstants = _mm_shuffle_ps( TC0, TC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( TC0, TC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( TC0, TC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( TC0, TC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+        Result = _mm_add_ps( Result, Vector::One );
+        Result = _mm_mul_ps( Result, x );
+        __m128 result1 = _mm_mul_ps( sign, Vector::PiDivTwo );
+        result1 = _mm_sub_ps( result1, Result );
+
+        comp = _mm_cmpeq_ps( sign, Vector::Zero );
+        select0 = _mm_and_ps( comp, Result );
+        select1 = _mm_andnot_ps( comp, result1 );
+        Result = _mm_or_ps( select0, select1 );
+        return Result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ATan2( Vector const& Y, Vector const& X )
+    {
+        Vector ATanResultValid = Vector( SIMD::g_trueMask );
+
+        Vector vPi = Vector( SIMD::g_aTan2Constants ).GetSplatX();
+        Vector vPiOverTwo = Vector( SIMD::g_aTan2Constants ).GetSplatY();
+        Vector vPiOverFour = Vector( SIMD::g_aTan2Constants ).GetSplatZ();
+        Vector vThreePiOverFour = Vector( SIMD::g_aTan2Constants ).GetSplatW();
+
+        Vector YEqualsZero = Y.EqualsZero();
+        Vector XEqualsZero = X.EqualsZero();
+        Vector XIsPositive = _mm_and_ps( X, SIMD::g_signMask );
+        XIsPositive = _mm_castsi128_ps( _mm_cmpeq_epi32( _mm_castps_si128( XIsPositive ), _mm_castps_si128( Vector::Zero ) ) );
+        Vector YEqualsInfinity = Y.EqualsInfinity();
+        Vector XEqualsInfinity = X.EqualsInfinity();
+
+        Vector YSign = _mm_and_ps( Y, SIMD::g_signMask );
+        vPi = _mm_castsi128_ps( _mm_or_si128( _mm_castps_si128( vPi ), _mm_castps_si128( YSign ) ) );
+        vPiOverTwo = _mm_castsi128_ps( _mm_or_si128( _mm_castps_si128( vPiOverTwo ), _mm_castps_si128( YSign ) ) );
+        vPiOverFour = _mm_castsi128_ps( _mm_or_si128( _mm_castps_si128( vPiOverFour ), _mm_castps_si128( YSign ) ) );
+        vThreePiOverFour = _mm_castsi128_ps( _mm_or_si128( _mm_castps_si128( vThreePiOverFour ), _mm_castps_si128( YSign ) ) );
+
+        Vector R1 = Vector::Select( vPi, YSign, XIsPositive );
+        Vector R2 = Vector::Select( ATanResultValid, vPiOverTwo, XEqualsZero );
+        Vector R3 = Vector::Select( R2, R1, YEqualsZero );
+        Vector R4 = Vector::Select( vThreePiOverFour, vPiOverFour, XIsPositive );
+        Vector R5 = Vector::Select( vPiOverTwo, R4, XEqualsInfinity );
+        Vector Result = Vector::Select( R3, R5, YEqualsInfinity );
+        ATanResultValid = _mm_castsi128_ps( _mm_cmpeq_epi32( _mm_castps_si128( Result ), _mm_castps_si128( ATanResultValid ) ) );
+
+        Vector V = Y / X;
+        Vector R0 = Vector::ATan( V );
+        R1 = Vector::Select( vPi, Vector( SIMD::g_signMask ), XIsPositive );
+        R2 = R0 + R1;
+
+        return Vector::Select( Result, R2, ATanResultValid );
+    }
+
+    KRG_FORCE_INLINE Vector Vector::SinEst( Vector const& vec )
+    {
+        // Force the value within the bounds of pi
+        auto x = Vector::AngleMod2Pi( vec );
+
+        // Map in [-pi/2,pi/2] with sin(y) = sin(x).
+        __m128 sign = _mm_and_ps( x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
+        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
+        __m128 rflx = _mm_sub_ps( c, x );
+        __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
+        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select1 = _mm_andnot_ps( comp, rflx );
+        x = _mm_or_ps( select0, select1 );
+
+        __m128 x2 = _mm_mul_ps( x, x );
+
+        // Compute polynomial approximation
+        const auto SEC = SIMD::g_sinCoefficients1;
+        auto vConstants = _mm_shuffle_ps( SEC, SEC, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        __m128 Result = _mm_mul_ps( vConstants, x2 );
+
+        vConstants = _mm_shuffle_ps( SEC, SEC, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( SEC, SEC, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        Result = _mm_add_ps( Result, Vector::One );
+        Result = _mm_mul_ps( Result, x );
+        return Result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::CosEst( Vector const& vec )
+    {
+        // Map V to x in [-pi,pi].
+        auto x = Vector::AngleMod2Pi( vec );
+
+        // Map in [-pi/2,pi/2] with cos(y) = sign*cos(x).
+        auto sign = _mm_and_ps( x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
+        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
+        __m128 rflx = _mm_sub_ps( c, x );
+        __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
+        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select1 = _mm_andnot_ps( comp, rflx );
+        x = _mm_or_ps( select0, select1 );
+        select0 = _mm_and_ps( comp, Vector::One );
+        select1 = _mm_andnot_ps( comp, Vector::NegativeOne );
+        sign = _mm_or_ps( select0, select1 );
+
+        __m128 x2 = _mm_mul_ps( x, x );
+
+        // Compute polynomial approximation
+        const auto CEC = SIMD::g_cosCoefficients1;
+        auto vConstants = _mm_shuffle_ps( CEC, CEC, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        __m128 Result = _mm_mul_ps( vConstants, x2 );
+
+        vConstants = _mm_shuffle_ps( CEC, CEC, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( CEC, CEC, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        Result = _mm_add_ps( Result, Vector::One );
+        Result = _mm_mul_ps( Result, sign );
+        return Result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::TanEst( Vector const& vec )
+    {
+        Vector W = Vector( SIMD::g_tanEstCoefficients ).GetSplatW();
+        Vector V1 = ( vec * W ).Round();
+        V1 = Vector::NegativeMultiplySubtract( Vector::Pi, V1, vec );
+
+        Vector const T0 = Vector( SIMD::g_tanEstCoefficients ).GetSplatX();
+        Vector const T1 = Vector( SIMD::g_tanEstCoefficients ).GetSplatY();
+        Vector const T2 = Vector( SIMD::g_tanEstCoefficients ).GetSplatZ();
+
+        auto V2T2 = Vector::NegativeMultiplySubtract( V1, V1, T2 );
+        auto V2 =  V1 * V1;
+        auto V1T0 = V1 * T0;
+        auto V1T1 = V1 * T1;
+
+        auto N = Vector::MultiplyAdd( V2, V1T1, V1T0 );
+        auto D = V2T2.GetInverseEst();
+        return N * D;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ASinEst( Vector const& vec )
+    {
+        __m128 nonnegative = _mm_cmpge_ps( vec, Vector::Zero );
+        __m128 mvalue = _mm_sub_ps( Vector::Zero, vec );
+        __m128 x = _mm_max_ps( vec, mvalue );  // |vec|
+
+        // Compute (1-|vec|), clamp to zero to avoid sqrt of negative number.
+        __m128 oneMValue = _mm_sub_ps( Vector::One, x );
+        __m128 clampOneMValue = _mm_max_ps( Vector::Zero, oneMValue );
+        __m128 root = _mm_sqrt_ps( clampOneMValue );  // sqrt(1-|vec|)
+
+        // Compute polynomial approximation
+        const auto AEC = SIMD::g_arcEstCoefficients;
+        auto vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        __m128 t0 = _mm_mul_ps( vConstants, x );
+
+        vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, root );
+
+        __m128 t1 = _mm_sub_ps( Vector::Pi, t0 );
+        t0 = _mm_and_ps( nonnegative, t0 );
+        t1 = _mm_andnot_ps( nonnegative, t1 );
+        t0 = _mm_or_ps( t0, t1 );
+        t0 = _mm_sub_ps( Vector::PiDivTwo, t0 );
+        return t0;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ACosEst( Vector const& vec )
+    {
+        __m128 nonnegative = _mm_cmpge_ps( vec, Vector::Zero );
+        __m128 mvalue = _mm_sub_ps( Vector::Zero, vec );
+        __m128 x = _mm_max_ps( vec, mvalue );  // |vec|
+
+        // Compute (1-|vec|), clamp to zero to avoid sqrt of negative number.
+        __m128 oneMValue = _mm_sub_ps( Vector::One, x );
+        __m128 clampOneMValue = _mm_max_ps( Vector::Zero, oneMValue );
+        __m128 root = _mm_sqrt_ps( clampOneMValue );  // sqrt(1-|vec|)
+
+        // Compute polynomial approximation
+        auto vConstants = _mm_shuffle_ps( SIMD::g_arcEstCoefficients, SIMD::g_arcEstCoefficients, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        __m128 t0 = _mm_mul_ps( vConstants, x );
+
+        vConstants = _mm_shuffle_ps( SIMD::g_arcEstCoefficients, SIMD::g_arcEstCoefficients, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( SIMD::g_arcEstCoefficients, SIMD::g_arcEstCoefficients, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, x );
+
+        vConstants = _mm_shuffle_ps( SIMD::g_arcEstCoefficients, SIMD::g_arcEstCoefficients, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        t0 = _mm_add_ps( t0, vConstants );
+        t0 = _mm_mul_ps( t0, root );
+
+        __m128 t1 = _mm_sub_ps( Vector::Pi, t0 );
+        t0 = _mm_and_ps( nonnegative, t0 );
+        t1 = _mm_andnot_ps( nonnegative, t1 );
+        t0 = _mm_or_ps( t0, t1 );
+        return t0;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ATanEst( Vector const& vec )
+    {
+        __m128 absV = vec.GetAbs();
+        __m128 invV = _mm_div_ps( Vector::One, vec );
+        __m128 comp = _mm_cmpgt_ps( vec, Vector::One );
+        __m128 select0 = _mm_and_ps( comp, Vector::One );
+        __m128 select1 = _mm_andnot_ps( comp, Vector::NegativeOne );
+        __m128 sign = _mm_or_ps( select0, select1 );
+        comp = _mm_cmple_ps( absV, Vector::One );
+        select0 = _mm_and_ps( comp, Vector::Zero );
+        select1 = _mm_andnot_ps( comp, sign );
+        sign = _mm_or_ps( select0, select1 );
+        select0 = _mm_and_ps( comp, vec );
+        select1 = _mm_andnot_ps( comp, invV );
+        __m128 x = _mm_or_ps( select0, select1 );
+
+        __m128 x2 = _mm_mul_ps( x, x );
+
+        // Compute polynomial approximation
+        Vector const AEC = SIMD::g_aTanEstCoefficients1;
+        Vector vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 3, 3, 3, 3 ) );
+        __m128 Result = _mm_mul_ps( vConstants, x2 );
+
+        vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Result = _mm_add_ps( Result, vConstants );
+        Result = _mm_mul_ps( Result, x2 );
+
+        // ATanEstCoefficients0 is already splatted
+        Result = _mm_add_ps( Result, SIMD::g_aTanEstCoefficients0 );
+        Result = _mm_mul_ps( Result, x );
+        __m128 result1 = _mm_mul_ps( sign, Vector::PiDivTwo );
+        result1 = _mm_sub_ps( result1, Result );
+
+        comp = _mm_cmpeq_ps( sign, Vector::Zero );
+        select0 = _mm_and_ps( comp, Result );
+        select1 = _mm_andnot_ps( comp, result1 );
+        Result = _mm_or_ps( select0, select1 );
+        return Result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::ATan2Est( Vector const& X, Vector const& Y )
+    {
+        Vector ATanResultValid = Vector( SIMD::g_trueMask );
+
+        Vector vPi = Vector( SIMD::g_aTan2Constants ).GetSplatX();
+        Vector vPiOverTwo = Vector( SIMD::g_aTan2Constants ).GetSplatY();
+        Vector vPiOverFour = Vector( SIMD::g_aTan2Constants ).GetSplatZ();
+        Vector vThreePiOverFour = Vector( SIMD::g_aTan2Constants ).GetSplatW();
+
+        Vector YEqualsZero = Y.EqualsZero();
+        Vector XEqualsZero = X.EqualsZero();
+        Vector XIsPositive = _mm_and_ps( X, SIMD::g_signMask );
+        XIsPositive = _mm_castsi128_ps( _mm_cmpeq_epi32( _mm_castps_si128( XIsPositive ), _mm_castps_si128( Vector::Zero ) ) );
+        Vector YEqualsInfinity = Y.EqualsInfinity();
+        Vector XEqualsInfinity = X.EqualsInfinity();
+
+        Vector YSign = _mm_and_ps( Y, SIMD::g_signMask );
+        vPi = _mm_castsi128_ps( _mm_or_si128( _mm_castps_si128( vPi ), _mm_castps_si128( YSign ) ) );
+        vPiOverTwo = _mm_castsi128_ps( _mm_or_si128( _mm_castps_si128( vPiOverTwo ), _mm_castps_si128( YSign ) ) );
+        vPiOverFour = _mm_castsi128_ps( _mm_or_si128( _mm_castps_si128( vPiOverFour ), _mm_castps_si128( YSign ) ) );
+        vThreePiOverFour = _mm_castsi128_ps( _mm_or_si128( _mm_castps_si128( vThreePiOverFour ), _mm_castps_si128( YSign ) ) );
+
+        Vector R1 = Vector::Select( vPi, YSign, XIsPositive );
+        Vector R2 = Vector::Select( ATanResultValid, vPiOverTwo, XEqualsZero );
+        Vector R3 = Vector::Select( R2, R1, YEqualsZero );
+        Vector R4 = Vector::Select( vThreePiOverFour, vPiOverFour, XIsPositive );
+        Vector R5 = Vector::Select( vPiOverTwo, R4, XEqualsInfinity );
+        Vector Result = Vector::Select( R3, R5, YEqualsInfinity );
+        ATanResultValid = _mm_castsi128_ps( _mm_cmpeq_epi32( _mm_castps_si128( Result ), _mm_castps_si128( ATanResultValid ) ) );
+
+        Vector Reciprocal = X.GetInverseEst();
+        Vector V = Y * Reciprocal;
+        Vector R0 = Vector::ATanEst( V );
+
+        R1 = Vector::Select( vPi, Vector( SIMD::g_signMask ), XIsPositive );
+        R2 = R0 + R1;
+        Result = Vector::Select( Result, R2, ATanResultValid );
+
+        return Result;
+    }
+
+    KRG_FORCE_INLINE Vector Vector::AngleMod2Pi( Vector const& angles )
+    {
+        // Modulo the range of the given angles such that -Pi <= Angles < Pi
+        Vector result = _mm_mul_ps( angles, Vector::OneDivTwoPi );
+        result.Round();
+        result = _mm_mul_ps( result, Vector::TwoPi );
+        result = _mm_sub_ps( angles, result );
+        return result;
+    }
+
+    Vector Vector::AngleBetween( Vector const& other ) const
+    {
+        Vector const dot = Vector::Dot3( *this, other );
+        Vector const reciprocal = this->InverseLength3() * other.InverseLength3();
+        Vector const CosAngle = Vector::Clamp( dot * reciprocal, Vector::NegativeOne, Vector::One );
+        return Vector::ACos( CosAngle );
+    }
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE Vector Vector::Lerp( Vector const& from, Vector const& to, F32 t )
+    {
+        KRG_ASSERT( t >= 0.0f && t <= 1.0f );
+
+        Vector result;
+        auto L = _mm_sub_ps( to, from );
+        auto S = _mm_set_ps1( t );
+        auto Result = _mm_mul_ps( L, S );
+        result = _mm_add_ps( Result, from );
+        return result;
+    }
+    
+    KRG_FORCE_INLINE Vector Vector::NLerp( Vector const& from, Vector const& to, F32 t )
+    {
+        KRG_ASSERT( t >= 0.0f && t <= 1.0f );
+
+        // Calculate the final length
+        auto const fromLength = from.Length3();
+        auto const toLength = to.Length3();
+        auto const finalLength = Vector::Lerp( fromLength, toLength, t );
+
+        // Normalize vectors
+        Vector const normalizedFrom = from / fromLength;
+        Vector const normalizedTo = to / toLength;
+
+        // LERP
+        auto const finalDirection = Lerp( normalizedFrom, normalizedTo, t );
+        auto result = finalDirection.GetNormalized3() * finalLength;
+        return result;
+    }
+
+    //-------------------------------------------------------------------------
+
+    KRG_FORCE_INLINE void Vector::ToDirectionAndLength2( Vector& direction, Vector& length )
+    {
+        length = Length2();
+        direction = Vector::Select( *this, Vector::Zero, Select0011 );
+        direction /= length;
+    }
+
+    KRG_FORCE_INLINE void Vector::ToDirectionAndLength3( Vector& direction, Vector& length )
+    {
+        length = Length3();
+        direction = Vector::Select( *this, Vector::Zero, Select0001 );
+        direction /= length;
+    }
+}

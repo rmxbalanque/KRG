@@ -1,0 +1,51 @@
+#include "ClangVisitors_Macro.h"
+#include "Applications/Reflector/ReflectorSettingsAndUtils.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    namespace TypeSystem
+    {
+        namespace Reflection
+        {
+            CXChildVisitResult VisitMacro( ClangParserContext * pContext, HeaderID headerID, CXCursor cr, String const& cursorName )
+            {
+                CXSourceRange range = clang_getCursorExtent( cr );
+
+                if ( cursorName == GetReflectionMacroText( ReflectionMacro::ExposeProperty ) )
+                {
+                    U32 lineNumber;
+                    clang_getExpansionLocation( clang_getRangeStart( range ), nullptr, &lineNumber, nullptr, nullptr );
+                    pContext->AddFoundExposedPropertyMacro( ExposedPropertyMacro( headerID, lineNumber ) );
+                }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterEnum ) )
+                {
+                    pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterEnum, cr, range ) );
+                }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterType ) )
+                {
+                    pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterType, cr, range ) );
+                }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterEntityComponent ) )
+                {
+                    pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterEntityComponent, cr, range ) );
+                }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterEntitySystem ) )
+                {
+                    pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterEntitySystem, cr, range ) );
+                }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterModule ) )
+                {
+                    pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterModule, cr, range ) );
+                }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterResource ) )
+                {
+                    pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterResource, cr, range ) );
+                }
+
+                return CXChildVisit_Continue;
+            }
+        }
+    }
+}

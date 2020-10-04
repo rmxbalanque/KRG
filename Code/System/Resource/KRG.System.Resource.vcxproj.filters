@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="_Module">
+      <UniqueIdentifier>{66fd54c3-9d66-4562-aea5-37e9b1e697d7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="_Module\API.h">
+      <Filter>_Module</Filter>
+    </ClInclude>
+    <ClInclude Include="IResource.h" />
+    <ClInclude Include="ResourceHeader.h" />
+    <ClInclude Include="ResourceID.h" />
+    <ClInclude Include="ResourceLoader.h" />
+    <ClInclude Include="ResourceProvider.h" />
+    <ClInclude Include="ResourcePtr.h" />
+    <ClInclude Include="ResourceRecord.h" />
+    <ClInclude Include="ResourceRequest.h" />
+    <ClInclude Include="ResourceSystem.h" />
+    <ClInclude Include="ResourceTypeID.h" />
+    <ClInclude Include="ResourceProviders\NetworkResourceProvider.h" />
+    <ClInclude Include="ResourceProviders\ResourceNetworkMessages.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ResourceID.cpp" />
+    <ClCompile Include="ResourceLoader.cpp" />
+    <ClCompile Include="ResourceProvider.cpp" />
+    <ClCompile Include="ResourceRecord.cpp" />
+    <ClCompile Include="ResourceRequest.cpp" />
+    <ClCompile Include="ResourceSystem.cpp" />
+    <ClCompile Include="ResourceTypeID.cpp" />
+    <ClCompile Include="ResourceProviders\NetworkResourceProvider.cpp" />
+  </ItemGroup>
+</Project>

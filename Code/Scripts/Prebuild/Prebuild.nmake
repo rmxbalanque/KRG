@@ -1,0 +1,14 @@
+##########################################
+# KRG DEPLOYMENT SCRIPT
+##########################################
+
+EXTERNAL_DIR = $(SLN_DIR)External
+
+##########################################
+
+prebuild:
+    taskkill /F /IM KrugerResourceServer.exe 2>&1 | exit /B 0
+
+##########################################
+
+clean:

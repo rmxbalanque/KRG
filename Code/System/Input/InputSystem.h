@@ -1,0 +1,72 @@
+#pragma once
+
+#include "_Module/API.h"
+#include "InputDevices/InputDevice_KeyboardMouse.h"
+#include "InputDevices/InputDevice_Controller.h"
+#include "System/Core/Types/Containers.h"
+#include "System/Core/Systems/ISystem.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    namespace Input
+    {
+        class KRG_SYSTEM_INPUT_API InputSystem : public ISystem
+        {
+            friend class InputDebugViewController;
+
+        public:
+
+            KRG_SYSTEM_ID( InputSystem );
+
+        public:
+
+            bool Initialize();
+            void Shutdown();
+            void Update();
+            void ClearFrameState();
+            void ForwardInputMessageToInputDevices( GenericMessage const& inputMessage );
+
+            // Keyboard & Mouse
+            //-------------------------------------------------------------------------
+
+            inline bool HasConnectedKeyboardAndMouse() { return GetKeyboardMouseDevice() != nullptr; }
+
+            inline MouseInputState const* GetMouseState() const 
+            {
+                auto pDevice = GetKeyboardMouseDevice();
+                KRG_ASSERT( pDevice != nullptr );
+                return &pDevice->GetMouseState(); 
+            }
+
+            inline KeyboardInputState const* GetKeyboardState() const
+            {
+                auto pDevice = GetKeyboardMouseDevice();
+                KRG_ASSERT( pDevice != nullptr );
+                return &pDevice->GetKeyboardState();
+            }
+
+            // Controllers
+            //-------------------------------------------------------------------------
+
+            U32 GetNumConnectedControllers();
+
+            inline ControllerInputState const* GetControllerState( U32 controllerIdx = 0 ) const
+            {
+                auto pDevice = GetControllerDevice( controllerIdx );
+                KRG_ASSERT( pDevice != nullptr );
+                return &pDevice->GetControllerState();
+            }
+
+        private:
+
+            KeyboardMouseInputDevice const* GetKeyboardMouseDevice() const;
+            ControllerInputDevice const* GetControllerDevice( U32 controllerIdx = 0 ) const;
+
+        private:
+
+            TVector<InputDevice*>   m_inputDevices;
+        };
+    }
+}

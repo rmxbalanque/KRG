@@ -1,0 +1,45 @@
+#ifdef _WIN32
+#pragma once
+
+#include "MeshCompiler.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    namespace RawAssets { class RawMesh; }
+
+    //-------------------------------------------------------------------------
+
+    namespace Render
+    {
+        class MeshGeometry;
+
+        //-------------------------------------------------------------------------
+
+        struct StaticMeshResourceDescriptor : public Resource::ResourceDescriptor
+        {
+            KRG_REGISTER_TYPE;
+
+            // The path to the mesh source file
+            EXPOSE DataPath         m_meshDataPath;
+
+            // Optional value that specifies the specific sub-mesh to compile, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
+            EXPOSE String           m_meshName;
+        };
+
+        //-------------------------------------------------------------------------
+
+        class StaticMeshCompiler : public MeshCompiler
+        {
+            static const S32 VERSION = 2;
+
+        public:
+
+            StaticMeshCompiler();
+            virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
+        };
+    }
+}
+
+#endif

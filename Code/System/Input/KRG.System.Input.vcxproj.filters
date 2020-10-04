@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="InputDevices">
+      <UniqueIdentifier>{7413c5e3-c40b-432d-b153-4f10612160be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InputDevices\Platform">
+      <UniqueIdentifier>{fce0ec52-6c0a-4945-a60f-ffb404433b7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InputStates">
+      <UniqueIdentifier>{bacf6e3b-3a4c-4218-b95d-5ff9aa5271e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Module">
+      <UniqueIdentifier>{263741bd-0f9a-4b0b-a8b1-4e204bcfcb50}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InputDevices\InputDevice_KeyboardMouse.cpp">
+      <Filter>InputDevices</Filter>
+    </ClCompile>
+    <ClCompile Include="InputDevices\InputDevice_Controller.cpp">
+      <Filter>InputDevices</Filter>
+    </ClCompile>
+    <ClCompile Include="InputDevices\Platform\InputDevice_XboxController_Win32.cpp">
+      <Filter>InputDevices\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="InputDevices\Platform\InputDevice_KeyboardMouse_Win32.cpp">
+      <Filter>InputDevices\Platform</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="InputDevices\InputDevice_KeyboardMouse.h">
+      <Filter>InputDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevices\InputDevice.h">
+      <Filter>InputDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevices\InputDevice_Controller.h">
+      <Filter>InputDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevices\InputDevice_XBoxController.h">
+      <Filter>InputDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="InputStates\InputState.h">
+      <Filter>InputStates</Filter>
+    </ClInclude>
+    <ClInclude Include="InputStates\InputState_Keyboard.h">
+      <Filter>InputStates</Filter>
+    </ClInclude>
+    <ClInclude Include="InputStates\InputState_Controller.h">
+      <Filter>InputStates</Filter>
+    </ClInclude>
+    <ClInclude Include="InputStates\InputState_Mouse.h">
+      <Filter>InputStates</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="_Module\API.h">
+      <Filter>_Module</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="_Module">
+      <UniqueIdentifier>{c918b6c5-f78b-4024-a0bd-87637009701c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization">
+      <UniqueIdentifier>{9209ad4a-f6ae-4111-8c49-767db4d7bdd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{6a17c0ea-68ed-471c-afea-b00957abef1f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="_Module\API.h">
+      <Filter>_Module</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\EntityArchive.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\EntitySerialization.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\EntityMapLoader.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\EntityMap.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Serialization\EntityArchive.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\EntitySerialization.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Map\EntityMapLoader.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Map\EntityMap.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

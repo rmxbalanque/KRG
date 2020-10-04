@@ -1,0 +1,18 @@
+{
+  "FileVersion": 2,
+  "Id": "c6d6c2bd-89a1-41f2-b27d-3e87b8b678a5",
+  "Items": [
+    {
+      "Id": "5306dae2-3918-410e-aa5f-44b84d95786b",
+      "Command": "-s \"D:\\Kruger\\KRG.sln\""
+    },
+    {
+      "Id": "3b03f12c-e77f-469f-aea1-23285215d11b",
+      "Command": "-rebuild"
+    },
+    {
+      "Id": "09051c7e-873c-4c3d-9ce2-e8c296a546c0",
+      "Command": "-clean"
+    }
+  ]
+}

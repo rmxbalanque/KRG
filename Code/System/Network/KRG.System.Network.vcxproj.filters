@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="IPC">
+      <UniqueIdentifier>{267f27f9-3e27-4ca1-bb4f-fabc48f58740}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Module">
+      <UniqueIdentifier>{453080c1-7e7a-4a3a-83a5-9a018383c7ef}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="IPC\IPCMessageClient.cpp">
+      <Filter>IPC</Filter>
+    </ClCompile>
+    <ClCompile Include="IPC\IPCMessage.cpp">
+      <Filter>IPC</Filter>
+    </ClCompile>
+    <ClCompile Include="IPC\IPCMessageServer.cpp">
+      <Filter>IPC</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IPC\IPCMessageClient.h">
+      <Filter>IPC</Filter>
+    </ClInclude>
+    <ClInclude Include="IPC\IPCMessage.h">
+      <Filter>IPC</Filter>
+    </ClInclude>
+    <ClInclude Include="IPC\IPCMessageServer.h">
+      <Filter>IPC</Filter>
+    </ClInclude>
+    <ClInclude Include="_Module\API.h">
+      <Filter>_Module</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,750 @@
+﻿#include "Reflector.h"
+#include "ReflectorSettingsAndUtils.h"
+#include "Clang/ClangParser.h"
+#include "CodeGenerators/CodeGenerator_CPP.h"
+#include "System/Core/FileSystem/FileSystem.h"
+#include "System/Core/Time/Timers.h"
+#include "System/Core/Algorithm/TopologicalSort.h"
+
+#include <fstream>
+#include <iostream>
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    namespace TypeSystem
+    {
+        namespace Reflection
+        {
+            Reflector::Reflector()
+                : m_slnParsingTime( 0 )
+                , m_upToDateCheckTime( 0 )
+                , m_clangParsingTime( 0 )
+                , m_clangVisitingTime( 0 )
+                , m_codeGenerationTime( 0 )
+            {}
+
+            bool Reflector::LogError( char const* pErrorFormat, ... ) const
+            {
+                char buffer[256];
+
+                va_list args;
+                va_start( args, pErrorFormat );
+                VPrintf( buffer, 256, pErrorFormat, args );
+                va_end( args );
+
+                std::cout << std::endl << "Error: " << buffer << std::endl;
+                return false;
+            }
+
+            namespace
+            {
+                bool SortProjectsByDependencies( TVector<ProjectDesc>& projects )
+                {
+                    S32 const numProjects = (S32) projects.size();
+                    if ( numProjects <= 1 )
+                    {
+                        return true;
+                    }
+
+                    // Create list to sort
+                    TVector<TopologicalSorter::Node > list;
+                    for ( auto p = 0; p < numProjects; p++ )
+                    {
+                        list.push_back( TopologicalSorter::Node( p ) );
+                    }
+
+                    for ( auto p = 0; p < numProjects; p++ )
+                    {
+                        S32 const numDependencies = (S32) projects[p].m_dependencies.size();
+                        for ( auto d = 0; d < numDependencies; d++ )
+                        {
+                            for ( auto pp = 0; pp < numProjects; pp++ )
+                            {
+                                if ( p != pp && projects[pp].m_ID == projects[p].m_dependencies[d] )
+                                {
+                                    list[p].m_children.push_back( &list[pp] );
+                                }
+                            }
+                        }
+                    }
+
+                    // Try to sort
+                    if ( !TopologicalSorter::Sort( list ) )
+                    {
+                        return false;
+                    }
+
+                    // Update type list
+                    U32 depValue = 0;
+                    TVector<ProjectDesc> sortedProjects;
+                    sortedProjects.reserve( numProjects );
+
+                    for ( auto& node : list )
+                    {
+                        sortedProjects.push_back( projects[node.m_ID] );
+                        sortedProjects.back().m_dependencyCount = depValue++;
+                    }
+                    projects.swap( sortedProjects );
+                    return true;
+                }
+            }
+
+            bool Reflector::ParseSolution( FileSystemPath const& slnPath )
+            {
+                if ( !slnPath.IsValid() || slnPath.IsDirectoryPath() || slnPath.GetExtension() != "sln" || !slnPath.Exists() )
+                {
+                    return LogError( "Invalid solution file name: %s", slnPath.c_str() );
+                }
+
+                if ( !slnPath.Exists() )
+                {
+                    return LogError( "Solution doesnt exist: %s", slnPath.c_str() );
+                }
+
+                //-------------------------------------------------------------------------
+
+                std::cout << std::endl;
+                std::cout << "-----------------------------------------------" << std::endl;
+                std::cout << " * KRG Reflector" << std::endl;
+                std::cout << "-----------------------------------------------" << std::endl;
+
+                std::cout << " * Solution: " << slnPath << std::endl;
+                std::cout << "-----------------------------------------------" << std::endl << std::endl;
+
+                ScopedTimer timer( m_slnParsingTime );
+
+                std::ifstream slnFile( slnPath );
+                if ( !slnFile.is_open() )
+                {
+                    return LogError( "Could not open solution: %s", slnPath.c_str() );
+                }
+
+                m_solution.m_path = FileSystemPath( slnPath ).GetParentDirectory();
+                m_reflectionDataPath = FileSystemPath( FileSystem::GetCurrentProcessPath() + Settings::g_temporaryFolderPath );
+
+                TVector<FileSystemPath> projectFiles;
+
+                std::string stdLine;
+                while ( std::getline( slnFile, stdLine ) )
+                {
+                    String line( stdLine.c_str() );
+
+                    if ( line.find( "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}" ) != String::npos ) // VS Project UID
+                    {
+                        auto projectNameStartIdx = line.find( " = \"" );
+                        KRG_ASSERT( projectNameStartIdx != std::string::npos );
+                        projectNameStartIdx += 4;
+                        auto projectNameEndIdx = line.find( "\", \"", projectNameStartIdx );
+                        KRG_ASSERT( projectNameEndIdx != std::string::npos );
+
+                        auto projectPathStartIdx = projectNameEndIdx + 4;
+                        KRG_ASSERT( projectPathStartIdx < line.length() );
+                        auto projectPathEndIdx = line.find( "\"", projectPathStartIdx );
+                        KRG_ASSERT( projectNameEndIdx != std::string::npos );
+
+                        String const projectPathString = line.substr( projectPathStartIdx, projectPathEndIdx - projectPathStartIdx );
+                        FileSystemPath const projectPath = m_solution.m_path + projectPathString;
+
+                        // Filter projects
+                        //-------------------------------------------------------------------------
+
+                        bool excludeProject = true;
+
+                        // Ensure projects are within the allowed layers
+                        for ( auto i = 0u; i < (U8) Reflection::EngineLayer::NumLayers; i++ )
+                        {
+                            if ( line.find( Reflection::Settings::LayerProjectNamePrefixes[i] ) != String::npos )
+                            {
+                                excludeProject = false;
+                                break;
+                            }
+                        }
+
+                        // Exclude any projects that contain any of the excluded strings in their names
+                        if ( !excludeProject )
+                        {
+                            for ( auto const& exclusionFilter : Reflection::Settings::g_moduleNameExclusionFilters )
+                            {
+                                if ( line.find( exclusionFilter ) != String::npos )
+                                {
+                                    excludeProject = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if ( !excludeProject )
+                        {
+                            projectFiles.push_back( projectPath );
+                        }
+                    }
+                }
+
+                slnFile.close();
+
+                // Sort and parse project files
+                //-------------------------------------------------------------------------
+
+                auto sortPredicate = [] ( FileSystemPath const& pathA, FileSystemPath const& pathB )
+                {
+                    return pathA.GetFullPath() < pathB.GetFullPath();
+                };
+
+                eastl::sort( projectFiles.begin(), projectFiles.end(), sortPredicate );
+
+                for ( auto const& projectFile : projectFiles )
+                {
+                    if ( !ParseProject( projectFile ) )
+                    {
+                        return false;
+                    }
+                }
+
+                //-------------------------------------------------------------------------
+
+                // Open connection to type database and read all previous data
+                FileSystemPath databasePath( m_reflectionDataPath + "TypeDatabase.db" );
+                m_database.ReadDatabase( databasePath );
+
+                // Sort projects by dependencies
+                if ( !SortProjectsByDependencies( m_solution.m_projects ) )
+                {
+                    return LogError( "Illegal dependency in projects detected!" );
+                }
+
+                std::cout << std::endl << " * Solution Parsing - Complete! ( " << (F32) m_slnParsingTime << " ms )" << std::endl;
+                return true;
+            }
+
+            U64 Reflector::CalculateHeaderChecksum( FileSystemPath const& engineIncludePath, FileSystemPath const& filePath )
+            {
+                static char const* headerString = "Note: including file: ";
+                U64 checksum = FileSystem::GetFileModifiedTime( filePath );
+                return checksum;
+            }
+
+            bool Reflector::ParseProject( FileSystemPath const& prjPath )
+            {
+                KRG_ASSERT( prjPath.IsUnderDirectory( m_solution.m_path ) );
+
+                std::ifstream prjFile( prjPath );
+                if ( !prjFile.is_open() )
+                {
+                    return LogError( "Could not open project file: %s", prjPath.c_str() );
+                }
+
+                bool moduleHeaderFound = false;
+                bool moduleHeaderUnregistered = false;
+
+                ProjectDesc prj;
+                prj.m_ID = ProjectDesc::GetProjectID( prjPath );
+                prj.m_path = prjPath.GetParentDirectory();
+
+                std::string stdLine;
+                while ( std::getline( prjFile, stdLine ) )
+                {
+                    String line( stdLine.c_str() );
+
+                    // Name
+                    auto firstIdx = line.find( "<ProjectName>" );
+                    if ( firstIdx != String::npos )
+                    {
+                        firstIdx += 13;
+                        prj.m_name = line.substr( firstIdx, line.find( "</Project" ) - firstIdx );
+                        continue;
+                    }
+
+                    // Dependencies
+                    firstIdx = line.find( "<ProjectReference Include=\"" );
+                    if ( firstIdx != String::npos )
+                    {
+                        firstIdx += 27;
+                        String dependencyPath = line.substr( firstIdx, line.find( "\">" ) - firstIdx );
+                        dependencyPath = prjPath.GetParentDirectory() + dependencyPath;
+                        auto dependencyID = ProjectDesc::GetProjectID( dependencyPath );
+                        prj.m_dependencies.push_back( dependencyID );
+                        continue;
+                    }
+
+                    // Header Files
+                    firstIdx = line.find( "<ClInclude" );
+                    if ( firstIdx != String::npos )
+                    {
+                        firstIdx = line.find( "Include=\"" );
+                        KRG_ASSERT( firstIdx != String::npos );
+                        firstIdx += 9;
+                        auto secondIdx = line.find( "\"", firstIdx );
+                        KRG_ASSERT( secondIdx != String::npos );
+
+                        String const headerFilePath = line.substr( firstIdx, secondIdx - firstIdx );
+
+                        // Ignore auto-generated files
+                        if ( headerFilePath.find( Reflection::Settings::g_autogeneratedDirectory ) != String::npos )
+                        {
+                            continue;
+                        }
+
+                        // Is this the module header file?
+                        bool isModuleHeader = false;
+                        if ( headerFilePath.find( Reflection::Settings::g_moduleHeaderFilePath ) != String::npos )
+                        {
+                            isModuleHeader = true;
+                            moduleHeaderFound = true;
+                        }
+
+                        FileSystemPath const headerFileFullPath = prj.m_path + headerFilePath;
+
+                        auto const result = ProcessHeaderFile( headerFileFullPath, prj.m_exportMacro );
+                        switch ( result )
+                        {
+                            case HeaderProcessResult::ParseHeader:
+                            {
+                                HeaderDesc headerRecord;
+                                headerRecord.m_ID = HeaderDesc::GetHeaderID( headerFileFullPath );
+                                headerRecord.m_projectID = prj.m_ID;
+                                headerRecord.m_filePath = headerFileFullPath;
+                                headerRecord.m_timestamp = FileSystem::GetFileModifiedTime( headerFileFullPath );
+
+                                // Add to registered timestamp cache, use in up to date checks
+                                m_registeredHeaderTimestamps.push_back( HeaderTimestamp( headerRecord.m_ID, headerRecord.m_timestamp ) );
+
+                                if ( isModuleHeader )
+                                {
+                                    prj.m_moduleHeaderID = headerRecord.m_ID;
+                                }
+
+                                prj.m_headerFiles.push_back( headerRecord );
+                            }
+                            break;
+
+                            case HeaderProcessResult::IgnoreHeader:
+                            {
+                                // If the module file isn't registered ignore the entire project
+                                if ( isModuleHeader )
+                                {
+                                    moduleHeaderUnregistered = true;
+                                    break;
+                                }
+                            }
+                            break;
+
+                            case HeaderProcessResult::ErrorOccured:
+                            {
+                                std::cout << "Error processing: " << headerFileFullPath << std::endl;
+                                prjFile.close();
+                                return false;
+                            }
+                        }
+                    }
+                }
+
+                prjFile.close();
+
+                //-------------------------------------------------------------------------
+
+                if ( prj.m_name.empty() )
+                {
+                    return LogError( "Invalid project file detected: %s", prjPath.c_str() );
+                }
+
+                // Print parse results
+                //-------------------------------------------------------------------------
+
+                std::cout << " * Project: " << prj.m_name << " - ";
+
+                if ( moduleHeaderFound && moduleHeaderUnregistered )
+                {
+                    std::cout << "Ignored! ( Module not registered! )" << std::endl;
+                    return true;
+                }
+
+                // Only add projects to the list that have headers to parse
+                if ( prj.m_headerFiles.empty() )
+                {
+                    std::cout << "Ignored! ( No headers found! )" << std::endl;
+                    return true;
+                }
+                
+                std::cout << "Done! ( " << prj.m_headerFiles.size() << " header(s) found! )";
+                if ( !moduleHeaderFound )
+                {
+                    std::cout << " ( Module-less project )";
+                }
+                std::cout << std::endl;
+
+                m_solution.m_projects.push_back( prj );
+                return true;
+            }
+
+            Reflector::HeaderProcessResult Reflector::ProcessHeaderFile( FileSystemPath const& filePath, String& exportMacroName )
+            {
+                // Open header file
+                bool const isModuleAPIHeader = filePath.IsFilenameEqual( "API.h" );
+                std::ifstream hdrFile( filePath, std::ios::in | std::ios::binary | std::ios::ate );
+                if ( !hdrFile.is_open() )
+                {
+                    LogError( "Could not open header file: %s", filePath.c_str() );
+                    return HeaderProcessResult::ErrorOccured;
+                }
+
+                // Check file size
+                U32 const size = (U32) hdrFile.tellg();
+                if ( size == 0 )
+                {
+                    hdrFile.close();
+                    return HeaderProcessResult::IgnoreHeader;
+                }
+                hdrFile.seekg( 0, std::ios::beg );
+
+                // Check for the KRG registration macros
+                bool exportMacroFound = false;
+                U32 openCommentBlock = 0;
+
+                std::string stdLine;
+                while ( std::getline( hdrFile, stdLine ) )
+                {
+                    String line( stdLine.c_str() );
+
+                    // Check for comment blocks
+                    if ( line.find( "/*" ) != String::npos ) openCommentBlock++;
+                    if ( line.find( "*/" ) != String::npos ) openCommentBlock--;
+
+                    if ( openCommentBlock == 0 )
+                    {
+                        // Check for line comment
+                        auto const foundCommentIdx = line.find( "//" );
+
+                        // Check for registration macros
+                        for ( auto i = 0u; i < (U32) ReflectionMacro::NumMacros; i++ )
+                        {
+                            ReflectionMacro const macro = (ReflectionMacro) i;
+                            auto const foundMacroIdx = line.find( GetReflectionMacroText( macro ) );
+                            bool const macroExists = foundMacroIdx != String::npos;
+                            bool const uncommentedMacro = foundCommentIdx == String::npos || foundCommentIdx > foundMacroIdx;
+
+                            if ( macroExists && uncommentedMacro )
+                            {
+                                hdrFile.close();
+
+                                // We should never have registration macros and the export definition in the same file
+                                if ( exportMacroFound )
+                                {
+                                    LogError( "KRG registration macro found in the module export API header(%)!", filePath.c_str() );
+                                    return HeaderProcessResult::ErrorOccured;
+                                }
+                                else if ( macro == ReflectionMacro::IgnoreHeader )
+                                {
+                                    return HeaderProcessResult::IgnoreHeader;
+                                }
+                                else
+                                {
+                                    return HeaderProcessResult::ParseHeader;
+                                }
+                            }
+                        }
+
+                        // Check header for the module export definition
+                        if ( isModuleAPIHeader )
+                        {
+                            auto const foundExportIdx0 = line.find( "__declspec" );
+                            auto const foundExportIdx1 = line.find( "dllexport" );
+                            if ( foundExportIdx0 != String::npos && foundExportIdx1 != String::npos )
+                            {
+                                hdrFile.close();
+
+                                if ( !exportMacroName.empty() )
+                                {
+                                    LogError( "Duplicate export macro definitions found!", filePath.c_str() );
+                                    return HeaderProcessResult::ErrorOccured;
+                                }
+                                else
+                                {
+                                    auto defineIdx = line.find( "#define" );
+                                    if ( defineIdx != String::npos )
+                                    {
+                                        defineIdx += 8;
+                                        exportMacroName = line.substr( defineIdx, foundExportIdx0 - 1 - defineIdx );
+                                    }
+
+                                    return HeaderProcessResult::IgnoreHeader;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                hdrFile.close();
+                return HeaderProcessResult::IgnoreHeader;
+            }
+
+            bool Reflector::Clean()
+            {
+                // Delete all auto-generated directories
+                for ( auto& prj : m_solution.m_projects )
+                {
+                    std::cout << " * Cleaning Project - " << prj.m_name << std::endl;
+
+                    String const autoGeneratedDirectory = prj.m_path + Reflection::Settings::g_autogeneratedDirectory;
+                    if ( !FileSystem::EraseDir( autoGeneratedDirectory ) )
+                    {
+                        return LogError( "Error erasing directory: %s", autoGeneratedDirectory.c_str() );
+                    }
+                }
+
+                if ( !FileSystem::EraseDir( m_solution.m_path + Reflection::Settings::g_globalAutoGeneratedDirectory ) )
+                {
+                    return LogError( "Error erasing directory: %s", ( m_solution.m_path + Reflection::Settings::g_globalAutoGeneratedDirectory ).c_str() );
+                }
+
+                FileSystemPath const databasePath( m_reflectionDataPath + "TypeDatabase.db" );
+                auto const result = m_database.CleanDatabase( databasePath );
+
+                if ( result )
+                {
+                    std::cout << std::endl;
+                    std::cout << "-----------------------------------------------" << std::endl;
+                    std::cout << " Completed!" << std::endl;
+                    std::cout << "-----------------------------------------------" << std::endl << std::endl;
+                }
+                return result;
+            }
+
+            bool Reflector::Build()
+            {
+                if ( !UpToDateCheck() )
+                {
+                    return false;
+                }
+
+                if ( !ParseRegisteredHeaders() )
+                {
+                    return false;
+                }
+
+                if ( !GenerateCode() )
+                {
+                    return false;
+                }
+
+                if ( !WriteTypeData() )
+                {
+                    return false;
+                }
+
+                Milliseconds totalTime = m_slnParsingTime + m_upToDateCheckTime + m_clangParsingTime + m_clangVisitingTime + m_codeGenerationTime;
+
+                std::cout << std::endl;
+                std::cout << "-----------------------------------------------" << std::endl;
+                std::cout << " Completed! Total Time: " << totalTime / 1000 << "s" << std::endl;
+                std::cout << "-----------------------------------------------" << std::endl << std::endl;
+                return true;
+            }
+
+            bool Reflector::UpToDateCheck()
+            {
+                std::cout << " * Performing Up-to-date check - ";
+                Milliseconds time = 0;
+                {
+                    ScopedTimer timer( time );
+                    TVector<HeaderID> registeredHeaders;
+                    for ( auto& prj : m_solution.m_projects )
+                    {
+                        String const autoGeneratedDirectory = prj.m_path + Reflection::Settings::g_autogeneratedDirectory;
+                        TVector< FileSystemPath> existingFiles;
+                        FileSystem::GetDirectoryContents( autoGeneratedDirectory, existingFiles );
+
+                        for ( auto i = 0u; i < prj.m_headerFiles.size(); i++ )
+                        {
+                            bool isDirty = false;
+                            auto& header = prj.m_headerFiles[i];
+                            registeredHeaders.push_back( header.m_ID );
+
+                            // Does the target file exist?
+                            char targetFilename[128];
+                            Printf( targetFilename, 32, "%u", (U32) header.m_ID );
+                            FileSystemPath const autoGeneratedTargetHeaderFilePath( autoGeneratedDirectory + targetFilename + ".h" );
+                            FileSystemPath const autoGeneratedTargetCodeFilePath( autoGeneratedDirectory + targetFilename + ".cpp" );
+
+                            isDirty = !autoGeneratedTargetHeaderFilePath.Exists() || !autoGeneratedTargetCodeFilePath.Exists();
+
+                            // Remove this file from the from existing files list - this is used to clean up the auto-generated directory of old files
+                            for ( auto j = 0u; j < existingFiles.size(); j++ )
+                            {
+                                if ( existingFiles[j].IsFilenameEqual( targetFilename ))
+                                {
+                                    if ( j != existingFiles.size() - 1 )
+                                    {
+                                        existingFiles[j] = existingFiles.back();
+                                    }
+
+                                    existingFiles.pop_back();
+                                    j--;
+                                }
+                            }
+
+                            // Try to get existing record
+                            if ( !isDirty )
+                            {
+                                HeaderDesc const* pExistingRecord = m_database.GetHeaderDesc( header.m_ID );
+                                if ( pExistingRecord != nullptr  )
+                                {
+                                    KRG_ASSERT( pExistingRecord->m_ID != 0 );
+
+                                    // Check timestamp
+                                    if ( header.m_timestamp > pExistingRecord->m_timestamp )
+                                    {
+                                        isDirty = true;
+                                    }
+                                    else
+                                    {
+                                        header.m_checksum = CalculateHeaderChecksum( m_solution.m_path, header.m_filePath );
+                                        if ( header.m_checksum == 0 )
+                                        {
+                                            return LogError( "Failed to perform up to date check for: %s", header.m_filePath.c_str() );
+                                        }
+                                        else if ( header.m_checksum != pExistingRecord->m_checksum )
+                                        {
+                                            isDirty = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    isDirty = true;
+                                }
+                            }
+
+                            // Update file checksum if file is dirty
+                            if ( isDirty )
+                            {
+                                m_database.UpdateHeaderRecord( header );
+                                prj.m_dirtyHeaders.push_back( i );
+                            }
+                        }
+
+                        // Delete all old files
+                        for ( auto& file : existingFiles )
+                        {
+                            // Ignore module file
+                            if ( file.IsFilenameEqual( Reflection::Settings::g_autogeneratedModuleFile ) )
+                            {
+                                continue;
+                            }
+
+                            FileSystem::EraseFile( autoGeneratedDirectory + file );
+                        }
+                    }
+
+                    // Delete all old types
+                    m_database.DeleteObseleteHeadersAndTypes( registeredHeaders );
+                }
+
+                std::cout << "Complete! ( " << time << "ms )" << std::endl;
+                m_upToDateCheckTime += time;
+                return true;
+            }
+
+            bool Reflector::ParseRegisteredHeaders()
+            {
+                std::cout << " * Reflecting C++ Code - ";
+
+                // Create list of all headers to parse
+                TVector<HeaderDesc*> headersToParse;
+                for ( auto& prj : m_solution.m_projects )
+                {
+                    if ( !prj.m_dirtyHeaders.empty() )
+                    {
+                        // Add all dirty headers to the list of file to be parsed
+                        bool moduleHeaderAdded = false;
+                        for ( auto& hdr : prj.m_dirtyHeaders )
+                        {
+                            if ( hdr != prj.m_moduleHeaderID )
+                            {
+                                moduleHeaderAdded = true;
+                            }
+
+                            headersToParse.push_back( &prj.m_headerFiles[hdr] );
+
+                            // Erase all types associated with this header from the database
+                            m_database.DeleteTypesForHeader( prj.m_headerFiles[hdr].m_ID );
+                        }
+
+                        // Add module header file if not already added
+                        if ( !moduleHeaderAdded )
+                        {
+                            for ( auto& hdr : prj.m_headerFiles )
+                            {
+                                if ( hdr.m_ID == prj.m_moduleHeaderID )
+                                {
+                                    headersToParse.push_back( &hdr );
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if ( !headersToParse.empty() )
+                {
+                    // Parse headers
+                    ClangParser clangParser( &m_solution, &m_database, m_reflectionDataPath );
+                    if ( !clangParser.Parse( headersToParse ) )
+                    {
+                        std::cout << "Error occurred!\n\n  Error: " << clangParser.GetErrorMessage() << std::endl;
+                        return false;
+                    }
+
+                    // Update module list in database
+                    m_database.UpdateProjectList( m_solution.m_projects );
+                    m_clangParsingTime = clangParser.GetParsingTime();
+                    m_clangVisitingTime = clangParser.GetVisitingTime();
+                }
+
+                std::cout << "Complete! ( P:" << (F32) m_clangParsingTime << "ms, V:" << (F32) m_clangVisitingTime << "ms )" << std::endl;
+                return true;
+            }
+
+            bool Reflector::GenerateCode()
+            {
+                std::cout << " * Generating Code - ";
+                Milliseconds time = 0;
+
+                CPP::Generator generator;
+                {
+                    ScopedTimer timer( time );
+                    if ( !generator.Generate( m_database, m_solution ) )
+                    {
+                        std::cout << "Error Occurred: " << generator.GetErrorMessage() << std::endl;
+                        return LogError( generator.GetErrorMessage() );
+                    }
+                }
+
+                std::cout << "Complete! ( " << (F32) time << "ms )" << std::endl;
+                m_codeGenerationTime += time;
+                return true;
+            }
+
+            bool Reflector::WriteTypeData()
+            {
+                std::cout << " * Writing Type Database - ";
+                Milliseconds time = 0;
+
+                CPP::Generator generator;
+                {
+                    ScopedTimer timer( time );
+                    if ( !m_database.WriteDatabase( m_reflectionDataPath + "TypeDatabase.db" ) )
+                    {
+                        std::cout << "Error Occurred: " << generator.GetErrorMessage() << std::endl;
+                        return LogError( m_database.GetError().c_str() );
+                    }
+                }
+
+                std::cout << "Complete! ( " << (F32) time << "ms )" << std::endl;
+                m_codeGenerationTime += time;
+                return true;
+            }
+        }
+    }
+}

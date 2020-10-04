@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/KRG">
+        <file>Editor.png</file>
+        <file>EditorSplashScreen.png</file>
+    </qresource>
+</RCC>

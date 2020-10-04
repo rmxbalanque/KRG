@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/KRG">
+        <file>Fonts/forkawesome-webfont.ttf</file>
+        <file>Style/DarkStyle.qss</file>
+        <file>Fonts/materialdesignicons-webfont.ttf</file>
+        <file>Style/Resources/Close.png</file>
+        <file>Style/Resources/Maximize.png</file>
+        <file>Style/Resources/Minimize.png</file>
+        <file>Style/Resources/Restore.png</file>
+        <file>Style/Resources/ADS/Close.png</file>
+        <file>Style/Resources/ADS/CloseTab.png</file>
+        <file>Style/Resources/ADS/TabMenu.png</file>
+        <file>Style/Resources/ADS/Undock.png</file>
+    </qresource>
+</RCC>

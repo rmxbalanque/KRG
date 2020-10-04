@@ -1,0 +1,13 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define KRG_REFLECTION_IGNORE_HEADER
+#define KRG_REGISTER_ENUM
+#define KRG_REGISTER_TYPE
+#define KRG_REGISTER_ENTITY
+#define EXPOSE
+#define KRG_REGISTER_INTERFACE
+#define KRG_REGISTER_MODULE
+#define KRG_FORCE_INLINE
+#define KRG_ASSERT(msg) (!(msg)) ? __debugbreak() : 0
+#define KRG_SERIALIZE_MEMBERS(__VA_ARGS__) friend cereal::access; template<class Archive> void serialize( Archive& archive ) { archive( __VA_ARGS__ ); }

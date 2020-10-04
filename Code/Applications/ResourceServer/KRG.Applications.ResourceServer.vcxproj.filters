@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ResourceServer">
+      <UniqueIdentifier>{6a0f0960-e67c-4b36-8c5f-96fbb72e9774}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Views">
+      <UniqueIdentifier>{fd06fbd3-265c-45ae-83c1-d43fec491d80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Views\RequestsView">
+      <UniqueIdentifier>{a51d3241-65d3-4767-9a45-12c66e155293}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Icons">
+      <UniqueIdentifier>{097ba1ff-bbdb-4588-9c6f-1634439f334e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Images">
+      <UniqueIdentifier>{38e6674a-e2c5-4344-9c6e-50296db96ad1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ResourceServer\CompilationWorker.cpp">
+      <Filter>ResourceServer</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceServer\CompiledResourceDatabase.cpp">
+      <Filter>ResourceServer</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceServer\ResourceServer.cpp">
+      <Filter>ResourceServer</Filter>
+    </ClCompile>
+    <ClCompile Include="Views\ResourceServer_CompilerView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ResourceServerApplication.cpp" />
+    <ClCompile Include="Views\ResourceServer_MainView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Views\ResourceServer_RequestsView_Active.cpp">
+      <Filter>Views\RequestsView</Filter>
+    </ClCompile>
+    <ClCompile Include="Views\ResourceServer_RequestsView_Completed.cpp">
+      <Filter>Views\RequestsView</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ResourceServer\CompilationRequest.h">
+      <Filter>ResourceServer</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceServer\CompiledResourceDatabase.h">
+      <Filter>ResourceServer</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceServer\CompilerInfo.h">
+      <Filter>ResourceServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\Resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="ResourceServer\CompilationWorker.h">
+      <Filter>ResourceServer</Filter>
+    </QtMoc>
+    <QtMoc Include="ResourceServer\ResourceServer.h">
+      <Filter>ResourceServer</Filter>
+    </QtMoc>
+    <QtMoc Include="Views\ResourceServer_CompilerView.h">
+      <Filter>Views</Filter>
+    </QtMoc>
+    <QtMoc Include="ResourceServerApplication.h" />
+    <QtMoc Include="Views\ResourceServer_MainView.h" />
+    <QtMoc Include="Views\ResourceServer_RequestsView_Active.h">
+      <Filter>Views\RequestsView</Filter>
+    </QtMoc>
+    <QtMoc Include="Views\ResourceServer_RequestsView_Completed.h">
+      <Filter>Views\RequestsView</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Icons\ResourceServer.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="Resources\ResourceServer.ico">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Resources\ResourceServer.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Resources\TrayIconBusy.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Resources\TrayIconIdle.png">
+      <Filter>Images</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Resources\Resource.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\KRG.Applications.ResourceServer.rc" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,34 @@
+{
+  "FileVersion": 2,
+  "Id": "8778c386-a74a-4545-8297-ce68639d4ade",
+  "Items": [
+    {
+      "Id": "dd7a0d79-4966-48ec-a54a-81c0d24c25fd",
+      "Command": "-map data://maps/heist.map"
+    },
+    {
+      "Id": "9c9b3d08-6c93-4e97-bb35-6fea527bccbb",
+      "Command": "-map data://maps/importtest.map"
+    },
+    {
+      "Id": "d940b311-5c3a-49c9-9ac6-d23f6afaf0ae",
+      "Command": "-map data://maps/animtest.map"
+    },
+    {
+      "Id": "5e360ad1-5402-4232-b8b3-788aad89a26a",
+      "Command": "-map data://maps/BR_Minimal.map"
+    },
+    {
+      "Id": "6f5deab1-daf6-4ec2-bc3b-a567ef260229",
+      "Command": "-map data://maps/ecs_testmap.map"
+    },
+    {
+      "Id": "e1dc9a7b-a015-4150-a00f-a22a2e7a95ce",
+      "Command": "-map data://maps/br_full.map"
+    },
+    {
+      "Id": "c9d23cdf-2302-4200-a0d2-690576acbd7d",
+      "Command": "-editor"
+    }
+  ]
+}

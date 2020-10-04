@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Win32">
+      <UniqueIdentifier>{53390281-0121-4de9-974c-f71d350010d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{b0d2c0d9-d19f-4f8e-87e3-78cace20ce72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Gizmo">
+      <UniqueIdentifier>{33937d4a-708a-4789-96da-510ee3bf389e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Win32\EngineApplication_Win32.cpp">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Main_win32.cpp">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Editor.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Hack_Test.cpp" />
+    <ClCompile Include="EngineApplication.cpp" />
+    <ClCompile Include="RenderingSystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Win32\EngineApplication_Win32.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Resource.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Editor.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineApplication.h" />
+    <ClInclude Include="Hack_Test.h" />
+    <ClInclude Include="RenderingSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Win32\Apps.Engine.rc">
+      <Filter>Win32</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Win32\Engine.ico">
+      <Filter>Win32</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

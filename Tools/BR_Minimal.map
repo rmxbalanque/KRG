@@ -1,0 +1,2036 @@
+{
+    "Entities": [
+        {
+            "Name": "CameraEntity",
+            "ID": "07426462-1b5b-4365-850e-ba93e34b5afb",
+            "Components": [
+                {
+                    "ID": "49dce37f-b01f-456d-b6e9-59c459ea12cb",
+                    "Name": "CameraComponent",
+                    "TypeID": "KRG::CameraComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_transform",
+                            "Value": "0, 0, 0, -0.000000, -5.000000, 1.000000, 1.000000, 1.0, 1.0"
+                        },
+                        {
+                            "Path": "m_viewportTopLeft",
+                            "Value": "0.0, 0"
+                        },
+                        {
+                            "Path": "m_viewportDimensions",
+                            "Value": "0.5, 1.0"
+                        }
+                    ]
+                }
+            ],
+            "Systems": [
+                {
+                    "TypeID": "KRG::DefaultPlayerController"
+                }
+            ]
+        },
+        {
+            "Name": "CameraEntity2",
+            "ID": "63f82a42-9aed-4722-8184-b5f7c5b3cd8b",
+            "Components": [
+                {
+                    "ID": "56fdab7c-4795-4348-9ef0-db7110d2e602",
+                    "Name": "CameraComponent",
+                    "TypeID": "KRG::CameraComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_transform",
+                            "Value": "0, 0, 0, -0.000000, -5.000000, 1.000000, 1.000000, 1.0, 1.0"
+                        },
+                        {
+                            "Path": "m_viewportTopLeft",
+                            "Value": "0.5, 0"
+                        },
+                        {
+                            "Path": "m_viewportDimensions",
+                            "Value": "0.5, 1.0"
+                        }
+                    ]
+                }
+            ],
+            "Systems": [
+                {
+                    "TypeID": "KRG::DefaultPlayerController"
+                }
+            ]
+        },
+        {
+            "Name": "SM_Env_Grass_Square_01_1565",
+            "ID": "b575dc07-cbfb-4075-9bd3-852687d788e3",
+            "Components": [
+                {
+                    "ID": "5a421211-1bac-4bc6-9b1a-c0259bb1b599",
+                    "Name": "phys_SM_Env_Grass_Square_01_1565",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Env_Grass_Square_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -90.0001, -1.6174, 0.5543, -0.2900, 1.3460, 1.9690, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "759a5b1e-30ea-4919-bfcf-2eb2297ffc8a",
+                    "Name": "mesh_SM_Env_Grass_Square_01_1565",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "5a421211-1bac-4bc6-9b1a-c0259bb1b599",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Env_Grass_Square_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_House_02_Glass_204",
+            "ID": "a60503a5-1a4f-4251-a008-a34ed0fea835",
+            "Components": [
+                {
+                    "ID": "3fa0d704-89aa-42da-906a-3da3948c6982",
+                    "Name": "phys_SM_Bld_House_02_Glass_204",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_House_02_Glass.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -180.0000, 0.0000, 0.0000, 0.0000, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "94086a09-e228-4c35-9dfc-2a0588018d0f",
+                    "Name": "mesh_SM_Bld_House_02_Glass_204",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "3fa0d704-89aa-42da-906a-3da3948c6982",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_House_02_Glass.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_Door_207",
+            "ID": "aac9c750-2088-4314-890c-aa3f1baa456b",
+            "Components": [
+                {
+                    "ID": "631066d1-5196-40f1-811c-233e12492429",
+                    "Name": "phys_SM_Bld_Door_207",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_Door_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -0.0000, 53.4280, -342.1794, 37.8138, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "ef9d1da9-52d1-45bc-b240-fce35f1ca9a9",
+                    "Name": "mesh_SM_Bld_Door_207",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "631066d1-5196-40f1-811c-233e12492429",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_Door_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_Door_14",
+            "ID": "fa500cb0-5ddb-4b18-8d1b-dfa5f2d0154e",
+            "Components": [
+                {
+                    "ID": "bf3cfe28-d0a7-45a7-b582-db23d6594c2c",
+                    "Name": "phys_SM_Bld_Door_14",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_Door_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 180.0000, 196.5661, 432.8077, 37.8147, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "50243a00-a1d6-4b34-9c77-2ec2ef5be05f",
+                    "Name": "mesh_SM_Bld_Door_14",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "bf3cfe28-d0a7-45a7-b582-db23d6594c2c",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_Door_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_Door_15",
+            "ID": "f881bd60-d29e-44e0-8038-7f51ffdd4929",
+            "Components": [
+                {
+                    "ID": "6357fab7-db79-4035-9aa1-d8102f6d257a",
+                    "Name": "phys_SM_Bld_Door_15",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_Door_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 180.0000, -303.4143, 430.1333, 340.3828, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "7e22ff74-3758-43d1-8c25-7d993e4c083c",
+                    "Name": "mesh_SM_Bld_Door_15",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "6357fab7-db79-4035-9aa1-d8102f6d257a",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_Door_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_House_02_2",
+            "ID": "407822c7-fd78-4fbf-af85-2d50128f2b73",
+            "Components": [
+                {
+                    "ID": "1dcfb5f5-73d3-442e-b179-20ccd32ac7f3",
+                    "Name": "phys_SM_Bld_House_02_2",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_House_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -180.0000, -7.9240, 0.4662, -0.0624, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "265a4e75-0c63-4d22-931a-0b3e7df6bd1a",
+                    "Name": "mesh_SM_Bld_House_02_2",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "1dcfb5f5-73d3-442e-b179-20ccd32ac7f3",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_House_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_SmallBuilding_01_Glass_274",
+            "ID": "e0eb2deb-ff2b-48ee-8f59-a47a5a2b0ec7",
+            "Components": [
+                {
+                    "ID": "435c0b88-0e82-4dee-88c2-c7bb2c3bb91f",
+                    "Name": "phys_SM_Bld_SmallBuilding_01_Glass_274",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_SmallBuilding_01_Glass.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -90.0001, 0.0000, 0.0000, 0.0000, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "2da9ad1b-f658-4d33-8b55-e632cf6bead7",
+                    "Name": "mesh_SM_Bld_SmallBuilding_01_Glass_274",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "435c0b88-0e82-4dee-88c2-c7bb2c3bb91f",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_SmallBuilding_01_Glass.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_Door_277",
+            "ID": "c126f626-0020-4035-b440-fad291bf8431",
+            "Components": [
+                {
+                    "ID": "ea4f3f32-4d87-4e6e-b1f7-67febe7a5f0b",
+                    "Name": "phys_SM_Bld_Door_277",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_Door_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -129.2112, -51.3489, 37.8138, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "550448cf-0a3a-4fde-8f7b-999ec7bd6d8b",
+                    "Name": "mesh_SM_Bld_Door_277",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "ea4f3f32-4d87-4e6e-b1f7-67febe7a5f0b",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_Door_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_SmallBuilding_01_45",
+            "ID": "115a8abd-af2a-47fc-b6af-d9aa2d6247f0",
+            "Components": [
+                {
+                    "ID": "94dddd6a-342a-44e6-8088-8664b70f9b9d",
+                    "Name": "phys_SM_Bld_SmallBuilding_01_45",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_SmallBuilding_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -90.0001, 2.8870, 6.8743, 0.0313, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "8998a71a-6acf-4943-acbe-b7a731faae17",
+                    "Name": "mesh_SM_Bld_SmallBuilding_01_45",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "94dddd6a-342a-44e6-8088-8664b70f9b9d",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_SmallBuilding_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_WoodenShack_57",
+            "ID": "4f222f60-2164-46c4-aac4-f0d16b7d4d82",
+            "Components": [
+                {
+                    "ID": "4ab84d55-0cff-4bc2-9c38-bcb06fc945aa",
+                    "Name": "phys_SM_Bld_WoodenShack_57",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_WoodenShack_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -179.9999, -16.4873, -1.5076, -0.2111, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "3fdadffe-3c96-486c-a0f8-6ad3eea9c2c9",
+                    "Name": "mesh_SM_Bld_WoodenShack_57",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "4ab84d55-0cff-4bc2-9c38-bcb06fc945aa",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_WoodenShack_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_RadioTower_01_114",
+            "ID": "3283df62-ae99-4b7e-9075-d1f3d1a8f80a",
+            "Components": [
+                {
+                    "ID": "cc93ba17-8b94-46b3-97d0-a967a437e3c4",
+                    "Name": "phys_SM_Prop_RadioTower_01_114",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_RadioTower_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -7.8161, -11.3815, 0.0073, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "fd372cd2-787b-489d-ba3f-a27a5730ad98",
+                    "Name": "mesh_SM_Prop_RadioTower_01_114",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "cc93ba17-8b94-46b3-97d0-a967a437e3c4",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_RadioTower_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Portaloo_01_Door11",
+            "ID": "30d0dadd-bc41-44db-b30d-7cfddfe64ae3",
+            "Components": [
+                {
+                    "ID": "d7d15990-0a3b-49dc-ba7e-997d32133f67",
+                    "Name": "phys_SM_Prop_Portaloo_01_Door11",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Portaloo_01_Door.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -0.0004, -53.7773, -76.6494, 30.2845, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "1c3fe5be-2728-444e-950f-9168290e299a",
+                    "Name": "mesh_SM_Prop_Portaloo_01_Door11",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "d7d15990-0a3b-49dc-ba7e-997d32133f67",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Portaloo_01_Door.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Portaloo_11",
+            "ID": "11ab2f5b-ea52-427c-ab4a-e92f560069ba",
+            "Components": [
+                {
+                    "ID": "818f45f7-791c-48c1-a45a-1559d0f61422",
+                    "Name": "phys_SM_Prop_Portaloo_11",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Portaloo_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -0.0004, 4.8594, 4.4433, -0.0889, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "e9b97ff3-ae55-42c3-ab14-d5ed9e66e122",
+                    "Name": "mesh_SM_Prop_Portaloo_11",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "818f45f7-791c-48c1-a45a-1559d0f61422",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Portaloo_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Barricade_26",
+            "ID": "98f39529-1075-4fce-992d-37d8d19ed289",
+            "Components": [
+                {
+                    "ID": "64ce81a9-430f-4076-8f73-6f49148dbf4b",
+                    "Name": "phys_SM_Prop_Barricade_26",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Barricade_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -90.7105, -19.8618, -10.0104, -0.0000, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "caf0d228-e158-476a-8af5-adeb64960a18",
+                    "Name": "mesh_SM_Prop_Barricade_26",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "64ce81a9-430f-4076-8f73-6f49148dbf4b",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Barricade_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Barricade_27",
+            "ID": "7e2990ce-9254-4413-8dde-f25f365345f9",
+            "Components": [
+                {
+                    "ID": "402605c4-8ba0-40f4-827a-a8755dcaf31e",
+                    "Name": "phys_SM_Prop_Barricade_27",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Barricade_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -98.6228, -19.8192, -7.7618, -0.0000, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "6747f44a-29ce-4e30-8eee-b85b307a12ac",
+                    "Name": "mesh_SM_Prop_Barricade_27",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "402605c4-8ba0-40f4-827a-a8755dcaf31e",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Barricade_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Barricade_28",
+            "ID": "7ccadc6e-e451-4d0b-97c5-a67022107b6e",
+            "Components": [
+                {
+                    "ID": "5ad5040a-da56-41c4-8408-e772a52957b0",
+                    "Name": "phys_SM_Prop_Barricade_28",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Barricade_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -85.4514, -19.7895, -5.4578, -0.0000, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "788a18a5-9c73-424e-b7f3-557e754df317",
+                    "Name": "mesh_SM_Prop_Barricade_28",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "5ad5040a-da56-41c4-8408-e772a52957b0",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Barricade_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Transformer_866",
+            "ID": "f226d596-ec64-44d0-835f-04e19d1d2504",
+            "Components": [
+                {
+                    "ID": "78ae1728-ade6-47a7-bd49-27a227cada71",
+                    "Name": "phys_SM_Prop_Transformer_866",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Transformer_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -90.0000, -4.3570, 2.6269, 6.6030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "ea5b46ee-d8c7-4960-9a3c-0d0280dec8ff",
+                    "Name": "mesh_SM_Prop_Transformer_866",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "78ae1728-ade6-47a7-bd49-27a227cada71",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Transformer_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_PalletStack_961",
+            "ID": "50ef3b42-899b-438d-9a69-62cb4ecc4a5b",
+            "Components": [
+                {
+                    "ID": "f7d33c95-b0a2-48b0-be4d-1035b15c38df",
+                    "Name": "phys_SM_Prop_PalletStack_961",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_PalletStack_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -86.2068, -2.5608, -2.5875, 6.6030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "16e67180-e6d5-4e13-a779-b19b92a3bda0",
+                    "Name": "mesh_SM_Prop_PalletStack_961",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "f7d33c95-b0a2-48b0-be4d-1035b15c38df",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_PalletStack_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_TireStack_964",
+            "ID": "e36e7d5b-6df4-4865-ba19-868105119b1e",
+            "Components": [
+                {
+                    "ID": "1b5bc8c7-e59f-468e-b280-79995b1ab383",
+                    "Name": "phys_SM_Prop_TireStack_964",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_TireStack_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -8.8263, 3.4294, 6.6030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "c69b3d3b-9386-4a09-a132-96ca04225d1d",
+                    "Name": "mesh_SM_Prop_TireStack_964",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "1b5bc8c7-e59f-468e-b280-79995b1ab383",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_TireStack_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_Large_967",
+            "ID": "857ca1ea-543e-4fce-be03-5fa96c583144",
+            "Components": [
+                {
+                    "ID": "2a9fc7ce-aeb7-4fba-b14d-d2d416af6d58",
+                    "Name": "phys_SM_Prop_Crate_Large_967",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -84.1135, -9.6659, 5.9273, 6.6030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "094662a1-0b01-4159-901d-4d2aa64de223",
+                    "Name": "mesh_SM_Prop_Crate_Large_967",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "2a9fc7ce-aeb7-4fba-b14d-d2d416af6d58",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_Large_970",
+            "ID": "567d4d0a-5599-4d3a-956e-04b8a5459e11",
+            "Components": [
+                {
+                    "ID": "91cfca31-c93d-4b72-836c-8aa7d8ce5466",
+                    "Name": "phys_SM_Prop_Crate_Large_970",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "72.3486, -90.0000, 0.0000, -9.7515, 5.3878, 6.9975, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "267e72be-afdb-44b9-83ce-186e896b2c35",
+                    "Name": "mesh_SM_Prop_Crate_Large_970",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "91cfca31-c93d-4b72-836c-8aa7d8ce5466",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_PalletStack_973",
+            "ID": "f8fe2cbc-7c01-49be-9226-f20ead7d142e",
+            "Components": [
+                {
+                    "ID": "417830fb-b00a-4e3c-bce6-3f9ae90959d8",
+                    "Name": "phys_SM_Prop_PalletStack_973",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_PalletStack_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 179.7000, -13.4701, 5.5790, 6.6030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "e96f12fa-910b-451c-ad81-cc0281598095",
+                    "Name": "mesh_SM_Prop_PalletStack_973",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "417830fb-b00a-4e3c-bce6-3f9ae90959d8",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_PalletStack_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Wirespool_976",
+            "ID": "f808b05d-2c8a-42f7-befb-aee20b28ec2e",
+            "Components": [
+                {
+                    "ID": "56b522df-15d6-48b7-b013-a3aefe81a375",
+                    "Name": "phys_SM_Prop_Wirespool_976",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Wirespool_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -13.4190, 1.4461, 6.6030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "6f19c9ed-9811-4d54-bbe5-5e2d586df4ba",
+                    "Name": "mesh_SM_Prop_Wirespool_976",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "56b522df-15d6-48b7-b013-a3aefe81a375",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Wirespool_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_Large_979",
+            "ID": "78b06146-84e8-4238-9fcc-bae03676dc73",
+            "Components": [
+                {
+                    "ID": "675fde6f-67b1-4f94-81d0-1a5f8bff720c",
+                    "Name": "phys_SM_Prop_Crate_Large_979",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -11.9211, -4.8167, 3.3018, 1.3000, 1.3000, 1.3000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "6b6235dd-bc86-4053-9657-876d44775b03",
+                    "Name": "mesh_SM_Prop_Crate_Large_979",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "675fde6f-67b1-4f94-81d0-1a5f8bff720c",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_Large_10",
+            "ID": "a729a360-e4fc-4c12-8107-5a3a2dfca33c",
+            "Components": [
+                {
+                    "ID": "811bb747-0a29-4481-b342-4f06ca265efd",
+                    "Name": "phys_SM_Prop_Crate_Large_10",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 90.9662, -10.8156, -4.8178, 3.3018, 1.3000, 1.3000, 1.3000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "75321299-0548-4048-8578-6d1673adf833",
+                    "Name": "mesh_SM_Prop_Crate_Large_10",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "811bb747-0a29-4481-b342-4f06ca265efd",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_Large_11",
+            "ID": "f73ec3ba-166a-4077-91a8-1f789d9e76c0",
+            "Components": [
+                {
+                    "ID": "644d02d1-4b63-4dcf-9cff-96948046d631",
+                    "Name": "phys_SM_Prop_Crate_Large_11",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -10.8635, -4.7201, 4.3173, 1.3000, 1.3000, 1.3000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "b4b1fb6b-2151-41af-a32f-6d29910301ef",
+                    "Name": "mesh_SM_Prop_Crate_Large_11",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "644d02d1-4b63-4dcf-9cff-96948046d631",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_Large_12",
+            "ID": "93333dac-0fdf-4f60-b68f-7600164c90bf",
+            "Components": [
+                {
+                    "ID": "0b2f55f8-9e04-4556-888e-908a79671745",
+                    "Name": "phys_SM_Prop_Crate_Large_12",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 95.9314, -11.9208, -4.6666, 4.3173, 1.3000, 1.3000, 1.3000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "24a5aafc-bbf4-4b4f-a5f4-3ebb2cf99475",
+                    "Name": "mesh_SM_Prop_Crate_Large_12",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "0b2f55f8-9e04-4556-888e-908a79671745",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_Large_13",
+            "ID": "b75a190c-ff11-4324-9b03-e3a590f83a59",
+            "Components": [
+                {
+                    "ID": "21725d05-e5f9-41b9-91cf-f3681fb1e07c",
+                    "Name": "phys_SM_Prop_Crate_Large_13",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -92.2243, -11.5975, -4.6216, 5.3291, 1.3000, 1.3000, 1.3000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "ef5fea97-5595-4d11-91dc-44d76e6d9df3",
+                    "Name": "mesh_SM_Prop_Crate_Large_13",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "21725d05-e5f9-41b9-91cf-f3681fb1e07c",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Pallet_Loaded_986",
+            "ID": "93bfc788-e003-42a2-b1ce-a8fe5ae193fc",
+            "Components": [
+                {
+                    "ID": "bf9e5835-0200-4849-968a-80fd4d5f5d7b",
+                    "Name": "phys_SM_Prop_Pallet_Loaded_986",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Pallet_Loaded_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 89.9836, -9.4425, -4.7524, 3.3018, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "33bb901e-73e3-42f7-809e-065b75d81190",
+                    "Name": "mesh_SM_Prop_Pallet_Loaded_986",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "bf9e5835-0200-4849-968a-80fd4d5f5d7b",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Pallet_Loaded_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Iron_Sheet_02_993",
+            "ID": "28b2d8fe-31bf-4dae-bded-c5b5bbe1ae1c",
+            "Components": [
+                {
+                    "ID": "3089176b-fd6f-453f-a20b-932849ab39b7",
+                    "Name": "phys_SM_Prop_Iron_Sheet_02_993",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Iron_Sheet_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "70.1555, -76.8108, 19.1347, -12.7832, 6.5799, 7.3714, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "e20c7b8b-20eb-4516-95c9-9d0b31fcea82",
+                    "Name": "mesh_SM_Prop_Iron_Sheet_02_993",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "3089176b-fd6f-453f-a20b-932849ab39b7",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Iron_Sheet_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Iron_Sheet_1039",
+            "ID": "e95e3c76-fbf6-4dd6-bc9c-7252366596a2",
+            "Components": [
+                {
+                    "ID": "db0e6151-9a07-4f83-9768-3a1a62c7978a",
+                    "Name": "phys_SM_Prop_Iron_Sheet_1039",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Iron_Sheet_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -2.4499, 0.3408, 6.6030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "fed0f8af-e351-4f59-b904-2c6694ca81ec",
+                    "Name": "mesh_SM_Prop_Iron_Sheet_1039",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "db0e6151-9a07-4f83-9768-3a1a62c7978a",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Iron_Sheet_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Iron_Sheet_1042",
+            "ID": "f59952d1-a1e7-4a2e-abd8-3f17aaa4cace",
+            "Components": [
+                {
+                    "ID": "7e75b48a-58d2-4e20-9fbf-f2aae592ea60",
+                    "Name": "phys_SM_Prop_Iron_Sheet_1042",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Iron_Sheet_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 57.5680, -9.1229, -1.5131, 6.6165, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "a09ea21a-c991-4628-9834-d402edd01b2a",
+                    "Name": "mesh_SM_Prop_Iron_Sheet_1042",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "7e75b48a-58d2-4e20-9fbf-f2aae592ea60",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Iron_Sheet_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Veh_Car_Destroyed_1045",
+            "ID": "133f3e1a-7a03-4f37-8759-bd119b809c95",
+            "Components": [
+                {
+                    "ID": "5eb1aa34-ba0e-42cf-a281-134ea35ba301",
+                    "Name": "phys_SM_Veh_Car_Destroyed_1045",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Veh_Car_Destroyed_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 81.6381, 0.9886, 0.0956, -0.0017, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "0a168fd4-6df3-40a0-a3a9-a52fab869ee7",
+                    "Name": "mesh_SM_Veh_Car_Destroyed_1045",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "5eb1aa34-ba0e-42cf-a281-134ea35ba301",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Veh_Car_Destroyed_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Veh_Car_Destroyed_23",
+            "ID": "c0d300b9-a759-40d6-a001-2a0743fa4899",
+            "Components": [
+                {
+                    "ID": "30a49690-399b-4f90-9c49-37992e3746bc",
+                    "Name": "phys_SM_Veh_Car_Destroyed_23",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Veh_Car_Destroyed_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -88.5734, 1.0800, -2.2465, -0.0017, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "3abc70ab-ccd1-4305-b01d-ab1cb2b07a18",
+                    "Name": "mesh_SM_Veh_Car_Destroyed_23",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "30a49690-399b-4f90-9c49-37992e3746bc",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Veh_Car_Destroyed_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Veh_Car_Destroyed_24",
+            "ID": "6b34b4ce-5f55-43ad-8901-9f6a8e8fcbe3",
+            "Components": [
+                {
+                    "ID": "16474fe6-d657-451d-b552-00496db1121b",
+                    "Name": "phys_SM_Veh_Car_Destroyed_24",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Veh_Car_Destroyed_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 87.6135, 0.7968, -4.3684, -0.0017, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "f2758171-e8aa-490b-a625-5ba4c31301eb",
+                    "Name": "mesh_SM_Veh_Car_Destroyed_24",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "16474fe6-d657-451d-b552-00496db1121b",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Veh_Car_Destroyed_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Veh_Car_Destroyed_25",
+            "ID": "8bac281b-88d3-4522-b2e1-498085b69d0d",
+            "Components": [
+                {
+                    "ID": "1129800f-2261-4a1b-8b42-601b0742c457",
+                    "Name": "phys_SM_Veh_Car_Destroyed_25",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Veh_Car_Destroyed_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "-0.0000, -172.1091, 87.6183, 0.7655, -3.0454, 2.4100, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "a0c012a3-9489-4f33-941f-21a37ad23e40",
+                    "Name": "mesh_SM_Veh_Car_Destroyed_25",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "1129800f-2261-4a1b-8b42-601b0742c457",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Veh_Car_Destroyed_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Pallet_Loaded_1342",
+            "ID": "c0ab3ad9-b0a9-4008-9394-73dc1a5851e8",
+            "Components": [
+                {
+                    "ID": "e816343d-2c62-4bd7-87dd-bc95ad7c825b",
+                    "Name": "phys_SM_Prop_Pallet_Loaded_1342",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Pallet_Loaded_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -6.7318, 10.9569, -0.0215, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "9b16f2bd-e61a-42e4-b8cc-ea7f09a02d5b",
+                    "Name": "mesh_SM_Prop_Pallet_Loaded_1342",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "e816343d-2c62-4bd7-87dd-bc95ad7c825b",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Pallet_Loaded_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Pallet_Loaded_1345",
+            "ID": "2ca07770-487b-4d25-893e-8669b0d48a1f",
+            "Components": [
+                {
+                    "ID": "9452a754-f9f3-42f6-82b8-b114b1a9cc9e",
+                    "Name": "phys_SM_Prop_Pallet_Loaded_1345",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Pallet_Loaded_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 179.9999, 1.2908, 9.0395, -0.0213, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "c1007a9f-c57f-4709-bdf5-c35a936a1a0c",
+                    "Name": "mesh_SM_Prop_Pallet_Loaded_1345",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "9452a754-f9f3-42f6-82b8-b114b1a9cc9e",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Pallet_Loaded_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_Large_1348",
+            "ID": "0564bc8a-5213-42cb-97ac-9136e7917385",
+            "Components": [
+                {
+                    "ID": "24104d70-9f6c-437c-b52f-f12143c1da4f",
+                    "Name": "phys_SM_Prop_Crate_Large_1348",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -90.0001, -0.4150, 1.9816, 0.0217, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "a531ebf8-262a-4257-ba31-c7f5646c7608",
+                    "Name": "mesh_SM_Prop_Crate_Large_1348",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "24104d70-9f6c-437c-b52f-f12143c1da4f",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_Large_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Barrel_1351",
+            "ID": "d687615e-e540-442b-b415-606b932d59ba",
+            "Components": [
+                {
+                    "ID": "127c2605-4f20-4e7e-bc78-023dca06f621",
+                    "Name": "phys_SM_Prop_Barrel_1351",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Barrel_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 20.0000, -0.0812, 2.7065, 0.0464, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "7126097c-9063-4af3-b1b5-077298e99181",
+                    "Name": "mesh_SM_Prop_Barrel_1351",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "127c2605-4f20-4e7e-bc78-023dca06f621",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Barrel_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Barrel_1354",
+            "ID": "9bddd85f-2eb9-46f7-8546-43dbe4abd7e0",
+            "Components": [
+                {
+                    "ID": "3f0cb41e-93aa-4b4d-8a80-c3266333dc4c",
+                    "Name": "phys_SM_Prop_Barrel_1354",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Barrel_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 10.0000, -0.7444, 2.7794, 0.0599, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "5398726e-a8e4-4e2e-a9e9-e06b7ea84eee",
+                    "Name": "mesh_SM_Prop_Barrel_1354",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "3f0cb41e-93aa-4b4d-8a80-c3266333dc4c",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Barrel_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_TireStack_1357",
+            "ID": "25de970e-3523-4a55-8fae-ae186bcb121c",
+            "Components": [
+                {
+                    "ID": "c8f1f741-e4cc-4b89-a7ca-575b8532caba",
+                    "Name": "phys_SM_Prop_TireStack_1357",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_TireStack_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, 1.9441, 4.6891, 0.0036, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "f0f2abce-c5c6-4d1e-a986-2c52c9155ce7",
+                    "Name": "mesh_SM_Prop_TireStack_1357",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "c8f1f741-e4cc-4b89-a7ca-575b8532caba",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_TireStack_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Wirespool_1360",
+            "ID": "f083aade-62b0-42ad-b833-440eccd293a0",
+            "Components": [
+                {
+                    "ID": "9154430e-dc49-4dca-8698-00c7210e8e17",
+                    "Name": "phys_SM_Prop_Wirespool_1360",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Wirespool_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 20.0000, 3.4146, 4.4527, -0.0079, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "57a69a10-0b78-4c32-853f-4658107784de",
+                    "Name": "mesh_SM_Prop_Wirespool_1360",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "9154430e-dc49-4dca-8698-00c7210e8e17",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Wirespool_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_01_Lid_1425",
+            "ID": "d6136b53-6de5-49ba-bf78-da2ea2529b2e",
+            "Components": [
+                {
+                    "ID": "291f8b96-d6aa-4e33-869a-e9b1f0914f59",
+                    "Name": "phys_SM_Prop_Crate_01_Lid_1425",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_01_Lid.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 90.0001, -0.2167, 36.8840, 38.7171, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "7e8ab5ff-60d7-4847-84bd-787ac14c38b5",
+                    "Name": "mesh_SM_Prop_Crate_01_Lid_1425",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "291f8b96-d6aa-4e33-869a-e9b1f0914f59",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_01_Lid.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Prop_Crate_01_1422",
+            "ID": "9244df92-efaf-44cb-9179-c3b539f8bfae",
+            "Components": [
+                {
+                    "ID": "d95aaa41-8a6c-486f-a3ca-d1d9de8011d2",
+                    "Name": "phys_SM_Prop_Crate_01_1422",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Prop_Crate_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 90.0001, -13.7343, -2.1859, 6.6030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "808c5bdc-539f-493e-828e-2ce812049f7b",
+                    "Name": "mesh_SM_Prop_Crate_01_1422",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "d95aaa41-8a6c-486f-a3ca-d1d9de8011d2",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Prop_Crate_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_1881",
+            "ID": "98756acc-aa8a-420e-a85b-379aa8cda9cb",
+            "Components": [
+                {
+                    "ID": "654ca906-442b-4fda-b73b-28f15f29e001",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_1881",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, 3.3469, 1.1852, -0.0352, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "c95c1b22-c44c-4ca8-ab91-3d4afb34f0de",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_1881",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "654ca906-442b-4fda-b73b-28f15f29e001",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_1884",
+            "ID": "c20cee83-93fb-4f76-8e43-167aaf516a60",
+            "Components": [
+                {
+                    "ID": "c3252028-5ffc-4493-aa31-e186804c8e1a",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_1884",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, 5.9918, 7.5032, 0.1029, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "6f57fcaa-792f-4d81-a924-d706d0b5eb13",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_1884",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "c3252028-5ffc-4493-aa31-e186804c8e1a",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_1887",
+            "ID": "0201a5e2-a1af-4cca-883b-513483ef9560",
+            "Components": [
+                {
+                    "ID": "069cab5f-4c31-40c5-a468-8773ecbd92a0",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_1887",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -0.2961, 4.2836, -0.0308, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "0095c195-6922-4a99-aa28-ddcbcf298872",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_1887",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "069cab5f-4c31-40c5-a468-8773ecbd92a0",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_1890",
+            "ID": "4bbfb6a7-09f6-4ee9-ae50-95fab5fb91e0",
+            "Components": [
+                {
+                    "ID": "7815db6d-4eaa-4719-851d-0bfdfd9a32a0",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_1890",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -2.0716, -4.7094, 0.0313, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "153ba04a-8696-40c4-bbbc-99ead09fb25d",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_1890",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "7815db6d-4eaa-4719-851d-0bfdfd9a32a0",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_1893",
+            "ID": "141008a9-a35b-4094-91da-f2e3b56270d2",
+            "Components": [
+                {
+                    "ID": "7a00a081-401f-49b4-9b06-be6924992733",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_1893",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, 3.1403, -3.3390, -0.1147, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "5b2ee226-90af-46e9-a921-e89a7fa1af45",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_1893",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "7a00a081-401f-49b4-9b06-be6924992733",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_1896",
+            "ID": "fef0e117-769b-4a31-9b46-24b5bd666921",
+            "Components": [
+                {
+                    "ID": "d66b6cd9-e805-49e1-9767-b5e7d64dfcd8",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_1896",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -4.6501, -8.3618, 0.0179, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "08e48233-02c6-48cf-9ca5-b319ae1f11ff",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_1896",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "d66b6cd9-e805-49e1-9767-b5e7d64dfcd8",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_1905",
+            "ID": "dfbd789f-eda5-4bde-ba06-7e148e726047",
+            "Components": [
+                {
+                    "ID": "8f5369f2-80c3-46a0-a4cf-7a80524cbcb2",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_1905",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -13.9742, -4.7869, -0.0949, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "f452a063-09a0-4eda-babb-e6f8a2b4eb7c",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_1905",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "8f5369f2-80c3-46a0-a4cf-7a80524cbcb2",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_2268",
+            "ID": "584eb778-d1b5-4263-9b38-202ff0329411",
+            "Components": [
+                {
+                    "ID": "fc9cbf7e-01d6-4fa3-bbe4-0abb8c724113",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_2268",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -15.1792, 5.3767, -0.1030, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "dd571da9-9e69-4a57-a544-f2a6a636ab58",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_2268",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "fc9cbf7e-01d6-4fa3-bbe4-0abb8c724113",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_2271",
+            "ID": "57eb0c5d-76ba-46f1-ba30-7db2a80d06ff",
+            "Components": [
+                {
+                    "ID": "fac67155-4eb9-40ef-bc4d-374c94793047",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_2271",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, -6.0639, 7.0292, 0.0207, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "ed724f61-13fa-47ed-8a87-53cc7d4d0e81",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_2271",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "fac67155-4eb9-40ef-bc4d-374c94793047",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Gerneric_Grass_Patch_2274",
+            "ID": "36e9553b-07bc-49d9-b4d5-79d63222ff42",
+            "Components": [
+                {
+                    "ID": "122b8181-28fb-4e45-8d2a-aafea3de5439",
+                    "Name": "phys_SM_Gerneric_Grass_Patch_2274",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, 0.0979, 8.2259, -0.0280, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "f26b6a29-378b-417f-9a27-93a0560dd3b5",
+                    "Name": "mesh_SM_Gerneric_Grass_Patch_2274",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "122b8181-28fb-4e45-8d2a-aafea3de5439",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Gerneric_Grass_Patch_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Generic_Tree_02_60",
+            "ID": "cda3c55d-cd76-43cb-a5f2-892e26a4e6de",
+            "Components": [
+                {
+                    "ID": "672e7576-b6da-462e-8a63-4e4cfae3229e",
+                    "Name": "phys_SM_Generic_Tree_02_60",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Generic_Tree_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, 0.0000, 3.1117, -8.3084, 0.0815, 1.0000, 1.0000, 1.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "29bb21b4-daf8-4a97-bc94-3cd4686e7d48",
+                    "Name": "mesh_SM_Generic_Tree_02_60",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "672e7576-b6da-462e-8a63-4e4cfae3229e",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Generic_Tree_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Generic_Tree_3",
+            "ID": "e939371e-4c24-4fd3-a903-29b94da43095",
+            "Components": [
+                {
+                    "ID": "0bb9a150-b3c9-41e9-8d11-819b60ea8416",
+                    "Name": "phys_SM_Generic_Tree_3",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Generic_Tree_02.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -142.3559, 4.5832, -10.1363, 0.0592, 1.1779, 1.1779, 1.1779"
+                        }
+                    ]
+                },
+                {
+                    "ID": "2f4d7ec7-db72-47f9-a7f1-e2be45630102",
+                    "Name": "mesh_SM_Generic_Tree_3",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "0bb9a150-b3c9-41e9-8d11-819b60ea8416",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Generic_Tree_02.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        },
+        {
+            "Name": "SM_Bld_Door_26",
+            "ID": "c723aee7-a567-4c40-994a-5dadb1e58eb5",
+            "Components": [
+                {
+                    "ID": "f72fc024-3ede-4096-8f89-eb40d079b118",
+                    "Name": "phys_SM_Bld_Door_26",
+                    "TypeID": "KRG::Physics::PhysicsGeometryComponent",
+                    "Properties": [
+                        {
+                            "Path": "m_pPhysicsGeometry",
+                            "Value": "data://BR/SM_Bld_Door_01.phys"
+                        },
+                        {
+                            "Path": "m_transform",
+                            "Value": "0.0000, -0.0000, -179.9999, 176.9243, -295.0079, 340.4733, 100.0000, 100.0000, 100.0000"
+                        }
+                    ]
+                },
+                {
+                    "ID": "816c98d1-afe8-438f-92e1-efb002b676ba",
+                    "Name": "mesh_SM_Bld_Door_26",
+                    "TypeID": "KRG::Render::StaticMeshComponent",
+                    "SpatialParent": "f72fc024-3ede-4096-8f89-eb40d079b118",
+                    "Properties": [
+                        {
+                            "Path": "m_pMesh",
+                            "Value": "data://BR/SM_Bld_Door_01.mesh"
+                        }
+                    ]
+                }
+            ],
+            "Systems": []
+        }
+    ]
+}

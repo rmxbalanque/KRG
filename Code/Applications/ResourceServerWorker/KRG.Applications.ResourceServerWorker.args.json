@@ -1,0 +1,100 @@
+{
+  "FileVersion": 2,
+  "Id": "bbcf3423-e4b4-4cdd-8a97-c6c390bacc23",
+  "Items": [
+    {
+      "Id": "1144092b-2acf-4690-9c40-37fe8271801a",
+      "Command": "-compile data://maps/br_minimal.map"
+    },
+    {
+      "Id": "43330e5f-5d0e-4711-8040-48b47946f12c",
+      "Command": "-compile data://packs/br/characters/sk_chr_sportsbrafemale_01.smsh"
+    },
+    {
+      "Id": "e9351240-7dc9-46e7-ae9d-0b118849b5d2",
+      "Command": "-compile data://maps/ecs_testmap.map"
+    },
+    {
+      "Id": "41041334-3dbe-4662-bccb-3ad9de1b9edb",
+      "Command": "Physics",
+      "Items": [
+        {
+          "Id": "e1c5dc2c-0db5-4135-8c06-09a3253fc65b",
+          "Command": "-compile data://BR/SM_Bld_House_02.phys"
+        },
+        {
+          "Id": "032c51fb-7fec-426b-980e-033e95c50370",
+          "Command": "-compile data://br/sm_env_grass_square_01.phys.krg"
+        }
+      ]
+    },
+    {
+      "Id": "6d5842b6-fa07-4879-8e0d-f95505d6c16f",
+      "Command": "Render",
+      "Items": [
+        {
+          "Id": "49789742-7198-414e-a48d-c5f62b46cdcc",
+          "Command": "-compile data://gltf/gltf_test.skms"
+        },
+        {
+          "Id": "dac5113c-0c63-43d8-a428-f286bcb86cc6",
+          "Command": "-compile data://heist/staticmeshes/sm_prop_desk_03.stms"
+        },
+        {
+          "Id": "03843274-3771-46ea-a996-944555a55ce2",
+          "Command": "-compile data://br/sm_env_bridge_01.stms"
+        },
+        {
+          "Id": "adb3dbe5-e664-47f2-8752-beb1ab3f97a5",
+          "Command": "-compile data://br/characters/sk_chr_militaryfemale_01.skms"
+        },
+        {
+          "Id": "1c9b4980-e0f4-4f99-af9d-f39468135e65",
+          "Command": "-compile data://br/sm_prop_crate_01.stms"
+        },
+        {
+          "Id": "0596872a-7c9e-4365-9d11-0c1b100ecf83",
+          "Command": "-compile data://geometry/floormesh.stms"
+        },
+        {
+          "Id": "32fa22d8-01bf-4b98-aaa0-169068ae4a48",
+          "Command": "-compile data://br/characters/sk_chr_militaryfemale_01.skms"
+        },
+        {
+          "Id": "e4a27392-eab0-42dd-b4b8-b817a46597da",
+          "Command": "-compile data://br/sm_chr_attach_female_hair_01.stms"
+        },
+        {
+          "Id": "85351718-1503-4065-942e-659788f1553c",
+          "Command": "-compile data://BR/characters/SK_Chr_Attach_Female_Armor_01.skms"
+        }
+      ]
+    },
+    {
+      "Id": "c375fed6-8f52-4aa2-9ce9-12b2e4723ce7",
+      "Command": "Animation",
+      "Items": [
+        {
+          "Id": "fe3f7226-4f1e-44fa-8a8b-974dc399976c",
+          "Command": "-compile data://gltf/gltf_test.anim"
+        },
+        {
+          "Id": "664e2fc0-ce82-40d3-a5fb-0625e0fec712",
+          "Command": "-compile data://gltf/gltf_test.skel"
+        },
+        {
+          "Id": "06a6b61f-a53b-4094-a349-fdaafd1d495e",
+          "Command": "-compile data://animation/stand_crowd_ambient5.anim"
+        },
+        {
+          "Id": "886da911-f6f1-4eb7-ac0e-04ad07f700c3",
+          "Command": "-compile data://Animation/Stand_Crowd_Ambient2.anim"
+        },
+        {
+          "Id": "61986e12-b844-4fe5-85ad-5ba8121cb8ad",
+          "Command": "-compile data://animation/syntystudiosskel.skel"
+        }
+      ]
+    }
+  ]
+}

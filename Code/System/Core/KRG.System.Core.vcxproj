@@ -1,0 +1,471 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Algorithm\Hash.h" />
+    <ClInclude Include="Algorithm\Quantization.h" />
+    <ClInclude Include="Algorithm\TopologicalSort.h" />
+    <ClInclude Include="Algorithm\Encoding.h" />
+    <ClInclude Include="Debug\DebugDrawingSystem.h" />
+    <ClInclude Include="Math\Viewport.h" />
+    <ClInclude Include="Settings\Setting.h" />
+    <ClInclude Include="Settings\ConfigSettings.h" />
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="Debug\DebugDrawingCommands.h" />
+    <ClInclude Include="Debug\DebugDrawing.h" />
+    <ClInclude Include="Settings\DebugSettings.h" />
+    <ClInclude Include="ThirdParty\cereal\archives\xml.hpp" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\cursorstreamwrapper.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidxml\rapidxml.hpp" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidxml\rapidxml_iterators.hpp" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidxml\rapidxml_print.hpp" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidxml\rapidxml_utils.hpp" />
+    <ClInclude Include="ThirdParty\cereal\specialize.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\atomic.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\optional.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\variant.hpp" />
+    <ClInclude Include="ThirdParty\cereal\version.hpp" />
+    <ClInclude Include="Types\Event.h" />
+    <ClInclude Include="FileSystem\DataPath.h" />
+    <ClInclude Include="FileSystem\FileSystemPath.h" />
+    <ClInclude Include="FileSystem\FileStreams.h" />
+    <ClInclude Include="FileSystem\FileSystem.h" />
+    <ClInclude Include="Logging\Log.h" />
+    <ClInclude Include="Math\Transform.h" />
+    <ClInclude Include="Math\BezierCurve.h" />
+    <ClInclude Include="Math\BoundingVolumes.h" />
+    <ClInclude Include="Math\BVH\AABBTree.h" />
+    <ClInclude Include="Math\Easing.h" />
+    <ClInclude Include="Math\Line.h" />
+    <ClInclude Include="Math\Math.h" />
+    <ClInclude Include="Math\Matrix.h" />
+    <ClInclude Include="Math\Plane.h" />
+    <ClInclude Include="Math\PointSet.h" />
+    <ClInclude Include="Math\Quaternion.h" />
+    <ClInclude Include="Math\Random.h" />
+    <ClInclude Include="Math\Range.h" />
+    <ClInclude Include="Math\Rectangle.h" />
+    <ClInclude Include="Math\SIMD.h" />
+    <ClInclude Include="Math\SimpleMovingAverage.h" />
+    <ClInclude Include="Math\Triangle.h" />
+    <ClInclude Include="Math\Vector.h" />
+    <ClInclude Include="Math\ViewVolume.h" />
+    <ClInclude Include="Memory\Memory.h" />
+    <ClInclude Include="Memory\Pointers.h" />
+    <ClInclude Include="Platform\ProcessorInfo.h" />
+    <ClInclude Include="Platform\Platform\Core_Win32.h" />
+    <ClInclude Include="Platform\Platform\Platform_Win32.h" />
+    <ClInclude Include="Profiling\Profiling.h" />
+    <ClInclude Include="Systems\ISystem.h" />
+    <ClInclude Include="Systems\SystemRegistry.h" />
+    <ClInclude Include="ThirdParty\enkits\LockLessMultiReadPipe.h" />
+    <ClInclude Include="ThirdParty\enkits\TaskScheduler.h" />
+    <ClInclude Include="ThirdParty\enkits\TaskScheduler_KRG.h" />
+    <ClInclude Include="ThirdParty\microprofile\microprofile.config.h" />
+    <ClInclude Include="ThirdParty\microprofile\microprofile.h" />
+    <ClInclude Include="ThirdParty\microprofile\microprofile_html.h" />
+    <ClInclude Include="Serialization\Serialization.h" />
+    <ClInclude Include="Serialization\BinaryArchive.h" />
+    <ClInclude Include="Serialization\UserTypes\eastl_bitset.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_chrono.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_deque.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_hash_map.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_hash_set.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_list.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_map.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_queue.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_set.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_stack.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_string.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_tuple.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_utility.hpp" />
+    <ClInclude Include="Serialization\UserTypes\eastl_vector.hpp" />
+    <ClInclude Include="Serialization\UserTypes\krg_stringid.hpp" />
+    <ClInclude Include="Settings\SettingsRegistry.h" />
+    <ClInclude Include="Threading\TaskSystem.h" />
+    <ClInclude Include="ThirdParty\cereal\access.hpp" />
+    <ClInclude Include="ThirdParty\cereal\archives\adapters.hpp" />
+    <ClInclude Include="ThirdParty\cereal\archives\binary.hpp" />
+    <ClInclude Include="ThirdParty\cereal\archives\json.hpp" />
+    <ClInclude Include="ThirdParty\cereal\archives\portable_binary.hpp" />
+    <ClInclude Include="ThirdParty\cereal\cereal.hpp" />
+    <ClInclude Include="ThirdParty\cereal\details\helpers.hpp" />
+    <ClInclude Include="ThirdParty\cereal\details\polymorphic_impl.hpp" />
+    <ClInclude Include="ThirdParty\cereal\details\polymorphic_impl_fwd.hpp" />
+    <ClInclude Include="ThirdParty\cereal\details\static_object.hpp" />
+    <ClInclude Include="ThirdParty\cereal\details\traits.hpp" />
+    <ClInclude Include="ThirdParty\cereal\details\util.hpp" />
+    <ClInclude Include="ThirdParty\cereal\external\base64.hpp" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\allocators.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\document.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\encodedstream.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\encodings.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\error\en.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\error\error.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\filereadstream.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\filewritestream.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\fwd.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\biginteger.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\diyfp.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\dtoa.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\ieee754.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\itoa.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\meta.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\pow10.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\regex.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\stack.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\strtod.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\swap.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\istreamwrapper.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\memorybuffer.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\memorystream.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\msinttypes\inttypes.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\ostreamwrapper.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\pointer.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\prettywriter.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\rapidjson.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\reader.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\schema.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\stream.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\stringbuffer.h" />
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\writer.h" />
+    <ClInclude Include="ThirdParty\cereal\macros.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\array.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\base_class.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\bitset.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\boost_variant.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\chrono.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\common.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\complex.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\concepts\pair_associative_container.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\deque.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\forward_list.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\functional.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\list.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\map.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\memory.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\polymorphic.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\queue.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\set.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\stack.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\string.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\tuple.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\unordered_map.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\unordered_set.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\utility.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\valarray.hpp" />
+    <ClInclude Include="ThirdParty\cereal\types\vector.hpp" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\config\eacompiler.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\config\eacompilertraits.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\config\eaplatform.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\eabase.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\eahave.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\earesult.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\eastdarg.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\eaunits.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\int128.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\nullptr.h" />
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\version.h" />
+    <ClInclude Include="ThirdParty\EA\krg_eastl.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\algorithm.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\allocator.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\allocator_malloc.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\any.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\array.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bitset.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bitvector.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\adaptors.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\call_traits.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\compressed_pair.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\fixed_ring_buffer.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\fixed_tuple_vector.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\intrusive_sdlist.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\intrusive_slist.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\list_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\lru_cache.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\ring_buffer.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\sort_extra.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\sparse_matrix.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\tuple_vector.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\chrono.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\core_allocator.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\core_allocator_adapter.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\deque.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_allocator.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_function.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_hash_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_hash_set.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_list.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_set.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_slist.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_string.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_substring.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_vector.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\functional.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\hash_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\hash_set.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\heap.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\initializer_list.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\allocator_traits.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\allocator_traits_fwd_decls.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\char_traits.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\config.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\copy_help.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\enable_shared.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\fill_help.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\fixed_pool.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\function.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\functional_base.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\function_detail.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\function_help.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\generic_iterator.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\hashtable.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\integer_sequence.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\intrusive_hashtable.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\in_place_t.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\memory_base.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\mem_fn.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\meta.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\move_help.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\pair_fwd_decls.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\piecewise_construct_t.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\red_black_tree.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\smart_ptr.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\thread_support.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\tuple_fwd_decls.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_compound.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_fundamental.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_pod.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_properties.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_transformations.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\intrusive_hash_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\intrusive_hash_set.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\intrusive_list.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\intrusive_ptr.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\iterator.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\linked_array.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\linked_ptr.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\list.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\memory.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\meta.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\numeric.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\numeric_limits.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\optional.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\priority_queue.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\queue.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\random.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\ratio.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\safe_ptr.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\scoped_array.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\scoped_ptr.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\segmented_vector.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\set.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\shared_array.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\shared_ptr.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\slist.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\sort.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\span.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\stack.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\string.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\string_hash_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\string_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\string_view.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\tuple.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\type_traits.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\unique_ptr.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\unordered_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\unordered_set.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\utility.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\variant.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_map.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_multimap.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_multiset.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_set.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\version.h" />
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\weak_ptr.h" />
+    <ClInclude Include="ThirdParty\iniparser\dictionary.h" />
+    <ClInclude Include="ThirdParty\iniparser\iniparser.h" />
+    <ClInclude Include="ThirdParty\iniparser\krg_ini.h" />
+    <ClInclude Include="ThirdParty\pcg\include\pcg_extras.hpp" />
+    <ClInclude Include="ThirdParty\pcg\include\pcg_random.hpp" />
+    <ClInclude Include="ThirdParty\pcg\include\pcg_uint128.hpp" />
+    <ClInclude Include="ThirdParty\rpmalloc\rpmalloc.h" />
+    <ClInclude Include="ThirdParty\xxhash\xxhash.h" />
+    <ClInclude Include="Threading\Threading.h" />
+    <ClInclude Include="Types\Time.h" />
+    <ClInclude Include="Types\Percentage.h" />
+    <ClInclude Include="Time\Timers.h" />
+    <ClInclude Include="Types\Color.h" />
+    <ClInclude Include="Types\Containers.h" />
+    <ClInclude Include="Types\Flags.h" />
+    <ClInclude Include="Types\LoadingStatus.h" />
+    <ClInclude Include="Types\MemoryStream.h" />
+    <ClInclude Include="Types\ScopedValue.h" />
+    <ClInclude Include="Types\String.h" />
+    <ClInclude Include="Types\StringID.h" />
+    <ClInclude Include="Types\UUID.h" />
+    <ClInclude Include="Update\UpdateContext.h" />
+    <ClInclude Include="Update\UpdateStage.h" />
+    <ClInclude Include="_Module\API.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Algorithm\Hash.cpp" />
+    <ClCompile Include="Algorithm\TopologicalSort.cpp" />
+    <ClCompile Include="Algorithm\Encoding.cpp" />
+    <ClCompile Include="Debug\DebugDrawingSystem.cpp" />
+    <ClCompile Include="Math\Viewport.cpp" />
+    <ClCompile Include="Settings\Setting.cpp" />
+    <ClCompile Include="Settings\ConfigSettings.cpp" />
+    <ClCompile Include="Debug\DebugDrawingCommands.cpp" />
+    <ClCompile Include="Debug\DebugDrawing.cpp" />
+    <ClCompile Include="Settings\DebugSettings.cpp" />
+    <ClCompile Include="FileSystem\DataPath.cpp" />
+    <ClCompile Include="FileSystem\FileSystemPath.cpp" />
+    <ClCompile Include="FileSystem\FileStreams.cpp" />
+    <ClCompile Include="FileSystem\FileSystem.cpp" />
+    <ClCompile Include="FileSystem\Platform\FileSystem_Win32.cpp" />
+    <ClCompile Include="Logging\Log.cpp" />
+    <ClCompile Include="Math\Transform.cpp" />
+    <ClCompile Include="Math\BoundingVolumes.cpp" />
+    <ClCompile Include="Math\BVH\AABBTree.cpp" />
+    <ClCompile Include="Math\Easing.cpp" />
+    <ClCompile Include="Math\Math.cpp" />
+    <ClCompile Include="Math\Matrix.cpp" />
+    <ClCompile Include="Math\Plane.cpp" />
+    <ClCompile Include="Math\PointSet.cpp" />
+    <ClCompile Include="Math\Quaternion.cpp" />
+    <ClCompile Include="Math\Random.cpp" />
+    <ClCompile Include="Math\Vector.cpp" />
+    <ClCompile Include="Math\ViewVolume.cpp" />
+    <ClCompile Include="Memory\Memory.cpp" />
+    <ClCompile Include="Platform\Platform\Platform_Win32.cpp" />
+    <ClCompile Include="Profiling\Profiling.cpp" />
+    <ClCompile Include="Serialization\BinaryArchive.cpp" />
+    <ClCompile Include="Settings\SettingsRegistry.cpp" />
+    <ClCompile Include="Systems\SystemRegistry.cpp" />
+    <ClCompile Include="ThirdParty\enkits\TaskScheduler.cpp" />
+    <ClCompile Include="ThirdParty\microprofile\microprofile.cpp" />
+    <ClCompile Include="Threading\TaskSystem.cpp" />
+    <ClCompile Include="ThirdParty\EA\krg_eastl.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\allocator_eastl.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\assert.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\fixed_pool.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\hashtable.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\intrusive_list.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\numeric_limits.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\red_black_tree.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\string.cpp" />
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\thread_support.cpp" />
+    <ClCompile Include="ThirdParty\iniparser\dictionary.c" />
+    <ClCompile Include="ThirdParty\iniparser\iniparser.c" />
+    <ClCompile Include="ThirdParty\iniparser\krg_ini.cpp" />
+    <ClCompile Include="ThirdParty\rpmalloc\rpmalloc.c" />
+    <ClCompile Include="ThirdParty\xxhash\xxhash.c" />
+    <ClCompile Include="Threading\Threading.cpp" />
+    <ClCompile Include="Threading\Platform\Threading_Win32.cpp" />
+    <ClCompile Include="Types\Time.cpp" />
+    <ClCompile Include="Types\Percentage.cpp" />
+    <ClCompile Include="Types\StringID.cpp" />
+    <ClCompile Include="Types\UUID.cpp" />
+    <ClCompile Include="Types\Platform\Types_Win32.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThirdParty\EA\EA.props" />
+    <None Include="ThirdParty\EA\EABase\doc\EABase.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Benchmarks.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Best Practices.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Design.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL FAQ.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Glossary.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Gotchas.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Introduction.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Maintenance.html" />
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Modules.html" />
+    <None Include="ThirdParty\microprofile\microprofile.props" />
+    <None Include="ThirdParty\microprofile\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ThirdParty\EA\EASTL\Doc\EASTL.natvis" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{07414BA8-87A7-449B-8AB7-551254B57FB3}</ProjectGuid>
+    <RootNamespace>KRG.System.Core</RootNamespace>
+    <ProjectName>KRG.System.Core</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>
+    </CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\KRG.props" />
+    <Import Project="ThirdParty\microprofile\microprofile.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\KRG.props" />
+    <Import Project="ThirdParty\microprofile\microprofile.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link />
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

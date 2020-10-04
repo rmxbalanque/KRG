@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="_Module">
+      <UniqueIdentifier>{18575632-0b5d-4208-a871-36f700252268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileSystem">
+      <UniqueIdentifier>{5bddb624-29ff-4cc2-9b8e-32ba9af65121}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cgltf">
+      <UniqueIdentifier>{1c8fa59c-2ed6-4aa2-801f-c90ec0959454}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{6c51d38f-2d81-4b11-9a3c-bcb7467a1d2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\sqlite">
+      <UniqueIdentifier>{5b195675-55c5-4dc8-ae38-adfa50ee00b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization">
+      <UniqueIdentifier>{a3a35dc2-7d75-4b65-ab28-bd151e2eabb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TypeSystem">
+      <UniqueIdentifier>{4189892f-6a6b-4ea2-a59d-750d1fbc4947}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="_Module\API.h">
+      <Filter>_Module</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\FileSystemWatcher.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cgltf\cgltf.h">
+      <Filter>ThirdParty\cgltf</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cgltf\cgltf_write.h">
+      <Filter>ThirdParty\cgltf</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\sqlite\SqliteHelpers.h">
+      <Filter>ThirdParty\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeSystem\DynamicTypeInstance.h">
+      <Filter>TypeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeSystem\DynamicPropertyInstance.h">
+      <Filter>TypeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeSystem\DynamicTypeDeserializer.h" />
+    <ClInclude Include="TypeSystem\DynamicTypeSerialization.h" />
+    <ClInclude Include="TypeSystem\TypeDeserializer.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeSystem\TypeSerializer.h" />
+    <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
+    <ClInclude Include="TypeSystem\DynamicTypeSerializer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FileSystem\FileSystemWatcher.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
+      <Filter>ThirdParty\sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeSystem\DynamicTypeInstance.cpp">
+      <Filter>TypeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeSystem\DynamicPropertyInstance.cpp">
+      <Filter>TypeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeSystem\DynamicTypeDeserializer.cpp" />
+    <ClCompile Include="TypeSystem\DynamicTypeSerialization.cpp" />
+    <ClCompile Include="TypeSystem\TypeDeserializer.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeSystem\TypeSerializer.cpp" />
+    <ClCompile Include="TypeSystem\DynamicTypeSerializer.cpp" />
+  </ItemGroup>
+</Project>

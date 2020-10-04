@@ -1,0 +1,1328 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Math">
+      <UniqueIdentifier>{dd2636a5-5d00-469a-8f7a-0bc1ad3de1d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\BVH">
+      <UniqueIdentifier>{91a134fc-a054-4974-a8e6-5c6a3ff02adb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Types">
+      <UniqueIdentifier>{0e52b71b-b7a0-4add-9745-fbdc17028f35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Types\Platform">
+      <UniqueIdentifier>{6f3b4096-5b87-4023-8ea8-09ec1e1a9fa6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{7440c3c6-d76c-402e-8d06-ef96ea4781eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Memory">
+      <UniqueIdentifier>{1f76ac4e-a9ac-410c-810b-cdac30f9caf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logging">
+      <UniqueIdentifier>{b63dfc11-80e0-475d-b9b4-e90a4c3b9123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Systems">
+      <UniqueIdentifier>{5d9f5207-2937-4b28-a50c-a710fea1f0c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{17df11bc-933d-4325-a406-2555e4cee9cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Platform">
+      <UniqueIdentifier>{c54c6862-6260-4b25-aecb-8e8a6b03c55e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{0e517045-4d75-4cf2-98f9-9e52a0175e2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Threading">
+      <UniqueIdentifier>{0fe7bf1b-55d0-4f2d-8266-737253076b7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Threading\Platform">
+      <UniqueIdentifier>{1819cba0-0a83-4756-b7c8-783b9347b1f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Profiling">
+      <UniqueIdentifier>{492fc90a-9b9a-4eca-8f1d-a73772b2acc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algorithm">
+      <UniqueIdentifier>{1f9e7288-25c1-4454-8fb1-605dd6d81689}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileSystem">
+      <UniqueIdentifier>{62f6f711-53c7-47d1-9f61-024d72030ac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileSystem\Platform">
+      <UniqueIdentifier>{1b60d2cb-ee3d-4750-b059-0d15d4e6cba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA">
+      <UniqueIdentifier>{a937ba44-d97b-4144-92f2-314f6308f9e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{e44d9db3-4381-4c42-a38d-48adac442661}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Source">
+      <UniqueIdentifier>{9c68d26a-1acf-4170-bd50-31d9da164391}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL">
+      <UniqueIdentifier>{becadaf1-3f1f-4ace-b2eb-ce33ce5534d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\enkits">
+      <UniqueIdentifier>{669e4992-54cc-4e0c-b009-73869e5aa771}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\xxhash">
+      <UniqueIdentifier>{c3b18cc4-0989-4583-8b0b-c1700885fc45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rpmalloc">
+      <UniqueIdentifier>{667527b4-b75c-4ae0-8d90-3ae42795557b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\iniparser">
+      <UniqueIdentifier>{6522eebc-08b9-4629-963e-8ef5f759de0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\microprofile">
+      <UniqueIdentifier>{6fad57b5-501e-4b6b-b40c-b9e76bae0878}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization">
+      <UniqueIdentifier>{2917cd0b-54a0-4d33-87e3-fa1bc3f437dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL">
+      <UniqueIdentifier>{07532dcd-3e4c-47e7-97c9-5e88809fe193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Include">
+      <UniqueIdentifier>{ac8ccfb7-c862-4b67-8db2-774b46444d95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL\bonus">
+      <UniqueIdentifier>{556db5ad-f63b-4a2c-b836-25f27c41c8c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL\internal">
+      <UniqueIdentifier>{519c7de7-9102-48c2-9463-cf530fce90b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\include\Common\EABase">
+      <UniqueIdentifier>{2cdc87c3-b100-4462-b8a9-5ee9b32d7f74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\include\Common">
+      <UniqueIdentifier>{7b3c58da-d757-4149-bfd5-38fb08ef75e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\include">
+      <UniqueIdentifier>{2868ef7f-000d-4f1e-9c5c-e9a9283aebe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase">
+      <UniqueIdentifier>{6c30f691-226e-42e7-b16e-5da3d43d3000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\include\Common\EABase\config">
+      <UniqueIdentifier>{e34d1a1d-4017-4e25-bf52-4f1dcdc96bc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\pcg\include">
+      <UniqueIdentifier>{d2c33e29-08ba-41a5-95a5-75adc576a187}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\pcg">
+      <UniqueIdentifier>{6abec36a-76e6-402c-89dc-bffb4793e814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal">
+      <UniqueIdentifier>{3f8dd00f-58b0-4b10-8d27-1aa6fe5e3251}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\types">
+      <UniqueIdentifier>{5151b184-3681-4182-8c28-4b02296e2e23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\types\concepts">
+      <UniqueIdentifier>{1706638d-2634-449b-97b6-3b4ad89fdf67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\details">
+      <UniqueIdentifier>{f917073e-b21d-47b1-b831-a165c4770678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\archives">
+      <UniqueIdentifier>{8d6714dc-b924-454d-a4c8-2a866a449456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external">
+      <UniqueIdentifier>{b5374c1a-e56d-42fb-a0d5-255f7cf1ce64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidxml">
+      <UniqueIdentifier>{15c44e79-982d-4ecb-86e2-e53b32763955}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidjson">
+      <UniqueIdentifier>{c8937815-94e2-4e00-8f2e-02e980677b72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidjson\error">
+      <UniqueIdentifier>{6956022b-5f0b-4b51-a667-02245e49e5ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidjson\internal">
+      <UniqueIdentifier>{63056971-f8b1-47c2-9f2b-cf3a9e7965c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidjson\msinttypes">
+      <UniqueIdentifier>{88e1d503-253d-4205-90b4-71ea9414b314}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization\UserTypes">
+      <UniqueIdentifier>{3dd38efb-3f4f-4c4a-bf8b-a4f79b5385b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Time">
+      <UniqueIdentifier>{1dd0ceb4-ae52-4e7b-bc74-0cce33db5e7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Update">
+      <UniqueIdentifier>{c307938a-792b-45ce-be1d-780af50fd30f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Module">
+      <UniqueIdentifier>{0863c173-e708-43bc-8985-e9128ab4363f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Doc\html">
+      <UniqueIdentifier>{f50362c9-bdee-4f4e-bd02-b427dd185073}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Doc">
+      <UniqueIdentifier>{df1ed59a-786e-4df9-b065-4c1cbe7de50d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\doc">
+      <UniqueIdentifier>{e4367254-c6cb-428a-a5bf-dd9ce761282c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Math\Transform.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\BoundingVolumes.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Easing.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Math.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Matrix.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Plane.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\PointSet.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Quaternion.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Random.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Vector.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\ViewVolume.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\BVH\AABBTree.cpp">
+      <Filter>Math\BVH</Filter>
+    </ClCompile>
+    <ClCompile Include="Types\Time.cpp">
+      <Filter>Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Types\Percentage.cpp">
+      <Filter>Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Types\StringID.cpp">
+      <Filter>Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Types\UUID.cpp">
+      <Filter>Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Types\Platform\Types_Win32.cpp">
+      <Filter>Types\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\DebugDrawingSystem.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\DebugDrawingCommands.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\DebugDrawing.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\Memory.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Logging\Log.cpp">
+      <Filter>Logging</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems\SystemRegistry.cpp">
+      <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\Setting.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\ConfigSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\DebugSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\SettingsRegistry.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\Platform\Platform_Win32.cpp">
+      <Filter>Platform\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\TaskSystem.cpp">
+      <Filter>Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\Threading.cpp">
+      <Filter>Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\Platform\Threading_Win32.cpp">
+      <Filter>Threading\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiling\Profiling.cpp">
+      <Filter>Profiling</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\Hash.cpp">
+      <Filter>Algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\TopologicalSort.cpp">
+      <Filter>Algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\Encoding.cpp">
+      <Filter>Algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\DataPath.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\FileSystemPath.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\FileStreams.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\FileSystem.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\Platform\FileSystem_Win32.cpp">
+      <Filter>FileSystem\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\krg_eastl.cpp">
+      <Filter>ThirdParty\EA</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\allocator_eastl.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\assert.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\fixed_pool.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\hashtable.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\intrusive_list.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\numeric_limits.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\red_black_tree.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\string.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\EA\EASTL\Source\thread_support.cpp">
+      <Filter>ThirdParty\EA\EASTL\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\enkits\TaskScheduler.cpp">
+      <Filter>ThirdParty\enkits</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\xxhash\xxhash.c">
+      <Filter>ThirdParty\xxhash</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\rpmalloc\rpmalloc.c">
+      <Filter>ThirdParty\rpmalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\iniparser\dictionary.c">
+      <Filter>ThirdParty\iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\iniparser\iniparser.c">
+      <Filter>ThirdParty\iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\iniparser\krg_ini.cpp">
+      <Filter>ThirdParty\iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\microprofile\microprofile.cpp">
+      <Filter>ThirdParty\microprofile</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Viewport.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\BinaryArchive.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Math\Transform.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\BezierCurve.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\BoundingVolumes.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Easing.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Line.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Math.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Matrix.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Plane.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\PointSet.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Quaternion.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Random.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Range.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Rectangle.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\SIMD.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\SimpleMovingAverage.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Triangle.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Vector.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\ViewVolume.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\BVH\AABBTree.h">
+      <Filter>Math\BVH</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\Event.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\Time.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\Percentage.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\Color.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\Containers.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\Flags.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\LoadingStatus.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\MemoryStream.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\ScopedValue.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\String.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\StringID.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\UUID.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\DebugDrawingSystem.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\DebugDrawingCommands.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\DebugDrawing.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\Memory.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\Pointers.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Logging\Log.h">
+      <Filter>Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\ISystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\SystemRegistry.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\Setting.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\ConfigSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\DebugSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\SettingsRegistry.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\ProcessorInfo.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Platform\Core_Win32.h">
+      <Filter>Platform\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Platform\Platform_Win32.h">
+      <Filter>Platform\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading\TaskSystem.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading\Threading.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiling\Profiling.h">
+      <Filter>Profiling</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Hash.h">
+      <Filter>Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Quantization.h">
+      <Filter>Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\TopologicalSort.h">
+      <Filter>Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Encoding.h">
+      <Filter>Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\DataPath.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\FileSystemPath.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\FileStreams.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\FileSystem.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\krg_eastl.h">
+      <Filter>ThirdParty\EA</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\algorithm.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\allocator.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\allocator_malloc.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\any.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\array.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bitset.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bitvector.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\chrono.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\core_allocator.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\core_allocator_adapter.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\deque.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_allocator.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_function.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_hash_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_hash_set.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_list.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_set.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_slist.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_string.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_substring.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\fixed_vector.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\functional.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\hash_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\hash_set.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\heap.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\initializer_list.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\intrusive_hash_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\intrusive_hash_set.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\intrusive_list.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\intrusive_ptr.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\iterator.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\linked_array.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\linked_ptr.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\list.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\memory.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\meta.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\numeric.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\numeric_limits.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\optional.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\priority_queue.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\queue.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\random.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\ratio.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\safe_ptr.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\scoped_array.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\scoped_ptr.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\segmented_vector.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\set.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\shared_array.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\shared_ptr.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\slist.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\sort.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\span.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\stack.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\string.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\string_hash_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\string_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\string_view.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\tuple.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\type_traits.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\unique_ptr.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\unordered_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\unordered_set.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\utility.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\variant.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_multimap.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_multiset.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_set.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\version.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\weak_ptr.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\adaptors.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\call_traits.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\compressed_pair.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\fixed_ring_buffer.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\fixed_tuple_vector.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\intrusive_sdlist.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\intrusive_slist.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\list_map.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\lru_cache.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\ring_buffer.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\sort_extra.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\sparse_matrix.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\bonus\tuple_vector.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\bonus</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\allocator_traits.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\allocator_traits_fwd_decls.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\char_traits.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\config.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\copy_help.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\enable_shared.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\fill_help.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\fixed_pool.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\function.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\functional_base.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\function_detail.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\function_help.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\generic_iterator.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\hashtable.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\integer_sequence.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\intrusive_hashtable.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\in_place_t.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\memory_base.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\mem_fn.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\meta.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\move_help.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\pair_fwd_decls.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\piecewise_construct_t.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\red_black_tree.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\smart_ptr.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\thread_support.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\tuple_fwd_decls.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_compound.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_fundamental.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_pod.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_properties.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\internal\type_transformations.h">
+      <Filter>ThirdParty\EA\EASTL\Include\EASTL\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\eabase.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\eahave.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\earesult.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\eastdarg.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\eaunits.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\int128.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\nullptr.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\version.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\config\eacompiler.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase\config</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\config\eacompilertraits.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase\config</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\EA\EABase\include\Common\EABase\config\eaplatform.h">
+      <Filter>ThirdParty\EA\EABase\include\Common\EABase\config</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\enkits\LockLessMultiReadPipe.h">
+      <Filter>ThirdParty\enkits</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\enkits\TaskScheduler.h">
+      <Filter>ThirdParty\enkits</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\enkits\TaskScheduler_KRG.h">
+      <Filter>ThirdParty\enkits</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\xxhash\xxhash.h">
+      <Filter>ThirdParty\xxhash</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\rpmalloc\rpmalloc.h">
+      <Filter>ThirdParty\rpmalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\iniparser\dictionary.h">
+      <Filter>ThirdParty\iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\iniparser\iniparser.h">
+      <Filter>ThirdParty\iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\iniparser\krg_ini.h">
+      <Filter>ThirdParty\iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\microprofile\microprofile.config.h">
+      <Filter>ThirdParty\microprofile</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\microprofile\microprofile.h">
+      <Filter>ThirdParty\microprofile</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\microprofile\microprofile_html.h">
+      <Filter>ThirdParty\microprofile</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\pcg\include\pcg_extras.hpp">
+      <Filter>ThirdParty\pcg\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\pcg\include\pcg_random.hpp">
+      <Filter>ThirdParty\pcg\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\pcg\include\pcg_uint128.hpp">
+      <Filter>ThirdParty\pcg\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\specialize.hpp">
+      <Filter>ThirdParty\cereal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\version.hpp">
+      <Filter>ThirdParty\cereal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\access.hpp">
+      <Filter>ThirdParty\cereal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\cereal.hpp">
+      <Filter>ThirdParty\cereal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\macros.hpp">
+      <Filter>ThirdParty\cereal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\atomic.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\optional.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\variant.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\array.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\base_class.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\bitset.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\boost_variant.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\chrono.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\common.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\complex.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\deque.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\forward_list.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\functional.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\list.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\map.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\memory.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\polymorphic.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\queue.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\set.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\stack.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\string.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\tuple.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\unordered_map.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\unordered_set.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\utility.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\valarray.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\vector.hpp">
+      <Filter>ThirdParty\cereal\types</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\types\concepts\pair_associative_container.hpp">
+      <Filter>ThirdParty\cereal\types\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\details\helpers.hpp">
+      <Filter>ThirdParty\cereal\details</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\details\polymorphic_impl.hpp">
+      <Filter>ThirdParty\cereal\details</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\details\polymorphic_impl_fwd.hpp">
+      <Filter>ThirdParty\cereal\details</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\details\static_object.hpp">
+      <Filter>ThirdParty\cereal\details</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\details\traits.hpp">
+      <Filter>ThirdParty\cereal\details</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\details\util.hpp">
+      <Filter>ThirdParty\cereal\details</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\archives\xml.hpp">
+      <Filter>ThirdParty\cereal\archives</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\archives\adapters.hpp">
+      <Filter>ThirdParty\cereal\archives</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\archives\binary.hpp">
+      <Filter>ThirdParty\cereal\archives</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\archives\json.hpp">
+      <Filter>ThirdParty\cereal\archives</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\archives\portable_binary.hpp">
+      <Filter>ThirdParty\cereal\archives</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\base64.hpp">
+      <Filter>ThirdParty\cereal\external</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidxml\rapidxml.hpp">
+      <Filter>ThirdParty\cereal\external\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidxml\rapidxml_iterators.hpp">
+      <Filter>ThirdParty\cereal\external\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidxml\rapidxml_print.hpp">
+      <Filter>ThirdParty\cereal\external\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidxml\rapidxml_utils.hpp">
+      <Filter>ThirdParty\cereal\external\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\cursorstreamwrapper.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\allocators.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\document.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\encodedstream.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\encodings.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\filereadstream.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\filewritestream.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\fwd.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\istreamwrapper.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\memorybuffer.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\memorystream.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\ostreamwrapper.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\pointer.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\prettywriter.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\rapidjson.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\reader.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\schema.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\stream.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\stringbuffer.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\writer.h">
+      <Filter>ThirdParty\cereal\external\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\error\en.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\error\error.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\biginteger.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\diyfp.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\dtoa.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\ieee754.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\itoa.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\meta.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\pow10.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\regex.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\stack.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\strfunc.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\strtod.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\internal\swap.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\msinttypes\inttypes.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cereal\external\rapidjson\msinttypes\stdint.h">
+      <Filter>ThirdParty\cereal\external\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\Serialization.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_bitset.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_chrono.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_deque.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_hash_map.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_hash_set.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_list.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_map.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_queue.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_set.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_stack.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_string.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_tuple.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_utility.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\eastl_vector.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\UserTypes\krg_stringid.hpp">
+      <Filter>Serialization\UserTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Time\Timers.h">
+      <Filter>Time</Filter>
+    </ClInclude>
+    <ClInclude Include="Update\UpdateContext.h">
+      <Filter>Update</Filter>
+    </ClInclude>
+    <ClInclude Include="Update\UpdateStage.h">
+      <Filter>Update</Filter>
+    </ClInclude>
+    <ClInclude Include="_Module\API.h">
+      <Filter>_Module</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Viewport.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="Serialization\BinaryArchive.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThirdParty\EA\EA.props">
+      <Filter>ThirdParty\EA</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Benchmarks.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Best Practices.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Design.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL FAQ.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Glossary.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Gotchas.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Introduction.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Maintenance.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Modules.html">
+      <Filter>ThirdParty\EA\EASTL\Doc\html</Filter>
+    </None>
+    <None Include="ThirdParty\EA\EABase\doc\EABase.html">
+      <Filter>ThirdParty\EA\EABase\doc</Filter>
+    </None>
+    <None Include="ThirdParty\microprofile\microprofile.props">
+      <Filter>ThirdParty\microprofile</Filter>
+    </None>
+    <None Include="ThirdParty\microprofile\README.md">
+      <Filter>ThirdParty\microprofile</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ThirdParty\EA\EASTL\Doc\EASTL.natvis">
+      <Filter>ThirdParty\EA\EASTL\Doc</Filter>
+    </Natvis>
+  </ItemGroup>
+</Project>
