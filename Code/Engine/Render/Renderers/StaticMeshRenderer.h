@@ -49,8 +49,8 @@ namespace KRG
 
             virtual void ShutdownSystem() override final;
             virtual void UpdateSystem( UpdateContext const& ctx ) override final;
-            virtual void RegisterComponent( Entity const* pEntity, EntityComponentPtr pComponent ) override final;
-            virtual void UnregisterComponent( Entity const* pEntity, EntityComponentPtr pComponent ) override final;
+            virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
+            virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
 
             void OnMobilityUpdated( StaticMeshComponent* pComponent );
 

@@ -1,5 +1,4 @@
 #include "EntityWorld.h"
-#include "Map/EntityMap.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Profiling/Profiling.h"
@@ -22,8 +21,7 @@ namespace KRG
 
     EntityWorld::~EntityWorld()
     {
-        KRG_ASSERT( m_activeLoaders.empty() );
-        KRG_ASSERT( m_loadedMaps.empty() && m_loadingMaps.empty() );
+        KRG_ASSERT( m_maps.empty());
         KRG_ASSERT( m_globalSystems.empty() );
 
         for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
@@ -35,7 +33,7 @@ namespace KRG
 
     void EntityWorld::Initialize( SystemRegistry const& systemsRegistry )
     {
-        m_loadingContext = EntityLoadingContext( systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
+        m_loadingContext = EntityModel::LoadingContext( systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
         KRG_ASSERT( m_loadingContext.IsValid() );
 
         m_pTaskSystem = systemsRegistry.GetSystem<TaskSystem>();
@@ -52,32 +50,12 @@ namespace KRG
 
     void EntityWorld::Shutdown()
     {
-        // Cancel any load/unload requests
-        m_mapLoadRequests.clear();
-        m_mapUnloadRequests.clear();
-
-        // Unload any currently loading maps
+        // Unload maps
         //-------------------------------------------------------------------------
 
-        for ( auto& pLoadingMap : m_loadingMaps )
+        for ( auto& map : m_maps )
         {
-            UnloadMap( pLoadingMap->GetResourceID() );
-        }
-
-        // Unload any fully loaded maps
-        //-------------------------------------------------------------------------
-
-        // Cancel any active load requests
-        for ( auto pLoader : m_activeLoaders )
-        {
-            pLoader->CancelOperation( m_loadingContext );
-            KRG::Delete( pLoader );
-        }
-        m_activeLoaders.clear();
-
-        for ( auto& pLoadedMap : m_loadedMaps )
-        {
-            UnloadMap( pLoadedMap->GetResourceID() );
+            UnloadMap( map.GetMapResourceID() );
         }
 
         // Run the loading update as this will immediately unload all maps
@@ -208,12 +186,11 @@ namespace KRG
     // Loading
     //-------------------------------------------------------------------------
 
-    bool EntityWorld::IsMapLoaded( ResourceID const& mapResourceID ) const
+    bool EntityWorld::IsBusyLoading() const
     {
-        // Make sure the map isn't already loaded or loading, since duplicate loads are not allowed
-        for ( auto& pLoadedMap : m_loadedMaps )
+        for ( auto const& map : m_maps )
         {
-            if ( pLoadedMap->GetResourceID() == mapResourceID )
+            if( map.IsLoading() ) 
             {
                 return true;
             }
@@ -222,24 +199,12 @@ namespace KRG
         return false;
     }
 
-    bool EntityWorld::IsMapLoadedOrLoading( ResourceID const& mapResourceID ) const
+    bool EntityWorld::IsMapLoaded( ResourceID const& mapResourceID ) const
     {
-        if ( VectorContains( m_mapLoadRequests, mapResourceID ) )
+        // Make sure the map isn't already loaded or loading, since duplicate loads are not allowed
+        for ( auto const& map : m_maps )
         {
-            return true;
-        }
-
-        for ( auto& pMapInstance : m_loadingMaps )
-        {
-            if( pMapInstance->GetResourceID() == mapResourceID )
-            {
-                return true;
-            }
-        }
-
-        for ( auto& pMapInstance : m_loadedMaps )
-        {
-            if ( pMapInstance->GetResourceID() == mapResourceID )
+            if ( map.GetMapResourceID() == mapResourceID )
             {
                 return true;
             }
@@ -250,35 +215,20 @@ namespace KRG
 
     void EntityWorld::LoadMap( ResourceID const& mapResourceID )
     {
-        KRG_ASSERT( mapResourceID.IsValid() );
-        KRG_ASSERT( !IsMapLoadedOrLoading( mapResourceID ) );
+        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
 
-        // If we have an unload request for this map, just cancel it
-        if ( VectorContains( m_mapUnloadRequests, mapResourceID ) )
-        {
-            m_mapUnloadRequests.erase_last_unsorted( mapResourceID );
-        }
-        else // Queue load request
-        {
-            KRG_ASSERT( !VectorContains( m_mapLoadRequests, mapResourceID ) );
-            m_mapLoadRequests.emplace_back( mapResourceID );
-        }
+        KRG_ASSERT( !IsMapLoaded( mapResourceID ) );
+        auto& map = m_maps.emplace_back( EntityModel::EntityMap( mapResourceID ) );
+        map.Load( m_loadingContext );
     }
 
     void EntityWorld::UnloadMap( ResourceID const& mapResourceID )
     {
-        KRG_ASSERT( mapResourceID.IsValid() );
+        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
 
-        // If we have a load request for this map, just cancel it
-        if ( VectorContains( m_mapLoadRequests, mapResourceID ) )
-        {
-            m_mapLoadRequests.erase_last_unsorted( mapResourceID );
-        }
-        else // Queue unload request
-        {
-            KRG_ASSERT( !VectorContains( m_mapUnloadRequests, mapResourceID ) );
-            m_mapUnloadRequests.emplace_back( mapResourceID );
-        }
+        auto const foundMapIter = VectorFind( m_maps, mapResourceID, [] ( EntityModel::EntityMap const& map, ResourceID const& mapResourceID ) { return map.GetMapResourceID() == mapResourceID; } );
+        KRG_ASSERT( foundMapIter != m_maps.end() );
+        foundMapIter->Unload( m_loadingContext );
     }
 
     //-------------------------------------------------------------------------
@@ -291,169 +241,53 @@ namespace KRG
         // Process map load requests
         //-------------------------------------------------------------------------
 
-        for ( auto& mapResourceID : m_mapLoadRequests )
+        for ( S32 i = (S32) m_maps.size() - 1; i >= 0; i-- )
         {
-            m_loadingMaps.emplace_back( KRG::New<EntityMapInstance>( mapResourceID ) );
-            m_loadingMaps.back()->Load( m_loadingContext );
-        }
+            m_maps[i].UpdateLoading( m_loadingContext );
 
-        m_mapLoadRequests.clear();
-
-        //-------------------------------------------------------------------------
-        // Process map unload requests
-        //-------------------------------------------------------------------------
-
-        for ( auto& mapResourceID : m_mapUnloadRequests )
-        {
-            bool requestHandled = false;
-
-            // If the map is still in the loading list, then directly unload it
-            S32 const numLoadingMaps = (S32) m_loadingMaps.size();
-            for ( auto i = 0; i < numLoadingMaps; i++ )
+            if ( m_maps[i].IsUnloaded() )
             {
-                if ( m_loadingMaps[i]->GetResourceID() == mapResourceID )
-                {
-                    // Unload and erase map instance
-                    m_loadingMaps[i]->Unload( m_loadingContext );
-                    KRG::Delete( m_loadingMaps[i] );
-                    VectorEraseUnsorted( m_loadingMaps, i );
-
-                    requestHandled = true;
-                    break;
-                }
-            }
-
-            if ( requestHandled )
-            {
-                continue;
-            }
-
-            //-------------------------------------------------------------------------
-
-            // If the map is still in the loading list, then shutdown all entities and then unload the map
-            S32 const numLoadedMaps = (S32) m_loadedMaps.size();
-            for ( S32 i = 0; i < numLoadedMaps; i++ )
-            {
-                if ( m_loadedMaps[i]->GetResourceID() == mapResourceID )
-                {
-                    Timer t;
-
-                    // Shutdown and unload entities
-                    for ( auto pEntity : m_loadedMaps[i]->GetEntities() )
-                    {
-                        if( pEntity->IsLoading() || pEntity->IsUnloaded() )
-                        {
-                            continue;
-                        }
-
-                        ShutdownEntity( pEntity );
-
-                        //-------------------------------------------------------------------------
-
-                        // Remove from the global lookup map
-                        auto entityIter = m_entityLookupMap.find( pEntity->GetID() );
-                        KRG_ASSERT( entityIter != m_entityLookupMap.end() );
-                        m_entityLookupMap.erase( entityIter );
-                    }
-
-                    {
-                        auto unloader = EntityLoader::Unload( m_loadingContext, m_loadedMaps[i]->GetEntities() );
-                    }
-
-                    //-------------------------------------------------------------------------
-
-                    // Unload and erase map instance
-                    m_loadedMaps[i]->Unload( m_loadingContext );
-                    KRG::Delete( m_loadingMaps[i] );
-                    VectorEraseUnsorted( m_loadedMaps, i );
-
-                    requestHandled = true;
-                    break;
-                }
-            }
-
-            KRG_ASSERT( requestHandled ); // Unload request for unknown map
-        }
-
-        m_mapUnloadRequests.clear();
-
-        //-------------------------------------------------------------------------
-        // Update map loads
-        //-------------------------------------------------------------------------
-
-        for ( auto i = 0; i < m_loadingMaps.size(); i++ )
-        {
-            auto pMapInstance = m_loadingMaps[i];
-            pMapInstance->UpdateLoading( m_loadingContext );
-
-            // If we are finished loading
-            if( !pMapInstance->IsLoading() )
-            {
-                // Remove from the loading maps list
-                VectorEraseUnsorted( m_loadingMaps, i );
-                i--;
-
-                // Handle load result
-                if( pMapInstance->IsLoaded() )
-                {
-                    for ( auto pEntity : pMapInstance->GetEntities() )
-                    {
-                        // Add to global lookup map
-                        KRG_ASSERT( m_entityLookupMap.find( pEntity->GetID() ) == m_entityLookupMap.end() );
-                        m_entityLookupMap.insert( TPair<UUID, Entity*>( pEntity->GetID(), pEntity ) );
-                    }
-
-                    // Request load of all entities
-                    m_loadedMaps.emplace_back( pMapInstance );
-                    m_activeLoaders.emplace_back( KRG::New<EntityLoader>( EntityLoader::Load( m_loadingContext, pMapInstance->GetEntities() ) ) );
-                }
-                else // We failed loading, unload the resource ID and release the instance memory
-                {
-                    KRG_ASSERT( pMapInstance->HasLoadingFailed() );
-                    KRG_LOG_ERROR( "Entity", "Failed to load map: %s", pMapInstance->GetResourceID().c_str() );
-                    pMapInstance->Unload( m_loadingContext );
-                    KRG::Delete( pMapInstance );
-                }
+                m_maps.pop_back();
             }
         }
 
-        //-------------------------------------------------------------------------
-        // Update Entity Loads
-        //-------------------------------------------------------------------------
+        ////-------------------------------------------------------------------------
+        //// Update Entity Loads
+        ////-------------------------------------------------------------------------
 
-        for ( S32 i = (S32) m_activeLoaders.size() - 1; i >= 0; i-- )
-        {
-            auto pEntityLoader = m_activeLoaders[i];
-            pEntityLoader->UpdateLoading( m_loadingContext );
+        //for ( S32 i = (S32) m_activeLoaders.size() - 1; i >= 0; i-- )
+        //{
+        //    auto pEntityLoader = m_activeLoaders[i];
+        //    pEntityLoader->UpdateLoading( m_loadingContext );
 
-            if ( pEntityLoader->IsLoaded() )
-            {
-                for ( auto pEntity : pEntityLoader->GetEntities() )
-                {
-                    InitializeEntity( pEntity );
-                }
+        //    if ( pEntityLoader->IsLoaded() )
+        //    {
+        //        for ( auto pEntity : pEntityLoader->GetEntities() )
+        //        {
+        //            InitializeEntity( pEntity );
+        //        }
 
-                // For reload operations we have an explicit list of entities to reactivate
-                //-------------------------------------------------------------------------
+        //        // For reload operations we have an explicit list of entities to reactivate
+        //        //-------------------------------------------------------------------------
 
-                if ( pEntityLoader->IsReloadOperation() )
-                {
-                    for ( auto pEntityToActivate : pEntityLoader->GetEntitiesToReactivate() )
-                    {
-                        if ( pEntityToActivate->IsLoaded() )
-                        {
-                            continue;
-                        }
-                    }
-                }
+        //        if ( pEntityLoader->IsReloadOperation() )
+        //        {
+        //            for ( auto pEntityToActivate : pEntityLoader->GetEntitiesToReactivate() )
+        //            {
+        //                if ( pEntityToActivate->IsLoaded() )
+        //                {
+        //                    continue;
+        //                }
+        //            }
+        //        }
 
-                // Remove the loader as we are done with it
-                //-------------------------------------------------------------------------
+        //        // Remove the loader as we are done with it
+        //        //-------------------------------------------------------------------------
 
-                KRG::Delete( pEntityLoader );
-                VectorEraseUnsorted( m_activeLoaders, i );
-            }
-        }
+        //        KRG::Delete( pEntityLoader );
+        //        VectorEraseUnsorted( m_activeLoaders, i );
+        //    }
+        //}
 
         //-------------------------------------------------------------------------
         // Process hot-reload requests
@@ -549,24 +383,24 @@ namespace KRG
 
     void EntityWorld::ReloadEntities( TVector<Entity*> const& entities )
     {
-        TInlineVector<Entity*, 5> attachmentHierarchy;
+        //TInlineVector<Entity*, 5> attachmentHierarchy;
 
-        for ( auto pEntity : entities )
-        {
-            KRG_ASSERT( pEntity != nullptr );
+        //for ( auto pEntity : entities )
+        //{
+        //    KRG_ASSERT( pEntity != nullptr );
 
-            //-------------------------------------------------------------------------
+        //    //-------------------------------------------------------------------------
 
-            if( pEntity->IsInitialized() )
-            {
-                ShutdownEntity( pEntity );
-            }
-        }
+        //    if( pEntity->IsInitialized() )
+        //    {
+        //        ShutdownEntity( pEntity );
+        //    }
+        //}
 
-        // Create the entity reloader and set the list of entities that need to be activated
-        //-------------------------------------------------------------------------
+        //// Create the entity reloader and set the list of entities that need to be activated
+        ////-------------------------------------------------------------------------
 
-        auto pEntityReloader = m_activeLoaders.emplace_back( KRG::New<EntityLoader>( EntityLoader::Reload( m_loadingContext, entities ) ) );
-        pEntityReloader->SetEntitiesToReactivate( attachmentHierarchy );
+        //auto pEntityReloader = m_activeLoaders.emplace_back( KRG::New<EntityModel::EntityLoader>( EntityModel::EntityLoader::Reload( m_loadingContext, entities ) ) );
+        //pEntityReloader->SetEntitiesToReactivate( attachmentHierarchy );
     }
 }

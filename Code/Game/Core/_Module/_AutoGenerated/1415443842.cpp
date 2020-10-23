@@ -154,13 +154,13 @@ namespace KRG
         return KRG::TestComponent::TypeInfoPtr;
     }
 
-    void KRG::TestComponent::Load( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::TestComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::TestComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
-    void KRG::TestComponent::Unload( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::TestComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::TestComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;

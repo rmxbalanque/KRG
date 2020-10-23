@@ -88,7 +88,7 @@ namespace KRG
         {
             if ( IsCoreTypeProperty() )
             {
-                ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.m_pDefaultValue, m_defaultValue );
+                TypeSystem::TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.m_pDefaultValue, m_defaultValue );
                 m_value = m_defaultValue;
             }
             else if ( IsEnumProperty() )
@@ -317,7 +317,7 @@ namespace KRG
             if ( TypeSystem::IsCoreType( arrayElementInfo.m_typeID ) )
             {
                 String arrayElementDefaultStringValue;
-                ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
+                TypeSystem::TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
                 pAddedArrayElement = &m_childProperties.emplace_back( DynamicPropertyInstance( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
             }
             else if ( m_propertyInfo.IsEnumProperty() )
@@ -420,7 +420,7 @@ namespace KRG
                 if ( TypeSystem::IsCoreType( m_propertyInfo.m_typeID ) )
                 {
                     String defaultElementValue;
-                    ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
+                    TypeSystem::TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
                     if ( m_childProperties[i].GetStringValue() != defaultElementValue )
                     {
                         return false;

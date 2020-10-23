@@ -1,17 +1,17 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "EntityMap.h"
+#include "EntityMapDescriptor.h"
 #include "System/Resource/ResourceLoader.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::TypeSystem { class TypeRegistry; }
+
+//-------------------------------------------------------------------------
+
+namespace KRG::EntityModel
 {
-    namespace TypeSystem { class TypeRegistry; }
-
-    //-------------------------------------------------------------------------
-
     class KRG_SYSTEM_ENTITY_API EntityMapLoader : public Resource::ResourceLoader
     {
     public:

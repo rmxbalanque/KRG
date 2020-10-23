@@ -8,7 +8,6 @@
 #include <ostream>
 
 #include <cereal/archives/binary.hpp>
-#include <cereal/archives/json.hpp>
 
 // Cereal support for common STL types
 #include <cereal/types/complex.hpp>

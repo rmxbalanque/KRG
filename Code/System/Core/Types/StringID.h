@@ -33,6 +33,7 @@ namespace KRG
         inline bool operator!=( StringID const& rhs ) const { return m_ID != rhs.m_ID; }
 
         inline bool IsValid() const { return m_ID != 0; }
+        inline U32 GetID() const { return m_ID; }
         inline operator U32() const { return m_ID; }
 
         char const* ToString() const;

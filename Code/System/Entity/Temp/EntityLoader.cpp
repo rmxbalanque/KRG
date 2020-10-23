@@ -4,16 +4,16 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EntityModel
 {
-    EntityLoader::EntityLoader( EntityLoadingContext const& loadingContext, TVector<Entity*> const& entities, EntityLoader::Operation operation )
+    EntityLoader::EntityLoader( EntityModel::LoadingContext const& loadingContext, TVector<Entity*> const& entities, EntityLoader::Operation operation )
         : m_entities( entities )
         , m_operation( operation )
     {
         Initialize( loadingContext );
     }
 
-    EntityLoader::EntityLoader( EntityLoadingContext const& loadingContext, Entity* pEntity, EntityLoader::Operation operation )
+    EntityLoader::EntityLoader( EntityModel::LoadingContext const& loadingContext, Entity* pEntity, EntityLoader::Operation operation )
         : m_operation( operation )
     {
         m_entities.emplace_back( pEntity );
@@ -39,7 +39,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void EntityLoader::Initialize( EntityLoadingContext const& loadingContext )
+    void EntityLoader::Initialize( LoadingContext const& loadingContext )
     {
         switch ( m_operation )
         {
@@ -79,7 +79,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void EntityLoader::Load( EntityLoadingContext const& loadingContext )
+    void EntityLoader::Load( LoadingContext const& loadingContext )
     {
         KRG_ASSERT( Threading::IsMainThread() && loadingContext.IsValid() && ( IsUnloaded() || IsUnloading() ) );
 
@@ -100,7 +100,7 @@ namespace KRG
         m_loadingStatus = LoadingStatus::Loading;
     }
 
-    void EntityLoader::Unload( EntityLoadingContext const& loadingContext )
+    void EntityLoader::Unload( LoadingContext const& loadingContext )
     {
         KRG_ASSERT( Threading::IsMainThread() && loadingContext.IsValid() );
 
@@ -123,7 +123,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    LoadingStatus EntityLoader::UpdateLoading( EntityLoadingContext const& loadingContext )
+    LoadingStatus EntityLoader::UpdateLoading( LoadingContext const& loadingContext )
     {
         bool const isPendingReload = m_operation == Operation::Reload && m_loadingStatus == LoadingStatus::Unloaded;
         KRG_ASSERT( Threading::IsMainThread() && ( IsLoading() || IsUnloading() || isPendingReload ) );

@@ -1,7 +1,7 @@
 #include "DynamicTypeSerialization.h"
 #include "DynamicTypeInstance.h"
+#include "TypeSerializationCommon.h"
 #include "System/TypeSystem/TypeRegistry.h"
-#include "System/TypeSystem/TypeSerialization.h"
 
 //-------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ namespace KRG
             writer.StartObject();
 
             // Every type has to have a type ID
-            writer.Key( TypeSerializationSettings::TypeKey );
+            writer.Key( TypeSerialization::Key_TypeID );
             writer.String( type.GetTypeID().GetAsStringID().ToString() );
 
             // Write all property values
@@ -142,14 +142,14 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Read type ID
-            KRG_ASSERT( jsonObject.IsObject() && jsonObject.HasMember( TypeSerializationSettings::TypeKey ) );
-            serializedDynamicType.m_typeID = TypeSystem::TypeID( jsonObject[TypeSerializationSettings::TypeKey].GetString() );
+            KRG_ASSERT( jsonObject.IsObject() && jsonObject.HasMember( TypeSerialization::Key_TypeID ) );
+            serializedDynamicType.m_typeID = TypeSystem::TypeID( jsonObject[TypeSerialization::Key_TypeID].GetString() );
             KRG_ASSERT( serializedDynamicType.m_typeID.IsValid() );
 
             // Read properties
             for ( auto itr = jsonObject.MemberBegin(); itr != jsonObject.MemberEnd(); ++itr )
             {
-                if ( strcmp( itr->name.GetString(), TypeSerializationSettings::TypeKey ) == 0 )
+                if ( strcmp( itr->name.GetString(), TypeSerialization::Key_TypeID ) == 0 )
                 {
                     continue;
                 }

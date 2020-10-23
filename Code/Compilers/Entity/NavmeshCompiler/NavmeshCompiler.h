@@ -1,22 +1,19 @@
 #pragma once
 
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
-#include "System/Entity/Map/EntityMap.h"
+#include "System/Entity/Map/EntityMapDescriptor.h"
 #include "System/Resource/ResourcePtr.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EntityModel
 {
-    namespace AI
+    struct NavmeshResourceDescriptor : public Resource::ResourceDescriptor
     {
-        struct NavmeshResourceDescriptor : public Resource::ResourceDescriptor
-        {
-            KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE;
 
-            EXPOSE TResourcePtr<EntityMap>         m_map;
-        };
-    }
+        EXPOSE TResourcePtr<EntityMapDescriptor>         m_map;
+    };
 
     //-------------------------------------------------------------------------
 

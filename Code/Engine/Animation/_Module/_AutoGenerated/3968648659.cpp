@@ -26,13 +26,13 @@ namespace KRG
         return KRG::Animation::SimpleAnimationComponent::TypeInfoPtr;
     }
 
-    void KRG::Animation::SimpleAnimationComponent::Load( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::Animation::SimpleAnimationComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Animation::SimpleAnimationComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
-    void KRG::Animation::SimpleAnimationComponent::Unload( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::Animation::SimpleAnimationComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Animation::SimpleAnimationComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;

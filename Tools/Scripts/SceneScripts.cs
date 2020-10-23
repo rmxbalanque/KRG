@@ -18,9 +18,9 @@ namespace Scripts
         public Guid ID { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public string TypeID { get; set; }
+        public Guid SpatialParent { get; set; }
         public string AttachmentSocketID { get; set; }
         public List<Property> Properties { get; set; }
-        public List<EntityComponent> Components { get; set; }
     }
 
     class EntitySystem
@@ -32,10 +32,10 @@ namespace Scripts
     {
         public Guid ID { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
+        public Guid SpatialParent { get; set; }
         public string AttachmentSocketID { get; set; }
         public List<EntitySystem> Systems { get; set; }
         public List<EntityComponent> Components { get; set; }
-        public List<Entity> Entities { get; set; }
     }
 
     class Map
@@ -55,6 +55,18 @@ namespace Scripts
             writer.WritePropertyName( "Name" );
             writer.WriteValue( value.Name );
 
+            if( value.SpatialParent != null  && value.SpatialParent != Guid.Empty )
+            {
+                writer.WritePropertyName( "SpatialParent" );
+                writer.WriteValue( value.SpatialParent );
+            }
+
+            if ( !string.IsNullOrEmpty( value.AttachmentSocketID ) )
+            {
+                writer.WritePropertyName( "AttachmentSocketID" );
+                writer.WriteValue( value.AttachmentSocketID );
+            }
+
             // Type Data
             {
                 writer.WritePropertyName( "TypeData" );
@@ -72,19 +84,6 @@ namespace Scripts
                 writer.WriteEndObject();
             }
 
-            // Child Components
-            if ( value.Components != null )
-            {
-                writer.WritePropertyName( "Components" );
-
-                var settings = new JsonSerializerSettings();
-                settings.Formatting = Formatting.None;
-                settings.NullValueHandling = NullValueHandling.Ignore;
-                settings.Converters.Add( new ComponentConverter() );
-
-                writer.WriteRawValue( JsonConvert.SerializeObject( value.Components, settings ) );
-            }
-
             writer.WriteEndObject();
         }
 
@@ -96,7 +95,7 @@ namespace Scripts
 
     class SceneScripts
     {
-        public static void GenerateTestMapFile()
+        public static void GenerateECSTestMapFile( FileInfo outputFile, int numRows, int numColumns )
         {
             var map = new Map();
 
@@ -159,8 +158,6 @@ namespace Scripts
             map.Entities.Add( cameraEntity );
             map.Entities.Add( floorEntity );
 
-            int numRows = 100;
-            int numColumns = 100;
             float offset = 1.0f;
             float startX = -numColumns * offset / 2;
             float startY = -numRows * offset / 2;
@@ -197,16 +194,13 @@ namespace Scripts
                     int randomMaterialOption = random.Next( 1, 5 );
                     int randomAnimOption = random.Next( 0, 7 );
 
-                    var characterEntity = new Entity()
+                    //--------------------------------------------------------------------
+
+                    var meshComponent = new EntityComponent()
                     {
-                        Name = string.Format( "Character {0}", characterNumber ),
-                        Components = new List<EntityComponent>()
-                        {
-                            new EntityComponent()
-                            {
-                                Name = "CharacterMesh",
-                                TypeID = "KRG::Animation::AnimatedMeshComponent",
-                                Properties = new List<Property>()
+                        Name = "CharacterMesh",
+                        TypeID = "KRG::Animation::AnimatedMeshComponent",
+                        Properties = new List<Property>()
                                 {
                                     new Property()
                                     {
@@ -228,47 +222,87 @@ namespace Scripts
                                         Path = "m_transform",
                                         Value = characterTransform
                                     }
-                                },
-                                Components = new List<EntityComponent>()
-                                {
-                                    new EntityComponent()
-                                    {
-                                        Name = "Armor",
-                                        TypeID = "KRG::Animation::AnimatedMeshComponent",
-                                        Properties = new List<Property>()
-                                        {
-                                            new Property()
-                                            {
-                                                Path = "m_pMesh",
-                                                Value = armorOptions[randomArmorOption]
-                                            },
-                                            new Property()
-                                            {
-                                                Path = "m_pSkeleton",
-                                                Value = "data://Animation/SyntyStudiosSkel.skel"
-                                            },
-                                            new Property()
-                                            {
-                                                Path = "m_materials/0",
-                                                Value = string.Format( "data://Packs/BR/Materials/PolygonBattleRoyale_Texture_0{0}_A.mtrl", randomMaterialOption )
-                                            }
-                                        }
-                                    }
                                 }
-                            },
-                            new EntityComponent()
+                    };
+
+                    var armorMeshComponent = new EntityComponent()
+                    {
+                        Name = "Armor",
+                        TypeID = "KRG::Animation::AnimatedMeshComponent",
+                        SpatialParent = meshComponent.ID,
+                        Properties = new List<Property>()
+                        {
+                            new Property()
                             {
-                                Name = "SimpleAnimation",
-                                TypeID = "KRG::Animation::SimpleAnimationComponent",
-                                Properties = new List<Property>()
-                                {
-                                    new Property()
-                                    {
-                                        Path = "m_pAnimation",
-                                        Value = string.Format( "data://Animation/Stand_Crowd_Ambient{0}.anim", randomAnimOption )
-                                    }
-                                }
+                                Path = "m_pMesh",
+                                Value = armorOptions[randomArmorOption]
+                            },
+                            new Property()
+                            {
+                                Path = "m_pSkeleton",
+                                Value = "data://Animation/SyntyStudiosSkel.skel"
+                            },
+                            new Property()
+                            {
+                                Path = "m_materials/0",
+                                Value = string.Format( "data://Packs/BR/Materials/PolygonBattleRoyale_Texture_0{0}_A.mtrl", randomMaterialOption )
                             }
+                        }
+                    };
+
+                    var hairMeshComponent = new EntityComponent()
+                    {
+                        Name = "Prop",
+                        TypeID = "KRG::Render::StaticMeshComponent",
+                        Properties = new List<Property>()
+                        {
+                            new Property()
+                            {
+                                Path = "m_pMesh",
+                                Value = "data://Packs/BR/Characters/SM_Chr_Attach_Female_Hair_01.msh"
+                            },
+                            new Property()
+                            {
+                                Path = "m_materials/0",
+                                Value = string.Format( "data://Packs/BR/Materials/PolygonBattleRoyale_Texture_0{0}_A.mtrl", randomMaterialOption )
+                            },
+                            new Property()
+                            {
+                                Path = "m_transform",
+                                Value = "0, 0, 0, 0, 0, 0.0, 1.0, 1.0, 1.0"
+                            },
+                            new Property()
+                            {
+                                Path = "m_mobility",
+                                Value = "Dynamic"
+                            }
+                        }
+                    };
+
+                    var animationComponent = new EntityComponent()
+                    {
+                        Name = "SimpleAnimation",
+                        TypeID = "KRG::Animation::SimpleAnimationComponent",
+                        Properties = new List<Property>()
+                        {
+                            new Property()
+                            {
+                                Path = "m_pAnimation",
+                                Value = string.Format( "data://Animation/Stand_Crowd_Ambient{0}.anim", randomAnimOption )
+                            }
+                        }
+                    };
+
+                    //------------------------------------------------------------------------
+
+                    var characterEntity = new Entity()
+                    {
+                        Name = string.Format( "Character {0}", characterNumber ),
+                        Components = new List<EntityComponent>()
+                        {
+                            armorMeshComponent,
+                            animationComponent,
+                            meshComponent,
                         },
                         Systems = new List<EntitySystem>()
                         {
@@ -276,50 +310,26 @@ namespace Scripts
                             {
                                 TypeID = "KRG::Animation::AnimationSystem"
                             }
-                        },
-                        Entities = new List<Entity>()
-                        {
-                            new Entity()
-                            {
-                                Name = string.Format( "Prop {0}", characterNumber ),
-                                AttachmentSocketID = "head",
-
-                                Components = new List<EntityComponent>()
-                                {
-                                    new EntityComponent()
-                                    {
-                                        Name = "Prop",
-                                        TypeID = "KRG::Render::StaticMeshComponent",
-                                        Properties = new List<Property>()
-                                        {
-                                            new Property()
-                                            {
-                                                Path = "m_pMesh",
-                                                Value = "data://Packs/BR/Characters/SM_Chr_Attach_Female_Hair_01.msh"
-                                            },
-                                            new Property()
-                                            {
-                                                Path = "m_materials/0",
-                                                Value = string.Format( "data://Packs/BR/Materials/PolygonBattleRoyale_Texture_0{0}_A.mtrl", randomMaterialOption )
-                                            },
-                                            new Property()
-                                            {
-                                                Path = "m_transform",
-                                                Value = "0, 0, 0, 0, 0, 0.0, 1.0, 1.0, 1.0"
-                                            },
-                                            //new Property()
-                                            //{
-                                            //    Path = "m_mobility",
-                                            //    Value = "Dynamic"
-                                            //}
-                                        }
-                                    }
-                                }
-                            }
                         }
                     };
 
                     map.Entities.Add( characterEntity );
+
+                    //------------------------------------------------------------------------
+
+                    var hairEntity = new Entity()
+                    {
+                        Name = string.Format( "Prop {0}", characterNumber ),
+                        SpatialParent = characterEntity.ID,
+                        AttachmentSocketID = "head",
+
+                        Components = new List<EntityComponent>()
+                        {
+                            hairMeshComponent
+                        }
+                    };
+
+                    map.Entities.Add( hairEntity );
                 }
             }
 
@@ -333,9 +343,7 @@ namespace Scripts
             string output = JsonConvert.SerializeObject( map, settings );
             string outputFormatted = JValue.Parse( output ).ToString( Formatting.Indented );
 
-            var outDir = new DirectoryInfo( @"D:\Kruger\Data\Maps\" );
-            var mapFile = outDir.FullName + "ECS_TestMap.map";
-            File.WriteAllText( mapFile, outputFormatted );
+            File.WriteAllText( outputFile.FullName, outputFormatted );
         }
     }
 }

@@ -63,11 +63,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="TypeSystem\DynamicTypeSerialization.cpp" />
+    <ClCompile Include="TypeSystem\TypeSerializationCommon.cpp" />
     <ClCompile Include="TypeSystem\TypeSerializer.cpp" />
     <ClInclude Include="TypeSystem\DynamicTypeSerialization.h" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
     <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
     <ClInclude Include="TypeSystem\DynamicTypeSerializer.h" />
+    <ClInclude Include="TypeSystem\TypeSerializationCommon.h" />
     <ClInclude Include="TypeSystem\TypeDeserializer.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />

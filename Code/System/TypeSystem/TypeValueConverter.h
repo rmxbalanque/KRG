@@ -16,17 +16,12 @@ namespace KRG
 {
     namespace TypeSystem
     {
-        KRG_SYSTEM_TYPESYSTEM_API void ConvertValueToString( TypeSystem::TypeID typeID, void const* pValueData, String& strValue );
-        KRG_SYSTEM_TYPESYSTEM_API void ConvertStringToValue( TypeSystem::TypeID typeID, String const& strValue, void* pValueData );
-        KRG_SYSTEM_TYPESYSTEM_API void ConvertStringToByteArray( TypeSystem::TypeID typeID, String const& strValue, TVector<Byte>& byteArray );
-        KRG_SYSTEM_TYPESYSTEM_API void ConvertByteArrayToValue( TypeSystem::TypeID typeID, TVector<Byte> const& byteArray, void* pValue );
-        KRG_SYSTEM_TYPESYSTEM_API bool IsValidStringValueForType( TypeSystem::TypeID typeID, String const& strValue );
-
-        //-------------------------------------------------------------------------
-
         class KRG_SYSTEM_TYPESYSTEM_API TypeValueConverter
         {
         public:
+
+            // Typed conversions
+            //-------------------------------------------------------------------------
 
             template<typename T>
             inline static void ToString( T const& value, String& outStr ) { KRG_UNIMPLEMENTED_FUNCTION(); }
@@ -48,6 +43,15 @@ namespace KRG
                 KRG_ASSERT( sizeof( T ) == valueByteData.size() );
                 memcpy( pOutValue, valueByteData.data(), sizeof( T ) );
             }
+
+            // Untyped conversions
+            //-------------------------------------------------------------------------
+
+            static void ConvertValueToString( TypeSystem::TypeID typeID, void const* pValueData, String& strValue );
+            static void ConvertStringToValue( TypeSystem::TypeID typeID, String const& strValue, void* pValueData );
+            static void ConvertStringToByteArray( TypeSystem::TypeID typeID, String const& strValue, TVector<Byte>& byteArray );
+            static void ConvertByteArrayToValue( TypeSystem::TypeID typeID, TVector<Byte> const& byteArray, void* pValue );
+            static bool IsValidStringValueForType( TypeSystem::TypeID typeID, String const& strValue );
 
         private:
 

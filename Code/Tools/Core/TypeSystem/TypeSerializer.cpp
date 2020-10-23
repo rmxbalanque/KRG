@@ -1,7 +1,7 @@
 #if _WIN32
 #include "TypeSerializer.h"
+#include "TypeSerializationCommon.h"
 #include "System/TypeSystem/TypeValueConverter.h"
-#include "System/TypeSystem/TypeSerialization.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -74,7 +74,7 @@ namespace KRG
         {
             if ( IsCoreType( typeID ) )
             {
-                ConvertValueToString( typeID, pTypeData, m_scratchBuffer );
+                TypeSystem::TypeValueConverter::ConvertValueToString( typeID, pTypeData, m_scratchBuffer );
                 m_writer.String( m_scratchBuffer.c_str() );
             }
             else // User types
@@ -85,7 +85,7 @@ namespace KRG
                 m_writer.StartObject();
 
                 // Every type has to have a type ID
-                m_writer.Key( TypeSerializationSettings::TypeKey );
+                m_writer.Key( TypeSerialization::Key_TypeID );
                 m_writer.String( typeID.GetAsStringID().ToString() );
 
                 //-------------------------------------------------------------------------
@@ -136,7 +136,7 @@ namespace KRG
                     }
                     else if ( IsCoreType( propInfo.m_typeID ) )
                     {
-                        ConvertValueToString( propInfo.m_typeID, pPropertyDataAddress, m_scratchBuffer );
+                        TypeSystem::TypeValueConverter::ConvertValueToString( propInfo.m_typeID, pPropertyDataAddress, m_scratchBuffer );
                         m_writer.String( m_scratchBuffer.c_str() );
                     }
                     else

@@ -10,8 +10,7 @@
     <ClCompile Include="ToolEntityCollection.cpp" />
     <ClCompile Include="ToolEntityComponent.cpp" />
     <ClCompile Include="ToolEntitySystem.cpp" />
-    <ClCompile Include="ToolEntityCollectionWriter.cpp" />
-    <ClCompile Include="ToolEntityCollectionReader.cpp" />
+    <ClCompile Include="Serialization\EntityCollectionReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -21,7 +20,6 @@
     <ClInclude Include="ToolEntityCollection.h" />
     <ClInclude Include="ToolEntityComponent.h" />
     <ClInclude Include="ToolEntitySystem.h" />
-    <ClInclude Include="ToolEntityCollectionWriter.h" />
-    <ClInclude Include="ToolEntityCollectionReader.h" />
+    <ClInclude Include="Serialization\EntityCollectionReader.h" />
   </ItemGroup>
 </Project>

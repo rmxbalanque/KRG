@@ -20,7 +20,6 @@
     <ClInclude Include="TypeInfo.h" />
     <ClInclude Include="TypeRegistrationMacros.h" />
     <ClInclude Include="TypeRegistry.h" />
-    <ClInclude Include="TypeSerialization.h" />
     <ClInclude Include="TypeValueConverter.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
@@ -38,7 +37,6 @@
     <ClCompile Include="PropertyPath.cpp" />
     <ClCompile Include="TypeInfo.cpp" />
     <ClCompile Include="TypeRegistry.cpp" />
-    <ClCompile Include="TypeSerialization.cpp" />
     <ClCompile Include="TypeValueConverter.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

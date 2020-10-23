@@ -22,8 +22,8 @@ namespace KRG
 
     protected:
 
-        virtual void RegisterComponent( EntityComponentPtr pComponent ) override;
-        virtual void UnregisterComponent( EntityComponentPtr pComponent ) override;
+        virtual void RegisterComponent( EntityComponent* pComponent ) override;
+        virtual void UnregisterComponent( EntityComponent* pComponent ) override;
         virtual void Update( UpdateContext const& ctx ) override;
 
     private:

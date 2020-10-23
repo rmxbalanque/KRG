@@ -60,18 +60,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Serialization\EntityCollectionReader.cpp" />
     <ClCompile Include="ToolEntity.cpp" />
     <ClCompile Include="ToolEntityCollection.cpp" />
-    <ClCompile Include="ToolEntityCollectionReader.cpp" />
-    <ClCompile Include="ToolEntityCollectionWriter.cpp" />
     <ClCompile Include="ToolEntityComponent.cpp" />
     <ClCompile Include="ToolEntitySystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Serialization\EntityCollectionReader.h" />
     <ClInclude Include="ToolEntity.h" />
     <ClInclude Include="ToolEntityCollection.h" />
-    <ClInclude Include="ToolEntityCollectionReader.h" />
-    <ClInclude Include="ToolEntityCollectionWriter.h" />
     <ClInclude Include="ToolEntityComponent.h" />
     <ClInclude Include="ToolEntitySystem.h" />
     <ClInclude Include="_Module\API.h" />

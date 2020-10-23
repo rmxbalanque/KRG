@@ -11,7 +11,7 @@ namespace KRG
         //-------------------------------------------------------------------------
         // Generic Resource Ptr
         //-------------------------------------------------------------------------
-        // No direct access to runtime resources through generic resource ptr
+        // There is no direct access to runtime resources through generic resource ptr
         // You should never use generic resource ptrs, these are only used by the resource manager and resource loader base
 
         class ResourcePtr
@@ -27,6 +27,14 @@ namespace KRG
             ResourcePtr( nullptr_t ) {};
             ResourcePtr( ResourceID id ) : m_resourceID( id ) { KRG_ASSERT( id.IsValid() ); }
             ResourcePtr( Resource::ResourcePtr const& rhs ) { operator=( rhs ); }
+
+            // Move ctor
+            ResourcePtr( Resource::ResourcePtr&& rhs )
+            {
+                operator=( rhs );
+                rhs.m_resourceID = ResourceID();
+                rhs.m_pResource = nullptr;
+            }
 
             inline ResourceID const& GetResourceID() const { return m_resourceID; }
             inline ResourceTypeID GetResourceTypeID() const { return m_resourceID.GetResourceTypeID(); }
@@ -82,6 +90,14 @@ namespace KRG
         TResourcePtr( nullptr_t ) : ResourcePtr( nullptr ) {}
         TResourcePtr( ResourceID ID ) : Resource::ResourcePtr( ID ) { KRG_ASSERT( ID.GetResourceTypeID() == T::GetStaticResourceTypeID() ); }
         TResourcePtr( Resource::ResourcePtr const& otherResourcePtr ) { operator=( otherResourcePtr ); }
+
+        // Move ctor
+        TResourcePtr( Resource::ResourcePtr&& otherResourcePtr ) 
+        { 
+            operator=( otherResourcePtr );
+            otherResourcePtr.m_resourceID = ResourceID();
+            otherResourcePtr.m_pResource = nullptr;
+        }
 
         inline bool operator==( nullptr_t ) const { return m_pResource == nullptr; }
         inline bool operator!=( nullptr_t ) const { return m_pResource != nullptr; }

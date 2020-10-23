@@ -15,31 +15,37 @@
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\EntityArchive.h">
-      <Filter>Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\EntitySerialization.h">
-      <Filter>Serialization</Filter>
-    </ClInclude>
     <ClInclude Include="Map\EntityMapLoader.h">
       <Filter>Map</Filter>
     </ClInclude>
-    <ClInclude Include="Map\EntityMap.h">
-      <Filter>Map</Filter>
-    </ClInclude>
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="EntityComponent.h" />
+    <ClInclude Include="EntitySpatialComponent.h" />
+    <ClInclude Include="EntitySystem.h" />
+    <ClInclude Include="EntityTypeHelpers.h" />
+    <ClInclude Include="EntityWorld.h" />
+    <ClInclude Include="EntityGlobalSystem.h" />
+    <ClInclude Include="Collections\EntityCollection.h" />
+    <ClInclude Include="Collections\EntityDescriptors.h" />
+    <ClInclude Include="Collections\EntityCollectionTemplate.h" />
+    <ClInclude Include="Map\EntityMapDescriptor.h" />
+    <ClInclude Include="Map\EntityMap.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Serialization\EntityArchive.cpp">
-      <Filter>Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\EntitySerialization.cpp">
-      <Filter>Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="Map\EntityMapLoader.cpp">
       <Filter>Map</Filter>
     </ClCompile>
-    <ClCompile Include="Map\EntityMap.cpp">
-      <Filter>Map</Filter>
-    </ClCompile>
+    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="EntityComponent.cpp" />
+    <ClCompile Include="EntitySpatialComponent.cpp" />
+    <ClCompile Include="EntitySystem.cpp" />
+    <ClCompile Include="EntityTypeHelpers.cpp" />
+    <ClCompile Include="EntityWorld.cpp" />
+    <ClCompile Include="EntityGlobalSystem.cpp" />
+    <ClCompile Include="Collections\EntityCollection.cpp" />
+    <ClCompile Include="Collections\EntityDescriptors.cpp" />
+    <ClCompile Include="Collections\EntityCollectionTemplate.cpp" />
+    <ClCompile Include="Map\EntityMapDescriptor.cpp" />
+    <ClCompile Include="Map\EntityMap.cpp" />
   </ItemGroup>
 </Project>

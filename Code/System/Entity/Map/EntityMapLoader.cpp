@@ -3,12 +3,12 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EntityModel
 {
     EntityMapLoader::EntityMapLoader()
         : m_pTypeRegistry( nullptr )
     {
-        m_loadableTypes.push_back( EntityMap::GetStaticResourceTypeID() );
+        m_loadableTypes.push_back( EntityMapDescriptor::GetStaticResourceTypeID() );
     }
 
     void EntityMapLoader::SetTypeRegistry( TypeSystem::TypeRegistry const* pTypeRegistry )
@@ -21,7 +21,7 @@ namespace KRG
     {
         KRG_ASSERT( archive.IsValid() && m_pTypeRegistry != nullptr );
 
-        auto pMap = KRG::New<EntityMap>();
+        auto pMap = KRG::New<EntityMapDescriptor>();
         archive >> *pMap;
 
         // Set loaded resource

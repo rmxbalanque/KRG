@@ -52,7 +52,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void ConvertValueToString( TypeID typeID, void const* pValueData, String& strValue )
+        void TypeValueConverter::ConvertValueToString( TypeID typeID, void const* pValueData, String& strValue )
         {
             KRG_ASSERT( IsCoreType( typeID ) && pValueData != nullptr );
             strValue.clear();
@@ -169,7 +169,7 @@ namespace KRG
             }
         }
 
-        void ConvertStringToValue( TypeID typeID, String const& strValue, void* pValueData )
+        void TypeValueConverter::ConvertStringToValue( TypeID typeID, String const& strValue, void* pValueData )
         {
             KRG_ASSERT( IsCoreType( typeID ) && pValueData != nullptr );
 
@@ -283,7 +283,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void ConvertStringToByteArray( TypeID typeID, String const& strValue, TVector<Byte>& byteArray )
+        void TypeValueConverter::ConvertStringToByteArray( TypeID typeID, String const& strValue, TVector<Byte>& byteArray )
         {
             KRG_ASSERT( IsCoreType( typeID ) && !strValue.empty() );
 
@@ -403,7 +403,7 @@ namespace KRG
             }
         }
 
-        void ConvertByteArrayToValue( TypeID typeID, TVector<Byte> const& byteArray, void* pValue )
+        void TypeValueConverter::ConvertByteArrayToValue( TypeID typeID, TVector<Byte> const& byteArray, void* pValue )
         {
             KRG_ASSERT( IsCoreType( typeID ) && !byteArray.empty() && pValue != nullptr );
 
@@ -519,7 +519,7 @@ namespace KRG
             }
         }
 
-        bool IsValidStringValueForType( TypeSystem::TypeID typeID, String const& strValue )
+        bool TypeValueConverter::IsValidStringValueForType( TypeSystem::TypeID typeID, String const& strValue )
         {
             KRG_ASSERT( IsCoreType( typeID ) && !strValue.empty() );
 

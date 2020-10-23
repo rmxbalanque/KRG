@@ -26,13 +26,13 @@ namespace KRG
         return KRG::Physics::PhysicsGeometryComponent::TypeInfoPtr;
     }
 
-    void KRG::Physics::PhysicsGeometryComponent::Load( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::Physics::PhysicsGeometryComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Physics::PhysicsGeometryComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
-    void KRG::Physics::PhysicsGeometryComponent::Unload( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::Physics::PhysicsGeometryComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Physics::PhysicsGeometryComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;

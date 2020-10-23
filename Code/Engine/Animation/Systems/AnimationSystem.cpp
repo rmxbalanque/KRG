@@ -23,27 +23,27 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void AnimationSystem::RegisterComponent( EntityComponentPtr pComponent )
+        void AnimationSystem::RegisterComponent( EntityComponent* pComponent )
         {
-            if ( auto pMeshComponent = TEntityComponentPtr<AnimatedMeshComponent>( pComponent ) )
+            if ( auto pMeshComponent = ComponentCast<AnimatedMeshComponent>( pComponent ) )
             {
-                KRG_ASSERT( !VectorContains( m_meshComponents, pMeshComponent.GetRawPtr() ) );
-                m_meshComponents.push_back( pMeshComponent.GetRawPtr() );
+                KRG_ASSERT( !VectorContains( m_meshComponents, pMeshComponent ) );
+                m_meshComponents.push_back( pMeshComponent );
             }
-            else if ( auto pAnimComponent = TEntityComponentPtr<AnimationComponent>( pComponent ) )
+            else if ( auto pAnimComponent = ComponentCast<AnimationComponent>( pComponent ) )
             {
-                m_pAnimComponent = pAnimComponent.GetRawPtr();
+                m_pAnimComponent = pAnimComponent;
             }
         }
 
-        void AnimationSystem::UnregisterComponent( EntityComponentPtr pComponent )
+        void AnimationSystem::UnregisterComponent( EntityComponent* pComponent )
         {
-            if ( auto pMeshComponent = TEntityComponentPtr<AnimatedMeshComponent>( pComponent ) )
+            if ( auto pMeshComponent = ComponentCast<AnimatedMeshComponent>( pComponent ) )
             {
-                KRG_ASSERT( VectorContains( m_meshComponents, pMeshComponent.GetRawPtr() ) );
-                m_meshComponents.erase_first( pMeshComponent.GetRawPtr() );
+                KRG_ASSERT( VectorContains( m_meshComponents, pMeshComponent ) );
+                m_meshComponents.erase_first( pMeshComponent );
             }
-            else if ( auto pAnimComponent = TEntityComponentPtr<AnimationComponent>( pComponent ) )
+            else if ( auto pAnimComponent = ComponentCast<AnimationComponent>( pComponent ) )
             {
                 m_pAnimComponent = nullptr;
             }

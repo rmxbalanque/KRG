@@ -51,4 +51,4 @@ namespace KRG
 #define KRG_LOG_MESSAGE( CHANNEL, ... ) KRG::Log::AddEntry( KRG::Log::Severity::Message, CHANNEL, __FILE__, __LINE__, __VA_ARGS__ )
 #define KRG_LOG_WARNING( CHANNEL, ... ) KRG::Log::AddEntry( KRG::Log::Severity::Warning, CHANNEL, __FILE__, __LINE__, __VA_ARGS__ )
 #define KRG_LOG_ERROR( CHANNEL, ... ) KRG::Log::AddEntry( KRG::Log::Severity::Error, CHANNEL, __FILE__, __LINE__, __VA_ARGS__ )
-#define KRG_LOG_FATAL_ERROR( CHANNEL, ... ) KRG::Log::AddEntry( KRG::Log::Severity::FatalError, CHANNEL, __FILE__, __LINE__, __VA_ARGS__ )
+#define KRG_LOG_FATAL_ERROR( CHANNEL, ... ) KRG::Log::AddEntry( KRG::Log::Severity::FatalError, CHANNEL, __FILE__, __LINE__, __VA_ARGS__ ); KRG_HALT()

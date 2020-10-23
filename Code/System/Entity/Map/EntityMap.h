@@ -1,77 +1,79 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Entity/EntityCollection.h"
-#include "System/Entity/Serialization/EntityArchive.h"
+#include "EntityMapDescriptor.h"
+#include "System/Entity/Collections/EntityCollection.h"
 #include "System/Resource/ResourcePtr.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    //-------------------------------------------------------------------------
-    // A compiled entity map
-    //-------------------------------------------------------------------------
-    // This is a read-only resource that contains the serialized entities for a given map
-    // This is not directly used in the game, instead we create an entity map instance from this map
+    class Entity;
+
     //-------------------------------------------------------------------------
 
-    class KRG_SYSTEM_ENTITY_API EntityMap : public Resource::IResource
+    namespace EntityModel
     {
-        KRG_REGISTER_RESOURCE( 'MAP' );
-        KRG_SERIALIZE_MEMBERS( KRG_NVP( m_ID ), KRG_NVP( m_entityArchive ) );
+        struct LoadingContext;
+        class EntityCollectionTemplate;
 
-        friend class EntityMapCompiler;
-        friend class EntityMapLoader;
+        //-------------------------------------------------------------------------
+        // Entity Map
+        //-------------------------------------------------------------------------
+        // This is a logical grouping of entities whose lifetime is linked
+        // e.g. the game level, a cell in a open world game, etc.
+        //
+        // Maps manage lifetime, loading and activation of entities
+        //-------------------------------------------------------------------------
 
-    public:
+        class KRG_SYSTEM_ENTITY_API EntityMap
+        {
 
-        inline UUID GetID() const { return m_ID; }
-        virtual bool IsValid() const override;
+        public:
 
-        Serialization::EntityArchive const& GetEntityArchive() const { return m_entityArchive; }
+            enum class Status
+            {
+                Unloaded = 0,
+                Loading,
+                Loaded,
+                UnloadRequested,
+            };
 
-    private:
+        public:
 
-        UUID                            m_ID;
-        Serialization::EntityArchive    m_entityArchive;
-    };
+            EntityMap( ResourceID mapResourceID );
+            EntityMap( EntityMap const& map );
+            EntityMap( EntityMap&& map );
+            ~EntityMap();
 
-    //-------------------------------------------------------------------------
-    // An instance of an entity map
-    //-------------------------------------------------------------------------
-    // This is runtime and mutable version of a serialized entity map
-    //-------------------------------------------------------------------------
+            EntityMap& operator=( EntityMap const& map );
 
-    class KRG_SYSTEM_ENTITY_API EntityMapInstance
-    {
-        friend class EntityDebugView;
+            inline ResourceID const& GetMapResourceID() const { return m_pMapDesc.GetResourceID(); }
 
-    public:
+            inline TVector<Entity*> const& GetEntities() const { KRG_ASSERT( IsLoaded() ); return m_pCollection->GetEntities(); }
+            Entity* FindEntity( UUID entityID ) const;
 
-        EntityMapInstance( ResourceID mapResourceID );
-        ~EntityMapInstance();
+            // Map
+            void Load( LoadingContext const& loadingContext );
+            void Unload( LoadingContext const& loadingContext );
+            bool UpdateLoading( LoadingContext const& loadingContext );
 
-        inline ResourceID const& GetResourceID() const { return m_pMap.GetResourceID(); }
-        inline TVector<Entity*> const& GetEntities() const { KRG_ASSERT( IsLoaded() ); return m_pCollection->GetEntities(); }
+            bool IsLoading() const;
+            inline bool IsLoaded() const { return m_pMapDesc.IsLoaded(); }
+            inline bool IsUnloading() const { return m_status == Status::UnloadRequested; }
+            inline bool IsUnloaded() const { return m_pMapDesc.IsUnloaded(); }
+            inline bool HasLoadingFailed() const { return m_pMapDesc.HasLoadingFailed(); }
 
-        void Load( EntityLoadingContext const& loadingContext );
-        void Unload( EntityLoadingContext const& loadingContext );
-        void UpdateLoading( EntityLoadingContext const& loadingContext );
+            // Entities
+            void LoadEntities( LoadingContext const& loadingContext );
+            void UnloadEntities( LoadingContext const& loadingContext );
 
-        bool IsLoading() const;
-        inline bool IsLoaded() const { return m_pMap.IsLoaded(); }
-        inline bool IsUnloaded() const { return m_pMap.IsUnloaded(); }
-        inline bool HasLoadingFailed() const { return m_pMap.HasLoadingFailed(); }
+        private:
 
-    private:
-
-        EntityMapInstance( EntityMapInstance const& ) = delete;
-        EntityMapInstance& operator=( EntityMapInstance const& ) = delete;
-
-    private:
-
-        TResourcePtr<EntityMap>         m_pMap;
-        EntityCollection*               m_pCollection = nullptr;
-    };
+            TResourcePtr<EntityMapDescriptor>           m_pMapDesc;
+            EntityCollection*                           m_pCollection = nullptr;
+            Status                                      m_status = Status::Unloaded;
+        };
+    }
 }

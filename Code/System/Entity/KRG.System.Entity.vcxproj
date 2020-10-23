@@ -23,35 +23,34 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
-    <ClInclude Include="Serialization\EntityArchive.h" />
-    <ClInclude Include="EntityCollection.h" />
-    <ClInclude Include="Serialization\EntitySerialization.h" />
+    <ClInclude Include="Collections\EntityCollectionTemplate.h" />
     <ClInclude Include="EntityComponent.h" />
-    <ClInclude Include="EntityComponentPtr.h" />
-    <ClInclude Include="EntityLoader.h" />
+    <ClInclude Include="Map\EntityMapDescriptor.h" />
     <ClInclude Include="EntitySpatialComponent.h" />
     <ClInclude Include="EntitySystem.h" />
     <ClInclude Include="EntityTypeHelpers.h" />
     <ClInclude Include="EntityWorld.h" />
     <ClInclude Include="EntityGlobalSystem.h" />
-    <ClInclude Include="Map\EntityMap.h" />
     <ClInclude Include="Map\EntityMapLoader.h" />
+    <ClInclude Include="Collections\EntityDescriptors.h" />
+    <ClInclude Include="Collections\EntityCollection.h" />
+    <ClInclude Include="Map\EntityMap.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Serialization\EntitySerialization.cpp" />
-    <ClCompile Include="Serialization\EntityArchive.cpp" />
-    <ClCompile Include="EntityCollection.cpp" />
+    <ClCompile Include="Collections\EntityCollectionTemplate.cpp" />
     <ClCompile Include="EntityComponent.cpp" />
-    <ClCompile Include="EntityLoader.cpp" />
+    <ClCompile Include="Map\EntityMapDescriptor.cpp" />
     <ClCompile Include="EntitySpatialComponent.cpp" />
     <ClCompile Include="EntitySystem.cpp" />
     <ClCompile Include="EntityTypeHelpers.cpp" />
     <ClCompile Include="EntityWorld.cpp" />
     <ClCompile Include="EntityGlobalSystem.cpp" />
-    <ClCompile Include="Map\EntityMap.cpp" />
     <ClCompile Include="Map\EntityMapLoader.cpp" />
+    <ClCompile Include="Collections\EntityDescriptors.cpp" />
+    <ClCompile Include="Collections\EntityCollection.cpp" />
+    <ClCompile Include="Map\EntityMap.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E3085618-D753-48E5-A30F-B44A1C39F6E4}</ProjectGuid>

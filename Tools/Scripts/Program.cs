@@ -8,7 +8,7 @@ namespace Scripts
         {
             //ResourceScripts.GenerateResources( new DirectoryInfo( "D:\\Kruger\\Data" ), new DirectoryInfo( "D:\\Kruger\\Data\\Packs\\br" ) );
             //ResourceScripts.RemoveRootArraysFromResourceDescriptors( new DirectoryInfo( "D:\\Kruger\\Data" ) );
-            SceneScripts.GenerateTestMapFile();
+            SceneScripts.GenerateECSTestMapFile( new FileInfo( @"D:\Kruger\Data\Maps\ECS_TestMap.map" ), 10, 10 );
         }
     }
 }

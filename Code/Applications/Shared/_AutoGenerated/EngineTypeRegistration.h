@@ -27,7 +27,7 @@ namespace KRG
 
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton"), ResourceTypeID( "SKEL" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationData"), ResourceTypeID( "ANIM" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityMap"), ResourceTypeID( "MAP" ) );
+            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor"), ResourceTypeID( "MAP" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::SkeletalMesh"), ResourceTypeID( "SMSH" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::StaticMesh"), ResourceTypeID( "MSH" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::Shader"), ResourceTypeID( "SHDR" ) );
@@ -56,7 +56,7 @@ namespace KRG
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::Shader" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::StaticMesh" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::SkeletalMesh" ) );
-            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityMap" ) );
+            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationData" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton" ) );
 

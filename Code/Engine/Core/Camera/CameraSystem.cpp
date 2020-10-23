@@ -18,20 +18,20 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void CameraSystem::RegisterComponent( Entity const* pEntity, EntityComponentPtr pComponent )
+    void CameraSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        auto pCameraComponent = TEntityComponentPtr<CameraComponent>( pComponent );
+        auto pCameraComponent = ComponentCast<CameraComponent>( pComponent );
         if ( pCameraComponent != nullptr )
         {
             // Update camera view dimensions
             pCameraComponent->OnViewResized( m_viewDimensions );
 
             // Add to registered components list
-            m_cameras.emplace_back( RegisteredCamera( pEntity->GetID(), pCameraComponent.GetRawPtr() ) );
+            m_cameras.emplace_back( RegisteredCamera( pEntity->GetID(), pCameraComponent ) );
         }
     }
 
-    void CameraSystem::UnregisterComponent( Entity const* pEntity, EntityComponentPtr pComponent )
+    void CameraSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
         for ( auto i = 0; i < m_cameras.size(); i++ )
         {

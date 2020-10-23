@@ -19,7 +19,6 @@
     <ClInclude Include="TypeRegistry.h" />
     <ClInclude Include="TypeValueConverter.h" />
     <ClInclude Include="PropertyPath.h" />
-    <ClInclude Include="TypeSerialization.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreTypeIDs.cpp" />
@@ -28,6 +27,5 @@
     <ClCompile Include="TypeRegistry.cpp" />
     <ClCompile Include="TypeValueConverter.cpp" />
     <ClCompile Include="PropertyPath.cpp" />
-    <ClCompile Include="TypeSerialization.cpp" />
   </ItemGroup>
 </Project>

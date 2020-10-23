@@ -162,29 +162,29 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void StaticMeshRenderer::RegisterComponent( Entity const* pEntity, EntityComponentPtr pComponent )
+        void StaticMeshRenderer::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
         {
-            auto pMeshComponent = TEntityComponentPtr<StaticMeshComponent>( pComponent );
+            auto pMeshComponent = ComponentCast<StaticMeshComponent>( pComponent );
             if ( pMeshComponent != nullptr )
             {
                 auto& registeredComponent = m_meshComponents.AddRecord( pEntity->GetID() );
-                registeredComponent.m_pComponent = pMeshComponent.GetRawPtr();
+                registeredComponent.m_pComponent = pMeshComponent;
                 registeredComponent.m_mobilityChangedEventBinding = pMeshComponent->OnMobilityChanged().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnMobilityUpdated( pMeshComponent ); } );
 
                 // Add to appropriate sub-list
                 if ( pMeshComponent->GetMobility() == Mobility::Dynamic )
                 {
-                    m_dynamicComponents.push_back( pMeshComponent.GetRawPtr() );
+                    m_dynamicComponents.push_back( pMeshComponent );
                 }
                 else
                 {
                     //m_staticComponentBVH.InsertBox( pMeshComponent->GetWorldBounds().GetAABB(), pMeshComponent.GetRawPtr() );
-                    m_staticComponents.push_back( pMeshComponent.GetRawPtr() );
+                    m_staticComponents.push_back( pMeshComponent );
                 }
             }
         }
 
-        void StaticMeshRenderer::UnregisterComponent( Entity const* pEntity, EntityComponentPtr pComponent )
+        void StaticMeshRenderer::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
         {
             auto const pRecord = m_meshComponents[pEntity->GetID()];
             if ( pRecord != nullptr )

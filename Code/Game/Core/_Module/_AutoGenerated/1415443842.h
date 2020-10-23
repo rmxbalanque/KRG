@@ -417,7 +417,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::TestComponent::InternalStruct& type )
     {
-        archive( KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourceID ), KRG_NVP( m_resourcePtr ) );
+        archive( KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourceID ) );
     }
 
     //-------------------------------------------------------------------------
@@ -453,18 +453,6 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent::InternalStruct, m_resourceID );
             propertyInfo.m_size = sizeof( KRG::ResourceID );
-            propertyInfo.m_flags.SetAll( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_resourcePtr" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
-            propertyInfo.m_parentTypeID = 748499872;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::EntityMap" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourcePtr;
-            propertyInfo.m_offset = offsetof( KRG::TestComponent::InternalStruct, m_resourcePtr );
-            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::EntityMap> );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
@@ -521,22 +509,12 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
 
-                    if ( pActualType->m_resourcePtr.IsValid() )
-                    {
-                        pResourceSystem->LoadResource( pActualType->m_resourcePtr, requesterID );
-                    }
-
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
-
-                    if ( pActualType->m_resourcePtr.IsValid() )
-                    {
-                        pResourceSystem->UnloadResource( pActualType->m_resourcePtr, requesterID );
-                    }
 
                 }
 
@@ -545,16 +523,6 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    KRG_ASSERT( !pActualType->m_resourcePtr.IsUnloading() );
-                    if ( !pActualType->m_resourcePtr.IsValid() || pActualType->m_resourcePtr.HasLoadingFailed() )
-                    {
-                        status = LoadingStatus::Failed;
-                    }
-                    else if ( pActualType->m_resourcePtr.IsLoading() )
-                    {
-                        return LoadingStatus::Loading;
-                    }
-
                     return status;
                 }
 
@@ -562,12 +530,6 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
-
-                    KRG_ASSERT( !pActualType->m_resourcePtr.IsLoading() );
-                    if ( !pActualType->m_resourcePtr.IsUnloaded() )
-                    {
-                        return LoadingStatus::Unloading;
-                    }
 
                     return LoadingStatus::Unloaded;
                 }
@@ -583,11 +545,6 @@ namespace KRG
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
-                    if ( propertyID == 2267756357 )
-                    {
-                        return KRG::EntityMap::GetStaticResourceTypeID();
-                    }
-
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
@@ -649,7 +606,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::TestComponent& type )
     {
-        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_bool ), KRG_NVP( m_U8 ), KRG_NVP( m_U16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_S8 ), KRG_NVP( m_S16 ), KRG_NVP( m_S32 ), KRG_NVP( m_S64 ), KRG_NVP( m_F32 ), KRG_NVP( m_F64 ), KRG_NVP( m_Color ), KRG_NVP( m_UUID ), KRG_NVP( m_String ), KRG_NVP( m_StringID ), KRG_NVP( m_DataPath ), KRG_NVP( m_Float2 ), KRG_NVP( m_Float3 ), KRG_NVP( m_Float4 ), KRG_NVP( m_Quaternion ), KRG_NVP( m_Matrix ), KRG_NVP( m_AffineTransform ), KRG_NVP( m_internalEnum ), KRG_NVP( m_testIinternalEnum ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourceID ), KRG_NVP( m_resourcePtr ), KRG_NVP( m_struct ), KRG_NVP( m_staticArray ), KRG_NVP( m_dynamicArray ), KRG_NVP( m_staticArrayOfIDs ), KRG_NVP( m_dynamicArrayOfStructs ), KRG_NVP( m_staticArrayOfStructs ), KRG_NVP( m_staticArrayOfEnums ) );
+        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_bool ), KRG_NVP( m_U8 ), KRG_NVP( m_U16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_S8 ), KRG_NVP( m_S16 ), KRG_NVP( m_S32 ), KRG_NVP( m_S64 ), KRG_NVP( m_F32 ), KRG_NVP( m_F64 ), KRG_NVP( m_Color ), KRG_NVP( m_UUID ), KRG_NVP( m_String ), KRG_NVP( m_StringID ), KRG_NVP( m_DataPath ), KRG_NVP( m_Float2 ), KRG_NVP( m_Float3 ), KRG_NVP( m_Float4 ), KRG_NVP( m_Quaternion ), KRG_NVP( m_Matrix ), KRG_NVP( m_AffineTransform ), KRG_NVP( m_internalEnum ), KRG_NVP( m_testIinternalEnum ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourceID ), KRG_NVP( m_struct ), KRG_NVP( m_staticArray ), KRG_NVP( m_dynamicArray ), KRG_NVP( m_staticArrayOfIDs ), KRG_NVP( m_dynamicArrayOfStructs ), KRG_NVP( m_staticArrayOfStructs ), KRG_NVP( m_staticArrayOfEnums ) );
     }
 
     //-------------------------------------------------------------------------
@@ -978,18 +935,6 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_resourcePtr" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
-            propertyInfo.m_parentTypeID = 3100775830;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::EntityMap" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourcePtr;
-            propertyInfo.m_offset = offsetof( KRG::TestComponent, m_resourcePtr );
-            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::EntityMap> );
-            propertyInfo.m_flags.SetAll( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
-
-            //-------------------------------------------------------------------------
-
             propertyInfo.m_ID = StringID( "m_struct" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TestStruct" );
             propertyInfo.m_parentTypeID = 3100775830;
@@ -1153,11 +1098,6 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
 
-                    if ( pActualType->m_resourcePtr.IsValid() )
-                    {
-                        pResourceSystem->LoadResource( pActualType->m_resourcePtr, requesterID );
-                    }
-
                     KRG::TestStruct::TypeInfoPtr->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_struct );
 
                     for ( auto& propertyValue : pActualType->m_dynamicArrayOfStructs )
@@ -1176,11 +1116,6 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
 
-                    if ( pActualType->m_resourcePtr.IsValid() )
-                    {
-                        pResourceSystem->UnloadResource( pActualType->m_resourcePtr, requesterID );
-                    }
-
                     KRG::TestStruct::TypeInfoPtr->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_struct );
 
                     for ( auto& propertyValue : pActualType->m_dynamicArrayOfStructs )
@@ -1198,16 +1133,6 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
-
-                    KRG_ASSERT( !pActualType->m_resourcePtr.IsUnloading() );
-                    if ( !pActualType->m_resourcePtr.IsValid() || pActualType->m_resourcePtr.HasLoadingFailed() )
-                    {
-                        status = LoadingStatus::Failed;
-                    }
-                    else if ( pActualType->m_resourcePtr.IsLoading() )
-                    {
-                        return LoadingStatus::Loading;
-                    }
 
                     status = KRG::TestStruct::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_struct );
                     if ( status == LoadingStatus::Loading )
@@ -1243,12 +1168,6 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
-
-                    KRG_ASSERT( !pActualType->m_resourcePtr.IsLoading() );
-                    if ( !pActualType->m_resourcePtr.IsUnloaded() )
-                    {
-                        return LoadingStatus::Unloading;
-                    }
 
                     status = KRG::TestStruct::TypeInfoPtr->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_struct );
                     if ( status != LoadingStatus::Unloaded )
@@ -1311,11 +1230,6 @@ namespace KRG
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
-                    if ( propertyID == 2267756357 )
-                    {
-                        return KRG::EntityMap::GetStaticResourceTypeID();
-                    }
-
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();

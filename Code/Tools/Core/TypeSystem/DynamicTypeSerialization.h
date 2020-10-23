@@ -3,7 +3,6 @@
 #include "Tools/Core/_Module/API.h"
 #include "Tools/Core/Thirdparty/KRG_RapidJson.h"
 #include "System/TypeSystem/PropertyPath.h"
-#include "System/Entity/Serialization/EntitySerialization.h"
 
 //-------------------------------------------------------------------------
 

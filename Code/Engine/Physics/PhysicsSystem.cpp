@@ -18,13 +18,13 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void PhysicsSystem::RegisterComponent( Entity const* pEntity, EntityComponentPtr pComponent )
+        void PhysicsSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
         {
-            auto pGeometryComponent = TEntityComponentPtr<PhysicsGeometryComponent>( pComponent );
+            auto pGeometryComponent = ComponentCast<PhysicsGeometryComponent>( pComponent );
             if ( pGeometryComponent != nullptr )
             {
                 auto& registeredComponent = m_geometryComponents.AddRecord( pEntity->GetID() );
-                registeredComponent.m_pComponent = pGeometryComponent.GetRawPtr();
+                registeredComponent.m_pComponent = pGeometryComponent;
 
                 // Create physics actor
                 if ( pGeometryComponent->m_pPhysicsGeometry->GetTriangleMesh() != nullptr )
@@ -56,7 +56,7 @@ namespace KRG
             }
         }
 
-        void PhysicsSystem::UnregisterComponent( Entity const* pEntity, EntityComponentPtr pComponent )
+        void PhysicsSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
         {
             auto const pRecord = m_geometryComponents[pEntity->GetID()];
             if ( pRecord != nullptr )

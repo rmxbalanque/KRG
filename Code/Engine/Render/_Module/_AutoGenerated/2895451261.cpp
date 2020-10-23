@@ -63,13 +63,13 @@ namespace KRG
         return KRG::Render::StaticMeshComponent::TypeInfoPtr;
     }
 
-    void KRG::Render::StaticMeshComponent::Load( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::Render::StaticMeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Render::StaticMeshComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
-    void KRG::Render::StaticMeshComponent::Unload( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::Render::StaticMeshComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Render::StaticMeshComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;

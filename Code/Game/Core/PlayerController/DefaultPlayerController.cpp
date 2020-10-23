@@ -27,26 +27,26 @@ namespace KRG
         KRG_ASSERT( m_pRootComponent == nullptr && m_pCameraComponent == nullptr );
     }
 
-    void DefaultPlayerController::RegisterComponent( EntityComponentPtr pComponent )
+    void DefaultPlayerController::RegisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pSpatialComponent = TEntityComponentPtr<SpatialEntityComponent>( pComponent ) )
+        if ( auto pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent ) )
         {
             if ( pSpatialComponent->IsRootComponent() )
             {
                 KRG_ASSERT( m_pRootComponent == nullptr );
-                m_pRootComponent = pSpatialComponent.GetRawPtr();
+                m_pRootComponent = pSpatialComponent;
             }
         }
 
-        if ( auto pCameraComponent = TEntityComponentPtr<CameraComponent>( pComponent ) )
+        if ( auto pCameraComponent = ComponentCast<CameraComponent>( pComponent ) )
         {
-            m_pCameraComponent = pCameraComponent.GetRawPtr();
+            m_pCameraComponent = pCameraComponent;
         }
     }
 
-    void DefaultPlayerController::UnregisterComponent( EntityComponentPtr pComponent )
+    void DefaultPlayerController::UnregisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pSpatialComponent = TEntityComponentPtr<SpatialEntityComponent>( pComponent ) )
+        if ( auto pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent ) )
         {
             if ( pSpatialComponent->IsRootComponent() && m_pRootComponent == pSpatialComponent )
             {
@@ -54,7 +54,7 @@ namespace KRG
             }
         }
 
-        if ( auto pCameraComponent = TEntityComponentPtr<CameraComponent>( pComponent ) )
+        if ( auto pCameraComponent = ComponentCast<CameraComponent>( pComponent ) )
         {
             if ( m_pCameraComponent == pCameraComponent )
             {

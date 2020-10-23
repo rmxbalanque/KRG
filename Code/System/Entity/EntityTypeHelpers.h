@@ -156,7 +156,16 @@ namespace KRG
                     typeInfo.m_pTypeHelper = &StaticTypeHelper;
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::EntityComponent );
 
+                    // Parent Types 
+                    //-------------------------------------------------------------------------
+
+                    TypeSystem::TypeInfo const* pParentType = KRG::EntityComponent::TypeInfoPtr;
+                    KRG_ASSERT( pParentType != nullptr );
+                    //typeInfo.m_parentTypes.push_back( pParentType );
+
                     // Register Type
+                    //-------------------------------------------------------------------------
+
                     SpatialEntityComponent::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
                 }
 

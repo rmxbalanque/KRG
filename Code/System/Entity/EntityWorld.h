@@ -1,10 +1,10 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "EntityLoader.h"
 #include "EntityComponent.h"
 #include "EntityGlobalSystem.h"
 #include "Entity.h"
+#include "Map/EntityMap.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Resource/ResourcePtr.h"
 
@@ -12,9 +12,6 @@
 
 namespace KRG
 {
-    class EntityCollection;
-    class EntityMap;
-    class EntityMapInstance;
     class TaskSystem;
 
     //-------------------------------------------------------------------------
@@ -22,16 +19,6 @@ namespace KRG
     class KRG_SYSTEM_ENTITY_API EntityWorld
     {
         friend class EntityDebugViewController;
-
-        // This function will generate a tree of all attached entities ordered in a depth first manner.
-        inline static void GenerateEntitySpatialAttachmentHierarchy( Entity* pEntity, TInlineVector<Entity*, 5>& outHierarchy )
-        {
-            outHierarchy.emplace_back( pEntity );
-            for ( auto pAttachedEntity : pEntity->m_attachedEntities )
-            {
-                GenerateEntitySpatialAttachmentHierarchy( pAttachedEntity, outHierarchy );
-            }
-        }
 
     public:
 
@@ -50,13 +37,17 @@ namespace KRG
         void UnregisterGlobalSystem( IGlobalEntitySystem* pSystem );
 
         //-------------------------------------------------------------------------
-        // Loading
+        // Map Management
         //-------------------------------------------------------------------------
 
-        inline bool IsBusyLoading() const { return ( m_loadingMaps.size() + m_mapLoadRequests.size() + m_mapUnloadRequests.size() ) > 0; }
-        inline bool HasLoadedMaps() const { return !m_loadedMaps.empty(); }
+        // Do we have any loaded maps (maps can be either loaded or still loading)
+        inline bool HasLoadedMaps() const { return !m_maps.empty(); }
+
+        // Are we currently loading anything
+        bool IsBusyLoading() const;
+
+        // Have we requested this map to be loaded (doesnt actually return the load status of the map, as that info should not be needed externally)
         bool IsMapLoaded( ResourceID const& mapResourceID ) const;
-        bool IsMapLoadedOrLoading( ResourceID const& mapResourceID ) const;
 
         // These functions queue up load and unload requests to be processed during the next loading update for the world
         void LoadMap( ResourceID const& mapResourceID );
@@ -78,17 +69,11 @@ namespace KRG
 
         SystemRegistry const*                               m_pSystemsRegistry = nullptr;
         TaskSystem*                                         m_pTaskSystem = nullptr;
-        EntityLoadingContext                                m_loadingContext;
+        EntityModel::LoadingContext                         m_loadingContext;
         TVector<IGlobalEntitySystem*>                       m_globalSystems;
 
-        // Map loading
-        TVector<ResourceID>                                 m_mapLoadRequests;
-        TVector<ResourceID>                                 m_mapUnloadRequests;
-        TVector<EntityMapInstance*>                         m_loadingMaps;
-        TVector<EntityMapInstance*>                         m_loadedMaps;
-
-        // Entity loading
-        TVector<EntityLoader*>                              m_activeLoaders;
+        // Maps
+        TInlineVector<EntityModel::EntityMap,1>             m_maps;
 
         // Entities
         THashMap<UUID, Entity*>                             m_entityLookupMap;

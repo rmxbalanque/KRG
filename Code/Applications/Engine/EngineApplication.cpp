@@ -79,6 +79,7 @@ namespace KRG
         {
             auto const sceneResourceID = KRG::ResourceID( m_startupMap );
             m_world.LoadMap( sceneResourceID );
+            m_world.LoadMap( KRG::ResourceID( "data://maps/BR_Minimal.map") );
         }
     }
 

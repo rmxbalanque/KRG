@@ -26,7 +26,7 @@ namespace KRG
 
         private:
 
-            EntityMapLoader                                 m_mapLoader;
+            EntityModel::EntityMapLoader                    m_mapLoader;
 
             ImGuiX::ImguiRenderer                           m_imguiRenderer;
 

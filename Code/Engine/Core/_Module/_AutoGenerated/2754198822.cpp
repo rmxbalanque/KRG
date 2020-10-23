@@ -63,13 +63,13 @@ namespace KRG
         return KRG::CameraComponent::TypeInfoPtr;
     }
 
-    void KRG::CameraComponent::Load( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::CameraComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::CameraComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
-    void KRG::CameraComponent::Unload( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::CameraComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::CameraComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;

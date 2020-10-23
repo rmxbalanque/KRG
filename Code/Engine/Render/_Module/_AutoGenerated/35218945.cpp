@@ -26,13 +26,13 @@ namespace KRG
         return KRG::Render::SkeletalMeshComponent::TypeInfoPtr;
     }
 
-    void KRG::Render::SkeletalMeshComponent::Load( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::Render::SkeletalMeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Render::SkeletalMeshComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
-    void KRG::Render::SkeletalMeshComponent::Unload( EntityLoadingContext const& context, UUID requesterID )
+    void KRG::Render::SkeletalMeshComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Render::SkeletalMeshComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;

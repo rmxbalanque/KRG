@@ -1,7 +1,7 @@
 #if _WIN32
 #include "TypeDeserializer.h"
+#include "TypeSerializationCommon.h"
 #include "System/TypeSystem/TypeValueConverter.h"
-#include "System/TypeSystem/TypeSerialization.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -33,7 +33,7 @@ namespace KRG
                 if ( typeValue.IsString() )
                 {
                     String const valueString = String( typeValue.GetString() );
-                    ConvertStringToValue( typeID, valueString, pPropertyDataAddress );
+                    TypeSystem::TypeValueConverter::ConvertStringToValue( typeID, valueString, pPropertyDataAddress );
                 }
                 else if ( typeValue.IsBool() )
                 {
@@ -198,8 +198,8 @@ namespace KRG
                 auto const pTypeInfo = m_typeRegistry.GetTypeInfo( typeID );
                 KRG_ASSERT( pTypeInfo != nullptr );
 
-                KRG_ASSERT( currentJsonValue.IsObject() && currentJsonValue.HasMember( TypeSerializationSettings::TypeKey ) );
-                TypeID const readTypeID( currentJsonValue[TypeSerializationSettings::TypeKey].GetString() );
+                KRG_ASSERT( currentJsonValue.IsObject() && currentJsonValue.HasMember( TypeSerialization::Key_TypeID ) );
+                TypeID const readTypeID( currentJsonValue[TypeSerialization::Key_TypeID].GetString() );
                 KRG_ASSERT( readTypeID == typeID );
 
                 //-------------------------------------------------------------------------

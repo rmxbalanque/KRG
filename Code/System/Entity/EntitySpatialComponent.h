@@ -9,13 +9,17 @@
 
 namespace KRG
 {
+    namespace EntityModel { class EntityCollection; }
+
+    //-------------------------------------------------------------------------
+
     class KRG_SYSTEM_ENTITY_API SpatialEntityComponent : public EntityComponent
     {
         KRG_REGISTER_TYPE;
 
         friend class Entity;
-        friend class EntityCollection;
         friend class EntityDebugViewController;
+        friend class EntityModel::EntityCollection;
 
         struct AttachmentSocketTransformResult
         {

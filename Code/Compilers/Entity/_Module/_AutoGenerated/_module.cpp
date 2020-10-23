@@ -10,11 +10,11 @@
 
 void KRG::EntityModel::ResourceCompilerModule::RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::AI::NavmeshResourceDescriptor>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::EntityModel::NavmeshResourceDescriptor>::RegisterType( typeRegistry );
 }
 
 void KRG::EntityModel::ResourceCompilerModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::AI::NavmeshResourceDescriptor>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::EntityModel::NavmeshResourceDescriptor>::UnregisterType( typeRegistry );
 }
 

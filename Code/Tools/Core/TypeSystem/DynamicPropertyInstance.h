@@ -256,7 +256,7 @@ namespace KRG
             }
             else
             {
-                KRG_ASSERT( TypeSystem::IsValidStringValueForType( GetTypeID(), stringValue ) );
+                KRG_ASSERT( TypeSystem::TypeValueConverter::IsValidStringValueForType( GetTypeID(), stringValue ) );
             }
 
             m_value = stringValue;

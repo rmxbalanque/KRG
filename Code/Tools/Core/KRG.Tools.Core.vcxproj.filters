@@ -53,6 +53,7 @@
     <ClInclude Include="TypeSystem\TypeSerializer.h" />
     <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
     <ClInclude Include="TypeSystem\DynamicTypeSerializer.h" />
+    <ClInclude Include="TypeSystem\TypeSerializationCommon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp">
@@ -74,5 +75,6 @@
     </ClCompile>
     <ClCompile Include="TypeSystem\TypeSerializer.cpp" />
     <ClCompile Include="TypeSystem\DynamicTypeSerializer.cpp" />
+    <ClCompile Include="TypeSystem\TypeSerializationCommon.cpp" />
   </ItemGroup>
 </Project>

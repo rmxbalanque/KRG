@@ -1,6 +1,7 @@
 #include "Entity.h"
 #include "EntitySystem.h"
 #include "System/Core/Update/UpdateContext.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
@@ -74,38 +75,65 @@ namespace KRG
 
     Entity::~Entity()
     {
-        KRG_ASSERT( !IsLoaded() );
-        KRG_ASSERT( m_pParentSpatialEntity == nullptr && m_attachedEntities.empty() && !m_parentAttachmentSocketID.IsValid() );
-        KRG_ASSERT( !m_isAttachedToParent );
+        KRG_ASSERT( IsUnloaded() );
+
+        Entity::BreakAllEntitySpatialAttachments( this );
+
+        // Destroy Systems
+        for ( auto& pSystem : m_systems )
+        {
+            KRG::Delete( pSystem );
+        }
+        
+        m_systems.clear();
+
+        // Destroy components
+        for ( auto& pComponent : m_components )
+        {
+            KRG::Delete( pComponent );
+        }
+
+        m_components.clear();
     }
 
-    void Entity::Load( EntityLoadingContext const& context )
+    //-------------------------------------------------------------------------
+
+    void Entity::Load( EntityModel::LoadingContext const& context )
     {
         KRG_ASSERT( context.IsValid() );
         KRG_ASSERT( m_status == Status::Unloaded );
 
         for ( auto pComponent : m_components )
         {
+            KRG_ASSERT( pComponent->IsUnloaded() );
             pComponent->Load( context, m_ID );
         }
 
         m_status = Status::Loading;
     }
 
-    void Entity::Unload( EntityLoadingContext const& context )
+    void Entity::Unload( EntityModel::LoadingContext const& context )
     {
         KRG_ASSERT( context.IsValid() );
         KRG_ASSERT( m_status != Status::Unloaded );
 
         for( auto pComponent : m_components )
         {
+            KRG_ASSERT( !pComponent->IsUnloaded() );
+
+            // Shutdown any initialized components
+            if ( pComponent->IsInitialized() )
+            {
+                pComponent->Shutdown();
+            }
+
             pComponent->Unload( context, m_ID );
         }
 
         m_status = Status::Unloaded;
     }
 
-    void Entity::UpdateLoading()
+    bool Entity::UpdateLoading()
     {
         KRG_ASSERT( m_status == Status::Loading );
 
@@ -113,14 +141,25 @@ namespace KRG
 
         for ( auto pComponent : m_components )
         {
+            // If a component has finished loading, skip it
+            if ( pComponent->IsInitialized() || pComponent->HasLoadingFailed() )
+            {
+                continue;
+            }
+
+            //-------------------------------------------------------------------------
+
             pComponent->UpdateLoading();
 
-            KRG_ASSERT( pComponent->IsLoading() || pComponent->IsLoaded() || pComponent->HasLoadingFailed() );
-
-            if ( pComponent->IsLoading() )
+            // If we finish loading a component, immediately initialize it
+            if ( pComponent->IsLoaded() )
+            {
+                pComponent->Initialize();
+            }
+            // Set the still loading flag 
+            else if ( pComponent->IsLoading() )
             {
                 haveAllComponentsFinishedLoading = false;
-                break;
             }
         }
 
@@ -129,7 +168,10 @@ namespace KRG
         if( haveAllComponentsFinishedLoading )
         {
             m_status = Status::Loaded;
+            return true;
         }
+
+        return false;
     }
 
     //-------------------------------------------------------------------------
@@ -300,12 +342,12 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         auto pParentEntity = m_pParentSpatialEntity;
-        SpatialEntityComponent* pComponentToAttachTo = pParentEntity->m_pRootSpatialComponent.GetRawPtr();
+        SpatialEntityComponent* pParentRootComponent = pParentEntity->m_pRootSpatialComponent;
         if ( m_parentAttachmentSocketID.IsValid() )
         {
             if ( auto pFoundComponent = pParentEntity->FindSocketAttachmentComponent( m_parentAttachmentSocketID ) )
             {
-                pComponentToAttachTo = pFoundComponent;
+                pParentRootComponent = pFoundComponent;
             }
             else
             {
@@ -316,15 +358,15 @@ namespace KRG
         // Perform attachment
         //-------------------------------------------------------------------------
 
-        KRG_ASSERT( pComponentToAttachTo != nullptr );
+        KRG_ASSERT( pParentRootComponent != nullptr );
 
         // Set component hierarchy values
-        m_pRootSpatialComponent->m_pSpatialParent = pComponentToAttachTo;
+        m_pRootSpatialComponent->m_pSpatialParent = pParentRootComponent;
         m_pRootSpatialComponent->m_parentAttachmentSocketID = m_parentAttachmentSocketID;
         m_pRootSpatialComponent->CalculateWorldTransform();
 
         // Add to the list of child components on the component to attach to
-        pComponentToAttachTo->m_spatialChildren.emplace_back( m_pRootSpatialComponent.GetRawPtr() );
+        pParentRootComponent->m_spatialChildren.emplace_back( m_pRootSpatialComponent );
 
         //-------------------------------------------------------------------------
 
@@ -340,7 +382,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         auto pParentComponent = m_pRootSpatialComponent->m_pSpatialParent;
-        auto foundIter = VectorFind( pParentComponent->m_spatialChildren, m_pRootSpatialComponent.GetRawPtr() );
+        auto foundIter = VectorFind( pParentComponent->m_spatialChildren, m_pRootSpatialComponent );
         KRG_ASSERT( foundIter != pParentComponent->m_spatialChildren.end() );
         pParentComponent->m_spatialChildren.erase_unsorted( foundIter );
 

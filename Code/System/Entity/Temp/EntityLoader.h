@@ -1,16 +1,19 @@
 #pragma once
 
-#include "_Module/API.h"
+#include "../_Module/API.h"
 #include "System/Core/Math/Range.h"
 #include "System/Core/Types/UUID.h"
 #include "System/Core/Types/LoadingStatus.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG { class Entity; }
+
+//-------------------------------------------------------------------------
+
+namespace KRG::EntityModel
 {
-    class Entity;
-    struct EntityLoadingContext;
+    struct LoadingContext;
 
     //-------------------------------------------------------------------------
     // Internal loading group helper
@@ -28,12 +31,12 @@ namespace KRG
 
     public:
 
-        static EntityLoader Load( EntityLoadingContext const& loadingContext, TVector<Entity*> const& entities ) { return EntityLoader( loadingContext, entities, Operation::Load ); }
-        static EntityLoader Load( EntityLoadingContext const& loadingContext, Entity* pEntity ) { return EntityLoader( loadingContext, pEntity, Operation::Load ); }
-        static EntityLoader Unload( EntityLoadingContext const& loadingContext, TVector<Entity*> const& entities ) { return EntityLoader( loadingContext, entities, Operation::Unload ); }
-        static EntityLoader Unload( EntityLoadingContext const& loadingContext, Entity* pEntity ) { return EntityLoader( loadingContext, pEntity, Operation::Unload ); }
-        static EntityLoader Reload( EntityLoadingContext const& loadingContext, TVector<Entity*> const& entities ) { return EntityLoader( loadingContext, entities, Operation::Reload ); }
-        static EntityLoader Reload( EntityLoadingContext const& loadingContext, Entity* pEntity ) { return EntityLoader( loadingContext, pEntity, Operation::Reload ); }
+        static EntityLoader Load( EntityModel::LoadingContext const& loadingContext, TVector<Entity*> const& entities ) { return EntityLoader( loadingContext, entities, Operation::Load ); }
+        static EntityLoader Load( EntityModel::LoadingContext const& loadingContext, Entity* pEntity ) { return EntityLoader( loadingContext, pEntity, Operation::Load ); }
+        static EntityLoader Unload( EntityModel::LoadingContext const& loadingContext, TVector<Entity*> const& entities ) { return EntityLoader( loadingContext, entities, Operation::Unload ); }
+        static EntityLoader Unload( EntityModel::LoadingContext const& loadingContext, Entity* pEntity ) { return EntityLoader( loadingContext, pEntity, Operation::Unload ); }
+        static EntityLoader Reload( EntityModel::LoadingContext const& loadingContext, TVector<Entity*> const& entities ) { return EntityLoader( loadingContext, entities, Operation::Reload ); }
+        static EntityLoader Reload( EntityModel::LoadingContext const& loadingContext, Entity* pEntity ) { return EntityLoader( loadingContext, pEntity, Operation::Reload ); }
 
     public:
 
@@ -50,10 +53,10 @@ namespace KRG
         inline TVector<Entity*> const& GetEntities() const { KRG_ASSERT( !IsLoading() ); return m_entities; }
 
         // This will cancel any active loads and unload all entities that have been previously loaded
-        void CancelOperation( EntityLoadingContext const& loadingContext ) { Unload( loadingContext ); }
+        void CancelOperation( LoadingContext const& loadingContext ) { Unload( loadingContext ); }
 
         // Update the loading status for the loader
-        LoadingStatus UpdateLoading( EntityLoadingContext const& loadingContext );
+        LoadingStatus UpdateLoading( LoadingContext const& loadingContext );
 
         // Reloading
         //-------------------------------------------------------------------------
@@ -74,12 +77,12 @@ namespace KRG
 
     private:
     
-        EntityLoader( EntityLoadingContext const& loadingContext, TVector<Entity*> const& entities, Operation operation );
-        EntityLoader( EntityLoadingContext const& loadingContext, Entity* pEntity, Operation operation );
+        EntityLoader( LoadingContext const& loadingContext, TVector<Entity*> const& entities, Operation operation );
+        EntityLoader( LoadingContext const& loadingContext, Entity* pEntity, Operation operation );
 
-        void Initialize( EntityLoadingContext const& loadingContext );
-        void Load( EntityLoadingContext const& loadingContext );
-        void Unload( EntityLoadingContext const& loadingContext );
+        void Initialize( LoadingContext const& loadingContext );
+        void Load( LoadingContext const& loadingContext );
+        void Unload( LoadingContext const& loadingContext );
 
     private:
 

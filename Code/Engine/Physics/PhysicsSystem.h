@@ -38,8 +38,8 @@ namespace KRG
 
         private:
 
-            virtual void RegisterComponent( Entity const* pEntity, EntityComponentPtr pComponent ) override final;
-            virtual void UnregisterComponent( Entity const* pEntity, EntityComponentPtr pComponent ) override final;
+            virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
+            virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
 
         protected:
 

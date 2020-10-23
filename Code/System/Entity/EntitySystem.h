@@ -1,7 +1,6 @@
 #pragma once
 
 #include "System/Entity/_Module/API.h"
-#include "EntityComponentPtr.h"
 #include "System/Core/Update/UpdateStage.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 
@@ -11,6 +10,7 @@ namespace KRG
 {
     class SystemRegistry;
     class UpdateContext;
+    class EntityComponent;
 
     //-------------------------------------------------------------------------
 
@@ -36,8 +36,8 @@ namespace KRG
         virtual UpdatePriorityList const& GetRequiredUpdatePriorities() { return IEntitySystem::PriorityList; };
 
         // Component registration
-        virtual void RegisterComponent( EntityComponentPtr pComponent ) = 0;
-        virtual void UnregisterComponent( EntityComponentPtr pComponent ) = 0;
+        virtual void RegisterComponent( EntityComponent* pComponent ) = 0;
+        virtual void UnregisterComponent( EntityComponent* pComponent ) = 0;
 
         // System Update
         virtual void Update( UpdateContext const& ctx ) = 0;

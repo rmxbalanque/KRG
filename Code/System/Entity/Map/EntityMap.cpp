@@ -1,51 +1,62 @@
 #include "EntityMap.h"
 #include "System/Resource/ResourceSystem.h"
+#include "System/Entity/Entity.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EntityModel
 {
-    bool EntityMap::IsValid() const
+    EntityMap::EntityMap( ResourceID mapResourceID )
+        : m_pMapDesc( mapResourceID )
+    {}
+
+    EntityMap::EntityMap( EntityMap const& map )
+        : m_pMapDesc( map.m_pMapDesc )
     {
-        return !m_entityArchive.GetEntityDescriptors().empty();
+        KRG_ASSERT( map.m_status == Status::Unloaded );
     }
 
-    //-------------------------------------------------------------------------
-
-    EntityMapInstance::EntityMapInstance( ResourceID mapResourceID )
-        : m_pMap( mapResourceID )
+    EntityMap::EntityMap( EntityMap&& map )
+        : m_pMapDesc( eastl::move( map.m_pMapDesc ) )
+        , m_status( map.m_status )
+        , m_pCollection( map.m_pCollection )
     {
-        KRG_ASSERT( mapResourceID.IsValid() );
+        map.m_pCollection = nullptr;
+        map.m_status = Status::Unloaded;
     }
 
-    EntityMapInstance::~EntityMapInstance()
+    EntityMap::~EntityMap()
     {
         KRG_ASSERT( m_pCollection == nullptr && IsUnloaded() );
     }
 
     //-------------------------------------------------------------------------
 
-    void EntityMapInstance::Load( EntityLoadingContext const& loadingContext )
+    EntityMap& EntityMap::operator=( EntityMap const& map )
+    {
+        m_pMapDesc = map.m_pMapDesc;
+        KRG_ASSERT( map.m_status == Status::Unloaded );
+        return *this;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EntityMap::Load( LoadingContext const& loadingContext )
     {
         KRG_ASSERT( Threading::IsMainThread() && IsUnloaded() && m_pCollection == nullptr && loadingContext.IsValid() );
-        loadingContext.m_pResourceSystem->LoadResource( m_pMap );
+        loadingContext.m_pResourceSystem->LoadResource( m_pMapDesc );
+        m_status = Status::Loading;
     }
 
-    void EntityMapInstance::Unload( EntityLoadingContext const& loadingContext )
+    void EntityMap::Unload( LoadingContext const& loadingContext )
     {
-        KRG_ASSERT( Threading::IsMainThread() && ( IsLoaded() || IsLoading() || HasLoadingFailed() ) );
-
-        if ( m_pCollection != nullptr )
-        {
-            KRG::Delete( m_pCollection );
-        }
-
-        loadingContext.m_pResourceSystem->UnloadResource( m_pMap );
+        KRG_ASSERT( m_status != Status::Unloaded );
+        m_status = Status::UnloadRequested;
     }
 
-    bool EntityMapInstance::IsLoading() const
+    bool EntityMap::IsLoading() const
     {
-        if ( m_pMap.IsLoading() )
+        if ( m_pMapDesc.IsLoading() )
         {
             return true;
         }
@@ -56,24 +67,85 @@ namespace KRG
         }
 
         // If the collection is not instantiated wait for it
-        return !m_pMap.HasLoadingFailed();
+        return !m_pMapDesc.HasLoadingFailed();
     }
 
-    void EntityMapInstance::UpdateLoading( EntityLoadingContext const& loadingContext )
+    bool EntityMap::UpdateLoading( LoadingContext const& loadingContext )
     {
         KRG_ASSERT( Threading::IsMainThread() && loadingContext.IsValid() );
 
-        if ( m_pCollection == nullptr )
-        {
-            if ( m_pMap.IsLoaded() )
-            {
-                KRG_ASSERT( m_pMap.IsLoaded() && m_pMap->IsValid() );
+        //-------------------------------------------------------------------------
 
-                // Create instance
-                auto collectionArchive = m_pMap->GetEntityArchive();
-                m_pCollection = KRG::New<EntityCollection>( *loadingContext.m_pTypeRegistry, m_pMap->GetID(), collectionArchive );
-                KRG_ASSERT( m_pCollection != nullptr );
+        if ( m_status == Status::Loading )
+        {
+            if ( m_pMapDesc.IsLoading() )
+            {
+                return false;
             }
+            else if ( m_pMapDesc.HasLoadingFailed() )
+            {
+                m_status = Status::Loaded;
+            }
+            else if ( m_pMapDesc.IsLoaded() )
+            {
+                KRG_ASSERT( m_pMapDesc->IsValid() );
+                m_status = Status::Loaded;
+
+                // Create entities
+                auto collectionArchive = m_pMapDesc->GetCollectionTemplate();
+                m_pCollection = KRG::New<EntityCollection>( *loadingContext.m_pTypeRegistry, m_pMapDesc->GetID(), collectionArchive );
+                KRG_ASSERT( m_pCollection != nullptr );
+
+                LoadEntities( loadingContext );
+            }
+        }
+        else if ( m_status == Status::UnloadRequested )
+        {
+            UnloadEntities( loadingContext );
+
+            if ( m_pCollection != nullptr )
+            {
+                KRG::Delete( m_pCollection );
+            }
+
+            loadingContext.m_pResourceSystem->UnloadResource( m_pMapDesc );
+        }
+
+        //-------------------------------------------------------------------------
+
+        // Loading operations complete
+        return true;
+    }
+
+    Entity* EntityMap::FindEntity( UUID entityID ) const
+    {
+        Entity* pFoundEntity = nullptr;
+
+        if ( m_pCollection != nullptr )
+        {
+            pFoundEntity = m_pCollection->FindEntity( entityID );
+        }
+
+        return pFoundEntity;
+    }
+
+    void EntityMap::LoadEntities( LoadingContext const& loadingContext )
+    {
+        KRG_ASSERT( m_pCollection != nullptr );
+
+        for ( auto pEntity : m_pCollection->GetEntities() )
+        {
+            pEntity->Load( loadingContext );
+        }
+    }
+
+    void EntityMap::UnloadEntities( LoadingContext const& loadingContext )
+    {
+        KRG_ASSERT( m_pCollection != nullptr );
+
+        for ( auto pEntity : m_pCollection->GetEntities() )
+        {
+            pEntity->Unload( loadingContext );
         }
     }
 }

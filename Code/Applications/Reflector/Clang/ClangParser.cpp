@@ -56,6 +56,7 @@ namespace KRG
 
                 clangArgs.push_back( "-x" );
                 clangArgs.push_back( "c++" );
+                clangArgs.push_back( "-std=c++17" );
                 clangArgs.push_back( "-O0" );
                 clangArgs.push_back( "-D NDEBUG" );
                 clangArgs.push_back( "-Werror" );

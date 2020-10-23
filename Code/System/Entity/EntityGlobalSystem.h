@@ -1,8 +1,9 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "EntityComponentPtr.h"
 #include "System/Core/Update/UpdateStage.h"
+#include "System/Core/Types/Containers.h"
+#include "System/Core/Types/UUID.h"
 
 //-------------------------------------------------------------------------
 // Global entity system
@@ -14,6 +15,7 @@ namespace KRG
     class SystemRegistry;
     class UpdateContext;
     class Entity;
+    class EntityComponent;
 
     //-------------------------------------------------------------------------
 
@@ -38,10 +40,10 @@ namespace KRG
         virtual void UpdateSystem( UpdateContext const& ctx ) {};
 
         // Called whenever a new component is activated (i.e. added to the world)
-        virtual void RegisterComponent( Entity const* pEntity, EntityComponentPtr pComponent ) = 0;
+        virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) = 0;
 
         // Called immediately before an component is deactivated
-        virtual void UnregisterComponent( Entity const* pEntity, EntityComponentPtr pComponent ) = 0;
+        virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) = 0;
     };
 }
 

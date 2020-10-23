@@ -2,7 +2,7 @@
 
 #include "_Module/API.h"
 #include "ToolEntity.h"
-#include "System/Entity/Serialization/EntityArchive.h"
+#include "System/Entity/Collections/EntityCollection.h"
 #include "System/TypeSystem/PropertyInfo.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Math/Matrix.h"

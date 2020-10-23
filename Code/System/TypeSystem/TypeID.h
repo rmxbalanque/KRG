@@ -24,7 +24,7 @@ namespace KRG
 
             inline bool IsValid() const { return m_ID.IsValid(); }
 
-            inline operator U32() const { return (U32) m_ID; }
+            inline operator U32() const { return m_ID.GetID(); }
             inline StringID GetAsStringID() const { return m_ID; }
 
         private:

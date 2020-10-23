@@ -85,7 +85,7 @@ namespace KRG
                 {
                     if ( pRequest->IsInternalRequest() )
                     {
-                        return "Auto";
+                        return "Filesystem Watcher";
                     }
                     else
                     {

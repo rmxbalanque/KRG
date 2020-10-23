@@ -148,9 +148,9 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void SkeletalMeshRenderer::RegisterComponent( Entity const* pEntity, EntityComponentPtr pComponent )
+        void SkeletalMeshRenderer::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
         {
-            if ( auto pMeshComponent = TEntityComponentPtr<SkeletalMeshComponent>( pComponent ) )
+            if ( auto pMeshComponent = ComponentCast<SkeletalMeshComponent>( pComponent ) )
             {
                 auto pRecord = m_registeredComponents[pEntity->GetID()];
                 if ( pRecord == nullptr )
@@ -158,7 +158,7 @@ namespace KRG
                     pRecord = &m_registeredComponents.AddRecord( pEntity->GetID() );
                 }
 
-                pRecord->m_components.emplace_back( pMeshComponent.GetRawPtr() );
+                pRecord->m_components.emplace_back( pMeshComponent );
 
                 //-------------------------------------------------------------------------
 
@@ -171,18 +171,18 @@ namespace KRG
                 if ( foundGroupIdx == InvalidIndex )
                 {
                     auto& foundGroup = m_meshGroups.emplace_back( MeshGroup( pMesh ) );
-                    foundGroup.m_components.emplace_back( pMeshComponent.GetRawPtr() );
+                    foundGroup.m_components.emplace_back( pMeshComponent );
                 }
                 else
                 {
-                    m_meshGroups[foundGroupIdx].m_components.emplace_back( pMeshComponent.GetRawPtr() );
+                    m_meshGroups[foundGroupIdx].m_components.emplace_back( pMeshComponent );
                 }
             }
         }
 
-        void SkeletalMeshRenderer::UnregisterComponent( Entity const* pEntity, EntityComponentPtr pComponent )
+        void SkeletalMeshRenderer::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
         {
-            if ( auto pMeshComponent = TEntityComponentPtr<SkeletalMeshComponent>( pComponent ) )
+            if ( auto pMeshComponent = ComponentCast<SkeletalMeshComponent>( pComponent ) )
             {
                 auto const pRecord = m_registeredComponents[pEntity->GetID()];
                 KRG_ASSERT( pRecord != nullptr && pRecord->IsSet() );
@@ -190,7 +190,7 @@ namespace KRG
                 // Remove from record
                 //-------------------------------------------------------------------------
 
-                S32 const foundIdx = VectorFindIndex( pRecord->m_components, pMeshComponent.GetRawPtr() );
+                S32 const foundIdx = VectorFindIndex( pRecord->m_components, pMeshComponent );
                 KRG_ASSERT( foundIdx != InvalidIndex );
                 pRecord->m_components.erase_unsorted( pRecord->m_components.begin() + foundIdx );
 
@@ -208,7 +208,7 @@ namespace KRG
                 auto predicate = [] ( MeshGroup const& group, SkeletalMesh const* pMesh ) { return group.m_pMesh == pMesh; };
                 S32 const foundGroupIdx = VectorFindIndex( m_meshGroups, pMesh, predicate );
                 KRG_ASSERT( foundGroupIdx != InvalidIndex );
-                m_meshGroups[foundGroupIdx].m_components.erase_first( pMeshComponent.GetRawPtr() );
+                m_meshGroups[foundGroupIdx].m_components.erase_first( pMeshComponent );
 
                 // Remove empty groups
                 if ( m_meshGroups[foundGroupIdx].m_components.size() == 0 )

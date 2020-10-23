@@ -3,6 +3,7 @@
 #include "Tools/Core/Thirdparty/KRG_RapidJson.h"
 #include "Tools/Core/TypeSystem/DynamicTypeInstance.h"
 #include "Tools/Core/TypeSystem/DynamicTypeSerialization.h"
+#include "Tools/Core/TypeSystem/ToolSerializationCommon.h"
 #include "System/Entity/Entity.h"
 #include "System/Core/ThirdParty/cereal/external/rapidjson/error/en.h"
 #include "System/Core/Time/Timers.h"
@@ -43,22 +44,12 @@ namespace KRG
 
         struct RawComponentData
         {
-            ~RawComponentData()
-            {
-                for ( auto pChildComponent : m_childComponents )
-                {
-                    KRG::Delete( pChildComponent );
-                }
-
-                m_childComponents.clear();
-            }
-
-            TypeSystem::TypeID                      m_typeID;
             UUID                                    m_ID;
-            StringID                                m_name;
+            UUID                                    m_spatialParentID;
+            TypeSystem::TypeID                      m_typeID;
             StringID                                m_attachmentSocketID;
+            StringID                                m_name;
             TInlineVector<RawPropertyData, 10>      m_propertyData;
-            TVector<RawComponentData*>              m_childComponents;
         };
 
         struct RawSystemData
@@ -68,29 +59,12 @@ namespace KRG
 
         struct RawEntityData
         {
-            ~RawEntityData()
-            {
-                for ( auto pComponent : m_components )
-                {
-                    KRG::Delete( pComponent );
-                }
-
-                m_components.clear();
-
-                for ( auto pChildEntity : m_childEntities )
-                {
-                    KRG::Delete( pChildEntity );
-                }
-
-                m_childEntities.clear();
-            }
-
             UUID                                    m_ID;
+            UUID                                    m_spatialParentID;
             StringID                                m_name;
             StringID                                m_attachmentSocketID;
             TInlineVector<RawSystemData, 5>         m_systems;
-            TVector<RawComponentData*>              m_components;
-            TVector<RawEntityData*>                 m_childEntities;
+            TInlineVector<RawComponentData,6>       m_components;
         };
 
         //-------------------------------------------------------------------------
