@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Entity/Collections/EntityCollectionTemplate.h"
+#include "System/Entity/Collections/EntityCollectionDescriptor.h"
 #include "System/Resource/IResource.h"
 
 //-------------------------------------------------------------------------
@@ -30,11 +30,11 @@ namespace KRG::EntityModel
         inline UUID GetID() const { return m_ID; }
         virtual bool IsValid() const override;
 
-        EntityCollectionTemplate const& GetCollectionTemplate() const { return m_collectionTemplate; }
+        EntityCollectionDescriptor const& GetCollectionTemplate() const { return m_collectionTemplate; }
 
     private:
 
-        UUID                            m_ID;
-        EntityCollectionTemplate        m_collectionTemplate;
+        UUID                                m_ID;
+        EntityCollectionDescriptor          m_collectionTemplate;
     };
 }

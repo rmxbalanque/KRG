@@ -8,11 +8,9 @@ namespace KRG
     {
         void StaticMeshComponent::Initialize()
         {
+            SpatialEntityComponent::Initialize();
             SetLocalBounds( m_pMesh->GetBounds() );
         }
-
-        void StaticMeshComponent::Shutdown()
-        {}
 
         void StaticMeshComponent::OnWorldTransformUpdated()
         {

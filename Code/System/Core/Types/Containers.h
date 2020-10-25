@@ -233,7 +233,7 @@ namespace KRG
         auto const lastElementIndex = ( vector.size() - 1 );
         if ( indexToErase != lastElementIndex )
         {
-            vector[indexToErase] = vector[lastElementIndex];
+            vector[indexToErase] = eastl::move( vector[lastElementIndex] );
         }
 
         vector.pop_back();
@@ -247,7 +247,7 @@ namespace KRG
         auto const lastElementIndex = ( vector.size() - 1 );
         if ( indexToErase != lastElementIndex )
         {
-            vector[indexToErase] = vector[lastElementIndex];
+            vector[indexToErase] = eastl::move( vector[lastElementIndex] );
         }
 
         vector.pop_back();

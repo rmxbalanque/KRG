@@ -27,9 +27,9 @@
     <ClInclude Include="EntityGlobalSystem.h" />
     <ClInclude Include="Collections\EntityCollection.h" />
     <ClInclude Include="Collections\EntityDescriptors.h" />
-    <ClInclude Include="Collections\EntityCollectionTemplate.h" />
     <ClInclude Include="Map\EntityMapDescriptor.h" />
     <ClInclude Include="Map\EntityMap.h" />
+    <ClInclude Include="Collections\EntityCollectionDescriptor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Map\EntityMapLoader.cpp">
@@ -44,8 +44,8 @@
     <ClCompile Include="EntityGlobalSystem.cpp" />
     <ClCompile Include="Collections\EntityCollection.cpp" />
     <ClCompile Include="Collections\EntityDescriptors.cpp" />
-    <ClCompile Include="Collections\EntityCollectionTemplate.cpp" />
     <ClCompile Include="Map\EntityMapDescriptor.cpp" />
     <ClCompile Include="Map\EntityMap.cpp" />
+    <ClCompile Include="Collections\EntityCollectionDescriptor.cpp" />
   </ItemGroup>
 </Project>

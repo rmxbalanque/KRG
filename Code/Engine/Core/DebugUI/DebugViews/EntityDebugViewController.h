@@ -31,10 +31,13 @@ namespace KRG
         void DrawComponentEntry( EntityComponent const* pComponent );
         void DrawSpatialComponentTree( SpatialEntityComponent const* pComponent );
 
+        void DrawMapLoader( UpdateContext const& context );
+
     private:
 
         EntityWorld*        m_pWorld = nullptr;
         bool                m_isWorldBrowserOpen = false;
+        bool                m_isMapLoaderOpen = false;
 
         // Browser Data
         TVector<Entity*>    m_entities;

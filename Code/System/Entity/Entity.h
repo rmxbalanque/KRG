@@ -53,10 +53,8 @@ namespace KRG
 
         enum class Status
         {
-            Unloaded = 0,
-            Loading,
-            Loaded,
-            Initialized,
+            Deactivated = 0,
+            Activated,
         };
 
     public:
@@ -64,11 +62,10 @@ namespace KRG
         Entity() = default;
         ~Entity();
 
+        // Entity Info
         inline UUID GetID() const { return m_ID; }
         inline StringID GetName() const { return m_name; }
-        inline bool RequiresUpdate( UpdateStage stage ) const { return !m_systemUpdateLists[(S8) stage].empty(); }
-
-        // Entity Info
+        inline UUID GetCollectionID() const { return m_collectionID; }
         inline U32 GetNumComponents() const { return (U32) m_components.size(); }
         inline U32 GetNumSystems() const { return (U32) m_systems.size(); }
 
@@ -83,23 +80,22 @@ namespace KRG
         inline Transform GetAttachmentSocketTransform( StringID socketID ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetAttachmentSocketTransform( socketID ); }
 
         // Status
-        inline bool IsUnloaded() const { return m_status == Status::Unloaded; }
-        inline bool IsLoading() const { return m_status == Status::Loading; }
-        inline bool IsLoaded() const { return m_status == Status::Loaded; }
-        inline bool IsInitialized() const { return m_status == Status::Initialized; }
-        inline Status GetStatus() const { return m_status; }
+        inline bool IsInCollection() const { return m_collectionID.IsValid(); }
+        inline bool IsActivated() const { return m_status == Status::Activated; }
+        inline bool IsDeactivated() const { return m_status == Status::Deactivated; }
 
-        // Systems
+        // Systems and components
+        inline bool RequiresUpdate( UpdateStage stage ) const { return !m_systemUpdateLists[(S8) stage].empty(); }
         inline TVector<IEntitySystem*> const& GetSystems() const { return m_systems; }
         inline TVector<EntityComponent*> const& GetComponents() const { return m_components; }
 
     protected:
 
         // Called when an entity finishes Loading successfully
-        void Initialize( SystemRegistry const& systemRegistry );
+        void Activate( EntityModel::LoadingContext const& loadingContext );
 
         // Called just before an entity fully unloads
-        void Shutdown();
+        void Deactivate( EntityModel::LoadingContext const& loadingContext );
 
         // Update Entity Systems
         void UpdateSystems( UpdateContext const& context );
@@ -119,24 +115,20 @@ namespace KRG
         // Update the attachment hierarchy, required when we have changes to this entity's spatial components or the spatial component hierarchy
         void RefreshEntityAttachments();
 
-        // Loading
         //-------------------------------------------------------------------------
 
-        // Request load of all component resources - loading takes time
-        void Load( EntityModel::LoadingContext const& context );
+        void GenerateSystemUpdateList();
 
-        // Request unload of all component resources - unloading is instant
-        void Unload( EntityModel::LoadingContext const& context );
-
-        // Update the loading state for all components. Returns true when loading is complete, false while still loading
-        bool UpdateLoading();
+        void LoadComponents( EntityModel::LoadingContext const& loadingContext );
+        void UnloadComponents( EntityModel::LoadingContext const& loadingContext );
+        bool UpdateComponentLoading( EntityModel::LoadingContext const& loadingContext );
 
     protected:
 
         UUID                                            m_ID;                                   // The unique ID of this entity
         UUID                                            m_collectionID;                         // The ID of the collection that this entity is part of
         StringID                                        m_name;
-        Status                                          m_status = Status::Unloaded;
+        Status                                          m_status = Status::Deactivated;
 
         TVector<IEntitySystem*>                         m_systems;
         TVector<EntityComponent*>                       m_components;

@@ -41,18 +41,30 @@ namespace KRG
             }
         }
 
-        BinaryArchive::BinaryArchive( TVector<Byte>& data )
+        BinaryArchive::BinaryArchive( Mode mode, TVector<Byte>& data )
+            : m_mode( mode )
         {
-            m_mode = Mode::Read;
-            m_stream.m_pInStream = KRG::New<MemoryStream>( data );
+            m_stream.m_pInStream = nullptr;
+            m_archive.m_pInputArchive = nullptr;
 
-            if ( IsValid() )
+            if ( mode == Mode::Read )
             {
-                m_archive.m_pInputArchive = KRG::New<cereal::BinaryInputArchive>( *m_stream.m_pInStream );
+                m_stream.m_pInStream = KRG::New<MemoryStream>( data );
+
+                if ( IsValid() )
+                {
+                    m_archive.m_pInputArchive = KRG::New<cereal::BinaryInputArchive>( *m_stream.m_pInStream );
+                }
             }
-            else
+            else // Write
             {
-                m_archive.m_pInputArchive = nullptr;
+                data.clear();
+                m_stream.m_pOutStream = KRG::New<MemoryStream>( data );
+
+                if ( IsValid() )
+                {
+                    m_archive.m_pOutputArchive = KRG::New<cereal::BinaryOutputArchive>( *m_stream.m_pOutStream );
+                }
             }
         }
 

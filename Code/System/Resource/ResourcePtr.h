@@ -27,14 +27,7 @@ namespace KRG
             ResourcePtr( nullptr_t ) {};
             ResourcePtr( ResourceID id ) : m_resourceID( id ) { KRG_ASSERT( id.IsValid() ); }
             ResourcePtr( Resource::ResourcePtr const& rhs ) { operator=( rhs ); }
-
-            // Move ctor
-            ResourcePtr( Resource::ResourcePtr&& rhs )
-            {
-                operator=( rhs );
-                rhs.m_resourceID = ResourceID();
-                rhs.m_pResource = nullptr;
-            }
+            ResourcePtr( Resource::ResourcePtr&& rhs ) { operator=( eastl::move( rhs ) ); }
 
             inline ResourceID const& GetResourceID() const { return m_resourceID; }
             inline ResourceTypeID GetResourceTypeID() const { return m_resourceID.GetResourceTypeID(); }
@@ -53,6 +46,15 @@ namespace KRG
                 KRG_ASSERT( m_pResource == nullptr || m_pResource->IsUnloaded() );
                 m_resourceID = rhs.m_resourceID;
                 m_pResource = rhs.m_pResource;
+                return *this;
+            }
+
+            inline ResourcePtr& operator=( ResourcePtr&& rhs )
+            {
+                m_resourceID = rhs.m_resourceID;
+                m_pResource = rhs.m_pResource;
+                rhs.m_resourceID = ResourceID();
+                rhs.m_pResource = nullptr;
                 return *this;
             }
 

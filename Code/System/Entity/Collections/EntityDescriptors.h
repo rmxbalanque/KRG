@@ -2,6 +2,7 @@
 #include "System/Entity/_Module/API.h"
 #include "System/TypeSystem/PropertyPath.h"
 #include "System/Core/Types/UUID.h"
+#include "System/TypeSystem/CoreTypeValidation.h"
 
 //-------------------------------------------------------------------------
 
@@ -53,6 +54,14 @@ namespace KRG::EntityModel
         // Enum values are serialized as a raw StringID
         void SetEnumValueID( StringID enumValueID );
         StringID GetEnumValueID() const;
+
+        // Set byte value
+        template<typename T>
+        void SetByteValue( T const& value )
+        {
+            KRG_ASSERT( TypeSystem::IsCoreType<T>() );
+            TypeSystem::TypeValueConverter::ValueToByteArray( value, m_byteValue );
+        }
 
     public:
 

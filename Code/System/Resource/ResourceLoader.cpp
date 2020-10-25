@@ -11,7 +11,7 @@ namespace KRG
     {
         bool ResourceLoader::Load( ResourceID const& resourceID, TVector<Byte>& rawData, ResourceRecord* pResourceRecord ) const
         {
-            Serialization::BinaryArchive archive( rawData );
+            Serialization::BinaryArchive archive( Serialization::Mode::Read, rawData );
             if ( archive.IsValid() )
             {
                 // Read resource header

@@ -12,7 +12,7 @@ namespace KRG::EntityModel
     // We used this to instantiate a collection of entities
     //-------------------------------------------------------------------------
 
-    class KRG_SYSTEM_ENTITY_API EntityCollectionTemplate
+    class KRG_SYSTEM_ENTITY_API EntityCollectionDescriptor
     {
         KRG_SERIALIZE_MEMBERS( m_entityDescriptors, m_entityLookupMap, m_entitySpatialAttachmentInfo );
 
@@ -40,7 +40,7 @@ namespace KRG::EntityModel
 
         void Reserve( S32 numEntities );
 
-        inline EntityCollectionTemplate& operator<<( EntityDescriptor const& entityDesc )
+        inline EntityCollectionDescriptor& operator<<( EntityDescriptor const& entityDesc )
         {
             KRG_ASSERT( entityDesc.IsValid() );
             m_entityLookupMap.insert( TPair<UUID, S32>( entityDesc.m_ID, (S32) m_entityDescriptors.size() ) );

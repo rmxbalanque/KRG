@@ -9,6 +9,13 @@
 #include "Tools/Entity/ToolEntityCollection.h"
 #include "Tools/Entity/ToolEntityCollectionWriter.h"
 #include <directxmath.h>
+#include "System/TypeSystem/CoreTypeValidation.h"
+#include "System/Entity/Collections/EntityDescriptors.h"
+#include "System/Core/Types/UUID.h"
+#include "Game/Core/PlayerController/DefaultPlayerController.h"
+#include "System/Core/Serialization/BinaryArchive.h"
+#include "System/Core/Types/MemoryStream.h"
+#include "System/Render/RenderMaterial.h"
 
 //-------------------------------------------------------------------------
 
@@ -25,48 +32,48 @@ int main( int argc, char *argv[] )
 
         //-------------------------------------------------------------------------
 
-        Serialization::ToolEntityCollectionReader entityCollectionReader( typeRegistry );
-        ToolEntityCollection entityCollection( typeRegistry );
-        if ( entityCollectionReader.ReadCollection( "D:\\Kruger\\Data\\Maps\\animtest.map", entityCollection ) )
-        {
-            Serialization::ToolEntityCollectionWriter entityCollectionWriter( typeRegistry );
-            entityCollectionWriter.WriteCollection( entityCollection, "D:\\TestMap.map" );
-        }
+        //Serialization::ToolEntityCollectionReader entityCollectionReader( typeRegistry );
+        //ToolEntityCollection entityCollection( typeRegistry );
+        //if ( entityCollectionReader.ReadCollection( "D:\\Kruger\\Data\\Maps\\animtest.map", entityCollection ) )
+        //{
+        //    Serialization::ToolEntityCollectionWriter entityCollectionWriter( typeRegistry );
+        //    entityCollectionWriter.WriteCollection( entityCollection, "D:\\TestMap.map" );
+        //}
 
-        //-------------------------------------------------------------------------
+        ////-------------------------------------------------------------------------
 
-        Vector u( -32.432f, -54.f, -43.f, -43.f );
+        //Vector u( -32.432f, -54.f, -43.f, -43.f );
 
-        auto f = u.IsAnyLessThan( Vector::Zero );
-        auto sgn = u.GetSign();
+        //auto f = u.IsAnyLessThan( Vector::Zero );
+        //auto sgn = u.GetSign();
 
-        Vector a( 23.23232f, 3243.34f, 85.235f );
-        Vector b( 3.23232f, 383.1234f, 0.25785f );
+        //Vector a( 23.23232f, 3243.34f, 85.235f );
+        //Vector b( 3.23232f, 383.1234f, 0.25785f );
 
-        Quaternion rot0( EulerAngles( 23.5f, 54.3f, -75.f ) );
-        Vector trans0( 23.5f, -54.3f, 75.f, 1.0f );
-        Vector scale0 = Vector( -5, -5, -5, 0.0f );
-        //Vector scale0 = Vector( 1.f, 1.f, 1.f, 0.0f );
+        //Quaternion rot0( EulerAngles( 23.5f, 54.3f, -75.f ) );
+        //Vector trans0( 23.5f, -54.3f, 75.f, 1.0f );
+        //Vector scale0 = Vector( -5, -5, -5, 0.0f );
+        ////Vector scale0 = Vector( 1.f, 1.f, 1.f, 0.0f );
 
-        Quaternion rot1( EulerAngles( 15.5f, -45.3f, 80.f ) );
-        Vector trans1( 12.5f, 74.3f, -1.f, 1.0f );
-        Vector scale1 = Vector( 2, -2, -2, 0.0f );
-        //Vector scale1 = Vector( 1.f, 1.f, 1.f, 0.0f );
+        //Quaternion rot1( EulerAngles( 15.5f, -45.3f, 80.f ) );
+        //Vector trans1( 12.5f, 74.3f, -1.f, 1.0f );
+        //Vector scale1 = Vector( 2, -2, -2, 0.0f );
+        ////Vector scale1 = Vector( 1.f, 1.f, 1.f, 0.0f );
 
-        //-------------------------------------------------------------------------
+        ////-------------------------------------------------------------------------
 
-        Matrix m0( rot0, trans0, scale0 );
-        Matrix m1( rot1, trans1, scale1 );
+        //Matrix m0( rot0, trans0, scale0 );
+        //Matrix m1( rot1, trans1, scale1 );
 
-        Quaternion q; 
-        Vector t, s;
+        //Quaternion q; 
+        //Vector t, s;
 
-        m0.Decompose( q, t, s );
+        //m0.Decompose( q, t, s );
 
-        m1.Decompose( q, t, s );
+        //m1.Decompose( q, t, s );
 
-        auto tt = Transform( m0 ); //Transform( q, t, s );
-        auto mt = tt.ToMatrix();
+        //auto tt = Transform( m0 ); //Transform( q, t, s );
+        //auto mt = tt.ToMatrix();
 
         //auto m = m1 * m0;
 
@@ -133,6 +140,44 @@ int main( int argc, char *argv[] )
 
             //auto ta = t.TransformPoint( a );
             //auto tb = t.TransformPoint( b );
+        }
+
+        TResourcePtr<Render::Material> t( ResourceID( "data://test.mtrl" ) );
+        TResourcePtr<Render::Material> s;
+      
+        //
+        //EntityModel::PropertyDescriptor p;
+        //p.m_path = TypeSystem::PropertyPath( "m_transform" );
+        //p.SetByteValue( t );
+
+        //EntityModel::EntityComponentDescriptor c;
+        //c.m_ID = KRG::UUID::GenerateID();
+        //c.m_name = StringID( "CameraComponent" );
+        //c.m_typeID = CameraComponent::GetStaticTypeID();
+        //c.m_isSpatialComponent = true;
+        //c.m_propertyValues.emplace_back( p );
+
+        //EntityModel::EntitySystemDescriptor s;
+        //s.m_typeID = DefaultPlayerController::GetStaticTypeID();
+
+        //EntityModel::EntityDescriptor e;
+        //c.m_ID = KRG::UUID::GenerateID();
+        //c.m_name = StringID( "Player" );
+        //e.m_components.emplace_back( c );
+        //e.m_systems.emplace_back( s );
+
+
+        TVector<Byte> m_buffer;
+        m_buffer.resize( sizeof( t ) );
+
+        {
+            Serialization::BinaryArchive archive( Serialization::Mode::Write, m_buffer );
+            archive << t;
+        }
+
+        {
+            Serialization::BinaryArchive archive( Serialization::Mode::Read, m_buffer );
+            archive >> s;
         }
 
         //-------------------------------------------------------------------------

@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreTypeIDs.h" />
+    <ClInclude Include="CoreTypeValidation.h" />
     <ClInclude Include="EnumInfo.h" />
     <ClInclude Include="ITypeHelper.h" />
     <ClInclude Include="PropertyInfo.h" />

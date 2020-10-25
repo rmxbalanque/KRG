@@ -42,11 +42,6 @@ namespace KRG
         }
     }
 
-    void CameraComponent::Shutdown()
-    {
-        SpatialEntityComponent::Shutdown();
-    }
-
     //-------------------------------------------------------------------------
 
     void CameraComponent::AdjustHeadingAndPitch( Radians headingDelta, Radians pitchDelta )

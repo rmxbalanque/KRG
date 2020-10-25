@@ -11,7 +11,7 @@ namespace KRG::TypeSystem { class TypeRegistry; }
 namespace KRG::EntityModel
 {
     struct LoadingContext;
-    class EntityCollectionTemplate;
+    class EntityCollectionDescriptor;
 
     //-------------------------------------------------------------------------
     // An instance of an entity collection
@@ -27,7 +27,7 @@ namespace KRG::EntityModel
     public:
 
         EntityCollection() : m_ID( UUID::GenerateID() ) {}
-        EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionTemplate const& entityCollectionTemplate );
+        EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionTemplate );
         
         ~EntityCollection();
 

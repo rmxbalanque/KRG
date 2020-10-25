@@ -65,7 +65,6 @@ namespace KRG
         protected:
 
             virtual void Initialize() override final;
-            virtual void Shutdown() override final;
             virtual void OnWorldTransformUpdated() override final;
 
         private:

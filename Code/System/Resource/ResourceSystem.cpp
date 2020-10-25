@@ -60,6 +60,11 @@ namespace KRG
 
         void ResourceSystem::LoadResourceInternal( UUID const& requesterID, ResourcePtr& resourcePtr )
         {
+            /*if ( requesterID == UUID( "00000000-0000-0000-0000-00002E5182F3" ) )
+            {
+                KRG_HALT();
+            }*/
+
             KRG_ASSERT( m_pResourceProvider != nullptr && resourcePtr.GetResourceID().IsValid() );
             ResourceID const& resourceID = resourcePtr.GetResourceID();
             ResourceRecord* pRecord = nullptr;

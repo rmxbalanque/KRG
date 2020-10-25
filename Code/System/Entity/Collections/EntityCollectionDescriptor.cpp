@@ -1,16 +1,16 @@
-#include "EntityCollectionTemplate.h"
+#include "EntityCollectionDescriptor.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::EntityModel
 {
-    void EntityCollectionTemplate::Reserve( S32 numEntities )
+    void EntityCollectionDescriptor::Reserve( S32 numEntities )
     {
         m_entityDescriptors.reserve( numEntities );
         m_entityLookupMap.reserve( numEntities );
     }
 
-    void EntityCollectionTemplate::GenerateSpatialAttachmentInfo()
+    void EntityCollectionDescriptor::GenerateSpatialAttachmentInfo()
     {
         m_entitySpatialAttachmentInfo.clear();
         m_entitySpatialAttachmentInfo.reserve( m_entityDescriptors.size() );

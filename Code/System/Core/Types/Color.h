@@ -15,6 +15,8 @@ namespace KRG
 {
     struct Color
     {
+        KRG_SERIALIZE_MEMBERS( m_color );
+
         union
         {
             struct ByteColor

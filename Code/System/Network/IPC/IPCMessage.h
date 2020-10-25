@@ -92,7 +92,7 @@ namespace KRG
 
                 inline bool IsValid() const { return GetMessageID() != InvalidID; }
                 inline bool HasPayload() const { return GetPayloadDataSize() > sizeof( MessageID ); }
-                inline U8 const* GetPayloadData() const { return m_data.data() + sizeof( MessageID ); }
+                inline Byte const* GetPayloadData() const { return m_data.data() + sizeof( MessageID ); }
                 inline size_t GetPayloadDataSize() const { return m_data.size() - sizeof( MessageID ); }
 
                 // Serialization functions
@@ -113,7 +113,7 @@ namespace KRG
                 inline T GetData()
                 {
                     T outType;
-                    MemoryStream stream( (void*) GetPayloadData(), GetPayloadDataSize() );
+                    MemoryStreamView stream( GetPayloadData(), GetPayloadDataSize() );
                     cereal::JSONInputArchive archive( stream );
                     archive >> outType;
                     return outType;
@@ -127,8 +127,8 @@ namespace KRG
 
             private:
 
-                ClientID                                m_clientID; // Only set for received messages
-                TInlineVector<U8, sizeof( MessageID )>  m_data;
+                ClientID                                    m_clientID; // Only set for received messages
+                TInlineVector<Byte, sizeof( MessageID )>    m_data;
             };
         }
     }

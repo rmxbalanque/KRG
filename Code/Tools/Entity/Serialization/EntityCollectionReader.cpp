@@ -2,7 +2,7 @@
 #include "Tools/Core/Thirdparty/KRG_RapidJson.h"
 #include "Tools/Core/TypeSystem/TypeSerializationCommon.h"
 #include "System/Entity/Entity.h"
-#include "System/Entity/Collections/EntityCollectionTemplate.h"
+#include "System/Entity/Collections/EntityCollectionDescriptor.h"
 #include "System/TypeSystem/TypeValueConverter.h"
 #include "System/Core/ThirdParty/cereal/external/rapidjson/error/en.h"
 #include "System/Core/Logging/Log.h"
@@ -330,7 +330,7 @@ namespace KRG
                 }
             }
 
-            static bool ReadEntityArray( ParsingContext& ctx, rapidjson::Value const& entitiesArrayValue, EntityCollectionTemplate& outCollection )
+            static bool ReadEntityArray( ParsingContext& ctx, rapidjson::Value const& entitiesArrayValue, EntityCollectionDescriptor& outCollection )
             {
                 S32 const numEntities = (S32) entitiesArrayValue.Size();
                 outCollection.Reserve( numEntities );
@@ -358,7 +358,7 @@ namespace KRG
         // Serializer
         //-------------------------------------------------------------------------
 
-        bool EntityCollectionReader::ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& filePath, EntityCollectionTemplate& outCollection ) const
+        bool EntityCollectionReader::ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& filePath, EntityCollectionDescriptor& outCollection ) const
         {
             KRG_ASSERT( filePath.IsValid() );
 

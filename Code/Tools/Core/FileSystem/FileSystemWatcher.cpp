@@ -219,11 +219,11 @@ namespace KRG
                         if ( path.IsFilePath() )
                         {
                             auto predicate = [] ( FileModificationEvent const& event, FileSystemPath const& path )
-                            { 
+                            {
                                 return event.m_path == path;
                             };
 
-                            if( !VectorContains( m_pendingFileModificationEvents, path, predicate ))
+                            if ( !VectorContains( m_pendingFileModificationEvents, path, predicate ) )
                             {
                                 m_pendingFileModificationEvents.emplace_back( FileModificationEvent( path ) );
                             }

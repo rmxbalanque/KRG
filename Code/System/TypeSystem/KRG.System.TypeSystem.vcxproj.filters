@@ -19,6 +19,7 @@
     <ClInclude Include="TypeRegistry.h" />
     <ClInclude Include="TypeValueConverter.h" />
     <ClInclude Include="PropertyPath.h" />
+    <ClInclude Include="CoreTypeValidation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreTypeIDs.cpp" />

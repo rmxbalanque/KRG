@@ -3,7 +3,7 @@
 #include "_Module/API.h"
 #include "TypeInfo.h"
 #include "System/Resource/ResourcePtr.h"
-#include "System/Core/Serialization/Serialization.h"
+#include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/Types/Time.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Types/UUID.h"
@@ -24,30 +24,44 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             template<typename T>
-            inline static void ToString( T const& value, String& outStr ) { KRG_UNIMPLEMENTED_FUNCTION(); }
+            inline static void ValueToString( T const& value, String& outStr ) { KRG_UNIMPLEMENTED_FUNCTION(); }
 
             template<typename T>
-            inline static void FromString( String const& str, T& outValue ) { KRG_UNIMPLEMENTED_FUNCTION(); }
+            inline static void StringToValue( String const& str, T& outValue ) { KRG_UNIMPLEMENTED_FUNCTION(); }
 
             template<typename T>
-            inline static void ToByteArray( String const& str, TVector<Byte>& outArray )
+            inline static void ValueToByteArray( T const& value, TVector<Byte>& outArray )
             {
-                outArray.resize( outArray.size() + sizeof( T ) );
-                T& dataRef = reinterpret_cast<T&>( outArray[outArray.size() - sizeof( T )] );
-                FromString<T>( str, dataRef );
+                Serialization::BinaryArchive archive( Serialization::Mode::Write, outArray );
+                archive << value;
             }
 
             template<typename T>
-            inline static void FromByteArray( TVector<Byte> const& valueByteData, void* pOutValue )
+            inline static void ByteArrayToValue( TVector<Byte> const& valueByteData, T& outValue )
             {
-                KRG_ASSERT( sizeof( T ) == valueByteData.size() );
-                memcpy( pOutValue, valueByteData.data(), sizeof( T ) );
+                Serialization::BinaryArchive archive( Serialization::Mode::Read, const_cast<TVector<Byte>&>( valueByteData ) );
+                archive >> outValue;
+            }
+
+            template<typename T>
+            inline static void ByteArrayToValue( TVector<Byte> const& valueByteData, T* pOutValue )
+            {
+                ByteArrayToValue( valueByteData, *pOutValue );
+            }
+
+            template<typename T>
+            inline static void StringToByteArray( String const& str, TVector<Byte>& outArray )
+            {
+                T value;
+                StringToValue<T>( str, value );
+                ValueToByteArray( value, outArray );
             }
 
             // Untyped conversions
             //-------------------------------------------------------------------------
 
             static void ConvertValueToString( TypeSystem::TypeID typeID, void const* pValueData, String& strValue );
+            static void ConvertValueToByteArray( TypeSystem::TypeID typeID, void const* pValueData, TVector<Byte>& byteArray );
             static void ConvertStringToValue( TypeSystem::TypeID typeID, String const& strValue, void* pValueData );
             static void ConvertStringToByteArray( TypeSystem::TypeID typeID, String const& strValue, TVector<Byte>& byteArray );
             static void ConvertByteArrayToValue( TypeSystem::TypeID typeID, TVector<Byte> const& byteArray, void* pValue );
@@ -62,13 +76,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( bool const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( bool const& value, String& outStr )
         {
             outStr = value ? "True" : "False";
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, bool& value )
+        inline void TypeValueConverter::StringToValue( String const& str, bool& value )
         {
             String lowerString = str;
             lowerString.make_lower();
@@ -78,13 +92,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( U8 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( U8 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, U8& value )
+        inline void TypeValueConverter::StringToValue( String const& str, U8& value )
         {
             value = (U8) strtoul( str.c_str(), nullptr, 10 );
         }
@@ -92,13 +106,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( U16 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( U16 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, U16& value )
+        inline void TypeValueConverter::StringToValue( String const& str, U16& value )
         {
             value = (U16) strtoul( str.c_str(), nullptr, 10 );
         }
@@ -106,13 +120,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( U32 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( U32 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, U32& value )
+        inline void TypeValueConverter::StringToValue( String const& str, U32& value )
         {
             value = (U32) strtoul( str.c_str(), nullptr, 10 );
         }
@@ -120,13 +134,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( U64 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( U64 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, U64& value )
+        inline void TypeValueConverter::StringToValue( String const& str, U64& value )
         {
             value = (U64) strtoull( str.c_str(), nullptr, 10 );
         }
@@ -134,13 +148,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( S8 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( S8 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, S8& value )
+        inline void TypeValueConverter::StringToValue( String const& str, S8& value )
         {
             value = (S8) strtol( str.c_str(), nullptr, 10 );
         }
@@ -148,13 +162,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( S16 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( S16 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, S16& value )
+        inline void TypeValueConverter::StringToValue( String const& str, S16& value )
         {
             value = (S16) strtol( str.c_str(), nullptr, 10 );
         }
@@ -162,13 +176,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( S32 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( S32 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, S32& value )
+        inline void TypeValueConverter::StringToValue( String const& str, S32& value )
         {
             value = (S32) strtol( str.c_str(), nullptr, 10 );
         }
@@ -176,13 +190,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( S64 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( S64 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, S64& value )
+        inline void TypeValueConverter::StringToValue( String const& str, S64& value )
         {
             value = (S64) strtoll( str.c_str(), nullptr, 10 );
         }
@@ -190,13 +204,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( F32 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( F32 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, F32& value )
+        inline void TypeValueConverter::StringToValue( String const& str, F32& value )
         {
             value = (F32) atof( str.c_str() );
         }
@@ -204,13 +218,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( F64 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( F64 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, F64& value )
+        inline void TypeValueConverter::StringToValue( String const& str, F64& value )
         {
             value = (F64) atof( str.c_str() );
         }
@@ -218,36 +232,21 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( String const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( String const& value, String& outStr )
         {
             outStr = value;
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, String& value )
+        inline void TypeValueConverter::StringToValue( String const& str, String& value )
         {
             value = str;
-        }
-
-        template<>
-        inline static void TypeValueConverter::ToByteArray<String>( String const& str, TVector<Byte>& outArray )
-        {
-            size_t const strLength = str.length() + 1;
-            outArray.resize( outArray.size() + strLength );
-            memcpy( &outArray[outArray.size() - strLength], str.data(), strLength );
-        }
-
-        template<>
-        inline static void TypeValueConverter::FromByteArray<String>( TVector<Byte> const& valueByteData, void* pOutValue )
-        {
-            String* pOutString = (String*) pOutValue;
-            ( *pOutString ) = String( (char const*) valueByteData.data() );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( StringID const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( StringID const& value, String& outStr )
         {
             char const* pStr = value.ToString();
             KRG_ASSERT( pStr != nullptr );
@@ -255,7 +254,7 @@ namespace KRG
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, StringID& value )
+        inline void TypeValueConverter::StringToValue( String const& str, StringID& value )
         {
             value = StringID( str.c_str() );
         }
@@ -263,13 +262,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( Color const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( Color const& value, String& outStr )
         {
             outStr.sprintf( "%02X%02X%02X%02X", value.m_byteColor.m_r, value.m_byteColor.m_g, value.m_byteColor.m_b, value.m_byteColor.m_a );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, Color& value )
+        inline void TypeValueConverter::StringToValue( String const& str, Color& value )
         {
             U32 const colorValue = (U32) strtoul( str.c_str(), nullptr, 16 );
             value = Color( colorValue );
@@ -278,13 +277,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( UUID const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( UUID const& value, String& outStr )
         {
             outStr = value.ToString();
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, UUID& value )
+        inline void TypeValueConverter::StringToValue( String const& str, UUID& value )
         {
             value = UUID( str );
         }
@@ -292,13 +291,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( Float2 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( Float2 const& value, String& outStr )
         {
             FloatArrayToString( &value[0], ",", 2, outStr );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, Float2& value )
+        inline void TypeValueConverter::StringToValue( String const& str, Float2& value )
         {
             StringToFloatArray( str, ",", 2, &value[0] );
         }
@@ -306,13 +305,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( Float3 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( Float3 const& value, String& outStr )
         {
             FloatArrayToString( &value[0], ",", 3, outStr );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, Float3& value )
+        inline void TypeValueConverter::StringToValue( String const& str, Float3& value )
         {
             StringToFloatArray( str, ",", 3, &value[0] );
         }
@@ -320,13 +319,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( Float4 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( Float4 const& value, String& outStr )
         {
             FloatArrayToString( &value[0], ",", 4, outStr );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, Float4& value )
+        inline void TypeValueConverter::StringToValue( String const& str, Float4& value )
         {
             StringToFloatArray( str, ",", 4, &value[0] );
         }
@@ -334,7 +333,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( Matrix const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( Matrix const& value, String& outStr )
         {
             // Handle uninitialized matrix
             if ( value.IsOrthonormal() )
@@ -357,7 +356,7 @@ namespace KRG
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, Matrix& value )
+        inline void TypeValueConverter::StringToValue( String const& str, Matrix& value )
         {
             F32 floatData[9];
             StringToFloatArray( str, ",", 9, floatData );
@@ -373,7 +372,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( Transform const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( Transform const& value, String& outStr )
         {
             auto eulerAngles = value.GetRotation().ToEulerAngles();
 
@@ -399,7 +398,7 @@ namespace KRG
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, Transform& value )
+        inline void TypeValueConverter::StringToValue( String const& str, Transform& value )
         {
             F32 floatData[9];
             StringToFloatArray( str, ",", 9, floatData );
@@ -416,13 +415,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( EulerAngles const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( EulerAngles const& value, String& outStr )
         {
             FloatArrayToString( (float*) &value.x, ",", 3, outStr );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, EulerAngles& value )
+        inline void TypeValueConverter::StringToValue( String const& str, EulerAngles& value )
         {
             StringToFloatArray( str, ",", 3, (float*) &value.x );
         }
@@ -430,14 +429,14 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( Quaternion const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( Quaternion const& value, String& outStr )
         {
             EulerAngles angles = value.ToEulerAngles();
             FloatArrayToString( (float*) &angles.x, ",", 3, outStr );
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, Quaternion& value )
+        inline void TypeValueConverter::StringToValue( String const& str, Quaternion& value )
         {
             EulerAngles angles;
             StringToFloatArray( str, ",", 3, (float*) &angles.x );
@@ -447,13 +446,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( ResourceTypeID const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( ResourceTypeID const& value, String& outStr )
         {
             outStr = value.ToString();
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, ResourceTypeID& value )
+        inline void TypeValueConverter::StringToValue( String const& str, ResourceTypeID& value )
         {
             value = ResourceTypeID( str );
         }
@@ -461,42 +460,27 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( DataPath const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( DataPath const& value, String& outStr )
         {
             outStr = value.c_str();
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, DataPath& value )
+        inline void TypeValueConverter::StringToValue( String const& str, DataPath& value )
         {
             value = DataPath( str );
-        }
-
-        template<>
-        inline static void TypeValueConverter::ToByteArray<DataPath>( String const& str, TVector<Byte>& outArray )
-        {
-            size_t const strLength = str.length() + 1;
-            outArray.resize( outArray.size() + strLength );
-            memcpy( &outArray[outArray.size() - strLength], str.data(), strLength );
-        }
-
-        template<>
-        inline static void TypeValueConverter::FromByteArray<DataPath>( TVector<Byte> const& valueByteData, void* pOutValue )
-        {
-            DataPath* pOutPath = (DataPath*) pOutValue;
-            ( *pOutPath ) = DataPath( (char const*) valueByteData.data() );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( ResourceID const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( ResourceID const& value, String& outStr )
         {
             outStr = value.ToString();
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, ResourceID& value )
+        inline void TypeValueConverter::StringToValue( String const& str, ResourceID& value )
         {
             if ( str.empty() )
             {
@@ -509,31 +493,16 @@ namespace KRG
             }
         }
 
-        template<>
-        inline static void TypeValueConverter::ToByteArray<ResourceID>( String const& str, TVector<Byte>& outArray )
-        {
-            size_t const strLength = str.length() + 1;
-            outArray.resize( outArray.size() + strLength );
-            memcpy( &outArray[outArray.size() - strLength], str.data(), strLength );
-        }
-
-        template<>
-        inline static void TypeValueConverter::FromByteArray<ResourceID>( TVector<Byte> const& valueByteData, void* pOutValue )
-        {
-            ResourceID* pOutID= (ResourceID*) pOutValue;
-            ( *pOutID ) = ResourceID( (char const*) valueByteData.data() );
-        }
-
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ToString( Resource::ResourcePtr const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( Resource::ResourcePtr const& value, String& outStr )
         {
             outStr = value.GetResourceID().ToString();
         }
 
         template<>
-        inline void TypeValueConverter::FromString( String const& str, Resource::ResourcePtr& value )
+        inline void TypeValueConverter::StringToValue( String const& str, Resource::ResourcePtr& value )
         {
             if ( str.empty() )
             {
@@ -545,22 +514,6 @@ namespace KRG
                 ResourceID const ID( str );
                 value = Resource::ResourcePtr( ID );
             }
-        }
-
-        template<>
-        inline static void TypeValueConverter::ToByteArray<Resource::ResourcePtr>( String const& str, TVector<Byte>& outArray )
-        {
-            size_t const strLength = str.length() + 1;
-            outArray.resize( outArray.size() + strLength );
-            memcpy( &outArray[outArray.size() - strLength], str.data(), strLength );
-        }
-
-        template<>
-        inline static void TypeValueConverter::FromByteArray<Resource::ResourcePtr>( TVector<Byte> const& valueByteData, void* pOutValue )
-        {
-            ResourceID const ID( (char const*) valueByteData.data() );
-            Resource::ResourcePtr* pOutResourcePtr = (Resource::ResourcePtr*) pOutValue;
-            ( *pOutResourcePtr ) = Resource::ResourcePtr( ID );
         }
     }
 }

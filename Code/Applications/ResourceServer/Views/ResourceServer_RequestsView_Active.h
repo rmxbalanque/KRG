@@ -25,7 +25,7 @@ namespace KRG
 
         public:
 
-            inline ActiveRequestsViewModel() : QAbstractTableModel() {}
+            ActiveRequestsViewModel() = default;
 
             void UpdateRequests( TVector<CompilationRequest const*> const* pPendingRequests, TVector<CompilationRequest const*> const* pActiveRequests );
             inline CompilationRequest const* GetRequest( S32 index ) const { return m_requests[index]; }
@@ -51,6 +51,7 @@ namespace KRG
         public:
 
             ActiveRequestsViewWidget();
+            ~ActiveRequestsViewWidget();
 
         public slots:
 
@@ -58,7 +59,7 @@ namespace KRG
 
         private:
 
-            QTableView*                                 m_pTableWidget = nullptr;
+            QTableView*                                m_pTableWidget = nullptr;
             ActiveRequestsViewModel*                   m_pModel = nullptr;
         };
     }

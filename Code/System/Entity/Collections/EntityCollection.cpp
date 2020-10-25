@@ -1,5 +1,5 @@
 #include "EntityCollection.h"
-#include "EntityCollectionTemplate.h"
+#include "EntityCollectionDescriptor.h"
 #include "System/Entity/Entity.h"
 #include "System/Entity/EntitySystem.h"
 #include "System/TypeSystem/TypeValueConverter.h"
@@ -47,34 +47,10 @@ namespace KRG::EntityModel
             }
         }
 
-        // Resolve ResourceIDs to ResourcePtrs
-        //-------------------------------------------------------------------------
-
-        if ( pPropertyInfo->m_typeID == TypeSystem::CoreTypes::TResourcePtr || pPropertyInfo->m_typeID == TypeSystem::CoreTypes::ResourcePtr )
-        {
-            // Get the serialize resource ID and validate the resource type vs. the expected type
-            ResourceID const deserializedResourceID( (char const*) propertyValue.m_byteValue.data() );
-
-            TypeSystem::TypeInfo const* pImmediateParentTypeInfo = typeRegistry.GetTypeInfo( pPropertyInfo->m_parentTypeID );
-            KRG_ASSERT( pImmediateParentTypeInfo != nullptr );
-            ResourceTypeID const expectedResourceTypeID = pImmediateParentTypeInfo->m_pTypeHelper->GetExpectedResourceTypeForProperty( pImmediateParent, pPropertyInfo->m_ID );
-
-            // Set the resource ptr value
-            if ( expectedResourceTypeID == ResourceTypeID::Unknown || deserializedResourceID.GetResourceTypeID() == expectedResourceTypeID )
-            {
-                Resource::ResourcePtr* pResourcePtr = reinterpret_cast<Resource::ResourcePtr*>( pPropertyData );
-                *pResourcePtr = Resource::ResourcePtr( deserializedResourceID );
-            }
-            else
-            {
-                KRG_LOG_WARNING( "Property Deserialization: ", "Mismatched resource type ID for property %s, expected %s and received %s", pPropertyInfo->m_ID.ToString(), expectedResourceTypeID.ToString().c_str(), deserializedResourceID.GetResourceTypeID().ToString().c_str() );
-            }
-        }
-
         // Resolve enum string values
         //-------------------------------------------------------------------------
 
-        else if ( pPropertyInfo->IsEnumProperty() )
+        if ( pPropertyInfo->IsEnumProperty() )
         {
             auto pEnumInfo = typeRegistry.GetEnumInfo( pPropertyInfo->m_typeID );
             KRG_ASSERT( pEnumInfo != nullptr );
@@ -114,7 +90,7 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionTemplate const& entityCollectionTemplate )
+    EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionTemplate )
         : m_ID( ID )
     {
         KRG_ASSERT( ID.IsValid() );
@@ -283,7 +259,7 @@ namespace KRG::EntityModel
         KRG_ASSERT( iter != m_entityLookupMap.end() );
 
         auto pEntity = iter->second;
-        KRG_ASSERT( pEntity->GetStatus() == Entity::Status::Unloaded );
+        KRG_ASSERT( pEntity->IsDeactivated() );
 
         m_entityLookupMap.erase( iter );
         m_entities.erase_first( pEntity );

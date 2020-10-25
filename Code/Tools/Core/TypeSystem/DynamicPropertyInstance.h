@@ -268,7 +268,7 @@ namespace KRG
             KRG_ASSERT( IsCoreTypeProperty() && !IsArrayProperty() );
 
             T outValue;
-            TypeSystem::TypeValueConverter::FromString( m_value, outValue );
+            TypeSystem::TypeValueConverter::StringToValue( m_value, outValue );
             return outValue;
         }
 
@@ -283,7 +283,7 @@ namespace KRG
         inline void SetValue( T const& value )
         {
             KRG_ASSERT( IsCoreTypeProperty() && !IsArrayProperty() );
-            TypeSystem::TypeValueConverter::ToString( value, m_value );
+            TypeSystem::TypeValueConverter::ValueToString( value, m_value );
         }
 
         bool IsDefaultValue() const;

@@ -28,7 +28,7 @@ namespace KRG
 
         int ActiveRequestsViewModel::rowCount( const QModelIndex& parent ) const
         {
-            return ( int) m_requests.size();
+            return (int) m_requests.size();
         }
 
         int ActiveRequestsViewModel::columnCount( const QModelIndex& parent ) const
@@ -147,6 +147,11 @@ namespace KRG
             pViewLayout->setContentsMargins( 2, 0, 4, 0 );
             pViewLayout->setSpacing( 3 );
             pViewLayout->addWidget( m_pTableWidget, 1 );
+        }
+
+        ActiveRequestsViewWidget::~ActiveRequestsViewWidget()
+        {
+            delete m_pModel;
         }
 
         void ActiveRequestsViewWidget::OnRequestsUpdated( TVector<CompilationRequest const*> const* pPendingRequests, TVector<CompilationRequest const*> const* pActiveRequests )

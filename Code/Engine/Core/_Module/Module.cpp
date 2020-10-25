@@ -19,7 +19,7 @@ namespace KRG
 
             #if KRG_DEBUG_INSTRUMENTATION
             m_cameraDebugViewController.Initialize( context.GetSystem<CameraSystem>() );
-            m_entityDebugViewController.Initialize( context.GetWorld() );
+            m_entityDebugViewController.Initialize( context.GetEntityWorld() );
 
             context.RegisterDebugView( &m_systemDebugViewController );
             context.RegisterDebugView( &m_entityDebugViewController );

@@ -78,8 +78,7 @@ namespace KRG
         if ( m_startupMap.IsValid() )
         {
             auto const sceneResourceID = KRG::ResourceID( m_startupMap );
-            m_world.LoadMap( sceneResourceID );
-            m_world.LoadMap( KRG::ResourceID( "data://maps/BR_Minimal.map") );
+            m_entityWorld.LoadMap( sceneResourceID );
         }
     }
 
@@ -199,7 +198,7 @@ namespace KRG
         m_moduleContext.m_pSystemRegistry = &m_systemRegistry;
         m_moduleContext.m_pRenderDevice = &m_renderDevice;
         m_moduleContext.m_pRendererRegistry = m_renderingSystem.GetRendererRegistry();
-        m_moduleContext.m_pWorld = &m_world;
+        m_moduleContext.m_pEntityWorld = &m_entityWorld;
         
         #if KRG_DEBUG_INSTRUMENTATION
         m_moduleContext.m_pDebugUISystem = &m_debugUISystem;
@@ -230,8 +229,8 @@ namespace KRG
         m_cameraSystem.SetViewDimensions( m_renderDevice.GetRenderTargetDimensions() );
         m_renderingSystem.Initialize();
 
-        m_world.RegisterGlobalSystem( &m_cameraSystem );
-        m_world.Initialize( m_systemRegistry );
+        m_entityWorld.RegisterGlobalSystem( &m_cameraSystem );
+        m_entityWorld.Initialize( m_systemRegistry );
 
         //-------------------------------------------------------------------------
 
@@ -247,14 +246,14 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Wait for resource/object systems to complete all resource unloading
-        m_world.Shutdown();
+        m_entityWorld.Shutdown();
 
-        while ( m_world.IsBusyLoading() || m_resourceSystem.IsBusy() )
+        while ( m_entityWorld.IsBusyLoading() || m_resourceSystem.IsBusy() )
         {
             m_resourceSystem.ExecuteTasksSynchronously();
         }
 
-        m_world.UnregisterGlobalSystem( &m_cameraSystem );
+        m_entityWorld.UnregisterGlobalSystem( &m_cameraSystem );
         m_renderingSystem.Shutdown();
 
         // Update Context
@@ -282,7 +281,7 @@ namespace KRG
         m_moduleContext.m_pSystemRegistry = nullptr;
         m_moduleContext.m_pRenderDevice = nullptr;
         m_moduleContext.m_pRendererRegistry = nullptr;
-        m_moduleContext.m_pWorld = nullptr;
+        m_moduleContext.m_pEntityWorld = nullptr;
 
         // Unregister Systems
         //-------------------------------------------------------------------------
@@ -364,7 +363,7 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE( "Loading/Streaming" );
                 m_resourceSystem.WaitForTasksToComplete();
-                m_world.UpdateLoading();
+                m_entityWorld.UpdateLoading();
                 m_resourceSystem.ExecuteTasks();
             }
 
@@ -383,7 +382,7 @@ namespace KRG
                 m_debugUISystem.Update( m_updateContext );
                 #endif
 
-                m_world.Update( m_updateContext );
+                m_entityWorld.Update( m_updateContext );
             }
 
             // Pre-Physics
@@ -394,7 +393,7 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_world.Update( m_updateContext );
+                m_entityWorld.Update( m_updateContext );
                 m_cameraSystem.Update(); // Camera entities should have been updated as part of the pre-physics step, so update the viewports
                 m_renderingSystem.Update( m_updateContext, m_cameraSystem.GetActiveViewports() );
             }
@@ -408,7 +407,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 Physics::PhysicsWorld::Update( m_updateContext.GetDeltaTime() );
-                m_world.Update( m_updateContext );
+                m_entityWorld.Update( m_updateContext );
                 m_renderingSystem.Update( m_updateContext, m_cameraSystem.GetActiveViewports() );
             }
 
@@ -420,7 +419,7 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_world.Update( m_updateContext );
+                m_entityWorld.Update( m_updateContext );
                 m_renderingSystem.Update( m_updateContext, m_cameraSystem.GetActiveViewports() );
             }
 
@@ -432,7 +431,7 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_world.Update( m_updateContext );
+                m_entityWorld.Update( m_updateContext );
 
                 #if KRG_DEBUG_INSTRUMENTATION
                 m_debugUISystem.Update( m_updateContext );

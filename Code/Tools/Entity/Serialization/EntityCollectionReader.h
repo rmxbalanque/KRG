@@ -16,7 +16,7 @@ namespace KRG
 
     namespace EntityModel
     {
-        class EntityCollectionTemplate;
+        class EntityCollectionDescriptor;
 
         //-------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ namespace KRG
 
         public:
 
-            bool ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& filePath, EntityCollectionTemplate& outCollection ) const;
+            bool ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& filePath, EntityCollectionDescriptor& outCollection ) const;
         };
     }
 }

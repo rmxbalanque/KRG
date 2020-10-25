@@ -8,6 +8,8 @@ namespace KRG
     {
         void SkeletalMeshComponent::Initialize()
         {
+            SpatialEntityComponent::Initialize();
+
             KRG_ASSERT( m_pMesh != nullptr && m_pMesh.IsLoaded() );
             SetLocalBounds( m_pMesh->GetBounds() );
 
@@ -21,6 +23,8 @@ namespace KRG
         {
             m_boneTransforms.clear();
             m_skinningTransforms.clear();
+
+            SpatialEntityComponent::Shutdown();
         }
 
         bool SkeletalMeshComponent::TryFindAttachmentSocketTransform( StringID socketID, Transform& outSocketWorldTransform ) const
@@ -29,7 +33,7 @@ namespace KRG
 
             outSocketWorldTransform = GetWorldTransform();
 
-            if ( m_pMesh.IsLoaded() /*&& IsInitialized()*/ )
+            if ( m_pMesh.IsLoaded() && IsInitialized() )
             {
                 auto const boneIdx = m_pMesh->GetBoneIndex( socketID );
                 if ( boneIdx != InvalidIndex )

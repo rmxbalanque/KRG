@@ -16,7 +16,7 @@ namespace KRG
     namespace EntityModel
     {
         struct LoadingContext;
-        class EntityCollectionTemplate;
+        class EntityCollectionDescriptor;
 
         //-------------------------------------------------------------------------
         // Entity Map
@@ -34,36 +34,62 @@ namespace KRG
 
             enum class Status
             {
+                LoadFailed = -1,
                 Unloaded = 0,
-                Loading,
+                MapDescLoading,
+                MapDescLoaded,
+                EntitiesLoading,
                 Loaded,
-                UnloadRequested,
+                Activated,
             };
 
         public:
 
-            EntityMap( ResourceID mapResourceID );
-            EntityMap( EntityMap const& map );
-            EntityMap( EntityMap&& map );
+            EntityMap(); // Default constructor creates a transient map
+            EntityMap( ResourceID mapResourceID ) : m_pMapDesc( mapResourceID ) {}
+            EntityMap( EntityMap const& map ) { operator=( map ); }
+            EntityMap( EntityMap&& map ) { operator=( eastl::move( map ) ); }
             ~EntityMap();
 
             EntityMap& operator=( EntityMap const& map );
+            EntityMap& operator=( EntityMap&& map );
+
+            // Map Info
+            //-------------------------------------------------------------------------
 
             inline ResourceID const& GetMapResourceID() const { return m_pMapDesc.GetResourceID(); }
+            inline bool IsTransientMap() const { return m_isTransientMap; }
+            inline UUID GetMapID() const { return m_pCollection->GetID(); }
 
-            inline TVector<Entity*> const& GetEntities() const { KRG_ASSERT( IsLoaded() ); return m_pCollection->GetEntities(); }
+            // Entity access
+            //-------------------------------------------------------------------------
+
+            inline TVector<Entity*> const& GetEntities() const { KRG_ASSERT( m_pCollection != nullptr ); return m_pCollection->GetEntities(); }
             Entity* FindEntity( UUID entityID ) const;
 
-            // Map
+            // Loading
+            //-------------------------------------------------------------------------
+            // Note: Transient maps cannot be loaded/unloaded
+
+            bool IsLoading() const { return m_status == Status::MapDescLoading || m_status == Status::EntitiesLoading; }
+            inline bool IsLoaded() const { return m_status == Status::Loaded; }
+            inline bool IsUnloaded() const { return m_status == Status::Unloaded; }
+            inline bool HasLoadingFailed() const { return m_status == Status::LoadFailed; }
+
             void Load( LoadingContext const& loadingContext );
             void Unload( LoadingContext const& loadingContext );
+
+            // Updates map loading state, returns true if all loading is complete, false otherwise
             bool UpdateLoading( LoadingContext const& loadingContext );
 
-            bool IsLoading() const;
-            inline bool IsLoaded() const { return m_pMapDesc.IsLoaded(); }
-            inline bool IsUnloading() const { return m_status == Status::UnloadRequested; }
-            inline bool IsUnloaded() const { return m_pMapDesc.IsUnloaded(); }
-            inline bool HasLoadingFailed() const { return m_pMapDesc.HasLoadingFailed(); }
+            // Activation
+            //-------------------------------------------------------------------------
+
+            inline bool IsActivated() const { return m_status == Status::Activated; }
+            void Activate( LoadingContext const& loadingContext );
+            void Deactivate( LoadingContext const& loadingContext );
+
+        private:
 
             // Entities
             void LoadEntities( LoadingContext const& loadingContext );
@@ -73,7 +99,11 @@ namespace KRG
 
             TResourcePtr<EntityMapDescriptor>           m_pMapDesc;
             EntityCollection*                           m_pCollection = nullptr;
+            TVector<Entity*>                            m_loadingEntities;
+            TVector<Entity*>                            m_entitiesToReload;
             Status                                      m_status = Status::Unloaded;
+            bool                                        m_unloadRequested = false;
+            bool const                                  m_isTransientMap = false; // If this is set, then this is a transient map i.e.created and managed at runtime and not loaded from disk
         };
     }
 }

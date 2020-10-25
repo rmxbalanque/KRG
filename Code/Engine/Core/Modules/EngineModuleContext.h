@@ -49,8 +49,8 @@ namespace KRG
         inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
         inline Render::RenderDevice const* GetRenderDevice() const { return m_pRenderDevice; }
 
-        inline EntityWorld* GetWorld() { return m_pWorld; }
-        inline EntityWorld const* GetWorld() const { return m_pWorld; }
+        inline EntityWorld* GetEntityWorld() { return m_pEntityWorld; }
+        inline EntityWorld const* GetEntityWorld() const { return m_pEntityWorld; }
 
         // ResourceLoader Registration
         //-------------------------------------------------------------------------
@@ -68,8 +68,8 @@ namespace KRG
         // Entity System Registration
         //-------------------------------------------------------------------------
 
-        inline void RegisterGlobalSystem( IGlobalEntitySystem* pSystem ) { m_pWorld->RegisterGlobalSystem( pSystem ); }
-        inline void UnregisterGlobalSystem( IGlobalEntitySystem* pSystem ) { m_pWorld->UnregisterGlobalSystem( pSystem ); }
+        inline void RegisterGlobalSystem( IGlobalEntitySystem* pSystem ) { m_pEntityWorld->RegisterGlobalSystem( pSystem ); }
+        inline void UnregisterGlobalSystem( IGlobalEntitySystem* pSystem ) { m_pEntityWorld->UnregisterGlobalSystem( pSystem ); }
 
         // Renderer Registration
         //-------------------------------------------------------------------------
@@ -94,7 +94,7 @@ namespace KRG
         TypeSystem::TypeRegistry*           m_pTypeRegistry = nullptr;
         Resource::ResourceSystem*           m_pResourceSystem = nullptr;
         SystemRegistry*                     m_pSystemRegistry = nullptr;
-        EntityWorld*                        m_pWorld = nullptr;
+        EntityWorld*                        m_pEntityWorld = nullptr;
         Render::RenderDevice*               m_pRenderDevice = nullptr;
         Render::RendererRegistry*           m_pRendererRegistry = nullptr;
 

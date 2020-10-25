@@ -59,11 +59,11 @@ namespace KRG
 
     private:
 
-        void InitializeEntity( Entity* pEntity );
-        void ShutdownEntity( Entity* pEntity );
+        void RegisterEntityUpdate( Entity* pEntity );
+        void UnregisterEntityUpdate( Entity* pEntity );
 
-        // Hot-reload support
-        void ReloadEntities( TVector<Entity*> const& entities );
+        void RegisterComponentWithGlobalSystems( Entity* pEntity, EntityComponent* pComponent );
+        void UnregisterComponentFromGlobalSystems( Entity* pEntity, EntityComponent* pComponent );
 
     private:
 
@@ -73,7 +73,8 @@ namespace KRG
         TVector<IGlobalEntitySystem*>                       m_globalSystems;
 
         // Maps
-        TInlineVector<EntityModel::EntityMap,1>             m_maps;
+        EntityModel::EntityMap                              m_persistentMap;
+        TInlineVector<EntityModel::EntityMap,3>             m_maps;
 
         // Entities
         THashMap<UUID, Entity*>                             m_entityLookupMap;

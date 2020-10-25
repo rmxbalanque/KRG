@@ -2,6 +2,7 @@
 
 #include "System/Entity/_Module/API.h"
 #include "System/Core/Types/UUID.h"
+#include "System/Core/Types/Event.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 
@@ -9,9 +10,15 @@
 
 namespace KRG
 {
+    class Entity;
+    class EntityComponent;
+
+    //-------------------------------------------------------------------------
+
     namespace EntityModel 
     {
-        class EntityCollection; 
+        class EntityCollection;
+        class EntityMap;
     
         //-------------------------------------------------------------------------
 
@@ -31,8 +38,12 @@ namespace KRG
 
         public:
 
-            TypeSystem::TypeRegistry const*     m_pTypeRegistry = nullptr;
-            Resource::ResourceSystem*           m_pResourceSystem = nullptr;
+            TypeSystem::TypeRegistry const*                                 m_pTypeRegistry = nullptr;
+            Resource::ResourceSystem*                                       m_pResourceSystem = nullptr;
+            TFunction<void( Entity*, EntityComponent* )>                    m_registerWithGlobalSystems;
+            TFunction<void( Entity*, EntityComponent* )>                    m_unregisterFromGlobalSystems;
+            TFunction<void( Entity* )>                                      m_registerEntityUpdate;
+            TFunction<void( Entity* )>                                      m_unregisterEntityUpdate;
         };
     }
 
@@ -42,8 +53,9 @@ namespace KRG
     {
         KRG_REGISTER_TYPE;
 
-        friend class Entity;
+        friend Entity;
         friend class EntityModel::EntityCollection;
+        friend class EntityModel::EntityMap;
 
     public:
 
@@ -88,10 +100,10 @@ namespace KRG
 
         // Called when an component finishes loading all its resources
         // Note: this is only called if the loading succeeds and you are guaranteed all resources to be valid and so should assert on that
-        virtual void Initialize() { KRG_ASSERT( m_entityID.IsValid() ); }
+        virtual void Initialize() { KRG_ASSERT( m_entityID.IsValid() && m_status == Status::Loaded ); m_status = Status::Initialized; }
 
         // Called just before a component begins unloading
-        virtual void Shutdown() { KRG_ASSERT( m_entityID.IsValid() ); }
+        virtual void Shutdown() { KRG_ASSERT( m_entityID.IsValid() && m_status == Status::Initialized ); m_status = Status::Loaded; }
 
     protected:
 

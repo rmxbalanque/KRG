@@ -37,7 +37,6 @@ namespace KRG
     protected:
 
         virtual void Initialize() override;
-        virtual void Shutdown() override;
         virtual void OnWorldTransformUpdated() override final;
 
     protected:

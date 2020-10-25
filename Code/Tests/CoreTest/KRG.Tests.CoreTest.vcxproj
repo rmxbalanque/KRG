@@ -108,6 +108,9 @@
     <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
       <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\System\Render\KRG.System.Render.vcxproj">
+      <Project>{9f9f2d36-a465-46a8-b95a-fdad4fb56de0}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Resource\KRG.System.Resource.vcxproj">
       <Project>{7870de8e-6569-4857-93f9-b1abc1fc0543}</Project>
     </ProjectReference>

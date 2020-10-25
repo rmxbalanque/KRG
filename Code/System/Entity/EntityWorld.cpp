@@ -36,6 +36,14 @@ namespace KRG
         m_loadingContext = EntityModel::LoadingContext( systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
         KRG_ASSERT( m_loadingContext.IsValid() );
 
+        // Bind delegates
+        m_loadingContext.m_registerWithGlobalSystems = TFunction<void( Entity*, EntityComponent* )>( [this] ( Entity* pEntity, EntityComponent* pComponent ) { RegisterComponentWithGlobalSystems( pEntity, pComponent ); } );
+        m_loadingContext.m_unregisterFromGlobalSystems = TFunction<void( Entity*, EntityComponent* )>( [this] ( Entity* pEntity, EntityComponent* pComponent ) { UnregisterComponentFromGlobalSystems( pEntity, pComponent ); } );
+        m_loadingContext.m_registerEntityUpdate = TFunction<void( Entity* )>( [this] ( Entity* pEntity ) { RegisterEntityUpdate( pEntity ); } );
+        m_loadingContext.m_unregisterEntityUpdate = TFunction<void( Entity* )>( [this] ( Entity* pEntity ) { UnregisterEntityUpdate( pEntity ); } );
+
+        //-------------------------------------------------------------------------
+
         m_pTaskSystem = systemsRegistry.GetSystem<TaskSystem>();
         KRG_ASSERT( m_pTaskSystem != nullptr );
 
@@ -45,6 +53,8 @@ namespace KRG
             pSystem->InitializeSystem( systemsRegistry );
         }
 
+        // Activate the persistent map
+        m_persistentMap.Activate( m_loadingContext );
         m_initialized = true;
     }
 
@@ -52,6 +62,8 @@ namespace KRG
     {
         // Unload maps
         //-------------------------------------------------------------------------
+        
+        m_persistentMap.Deactivate( m_loadingContext );
 
         for ( auto& map : m_maps )
         {
@@ -238,79 +250,19 @@ namespace KRG
         KRG_PROFILE_GROUPED_SCOPE_COLOR( "Entity", "World Loading", MP_LIMEGREEN );
 
         //-------------------------------------------------------------------------
-        // Process map load requests
-        //-------------------------------------------------------------------------
 
         for ( S32 i = (S32) m_maps.size() - 1; i >= 0; i-- )
         {
-            m_maps[i].UpdateLoading( m_loadingContext );
-
-            if ( m_maps[i].IsUnloaded() )
+            if ( m_maps[i].UpdateLoading( m_loadingContext ) )
             {
-                m_maps.pop_back();
-            }
-        }
-
-        ////-------------------------------------------------------------------------
-        //// Update Entity Loads
-        ////-------------------------------------------------------------------------
-
-        //for ( S32 i = (S32) m_activeLoaders.size() - 1; i >= 0; i-- )
-        //{
-        //    auto pEntityLoader = m_activeLoaders[i];
-        //    pEntityLoader->UpdateLoading( m_loadingContext );
-
-        //    if ( pEntityLoader->IsLoaded() )
-        //    {
-        //        for ( auto pEntity : pEntityLoader->GetEntities() )
-        //        {
-        //            InitializeEntity( pEntity );
-        //        }
-
-        //        // For reload operations we have an explicit list of entities to reactivate
-        //        //-------------------------------------------------------------------------
-
-        //        if ( pEntityLoader->IsReloadOperation() )
-        //        {
-        //            for ( auto pEntityToActivate : pEntityLoader->GetEntitiesToReactivate() )
-        //            {
-        //                if ( pEntityToActivate->IsLoaded() )
-        //                {
-        //                    continue;
-        //                }
-        //            }
-        //        }
-
-        //        // Remove the loader as we are done with it
-        //        //-------------------------------------------------------------------------
-
-        //        KRG::Delete( pEntityLoader );
-        //        VectorEraseUnsorted( m_activeLoaders, i );
-        //    }
-        //}
-
-        //-------------------------------------------------------------------------
-        // Process hot-reload requests
-        //-------------------------------------------------------------------------
-        // This has to happen last since the EntityWorld loading occurs immediately before the resource system allowing the resource system
-        // to immediately process any unload requests.
-
-        auto const& entitiesThatRequireReload = m_loadingContext.m_pResourceSystem->GetUsersThatRequireReload();
-        if ( !entitiesThatRequireReload.empty() )
-        {
-            TVector<Entity*> entitiesToReload;
-            for ( auto userID : entitiesThatRequireReload )
-            {
-                auto iter = m_entityLookupMap.find( userID );
-                if ( iter != m_entityLookupMap.end() )
+                if ( m_maps[i].IsLoaded() )
                 {
-                    entitiesToReload.emplace_back( iter->second );
+                    m_maps[i].Activate( m_loadingContext );
                 }
-            }
-
-            if ( !entitiesToReload.empty() )
-            {
-                ReloadEntities( entitiesToReload );
+                else if ( m_maps[i].IsUnloaded() )
+                {
+                    VectorEraseUnsorted( m_maps, i );
+                }
             }
         }
     }
@@ -319,25 +271,9 @@ namespace KRG
     // Entity operations
     //-------------------------------------------------------------------------
 
-    void EntityWorld::InitializeEntity( Entity* pEntity )
+    void EntityWorld::RegisterEntityUpdate( Entity* pEntity )
     {
-        KRG_ASSERT( pEntity->IsLoaded() );
-
-        //-------------------------------------------------------------------------
-
-        pEntity->Initialize( *m_pSystemsRegistry );
-       
-        // Add to global systems
-        for ( auto pGlobalSystem : m_globalSystems )
-        {
-            for ( auto pComponent : pEntity->m_components )
-            {
-                if ( pComponent->IsInitialized() )
-                {
-                    pGlobalSystem->RegisterComponent( pEntity, pComponent );
-                }
-            }
-        }
+        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() );
 
         // Add to update lists
         for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
@@ -349,11 +285,9 @@ namespace KRG
         }
     }
 
-    void EntityWorld::ShutdownEntity( Entity* pEntity )
+    void EntityWorld::UnregisterEntityUpdate( Entity* pEntity )
     {
-        KRG_ASSERT( pEntity->IsInitialized() );
-
-        //-------------------------------------------------------------------------
+        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() );
 
         // Remove from update lists
         for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
@@ -363,44 +297,27 @@ namespace KRG
                 m_entityUpdateLists[i].erase_first( pEntity );
             }
         }
-
-        // Remove from global systems
-        for ( auto pGlobalSystem : m_globalSystems )
-        {
-            for ( auto pComponent : pEntity->m_components )
-            {
-                if ( pComponent->IsInitialized() )
-                {
-                    pGlobalSystem->UnregisterComponent( pEntity, pComponent );
-                }
-            }
-        }
-
-        pEntity->Shutdown();
     }
 
-    //-------------------------------------------------------------------------
-
-    void EntityWorld::ReloadEntities( TVector<Entity*> const& entities )
+    void EntityWorld::RegisterComponentWithGlobalSystems( Entity* pEntity, EntityComponent* pComponent )
     {
-        //TInlineVector<Entity*, 5> attachmentHierarchy;
+        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() );
+        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
 
-        //for ( auto pEntity : entities )
-        //{
-        //    KRG_ASSERT( pEntity != nullptr );
+        for ( auto pGlobalSystem : m_globalSystems )
+        {
+            pGlobalSystem->RegisterComponent( pEntity, pComponent );
+        }
+    }
 
-        //    //-------------------------------------------------------------------------
+    void EntityWorld::UnregisterComponentFromGlobalSystems( Entity* pEntity, EntityComponent* pComponent )
+    {
+        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() );
+        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
 
-        //    if( pEntity->IsInitialized() )
-        //    {
-        //        ShutdownEntity( pEntity );
-        //    }
-        //}
-
-        //// Create the entity reloader and set the list of entities that need to be activated
-        ////-------------------------------------------------------------------------
-
-        //auto pEntityReloader = m_activeLoaders.emplace_back( KRG::New<EntityModel::EntityLoader>( EntityModel::EntityLoader::Reload( m_loadingContext, entities ) ) );
-        //pEntityReloader->SetEntitiesToReactivate( attachmentHierarchy );
+        for ( auto pGlobalSystem : m_globalSystems )
+        {
+            pGlobalSystem->UnregisterComponent( pEntity, pComponent );
+        }
     }
 }

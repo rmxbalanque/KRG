@@ -64,7 +64,7 @@ namespace KRG
         public:
 
             BinaryArchive( Mode mode, FileSystemPath const& filePath );
-            BinaryArchive( TVector<Byte>& data ); // Read only
+            BinaryArchive( Mode mode, TVector<Byte>& data );
             ~BinaryArchive();
 
             inline Mode GetMode() const { return m_mode; }

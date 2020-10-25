@@ -84,7 +84,7 @@ namespace KRG
         ImGuiX::System                                  m_imguiSystem;
         Input::InputSystem                              m_inputSystem;
         CameraSystem                                    m_cameraSystem;
-        EntityWorld                                     m_world;
+        EntityWorld                                     m_entityWorld;
 
         #if KRG_DEBUG_INSTRUMENTATION
         Debug::DebugUISystem                            m_debugUISystem;

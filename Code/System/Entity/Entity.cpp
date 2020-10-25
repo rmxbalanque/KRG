@@ -23,7 +23,7 @@ namespace KRG
         pChildEntity->m_parentAttachmentSocketID = socketID;
         pParentEntity->m_attachedEntities.emplace_back( pChildEntity );
 
-        if ( pChildEntity->IsInitialized() )
+        if ( pChildEntity->IsActivated() )
         {
             pChildEntity->AttachToParent();
         }
@@ -75,7 +75,7 @@ namespace KRG
 
     Entity::~Entity()
     {
-        KRG_ASSERT( IsUnloaded() );
+        KRG_ASSERT( IsDeactivated() );
 
         Entity::BreakAllEntitySpatialAttachments( this );
 
@@ -98,87 +98,10 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Entity::Load( EntityModel::LoadingContext const& context )
+    void Entity::Activate( EntityModel::LoadingContext const& loadingContext )
     {
-        KRG_ASSERT( context.IsValid() );
-        KRG_ASSERT( m_status == Status::Unloaded );
-
-        for ( auto pComponent : m_components )
-        {
-            KRG_ASSERT( pComponent->IsUnloaded() );
-            pComponent->Load( context, m_ID );
-        }
-
-        m_status = Status::Loading;
-    }
-
-    void Entity::Unload( EntityModel::LoadingContext const& context )
-    {
-        KRG_ASSERT( context.IsValid() );
-        KRG_ASSERT( m_status != Status::Unloaded );
-
-        for( auto pComponent : m_components )
-        {
-            KRG_ASSERT( !pComponent->IsUnloaded() );
-
-            // Shutdown any initialized components
-            if ( pComponent->IsInitialized() )
-            {
-                pComponent->Shutdown();
-            }
-
-            pComponent->Unload( context, m_ID );
-        }
-
-        m_status = Status::Unloaded;
-    }
-
-    bool Entity::UpdateLoading()
-    {
-        KRG_ASSERT( m_status == Status::Loading );
-
-        bool haveAllComponentsFinishedLoading = true;
-
-        for ( auto pComponent : m_components )
-        {
-            // If a component has finished loading, skip it
-            if ( pComponent->IsInitialized() || pComponent->HasLoadingFailed() )
-            {
-                continue;
-            }
-
-            //-------------------------------------------------------------------------
-
-            pComponent->UpdateLoading();
-
-            // If we finish loading a component, immediately initialize it
-            if ( pComponent->IsLoaded() )
-            {
-                pComponent->Initialize();
-            }
-            // Set the still loading flag 
-            else if ( pComponent->IsLoading() )
-            {
-                haveAllComponentsFinishedLoading = false;
-            }
-        }
-
-        //-------------------------------------------------------------------------
-
-        if( haveAllComponentsFinishedLoading )
-        {
-            m_status = Status::Loaded;
-            return true;
-        }
-
-        return false;
-    }
-
-    //-------------------------------------------------------------------------
-
-    void Entity::Initialize( SystemRegistry const& systemRegistry )
-    {
-        KRG_ASSERT( m_status == Status::Loaded );
+        KRG_ASSERT( m_status == Status::Deactivated );
+        m_status = Status::Activated;
 
         // Initialize spatial hierarchy
         //-------------------------------------------------------------------------
@@ -190,52 +113,26 @@ namespace KRG
             m_pRootSpatialComponent->CalculateWorldTransform( false );
         }
 
-        // Initialize all components
+        // Register components with systems
         //-------------------------------------------------------------------------
-        // An entity can only be initialized once all loading for its components has completed (i.e. fully loaded or failed loading)
 
         for ( auto pComponent : m_components )
         {
-            if ( pComponent->HasLoadingFailed() )
+            if ( pComponent->IsInitialized() )
             {
-                continue;
-            }
+                for ( auto pSystem : m_systems )
+                {
+                    pSystem->RegisterComponent( pComponent );
+                }
 
-            KRG_ASSERT( IsLoaded() );
-
-            pComponent->Initialize();
-            pComponent->m_status = EntityComponent::Status::Initialized;
-
-            // Register with systems
-            for ( auto pSystem : m_systems )
-            {
-                pSystem->RegisterComponent( pComponent );
+                loadingContext.m_registerWithGlobalSystems( this, pComponent );
             }
         }
 
         // Generate system update list
         //-------------------------------------------------------------------------
 
-        for( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
-        {
-            for( auto& pSystem : m_systems )
-            {
-                if( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) i ) )
-                {
-                    m_systemUpdateLists[i].push_back( pSystem );
-                }
-            }
-
-            // Sort update list
-            auto comparator = [i] ( IEntitySystem* const& pSystemA, IEntitySystem* const& pSystemB )
-            {
-                U8 const A = pSystemA->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
-                U8 const B = pSystemB->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
-                return A > B;
-            };
-
-            eastl::sort( m_systemUpdateLists[i].begin(), m_systemUpdateLists[i].end(), comparator );
-        }
+        GenerateSystemUpdateList();
 
         // Spatial Attachments
         //-------------------------------------------------------------------------
@@ -249,12 +146,16 @@ namespace KRG
 
         RefreshEntityAttachments();
 
-        m_status = Status::Initialized;
+        //-------------------------------------------------------------------------
+
+        loadingContext.m_registerEntityUpdate( this );
     }
 
-    void Entity::Shutdown()
+    void Entity::Deactivate( EntityModel::LoadingContext const& loadingContext )
     {
-        KRG_ASSERT( m_status == Status::Initialized );
+        KRG_ASSERT( m_status == Status::Activated );
+
+        loadingContext.m_unregisterEntityUpdate( this );
 
         // Spatial Attachments
         //-------------------------------------------------------------------------
@@ -272,31 +173,25 @@ namespace KRG
             m_systemUpdateLists[i].clear();
         }
 
-        // Shutdown all components
+        // Unregister components from systems
         //-------------------------------------------------------------------------
-        // An entity can only be shutdown once all loading for its components has completed (i.e. fully loaded or failed loading)
 
         for ( auto pComponent : m_components )
         {
-            if ( pComponent->HasLoadingFailed() )
+            if ( pComponent->IsInitialized() )
             {
-                continue;
+                for ( auto pSystem : m_systems )
+                {
+                    pSystem->UnregisterComponent( pComponent );
+                }
+
+                loadingContext.m_unregisterFromGlobalSystems( this, pComponent );
             }
-
-            KRG_ASSERT( pComponent->IsInitialized() );
-
-            for ( auto pSystem : m_systems )
-            {
-                pSystem->UnregisterComponent( pComponent );
-            }
-
-            pComponent->Shutdown();
-            pComponent->m_status = EntityComponent::Status::Loaded;
         }
 
         //-------------------------------------------------------------------------
 
-        m_status = Status::Loaded;
+        m_status = Status::Deactivated;
     }
 
     //-------------------------------------------------------------------------
@@ -407,5 +302,117 @@ namespace KRG
                 pAttachedEntity->AttachToParent();
             }
         }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void Entity::GenerateSystemUpdateList()
+    {
+        for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
+        {
+            m_systemUpdateLists[i].clear();
+
+            for ( auto& pSystem : m_systems )
+            {
+                if ( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) i ) )
+                {
+                    m_systemUpdateLists[i].push_back( pSystem );
+                }
+            }
+
+            // Sort update list
+            auto comparator = [i] ( IEntitySystem* const& pSystemA, IEntitySystem* const& pSystemB )
+            {
+                U8 const A = pSystemA->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
+                U8 const B = pSystemB->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
+                return A > B;
+            };
+
+            eastl::sort( m_systemUpdateLists[i].begin(), m_systemUpdateLists[i].end(), comparator );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void Entity::LoadComponents( EntityModel::LoadingContext const& loadingContext )
+    {
+        for ( auto pComponent : m_components )
+        {
+            KRG_ASSERT( pComponent->IsUnloaded() );
+            pComponent->Load( loadingContext, m_ID );
+        }
+    }
+
+    void Entity::UnloadComponents( EntityModel::LoadingContext const& loadingContext )
+    {
+        for ( auto pComponent : m_components )
+        {
+            if ( pComponent->IsUnloaded() )
+            {
+                continue;
+            }
+
+            //-------------------------------------------------------------------------
+
+            // Shutdown any initialized components
+            if ( pComponent->IsInitialized() )
+            {
+                // Only deal with system registrations if we were activated
+                if ( IsActivated() )
+                {
+                    // Unregister from local systems
+                    for ( auto pSystem : m_systems )
+                    {
+                        pSystem->UnregisterComponent( pComponent );
+                    }
+
+                    // Unregister from global systems
+                    loadingContext.m_unregisterFromGlobalSystems( this, pComponent );
+                }
+
+                pComponent->Shutdown();
+            }
+
+            pComponent->Unload( loadingContext, m_ID );
+        }
+    }
+
+    bool Entity::UpdateComponentLoading( EntityModel::LoadingContext const& loadingContext )
+    {
+        for ( auto pComponent : m_components )
+        {
+            if ( pComponent->IsLoading() )
+            {
+                pComponent->UpdateLoading();
+
+                // If we are still loading, return
+                if ( pComponent->IsLoading() )
+                {
+                    return false;
+                }
+
+                // Once we finish loading a component immediately initialize it
+                if ( pComponent->IsLoaded() )
+                {
+                    pComponent->Initialize();
+                    KRG_ASSERT( pComponent->IsInitialized() );
+
+                    // If we are already activated, then register with entity systems
+                    if ( IsActivated() )
+                    {
+                        // Register with local systems
+                        for ( auto pSystem : m_systems )
+                        {
+                            pSystem->RegisterComponent( pComponent );
+                        }
+
+                        // Register with global systems
+                        loadingContext.m_registerWithGlobalSystems( this, pComponent );
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 }

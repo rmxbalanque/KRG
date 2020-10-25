@@ -22,6 +22,7 @@ namespace KRG
 
         void SimpleAnimationComponent::Initialize()
         {
+            EntityComponent::Initialize();
             KRG_ASSERT( m_pAnimation != nullptr && m_pAnimation.IsLoaded() );
             m_pPose = KRG::New<Pose>( m_pAnimation->GetSkeleton() );
         }
@@ -29,6 +30,7 @@ namespace KRG
         void SimpleAnimationComponent::Shutdown()
         {
             KRG::Delete( m_pPose );
+            EntityComponent::Shutdown();
         }
 
         //-------------------------------------------------------------------------
