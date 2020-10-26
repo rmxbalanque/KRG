@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Animation::SkeletonResourceDescriptor::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::Animation::SkeletonResourceDescriptor::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers

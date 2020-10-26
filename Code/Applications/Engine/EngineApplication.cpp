@@ -182,6 +182,7 @@ namespace KRG
         m_systemRegistry.RegisterSystem( &m_resourceSystem );
         m_systemRegistry.RegisterSystem( &m_inputSystem );
         m_systemRegistry.RegisterSystem( &m_cameraSystem );
+        m_systemRegistry.RegisterSystem( &m_entityWorld );
 
         #if KRG_DEBUG_INSTRUMENTATION
         m_systemRegistry.RegisterSystem( &m_debugUISystem );
@@ -291,6 +292,7 @@ namespace KRG
         m_systemRegistry.UnregisterSystem( &m_debugUISystem );
         #endif
 
+        m_systemRegistry.UnregisterSystem( &m_entityWorld );
         m_systemRegistry.UnregisterSystem( &m_cameraSystem );
         m_systemRegistry.UnregisterSystem( &m_inputSystem );
         m_systemRegistry.UnregisterSystem( &m_resourceSystem );

@@ -130,7 +130,11 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 auto pTypeInfo = ctx.m_typeRegistry.GetTypeInfo( outComponentDesc.m_typeID );
-                KRG_ASSERT( pTypeInfo != nullptr );
+                if ( pTypeInfo == nullptr )
+                {
+                    return Error( "Invalid entity component type ID detected for entity (%s): %s", ctx.m_parsingContextID.ToString().c_str(), outComponentDesc.m_typeID.GetAsStringID().c_str() );
+                }
+
                 outComponentDesc.m_isSpatialComponent = pTypeInfo->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() );
 
                 if ( outComponentDesc.m_isSpatialComponent )

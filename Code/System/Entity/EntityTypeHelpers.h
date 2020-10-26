@@ -32,7 +32,7 @@ namespace KRG
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::Entity );
 
                     // Register Type
-                    Entity::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    Entity::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -94,7 +94,7 @@ namespace KRG
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::EntityComponent );
 
                     // Register Type
-                    EntityComponent::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    EntityComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -159,14 +159,14 @@ namespace KRG
                     // Parent Types 
                     //-------------------------------------------------------------------------
 
-                    TypeSystem::TypeInfo const* pParentType = KRG::EntityComponent::TypeInfoPtr;
+                    TypeSystem::TypeInfo const* pParentType = KRG::EntityComponent::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     //typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register Type
                     //-------------------------------------------------------------------------
 
-                    SpatialEntityComponent::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    SpatialEntityComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -229,7 +229,7 @@ namespace KRG
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::EntitySystem );
 
                     // Register Type
-                    IEntitySystem::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    IEntitySystem::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )

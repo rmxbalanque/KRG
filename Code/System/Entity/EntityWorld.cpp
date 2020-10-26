@@ -21,6 +21,7 @@ namespace KRG
 
     EntityWorld::~EntityWorld()
     {
+        KRG_ASSERT( !m_createPersistentEntitiesEvent.HasBoundUsers() );
         KRG_ASSERT( m_maps.empty());
         KRG_ASSERT( m_globalSystems.empty() );
 
@@ -53,8 +54,13 @@ namespace KRG
             pSystem->InitializeSystem( systemsRegistry );
         }
 
-        // Activate the persistent map
-        m_persistentMap.Activate( m_loadingContext );
+        // Create and activate the persistent map
+        m_maps.emplace_back( EntityModel::EntityMap() );
+        m_maps[0].Activate( m_loadingContext );
+        m_createPersistentEntitiesEvent.Execute( &m_maps[0] );
+
+        //-------------------------------------------------------------------------
+
         m_initialized = true;
     }
 
@@ -63,17 +69,26 @@ namespace KRG
         // Unload maps
         //-------------------------------------------------------------------------
         
-        m_persistentMap.Deactivate( m_loadingContext );
-
         for ( auto& map : m_maps )
         {
-            UnloadMap( map.GetMapResourceID() );
+            if ( map.IsTransientMap() )
+            {
+                map.Deactivate( m_loadingContext );
+            }
+            else
+            {
+                map.Unload( m_loadingContext );
+            }
         }
 
         // Run the loading update as this will immediately unload all maps
         //-------------------------------------------------------------------------
 
         UpdateLoading();
+
+        KRG_ASSERT( m_maps.empty() );
+
+        auto pEvent = Entity::OnEntityStateUpdated();
 
         // Shutdown all global systems
         //-------------------------------------------------------------------------
@@ -253,7 +268,7 @@ namespace KRG
 
         for ( S32 i = (S32) m_maps.size() - 1; i >= 0; i-- )
         {
-            if ( m_maps[i].UpdateLoading( m_loadingContext ) )
+            if ( m_maps[i].UpdateState( m_loadingContext ) )
             {
                 if ( m_maps[i].IsLoaded() )
                 {

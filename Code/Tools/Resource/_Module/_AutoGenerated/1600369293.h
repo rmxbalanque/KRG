@@ -78,7 +78,7 @@ namespace KRG
                     //-------------------------------------------------------------------------
 
                     typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Resource::ResourceDescriptor> >( DefaultTypeInstancePtr );
-                    KRG::Resource::ResourceDescriptor::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    KRG::Resource::ResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )

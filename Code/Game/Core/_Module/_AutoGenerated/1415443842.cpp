@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::AnotherTestStruct::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::AnotherTestStruct::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
@@ -28,7 +28,7 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::TestStruct::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::TestStruct::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
@@ -46,7 +46,7 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::TestComponent::InternalStruct::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::TestComponent::InternalStruct::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
@@ -138,7 +138,7 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::TestComponent::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::TestComponent::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
@@ -151,18 +151,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::TestComponent::GetTypeInfo() const
     {
-        return KRG::TestComponent::TypeInfoPtr;
+        return KRG::TestComponent::StaticTypeInfo;
     }
 
     void KRG::TestComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::TestComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::TestComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::TestComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::TestComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::TestComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -170,7 +170,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::TestComponent::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::TestComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

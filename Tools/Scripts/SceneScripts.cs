@@ -101,34 +101,6 @@ namespace Scripts
 
             //------------------------------------------------------------------------
 
-            var cameraEntity = new Entity()
-            {
-                Name = "Camera",
-                Components = new List<EntityComponent>()
-                {
-                    new EntityComponent()
-                    {
-                        Name = "CameraComponent",
-                        TypeID = "KRG::CameraComponent",
-                        Properties = new List<Property>()
-                        {
-                            new Property()
-                            {
-                                Path = "m_transform",
-                                Value = "0, 0, 0, -2.000000, -1.50000, 1.000000, 1.000000, 1.0, 1.0"
-                            }
-                        }
-                    }
-                },
-                Systems = new List<EntitySystem>()
-                {
-                    new EntitySystem()
-                    {
-                        TypeID = "KRG::DefaultPlayerController"
-                    }
-                }
-            };
-
             var floorEntity = new Entity()
             {
                 Name = "Floor",
@@ -155,7 +127,6 @@ namespace Scripts
                 }
             };
 
-            map.Entities.Add( cameraEntity );
             map.Entities.Add( floorEntity );
 
             float offset = 1.0f;

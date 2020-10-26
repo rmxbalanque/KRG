@@ -68,14 +68,14 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::IEntitySystem::TypeInfoPtr;
+                    pParentType = KRG::IEntitySystem::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Animation::AnimationSystem::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::AnimationSystem::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )

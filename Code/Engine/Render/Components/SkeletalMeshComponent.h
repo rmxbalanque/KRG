@@ -18,8 +18,30 @@ namespace KRG
 
         public:
 
+            inline SkeletalMeshComponent() = default;
+            inline SkeletalMeshComponent( StringID name ) : SpatialEntityComponent( UUID::GenerateID(), name ) {}
+
             // Mesh Data
             //-------------------------------------------------------------------------
+
+            inline void SetMesh( ResourceID meshResourceID )
+            {
+                KRG_ASSERT( IsUnloaded() );
+                KRG_ASSERT( meshResourceID.IsValid() );
+                m_pMesh = meshResourceID;
+            }
+
+            inline void SetMaterial( S32 materialIdx, ResourceID materialResourceID )
+            {
+                KRG_ASSERT( IsUnloaded() );
+                KRG_ASSERT( materialResourceID.IsValid() );
+               
+                if ( materialIdx >= m_materials.size() )
+                {
+                    m_materials.resize( materialIdx + 1 );
+                    m_materials[materialIdx] = materialResourceID;
+                }
+            }
 
             inline SkeletalMesh const* GetMesh() const
             {

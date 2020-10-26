@@ -91,7 +91,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Resource::ResourceDescriptor::TypeInfoPtr;
+                    pParentType = KRG::Resource::ResourceDescriptor::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -99,7 +99,7 @@ namespace KRG
                     //-------------------------------------------------------------------------
 
                     typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::MaterialResourceDescriptor> >( DefaultTypeInstancePtr );
-                    KRG::Render::MaterialResourceDescriptor::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    KRG::Render::MaterialResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )

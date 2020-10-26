@@ -99,12 +99,12 @@ namespace KRG::EntityModel
         // Create entities and components
         //-------------------------------------------------------------------------
 
-        auto pEntityTypeInfo = Entity::TypeInfoPtr;
+        auto pEntityTypeInfo = Entity::StaticTypeInfo;
         KRG_ASSERT( pEntityTypeInfo != nullptr );
 
         for ( auto const& entityDesc : entityCollectionTemplate.m_entityDescriptors )
         {
-            CreateEntity( typeRegistry, entityDesc );
+            CreateEntityFromDescriptor( typeRegistry, entityDesc );
         }
 
         //-------------------------------------------------------------------------
@@ -120,14 +120,14 @@ namespace KRG::EntityModel
 
             //-------------------------------------------------------------------------
 
+            // The entity collection compiler will guaranteed that entities are always sorted so that parents are created/initialized before their attached entities
+            KRG_ASSERT( entityAttachmentInfo.m_parentEntityIdx < entityAttachmentInfo.m_entityIdx );
+
             Entity* pEntity = m_entities[entityAttachmentInfo.m_entityIdx];
             KRG_ASSERT( pEntity->IsSpatialEntity() );
 
             Entity* pParentEntity = m_entities[entityAttachmentInfo.m_parentEntityIdx];
             KRG_ASSERT( pParentEntity->IsSpatialEntity() );
-
-            // The entity collection compiler will guaranteed that entities are always sorted so that parents are created/initialized before their attached entities
-            KRG_ASSERT( pParentEntity < pEntity );
 
             Entity::CreateSpatialAttachment( pEntity, pParentEntity, entityDesc.m_attachmentSocketID );
         }
@@ -144,11 +144,11 @@ namespace KRG::EntityModel
         m_entityLookupMap.clear();
     }
 
-    Entity* EntityCollection::CreateEntity( TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc )
+    Entity* EntityCollection::CreateEntityFromDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc )
     {
         KRG_ASSERT( entityDesc.IsValid() );
 
-        auto pEntityTypeInfo = Entity::TypeInfoPtr;
+        auto pEntityTypeInfo = Entity::StaticTypeInfo;
         KRG_ASSERT( pEntityTypeInfo != nullptr );
 
         // Create new entity
@@ -157,7 +157,6 @@ namespace KRG::EntityModel
         auto pEntity = reinterpret_cast<Entity*>( pEntityTypeInfo->m_pTypeHelper->CreateType() );
         pEntity->m_ID = entityDesc.m_ID;
         pEntity->m_name = entityDesc.m_name;
-        pEntity->m_collectionID = m_ID;
 
         // Create entity components
         //-------------------------------------------------------------------------
@@ -190,7 +189,6 @@ namespace KRG::EntityModel
                 // Set parent socket ID
                 auto pSpatialEntityComponent = static_cast<SpatialEntityComponent*>( pEntityComponent );
                 pSpatialEntityComponent->m_parentAttachmentSocketID = componentDesc.m_attachmentSocketID;
-                pSpatialEntityComponent->m_isRootComponent = componentDesc.IsRootComponent();
 
                 // Set as root component
                 if ( componentDesc.IsRootComponent() )
@@ -247,13 +245,22 @@ namespace KRG::EntityModel
         // Add to collection
         //-------------------------------------------------------------------------
 
-        m_entities.push_back( pEntity );
-        m_entityLookupMap.insert( TPair<UUID, Entity*>( entityDesc.m_ID, pEntity ) );
-
+        AddEntity( pEntity );
         return pEntity;
     }
 
-    void EntityCollection::DestroyEntity( UUID entityID )
+    void EntityCollection::AddEntity( Entity* pEntity )
+    {
+        // Ensure that the entity to add, is not already part of a collection and that it's deactivated
+        KRG_ASSERT( pEntity != nullptr && !pEntity->IsInCollection() && pEntity->IsDeactivated() );
+        KRG_ASSERT( !ContainsEntity( pEntity->m_ID ) );
+
+        pEntity->m_collectionID = m_ID;
+        m_entities.push_back( pEntity );
+        m_entityLookupMap.insert( TPair<UUID, Entity*>( pEntity->m_ID, pEntity ) );
+    }
+
+    void EntityCollection::RemoveEntity( UUID entityID )
     {
         auto iter = m_entityLookupMap.find( entityID );
         KRG_ASSERT( iter != m_entityLookupMap.end() );
@@ -263,6 +270,5 @@ namespace KRG::EntityModel
 
         m_entityLookupMap.erase( iter );
         m_entities.erase_first( pEntity );
-        KRG::Delete( pEntity );
     }
 }

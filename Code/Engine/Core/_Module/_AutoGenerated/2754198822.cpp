@@ -47,7 +47,7 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::CameraComponent::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::CameraComponent::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
@@ -60,18 +60,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::CameraComponent::GetTypeInfo() const
     {
-        return KRG::CameraComponent::TypeInfoPtr;
+        return KRG::CameraComponent::StaticTypeInfo;
     }
 
     void KRG::CameraComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::CameraComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::CameraComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::CameraComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::CameraComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::CameraComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -79,7 +79,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::CameraComponent::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::CameraComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

@@ -140,7 +140,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::SpatialEntityComponent::TypeInfoPtr;
+                    pParentType = KRG::SpatialEntityComponent::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -148,7 +148,7 @@ namespace KRG
                     //-------------------------------------------------------------------------
 
                     typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::StaticMeshComponent> >( DefaultTypeInstancePtr );
-                    KRG::Render::StaticMeshComponent::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    KRG::Render::StaticMeshComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )

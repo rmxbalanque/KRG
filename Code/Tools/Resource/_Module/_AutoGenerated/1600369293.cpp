@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Resource::ResourceDescriptor::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::Resource::ResourceDescriptor::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers

@@ -20,6 +20,15 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        void SimpleAnimationComponent::SetAnimation( ResourceID animationResourceID )
+        {
+            KRG_ASSERT( IsUnloaded() );
+            KRG_ASSERT( animationResourceID.IsValid() );
+            m_pAnimation = animationResourceID;
+        }
+
+        //-------------------------------------------------------------------------
+
         void SimpleAnimationComponent::Initialize()
         {
             EntityComponent::Initialize();

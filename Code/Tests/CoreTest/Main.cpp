@@ -16,6 +16,7 @@
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/Types/MemoryStream.h"
 #include "System/Render/RenderMaterial.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -167,7 +168,7 @@ int main( int argc, char *argv[] )
         //e.m_systems.emplace_back( s );
 
 
-        TVector<Byte> m_buffer;
+     /*   TVector<Byte> m_buffer;
         m_buffer.resize( sizeof( t ) );
 
         {
@@ -178,7 +179,18 @@ int main( int argc, char *argv[] )
         {
             Serialization::BinaryArchive archive( Serialization::Mode::Read, m_buffer );
             archive >> s;
-        }
+        }*/
+
+
+        TMultiUserEventInternal<int, int&> event;
+        TMultiUserEvent<int, int&> onEvent = event;
+
+        EventBindingID ID = onEvent.Bind( [] ( int i, int& j ) { j = 5 * i; } );
+
+        int k;
+        event.Execute( 10, k );
+
+        onEvent.Unbind( ID );
 
         //-------------------------------------------------------------------------
 

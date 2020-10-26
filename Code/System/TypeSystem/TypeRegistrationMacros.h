@@ -22,8 +22,12 @@
         friend KRG::TypeSystem::TypeInfo;\
         template<typename T> friend class KRG::TypeSystem::TypeHelpers::TTypeHelper; \
         public: \
-        static KRG::TypeSystem::TypeInfo const* TypeInfoPtr; \
-        static KRG::TypeSystem::TypeID GetStaticTypeID() { KRG_ASSERT( TypeInfoPtr != nullptr ); return TypeInfoPtr->m_ID; }
+        static KRG::TypeSystem::TypeInfo const* StaticTypeInfo; \
+        static KRG::TypeSystem::TypeID GetStaticTypeID() { KRG_ASSERT( StaticTypeInfo != nullptr ); return StaticTypeInfo->m_ID; }
+
+#define KRG_REGISTER_TYPE_WITH_VIRTUAL_TYPE_ACCESSOR( Type ) \
+        KRG_REGISTER_TYPE \
+        virtual KRG::TypeSystem::TypeInfo const* GetTypeInfo() const { return Type::StaticTypeInfo; }
 
 //-------------------------------------------------------------------------
 // Property Registration

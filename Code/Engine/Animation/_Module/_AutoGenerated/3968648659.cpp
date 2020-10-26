@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Animation::SimpleAnimationComponent::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::Animation::SimpleAnimationComponent::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
@@ -23,18 +23,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::Animation::SimpleAnimationComponent::GetTypeInfo() const
     {
-        return KRG::Animation::SimpleAnimationComponent::TypeInfoPtr;
+        return KRG::Animation::SimpleAnimationComponent::StaticTypeInfo;
     }
 
     void KRG::Animation::SimpleAnimationComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Animation::SimpleAnimationComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Animation::SimpleAnimationComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::Animation::SimpleAnimationComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Animation::SimpleAnimationComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Animation::SimpleAnimationComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -42,7 +42,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::Animation::SimpleAnimationComponent::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::Animation::SimpleAnimationComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Render::MaterialResourceDescriptor::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::Render::MaterialResourceDescriptor::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers

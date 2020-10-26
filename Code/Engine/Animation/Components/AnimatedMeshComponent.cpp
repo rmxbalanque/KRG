@@ -7,6 +7,13 @@ namespace KRG
 {
     namespace Animation
     {
+        void AnimatedMeshComponent::SetSkeleton( ResourceID skeletonResourceID )
+        {
+            KRG_ASSERT( IsUnloaded() );
+            KRG_ASSERT( skeletonResourceID.IsValid() );
+            m_pSkeleton = skeletonResourceID;
+        }
+
         void AnimatedMeshComponent::SetPose( Pose const* pPose )
         {
             KRG_ASSERT( pPose != nullptr && pPose->HasGlobalTransforms() );

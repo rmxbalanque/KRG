@@ -33,7 +33,7 @@ namespace KRG::EntityModel
 
         inline UUID GetID() const { return m_ID; }
 
-        // Entity Access
+        // Entity API
         //-------------------------------------------------------------------------
 
         TVector<Entity*> const& GetEntities() const { return m_entities; }
@@ -46,11 +46,15 @@ namespace KRG::EntityModel
 
         inline bool ContainsEntity( UUID entityID ) const { return FindEntity( entityID ) != nullptr; }
 
-        // Entity Lifetime
-        //-------------------------------------------------------------------------
+        // Add a newly created entity to this collection
+        void AddEntity( Entity* pEntity );
 
-        Entity* CreateEntity( TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc );
-        void DestroyEntity( UUID entityID );
+        // Remove an entity from this collection
+        void RemoveEntity( UUID entityID );
+
+    private:
+
+        Entity* CreateEntityFromDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc );
 
     private:
 

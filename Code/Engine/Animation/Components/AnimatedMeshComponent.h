@@ -20,7 +20,10 @@ namespace KRG
 
         public:
 
+            using Render::SkeletalMeshComponent::SkeletalMeshComponent;
+
             inline Skeleton const* GetSkeleton() const { return m_pSkeleton.GetPtr(); }
+            void SetSkeleton( ResourceID skeletonResourceID );
 
             void SetPose( Pose const* pPose );
 

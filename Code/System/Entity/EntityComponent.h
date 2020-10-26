@@ -75,7 +75,7 @@ namespace KRG
         inline UUID GetID() const { return m_ID; }
         inline StringID GetName() const { return m_name; }
         inline TypeSystem::TypeID GetTypeID() const { return GetTypeInfo()->m_ID; }
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return EntityComponent::TypeInfoPtr; }
+        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return EntityComponent::StaticTypeInfo; }
 
         // Status
         inline bool HasLoadingFailed() const { return m_status == Status::LoadingFailed; }
@@ -88,6 +88,7 @@ namespace KRG
     protected:
 
         EntityComponent() = default;
+        EntityComponent( UUID ID, StringID name ) : m_ID( ID ), m_name( name ) {}
 
         // Request load of all component data - loading takes time
         virtual void Load( EntityModel::LoadingContext const& context, UUID requesterID ) = 0;
@@ -130,7 +131,7 @@ namespace KRG
             KRG_ASSERT( pFromTypeInfo != nullptr );
 
             // Check up-cast
-            if ( pFromTypeInfo->IsDerivedFrom( To::TypeInfoPtr->m_ID ) )
+            if ( pFromTypeInfo->IsDerivedFrom( To::StaticTypeInfo->m_ID ) )
             {
                 pCastComponent = static_cast<To const*>( pFromComponent );
             }
@@ -150,7 +151,7 @@ namespace KRG
 //-------------------------------------------------------------------------
 
 #define KRG_REGISTER_ENTITY_COMPONENT \
-        KRG_REGISTER_TYPE \
+        KRG_REGISTER_TYPE;\
         public:\
         virtual TypeSystem::TypeInfo const* GetTypeInfo() const override;\
         protected:\

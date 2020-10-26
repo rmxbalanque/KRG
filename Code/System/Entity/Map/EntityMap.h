@@ -4,12 +4,14 @@
 #include "EntityMapDescriptor.h"
 #include "System/Entity/Collections/EntityCollection.h"
 #include "System/Resource/ResourcePtr.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     class Entity;
+    class EntityWorld;
 
     //-------------------------------------------------------------------------
 
@@ -29,15 +31,13 @@ namespace KRG
 
         class KRG_SYSTEM_ENTITY_API EntityMap
         {
-
-        public:
+            friend EntityWorld;
 
             enum class Status
             {
                 LoadFailed = -1,
                 Unloaded = 0,
-                MapDescLoading,
-                MapDescLoaded,
+                MapLoading,
                 EntitiesLoading,
                 Loaded,
                 Activated,
@@ -45,10 +45,8 @@ namespace KRG
 
         public:
 
-            EntityMap(); // Default constructor creates a transient map
-            EntityMap( ResourceID mapResourceID ) : m_pMapDesc( mapResourceID ) {}
-            EntityMap( EntityMap const& map ) { operator=( map ); }
-            EntityMap( EntityMap&& map ) { operator=( eastl::move( map ) ); }
+            EntityMap( EntityMap const& map );
+            EntityMap( EntityMap&& map );
             ~EntityMap();
 
             EntityMap& operator=( EntityMap const& map );
@@ -58,42 +56,53 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             inline ResourceID const& GetMapResourceID() const { return m_pMapDesc.GetResourceID(); }
-            inline bool IsTransientMap() const { return m_isTransientMap; }
             inline UUID GetMapID() const { return m_pCollection->GetID(); }
+            inline bool IsTransientMap() const { return m_isTransientMap; }
 
-            // Entity access
+            // Map Status
+            //-------------------------------------------------------------------------
+
+            bool IsLoading() const { return m_status == Status::MapLoading || m_status == Status::EntitiesLoading; }
+            inline bool IsLoaded() const { return m_status == Status::Loaded; }
+            inline bool IsUnloaded() const { return m_status == Status::Unloaded; }
+            inline bool HasLoadingFailed() const { return m_status == Status::LoadFailed; }
+            inline bool IsActivated() const { return m_status == Status::Activated; }
+
+            // Entity API
             //-------------------------------------------------------------------------
 
             inline TVector<Entity*> const& GetEntities() const { KRG_ASSERT( m_pCollection != nullptr ); return m_pCollection->GetEntities(); }
             Entity* FindEntity( UUID entityID ) const;
 
-            // Loading
+            // Add a newly created entity to the map - Transfers ownership of the entity to the map
+            // Will take 1 frame to be fully added, as the addition occurs during the loading update
+            void AddEntity( Entity* pEntity );
+
+            // Unload and remove an entity from the map - Transfer ownership of the entity to the calling code
+            // Will take 1 frame to be fully removed, as the removal occurs during the loading update
+            Entity* RemoveEntity( UUID entityID );
+
+        private:
+
+            EntityMap(); // Default constructor creates a transient map
+            EntityMap( ResourceID mapResourceID );
+
+            // Loading and Activation
             //-------------------------------------------------------------------------
             // Note: Transient maps cannot be loaded/unloaded
-
-            bool IsLoading() const { return m_status == Status::MapDescLoading || m_status == Status::EntitiesLoading; }
-            inline bool IsLoaded() const { return m_status == Status::Loaded; }
-            inline bool IsUnloaded() const { return m_status == Status::Unloaded; }
-            inline bool HasLoadingFailed() const { return m_status == Status::LoadFailed; }
 
             void Load( LoadingContext const& loadingContext );
             void Unload( LoadingContext const& loadingContext );
 
-            // Updates map loading state, returns true if all loading is complete, false otherwise
-            bool UpdateLoading( LoadingContext const& loadingContext );
-
-            // Activation
-            //-------------------------------------------------------------------------
-
-            inline bool IsActivated() const { return m_status == Status::Activated; }
             void Activate( LoadingContext const& loadingContext );
             void Deactivate( LoadingContext const& loadingContext );
 
-        private:
+            //-------------------------------------------------------------------------
 
-            // Entities
-            void LoadEntities( LoadingContext const& loadingContext );
-            void UnloadEntities( LoadingContext const& loadingContext );
+            void OnEntityStateUpdated( Entity* pEntity );
+
+            // Updates map loading and entity state, returns true if all loading/state changes are complete, false otherwise
+            bool UpdateState( LoadingContext const& loadingContext );
 
         private:
 
@@ -101,7 +110,10 @@ namespace KRG
             EntityCollection*                           m_pCollection = nullptr;
             TVector<Entity*>                            m_loadingEntities;
             TVector<Entity*>                            m_entitiesToReload;
+            TInlineVector<Entity*, 5>                   m_entitiesToAdd;
+            TInlineVector<Entity*, 5>                   m_entitiesToRemove;
             Status                                      m_status = Status::Unloaded;
+            EventBindingID                              m_entityUpdateEventBindingID;
             bool                                        m_unloadRequested = false;
             bool const                                  m_isTransientMap = false; // If this is set, then this is a transient map i.e.created and managed at runtime and not loaded from disk
         };

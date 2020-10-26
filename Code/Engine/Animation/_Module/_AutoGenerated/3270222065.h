@@ -119,7 +119,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Render::SkeletalMeshComponent::TypeInfoPtr;
+                    pParentType = KRG::Render::SkeletalMeshComponent::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -127,7 +127,7 @@ namespace KRG
                     //-------------------------------------------------------------------------
 
                     typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent> >( DefaultTypeInstancePtr );
-                    KRG::Animation::AnimatedMeshComponent::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::AnimatedMeshComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )

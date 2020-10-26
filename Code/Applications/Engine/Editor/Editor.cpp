@@ -50,7 +50,7 @@ namespace KRG
             //// HACK
             //if ( m_pWorld->HasLoadedMaps() && m_pObjectBeingManipulated == nullptr )
             //{
-            //    auto pTypeInfo = EditorTestObject::TypeInfoPtr;
+            //    auto pTypeInfo = EditorTestObject::StaticTypeInfo;
 
             //    m_pObjectBeingManipulated = m_pWorld->FindObject( EntityID( "d076af38-d2cc-4f5f-bba5-0719902ea689" ) );
             //    if ( m_pObjectBeingManipulated != nullptr )

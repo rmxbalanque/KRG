@@ -3,8 +3,8 @@
   "Id": "bbcf3423-e4b4-4cdd-8a97-c6c390bacc23",
   "Items": [
     {
-      "Id": "1144092b-2acf-4690-9c40-37fe8271801a",
-      "Command": "-compile data://maps/br_minimal.map"
+      "Id": "3e350972-2b51-4550-9e06-be679782a3c3",
+      "Command": "-compile data://maps/entitytest.map"
     },
     {
       "Id": "43330e5f-5d0e-4711-8040-48b47946f12c",

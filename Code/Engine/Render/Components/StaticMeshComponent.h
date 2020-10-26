@@ -29,8 +29,30 @@ namespace KRG
 
         public:
 
+            inline StaticMeshComponent() = default;
+            inline StaticMeshComponent( StringID name ) : SpatialEntityComponent( UUID::GenerateID(), name ) {}
+
             // Mesh Data
             //-------------------------------------------------------------------------
+
+            inline void SetMesh( ResourceID meshResourceID )
+            {
+                KRG_ASSERT( IsUnloaded() );
+                KRG_ASSERT( meshResourceID.IsValid() );
+                m_pMesh = meshResourceID;
+            }
+
+            inline void SetMaterial( S32 materialIdx, ResourceID materialResourceID )
+            {
+                KRG_ASSERT( IsUnloaded() );
+                KRG_ASSERT( materialResourceID.IsValid() );
+
+                if ( materialIdx >= m_materials.size() )
+                {
+                    m_materials.resize( materialIdx + 1 );
+                    m_materials[materialIdx] = materialResourceID;
+                }
+            }
 
             inline StaticMesh const* GetMesh() const
             {
@@ -47,7 +69,7 @@ namespace KRG
             // Mobility
             //-------------------------------------------------------------------------
 
-            inline TSingleUserEvent<void( StaticMeshComponent* )>& OnMobilityChanged() { return m_mobilityChangedEvent; }
+            inline TSingleUserEvent<void, StaticMeshComponent*> OnMobilityChanged() { return m_mobilityChangedEvent; }
             inline Mobility GetMobility() const { return m_mobility; }
 
             inline void ChangeMobility( Mobility newMobility ) 
@@ -72,7 +94,7 @@ namespace KRG
             EXPOSE TResourcePtr<StaticMesh>                                 m_pMesh;
             EXPOSE TVector<TResourcePtr<Material>>                          m_materials;
             EXPOSE Mobility                                                 m_mobility = Mobility::Static;
-            TSingleUserEventInternal<void(StaticMeshComponent*)>            m_mobilityChangedEvent;
+            TSingleUserEventInternal<void,StaticMeshComponent*>             m_mobilityChangedEvent;
         };
     }
 }

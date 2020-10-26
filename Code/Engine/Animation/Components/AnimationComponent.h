@@ -24,6 +24,8 @@ namespace KRG
 
         public:
 
+            using EntityComponent::EntityComponent;
+
             // Get the skeleton this component animated
             virtual Skeleton const* GetSkeleton() const = 0;
 

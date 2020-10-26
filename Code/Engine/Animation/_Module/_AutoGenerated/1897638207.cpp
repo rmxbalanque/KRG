@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Animation::AnimationSystem::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::Animation::AnimationSystem::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers

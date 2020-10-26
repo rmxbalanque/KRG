@@ -32,13 +32,21 @@ namespace KRG
             KRG_ASSERT( socketID.IsValid() );
 
             outSocketWorldTransform = GetWorldTransform();
-
-            if ( m_pMesh.IsLoaded() && IsInitialized() )
+           
+            if ( m_pMesh.IsLoaded() )
             {
                 auto const boneIdx = m_pMesh->GetBoneIndex( socketID );
                 if ( boneIdx != InvalidIndex )
                 {
-                    outSocketWorldTransform = m_boneTransforms[boneIdx] * outSocketWorldTransform;
+                    if ( IsInitialized() )
+                    {
+                        outSocketWorldTransform = m_boneTransforms[boneIdx] * outSocketWorldTransform;
+                    }
+                    else
+                    {
+                        outSocketWorldTransform = m_pMesh->GetBindPose()[boneIdx] * outSocketWorldTransform;
+                    }
+
                     return true;
                 }
             }

@@ -26,6 +26,9 @@ namespace KRG
 
     public:
 
+        inline CameraComponent() = default;
+        inline CameraComponent( StringID name ) : SpatialEntityComponent( UUID::GenerateID(), name ) {}
+
         inline Math::ViewVolume const& GetViewVolume() const { return m_viewVolume; }
         inline Math::Rectangle GetViewportRect() const { return Math::Rectangle( m_viewportTopLeft, m_viewportBottomRight - m_viewportTopLeft ); }
 

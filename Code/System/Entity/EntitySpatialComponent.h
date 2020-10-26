@@ -31,12 +31,12 @@ namespace KRG
 
     public:
 
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return SpatialEntityComponent::TypeInfoPtr; }
+        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return SpatialEntityComponent::StaticTypeInfo; }
 
         // Spatial data
         //-------------------------------------------------------------------------
 
-        inline bool IsRootComponent() const { return m_isRootComponent; }
+        inline bool IsRootComponent() const { return m_pSpatialParent == nullptr; }
 
         inline Transform const& GetLocalTransform() const { return m_transform; }
         inline OBB const& GetLocalBounds() const { return m_bounds; }
@@ -51,11 +51,17 @@ namespace KRG
             CalculateWorldTransform();
         }
 
+        // The socket that this component is attached to
+        inline StringID GetAttachmentSocketID() const { return m_parentAttachmentSocketID; }
+        inline void SetAttachmentSocketID( StringID socketID ) { m_parentAttachmentSocketID = socketID; }
+
         // Returns the world transform for the specified attachment socket if it exists, if it doesnt this function returns the world transform
         // The search children parameter controls, whether to only search this component or to also search it's children
         Transform GetAttachmentSocketTransform( StringID socketID ) const;
 
     protected:
+
+        using EntityComponent::EntityComponent;
 
         // Call to update the local bounds - this will ONLY update the world bounds for this component
         inline void SetLocalBounds( OBB const& newBounds )
@@ -123,9 +129,5 @@ namespace KRG
         SpatialEntityComponent*                                             m_pSpatialParent = nullptr;             // The component we are attached to
         StringID                                                            m_parentAttachmentSocketID;             // The socket we are attached to (can be invalid)
         TInlineVector<SpatialEntityComponent*, 2>                           m_spatialChildren;                      // All components that are attached to us
-
-        //-------------------------------------------------------------------------
-
-        bool                                                                m_isRootComponent = false;              // Flag set at construction time, specifying that this is the root component for an entity.
     };
 }

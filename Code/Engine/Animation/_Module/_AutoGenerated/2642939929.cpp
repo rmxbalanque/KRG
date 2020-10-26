@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Animation::AnimationComponent::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::Animation::AnimationComponent::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
@@ -23,7 +23,7 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::Animation::AnimationComponent::GetTypeInfo() const
     {
-        return KRG::Animation::AnimationComponent::TypeInfoPtr;
+        return KRG::Animation::AnimationComponent::StaticTypeInfo;
     }
 
     void KRG::Animation::AnimationComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )

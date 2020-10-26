@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Animation::AnimatedMeshComponent::TypeInfoPtr = nullptr;
+    TypeSystem::TypeInfo const* KRG::Animation::AnimatedMeshComponent::StaticTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
@@ -23,18 +23,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::Animation::AnimatedMeshComponent::GetTypeInfo() const
     {
-        return KRG::Animation::AnimatedMeshComponent::TypeInfoPtr;
+        return KRG::Animation::AnimatedMeshComponent::StaticTypeInfo;
     }
 
     void KRG::Animation::AnimatedMeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Animation::AnimatedMeshComponent::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Animation::AnimatedMeshComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::Animation::AnimatedMeshComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Animation::AnimatedMeshComponent::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Animation::AnimatedMeshComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -42,7 +42,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::Animation::AnimatedMeshComponent::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::Animation::AnimatedMeshComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

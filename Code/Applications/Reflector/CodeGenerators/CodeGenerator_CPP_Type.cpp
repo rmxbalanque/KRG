@@ -166,20 +166,20 @@ namespace KRG
                         {
                             file << "                    for ( auto& propertyValue : pActualType->" << propertyDesc.m_name << " )\n";
                             file << "                    {\n";
-                            file << "                        " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );\n";
+                            file << "                        " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );\n";
                             file << "                    }\n\n";
                         }
                         else // Static array
                         {
                             for ( auto i = 0; i < propertyDesc.m_arraySize; i++ )
                             {
-                                file << "                    " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name << "[" << i << "] );\n\n";
+                                file << "                    " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name << "[" << i << "] );\n\n";
                             }
                         }
                     }
                     else
                     {
-                        file << "                    " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name << " );\n\n";
+                        file << "                    " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name << " );\n\n";
                     }
                 }
             }
@@ -236,20 +236,20 @@ namespace KRG
                         {
                             file << "                    for ( auto& propertyValue : pActualType->" << propertyDesc.m_name << " )\n";
                             file << "                    {\n";
-                            file << "                        " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );\n";
+                            file << "                        " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );\n";
                             file << "                    }\n\n";
                         }
                         else // Static array
                         {
                             for ( auto i = 0; i < propertyDesc.m_arraySize; i++ )
                             {
-                                file << "                    " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name << "[" << i << "] );\n\n";
+                                file << "                    " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name << "[" << i << "] );\n\n";
                             }
                         }
                     }
                     else
                     {
-                        file << "                    " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name << " );\n\n";
+                        file << "                    " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name << " );\n\n";
                     }
                 }
             }
@@ -321,7 +321,7 @@ namespace KRG
                         {
                             file << "                    for ( auto& propertyValue : pActualType->" << propertyDesc.m_name << " )\n";
                             file << "                    {\n";
-                            file << "                        status = " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );\n";
+                            file << "                        status = " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );\n";
                             file << "                        if ( status == LoadingStatus::Loading )\n";
                             file << "                        {\n";
                             file << "                            return LoadingStatus::Loading;\n";
@@ -332,7 +332,7 @@ namespace KRG
                         {
                             for ( auto i = 0; i < propertyDesc.m_arraySize; i++ )
                             {
-                                file << "                    status = " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->" << propertyDesc.m_name << "[" << i << "] ); \n";
+                                file << "                    status = " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->" << propertyDesc.m_name << "[" << i << "] ); \n";
                                 file << "                    if ( status == LoadingStatus::Loading )\n";
                                 file << "                    {\n";
                                 file << "                        return LoadingStatus::Loading;\n";
@@ -342,7 +342,7 @@ namespace KRG
                     }
                     else
                     {
-                        file << "                    status = " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->" << propertyDesc.m_name << " );\n";
+                        file << "                    status = " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->" << propertyDesc.m_name << " );\n";
                         file << "                    if ( status == LoadingStatus::Loading )\n";
                         file << "                    {\n";
                         file << "                        return LoadingStatus::Loading;\n";
@@ -407,7 +407,7 @@ namespace KRG
                         {
                             file << "                    for ( auto& propertyValue : pActualType->" << propertyDesc.m_name << " )\n";
                             file << "                    {\n";
-                            file << "                        status = " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );\n";
+                            file << "                        status = " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );\n";
                             file << "                        if ( status != LoadingStatus::Unloaded )\n";
                             file << "                        {\n";
                             file << "                            return LoadingStatus::Unloading;\n";
@@ -418,7 +418,7 @@ namespace KRG
                         {
                             for ( auto i = 0; i < propertyDesc.m_arraySize; i++ )
                             {
-                                file << "                    status = " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->" << propertyDesc.m_name << "[" << i << "] ); \n";
+                                file << "                    status = " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->" << propertyDesc.m_name << "[" << i << "] ); \n";
                                 file << "                    if ( status != LoadingStatus::Unloaded )\n";
                                 file << "                    {\n";
                                 file << "                        return LoadingStatus::Unloading;\n";
@@ -428,7 +428,7 @@ namespace KRG
                     }
                     else
                     {
-                        file << "                    status = " << propertyDesc.m_typeName << "::TypeInfoPtr->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->" << propertyDesc.m_name << " );\n";
+                        file << "                    status = " << propertyDesc.m_typeName << "::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->" << propertyDesc.m_name << " );\n";
                         file << "                    if ( status != LoadingStatus::Unloaded )\n";
                         file << "                    {\n";
                         file << "                        return LoadingStatus::Unloading;\n";
@@ -453,7 +453,7 @@ namespace KRG
 
             if ( !type.m_properties.empty() )
             {
-                file << "        " << type.m_namespace << type.m_name << "::TypeInfoPtr->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );\n";
+                file << "        " << type.m_namespace << type.m_name << "::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );\n";
                 file << "        m_status = Status::Loading;\n";
             }
             else
@@ -472,7 +472,7 @@ namespace KRG
 
             if ( !type.m_properties.empty() )
             {
-                file << "        " << type.m_namespace << type.m_name << "::TypeInfoPtr->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );\n";
+                file << "        " << type.m_namespace << type.m_name << "::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );\n";
             }
 
             file << "        m_status = Status::Unloaded;\n";
@@ -491,7 +491,7 @@ namespace KRG
                 if ( !type.m_properties.empty() )
                 {
                     // Wait for resources to be loaded
-                    file << "            auto const resourceLoadingStatus = " << type.m_namespace << type.m_name << "::TypeInfoPtr->m_pTypeHelper->GetResourceLoadingStatus( this );\n";
+                    file << "            auto const resourceLoadingStatus = " << type.m_namespace << type.m_name << "::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );\n";
                     file << "            if ( resourceLoadingStatus == LoadingStatus::Loading )\n";
                     file << "            {\n";
                     file << "                return; // Something is still loading so early-out\n";
@@ -522,7 +522,7 @@ namespace KRG
             file << "\n";
             file << "    TypeSystem::TypeInfo const* " << type.m_namespace << type.m_name << "::GetTypeInfo() const\n";
             file << "    {\n";
-            file << "        return " << type.m_namespace << type.m_name << "::TypeInfoPtr;\n";
+            file << "        return " << type.m_namespace << type.m_name << "::StaticTypeInfo;\n";
             file << "    }\n";
         }
 
@@ -649,7 +649,7 @@ namespace KRG
 
                 for ( auto& parent : parentDescs )
                 {
-                    file << "                    pParentType = " << parent.m_namespace << parent.m_name << "::TypeInfoPtr;\n";
+                    file << "                    pParentType = " << parent.m_namespace << parent.m_name << "::StaticTypeInfo;\n";
                     file << "                    KRG_ASSERT( pParentType != nullptr );\n";
                     file << "                    typeInfo.m_parentTypes.push_back( pParentType );\n\n";
                 }
@@ -663,7 +663,7 @@ namespace KRG
                 file << "                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<" << type.m_namespace << type.m_name << "> >( DefaultTypeInstancePtr );\n";
             }
 
-            file << "                    " << type.m_namespace << type.m_name << "::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );\n";
+            file << "                    " << type.m_namespace << type.m_name << "::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );\n";
             file << "                }\n\n";
         }
 
@@ -765,7 +765,7 @@ namespace KRG
             file << "{\n";
 
             // Generate static typeinfo
-            file << "    TypeSystem::TypeInfo const* " << type.m_namespace << type.m_name << "::TypeInfoPtr = nullptr;\n";
+            file << "    TypeSystem::TypeInfo const* " << type.m_namespace << type.m_name << "::StaticTypeInfo = nullptr;\n";
 
             // Define static type helper
             file << "    namespace TypeSystem\n";

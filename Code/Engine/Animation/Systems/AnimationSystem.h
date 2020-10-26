@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../_Module/API.h"
 #include "System/Entity/EntitySystem.h"
 
 //-------------------------------------------------------------------------
@@ -13,7 +14,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        class AnimationSystem : public IEntitySystem
+        class KRG_ENGINE_ANIMATION_API AnimationSystem : public IEntitySystem
         {
             KRG_REGISTER_ENTITY_SYSTEM( AnimationSystem );
 

@@ -3,8 +3,8 @@
   "Id": "8778c386-a74a-4545-8297-ce68639d4ade",
   "Items": [
     {
-      "Id": "dd7a0d79-4966-48ec-a54a-81c0d24c25fd",
-      "Command": "-map data://maps/heist.map"
+      "Id": "0de5ee5f-a2e2-4323-9326-f7920cadcce2",
+      "Command": "-map data://maps/EntityTest.map"
     },
     {
       "Id": "9c9b3d08-6c93-4e97-bb35-6fea527bccbb",

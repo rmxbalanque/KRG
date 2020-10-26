@@ -17,9 +17,14 @@ namespace KRG
 
         public:
 
+            inline SimpleAnimationComponent() = default;
+            inline SimpleAnimationComponent( StringID name ) : AnimationComponent( UUID::GenerateID(), name ) {}
+
             virtual Skeleton const* GetSkeleton() const override final;
             virtual Pose const* GetPose() const override final { return m_pPose; }
             virtual void Update( UpdateContext const& ctx ) override final;
+
+            void SetAnimation( ResourceID animationResourceID );
 
         protected:
 

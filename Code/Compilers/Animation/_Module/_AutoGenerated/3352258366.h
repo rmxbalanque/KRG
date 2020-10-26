@@ -115,7 +115,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Resource::ResourceDescriptor::TypeInfoPtr;
+                    pParentType = KRG::Resource::ResourceDescriptor::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -123,7 +123,7 @@ namespace KRG
                     //-------------------------------------------------------------------------
 
                     typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationResourceDescriptor> >( DefaultTypeInstancePtr );
-                    KRG::Animation::AnimationResourceDescriptor::TypeInfoPtr = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::AnimationResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )

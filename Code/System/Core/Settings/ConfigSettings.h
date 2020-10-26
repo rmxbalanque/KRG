@@ -60,7 +60,7 @@ namespace KRG
             return *this; 
         }
 
-        inline TMultiUserEvent<bool>& OnValueChangedEvent() { return m_onValueChangedEvent; }
+        inline TMultiUserEvent<bool> OnValueChangedEvent() { return m_onValueChangedEvent; }
 
     private:
 
@@ -94,7 +94,7 @@ namespace KRG
             return *this; 
         }
 
-        inline TMultiUserEvent<S32, S32>& OnValueChangedEvent() { return m_onValueChangedEvent; }
+        inline TMultiUserEvent<S32, S32> OnValueChangedEvent() { return m_onValueChangedEvent; }
 
     private:
 
@@ -130,7 +130,7 @@ namespace KRG
             return *this; 
         }
 
-        inline TMultiUserEvent<F32, F32>& OnValueChangedEvent() { return m_onValueChangedEvent; }
+        inline TMultiUserEvent<F32, F32> OnValueChangedEvent() { return m_onValueChangedEvent; }
 
     private:
 
@@ -156,7 +156,7 @@ namespace KRG
         inline operator char const*() const { return m_value; }
         ConfigSettingString& operator=( char const* pValue );
 
-        inline TMultiUserEvent<String const&, char const*>& OnValueChangedEvent() { return m_onValueChangedEvent; }
+        inline TMultiUserEvent<String const&, char const*> OnValueChangedEvent() { return m_onValueChangedEvent; }
 
     private:
 
