@@ -14,15 +14,15 @@ namespace KRG
 {
     namespace EntityOutliner
     {
-        EntityItem::EntityItem( ToolEntity* pEntity )
+        EntityItem::EntityItem( EntityModel::ToolEntity* pEntity )
             : m_pEntity( pEntity )
             , m_name( pEntity->GetNameAsCStr() )
         {
             KRG_ASSERT( pEntity != nullptr );
 
-            for ( auto& childEntity : pEntity->GetChildEntities() )
+            for ( auto pChildEntity : pEntity->GetChildEntities() )
             {
-                AddChild( new EntityItem( &childEntity ) );
+                AddChild( new EntityItem( pChildEntity ) );
             }
         }
 
@@ -137,7 +137,7 @@ namespace KRG
             return pFoundFolder;
         }
 
-        void Model::SetCollection( ToolEntityCollection* pCollection )
+        void Model::SetCollection( EntityModel::ToolEntityCollection* pCollection )
         {
             m_pEntityCollection = pCollection;
 
@@ -148,9 +148,9 @@ namespace KRG
             delete m_pRootItem;
             m_pRootItem = new EntityItem( "KRG" );
 
-            for ( auto& entity : m_pEntityCollection->GetEntities() )
+            for ( auto pEntity : m_pEntityCollection->GetEntities() )
             {
-                m_pRootItem->AddChild( new EntityItem( &entity ) );
+                m_pRootItem->AddChild( new EntityItem( pEntity ) );
             }
 
             //-------------------------------------------------------------------------
@@ -373,7 +373,7 @@ namespace KRG
         setLayout( pMainLayout );
     }
 
-    void EntityOutlinerWidget::SetCollectionToOutline( ToolEntityCollection* pCollection )
+    void EntityOutlinerWidget::SetCollectionToOutline( EntityModel::ToolEntityCollection* pCollection )
     {
         m_model.SetCollection( pCollection );
         m_pTree->expandAll();

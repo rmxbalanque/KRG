@@ -15,6 +15,16 @@ namespace KRG
     {
         KRG_REGISTER_ENTITY_SYSTEM( CustomizerTestSystem );
 
+        struct CustomizedCharacter
+        {
+            Entity*         m_pCharacter = nullptr;
+            UUID            m_meshComponentID;
+            UUID            m_armorComponentID;
+            UUID            m_hairComponentID;
+            Milliseconds    m_lastCustomizedTime;
+            Milliseconds    m_cooldown;
+        };
+
     public:
 
         CustomizerTestSystem() = default;
@@ -29,14 +39,13 @@ namespace KRG
     private:
 
         void SpawnCharacter( EntityModel::EntityMap* pMap, Transform const& characterTransform );
-        void SpawnCharacterAttachments( Entity* pCharacter );
+        void RecustomizeCharacter( CustomizedCharacter& character );
 
     private:
 
-        CustomizerTestComponent*    m_pComponent = nullptr;
+        CustomizerTestComponent*        m_pComponent = nullptr;
 
-        TVector<Entity*>            m_spawnedEntities;
-        bool                        charactersSpawned = false;
-        bool                        attachmentsSpawned = false;
+        TVector<CustomizedCharacter>    m_spawnedEntities;
+        bool                            charactersSpawned = false;
     };
 }

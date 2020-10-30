@@ -21,13 +21,13 @@ namespace KRG
         public:
 
             explicit ComponentItem() = default;
-            explicit ComponentItem( ToolEntityComponent* pComponent );
+            explicit ComponentItem( EntityModel::ToolEntityComponent* pComponent );
             ~ComponentItem();
 
             inline bool IsRootItem() const { return m_pComponent == nullptr; }
 
             inline QString const& GetName() const { return m_name; }
-            inline ToolEntityComponent* GetComponent() const { return m_pComponent; }
+            inline EntityModel::ToolEntityComponent* GetComponent() const { return m_pComponent; }
             inline bool IsSpatialComponent() const { return m_pComponent->IsSpatialComponent(); }
 
             inline ComponentItem* GetParent() const { return m_pParent; }
@@ -43,7 +43,7 @@ namespace KRG
 
         private:
 
-            ToolEntityComponent*                    m_pComponent = nullptr;
+            EntityModel::ToolEntityComponent*       m_pComponent = nullptr;
             ComponentItem*                          m_pParent = nullptr;
             QString                                 m_name;
             TVector<ComponentItem*>                 m_children;
@@ -61,7 +61,7 @@ namespace KRG
             ~Model();
 
             inline bool HasEntitySet() const { return m_pEntity != nullptr; }
-            void SetEntityToEdit( ToolEntity* pEntity );
+            void SetEntityToEdit( EntityModel::ToolEntity* pEntity );
 
             virtual QVariant data( QModelIndex const& index, S32 role ) const override;
             virtual Qt::ItemFlags flags( QModelIndex const& index ) const override;
@@ -73,8 +73,8 @@ namespace KRG
 
         private:
 
-            ToolEntity*                             m_pEntity = nullptr;
-            ComponentItem*                               m_pRootItem = nullptr;
+            EntityModel::ToolEntity*                 m_pEntity = nullptr;
+            ComponentItem*                           m_pRootItem = nullptr;
         };
 
         //-------------------------------------------------------------------------
@@ -107,13 +107,13 @@ namespace KRG
 
     signals:
 
-        void OnComponentSelected( ToolEntityComponent* pSelectedComponent );
+        void OnComponentSelected( EntityModel::ToolEntityComponent* pSelectedComponent );
 
     public:
 
         EntityComponentEditorWidget();
 
-        void SetEntityToEdit( ToolEntity* pEntity );
+        void SetEntityToEdit( EntityModel::ToolEntity* pEntity );
 
     private:
 
@@ -121,7 +121,6 @@ namespace KRG
 
     private:
 
-        
         KSearchBoxWidget*                   m_pFilterBox = nullptr;
         QTreeView*                          m_pComponentTree = nullptr;
         QWidget*                            m_pEmptyTreeMessage = nullptr;

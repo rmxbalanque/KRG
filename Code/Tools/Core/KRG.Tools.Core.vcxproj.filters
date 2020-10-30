@@ -39,21 +39,17 @@
     <ClInclude Include="ThirdParty\sqlite\SqliteHelpers.h">
       <Filter>ThirdParty\sqlite</Filter>
     </ClInclude>
-    <ClInclude Include="TypeSystem\DynamicTypeInstance.h">
+    <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
+    <ClInclude Include="TypeSystem\Serialization\ToolTypeReader.h" />
+    <ClInclude Include="TypeSystem\Serialization\ToolTypeWriter.h" />
+    <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
+    <ClInclude Include="TypeSystem\ToolTypeInstance.h">
       <Filter>TypeSystem</Filter>
     </ClInclude>
-    <ClInclude Include="TypeSystem\DynamicPropertyInstance.h">
-      <Filter>TypeSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="TypeSystem\DynamicTypeDeserializer.h" />
-    <ClInclude Include="TypeSystem\DynamicTypeSerialization.h" />
-    <ClInclude Include="TypeSystem\TypeDeserializer.h">
+    <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h">
       <Filter>Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="TypeSystem\TypeSerializer.h" />
-    <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
-    <ClInclude Include="TypeSystem\DynamicTypeSerializer.h" />
-    <ClInclude Include="TypeSystem\TypeSerializationCommon.h" />
+    <ClInclude Include="TypeSystem\Serialization\NativeTypeWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp">
@@ -62,19 +58,15 @@
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
       <Filter>ThirdParty\sqlite</Filter>
     </ClCompile>
-    <ClCompile Include="TypeSystem\DynamicTypeInstance.cpp">
+    <ClCompile Include="TypeSystem\Serialization\ToolTypeReader.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\ToolTypeWriter.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
+    <ClCompile Include="TypeSystem\ToolTypeInstance.cpp">
       <Filter>TypeSystem</Filter>
     </ClCompile>
-    <ClCompile Include="TypeSystem\DynamicPropertyInstance.cpp">
-      <Filter>TypeSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="TypeSystem\DynamicTypeDeserializer.cpp" />
-    <ClCompile Include="TypeSystem\DynamicTypeSerialization.cpp" />
-    <ClCompile Include="TypeSystem\TypeDeserializer.cpp">
+    <ClCompile Include="TypeSystem\Serialization\NativeTypeReader.cpp">
       <Filter>Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="TypeSystem\TypeSerializer.cpp" />
-    <ClCompile Include="TypeSystem\DynamicTypeSerializer.cpp" />
-    <ClCompile Include="TypeSystem\TypeSerializationCommon.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\NativeTypeWriter.cpp" />
   </ItemGroup>
 </Project>

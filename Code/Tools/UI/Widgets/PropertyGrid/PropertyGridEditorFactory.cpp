@@ -8,14 +8,14 @@ namespace KRG
 {
     namespace PropertyGrid
     {
-        PropertyEditor* CreateEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        PropertyEditor* CreateEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance != nullptr );
 
             // Arrays
-            if ( pPropertyInstance->IsArrayProperty() )
+            if ( pPropertyInstance->IsArray() )
             {
-                if ( pPropertyInstance->IsStaticArrayProperty() )
+                if ( pPropertyInstance->IsStaticArray() )
                 {
                     return new StaticArrayPropertyEditor( context, pPropertyInstance );
                 }
@@ -24,12 +24,12 @@ namespace KRG
                     return new DynamicArrayPropertyEditor( context, pPropertyInstance );
                 }
             }
-            else if ( pPropertyInstance->IsEnumProperty() )
+            else if ( pPropertyInstance->IsEnum() )
             {
                 return new EnumPropertyEditor( context, pPropertyInstance );
             }
             // Structures
-            else if ( !pPropertyInstance->IsCoreTypeProperty() )
+            else if ( !pPropertyInstance->IsCoreType() )
             {
                 return new StructurePropertyEditor( context, pPropertyInstance );
             }

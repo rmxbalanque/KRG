@@ -16,11 +16,11 @@ namespace KRG
             {
                 auto pCameraComponent = KRG::New<CameraComponent>( StringID( "Camera Component" ) );
                 
-                pCameraComponent->SetLocalTransform( Transform( Quaternion::Identity, Vector( -2.0f, -1.5f, 1.0f ) ) );
+                pCameraComponent->SetLocalTransform( Transform( Quaternion::Identity, Vector( 0, -1.5f, 1.0f ) ) );
 
                 auto pEntity = KRG::New<Entity>( StringID( "Default Player" ) );
 
-                pEntity->AddSpatialComponent( pCameraComponent );
+                pEntity->AddComponent( pCameraComponent );
                 pEntity->CreateSystem<DefaultPlayerController>();
                 pPersistentMap->AddEntity( pEntity );
             };

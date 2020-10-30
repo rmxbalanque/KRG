@@ -1,5 +1,5 @@
 #include "PhysicsDebugViewController.h"
-#include "System/Physics/PhysicsWorld.h"
+#include "Engine/Physics/PhysicsWorld.h"
 #include "System/Physics/PhysX.h"
 #include "System/Imgui/ImguiCore.h"
 
@@ -25,15 +25,15 @@ namespace KRG
             m_menuCallbacks.emplace_back( Debug::DebugMenuCallback( "Debug Options", "Physics", drawDebugMenu ) );
         }
 
-        void PhysicsDebugViewController::Initialize( PhysicsSystem* pPhysicSystem )
+        void PhysicsDebugViewController::Initialize( PhysicsWorld* pPhysicsWorld )
         {
-            KRG_ASSERT( pPhysicSystem != nullptr );
-            m_pPhysicSystem = pPhysicSystem;
+            KRG_ASSERT( pPhysicsWorld != nullptr );
+            m_pPhysicsWorld = pPhysicsWorld;
         }
 
-        void PhysicsDebugViewController::Shutdown( PhysicsSystem* pPhysicSystem )
+        void PhysicsDebugViewController::Shutdown( PhysicsWorld* pPhysicsWorld )
         {
-            m_pPhysicSystem = nullptr;
+            m_pPhysicsWorld = nullptr;
         }
 
         //-------------------------------------------------------------------------
@@ -43,8 +43,8 @@ namespace KRG
             // Debug State
             //-------------------------------------------------------------------------
 
-            U32 debugFlags = PhysicsWorld::GetDebugFlags();
-            float drawDistance = PhysicsWorld::GetDebugDrawDistance();
+            U32 debugFlags = m_pPhysicsWorld->GetDebugFlags();
+            float drawDistance = m_pPhysicsWorld->GetDebugDrawDistance();
 
             bool stateUpdated = false;
 
@@ -80,32 +80,32 @@ namespace KRG
 
             if ( stateUpdated )
             {
-                PhysicsWorld::SetDebugFlags( debugFlags );
-                PhysicsWorld::SetDebugDrawDistance( drawDistance );
+                m_pPhysicsWorld->SetDebugFlags( debugFlags );
+                m_pPhysicsWorld->SetDebugDrawDistance( drawDistance );
             }
 
             // PVD
             //-------------------------------------------------------------------------
 
-            if ( !PhysicsWorld::IsConnectedToPVD() )
+            if ( !m_pPhysicsWorld->IsConnectedToPVD() )
             {
                 if ( ImGui::Button( "Connect to PVD", ImVec2( -1, 0 ) ) )
                 {
-                    PhysicsWorld::ConnectToPVD();
+                    m_pPhysicsWorld->ConnectToPVD();
                 }
             }
             else
             {
                 if ( ImGui::Button( "Disconnect From PVD", ImVec2( -1, 0 ) ) )
                 {
-                    PhysicsWorld::DisconnectFromPVD();
+                    m_pPhysicsWorld->DisconnectFromPVD();
                 }
             }
 
             ImGui::SliderFloat( "Recording Time (s)", &m_recordingTimeSeconds, 0.25f, 10.0f );
             if ( ImGui::Button( "PVD Timed Recording", ImVec2( -1, 0 ) ) )
             {
-                PhysicsWorld::ConnectToPVD( m_recordingTimeSeconds );
+                m_pPhysicsWorld->ConnectToPVD( m_recordingTimeSeconds );
             }
         }
 

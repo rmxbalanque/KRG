@@ -1,6 +1,6 @@
 #include "BinaryArchive.h"
 #include "System/Core/Memory/Memory.h"
-#include "System/Core/Types/MemoryStream.h"
+#include "System/Core/Memory/MemoryStreamHelpers.h"
 #include <fstream>
 
 //-------------------------------------------------------------------------

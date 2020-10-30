@@ -37,6 +37,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         inline bool IsRootComponent() const { return m_pSpatialParent == nullptr; }
+        inline bool HasChildren() const { return !m_spatialChildren.empty(); }
 
         inline Transform const& GetLocalTransform() const { return m_transform; }
         inline OBB const& GetLocalBounds() const { return m_bounds; }

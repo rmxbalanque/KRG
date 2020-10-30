@@ -1,15 +1,17 @@
 #include "MapEditor.h"
-#include "Tools/Entity/ToolEntityCollectionReader.h"
-#include "Tools/Entity/ToolEntityCollectionWriter.h"
-#include "System/Core/FileSystem/FileSystem.h"
 #include "EntityOutlinerWidget.h"
 #include "EditorContext.h"
+#include "Tools/Entity/Serialization/EntityCollectionWriter.h"
+#include "Tools/Entity/ToolEntityCollectionConverter.h"
+#include "System/Entity/Collections/EntityCollectionDescriptor.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 #include <QMenuBar>
 #include <QMenu>
 #include <DockManager.h>
 #include "QFileDialog"
 #include "EntityEditorWidget.h"
+#include "Tools/Entity/Serialization/EntityCollectionReader.h"
 
 //-------------------------------------------------------------------------
 
@@ -142,8 +144,13 @@ namespace KRG
             return false;
         }
 
-        Serialization::ToolEntityCollectionReader reader( m_typeRegistry );
-        if ( !reader.ReadCollection( path, m_map ) )
+        EntityModel::EntityCollectionDescriptor entityCollectionDescriptor;
+        if ( !EntityModel::EntityCollectionReader::ReadCollection( m_typeRegistry, path, entityCollectionDescriptor ) )
+        {
+            return false;
+        }
+
+        if ( !EntityModel::ToolEntityCollectionConverter::ConvertToToolsFormat( m_typeRegistry, entityCollectionDescriptor, m_map ) )
         {
             return false;
         }
@@ -167,8 +174,14 @@ namespace KRG
             return false;
         }
 
-        Serialization::ToolEntityCollectionWriter writer( m_typeRegistry );
-        if ( !writer.WriteCollection( m_map, path ) )
+        EntityModel::EntityCollectionDescriptor entityCollectionDescriptor;
+
+        if ( !EntityModel::ToolEntityCollectionConverter::ConvertFromToolsFormat( m_typeRegistry, m_map, entityCollectionDescriptor ) )
+        {
+            return false;
+        }
+
+        if ( !EntityModel::EntityCollectionWriter::WriteCollection( m_typeRegistry, path, entityCollectionDescriptor ) )
         {
             return false;
         }
@@ -226,7 +239,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void MapEditor::OnEntitySelected( ToolEntity* pSelectedEntity )
+    void MapEditor::OnEntitySelected( EntityModel::ToolEntity* pSelectedEntity )
     {
         if ( m_pEditorWidget != nullptr )
         {

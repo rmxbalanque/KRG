@@ -1,6 +1,6 @@
 #pragma once
 #include "../../_Module/API.h"
-#include "Tools/Core/TypeSystem/DynamicTypeInstance.h"
+#include "Tools/Core/TypeSystem/ToolTypeInstance.h"
 #include "System/Core/Core.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include <QWidget>
@@ -35,7 +35,7 @@ namespace KRG
 
         PropertyGridWidget( QWidget* pParent = nullptr );
 
-        void SetTypeInstanceToEdit( DynamicTypeInstance* pTypeInstance );
+        void SetTypeInstanceToEdit( TypeSystem::ToolTypeInstance* pTypeInstance );
         void ClearEditedTypeInstance() { SetTypeInstanceToEdit( nullptr ); }
 
     private:
@@ -44,7 +44,7 @@ namespace KRG
 
     private:
 
-        DynamicTypeInstance*                            m_pTypeInstance = nullptr;
+        TypeSystem::ToolTypeInstance*                   m_pTypeInstance = nullptr;
         QWidget*                                        m_pDefaultMessage = nullptr;
         QScrollArea*                                    m_pScrollArea = nullptr;
         QVBoxLayout*                                    m_pContentLayout = nullptr;

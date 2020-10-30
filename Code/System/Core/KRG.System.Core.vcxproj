@@ -313,7 +313,7 @@
     <ClInclude Include="Types\Containers.h" />
     <ClInclude Include="Types\Flags.h" />
     <ClInclude Include="Types\LoadingStatus.h" />
-    <ClInclude Include="Types\MemoryStream.h" />
+    <ClInclude Include="Memory\MemoryStreamHelpers.h" />
     <ClInclude Include="Types\ScopedValue.h" />
     <ClInclude Include="Types\String.h" />
     <ClInclude Include="Types\StringID.h" />
@@ -377,6 +377,7 @@
     <ClCompile Include="ThirdParty\xxhash\xxhash.c" />
     <ClCompile Include="Threading\Threading.cpp" />
     <ClCompile Include="Threading\Platform\Threading_Win32.cpp" />
+    <ClCompile Include="Memory\MemoryStreamHelpers.cpp" />
     <ClCompile Include="Types\Time.cpp" />
     <ClCompile Include="Types\Percentage.cpp" />
     <ClCompile Include="Types\StringID.cpp" />

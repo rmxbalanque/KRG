@@ -2,10 +2,10 @@
 
 #include "API.h"
 #include "Engine/Physics/Debug/PhysicsDebugViewController.h"
-#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Physics/Debug/PhysxDebugRenderer.h"
+#include "Engine/Physics/PhysicsWorld.h"
 #include "Engine/Core/Modules/IEngineModule.h"
 #include "System/Physics/ResourceLoaders/PhysicsGeometryLoader.h"
-#include "System/Physics/Renderer/PhysxDebugRenderer.h"
 
 //-------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ namespace KRG
 
         private:
 
-            PhysicsSystem               m_physicsSystem;
+            PhysicsWorld                m_physicsWorld;
             PhysicsGeometryLoader       m_physicsGeometryLoader;
 
             #if KRG_DEBUG_INSTRUMENTATION

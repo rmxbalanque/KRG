@@ -30,7 +30,6 @@ class StaticMeshComponent:
         self.ID = uuid.uuid4()
         self.Name = name
         self.TypeData = { "TypeID" : "KRG::Render::StaticMeshComponent" }
-        self.Components = [] 
 
 class Entity:
     def __init__(self, name):
@@ -83,14 +82,6 @@ try:
     # Create map
     entityMap = EntityMap()
 
-    # Create camera entity
-    cameraComponent = CameraComponent()
-    cameraComponent.TypeData["m_transform"] = "0, 0, 0, -0.000000, -5.000000, 1.000000, 1.000000, 1.0, 1.0"
-    cameraEntity = Entity("CameraEntity")
-    cameraEntity.Components = [cameraComponent]
-    cameraEntity.Systems = [ { "TypeID" : "KRG::DefaultPlayerController" } ]
-    entityMap.Entities.append( cameraEntity )
-
     # Create scene entities
     for ob in ob_list:
 
@@ -141,8 +132,9 @@ try:
 
             # Create physics component
             physicsComponent = PhysicsGeometryComponent( "phys_" + ob.name )
+            physicsComponent.SpatialParent = meshComponent.ID
             physicsComponent.TypeData[ "m_pPhysicsGeometry"] = physicsGeoDataPath
-            meshComponent.Components.append( physicsComponent )
+            entity.Components.append( physicsComponent )
 
             entityMap.Entities.append( entity )
 

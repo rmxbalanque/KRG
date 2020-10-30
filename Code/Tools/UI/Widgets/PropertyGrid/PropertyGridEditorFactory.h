@@ -1,5 +1,5 @@
 #pragma once
-#include "Tools/Core/TypeSystem/DynamicPropertyInstance.h"
+#include "Tools/Core/TypeSystem/ToolTypeInstance.h"
 #include "PropertyGridEditorWidget.h"
 
 //-------------------------------------------------------------------------
@@ -12,6 +12,6 @@ namespace KRG
 {
     namespace PropertyGrid
     {
-        PropertyEditor* CreateEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+        PropertyEditor* CreateEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
     }
 }

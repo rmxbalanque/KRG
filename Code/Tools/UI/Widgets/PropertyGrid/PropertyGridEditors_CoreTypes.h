@@ -37,7 +37,7 @@ namespace KRG
     
         public:
 
-            BoolPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            BoolPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -56,7 +56,7 @@ namespace KRG
 
         public:
 
-            NumericPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            NumericPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -78,7 +78,7 @@ namespace KRG
 
         public:
 
-            UUIDPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            UUIDPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -97,7 +97,7 @@ namespace KRG
 
         public:
 
-            ColorPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            ColorPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -116,7 +116,7 @@ namespace KRG
 
         public:
 
-            StringPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            StringPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -135,7 +135,7 @@ namespace KRG
 
         public:
 
-            StringIDPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            StringIDPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -154,7 +154,7 @@ namespace KRG
 
         public:
 
-            DataPathPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            DataPathPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -173,7 +173,7 @@ namespace KRG
 
         public:
 
-            ResourcePathPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            ResourcePathPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -193,7 +193,7 @@ namespace KRG
 
         public:
 
-            Float2PropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            Float2PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -212,7 +212,7 @@ namespace KRG
 
         public:
 
-            Float3PropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            Float3PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -231,7 +231,7 @@ namespace KRG
 
         public:
 
-            Float4PropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            Float4PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -250,7 +250,7 @@ namespace KRG
 
         public:
 
-            RotationPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            RotationPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -270,7 +270,7 @@ namespace KRG
 
         public:
 
-            TransformPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            TransformPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -291,7 +291,7 @@ namespace KRG
 
         public:
 
-            EnumPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            EnumPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 

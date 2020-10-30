@@ -40,12 +40,11 @@ namespace KRG::EntityModel
 
         void Reserve( S32 numEntities );
 
-        inline EntityCollectionDescriptor& operator<<( EntityDescriptor const& entityDesc )
+        inline void AddEntity( EntityDescriptor const& entityDesc )
         {
             KRG_ASSERT( entityDesc.IsValid() );
             m_entityLookupMap.insert( TPair<UUID, S32>( entityDesc.m_ID, (S32) m_entityDescriptors.size() ) );
-            m_entityDescriptors.push_back( entityDesc );
-            return *this;
+            m_entityDescriptors.emplace_back( entityDesc );
         }
 
         void GenerateSpatialAttachmentInfo();

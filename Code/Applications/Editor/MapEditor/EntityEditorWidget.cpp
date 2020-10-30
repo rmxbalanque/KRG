@@ -53,7 +53,7 @@ namespace KRG
         pMainLayout->addWidget( pSplitter, 0 );
     }
 
-    void EntityEditorWidget::SetEntityToEdit( ToolEntity* pEntity )
+    void EntityEditorWidget::SetEntityToEdit( EntityModel::ToolEntity* pEntity )
     {
         m_pComponentEditor->SetEntityToEdit( pEntity );
         m_pPropertyGrid->SetTypeInstanceToEdit( nullptr );
@@ -64,7 +64,7 @@ namespace KRG
         // TODO
     }
 
-    void EntityEditorWidget::OnComponentSelected( ToolEntityComponent* pComponent )
+    void EntityEditorWidget::OnComponentSelected( EntityModel::ToolEntityComponent* pComponent )
     {
         m_pPropertyGrid->SetTypeInstanceToEdit( &pComponent->GetTypeInstance() );
     }

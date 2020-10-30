@@ -44,6 +44,9 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Get a random unsigned integer value between [min, max]
+        KRG_SYSTEM_CORE_API bool GetRandomBool();
+
+        // Get a random unsigned integer value between [min, max]
         KRG_SYSTEM_CORE_API U32 GetRandomInt( U32 min = 0, U32 max = 0xFFFFFFFF );
 
         // Get a random float value between [min, max]

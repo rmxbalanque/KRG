@@ -3,6 +3,7 @@
 #include "System/TypeSystem/PropertyPath.h"
 #include "System/Core/Types/UUID.h"
 #include "System/TypeSystem/CoreTypeValidation.h"
+#include "System/TypeSystem/TypeValueConverter.h"
 
 //-------------------------------------------------------------------------
 
@@ -27,6 +28,13 @@ namespace KRG::EntityModel
         // Tools only - string value ctor
         //-------------------------------------------------------------------------
 
+        PropertyDescriptor( TypeSystem::PropertyPath const& path, char const* pStringValue )
+            : m_path( path )
+            , m_stringValue( pStringValue )
+        {
+            KRG_ASSERT( m_path.IsValid() && pStringValue != nullptr );
+        }
+
         PropertyDescriptor( TypeSystem::PropertyPath const& path, String const& stringValue )
             : m_path( path )
             , m_stringValue( stringValue )
@@ -34,11 +42,12 @@ namespace KRG::EntityModel
             KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
         }
 
-        PropertyDescriptor( TypeSystem::PropertyPath const& path, char const* pStringValue )
+        PropertyDescriptor( TypeSystem::PropertyPath const& path, TypeSystem::TypeID typeID, String const& stringValue )
             : m_path( path )
-            , m_stringValue( pStringValue )
+            , m_stringValue( stringValue )
         {
-            KRG_ASSERT( m_path.IsValid() && pStringValue != nullptr );
+            KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
+            TypeSystem::TypeValueConverter::ConvertStringToByteArray( typeID, stringValue, m_byteValue );
         }
 
         // Enum property descriptor ctors

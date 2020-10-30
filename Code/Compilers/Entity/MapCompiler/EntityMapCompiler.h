@@ -2,7 +2,6 @@
 
 #include "Tools/Entity/ToolEntityCollection.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
-#include "Tools/Core/TypeSystem/DynamicTypeSerialization.h"
 
 //-------------------------------------------------------------------------
 

@@ -13,8 +13,12 @@ namespace KRG
         class TypeRegistry;
     }
 
-    class ToolEntity;
-    class ToolEntityComponent;
+    namespace EntityModel
+    {
+        class ToolEntity;
+        class ToolEntityComponent;
+    }
+
     class EntityComponentEditorWidget;
     class PropertyGridWidget;
 
@@ -28,12 +32,12 @@ namespace KRG
 
         EntityEditorWidget( TypeSystem::TypeRegistry const& typeRegistry );
 
-        void SetEntityToEdit( ToolEntity* pEntity );
+        void SetEntityToEdit( EntityModel::ToolEntity* pEntity );
 
     private:
 
         void AddComponent( TypeSystem::TypeInfo const* pComponentTypeInfo );
-        void OnComponentSelected( ToolEntityComponent* pComponent );
+        void OnComponentSelected( EntityModel::ToolEntityComponent* pComponent );
 
     private:
 

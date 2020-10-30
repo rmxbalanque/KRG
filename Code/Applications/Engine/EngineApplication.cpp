@@ -2,7 +2,6 @@
 #include "Applications/Shared/cmdParser/krg_cmdparser.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
 #include "System/Entity/EntityTypeHelpers.h"
-#include "System/Physics/PhysicsWorld.h"
 #include "System/Resource/ResourceProviders/NetworkResourceProvider.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -165,7 +164,6 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        Physics::PhysicsWorld::Initialize();
         m_inputSystem.Initialize();
         m_imguiSystem.Initialize();
 
@@ -243,6 +241,8 @@ namespace KRG
     {
         KRG_LOG_MESSAGE( "KRG", "Engine Application Shutdown Started" );
 
+        m_taskSystem.WaitForAll();
+
         // Shutdown World and runtime state
         //-------------------------------------------------------------------------
 
@@ -309,7 +309,6 @@ namespace KRG
 
         m_imguiSystem.Shutdown();
         m_inputSystem.Shutdown();
-        Physics::PhysicsWorld::Shutdown();
 
         m_renderDevice.Shutdown();
 
@@ -408,7 +407,6 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                Physics::PhysicsWorld::Update( m_updateContext.GetDeltaTime() );
                 m_entityWorld.Update( m_updateContext );
                 m_renderingSystem.Update( m_updateContext, m_cameraSystem.GetActiveViewports() );
             }

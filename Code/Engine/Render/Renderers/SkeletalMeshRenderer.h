@@ -53,7 +53,7 @@ namespace KRG
 
             virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
             virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
-            virtual void UpdateSystem( UpdateContext const& ctx ) override final;
+            virtual void UpdateEntitySystem( UpdateContext const& ctx ) override final;
 
         private:
 

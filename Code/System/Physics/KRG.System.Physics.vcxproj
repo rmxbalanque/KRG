@@ -66,18 +66,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="PhysicsGeometry.h" />
     <ClInclude Include="PhysX.h" />
-    <ClInclude Include="Renderer\PhysxDebugRenderer.h" />
     <ClInclude Include="ResourceLoaders\PhysicsGeometryLoader.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="PhysicsGeometry.cpp" />
     <ClCompile Include="PhysX.cpp" />
-    <ClCompile Include="Renderer\PhysxDebugRenderer.cpp" />
     <ClCompile Include="ResourceLoaders\PhysicsGeometryLoader.cpp" />
   </ItemGroup>
   <ItemGroup>

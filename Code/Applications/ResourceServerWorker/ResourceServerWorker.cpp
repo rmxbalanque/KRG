@@ -71,7 +71,7 @@ namespace KRG
 
             if ( !compileContext.m_inputFilePath.Exists() )
             {
-                KRG_LOG_ERROR( "ResourceServerWorker", "Source file for data path ('%s') does not exist: '%s'\n", m_compiledDataPath.c_str(), compileContext.m_inputFilePath.c_str() );
+                KRG_LOG_ERROR( "ResourceServerWorker", "Source file for data path ('%s') does not exist: '%s'\n", m_sourceDataPath.c_str(), compileContext.m_inputFilePath.c_str() );
                 return CompilationResult::Failure;
             }
 

@@ -51,11 +51,12 @@ namespace KRG
         // Initialize all global systems
         for ( auto pSystem : m_globalSystems )
         {
-            pSystem->InitializeSystem( systemsRegistry );
+            pSystem->InitializeEntitySystem( systemsRegistry );
         }
 
         // Create and activate the persistent map
         m_maps.emplace_back( EntityModel::EntityMap() );
+        m_maps[0].Load( m_loadingContext );
         m_maps[0].Activate( m_loadingContext );
         m_createPersistentEntitiesEvent.Execute( &m_maps[0] );
 
@@ -71,14 +72,7 @@ namespace KRG
         
         for ( auto& map : m_maps )
         {
-            if ( map.IsTransientMap() )
-            {
-                map.Deactivate( m_loadingContext );
-            }
-            else
-            {
-                map.Unload( m_loadingContext );
-            }
+            map.Unload( m_loadingContext );
         }
 
         // Run the loading update as this will immediately unload all maps
@@ -95,7 +89,7 @@ namespace KRG
 
         for( auto pSystem : m_globalSystems )
         {
-            pSystem->ShutdownSystem();
+            pSystem->ShutdownEntitySystem();
         }
 
         //-------------------------------------------------------------------------
@@ -152,7 +146,7 @@ namespace KRG
         {
             KRG_PROFILE_GROUPED_SCOPE_COLOR( "Entity", "Update Systems", MP_LIMEGREEN );
             KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) updateStageIdx ) );
-            pSystem->UpdateSystem( context );
+            pSystem->UpdateEntitySystem( context );
         }
     }
 

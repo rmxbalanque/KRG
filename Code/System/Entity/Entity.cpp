@@ -79,10 +79,24 @@ namespace KRG
     {
         KRG_ASSERT( IsDeactivated() );
 
+        // Break all inter-entity links
         if ( IsSpatialEntity() )
         {
             Entity::BreakAllEntitySpatialAttachments( this );
         }
+
+        // Clean up deferred actions
+        for ( auto& action : m_deferredActions )
+        {
+            // Add actions took ownership of the component to add, so it needs to be deleted
+            // All other actions can be ignored
+            if ( action.m_type == EntityInternalStateAction::Type::AddComponent )
+            {
+                auto pComponent = reinterpret_cast<EntityComponent const*>( action.m_ptr );
+                KRG::Delete( pComponent );
+            }
+        }
+        m_deferredActions.clear();
 
         // Destroy Systems
         for ( auto& pSystem : m_systems )
@@ -393,7 +407,7 @@ namespace KRG
         }
     }
 
-    void Entity::CreateSystemInternal( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
+    void Entity::CreateSystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
         KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom( IEntitySystem::StaticTypeInfo->m_ID ) );
 
@@ -412,9 +426,11 @@ namespace KRG
         // Create the new system and add it
         auto pSystem = (IEntitySystem*) pSystemTypeInfo->m_pTypeHelper->CreateType();
         m_systems.emplace_back( pSystem );
+    }
 
-        //-------------------------------------------------------------------------
-
+    void Entity::CreateSystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
+    {
+        CreateSystemImmediate( pSystemTypeInfo );
         GenerateSystemUpdateList();
 
         // If we are already activated, notify the world systems that our entity update requirements may have changed
@@ -425,7 +441,7 @@ namespace KRG
         }
     }
 
-    void Entity::DestroySystemInternal( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
+    void Entity::DestroySystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
         KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom( IEntitySystem::StaticTypeInfo->m_ID ) );
 
@@ -434,6 +450,11 @@ namespace KRG
 
         KRG::Delete( m_systems[systemIdx] );
         VectorEraseUnsorted( m_systems, systemIdx );
+    }
+
+    void Entity::DestroySystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
+    {
+        DestroySystemImmediate( pSystemTypeInfo );
         GenerateSystemUpdateList();
 
         // If we are already activated, notify the world systems that our entity update requirements may have changed
@@ -443,57 +464,92 @@ namespace KRG
             loadingContext.m_registerEntityUpdate( this );
         }
     }
-
+    
     //-------------------------------------------------------------------------
 
-    void Entity::AddComponent( EntityComponent* pComponent )
+    void Entity::AddComponent( EntityComponent* pComponent, UUID const& parentSpatialComponentID )
     {
         KRG_ASSERT( pComponent != nullptr && pComponent->GetID().IsValid() );
         KRG_ASSERT( !pComponent->m_entityID.IsValid() && pComponent->IsUnloaded() );
+        KRG_ASSERT( !VectorContains( m_components, (EntityComponent*) pComponent ) );
 
-        // Spatial components must be added via the explicit "AddSpatialComponent" function
-        KRG_ASSERT( !pComponent->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) );
+        //-------------------------------------------------------------------------
 
-        auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
-        action.m_type = EntityInternalStateAction::Type::AddComponent;
-        action.m_data[0] = pComponent;
-
-        EntityStateUpdatedEvent.Execute( this );
-    }
-
-    void Entity::AddSpatialComponent( SpatialEntityComponent* pComponent, UUID const& parentComponentID )
-    {
-        KRG_ASSERT( pComponent != nullptr && pComponent->GetID().IsValid() );
-        KRG_ASSERT( !pComponent->m_entityID.IsValid() && pComponent->IsUnloaded() );
-
-        // Non-spatial components must be added via the "AddComponent" function
-        KRG_ASSERT( pComponent->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) );
-
-        auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
-        action.m_type = EntityInternalStateAction::Type::AddComponent;
-        action.m_data[0] = pComponent;
-
-        if ( parentComponentID.IsValid() )
+        SpatialEntityComponent* pSpatialComponent = nullptr;
+        if( pComponent->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) )
         {
-            S32 const componentIdx = VectorFindIndex( m_components, parentComponentID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
-            KRG_ASSERT( componentIdx != InvalidIndex );
-            action.m_data[1] = m_components[componentIdx];
+            pSpatialComponent = static_cast<SpatialEntityComponent*>( pComponent );
+        }
+        else
+        {
+            // Parent ID can only be set when adding a spatial component
+            KRG_ASSERT( !parentSpatialComponentID.IsValid() );
         }
 
-        EntityStateUpdatedEvent.Execute( this );
+        //-------------------------------------------------------------------------
+
+        if ( IsUnloaded() )
+        {
+            SpatialEntityComponent* pParentComponent = nullptr;
+            if ( parentSpatialComponentID.IsValid() )
+            {
+                KRG_ASSERT( pSpatialComponent != nullptr );
+                S32 const componentIdx = VectorFindIndex( m_components, parentSpatialComponentID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
+                KRG_ASSERT( componentIdx != InvalidIndex );
+                KRG_ASSERT( m_components[componentIdx]->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) );
+                pParentComponent = (SpatialEntityComponent*) m_components[componentIdx];
+            }
+
+            AddComponentImmediate( pComponent, pParentComponent );
+        }
+        else // Defer the operation to the next loading phase
+        {
+            auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
+            action.m_type = EntityInternalStateAction::Type::AddComponent;
+            action.m_ptr = pComponent;
+            action.m_ID = parentSpatialComponentID;
+
+            // Send notification that the internal state changed
+            EntityStateUpdatedEvent.Execute( this );
+        }
     }
 
     void Entity::DestroyComponent( UUID const& componentID )
     {
         S32 const componentIdx = VectorFindIndex( m_components, componentID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
-        KRG_ASSERT( componentIdx != InvalidIndex );
 
-        auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
-        action.m_type = EntityInternalStateAction::Type::DestroyComponent;
-        action.m_data[0] = m_components[componentIdx];
+        // If you hit this assert either the component doesnt exist or this entity has still to process deferred actions and the component might be in that list
+        // We dont support adding and destroying a component in the same frame, please avoid doing stupid things
+        KRG_ASSERT( componentIdx != InvalidIndex );
+        auto pComponent = m_components[componentIdx];
+
+        //-------------------------------------------------------------------------
+
+        if ( IsUnloaded() )
+        {
+            // Root removal validation
+            if ( pComponent == m_pRootSpatialComponent )
+            {
+                // You are only remove the root component if it has a single child or no children. Otherwise we cant fix the spatial hierarchy for this entity.
+                KRG_ASSERT( m_pRootSpatialComponent->m_spatialChildren.size() <= 1 );
+                return;
+            }
+
+            DestroyComponentImmediate( pComponent );
+        }
+        else // Defer the operation to the next loading phase
+        {
+            auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
+            action.m_type = EntityInternalStateAction::Type::DestroyComponent;
+            action.m_ptr = pComponent;
+            KRG_ASSERT( action.m_ptr != nullptr );
+
+            // Send notification that the internal state changed
+            EntityStateUpdatedEvent.Execute( this );
+        }
     }
 
-    void Entity::AddComponentInternal( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent )
+    void Entity::AddComponentImmediate( EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent )
     {
         KRG_ASSERT( pComponent != nullptr && pComponent->GetID().IsValid() && !pComponent->m_entityID.IsValid() );
 
@@ -502,7 +558,7 @@ namespace KRG
 
         bool const isSpatialComponent = pComponent->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() );
         SpatialEntityComponent* pSpatialEntityComponent = isSpatialComponent ? static_cast<SpatialEntityComponent*>( pComponent ) : nullptr;
-        if ( pSpatialEntityComponent != nullptr)
+        if ( pSpatialEntityComponent != nullptr )
         {
             // If the parent component is null, attach it to the root by default
             if ( pParentSpatialComponent == nullptr )
@@ -520,22 +576,25 @@ namespace KRG
             else // Make this component the root component
             {
                 m_pRootSpatialComponent = pSpatialEntityComponent;
+                KRG_ASSERT( pSpatialEntityComponent->m_pSpatialParent == nullptr );
             }
         }
 
-        // Add component and load it
+        // Add component
         //-------------------------------------------------------------------------
 
         m_components.emplace_back( pComponent );
         pComponent->m_entityID = m_ID;
-
-        if ( m_status == Status::Loaded || m_status == Status::Activated )
-        {
-            pComponent->Load( loadingContext, m_ID );
-        }
     }
 
-    void Entity::DestroyComponentInternal( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent )
+    void Entity::AddComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent )
+    {
+        KRG_ASSERT( loadingContext.IsValid() );
+        AddComponentImmediate( pComponent, pParentSpatialComponent );
+        pComponent->Load( loadingContext, m_ID );
+    }
+
+    void Entity::DestroyComponentImmediate( EntityComponent* pComponent )
     {
         KRG_ASSERT( pComponent != nullptr );
 
@@ -553,13 +612,34 @@ namespace KRG
             if ( pSpatialComponent->IsRootComponent() )
             {
                 KRG_ASSERT( pSpatialComponent == m_pRootSpatialComponent );
-                KRG_HALT();
+                S32 const numChildrenForRoot = (S32) m_pRootSpatialComponent->m_spatialChildren.size();
+
+                // Removal of the root component if it has more than one child is not supported!
+                if ( numChildrenForRoot > 1 )
+                {
+                    KRG_HALT();
+                }
+                else if ( numChildrenForRoot == 1 )
+                {
+                    // Replace the root component of this entity with the child of the current root component that we are removing
+                    pSpatialComponent->m_spatialChildren[0]->m_pSpatialParent = nullptr;
+                    m_pRootSpatialComponent = pSpatialComponent->m_spatialChildren[0];
+                    pSpatialComponent->m_spatialChildren.clear();
+                }
+                else // No children, so completely remove the root component
+                {
+                    m_pRootSpatialComponent = nullptr;
+                }
             }
-            else // Reparent all of this component's spatial children to its parent
+            else // 'Fix' spatial hierarchy parenting
             {
                 auto pParentComponent = pSpatialComponent->m_pSpatialParent;
                 KRG_ASSERT( pParentComponent != nullptr );
 
+                // Remove from parent
+                pParentComponent->m_spatialChildren.erase_first_unsorted( pSpatialComponent );
+
+                // Reparent all children to parent component
                 for ( auto pChildComponent : pSpatialComponent->m_spatialChildren )
                 {
                     pChildComponent->m_pSpatialParent = pParentComponent;
@@ -567,6 +647,17 @@ namespace KRG
                 }
             }
         }
+
+        // Remove component
+        //-------------------------------------------------------------------------
+
+        VectorEraseUnsorted( m_components, componentIdx );
+        KRG::Delete( pComponent );
+    }
+
+    void Entity::DestroyComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent )
+    {
+        KRG_ASSERT( loadingContext.IsValid() );
 
         // Shutdown and unload component
         //-------------------------------------------------------------------------
@@ -591,11 +682,10 @@ namespace KRG
 
         pComponent->Unload( loadingContext, m_ID );
 
-        // Remove component
+        // Destroy the component
         //-------------------------------------------------------------------------
 
-        VectorEraseUnsorted( m_components, componentIdx );
-        KRG::Delete( pComponent );
+        DestroyComponentImmediate( pComponent );
     }
 
     //-------------------------------------------------------------------------
@@ -612,25 +702,36 @@ namespace KRG
             {
                 case EntityInternalStateAction::Type::CreateSystem : 
                 {
-                    CreateSystemInternal( loadingContext, (TypeSystem::TypeInfo const*) action.m_data[0] );
+                    CreateSystemDeferred( loadingContext, (TypeSystem::TypeInfo const*) action.m_ptr );
                 }
                 break;
 
                 case EntityInternalStateAction::Type::DestroySystem:
                 {
-                    DestroySystemInternal( loadingContext, (TypeSystem::TypeInfo const*) action.m_data[1] );
+                    DestroySystemDeferred( loadingContext, (TypeSystem::TypeInfo const*) action.m_ptr );
                 }
                 break;
 
                 case EntityInternalStateAction::Type::AddComponent:
                 {
-                    AddComponentInternal( loadingContext, (EntityComponent*) action.m_data[0], (SpatialEntityComponent*) action.m_data[1] );
+                    SpatialEntityComponent* pParentComponent = nullptr;
+
+                    // Try to resolve the ID
+                    if ( action.m_ID.IsValid() )
+                    {
+                        S32 const componentIdx = VectorFindIndex( m_components, action.m_ID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
+                        KRG_ASSERT( componentIdx != InvalidIndex );
+                        KRG_ASSERT( m_components[componentIdx]->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) );
+                        pParentComponent = (SpatialEntityComponent*) m_components[componentIdx];
+                    }
+
+                    AddComponentDeferred( loadingContext, (EntityComponent*) action.m_ptr, pParentComponent );
                 }
                 break;
 
                 case EntityInternalStateAction::Type::DestroyComponent:
                 {
-                    DestroyComponentInternal( loadingContext, (EntityComponent*) action.m_data[0] );
+                    DestroyComponentDeferred( loadingContext, (EntityComponent*) action.m_ptr );
                 }
                 break;
             }

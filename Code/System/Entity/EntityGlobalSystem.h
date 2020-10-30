@@ -30,14 +30,14 @@ namespace KRG
         // Get the required update stages and priorities for this component
         virtual UpdatePriorityList const& GetRequiredUpdatePriorities() = 0;
 
-        // Called when the system is registered with the world
-        virtual void InitializeSystem( SystemRegistry const& systemRegistry ) {};
+        // Called when the system is registered with the world - using explicit "EntitySystem" name to allow for a standalone initialize function
+        virtual void InitializeEntitySystem( SystemRegistry const& systemRegistry ) {};
 
-        // Called when the system is removed from the world
-        virtual void ShutdownSystem() {};
+        // Called when the system is removed from the world - using explicit "EntitySystem" name to allow for a standalone shutdown function
+        virtual void ShutdownEntitySystem() {};
 
-        // System Update
-        virtual void UpdateSystem( UpdateContext const& ctx ) {};
+        // System Update - using explicit "EntitySystem" name to allow for a standalone update functions
+        virtual void UpdateEntitySystem( UpdateContext const& ctx ) {};
 
         // Called whenever a new component is activated (i.e. added to the world)
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) = 0;

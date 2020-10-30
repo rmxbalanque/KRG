@@ -2,6 +2,7 @@
 
 #include "PropertyGridEditorWidget.h"
 #include "Tools/UI/Widgets/CollapsibleWidget.h"
+#include "Tools/Core/TypeSystem/ToolTypeInstance.h"
 
 //-------------------------------------------------------------------------
 
@@ -12,6 +13,10 @@ class QLabel;
 
 namespace KRG
 {
+    namespace TypeSystem { class ToolPropertyInstance; }
+
+    //-------------------------------------------------------------------------
+
     namespace PropertyGrid
     {
         class CollapsiblePropertyEditorHeader : public QWidget
@@ -24,7 +29,7 @@ namespace KRG
 
         public:
 
-            CollapsiblePropertyEditorHeader( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            CollapsiblePropertyEditorHeader( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
             bool IsCollapsed() const { return m_pArrow->IsCollapsed(); }
 
@@ -45,7 +50,7 @@ namespace KRG
 
         public:
 
-            ContainerPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            ContainerPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         protected:
 
@@ -72,7 +77,7 @@ namespace KRG
 
         public:
 
-            StructurePropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            StructurePropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -88,7 +93,7 @@ namespace KRG
 
         public:
 
-            StaticArrayPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            StaticArrayPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 
@@ -104,7 +109,7 @@ namespace KRG
 
         public:
 
-            DynamicArrayPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            DynamicArrayPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
         private:
 

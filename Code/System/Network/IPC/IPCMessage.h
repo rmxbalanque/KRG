@@ -1,7 +1,7 @@
 #pragma once
 #include "System/Network/_Module/API.h"
 #include "System/Core/Types/Containers.h"
-#include "System/Core/Types/MemoryStream.h"
+#include "System/Core/Memory/MemoryStreamHelpers.h"
 
 //-------------------------------------------------------------------------
 

@@ -23,8 +23,7 @@ namespace KRG::EntityModel
         // Read collection
         //-------------------------------------------------------------------------
 
-        EntityCollectionReader entityCollectionReader;
-        if ( !entityCollectionReader.ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionTemplate ) )
+        if ( !EntityCollectionReader::ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionTemplate ) )
         {
             return Resource::CompilationResult::Failure;
         }

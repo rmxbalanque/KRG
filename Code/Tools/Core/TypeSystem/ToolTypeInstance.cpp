@@ -1,71 +1,78 @@
-#include "DynamicPropertyInstance.h"
-#include "System/TypeSystem/PropertyPath.h"
+#include "ToolTypeInstance.h"
+#include "System/TypeSystem/EnumInfo.h"
+#include "System/TypeSystem/TypeValueConverter.h"
+#include "System/TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::TypeSystem
 {
-    S64 GetEnumValue( TypeSystem::EnumInfo const* pEnumInfo, void const* pPropertyValue )
+    namespace
     {
-        KRG_ASSERT( pEnumInfo != nullptr && pPropertyValue != nullptr );
-
-        S64 value = 0;
-
-        switch ( pEnumInfo->m_underlyingType )
+        static S64 GetEnumValue( EnumInfo const* pEnumInfo, void const* pPropertyValue )
         {
-            case TypeSystem::CoreTypes::U8:
-            {
-                value = (S64) *reinterpret_cast<U8 const*>( pPropertyValue );
-            }
-            break;
+            KRG_ASSERT( pEnumInfo != nullptr && pPropertyValue != nullptr );
 
-            case TypeSystem::CoreTypes::S8:
-            {
-                value = (S64) *reinterpret_cast<S8 const*>( pPropertyValue );
-            }
-            break;
+            S64 value = 0;
 
-            case TypeSystem::CoreTypes::U16:
+            switch ( pEnumInfo->m_underlyingType )
             {
-                value = (S64) *reinterpret_cast<U16 const*>( pPropertyValue );
-            }
-            break;
+                case CoreTypes::U8:
+                {
+                    value = ( S64 ) * reinterpret_cast<U8 const*>( pPropertyValue );
+                }
+                break;
 
-            case TypeSystem::CoreTypes::S16:
-            {
-                value = (S64) *reinterpret_cast<S16 const*>( pPropertyValue );
-            }
-            break;
+                case CoreTypes::S8:
+                {
+                    value = ( S64 ) * reinterpret_cast<S8 const*>( pPropertyValue );
+                }
+                break;
 
-            case TypeSystem::CoreTypes::U32:
-            {
-                value = (S64) *reinterpret_cast<U32 const*>( pPropertyValue );
-            }
-            break;
+                case CoreTypes::U16:
+                {
+                    value = ( S64 ) * reinterpret_cast<U16 const*>( pPropertyValue );
+                }
+                break;
 
-            case TypeSystem::CoreTypes::S32:
-            {
-                value = (S64) *reinterpret_cast<S32 const*>( pPropertyValue );
-            }
-            break;
+                case CoreTypes::S16:
+                {
+                    value = ( S64 ) * reinterpret_cast<S16 const*>( pPropertyValue );
+                }
+                break;
 
-            default:
-            KRG_HALT();
-            break;
+                case CoreTypes::U32:
+                {
+                    value = ( S64 ) * reinterpret_cast<U32 const*>( pPropertyValue );
+                }
+                break;
+
+                case CoreTypes::S32:
+                {
+                    value = ( S64 ) * reinterpret_cast<S32 const*>( pPropertyValue );
+                }
+                break;
+
+                default:
+                KRG_HALT();
+                break;
+            }
+
+            return value;
         }
 
-        return value;
-    }
-
-    String GetEnumStringValue( TypeSystem::EnumInfo const* pEnumInfo, void const* pPropertyValue )
-    {
-        S64 const defaultValue = GetEnumValue( pEnumInfo, pPropertyValue );
-        return pEnumInfo->GetConstantLabel( defaultValue ).c_str();
+        static String GetEnumStringValue( EnumInfo const* pEnumInfo, void const* pPropertyValue )
+        {
+            S64 const defaultValue = GetEnumValue( pEnumInfo, pPropertyValue );
+            return pEnumInfo->GetConstantLabel( defaultValue ).c_str();
+        }
     }
 
     //-------------------------------------------------------------------------
+    // PROPERTY INSTANCE
+    //-------------------------------------------------------------------------
 
-    DynamicPropertyInstance::DynamicPropertyInstance( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::PropertyInfo const& propertyInfo )
+    ToolPropertyInstance::ToolPropertyInstance( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo )
         : m_propertyInfo( propertyInfo )
         , m_pTypeRegistry( &typeRegistry )
     {
@@ -79,19 +86,19 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        if ( IsArrayProperty() )
+        if ( IsArray() )
         {
             m_value = m_defaultValue = String().sprintf( "%d", m_propertyInfo.m_arraySize );
             CreateDefaultArrayElements();
         }
         else
         {
-            if ( IsCoreTypeProperty() )
+            if ( IsCoreType() )
             {
-                TypeSystem::TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.m_pDefaultValue, m_defaultValue );
+                TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.m_pDefaultValue, m_defaultValue );
                 m_value = m_defaultValue;
             }
-            else if ( IsEnumProperty() )
+            else if ( IsEnum() )
             {
                 auto const pEnumInfo = m_pTypeRegistry->GetEnumInfo( GetTypeID() );
                 KRG_ASSERT( pEnumInfo != nullptr );
@@ -105,21 +112,21 @@ namespace KRG
                 // Create property instances
                 for ( auto const& childPropertyInfo : m_pTypeInfo->m_properties )
                 {
-                    m_childProperties.emplace_back( DynamicPropertyInstance( typeRegistry, childPropertyInfo.second ) );
+                    m_childProperties.emplace_back( ToolPropertyInstance( typeRegistry, childPropertyInfo.second ) );
                 }
             }
         }
     }
 
-    DynamicPropertyInstance::DynamicPropertyInstance( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::PropertyInfo const& propertyInfo, String const& stringValue )
-        : DynamicPropertyInstance( typeRegistry, propertyInfo )
+    ToolPropertyInstance::ToolPropertyInstance( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo, String const& stringValue )
+        : ToolPropertyInstance( typeRegistry, propertyInfo )
     {
-        KRG_ASSERT( ( IsCoreTypeProperty() || IsEnumProperty() ) && !stringValue.empty() );
+        KRG_ASSERT( ( IsCoreType() || IsEnum() ) && !stringValue.empty() );
         m_value = stringValue;
         m_defaultValue = stringValue;
     }
 
-    DynamicPropertyInstance::DynamicPropertyInstance( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo )
+    ToolPropertyInstance::ToolPropertyInstance( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo )
         : m_pTypeRegistry( &typeRegistry )
     {
         KRG_ASSERT( pTypeInfo != nullptr );
@@ -128,18 +135,33 @@ namespace KRG
         // Create property instances
         for ( auto const& childPropertyInfo : m_pTypeInfo->m_properties )
         {
-            m_childProperties.emplace_back( DynamicPropertyInstance( typeRegistry, childPropertyInfo.second ) );
+            m_childProperties.emplace_back( ToolPropertyInstance( typeRegistry, childPropertyInfo.second ) );
         }
     }
 
     //-------------------------------------------------------------------------
 
-    DynamicPropertyInstance* DynamicPropertyInstance::GetProperty( TypeSystem::PropertyPath const& path, bool allowDynamicArrayElementCreation )
+    ResourceTypeID ToolPropertyInstance::GetResourceTypeIDForResourceProperty() const
+    {
+        KRG_ASSERT( IsResourcePtr() || m_propertyInfo.m_typeID == CoreTypes::ResourceID );
+
+        ResourceTypeID resourceTypeID;
+        if ( m_propertyInfo.m_typeID == CoreTypes::TResourcePtr )
+        {
+            resourceTypeID = m_pTypeRegistry->GetResourceTypeIDForType( m_propertyInfo.m_templateArgumentTypeID );
+        }
+
+        return resourceTypeID;
+    }
+
+    //-------------------------------------------------------------------------
+
+    ToolPropertyInstance* ToolPropertyInstance::GetProperty( PropertyPath const& path, bool allowDynamicArrayElementCreation )
     {
         KRG_ASSERT( IsValid() );
         KRG_ASSERT( !m_propertyInfo.IsArrayProperty() ); // Array properties do not have children with IDs
 
-        DynamicPropertyInstance* pFoundPropertyInstance = nullptr;
+        ToolPropertyInstance* pFoundPropertyInstance = nullptr;
 
         //-------------------------------------------------------------------------
 
@@ -160,7 +182,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        if ( pathElement.IsArrayElement() && !pFoundPropertyInstance->IsArrayProperty() )
+        if ( pathElement.IsArrayElement() && !pFoundPropertyInstance->IsArray() )
         {
             return nullptr;
         }
@@ -170,7 +192,7 @@ namespace KRG
         if ( pathElement.IsArrayElement() )
         {
             // Handle the static array case
-            if ( pFoundPropertyInstance->IsStaticArrayProperty() )
+            if ( pFoundPropertyInstance->IsStaticArray() )
             {
                 if ( pFoundPropertyInstance->IsValidArrayElementIndex( pathElement.m_arrayElementIdx ) )
                 {
@@ -211,18 +233,33 @@ namespace KRG
 
         if ( path.GetNumElements() > 1 )
         {
-            TypeSystem::PropertyPath const subPath = path.GetPathWithoutFirstElement();
+            PropertyPath const subPath = path.GetPathWithoutFirstElement();
             return pFoundPropertyInstance->GetProperty( subPath );
         }
 
         return pFoundPropertyInstance;
     }
 
+    ToolPropertyInstance* ToolPropertyInstance::GetProperty( StringID propertyID )
+    {
+        KRG_ASSERT( !m_propertyInfo.IsArrayProperty() );
+
+        for ( auto& childProperty : m_childProperties )
+        {
+            if ( childProperty.GetID() == propertyID )
+            {
+                return &childProperty;
+            }
+        }
+
+        return nullptr;
+    }
+
     //-------------------------------------------------------------------------
 
-    TVector<char const*> DynamicPropertyInstance::GetEnumValues() const
+    TVector<char const*> ToolPropertyInstance::GetEnumValues() const
     {
-        KRG_ASSERT( IsEnumProperty() );
+        KRG_ASSERT( IsEnum() );
 
         auto const pEnumInfo = m_pTypeRegistry->GetEnumInfo( GetTypeID() );
         KRG_ASSERT( pEnumInfo != nullptr );
@@ -236,18 +273,18 @@ namespace KRG
         return outValues;
     }
 
-    S64 DynamicPropertyInstance::GetIntForEnumStringValue( char const* pString )
+    S64 ToolPropertyInstance::GetIntForEnumStringValue( char const* pString )
     {
-        KRG_ASSERT( IsEnumProperty() );
+        KRG_ASSERT( IsEnum() );
 
         auto const pEnumInfo = m_pTypeRegistry->GetEnumInfo( GetTypeID() );
         KRG_ASSERT( pEnumInfo != nullptr );
         return pEnumInfo->GetConstantValue( StringID( pString ) );
     }
 
-    char const* DynamicPropertyInstance::GetStringForEnumValue( S64 value )
+    char const* ToolPropertyInstance::GetStringValueForEnumValue( S64 value )
     {
-        KRG_ASSERT( IsEnumProperty() );
+        KRG_ASSERT( IsEnum() );
 
         auto const pEnumInfo = m_pTypeRegistry->GetEnumInfo( GetTypeID() );
         KRG_ASSERT( pEnumInfo != nullptr );
@@ -259,14 +296,14 @@ namespace KRG
                 return constant.first.c_str();
             }
         }
-        
+
         KRG_UNREACHABLE_CODE();
         return nullptr;
     }
 
-    bool DynamicPropertyInstance::IsValidEnumStringValue( char const* pString )
+    bool ToolPropertyInstance::IsValidEnumStringValue( char const* pString )
     {
-        KRG_ASSERT( IsEnumProperty() );
+        KRG_ASSERT( IsEnum() );
 
         auto const pEnumInfo = m_pTypeRegistry->GetEnumInfo( GetTypeID() );
         KRG_ASSERT( pEnumInfo != nullptr );
@@ -276,7 +313,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void DynamicPropertyInstance::CreateDefaultArrayElements()
+    void ToolPropertyInstance::CreateDefaultArrayElements()
     {
         KRG_ASSERT( m_pTypeRegistry != nullptr );
         KRG_ASSERT( m_propertyInfo.IsValid() && m_propertyInfo.IsArrayProperty() );
@@ -296,17 +333,17 @@ namespace KRG
         }
     }
 
-    void DynamicPropertyInstance::AddArrayElementInternal()
+    void ToolPropertyInstance::AddArrayElementInternal()
     {
         KRG_ASSERT( IsValid() );
-        KRG_ASSERT( IsArrayProperty() );
+        KRG_ASSERT( IsArray() );
 
-        DynamicPropertyInstance* pAddedArrayElement = nullptr;
+        ToolPropertyInstance* pAddedArrayElement = nullptr;
         S32 const newArrayElementIdx = (S32) m_childProperties.size();
 
-        TypeSystem::PropertyInfo arrayElementInfo = m_propertyInfo;
-        arrayElementInfo.m_flags.ClearFlag( TypeSystem::PropertyInfo::Flags::IsArray );
-        arrayElementInfo.m_flags.ClearFlag( TypeSystem::PropertyInfo::Flags::IsDynamicArray );
+        PropertyInfo arrayElementInfo = m_propertyInfo;
+        arrayElementInfo.m_flags.ClearFlag( PropertyInfo::Flags::IsArray );
+        arrayElementInfo.m_flags.ClearFlag( PropertyInfo::Flags::IsDynamicArray );
         arrayElementInfo.m_ID = StringID( String().sprintf( "m_%d", newArrayElementIdx ) );
 
         //-------------------------------------------------------------------------
@@ -317,8 +354,8 @@ namespace KRG
             if ( TypeSystem::IsCoreType( arrayElementInfo.m_typeID ) )
             {
                 String arrayElementDefaultStringValue;
-                TypeSystem::TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
-                pAddedArrayElement = &m_childProperties.emplace_back( DynamicPropertyInstance( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
+                TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
+                pAddedArrayElement = &m_childProperties.emplace_back( ToolPropertyInstance( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
             }
             else if ( m_propertyInfo.IsEnumProperty() )
             {
@@ -326,16 +363,16 @@ namespace KRG
                 KRG_ASSERT( pEnumInfo != nullptr );
 
                 String arrayElementDefaultStringValue = GetEnumStringValue( pEnumInfo, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ) );
-                pAddedArrayElement = &m_childProperties.emplace_back( DynamicPropertyInstance( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
+                pAddedArrayElement = &m_childProperties.emplace_back( ToolPropertyInstance( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
             }
             else
             {
-                pAddedArrayElement = &m_childProperties.emplace_back( DynamicPropertyInstance( *m_pTypeRegistry, arrayElementInfo ) );
+                pAddedArrayElement = &m_childProperties.emplace_back( ToolPropertyInstance( *m_pTypeRegistry, arrayElementInfo ) );
             }
         }
         else
         {
-            pAddedArrayElement = &m_childProperties.emplace_back( DynamicPropertyInstance( *m_pTypeRegistry, arrayElementInfo ) );
+            pAddedArrayElement = &m_childProperties.emplace_back( ToolPropertyInstance( *m_pTypeRegistry, arrayElementInfo ) );
         }
 
         //-------------------------------------------------------------------------
@@ -344,17 +381,17 @@ namespace KRG
         pAddedArrayElement->m_arrayElementIdx = newArrayElementIdx;
     }
 
-    void DynamicPropertyInstance::SetNumArrayElements( S32 numElements )
+    void ToolPropertyInstance::SetNumArrayElements( S32 numElements )
     {
         KRG_ASSERT( IsValid() );
-        KRG_ASSERT( IsDynamicArrayProperty() );
+        KRG_ASSERT( IsDynamicArray() );
         KRG_ASSERT( numElements >= 0 );
 
         if ( numElements == 0 )
         {
             m_childProperties.clear();
         }
-       
+
         else
         {
             S32 const currentNumElements = GetNumArrayElements();
@@ -381,10 +418,10 @@ namespace KRG
         }
     }
 
-    void DynamicPropertyInstance::RemoveArrayElement( S32 elementIdx )
+    void ToolPropertyInstance::RemoveArrayElement( S32 elementIdx )
     {
         KRG_ASSERT( IsValid() );
-        KRG_ASSERT( IsDynamicArrayProperty() );
+        KRG_ASSERT( IsDynamicArray() );
         KRG_ASSERT( elementIdx >= 0 && elementIdx < m_childProperties.size() );
         m_childProperties.erase( m_childProperties.begin() + elementIdx );
 
@@ -398,7 +435,29 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    bool DynamicPropertyInstance::IsDefaultValue() const
+    void ToolPropertyInstance::SetStringValue( String const& stringValue )
+    {
+        KRG_ASSERT( !IsStaticArray() && !IsStructure() );
+
+        if ( IsDynamicArray() )
+        {
+            m_value = stringValue;
+            S32 const numElements = StringUtils::StrToS32( stringValue );
+            SetNumArrayElements( numElements );
+        }
+        else if ( IsEnum() )
+        {
+            IsValidEnumStringValue( stringValue.c_str() );
+        }
+        else
+        {
+            KRG_ASSERT( TypeValueConverter::IsValidStringValueForType( GetTypeID(), stringValue ) );
+        }
+
+        m_value = stringValue;
+    }
+
+    bool ToolPropertyInstance::IsDefaultValue() const
     {
         if ( m_value != m_defaultValue )
         {
@@ -407,7 +466,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        if ( IsDynamicArrayProperty() )
+        if ( IsDynamicArray() )
         {
             if ( GetNumArrayElements() != m_propertyInfo.m_arraySize )
             {
@@ -420,7 +479,7 @@ namespace KRG
                 if ( TypeSystem::IsCoreType( m_propertyInfo.m_typeID ) )
                 {
                     String defaultElementValue;
-                    TypeSystem::TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
+                    TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
                     if ( m_childProperties[i].GetStringValue() != defaultElementValue )
                     {
                         return false;
@@ -455,14 +514,14 @@ namespace KRG
         return true;
     }
 
-    void DynamicPropertyInstance::ResetToDefaultValue()
+    void ToolPropertyInstance::ResetToDefaultValue()
     {
         m_value = m_defaultValue;
 
         //-------------------------------------------------------------------------
 
         // If we are resetting a dynamic array property, destroy all child properties and recreate them from the defaults
-        if ( IsDynamicArrayProperty() )
+        if ( IsDynamicArray() )
         {
             m_childProperties.clear();
             CreateDefaultArrayElements();
@@ -474,5 +533,91 @@ namespace KRG
         {
             childProperty.ResetToDefaultValue();
         }
+    }
+
+    //-------------------------------------------------------------------------
+    // TYPE INSTANCE
+    //-------------------------------------------------------------------------
+
+    namespace
+    {
+        static void FlattenProperties( ToolPropertyInstance const& propertyInstance, PropertyPath const& currentPath, TVector<ToolPropertyInstanceDescriptor>& outProperties )
+        {
+            if ( propertyInstance.IsDefaultValue() )
+            {
+                return;
+            }
+
+            //-------------------------------------------------------------------------
+
+            PropertyPath propertyPath = currentPath;
+            if ( propertyInstance.IsArrayElement() )
+            {
+                propertyPath.ReplaceLastElement( propertyPath.GetLastElement().m_propertyID, propertyInstance.GetArrayElementIndex() );
+            }
+            else
+            {
+                propertyPath += propertyInstance.GetID();
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( propertyInstance.IsArray() )
+            {
+                // Flatten array elements
+                for ( auto const& childProperty : propertyInstance.GetProperties() )
+                {
+                    FlattenProperties( childProperty, propertyPath, outProperties );
+                }
+            }
+            else if ( propertyInstance.IsStructure() )
+            {
+                for ( auto const& childProperty : propertyInstance.GetProperties() )
+                {
+                    FlattenProperties( childProperty, propertyPath, outProperties );
+                }
+            }
+            else // Core Types/Enums
+            {
+                outProperties.push_back( ToolPropertyInstanceDescriptor( propertyPath, propertyInstance.GetStringValue(), propertyInstance.GetTypeID() ) );
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    ToolTypeInstance::ToolTypeInstance( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo )
+        : ToolPropertyInstance( typeRegistry, pTypeInfo )
+    {}
+
+    ToolTypeInstance::ToolTypeInstance( TypeRegistry const& typeRegistry, ToolTypeInstanceDescriptor const& typeDescriptor )
+        : ToolTypeInstance( typeRegistry, typeRegistry.GetTypeInfo( typeDescriptor.m_typeID ) )
+    {
+        // Set property values
+        for ( auto const& serializedProperty : typeDescriptor.m_properties )
+        {
+            auto pProperty = GetProperty( serializedProperty.m_path, true );
+            if ( pProperty )
+            {
+                pProperty->SetStringValue( serializedProperty.m_value );
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    ToolTypeInstanceDescriptor ToolTypeInstance::GetDescriptor() const
+    {
+        ToolTypeInstanceDescriptor descriptor;
+        descriptor.m_typeID = m_pTypeInfo->m_ID;
+
+        // Get all properties that have a non-default value set
+        PropertyPath path;
+        for ( auto const& propertyInstance : m_childProperties )
+        {
+            FlattenProperties( propertyInstance, path, descriptor.m_properties );
+        }
+
+        return descriptor;
     }
 }

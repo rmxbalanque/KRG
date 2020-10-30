@@ -11,36 +11,35 @@
 // A collection of entities
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EntityModel
 {
-    namespace Serialization { class ToolEntityCollectionReader; }
-
-    //-------------------------------------------------------------------------
-
     class KRG_TOOLS_ENTITY_API ToolEntityCollection
     {
-        friend Serialization::ToolEntityCollectionReader;
+        friend class ToolEntityCollectionConverter;
 
     public:
 
         ToolEntityCollection( TypeSystem::TypeRegistry const& typeRegistry );
+        ~ToolEntityCollection();
 
-        inline ToolEntityCollection& operator<<( ToolEntity const& entity )
+        //-------------------------------------------------------------------------
+
+        inline void AddEntity( ToolEntity* pEntity )
         {
-            m_entities.push_back( entity );
-            return *this;
+            KRG_ASSERT( pEntity != nullptr && pEntity->IsValid() && !pEntity->IsOwnedByEntity() );
+            m_entities.push_back( pEntity );
         }
 
-        void Reset() { m_entities.clear(); }
+        void Clear() { m_entities.clear(); }
 
         // Entity Access
         //-------------------------------------------------------------------------
 
         inline S32 GetNumEntities() const { return (S32) m_entities.size(); }
 
-        inline TVector<ToolEntity>& GetEntities() { return m_entities; }
+        inline TVector<ToolEntity*>& GetEntities() { return m_entities; }
 
-        inline TVector<ToolEntity> const& GetEntities() const { return m_entities; }
+        inline TVector<ToolEntity*> const& GetEntities() const { return m_entities; }
 
         inline ToolEntity const* FindEntity( UUID const& entityID ) const { return TryFindEntity( entityID ); }
         
@@ -53,7 +52,7 @@ namespace KRG
             size_t const numEntities = m_entities.size();
             for ( auto i = 0; i < numEntities; i++ )
             {
-                if ( m_entities[i].GetID() == entityID )
+                if ( m_entities[i]->GetID() == entityID )
                 {
                     return (S32) i;
                 }
@@ -73,11 +72,11 @@ namespace KRG
         {
             KRG_ASSERT( entityID.IsValid() );
 
-            for ( auto& entity : m_entities )
+            for ( auto& pEntity : m_entities )
             {
-                if ( entity.GetID() == entityID )
+                if ( pEntity->GetID() == entityID )
                 {
-                    return &entity;
+                    return pEntity;
                 }
             }
 
@@ -87,6 +86,6 @@ namespace KRG
     protected:
 
         TypeSystem::TypeRegistry const&                     m_typeRegistry;
-        TVector<ToolEntity>                                 m_entities;
+        TVector<ToolEntity*>                                m_entities;
     };
 }

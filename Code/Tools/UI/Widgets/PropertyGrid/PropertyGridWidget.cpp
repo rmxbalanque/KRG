@@ -42,7 +42,7 @@ namespace KRG
         pMainLayout->addWidget( m_pScrollArea, 1 );
     }
 
-    void PropertyGridWidget::SetTypeInstanceToEdit( DynamicTypeInstance* pTypeInstance )
+    void PropertyGridWidget::SetTypeInstanceToEdit( TypeSystem::ToolTypeInstance* pTypeInstance )
     {
         m_pTypeInstance = pTypeInstance;
         GenerateGridWidgets();
@@ -80,7 +80,7 @@ namespace KRG
 
         for ( auto const& propertyInstance : m_pTypeInstance->GetProperties() )
         {
-            auto pPropertyEditor = PropertyGrid::CreateEditor( initContext, const_cast<DynamicPropertyInstance*>( &propertyInstance ) );
+            auto pPropertyEditor = PropertyGrid::CreateEditor( initContext, const_cast<TypeSystem::ToolPropertyInstance*>( &propertyInstance ) );
             if ( pPropertyEditor != nullptr )
             {
                 m_propertyEditors.emplace_back( pPropertyEditor );
@@ -88,7 +88,7 @@ namespace KRG
             }
             else
             {
-                if ( propertyInstance.IsArrayProperty() )
+                if ( propertyInstance.IsArray() )
                 {
                     m_pContentLayout->addWidget( new QLabel( QString( "Cannot create property editor for array" ) ) );
                 }

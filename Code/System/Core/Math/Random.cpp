@@ -27,13 +27,19 @@ namespace KRG
             Threading::Mutex    g_globalRandomMutex;
         }
 
-        KRG_SYSTEM_CORE_API U32 GetRandomInt( U32 min, U32 max )
+        bool GetRandomBool()
+        {
+            Threading::ScopeLock lock( g_globalRandomMutex );
+            return g_rng.GetInt( 0, 1 ) == 1;
+        }
+
+        U32 GetRandomInt( U32 min, U32 max )
         {
             Threading::ScopeLock lock( g_globalRandomMutex );
             return g_rng.GetInt( min, max );
         }
 
-        KRG_SYSTEM_CORE_API F32 GetRandomFloat( F32 min, F32 max )
+        F32 GetRandomFloat( F32 min, F32 max )
         {
             Threading::ScopeLock lock( g_globalRandomMutex );
             return g_rng.GetFloat( min, max );

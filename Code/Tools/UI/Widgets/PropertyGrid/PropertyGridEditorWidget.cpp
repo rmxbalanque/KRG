@@ -1,5 +1,5 @@
 #include "PropertyGridEditorWidget.h"
-#include "Tools/Core/TypeSystem/DynamicPropertyInstance.h"
+#include "Tools/Core/TypeSystem/ToolTypeInstance.h"
 #include "Tools/UI/Widgets/IconWidgets.h"
 #include "QBoxLayout"
 #include "QPushButton"
@@ -34,7 +34,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        PropertyEditor::PropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        PropertyEditor::PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : QWidget()
             , m_pPropertyInstance( pPropertyInstance )
         {

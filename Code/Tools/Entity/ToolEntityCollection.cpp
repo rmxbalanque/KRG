@@ -2,7 +2,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EntityModel
 {
     ToolEntityCollection::ToolEntityCollection( TypeSystem::TypeRegistry const& typeRegistry )
         : m_typeRegistry( typeRegistry )
@@ -12,18 +12,20 @@ namespace KRG
     {
         TVector<ToolEntityComponent const*> foundComponents;
 
-        for ( auto const& entity : m_entities )
+        for ( auto const& pEntity : m_entities )
         {
-            for ( auto const& component : entity.GetComponents() )
-            {
-                KRG_ASSERT( component.IsValid() );
-                if ( component.GetTypeID() == componentTypeID || ( allowDerivedTypes && m_typeRegistry.IsTypeDerivedFrom( component.GetTypeID(), componentTypeID ) ) )
-                {
-                    foundComponents.emplace_back( &component );
-                }
-            }
+            KRG_ASSERT( pEntity != nullptr );
+            pEntity->GetAllComponentsOfType( componentTypeID, allowDerivedTypes, foundComponents );
         }
 
         return foundComponents;
+    }
+
+    ToolEntityCollection::~ToolEntityCollection()
+    {
+        for ( auto& pEntity : m_entities )
+        {
+            KRG::Delete( pEntity );
+        }
     }
 }

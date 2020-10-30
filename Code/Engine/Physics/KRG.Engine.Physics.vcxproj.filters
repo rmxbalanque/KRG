@@ -24,10 +24,11 @@
     <ClCompile Include="Debug\PhysicsDebugViewController.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="_Module\Module.cpp">
       <Filter>_Module</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsWorld.cpp" />
+    <ClCompile Include="Debug\PhysxDebugRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -39,9 +40,10 @@
     <ClInclude Include="Debug\PhysicsDebugViewController.h">
       <Filter>Debug</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="_Module\Module.h">
       <Filter>_Module</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsWorld.h" />
+    <ClInclude Include="Debug\PhysxDebugRenderer.h" />
   </ItemGroup>
 </Project>

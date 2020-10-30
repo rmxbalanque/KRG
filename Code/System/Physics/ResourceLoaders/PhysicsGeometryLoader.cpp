@@ -1,7 +1,6 @@
 #include "PhysicsGeometryLoader.h"
-#include "System/Physics/PhysicsWorld.h"
-#include "System/Physics/PhysicsGeometry.h"
 #include "System/Physics/PhysX.h"
+#include "System/Physics/PhysicsGeometry.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
 //-------------------------------------------------------------------------
@@ -57,7 +56,7 @@ namespace KRG
                 archive >> cookedTriangleMeshData;
 
                 PhysXSerializedInputData cooked( cookedTriangleMeshData );
-                pPhysicsGeometry->m_pTriangleMesh = PhysicsWorld::GetPhysics()->createTriangleMesh( cooked );
+                pPhysicsGeometry->m_pTriangleMesh = PhysX::Physics->createTriangleMesh( cooked );
             }
 
             pResourceRecord->SetResourceData( pPhysicsGeometry );

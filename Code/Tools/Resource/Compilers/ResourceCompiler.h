@@ -8,7 +8,7 @@
 
 #include "../_Module/API.h"
 #include "ResourceDescriptor.h"
-#include "Tools/Core/TypeSystem/TypeDeserializer.h"
+#include "Tools/Core/TypeSystem/Serialization/NativeTypeReader.h"
 #include "System/Resource/ResourceHeader.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Logging/Log.h"
@@ -54,15 +54,15 @@ namespace KRG
                 static_assert( std::is_base_of<ResourceDescriptor, T>::value, "T must be a child of ResourceDescriptor" );
                 KRG_ASSERT( IsValid() );
 
-                Serialization::TypeDeserializer deserializer( m_typeRegistry );
-                if ( !deserializer.ReadFromFile( descriptorPath ) )
+                TypeSystem::NativeTypeReader nativeTypeReader( m_typeRegistry );
+                if ( !nativeTypeReader.ReadFromFile( descriptorPath ) )
                 {
                     KRG_LOG_ERROR( "ResourceCompiler", "Failed to read resource descriptor file: %s", descriptorPath.c_str() );
                     return false;
                 }
 
                 T outMetadata;
-                deserializer >> outData;
+                nativeTypeReader >> outData;
                 return true;
             }
 

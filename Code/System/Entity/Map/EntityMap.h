@@ -89,7 +89,6 @@ namespace KRG
 
             // Loading and Activation
             //-------------------------------------------------------------------------
-            // Note: Transient maps cannot be loaded/unloaded
 
             void Load( LoadingContext const& loadingContext );
             void Unload( LoadingContext const& loadingContext );

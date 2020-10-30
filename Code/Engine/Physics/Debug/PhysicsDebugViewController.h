@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Physics/PhysicsWorld.h"
 #include "Engine/Core/DebugUI/DebugUI.h"
 
 //-------------------------------------------------------------------------
@@ -17,8 +17,8 @@ namespace KRG
 
             PhysicsDebugViewController();
 
-            void Initialize( PhysicsSystem* pPhysicSystem );
-            void Shutdown( PhysicsSystem* pPhysicSystem );
+            void Initialize( PhysicsWorld* pPhysicSystem );
+            void Shutdown( PhysicsWorld* pPhysicSystem );
 
         private:
 
@@ -27,7 +27,7 @@ namespace KRG
 
         private:
 
-            PhysicsSystem*      m_pPhysicSystem = nullptr;
+            PhysicsWorld*      m_pPhysicsWorld = nullptr;
             float               m_recordingTimeSeconds = 0.5f;
         };
     }

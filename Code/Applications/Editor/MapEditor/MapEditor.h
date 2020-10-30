@@ -37,14 +37,14 @@ namespace KRG
         void CreateEntityOutlinerTab();
         void CreateEntityEditorTab();
 
-        void OnEntitySelected( ToolEntity* pSelectedEntity );
+        void OnEntitySelected( EntityModel::ToolEntity* pSelectedEntity );
 
     private:
 
         TypeSystem::TypeRegistry const&     m_typeRegistry;
         ads::CDockManager*                  m_pDockManager = nullptr;
 
-        ToolEntityCollection                m_map;
+        EntityModel::ToolEntityCollection   m_map;
         FileSystemPath                      m_currentMapPath;
 
         EntityOutlinerWidget*               m_pOutlinerWidget = nullptr;

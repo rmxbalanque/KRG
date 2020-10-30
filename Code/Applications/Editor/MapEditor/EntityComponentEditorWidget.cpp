@@ -13,15 +13,15 @@ namespace KRG
 {
     namespace EntityComponentTree
     {
-        ComponentItem::ComponentItem( ToolEntityComponent* pComponent )
+        ComponentItem::ComponentItem( EntityModel::ToolEntityComponent* pComponent )
             : m_pComponent( pComponent )
             , m_name( pComponent->GetNameAsCStr() )
         {
             KRG_ASSERT( pComponent != nullptr );
 
-            for ( auto& childComponent : pComponent->GetChildComponents() )
+            for ( auto pChildComponent : pComponent->GetChildComponents() )
             {
-                AddChild( new ComponentItem( &childComponent ) );
+                AddChild( new ComponentItem( pChildComponent ) );
             }
         }
 
@@ -110,7 +110,7 @@ namespace KRG
             delete m_pRootItem;
         }
 
-        void Model::SetEntityToEdit( ToolEntity* pEntity )
+        void Model::SetEntityToEdit( EntityModel::ToolEntity* pEntity )
         {
             m_pEntity = pEntity;
 
@@ -125,9 +125,9 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            for ( ToolEntityComponent& component : m_pEntity->GetComponents() )
+            for ( auto pComponent : m_pEntity->GetComponents() )
             {
-                m_pRootItem->AddChild( new ComponentItem( &component ) );
+                m_pRootItem->AddChild( new ComponentItem( pComponent ) );
             }
 
             //-------------------------------------------------------------------------
@@ -348,7 +348,7 @@ namespace KRG
         pMainLayout->addWidget( m_pComponentTree, 1 );
     }
 
-    void EntityComponentEditorWidget::SetEntityToEdit( ToolEntity* pEntity )
+    void EntityComponentEditorWidget::SetEntityToEdit( EntityModel::ToolEntity* pEntity )
     {
         m_pComponentTree->clearSelection();
         m_model.SetEntityToEdit( pEntity );

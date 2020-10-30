@@ -18,9 +18,9 @@ namespace KRG
     {
         struct KRG_SYSTEM_PHYSICS_API Constants
         {
-            static constexpr F32 const LengthScale = 1.0f;
-            static constexpr F32 const SpeedScale = 9.81f;
-            static Float3 const Gravity;
+            static constexpr F32 const  LengthScale = 1.0f;
+            static constexpr F32 const  SpeedScale = 9.81f;
+            static Float3 const         Gravity;
         };
 
         //-------------------------------------------------------------------------
@@ -187,5 +187,36 @@ namespace KRG
         {
             return physx::PxBounds3( ToPx( bounds.GetMin() ), ToPx( bounds.GetMax() ) );
         }
+
+        //-------------------------------------------------------------------------
+
+        class KRG_SYSTEM_PHYSICS_API PhysX
+        {
+            friend class PhysicsWorld;
+
+        public:
+
+            static physx::PxPhysics*                        Physics;
+
+        private:
+
+            static PhysX*                                   Core;
+
+            static void Initialize();
+            static void Shutdown();
+
+        private:
+
+            PhysXAllocator                                  m_allocator;
+            PhysXUserErrorCallback                          m_errorCallback;
+            physx::PxFoundation*                            m_pFoundation = nullptr;
+            physx::PxPhysics*                               m_pPhysics = nullptr;
+            physx::PxCpuDispatcher*                         m_pDispatcher = nullptr;
+
+            #if KRG_DEBUG_INSTRUMENTATION
+            physx::PxPvd*                                   m_pPVD = nullptr;
+            physx::PxPvdTransport*                          m_pPVDTransport = nullptr;
+            #endif
+        };
     }
 }

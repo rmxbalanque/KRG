@@ -37,6 +37,8 @@ namespace KRG
         void Initialize();
         void Shutdown();
 
+        inline void WaitForAll() { m_taskScheduler.WaitforAll(); }
+
         inline void ScheduleTask( IAsyncTask* pTask )
         {
             KRG_ASSERT( m_initialized );

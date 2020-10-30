@@ -220,7 +220,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void SkeletalMeshRenderer::UpdateSystem( UpdateContext const& ctx )
+        void SkeletalMeshRenderer::UpdateEntitySystem( UpdateContext const& ctx )
         {
             KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "SkeletalMeshRenderer::UpdateSystem", MP_PINK );
 

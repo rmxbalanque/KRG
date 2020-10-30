@@ -11,7 +11,12 @@ namespace KRG
 {
     struct EditorContext;
     class KSearchBoxWidget;
-    class ToolEntityCollection;
+
+    namespace EntityModel 
+    { 
+        class ToolEntity;
+        class ToolEntityCollection; 
+    }
 
     //-------------------------------------------------------------------------
 
@@ -21,7 +26,7 @@ namespace KRG
         {
         public:
 
-            explicit EntityItem( ToolEntity* pEntity );
+            explicit EntityItem( EntityModel::ToolEntity* pEntity );
             explicit EntityItem( QString const& name );
             ~EntityItem();
 
@@ -29,7 +34,7 @@ namespace KRG
             inline bool IsFolder() const { return m_pEntity == nullptr; }
             inline EntityItem* GetParent() const { return m_pParent; }
 
-            ToolEntity* GetEntity() const { return m_pEntity; }
+            EntityModel::ToolEntity* GetEntity() const { return m_pEntity; }
 
             S32 GetNumChildren() const;
             EntityItem* GetChild( S32 row );
@@ -43,7 +48,7 @@ namespace KRG
 
         private:
 
-            ToolEntity*                                  m_pEntity = nullptr;
+            EntityModel::ToolEntity*                     m_pEntity = nullptr;
             QString                                      m_name;
             TVector<EntityItem*>                         m_children;
             EntityItem*                                  m_pParent = nullptr;
@@ -60,7 +65,7 @@ namespace KRG
             explicit Model();
             ~Model();
 
-            void SetCollection( ToolEntityCollection* pCollection );
+            void SetCollection( EntityModel::ToolEntityCollection* pCollection );
 
             virtual QVariant data( QModelIndex const& index, S32 role ) const override;
             virtual Qt::ItemFlags flags( QModelIndex const& index ) const override;
@@ -76,7 +81,7 @@ namespace KRG
 
         private:
 
-            ToolEntityCollection*                       m_pEntityCollection = nullptr;
+            EntityModel::ToolEntityCollection*          m_pEntityCollection = nullptr;
             EntityItem*                                 m_pRootItem = nullptr;
         };
 
@@ -109,13 +114,13 @@ namespace KRG
 
     signals:
 
-        void OnEntitySelected( ToolEntity* pSelectedEntity );
+        void OnEntitySelected( EntityModel::ToolEntity* pSelectedEntity );
 
     public:
 
         EntityOutlinerWidget();
 
-        void SetCollectionToOutline( ToolEntityCollection* pCollection );
+        void SetCollectionToOutline( EntityModel::ToolEntityCollection* pCollection );
 
     private:
 

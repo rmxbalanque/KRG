@@ -1,7 +1,6 @@
 #include "EntityDebugViewController.h"
 #include "System/Imgui/ImguiCore.h"
 #include "System/Entity/EntityWorld.h"
-//#include "System/Entity/Map/EntityMap.h"
 #include "System/Entity/EntitySystem.h"
 #include "System/Core/Update/UpdateContext.h"
 
@@ -274,7 +273,8 @@ namespace KRG
                 }
                 else
                 {
-                    if ( ImGui::Button( m_entities[i]->GetName().c_str() ) )
+                    String const buttonLabel = String().sprintf( "%s##%d", m_entities[i]->GetName().c_str(), i );
+                    if ( ImGui::Button( buttonLabel.c_str() ) )
                     {
                         m_pSelectedEntity = m_entities[i];
                     }
@@ -312,6 +312,20 @@ namespace KRG
                 ImGui::Text( "Entity ID: %s", m_pSelectedEntity->GetID().ToString().c_str() );
 
                 ImGui::Separator();
+
+                //-------------------------------------------------------------------------
+
+                if ( m_pSelectedEntity->IsSpatialEntity() )
+                {
+                    if ( ImGui::CollapsingHeader( "Spatial Info", ImGuiTreeNodeFlags_DefaultOpen ) )
+                    {
+                        auto const transform = m_pSelectedEntity->GetWorldTransform();
+                        auto const eulerAngles = transform.GetRotation().ToEulerAngles();
+                        ImGui::Text( "Rotation: %.2f %.2f %.2f", eulerAngles.x, eulerAngles.y, eulerAngles.z );
+                        ImGui::Text( "Translation: %.2f %.2f %.2f", transform.GetTranslation().x, transform.GetTranslation().y, transform.GetTranslation().z );
+                        ImGui::Text( "Scale: %.2f %.2f %.2f", transform.GetScale().x, transform.GetScale().y, transform.GetScale().z );
+                    }
+                }
 
                 //-------------------------------------------------------------------------
 

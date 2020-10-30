@@ -1,11 +1,15 @@
 #include "NavmeshCompiler.h"
-#include "Tools/Entity/ToolEntityCollectionReader.h"
+#include "Tools/Entity/ToolEntityCollectionConverter.h"
 #include "Tools/Entity/ToolEntityCollection.h"
 #include "System/Core/ThirdParty/cereal/external/rapidjson/error/en.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Platform/Platform/Platform_Win32.h"
 #include "Engine/Physics/Components/PhysicsGeometryComponent.h"
+#include "Tools/Entity/Serialization/EntityCollectionReader.h"
+#include "Tools/Entity/Serialization/EntityCollectionWriter.h"
+
+#include "System/TypeSystem/CoreTypeIDs.h"
 
 //-------------------------------------------------------------------------
 
@@ -36,34 +40,46 @@ namespace KRG::EntityModel
         // Read file
         //-------------------------------------------------------------------------
         
-        //DataPath const& mapDataPath = resourceDescriptor.m_map.GetResourceID().GetDataPath();
-        //FileSystemPath const mapFilePath = DataPath::ToFileSystemPath( ctx.m_sourceDataPath, mapDataPath );
+        DataPath const& mapDataPath = resourceDescriptor.m_map.GetResourceID().GetDataPath();
+        FileSystemPath const mapFilePath = DataPath::ToFileSystemPath( ctx.m_sourceDataPath, mapDataPath );
 
-        //Serialization::ToolEntityCollectionReader const entityCollectionSerializer( ctx.m_typeRegistry );
-        //ToolEntityCollection entityCollection( ctx.m_typeRegistry );
+        EntityCollectionDescriptor entityCollection;
+        if ( !EntityCollectionReader::ReadCollection( ctx.m_typeRegistry, mapFilePath, entityCollection ) )
+        {
+            return Resource::CompilationResult::Failure;
+        }
 
-        //if ( !entityCollectionSerializer.ReadCollection( mapFilePath, entityCollection ) )
-        //{
-        //    return Resource::CompilationResult::Failure;
-        //}
+        //-------------------------------------------------------------------------
 
-        //// Collect all collision geometry
-        ////-------------------------------------------------------------------------
+        ToolEntityCollection toolEntityCollection( ctx.m_typeRegistry );
+        if ( !ToolEntityCollectionConverter::ConvertToToolsFormat( ctx.m_typeRegistry, entityCollection, toolEntityCollection ) )
+        {
+            return Resource::CompilationResult::Failure;
+        }
 
-        //THashMap<DataPath, TVector<Transform>> CollisionGeometry;
+        EntityCollectionDescriptor entityCollectionTest;
+        if ( !ToolEntityCollectionConverter::ConvertFromToolsFormat( ctx.m_typeRegistry, toolEntityCollection, entityCollectionTest ) )
+        {
+            return Resource::CompilationResult::Failure;
+        }
 
-        //auto foundPhysicsComponents = entityCollection.GetAllComponentsOfType( Physics::PhysicsGeometryComponent::GetStaticTypeID() );
-        //for ( auto pPhysicsComponent : foundPhysicsComponents )
-        //{
-        //    auto pProperty = pPhysicsComponent->GetProperty( TypeSystem::PropertyPath( "m_pPhysicsGeometry" ) );
-        //    KRG_ASSERT( pProperty != nullptr );
+        // Collect all collision geometry
+        //-------------------------------------------------------------------------
 
-        //    Resource::ResourcePtr geometryPtr = pProperty->GetValue<Resource::ResourcePtr>();
-        //    if ( geometryPtr.IsValid() )
-        //    {
-        //        CollisionGeometry[geometryPtr.GetResourceID().GetDataPath()].push_back( pPhysicsComponent->GetWorldTransform() );
-        //    }
-        //}
+        THashMap<DataPath, TVector<Transform>> CollisionGeometry;
+
+        auto foundPhysicsComponents = toolEntityCollection.GetAllComponentsOfType( Physics::PhysicsGeometryComponent::GetStaticTypeID() );
+        for ( auto pPhysicsComponent : foundPhysicsComponents )
+        {
+            auto pProperty = pPhysicsComponent->GetProperty( TypeSystem::PropertyPath( "m_pPhysicsGeometry" ) );
+            KRG_ASSERT( pProperty != nullptr );
+
+            Resource::ResourcePtr geometryPtr = pProperty->GetValue<Resource::ResourcePtr>();
+            if ( geometryPtr.IsValid() )
+            {
+                CollisionGeometry[geometryPtr.GetResourceID().GetDataPath()].push_back( pPhysicsComponent->GetWorldTransform() );
+            }
+        }
 
         // Serialize
         //-------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 #include "PropertyGridEditors_Containers.h"
 #include "PropertyGridEditorFactory.h"
 #include "Tools/UI/Widgets/IconWidgets.h"
+#include "Tools/Core/TypeSystem/ToolTypeInstance.h"
 #include "QBoxLayout"
 #include "QPushButton"
 
@@ -10,7 +11,7 @@ namespace KRG
 {
     namespace PropertyGrid
     {
-        CollapsiblePropertyEditorHeader::CollapsiblePropertyEditorHeader( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        CollapsiblePropertyEditorHeader::CollapsiblePropertyEditorHeader( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : QWidget()
         {
             KRG_ASSERT( pPropertyInstance != nullptr );
@@ -34,7 +35,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        ContainerPropertyEditor::ContainerPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        ContainerPropertyEditor::ContainerPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance ) 
             , m_cachedContext( context )
         {
@@ -90,10 +91,10 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        StructurePropertyEditor::StructurePropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        StructurePropertyEditor::StructurePropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : ContainerPropertyEditor( context, pPropertyInstance )
         {
-            KRG_ASSERT( !pPropertyInstance->IsCoreTypeProperty() && !pPropertyInstance->IsArrayProperty() );
+            KRG_ASSERT( !pPropertyInstance->IsCoreType() && !pPropertyInstance->IsArray() );
 
             //-------------------------------------------------------------------------
 
@@ -127,7 +128,7 @@ namespace KRG
 
             for ( auto const& propertyInstance : m_pPropertyInstance->GetProperties() )
             {
-                auto pPropertyEditor = PropertyGrid::CreateEditor( m_cachedContext, const_cast<DynamicPropertyInstance*>( &propertyInstance ) );
+                auto pPropertyEditor = PropertyGrid::CreateEditor( m_cachedContext, const_cast<TypeSystem::ToolPropertyInstance*>( &propertyInstance ) );
                 if ( pPropertyEditor != nullptr )
                 {
                     auto onChildValueChanged = [this, pPropertyEditor] ()
@@ -151,10 +152,10 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        StaticArrayPropertyEditor::StaticArrayPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        StaticArrayPropertyEditor::StaticArrayPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : ContainerPropertyEditor( context, pPropertyInstance )
         {
-            KRG_ASSERT( pPropertyInstance->IsArrayProperty() );
+            KRG_ASSERT( pPropertyInstance->IsArray() );
 
             //-------------------------------------------------------------------------
 
@@ -184,7 +185,7 @@ namespace KRG
 
             for ( auto const& propertyInstance : m_pPropertyInstance->GetProperties() )
             {
-                auto pPropertyEditor = PropertyGrid::CreateEditor( m_cachedContext, const_cast<DynamicPropertyInstance*>( &propertyInstance ) );
+                auto pPropertyEditor = PropertyGrid::CreateEditor( m_cachedContext, const_cast<TypeSystem::ToolPropertyInstance*>( &propertyInstance ) );
                 if ( pPropertyEditor != nullptr )
                 {
                     auto onChildValueChanged = [this, pPropertyEditor] ()
@@ -208,10 +209,10 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        DynamicArrayPropertyEditor::DynamicArrayPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        DynamicArrayPropertyEditor::DynamicArrayPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : ContainerPropertyEditor( context, pPropertyInstance )
         {
-            KRG_ASSERT( pPropertyInstance->IsArrayProperty() );
+            KRG_ASSERT( pPropertyInstance->IsArray() );
 
             //-------------------------------------------------------------------------
 
@@ -259,7 +260,7 @@ namespace KRG
             S32 const numArrayElements = m_pPropertyInstance->GetNumArrayElements();
             for ( S32 i = 0; i < numArrayElements; i++ )
             {
-                auto pPropertyEditor = PropertyGrid::CreateEditor( m_cachedContext, const_cast<DynamicPropertyInstance*>( &m_pPropertyInstance->GetArrayElement( i ) ) );
+                auto pPropertyEditor = PropertyGrid::CreateEditor( m_cachedContext, const_cast<TypeSystem::ToolPropertyInstance*>( &m_pPropertyInstance->GetArrayElement( i ) ) );
                 if ( pPropertyEditor != nullptr )
                 {
                     auto pRemoveRowButton = new QPushButton();

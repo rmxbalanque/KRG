@@ -18,7 +18,7 @@ class QPaintEvent;
 
 namespace KRG
 {
-    class DynamicPropertyInstance;
+    namespace TypeSystem { class ToolPropertyInstance; }
 
     //-------------------------------------------------------------------------
 
@@ -109,7 +109,7 @@ namespace KRG
 
         public:
 
-            PropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance );
+            PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
             virtual void SetHeaderWidth( InitializationContext& context, S32 headerWidth );
 
@@ -134,7 +134,7 @@ namespace KRG
 
         protected:
 
-            DynamicPropertyInstance*                       m_pPropertyInstance = nullptr;
+            TypeSystem::ToolPropertyInstance*           m_pPropertyInstance = nullptr;
 
             QGridLayout*                                m_pMainLayout = nullptr;
             QHBoxLayout*                                m_pHeaderLayout = nullptr;

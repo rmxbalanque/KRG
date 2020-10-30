@@ -65,8 +65,9 @@ namespace KRG
                 DestroyComponent,
             };
 
-            void const*                         m_data[2] = { nullptr, nullptr };
-            Type                                m_type = Type::Unknown;
+            void const*                         m_ptr = nullptr;            // Can either be ptr to a system or a component
+            UUID                                m_ID;                       // Contains the ID of the parent spatial component
+            Type                                m_type = Type::Unknown;     // Type of action
         };
 
         // Event that's fired whenever a component/system is added or removed
@@ -103,6 +104,7 @@ namespace KRG
 
         inline bool IsSpatialEntity() const { return m_pRootSpatialComponent != nullptr; }
         inline SpatialEntityComponent const* GetRootSpatialComponent() const { return m_pRootSpatialComponent; }
+        inline UUID GetRootSpatialComponentID() const { return m_pRootSpatialComponent->GetID(); }
         inline Transform const& GetWorldTransform() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetLocalTransform(); }
         inline void SetWorldTransform( Transform const& worldTransform ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->SetLocalTransform( worldTransform ); }
         inline OBB const& GetWorldBounds() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetWorldBounds(); }
@@ -116,18 +118,25 @@ namespace KRG
         inline bool IsInCollection() const { return m_collectionID.IsValid(); }
         inline bool IsActivated() const { return m_status == Status::Activated; }
         inline bool IsDeactivated() const { return m_status != Status::Activated; }
+        inline bool HasRequestedComponentLoad() const { return m_status != Status::Unloaded; }
+        inline bool IsUnloaded() const { return m_status == Status::Unloaded; }
 
         // Components
         //-------------------------------------------------------------------------
+        // NB!!! Add and remove operations execute immediately for unloaded entities BUT will be deferred to the next loading phase for loaded entities
 
         inline TVector<EntityComponent*> const& GetComponents() const { return m_components; }
 
-        void AddComponent( EntityComponent* pComponent );
-        void AddSpatialComponent( SpatialEntityComponent* pComponent, UUID const& m_pComponentToAttachTo = UUID() );
+        // Add a new component. For spatial component, you can optionally specify a component to attach to. 
+        // If this is unset, the component will be attached to the root component (or will become the root component if one doesnt exist)
+        void AddComponent( EntityComponent* pComponent, UUID const& parentSpatialComponentID = UUID() );
+
+        // Destroys a component on this entity
         void DestroyComponent( UUID const& componentID );
 
         // Systems
         //-------------------------------------------------------------------------
+        // NB!!! Add and remove operations execute immediately for unloaded entities BUT will be deferred to the next loading phase for loaded entities
 
         inline bool RequiresUpdate( UpdateStage stage ) const { return !m_systemUpdateLists[(S8) stage].empty(); }
         inline TVector<IEntitySystem*> const& GetSystems() const { return m_systems; }
@@ -138,11 +147,19 @@ namespace KRG
             static_assert( std::is_base_of<KRG::IEntitySystem, T>::value, "Invalid system type detected" );
             KRG_ASSERT( !VectorContains( m_systems, T::StaticTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
 
-            auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
-            action.m_type = EntityInternalStateAction::Type::CreateSystem;
-            action.m_data[0] = T::StaticTypeInfo;
+            if ( IsUnloaded() )
+            {
+                CreateSystemImmediate( T::StaticTypeInfo );
+            }
+            else
+            {
+                auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
+                action.m_type = EntityInternalStateAction::Type::CreateSystem;
+                action.m_ptr = T::StaticTypeInfo;
 
-            EntityStateUpdatedEvent.Execute( this );
+                // Send notification that the internal state changed
+                EntityStateUpdatedEvent.Execute( this );
+            }
         }
 
         template<typename T>
@@ -151,11 +168,19 @@ namespace KRG
             static_assert( std::is_base_of<KRG::IEntitySystem, T>::value, "Invalid system type detected" );
             KRG_ASSERT( VectorContains( m_systems, T::StaticTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
 
-            auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
-            action.m_type = EntityInternalStateAction::Type::DestroySystem;
-            action.m_data[0] = T::StaticTypeInfo;
+            if ( IsUnloaded() )
+            {
+                DestroySystemImmediate( T::StaticTypeInfo );
+            }
+            else
+            {
+                auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
+                action.m_type = EntityInternalStateAction::Type::DestroySystem;
+                action.m_ptr = T::StaticTypeInfo;
 
-            EntityStateUpdatedEvent.Execute( this );
+                // Send notification that the internal state changed
+                EntityStateUpdatedEvent.Execute( this );
+            }
         }
 
     protected:
@@ -193,11 +218,17 @@ namespace KRG
 
         bool UpdateLoadingAndEntityState( EntityModel::LoadingContext const& loadingContext );
 
-        void CreateSystemInternal( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
-        void DestroySystemInternal( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
+        // Immediate functions can be executed immediately for unloaded entities allowing us to skip the deferral of the operation
+        void CreateSystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo );
+        void CreateSystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
+        void DestroySystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo );
+        void DestroySystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
 
-        void AddComponentInternal( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent );
-        void DestroyComponentInternal( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent );
+        // Immediate functions can be executed immediately for unloaded entities allowing us to skip the deferral of the operation
+        void AddComponentImmediate( EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent );
+        void AddComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent );
+        void DestroyComponentImmediate( EntityComponent* pComponent );
+        void DestroyComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent );
 
     protected:
 

@@ -2,35 +2,38 @@
 
 #include "_Module/API.h"
 #include "System/TypeSystem/TypeInfo.h"
-#include "Tools/Core/TypeSystem/DynamicTypeInstance.h"
+#include "Tools/Core/TypeSystem/ToolTypeInstance.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EntityModel
 {
-    namespace Serialization { class ToolEntityCollectionReader; class ToolEntityCollectionWriter; }
-
-    //-------------------------------------------------------------------------
-
     class KRG_TOOLS_ENTITY_API ToolEntitySystem
     {
-        friend class Serialization::ToolEntityCollectionReader;
-        friend class Serialization::ToolEntityCollectionWriter;
+        friend class ToolEntity;
+        friend class ToolEntityCollectionConverter;
 
     public:
 
-        ToolEntitySystem( DynamicTypeInstance const& typeInstance )
+        ToolEntitySystem( TypeSystem::ToolTypeInstance const& typeInstance )
             : m_typeInstance( typeInstance )
         {
             KRG_ASSERT( typeInstance.IsValid() );
             KRG_ASSERT( typeInstance.GetTypeInfo()->m_metadata.IsFlagSet( TypeSystem::ETypeInfoMetaData::EntitySystem ) );
         }
 
-        ToolEntitySystem( DynamicTypeInstance&& typeInstance )
+        ToolEntitySystem( TypeSystem::ToolTypeInstance&& typeInstance )
             : m_typeInstance( typeInstance )
         {
             KRG_ASSERT( typeInstance.IsValid() );
             KRG_ASSERT( typeInstance.GetTypeInfo()->m_metadata.IsFlagSet( TypeSystem::ETypeInfoMetaData::EntitySystem ) );
+        }
+
+        ToolEntitySystem( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo )
+            : m_typeInstance( typeRegistry, pTypeInfo )
+        {
+            KRG_ASSERT( m_typeInstance.IsValid() );
+            KRG_ASSERT( m_typeInstance.GetTypeInfo()->m_metadata.IsFlagSet( TypeSystem::ETypeInfoMetaData::EntitySystem ) );
         }
 
         inline bool IsValid() const 
@@ -50,8 +53,14 @@ namespace KRG
             return m_typeInstance.GetTypeID();
         }
 
+        inline bool IsOwnedByEntity() const
+        {
+            return m_parentEntityID.IsValid();
+        }
+
     private:
 
-        DynamicTypeInstance m_typeInstance;
+        TypeSystem::ToolTypeInstance        m_typeInstance;
+        UUID                                m_parentEntityID;
     };
 }

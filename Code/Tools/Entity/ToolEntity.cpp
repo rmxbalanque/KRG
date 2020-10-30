@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EntityModel
 {
     ToolEntity::ToolEntity( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo, UUID const& ID, StringID name )
         : m_pTypeRegistry( &typeRegistry )
@@ -19,22 +19,74 @@ namespace KRG
         : ToolEntity( typeRegistry, typeRegistry.GetTypeInfo( Entity::GetStaticTypeID() ), ID, name )
     {}
 
-    //-------------------------------------------------------------------------
-
-    void ToolEntity::AddComponent( ToolEntityComponent const& component )
+    ToolEntity::~ToolEntity()
     {
-        KRG_ASSERT( IsValid() && component.IsValid() );
+        for ( auto& pEntity : m_childEntities )
+        {
+            KRG::Delete( pEntity );
+        }
+        m_childEntities.clear();
 
         //-------------------------------------------------------------------------
 
-        auto addedComponent = m_components.emplace_back( component );
-        if ( component.IsSpatialComponent() )
+        for ( auto& pSystem : m_systems )
+        {
+            KRG::Delete( pSystem );
+        }
+        m_systems.clear();
+
+        //-------------------------------------------------------------------------
+
+        for ( auto& pComponent : m_components )
+        {
+            KRG::Delete( pComponent );
+        }
+        m_components.clear();
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ToolEntity::IsValid() const
+    {
+        if ( !m_typeInstance.IsValid() )
+        {
+            return false;
+        }
+
+        if ( !m_ID.IsValid() || !m_name.IsValid() )
+        {
+            return false;
+        }
+
+        if ( m_isSpatialEntity && !m_rootComponentID.IsValid() )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ToolEntity::AddComponent( ToolEntityComponent* pComponent )
+    {
+        KRG_ASSERT( IsValid() && pComponent != nullptr );
+        KRG_ASSERT( pComponent->IsValid() && !pComponent->IsOwnedByEntity() );
+
+        //-------------------------------------------------------------------------
+
+        // Add component
+        m_components.emplace_back( pComponent );
+        pComponent->SetParentEntityID( m_ID );
+
+        // Update spatial hierarchy
+        if ( pComponent->IsSpatialComponent() )
         {
             // We are allowed only 1 spatial component per entity in the tools
             KRG_ASSERT( !m_isSpatialEntity );
 
             m_isSpatialEntity = true;
-            m_rootComponentID = addedComponent.GetID();
+            m_rootComponentID = pComponent->GetID();
         }
     }
 
@@ -44,42 +96,133 @@ namespace KRG
         auto pTypeInfo = m_pTypeRegistry->GetTypeInfo( componentTypeID );
         KRG_ASSERT( pTypeInfo != nullptr && pTypeInfo->m_metadata.IsFlagSet( TypeSystem::ETypeInfoMetaData::EntityComponent ) );
 
-        auto addedComponent = m_components.emplace_back( ToolEntityComponent( DynamicTypeInstance( *m_pTypeRegistry, pTypeInfo ), UUID::GenerateID(), name ) );
-        if ( addedComponent.IsSpatialComponent() )
+        // Add component
+        auto pAddedComponent = m_components.emplace_back( KRG::New<ToolEntityComponent>( TypeSystem::ToolTypeInstance( *m_pTypeRegistry, pTypeInfo ), UUID::GenerateID(), name ) );
+        pAddedComponent->SetParentEntityID( m_ID );
+
+        // Update spatial hierarchy
+        if ( pAddedComponent->IsSpatialComponent() )
         {
             // We are allowed only 1 spatial component per entity in the tools
             KRG_ASSERT( !m_isSpatialEntity );
 
             m_isSpatialEntity = true;
-            m_rootComponentID = addedComponent.GetID();
+            m_rootComponentID = pAddedComponent->GetID();
         }
     }
 
-    //-------------------------------------------------------------------------
-
-    void ToolEntity::AddSystem( ToolEntitySystem const& system )
+    ToolEntityComponent* ToolEntity::RemoveComponent( S32 componentIdx )
     {
-        KRG_ASSERT( IsValid() && system.IsValid() );
+        KRG_ASSERT( IsValid() && componentIdx >= 0 && componentIdx < m_components.size() );
 
-        for ( auto const& existingSystem : m_systems )
+        // Update root component ID
+        auto pComponent = m_components[componentIdx];
+        if ( pComponent->GetID() == m_rootComponentID )
         {
-            KRG_ASSERT( system.GetTypeID() != system.GetTypeID() );
+            m_rootComponentID.Reset();
         }
 
-        m_systems.emplace_back( system );
+        // Clear parent entity ID
+        pComponent->ClearParentEntityID();
+
+        // Remove and return component
+        m_components.erase_unsorted( m_components.begin() + componentIdx );
+        return pComponent;
+    }
+
+    void ToolEntity::DestroyComponent( S32 componentIdx )
+    {
+        KRG_ASSERT( IsValid() && componentIdx >= 0 && componentIdx < m_components.size() );
+
+        // Update root component ID
+        auto pComponent = m_components[componentIdx];
+        if ( pComponent->GetID() == m_rootComponentID )
+        {
+            m_rootComponentID.Reset();
+        }
+
+        // Destroy component
+        KRG::Delete( m_components[componentIdx] );
+        m_components.erase_unsorted( m_components.begin() + componentIdx );
+    }
+
+    void ToolEntity::GetAllComponentsOfType( TypeSystem::TypeID componentTypeID, bool allowDerivedTypes, TVector<ToolEntityComponent const*>& outFoundComponents ) const
+    {
+        for ( auto const& pComponent : m_components )
+        {
+            KRG_ASSERT( pComponent != nullptr && pComponent->IsValid() );
+            if ( pComponent->GetTypeID() == componentTypeID || ( allowDerivedTypes && pComponent->IsTypeDerivedFrom( componentTypeID ) ) )
+            {
+                outFoundComponents.emplace_back( pComponent );
+            }
+
+            pComponent->GetAllChildComponentsOfType( componentTypeID, allowDerivedTypes, outFoundComponents );
+        }
     }
 
     //-------------------------------------------------------------------------
 
-    ToolEntity& ToolEntity::CreateChildEntity( UUID const& ID, StringID name )
+    void ToolEntity::AddSystem( ToolEntitySystem* pSystem )
+    {
+        KRG_ASSERT( IsValid() && pSystem != nullptr && pSystem->IsValid() && !pSystem->IsOwnedByEntity() );
+
+        for ( auto const& pExistingSystem : m_systems )
+        {
+            KRG_ASSERT( pExistingSystem->GetTypeID() != pSystem->GetTypeID() );
+        }
+
+        pSystem->m_parentEntityID = m_ID;
+        m_systems.emplace_back( pSystem );
+    }
+
+    ToolEntitySystem* ToolEntity::RemoveSystem( S32 systemIdx )
+    {
+        KRG_ASSERT( IsValid() && systemIdx >= 0 && systemIdx < m_systems.size() );
+        auto pSystem = m_systems[systemIdx];
+        pSystem->m_parentEntityID.Reset();
+
+        m_systems.erase_unsorted( m_systems.begin() + systemIdx );
+        return pSystem;
+    }
+
+    void ToolEntity::DestroySystem( S32 systemIdx )
+    {
+        KRG_ASSERT( IsValid() && systemIdx >= 0 && systemIdx < m_systems.size() );
+        KRG::Delete( m_systems[systemIdx] );
+        m_systems.erase_unsorted( m_systems.begin() + systemIdx );
+    }
+
+    //-------------------------------------------------------------------------
+
+    ToolEntity* ToolEntity::CreateChildEntity( UUID const& ID, StringID name )
     {
         KRG_ASSERT( IsValid() );
-        return m_childEntities.emplace_back( ToolEntity( *m_pTypeRegistry, m_typeInstance.GetTypeInfo(), ID, name ) );
+        auto pNewEntity = KRG::New<ToolEntity>( *m_pTypeRegistry, m_typeInstance.GetTypeInfo(), ID, name );
+        pNewEntity->m_parentEntityID = m_ID;
+        return m_childEntities.emplace_back( pNewEntity );
+    }
+
+    void ToolEntity::AddChildEntity( ToolEntity* pEntity )
+    {
+        KRG_ASSERT( IsValid() && pEntity != nullptr && pEntity->IsValid() && !pEntity->IsOwnedByEntity() );
+        pEntity->m_parentEntityID = m_ID;
+        m_childEntities.emplace_back( pEntity );
+    }
+
+    ToolEntity* ToolEntity::RemoveChildEntity( S32 childEntityIdx )
+    {
+        KRG_ASSERT( IsValid() && childEntityIdx >= 0 && childEntityIdx < m_childEntities.size() );        
+        auto pEntity = m_childEntities[childEntityIdx];
+        pEntity->m_parentEntityID.Reset();
+
+        m_childEntities.erase_unsorted( m_childEntities.begin() + childEntityIdx );
+        return pEntity;
     }
 
     void ToolEntity::DestroyChildEntity( S32 childEntityIdx )
     {
         KRG_ASSERT( IsValid() && childEntityIdx >= 0 && childEntityIdx < m_childEntities.size() );
-        m_childEntities.erase( m_childEntities.begin() + childEntityIdx );
+        KRG::Delete( m_childEntities[childEntityIdx] );
+        m_childEntities.erase_unsorted( m_childEntities.begin() + childEntityIdx );
     }
 }

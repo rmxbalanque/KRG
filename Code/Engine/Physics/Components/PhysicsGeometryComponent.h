@@ -26,7 +26,7 @@ namespace KRG
         {
             KRG_REGISTER_ENTITY_COMPONENT;
 
-            friend class PhysicsSystem;
+            friend class PhysicsWorld;
 
         protected:
 

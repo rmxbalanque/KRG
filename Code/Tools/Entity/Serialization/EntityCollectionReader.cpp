@@ -1,6 +1,6 @@
 #include "EntityCollectionReader.h"
 #include "Tools/Core/Thirdparty/KRG_RapidJson.h"
-#include "Tools/Core/TypeSystem/TypeSerializationCommon.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeSerializationCommon.h"
 #include "System/Entity/Entity.h"
 #include "System/Entity/Collections/EntityCollectionDescriptor.h"
 #include "System/TypeSystem/TypeValueConverter.h"
@@ -351,7 +351,7 @@ namespace KRG
                         return false;
                     }
 
-                    outCollection << entityDesc;
+                    outCollection.AddEntity( entityDesc );
                 }
 
                 return true;
@@ -362,7 +362,7 @@ namespace KRG
         // Serializer
         //-------------------------------------------------------------------------
 
-        bool EntityCollectionReader::ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& filePath, EntityCollectionDescriptor& outCollection ) const
+        bool EntityCollectionReader::ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& filePath, EntityCollectionDescriptor& outCollection )
         {
             KRG_ASSERT( filePath.IsValid() );
 

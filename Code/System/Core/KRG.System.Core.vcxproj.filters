@@ -348,6 +348,7 @@
     <ClCompile Include="Serialization\BinaryArchive.cpp">
       <Filter>Serialization</Filter>
     </ClCompile>
+    <ClCompile Include="Memory\MemoryStreamHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Transform.h">
@@ -426,9 +427,6 @@
       <Filter>Types</Filter>
     </ClInclude>
     <ClInclude Include="Types\LoadingStatus.h">
-      <Filter>Types</Filter>
-    </ClInclude>
-    <ClInclude Include="Types\MemoryStream.h">
       <Filter>Types</Filter>
     </ClInclude>
     <ClInclude Include="Types\ScopedValue.h">
@@ -1277,6 +1275,9 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="Serialization\BinaryArchive.h">
       <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\MemoryStreamHelpers.h">
+      <Filter>Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

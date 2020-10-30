@@ -555,7 +555,7 @@ namespace KRG
         {
             KRG_ASSERT( IsCoreType( typeID ) && !strValue.empty() );
 
-            KRG_UNIMPLEMENTED_FUNCTION();
+            //KRG_UNIMPLEMENTED_FUNCTION();
 
             return true;
         }

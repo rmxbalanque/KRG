@@ -155,7 +155,7 @@ namespace KRG
             m_initialized = false;
         }
 
-        void StaticMeshRenderer::ShutdownSystem()
+        void StaticMeshRenderer::ShutdownEntitySystem()
         {
             KRG_ASSERT( m_dynamicComponents.empty() && m_meshComponents.IsEmpty() && m_mobilityUpdateList.empty() && m_staticComponents.empty() );
         }
@@ -222,7 +222,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void StaticMeshRenderer::UpdateSystem( UpdateContext const& ctx )
+        void StaticMeshRenderer::UpdateEntitySystem( UpdateContext const& ctx )
         {
             KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "StaticMeshRenderer::UpdateSystem", MP_PINK );
 

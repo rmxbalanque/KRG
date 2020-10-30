@@ -17,7 +17,7 @@ namespace KRG
 {
     namespace PropertyGrid
     {
-        BoolPropertyEditor::BoolPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        BoolPropertyEditor::BoolPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::Bool );
@@ -54,7 +54,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        NumericPropertyEditor::NumericPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        NumericPropertyEditor::NumericPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( m_pPropertyInstance != nullptr );
@@ -360,7 +360,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        UUIDPropertyEditor::UUIDPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        UUIDPropertyEditor::UUIDPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::UUID );
@@ -397,7 +397,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        ColorPropertyEditor::ColorPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        ColorPropertyEditor::ColorPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::Color );
@@ -434,7 +434,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        StringPropertyEditor::StringPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        StringPropertyEditor::StringPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::String );
@@ -471,7 +471,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        StringIDPropertyEditor::StringIDPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        StringIDPropertyEditor::StringIDPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::StringID );
@@ -508,7 +508,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        DataPathPropertyEditor::DataPathPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        DataPathPropertyEditor::DataPathPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::DataPath );
@@ -545,7 +545,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        ResourcePathPropertyEditor::ResourcePathPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        ResourcePathPropertyEditor::ResourcePathPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::ResourceID || pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::TResourcePtr || pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::ResourcePtr );
@@ -582,7 +582,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        Float2PropertyEditor::Float2PropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        Float2PropertyEditor::Float2PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::Float2 );
@@ -619,7 +619,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        Float3PropertyEditor::Float3PropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        Float3PropertyEditor::Float3PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::Float3 );
@@ -656,7 +656,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        Float4PropertyEditor::Float4PropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        Float4PropertyEditor::Float4PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::Float4 );
@@ -693,7 +693,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        RotationPropertyEditor::RotationPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        RotationPropertyEditor::RotationPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::Quaternion || pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::EulerAngles );
@@ -760,7 +760,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        TransformPropertyEditor::TransformPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        TransformPropertyEditor::TransformPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
             KRG_ASSERT( pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::Transform || pPropertyInstance->GetTypeID() == TypeSystem::CoreTypes::Matrix );
@@ -827,10 +827,10 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        EnumPropertyEditor::EnumPropertyEditor( InitializationContext& context, DynamicPropertyInstance* pPropertyInstance )
+        EnumPropertyEditor::EnumPropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance )
             : PropertyEditor( context, pPropertyInstance )
         {
-            KRG_ASSERT( pPropertyInstance->IsEnumProperty() );
+            KRG_ASSERT( pPropertyInstance->IsEnum() );
 
             //-------------------------------------------------------------------------
 

@@ -52,12 +52,11 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        if ( charactersSpawned && !attachmentsSpawned )
+        for ( auto& character : m_spawnedEntities )
         {
-            attachmentsSpawned = true;
-            for ( auto pCharacter : m_spawnedEntities )
+            if ( ( Milliseconds::Now() - character.m_lastCustomizedTime ) > character.m_cooldown )
             {
-                SpawnCharacterAttachments( pCharacter );
+                RecustomizeCharacter( character );
             }
         }
 
@@ -74,7 +73,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            S32 const numPerRowCol = 35;
+            S32 const numPerRowCol = 25;
             for ( auto i = 0; i < numPerRowCol; i++ )
             {
                 for ( auto j = 0; j < numPerRowCol; j++ )
@@ -96,6 +95,10 @@ namespace KRG
         S32 const meshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_meshIDs.size() - 1 );
         S32 const materialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
         S32 const animIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_animationIDs.size() - 1 );
+        S32 const armorMeshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_armorMeshIDs.size() - 1 );
+        S32 const armorMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
+        S32 const hairIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_hairMeshIDs.size() - 1 );
+        S32 const hairMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
 
         //-------------------------------------------------------------------------
 
@@ -104,34 +107,6 @@ namespace KRG
         pCharacterMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[materialIdx] );
         pCharacterMeshComponent->SetSkeleton( m_pComponent->m_skeletonID );
         pCharacterMeshComponent->SetLocalTransform( characterTransform );
-
-        auto pAnimationComponent = KRG::New<Animation::SimpleAnimationComponent>( StringID( "Animation" ) );
-        pAnimationComponent->SetAnimation( m_pComponent->m_animationIDs[animIdx]);
-
-        //-------------------------------------------------------------------------
-
-        auto pEntity = KRG::New<Entity>( StringID( "Character" ) );
-
-        pEntity->CreateSystem<Animation::AnimationSystem>();
-        pEntity->AddComponent( pAnimationComponent );
-        pEntity->AddSpatialComponent( pCharacterMeshComponent );
-
-        //-------------------------------------------------------------------------
-
-        pMap->AddEntity( pEntity );
-        m_spawnedEntities.emplace_back( pEntity );
-    }
-
-    void CustomizerTestSystem::SpawnCharacterAttachments( Entity* pCharacter )
-    {
-        KRG_ASSERT( pCharacter != nullptr );
-
-        S32 const armorMeshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_armorMeshIDs.size() - 1 );
-        S32 const armorMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
-        S32 const hairIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_hairMeshIDs.size() - 1 );
-        S32 const hairMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
-
-        //-------------------------------------------------------------------------
 
         auto pArmorMeshComponent = KRG::New<Animation::AnimatedMeshComponent>( StringID( "Armor" ) );
         pArmorMeshComponent->SetMesh( m_pComponent->m_armorMeshIDs[armorMeshIdx] );
@@ -144,7 +119,83 @@ namespace KRG
         pHairMeshComponent->SetAttachmentSocketID( StringID( "head" ) );
         pHairMeshComponent->ChangeMobility( Render::Mobility::Dynamic );
 
-        pCharacter->AddSpatialComponent( pArmorMeshComponent );
-        pCharacter->AddSpatialComponent( pHairMeshComponent );
+        //-------------------------------------------------------------------------
+
+        auto pAnimationComponent = KRG::New<Animation::SimpleAnimationComponent>( StringID( "Animation" ) );
+        pAnimationComponent->SetAnimation( m_pComponent->m_animationIDs[animIdx]);
+
+        //-------------------------------------------------------------------------
+
+        auto pEntity = KRG::New<Entity>( StringID( "Character" ) );
+
+        pEntity->CreateSystem<Animation::AnimationSystem>();
+        pEntity->AddComponent( pAnimationComponent );
+        pEntity->AddComponent( pCharacterMeshComponent );
+        pEntity->AddComponent( pArmorMeshComponent, pCharacterMeshComponent->GetID() );
+        pEntity->AddComponent( pHairMeshComponent, pCharacterMeshComponent->GetID() );
+
+        //-------------------------------------------------------------------------
+
+        pMap->AddEntity( pEntity );
+
+        //-------------------------------------------------------------------------
+
+        CustomizedCharacter character;
+        character.m_pCharacter = pEntity;
+        character.m_meshComponentID = pCharacterMeshComponent->GetID();
+        character.m_armorComponentID = pArmorMeshComponent->GetID();
+        character.m_hairComponentID = pHairMeshComponent->GetID();
+        character.m_lastCustomizedTime = Milliseconds::Now();
+        character.m_cooldown = Milliseconds( Math::GetRandomFloat( 500, 1500 ) );
+
+        m_spawnedEntities.emplace_back( character );
+    }
+
+    void CustomizerTestSystem::RecustomizeCharacter( CustomizedCharacter& character )
+    {
+        Transform const characterTransform = character.m_pCharacter->GetWorldTransform();
+
+        //-------------------------------------------------------------------------
+
+        character.m_pCharacter->DestroyComponent( character.m_hairComponentID );
+        character.m_pCharacter->DestroyComponent( character.m_armorComponentID );
+        character.m_pCharacter->DestroyComponent( character.m_meshComponentID );
+
+        //-------------------------------------------------------------------------
+
+        S32 const meshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_meshIDs.size() - 1 );
+        S32 const materialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
+        S32 const animIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_animationIDs.size() - 1 );
+        S32 const armorMeshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_armorMeshIDs.size() - 1 );
+        S32 const armorMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
+        S32 const hairIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_hairMeshIDs.size() - 1 );
+        S32 const hairMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
+
+        auto pCharacterMeshComponent = KRG::New<Animation::AnimatedMeshComponent>( StringID( "Character" ) );
+        pCharacterMeshComponent->SetMesh( m_pComponent->m_meshIDs[meshIdx] );
+        pCharacterMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[materialIdx] );
+        pCharacterMeshComponent->SetSkeleton( m_pComponent->m_skeletonID );
+        pCharacterMeshComponent->SetLocalTransform( characterTransform );
+
+        auto pArmorMeshComponent = KRG::New<Animation::AnimatedMeshComponent>( StringID( "Armor" ) );
+        pArmorMeshComponent->SetMesh( m_pComponent->m_armorMeshIDs[armorMeshIdx] );
+        pArmorMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[armorMaterialIdx] );
+        pArmorMeshComponent->SetSkeleton( m_pComponent->m_skeletonID );
+
+        auto pHairMeshComponent = KRG::New<Render::StaticMeshComponent>( StringID( "Hair" ) );
+        pHairMeshComponent->SetMesh( m_pComponent->m_hairMeshIDs[hairIdx] );
+        pHairMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[hairMaterialIdx] );
+        pHairMeshComponent->SetAttachmentSocketID( StringID( "head" ) );
+        pHairMeshComponent->ChangeMobility( Render::Mobility::Dynamic );
+
+        character.m_pCharacter->AddComponent( pCharacterMeshComponent );
+        character.m_pCharacter->AddComponent( pArmorMeshComponent, pCharacterMeshComponent->GetID() );
+        character.m_pCharacter->AddComponent( pHairMeshComponent, pCharacterMeshComponent->GetID() );
+
+        character.m_meshComponentID = pCharacterMeshComponent->GetID();
+        character.m_armorComponentID = pArmorMeshComponent->GetID();
+        character.m_hairComponentID = pHairMeshComponent->GetID();
+        character.m_lastCustomizedTime = Milliseconds::Now();
+        character.m_cooldown = Milliseconds( Math::GetRandomFloat( 500, 1500 ) );
     }
 }

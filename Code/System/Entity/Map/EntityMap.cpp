@@ -66,7 +66,7 @@ namespace KRG::EntityModel
     void EntityMap::AddEntity( Entity* pEntity )
     {
         // Ensure that the entity to add, is not already part of a collection and that it's deactivated
-        KRG_ASSERT( pEntity != nullptr && !pEntity->IsInCollection() && pEntity->IsDeactivated() );
+        KRG_ASSERT( pEntity != nullptr && !pEntity->IsInCollection() && !pEntity->HasRequestedComponentLoad() );
         KRG_ASSERT( !VectorContains( m_entitiesToAdd, pEntity ) );
         m_entitiesToAdd.emplace_back( pEntity );
     }
@@ -101,19 +101,56 @@ namespace KRG::EntityModel
     void EntityMap::Load( LoadingContext const& loadingContext )
     {
         KRG_ASSERT( Threading::IsMainThread() && m_pCollection == nullptr && loadingContext.IsValid() );
-        KRG_ASSERT( !m_isTransientMap );
         KRG_ASSERT( m_status == Status::Unloaded );
 
-        loadingContext.m_pResourceSystem->LoadResource( m_pMapDesc );
-        m_status = Status::MapLoading;
+        if ( m_isTransientMap )
+        {
+            m_pCollection = KRG::New<EntityCollection>();
+            m_status = Status::Loaded;
+        }
+        else // Request loading of map resource
+        {
+            loadingContext.m_pResourceSystem->LoadResource( m_pMapDesc );
+            m_status = Status::MapLoading;
+        }
     }
 
     void EntityMap::Unload( LoadingContext const& loadingContext )
     {
-        KRG_ASSERT( !m_isTransientMap );
         KRG_ASSERT( m_status != Status::Unloaded );
         m_unloadRequested = true;
     }
+
+    void EntityMap::Activate( LoadingContext const& loadingContext )
+    {
+        KRG_ASSERT( m_status == Status::Loaded );
+
+        for ( auto pEntity : m_pCollection->GetEntities() )
+        {
+            pEntity->Activate( loadingContext );
+        }
+
+        m_status = Status::Activated;
+    }
+
+    void EntityMap::Deactivate( LoadingContext const& loadingContext )
+    {
+        KRG_ASSERT( m_status == Status::Activated );
+
+        //-------------------------------------------------------------------------
+
+        for ( auto pEntity : m_pCollection->GetEntities() )
+        {
+            if ( pEntity->IsActivated() )
+            {
+                pEntity->Deactivate( loadingContext );
+            }
+        }
+
+        m_status = Status::Loaded;
+    }
+
+    //-------------------------------------------------------------------------
 
     bool EntityMap::UpdateState( LoadingContext const& loadingContext )
     {
@@ -184,9 +221,27 @@ namespace KRG::EntityModel
                 {
                     KRG::Delete( m_pCollection );
                 }
+
+                // Since entity ownership is transferred via the add call, we need to delete all pending add entity requests
+                for ( auto pEntity : m_entitiesToAdd )
+                {
+                    KRG_ASSERT( !pEntity->HasRequestedComponentLoad() );
+                    KRG::Delete( pEntity );
+                }
+                m_entitiesToAdd.clear();
+
+                // Clear all internal entity lists
+                m_loadingEntities.clear();
+                m_entitiesToReload.clear();
+                m_entitiesToRemove.clear();
             }
 
-            loadingContext.m_pResourceSystem->UnloadResource( m_pMapDesc );
+            // Unload the map resource
+            if ( !m_isTransientMap )
+            {
+                loadingContext.m_pResourceSystem->UnloadResource( m_pMapDesc );
+            }
+
             m_status = Status::Unloaded;
         }
 
@@ -290,7 +345,7 @@ namespace KRG::EntityModel
                 //-------------------------------------------------------------------------
 
                 // If the map is activated, immediately activate any entities that finish loading
-                if ( IsActivated() )
+                if ( IsActivated() && pEntity->IsDeactivated() )
                 {
                     pEntity->Activate( loadingContext );
                 }
@@ -314,6 +369,8 @@ namespace KRG::EntityModel
         return true;
     }
 
+    //-------------------------------------------------------------------------
+
     Entity* EntityMap::FindEntity( UUID entityID ) const
     {
         Entity* pFoundEntity = nullptr;
@@ -326,69 +383,14 @@ namespace KRG::EntityModel
         return pFoundEntity;
     }
 
-    //-------------------------------------------------------------------------
-
-    void EntityMap::Activate( LoadingContext const& loadingContext )
-    {
-        // Transient maps create/destroy their collections at activation/deactivation time
-        if ( m_isTransientMap )
-        {
-            KRG_ASSERT( m_status == Status::Unloaded );
-            m_pCollection = KRG::New<EntityCollection>();
-        }
-        else // Regular map flow
-        {
-            KRG_ASSERT( m_status == Status::Loaded );
-
-            for ( auto pEntity : m_pCollection->GetEntities() )
-            {
-                pEntity->Activate( loadingContext );
-            }
-        }
-
-        //-------------------------------------------------------------------------
-
-        m_status = Status::Activated;
-    }
-
-    void EntityMap::Deactivate( LoadingContext const& loadingContext )
-    {
-        KRG_ASSERT( m_status == Status::Activated );
-
-        //-------------------------------------------------------------------------
-
-        // Transient maps create/destroy their collections at activation/deactivation time
-        if ( m_isTransientMap )
-        {
-            for ( auto pEntity : m_pCollection->GetEntities() )
-            {
-                if ( pEntity->IsActivated() )
-                {
-                    pEntity->Deactivate( loadingContext );
-                }
-
-                pEntity->UnloadComponents( loadingContext );
-            }
-
-            KRG::Delete<EntityCollection>( m_pCollection );
-            m_status = Status::Unloaded;
-        }
-        else // Regular map flow
-        {
-            for ( auto pEntity : m_pCollection->GetEntities() )
-            {
-                if ( pEntity->IsActivated() )
-                {
-                    pEntity->Deactivate( loadingContext );
-                }
-            }
-
-            m_status = Status::Loaded;
-        }
-    }
-
     void EntityMap::OnEntityStateUpdated( Entity* pEntity )
     {
+        if ( pEntity->GetCollectionID() != m_pCollection->GetID() )
+        {
+            return;
+        }
 
+        KRG_ASSERT( FindEntity( pEntity->GetID() ) );
+        m_loadingEntities.emplace_back( pEntity );
     }
 }
