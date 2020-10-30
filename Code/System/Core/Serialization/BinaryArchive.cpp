@@ -1,6 +1,5 @@
 #include "BinaryArchive.h"
 #include "System/Core/Memory/Memory.h"
-#include "System/Core/Memory/MemoryStreamHelpers.h"
 #include <fstream>
 
 //-------------------------------------------------------------------------
@@ -9,91 +8,122 @@ namespace KRG
 {
     namespace Serialization
     {
-        BinaryArchive::BinaryArchive( Mode mode, FileSystemPath const& filePath )
+        BinaryFileArchive::BinaryFileArchive( Mode mode, FileSystemPath const& filePath )
             : m_filePath( filePath )
             , m_mode( mode )
         {
             KRG_ASSERT( m_filePath.IsFilePath() );
-            m_stream.m_pInStream = nullptr;
-            m_archive.m_pInputArchive = nullptr;
 
             if ( mode == Mode::Read )
             {
                 auto pFileStream = KRG::New<std::ifstream>();
                 pFileStream->open( m_filePath, std::ios::in | std::ios::binary );
-                m_stream.m_pInStream = pFileStream;
+                m_pStream = pFileStream;
 
                 if ( IsValid() )
                 {
-                    m_archive.m_pInputArchive = KRG::New<cereal::BinaryInputArchive>( *m_stream.m_pInStream );
+                    m_pArchive = KRG::New<cereal::BinaryInputArchive>( *pFileStream );
                 }
             }
             else // Write
             {
                 auto pFileStream = KRG::New<std::ofstream>();
                 pFileStream->open( m_filePath, std::ios::out | std::ios::trunc | std::ios::binary );
-                m_stream.m_pOutStream = pFileStream;
+                m_pStream = pFileStream;
 
                 if ( IsValid() )
                 {
-                    m_archive.m_pOutputArchive = KRG::New<cereal::BinaryOutputArchive>( *m_stream.m_pOutStream );
+                    m_pArchive = KRG::New<cereal::BinaryOutputArchive>( *pFileStream );
                 }
             }
         }
 
-        BinaryArchive::BinaryArchive( Mode mode, TVector<Byte>& data )
-            : m_mode( mode )
+        BinaryFileArchive::~BinaryFileArchive()
         {
-            m_stream.m_pInStream = nullptr;
-            m_archive.m_pInputArchive = nullptr;
+            if ( m_pArchive != nullptr )
+            {
+                if ( m_mode == Mode::Read )
+                {
+                    auto pInputArchive = reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
+                    KRG::Delete( pInputArchive );
+                }
+                else // Write
+                {
+                    auto pOutputArchive = reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
+                    KRG::Delete( pOutputArchive );
+                }
+            }
 
+            //-------------------------------------------------------------------------
+
+            if ( m_pStream != nullptr )
+            {
+                if ( m_mode == Mode::Read )
+                {
+                    auto pFileStream = reinterpret_cast<std::ifstream*>( m_pStream );
+                    KRG::Delete( pFileStream );
+                }
+                else // Write
+                {
+                    auto pFileStream = reinterpret_cast<std::ofstream*>( m_pStream );
+                    KRG::Delete( pFileStream );
+                }
+            }
+        }
+
+        bool BinaryFileArchive::IsValid() const
+        {
+            if ( m_mode == Mode::Read )
+            {
+                auto pFileStream = reinterpret_cast<std::ifstream*>( m_pStream );
+                return pFileStream != nullptr && !pFileStream->fail();
+            }
+            else // Write
+            {
+                auto pFileStream = reinterpret_cast<std::ofstream*>( m_pStream );
+                return pFileStream != nullptr && !pFileStream->fail();
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        BinaryMemoryArchive::BinaryMemoryArchive( Mode mode, TVector<Byte>& data )
+            : m_mode( mode )
+            , m_stream( data )
+        {
+            // Read
             if ( mode == Mode::Read )
             {
-                m_stream.m_pInStream = KRG::New<MemoryStream>( data );
-
                 if ( IsValid() )
                 {
-                    m_archive.m_pInputArchive = KRG::New<cereal::BinaryInputArchive>( *m_stream.m_pInStream );
+                    m_pArchive = KRG::New<cereal::BinaryInputArchive>( m_stream );
                 }
             }
             else // Write
             {
                 data.clear();
-                m_stream.m_pOutStream = KRG::New<MemoryStream>( data );
 
                 if ( IsValid() )
                 {
-                    m_archive.m_pOutputArchive = KRG::New<cereal::BinaryOutputArchive>( *m_stream.m_pOutStream );
+                    m_pArchive = KRG::New<cereal::BinaryOutputArchive>( m_stream );
                 }
             }
         }
 
-        BinaryArchive::~BinaryArchive()
+        BinaryMemoryArchive::~BinaryMemoryArchive()
         {
-            if ( IsValid() )
+            if ( m_pArchive != nullptr )
             {
                 if ( m_mode == Mode::Read )
                 {
-                    KRG::Delete( m_archive.m_pInputArchive );
-                    KRG::Delete( m_stream.m_pInStream );
+                    auto pInputArchive = reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
+                    KRG::Delete( pInputArchive );
                 }
                 else // Write
                 {
-                    KRG::Delete( m_archive.m_pOutputArchive );
-                    KRG::Delete( m_stream.m_pOutStream );
+                    auto pOutputArchive = reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
+                    KRG::Delete( pOutputArchive );
                 }
-            }
-        }
-
-        bool BinaryArchive::IsValid() const
-        {
-            if ( m_mode == Mode::Read )
-            {
-                return m_stream.m_pInStream != nullptr && !m_stream.m_pInStream->fail();
-            }
-            else // Write
-            {
-                return m_stream.m_pOutStream != nullptr && !m_stream.m_pOutStream->fail();
             }
         }
     }

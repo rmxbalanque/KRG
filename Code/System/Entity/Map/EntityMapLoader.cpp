@@ -17,7 +17,7 @@ namespace KRG::EntityModel
         m_pTypeRegistry = pTypeRegistry;
     }
 
-    bool EntityMapLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryArchive& archive ) const
+    bool EntityMapLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
     {
         KRG_ASSERT( archive.IsValid() && m_pTypeRegistry != nullptr );
 

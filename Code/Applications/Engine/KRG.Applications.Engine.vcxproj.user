@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-map data://maps/BR_Minimal.map</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-map data://maps/BR_Minimal.map</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-map data://maps/ecs_testmap.map</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-map data://maps/ecs_testmap.map</RemoteDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

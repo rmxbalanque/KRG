@@ -13,7 +13,7 @@ namespace KRG
             m_loadableTypes.push_back( Material::GetStaticResourceTypeID() );
         }
 
-        bool MaterialLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryArchive& archive ) const
+        bool MaterialLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
         {
             KRG_ASSERT( archive.IsValid() );
 

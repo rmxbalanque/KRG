@@ -6,7 +6,7 @@ namespace KRG
 {
     namespace Render
     {
-        bool ShaderLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryArchive& archive ) const
+        bool ShaderLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
         {
             KRG_ASSERT( m_pRenderDevice != nullptr && archive.IsValid() );
 

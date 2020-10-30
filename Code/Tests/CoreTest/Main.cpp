@@ -16,6 +16,8 @@
 
 #include "System/Render/RenderMaterial.h"
 #include "System/Core/Types/Event.h"
+#include "System/Core/Memory/MemoryStreamHelpers.h"
+#include "System/Core/Time/Timers.h"
 
 //-------------------------------------------------------------------------
 
@@ -179,13 +181,32 @@ int main( int argc, char *argv[] )
         }*/
 
 
-        String t = "data://dasdsadasddsadasadasdsadasdasdaadadsadasd adsadsaddas dsadasdasdasddsadasd asdasdasdasdasdasdasdasdsadsadas dsadassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss.map";
         TVector<Byte> arr;
+        String t = "data://dasdsadasddsadasadasdsadasdasdaadadsadasd adsadsaddas dsadasdasdasddsadasd asdasdasdasdasdasdasdasdsadsadas dsadassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss.map";
 
-        while ( true )
+        Timer perfTimer;
+        for ( auto i = 0; i < 100; i++ )
         {
-            TypeSystem::TypeValueConverter::ConvertStringToByteArray( TypeSystem::GetCoreTypeID( TypeSystem::CoreTypes::ResourceID ), t, arr );
+            Serialization::BinaryMemoryArchive archive( Serialization::Mode::Write, arr );
+
+            //Serialization::BinaryWriter archive( arr );
+            archive << t;
+
+            //-------------------------------------------------------------------------
+
+            /*auto pOutStream = KRG::New<MemoryStream>( arr );
+            auto pArchive = KRG::New<cereal::BinaryOutputArchive>( *pOutStream );
+            ( *pArchive ) << t;
+            KRG::Delete( pArchive );
+            KRG::Delete( pOutStream );*/
+
+            //-------------------------------------------------------------------------
+
+            arr.clear();
+            //arr.shrink_to_fit();
         }
+
+        Milliseconds elapsedTime = perfTimer.GetElapsedTimeMilliseconds();
 
         //-------------------------------------------------------------------------
 

@@ -4,6 +4,7 @@
 #include "Serialization.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
+#include "System/Core/Memory/MemoryStreamHelpers.h"
 #include <istream>
 #include <ostream>
 
@@ -47,25 +48,12 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        class KRG_SYSTEM_CORE_API BinaryArchive
+        class KRG_SYSTEM_CORE_API BinaryFileArchive
         {
-            union InternalArchive
-            {
-                cereal::BinaryInputArchive*                 m_pInputArchive;
-                cereal::BinaryOutputArchive*                m_pOutputArchive;
-            };
-
-            union InternalStream
-            {
-                std::istream*                               m_pInStream;
-                std::ostream*                               m_pOutStream;
-            };
-
         public:
 
-            BinaryArchive( Mode mode, FileSystemPath const& filePath );
-            BinaryArchive( Mode mode, TVector<Byte>& data );
-            ~BinaryArchive();
+            BinaryFileArchive( Mode mode, FileSystemPath const& filePath );
+            ~BinaryFileArchive();
 
             inline Mode GetMode() const { return m_mode; }
             inline bool IsReading() const { return m_mode == Mode::Read; }
@@ -74,18 +62,20 @@ namespace KRG
             bool IsValid() const;
 
             template<typename T>
-            inline BinaryArchive& operator<<( T&& type )
+            inline BinaryFileArchive& operator<<( T&& type )
             {
                 KRG_ASSERT( m_mode == Mode::Write );
-                ( *m_archive.m_pOutputArchive )( std::forward<T>( type ) );
+                auto& archive = *reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
+                archive << std::forward<T>( type );
                 return *this;
             }
 
             template<typename T>
-            inline BinaryArchive& operator>>( T&& type )
+            inline BinaryFileArchive& operator>>( T&& type )
             {
                 KRG_ASSERT( m_mode == Mode::Read );
-                ( *m_archive.m_pInputArchive )( std::forward<T>( type ) );
+                auto& archive = *reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
+                archive >> std::forward<T>( type );
                 return *this;
             }
 
@@ -93,8 +83,48 @@ namespace KRG
 
             FileSystemPath                                  m_filePath;
             Mode                                            m_mode;
-            InternalStream                                  m_stream;
-            InternalArchive                                 m_archive;
+            void*                                           m_pStream = nullptr;
+            void*                                           m_pArchive = nullptr;
+        };
+
+        //-------------------------------------------------------------------------
+
+        class KRG_SYSTEM_CORE_API BinaryMemoryArchive
+        {
+        public:
+
+            BinaryMemoryArchive( Mode mode, TVector<Byte>& data );
+            ~BinaryMemoryArchive();
+
+            inline Mode GetMode() const { return m_mode; }
+            inline bool IsReading() const { return m_mode == Mode::Read; }
+            inline bool IsWriting() const { return m_mode == Mode::Write; }
+
+            bool IsValid() const { return true; }
+
+            template<typename T>
+            inline BinaryMemoryArchive& operator<<( T&& type )
+            {
+                KRG_ASSERT( m_mode == Mode::Write );
+                auto& archive = *reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
+                archive << std::forward<T>( type );
+                return *this;
+            }
+
+            template<typename T>
+            inline BinaryMemoryArchive& operator>>( T&& type )
+            {
+                KRG_ASSERT( m_mode == Mode::Read );
+                auto& archive = *reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
+                archive >> std::forward<T>( type );
+                return *this;
+            }
+
+        private:
+
+            Mode                                            m_mode;
+            MemoryStream                                    m_stream;
+            void*                                           m_pArchive = nullptr;
         };
     }
 }

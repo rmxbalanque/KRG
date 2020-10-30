@@ -35,7 +35,7 @@ namespace KRG
             KRG_ASSERT( pMeshGeometry->m_indexBuffer.IsValid() );
         }
 
-        bool MeshLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryArchive& archive ) const
+        bool MeshLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
         {
             KRG_ASSERT( m_pRenderDevice != nullptr );
             KRG_ASSERT( archive.IsValid() );

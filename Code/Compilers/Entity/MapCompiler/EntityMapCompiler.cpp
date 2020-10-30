@@ -33,7 +33,7 @@ namespace KRG::EntityModel
         //-------------------------------------------------------------------------
 
         FileSystem::EnsurePathExists( ctx.m_outputFilePath );
-        Serialization::BinaryArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
+        Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
             archive << Resource::ResourceHeader( VERSION, EntityMapDescriptor::GetStaticResourceTypeID() ) << map;

@@ -13,7 +13,7 @@ namespace KRG
             m_loadableTypes.push_back( AnimationData::GetStaticResourceTypeID() );
         }
 
-        bool AnimationLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryArchive& archive ) const
+        bool AnimationLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
         {
             KRG_ASSERT( archive.IsValid() );
 

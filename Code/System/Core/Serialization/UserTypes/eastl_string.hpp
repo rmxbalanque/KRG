@@ -42,10 +42,7 @@ namespace cereal
     {
         // Save number of chars + the data
         ar( make_size_tag( static_cast<size_type>( str.size() ) ) );
-        for ( auto && c : str )
-        {
-            ar( c );
-        }
+        ar( binary_data( str.data(), str.size() * sizeof( CharT ) ) );
     }
 
     //! Serialization for basic_string types, if binary data is supported
@@ -56,11 +53,7 @@ namespace cereal
         size_type size;
         ar( make_size_tag( size ) );
         str.resize( static_cast<std::size_t>( size ) );
-
-        for ( auto && c : str )
-        {
-            ar( c );
-        }
+        ar( binary_data( const_cast<CharT *>( str.data() ), static_cast<std::size_t>( size ) * sizeof( CharT ) ) );
     }
 } // namespace cereal
 

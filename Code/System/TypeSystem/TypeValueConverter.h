@@ -32,14 +32,14 @@ namespace KRG
             template<typename T>
             inline static void ValueToByteArray( T const& value, TVector<Byte>& outArray )
             {
-                Serialization::BinaryArchive archive( Serialization::Mode::Write, outArray );
+                Serialization::BinaryMemoryArchive archive( Serialization::Mode::Write, outArray );
                 archive << value;
             }
 
             template<typename T>
             inline static void ByteArrayToValue( TVector<Byte> const& valueByteData, T& outValue )
             {
-                Serialization::BinaryArchive archive( Serialization::Mode::Read, const_cast<TVector<Byte>&>( valueByteData ) );
+                Serialization::BinaryMemoryArchive archive( Serialization::Mode::Read, const_cast<TVector<Byte>&>( valueByteData ) );
                 archive >> outValue;
             }
 

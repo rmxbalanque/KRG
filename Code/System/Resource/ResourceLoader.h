@@ -8,7 +8,7 @@
 
 namespace KRG
 {
-    namespace Serialization { class BinaryArchive; }
+    namespace Serialization { class BinaryMemoryArchive; }
 
     //-------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ namespace KRG
         protected:
 
             // (Required) Override this function to implement you custom deserialization and creation logic, resource header has already been read at this point
-            virtual bool LoadInternal( ResourceID const& resourceID, ResourceRecord* pResourceRecord, Serialization::BinaryArchive& archive ) const = 0;
+            virtual bool LoadInternal( ResourceID const& resourceID, ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const = 0;
 
             // (Optional) Override this function to implement any custom object destruction logic if needed, by default this will just delete the created resource
             virtual void UnloadInternal( ResourceID const& resourceID, ResourceRecord* pResourceRecord ) const;
