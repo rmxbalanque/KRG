@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #pragma  once
 
+#include "../_Module/API.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
 
 //-------------------------------------------------------------------------
@@ -13,7 +14,7 @@ namespace KRG
 
     namespace Physics
     {
-        struct PhysicsGeometryResourceDescriptor : public Resource::ResourceDescriptor
+        struct KRG_RESOURCECOMPILERS_PHYSICS_API PhysicsGeometryResourceDescriptor : public Resource::ResourceDescriptor
         {
             KRG_REGISTER_TYPE;
 

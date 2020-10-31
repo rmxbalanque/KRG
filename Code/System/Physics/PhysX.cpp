@@ -11,7 +11,7 @@ namespace KRG
     namespace Physics
     {
         Float3 const Constants::Gravity = Float3( 0, 0, -9.81f );
-        PhysX* PhysX::Core = nullptr;
+        PhysX* PhysX::Instance = nullptr;
         physx::PxPhysics* PhysX::Physics = nullptr;
 
         //-------------------------------------------------------------------------
@@ -43,53 +43,53 @@ namespace KRG
 
         void PhysX::Initialize()
         {
-            KRG_ASSERT( Core == nullptr );
-            Core = KRG::New<PhysX>();
+            KRG_ASSERT( Instance == nullptr );
+            Instance = KRG::New<PhysX>();
 
             //-------------------------------------------------------------------------
 
-            Core->m_pFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, Core->m_allocator, Core->m_errorCallback );
-            Core->m_pDispatcher = KRG::New<PhysXTaskDispatcher>();
+            Instance->m_pFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, Instance->m_allocator, Instance->m_errorCallback );
+            Instance->m_pDispatcher = KRG::New<PhysXTaskDispatcher>();
 
             #if KRG_DEBUG_INSTRUMENTATION
-            Core->m_pPVD = PxCreatePvd( *Core->m_pFoundation );
-            Core->m_pPVDTransport = PxDefaultPvdSocketTransportCreate( "127.0.0.1", 5425, 10 );
+            Instance->m_pPVD = PxCreatePvd( *Instance->m_pFoundation );
+            Instance->m_pPVDTransport = PxDefaultPvdSocketTransportCreate( "127.0.0.1", 5425, 10 );
             #endif
 
             PxTolerancesScale tolerancesScale;
             tolerancesScale.length = Constants::LengthScale;
             tolerancesScale.speed = Constants::SpeedScale;
-            Core->m_pPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *Core->m_pFoundation, tolerancesScale, true, Core->m_pPVD );
+            Instance->m_pPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *Instance->m_pFoundation, tolerancesScale, true, Instance->m_pPVD );
 
             //-------------------------------------------------------------------------
 
-            Physics = Core->m_pPhysics;
+            Physics = Instance->m_pPhysics;
         }
 
         void PhysX::Shutdown()
         {
-            KRG_ASSERT( Core != nullptr );
-            KRG_ASSERT( Core->m_pFoundation != nullptr && Core->m_pPhysics != nullptr && Core->m_pDispatcher != nullptr );
+            KRG_ASSERT( Instance != nullptr );
+            KRG_ASSERT( Instance->m_pFoundation != nullptr && Instance->m_pPhysics != nullptr && Instance->m_pDispatcher != nullptr );
 
             #if KRG_DEBUG_INSTRUMENTATION
-            KRG_ASSERT( !Core->m_pPVD->isConnected() );
+            KRG_ASSERT( !Instance->m_pPVD->isConnected() );
             #endif
 
             //-------------------------------------------------------------------------
 
             Physics = nullptr;
 
-            Core->m_pPhysics->release();
+            Instance->m_pPhysics->release();
 
             #if KRG_DEBUG_INSTRUMENTATION
-            Core->m_pPVDTransport->release();
-            Core->m_pPVD->release();
+            Instance->m_pPVDTransport->release();
+            Instance->m_pPVD->release();
             #endif
 
-            KRG::Delete( Core->m_pDispatcher );
-            Core->m_pFoundation->release();
+            KRG::Delete( Instance->m_pDispatcher );
+            Instance->m_pFoundation->release();
 
-            KRG::Delete( Core );
+            KRG::Delete( Instance );
         }
     }
 }

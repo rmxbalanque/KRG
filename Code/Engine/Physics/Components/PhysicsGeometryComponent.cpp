@@ -2,10 +2,5 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
-{
-    namespace Physics
-    {
-
-    }
-}
+namespace KRG::Physics
+{}

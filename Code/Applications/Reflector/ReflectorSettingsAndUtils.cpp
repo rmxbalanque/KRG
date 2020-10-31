@@ -15,6 +15,7 @@ namespace KRG
                 "KRG_REGISTER_ENUM",
                 "KRG_REGISTER_TYPE",
                 "KRG_REGISTER_RESOURCE",
+                "KRG_REGISTER_VIRTUAL_RESOURCE",
                 "KRG_REGISTER_ENTITY_COMPONENT",
                 "KRG_REGISTER_ENTITY_SYSTEM",
                 "EXPOSE",

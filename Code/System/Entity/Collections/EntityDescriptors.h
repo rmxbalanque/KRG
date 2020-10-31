@@ -96,6 +96,9 @@ namespace KRG::EntityModel
         inline bool IsRootComponent() const { KRG_ASSERT( m_isSpatialComponent ); return !m_spatialParentID.IsValid(); }
         inline bool HasSpatialParent() const { KRG_ASSERT( m_isSpatialComponent ); return m_spatialParentID.IsValid(); }
 
+        // Properties
+        void RemovePropertyValue( TypeSystem::PropertyPath const& path );
+
     public:
 
         UUID                                                        m_ID;

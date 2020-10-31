@@ -54,7 +54,7 @@ namespace KRG
                 String                              m_name;
                 TVector<VertexData>                 m_vertices;
                 TVector<U32>                        m_indices;
-                
+
                 bool                                m_clockwiseWinding = false;
             };
 

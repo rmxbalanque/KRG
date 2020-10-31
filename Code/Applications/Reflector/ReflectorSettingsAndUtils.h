@@ -32,6 +32,7 @@ namespace KRG
                 RegisterEnum,
                 RegisterType,
                 RegisterResource,
+                RegisterVirtualResource,
                 RegisterEntityComponent,
                 RegisterEntitySystem,
                 ExposeProperty,
@@ -114,7 +115,8 @@ namespace KRG
                     "Code\\System\\Core\\ThirdParty\\EA\\EASTL\\include\\",
                     "Code\\System\\Core\\ThirdParty\\",
                     "External\\PhysX\\pxshared\\include\\",
-                    "External\\PhysX\\physx\\include\\"
+                    "External\\PhysX\\physx\\include\\",
+                    "External\\NavPower\\include\\"
                 };
             }
 

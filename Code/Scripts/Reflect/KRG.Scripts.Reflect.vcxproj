@@ -14,7 +14,7 @@
     <None Include="Reflect.nmake" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Deploy\Deploy.vcxproj">
+    <ProjectReference Include="..\Deploy\KRG.Scripts.Deploy.vcxproj">
       <Project>{daca4cdd-0729-4016-81a6-a29225649cb6}</Project>
     </ProjectReference>
   </ItemGroup>

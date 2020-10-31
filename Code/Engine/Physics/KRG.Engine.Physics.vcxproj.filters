@@ -27,8 +27,8 @@
     <ClCompile Include="_Module\Module.cpp">
       <Filter>_Module</Filter>
     </ClCompile>
-    <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="Debug\PhysxDebugRenderer.cpp" />
+    <ClCompile Include="PhysicsSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -43,7 +43,7 @@
     <ClInclude Include="_Module\Module.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="Debug\PhysxDebugRenderer.h" />
+    <ClInclude Include="PhysicsSystem.h" />
   </ItemGroup>
 </Project>

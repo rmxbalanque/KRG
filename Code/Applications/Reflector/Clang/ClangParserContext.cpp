@@ -28,7 +28,7 @@ namespace KRG
             {
                 KRG_ASSERT( m_type < ReflectionMacro::NumMacros );
 
-                if ( type == ReflectionMacro::RegisterResource )
+                if ( type == ReflectionMacro::RegisterResource || type == ReflectionMacro::RegisterVirtualResource )
                 {
                     CXTranslationUnit translationUnit = clang_Cursor_getTranslationUnit( cursor );
 

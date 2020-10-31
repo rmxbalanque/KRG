@@ -80,6 +80,7 @@ namespace KRG
 
             // Compiler Info
             bool HasCompilerForType( ResourceTypeID typeID ) const;
+            bool IsVirtualResource( ResourceTypeID typeID ) const;
             S32 GetCompilerVersion( ResourceTypeID typeID ) const;
 
             // Request Actions

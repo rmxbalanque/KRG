@@ -182,6 +182,20 @@ namespace KRG
 
             return result;
         }
+
+        template<typename T>
+        KRG_FORCE_INLINE bool IsOdd( T n )
+        {
+            static_assert( std::numeric_limits<T>::is_integer, "Integer type required" );
+            return n % 2 != 0; 
+        }
+
+        template<typename T>
+        KRG_FORCE_INLINE bool IsEven( T n )
+        {
+            static_assert( std::numeric_limits<T>::is_integer, "Integer type required." );
+            return n % 2 == 0; 
+        }
     }
 
     //-------------------------------------------------------------------------

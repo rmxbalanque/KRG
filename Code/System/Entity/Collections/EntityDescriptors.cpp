@@ -43,4 +43,15 @@ namespace KRG::EntityModel
 
         return InvalidIndex;
     }
+
+    void EntityComponentDescriptor::RemovePropertyValue( TypeSystem::PropertyPath const& path )
+    {
+        for ( S32 i = (S32) m_propertyValues.size() - 1; i >= 0; i-- )
+        {
+            if ( m_propertyValues[i].m_path == path )
+            {
+                VectorEraseUnsorted( m_propertyValues, i );
+            }
+        }
+    }
 }

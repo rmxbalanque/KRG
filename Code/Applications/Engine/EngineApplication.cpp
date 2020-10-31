@@ -108,6 +108,11 @@ namespace KRG
             return FatalError( "Failed to initialize module" );
         }
 
+        if ( !m_module_engine_navmesh.Initialize( m_moduleContext ) )
+        {
+            return FatalError( "Failed to initialize module" );
+        }
+
         //-------------------------------------------------------------------------
 
         if ( !m_module_game_core.Initialize( m_moduleContext ) )
@@ -127,6 +132,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        m_module_engine_navmesh.Shutdown( m_moduleContext );
         m_module_engine_animation.Shutdown( m_moduleContext );
         m_module_engine_render.Shutdown( m_moduleContext );
         m_module_engine_physics.Shutdown( m_moduleContext );

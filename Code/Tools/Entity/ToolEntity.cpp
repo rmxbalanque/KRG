@@ -67,6 +67,21 @@ namespace KRG::EntityModel
     }
 
     //-------------------------------------------------------------------------
+    
+    void ToolEntity::UpdateWorldTransforms( Transform const& parentTransform )
+    {
+        KRG_ASSERT( IsSpatialEntity() );
+        auto pRootComponent = FindMutableComponent( m_rootComponentID );
+        auto const rootWorldTransform = pRootComponent->UpdateWorldTransform( parentTransform );
+
+        // Update all child entities
+        for ( auto pChildEntity : m_childEntities )
+        {
+            pChildEntity->UpdateWorldTransforms( rootWorldTransform );
+        }
+    }
+
+    //-------------------------------------------------------------------------
 
     void ToolEntity::AddComponent( ToolEntityComponent* pComponent )
     {

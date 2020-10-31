@@ -1,5 +1,5 @@
 #include "PhysicsDebugViewController.h"
-#include "Engine/Physics/PhysicsWorld.h"
+#include "Engine/Physics/PhysicsSystem.h"
 #include "System/Physics/PhysX.h"
 #include "System/Imgui/ImguiCore.h"
 
@@ -25,13 +25,13 @@ namespace KRG
             m_menuCallbacks.emplace_back( Debug::DebugMenuCallback( "Debug Options", "Physics", drawDebugMenu ) );
         }
 
-        void PhysicsDebugViewController::Initialize( PhysicsWorld* pPhysicsWorld )
+        void PhysicsDebugViewController::Initialize( PhysicsSystem* pPhysicsWorld )
         {
             KRG_ASSERT( pPhysicsWorld != nullptr );
             m_pPhysicsWorld = pPhysicsWorld;
         }
 
-        void PhysicsDebugViewController::Shutdown( PhysicsWorld* pPhysicsWorld )
+        void PhysicsDebugViewController::Shutdown( PhysicsSystem* pPhysicsWorld )
         {
             m_pPhysicsWorld = nullptr;
         }

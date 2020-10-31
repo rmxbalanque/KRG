@@ -14,6 +14,7 @@ namespace KRG
             String                              m_name;
             S32                                 m_version;
             TVector<ResourceTypeID>             m_outputTypes;
+            TVector<ResourceTypeID>             m_virtualTypes;
             FileSystemPath                      m_sourceModule;
         };
     }

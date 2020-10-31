@@ -21,7 +21,7 @@ namespace physx
 #if KRG_DEBUG_INSTRUMENTATION
 namespace KRG::Physics
 {
-    class PhysicsWorld;
+    class PhysicsSystem;
 
     //-------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ namespace KRG::Physics
     public:
 
         bool IsInitialized() const { return m_initialized; }
-        bool Initialize( Render::RenderDevice* pRenderDevice, Physics::PhysicsWorld* pPhysicsWorld );
+        bool Initialize( Render::RenderDevice* pRenderDevice, Physics::PhysicsSystem* pPhysicsWorld );
         void Shutdown();
         void Render( Math::Viewport const& viewport ) override final;
 
@@ -46,7 +46,7 @@ namespace KRG::Physics
     private:
 
         Render::RenderDevice*                       m_pRenderDevice = nullptr;
-        Physics::PhysicsWorld*                      m_pPhysicsWorld = nullptr;
+        Physics::PhysicsSystem*                      m_pPhysicsWorld = nullptr;
 
         Render::DebugLineRenderState                m_lineRS;
         Render::DebugPointRenderState               m_pointRS;

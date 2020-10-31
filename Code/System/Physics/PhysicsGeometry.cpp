@@ -2,13 +2,10 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Physics
 {
-    namespace Physics
+    bool PhysicsGeometry::IsValid() const
     {
-        bool PhysicsGeometry::IsValid() const
-        {
-            return false;
-        }
+        return true;
     }
 }

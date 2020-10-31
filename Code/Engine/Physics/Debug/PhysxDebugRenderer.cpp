@@ -1,5 +1,5 @@
 #include "PhysxDebugRenderer.h"
-#include "Engine/Physics/PhysicsWorld.h"
+#include "Engine/Physics/PhysicsSystem.h"
 #include "System/Physics/PhysX.h"
 #include "System/Core/Profiling/Profiling.h"
 
@@ -11,7 +11,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    bool PhysicsRenderer::Initialize( Render::RenderDevice* pRenderDevice, PhysicsWorld* pPhysicsWorld )
+    bool PhysicsRenderer::Initialize( Render::RenderDevice* pRenderDevice, PhysicsSystem* pPhysicsWorld )
     {
         KRG_ASSERT( m_pRenderDevice == nullptr && pRenderDevice != nullptr );
         m_pRenderDevice = pRenderDevice;

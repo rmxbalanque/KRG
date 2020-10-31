@@ -3,6 +3,10 @@
 
 //-------------------------------------------------------------------------
 
+namespace KRG::TypeSystem { class TypeRegistry; }
+
+//-------------------------------------------------------------------------
+
 namespace KRG::EntityModel
 {
     //-------------------------------------------------------------------------
@@ -87,6 +91,21 @@ namespace KRG::EntityModel
             {
                 return InvalidIndex;
             }
+        }
+
+        TVector<EntityComponentDescriptor*> GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes = true );
+        bool HasComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes = true ) { return !GetComponentsOfType( typeRegistry, typeID, allowDerivedTypes ).empty(); }
+
+        template<typename T>
+        inline TVector<EntityComponentDescriptor*> GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, bool allowDerivedTypes = true )
+        {
+            return GetComponentsOfType( typeRegistry, T::GetStaticTypeID(), allowDerivedTypes );
+        }
+
+        template<typename T>
+        inline TVector<EntityComponentDescriptor*> HasComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, bool allowDerivedTypes = true )
+        {
+            return HasComponentsOfType( typeRegistry, T::GetStaticTypeID(), allowDerivedTypes );
         }
 
     protected:

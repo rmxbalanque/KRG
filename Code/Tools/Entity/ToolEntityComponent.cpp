@@ -1,5 +1,6 @@
 #include "ToolEntityComponent.h"
 #include "System/Entity/EntitySpatialComponent.h"
+#include "System/Entity/Collections/EntityDescriptors.h"
 
 //-------------------------------------------------------------------------
 
@@ -12,21 +13,32 @@ namespace KRG::EntityModel
     {
         KRG_ASSERT( typeInstance.IsValid() && typeInstance.GetTypeInfo()->m_metadata.IsFlagSet( TypeSystem::ETypeInfoMetaData::EntityComponent ) );
         m_isSpatialComponent = typeInstance.GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() );
-
-        //-------------------------------------------------------------------------
-
-        static StringID const transformPropertyID( "m_transform" );
-        if ( m_isSpatialComponent )
-        {
-            auto pTransformProperty = m_typeInstance.GetProperty( transformPropertyID );
-            KRG_ASSERT( pTransformProperty != nullptr );
-            m_transform = pTransformProperty->GetValue<Transform>();
-        }
     }
 
     ToolEntityComponent::ToolEntityComponent( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo, UUID const& ID, StringID const& name )
         : ToolEntityComponent( TypeSystem::ToolTypeInstance( typeRegistry, pTypeInfo ), ID, name )
     {}
+
+    ToolEntityComponent::ToolEntityComponent( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo, EntityComponentDescriptor const& componentDesc )
+        : ToolEntityComponent( TypeSystem::ToolTypeInstance( typeRegistry, pTypeInfo ), componentDesc.m_ID, componentDesc.m_name )
+    {
+        for ( auto const& propertyDesc : componentDesc.m_propertyValues )
+        {
+            auto pPropertyInstance = GetProperty( propertyDesc.m_path, true );
+            if ( pPropertyInstance != nullptr )
+            {
+                pPropertyInstance->SetStringValue( propertyDesc.m_stringValue );
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( IsSpatialComponent() )
+        {
+            SetAttachmentSocketID( componentDesc.m_attachmentSocketID );
+            m_transform = GetTransformPropertyValue();
+        }
+    }
 
     ToolEntityComponent::~ToolEntityComponent()
     {
@@ -110,5 +122,31 @@ namespace KRG::EntityModel
 
            pComponent->GetAllChildComponentsOfType( componentTypeID, allowDerivedTypes, outFoundComponents );
        }
+   }
+
+   //-------------------------------------------------------------------------
+
+   Transform ToolEntityComponent::GetTransformPropertyValue() const
+   {
+       KRG_ASSERT( IsSpatialComponent() );
+       static StringID const transformPropertyID( "m_transform" );
+
+       //-------------------------------------------------------------------------
+
+       auto pTransformProperty = m_typeInstance.GetProperty( transformPropertyID );
+       KRG_ASSERT( pTransformProperty != nullptr );
+       return pTransformProperty->GetValue<Transform>();
+   }
+
+   void ToolEntityComponent::SetTransformPropertyValue( Transform const& transform )
+   {
+       KRG_ASSERT( IsSpatialComponent() );
+       static StringID const transformPropertyID( "m_transform" );
+
+       //-------------------------------------------------------------------------
+
+       auto pTransformProperty = m_typeInstance.GetProperty( transformPropertyID );
+       KRG_ASSERT( pTransformProperty != nullptr );
+       pTransformProperty->SetValue<Transform>( transform );
    }
 }

@@ -197,6 +197,8 @@ namespace KRG::TypeSystem
 
             KRG_ASSERT( currentJsonValue.IsObject() && currentJsonValue.HasMember( Serialization::TypeSerialization::Key_TypeID ) );
             TypeID const readTypeID( currentJsonValue[Serialization::TypeSerialization::Key_TypeID].GetString() );
+
+            // If you hit this the type in the JSON file and the type you are trying to deserialize do not match
             KRG_ASSERT( readTypeID == typeID );
 
             //-------------------------------------------------------------------------

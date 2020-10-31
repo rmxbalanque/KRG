@@ -266,7 +266,7 @@ namespace KRG::EntityModel
                 if ( m_pMapDesc->IsValid() )
                 {
                     // Create entities
-                    auto collectionArchive = m_pMapDesc->GetCollectionTemplate();
+                    auto collectionArchive = m_pMapDesc->GetCollection();
                     m_pCollection = KRG::New<EntityCollection>( *loadingContext.m_pTypeRegistry, m_pMapDesc->GetID(), collectionArchive );
                     m_loadingEntities.reserve( m_pCollection->GetEntities().size() );
                     KRG_ASSERT( m_pCollection != nullptr );

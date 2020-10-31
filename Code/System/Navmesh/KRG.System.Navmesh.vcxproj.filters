@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="_Module\API.h" />
+    <ClInclude Include="ResourceLoaders\NavmeshLoader.h" />
+    <ClInclude Include="NavmeshData.h" />
+    <ClInclude Include="NavPower.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ResourceLoaders\NavmeshLoader.cpp" />
+    <ClCompile Include="NavmeshData.cpp" />
+    <ClCompile Include="NavPower.cpp" />
+  </ItemGroup>
+</Project>

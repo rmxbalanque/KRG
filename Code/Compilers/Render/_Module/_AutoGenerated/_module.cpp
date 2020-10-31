@@ -16,16 +16,16 @@ void KRG::Render::ResourceCompilerModule::RegisterTypes( TypeSystem::TypeRegistr
 {
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::MaterialResourceDescriptor>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::SkeletalMeshResourceDescriptor>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::ShaderResourceDescriptor>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::TextureResourceDescriptor>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::StaticMeshResourceDescriptor>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::ShaderResourceDescriptor>::RegisterType( typeRegistry );
 }
 
 void KRG::Render::ResourceCompilerModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::ShaderResourceDescriptor>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::StaticMeshResourceDescriptor>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::TextureResourceDescriptor>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::ShaderResourceDescriptor>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::SkeletalMeshResourceDescriptor>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::MaterialResourceDescriptor>::UnregisterType( typeRegistry );
 }

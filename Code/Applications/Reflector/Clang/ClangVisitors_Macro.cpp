@@ -43,6 +43,10 @@ namespace KRG
                 {
                     pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterResource, cr, range ) );
                 }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterVirtualResource ) )
+                {
+                    pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterVirtualResource, cr, range ) );
+                }
 
                 return CXChildVisit_Continue;
             }

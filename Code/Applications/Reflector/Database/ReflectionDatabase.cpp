@@ -424,6 +424,7 @@ namespace KRG
                         header.m_headerID = StringID( sqlite3_column_int( pStatement, 1 ) );
                         header.m_className = (char const*) sqlite3_column_text( pStatement, 2 );
                         header.m_namespace = (char const*) sqlite3_column_text( pStatement, 3 );
+                        header.m_isVirtual = sqlite3_column_int( pStatement, 4 ) != 0;
                         m_resourceDescs.push_back( header );
                     }
                     if ( !IsValidSQLiteResult( sqlite3_finalize( pStatement ) ) )
@@ -518,7 +519,7 @@ namespace KRG
 
                 for ( auto const& resourceType : m_resourceDescs )
                 {
-                    if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `ResourceTypes`(`ResourceTypeID`,`HeaderID`,`ClassName`,`Namespace`) VALUES ( %u, %u, \"%s\",\"%s\");", (U32) resourceType.m_resourceTypeID, (U32) resourceType.m_headerID, resourceType.m_className.c_str(), resourceType.m_namespace.c_str() ) )
+                    if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `ResourceTypes`(`ResourceTypeID`,`HeaderID`,`ClassName`,`Namespace`,`IsVirtual`) VALUES ( %u, %u, \"%s\",\"%s\",%d);", (U32) resourceType.m_resourceTypeID, (U32) resourceType.m_headerID, resourceType.m_className.c_str(), resourceType.m_namespace.c_str(), resourceType.m_isVirtual ? 1 : 0 ) )
                     {
                         return false;
                     }
@@ -596,7 +597,7 @@ namespace KRG
                     return false;
                 }
 
-                if ( !ExecuteSimpleQuery( "CREATE TABLE IF NOT EXISTS `ResourceTypes` ( `ResourceTypeID` INTEGER, `HeaderID` INTEGER, `ClassName` TEXT, `Namespace` TEXT, PRIMARY KEY( `ResourceTypeID`) );" ) )
+                if ( !ExecuteSimpleQuery( "CREATE TABLE IF NOT EXISTS `ResourceTypes` ( `ResourceTypeID` INTEGER, `HeaderID` INTEGER, `ClassName` TEXT, `Namespace` TEXT, `IsVirtual` INTEGER, PRIMARY KEY( `ResourceTypeID`) );" ) )
                 {
                     return false;
                 }

@@ -7,8 +7,12 @@
       "Command": "Entity",
       "Items": [
         {
-          "Id": "b41cf02e-5f53-426f-ba14-97ecc4577227",
-          "Command": "-compile data://maps/BR_Minimal.nav"
+          "Id": "7d8391f1-5e52-4e7e-b49e-8c142d55b97f",
+          "Command": "-compile data://maps/br_full.map"
+        },
+        {
+          "Id": "f70fcfe5-b416-417d-acbe-761d66b29ce2",
+          "Command": "-compile data://maps/br_minimal.map"
         },
         {
           "Id": "3e350972-2b51-4550-9e06-be679782a3c3",

@@ -11,7 +11,7 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    class EntityMapCompiler : public Resource::Compiler
+    class EntityMapCompiler final : public Resource::Compiler
     {
         static const S32 VERSION = 1;
 

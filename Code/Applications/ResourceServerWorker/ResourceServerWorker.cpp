@@ -68,6 +68,7 @@ namespace KRG
             {
                 return CompilationResult::Failure;
             }
+            //-------------------------------------------------------------------------
 
             if ( !compileContext.m_inputFilePath.Exists() )
             {
@@ -78,13 +79,16 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             auto compilerTypeIter = m_compilerTypeMap.find( compileContext.m_resourceID.GetResourceTypeID() );
-            if ( compilerTypeIter != m_compilerTypeMap.end() )
+            if ( compilerTypeIter == m_compilerTypeMap.end() )
             {
-                return compilerTypeIter->second->Compile( compileContext );
+                KRG_LOG_ERROR( "ResourceServerWorker", "Cant find appropriate resource compiler for type: %u", compileContext.m_resourceID.GetResourceTypeID() );
+                return CompilationResult::Failure;
             }
 
-            KRG_LOG_ERROR( "ResourceServerWorker", "Cant find appropriate resource compiler for type: %u", compileContext.m_resourceID.GetResourceTypeID() );
-            return CompilationResult::Failure;
+            //-------------------------------------------------------------------------
+
+            auto pCompiler = compilerTypeIter->second;
+            return pCompiler->Compile( compileContext );
         }
     }
 }

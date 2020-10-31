@@ -330,6 +330,7 @@ namespace KRG
                         resource.m_headerID = headerID;
                         resource.m_className = cursorName;
                         resource.m_namespace = pContext->GetCurrentNamespace();
+                        resource.m_isVirtual = macro.m_type == ReflectionMacro::RegisterVirtualResource;
 
                         pContext->m_pDatabase->RegisterResource( &resource );
                     }

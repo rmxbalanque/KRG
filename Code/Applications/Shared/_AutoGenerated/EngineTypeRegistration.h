@@ -8,8 +8,9 @@
 #include "D:\Kruger\Code\Game\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 
 namespace KRG
 {
@@ -20,6 +21,7 @@ namespace KRG
             TypeSystem::RegisterCoreEntityTypes( typeRegistry );
 
             KRG::Engine::EngineModule::RegisterTypes( typeRegistry );
+            KRG::Navmesh::EngineModule::RegisterTypes( typeRegistry );
             KRG::Physics::EngineModule::RegisterTypes( typeRegistry );
             KRG::Render::EngineModule::RegisterTypes( typeRegistry );
             KRG::Animation::EngineModule::RegisterTypes( typeRegistry );
@@ -28,6 +30,7 @@ namespace KRG
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton"), ResourceTypeID( "SKEL" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationData"), ResourceTypeID( "ANIM" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor"), ResourceTypeID( "MAP" ) );
+            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Navmesh::NavmeshData"), ResourceTypeID( "NAV" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::SkeletalMesh"), ResourceTypeID( "SMSH" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::StaticMesh"), ResourceTypeID( "MSH" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::Shader"), ResourceTypeID( "SHDR" ) );
@@ -45,6 +48,7 @@ namespace KRG
             KRG::Animation::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Render::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Physics::EngineModule::UnregisterTypes( typeRegistry );
+            KRG::Navmesh::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Engine::EngineModule::UnregisterTypes( typeRegistry );
 
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsGeometry" ) );
@@ -56,6 +60,7 @@ namespace KRG
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::Shader" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::StaticMesh" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::SkeletalMesh" ) );
+            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Navmesh::NavmeshData" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationData" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton" ) );

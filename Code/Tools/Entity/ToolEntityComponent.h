@@ -9,6 +9,10 @@
 
 namespace KRG::EntityModel
 {
+    struct EntityComponentDescriptor;
+
+    //-------------------------------------------------------------------------
+
     class KRG_TOOLS_ENTITY_API ToolEntityComponent
     {
         friend class ToolEntity;
@@ -19,6 +23,7 @@ namespace KRG::EntityModel
         ToolEntityComponent() = default;
         ToolEntityComponent( TypeSystem::ToolTypeInstance const& typeInstance, UUID const& ID = UUID::GenerateID(), StringID const& name = StringID() );
         ToolEntityComponent( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo, UUID const& ID = UUID::GenerateID(), StringID const& name = StringID() );
+        ToolEntityComponent( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo, EntityComponentDescriptor const& componentDesc );
         ~ToolEntityComponent();
 
         //-------------------------------------------------------------------------
@@ -52,21 +57,29 @@ namespace KRG::EntityModel
         inline void SetLocalTransform( Transform const& transform )
         {
             KRG_ASSERT( m_isSpatialComponent );
-            KRG_UNIMPLEMENTED_FUNCTION(); // Set property value too
+            SetTransformPropertyValue( transform );
+
+            Transform const& parentWorldTransform = m_worldTransform * m_transform.GetInverse();
             m_transform = transform;
+            UpdateWorldTransform( parentWorldTransform );
         }
 
         inline Transform const& GetWorldTransform() const
         {
             KRG_ASSERT( m_isSpatialComponent );
-            return m_transform;
+            return m_worldTransform;
         }
 
         Transform const& UpdateWorldTransform( Transform const& parentTransform )
         {
             KRG_ASSERT( m_isSpatialComponent );
-            KRG_UNIMPLEMENTED_FUNCTION(); // Set property value too
             m_worldTransform = m_transform * parentTransform;
+
+            for ( auto pChildComponent : m_childComponents )
+            {
+                pChildComponent->UpdateWorldTransform( m_worldTransform );
+            }
+
             return m_worldTransform;
         }
 
@@ -98,6 +111,9 @@ namespace KRG::EntityModel
 
         void SetParentEntityID( UUID parentEntityID );
         void ClearParentEntityID();
+
+        Transform GetTransformPropertyValue() const;
+        void SetTransformPropertyValue( Transform const& transform );
 
     private:
 

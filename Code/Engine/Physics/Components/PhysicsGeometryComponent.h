@@ -14,27 +14,24 @@ namespace physx
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Physics
 {
-    namespace Physics
+    class PhysicsGeometry;
+
+    //-------------------------------------------------------------------------
+
+    class KRG_ENGINE_PHYSICS_API PhysicsGeometryComponent : public SpatialEntityComponent
     {
-        class PhysicsGeometry;
+        KRG_REGISTER_ENTITY_COMPONENT;
 
-        //-------------------------------------------------------------------------
+        friend class PhysicsSystem;
 
-        class KRG_ENGINE_PHYSICS_API PhysicsGeometryComponent : public SpatialEntityComponent
-        {
-            KRG_REGISTER_ENTITY_COMPONENT;
+    protected:
 
-            friend class PhysicsWorld;
+        EXPOSE TResourcePtr<PhysicsGeometry>        m_pPhysicsGeometry;
 
-        protected:
+    private:
 
-            EXPOSE TResourcePtr<PhysicsGeometry>        m_pPhysicsGeometry;
-
-        private:
-
-            physx::PxActor*                             m_pPhysicsActor = nullptr;
-        };
-    }
+        physx::PxActor*                             m_pPhysicsActor = nullptr;
+    };
 }

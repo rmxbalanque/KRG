@@ -34,7 +34,7 @@ namespace KRG
                 inline bool IsEntityComponentMacro() const { return m_type == ReflectionMacro::RegisterEntityComponent; }
                 inline bool IsEntitySystemMacro() const { return m_type == ReflectionMacro::RegisterEntitySystem; }
                 inline bool IsTypeMacro() const { return m_type == ReflectionMacro::RegisterType; }
-                inline bool IsResourceMacro() const { return m_type == ReflectionMacro::RegisterResource; }
+                inline bool IsResourceMacro() const { return m_type == ReflectionMacro::RegisterResource || m_type == ReflectionMacro::RegisterVirtualResource; }
                 inline bool IsEnumMacro() const { return m_type == ReflectionMacro::RegisterEnum; }
 
             public:

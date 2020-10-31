@@ -1,4 +1,5 @@
 #include "EntityCollectionDescriptor.h"
+#include "../../TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------
 
@@ -35,5 +36,35 @@ namespace KRG::EntityModel
                 m_entitySpatialAttachmentInfo.push_back( attachmentInfo );
             }
         }
+    }
+
+    TVector<EntityComponentDescriptor*> EntityCollectionDescriptor::GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes )
+    {
+        TVector<EntityComponentDescriptor*> foundComponents;
+
+        for ( auto& entityDesc : m_entityDescriptors )
+        {
+            for ( auto& componentDesc : entityDesc.m_components )
+            {
+                if ( componentDesc.m_typeID == typeID )
+                {
+                    foundComponents.emplace_back( &componentDesc );
+                }
+                else if ( allowDerivedTypes )
+                {
+                    auto pTypeInfo = typeRegistry.GetTypeInfo( componentDesc.m_typeID );
+                    KRG_ASSERT( pTypeInfo != nullptr );
+
+                    if ( pTypeInfo->IsDerivedFrom( typeID ) )
+                    {
+                        foundComponents.emplace_back( &componentDesc );
+                    }
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        return foundComponents;
     }
 }

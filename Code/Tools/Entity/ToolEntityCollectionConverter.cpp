@@ -41,32 +41,7 @@ namespace KRG::EntityModel
                 return nullptr;
             }
 
-            auto pCreatedComponent = KRG::New<ToolEntityComponent>( typeRegistry, pComponentTypeInfo, componentDesc.m_ID, componentDesc.m_name );
-
-            if ( componentDesc.IsSpatialComponent() )
-            {
-                pCreatedComponent->SetAttachmentSocketID( componentDesc.m_attachmentSocketID );
-            }
-
-            // Properties
-            //-------------------------------------------------------------------------
-
-            for ( auto const& propertyDesc : componentDesc.m_propertyValues )
-            {
-                auto pPropertyInstance = pCreatedComponent->GetProperty( propertyDesc.m_path, true );
-                if ( pPropertyInstance != nullptr )
-                {
-                    pPropertyInstance->SetStringValue( propertyDesc.m_stringValue );
-                }
-                else
-                {
-                    Warning( "Cant find property (%s) on component (%s) of type (%s)", propertyDesc.m_path.ToString().c_str(), componentDesc.m_ID.ToString().c_str(), componentDesc.m_typeID.GetAsStringID().c_str() );
-                }
-            }
-
-            //-------------------------------------------------------------------------
-
-            return pCreatedComponent;
+            return KRG::New<ToolEntityComponent>( typeRegistry, pComponentTypeInfo, componentDesc );
         }
 
         static ToolEntitySystem* CreateSystem( TypeSystem::TypeRegistry const& typeRegistry, EntitySystemDescriptor const& systemDesc )
@@ -282,12 +257,23 @@ namespace KRG::EntityModel
             }
         }
 
+        // Add all root spatial entities to the collection
         //-------------------------------------------------------------------------
 
-        // Add all root spatial entities to the collection
         for ( auto const& createdEntity : entities )
         {
             outCollection.AddEntity( createdEntity.m_pEntity );
+        }
+
+        // Update all world transforms
+        //-------------------------------------------------------------------------
+
+        for ( auto pEntity : outCollection.m_entities )
+        {
+            if ( pEntity->IsSpatialEntity() )
+            {
+                pEntity->UpdateWorldTransforms();
+            }
         }
 
         return true;

@@ -192,7 +192,7 @@ namespace KRG
 
         class KRG_SYSTEM_PHYSICS_API PhysX
         {
-            friend class PhysicsWorld;
+            friend class PhysicsSystem;
 
         public:
 
@@ -200,7 +200,7 @@ namespace KRG
 
         private:
 
-            static PhysX*                                   Core;
+            static PhysX*                                   Instance;
 
             static void Initialize();
             static void Shutdown();

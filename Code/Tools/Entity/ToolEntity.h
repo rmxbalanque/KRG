@@ -38,6 +38,7 @@ namespace KRG::EntityModel
         inline StringID GetAttachmentSocketID() const { return m_attachmentSocketID; }
         inline void SetAttachmentSocketID( StringID socketID ) { m_attachmentSocketID = socketID; }
         inline void ClearAttachmentSocketID() { m_attachmentSocketID = StringID(); }
+        void UpdateWorldTransforms( Transform const& parentTransform = Transform::Identity );
 
         // Component Interface
         //-------------------------------------------------------------------------

@@ -104,6 +104,7 @@ namespace KRG
         Physics::EngineModule                           m_module_engine_physics;
         Render::EngineModule                            m_module_engine_render;
         Animation::EngineModule                         m_module_engine_animation;
+        Navmesh::EngineModule                           m_module_engine_navmesh;
         Game::GameModule                                m_module_game_core;
 
         // Application data

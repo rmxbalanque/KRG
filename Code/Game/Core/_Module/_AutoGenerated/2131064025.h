@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::CustomizerTestComponent& type )
     {
-        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_meshIDs ), KRG_NVP( m_hairMeshIDs ), KRG_NVP( m_armorMeshIDs ), KRG_NVP( m_animationIDs ), KRG_NVP( m_materialIDs ), KRG_NVP( m_skeletonID ) );
+        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_meshIDs ), KRG_NVP( m_armorMeshIDs ), KRG_NVP( m_hairMeshIDs ), KRG_NVP( m_materialIDs ), KRG_NVP( m_animationIDs ), KRG_NVP( m_skeletonID ) );
     }
 
     //-------------------------------------------------------------------------
@@ -53,21 +53,6 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_hairMeshIDs" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceID" );
-            propertyInfo.m_parentTypeID = 209741102;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_hairMeshIDs;
-            propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_hairMeshIDs );
-            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_hairMeshIDs.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_hairMeshIDs.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
-            propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
-            propertyInfo.m_flags.SetAll( 2 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
-
-            //-------------------------------------------------------------------------
-
             propertyInfo.m_ID = StringID( "m_armorMeshIDs" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceID" );
             propertyInfo.m_parentTypeID = 209741102;
@@ -83,14 +68,14 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_animationIDs" );
+            propertyInfo.m_ID = StringID( "m_hairMeshIDs" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceID" );
             propertyInfo.m_parentTypeID = 209741102;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_animationIDs;
-            propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_animationIDs );
-            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_animationIDs.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_animationIDs.size();
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_hairMeshIDs;
+            propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_hairMeshIDs );
+            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_hairMeshIDs.data();
+            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_hairMeshIDs.size();
             propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
             propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
             propertyInfo.m_flags.SetAll( 2 );
@@ -106,6 +91,21 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_materialIDs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_materialIDs.data();
             propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_materialIDs.size();
+            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
+            propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
+            propertyInfo.m_flags.SetAll( 2 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_animationIDs" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceID" );
+            propertyInfo.m_parentTypeID = 209741102;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_animationIDs;
+            propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_animationIDs );
+            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_animationIDs.data();
+            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_animationIDs.size();
             propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
             propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
             propertyInfo.m_flags.SetAll( 2 );
@@ -224,16 +224,6 @@ namespace KRG
                         return (Byte*) &pActualType->m_meshIDs[arrayIdx];
                     }
 
-                    if ( arrayID == 1010763108 )
-                    {
-                        if ( ( arrayIdx + 1 ) >= pActualType->m_hairMeshIDs.size() )
-                        {
-                            pActualType->m_hairMeshIDs.resize( arrayIdx + 1 );
-                        }
-
-                        return (Byte*) &pActualType->m_hairMeshIDs[arrayIdx];
-                    }
-
                     if ( arrayID == 2453801430 )
                     {
                         if ( ( arrayIdx + 1 ) >= pActualType->m_armorMeshIDs.size() )
@@ -244,14 +234,14 @@ namespace KRG
                         return (Byte*) &pActualType->m_armorMeshIDs[arrayIdx];
                     }
 
-                    if ( arrayID == 1835784676 )
+                    if ( arrayID == 1010763108 )
                     {
-                        if ( ( arrayIdx + 1 ) >= pActualType->m_animationIDs.size() )
+                        if ( ( arrayIdx + 1 ) >= pActualType->m_hairMeshIDs.size() )
                         {
-                            pActualType->m_animationIDs.resize( arrayIdx + 1 );
+                            pActualType->m_hairMeshIDs.resize( arrayIdx + 1 );
                         }
 
-                        return (Byte*) &pActualType->m_animationIDs[arrayIdx];
+                        return (Byte*) &pActualType->m_hairMeshIDs[arrayIdx];
                     }
 
                     if ( arrayID == 363942725 )
@@ -262,6 +252,16 @@ namespace KRG
                         }
 
                         return (Byte*) &pActualType->m_materialIDs[arrayIdx];
+                    }
+
+                    if ( arrayID == 1835784676 )
+                    {
+                        if ( ( arrayIdx + 1 ) >= pActualType->m_animationIDs.size() )
+                        {
+                            pActualType->m_animationIDs.resize( arrayIdx + 1 );
+                        }
+
+                        return (Byte*) &pActualType->m_animationIDs[arrayIdx];
                     }
 
                     // We should never get here since we are asking for a ptr to an invalid property

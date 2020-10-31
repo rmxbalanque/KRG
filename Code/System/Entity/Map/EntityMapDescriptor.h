@@ -30,7 +30,7 @@ namespace KRG::EntityModel
         inline UUID GetID() const { return m_ID; }
         virtual bool IsValid() const override;
 
-        EntityCollectionDescriptor const& GetCollectionTemplate() const { return m_collectionTemplate; }
+        EntityCollectionDescriptor const& GetCollection() const { return m_collectionTemplate; }
 
     private:
 

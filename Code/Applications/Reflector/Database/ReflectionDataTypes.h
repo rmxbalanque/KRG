@@ -132,6 +132,7 @@ namespace KRG
                 HeaderID                                        m_headerID;
                 String                                          m_className;
                 String                                          m_namespace;
+                bool                                            m_isVirtual;
             };
         }
     }

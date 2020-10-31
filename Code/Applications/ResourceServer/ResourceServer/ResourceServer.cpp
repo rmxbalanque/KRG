@@ -79,7 +79,7 @@ namespace KRG
                         KRG_ASSERT( pResourceModule != nullptr );
                         for ( auto compiler : pResourceModule->GetRegisteredCompilers() )
                         {
-                            m_compilers.push_back( { compiler->GetName(), compiler->GetVersion(), compiler->GetOutputTypes(), compilerModule } );
+                            m_compilers.push_back( { compiler->GetName(), compiler->GetVersion(), compiler->GetOutputTypes(), compiler->GetVirtualTypes(), compilerModule } );
                         }
 
                         KRG::Delete( pResourceModule );
@@ -370,6 +370,18 @@ namespace KRG
             return false;
         }
 
+        bool ResourceServer::IsVirtualResource( ResourceTypeID typeID ) const
+        {
+            for ( auto const& compiler : m_compilers )
+            {
+                if ( VectorContains( compiler.m_virtualTypes, typeID ) )
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         S32 ResourceServer::GetCompilerVersion( ResourceTypeID typeID ) const
         {
             for ( auto const& compiler : m_compilers )
@@ -401,59 +413,68 @@ namespace KRG
                 pRequest->m_compilerArgs = pRequest->m_resourceID.GetDataPath().c_str();
 
                 // Resource type validity check
-                if ( !HasCompilerForType( pRequest->m_resourceID.GetResourceTypeID() ) )
+                ResourceTypeID const resourceTypeID = pRequest->m_resourceID.GetResourceTypeID();
+                if ( IsVirtualResource( resourceTypeID ) )
                 {
-                    pRequest->m_log = String().sprintf( "Error: No compiler found for resource type ( %s )!", pRequest->m_resourceID.ToString().c_str() );
-                    pRequest->m_status = CompilationRequest::Status::Failed;
+                    pRequest->m_log = String().sprintf( "Virtual Resource - Nothing to do!", pRequest->m_sourceFile.GetFullPath().c_str() );
+                    pRequest->m_status = CompilationRequest::Status::Succeeded;
                 }
-
-                // File Validity check
-                if( pRequest->m_status != CompilationRequest::Status::Failed )
+                else
                 {
-                    if ( !FileSystem::FileExists( pRequest->m_sourceFile ) )
+                    if ( !HasCompilerForType( resourceTypeID ) )
                     {
-                        pRequest->m_log = String().sprintf( "Error: Source file ( %s ) doesnt exist!", pRequest->m_sourceFile.GetFullPath().c_str() );
+                        pRequest->m_log = String().sprintf( "Error: No compiler found for resource type ( %s )!", pRequest->m_resourceID.ToString().c_str() );
                         pRequest->m_status = CompilationRequest::Status::Failed;
                     }
-                }
 
-                if ( pRequest->m_status != CompilationRequest::Status::Failed )
-                {
-                    if ( !FileSystem::EnsurePathExists( pRequest->m_destinationFile ) )
+                    // File Validity check
+                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
                     {
-                        pRequest->m_log = String().sprintf( "Error: Destination path ( %s ) doesnt exist!", pRequest->m_destinationFile.GetParentDirectory().c_str() );
-                        pRequest->m_status = CompilationRequest::Status::Failed;
-                    }
-                }
-
-                if ( pRequest->m_status != CompilationRequest::Status::Failed )
-                {
-                    if ( FileSystem::FileExists( pRequest->m_destinationFile ) && FileSystem::IsFileReadOnly( pRequest->m_destinationFile ) )
-                    {
-                        pRequest->m_log = String().sprintf( "Error: Destination file ( %s ) is read-only!", pRequest->m_destinationFile.GetFullPath().c_str() );
-                        pRequest->m_status = CompilationRequest::Status::Failed;
-                    }
-                }
-
-                TVector<DataPath> compileDependencies;
-
-                if ( pRequest->m_status != CompilationRequest::Status::Failed )
-                {
-                    // Try to read all the resource compile dependencies for non-map resources
-                    if ( pRequest->GetResourceID().GetResourceTypeID() != ResourceTypeID( "MAP" ) )
-                    {
-                        if ( !TryReadCompileDependencies( pRequest->m_sourceFile, compileDependencies, &pRequest->m_log ) )
+                        if ( !FileSystem::FileExists( pRequest->m_sourceFile ) )
                         {
-                            pRequest->m_log += "Error: failed to read compile dependencies!";
+                            pRequest->m_log = String().sprintf( "Error: Source file ( %s ) doesnt exist!", pRequest->m_sourceFile.GetFullPath().c_str() );
                             pRequest->m_status = CompilationRequest::Status::Failed;
                         }
                     }
-                }
 
-                // Run Up-to-date check
-                if ( pRequest->m_status != CompilationRequest::Status::Failed )
-                {
-                    PerformResourceUpToDateCheck( pRequest, compileDependencies );
+                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                    {
+                        if ( !FileSystem::EnsurePathExists( pRequest->m_destinationFile ) )
+                        {
+                            pRequest->m_log = String().sprintf( "Error: Destination path ( %s ) doesnt exist!", pRequest->m_destinationFile.GetParentDirectory().c_str() );
+                            pRequest->m_status = CompilationRequest::Status::Failed;
+                        }
+                    }
+
+                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                    {
+                        if ( FileSystem::FileExists( pRequest->m_destinationFile ) && FileSystem::IsFileReadOnly( pRequest->m_destinationFile ) )
+                        {
+                            pRequest->m_log = String().sprintf( "Error: Destination file ( %s ) is read-only!", pRequest->m_destinationFile.GetFullPath().c_str() );
+                            pRequest->m_status = CompilationRequest::Status::Failed;
+                        }
+                    }
+
+                    TVector<DataPath> compileDependencies;
+
+                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                    {
+                        // Try to read all the resource compile dependencies for non-map resources
+                        if ( pRequest->GetResourceID().GetResourceTypeID() != ResourceTypeID( "MAP" ) )
+                        {
+                            if ( !TryReadCompileDependencies( pRequest->m_sourceFile, compileDependencies, &pRequest->m_log ) )
+                            {
+                                pRequest->m_log += "Error: failed to read compile dependencies!";
+                                pRequest->m_status = CompilationRequest::Status::Failed;
+                            }
+                        }
+                    }
+
+                    // Run Up-to-date check
+                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                    {
+                        PerformResourceUpToDateCheck( pRequest, compileDependencies );
+                    }
                 }
             }
             else // Invalid resource ID

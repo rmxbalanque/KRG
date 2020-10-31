@@ -1,7 +1,6 @@
 #if _WIN32
 #include "Module.h"
 #include "Compilers/Entity/MapCompiler/EntityMapCompiler.h"
-#include "Compilers/Entity/NavmeshCompiler/NavmeshCompiler.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,7 +12,6 @@ namespace KRG
             : KRG::ResourceCompilerModule( "Resource.Entity" )
         {
             AddCompiler( KRG::New<EntityMapCompiler>() );
-            AddCompiler( KRG::New<NavmeshCompiler>() );
         }
     }
 }

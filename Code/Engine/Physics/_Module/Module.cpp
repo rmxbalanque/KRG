@@ -3,64 +3,61 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Physics
 {
-    namespace Physics
+    bool EngineModule::Initialize( ModuleContext& context )
     {
-        bool EngineModule::Initialize( ModuleContext& context )
+        m_physicsSystem.Initialize();
+
+        //-------------------------------------------------------------------------
+
+        context.RegisterResourceLoader( &m_physicsGeometryLoader );
+
+        //-------------------------------------------------------------------------
+
+        context.RegisterSystem( m_physicsSystem );
+        context.RegisterGlobalSystem( &m_physicsSystem );
+
+        #if KRG_DEBUG_INSTRUMENTATION
+        m_physicsRenderer.Initialize( context.GetRenderDevice(), &m_physicsSystem );
+        context.RegisterRenderer( &m_physicsRenderer );
+
+        m_physicsDebugViewController.Initialize( &m_physicsSystem );
+        context.RegisterDebugView( &m_physicsDebugViewController );
+        #endif
+
+        //-------------------------------------------------------------------------
+
+        m_initialized = true;
+        return m_initialized;
+    }
+
+    void EngineModule::Shutdown( ModuleContext& context )
+    {
+        if ( m_initialized )
         {
-            m_physicsWorld.Initialize();
-
-            //-------------------------------------------------------------------------
-
-            context.RegisterResourceLoader( &m_physicsGeometryLoader );
-
-            //-------------------------------------------------------------------------
-
-            context.RegisterSystem( m_physicsWorld );
-            context.RegisterGlobalSystem( &m_physicsWorld );
-
             #if KRG_DEBUG_INSTRUMENTATION
-            m_physicsRenderer.Initialize( context.GetRenderDevice(), &m_physicsWorld );
-            context.RegisterRenderer( &m_physicsRenderer );
+            context.UnregisterDebugView( &m_physicsDebugViewController );
+            m_physicsDebugViewController.Shutdown( &m_physicsSystem );
 
-            m_physicsDebugViewController.Initialize( &m_physicsWorld );
-            context.RegisterDebugView( &m_physicsDebugViewController );
+            context.UnregisterRenderer( &m_physicsRenderer );
+            m_physicsRenderer.Shutdown();
             #endif
 
-            //-------------------------------------------------------------------------
-
-            m_initialized = true;
-            return m_initialized;
-        }
-
-        void EngineModule::Shutdown( ModuleContext& context )
-        {
-            if( m_initialized )
-            {
-                #if KRG_DEBUG_INSTRUMENTATION
-                context.UnregisterDebugView( &m_physicsDebugViewController );
-                m_physicsDebugViewController.Shutdown( &m_physicsWorld );
-
-                context.UnregisterRenderer( &m_physicsRenderer );
-                m_physicsRenderer.Shutdown();
-                #endif
-
-                context.UnregisterGlobalSystem( &m_physicsWorld );
-                context.UnregisterSystem( m_physicsWorld );
-
-                //-------------------------------------------------------------------------
-
-                context.UnregisterResourceLoader( &m_physicsGeometryLoader );
-
-                //-------------------------------------------------------------------------
-
-                m_physicsWorld.Shutdown();
-            }
+            context.UnregisterGlobalSystem( &m_physicsSystem );
+            context.UnregisterSystem( m_physicsSystem );
 
             //-------------------------------------------------------------------------
 
-            m_initialized = false;
+            context.UnregisterResourceLoader( &m_physicsGeometryLoader );
+
+            //-------------------------------------------------------------------------
+
+            m_physicsSystem.Shutdown();
         }
+
+        //-------------------------------------------------------------------------
+
+        m_initialized = false;
     }
 }

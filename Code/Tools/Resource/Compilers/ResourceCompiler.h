@@ -97,7 +97,12 @@ namespace KRG
 
             String const& GetName() const { return m_name; }
             inline S32 GetVersion() const { return m_version; }
+            
+            // The list of resource type we can compile
             virtual TVector<ResourceTypeID> const& GetOutputTypes() const { return m_outputTypes; }
+
+            // The list of virtual resources we produce as part of the compilation process
+            virtual TVector<ResourceTypeID> const& GetVirtualTypes() const { return m_virtualTypes; }
 
         protected:
 
@@ -116,6 +121,7 @@ namespace KRG
             S32                         m_version;
             String                      m_name;
             TVector<ResourceTypeID>     m_outputTypes;
+            TVector<ResourceTypeID>     m_virtualTypes;
         };
     }
 }
