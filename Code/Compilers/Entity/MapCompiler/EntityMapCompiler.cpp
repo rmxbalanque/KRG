@@ -47,6 +47,7 @@ namespace KRG::EntityModel
             }
 
             // Remove any values for the navmesh resource property
+            // TODO: see if there is a smart way to avoid using strings for property access
             TypeSystem::PropertyPath const navmeshResourcePropertyPath( "m_pNavmeshData" );
             for ( auto i = navmeshComponents.size(); i > 0; i-- )
             {

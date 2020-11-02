@@ -9,11 +9,17 @@
 
 namespace KRG::TypeSystem
 {
+    class TypeRegistry;
+
+    //-------------------------------------------------------------------------
+
     struct KRG_SYSTEM_TYPESYSTEM_API PropertyDescriptor
     {
         KRG_SERIALIZE_MEMBERS( m_path, m_byteValue );
 
         PropertyDescriptor() = default;
+
+        inline bool IsValid() const { return m_path.IsValid() && !m_byteValue.empty(); }
 
         // Default byte value ctor
         //-------------------------------------------------------------------------
@@ -106,5 +112,26 @@ namespace KRG::TypeSystem
 
         TypeSystem::TypeID                                          m_typeID;
         TInlineVector<PropertyDescriptor, 6>                        m_propertyValues;
+    };
+
+    //-------------------------------------------------------------------------
+
+    class KRG_SYSTEM_TYPESYSTEM_API TypeCreator
+    {
+    public:
+
+        template<typename T>
+        inline static T* CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeDescriptor const& typeDesc )
+        {
+            auto pTypeInfo = typeRegistry.GetTypeInfo( typeDesc.m_typeID );
+            KRG_ASSERT( pTypeInfo != nullptr );
+            KRG_ASSERT( pTypeInfo->IsDerivedFrom<T>() );
+            auto pTypeInstance = CreateFromDescriptor( typeRegistry, *pTypeInfo, typeDesc );
+            return reinterpret_cast<T*>( pTypeInstance );
+        }
+
+    private:
+
+        static void* CreateFromDescriptor( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, TypeDescriptor const& typeDesc );
     };
 }

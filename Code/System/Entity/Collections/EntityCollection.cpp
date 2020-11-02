@@ -9,87 +9,6 @@
 
 namespace KRG::EntityModel
 {
-    template<typename T>
-    static void SetPropertyValue( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::PropertyDescriptor const& propertyValue, T* pRegisteredType )
-    {
-        KRG_ASSERT( pRegisteredType != nullptr );
-
-        TypeSystem::ResolvedPropertyInfo const resolvedPropertyInfo = typeRegistry.ResolvePropertyPath( pRegisteredType->GetTypeInfo(), propertyValue.m_path );
-        if ( !resolvedPropertyInfo.IsValid() )
-        {
-            KRG_LOG_WARNING( "Property Deserialization", "Unknown property encountered" );
-            return;
-        }
-
-        TypeSystem::PropertyInfo const* pPropertyInfo = resolvedPropertyInfo.m_pPropertyInfo;
-        Byte* pPropertyData = reinterpret_cast<Byte*>( pRegisteredType ) + resolvedPropertyInfo.m_offset;
-        Byte* pImmediateParent = pPropertyData - resolvedPropertyInfo.m_offset;
-
-        // Resolve array property overrides
-        //-------------------------------------------------------------------------
-
-        if ( pPropertyInfo->IsArrayProperty() )
-        {
-            KRG_ASSERT( propertyValue.m_path.GetLastElement().IsArrayElement() );
-            U32 const arrayIdx = propertyValue.m_path.GetLastElement().m_arrayElementIdx;
-
-            if ( pPropertyInfo->IsStaticArrayProperty() )
-            {
-                size_t const elementByteSize = typeRegistry.GetTypeByteSize( pPropertyInfo->m_typeID );
-                size_t const arrayElementOffset = elementByteSize * arrayIdx;
-                pPropertyData += arrayElementOffset;
-            }
-            else
-            {
-                auto pParentTypeInfo = typeRegistry.GetTypeInfo( pPropertyInfo->m_parentTypeID );
-                KRG_ASSERT( pParentTypeInfo != nullptr );
-                pPropertyData = pParentTypeInfo->m_pTypeHelper->GetDynamicArrayElementDataPtr( pImmediateParent, pPropertyInfo->m_ID, arrayIdx );
-            }
-        }
-
-        // Resolve enum string values
-        //-------------------------------------------------------------------------
-
-        if ( pPropertyInfo->IsEnumProperty() )
-        {
-            auto pEnumInfo = typeRegistry.GetEnumInfo( pPropertyInfo->m_typeID );
-            KRG_ASSERT( pEnumInfo != nullptr );
-
-            StringID const enumID = propertyValue.GetEnumValueID();
-            S64 const enumValue = pEnumInfo->GetConstantValue( enumID );
-
-            // TODO: make this more elegant
-            if ( pPropertyInfo->m_size == 1 )
-            {
-                S8 value = (S8) enumValue;
-                memcpy( pPropertyData, &value, pPropertyInfo->m_size );
-            }
-            else if ( pPropertyInfo->m_size == 2 )
-            {
-                S16 value = (S16) enumValue;
-                memcpy( pPropertyData, &value, pPropertyInfo->m_size );
-            }
-            if ( pPropertyInfo->m_size == 4 )
-            {
-                S32 value = (S32) enumValue;
-                memcpy( pPropertyData, &value, pPropertyInfo->m_size );
-            }
-            else // 64bit enum
-            {
-                memcpy( pPropertyData, &enumValue, pPropertyInfo->m_size );
-            }
-        }
-
-        // Type Conversion
-        //-------------------------------------------------------------------------
-        else
-        {
-            TypeSystem::TypeValueConverter::ConvertByteArrayToValue( pPropertyInfo->m_typeID, propertyValue.m_byteValue, pPropertyData );
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
     EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionTemplate )
         : m_ID( ID )
     {
@@ -167,7 +86,7 @@ namespace KRG::EntityModel
             TypeSystem::TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( componentDesc.m_typeID );
             KRG_ASSERT( pTypeInfo != nullptr );
 
-            auto pEntityComponent = reinterpret_cast<EntityComponent*>( pTypeInfo->m_pTypeHelper->CreateType() );
+            auto pEntityComponent = TypeSystem::TypeCreator::CreateTypeFromDescriptor<EntityComponent>( typeRegistry, componentDesc );
             KRG_ASSERT( pEntityComponent != nullptr );
 
             // Set IDs and add to component lists
@@ -175,12 +94,6 @@ namespace KRG::EntityModel
             pEntityComponent->m_name = componentDesc.m_name;
             pEntityComponent->m_entityID = pEntity->m_ID;
             pEntity->m_components.push_back( pEntityComponent );
-
-            // Apply property overrides
-            for ( auto const& propertyValue : componentDesc.m_propertyValues )
-            {
-                SetPropertyValue( typeRegistry, propertyValue, pEntityComponent );
-            }
 
             //-------------------------------------------------------------------------
 

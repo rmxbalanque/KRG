@@ -161,7 +161,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = KRG::EntityComponent::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
-                    //typeInfo.m_parentTypes.push_back( pParentType );
+                    typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register Type
                     //-------------------------------------------------------------------------

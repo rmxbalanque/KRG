@@ -98,6 +98,7 @@ namespace KRG::Navmesh
         auto foundPhysicsComponents = toolEntityCollection.GetAllComponentsOfType( Physics::PhysicsGeometryComponent::GetStaticTypeID() );
         for ( auto pPhysicsComponent : foundPhysicsComponents )
         {
+            // TODO: see if there is a smart way to avoid using strings for property access
             auto pProperty = pPhysicsComponent->GetProperty( TypeSystem::PropertyPath( "m_pPhysicsGeometry" ) );
             KRG_ASSERT( pProperty != nullptr );
 

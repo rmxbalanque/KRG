@@ -1,46 +1,46 @@
 #include "TypeInfo.h"
+#include "TypeDescriptors.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::TypeSystem
 {
-    namespace TypeSystem
+    bool TypeInfo::IsDerivedFrom( TypeID const potentialParentTypeID ) const
     {
-        bool TypeInfo::IsDerivedFrom( TypeID const parentTypeID ) const
+        if ( potentialParentTypeID == m_ID )
         {
-            if ( parentTypeID == m_ID )
+            return true;
+        }
+
+        for ( auto& actualParentTypeInfo : m_parentTypes )
+        {
+            if ( actualParentTypeInfo->m_ID == potentialParentTypeID )
             {
                 return true;
             }
 
-            for ( auto& parentTypeInfo : m_parentTypes )
+            // Check inheritance hierarchy
+            if ( actualParentTypeInfo->IsDerivedFrom( potentialParentTypeID ) )
             {
-                if ( parentTypeInfo->m_ID == parentTypeID )
-                {
-                    return true;
-                }
-
-                // Check inheritance hierarchy
-                if ( parentTypeInfo->IsDerivedFrom( parentTypeID ) )
-                {
-                    return true;
-                }
+                return true;
             }
-
-            return false;
         }
 
-        PropertyInfo const* TypeInfo::GetPropertyInfo( StringID propertyID ) const
+        return false;
+    }
+
+    //-------------------------------------------------------------------------
+
+    PropertyInfo const* TypeInfo::GetPropertyInfo( StringID propertyID ) const
+    {
+        PropertyInfo const* pProperty = nullptr;
+
+        auto propertyIter = m_properties.find( propertyID );
+        if ( propertyIter != m_properties.end() )
         {
-            PropertyInfo const* pProperty = nullptr;
-
-            auto propertyIter = m_properties.find( propertyID );
-            if ( propertyIter != m_properties.end() )
-            {
-                pProperty = &propertyIter->second;
-            }
-
-            return pProperty;
+            pProperty = &propertyIter->second;
         }
+
+        return pProperty;
     }
 }
