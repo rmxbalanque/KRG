@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="CoreTypeIDs.h" />
     <ClInclude Include="CoreTypeValidation.h" />
+    <ClInclude Include="TypeDescriptors.h" />
     <ClInclude Include="EnumInfo.h" />
     <ClInclude Include="ITypeHelper.h" />
     <ClInclude Include="PropertyInfo.h" />
@@ -34,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreTypeIDs.cpp" />
+    <ClCompile Include="TypeDescriptors.cpp" />
     <ClCompile Include="PropertyInfo.cpp" />
     <ClCompile Include="PropertyPath.cpp" />
     <ClCompile Include="TypeInfo.cpp" />

@@ -9,7 +9,7 @@
 #include "Tools/Entity/ToolEntityCollection.h"
 #include <directxmath.h>
 #include "System/TypeSystem/CoreTypeValidation.h"
-#include "System/Entity/Collections/EntityDescriptors.h"
+#include "System/Entity/EntityDescriptors.h"
 #include "System/Core/Types/UUID.h"
 #include "Game/Core/PlayerController/DefaultPlayerController.h"
 #include "System/Core/Serialization/BinaryArchive.h"

@@ -3,7 +3,7 @@
 #include "API.h"
 #include "Engine/Navmesh/NavmeshSystem.h"
 #include "Engine/Navmesh/Debug/NavmeshDebugViewController.h"
-#include "System/Navmesh/ResourceLoaders/NavmeshLoader.h"
+#include "Engine/Navmesh/ResourceLoaders/NavmeshLoader.h"
 #include "Engine/Core/Modules/IEngineModule.h"
 
 //-------------------------------------------------------------------------

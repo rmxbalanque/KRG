@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Navmesh/NavmeshData.h"
+#include "Engine/Navmesh/NavmeshData.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Entity/EntitySpatialComponent.h"
 

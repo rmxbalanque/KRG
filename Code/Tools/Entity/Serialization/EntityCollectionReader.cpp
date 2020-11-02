@@ -56,12 +56,12 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            static void ReadPropertyValue( ParsingContext& ctx, rapidjson::Value::ConstMemberIterator memberIter, PropertyDescriptor& outPropertyDesc )
+            static void ReadPropertyValue( ParsingContext& ctx, rapidjson::Value::ConstMemberIterator memberIter, TypeSystem::PropertyDescriptor& outPropertyDesc )
             {
-                outPropertyDesc = PropertyDescriptor( TypeSystem::PropertyPath( memberIter->name.GetString() ), memberIter->value.GetString() );
+                outPropertyDesc = TypeSystem::PropertyDescriptor( TypeSystem::PropertyPath( memberIter->name.GetString() ), memberIter->value.GetString() );
             }
 
-            static bool ReadAndConvertPropertyValue( ParsingContext& ctx, TypeSystem::TypeInfo const* pTypeInfo, rapidjson::Value::ConstMemberIterator memberIter, PropertyDescriptor& outPropertyDesc )
+            static bool ReadAndConvertPropertyValue( ParsingContext& ctx, TypeSystem::TypeInfo const* pTypeInfo, rapidjson::Value::ConstMemberIterator memberIter, TypeSystem::PropertyDescriptor& outPropertyDesc )
             {
                 ReadPropertyValue( ctx, memberIter, outPropertyDesc );
 
@@ -135,7 +135,7 @@ namespace KRG
                     return Error( "Invalid entity component type ID detected for entity (%s): %s", ctx.m_parsingContextID.ToString().c_str(), outComponentDesc.m_typeID.GetAsStringID().c_str() );
                 }
 
-                outComponentDesc.m_isSpatialComponent = pTypeInfo->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() );
+                outComponentDesc.m_isSpatialComponent = pTypeInfo->IsDerivedFrom<SpatialEntityComponent>();
 
                 if ( outComponentDesc.m_isSpatialComponent )
                 {
@@ -155,7 +155,7 @@ namespace KRG
 
                 // Reserve memory for all property (+1 extra slot) and create an empty desc
                 outComponentDesc.m_propertyValues.reserve( componentTypeDataObject.Size() );
-                outComponentDesc.m_propertyValues.push_back( PropertyDescriptor() );
+                outComponentDesc.m_propertyValues.push_back( TypeSystem::PropertyDescriptor() );
 
                 // Read all properties
                 for ( auto itr = componentTypeDataObject.MemberBegin(); itr != componentTypeDataObject.MemberEnd(); ++itr )
@@ -169,7 +169,7 @@ namespace KRG
                     // If we successfully read the property value add a new property value
                     if ( ReadAndConvertPropertyValue( ctx, pTypeInfo, itr, outComponentDesc.m_propertyValues.back() ) )
                     {
-                        outComponentDesc.m_propertyValues.push_back( PropertyDescriptor() );
+                        outComponentDesc.m_propertyValues.push_back( TypeSystem::PropertyDescriptor() );
                     }
                 }
 

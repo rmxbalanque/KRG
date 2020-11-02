@@ -2,7 +2,7 @@
 #include "AnimSkeletonCompiler.h"
 #include "Tools/Resource/RawAssets/RawSkeleton.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
-#include "System/Animation/AnimationSkeleton.h"
+#include "Engine/Animation/AnimationSkeleton.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/Memory/Pointers.h"

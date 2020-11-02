@@ -3,7 +3,6 @@
 #include "Tools/Entity/Serialization/EntityCollectionReader.h"
 #include "System/Entity/Map/EntityMapDescriptor.h"
 #include "Engine/Navmesh/Components/NavmeshComponent.h"
-#include "System/Navmesh/NavmeshData.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"
 
@@ -57,7 +56,7 @@ namespace KRG::EntityModel
             // Set navmesh resource ptr
             DataPath navmeshResourceDataPath = ctx.m_resourceID.GetDataPath();
             navmeshResourceDataPath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
-            navmeshComponents[0]->m_propertyValues.emplace_back( PropertyDescriptor( navmeshResourcePropertyPath, TypeSystem::GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), navmeshResourceDataPath.c_str() ) );
+            navmeshComponents[0]->m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( TypeSystem::CoreTypes::TResourcePtr, navmeshResourcePropertyPath, navmeshResourceDataPath.c_str() ) );
 
             // Generate navmesh
             auto navmeshResourcePath = ctx.m_outputFilePath;

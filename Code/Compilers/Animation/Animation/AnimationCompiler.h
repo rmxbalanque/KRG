@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
-#include "System/Animation/AnimationSkeleton.h"
+#include "Engine/Animation/AnimationSkeleton.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Memory/Pointers.h"
 

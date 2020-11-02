@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Physics/PhysicsGeometry.h"
+#include "Engine/Physics/PhysicsGeometry.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Entity/EntitySpatialComponent.h"
 

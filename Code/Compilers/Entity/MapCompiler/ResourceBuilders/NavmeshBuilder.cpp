@@ -5,14 +5,13 @@
 #include "Tools/Entity/ToolEntityCollectionConverter.h"
 #include "Tools/Entity/ToolEntityCollection.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
-#include "System/Navmesh/NavmeshData.h"
-#include "System/Navmesh/NavPower.h"
+#include "Engine/Navmesh/NavPower.h"
+#include "Engine/Navmesh/NavmeshData.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Entity/Collections/EntityCollectionDescriptor.h"
 #include "Engine/Physics/Components/PhysicsGeometryComponent.h"
 
 #include <bfxSystem.h>
-#include "../../../../System/Core/Time/Timers.h"
 
 //-------------------------------------------------------------------------
 
@@ -211,7 +210,7 @@ namespace KRG::Navmesh
         //-------------------------------------------------------------------------
 
         bfx::CustomAllocator* pAllocator = bfx::CreateDLMallocAllocator();
-        bfx::SystemCreate( bfx::SystemParams( 2.0f, bfx::Z_UP ), pAllocator );
+        bfx::SystemCreate( bfx::SystemParams( 1.0f, bfx::Z_UP ), pAllocator );
         bfx::RegisterBuilderSystem();
         bfx::SystemStart();
 
@@ -231,7 +230,7 @@ namespace KRG::Navmesh
         buildParams.m_dropOffRadius = 0.2f;
         buildParams.m_maxWalkableSlope = 45.0f;
         buildParams.m_leaveSmallIslandsTouchingPortals = true;
-        buildParams.m_minIslandSurfaceArea = 4.f;
+        buildParams.m_minIslandSurfaceArea = 16.f;
         buildParams.m_useEnhancedTerrainTracking = true;
         buildParams.m_tessellateForPathingAccuracy = false;
 

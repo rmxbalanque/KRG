@@ -7,7 +7,7 @@
 #include "Engine/Core/DebugUI/DebugViews/SystemDebugViewController.h"
 #include "Engine/Core/Camera/CameraDebugViewController.h"
 #include "System/Imgui/Renderer/ImguiRenderer.h"
-#include "System/Entity/Map/EntityMapLoader.h"
+#include "System/Entity/ResourceLoaders/EntityMapLoader.h"
 
 //-------------------------------------------------------------------------
 

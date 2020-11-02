@@ -6,10 +6,10 @@
 #include "Engine/Render/Renderers/StaticMeshRenderer.h"
 #include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
 #include "System/Render/DebugRenderer/DebugRenderer.h"
-#include "System/Render/ResourceLoaders/MeshLoader.h"
-#include "System/Render/ResourceLoaders/ShaderLoader.h"
-#include "System/Render/ResourceLoaders/TextureLoader.h"
-#include "System/Render/ResourceLoaders/MaterialLoader.h"
+#include "Engine/Render/ResourceLoaders/MeshLoader.h"
+#include "Engine/Render/ResourceLoaders/ShaderLoader.h"
+#include "Engine/Render/ResourceLoaders/TextureLoader.h"
+#include "Engine/Render/ResourceLoaders/MaterialLoader.h"
 
 //-------------------------------------------------------------------------
 

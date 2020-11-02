@@ -31,8 +31,8 @@
     <ClInclude Include="EntityTypeHelpers.h" />
     <ClInclude Include="EntityWorld.h" />
     <ClInclude Include="EntityGlobalSystem.h" />
-    <ClInclude Include="Map\EntityMapLoader.h" />
-    <ClInclude Include="Collections\EntityDescriptors.h" />
+    <ClInclude Include="ResourceLoaders\EntityMapLoader.h" />
+    <ClInclude Include="EntityDescriptors.h" />
     <ClInclude Include="Collections\EntityCollection.h" />
     <ClInclude Include="Map\EntityMap.h" />
     <ClInclude Include="_Module\API.h" />
@@ -47,8 +47,8 @@
     <ClCompile Include="EntityTypeHelpers.cpp" />
     <ClCompile Include="EntityWorld.cpp" />
     <ClCompile Include="EntityGlobalSystem.cpp" />
-    <ClCompile Include="Map\EntityMapLoader.cpp" />
-    <ClCompile Include="Collections\EntityDescriptors.cpp" />
+    <ClCompile Include="ResourceLoaders\EntityMapLoader.cpp" />
+    <ClCompile Include="EntityDescriptors.cpp" />
     <ClCompile Include="Collections\EntityCollection.cpp" />
     <ClCompile Include="Map\EntityMap.cpp" />
   </ItemGroup>

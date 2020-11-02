@@ -1,6 +1,7 @@
 #pragma once
 
 #include "_Module/API.h"
+#include "PhysX.h"
 #include "System/Entity/EntityGlobalSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
@@ -40,7 +41,7 @@ namespace KRG::Physics
         void Initialize();
         void Shutdown();
 
-        // Get the primary physics scene
+        inline physx::PxPhysics* GetPhysics() { return m_pPhysics; }
         inline physx::PxScene* GetScene() { return m_pScene; }
 
         //-------------------------------------------------------------------------
@@ -71,14 +72,24 @@ namespace KRG::Physics
 
     private:
 
+        PhysXAllocator                                  m_allocator;
+        PhysXUserErrorCallback                          m_errorCallback;
+        physx::PxFoundation*                            m_pFoundation = nullptr;
+        physx::PxPhysics*                               m_pPhysics = nullptr;
+        physx::PxCpuDispatcher*                         m_pDispatcher = nullptr;
+
         physx::PxScene*                                 m_pScene = nullptr;
         physx::PxSimulationEventCallback*               m_pEventCallbackHandler = nullptr;
 
         #if KRG_DEBUG_INSTRUMENTATION
+        physx::PxPvd*                                   m_pPVD = nullptr;
+        physx::PxPvdTransport*                          m_pPVDTransport = nullptr;
         Seconds                                         m_recordingTimeLeft = -1.0f;
         U32                                             m_debugFlags = 0;
         F32                                             m_debugDrawDistance = 10.0f;
         #endif
+
+        //-------------------------------------------------------------------------
 
         EntityRegistry<RegisteredGeometryComponent>     m_geometryComponents;
     };

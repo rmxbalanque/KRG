@@ -81,8 +81,8 @@
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\System\Animation\KRG.System.Animation.vcxproj">
-      <Project>{9723761b-a846-4a27-bbfd-3620536c8f9b}</Project>
+    <ProjectReference Include="..\..\Engine\Animation\KRG.Engine.Animation.vcxproj">
+      <Project>{6e63a255-0e1a-4d43-b225-376b5a6c757e}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>

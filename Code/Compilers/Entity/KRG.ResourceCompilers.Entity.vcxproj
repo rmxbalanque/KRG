@@ -88,12 +88,6 @@
     <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
       <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\System\Navmesh\KRG.System.Navmesh.vcxproj">
-      <Project>{4c0bfc70-f8c5-4847-bb0b-8996daa978ef}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\Physics\KRG.System.Physics.vcxproj">
-      <Project>{059ff8ed-9789-4fcd-a629-c27bc9e59d39}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\System\Resource\KRG.System.Resource.vcxproj">
       <Project>{7870de8e-6569-4857-93f9-b1abc1fc0543}</Project>
     </ProjectReference>

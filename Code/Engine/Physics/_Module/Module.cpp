@@ -11,6 +11,7 @@ namespace KRG::Physics
 
         //-------------------------------------------------------------------------
 
+        m_physicsGeometryLoader.SetPhysics( m_physicsSystem.GetPhysics() );
         context.RegisterResourceLoader( &m_physicsGeometryLoader );
 
         //-------------------------------------------------------------------------
@@ -50,6 +51,7 @@ namespace KRG::Physics
             //-------------------------------------------------------------------------
 
             context.UnregisterResourceLoader( &m_physicsGeometryLoader );
+            m_physicsGeometryLoader.ClearPhysics();
 
             //-------------------------------------------------------------------------
 

@@ -25,6 +25,10 @@ namespace KRG
 
         static UpdatePriorityList const PriorityList;
 
+    public:
+
+        virtual U32 GetEntitySystemID() const = 0;
+
     protected:
 
         // Get the required update stages and priorities for this component
@@ -49,9 +53,11 @@ namespace KRG
 
 //-------------------------------------------------------------------------
 
-#define KRG_ENTITY_GLOBAL_SYSTEM( Type ) \
-        static UpdatePriorityList const PriorityList;\
-        virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { return Type::PriorityList; };
+#define KRG_ENTITY_GLOBAL_SYSTEM( Type )\
+    constexpr static U32 const EntitySystemID = Hash::FNV1a::GetHash32( #Type );\
+    virtual U32 GetEntitySystemID() const override final { return Type::EntitySystemID; }\
+    static UpdatePriorityList const PriorityList;\
+    virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { return Type::PriorityList; };
 
 //-------------------------------------------------------------------------
 // Entity registry

@@ -90,7 +90,7 @@ namespace KRG
             }
             else
             {
-                if ( m_pTypeInfo->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) )
+                if ( m_pTypeInfo->IsDerivedFrom<SpatialEntityComponent>() )
                 {
                     return KIcon( MaterialDesign::Earth, QColor( 255, 0, 255 ) );
                 }

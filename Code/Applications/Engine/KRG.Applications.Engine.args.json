@@ -4,6 +4,10 @@
   "Items": [
     {
       "Id": "f3400ea7-207f-4026-842b-3f8d4b1f6f6a",
+      "Command": "-map data://maps/br_nav.map"
+    },
+    {
+      "Id": "f38484d2-a77c-4ca1-a101-c89f8394d723",
       "Command": "-map data://maps/br_minimal.map"
     },
     {

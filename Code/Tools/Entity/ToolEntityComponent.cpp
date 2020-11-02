@@ -1,6 +1,6 @@
 #include "ToolEntityComponent.h"
 #include "System/Entity/EntitySpatialComponent.h"
-#include "System/Entity/Collections/EntityDescriptors.h"
+#include "System/Entity/EntityDescriptors.h"
 
 //-------------------------------------------------------------------------
 
@@ -12,7 +12,7 @@ namespace KRG::EntityModel
         , m_name( name )
     {
         KRG_ASSERT( typeInstance.IsValid() && typeInstance.GetTypeInfo()->m_metadata.IsFlagSet( TypeSystem::ETypeInfoMetaData::EntityComponent ) );
-        m_isSpatialComponent = typeInstance.GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() );
+        m_isSpatialComponent = typeInstance.GetTypeInfo()->IsDerivedFrom<SpatialEntityComponent>();
     }
 
     ToolEntityComponent::ToolEntityComponent( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo, UUID const& ID, StringID const& name )

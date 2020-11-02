@@ -10,7 +10,7 @@
 namespace KRG::EntityModel
 {
     template<typename T>
-    static void SetPropertyValue( TypeSystem::TypeRegistry const& typeRegistry, PropertyDescriptor const& propertyValue, T* pRegisteredType )
+    static void SetPropertyValue( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::PropertyDescriptor const& propertyValue, T* pRegisteredType )
     {
         KRG_ASSERT( pRegisteredType != nullptr );
 

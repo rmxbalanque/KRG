@@ -1,5 +1,5 @@
 #include "SimpleAnimationComponent.h"
-#include "System/Animation/AnimationPose.h"
+#include "Engine/Animation/AnimationPose.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Settings/DebugSettings.h"
 

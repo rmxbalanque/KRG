@@ -1,7 +1,7 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "System/Navmesh/NavPower.h"
+#include "Engine/Navmesh/NavPower.h"
 #include "System/Entity/EntityGlobalSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
@@ -28,27 +28,6 @@ namespace KRG::Navmesh
             UUID    m_componentID;
             char*   m_pNavmesh;
         };
-
-        #if KRG_DEBUG_INSTRUMENTATION
-        class NavmeshDebugRenderer final : public bfx::Renderer
-        {
-
-        public:
-
-            inline void SetDebugDrawingSystem( Debug::DrawingSystem* pDebugDrawingSystem ) { m_pDebugDrawingSystem = pDebugDrawingSystem; }
-
-        private:
-
-            virtual void DrawLineList( bfx::LineSegment const* pLines, U32 numLines, bfx::Color const& color ) override;
-            virtual void DrawTriList( bfx::Triangle const* pTris, U32 numTris, bfx::Color const& color ) override;
-            virtual void DrawString( bfx::Color const& color, char const* str ) override;
-            virtual void DrawString( bfx::Color const& color, bfx::Vector3 const& pos, char const* str ) override;
-
-        private:
-
-            Debug::DrawingSystem*                       m_pDebugDrawingSystem = nullptr;
-        };
-        #endif
 
     public:
 
@@ -78,9 +57,10 @@ namespace KRG::Navmesh
 
         EntityRegistry<RegisteredNavmeshComponent>      m_navmeshComponents;
         TVector<RegisteredNavmesh>                      m_registeredNavmeshes;
+        NavPowerAllocator                               m_allocator;
 
         #if KRG_DEBUG_INSTRUMENTATION
-        NavmeshDebugRenderer                            m_debugRenderer;
+        NavPowerRenderer                                m_debugRenderer;
         #endif
     };
 }

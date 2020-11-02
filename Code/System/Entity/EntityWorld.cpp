@@ -157,6 +157,19 @@ namespace KRG
     void EntityWorld::RegisterGlobalSystem( IGlobalEntitySystem* pSystem )
     {
         KRG_ASSERT( pSystem != nullptr && m_initialized == false );
+
+        // Add system
+        //-------------------------------------------------------------------------
+
+        // Ensure that we only allow a single system of a specific type - global systems are essentially singletons
+        for ( auto pExistingSystem : m_globalSystems )
+        {
+            if ( pExistingSystem->GetEntitySystemID() == pSystem->GetEntitySystemID() )
+            {
+                KRG_HALT();
+            }
+        }
+        
         m_globalSystems.push_back( pSystem );
 
         // Add to update lists

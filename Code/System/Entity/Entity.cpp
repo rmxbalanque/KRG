@@ -409,7 +409,7 @@ namespace KRG
 
     void Entity::CreateSystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
-        KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom( IEntitySystem::StaticTypeInfo->m_ID ) );
+        KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom<IEntitySystem>() );
 
         #if KRG_DEBUG_INSTRUMENTATION
         // Ensure that we only allow a single system of a specific family
@@ -443,7 +443,7 @@ namespace KRG
 
     void Entity::DestroySystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
-        KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom( IEntitySystem::StaticTypeInfo->m_ID ) );
+        KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom<IEntitySystem>() );
 
         S32 const systemIdx = VectorFindIndex( m_systems, pSystemTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } );
         KRG_ASSERT( systemIdx != InvalidIndex );
@@ -475,14 +475,11 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        SpatialEntityComponent* pSpatialComponent = nullptr;
-        if( pComponent->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) )
+        SpatialEntityComponent* pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent );
+        
+        // Parent ID can only be set when adding a spatial component
+        if( pSpatialComponent == nullptr )
         {
-            pSpatialComponent = static_cast<SpatialEntityComponent*>( pComponent );
-        }
-        else
-        {
-            // Parent ID can only be set when adding a spatial component
             KRG_ASSERT( !parentSpatialComponentID.IsValid() );
         }
 
@@ -496,8 +493,9 @@ namespace KRG
                 KRG_ASSERT( pSpatialComponent != nullptr );
                 S32 const componentIdx = VectorFindIndex( m_components, parentSpatialComponentID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
                 KRG_ASSERT( componentIdx != InvalidIndex );
-                KRG_ASSERT( m_components[componentIdx]->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) );
-                pParentComponent = (SpatialEntityComponent*) m_components[componentIdx];
+
+                pParentComponent = ComponentCast<SpatialEntityComponent>( m_components[componentIdx] );
+                KRG_ASSERT( pParentComponent != nullptr );
             }
 
             AddComponentImmediate( pComponent, pParentComponent );
@@ -556,8 +554,7 @@ namespace KRG
         // Update spatial hierarchy
         //-------------------------------------------------------------------------
 
-        bool const isSpatialComponent = pComponent->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() );
-        SpatialEntityComponent* pSpatialEntityComponent = isSpatialComponent ? static_cast<SpatialEntityComponent*>( pComponent ) : nullptr;
+        SpatialEntityComponent* pSpatialEntityComponent = ComponentCast<SpatialEntityComponent>( pComponent );
         if ( pSpatialEntityComponent != nullptr )
         {
             // If the parent component is null, attach it to the root by default
@@ -604,11 +601,9 @@ namespace KRG
         // Update spatial hierarchy
         //-------------------------------------------------------------------------
 
-        SpatialEntityComponent* pSpatialComponent = nullptr;
-        if ( pComponent->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) )
+        SpatialEntityComponent* pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent );
+        if ( pSpatialComponent != nullptr )
         {
-            pSpatialComponent = static_cast<SpatialEntityComponent*>( pComponent );
-
             if ( pSpatialComponent->IsRootComponent() )
             {
                 KRG_ASSERT( pSpatialComponent == m_pRootSpatialComponent );
@@ -721,8 +716,9 @@ namespace KRG
                     {
                         S32 const componentIdx = VectorFindIndex( m_components, action.m_ID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
                         KRG_ASSERT( componentIdx != InvalidIndex );
-                        KRG_ASSERT( m_components[componentIdx]->GetTypeInfo()->IsDerivedFrom( SpatialEntityComponent::GetStaticTypeID() ) );
-                        pParentComponent = (SpatialEntityComponent*) m_components[componentIdx];
+
+                        pParentComponent = ComponentCast<SpatialEntityComponent>( m_components[componentIdx] );
+                        KRG_ASSERT( pParentComponent != nullptr );
                     }
 
                     AddComponentDeferred( loadingContext, (EntityComponent*) action.m_ptr, pParentComponent );

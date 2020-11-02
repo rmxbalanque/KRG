@@ -1,8 +1,8 @@
 #include "PhysicsGeometryCompiler.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Resource/RawAssets/RawMesh.h"
-#include "System/Physics/Physx.h"
-#include "System/Physics/PhysicsGeometry.h"
+#include "Engine/Physics/Physx.h"
+#include "Engine/Physics/PhysicsGeometry.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 

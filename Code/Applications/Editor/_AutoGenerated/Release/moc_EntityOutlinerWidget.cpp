@@ -93,7 +93,7 @@ int KRG::EntityOutliner::Model::qt_metacall(QMetaObject::Call _c, int _id, void 
 }
 struct qt_meta_stringdata_KRG__EntityOutlinerWidget_t {
     QByteArrayData data[5];
-    char stringdata0[72];
+    char stringdata0[85];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -105,12 +105,12 @@ static const qt_meta_stringdata_KRG__EntityOutlinerWidget_t qt_meta_stringdata_K
 QT_MOC_LITERAL(0, 0, 25), // "KRG::EntityOutlinerWidget"
 QT_MOC_LITERAL(1, 26, 16), // "OnEntitySelected"
 QT_MOC_LITERAL(2, 43, 0), // ""
-QT_MOC_LITERAL(3, 44, 11), // "ToolEntity*"
-QT_MOC_LITERAL(4, 56, 15) // "pSelectedEntity"
+QT_MOC_LITERAL(3, 44, 24), // "EntityModel::ToolEntity*"
+QT_MOC_LITERAL(4, 69, 15) // "pSelectedEntity"
 
     },
     "KRG::EntityOutlinerWidget\0OnEntitySelected\0"
-    "\0ToolEntity*\0pSelectedEntity"
+    "\0EntityModel::ToolEntity*\0pSelectedEntity"
 };
 #undef QT_MOC_LITERAL
 
@@ -142,13 +142,13 @@ void KRG::EntityOutlinerWidget::qt_static_metacall(QObject *_o, QMetaObject::Cal
         auto *_t = static_cast<EntityOutlinerWidget *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->OnEntitySelected((*reinterpret_cast< ToolEntity*(*)>(_a[1]))); break;
+        case 0: _t->OnEntitySelected((*reinterpret_cast< EntityModel::ToolEntity*(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (EntityOutlinerWidget::*)(ToolEntity * );
+            using _t = void (EntityOutlinerWidget::*)(EntityModel::ToolEntity * );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&EntityOutlinerWidget::OnEntitySelected)) {
                 *result = 0;
                 return;
@@ -198,7 +198,7 @@ int KRG::EntityOutlinerWidget::qt_metacall(QMetaObject::Call _c, int _id, void *
 }
 
 // SIGNAL 0
-void KRG::EntityOutlinerWidget::OnEntitySelected(ToolEntity * _t1)
+void KRG::EntityOutlinerWidget::OnEntitySelected(EntityModel::ToolEntity * _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

@@ -11,54 +11,25 @@ namespace KRG::Navmesh
 
     //-------------------------------------------------------------------------
 
-    #if KRG_DEBUG_INSTRUMENTATION
-    void NavmeshSystem::NavmeshDebugRenderer::DrawLineList( bfx::LineSegment const* pLines, U32 numLines, bfx::Color const& color )
-    {
-        auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-        for ( auto i = 0u; i < numLines; i++ )
-        {
-            bfx::LineSegment const& line = pLines[i];
-            ctx.DrawLine( FromBfx( line.m_v0 ), FromBfx( line.m_v1 ), FromBfx( color ) );
-        }
-    }
-
-    void NavmeshSystem::NavmeshDebugRenderer::DrawTriList( bfx::Triangle const* pTris, U32 numTris, bfx::Color const& color )
-    {
-        auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-        for ( auto i = 0u; i < numTris; i++ )
-        {
-            bfx::Triangle const& tri = pTris[i];
-            ctx.DrawTriangle( FromBfx( tri.m_v0 ), FromBfx( tri.m_v1 ), FromBfx( tri.m_v2 ), FromBfx( color ) );
-        }
-    }
-
-    void NavmeshSystem::NavmeshDebugRenderer::DrawString( bfx::Color const& color, char const* str )
-    {
-        auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-        ctx.DrawText2D( Float2::Zero, str, FromBfx( color ), Debug::Drawing::TextSize::Small );
-    }
-
-    void NavmeshSystem::NavmeshDebugRenderer::DrawString( bfx::Color const& color, bfx::Vector3 const& pos, char const* str )
-    {
-        auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-        ctx.DrawText3D( FromBfx( pos ), str, FromBfx( color ), Debug::Drawing::TextSize::Small );
-    }
-    #endif
-
-    //-------------------------------------------------------------------------
-
     void NavmeshSystem::Initialize()
     {
-        NavPower::Initialize();
+        bfx::SystemCreate( bfx::SystemParams( 1.0f, bfx::Z_UP ), &m_allocator );
+        bfx::RegisterPlannerSystem();
+        bfx::SystemStart();
 
-        // Since we use DLLs we need to set the NavPower instance in every module using BFX calls
-        bfx::SetCurrentInstance( NavPower::GetNavpowerInstance() );
+        #if KRG_DEBUG_INSTRUMENTATION
+        bfx::SetRenderer( &m_debugRenderer );
+        #endif
     }
 
     void NavmeshSystem::Shutdown()
     {
-        bfx::SetCurrentInstance( nullptr );
-        NavPower::Shutdown();
+        #if KRG_DEBUG_INSTRUMENTATION
+        bfx::SetRenderer( nullptr );
+        #endif
+
+        bfx::SystemStop();
+        bfx::SystemDestroy();
     }
 
     //-------------------------------------------------------------------------
@@ -88,6 +59,7 @@ namespace KRG::Navmesh
         bfx::SystemSimulate( ctx.GetDeltaTime() );
 
         #if KRG_DEBUG_INSTRUMENTATION
+        m_debugRenderer.Reset();
         bfx::SystemDraw();
         #endif
     }
@@ -151,7 +123,7 @@ namespace KRG::Navmesh
         offset.m_positionOffset = ToBfx( componentWorldTransform.GetTranslation() );
         offset.m_rotationOffset = ToBfx( componentWorldTransform.GetRotation() );
 
-        //bfx::AddResource( pNavmesh, offset );
+        bfx::AddResource( pNavmesh, offset );
 
         // Add record
         m_registeredNavmeshes.emplace_back( RegisteredNavmesh( pComponent->GetID(), pNavmesh ) );
@@ -164,7 +136,7 @@ namespace KRG::Navmesh
         {
             if ( pComponent->GetID() == m_registeredNavmeshes[i].m_componentID )
             {
-                //bfx::RemoveResource( m_registeredNavmeshes[i].m_pNavmesh );
+                bfx::RemoveResource( m_registeredNavmeshes[i].m_pNavmesh );
 
                 //-------------------------------------------------------------------------
 

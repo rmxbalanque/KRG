@@ -3,8 +3,8 @@
 #include "Compilers/Animation/Skeleton/AnimSkeletonCompiler.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Resource/RawAssets/RawAnimation.h"
-#include "System/Animation/AnimationData.h"
-#include "System/Animation/AnimationPose.h"
+#include "Engine/Animation/AnimationData.h"
+#include "Engine/Animation/AnimationPose.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 

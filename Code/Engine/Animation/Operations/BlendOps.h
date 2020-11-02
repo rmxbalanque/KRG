@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Animation/AnimationBoneMask.h"
-#include "System/Animation/AnimationPose.h"
+#include "Engine/Animation/AnimationBoneMask.h"
+#include "Engine/Animation/AnimationPose.h"
 #include "System/Core/Math/Quaternion.h"
 
 //-------------------------------------------------------------------------

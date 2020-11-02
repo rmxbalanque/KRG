@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../AnimTask.h"
-#include "System/Animation/AnimationBoneMask.h"
+#include "Engine/Animation/AnimationBoneMask.h"
 
 //-------------------------------------------------------------------------
 

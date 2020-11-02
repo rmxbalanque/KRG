@@ -5,7 +5,7 @@
 #include "Engine/Physics/Debug/PhysxDebugRenderer.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Core/Modules/IEngineModule.h"
-#include "System/Physics/ResourceLoaders/PhysicsGeometryLoader.h"
+#include "Engine/Physics/ResourceLoaders/PhysicsGeometryLoader.h"
 
 //-------------------------------------------------------------------------
 

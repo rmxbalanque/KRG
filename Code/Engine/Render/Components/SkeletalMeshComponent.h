@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Engine/Render/_Module/API.h"
-#include "System/Render/Mesh/SkeletalMesh.h"
-#include "System/Render/RenderMaterial.h"
+#include "Engine/Render/Mesh/SkeletalMesh.h"
+#include "Engine/Render/Material/RenderMaterial.h"
 #include "System/Entity/EntitySpatialComponent.h"
 #include "System/Resource/ResourcePtr.h"
 

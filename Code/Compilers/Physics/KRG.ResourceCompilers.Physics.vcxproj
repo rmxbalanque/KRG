@@ -77,11 +77,11 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Engine\Physics\KRG.Engine.Physics.vcxproj">
+      <Project>{bb1a9d99-f719-49f6-9fa5-bce50ac60f02}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\Physics\KRG.System.Physics.vcxproj">
-      <Project>{059ff8ed-9789-4fcd-a629-c27bc9e59d39}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Resource\KRG.System.Resource.vcxproj">
       <Project>{7870de8e-6569-4857-93f9-b1abc1fc0543}</Project>

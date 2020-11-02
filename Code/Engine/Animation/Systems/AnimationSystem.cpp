@@ -1,7 +1,7 @@
 #include "AnimationSystem.h"
 #include "Engine/Animation/Components/AnimationComponent.h"
 #include "Engine/Animation/Components/AnimatedMeshComponent.h"
-#include "System/Animation/AnimationPose.h"
+#include "Engine/Animation/AnimationPose.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "Engine/Animation/Debug/AnimDebugDrawing.h"
 #include "System/Core/Update/UpdateContext.h"

@@ -1,5 +1,4 @@
 #include "PhysicsSystem.h"
-#include "System/Physics/PhysX.h"
 #include "Engine/Physics/Components/PhysicsGeometryComponent.h"
 #include "System/Entity/Entity.h"
 #include "System/Core/Profiling/Profiling.h"
@@ -16,33 +15,88 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
+    namespace
+    {
+        class PhysXTaskDispatcher final : public PxCpuDispatcher
+        {
+
+        public:
+
+            virtual void submitTask( PxBaseTask & task ) override
+            {
+                auto pTask = &task;
+
+                // Surprisingly it is faster to run all physics tasks on a single thread since there is a fair amount of gaps when spreading the tasks across multiple cores.
+                // TODO: re-evaluate this when we have additional work. Perhaps we can interleave other tasks while physics tasks are waiting
+                pTask->run();
+                pTask->release();
+            }
+
+            virtual PxU32 getWorkerCount() const override
+            {
+                return 1;
+            }
+        };
+    }
+
+    //-------------------------------------------------------------------------
+
     void PhysicsSystem::Initialize()
     {
-        PhysX::Initialize();
+        KRG_ASSERT( m_pFoundation == nullptr && m_pPhysics == nullptr && m_pDispatcher == nullptr );
+
+        m_pFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, m_allocator, m_errorCallback );
+        m_pDispatcher = KRG::New<PhysXTaskDispatcher>();
+
+        #if KRG_DEBUG_INSTRUMENTATION
+        m_pPVD = PxCreatePvd( *m_pFoundation );
+        m_pPVDTransport = PxDefaultPvdSocketTransportCreate( "127.0.0.1", 5425, 10 );
+        #endif
+
+        PxTolerancesScale tolerancesScale;
+        tolerancesScale.length = Constants::LengthScale;
+        tolerancesScale.speed = Constants::SpeedScale;
+        m_pPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *m_pFoundation, tolerancesScale, true, m_pPVD );
     }
 
     void PhysicsSystem::Shutdown()
     {
-        PhysX::Shutdown();
+        KRG_ASSERT( m_pFoundation != nullptr && m_pPhysics != nullptr && m_pDispatcher != nullptr );
+
+        #if KRG_DEBUG_INSTRUMENTATION
+        KRG_ASSERT( !m_pPVD->isConnected() );
+        #endif
+
+        //-------------------------------------------------------------------------
+
+        m_pPhysics->release();
+
+        #if KRG_DEBUG_INSTRUMENTATION
+        m_pPVDTransport->release();
+        m_pPVD->release();
+        #endif
+
+        KRG::Delete( m_pDispatcher );
+        m_pFoundation->release();
     }
 
     //-------------------------------------------------------------------------
 
     void PhysicsSystem::InitializeEntitySystem( SystemRegistry const& systemRegistry )
     {
-        KRG_ASSERT( PhysX::Physics != nullptr );
+        KRG_ASSERT( m_pPhysics != nullptr );
 
         // Create PhysX scene
         //-------------------------------------------------------------------------
 
-        auto const& tolerancesScale = PhysX::Physics->getTolerancesScale();
+        auto const& tolerancesScale = m_pPhysics->getTolerancesScale();
 
         KRG_ASSERT( m_pScene == nullptr );
         PxSceneDesc sceneDesc( tolerancesScale );
         sceneDesc.gravity = ToPx( Constants::Gravity );
-        sceneDesc.cpuDispatcher = PhysX::Instance->m_pDispatcher;
+        sceneDesc.cpuDispatcher = m_pDispatcher;
         sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-        m_pScene = PhysX::Physics->createScene( sceneDesc );
+        m_pScene = m_pPhysics->createScene( sceneDesc );
 
         // PVD
         #if KRG_DEBUG_INSTRUMENTATION
@@ -62,12 +116,12 @@ namespace KRG::Physics
 
     void PhysicsSystem::ShutdownEntitySystem()
     {
-        KRG_ASSERT( PhysX::Physics != nullptr );
+        KRG_ASSERT( m_pPhysics != nullptr );
 
         #if KRG_DEBUG_INSTRUMENTATION
-        if ( PhysX::Instance->m_pPVD->isConnected() )
+        if ( m_pPVD->isConnected() )
         {
-            PhysX::Instance->m_pPVD->disconnect();
+            m_pPVD->disconnect();
         }
         #endif
 
@@ -113,19 +167,19 @@ namespace KRG::Physics
             // Create physics actor
             if ( pGeometryComponent->m_pPhysicsGeometry->GetTriangleMesh() != nullptr )
             {
-                auto pMaterial = PhysX::Physics->createMaterial( 0.5f, 0.5f, 0.6f );
+                auto pMaterial = m_pPhysics->createMaterial( 0.5f, 0.5f, 0.6f );
 
                 Transform const& worldTransform = pGeometryComponent->GetWorldTransform();
 
                 // Create shape
                 PxTriangleMeshGeometry triMeshGeo( pGeometryComponent->m_pPhysicsGeometry->GetTriangleMesh() );
                 triMeshGeo.scale = ToPx( worldTransform.GetScale() );
-                PxShape* pShape = PhysX::Physics->createShape( triMeshGeo, *pMaterial );
+                PxShape* pShape = m_pPhysics->createShape( triMeshGeo, *pMaterial );
                 if ( pShape != nullptr )
                 {
                     // Create physx actor
                     PxTransform const bodyPose( ToPx( worldTransform.GetTranslation() ), ToPx( worldTransform.GetRotation() ) );
-                    PxRigidStatic* pStaticBody = PhysX::Physics->createRigidStatic( bodyPose );
+                    PxRigidStatic* pStaticBody = m_pPhysics->createRigidStatic( bodyPose );
                     pStaticBody->attachShape( *pShape );
                     m_pScene->addActor( *pStaticBody );
                     pGeometryComponent->m_pPhysicsActor = pStaticBody;
@@ -178,26 +232,26 @@ namespace KRG::Physics
 
     bool PhysicsSystem::IsConnectedToPVD()
     {
-        KRG_ASSERT( PhysX::Instance->m_pPVD != nullptr );
-        return PhysX::Instance->m_pPVD->isConnected();
+        KRG_ASSERT( m_pPVD != nullptr );
+        return m_pPVD->isConnected();
     }
 
     void PhysicsSystem::ConnectToPVD( Seconds timeToRecord )
     {
-        KRG_ASSERT( PhysX::Instance->m_pPVD != nullptr );
-        if ( !PhysX::Instance->m_pPVD->isConnected() )
+        KRG_ASSERT( m_pPVD != nullptr );
+        if ( !m_pPVD->isConnected() )
         {
-            PhysX::Instance->m_pPVD->connect( *PhysX::Instance->m_pPVDTransport, PxPvdInstrumentationFlag::eALL );
+            m_pPVD->connect( *m_pPVDTransport, PxPvdInstrumentationFlag::eALL );
             m_recordingTimeLeft = timeToRecord;
         }
     }
 
     void PhysicsSystem::DisconnectFromPVD()
     {
-        KRG_ASSERT( PhysX::Instance->m_pPVD != nullptr );
-        if ( PhysX::Instance->m_pPVD->isConnected() )
+        KRG_ASSERT( m_pPVD != nullptr );
+        if ( m_pPVD->isConnected() )
         {
-            PhysX::Instance->m_pPVD->disconnect();
+            m_pPVD->disconnect();
         }
     }
 
@@ -205,12 +259,12 @@ namespace KRG::Physics
     {
         if ( m_recordingTimeLeft >= 0 )
         {
-            if ( PhysX::Instance->m_pPVD->isConnected() )
+            if ( m_pPVD->isConnected() )
             {
                 m_recordingTimeLeft -= TimeDelta;
                 if ( m_recordingTimeLeft < 0 )
                 {
-                    PhysX::Instance->m_pPVD->disconnect();
+                    m_pPVD->disconnect();
                     m_recordingTimeLeft = -1.0f;
                 }
             }

@@ -10,13 +10,13 @@
 
 void KRG::Engine::EngineModule::RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::EnumHelpers::EnumHelper_KRG_CameraComponent_ProjectionType::RegisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::CameraComponent>::RegisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_CameraComponent_ProjectionType::RegisterEnum( typeRegistry );
 }
 
 void KRG::Engine::EngineModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::CameraComponent>::UnregisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_CameraComponent_ProjectionType::UnregisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::CameraComponent>::UnregisterType( typeRegistry );
 }
 

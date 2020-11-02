@@ -1,8 +1,8 @@
 #pragma once
 #include "API.h"
 #include "Engine/Core/Modules/IEngineModule.h"
-#include "System/Animation/ResourceLoaders/AnimationSkeletonLoader.h"
-#include "System/Animation/ResourceLoaders/AnimationLoader.h"
+#include "Engine/Animation/ResourceLoaders/AnimationSkeletonLoader.h"
+#include "Engine/Animation/ResourceLoaders/AnimationLoader.h"
 
 //-------------------------------------------------------------------------
 

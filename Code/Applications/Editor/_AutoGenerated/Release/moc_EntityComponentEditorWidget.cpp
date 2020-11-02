@@ -93,7 +93,7 @@ int KRG::EntityComponentTree::Model::qt_metacall(QMetaObject::Call _c, int _id, 
 }
 struct qt_meta_stringdata_KRG__EntityComponentEditorWidget_t {
     QByteArrayData data[5];
-    char stringdata0[94];
+    char stringdata0[107];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -105,12 +105,13 @@ static const qt_meta_stringdata_KRG__EntityComponentEditorWidget_t qt_meta_strin
 QT_MOC_LITERAL(0, 0, 32), // "KRG::EntityComponentEditorWidget"
 QT_MOC_LITERAL(1, 33, 19), // "OnComponentSelected"
 QT_MOC_LITERAL(2, 53, 0), // ""
-QT_MOC_LITERAL(3, 54, 20), // "ToolEntityComponent*"
-QT_MOC_LITERAL(4, 75, 18) // "pSelectedComponent"
+QT_MOC_LITERAL(3, 54, 33), // "EntityModel::ToolEntityCompon..."
+QT_MOC_LITERAL(4, 88, 18) // "pSelectedComponent"
 
     },
     "KRG::EntityComponentEditorWidget\0"
-    "OnComponentSelected\0\0ToolEntityComponent*\0"
+    "OnComponentSelected\0\0"
+    "EntityModel::ToolEntityComponent*\0"
     "pSelectedComponent"
 };
 #undef QT_MOC_LITERAL
@@ -143,13 +144,13 @@ void KRG::EntityComponentEditorWidget::qt_static_metacall(QObject *_o, QMetaObje
         auto *_t = static_cast<EntityComponentEditorWidget *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->OnComponentSelected((*reinterpret_cast< ToolEntityComponent*(*)>(_a[1]))); break;
+        case 0: _t->OnComponentSelected((*reinterpret_cast< EntityModel::ToolEntityComponent*(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (EntityComponentEditorWidget::*)(ToolEntityComponent * );
+            using _t = void (EntityComponentEditorWidget::*)(EntityModel::ToolEntityComponent * );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&EntityComponentEditorWidget::OnComponentSelected)) {
                 *result = 0;
                 return;
@@ -199,7 +200,7 @@ int KRG::EntityComponentEditorWidget::qt_metacall(QMetaObject::Call _c, int _id,
 }
 
 // SIGNAL 0
-void KRG::EntityComponentEditorWidget::OnComponentSelected(ToolEntityComponent * _t1)
+void KRG::EntityComponentEditorWidget::OnComponentSelected(EntityModel::ToolEntityComponent * _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

@@ -29,6 +29,12 @@ namespace KRG
 
             bool IsDerivedFrom( TypeID const parentTypeID ) const;
 
+            template<typename T>
+            inline bool IsDerivedFrom() const { return IsDerivedFrom( T::GetStaticTypeID() ); }
+
+            // Properties
+            //-------------------------------------------------------------------------
+
             PropertyInfo const* GetPropertyInfo( StringID propertyID ) const;
 
             // Function declaration for generated property registration functions

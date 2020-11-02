@@ -40,8 +40,13 @@ namespace KRG
             }
         }
 
+        // Log warning only when we are loaded/initialized
+        if ( m_status == EntityComponent::Status::Loaded || m_status == EntityComponent::Status::Initialized )
+        {
+            KRG_LOG_WARNING( "Entity", "Failed to find socket %s on component %s (%s)", socketID.c_str(), GetName().c_str(), GetID().ToString().c_str() );
+        }
+
         // Fallback to the world transform
-        KRG_LOG_WARNING( "Entity", "Failed to find socket %s on component %s (%s)", socketID.c_str(), GetName().c_str(), GetID().ToString().c_str() );
         socketTransform = m_worldTransform;
         return socketTransform;
     }

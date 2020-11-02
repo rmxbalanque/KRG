@@ -1,6 +1,6 @@
 #include "PhysicsDebugViewController.h"
 #include "Engine/Physics/PhysicsSystem.h"
-#include "System/Physics/PhysX.h"
+#include "Engine/Physics/PhysX.h"
 #include "System/Imgui/ImguiCore.h"
 
 //-------------------------------------------------------------------------

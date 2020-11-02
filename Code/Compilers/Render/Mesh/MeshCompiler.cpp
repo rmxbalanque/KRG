@@ -2,7 +2,7 @@
 #include "MeshCompiler.h"
 #include "MeshOptimizer.h"
 #include "Tools/Resource/RawAssets/RawMesh.h"
-#include "System/Render/Mesh/MeshGeometry.h"
+#include "Engine/Render/Mesh/MeshGeometry.h"
 
 //-------------------------------------------------------------------------
 

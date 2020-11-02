@@ -1,5 +1,5 @@
 #pragma once
-#include "EntityDescriptors.h"
+#include "System/Entity/EntityDescriptors.h"
 
 //-------------------------------------------------------------------------
 
