@@ -61,7 +61,7 @@ namespace KRG
             {
                 case UpdateStage::PrePhysics:
                 {
-                    KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "RenderingSystem::Update", MP_PINK );
+                    KRG_PROFILE_SCOPE_RENDER( "Rendering Pre-Physics" );
 
                     for ( auto const& viewport : activeViewports )
                     {
@@ -75,7 +75,7 @@ namespace KRG
 
                 case UpdateStage::FrameEnd:
                 {
-                    KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "RenderingSystem::Update", MP_PINK );
+                    KRG_PROFILE_SCOPE_RENDER( "Rendering Post-Physics" );
 
                     for ( auto const& viewport : activeViewports )
                     {

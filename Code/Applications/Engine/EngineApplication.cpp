@@ -359,7 +359,6 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         Profiling::StartFrame();
-        KRG_PROFILE_SCOPE_COLOR( "Frame", MP_PURPLE );
 
         Milliseconds timeDeltaMS = 0;
         {
@@ -368,7 +367,7 @@ namespace KRG
             // Streaming / Loading
             //-------------------------------------------------------------------------
             {
-                KRG_PROFILE_SCOPE( "Loading/Streaming" );
+                KRG_PROFILE_SCOPE_RESOURCE( "Loading/Streaming" );
                 m_resourceSystem.WaitForTasksToComplete();
                 m_entityWorld.UpdateLoading();
                 m_resourceSystem.ExecuteTasks();
@@ -377,7 +376,7 @@ namespace KRG
             // Frame Start
             //-------------------------------------------------------------------------
             {
-                KRG_PROFILE_SCOPE( "Frame Start" );
+                KRG_PROFILE_SCOPE_SCENE( "Frame Start" );
                 m_updateContext.m_stage = UpdateStage::FrameStart;
 
                 //-------------------------------------------------------------------------
@@ -395,7 +394,7 @@ namespace KRG
             // Pre-Physics
             //-------------------------------------------------------------------------
             {
-                KRG_PROFILE_SCOPE( "Pre-Physics Update" );
+                KRG_PROFILE_SCOPE_SCENE( "Pre-Physics Update" );
                 m_updateContext.m_stage = UpdateStage::PrePhysics;
 
                 //-------------------------------------------------------------------------
@@ -408,7 +407,7 @@ namespace KRG
             // Physics
             //-------------------------------------------------------------------------
             {
-                KRG_PROFILE_SCOPE( "Physics Update" );
+                KRG_PROFILE_SCOPE_SCENE( "Physics Update" );
                 m_updateContext.m_stage = UpdateStage::Physics;
 
                 //-------------------------------------------------------------------------
@@ -420,7 +419,7 @@ namespace KRG
             // Post-Physics
             //-------------------------------------------------------------------------
             {
-                KRG_PROFILE_SCOPE( "Post-Physics Update" );
+                KRG_PROFILE_SCOPE_SCENE( "Post-Physics Update" );
                 m_updateContext.m_stage = UpdateStage::PostPhysics;
 
                 //-------------------------------------------------------------------------
@@ -432,7 +431,7 @@ namespace KRG
             // Frame End
             //-------------------------------------------------------------------------
             {
-                KRG_PROFILE_SCOPE( "Frame End" );
+                KRG_PROFILE_SCOPE_SCENE( "Frame End" );
                 m_updateContext.m_stage = UpdateStage::FrameEnd;
 
                 //-------------------------------------------------------------------------

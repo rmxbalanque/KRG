@@ -217,7 +217,7 @@ namespace KRG
         void ImguiRenderer::Render( Math::Viewport const& viewport )
         {
             KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "ImguiRenderer::Render", MP_PINK );
+            KRG_PROFILE_FUNCTION_RENDER();
 
             // Clear the previous frame buffers
             m_cmdBuffers.clear();

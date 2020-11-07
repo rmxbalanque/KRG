@@ -222,7 +222,7 @@ namespace KRG
 
         void SkeletalMeshRenderer::UpdateEntitySystem( UpdateContext const& ctx )
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "SkeletalMeshRenderer::UpdateSystem", MP_PINK );
+            KRG_PROFILE_FUNCTION_RENDER();
 
             #if KRG_DEBUG_INSTRUMENTATION
             Debug::DrawingContext drawCtx = ctx.GetDrawingContext();
@@ -258,7 +258,7 @@ namespace KRG
 
         void SkeletalMeshRenderer::Render( Math::Viewport const& viewport )
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "SkeletalMeshRenderer::Render", MP_PINK );
+            KRG_PROFILE_FUNCTION_RENDER();
 
             //AABB const cullingBox = viewport.GetCullingVolume().GetAABB();
             //for ( auto const& componentRecord : m_meshComponents )

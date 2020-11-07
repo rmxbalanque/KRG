@@ -14,7 +14,7 @@ namespace KRG
         Memory::InitializeThreadHeap();
 
         char nameBuffer[100];
-        Printf( nameBuffer, 100, "Kruger Worker Thread %d", threadNum );
+        Printf( nameBuffer, 100, "KRG Worker %d", threadNum );
 
         KRG_PROFILE_THREAD_START( nameBuffer );
         Threading::SetCurrentThreadName( nameBuffer );

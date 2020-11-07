@@ -29,7 +29,6 @@ namespace KRG
 
         StringID::Initialize();
         Log::Initialize();
-        Profiling::Initialize();
 
         TypeSystem::Initialize();
 
@@ -47,7 +46,6 @@ namespace KRG
 
             TypeSystem::Shutdown();
 
-            Profiling::Shutdown();
             Log::Shutdown();
             StringID::Shutdown();
 

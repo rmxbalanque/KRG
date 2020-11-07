@@ -224,7 +224,7 @@ namespace KRG
 
         void StaticMeshRenderer::UpdateEntitySystem( UpdateContext const& ctx )
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "StaticMeshRenderer::UpdateSystem", MP_PINK );
+            KRG_PROFILE_FUNCTION_RENDER();
 
             //-------------------------------------------------------------------------
 
@@ -311,7 +311,7 @@ namespace KRG
 
         void StaticMeshRenderer::RenderStatic( Math::Viewport const& viewport )
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "StaticMeshRenderer::RenderStatic", MP_PINK );
+            KRG_PROFILE_FUNCTION_RENDER();
 
             AABB const cullingBox = viewport.GetCullingVolume().GetAABB();
             //m_staticComponentBVH.FindOverlaps( cullingBox, m_visibleStaticComponents );
@@ -347,7 +347,7 @@ namespace KRG
 
         void StaticMeshRenderer::RenderDynamic( Math::Viewport const& viewport )
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "StaticMeshRenderer::RenderDynamic", MP_PINK );
+            KRG_PROFILE_FUNCTION_RENDER();
 
             m_visibleDynamicComponents.clear();
 

@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)\External\Superluminal\SuperLuminal.props" />
     <Import Project="$(SolutionDir)\External\PhysX\PhysX.props" />
+    <Import Project="$(SolutionDir)\External\Optick\Optick.props" />
     <Import Project="$(SolutionDir)\External\NavPower\NavPower.props" />
     <Import Project="$(SolutionDir)Code\System\Core\ThirdParty\EA\EA.props" />
   </ImportGroup>

@@ -137,18 +137,18 @@ namespace KRG::Physics
     void PhysicsSystem::UpdateEntitySystem( UpdateContext const& ctx )
     {
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Physics", "Simulate", MP_YELLOW );
+            KRG_PROFILE_SCOPE_PHYSICS( "Simulate" );
             m_pScene->simulate( 1.0f / 60.0f );
         }
 
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Physics", "Fetch Results", MP_YELLOW );
+            KRG_PROFILE_SCOPE_PHYSICS( "Fetch Results" );
             m_pScene->fetchResults( true );
         }
 
         #if KRG_DEBUG_INSTRUMENTATION
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Physics", "Debug Update", MP_YELLOW );
+            KRG_PROFILE_SCOPE_PHYSICS( "Debug Update" );
             UpdateRecordingPVD( ctx.GetDeltaTime() );
         }
         #endif

@@ -229,7 +229,7 @@ namespace KRG
 
         void ResourceSystem::Update()
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Resource", "ResourceSystem::Update", MP_CYAN );
+            KRG_PROFILE_FUNCTION_RESOURCE();
             KRG_ASSERT( m_pResourceProvider != nullptr );
 
             // Clear any hot-reload data

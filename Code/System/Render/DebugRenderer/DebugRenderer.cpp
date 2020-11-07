@@ -335,7 +335,7 @@ namespace KRG
         void DebugRenderer::Render( Math::Viewport const& viewport )
         {
             KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "DebugDrawing::Render", MP_PINK );
+            KRG_PROFILE_FUNCTION_RENDER();
 
             m_pDebugDrawingSystem->ReflectFrameCommandBuffer( m_drawCommands );
 
@@ -352,7 +352,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             {
-                KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "DebugDrawing::DrawPoints", MP_PINK );
+                KRG_PROFILE_SCOPE_RENDER( "DebugDrawing::DrawPoints" );
                 m_pointRS.SetState( renderContext, viewport );
 
                 renderContext.SetDepthTestMode( DepthTestMode::On );
@@ -375,7 +375,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             {
-                KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "DebugDrawing::DrawLines", MP_PINK );
+                KRG_PROFILE_SCOPE_RENDER( "DebugDrawing::DrawLines" );
                 m_lineRS.SetState( renderContext, viewport );
 
                 renderContext.SetDepthTestMode( DepthTestMode::On );
@@ -398,7 +398,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             {
-                KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "DebugDrawing::DrawPrimitives", MP_PINK );
+                KRG_PROFILE_SCOPE_RENDER( "DebugDrawing::DrawPrimitives" );
                 m_primitiveRS.SetState( renderContext, viewport );
 
                 renderContext.SetDepthTestMode( DepthTestMode::On );
@@ -421,7 +421,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             {
-                KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "DebugDrawing::DrawText", MP_PINK );
+                KRG_PROFILE_SCOPE_RENDER( "DebugDrawing::DrawText" );
                 m_textRS.SetState( renderContext, viewport );
 
                 auto textRenderfunc = [this] ( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<U32> cmdRange ) { DebugRenderer::DrawText( renderContext, viewport, commands, cmdRange ); };

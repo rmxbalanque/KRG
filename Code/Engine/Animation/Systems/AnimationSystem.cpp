@@ -53,7 +53,7 @@ namespace KRG
 
         void AnimationSystem::Update( UpdateContext const& ctx )
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Animation", "AnimationSystem::Update", MP_THISTLE );
+            KRG_PROFILE_FUNCTION_ANIMATION();
 
             if ( m_pAnimComponent == nullptr || m_meshComponents.empty() )
             {

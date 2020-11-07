@@ -70,9 +70,6 @@
     <ClInclude Include="ThirdParty\enkits\LockLessMultiReadPipe.h" />
     <ClInclude Include="ThirdParty\enkits\TaskScheduler.h" />
     <ClInclude Include="ThirdParty\enkits\TaskScheduler_KRG.h" />
-    <ClInclude Include="ThirdParty\microprofile\microprofile.config.h" />
-    <ClInclude Include="ThirdParty\microprofile\microprofile.h" />
-    <ClInclude Include="ThirdParty\microprofile\microprofile_html.h" />
     <ClInclude Include="Serialization\Serialization.h" />
     <ClInclude Include="Serialization\BinaryArchive.h" />
     <ClInclude Include="Serialization\UserTypes\eastl_bitset.hpp" />
@@ -358,7 +355,6 @@
     <ClCompile Include="Settings\SettingsRegistry.cpp" />
     <ClCompile Include="Systems\SystemRegistry.cpp" />
     <ClCompile Include="ThirdParty\enkits\TaskScheduler.cpp" />
-    <ClCompile Include="ThirdParty\microprofile\microprofile.cpp" />
     <ClCompile Include="Threading\TaskSystem.cpp" />
     <ClCompile Include="ThirdParty\EA\krg_eastl.cpp" />
     <ClCompile Include="ThirdParty\EA\EASTL\Source\allocator_eastl.cpp" />
@@ -396,8 +392,6 @@
     <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Introduction.html" />
     <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Maintenance.html" />
     <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Modules.html" />
-    <None Include="ThirdParty\microprofile\microprofile.props" />
-    <None Include="ThirdParty\microprofile\README.md" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\EA\EASTL\Doc\EASTL.natvis" />
@@ -428,12 +422,10 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\KRG.props" />
-    <Import Project="ThirdParty\microprofile\microprofile.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\KRG.props" />
-    <Import Project="ThirdParty\microprofile\microprofile.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

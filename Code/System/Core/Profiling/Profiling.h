@@ -1,36 +1,70 @@
 #pragma once
 
 #include "System/Core/Algorithm/Hash.h"
-#include "System/Core/ThirdParty/microprofile/microprofile.h"
+#include <optick.h>
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
+    class FileSystemPath;
+
+    //-------------------------------------------------------------------------
+
     namespace Profiling
     {
-        KRG_SYSTEM_CORE_API void Initialize();
-        KRG_SYSTEM_CORE_API void Shutdown();
         KRG_SYSTEM_CORE_API void StartFrame();
         KRG_SYSTEM_CORE_API void EndFrame();
+
+        //-------------------------------------------------------------------------
+
+        // Open the profiler application (only available on Win64)
+        KRG_SYSTEM_CORE_API void OpenProfiler();
+
+        // Capture management
+        KRG_SYSTEM_CORE_API void StartCapture();
+        KRG_SYSTEM_CORE_API void StopCapture( FileSystemPath const& captureSavePath );
     }
 }
 
 //-------------------------------------------------------------------------
 
-#define KRG_PROFILE_THREAD_START( ThreadName )\
-    MicroProfileOnThreadCreate( ThreadName )
+#define KRG_PROFILE_THREAD_START( ThreadName ) OPTICK_START_THREAD( ThreadName )
 
-#define KRG_PROFILE_THREAD_END()\
-    MicroProfileOnThreadExit();
+#define KRG_PROFILE_THREAD_END() OPTICK_STOP_THREAD()
 
+// Generic scopes
 //-------------------------------------------------------------------------
 
-#define KRG_PROFILE_SCOPE( tag )\
-    MICROPROFILE_SCOPEI( "KRG", tag, MP_DARKOLIVEGREEN )
+#define KRG_PROFILE_FUNCTION() OPTICK_EVENT()
+#define KRG_PROFILE_SCOPE( name ) OPTICK_EVENT( name )
 
-#define KRG_PROFILE_SCOPE_COLOR( tag, color )\
-    MICROPROFILE_SCOPEI( "KRG", tag, color )
+// Waits
+//-------------------------------------------------------------------------
 
-#define KRG_PROFILE_GROUPED_SCOPE_COLOR( group, tag, color )\
-    MICROPROFILE_SCOPEI( group, tag, color )
+#define KRG_PROFILE_WAIT( name ) OPTICK_EVENT( name, Optick::Category::Wait )
+
+// Category scopes
+//-------------------------------------------------------------------------
+
+#define KRG_PROFILE_FUNCTION_AI() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::AI )
+#define KRG_PROFILE_FUNCTION_ANIMATION() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Animation )
+#define KRG_PROFILE_FUNCTION_CAMERA() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Camera )
+#define KRG_PROFILE_FUNCTION_GAMEPLAY() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::GameLogic )
+#define KRG_PROFILE_FUNCTION_IO() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::IO )
+#define KRG_PROFILE_FUNCTION_NAVIGATION() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Navigation )
+#define KRG_PROFILE_FUNCTION_PHYSICS() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Physics )
+#define KRG_PROFILE_FUNCTION_RENDER() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Rendering )
+#define KRG_PROFILE_FUNCTION_SCENE() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Scene )
+#define KRG_PROFILE_FUNCTION_RESOURCE() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Streaming )
+
+#define KRG_PROFILE_SCOPE_AI( name ) OPTICK_EVENT( name, Optick::Category::AI )
+#define KRG_PROFILE_SCOPE_ANIMATION( name ) OPTICK_EVENT( name, Optick::Category::Animation )
+#define KRG_PROFILE_SCOPE_CAMERA( name) OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Camera )
+#define KRG_PROFILE_SCOPE_GAMEPLAY( name) OPTICK_EVENT( OPTICK_FUNC, Optick::Category::GameLogic )
+#define KRG_PROFILE_SCOPE_IO( name ) OPTICK_EVENT( name, Optick::Category::IO )
+#define KRG_PROFILE_SCOPE_NAVIGATION( name ) OPTICK_EVENT( name, Optick::Category::Navigation )
+#define KRG_PROFILE_SCOPE_PHYSICS( name ) OPTICK_EVENT( name, Optick::Category::Physics )
+#define KRG_PROFILE_SCOPE_RENDER( name ) OPTICK_EVENT( name, Optick::Category::Rendering )
+#define KRG_PROFILE_SCOPE_SCENE( name ) OPTICK_EVENT( name, Optick::Category::Scene )
+#define KRG_PROFILE_SCOPE_RESOURCE( name ) OPTICK_EVENT( name, Optick::Category::Streaming )

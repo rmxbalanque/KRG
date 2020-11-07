@@ -217,7 +217,7 @@ namespace KRG::Physics
     void PhysicsRenderer::Render( Math::Viewport const& viewport )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
-        KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "PhysXRenderer::Render", MP_PINK );
+        KRG_PROFILE_FUNCTION_RENDER();
 
         if ( ( m_pPhysicsWorld->GetDebugFlags() && ( 1 << physx::PxVisualizationParameter::eSCALE ) ) == 0 )
         {

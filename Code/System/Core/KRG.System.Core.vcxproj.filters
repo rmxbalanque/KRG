@@ -339,9 +339,6 @@
     <ClCompile Include="ThirdParty\iniparser\krg_ini.cpp">
       <Filter>ThirdParty\iniparser</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\microprofile\microprofile.cpp">
-      <Filter>ThirdParty\microprofile</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Viewport.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -936,15 +933,6 @@
     <ClInclude Include="ThirdParty\iniparser\krg_ini.h">
       <Filter>ThirdParty\iniparser</Filter>
     </ClInclude>
-    <ClInclude Include="ThirdParty\microprofile\microprofile.config.h">
-      <Filter>ThirdParty\microprofile</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\microprofile\microprofile.h">
-      <Filter>ThirdParty\microprofile</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\microprofile\microprofile_html.h">
-      <Filter>ThirdParty\microprofile</Filter>
-    </ClInclude>
     <ClInclude Include="ThirdParty\pcg\include\pcg_extras.hpp">
       <Filter>ThirdParty\pcg\include</Filter>
     </ClInclude>
@@ -1313,12 +1301,6 @@
     </None>
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">
       <Filter>ThirdParty\EA\EABase\doc</Filter>
-    </None>
-    <None Include="ThirdParty\microprofile\microprofile.props">
-      <Filter>ThirdParty\microprofile</Filter>
-    </None>
-    <None Include="ThirdParty\microprofile\README.md">
-      <Filter>ThirdParty\microprofile</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

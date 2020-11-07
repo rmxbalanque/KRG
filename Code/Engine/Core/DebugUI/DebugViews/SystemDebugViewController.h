@@ -19,6 +19,9 @@ namespace KRG
 
             virtual void DrawWindows( UpdateContext const& context ) override final;
 
+            void DrawSystemMenu( UpdateContext const& context );
+            void DrawSystemLogWindow( UpdateContext const& context );
+
         private:
 
             bool        m_isSystemLogWindowOpen = false;

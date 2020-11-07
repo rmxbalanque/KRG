@@ -57,7 +57,7 @@ namespace KRG
 
         void NetworkResourceProvider::Update()
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Resource", "NetworkResourceProvider::Update", MP_CYAN );
+            KRG_PROFILE_FUNCTION_RESOURCE();
 
             KRG_ASSERT( m_networkClient.IsConnected() );
 
@@ -122,6 +122,8 @@ namespace KRG
                 // If the request has a filepath set, the compilation was a success
                 if ( !response.m_filePath.empty() )
                 {
+                    KRG_PROFILE_SCOPE_IO( "Load File" );
+
                     // Try to load the compiled file
                     TVector<Byte> rawResourceData;
                     if ( !FileSystem::LoadFile( response.m_filePath, rawResourceData, FileSystem::FileType::Binary ) )

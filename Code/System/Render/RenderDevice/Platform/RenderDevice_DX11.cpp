@@ -333,7 +333,7 @@ namespace KRG
 
         void RenderDevice::PresentFrame()
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Render", "PresentFrame", MP_PINK );
+            KRG_PROFILE_FUNCTION_RENDER();
 
             static Float4 const backgroundColor = Colors::LightGray.ToFloat4();
 

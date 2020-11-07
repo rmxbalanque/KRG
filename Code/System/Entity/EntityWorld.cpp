@@ -117,7 +117,7 @@ namespace KRG
             {
                 for ( uint64_t i = range.start; i < range.end; ++i )
                 {
-                    KRG_PROFILE_GROUPED_SCOPE_COLOR( "Entity", "Update Entity", MP_LIMEGREEN );
+                    KRG_PROFILE_SCOPE_SCENE( "Update Entity" );
                     m_updateList[i]->UpdateSystems( m_context );
                 }
             }
@@ -144,7 +144,7 @@ namespace KRG
 
         for ( auto pSystem : m_systemUpdateLists[updateStageIdx] )
         {
-            KRG_PROFILE_GROUPED_SCOPE_COLOR( "Entity", "Update Systems", MP_LIMEGREEN );
+            KRG_PROFILE_SCOPE_SCENE( "Update Global Systems" );
             KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) updateStageIdx ) );
             pSystem->UpdateEntitySystem( context );
         }
@@ -269,7 +269,7 @@ namespace KRG
 
     void EntityWorld::UpdateLoading()
     {
-        KRG_PROFILE_GROUPED_SCOPE_COLOR( "Entity", "World Loading", MP_LIMEGREEN );
+        KRG_PROFILE_SCOPE_SCENE( "World Loading" );
 
         //-------------------------------------------------------------------------
 
