@@ -178,24 +178,22 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Render::SkeletalMeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    KRG_ASSERT( !pActualType->m_pMesh.IsUnloading() );
                     if ( !pActualType->m_pMesh.IsValid() || pActualType->m_pMesh.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pMesh.IsLoading() )
+                    else if ( pActualType->m_pMesh.IsUnloaded() || pActualType->m_pMesh.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }
 
                     for ( auto const& resourcePtr : pActualType->m_materials )
                     {
-                        KRG_ASSERT( !resourcePtr.IsUnloading() );
                         if ( !resourcePtr.IsValid() || resourcePtr.HasLoadingFailed() )
                         {
                             status = LoadingStatus::Failed;
                         }
-                        else if ( resourcePtr.IsLoading() )
+                        else if ( resourcePtr.IsUnloaded() || resourcePtr.IsLoading() )
                         {
                             return LoadingStatus::Loading;
                         }

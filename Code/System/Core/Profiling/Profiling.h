@@ -39,6 +39,11 @@ namespace KRG
 #define KRG_PROFILE_FUNCTION() OPTICK_EVENT()
 #define KRG_PROFILE_SCOPE( name ) OPTICK_EVENT( name )
 
+// Tags
+//-------------------------------------------------------------------------
+
+#define KRG_PROFILE_TAG( name, value ) OPTICK_TAG( name, value )
+
 // Waits
 //-------------------------------------------------------------------------
 

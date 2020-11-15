@@ -50,42 +50,39 @@ namespace KRG
 
             public:
 
-                Message::Message()
+                Message() { Initialize( InvalidID ); }
+                Message( MessageID ID ) { Initialize( ID ); }
+                Message( MessageID ID, void* pData, size_t dataSize ) { Initialize( ID, pData, dataSize ); }
+                Message( Message&& msg ) { m_data.swap( msg.m_data ); }
+                Message( Message const& msg ) { m_data = msg.m_data; }
+
+                template<typename T>
+                Message( MessageID ID, T&& typeToSerialize )
                 {
-                    Initialize( InvalidID );
+                    std::stringstream stream;
+                    {
+                        cereal::JSONOutputArchive archive( stream );
+                        archive << typeToSerialize;
+                    }
+
+                    Initialize( ID, (void*) stream.str().c_str(), (size_t) stream.str().length() );
                 }
 
-                Message::Message( MessageID ID )
-                {
-                    Initialize( ID );
-                }
+                //-------------------------------------------------------------------------
 
-                Message::Message( MessageID ID, void* pData, size_t dataSize )
-                {
-                    Initialize( ID, pData, dataSize );
-                }
-
-                Message::Message( Message&& msg )
-                {
-                    m_data.swap( msg.m_data );
-                }
-
-                Message::Message( Message const& msg )
-                {
-                    m_data = msg.m_data;
-                }
-
-                Message& Message::operator=( Message const& msg )
+                Message& operator=( Message const& msg )
                 {
                     m_data = msg.m_data;
                     return *this;
                 }
 
-                Message& Message::operator=( Message&& msg ) noexcept
+                Message& operator=( Message&& msg ) noexcept
                 {
                     m_data.swap( msg.m_data );
                     return *this;
                 }
+
+                //-------------------------------------------------------------------------
 
                 inline ClientID const& GetClientID() const { return m_clientID; }
                 inline MessageID GetMessageID() const { return *( MessageID*) m_data.data(); }

@@ -257,7 +257,7 @@ namespace KRG
 
         while ( m_entityWorld.IsBusyLoading() || m_resourceSystem.IsBusy() )
         {
-            m_resourceSystem.ExecuteTasksSynchronously();
+            m_resourceSystem.Update();
         }
 
         m_entityWorld.UnregisterGlobalSystem( &m_cameraSystem );
@@ -368,9 +368,8 @@ namespace KRG
             //-------------------------------------------------------------------------
             {
                 KRG_PROFILE_SCOPE_RESOURCE( "Loading/Streaming" );
-                m_resourceSystem.WaitForTasksToComplete();
+                m_resourceSystem.Update();
                 m_entityWorld.UpdateLoading();
-                m_resourceSystem.ExecuteTasks();
             }
 
             // Frame Start

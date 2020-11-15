@@ -13,6 +13,7 @@ namespace KRG
         //-------------------------------------------------------------------------
         // A unique record for each requested resource
         //-------------------------------------------------------------------------
+        // The resource record is not threadsafe so the resource system needs to ensure that all external access is threadsafe
 
         class KRG_SYSTEM_RESOURCE_API ResourceRecord
         {
@@ -63,17 +64,15 @@ namespace KRG
             inline bool IsUnloaded() const { return m_loadingStatus == LoadingStatus::Unloaded; }
             inline bool HasLoadingFailed() const { return m_loadingStatus == LoadingStatus::Failed; }
 
-            inline bool IsBeingProcessed() const { return m_isBeingProcessed; }
             inline TInlineVector<ResourceID, 4> const& GetInstallDependencies() const { return m_installDependencyResourceIDs; }
 
         protected:
 
             ResourceID                              m_resourceID;                                   // The ID of the resource this record refers to
             IResource*                              m_pResource = nullptr;                          // The actual loaded resource data
-            LoadingStatus                           m_loadingStatus = LoadingStatus::Unloaded;      // The state of this resource
+            std::atomic<LoadingStatus>              m_loadingStatus = LoadingStatus::Unloaded;      // The state of this resource (atomic since it will be modify by resource requests which run across multiple frames)
             TVector<UUID>                           m_references;                                   // The list of references to this resources
             TInlineVector<ResourceID, 4>            m_installDependencyResourceIDs;                 // The list of resources that need to be loaded and installed before we can install this resource
-            bool                                    m_isBeingProcessed = false;                     // Fake lock on resource ptr and dependencies, set when being loaded/unloaded
         };
     }
 }

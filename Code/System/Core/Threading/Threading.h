@@ -2,7 +2,9 @@
 
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/Time.h"
+#include "System/Core/ThirdParty/concurrentqueue/concurrentqueue.h"
 #include <mutex>
+#include <shared_mutex>
 
 //-------------------------------------------------------------------------
 
@@ -26,6 +28,22 @@ namespace KRG
         using ScopeLock = std::lock_guard<Mutex>;
         using RecursiveScopeLock = std::lock_guard<RecursiveMutex>;
 
+        // Read/Write lock
+        class ReadWriteMutex
+        {
+        public:
+
+            inline void LockForWrite() { m_mutex.lock(); }
+            inline bool TryLockForWrite() { return m_mutex.try_lock(); }
+
+            inline void LockForRead() { m_mutex.lock_shared(); }
+            inline bool TryLockForRead() { return m_mutex.try_lock_shared(); }
+
+        private:
+
+            std::shared_mutex m_mutex;
+        };
+
         //-------------------------------------------------------------------------
         // Synchronization Event Semaphore
         //-------------------------------------------------------------------------
@@ -46,6 +64,12 @@ namespace KRG
 
             void* m_pNativeHandle;
         };
+
+        //-------------------------------------------------------------------------
+        // Data structures
+        //-------------------------------------------------------------------------
+
+        template<typename T, typename Traits = moodycamel::ConcurrentQueueDefaultTraits> using LockFreeQueue = moodycamel::ConcurrentQueue<T, Traits>;
 
         //-------------------------------------------------------------------------
         // Utility Functions

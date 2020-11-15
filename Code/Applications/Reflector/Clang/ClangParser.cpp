@@ -62,6 +62,7 @@ namespace KRG
                 clangArgs.push_back( "-Werror" );
                 clangArgs.push_back( "-Wno-unknown-warning-option" );
                 clangArgs.push_back( "-Wno-return-type-c-linkage" );
+                clangArgs.push_back( "-Wno-gnu-folding-constant" );
 
                 // Set up clang
                 auto idx = clang_createIndex( 0, 1 );

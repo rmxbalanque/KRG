@@ -11,8 +11,6 @@ namespace KRG
     {
         class KRG_SYSTEM_RESOURCE_API ResourceRequest
         {
-            friend class ResourceSystem;
-
         public:
 
             enum class Stage
@@ -23,13 +21,11 @@ namespace KRG
                 RequestRawResource,
                 WaitForRawResourceRequest,
                 LoadResource,
-                LoadDependencies,
                 WaitForLoadDependencies,
                 InstallResource,
 
                 // Unload Stages
                 UninstallResource,
-                UnloadDependencies,
                 UnloadResource,
 
                 // Special Cases
@@ -44,6 +40,14 @@ namespace KRG
                 Invalid = -1,
                 Load,
                 Unload,
+            };
+
+            enum class SwitchRequestType
+            {
+                None = 0,
+                SwitchToLoad,
+                SwitchToUnload,
+                SwitchToReload,
             };
 
             struct RequestContext
@@ -65,6 +69,9 @@ namespace KRG
             inline bool IsLoadRequest() const { return m_type == Type::Load; }
             inline bool IsUnloadRequest() const { return m_type == Type::Unload; }
             
+            inline Stage GetStage() const { return m_stage; }
+
+            inline ResourceRecord const* GetResourceRecord() const { return m_pResourceRecord; }
             inline ResourceID const& GetResourceID() const { return m_pResourceRecord->GetResourceID(); }
             inline ResourceTypeID GetResourceTypeID() const { return m_pResourceRecord->GetResourceTypeID(); }
             inline LoadingStatus GetLoadingStatus() const { return m_pResourceRecord->GetLoadingStatus(); }
@@ -75,10 +82,10 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Called by the resource system to update the request progress
-            void Update( RequestContext& requestContext );
+            bool Update( RequestContext& requestContext );
 
             // Called by the resource provider once the request operation completes and provides the raw resource data
-            void OnRawResourceRequestComplete( TVector<Byte>&& rawResourceData );
+            void OnRawResourceRequestComplete( String const& filePath );
 
             // This will interrupt a load task and convert it into an unload task
             void SwitchToLoadTask();
@@ -91,26 +98,29 @@ namespace KRG
 
         private:
 
+            inline UUID CreateInstallDependencyRequesterID( ResourceID const& resourceID ) const { return UUID( 0, 0, 0, resourceID.GetDataPath().GetID() ); }
+
+            //-------------------------------------------------------------------------
+
             void RequestRawResource( RequestContext& requestContext );
             void LoadResource( RequestContext& requestContext );
-            void LoadDependencies( RequestContext& requestContext );
             void WaitForLoadDependencies( RequestContext& requestContext );
             void InstallResource( RequestContext& requestContext );
             void UninstallResource( RequestContext& requestContext );
-            void UnloadDependencies( RequestContext& requestContext );
             void UnloadResource( RequestContext& requestContext );
             void CancelRawRequestRequest( RequestContext& requestContext );
 
         private:
 
-            UUID                    m_userID;
-            ResourceRecord*         m_pResourceRecord = nullptr;
-            ResourceLoader*         m_pResourceLoader = nullptr;
-            TVector<Byte>           m_rawResourceData;
-            InstallDependencyList   m_installDependencies;
-            Type                    m_type = Type::Invalid;
-            Stage                   m_stage = Stage::None;
-            bool                    m_isReloadRequest = false;
+            UUID                                    m_requesterID;
+            ResourceRecord*                         m_pResourceRecord = nullptr;
+            ResourceLoader*                         m_pResourceLoader = nullptr;
+            FileSystemPath                          m_rawResourcePath;
+            TVector<Byte>                           m_rawResourceData;
+            InstallDependencyList                   m_installDependencies;
+            Type                                    m_type = Type::Invalid;
+            Stage                                   m_stage = Stage::None;
+            bool                                    m_isReloadRequest = false;
         };
 
     }

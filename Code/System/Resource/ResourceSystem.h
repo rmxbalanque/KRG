@@ -25,6 +25,27 @@ namespace KRG
 
         class KRG_SYSTEM_RESOURCE_API ResourceSystem : public ISystem
         {
+            struct PendingRequest
+            {
+                enum class Type { Load, Unload };
+
+            public:
+
+                PendingRequest() = default;
+
+                PendingRequest( Type type, ResourceRecord* pRecord, UUID const& requesterID )
+                    : m_pRecord( pRecord )
+                    , m_requesterID( requesterID )
+                    , m_type( type )
+                {
+                    KRG_ASSERT( m_pRecord != nullptr );
+                }
+
+                ResourceRecord*     m_pRecord = nullptr;
+                UUID                m_requesterID;
+                Type                m_type = Type::Load;
+            };
+
         public:
 
             KRG_SYSTEM_ID( ResourceSystem );
@@ -38,17 +59,14 @@ namespace KRG
             void Initialize( ResourceProvider* pResourceProvider );
             void Shutdown();
 
-            // Do we still have work we need ot perform
-            bool IsBusy() const { return !m_activeRequests.empty(); }
+            // Do we still have work we need to perform
+            bool IsBusy() const;
 
-            // Schedule the resource system update to run asynchronously
-            void ExecuteTasks();
+            // Update all active requests
+            void Update();
 
-            // Execute the resource system update synchronously (blocking)
-            void ExecuteTasksSynchronously();
-
-            // Wait for the scheduled work to complete
-            void WaitForTasksToComplete();
+            // Blocking wait for all requests to be completed
+            void WaitForAllRequestsToComplete();
 
             //-------------------------------------------------------------------------
 
@@ -60,15 +78,39 @@ namespace KRG
             // Request a load of a resource, can optionally provide a UUID for identification of the request source
             inline void LoadResource( ResourcePtr& resourcePtr, UUID const& requesterID = UUID() )
             {
-                KRG_ASSERT( Threading::IsMainThread() ); // We dont support requesting new resource from outside the main thread
-                LoadResourceInternal( requesterID, resourcePtr );
+                Threading::RecursiveScopeLock lock( m_accessLock );
+
+                // Immediately update the resource ptr
+                auto pRecord = FindOrCreateResourceRecord( resourcePtr.GetResourceID() );
+                resourcePtr.m_pResource = pRecord;
+
+                //-------------------------------------------------------------------------
+
+                if ( !pRecord->HasReferences() )
+                {
+                    AddPendingRequest( PendingRequest( PendingRequest::Type::Load, pRecord, requesterID ) );
+                }
+
+                pRecord->AddReference( requesterID );
             }
 
             // Request an unload of a resource, can optionally provide a UUID for identification of the request source
             inline void UnloadResource( ResourcePtr& resourcePtr, UUID const& requesterID = UUID() )
             {
-                KRG_ASSERT( Threading::IsMainThread() ); // We dont support unloading resources from outside the main thread
-                UnloadResourceInternal( requesterID, resourcePtr );
+                Threading::RecursiveScopeLock lock( m_accessLock );
+
+                // Immediately update the resource ptr
+                resourcePtr.m_pResource = nullptr;
+
+                //-------------------------------------------------------------------------
+
+                auto pRecord = FindExistingResourceRecord( resourcePtr.GetResourceID() );
+                pRecord->RemoveReference( requesterID );
+
+                if ( !pRecord->HasReferences() )
+                {
+                    AddPendingRequest( PendingRequest( PendingRequest::Type::Unload, pRecord, requesterID ) );
+                }
             }
 
             template<typename T> 
@@ -89,12 +131,11 @@ namespace KRG
             ResourceSystem& operator=( const ResourceSystem& ) = delete;
             ResourceSystem& operator=( const ResourceSystem&& ) = delete;
 
-            // The actual loading/unloading functions
-            void LoadResourceInternal( UUID const& requesterID, ResourcePtr& resourcePtr );
-            void UnloadResourceInternal( UUID const& requesterID, ResourcePtr& resourcePtr );
+            ResourceRecord* FindOrCreateResourceRecord( ResourceID const& resourceID );
+            ResourceRecord* FindExistingResourceRecord( ResourceID const& resourceID );
 
-            // The actual resource system update can be run both synchronously or asynchronously
-            void Update();
+            void AddPendingRequest( PendingRequest&& request );
+            ResourceRequest* TryFindActiveRequest( ResourceRecord const* pResourceRecord ) const;
 
             // Returns a list of all unique external references for the given resource
             void GetUsersForResource( ResourceRecord const* pResourceRecord, TVector<UUID>& userIDs ) const;
@@ -102,20 +143,30 @@ namespace KRG
             // Called whenever a resource is changed externally and requires reloading
             void OnResourceExternallyUpdated( ResourceID const& resourceID );
 
+            // Process all queued resource requests
+            void ProcessResourceRequests();
+
         private:
 
             TaskSystem&                                             m_taskSystem;
-            AsyncTask                                               m_asyncProcessingTask;
-            bool                                                    m_asyncTaskScheduled = false;
-
             ResourceProvider*                                       m_pResourceProvider = nullptr;
             THashMap<ResourceTypeID, ResourceLoader*>               m_resourceLoaders;
             THashMap<ResourceID, ResourceRecord*>                   m_resourceRecords;
-            TVector<ResourceRequest*>                               m_activeRequests;
+            mutable Threading::RecursiveMutex                       m_accessLock;
 
+            // Hot reload
             TVector<UUID>                                           m_usersThatRequireReload;
             TVector<ResourceID>                                     m_externallyUpdatedResources;
             EventBindingID                                          m_resourceExternalUpdateEventBinding;
+
+            // Requests
+            TVector<PendingRequest>                                 m_pendingRequests;
+            TVector<ResourceRequest*>                               m_activeRequests;
+            TVector<ResourceRequest*>                               m_completedRequests;
+
+            // ASync
+            AsyncTask                                               m_asyncProcessingTask;
+            bool                                                    m_isAsyncTaskRunning = false;
         };
     }
 }

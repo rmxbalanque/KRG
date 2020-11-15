@@ -54,6 +54,7 @@ namespace KRG
             ResourceID const BRMinimal( "data://maps/BR_Minimal.map" );
             ResourceID const BRFull( "data://maps/BR_full.map" );
             ResourceID const ECS( "data://maps/ecs_testmap.map" );
+            ResourceID const Tiny( "data://maps/tiny.map" );
 
             //-------------------------------------------------------------------------
 
@@ -103,6 +104,23 @@ namespace KRG
                 if ( ImGui::Button( "Load ECS Test map" ) )
                 {
                     m_pWorld->LoadMap( ECS );
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( m_pWorld->IsMapLoaded( Tiny ) )
+            {
+                if ( ImGui::Button( "Unload Tiny map" ) )
+                {
+                    m_pWorld->UnloadMap( Tiny );
+                }
+            }
+            else
+            {
+                if ( ImGui::Button( "Load Tiny map" ) )
+                {
+                    m_pWorld->LoadMap( Tiny );
                 }
             }
 

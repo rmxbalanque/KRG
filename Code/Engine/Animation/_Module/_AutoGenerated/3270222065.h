@@ -200,35 +200,32 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    KRG_ASSERT( !pActualType->m_pMesh.IsUnloading() );
                     if ( !pActualType->m_pMesh.IsValid() || pActualType->m_pMesh.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pMesh.IsLoading() )
+                    else if ( pActualType->m_pMesh.IsUnloaded() || pActualType->m_pMesh.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }
 
                     for ( auto const& resourcePtr : pActualType->m_materials )
                     {
-                        KRG_ASSERT( !resourcePtr.IsUnloading() );
                         if ( !resourcePtr.IsValid() || resourcePtr.HasLoadingFailed() )
                         {
                             status = LoadingStatus::Failed;
                         }
-                        else if ( resourcePtr.IsLoading() )
+                        else if ( resourcePtr.IsUnloaded() || resourcePtr.IsLoading() )
                         {
                             return LoadingStatus::Loading;
                         }
                     }
 
-                    KRG_ASSERT( !pActualType->m_pSkeleton.IsUnloading() );
                     if ( !pActualType->m_pSkeleton.IsValid() || pActualType->m_pSkeleton.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pSkeleton.IsLoading() )
+                    else if ( pActualType->m_pSkeleton.IsUnloaded() || pActualType->m_pSkeleton.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }

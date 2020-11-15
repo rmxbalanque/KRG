@@ -6,6 +6,7 @@
 #include "System/Resource/ResourceProvider.h"
 #include "System/Network/IPC/IPCMessageClient.h"
 #include "System/Core/Time/Timers.h"
+#include "System/Core/Threading/Threading.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,7 +14,7 @@ namespace KRG
 {
     namespace Resource
     {
-        class KRG_SYSTEM_RESOURCE_API NetworkResourceProvider : public ResourceProvider
+        class KRG_SYSTEM_RESOURCE_API NetworkResourceProvider final : public ResourceProvider
         {
 
         public:
@@ -34,11 +35,11 @@ namespace KRG
 
         private:
 
-            Network::IPC::Client                            m_networkClient;
-            String                                          m_address;
-            Timer                                           m_keepAliveTimer;
-            TVector<NetworkResourceResponse>                m_serverReponses;
-            TVector<Network::IPC::Message>                  m_messagesToSend;
+            Network::IPC::Client                                m_networkClient;
+            String                                              m_address;
+            Timer                                               m_keepAliveTimer;
+            TVector<NetworkResourceResponse>                    m_serverReponses;
+            Threading::LockFreeQueue<Network::IPC::Message>     m_messagesToSend;
         };
     }
 }

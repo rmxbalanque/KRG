@@ -247,7 +247,7 @@ namespace KRG::Navmesh
 
         //-------------------------------------------------------------------------
 
-        bfx::EnableBuildLog( "D:\\buildlog.bfx_log", true );
+        //bfx::EnableBuildLog( "D:\\buildlog.bfx_log", true );
         bfx::NavGraphImage* pGraphImage = bfx::CreateNavGraphImage( surfaceInput, platformParams );
 
         // Copy graph image data into the resource

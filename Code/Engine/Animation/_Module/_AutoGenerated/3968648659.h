@@ -135,12 +135,11 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Animation::SimpleAnimationComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    KRG_ASSERT( !pActualType->m_pAnimation.IsUnloading() );
                     if ( !pActualType->m_pAnimation.IsValid() || pActualType->m_pAnimation.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pAnimation.IsLoading() )
+                    else if ( pActualType->m_pAnimation.IsUnloaded() || pActualType->m_pAnimation.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }

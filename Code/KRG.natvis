@@ -90,6 +90,7 @@
     <Expand>
       <Item Name="ID">m_resourceID</Item>
       <Item Name="Data">($T1*) m_pResource->m_pResource</Item>
+      <Item Name="ResourceRecord">m_pResource</Item>
     </Expand>
   </Type>
 

@@ -2,10 +2,16 @@
 #include "../FileSystem.h"
 #include "System/Core/Platform/Platform/Platform_Win32.h"
 #include "System/Core/Algorithm/Hash.h"
+#include "System/Core/Math/Math.h"
 #include <windows.h>
 #include <shlwapi.h>
 #include <shlobj.h>
 #include <shellapi.h>
+
+
+#include <fstream>
+#include "../Time/Timers.h"
+#include "../Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
@@ -212,6 +218,49 @@ namespace KRG
         FileSystemPath GetCurrentProcessPath()
         { 
             return FileSystemPath( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
+        }
+
+        //-------------------------------------------------------------------------
+
+        bool LoadFile( FileSystemPath const& path, TVector<Byte>& fileData )
+        {
+            KRG_ASSERT( path.IsFilePath() );
+
+            // Open file handle
+            HANDLE hFile = CreateFile( path.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr );
+            if ( hFile == INVALID_HANDLE_VALUE )
+            {
+                return false;
+            }
+
+            // Get file size
+            LARGE_INTEGER fileSizeLI;
+            if ( !GetFileSizeEx( hFile, &fileSizeLI ) )
+            {
+                CloseHandle( hFile );
+                return false;
+            }
+
+            // Allocate destination memory
+            size_t const fileSize = (size_t) ( fileSizeLI.QuadPart );
+            fileData.resize( fileSize );
+
+            // Read file
+            static constexpr DWORD const defaultReadBufferSize = 65536;
+            DWORD bytesRead = 0;
+            DWORD remainingBytesToRead = (DWORD) fileSize;
+
+            Byte* pBuffer = fileData.data();
+            while ( remainingBytesToRead != 0 )
+            {
+                DWORD const numBytesToRead = Math::Min( defaultReadBufferSize, remainingBytesToRead );
+                ReadFile( hFile, pBuffer, numBytesToRead, &bytesRead, nullptr );
+                pBuffer += bytesRead;
+                remainingBytesToRead -= bytesRead;
+            }
+
+            CloseHandle( hFile );
+            return true;
         }
     }
 }

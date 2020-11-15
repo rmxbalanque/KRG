@@ -205,20 +205,20 @@ namespace KRG::EntityModel
         {
             if ( m_status != Status::LoadFailed )
             {
-                // Deactivate and unload entities
-                for ( auto pEntity : m_pCollection->GetEntities() )
-                {
-                    if ( pEntity->IsActivated() )
-                    {
-                        pEntity->Deactivate( loadingContext );
-                    }
-
-                    pEntity->UnloadComponents( loadingContext );
-                }
-
-                // Delete entities
                 if ( m_pCollection != nullptr )
                 {
+                    // Deactivate and unload entities
+                    for ( auto pEntity : m_pCollection->GetEntities() )
+                    {
+                        if ( pEntity->IsActivated() )
+                        {
+                            pEntity->Deactivate( loadingContext );
+                        }
+
+                        pEntity->UnloadComponents( loadingContext );
+                    }
+
+                    // Delete collection
                     KRG::Delete( m_pCollection );
                 }
 

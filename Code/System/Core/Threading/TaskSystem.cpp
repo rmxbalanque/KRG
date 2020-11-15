@@ -54,7 +54,7 @@ namespace KRG
     void TaskSystem::Initialize()
     {
         enki::TaskSchedulerConfig config;
-        config.numTaskThreadsToCreate = m_numWorkers + 1;
+        config.numTaskThreadsToCreate = m_numWorkers;
         config.customAllocator.alloc = CustomAllocFunc;
         config.customAllocator.free = CustomFreeFunc;
         config.profilerCallbacks.threadStart = OnStartThread;

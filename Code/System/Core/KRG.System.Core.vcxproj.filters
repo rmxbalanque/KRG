@@ -1267,6 +1267,9 @@
     <ClInclude Include="Memory\MemoryStreamHelpers.h">
       <Filter>Types</Filter>
     </ClInclude>
+    <ClInclude Include="ThirdParty\concurrentqueue\blockingconcurrentqueue.h" />
+    <ClInclude Include="ThirdParty\concurrentqueue\concurrentqueue.h" />
+    <ClInclude Include="ThirdParty\concurrentqueue\lightweightsemaphore.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EA.props">
@@ -1302,6 +1305,8 @@
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">
       <Filter>ThirdParty\EA\EABase\doc</Filter>
     </None>
+    <None Include="ThirdParty\concurrentqueue\LICENSE.md" />
+    <None Include="ThirdParty\concurrentqueue\README.md" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\EA\EASTL\Doc\EASTL.natvis">

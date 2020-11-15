@@ -146,12 +146,11 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Render::MaterialResourceDescriptor*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    KRG_ASSERT( !pActualType->m_diffuseTexture.IsUnloading() );
                     if ( !pActualType->m_diffuseTexture.IsValid() || pActualType->m_diffuseTexture.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_diffuseTexture.IsLoading() )
+                    else if ( pActualType->m_diffuseTexture.IsUnloaded() || pActualType->m_diffuseTexture.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }

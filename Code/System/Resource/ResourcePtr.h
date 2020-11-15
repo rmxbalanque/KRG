@@ -29,6 +29,7 @@ namespace KRG
             ResourcePtr( Resource::ResourcePtr const& rhs ) { operator=( rhs ); }
             ResourcePtr( Resource::ResourcePtr&& rhs ) { operator=( eastl::move( rhs ) ); }
 
+            inline bool IsValid() const { return m_resourceID.IsValid(); }
             inline ResourceID const& GetResourceID() const { return m_resourceID; }
             inline ResourceTypeID GetResourceTypeID() const { return m_resourceID.GetResourceTypeID(); }
 
@@ -59,19 +60,19 @@ namespace KRG
             }
 
             // Load status
-            inline bool IsValid() const { return m_resourceID.IsValid(); }
+            //-------------------------------------------------------------------------
+
             inline LoadingStatus GetLoadingStatus() const { return ( m_pResource != nullptr ) ? m_pResource->GetLoadingStatus() : LoadingStatus::Unloaded; }
-            inline bool IsLoading() const { return ( m_pResource != nullptr ) ? m_pResource->IsLoading() : false; }
-            inline bool IsLoaded() const { return ( m_pResource != nullptr ) ? m_pResource->IsLoaded() : false; }
-            inline bool IsUnloading() const { return ( m_pResource != nullptr ) ? m_pResource->IsUnloading() : false; }
-            inline bool IsUnloaded() const { return ( m_pResource != nullptr ) ? m_pResource->IsUnloaded() : true; }
-            inline bool HasLoadingFailed() const { return ( m_pResource != nullptr ) ? m_pResource->HasLoadingFailed() : false; }
-            inline bool IsProcessing() const { return ( m_pResource != nullptr ) ? ( m_pResource->IsLoading() || m_pResource->IsUnloading() ) : false; }
+            inline bool IsLoading() const { return GetLoadingStatus() == LoadingStatus::Loading; }
+            inline bool IsLoaded() const { return GetLoadingStatus() == LoadingStatus::Loaded; }
+            inline bool IsUnloading() const { return GetLoadingStatus() == LoadingStatus::Unloading; }
+            inline bool IsUnloaded() const { return GetLoadingStatus() == LoadingStatus::Unloaded; }
+            inline bool HasLoadingFailed() const { return GetLoadingStatus() == LoadingStatus::Failed; }
 
         protected:
 
-            ResourceID              m_resourceID;
-            ResourceRecord const*   m_pResource = nullptr;
+            ResourceID                  m_resourceID;
+            ResourceRecord const*       m_pResource = nullptr;
         };
     }
 

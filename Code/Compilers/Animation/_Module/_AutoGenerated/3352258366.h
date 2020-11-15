@@ -170,12 +170,11 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationResourceDescriptor*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    KRG_ASSERT( !pActualType->m_pSkeleton.IsUnloading() );
                     if ( !pActualType->m_pSkeleton.IsValid() || pActualType->m_pSkeleton.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pSkeleton.IsLoading() )
+                    else if ( pActualType->m_pSkeleton.IsUnloaded() || pActualType->m_pSkeleton.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }

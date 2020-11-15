@@ -147,12 +147,11 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    KRG_ASSERT( !pActualType->m_pPhysicsGeometry.IsUnloading() );
                     if ( !pActualType->m_pPhysicsGeometry.IsValid() || pActualType->m_pPhysicsGeometry.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pPhysicsGeometry.IsLoading() )
+                    else if ( pActualType->m_pPhysicsGeometry.IsUnloaded() || pActualType->m_pPhysicsGeometry.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }

@@ -273,12 +273,11 @@ namespace KRG
                         {
                             file << "                    for ( auto const& resourcePtr : pActualType->" << propertyDesc.m_name << " )\n";
                             file << "                    {\n";
-                            file << "                        KRG_ASSERT( !resourcePtr.IsUnloading() );\n";
                             file << "                        if ( !resourcePtr.IsValid() || resourcePtr.HasLoadingFailed() )\n";
                             file << "                        {\n";
                             file << "                            status = LoadingStatus::Failed;\n";
                             file << "                        }\n";
-                            file << "                        else if ( resourcePtr.IsLoading() )\n";
+                            file << "                        else if ( resourcePtr.IsUnloaded() || resourcePtr.IsLoading() )\n";
                             file << "                        {\n";
                             file << "                            return LoadingStatus::Loading;\n";
                             file << "                        }\n";
@@ -288,12 +287,11 @@ namespace KRG
                         {
                             for ( auto i = 0; i < propertyDesc.m_arraySize; i++ )
                             {
-                                file << "                    KRG_ASSERT( !pActualType->" << propertyDesc.m_name << "[" << i << "].IsUnloading() );\n";
                                 file << "                    if ( !pActualType->" << propertyDesc.m_name << "[" << i << "].IsValid() || pActualType->" << propertyDesc.m_name << "[" << i << "].HasLoadingFailed() )\n";
                                 file << "                    {\n";
                                 file << "                        status = LoadingStatus::Failed;\n";
                                 file << "                    }\n";
-                                file << "                    else if ( pActualType->" << propertyDesc.m_name << "[" << i << "].IsLoading() )\n";
+                                file << "                    else if ( pActualType->" << propertyDesc.m_name << "[" << i << "].IsUnloaded() || pActualType->" << propertyDesc.m_name << "[" << i << "].IsLoading() )\n";
                                 file << "                    {\n";
                                 file << "                        return LoadingStatus::Loading;\n";
                                 file << "                    }\n\n";
@@ -302,12 +300,11 @@ namespace KRG
                     }
                     else
                     {
-                        file << "                    KRG_ASSERT( !pActualType->" << propertyDesc.m_name << ".IsUnloading() );\n";
                         file << "                    if ( !pActualType->" << propertyDesc.m_name << ".IsValid() || pActualType->" << propertyDesc.m_name << ".HasLoadingFailed() )\n";
                         file << "                    {\n";
                         file << "                        status = LoadingStatus::Failed;\n";
                         file << "                    }\n";
-                        file << "                    else if ( pActualType->" << propertyDesc.m_name << ".IsLoading() )\n";
+                        file << "                    else if ( pActualType->" << propertyDesc.m_name << ".IsUnloaded() || pActualType->" << propertyDesc.m_name << ".IsLoading() )\n";
                         file << "                    {\n";
                         file << "                        return LoadingStatus::Loading;\n";
                         file << "                    }\n\n";

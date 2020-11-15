@@ -14,6 +14,7 @@ namespace KRG
     //-------------------------------------------------------------------------
     // * Wrapper on top of EnkiTS
     //-------------------------------------------------------------------------
+    // Note: Will also use main thread as a worker thread - when using blocking wait!
 
     using IAsyncTask = enki::ITaskSet;
     using AsyncTask = enki::TaskSet;

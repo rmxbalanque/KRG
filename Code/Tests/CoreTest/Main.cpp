@@ -181,32 +181,40 @@ int main( int argc, char *argv[] )
         }*/
 
 
-        TVector<Byte> arr;
-        String t = "data://dasdsadasddsadasadasdsadasdasdaadadsadasd adsadsaddas dsadasdasdasddsadasd asdasdasdasdasdasdasdasdsadsadas dsadassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss.map";
+        //TVector<Byte> arr;
+        //String t = "data://dasdsadasddsadasadasdsadasdasdaadadsadasd adsadsaddas dsadasdasdasddsadasd asdasdasdasdasdasdasdasdsadsadas dsadassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss.map";
 
-        Timer perfTimer;
-        for ( auto i = 0; i < 100; i++ )
-        {
-            Serialization::BinaryMemoryArchive archive( Serialization::Mode::Write, arr );
+        //Timer perfTimer;
+        //for ( auto i = 0; i < 100; i++ )
+        //{
+        //    Serialization::BinaryMemoryArchive archive( Serialization::Mode::Write, arr );
 
-            //Serialization::BinaryWriter archive( arr );
-            archive << t;
+        //    //Serialization::BinaryWriter archive( arr );
+        //    archive << t;
 
-            //-------------------------------------------------------------------------
+        //    //-------------------------------------------------------------------------
 
-            /*auto pOutStream = KRG::New<MemoryStream>( arr );
-            auto pArchive = KRG::New<cereal::BinaryOutputArchive>( *pOutStream );
-            ( *pArchive ) << t;
-            KRG::Delete( pArchive );
-            KRG::Delete( pOutStream );*/
+        //    /*auto pOutStream = KRG::New<MemoryStream>( arr );
+        //    auto pArchive = KRG::New<cereal::BinaryOutputArchive>( *pOutStream );
+        //    ( *pArchive ) << t;
+        //    KRG::Delete( pArchive );
+        //    KRG::Delete( pOutStream );*/
 
-            //-------------------------------------------------------------------------
+        //    //-------------------------------------------------------------------------
 
-            arr.clear();
-            //arr.shrink_to_fit();
-        }
+        //    arr.clear();
+        //    //arr.shrink_to_fit();
+        //}
 
-        Milliseconds elapsedTime = perfTimer.GetElapsedTimeMilliseconds();
+        //Milliseconds elapsedTime = perfTimer.GetElapsedTimeMilliseconds();
+
+        //-------------------------------------------------------------------------
+
+        char t[5];
+        U32 at = 'ASSG';
+        ResourceTypeID rt( "ASSG" );
+
+        rt.GetString( t );
 
         //-------------------------------------------------------------------------
 

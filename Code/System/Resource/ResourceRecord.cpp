@@ -8,7 +8,7 @@ namespace KRG
     {
         ResourceRecord::~ResourceRecord()
         {
-            KRG_ASSERT( !m_isBeingProcessed && m_pResource == nullptr && !HasReferences() );
+            KRG_ASSERT( m_pResource == nullptr && !HasReferences() );
         }
     }
 }

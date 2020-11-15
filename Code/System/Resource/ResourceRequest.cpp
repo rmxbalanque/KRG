@@ -1,5 +1,8 @@
 #include "ResourceRequest.h"
 #include "System/Core/Logging/Log.h"
+#include "System/Core/FileSystem/FileSystem.h"
+#include "System/Core/Profiling/Profiling.h"
+#include "System/Core/Threading/Threading.h"
 
 //-------------------------------------------------------------------------
 
@@ -7,14 +10,14 @@ namespace KRG
 {
     namespace Resource
     {
-        ResourceRequest::ResourceRequest( UUID const& userID, ResourceRecord* pRecord, ResourceLoader* pResourceLoader )
-            : m_userID( userID )
+        ResourceRequest::ResourceRequest( UUID const& requesterID, ResourceRecord* pRecord, ResourceLoader* pResourceLoader )
+            : m_requesterID( requesterID )
             , m_pResourceRecord( pRecord )
             , m_pResourceLoader( pResourceLoader )
         {
+            KRG_ASSERT( Threading::IsMainThread() );
             KRG_ASSERT( m_pResourceRecord != nullptr && m_pResourceRecord->IsValid() );
             KRG_ASSERT( m_pResourceRecord->IsLoaded() || m_pResourceRecord->IsUnloaded() );
-            KRG_ASSERT( !m_pResourceRecord->HasReferences() );
             KRG_ASSERT( pResourceLoader != nullptr );
 
             if ( m_pResourceRecord->IsLoaded() )
@@ -31,17 +34,17 @@ namespace KRG
             }
         }
 
-        void ResourceRequest::OnRawResourceRequestComplete( TVector<Byte>&& rawResourceData )
+        void ResourceRequest::OnRawResourceRequestComplete( String const& filePath )
         {
             // Raw resource failed to load
-            if ( rawResourceData.empty() )
+            if ( filePath.empty() )
             {
                 m_stage = ResourceRequest::Stage::Complete;
                 m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
             }
             else // Continue the load operation
             {
-                m_rawResourceData.swap( rawResourceData );
+                m_rawResourcePath = filePath;
                 m_stage = ResourceRequest::Stage::LoadResource;
             }
         }
@@ -77,15 +80,9 @@ namespace KRG
                 }
                 break;
 
-                case Stage::UnloadDependencies:
-                {
-                    m_stage = Stage::InstallResource;
-                }
-                break;
-
                 case Stage::UnloadResource:
                 {
-                    m_stage = Stage::LoadDependencies;
+                    m_stage = Stage::InstallResource;
                 }
                 break;
 
@@ -115,15 +112,8 @@ namespace KRG
 
                 case Stage::LoadResource:
                 {
-                    m_rawResourceData.clear();
                     m_stage = Stage::Complete;
                     m_pResourceRecord->SetLoadingStatus( LoadingStatus::Unloaded );
-                }
-                break;
-
-                case Stage::LoadDependencies:
-                {
-                    m_stage = Stage::UnloadResource;
                 }
                 break;
 
@@ -134,7 +124,7 @@ namespace KRG
 
                 case Stage::InstallResource:
                 {
-                    m_stage = Stage::UnloadDependencies;
+                    m_stage = Stage::UnloadResource;
                 }
                 break;
 
@@ -163,8 +153,11 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void ResourceRequest::Update( RequestContext& requestContext )
+        bool ResourceRequest::Update( RequestContext& requestContext )
         {
+            // Update loading
+            //-------------------------------------------------------------------------
+
             switch ( m_stage )
             {
                 case ResourceRequest::Stage::RequestRawResource:
@@ -176,18 +169,13 @@ namespace KRG
                 case ResourceRequest::Stage::WaitForRawResourceRequest:
                 {
                     // Do Nothing
+                    KRG_PROFILE_SCOPE_RESOURCE( "Wait For Raw Resource Request" );
                 }
                 break;
 
                 case ResourceRequest::Stage::LoadResource:
                 {
                     LoadResource( requestContext );
-                }
-                break;
-
-                case ResourceRequest::Stage::LoadDependencies:
-                {
-                    LoadDependencies( requestContext );
                 }
                 break;
 
@@ -203,19 +191,12 @@ namespace KRG
                 }
                 break;
 
+                //-------------------------------------------------------------------------
+
                 case ResourceRequest::Stage::UninstallResource:
                 {
                     // Execute all unload operations immediately
                     UninstallResource( requestContext );
-                    UnloadDependencies( requestContext );
-                    UnloadResource( requestContext );
-                }
-                break;
-
-                case ResourceRequest::Stage::UnloadDependencies:
-                {
-                    // Execute all unload operations immediately
-                    UnloadDependencies( requestContext );
                     UnloadResource( requestContext );
                 }
                 break;
@@ -230,8 +211,7 @@ namespace KRG
                 {
                     // Execute all unload operations immediately
                     m_installDependencies.clear();
-                    m_stage = Stage::UnloadDependencies;
-                    UnloadDependencies( requestContext );
+                    m_stage = Stage::UnloadResource;
                     UnloadResource( requestContext );
                 }
                 break;
@@ -248,54 +228,89 @@ namespace KRG
                 }
                 break;
             }
+
+            //-------------------------------------------------------------------------
+
+            return IsComplete();
         }
 
         //-------------------------------------------------------------------------
 
         void ResourceRequest::RequestRawResource( RequestContext& requestContext )
         {
+            KRG_PROFILE_FUNCTION_RESOURCE();
             requestContext.m_createRawRequestRequestFunction( this );
             m_stage = ResourceRequest::Stage::WaitForRawResourceRequest;
         }
 
         void ResourceRequest::LoadResource( RequestContext& requestContext )
         {
+            KRG_PROFILE_FUNCTION_RESOURCE();
             KRG_ASSERT( m_stage == ResourceRequest::Stage::LoadResource );
+            KRG_ASSERT( m_rawResourcePath.IsValid() );
 
-            if ( m_pResourceLoader->Load( GetResourceID(), m_rawResourceData, m_pResourceRecord ) )
+            // Read file
+            //-------------------------------------------------------------------------
+
             {
+                KRG_PROFILE_SCOPE_IO( "Read File" );
+                KRG_PROFILE_TAG( "filename", m_rawResourcePath.GetFileName().c_str() );
+
+                if ( !FileSystem::LoadFile( m_rawResourcePath, m_rawResourceData ) )
+                {
+                    KRG_LOG_ERROR( "Resource", "Failed to load resource file (%s)", m_pResourceRecord->GetResourceID().c_str() );
+                    m_stage = ResourceRequest::Stage::Complete;
+                    m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
+                }
+            }
+
+            // Load resource
+            //-------------------------------------------------------------------------
+
+            {
+                KRG_PROFILE_SCOPE_RESOURCE( "Load Resource" );
+
+                #if KRG_DEBUG_INSTRUMENTATION
+                char resTypeID[5];
+                m_pResourceRecord->GetResourceTypeID().GetString( resTypeID );
+                KRG_PROFILE_TAG( "Loader", resTypeID );
+                #endif
+
+                // Load the resource
+                if ( !m_pResourceLoader->Load( GetResourceID(), m_rawResourceData, m_pResourceRecord ) )
+                {
+                    KRG_LOG_ERROR( "Resource", "Failed to load compiled resource data (%s)", m_pResourceRecord->GetResourceID().c_str() );
+                    m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
+                    m_pResourceLoader->Unload( GetResourceID(), m_pResourceRecord );
+                    m_stage = ResourceRequest::Stage::Complete;
+                    return;
+                }
+
+                // Release raw data
                 m_rawResourceData.clear();
-                m_stage = ResourceRequest::Stage::LoadDependencies;
             }
-            else
-            {
-                m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
-                m_pResourceLoader->Unload( GetResourceID(), m_pResourceRecord );
-                m_stage = ResourceRequest::Stage::Complete;
-            }
-        }
 
-        void ResourceRequest::LoadDependencies( RequestContext& requestContext )
-        {
-            KRG_ASSERT( m_stage == ResourceRequest::Stage::LoadDependencies );
+            // Load dependencies
+            //-------------------------------------------------------------------------
 
-            // Create the resource ptrs for the install dependencies and request the load
+            // Create the resource ptrs for the install dependencies and request their load
             // These resource ptrs are temporary and will be clear upon completion of the request
+            UUID const installDependencyRequesterID = CreateInstallDependencyRequesterID( m_pResourceRecord->GetResourceID() );
             U32 const numInstallDependencies = (U32) m_pResourceRecord->m_installDependencyResourceIDs.size();
             m_installDependencies.resize( numInstallDependencies );
             for ( U32 i = 0; i < numInstallDependencies; i++ )
             {
-                // Do not use the user ID for install dependencies! Since they are not explicitly loaded by a specific user!
+                // Do not use the requester ID for install dependencies! Since they are not explicitly loaded by a specific user!
                 // Instead we create a UUID from the depending resource's resourceID
                 m_installDependencies[i] = ResourcePtr( m_pResourceRecord->m_installDependencyResourceIDs[i] );
-                UUID const installDependencyUUID( 0, 0, 0, m_pResourceRecord->GetResourceID().GetDataPath().GetID() );
-                requestContext.m_loadResourceFunction( installDependencyUUID, m_installDependencies[i] );
+                requestContext.m_loadResourceFunction( installDependencyRequesterID, m_installDependencies[i] );
             }
             m_stage = ResourceRequest::Stage::WaitForLoadDependencies;
         }
 
         void ResourceRequest::WaitForLoadDependencies( RequestContext& requestContext )
         {
+            KRG_PROFILE_FUNCTION_RESOURCE();
             KRG_ASSERT( m_stage == ResourceRequest::Stage::WaitForLoadDependencies );
 
             enum class InstallStatus
@@ -309,17 +324,16 @@ namespace KRG
             auto status = InstallStatus::ShouldProceed;
             for ( auto const& installDependency : m_installDependencies )
             {
-                KRG_ASSERT( !installDependency.IsUnloaded() );
-
-                if ( installDependency.IsLoading() )
-                {
-                    status = InstallStatus::Loading;
-                    break;
-                }
-                else if ( installDependency.HasLoadingFailed() )
+                if ( installDependency.HasLoadingFailed() )
                 {
                     KRG_LOG_ERROR( "Resource", "Failed to load install dependency: %s", installDependency.GetResourceID().ToString().c_str() );
                     status = InstallStatus::ShouldFail;
+                    break;
+                }
+
+                if ( !installDependency.IsLoaded() )
+                {
+                    status = InstallStatus::Loading;
                     break;
                 }
             }
@@ -330,8 +344,7 @@ namespace KRG
                 // Unload the resource data
                 m_pResourceRecord->SetLoadingStatus( LoadingStatus::Unloading );
                 m_installDependencies.clear();
-                m_stage = Stage::UnloadDependencies;
-                UnloadDependencies( requestContext );
+                m_stage = Stage::UnloadResource;
                 UnloadResource( requestContext );
 
                 // Complete request
@@ -347,23 +360,26 @@ namespace KRG
 
         void ResourceRequest::InstallResource( RequestContext& requestContext )
         {
+            KRG_PROFILE_FUNCTION_RESOURCE();
             KRG_ASSERT( m_stage == ResourceRequest::Stage::InstallResource );
 
             if ( m_pResourceLoader->Install( GetResourceID(), m_pResourceRecord, m_installDependencies ) )
             {
                 KRG_ASSERT( m_pResourceRecord->GetResourceData() != nullptr );
+                m_installDependencies.clear();
                 m_pResourceRecord->SetLoadingStatus( LoadingStatus::Loaded );
             }
             else // Install operation failed, unload resource and set status to failed
             {
-                UnloadDependencies( requestContext );
+                m_stage = ResourceRequest::Stage::UnloadResource;
                 UnloadResource( requestContext );
                 m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
             }
 
             m_stage = ResourceRequest::Stage::Complete;
-            m_installDependencies.clear();
         }
+
+        //-------------------------------------------------------------------------
 
         void ResourceRequest::UninstallResource( RequestContext& requestContext )
         {
@@ -374,15 +390,19 @@ namespace KRG
                 m_pResourceLoader->Uninstall( GetResourceID(), m_pResourceRecord );
             }
 
-            m_stage = ResourceRequest::Stage::UnloadDependencies;
+            m_stage = ResourceRequest::Stage::UnloadResource;
         }
 
-        void ResourceRequest::UnloadDependencies( RequestContext& requestContext )
+        void ResourceRequest::UnloadResource( RequestContext& requestContext )
         {
-            KRG_ASSERT( m_stage == ResourceRequest::Stage::UnloadDependencies );
+            KRG_ASSERT( m_stage == ResourceRequest::Stage::UnloadResource );
+
+            // Unload dependencies
+            //-------------------------------------------------------------------------
 
             // Create the resource ptrs for the install dependencies and request the unload
             // These resource ptrs are temporary and will be cleared upon completion of the request
+            UUID const installDependencyRequesterID = CreateInstallDependencyRequesterID( m_pResourceRecord->GetResourceID() );
             U32 const numInstallDependencies = (U32) m_pResourceRecord->m_installDependencyResourceIDs.size();
             m_installDependencies.resize( numInstallDependencies );
             for ( U32 i = 0; i < numInstallDependencies; i++ )
@@ -390,17 +410,11 @@ namespace KRG
                 // Do not use the user ID for install dependencies! Since they are not explicitly loaded by a specific user!
                 // Instead we create a UUID from the depending resource's resourceID
                 m_installDependencies[i] = ResourcePtr( m_pResourceRecord->m_installDependencyResourceIDs[i] );
-                UUID const installDependencyUUID( 0, 0, 0, m_pResourceRecord->GetResourceID().GetDataPath().GetID() );
-                requestContext.m_unloadResourceFunction( installDependencyUUID, m_installDependencies[i] );
+                requestContext.m_unloadResourceFunction( installDependencyRequesterID, m_installDependencies[i] );
             }
 
-            m_installDependencies.clear();
-            m_stage = ResourceRequest::Stage::UnloadResource;
-        }
-
-        void ResourceRequest::UnloadResource( RequestContext& requestContext )
-        {
-            KRG_ASSERT( m_stage == ResourceRequest::Stage::UnloadResource );
+            // Unload resource
+            //-------------------------------------------------------------------------
 
             S32 const t = m_pResourceRecord->GetResourceID().GetID();
 
@@ -418,10 +432,11 @@ namespace KRG
             }
         }
 
+        //-------------------------------------------------------------------------
+
         void ResourceRequest::CancelRawRequestRequest( RequestContext& requestContext )
         {
             KRG_ASSERT( m_stage == ResourceRequest::Stage::CancelRawResourceRequest );
-
             requestContext.m_cancelRawRequestRequestFunction( this );
             m_stage = ResourceRequest::Stage::Complete;
         }

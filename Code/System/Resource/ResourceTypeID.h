@@ -29,7 +29,46 @@ namespace KRG
         inline operator U32&() { return m_ID; }
 
         inline bool IsValid() const { return m_ID != 0 && m_ID != Unknown; }
-        inline String ToString() const;
+
+        //-------------------------------------------------------------------------
+
+        inline void GetString( char outStr[4] ) const
+        {
+            S32 idx = 0;
+
+            outStr[idx] = (U8) ( m_ID >> 24 );
+            if ( outStr[idx] != 0 )
+            {
+                idx++;
+            }
+
+            outStr[idx] = (U8) ( ( m_ID & 0x00FF0000 ) >> 16 );
+            if ( outStr[idx] != 0 )
+            {
+                idx++;
+            }
+
+            outStr[idx] = (U8) ( ( m_ID & 0x0000FF00 ) >> 8 );
+            if ( outStr[idx] != 0 )
+            {
+                idx++;
+            }
+
+            outStr[idx] = (U8) ( ( m_ID & 0x000000FF ) );
+            if ( outStr[idx] != 0 )
+            {
+                idx++;
+            }
+
+            outStr[idx] = 0;
+        }
+
+        inline String ToString() const
+        {
+            char str[5];
+            GetString( str );
+            return String( str );
+        }
 
     public:
 

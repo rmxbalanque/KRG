@@ -147,12 +147,11 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Navmesh::NavmeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    KRG_ASSERT( !pActualType->m_pNavmeshData.IsUnloading() );
                     if ( !pActualType->m_pNavmeshData.IsValid() || pActualType->m_pNavmeshData.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pNavmeshData.IsLoading() )
+                    else if ( pActualType->m_pNavmeshData.IsUnloaded() || pActualType->m_pNavmeshData.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }

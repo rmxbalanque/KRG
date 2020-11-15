@@ -34,6 +34,9 @@
     <ClInclude Include="ThirdParty\cereal\types\optional.hpp" />
     <ClInclude Include="ThirdParty\cereal\types\variant.hpp" />
     <ClInclude Include="ThirdParty\cereal\version.hpp" />
+    <ClInclude Include="ThirdParty\concurrentqueue\blockingconcurrentqueue.h" />
+    <ClInclude Include="ThirdParty\concurrentqueue\concurrentqueue.h" />
+    <ClInclude Include="ThirdParty\concurrentqueue\lightweightsemaphore.h" />
     <ClInclude Include="Types\Event.h" />
     <ClInclude Include="FileSystem\DataPath.h" />
     <ClInclude Include="FileSystem\FileSystemPath.h" />
@@ -381,6 +384,8 @@
     <ClCompile Include="Types\Platform\Types_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ThirdParty\concurrentqueue\LICENSE.md" />
+    <None Include="ThirdParty\concurrentqueue\README.md" />
     <None Include="ThirdParty\EA\EA.props" />
     <None Include="ThirdParty\EA\EABase\doc\EABase.html" />
     <None Include="ThirdParty\EA\EASTL\Doc\html\EASTL Benchmarks.html" />

@@ -87,11 +87,11 @@ namespace KRG
             // Send all requests and keep-alive messages
             //-------------------------------------------------------------------------
 
-            for ( auto& messageToSend : m_messagesToSend )
+            Network::IPC::Message messageToSend;
+            while( m_messagesToSend.try_dequeue( messageToSend ) )
             {
                 m_networkClient.SendMessageToServer( messageToSend );
             }
-            m_messagesToSend.clear();
 
             if ( m_keepAliveTimer.GetElapsedTimeSeconds() > Seconds( 5.0f ) )
             {
@@ -120,26 +120,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 // If the request has a filepath set, the compilation was a success
-                if ( !response.m_filePath.empty() )
-                {
-                    KRG_PROFILE_SCOPE_IO( "Load File" );
-
-                    // Try to load the compiled file
-                    TVector<Byte> rawResourceData;
-                    if ( !FileSystem::LoadFile( response.m_filePath, rawResourceData, FileSystem::FileType::Binary ) )
-                    {
-                        KRG_LOG_ERROR( "Resource", "Failed to load compiled resource (%s)", pFoundRequest->GetResourceID().c_str() );
-                        rawResourceData.clear();
-                    }
-
-                    pFoundRequest->OnRawResourceRequestComplete( eastl::move( rawResourceData ) );
-                }
-                else // Failed request, finalize it immediately
-                {
-                    KRG_LOG_ERROR( "Resource", "Failed to compile resource (%s)", pFoundRequest->GetResourceID().c_str() );
-                    pFoundRequest->OnRawResourceRequestComplete( TVector<Byte>() );
-                }
-
+                pFoundRequest->OnRawResourceRequestComplete( response.m_filePath );
                 FinalizeRequest( pFoundRequest );
             }
 
@@ -148,8 +129,7 @@ namespace KRG
 
         void NetworkResourceProvider::RequestResourceInternal( ResourceRequest* pRequest )
         {
-            auto& message = m_messagesToSend.emplace_back( Network::IPC::Message() );
-            message.SetData( (S32) NetworkMessageID::RequestResource, NetworkResourceRequest( pRequest->GetResourceID() ) );
+            m_messagesToSend.enqueue( Network::IPC::Message( (S32) NetworkMessageID::RequestResource, NetworkResourceRequest( pRequest->GetResourceID() ) ) );
         }
 
         void NetworkResourceProvider::CancelRequestInternal( ResourceRequest* pRequest )
@@ -158,5 +138,4 @@ namespace KRG
         }
     }
 }
-
 #endif
