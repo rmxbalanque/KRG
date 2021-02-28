@@ -3,7 +3,6 @@
 #include "System/Resource/ResourceHeader.h"
 #include "System/Resource/ResourceRequest.h"
 #include "System/Core/ThirdParty/cereal/archives/json.hpp"
-#include "System/Core/Logging/Log.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Threading/Threading.h"
@@ -115,9 +114,13 @@ namespace KRG
                 }
 
                 ResourceRequest* pFoundRequest = static_cast<ResourceRequest*>( *foundIter );
-                KRG_ASSERT( pFoundRequest->IsValid() && pFoundRequest->GetLoadingStatus() == LoadingStatus::Loading );
+                KRG_ASSERT( pFoundRequest->IsValid() );
 
-                //-------------------------------------------------------------------------
+                // Ignore any responses for requests that may have been canceled or are unloading
+                if ( pFoundRequest->GetLoadingStatus() != LoadingStatus::Loading )
+                {
+                   continue;
+                }
 
                 // If the request has a filepath set, the compilation was a success
                 pFoundRequest->OnRawResourceRequestComplete( response.m_filePath );

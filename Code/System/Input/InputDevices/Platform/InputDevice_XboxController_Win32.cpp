@@ -2,7 +2,6 @@
 #include "System/Input/InputDevices/InputDevice_XBoxController.h"
 #include "System/Core/Math/Vector.h"
 #include "System/Core/Types/Containers.h"
-#include "System/Core/Logging/Log.h"
 #include <windows.h>
 #include <XInput.h>
 
@@ -39,8 +38,6 @@ namespace KRG
 
         void XBoxControllerInputDevice::UpdateState()
         {
-            Ticks const currentTime = GetSystemTime();
-
             XINPUT_STATE state;
             DWORD result = XInputGetState( m_hardwareControllerIdx, &state );
             m_isConnected = ( result == ERROR_SUCCESS );

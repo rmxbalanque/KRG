@@ -23,12 +23,12 @@ namespace KRG
                 auto pPose = poseStack.PushPose();
                 m_pAnimation->GetPose( m_time, pPose );
 
-                #if KRG_DEBUG_INSTRUMENTATION
+                #if KRG_DEVELOPMENT_TOOLS
                 poseStack.RecordDebugPose( pPose );
                 #endif
             }
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             String Sample::GetDebugText() const
             {
                 if ( m_pAnimation->IsAdditive() )

@@ -243,7 +243,10 @@ namespace KRG
                     {
                         if ( pActiveRequest != nullptr )
                         {
-                            pActiveRequest->SwitchToLoadTask();
+                            if ( pActiveRequest->IsUnloadRequest() )
+                            {
+                                pActiveRequest->SwitchToLoadTask();
+                            }
                         }
                         else // Create new request
                         {
@@ -277,11 +280,11 @@ namespace KRG
                     ResourceID const resourceID = pCompletedRequest->GetResourceID();
                     KRG_ASSERT( pCompletedRequest->IsComplete() );
 
-                    if ( pCompletedRequest->IsLoadRequest() )
-                    {
-                        KRG_LOG_MESSAGE( "Resource", "Load Request Complete: %s", resourceID.GetDataPath().c_str() );
-                    }
-                    else // Unload request
+                    #if KRG_DEVELOPMENT_TOOLS
+                    m_history.emplace_back( CompletedRequestLog( pCompletedRequest->IsLoadRequest() ? PendingRequest::Type::Load : PendingRequest::Type::Unload, resourceID ) );
+                    #endif
+
+                    if ( pCompletedRequest->IsUnloadRequest() )
                     {
                         // Find the resource record and erase it
                         auto recordIter = m_resourceRecords.find( resourceID );
@@ -294,8 +297,6 @@ namespace KRG
                             KRG::Delete( pRecord );
                             m_resourceRecords.erase( recordIter );
                         }
-
-                        KRG_LOG_MESSAGE( "Resource", "Unload Request Complete: %s", resourceID.GetDataPath().c_str() );
                     }
 
                     // Delete request
@@ -347,7 +348,7 @@ namespace KRG
                     {
                         // We need to process and remove completed requests at the next update stage since unload task may have queued unload requests which refer to the request's allocated memory
                         m_completedRequests.emplace_back( pRequest );
-                        VectorEraseUnsorted( m_activeRequests, i );
+                        m_activeRequests.erase_unsorted( m_activeRequests.begin() + i );
                     }
                 }
             }

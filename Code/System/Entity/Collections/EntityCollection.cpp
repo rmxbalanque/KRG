@@ -3,66 +3,13 @@
 #include "System/Entity/Entity.h"
 #include "System/Entity/EntitySystem.h"
 #include "System/TypeSystem/TypeValueConverter.h"
-#include "System/Core/Logging/Log.h"
+#include "System/Core/Profiling/Profiling.h"
+#include "System/Core/Threading/TaskSystem.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::EntityModel
 {
-    EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionTemplate )
-        : m_ID( ID )
-    {
-        KRG_ASSERT( ID.IsValid() );
-
-        //-------------------------------------------------------------------------
-        // Create entities and components
-        //-------------------------------------------------------------------------
-
-        auto pEntityTypeInfo = Entity::StaticTypeInfo;
-        KRG_ASSERT( pEntityTypeInfo != nullptr );
-
-        for ( auto const& entityDesc : entityCollectionTemplate.m_entityDescriptors )
-        {
-            CreateEntityFromDescriptor( typeRegistry, entityDesc );
-        }
-
-        //-------------------------------------------------------------------------
-        // Resolve spatial entity parents
-        //-------------------------------------------------------------------------
-
-        for ( auto const& entityAttachmentInfo : entityCollectionTemplate.m_entitySpatialAttachmentInfo )
-        {
-            KRG_ASSERT( entityAttachmentInfo.m_entityIdx != InvalidIndex && entityAttachmentInfo.m_parentEntityIdx != InvalidIndex );
-        
-            auto const& entityDesc = entityCollectionTemplate.m_entityDescriptors[entityAttachmentInfo.m_entityIdx];
-            KRG_ASSERT( entityDesc.HasSpatialParent() );
-
-            //-------------------------------------------------------------------------
-
-            // The entity collection compiler will guaranteed that entities are always sorted so that parents are created/initialized before their attached entities
-            KRG_ASSERT( entityAttachmentInfo.m_parentEntityIdx < entityAttachmentInfo.m_entityIdx );
-
-            Entity* pEntity = m_entities[entityAttachmentInfo.m_entityIdx];
-            KRG_ASSERT( pEntity->IsSpatialEntity() );
-
-            Entity* pParentEntity = m_entities[entityAttachmentInfo.m_parentEntityIdx];
-            KRG_ASSERT( pParentEntity->IsSpatialEntity() );
-
-            Entity::CreateSpatialAttachment( pEntity, pParentEntity, entityDesc.m_attachmentSocketID );
-        }
-    }
-
-    EntityCollection::~EntityCollection()
-    {
-        for ( auto& pEntity : m_entities )
-        {
-            KRG::Delete( pEntity );
-        }
-
-        m_entities.clear();
-        m_entityLookupMap.clear();
-    }
-
     Entity* EntityCollection::CreateEntityFromDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc )
     {
         KRG_ASSERT( entityDesc.IsValid() );
@@ -83,11 +30,11 @@ namespace KRG::EntityModel
 
         for ( auto const& componentDesc : entityDesc.m_components )
         {
-            TypeSystem::TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( componentDesc.m_typeID );
-            KRG_ASSERT( pTypeInfo != nullptr );
-
             auto pEntityComponent = TypeSystem::TypeCreator::CreateTypeFromDescriptor<EntityComponent>( typeRegistry, componentDesc );
             KRG_ASSERT( pEntityComponent != nullptr );
+
+            TypeSystem::TypeInfo const* pTypeInfo = pEntityComponent->GetTypeInfo();
+            KRG_ASSERT( pTypeInfo != nullptr );
 
             // Set IDs and add to component lists
             pEntityComponent->m_ID = componentDesc.m_ID;
@@ -158,14 +105,28 @@ namespace KRG::EntityModel
         // Add to collection
         //-------------------------------------------------------------------------
 
-        AddEntity( pEntity );
         return pEntity;
+    }
+
+    //-------------------------------------------------------------------------
+
+    EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionTemplate )
+        : m_ID( ID )
+    {
+        KRG_ASSERT( ID.IsValid() );
+        CreateAllEntitiesSequential( typeRegistry, entityCollectionTemplate );
+        ResolveEntitySpatialAttachments( entityCollectionTemplate );
+    }
+
+    EntityCollection::~EntityCollection()
+    {
+        DestroyAllEntities();
     }
 
     void EntityCollection::AddEntity( Entity* pEntity )
     {
         // Ensure that the entity to add, is not already part of a collection and that it's deactivated
-        KRG_ASSERT( pEntity != nullptr && !pEntity->IsInCollection() && pEntity->IsDeactivated() );
+        KRG_ASSERT( pEntity != nullptr && !pEntity->IsInCollection() && !pEntity->IsActivated() );
         KRG_ASSERT( !ContainsEntity( pEntity->m_ID ) );
 
         pEntity->m_collectionID = m_ID;
@@ -179,9 +140,111 @@ namespace KRG::EntityModel
         KRG_ASSERT( iter != m_entityLookupMap.end() );
 
         auto pEntity = iter->second;
-        KRG_ASSERT( pEntity->IsDeactivated() );
+        KRG_ASSERT( !pEntity->IsActivated() );
 
         m_entityLookupMap.erase( iter );
         m_entities.erase_first( pEntity );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EntityCollection::CreateAllEntitiesSequential( TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionDescriptor const& entityCollectionTemplate )
+    {
+        KRG_PROFILE_FUNCTION_SCENE();
+
+        m_entities.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
+        m_entityLookupMap.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
+
+        for ( auto const& entityDesc : entityCollectionTemplate.m_entityDescriptors )
+        {
+            auto pEntity = CreateEntityFromDescriptor( typeRegistry, entityDesc );
+            AddEntity( pEntity );
+        }
+    }
+
+    void EntityCollection::CreateAllEntitiesParallel( TaskSystem& taskSystem, TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionDescriptor const& entityCollectionTemplate )
+    {
+        KRG_PROFILE_FUNCTION_SCENE();
+
+        //-------------------------------------------------------------------------
+
+        struct EntityCreationTask : public IAsyncTask
+        {
+            EntityCreationTask( TypeSystem::TypeRegistry const& typeRegistry, TVector<EntityDescriptor> const& descriptors, EntityCollection& targetCollection )
+                : m_typeRegistry( typeRegistry )
+                , m_descriptors( descriptors )
+                , m_targetCollection( targetCollection )
+            {
+                m_SetSize = (U32) descriptors.size();
+                m_MinRange = 10;
+            }
+
+            virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
+            {
+                KRG_PROFILE_SCOPE_SCENE( "Entity Creation Task" );
+                for ( U64 i = range.start; i < range.end; ++i )
+                {
+                    m_targetCollection.m_entities[i] = EntityCollection::CreateEntityFromDescriptor( m_typeRegistry, m_descriptors[i] );
+                }
+            }
+
+        private:
+
+            TypeSystem::TypeRegistry const&         m_typeRegistry;
+            TVector<EntityDescriptor> const&        m_descriptors;
+            EntityCollection&                       m_targetCollection;
+        };
+
+        //-------------------------------------------------------------------------
+
+        // Create all entities in parallel
+        EntityCreationTask updateTask( typeRegistry, entityCollectionTemplate.m_entityDescriptors, *this );
+        m_entities.resize( entityCollectionTemplate.m_entityDescriptors.size() );
+        taskSystem.ScheduleTask( &updateTask );
+        taskSystem.WaitForTask( &updateTask );
+
+        // Add all entities to lookup map
+        m_entityLookupMap.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
+        for ( auto pEntity : m_entities )
+        {
+            m_entityLookupMap.insert( TPair<UUID, Entity*>( pEntity->m_ID, pEntity ) );
+        }
+    }
+
+    void EntityCollection::ResolveEntitySpatialAttachments( EntityCollectionDescriptor const& entityCollectionTemplate )
+    {
+        KRG_PROFILE_FUNCTION_SCENE();
+
+        for ( auto const& entityAttachmentInfo : entityCollectionTemplate.m_entitySpatialAttachmentInfo )
+        {
+            KRG_ASSERT( entityAttachmentInfo.m_entityIdx != InvalidIndex && entityAttachmentInfo.m_parentEntityIdx != InvalidIndex );
+
+            auto const& entityDesc = entityCollectionTemplate.m_entityDescriptors[entityAttachmentInfo.m_entityIdx];
+            KRG_ASSERT( entityDesc.HasSpatialParent() );
+
+            //-------------------------------------------------------------------------
+
+            // The entity collection compiler will guaranteed that entities are always sorted so that parents are created/initialized before their attached entities
+            KRG_ASSERT( entityAttachmentInfo.m_parentEntityIdx < entityAttachmentInfo.m_entityIdx );
+
+            Entity* pEntity = m_entities[entityAttachmentInfo.m_entityIdx];
+            KRG_ASSERT( pEntity->IsSpatialEntity() );
+
+            Entity* pParentEntity = m_entities[entityAttachmentInfo.m_parentEntityIdx];
+            KRG_ASSERT( pParentEntity->IsSpatialEntity() );
+
+            pEntity->SetSpatialParent( pParentEntity, entityDesc.m_attachmentSocketID );
+        }
+    }
+
+    void EntityCollection::DestroyAllEntities()
+    {
+        for ( auto& pEntity : m_entities )
+        {
+            KRG::Delete( pEntity );
+        }
+
+        m_entities.clear();
+        m_entityLookupMap.clear();
     }
 }

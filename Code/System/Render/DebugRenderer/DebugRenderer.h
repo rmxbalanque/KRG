@@ -2,14 +2,13 @@
 
 #include "DebugRenderStates.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Entity/EntityGlobalSystem.h"
 #include "System/Core/Debug/DebugDrawing.h"
 #include "System/Core/Debug/DebugDrawingSystem.h"
 #include "System/Render/IRenderer.h"
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     namespace Render

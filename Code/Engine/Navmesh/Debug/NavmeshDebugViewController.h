@@ -6,7 +6,7 @@
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Navmesh
 {
     class KRG_ENGINE_NAVMESH_API NavmeshDebugViewController : public Debug::DebugView

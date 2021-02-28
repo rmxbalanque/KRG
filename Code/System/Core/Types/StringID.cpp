@@ -78,14 +78,14 @@ namespace KRG
 
     void StringID::Initialize()
     {
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         g_pDebugStringAllocator = KRG::New<DebugStringAllocator>();
         #endif
     }
 
     void StringID::Shutdown()
     {
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         KRG::Delete( g_pDebugStringAllocator );
         #endif
     }
@@ -95,7 +95,7 @@ namespace KRG
     StringID::StringID( char const* pStr )
         : m_ID( Hash::GetHash32( pStr ) )
     {
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         g_pDebugStringAllocator->RegisterDebugString( m_ID, pStr );
         #endif
     }
@@ -104,7 +104,7 @@ namespace KRG
         : m_ID( ID )
     {}
 
-    #if KRG_DEBUG_INSTRUMENTATION
+    #if KRG_DEVELOPMENT_TOOLS
     char const* StringID::ToString() const
     {
         return g_pDebugStringAllocator->GetString( m_ID );

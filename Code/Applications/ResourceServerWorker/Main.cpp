@@ -5,7 +5,6 @@
 #include "ResourceServerWorker.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "System/Core/Logging/Log.h"
 
 #include <windows.h>
 #include <iostream>

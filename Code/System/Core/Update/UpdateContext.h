@@ -1,7 +1,7 @@
 #pragma once
 #include "UpdateStage.h"
 #include "System/Core/Math/ViewVolume.h"
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 #include "System/Core/Debug/DebugDrawingSystem.h"
 #include "System/Core/Systems/SystemRegistry.h"
 
@@ -11,7 +11,7 @@
 
 namespace KRG
 {
-    class UpdateContext
+    class KRG_SYSTEM_CORE_API UpdateContext
     {
 
     public:
@@ -23,34 +23,17 @@ namespace KRG
         inline UpdateStage GetUpdateStage() const { return m_stage; }
         template<typename T> inline T* GetSystem() const { return m_pSystemRegistry->GetSystem<T>(); }
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         inline Debug::DrawingContext GetDrawingContext() const { return m_pDebugDrawingSystem->GetDrawingContext(); }
         #endif
 
     protected:
 
         // Set the time scale for this update ( only positive values under 100 allowed )
-        inline void SetTimeScale( F32 scale )
-        {
-            KRG_ASSERT( scale > 0 && scale < 100 );
-            m_timeScale = scale;
-        }
+        void SetTimeScale( F32 scale );
 
         // Set the time delta for this update
-        inline void SetTimeDelta( Seconds deltaTime )
-        {
-            m_timeScale = 1.0f;
-            m_deltaTime = deltaTime;
-            m_frameID++;
-
-            // Ensure we dont get crazy time delta's when we hit breakpoints
-            #if !KRG_CONFIGURATION_FINAL
-            if ( m_deltaTime > 1.0f )
-            {
-                m_deltaTime = 0.03333f; // 30 FPS
-            }
-            #endif
-        }
+        void UpdateDeltaTime( Milliseconds deltaTime );
 
     protected:
 
@@ -60,7 +43,7 @@ namespace KRG
         UpdateStage                                 m_stage = UpdateStage::FrameStart;
         SystemRegistry*                             m_pSystemRegistry = nullptr;
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         Debug::DrawingSystem*                       m_pDebugDrawingSystem = nullptr;
         #endif
     };

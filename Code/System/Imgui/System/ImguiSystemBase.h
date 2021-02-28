@@ -1,62 +1,45 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Imgui/Renderer/ImguiRenderer.h"
 #include "System/Imgui/ThirdParty/imgui/imgui.h"
 
 //-------------------------------------------------------------------------
+// Platform agnostic base ImGui integration
+//-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::ImGuiX
 {
-    namespace ImGuiX
+    class KRG_SYSTEM_IMGUI_API ImguiSystemBase
     {
-        enum class Font : U8
-        {
-            Small = 0,
-            Medium,
-            Large,
 
-            NumFonts,
-            Default = Medium,
-        };
+    public:
 
-        //-------------------------------------------------------------------------
+        void StartFrame( float deltaTime );
+        void EndFrame();
 
-        class KRG_SYSTEM_IMGUI_API SystemBase
-        {
+    protected:
 
-        public:
+        bool Initialize();
+        void Shutdown();
 
-            static ImFont*          SystemFonts[(U8) Font::NumFonts];
+        // Platform Specific
+        virtual void InitializePlatform() = 0;
+        virtual void UpdateDisplayInformation() = 0;
+        virtual void UpdateKeyStates() = 0;
+        virtual void UpdateMousePosition() = 0;
+        virtual bool UpdateMouseCursor() = 0;
 
-        public:
+    private:
 
-            void Update( float deltaTime );
+        void InitializeFonts();
+        void InitializeStyle();
 
-        protected:
+    protected:
 
-            bool Initialize();
-            void Shutdown();
+        bool                    m_updateMonitorInfo = true;
 
-            // Platform Specific
-            virtual void InitializePlatform() = 0;
-            virtual void UpdateDisplayInformation() = 0;
-            virtual void UpdateKeyStates() = 0;
-            virtual void UpdateMousePosition() = 0;
-            virtual bool UpdateMouseCursor() = 0;
+    private:
 
-        private:
-
-            void InitializeFonts();
-            void InitializeStyle();
-
-        protected:
-
-            bool                    m_updateMonitorInfo = true;
-
-        private:
-
-            ImGuiMouseCursor        m_lastMouseCursorState = ImGuiMouseCursor_COUNT;
-        };
-    }
+        ImGuiMouseCursor        m_lastMouseCursorState = ImGuiMouseCursor_COUNT;
+    };
 }

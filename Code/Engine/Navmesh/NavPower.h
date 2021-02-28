@@ -82,7 +82,7 @@ namespace KRG::Navmesh
 
     //-------------------------------------------------------------------------
 
-    #if KRG_DEBUG_INSTRUMENTATION
+    #if KRG_DEVELOPMENT_TOOLS
     class NavPowerRenderer final : public bfx::Renderer
     {
 

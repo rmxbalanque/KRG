@@ -113,7 +113,7 @@ namespace KRG
                 std::cout << " * Solution: " << slnPath << std::endl;
                 std::cout << "-----------------------------------------------" << std::endl << std::endl;
 
-                ScopedTimer timer( m_slnParsingTime );
+                ScopedSystemTimer timer( m_slnParsingTime );
 
                 std::ifstream slnFile( slnPath );
                 if ( !slnFile.is_open() )
@@ -547,7 +547,7 @@ namespace KRG
                 std::cout << " * Performing Up-to-date check - ";
                 Milliseconds time = 0;
                 {
-                    ScopedTimer timer( time );
+                    ScopedSystemTimer timer( time );
                     TVector<HeaderID> registeredHeaders;
                     for ( auto& prj : m_solution.m_projects )
                     {
@@ -713,7 +713,7 @@ namespace KRG
 
                 CPP::Generator generator;
                 {
-                    ScopedTimer timer( time );
+                    ScopedSystemTimer timer( time );
                     if ( !generator.Generate( m_database, m_solution ) )
                     {
                         std::cout << "Error Occurred: " << generator.GetErrorMessage() << std::endl;
@@ -733,7 +733,7 @@ namespace KRG
 
                 CPP::Generator generator;
                 {
-                    ScopedTimer timer( time );
+                    ScopedSystemTimer timer( time );
                     if ( !m_database.WriteDatabase( m_reflectionDataPath + "TypeDatabase.db" ) )
                     {
                         std::cout << "Error Occurred: " << generator.GetErrorMessage() << std::endl;

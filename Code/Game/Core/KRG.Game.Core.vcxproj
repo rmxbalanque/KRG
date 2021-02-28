@@ -62,6 +62,7 @@
   <ItemGroup>
     <ClInclude Include="PlayerController\DefaultPlayerController.h" />
     <ClInclude Include="TestComponent.h" />
+    <ClInclude Include="TestSystem.h" />
     <ClInclude Include="Test\CustomizerTestComponent.h" />
     <ClInclude Include="Test\CustomizerTestSystem.h" />
     <ClInclude Include="_Module\API.h" />
@@ -70,6 +71,7 @@
   <ItemGroup>
     <ClCompile Include="PlayerController\DefaultPlayerController.cpp" />
     <ClCompile Include="TestComponent.cpp" />
+    <ClCompile Include="TestSystem.cpp" />
     <ClCompile Include="Test\CustomizerTestComponent.cpp" />
     <ClCompile Include="Test\CustomizerTestSystem.cpp" />
     <ClCompile Include="_Module\Module.cpp" />

@@ -26,7 +26,7 @@ namespace KRG
                     pPose->SetReferencePose();
                 }
 
-                #if KRG_DEBUG_INSTRUMENTATION
+                #if KRG_DEVELOPMENT_TOOLS
                 poseStack.RecordDebugPose( pPose );
                 #endif
             }

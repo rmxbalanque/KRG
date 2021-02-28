@@ -2,175 +2,178 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Math">
-      <UniqueIdentifier>{dd2636a5-5d00-469a-8f7a-0bc1ad3de1d4}</UniqueIdentifier>
+      <UniqueIdentifier>{f4e14ae1-cca1-4522-8508-c5928084cb0c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Math\BVH">
-      <UniqueIdentifier>{91a134fc-a054-4974-a8e6-5c6a3ff02adb}</UniqueIdentifier>
+      <UniqueIdentifier>{9bf39961-ec52-4a82-9744-e4b7abb6d418}</UniqueIdentifier>
     </Filter>
     <Filter Include="Types">
-      <UniqueIdentifier>{0e52b71b-b7a0-4add-9745-fbdc17028f35}</UniqueIdentifier>
+      <UniqueIdentifier>{05c1b105-b40e-4154-b34e-245ee851ae87}</UniqueIdentifier>
     </Filter>
     <Filter Include="Types\Platform">
-      <UniqueIdentifier>{6f3b4096-5b87-4023-8ea8-09ec1e1a9fa6}</UniqueIdentifier>
+      <UniqueIdentifier>{f0854964-894f-49fa-9903-659149c884cd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Debug">
-      <UniqueIdentifier>{7440c3c6-d76c-402e-8d06-ef96ea4781eb}</UniqueIdentifier>
+      <UniqueIdentifier>{527d8f1e-6ff2-453f-927d-34ddbe3b5f4d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Memory">
-      <UniqueIdentifier>{1f76ac4e-a9ac-410c-810b-cdac30f9caf1}</UniqueIdentifier>
+      <UniqueIdentifier>{0ce9e97d-8def-481c-b829-31aec39ad9c4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Logging">
-      <UniqueIdentifier>{b63dfc11-80e0-475d-b9b4-e90a4c3b9123}</UniqueIdentifier>
+      <UniqueIdentifier>{96d71d7e-b9ab-47bb-9f58-16175255d0b7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Systems">
-      <UniqueIdentifier>{5d9f5207-2937-4b28-a50c-a710fea1f0c1}</UniqueIdentifier>
+      <UniqueIdentifier>{803879dd-7c82-4910-8cb9-5d4e8d7bfbeb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Settings">
-      <UniqueIdentifier>{17df11bc-933d-4325-a406-2555e4cee9cd}</UniqueIdentifier>
+      <UniqueIdentifier>{610c49cf-2a1f-47aa-a7c6-a62de417bb10}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform\Platform">
-      <UniqueIdentifier>{c54c6862-6260-4b25-aecb-8e8a6b03c55e}</UniqueIdentifier>
+      <UniqueIdentifier>{18707060-7b98-44a7-962b-077b66b0b1db}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform">
-      <UniqueIdentifier>{0e517045-4d75-4cf2-98f9-9e52a0175e2a}</UniqueIdentifier>
+      <UniqueIdentifier>{2e3a31a0-b02d-49f9-bb2b-65d9b978edf3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Threading">
-      <UniqueIdentifier>{0fe7bf1b-55d0-4f2d-8266-737253076b7b}</UniqueIdentifier>
+      <UniqueIdentifier>{23bfe607-03f4-4cc4-9089-f7c888fc7b54}</UniqueIdentifier>
     </Filter>
     <Filter Include="Threading\Platform">
-      <UniqueIdentifier>{1819cba0-0a83-4756-b7c8-783b9347b1f2}</UniqueIdentifier>
+      <UniqueIdentifier>{769123c3-aa19-4a34-bd9b-879b887c2ac5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Profiling">
-      <UniqueIdentifier>{492fc90a-9b9a-4eca-8f1d-a73772b2acc1}</UniqueIdentifier>
+      <UniqueIdentifier>{36a5462d-4070-41f1-b568-2f65cf9e50aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Algorithm">
-      <UniqueIdentifier>{1f9e7288-25c1-4454-8fb1-605dd6d81689}</UniqueIdentifier>
+      <UniqueIdentifier>{1c88981d-6401-43cb-aa35-877b55cc6a9e}</UniqueIdentifier>
     </Filter>
     <Filter Include="FileSystem">
-      <UniqueIdentifier>{62f6f711-53c7-47d1-9f61-024d72030ac2}</UniqueIdentifier>
+      <UniqueIdentifier>{640d00ff-0e44-4585-ada7-36bf70a3c4ae}</UniqueIdentifier>
     </Filter>
     <Filter Include="FileSystem\Platform">
-      <UniqueIdentifier>{1b60d2cb-ee3d-4750-b059-0d15d4e6cba7}</UniqueIdentifier>
+      <UniqueIdentifier>{9dd7397c-5757-471a-8bc1-45d70cf758df}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\EA">
-      <UniqueIdentifier>{a937ba44-d97b-4144-92f2-314f6308f9e0}</UniqueIdentifier>
+      <UniqueIdentifier>{61768705-702d-435a-8463-15a220926d40}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{e44d9db3-4381-4c42-a38d-48adac442661}</UniqueIdentifier>
+      <UniqueIdentifier>{786012a9-db11-4d63-ab69-7e44167abd6c}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\EA\EASTL\Source">
-      <UniqueIdentifier>{9c68d26a-1acf-4170-bd50-31d9da164391}</UniqueIdentifier>
+      <UniqueIdentifier>{a48f949c-901b-4d33-a350-380784c4430d}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\EA\EASTL">
-      <UniqueIdentifier>{becadaf1-3f1f-4ace-b2eb-ce33ce5534d0}</UniqueIdentifier>
+      <UniqueIdentifier>{6b683897-1982-4910-87fd-435c69ce684e}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\enkits">
-      <UniqueIdentifier>{669e4992-54cc-4e0c-b009-73869e5aa771}</UniqueIdentifier>
+      <UniqueIdentifier>{26573931-53b5-4ddc-b92f-828ce4cebd99}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\xxhash">
-      <UniqueIdentifier>{c3b18cc4-0989-4583-8b0b-c1700885fc45}</UniqueIdentifier>
+      <UniqueIdentifier>{270b31ef-efe5-47f4-bfe2-8d98f8bcc4f4}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\rpmalloc">
-      <UniqueIdentifier>{667527b4-b75c-4ae0-8d90-3ae42795557b}</UniqueIdentifier>
+      <UniqueIdentifier>{b8afe91c-ee4c-4ba8-ba4f-a07fb3659e5d}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\iniparser">
-      <UniqueIdentifier>{6522eebc-08b9-4629-963e-8ef5f759de0d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\microprofile">
-      <UniqueIdentifier>{6fad57b5-501e-4b6b-b40c-b9e76bae0878}</UniqueIdentifier>
+      <UniqueIdentifier>{5c8b47d7-06d8-4eff-ba85-e479f8ed0c3c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Serialization">
-      <UniqueIdentifier>{2917cd0b-54a0-4d33-87e3-fa1bc3f437dc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL">
-      <UniqueIdentifier>{07532dcd-3e4c-47e7-97c9-5e88809fe193}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EASTL\Include">
-      <UniqueIdentifier>{ac8ccfb7-c862-4b67-8db2-774b46444d95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL\bonus">
-      <UniqueIdentifier>{556db5ad-f63b-4a2c-b836-25f27c41c8c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL\internal">
-      <UniqueIdentifier>{519c7de7-9102-48c2-9463-cf530fce90b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EABase\include\Common\EABase">
-      <UniqueIdentifier>{2cdc87c3-b100-4462-b8a9-5ee9b32d7f74}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EABase\include\Common">
-      <UniqueIdentifier>{7b3c58da-d757-4149-bfd5-38fb08ef75e4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EABase\include">
-      <UniqueIdentifier>{2868ef7f-000d-4f1e-9c5c-e9a9283aebe1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EABase">
-      <UniqueIdentifier>{6c30f691-226e-42e7-b16e-5da3d43d3000}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\EA\EABase\include\Common\EABase\config">
-      <UniqueIdentifier>{e34d1a1d-4017-4e25-bf52-4f1dcdc96bc6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\pcg\include">
-      <UniqueIdentifier>{d2c33e29-08ba-41a5-95a5-75adc576a187}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\pcg">
-      <UniqueIdentifier>{6abec36a-76e6-402c-89dc-bffb4793e814}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal">
-      <UniqueIdentifier>{3f8dd00f-58b0-4b10-8d27-1aa6fe5e3251}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\types">
-      <UniqueIdentifier>{5151b184-3681-4182-8c28-4b02296e2e23}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\types\concepts">
-      <UniqueIdentifier>{1706638d-2634-449b-97b6-3b4ad89fdf67}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\details">
-      <UniqueIdentifier>{f917073e-b21d-47b1-b831-a165c4770678}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\archives">
-      <UniqueIdentifier>{8d6714dc-b924-454d-a4c8-2a866a449456}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\external">
-      <UniqueIdentifier>{b5374c1a-e56d-42fb-a0d5-255f7cf1ce64}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\external\rapidxml">
-      <UniqueIdentifier>{15c44e79-982d-4ecb-86e2-e53b32763955}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\external\rapidjson">
-      <UniqueIdentifier>{c8937815-94e2-4e00-8f2e-02e980677b72}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\external\rapidjson\error">
-      <UniqueIdentifier>{6956022b-5f0b-4b51-a667-02245e49e5ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\external\rapidjson\internal">
-      <UniqueIdentifier>{63056971-f8b1-47c2-9f2b-cf3a9e7965c0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cereal\external\rapidjson\msinttypes">
-      <UniqueIdentifier>{88e1d503-253d-4205-90b4-71ea9414b314}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Serialization\UserTypes">
-      <UniqueIdentifier>{3dd38efb-3f4f-4c4a-bf8b-a4f79b5385b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Time">
-      <UniqueIdentifier>{1dd0ceb4-ae52-4e7b-bc74-0cce33db5e7e}</UniqueIdentifier>
+      <UniqueIdentifier>{4cea04f9-00a4-4237-bf90-00be1c44bad6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Update">
-      <UniqueIdentifier>{c307938a-792b-45ce-be1d-780af50fd30f}</UniqueIdentifier>
+      <UniqueIdentifier>{12290a15-f328-4430-8f0b-cd4e2ba302ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL">
+      <UniqueIdentifier>{3753b63b-8a06-4974-a3a4-66b2a0a830d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Include">
+      <UniqueIdentifier>{53bd4771-2dc2-477d-ab75-5aed73f25884}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL\bonus">
+      <UniqueIdentifier>{b8ffab80-8050-4e97-ae48-f94ad2b55ded}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EASTL\Include\EASTL\internal">
+      <UniqueIdentifier>{55ba5623-5f07-43b4-befd-60d421384f26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\include\Common\EABase">
+      <UniqueIdentifier>{f87719e2-cfca-4823-8b87-def4e766c347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\include\Common">
+      <UniqueIdentifier>{302c6be5-056a-4054-8dd1-1ca3d3d98923}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\include">
+      <UniqueIdentifier>{b2559221-9ad6-4bc7-bbf8-92f8974a8d01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase">
+      <UniqueIdentifier>{d2c7276c-b629-48f4-b9d3-3ee0d43e576a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\EA\EABase\include\Common\EABase\config">
+      <UniqueIdentifier>{5d1f12c1-5d43-4809-a879-160de9c213e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\pcg\include">
+      <UniqueIdentifier>{310399fe-a311-48c8-a145-41f5d1d2a229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\pcg">
+      <UniqueIdentifier>{84c6621e-eeec-4be1-8dc4-d07744358a88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal">
+      <UniqueIdentifier>{7c081573-e6f2-4be6-bfc7-7b312f21bcb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\types">
+      <UniqueIdentifier>{e9d6fc87-687c-4551-815e-7a6b2b9f91e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\types\concepts">
+      <UniqueIdentifier>{74df7696-ae19-4678-bd50-64c0b0439db5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\details">
+      <UniqueIdentifier>{5169f742-4ba3-44c6-bbfe-3ccabe1784bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\archives">
+      <UniqueIdentifier>{8545207a-65f3-4e63-acbc-049ebafc4a8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external">
+      <UniqueIdentifier>{2d935d2e-8129-4312-8fa8-303af6427814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidxml">
+      <UniqueIdentifier>{ad355eee-98ad-4100-950d-cb67375eec96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidjson">
+      <UniqueIdentifier>{e229319d-1073-47b6-9b8a-19b10b1b49a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidjson\error">
+      <UniqueIdentifier>{7026991d-4f0a-4977-8a83-59aa8f1ea894}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidjson\internal">
+      <UniqueIdentifier>{b2cf9f04-8759-48c2-a175-328d68040120}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cereal\external\rapidjson\msinttypes">
+      <UniqueIdentifier>{7613a81f-541b-4ed5-8c81-ea4350f15c21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization\UserTypes">
+      <UniqueIdentifier>{f230bc0f-0f5b-40a7-96c1-c997ec7541bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Time">
+      <UniqueIdentifier>{89e9fab9-fc9b-4e4f-8e32-14f6195b24a5}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Module">
-      <UniqueIdentifier>{0863c173-e708-43bc-8985-e9128ab4363f}</UniqueIdentifier>
+      <UniqueIdentifier>{d45fa45a-9b17-43e5-b803-d78ba0d59da9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\concurrentqueue">
+      <UniqueIdentifier>{4312e99c-c3fa-4731-83fa-75a50dfe8e24}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\EA\EASTL\Doc\html">
-      <UniqueIdentifier>{f50362c9-bdee-4f4e-bd02-b427dd185073}</UniqueIdentifier>
+      <UniqueIdentifier>{ab1244df-661d-4ace-80d7-c4c129614c34}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\EA\EASTL\Doc">
-      <UniqueIdentifier>{df1ed59a-786e-4df9-b065-4c1cbe7de50d}</UniqueIdentifier>
+      <UniqueIdentifier>{5bb3c959-0973-49d3-b806-b5c2d843c57a}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\EA\EABase\doc">
-      <UniqueIdentifier>{e4367254-c6cb-428a-a5bf-dd9ce761282c}</UniqueIdentifier>
+      <UniqueIdentifier>{35f48060-1286-40fe-aac1-3aeaca375691}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Math\Viewport.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
     <ClCompile Include="Math\Transform.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -206,9 +209,6 @@
     </ClCompile>
     <ClCompile Include="Math\BVH\AABBTree.cpp">
       <Filter>Math\BVH</Filter>
-    </ClCompile>
-    <ClCompile Include="Types\Time.cpp">
-      <Filter>Types</Filter>
     </ClCompile>
     <ClCompile Include="Types\Percentage.cpp">
       <Filter>Types</Filter>
@@ -251,9 +251,6 @@
     </ClCompile>
     <ClCompile Include="Settings\SettingsRegistry.cpp">
       <Filter>Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\Platform\Platform_Win32.cpp">
-      <Filter>Platform\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Threading\TaskSystem.cpp">
       <Filter>Threading</Filter>
@@ -339,15 +336,27 @@
     <ClCompile Include="ThirdParty\iniparser\krg_ini.cpp">
       <Filter>ThirdParty\iniparser</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Viewport.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Serialization\BinaryArchive.cpp">
       <Filter>Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="Memory\MemoryStreamHelpers.cpp" />
+    <ClCompile Include="Update\UpdateContext.cpp">
+      <Filter>Update</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\MemoryStreamHelpers.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\Platform_Win32.cpp">
+      <Filter>Platform\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Time\Time.cpp">
+      <Filter>Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Time\TimeStamp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Math\Viewport.h">
+      <Filter>Math</Filter>
+    </ClInclude>
     <ClInclude Include="Math\Transform.h">
       <Filter>Math</Filter>
     </ClInclude>
@@ -408,9 +417,6 @@
     <ClInclude Include="Types\Event.h">
       <Filter>Types</Filter>
     </ClInclude>
-    <ClInclude Include="Types\Time.h">
-      <Filter>Types</Filter>
-    </ClInclude>
     <ClInclude Include="Types\Percentage.h">
       <Filter>Types</Filter>
     </ClInclude>
@@ -425,6 +431,9 @@
     </ClInclude>
     <ClInclude Include="Types\LoadingStatus.h">
       <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\MemoryStreamHelpers.h">
+      <Filter>Memory</Filter>
     </ClInclude>
     <ClInclude Include="Types\ScopedValue.h">
       <Filter>Types</Filter>
@@ -473,15 +482,6 @@
     </ClInclude>
     <ClInclude Include="Settings\SettingsRegistry.h">
       <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\ProcessorInfo.h">
-      <Filter>Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\Platform\Core_Win32.h">
-      <Filter>Platform\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\Platform\Platform_Win32.h">
-      <Filter>Platform\Platform</Filter>
     </ClInclude>
     <ClInclude Include="Threading\TaskSystem.h">
       <Filter>Threading</Filter>
@@ -1200,6 +1200,9 @@
     <ClInclude Include="Serialization\Serialization.h">
       <Filter>Serialization</Filter>
     </ClInclude>
+    <ClInclude Include="Serialization\BinaryArchive.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
     <ClInclude Include="Serialization\UserTypes\eastl_bitset.hpp">
       <Filter>Serialization\UserTypes</Filter>
     </ClInclude>
@@ -1257,19 +1260,28 @@
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Viewport.h">
-      <Filter>Math</Filter>
+    <ClInclude Include="ThirdParty\concurrentqueue\blockingconcurrentqueue.h">
+      <Filter>ThirdParty\concurrentqueue</Filter>
     </ClInclude>
-    <ClInclude Include="Core.h" />
-    <ClInclude Include="Serialization\BinaryArchive.h">
-      <Filter>Serialization</Filter>
+    <ClInclude Include="ThirdParty\concurrentqueue\concurrentqueue.h">
+      <Filter>ThirdParty\concurrentqueue</Filter>
     </ClInclude>
-    <ClInclude Include="Memory\MemoryStreamHelpers.h">
+    <ClInclude Include="ThirdParty\concurrentqueue\lightweightsemaphore.h">
+      <Filter>ThirdParty\concurrentqueue</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\Pool.h">
       <Filter>Types</Filter>
     </ClInclude>
-    <ClInclude Include="ThirdParty\concurrentqueue\blockingconcurrentqueue.h" />
-    <ClInclude Include="ThirdParty\concurrentqueue\concurrentqueue.h" />
-    <ClInclude Include="ThirdParty\concurrentqueue\lightweightsemaphore.h" />
+    <ClInclude Include="Core\IntegralTypes.h" />
+    <ClInclude Include="Core\Defines.h" />
+    <ClInclude Include="Core\Platform\Defines_Win32.h" />
+    <ClInclude Include="Platform\Platform_Win32.h">
+      <Filter>Platform\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Time\Time.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Time\TimeStamp.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EA.props">
@@ -1305,8 +1317,12 @@
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">
       <Filter>ThirdParty\EA\EABase\doc</Filter>
     </None>
-    <None Include="ThirdParty\concurrentqueue\LICENSE.md" />
-    <None Include="ThirdParty\concurrentqueue\README.md" />
+    <None Include="ThirdParty\concurrentqueue\LICENSE.md">
+      <Filter>ThirdParty\concurrentqueue</Filter>
+    </None>
+    <None Include="ThirdParty\concurrentqueue\README.md">
+      <Filter>ThirdParty\concurrentqueue</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\EA\EASTL\Doc\EASTL.natvis">

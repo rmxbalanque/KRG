@@ -1,6 +1,6 @@
 #pragma once
 #include "System/Resource/ResourceID.h"
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 #include "System/Core/Types/UUID.h"
 #include "QDateTime"
 
@@ -58,7 +58,7 @@ namespace KRG
             {
                 if ( !IsComplete() )
                 {
-                    return Seconds( GetSystemTime() - m_compilationTimeStarted );
+                    return Seconds( SystemClock::GetTime() - m_compilationTimeStarted );
                 }
 
                 return Seconds( m_compilationTimeFinished - m_compilationTimeStarted );
@@ -81,10 +81,10 @@ namespace KRG
             String                              m_compilerArgs;
 
             QDateTime                           m_timeRequested = QDateTime::currentDateTime();
-            Ticks                         m_compilationTimeStarted;
-            Ticks                         m_compilationTimeFinished;
-            Ticks                         m_upToDateCheckTimeStarted;
-            Ticks                         m_upToDateCheckTimeFinished;
+            Nanoseconds                               m_compilationTimeStarted;
+            Nanoseconds                               m_compilationTimeFinished;
+            Nanoseconds                               m_upToDateCheckTimeStarted;
+            Nanoseconds                               m_upToDateCheckTimeFinished;
 
             String                              m_log;
             Status                              m_status = Status::Pending;

@@ -1,5 +1,4 @@
 #include "CameraComponent.h"
-#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 

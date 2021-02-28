@@ -2,7 +2,6 @@
 #include "Engine/Render/Renderers/StaticMeshRenderer.h"
 #include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/Core/Logging/Log.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
@@ -11,9 +10,11 @@ namespace KRG
 {
     namespace Render
     {
-        void RenderingSystem::Initialize()
+        void RenderingSystem::Initialize( Render::RendererRegistry* pRegistry )
         {
-            for ( auto pRenderer : m_rendererRegistry.GetRegisteredRenderers() )
+            KRG_ASSERT( pRegistry != nullptr );
+
+            for ( auto pRenderer : pRegistry->GetRegisteredRenderers() )
             {
                 if ( pRenderer->GetRendererID() == SkeletalMeshRenderer::RendererID )
                 {

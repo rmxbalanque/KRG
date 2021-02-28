@@ -1,9 +1,10 @@
 #pragma once
 
 #include "API.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Physics/PhysicsWorldSystem.h"
 #include "Engine/Physics/Debug/PhysicsDebugViewController.h"
 #include "Engine/Physics/Debug/PhysxDebugRenderer.h"
-#include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Core/Modules/IEngineModule.h"
 #include "Engine/Physics/ResourceLoaders/PhysicsGeometryLoader.h"
 
@@ -23,13 +24,12 @@ namespace KRG::Physics
     private:
 
         PhysicsSystem               m_physicsSystem;
+        PhysicsWorldSystem*         m_pPhysicsWorldSystem = nullptr;
         PhysicsGeometryLoader       m_physicsGeometryLoader;
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         PhysicsRenderer             m_physicsRenderer;
         PhysicsDebugViewController  m_physicsDebugViewController;
         #endif
-
-        bool                        m_initialized = false;
     };
 }

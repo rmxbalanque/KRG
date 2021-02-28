@@ -1,7 +1,6 @@
 #include "Entity.h"
 #include "EntitySystem.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,76 +12,27 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Entity::CreateSpatialAttachment( Entity* pChildEntity, Entity* pParentEntity, StringID socketID )
-    {
-        KRG_ASSERT( pChildEntity != nullptr && pChildEntity->IsSpatialEntity() );
-        KRG_ASSERT( pParentEntity != nullptr && pParentEntity->IsSpatialEntity() );
-        KRG_ASSERT( pChildEntity->m_pParentSpatialEntity == nullptr && !pChildEntity->m_isAttachedToParent );
-
-        // Update entity spatial attachment data
-        // TODO: check for cyclic dependencies
-        pChildEntity->m_pParentSpatialEntity = pParentEntity;
-        pChildEntity->m_parentAttachmentSocketID = socketID;
-        pParentEntity->m_attachedEntities.emplace_back( pChildEntity );
-
-        if ( pChildEntity->IsActivated() )
-        {
-            pChildEntity->AttachToParent();
-        }
-    }
-
-    void Entity::BreakSpatialAttachment( Entity* pChildEntity )
-    {
-        KRG_ASSERT( pChildEntity != nullptr && pChildEntity->IsSpatialEntity() );
-        KRG_ASSERT( pChildEntity->m_pParentSpatialEntity != nullptr );
-
-        // Deactivate the spatial attachment if we can
-        if ( pChildEntity->m_isAttachedToParent )
-        {
-            pChildEntity->DetachFromParent();
-        }
-
-        KRG_ASSERT( !pChildEntity->m_isAttachedToParent );
-
-        // Remove entity spatial attachment links
-        auto pParentEntity = pChildEntity->m_pParentSpatialEntity;
-        auto iter = eastl::find( pParentEntity->m_attachedEntities.begin(), pParentEntity->m_attachedEntities.end(), pChildEntity );
-        KRG_ASSERT( iter != pParentEntity->m_attachedEntities.end() );
-        pParentEntity->m_attachedEntities.erase_unsorted( iter );
-        pChildEntity->m_parentAttachmentSocketID = StringID::InvalidID;
-        pChildEntity->m_pParentSpatialEntity = nullptr;
-    }
-
-    void Entity::BreakAllEntitySpatialAttachments( Entity* pSpatialEntity )
-    {
-        KRG_ASSERT( pSpatialEntity != nullptr && pSpatialEntity->IsSpatialEntity() );
-
-        // Clear any parent attachment we might have
-        if ( pSpatialEntity->m_pParentSpatialEntity != nullptr )
-        {
-            BreakSpatialAttachment( pSpatialEntity );
-        }
-
-        // Clear any child attachments
-        for ( auto pAttachedEntity : pSpatialEntity->m_attachedEntities )
-        {
-            KRG_ASSERT( pAttachedEntity->m_pParentSpatialEntity == pSpatialEntity );
-            BreakSpatialAttachment( pAttachedEntity );
-        }
-
-        KRG_ASSERT( pSpatialEntity->m_attachedEntities.empty() );
-    }
-
-    //-------------------------------------------------------------------------
-
     Entity::~Entity()
     {
-        KRG_ASSERT( IsDeactivated() );
+        KRG_ASSERT( m_status == Status::Unloaded );
+        KRG_ASSERT( !m_isSpatialAttachmentCreated );
+        KRG_ASSERT( !m_isRegisteredForUpdates );
 
         // Break all inter-entity links
         if ( IsSpatialEntity() )
         {
-            Entity::BreakAllEntitySpatialAttachments( this );
+            // Clear any child attachments
+            for ( auto pAttachedEntity : m_attachedEntities )
+            {
+                KRG_ASSERT( pAttachedEntity->m_pParentSpatialEntity == this );
+                pAttachedEntity->ClearSpatialParent();
+            }
+
+            // Clear any parent attachment we might have
+            if ( m_pParentSpatialEntity != nullptr )
+            {
+                ClearSpatialParent();
+            }
         }
 
         // Clean up deferred actions
@@ -143,22 +93,8 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            // Shutdown any initialized components
             if ( pComponent->IsInitialized() )
             {
-                // Only deal with system registrations if we were activated
-                if ( IsActivated() )
-                {
-                    // Unregister from local systems
-                    for ( auto pSystem : m_systems )
-                    {
-                        pSystem->UnregisterComponent( pComponent );
-                    }
-
-                    // Unregister from global systems
-                    loadingContext.m_unregisterFromGlobalSystems( this, pComponent );
-                }
-
                 pComponent->Shutdown();
             }
 
@@ -170,9 +106,19 @@ namespace KRG
     
     //-------------------------------------------------------------------------
 
-    void Entity::Activate( EntityModel::LoadingContext const& loadingContext )
+    void Entity::Activate( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         KRG_ASSERT( m_status == Status::Loaded );
+
+        // If we are attached to another entity we CANNOT be activated if our parent is not. This ensures that attachment chains have consistent activation state
+        if ( HasSpatialParent() )
+        {
+            KRG_ASSERT( m_pParentSpatialEntity->IsActivated() );
+        }
+
+        // Update internal status
+        //-------------------------------------------------------------------------
+
         m_status = Status::Activated;
 
         // Initialize spatial hierarchy
@@ -185,26 +131,26 @@ namespace KRG
             m_pRootSpatialComponent->CalculateWorldTransform( false );
         }
 
-        // Register components with systems
+        // Components
         //-------------------------------------------------------------------------
 
         for ( auto pComponent : m_components )
         {
             if ( pComponent->IsInitialized() )
             {
-                for ( auto pSystem : m_systems )
-                {
-                    pSystem->RegisterComponent( pComponent );
-                }
-
-                loadingContext.m_registerWithGlobalSystems( this, pComponent );
+                RegisterComponentWithLocalSystems( pComponent );
+                activationContext.m_componentsToRegister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
             }
         }
 
-        // Generate system update list
+        // Systems
         //-------------------------------------------------------------------------
 
-        GenerateSystemUpdateList();
+        if ( !m_systems.empty() )
+        {
+            GenerateSystemUpdateList();
+            activationContext.m_registerForEntityUpdate.enqueue( this );
+        }
 
         // Spatial Attachments
         //-------------------------------------------------------------------------
@@ -213,54 +159,85 @@ namespace KRG
         {
             if ( m_pParentSpatialEntity != nullptr )
             {
-                AttachToParent();
+                CreateSpatialAttachment();
             }
 
             //-------------------------------------------------------------------------
 
-            RefreshEntityAttachments();
+            RefreshChildSpatialAttachments();
         }
 
+        // Activate attached entities
         //-------------------------------------------------------------------------
 
-        loadingContext.m_registerEntityUpdate( this );
+        for ( auto pAttachedEntity : m_attachedEntities )
+        {
+            KRG_ASSERT( !pAttachedEntity->IsActivated() );
+            if ( pAttachedEntity->IsLoaded() )
+            {
+                pAttachedEntity->Activate( loadingContext, activationContext );
+            }
+        }
     }
 
-    void Entity::Deactivate( EntityModel::LoadingContext const& loadingContext )
+    void Entity::Deactivate( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         KRG_ASSERT( m_status == Status::Activated );
 
-        loadingContext.m_unregisterEntityUpdate( this );
+        // If we are attached to another entity, that entity must also have been activated, else we have a problem in our attachment chains
+        if ( HasSpatialParent() )
+        {
+            KRG_ASSERT( m_pParentSpatialEntity->IsActivated() );
+        }
+
+        // Deactivate attached entities
+        //-------------------------------------------------------------------------
+
+        for ( auto pAttachedEntity : m_attachedEntities )
+        {
+            if ( pAttachedEntity->IsActivated() )
+            {
+                pAttachedEntity->Deactivate( loadingContext, activationContext );
+            }
+        }
 
         // Spatial Attachments
         //-------------------------------------------------------------------------
 
-        if ( m_isAttachedToParent )
+        if ( m_isSpatialAttachmentCreated )
         {
-            DetachFromParent();
+            DestroySpatialAttachment();
         }
 
-        // Clear systems update list
+        // Systems
         //-------------------------------------------------------------------------
 
-        for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
+        if ( !m_systems.empty() )
         {
-            m_systemUpdateLists[i].clear();
+            if ( m_isRegisteredForUpdates )
+            {
+                activationContext.m_unregisterForEntityUpdate.enqueue( this );
+            }
+
+            for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
+            {
+                m_systemUpdateLists[i].clear();
+            }
         }
 
-        // Unregister components from systems
+        // Components
         //-------------------------------------------------------------------------
 
         for ( auto pComponent : m_components )
         {
-            if ( pComponent->IsInitialized() )
+            if ( pComponent->m_isRegisteredWithWorld )
             {
-                for ( auto pSystem : m_systems )
-                {
-                    pSystem->UnregisterComponent( pComponent );
-                }
+                activationContext.m_componentsToUnregister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
+            }
 
-                loadingContext.m_unregisterFromGlobalSystems( this, pComponent );
+            if ( pComponent->m_isRegisteredWithEntity )
+            {
+                UnregisterComponentFromLocalSystems( pComponent );
             }
         }
 
@@ -278,6 +255,28 @@ namespace KRG
         {
             KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) updateStageIdx ) );
             pSystem->Update( context );
+        }
+    }
+
+    void Entity::RegisterComponentWithLocalSystems( EntityComponent* pComponent )
+    {
+        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() && pComponent->m_entityID == m_ID && !pComponent->m_isRegisteredWithEntity );
+
+        for ( auto pSystem : m_systems )
+        {
+            pSystem->RegisterComponent( pComponent );
+            pComponent->m_isRegisteredWithEntity = true;
+        }
+    }
+
+    void Entity::UnregisterComponentFromLocalSystems( EntityComponent* pComponent )
+    {
+        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() && pComponent->m_entityID == m_ID && pComponent->m_isRegisteredWithEntity );
+
+        for ( auto pSystem : m_systems )
+        {
+            pSystem->UnregisterComponent( pComponent );
+            pComponent->m_isRegisteredWithEntity = false;
         }
     }
 
@@ -303,10 +302,53 @@ namespace KRG
         return nullptr;
     }
 
-    void Entity::AttachToParent()
+    void Entity::SetSpatialParent( Entity* pParentEntity, StringID attachmentSocketID )
     {
         KRG_ASSERT( IsSpatialEntity() );
-        KRG_ASSERT( m_pParentSpatialEntity != nullptr && !m_isAttachedToParent );
+        KRG_ASSERT( m_pParentSpatialEntity == nullptr && !m_isSpatialAttachmentCreated);
+        KRG_ASSERT( pParentEntity != nullptr && pParentEntity->IsSpatialEntity() );
+
+        // Check for circular dependencies
+        #if KRG_DEVELOPMENT_TOOLS
+        Entity const* pAncestorEntity = pParentEntity->GetSpatialParent();
+        while ( pAncestorEntity != nullptr )
+        {
+            KRG_ASSERT( pAncestorEntity != this );
+            pAncestorEntity = pAncestorEntity->GetSpatialParent();
+        }
+        #endif
+
+        // Set attachment data
+        m_pParentSpatialEntity = pParentEntity;
+        m_parentAttachmentSocketID = attachmentSocketID;
+
+        // Add myself to the parent's list of attached entities
+        {
+            Threading::ScopeLock lock( pParentEntity->m_internalStateMutex );
+            pParentEntity->m_attachedEntities.emplace_back( this );
+        }
+    }
+
+    void Entity::ClearSpatialParent()
+    {
+        KRG_ASSERT( IsSpatialEntity() );
+        KRG_ASSERT( HasSpatialParent() && !m_isSpatialAttachmentCreated );
+
+        // Remove myself from parent's attached entity list
+        auto iter = eastl::find( m_pParentSpatialEntity->m_attachedEntities.begin(), m_pParentSpatialEntity->m_attachedEntities.end(), this );
+        KRG_ASSERT( iter != m_pParentSpatialEntity->m_attachedEntities.end() );
+        m_pParentSpatialEntity->m_attachedEntities.erase_unsorted( iter );
+
+        // Clear attachment data
+        m_parentAttachmentSocketID = StringID::InvalidID;
+        m_pParentSpatialEntity = nullptr;
+    }
+
+    void Entity::CreateSpatialAttachment()
+    {
+        KRG_ASSERT( IsSpatialEntity() );
+        KRG_ASSERT( m_pParentSpatialEntity != nullptr && !m_isSpatialAttachmentCreated );
+        KRG_ASSERT( IsActivated() && m_pParentSpatialEntity->IsActivated() );
 
         // Find component to attach to
         //-------------------------------------------------------------------------
@@ -336,17 +378,26 @@ namespace KRG
         m_pRootSpatialComponent->CalculateWorldTransform();
 
         // Add to the list of child components on the component to attach to
-        pParentRootComponent->m_spatialChildren.emplace_back( m_pRootSpatialComponent );
+        {
+            Threading::ScopeLock lock( pParentEntity->m_internalStateMutex );
+            pParentRootComponent->m_spatialChildren.emplace_back( m_pRootSpatialComponent );
+        }
 
         //-------------------------------------------------------------------------
 
-        m_isAttachedToParent = true;
+        m_isSpatialAttachmentCreated = true;
+
+        //-------------------------------------------------------------------------
+
+        // Send notification that the internal state changed
+        EntityStateUpdatedEvent.Execute( this );
     }
 
-    void Entity::DetachFromParent()
+    void Entity::DestroySpatialAttachment()
     {
         KRG_ASSERT( IsSpatialEntity() );
-        KRG_ASSERT( m_pParentSpatialEntity != nullptr && m_isAttachedToParent );
+        KRG_ASSERT( IsActivated() );
+        KRG_ASSERT( m_pParentSpatialEntity != nullptr && m_isSpatialAttachmentCreated );
 
         // Remove from parent component child list
         //-------------------------------------------------------------------------
@@ -354,7 +405,11 @@ namespace KRG
         auto pParentComponent = m_pRootSpatialComponent->m_pSpatialParent;
         auto foundIter = VectorFind( pParentComponent->m_spatialChildren, m_pRootSpatialComponent );
         KRG_ASSERT( foundIter != pParentComponent->m_spatialChildren.end() );
-        pParentComponent->m_spatialChildren.erase_unsorted( foundIter );
+
+        {
+            Threading::ScopeLock lock( m_pParentSpatialEntity->m_internalStateMutex );
+            pParentComponent->m_spatialChildren.erase_unsorted( foundIter );
+        }
 
         // Remove component hierarchy values
         m_pRootSpatialComponent->m_pSpatialParent = nullptr;
@@ -362,19 +417,90 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        m_isAttachedToParent = false;
+        m_isSpatialAttachmentCreated = false;
+
+        //-------------------------------------------------------------------------
+
+        // Send notification that the internal state changed
+        EntityStateUpdatedEvent.Execute( this );
     }
 
-    void Entity::RefreshEntityAttachments()
+    void Entity::RefreshChildSpatialAttachments()
     {
         KRG_ASSERT( IsSpatialEntity() );
         for ( auto pAttachedEntity: m_attachedEntities )
         {
             // Only refresh active attachments
-            if ( pAttachedEntity->m_isAttachedToParent )
+            if ( pAttachedEntity->m_isSpatialAttachmentCreated )
             {
-                pAttachedEntity->DetachFromParent();
-                pAttachedEntity->AttachToParent();
+                pAttachedEntity->DestroySpatialAttachment();
+                pAttachedEntity->CreateSpatialAttachment();
+            }
+        }
+    }
+
+    void Entity::RemoveComponentFromSpatialHierarchy( SpatialEntityComponent* pSpatialComponent )
+    {
+        KRG_ASSERT( pSpatialComponent != nullptr );
+
+        if ( pSpatialComponent == m_pRootSpatialComponent )
+        {
+            S32 const numChildrenForRoot = (S32) m_pRootSpatialComponent->m_spatialChildren.size();
+
+            // Ensure that we break any spatial attachments before we mess with the root component
+            bool const recreateSpatialAttachment = m_isSpatialAttachmentCreated;
+            if ( HasSpatialParent() && m_isSpatialAttachmentCreated )
+            {
+                DestroySpatialAttachment();
+            }
+
+            //-------------------------------------------------------------------------
+
+            // Removal of the root component if it has more than one child is not supported!
+            if ( numChildrenForRoot > 1 )
+            {
+                KRG_HALT();
+            }
+            else if ( numChildrenForRoot == 1 )
+            {
+                // Replace the root component of this entity with the child of the current root component that we are removing
+                pSpatialComponent->m_spatialChildren[0]->m_pSpatialParent = nullptr;
+                m_pRootSpatialComponent = pSpatialComponent->m_spatialChildren[0];
+                pSpatialComponent->m_spatialChildren.clear();
+            }
+            else // No children, so completely remove the root component
+            {
+                m_pRootSpatialComponent = nullptr;
+
+                // We are no longer a spatial entity so break any attachments
+                if ( HasSpatialParent() )
+                {
+                    ClearSpatialParent();
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            // Should we recreate the spatial attachment
+            if ( HasSpatialParent() && recreateSpatialAttachment )
+            {
+                CreateSpatialAttachment();
+            }
+        }
+        else // 'Fix' spatial hierarchy parenting
+        {
+            auto pParentComponent = pSpatialComponent->m_pSpatialParent;
+            if ( pParentComponent != nullptr ) // Component may already have been removed from the hierarchy
+            {
+                // Remove from parent
+                pParentComponent->m_spatialChildren.erase_first_unsorted( pSpatialComponent );
+
+                // Reparent all children to parent component
+                for ( auto pChildComponent : pSpatialComponent->m_spatialChildren )
+                {
+                    pChildComponent->m_pSpatialParent = pParentComponent;
+                    pParentComponent->m_spatialChildren.emplace_back( pChildComponent );
+                }
             }
         }
     }
@@ -411,7 +537,7 @@ namespace KRG
     {
         KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom<IEntitySystem>() );
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         // Ensure that we only allow a single system of a specific family
         for ( auto pExistingSystem : m_systems )
         {
@@ -426,19 +552,21 @@ namespace KRG
         // Create the new system and add it
         auto pSystem = (IEntitySystem*) pSystemTypeInfo->m_pTypeHelper->CreateType();
         m_systems.emplace_back( pSystem );
+
+        // Register all components with the new system
+        for ( auto pComponent : m_components )
+        {
+            if ( pComponent->m_isRegisteredWithEntity )
+            {
+                pSystem->RegisterComponent( pComponent );
+            }
+        }
     }
 
     void Entity::CreateSystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
         CreateSystemImmediate( pSystemTypeInfo );
         GenerateSystemUpdateList();
-
-        // If we are already activated, notify the world systems that our entity update requirements may have changed
-        if ( IsActivated() )
-        {
-            loadingContext.m_unregisterEntityUpdate( this );
-            loadingContext.m_registerEntityUpdate( this );
-        }
     }
 
     void Entity::DestroySystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo )
@@ -447,22 +575,26 @@ namespace KRG
 
         S32 const systemIdx = VectorFindIndex( m_systems, pSystemTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } );
         KRG_ASSERT( systemIdx != InvalidIndex );
+        auto pSystem = m_systems[systemIdx];
 
-        KRG::Delete( m_systems[systemIdx] );
-        VectorEraseUnsorted( m_systems, systemIdx );
+        // Unregister all components from the system to remove
+        for ( auto pComponent : m_components )
+        {
+            if ( pComponent->m_isRegisteredWithEntity )
+            {
+                pSystem->UnregisterComponent( pComponent );
+            }
+        }
+
+        // Destroy the system
+        KRG::Delete( pSystem );
+        m_systems.erase_unsorted( m_systems.begin() + systemIdx );
     }
 
     void Entity::DestroySystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
         DestroySystemImmediate( pSystemTypeInfo );
         GenerateSystemUpdateList();
-
-        // If we are already activated, notify the world systems that our entity update requirements may have changed
-        if ( IsActivated() )
-        {
-            loadingContext.m_unregisterEntityUpdate( this );
-            loadingContext.m_registerEntityUpdate( this );
-        }
     }
     
     //-------------------------------------------------------------------------
@@ -502,6 +634,8 @@ namespace KRG
         }
         else // Defer the operation to the next loading phase
         {
+            Threading::ScopeLock lock( m_internalStateMutex );
+
             auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
             action.m_type = EntityInternalStateAction::Type::AddComponent;
             action.m_ptr = pComponent;
@@ -537,6 +671,8 @@ namespace KRG
         }
         else // Defer the operation to the next loading phase
         {
+            Threading::ScopeLock lock( m_internalStateMutex );
+
             auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
             action.m_type = EntityInternalStateAction::Type::DestroyComponent;
             action.m_ptr = pComponent;
@@ -550,6 +686,7 @@ namespace KRG
     void Entity::AddComponentImmediate( EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent )
     {
         KRG_ASSERT( pComponent != nullptr && pComponent->GetID().IsValid() && !pComponent->m_entityID.IsValid() );
+        KRG_ASSERT( pComponent->IsUnloaded() && !pComponent->m_isRegisteredWithWorld && !pComponent->m_isRegisteredWithEntity );
 
         // Update spatial hierarchy
         //-------------------------------------------------------------------------
@@ -594,6 +731,7 @@ namespace KRG
     void Entity::DestroyComponentImmediate( EntityComponent* pComponent )
     {
         KRG_ASSERT( pComponent != nullptr );
+        KRG_ASSERT( pComponent->IsUnloaded() && !pComponent->m_isRegisteredWithWorld && !pComponent->m_isRegisteredWithEntity );
 
         S32 const componentIdx = VectorFindIndex( m_components, pComponent );
         KRG_ASSERT( componentIdx != InvalidIndex );
@@ -604,49 +742,13 @@ namespace KRG
         SpatialEntityComponent* pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent );
         if ( pSpatialComponent != nullptr )
         {
-            if ( pSpatialComponent->IsRootComponent() )
-            {
-                KRG_ASSERT( pSpatialComponent == m_pRootSpatialComponent );
-                S32 const numChildrenForRoot = (S32) m_pRootSpatialComponent->m_spatialChildren.size();
-
-                // Removal of the root component if it has more than one child is not supported!
-                if ( numChildrenForRoot > 1 )
-                {
-                    KRG_HALT();
-                }
-                else if ( numChildrenForRoot == 1 )
-                {
-                    // Replace the root component of this entity with the child of the current root component that we are removing
-                    pSpatialComponent->m_spatialChildren[0]->m_pSpatialParent = nullptr;
-                    m_pRootSpatialComponent = pSpatialComponent->m_spatialChildren[0];
-                    pSpatialComponent->m_spatialChildren.clear();
-                }
-                else // No children, so completely remove the root component
-                {
-                    m_pRootSpatialComponent = nullptr;
-                }
-            }
-            else // 'Fix' spatial hierarchy parenting
-            {
-                auto pParentComponent = pSpatialComponent->m_pSpatialParent;
-                KRG_ASSERT( pParentComponent != nullptr );
-
-                // Remove from parent
-                pParentComponent->m_spatialChildren.erase_first_unsorted( pSpatialComponent );
-
-                // Reparent all children to parent component
-                for ( auto pChildComponent : pSpatialComponent->m_spatialChildren )
-                {
-                    pChildComponent->m_pSpatialParent = pParentComponent;
-                    pParentComponent->m_spatialChildren.emplace_back( pChildComponent );
-                }
-            }
+            RemoveComponentFromSpatialHierarchy( pSpatialComponent );
         }
 
         // Remove component
         //-------------------------------------------------------------------------
 
-        VectorEraseUnsorted( m_components, componentIdx );
+        m_components.erase_unsorted( m_components.begin() + componentIdx );
         KRG::Delete( pComponent );
     }
 
@@ -659,19 +761,6 @@ namespace KRG
 
         if ( pComponent->IsInitialized() )
         {
-            // Remove any system registrations
-            if ( IsActivated() )
-            {
-                // Remove from local systems
-                for ( auto pSystem : m_systems )
-                {
-                    pSystem->UnregisterComponent( pComponent );
-                }
-
-                // Remove from global systems
-                loadingContext.m_unregisterFromGlobalSystems( this, pComponent );
-            }
-
             pComponent->Shutdown();
         }
 
@@ -685,25 +774,34 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    bool Entity::UpdateLoadingAndEntityState( EntityModel::LoadingContext const& loadingContext )
+    bool Entity::UpdateEntityState( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
+        Threading::ScopeLock lock( m_internalStateMutex );
+
         //-------------------------------------------------------------------------
         // Deferred Actions
         //-------------------------------------------------------------------------
+        // Note: ORDER OF OPERATIONS MATTERS!
 
-        for ( auto const& action : m_deferredActions )
+        for ( S32 i = 0; i < (S32) m_deferredActions.size(); i++ )
         {
+            EntityInternalStateAction& action = m_deferredActions[i];
+
             switch ( action.m_type )
             {
-                case EntityInternalStateAction::Type::CreateSystem : 
+                case EntityInternalStateAction::Type::CreateSystem:
                 {
                     CreateSystemDeferred( loadingContext, (TypeSystem::TypeInfo const*) action.m_ptr );
+                    m_deferredActions.erase( m_deferredActions.begin() + i );
+                    i--;
                 }
                 break;
 
                 case EntityInternalStateAction::Type::DestroySystem:
                 {
                     DestroySystemDeferred( loadingContext, (TypeSystem::TypeInfo const*) action.m_ptr );
+                    m_deferredActions.erase( m_deferredActions.begin() + i );
+                    i--;
                 }
                 break;
 
@@ -722,18 +820,52 @@ namespace KRG
                     }
 
                     AddComponentDeferred( loadingContext, (EntityComponent*) action.m_ptr, pParentComponent );
+                    m_deferredActions.erase( m_deferredActions.begin() + i );
+                    i--;
                 }
                 break;
 
                 case EntityInternalStateAction::Type::DestroyComponent:
                 {
-                    DestroyComponentDeferred( loadingContext, (EntityComponent*) action.m_ptr );
+                    auto pComponentToDestroy = (EntityComponent*) action.m_ptr;
+
+                    // Remove spatial components from the hierarchy immediately
+                    SpatialEntityComponent* pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponentToDestroy );
+                    if ( pSpatialComponent != nullptr )
+                    {
+                        RemoveComponentFromSpatialHierarchy( pSpatialComponent );
+                    }
+
+                    // Unregister from local systems
+                    if ( pComponentToDestroy->m_isRegisteredWithEntity )
+                    {
+                        UnregisterComponentFromLocalSystems( pComponentToDestroy );
+                    }
+
+                    // Request unregister from global systems
+                    if ( pComponentToDestroy->m_isRegisteredWithWorld )
+                    {
+                        activationContext.m_componentsToUnregister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponentToDestroy ) );
+                        action.m_type = EntityInternalStateAction::Type::WaitForComponentUnregistration;
+                    }
+                }
+                // No Break: Intentional Fall-through here
+
+                case EntityInternalStateAction::Type::WaitForComponentUnregistration:
+                {
+                    auto pComponentToDestroy = (EntityComponent*) action.m_ptr;
+
+                    // We can destroy the component safely
+                    if ( !pComponentToDestroy->m_isRegisteredWithEntity && !pComponentToDestroy->m_isRegisteredWithWorld )
+                    {
+                        DestroyComponentDeferred( loadingContext, (EntityComponent*) action.m_ptr );
+                        m_deferredActions.erase( m_deferredActions.begin() + i );
+                        i--;
+                    }
                 }
                 break;
             }
         }
-
-        m_deferredActions.clear();
 
         //-------------------------------------------------------------------------
         // Component Loading
@@ -760,19 +892,36 @@ namespace KRG
                     // If we are already activated, then register with entity systems
                     if ( IsActivated() )
                     {
-                        // Register with local systems
-                        for ( auto pSystem : m_systems )
-                        {
-                            pSystem->RegisterComponent( pComponent );
-                        }
-
-                        // Register with global systems
-                        loadingContext.m_registerWithGlobalSystems( this, pComponent );
+                        RegisterComponentWithLocalSystems( pComponent );
+                        activationContext.m_componentsToRegister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
                     }
                 }
             }
         }
 
-        return true;
+        //-------------------------------------------------------------------------
+        // Entity update registration
+        //-------------------------------------------------------------------------
+
+        bool const shouldBeRegisteredForUpdates = IsActivated() && !m_systems.empty() && !HasSpatialParent();
+
+        if ( shouldBeRegisteredForUpdates )
+        {
+            if ( !m_isRegisteredForUpdates )
+            {
+                activationContext.m_registerForEntityUpdate.enqueue( this );
+            }
+        }
+        else // Doesnt require an update
+        {
+            if ( m_isRegisteredForUpdates )
+            {
+                activationContext.m_unregisterForEntityUpdate.enqueue( this );
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        return m_deferredActions.empty();
     }
 }

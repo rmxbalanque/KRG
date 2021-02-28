@@ -1,12 +1,12 @@
 #include "NavmeshDebugViewController.h"
-#include "System/Imgui/ImguiCore.h"
+#include "System/Imgui/ImguiSystem.h"
 
 #include <bfxSystem.h>
 #include <bfxPlanner.h>
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Navmesh
 {
     NavmeshDebugViewController::NavmeshDebugViewController()

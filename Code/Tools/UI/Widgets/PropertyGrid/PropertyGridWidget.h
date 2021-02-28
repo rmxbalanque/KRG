@@ -1,7 +1,7 @@
 #pragma once
 #include "../../_Module/API.h"
 #include "Tools/Core/TypeSystem/ToolTypeInstance.h"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include <QWidget>
 

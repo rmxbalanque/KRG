@@ -10,8 +10,10 @@
 
 namespace KRG
 {
+    class TaskSystem;
     class Entity;
     class EntityComponent;
+    class EntityWorld;
 
     //-------------------------------------------------------------------------
 
@@ -26,8 +28,9 @@ namespace KRG
         {
             LoadingContext() = default;
 
-            LoadingContext( TypeSystem::TypeRegistry const* pTypeRegistry, Resource::ResourceSystem* pResourceSystem )
-                : m_pTypeRegistry( pTypeRegistry )
+            LoadingContext( TaskSystem* pTaskSystem, TypeSystem::TypeRegistry const* pTypeRegistry, Resource::ResourceSystem* pResourceSystem )
+                : m_pTaskSystem( pTaskSystem )
+                , m_pTypeRegistry( pTypeRegistry )
                 , m_pResourceSystem( pResourceSystem )
             {}
 
@@ -38,12 +41,9 @@ namespace KRG
 
         public:
 
+            TaskSystem*                                                     m_pTaskSystem = nullptr;
             TypeSystem::TypeRegistry const*                                 m_pTypeRegistry = nullptr;
             Resource::ResourceSystem*                                       m_pResourceSystem = nullptr;
-            TFunction<void( Entity*, EntityComponent* )>                    m_registerWithGlobalSystems;
-            TFunction<void( Entity*, EntityComponent* )>                    m_unregisterFromGlobalSystems;
-            TFunction<void( Entity* )>                                      m_registerEntityUpdate;
-            TFunction<void( Entity* )>                                      m_unregisterEntityUpdate;
         };
     }
 
@@ -54,8 +54,9 @@ namespace KRG
         KRG_REGISTER_TYPE;
 
         friend Entity;
-        friend class EntityModel::EntityCollection;
-        friend class EntityModel::EntityMap;
+        friend EntityModel::EntityCollection;
+        friend EntityModel::EntityMap;
+        friend EntityWorld;
 
     public:
 
@@ -108,10 +109,12 @@ namespace KRG
 
     protected:
 
-        UUID                        m_ID;                           // The unique ID for this component
-        UUID                        m_entityID;                     // The ID of the entity that contains this component
-        StringID                    m_name;                         // The name of the component
-        Status                      m_status = Status::Unloaded;    // Component status
+        UUID                        m_ID;                               // The unique ID for this component
+        UUID                        m_entityID;                         // The ID of the entity that contains this component
+        StringID                    m_name;                             // The name of the component
+        Status                      m_status = Status::Unloaded;        // Component status
+        bool                        m_isRegisteredWithEntity = false;   // Registered with its parent entity's local systems
+        bool                        m_isRegisteredWithWorld = false;    // Registered with the global systems in it's parent world
     };
 
     //-------------------------------------------------------------------------

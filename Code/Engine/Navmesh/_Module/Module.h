@@ -2,6 +2,7 @@
 
 #include "API.h"
 #include "Engine/Navmesh/NavmeshSystem.h"
+#include "Engine/Navmesh/NavmeshWorldSystem.h"
 #include "Engine/Navmesh/Debug/NavmeshDebugViewController.h"
 #include "Engine/Navmesh/ResourceLoaders/NavmeshLoader.h"
 #include "Engine/Core/Modules/IEngineModule.h"
@@ -22,9 +23,10 @@ namespace KRG::Navmesh
     private:
 
         NavmeshSystem               m_navmeshSystem;
+        NavmeshWorldSystem          m_navmeshWorldSystem;
         NavmeshLoader               m_navmeshLoader;
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         NavmeshDebugViewController  m_navmeshDebugViewController;
         #endif
 

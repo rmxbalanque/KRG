@@ -36,7 +36,7 @@ namespace KRG::TypeSystem
         {
             if ( m_propertyValues[i].m_path == path )
             {
-                VectorEraseUnsorted( m_propertyValues, i );
+                m_propertyValues.erase_unsorted( m_propertyValues.begin() + i );
             }
         }
     }

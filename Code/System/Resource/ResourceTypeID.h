@@ -1,7 +1,6 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "System/Core/Core.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/Serialization/Serialization.h"
 

@@ -1,12 +1,13 @@
 #include "DebugUISystem.h"
-#include "System/Imgui/ImguiCore.h"
+#include "System/Imgui/ImguiSystem.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
+#include "../../Render/Fonts/FontData_FontAwesome4.h"
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     namespace Debug
@@ -333,6 +334,9 @@ namespace KRG
 
                     // The debug windows should be always be drawn if enabled
                     DrawDebugWindows( context );
+
+                    // The popups should be always be drawn if enabled
+                    DrawPopups( context );
                 }
                 break;
 
@@ -347,6 +351,91 @@ namespace KRG
         }
 
         //-------------------------------------------------------------------------
+
+        void DebugUISystem::DrawPopups( UpdateContext const& context )
+        {
+            // Get any new warnings/errors and create pop-ups for them
+            //-------------------------------------------------------------------------
+
+            auto const unhandledWarningsAndErrors = Log::GetUnhandledWarningsAndErrors();
+            for ( auto const& entry : unhandledWarningsAndErrors )
+            {
+                auto& popupMessage = m_modalPopups.emplace_back( ModalPopupMessage() );
+
+                UUID const ID = UUID::GenerateID();
+                popupMessage.m_ID = ( entry.m_severity == Log::Severity::Warning ) ? "Warning##" : "Error##";
+                popupMessage.m_ID += ID.ToString();
+                popupMessage.m_channel = entry.m_channel;
+                popupMessage.m_severity = entry.m_severity;
+                popupMessage.m_message = entry.m_message;
+            }
+
+            // Remove closed warnings/errors
+            //-------------------------------------------------------------------------
+
+            for ( auto i = 0; i < m_modalPopups.size(); i++ )
+            {
+                if ( !m_modalPopups[i].m_isOpen )
+                {
+                    m_modalPopups.erase( m_modalPopups.begin() + i );
+                    i--;
+                }
+            }
+
+            // Draw pop-ups
+            //-------------------------------------------------------------------------
+
+            if( HasModalPopupOpen() )
+            {
+                // Always draw latest first
+                auto& message = m_modalPopups.back();
+
+                ImVec4 const titleBarColor = ( message.m_severity == Log::Severity::Warning ) ? ImGuiX::ConvertColor( Colors::Yellow ) : ImGuiX::ConvertColor( Colors::Red );
+                ImVec4 const titleBarTextColor = ( message.m_severity == Log::Severity::Warning ) ? ImGuiX::ConvertColor( Colors::Black ) : ImGuiX::ConvertColor( Colors::Black );
+
+                ImGui::OpenPopup( message.m_ID.c_str() );
+                ImGui::SetNextWindowSize( ImVec2( 400, 0 ) );
+                ImGui::PushStyleColor( ImGuiCol_Text, titleBarTextColor );
+                ImGui::PushStyleColor( ImGuiCol_TitleBgActive, titleBarColor );
+                if ( ImGui::BeginPopupModal( message.m_ID.c_str(), &message.m_isOpen, ImGuiWindowFlags_AlwaysAutoResize ) )
+                {
+                    ImGui::PopStyleColor( 2 );
+
+                    if ( ImGui::BeginTable( "ErrorPopup", 2 ) )
+                    {
+                        ImGui::TableNextColumn();
+
+                        {
+                            ImGui::PushStyleColor( ImGuiCol_Text, titleBarColor );
+                            ImGuiX::ScopedFont font( ImGuiX::Font::ExtraLarge );
+                            ImGui::Text( KRG_ICON_EXCLAMATION_TRIANGLE );
+                            ImGui::PopStyleColor( 1 );
+                        }
+
+                        ImGui::TableNextColumn();
+
+                        ImGui::Text( "Channel: %s", message.m_channel.c_str() );
+                        ImGui::Text( "Message: %s", message.m_message.c_str() );
+
+                        ImGui::EndTable();
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::NewLine();
+                    ImGui::NewLine();
+                    ImGui::SameLine( ( ImGui::GetWindowWidth() - 100 ) / 2 );
+                    if ( ImGui::Button( "Ok", ImVec2( 100, 0 ) ) )
+                    {
+                        message.m_isOpen = false;
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::EndPopup();
+                }
+            }
+        }
 
         void DebugUISystem::DrawOverlayMenu( UpdateContext const& context )
         {
@@ -387,16 +476,21 @@ namespace KRG
             ImGui::SetNextWindowSize( ImVec2( io.DisplaySize.x, barHeight ) );
             if ( ImGui::Begin( "Stats", &showAlways, flags ) )
             {
-                float const CurrentFPS = 1.0f / context.GetDeltaTime();
-                float const AvgFPS = 1.0f / m_avgTimeDelta;
-                float const RequestedMemory = Memory::GetTotalRequestedMemory() / 1024.0f / 1024.0f;
-                float const AllocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
+                float const currentFPS = 1.0f / context.GetDeltaTime();
+                float const avgFPS = 1.0f / m_avgTimeDelta;
+                float const requestedMemory = Memory::GetTotalRequestedMemory() / 1024.0f / 1024.0f;
+                float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
+                Seconds const currentEngineTime = EngineClock::GetTimeInSeconds();
 
-                ImGui::Text( "Current FPS: %4.0f, Avg FPS: %4.0f", CurrentFPS, AvgFPS );
+                ImGui::Text( "Current FPS: %4.0f, Avg FPS: %4.0f", currentFPS, avgFPS );
                 ImGui::SameLine();
                 ImGui::TextColored( ( Colors::Cyan ).ToFloat4(), "|" );
                 ImGui::SameLine();
-                ImGui::Text( "Memory: %.2fMB Requested (%.2fMB Allocated)", RequestedMemory, AllocatedMemory );
+                ImGui::Text( "Engine Time: %.3f", currentEngineTime.ToFloat() );
+                ImGui::SameLine();
+                ImGui::TextColored( ( Colors::Cyan ).ToFloat4(), "|" );
+                ImGui::SameLine();
+                ImGui::Text( "Memory: %.2fMB Requested (%.2fMB Allocated)", requestedMemory, allocatedMemory );
 
                 ImGui::End();
             }

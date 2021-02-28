@@ -24,7 +24,7 @@ namespace KRG::Resource
         virtual ResourceTypeID GetResourceType() const = 0;
         virtual bool IsVirtualResourceType() const = 0;
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         virtual char const* GetName() const { return "Resource Name"; }
         #endif
 

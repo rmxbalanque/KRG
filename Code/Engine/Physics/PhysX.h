@@ -22,35 +22,6 @@ namespace KRG::Physics
     };
 
     //-------------------------------------------------------------------------
-    // Memory
-    //-------------------------------------------------------------------------
-
-    class PhysXAllocator : public physx::PxAllocatorCallback
-    {
-        virtual void* allocate( size_t size, const char* typeName, const char* filename, int line ) override
-        {
-            return KRG::Alloc( size, 16 );
-        }
-
-        virtual void deallocate( void* ptr ) override
-        {
-            KRG::Free( ptr );
-        }
-    };
-
-    //-------------------------------------------------------------------------
-    // Error Reporting
-    //-------------------------------------------------------------------------
-
-    class PhysXUserErrorCallback : public physx::PxErrorCallback
-    {
-        virtual void reportError( physx::PxErrorCode::Enum code, const char* message, const char* file, int line ) override
-        {
-            Log::AddEntry( Log::Severity::Error, "Physics", file, line, message );
-        }
-    };
-
-    //-------------------------------------------------------------------------
     // Type Conversion
     //-------------------------------------------------------------------------
 
@@ -185,4 +156,54 @@ namespace KRG::Physics
     {
         return physx::PxBounds3( ToPx( bounds.GetMin() ), ToPx( bounds.GetMax() ) );
     }
+
+    //-------------------------------------------------------------------------
+    // Memory
+    //-------------------------------------------------------------------------
+
+    class PhysXAllocator final : public physx::PxAllocatorCallback
+    {
+        virtual void* allocate( size_t size, const char* typeName, const char* filename, int line ) override
+        {
+            return KRG::Alloc( size, 16 );
+        }
+
+        virtual void deallocate( void* ptr ) override
+        {
+            KRG::Free( ptr );
+        }
+    };
+
+    //-------------------------------------------------------------------------
+    // Error Reporting
+    //-------------------------------------------------------------------------
+
+    class PhysXUserErrorCallback final : public physx::PxErrorCallback
+    {
+        virtual void reportError( physx::PxErrorCode::Enum code, const char* message, const char* file, int line ) override
+        {
+            Log::AddEntry( Log::Severity::Error, "Physics", file, line, message );
+        }
+    };
+
+    //-------------------------------------------------------------------------
+    // Task System
+    //-------------------------------------------------------------------------
+
+    class PhysXTaskDispatcher final : public physx::PxCpuDispatcher
+    {
+        virtual void submitTask( physx::PxBaseTask& task ) override
+        {
+            // Surprisingly it is faster to run all physics tasks on a single thread since there is a fair amount of gaps when spreading the tasks across multiple cores.
+            // TODO: re-evaluate this when we have additional work. Perhaps we can interleave other tasks while physics tasks are waiting
+            auto pTask = &task;
+            pTask->run();
+            pTask->release();
+        }
+
+        virtual physx::PxU32 getWorkerCount() const override
+        {
+            return 1;
+        }
+    };
 }

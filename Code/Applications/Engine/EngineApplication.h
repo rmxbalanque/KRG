@@ -2,18 +2,8 @@
 
 #include "ApplicationGlobalState.h"
 #include "RenderingSystem.h"
-#include "Engine/Core/DebugUI/DebugUISystem.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
-#include "System/Entity/EntityWorld.h"
-#include "System/Imgui/ImguiCore.h"
-#include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Render/RendererRegistry.h"
-#include "System/Resource/ResourceID.h"
-#include "System/Resource/ResourceProvider.h"
-#include "System/Resource/ResourceSystem.h"
-#include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Settings/SettingsRegistry.h"
-#include "System/Core/Debug/DebugDrawingSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 
 // Engine modules
@@ -34,7 +24,7 @@ namespace KRG
 
     public:
 
-        EngineApplication() : m_resourceSystem( m_taskSystem ) {}
+        EngineApplication() : m_module_engine_core( m_settingsRegistry ) {}
         virtual ~EngineApplication() = default;
         virtual int Run( S32 argc, char** argv ) = 0;
 
@@ -69,33 +59,7 @@ namespace KRG
     protected:
 
         ApplicationGlobalState                          m_applicationGlobalState;
-
-        // Engine Systems
-        //-------------------------------------------------------------------------
-
         SettingsRegistry                                m_settingsRegistry;
-        TaskSystem                                      m_taskSystem;
-        SystemRegistry                                  m_systemRegistry;
-        TypeSystem::TypeRegistry                        m_typeRegistry;
-        Resource::ResourceSystem                        m_resourceSystem;
-        Resource::ResourceProvider*                     m_pResourceProvider = nullptr;
-        Render::RenderDevice                            m_renderDevice;
-        Render::RenderingSystem                         m_renderingSystem;
-        ImGuiX::System                                  m_imguiSystem;
-        Input::InputSystem                              m_inputSystem;
-        CameraSystem                                    m_cameraSystem;
-        EntityWorld                                     m_entityWorld;
-
-        #if KRG_DEBUG_INSTRUMENTATION
-        Debug::DebugUISystem                            m_debugUISystem;
-        Debug::DrawingSystem                            m_debugDrawingSystem;
-        #endif
-
-        // Contexts
-        //-------------------------------------------------------------------------
-
-        ModuleContext                                   m_moduleContext;
-        EngineUpdateContext                             m_updateContext;
 
         // Modules
         //-------------------------------------------------------------------------
@@ -106,6 +70,34 @@ namespace KRG
         Animation::EngineModule                         m_module_engine_animation;
         Navmesh::EngineModule                           m_module_engine_navmesh;
         Game::GameModule                                m_module_game_core;
+
+        // Contexts
+        //-------------------------------------------------------------------------
+
+        ModuleContext                                   m_moduleContext;
+        EngineUpdateContext                             m_updateContext;
+
+        // Core Engine Systems
+        //-------------------------------------------------------------------------
+
+        SystemRegistry*                                 m_pSystemRegistry = nullptr;
+        TaskSystem*                                     m_pTaskSystem = nullptr;
+        TypeSystem::TypeRegistry*                       m_pTypeRegistry = nullptr;
+        Resource::ResourceSystem*                       m_pResourceSystem = nullptr;
+        Render::RenderDevice*                           m_pRenderDevice = nullptr;
+        Render::RendererRegistry*                       m_pRendererRegistry = nullptr;
+        Render::RenderingSystem                         m_renderingSystem;
+        EntityWorld*                                    m_pEntityWorld = nullptr;
+        ImGuiX::ImguiSystem*                            m_pImguiSystem = nullptr;
+        Input::InputSystem*                             m_pInputSystem = nullptr;
+        Navmesh::NavmeshSystem*                         m_pNavmeshSystem = nullptr;
+        Physics::PhysicsSystem*                         m_pPhysicsSystem = nullptr;
+        CameraWorldSystem*                              m_pCameraSystem = nullptr;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        Debug::DebugUISystem*                           m_pDebugUISystem = nullptr;
+        Debug::DrawingSystem*                           m_pDebugDrawingSystem = nullptr;
+        #endif
 
         // Application data
         //-------------------------------------------------------------------------

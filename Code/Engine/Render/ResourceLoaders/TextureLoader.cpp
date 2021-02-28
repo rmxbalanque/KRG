@@ -3,6 +3,7 @@
 #include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
+
 namespace KRG
 {
     namespace Render

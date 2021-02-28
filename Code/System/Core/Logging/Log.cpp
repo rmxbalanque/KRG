@@ -17,6 +17,7 @@ namespace KRG
             struct LogData
             {
                 TVector<LogEntry>               m_logEntries;
+                TVector<LogEntry>               m_unhandledWarningsAndErrors;
                 Threading::Mutex                m_mutex;
                 S32                             m_fatalErrorIndex = InvalidIndex;
             };
@@ -43,42 +44,12 @@ namespace KRG
             return g_pLog != nullptr;
         }
 
-        bool HasFatalErrorOccurred()
-        {
-            KRG_ASSERT( IsInitialized() );
-            return g_pLog->m_fatalErrorIndex != InvalidIndex;
-        }
+        //-------------------------------------------------------------------------
 
         TVector<KRG::Log::LogEntry> const& GetLogEntries()
         {
             KRG_ASSERT( IsInitialized() );
             return g_pLog->m_logEntries;
-        }
-
-        LogEntry const& GetFatalError()
-        {
-            KRG_ASSERT( IsInitialized() && g_pLog->m_fatalErrorIndex != InvalidIndex );
-            return g_pLog->m_logEntries[g_pLog->m_fatalErrorIndex];
-        }
-
-        void SaveToFile( FileSystemPath const& logFilePath )
-        {
-            KRG_ASSERT( IsInitialized() && logFilePath.IsValid() && logFilePath.IsFilePath() );
-
-            FileSystem::EnsurePathExists( logFilePath );
-
-            String logData;
-
-            char buffer[1024];
-            std::lock_guard<std::mutex> lock( g_pLog->m_mutex );
-            for ( auto const& entry : g_pLog->m_logEntries )
-            {
-                Printf( buffer, 1024, "[%s] %s >>> %s: %s, Source: %s, %i\r\n", entry.m_timestamp.c_str(), entry.m_channel.c_str(), g_severityLabels[(S32) entry.m_severity], entry.m_message.c_str(), entry.m_filename.c_str(), entry.m_lineNumber );
-                logData.append( buffer );
-            }
-
-            FileSystem::OutputFileStream logFile( logFilePath );
-            logFile.Write( (void*) logData.data(), logData.size() );
         }
 
         void AddEntry( Severity severity, char const* pChannel, char const* pFilename, int pLineNumber, char const* pMessageFormat, ... )
@@ -131,7 +102,63 @@ namespace KRG
 
                 // Print to std out
                 printf( "%s\n", msgbuffer );
+
+                // Track unhandled warnings and errors
+                //-------------------------------------------------------------------------
+
+                if ( entry.m_severity > Log::Severity::Message )
+                {
+                    g_pLog->m_unhandledWarningsAndErrors.emplace_back( entry );
+                }
             }
+        }
+
+        //-------------------------------------------------------------------------
+
+        void SaveToFile( FileSystemPath const& logFilePath )
+        {
+            KRG_ASSERT( IsInitialized() && logFilePath.IsValid() && logFilePath.IsFilePath() );
+
+            FileSystem::EnsurePathExists( logFilePath );
+
+            String logData;
+
+            char buffer[1024];
+            std::lock_guard<std::mutex> lock( g_pLog->m_mutex );
+            for ( auto const& entry : g_pLog->m_logEntries )
+            {
+                Printf( buffer, 1024, "[%s] %s >>> %s: %s, Source: %s, %i\r\n", entry.m_timestamp.c_str(), entry.m_channel.c_str(), g_severityLabels[(S32) entry.m_severity], entry.m_message.c_str(), entry.m_filename.c_str(), entry.m_lineNumber );
+                logData.append( buffer );
+            }
+
+            FileSystem::OutputFileStream logFile( logFilePath );
+            logFile.Write( (void*) logData.data(), logData.size() );
+        }
+
+        //-------------------------------------------------------------------------
+
+        bool HasFatalErrorOccurred()
+        {
+            KRG_ASSERT( IsInitialized() );
+            return g_pLog->m_fatalErrorIndex != InvalidIndex;
+        }
+
+        LogEntry const& GetFatalError()
+        {
+            KRG_ASSERT( IsInitialized() && g_pLog->m_fatalErrorIndex != InvalidIndex );
+            return g_pLog->m_logEntries[g_pLog->m_fatalErrorIndex];
+        }
+
+        //-------------------------------------------------------------------------
+
+        TVector<Log::LogEntry> GetUnhandledWarningsAndErrors()
+        {
+            KRG_ASSERT( IsInitialized() );
+            std::lock_guard<std::mutex> lock( g_pLog->m_mutex );
+
+            TVector<Log::LogEntry> outEntries = g_pLog->m_unhandledWarningsAndErrors;
+            g_pLog->m_unhandledWarningsAndErrors.clear();
+            return outEntries;
         }
     }
 }

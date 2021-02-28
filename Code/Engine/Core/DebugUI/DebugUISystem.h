@@ -6,10 +6,11 @@
 #include "System/Core/Systems/ISystem.h"
 #include "System/Core/Settings/Setting.h"
 #include "System/Core/Types/Containers.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     namespace Debug
@@ -47,9 +48,18 @@ namespace KRG
 
             public:
 
-                String                              m_title;
-                TVector<Menu>                       m_childMenus;
-                TVector<DebugMenuCallback const*>      m_callbacks;
+                String                                      m_title;
+                TVector<Menu>                               m_childMenus;
+                TVector<DebugMenuCallback const*>           m_callbacks;
+            };
+
+            struct ModalPopupMessage
+            {
+                String                                      m_ID;
+                String                                      m_channel;
+                String                                      m_message;
+                Log::Severity                               m_severity;
+                bool                                        m_isOpen = true;
             };
 
         public:
@@ -63,6 +73,8 @@ namespace KRG
             void RegisterDebugView( DebugView* pDebugView );
             void UnregisterDebugView( DebugView* pDebugView );
 
+            inline bool HasModalPopupOpen() const { return !m_modalPopups.empty(); }
+
             void Update( UpdateContext const& context );
 
         private:
@@ -73,6 +85,7 @@ namespace KRG
             void RegisterDebugSettings();
             void UnregisterDebugSettings();
 
+            void DrawPopups( UpdateContext const& context );
             void DrawOverlayMenu( UpdateContext const& context );
             void DrawDebugWindows( UpdateContext const& context );
             void DrawOverlayStatusBar( UpdateContext const& context );
@@ -84,6 +97,7 @@ namespace KRG
             SettingsRegistry const*             m_pSettingsRegistry = nullptr;
             TVector<DebugMenuCallback>          m_debugSettingMenuCallbacks;
             TVector<DebugView*>                 m_viewControllers;
+            TVector<ModalPopupMessage>          m_modalPopups;
             Seconds                             m_avgTimeDelta = 0.0f;
             Menu                                m_mainMenu = Menu("Main Menu");
             bool                                m_debugOverlayEnabled = false;

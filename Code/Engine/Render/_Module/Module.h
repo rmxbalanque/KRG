@@ -36,7 +36,7 @@ namespace KRG
             StaticMeshRenderer                  m_staticMeshRenderer;
             SkeletalMeshRenderer                m_skeletalMeshRenderer;
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             DebugRenderer                       m_debugRenderer;
             #endif
 

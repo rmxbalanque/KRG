@@ -1,14 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "jvn3JryPNoNsIgR1q8xnilYJZmTQhnQdjVDuRWWhQplbKfWhpRkYxbYibBA1gAaGl1a/yvFnDXTT52bS1UnQdQ==",
+  "dgSpecHash": "JC58G6vMVVfLO8EBk8pJS7VccvwzuNoX+luHVsR7maz94xIvttsfmjNdyKm+jwPoH2gcagn7SNtgYxjOYkfPHw==",
   "success": true,
   "projectFilePath": "D:\\Kruger\\Tools\\Scripts\\Scripts.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\bobby\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
-    "C:\\Users\\bobby\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\3.0.1\\microsoft.aspnetcore.app.ref.3.0.1.nupkg.sha512",
-    "C:\\Users\\bobby\\.nuget\\packages\\microsoft.netcore.app.ref\\3.0.0\\microsoft.netcore.app.ref.3.0.0.nupkg.sha512",
-    "C:\\Users\\bobby\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.0.3\\microsoft.netcore.app.host.win-x64.3.0.3.nupkg.sha512",
-    "C:\\Users\\bobby\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\3.0.0\\microsoft.windowsdesktop.app.ref.3.0.0.nupkg.sha512"
+    "C:\\Users\\bobby\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
   ],
   "logs": []
 }

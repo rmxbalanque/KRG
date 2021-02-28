@@ -1,9 +1,8 @@
 #pragma once
 #include "../_Module/API.h"
-#include "iniparser.h"
-#include "System/Core/Core.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
+#include "iniparser.h"
 
 //-------------------------------------------------------------------------
 

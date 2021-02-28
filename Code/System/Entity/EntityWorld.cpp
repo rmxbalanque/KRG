@@ -5,6 +5,7 @@
 #include "System/Core/Settings/DebugSettings.h"
 #include "EASTL/bonus/adaptors.h"
 #include "System/Core/Time/Timers.h"
+#include "System/Core/Types/Pool.h"
 
 //-------------------------------------------------------------------------
 
@@ -12,7 +13,7 @@ namespace KRG
 {
     namespace Settings
     {
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         static DebugSettingBool g_showEntityWorldLoadErrors( "ShowEntityWorldLoadErrors", "Entity/World", "", false );
         #endif
     }
@@ -23,33 +24,27 @@ namespace KRG
     {
         KRG_ASSERT( !m_createPersistentEntitiesEvent.HasBoundUsers() );
         KRG_ASSERT( m_maps.empty());
-        KRG_ASSERT( m_globalSystems.empty() );
+        KRG_ASSERT( m_worldSystems.empty() );
+        KRG_ASSERT( m_entityUpdateList.empty() );
 
         for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
         {
-            KRG_ASSERT( m_entityUpdateLists[i].empty() );
             KRG_ASSERT( m_systemUpdateLists[i].empty() );
         }
     }
 
     void EntityWorld::Initialize( SystemRegistry const& systemsRegistry )
     {
-        m_loadingContext = EntityModel::LoadingContext( systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
-        KRG_ASSERT( m_loadingContext.IsValid() );
-
-        // Bind delegates
-        m_loadingContext.m_registerWithGlobalSystems = TFunction<void( Entity*, EntityComponent* )>( [this] ( Entity* pEntity, EntityComponent* pComponent ) { RegisterComponentWithGlobalSystems( pEntity, pComponent ); } );
-        m_loadingContext.m_unregisterFromGlobalSystems = TFunction<void( Entity*, EntityComponent* )>( [this] ( Entity* pEntity, EntityComponent* pComponent ) { UnregisterComponentFromGlobalSystems( pEntity, pComponent ); } );
-        m_loadingContext.m_registerEntityUpdate = TFunction<void( Entity* )>( [this] ( Entity* pEntity ) { RegisterEntityUpdate( pEntity ); } );
-        m_loadingContext.m_unregisterEntityUpdate = TFunction<void( Entity* )>( [this] ( Entity* pEntity ) { UnregisterEntityUpdate( pEntity ); } );
-
-        //-------------------------------------------------------------------------
-
         m_pTaskSystem = systemsRegistry.GetSystem<TaskSystem>();
         KRG_ASSERT( m_pTaskSystem != nullptr );
 
-        // Initialize all global systems
-        for ( auto pSystem : m_globalSystems )
+        m_loadingContext = EntityModel::LoadingContext( m_pTaskSystem, systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
+        KRG_ASSERT( m_loadingContext.IsValid() );
+
+        //-------------------------------------------------------------------------
+
+        // Initialize all world systems
+        for ( auto pSystem : m_worldSystems )
         {
             pSystem->InitializeEntitySystem( systemsRegistry );
         }
@@ -57,7 +52,7 @@ namespace KRG
         // Create and activate the persistent map
         m_maps.emplace_back( EntityModel::EntityMap() );
         m_maps[0].Load( m_loadingContext );
-        m_maps[0].Activate( m_loadingContext );
+        m_maps[0].Activate( m_loadingContext, m_activationContext );
         m_createPersistentEntitiesEvent.Execute( &m_maps[0] );
 
         //-------------------------------------------------------------------------
@@ -78,16 +73,15 @@ namespace KRG
         // Run the loading update as this will immediately unload all maps
         //-------------------------------------------------------------------------
 
-        UpdateLoading();
+        while ( !m_maps.empty() )
+        {
+            UpdateLoading();
+        }
 
-        KRG_ASSERT( m_maps.empty() );
-
-        auto pEvent = Entity::OnEntityStateUpdated();
-
-        // Shutdown all global systems
+        // Shutdown all world systems
         //-------------------------------------------------------------------------
 
-        for( auto pSystem : m_globalSystems )
+        for( auto pSystem : m_worldSystems )
         {
             pSystem->ShutdownEntitySystem();
         }
@@ -109,23 +103,52 @@ namespace KRG
             EntityUpdateTask( UpdateContext const& context, TVector<Entity*>& updateList )
                 : m_context( context )
                 , m_updateList( updateList )
-            { 
+            {
                 m_SetSize = (U32) updateList.size();
+            }
+
+            // Only used for spatial dependency chain updates
+            inline void RecursiveEntityUpdate( Entity* pEntity )
+            {
+                pEntity->UpdateSystems( m_context );
+
+                for ( auto pAttachedEntity : pEntity->m_attachedEntities )
+                {
+                    RecursiveEntityUpdate( pAttachedEntity );
+                }
             }
 
             virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
             {
-                for ( uint64_t i = range.start; i < range.end; ++i )
+                for ( U64 i = range.start; i < range.end; ++i )
                 {
-                    KRG_PROFILE_SCOPE_SCENE( "Update Entity" );
-                    m_updateList[i]->UpdateSystems( m_context );
+                    auto pEntity = m_updateList[i];
+
+                    // Ignore any entities with spatial parents these will be removed from the update list
+                    if ( pEntity->HasSpatialParent() )
+                    {
+                        continue;
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    if ( pEntity->HasAttachedEntities() )
+                    {
+                        KRG_PROFILE_SCOPE_SCENE( "Update Entity Chain" );
+                        RecursiveEntityUpdate( pEntity );
+                    }
+                    else // Direct entity update
+                    {
+                        KRG_PROFILE_SCOPE_SCENE( "Update Entity" );
+                        pEntity->UpdateSystems( m_context );
+                    }
                 }
             }
 
         private:
 
-            UpdateContext const&    m_context;
-            TVector<Entity*>&       m_updateList;
+            UpdateContext const&                    m_context;
+            TVector<Entity*>&                       m_updateList;
         };
 
         //-------------------------------------------------------------------------
@@ -135,16 +158,16 @@ namespace KRG
         // Update entities
         //-------------------------------------------------------------------------
 
-        EntityUpdateTask updateTask( context, m_entityUpdateLists[updateStageIdx] );
-        m_pTaskSystem->ScheduleTask( &updateTask );
-        m_pTaskSystem->WaitForTask( &updateTask );
+        EntityUpdateTask entityUpdateTask( context, m_entityUpdateList );
+        m_pTaskSystem->ScheduleTask( &entityUpdateTask );
+        m_pTaskSystem->WaitForTask( &entityUpdateTask );
 
         // Update systems
         //-------------------------------------------------------------------------
 
         for ( auto pSystem : m_systemUpdateLists[updateStageIdx] )
         {
-            KRG_PROFILE_SCOPE_SCENE( "Update Global Systems" );
+            KRG_PROFILE_SCOPE_SCENE( "Update World Systems" );
             KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) updateStageIdx ) );
             pSystem->UpdateEntitySystem( context );
         }
@@ -154,15 +177,15 @@ namespace KRG
     // Systems
     //-------------------------------------------------------------------------
 
-    void EntityWorld::RegisterGlobalSystem( IGlobalEntitySystem* pSystem )
+    void EntityWorld::RegisterWorldSystem( IWorldEntitySystem* pSystem )
     {
         KRG_ASSERT( pSystem != nullptr && m_initialized == false );
 
         // Add system
         //-------------------------------------------------------------------------
 
-        // Ensure that we only allow a single system of a specific type - global systems are essentially singletons
-        for ( auto pExistingSystem : m_globalSystems )
+        // Ensure that we only allow a single system of a specific type - world systems are essentially singletons
+        for ( auto pExistingSystem : m_worldSystems )
         {
             if ( pExistingSystem->GetEntitySystemID() == pSystem->GetEntitySystemID() )
             {
@@ -170,7 +193,7 @@ namespace KRG
             }
         }
         
-        m_globalSystems.push_back( pSystem );
+        m_worldSystems.push_back( pSystem );
 
         // Add to update lists
         //-------------------------------------------------------------------------
@@ -183,7 +206,7 @@ namespace KRG
             }
 
             // Sort update list
-            auto comparator = [i] ( IGlobalEntitySystem* const& pSystemA, IGlobalEntitySystem* const& pSystemB )
+            auto comparator = [i] ( IWorldEntitySystem* const& pSystemA, IWorldEntitySystem* const& pSystemB )
             {
                 U8 const A = pSystemA->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
                 U8 const B = pSystemB->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
@@ -194,13 +217,13 @@ namespace KRG
         }
     }
 
-    void EntityWorld::UnregisterGlobalSystem( IGlobalEntitySystem* pSystem )
+    void EntityWorld::UnregisterWorldSystem( IWorldEntitySystem* pSystem )
     {
         KRG_ASSERT( pSystem != nullptr && m_initialized == false );
-        auto iter = VectorFind( m_globalSystems, pSystem );
-        KRG_ASSERT( iter != m_globalSystems.end() );
+        auto iter = VectorFind( m_worldSystems, pSystem );
+        KRG_ASSERT( iter != m_worldSystems.end() );
 
-        m_globalSystems.erase_unsorted( iter );
+        m_worldSystems.erase_unsorted( iter );
 
         // Remove from update lists
         //-------------------------------------------------------------------------
@@ -271,75 +294,163 @@ namespace KRG
     {
         KRG_PROFILE_SCOPE_SCENE( "World Loading" );
 
+        // Update all maps internal loading state
         //-------------------------------------------------------------------------
+        // This will fill the world activation/registration lists used below
 
         for ( S32 i = (S32) m_maps.size() - 1; i >= 0; i-- )
         {
-            if ( m_maps[i].UpdateState( m_loadingContext ) )
+            if ( m_maps[i].UpdateState( m_loadingContext, m_activationContext ) )
             {
                 if ( m_maps[i].IsLoaded() )
                 {
-                    m_maps[i].Activate( m_loadingContext );
+                    m_maps[i].Activate( m_loadingContext, m_activationContext );
                 }
                 else if ( m_maps[i].IsUnloaded() )
                 {
-                    VectorEraseUnsorted( m_maps, i );
+                    m_maps.erase_unsorted( m_maps.begin() + i );
                 }
             }
         }
+
+        //-------------------------------------------------------------------------
+
+        ProcessEntityRegistrationRequests();
+        ProcessComponentRegistrationRequests();
     }
 
-    //-------------------------------------------------------------------------
-    // Entity operations
-    //-------------------------------------------------------------------------
-
-    void EntityWorld::RegisterEntityUpdate( Entity* pEntity )
+    void EntityWorld::ProcessEntityRegistrationRequests()
     {
-        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() );
-
-        // Add to update lists
-        for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
         {
-            if ( pEntity->RequiresUpdate( (UpdateStage) i ) )
+            KRG_PROFILE_SCOPE_SCENE( "Entity Unregistration" );
+
+            Entity* pEntityToUnregister = nullptr;
+            while ( m_activationContext.m_unregisterForEntityUpdate.try_dequeue( pEntityToUnregister ) )
             {
-                m_entityUpdateLists[i].push_back( pEntity );
+                KRG_ASSERT( pEntityToUnregister != nullptr && pEntityToUnregister->m_isRegisteredForUpdates );
+                m_entityUpdateList.erase_first_unsorted( pEntityToUnregister );
+                pEntityToUnregister->m_isRegisteredForUpdates = false;
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        {
+            KRG_PROFILE_SCOPE_SCENE( "Entity Registration" );
+
+            Entity* pEntityToRegister = nullptr;
+            while ( m_activationContext.m_registerForEntityUpdate.try_dequeue( pEntityToRegister ) )
+            {
+                KRG_ASSERT( pEntityToRegister != nullptr && pEntityToRegister->IsActivated() && !pEntityToRegister->m_isRegisteredForUpdates );
+                KRG_ASSERT( !pEntityToRegister->HasSpatialParent() ); // Attached entities are not allowed to be directly updated
+                m_entityUpdateList.push_back( pEntityToRegister );
+                pEntityToRegister->m_isRegisteredForUpdates = true;
             }
         }
     }
 
-    void EntityWorld::UnregisterEntityUpdate( Entity* pEntity )
+    void EntityWorld::ProcessComponentRegistrationRequests()
     {
-        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() );
-
-        // Remove from update lists
-        for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
+        // Create a task that splits per-system registration across multiple threads
+        struct ComponentRegistrationTask : public IAsyncTask
         {
-            if ( pEntity->RequiresUpdate( (UpdateStage) i ) )
+            ComponentRegistrationTask( TVector<IWorldEntitySystem*> const& worldSystems, TVector< TPair<Entity*, EntityComponent*> > const& componentsToRegister, TVector< TPair<Entity*, EntityComponent*> > const& componentsToUnregister )
+                : m_worldSystems( worldSystems )
+                , m_componentsToRegister( componentsToRegister )
+                , m_componentsToUnregister( componentsToUnregister )
             {
-                m_entityUpdateLists[i].erase_first( pEntity );
+                m_SetSize = (U32) worldSystems.size();
             }
-        }
-    }
 
-    void EntityWorld::RegisterComponentWithGlobalSystems( Entity* pEntity, EntityComponent* pComponent )
-    {
-        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() );
-        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
+            virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
+            {
+                KRG_PROFILE_SCOPE_SCENE( "Component World Registration Task" );
 
-        for ( auto pGlobalSystem : m_globalSystems )
+                for ( U64 i = range.start; i < range.end; ++i )
+                {
+                    auto pSystem = m_worldSystems[i];
+
+                    // Unregister components
+                    //-------------------------------------------------------------------------
+ 
+                    size_t const numComponentsToUnregister = m_componentsToUnregister.size();
+                    for ( auto c = 0u; c < numComponentsToUnregister; c++ )
+                    {
+                        auto pEntity = m_componentsToUnregister[c].first;
+                        auto pComponent = m_componentsToUnregister[c].second;
+
+                        KRG_ASSERT( pEntity != nullptr );
+                        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() && pComponent->m_isRegisteredWithWorld );
+                        pSystem->UnregisterComponent( pEntity, pComponent );
+                    }
+
+                    // Register components
+                    //-------------------------------------------------------------------------
+
+                    size_t const numComponentsToRegister = m_componentsToRegister.size();
+                    for ( auto c = 0u; c < numComponentsToRegister; c++ )
+                    {
+                        auto pEntity = m_componentsToRegister[c].first;
+                        auto pComponent = m_componentsToRegister[c].second;
+
+                        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() && !pComponent->m_isRegisteredWithWorld );
+                        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
+                        pSystem->RegisterComponent( pEntity, pComponent );
+                    }
+                }
+            }
+
+        private:
+
+            TVector<IWorldEntitySystem*> const&                       m_worldSystems;
+            TVector< TPair<Entity*, EntityComponent*> > const&         m_componentsToRegister;
+            TVector< TPair<Entity*, EntityComponent*> > const&         m_componentsToUnregister;
+        };
+
+        //-------------------------------------------------------------------------
+
         {
-            pGlobalSystem->RegisterComponent( pEntity, pComponent );
-        }
-    }
+            KRG_PROFILE_SCOPE_SCENE( "Component World Registration" );
 
-    void EntityWorld::UnregisterComponentFromGlobalSystems( Entity* pEntity, EntityComponent* pComponent )
-    {
-        KRG_ASSERT( pEntity != nullptr && pEntity->IsActivated() );
-        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
+            // Get Components to register/unregister
+            //-------------------------------------------------------------------------
 
-        for ( auto pGlobalSystem : m_globalSystems )
-        {
-            pGlobalSystem->UnregisterComponent( pEntity, pComponent );
+            TVector< TPair<Entity*, EntityComponent*>> componentsToUnregister;
+            size_t const numComponentsToUnregister = m_activationContext.m_componentsToUnregister.size_approx();
+            componentsToUnregister.resize( numComponentsToUnregister );
+
+            size_t numDequeued = m_activationContext.m_componentsToUnregister.try_dequeue_bulk( componentsToUnregister.data(), numComponentsToUnregister );
+            KRG_ASSERT( numComponentsToUnregister == numDequeued );
+
+            //-------------------------------------------------------------------------
+
+            TVector< TPair<Entity*, EntityComponent*>> componentsToRegister;
+            size_t const numComponentsToRegister = m_activationContext.m_componentsToRegister.size_approx();
+            componentsToRegister.resize( numComponentsToRegister );
+
+            numDequeued = m_activationContext.m_componentsToRegister.try_dequeue_bulk( componentsToRegister.data(), numComponentsToRegister );
+            KRG_ASSERT( numComponentsToRegister == numDequeued );
+
+            // Run registration task
+            //-------------------------------------------------------------------------
+
+            ComponentRegistrationTask componentRegistrationTask( m_worldSystems, componentsToRegister, componentsToUnregister );
+            //componentRegistrationTask.Run();
+            m_loadingContext.m_pTaskSystem->ScheduleTask( &componentRegistrationTask );
+            m_loadingContext.m_pTaskSystem->WaitForTask( &componentRegistrationTask );
+
+            // Update component registration flags
+            //-------------------------------------------------------------------------
+
+            for ( auto const& unregisteredComponent : componentsToUnregister )
+            {
+                unregisteredComponent.second->m_isRegisteredWithWorld = false;
+            }
+
+            for ( auto const& registeredComponent : componentsToRegister )
+            {
+                registeredComponent.second->m_isRegisteredWithWorld = true;
+            }
         }
     }
 }

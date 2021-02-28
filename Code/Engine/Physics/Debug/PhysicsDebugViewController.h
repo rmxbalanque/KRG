@@ -6,30 +6,30 @@
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
-namespace KRG
+#if KRG_DEVELOPMENT_TOOLS
+namespace KRG::Physics
 {
-    namespace Physics
+    class KRG_ENGINE_PHYSICS_API PhysicsDebugViewController : public Debug::DebugView
     {
-        class KRG_ENGINE_PHYSICS_API PhysicsDebugViewController : public Debug::DebugView
-        {
-        public:
+    public:
 
-            PhysicsDebugViewController();
+        PhysicsDebugViewController();
 
-            void Initialize( PhysicsSystem* pPhysicSystem );
-            void Shutdown( PhysicsSystem* pPhysicSystem );
+        void Initialize( PhysicsSystem* pPhysicSystem );
+        void Shutdown();
 
-        private:
+    private:
 
-            virtual void DrawWindows( UpdateContext const& context ) override final;
-            void DrawDebugMenu( UpdateContext const& context );
+        virtual void DrawWindows( UpdateContext const& context ) override final;
 
-        private:
+        void DrawDebugMenu( UpdateContext const& context );
+        void DrawPhysXMenu( UpdateContext const& context );
+        void DrawSceneMenu( PhysicsScene* pScene );
 
-            PhysicsSystem*      m_pPhysicsWorld = nullptr;
-            float               m_recordingTimeSeconds = 0.5f;
-        };
-    }
+    private:
+
+        PhysicsSystem*      m_pPhysicsSystem = nullptr;
+        float               m_recordingTimeSeconds = 0.5f;
+    };
 }
 #endif

@@ -26,7 +26,7 @@ namespace KRG
             QStringList args( "-compile" );
             args += m_pRequest->m_compilerArgs.c_str();
 
-            m_pRequest->m_compilationTimeStarted = GetSystemTime();
+            m_pRequest->m_compilationTimeStarted = SystemClock::GetTime();
             m_pRequest->m_status = CompilationRequest::Status::Executing;
 
             m_process.start( m_workerFullPath.c_str(), args );
@@ -66,7 +66,7 @@ namespace KRG
                 m_pRequest->m_log += m_process.readAllStandardOutput();
             }
 
-            m_pRequest->m_compilationTimeFinished = GetSystemTime();
+            m_pRequest->m_compilationTimeFinished = SystemClock::GetTime();
             m_pRequest = nullptr;
         }
     }

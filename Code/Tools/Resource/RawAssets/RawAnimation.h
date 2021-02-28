@@ -6,7 +6,7 @@
 #include "System/Core/Math/Matrix.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/StringID.h"
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 #include "System/Core/Math/Range.h"
 
 //-------------------------------------------------------------------------

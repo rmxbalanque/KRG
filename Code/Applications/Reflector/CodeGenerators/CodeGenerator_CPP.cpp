@@ -88,7 +88,7 @@ namespace KRG
                 {
                     if ( Reflection::Utils::IsResourceCompilerModule( modules[i].m_moduleClassName ) || Reflection::Utils::IsToolsModule( modules[i].m_moduleClassName ) )
                     {
-                        VectorEraseUnsorted( modules, i );
+                        modules.erase_unsorted( modules.begin() + i );
                         i--;
                         continue;
                     }
@@ -97,7 +97,7 @@ namespace KRG
                 // Ignore module-less modules
                 if ( !modules[i].m_moduleHeaderID.IsValid() )
                 {
-                    VectorEraseUnsorted( modules, i );
+                    modules.erase_unsorted( modules.begin() + i );
                     i--;
                     continue;
                 }

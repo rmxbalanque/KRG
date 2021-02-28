@@ -2,10 +2,10 @@
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
-    void CameraDebugViewController::Initialize( CameraSystem* pCameraSystem )
+    void CameraDebugViewController::Initialize( CameraWorldSystem* pCameraSystem )
     {
         KRG_ASSERT( pCameraSystem != nullptr );
         m_pCameraSystem = pCameraSystem;

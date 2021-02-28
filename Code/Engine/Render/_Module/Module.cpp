@@ -31,13 +31,13 @@ namespace KRG
             context.RegisterRenderer( &m_staticMeshRenderer );
             context.RegisterRenderer( &m_skeletalMeshRenderer );
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             m_debugRenderer.Initialize( pRenderDevice, context.GetSystem<Debug::DrawingSystem>() );
             context.RegisterRenderer( &m_debugRenderer );
             #endif
 
-            context.RegisterGlobalSystem( &m_staticMeshRenderer );
-            context.RegisterGlobalSystem( &m_skeletalMeshRenderer );
+            context.RegisterWorldSystem( &m_staticMeshRenderer );
+            context.RegisterWorldSystem( &m_skeletalMeshRenderer );
 
             m_initialized = true;
             return m_initialized;
@@ -47,12 +47,12 @@ namespace KRG
         {
             if( m_initialized )
             {
-                context.UnregisterGlobalSystem( &m_skeletalMeshRenderer );
-                context.UnregisterGlobalSystem( &m_staticMeshRenderer );
+                context.UnregisterWorldSystem( &m_skeletalMeshRenderer );
+                context.UnregisterWorldSystem( &m_staticMeshRenderer );
 
                 //-------------------------------------------------------------------------
 
-                #if KRG_DEBUG_INSTRUMENTATION
+                #if KRG_DEVELOPMENT_TOOLS
                 context.UnregisterRenderer( &m_debugRenderer );
                 m_debugRenderer.Shutdown();
                 #endif

@@ -1,6 +1,7 @@
 #include "PhysxDebugRenderer.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/PhysX.h"
+#include "Engine/Physics/PhysicsScene.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
@@ -11,13 +12,13 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    bool PhysicsRenderer::Initialize( Render::RenderDevice* pRenderDevice, PhysicsSystem* pPhysicsWorld )
+    bool PhysicsRenderer::Initialize( Render::RenderDevice* pRenderDevice, PhysicsSystem* pPhysicsSystem )
     {
         KRG_ASSERT( m_pRenderDevice == nullptr && pRenderDevice != nullptr );
         m_pRenderDevice = pRenderDevice;
 
-        KRG_ASSERT( pPhysicsWorld != nullptr );
-        m_pPhysicsWorld = pPhysicsWorld;
+        KRG_ASSERT( pPhysicsSystem != nullptr );
+        m_pPhysicsSystem = pPhysicsSystem;
 
         //-------------------------------------------------------------------------
 
@@ -55,7 +56,7 @@ namespace KRG::Physics
             m_pointRS.Shutdown( m_pRenderDevice );
         }
 
-        m_pPhysicsWorld = nullptr;
+        m_pPhysicsSystem = nullptr;
         m_pRenderDevice = nullptr;
         m_initialized = false;
     }
@@ -219,42 +220,45 @@ namespace KRG::Physics
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
 
-        if ( ( m_pPhysicsWorld->GetDebugFlags() && ( 1 << physx::PxVisualizationParameter::eSCALE ) ) == 0 )
+        for ( PhysicsScene* pScene : m_pPhysicsSystem->GetScenes() )
         {
-            return;
+            if ( !pScene->IsDebugDrawingEnabled() )
+            {
+                return;
+            }
+
+            auto renderContext = m_pRenderDevice->GetImmediateContext();
+            renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
+
+            //-------------------------------------------------------------------------
+
+            // Offset the culling bounds in front of the camera, no point in visualizing lines off-screen
+            F32 const debugHalfDistance = ( pScene->GetDebugDrawDistance() );
+
+            Vector const viewForward = viewport.GetViewForwardDirection();
+            Vector cullingBoundsPosition = viewport.GetViewOrigin();
+            cullingBoundsPosition += viewForward * debugHalfDistance;
+
+            AABB const debugBounds = AABB( cullingBoundsPosition, debugHalfDistance );
+
+            auto pPxScene = pScene->GetPxScene();
+            pPxScene->setVisualizationCullingBox( ToPx( debugBounds ) );
+
+            //-------------------------------------------------------------------------
+
+            auto const& renderBuffer = pPxScene->getRenderBuffer();
+
+            U32 const numPoints = renderBuffer.getNbPoints();
+            DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numPoints );
+
+            U32 const numLines = renderBuffer.getNbLines();
+            DrawLines( renderContext, viewport, renderBuffer.getLines(), numLines );
+
+            U32 const numTriangles = renderBuffer.getNbTriangles();
+            DrawTriangles( renderContext, viewport, renderBuffer.getTriangles(), numTriangles );
+
+            U32 const numStrings = renderBuffer.getNbTexts();
+            DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numStrings );
         }
-
-        auto renderContext = m_pRenderDevice->GetImmediateContext();
-        renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
-
-        //-------------------------------------------------------------------------
-
-        // Offset the culling bounds in front of the camera, no point in visualizing lines off-screen
-        F32 const debugHalfDistance = ( m_pPhysicsWorld->GetDebugDrawDistance() );
-
-        Vector const viewForward = viewport.GetViewForwardDirection();
-        Vector cullingBoundsPosition = viewport.GetViewOrigin();
-        cullingBoundsPosition += viewForward * debugHalfDistance;
-
-        AABB const debugBounds = AABB( cullingBoundsPosition, debugHalfDistance );
-
-        auto pPhysicsScene = m_pPhysicsWorld->GetScene();
-        pPhysicsScene->setVisualizationCullingBox( ToPx( debugBounds ) );
-
-        //-------------------------------------------------------------------------
-
-        auto const& renderBuffer = pPhysicsScene->getRenderBuffer();
-
-        U32 const numPoints = renderBuffer.getNbPoints();
-        DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numPoints );
-
-        U32 const numLines = renderBuffer.getNbLines();
-        DrawLines( renderContext, viewport, renderBuffer.getLines(), numLines );
-
-        U32 const numTriangles = renderBuffer.getNbTriangles();
-        DrawTriangles( renderContext, viewport, renderBuffer.getTriangles(), numTriangles );
-
-        U32 const numStrings = renderBuffer.getNbTexts();
-        DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numStrings );
     }
 }

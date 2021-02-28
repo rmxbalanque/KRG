@@ -50,7 +50,7 @@ namespace KRG
                     Blender::Blend( pSourcePose, pTargetPose, m_blendWeight, m_blendOptions, m_pBoneMask, pResultPose );
                 }
 
-                #if KRG_DEBUG_INSTRUMENTATION
+                #if KRG_DEVELOPMENT_TOOLS
                 poseStack.RecordDebugPose( pResultPose );
                 #endif
             }

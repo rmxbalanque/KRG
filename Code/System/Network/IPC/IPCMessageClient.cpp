@@ -1,6 +1,5 @@
 #include "IPCMessageClient.h"
 #include "System/Core/Logging/Log.h"
-
 #include <zmq.h>
 
 //-------------------------------------------------------------------------

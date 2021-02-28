@@ -58,6 +58,11 @@ namespace KRG::EntityModel
         // Entity Access
         //-------------------------------------------------------------------------
 
+        inline S32 GetNumEntityDescriptors() const
+        {
+            return (S32) m_entityDescriptors.size();
+        }
+
         inline TVector<EntityDescriptor> const& GetEntityDescriptors() const
         { 
             return m_entityDescriptors; 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ClangParserContext.h"
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 

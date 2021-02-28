@@ -93,9 +93,6 @@ namespace KRG
             // This will interrupt an unload task and convert it into a load task
             void SwitchToUnloadTask();
 
-            // This will flag an task as a reload task and perform a full unload then full reload
-            void SwitchToReloadTask();
-
         private:
 
             inline UUID CreateInstallDependencyRequesterID( ResourceID const& resourceID ) const { return UUID( 0, 0, 0, resourceID.GetDataPath().GetID() ); }

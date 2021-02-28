@@ -1,7 +1,5 @@
 #pragma once
 
-#include "System/Core/Core.h"
-
 //-------------------------------------------------------------------------
 
 namespace KRG

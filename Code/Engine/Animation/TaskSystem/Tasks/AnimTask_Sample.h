@@ -19,7 +19,7 @@ namespace KRG
                 Sample( S32 sourceNodeIdx, AnimationData const* pAnimation, Percentage time );
                 virtual void Execute( TaskPoseStack& poseStack ) const override;
 
-                #if KRG_DEBUG_INSTRUMENTATION
+                #if KRG_DEVELOPMENT_TOOLS
                 virtual S32 GetDependencyCount() const { return 0; }
                 virtual Color GetDebugColor() const { return Colors::SpringGreen; }
                 virtual String GetDebugText() const override;

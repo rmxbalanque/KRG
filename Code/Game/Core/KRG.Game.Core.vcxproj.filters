@@ -24,6 +24,7 @@
     <ClCompile Include="TestComponent.cpp" />
     <ClCompile Include="Test\CustomizerTestComponent.cpp" />
     <ClCompile Include="Test\CustomizerTestSystem.cpp" />
+    <ClCompile Include="TestSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PlayerController\DefaultPlayerController.h">
@@ -38,5 +39,6 @@
     <ClInclude Include="TestComponent.h" />
     <ClInclude Include="Test\CustomizerTestComponent.h" />
     <ClInclude Include="Test\CustomizerTestSystem.h" />
+    <ClInclude Include="TestSystem.h" />
   </ItemGroup>
 </Project>

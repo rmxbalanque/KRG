@@ -18,6 +18,7 @@
 #include "System/Core/Types/Event.h"
 #include "System/Core/Memory/MemoryStreamHelpers.h"
 #include "System/Core/Time/Timers.h"
+#include "System/Core/Time/TimeStamp.h"
 
 //-------------------------------------------------------------------------
 
@@ -210,11 +211,12 @@ int main( int argc, char *argv[] )
 
         //-------------------------------------------------------------------------
 
-        char t[5];
-        U32 at = 'ASSG';
-        ResourceTypeID rt( "ASSG" );
+        TimeStamp t;
 
-        rt.GetString( t );
+        std::cout << t.GetTime() << std::endl;
+        std::cout << t.GetDayMonth() << std::endl;
+        std::cout << t.GetDayMonthYear() << std::endl;
+        std::cout << t.GetDateTime() << std::endl;
 
         //-------------------------------------------------------------------------
 

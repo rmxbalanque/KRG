@@ -20,7 +20,7 @@ namespace KRG
         {
             KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() && pRequest->GetLoadingStatus() == LoadingStatus::Loading );
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             auto predicate = [] ( ResourceRequest* pRequest, ResourceID const& resourceID ) { return pRequest->GetResourceID() == resourceID; };
             auto foundIter = VectorFind( m_requests, pRequest->GetResourceID(), predicate );
             KRG_ASSERT( foundIter == m_requests.end() );

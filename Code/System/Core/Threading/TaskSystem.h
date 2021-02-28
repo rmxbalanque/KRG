@@ -38,6 +38,8 @@ namespace KRG
         void Initialize();
         void Shutdown();
 
+        inline U32 GetNumWorkers() const { return m_numWorkers; }
+
         inline void WaitForAll() { m_taskScheduler.WaitforAll(); }
 
         inline void ScheduleTask( IAsyncTask* pTask )

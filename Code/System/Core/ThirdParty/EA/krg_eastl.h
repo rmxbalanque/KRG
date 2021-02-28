@@ -1,7 +1,8 @@
 #pragma once
 
 #include "System/Core/_Module/API.h"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
+#include "System/Core/Core/Defines.h"
 #include <EABase/eabase.h>
 #include <stdio.h>
 #include <wchar.h>

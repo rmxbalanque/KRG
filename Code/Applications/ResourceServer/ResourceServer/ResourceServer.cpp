@@ -172,7 +172,7 @@ namespace KRG
                     auto foundClientIter = VectorFind( m_knownClients, clientID, [] ( ClientRecord const& record, U64 clientID ) { return record.m_clientID == clientID; } );
                     if ( foundClientIter != m_knownClients.end() )
                     {
-                        foundClientIter->m_lastUpdateTime = Seconds::Now();
+                        foundClientIter->m_lastUpdateTime = SystemClock::GetTimeInSeconds();
                     }
                     else // Add new client record
                     {
@@ -202,13 +202,13 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 static Seconds const keepAliveTime( 10 );
-                Seconds const currentTime = Seconds::Now();
+                Seconds const currentTime = SystemClock::GetTimeInSeconds();
                 for ( S32 i = (S32) m_knownClients.size() - 1; i >= 0; i-- )
                 {
                     Seconds const timeSinceLastUpdate = currentTime - m_knownClients[i].m_lastUpdateTime;
                     if( timeSinceLastUpdate > keepAliveTime )
                     {
-                        VectorEraseUnsorted( m_knownClients, i );
+                        m_knownClients.erase_unsorted( m_knownClients.begin() + i );
                     }
                 }
             }
@@ -352,7 +352,7 @@ namespace KRG
             {
                 KRG_ASSERT( !VectorContains( m_activeRequests, m_completedRequests[i] ) && !VectorContains( m_pendingRequests, m_completedRequests[i] ) );
                 KRG::Delete( m_completedRequests[i] );
-                VectorEraseUnsorted( m_completedRequests, i );
+                m_completedRequests.erase_unsorted( m_completedRequests.begin() + i );
             }
         }
 
@@ -539,7 +539,7 @@ namespace KRG
         {
             KRG_ASSERT( pRequest != nullptr && pRequest->IsPending() );
 
-            pRequest->m_upToDateCheckTimeStarted = GetSystemTime();
+            pRequest->m_upToDateCheckTimeStarted = SystemClock::GetTime();
 
             // Read all up to date information
             //-------------------------------------------------------------------------
@@ -612,7 +612,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            pRequest->m_upToDateCheckTimeFinished = GetSystemTime();
+            pRequest->m_upToDateCheckTimeFinished = SystemClock::GetTime();
         }
 
         bool ResourceServer::TryReadCompileDependencies( FileSystemPath const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog ) const

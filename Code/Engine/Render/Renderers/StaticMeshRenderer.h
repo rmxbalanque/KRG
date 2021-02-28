@@ -3,8 +3,8 @@
 #include "Engine/Render/_Module/API.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
 #include "System/Render/IRenderer.h"
-#include "System/Entity/EntityGlobalSystem.h"
-#include "System/Entity/EntityGlobalSystem.h"
+#include "System/Entity/EntityWorldSystem.h"
+#include "System/Entity/EntityWorldSystem.h"
 #include "System/Core/Math/BVH/AABBTree.h"
 #include "System/Core/Types/Event.h"
 
@@ -19,12 +19,12 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        class KRG_ENGINE_RENDER_API StaticMeshRenderer final : public IGlobalEntitySystem, public Render::IRenderer
+        class KRG_ENGINE_RENDER_API StaticMeshRenderer final : public IWorldEntitySystem, public Render::IRenderer
         {
 
         public:
 
-            KRG_ENTITY_GLOBAL_SYSTEM( StaticMeshRenderer );
+            KRG_ENTITY_WORLD_SYSTEM( StaticMeshRenderer );
             KRG_RENDERER_ID( StaticMeshRenderer, Render::RendererPriorityLevel::Game );
 
         private:

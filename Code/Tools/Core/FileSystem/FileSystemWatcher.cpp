@@ -1,9 +1,6 @@
 #include "FileSystemWatcher.h"
 #include "System/Core/Logging/Log.h"
-#include "System/Core/Platform/Platform/Platform_Win32.h"
-
-//-------------------------------------------------------------------------
-
+#include "System/Core/Platform/Platform_Win32.h"
 
 //-------------------------------------------------------------------------
 
@@ -278,7 +275,7 @@ namespace KRG
             {
                 auto& pendingEvent = m_pendingFileModificationEvents[i];
 
-                Milliseconds const elapsedTime = Milliseconds::Now() - pendingEvent.m_startTime;
+                Milliseconds const elapsedTime = SystemClock::GetTimeInMilliseconds() - pendingEvent.m_startTime;
                 if( elapsedTime > FileModificationBatchTimeout )
                 {
                     for ( auto pChangeHandler : m_changeListeners )
@@ -286,7 +283,7 @@ namespace KRG
                         pChangeHandler->OnFileModified( pendingEvent.m_path );
                     }
 
-                    VectorEraseUnsorted( m_pendingFileModificationEvents, i );
+                    m_pendingFileModificationEvents.erase_unsorted( m_pendingFileModificationEvents.begin() + i );
                 }
             }
         }

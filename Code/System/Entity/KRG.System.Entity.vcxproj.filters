@@ -33,11 +33,11 @@
     <ClInclude Include="EntitySystem.h" />
     <ClInclude Include="EntityTypeHelpers.h" />
     <ClInclude Include="EntityWorld.h" />
-    <ClInclude Include="EntityGlobalSystem.h" />
     <ClInclude Include="EntityDescriptors.h" />
     <ClInclude Include="ResourceLoaders\EntityMapLoader.h">
       <Filter>Map</Filter>
     </ClInclude>
+    <ClInclude Include="EntityWorldSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Collections\EntityCollectionDescriptor.cpp">
@@ -58,10 +58,10 @@
     <ClCompile Include="EntitySystem.cpp" />
     <ClCompile Include="EntityTypeHelpers.cpp" />
     <ClCompile Include="EntityWorld.cpp" />
-    <ClCompile Include="EntityGlobalSystem.cpp" />
     <ClCompile Include="EntityDescriptors.cpp" />
     <ClCompile Include="ResourceLoaders\EntityMapLoader.cpp">
       <Filter>Map</Filter>
     </ClCompile>
+    <ClCompile Include="EntityWorldSystem.cpp" />
   </ItemGroup>
 </Project>

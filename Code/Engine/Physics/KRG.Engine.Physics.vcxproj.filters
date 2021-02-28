@@ -30,10 +30,12 @@
     <ClCompile Include="Debug\PhysxDebugRenderer.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="ResourceLoaders\PhysicsGeometryLoader.cpp" />
     <ClCompile Include="PhysicsGeometry.cpp" />
     <ClCompile Include="PhysX.cpp" />
+    <ClCompile Include="PhysicsSystem.cpp" />
+    <ClCompile Include="PhysicsWorldSystem.cpp" />
+    <ClCompile Include="PhysicsScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\PhysicsDebugViewController.h">
@@ -51,9 +53,12 @@
     <ClInclude Include="Debug\PhysxDebugRenderer.h">
       <Filter>Debug</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="ResourceLoaders\PhysicsGeometryLoader.h" />
     <ClInclude Include="PhysicsGeometry.h" />
     <ClInclude Include="PhysX.h" />
+    <ClInclude Include="PhysicsQueries.h" />
+    <ClInclude Include="PhysicsSystem.h" />
+    <ClInclude Include="PhysicsWorldSystem.h" />
+    <ClInclude Include="PhysicsScene.h" />
   </ItemGroup>
 </Project>

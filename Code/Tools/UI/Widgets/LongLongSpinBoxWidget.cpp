@@ -1,5 +1,5 @@
 #include "LongLongSpinBoxWidget.h"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 #include <QtWidgets/QLineEdit>
 #include "qevent.h"
 

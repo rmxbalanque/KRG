@@ -2,37 +2,23 @@
 
 #include "_Module/API.h"
 #include "PhysX.h"
-#include "System/Entity/EntityGlobalSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
 
 //-------------------------------------------------------------------------
 
-namespace physx
-{
-    class PxSimulationEventCallback;
-    class PxScene;
-}
-
-//-------------------------------------------------------------------------
-
 namespace KRG::Physics
 {
-    class PhysicsGeometryComponent;
+    class PhysicsScene;
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_PHYSICS_API PhysicsSystem : public ISystem, public IGlobalEntitySystem
+    class KRG_ENGINE_PHYSICS_API PhysicsSystem : public ISystem
     {
-        struct RegisteredGeometryComponent : public EntityRegistryRecord
-        {
-            PhysicsGeometryComponent*               m_pComponent = nullptr;
-        };
 
     public:
 
         KRG_SYSTEM_ID( PhysicsSystem );
-        KRG_ENTITY_GLOBAL_SYSTEM( PhysicsSystem );
 
     public:
 
@@ -40,57 +26,44 @@ namespace KRG::Physics
 
         void Initialize();
         void Shutdown();
+        void Update( UpdateContext& ctx );
 
-        inline physx::PxPhysics* GetPhysics() { return m_pPhysics; }
-        inline physx::PxScene* GetScene() { return m_pScene; }
+        inline physx::PxPhysics& GetPxPhysics() const { return *m_pPhysics; }
+        inline physx::PxCpuDispatcher* GetPxCpuDispatcher() const { return m_pDispatcher; }
 
+        // Scenes
         //-------------------------------------------------------------------------
 
-        // Debug
-        #if KRG_DEBUG_INSTRUMENTATION
-        inline U32 GetDebugFlags() const { return m_debugFlags; }
-        void SetDebugFlags( U32 debugFlags );
-        inline float GetDebugDrawDistance() const { return m_debugDrawDistance; }
-        void SetDebugDrawDistance( float drawDistance );
+        PhysicsScene* CreateScene();
+        void DestroyScene( PhysicsScene* pScene );
 
+        inline TInlineVector<PhysicsScene*, 2> const& GetScenes() const { return m_scenes; }
+
+        // Debug
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
         bool IsConnectedToPVD();
         void ConnectToPVD( Seconds timeToRecord = -1.0f );
         void DisconnectFromPVD();
-
-        void UpdateRecordingPVD( Seconds TimeDelta );
-        void ReflectDebugVisualizationState();
+        void UpdatePVD( Seconds TimeDelta );
         #endif
 
     private:
 
-        virtual void InitializeEntitySystem( SystemRegistry const& systemRegistry ) override;
-        virtual void ShutdownEntitySystem() override;
-        virtual void UpdateEntitySystem( UpdateContext const& ctx ) override;
-
-        virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
-        virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
-
-    private:
-
-        PhysXAllocator                                  m_allocator;
-        PhysXUserErrorCallback                          m_errorCallback;
         physx::PxFoundation*                            m_pFoundation = nullptr;
         physx::PxPhysics*                               m_pPhysics = nullptr;
+        physx::PxCooking*                               m_pCooking = nullptr;
         physx::PxCpuDispatcher*                         m_pDispatcher = nullptr;
+        physx::PxAllocatorCallback*                     m_pAllocatorCallback = nullptr;
+        physx::PxErrorCallback*                         m_pErrorCallback = nullptr;
 
-        physx::PxScene*                                 m_pScene = nullptr;
-        physx::PxSimulationEventCallback*               m_pEventCallbackHandler = nullptr;
+        TInlineVector<PhysicsScene*, 2>                 m_scenes;
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         physx::PxPvd*                                   m_pPVD = nullptr;
         physx::PxPvdTransport*                          m_pPVDTransport = nullptr;
         Seconds                                         m_recordingTimeLeft = -1.0f;
-        U32                                             m_debugFlags = 0;
-        F32                                             m_debugDrawDistance = 10.0f;
         #endif
-
-        //-------------------------------------------------------------------------
-
-        EntityRegistry<RegisteredGeometryComponent>     m_geometryComponents;
     };
 }

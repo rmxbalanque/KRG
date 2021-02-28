@@ -68,8 +68,8 @@ namespace KRG
         // Entity System Registration
         //-------------------------------------------------------------------------
 
-        inline void RegisterGlobalSystem( IGlobalEntitySystem* pSystem ) { m_pEntityWorld->RegisterGlobalSystem( pSystem ); }
-        inline void UnregisterGlobalSystem( IGlobalEntitySystem* pSystem ) { m_pEntityWorld->UnregisterGlobalSystem( pSystem ); }
+        inline void RegisterWorldSystem( IWorldEntitySystem* pSystem ) { m_pEntityWorld->RegisterWorldSystem( pSystem ); }
+        inline void UnregisterWorldSystem( IWorldEntitySystem* pSystem ) { m_pEntityWorld->UnregisterWorldSystem( pSystem ); }
 
         // Renderer Registration
         //-------------------------------------------------------------------------
@@ -80,7 +80,7 @@ namespace KRG
         // Debug UI System
         //-------------------------------------------------------------------------
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         inline Debug::DebugUISystem* GetDebugUISystem() { return m_pDebugUISystem; }
         inline Debug::DebugUISystem const* GetDebugUISystem() const { return m_pDebugUISystem; }
         inline void RegisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUISystem->RegisterDebugView( pDebugView ); }
@@ -98,7 +98,7 @@ namespace KRG
         Render::RenderDevice*               m_pRenderDevice = nullptr;
         Render::RendererRegistry*           m_pRendererRegistry = nullptr;
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         Debug::DebugUISystem*               m_pDebugUISystem = nullptr;
         #endif
     };

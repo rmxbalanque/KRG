@@ -1,6 +1,7 @@
 #pragma once
 
 #include "System/Core/Types/Percentage.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 

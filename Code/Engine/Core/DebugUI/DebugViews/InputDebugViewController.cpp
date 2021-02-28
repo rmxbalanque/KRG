@@ -1,11 +1,11 @@
 #include "InputDebugViewController.h"
-#include "System/Imgui/ImguiCore.h"
+#include "System/Imgui/ImguiSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Input/InputSystem.h"
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     namespace Input
@@ -292,7 +292,7 @@ namespace KRG
                 // Should we close the window?
                 if ( !isWindowOpen )
                 {
-                    VectorEraseUnsorted( m_openControllerWindows, i );
+                    m_openControllerWindows.erase_unsorted( m_openControllerWindows.begin() + i );
                 }
             }
         }

@@ -4,7 +4,7 @@
 #include "TypeInfo.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Serialization/BinaryArchive.h"
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Types/UUID.h"
 #include "System/Core/Types/StringID.h"

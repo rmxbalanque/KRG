@@ -9,6 +9,7 @@
 #include "System/Entity/EntityWorld.h"
 #include "Engine/Animation/Components/AnimatedMeshComponent.h"
 #include "System/Core/Math/Random.h"
+#include "../TestSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -54,7 +55,7 @@ namespace KRG
 
         for ( auto& character : m_spawnedEntities )
         {
-            if ( ( Milliseconds::Now() - character.m_lastCustomizedTime ) > character.m_cooldown )
+            if ( character.m_cooldownTimer.GetElapsedTimeMilliseconds() > character.m_cooldown )
             {
                 RecustomizeCharacter( character );
             }
@@ -73,7 +74,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            S32 const numPerRowCol = 25;
+            S32 const numPerRowCol = 10;
             for ( auto i = 0; i < numPerRowCol; i++ )
             {
                 for ( auto j = 0; j < numPerRowCol; j++ )
@@ -145,8 +146,9 @@ namespace KRG
         character.m_meshComponentID = pCharacterMeshComponent->GetID();
         character.m_armorComponentID = pArmorMeshComponent->GetID();
         character.m_hairComponentID = pHairMeshComponent->GetID();
-        character.m_lastCustomizedTime = Milliseconds::Now();
         character.m_cooldown = Milliseconds( Math::GetRandomFloat( 500, 1500 ) );
+        character.m_cooldownTimer.Reset();
+        character.m_createSystem = true;
 
         m_spawnedEntities.emplace_back( character );
     }
@@ -192,10 +194,20 @@ namespace KRG
         character.m_pCharacter->AddComponent( pArmorMeshComponent, pCharacterMeshComponent->GetID() );
         character.m_pCharacter->AddComponent( pHairMeshComponent, pCharacterMeshComponent->GetID() );
 
+        if ( character.m_createSystem )
+        {
+            character.m_pCharacter->CreateSystem<GameTestSystem>();
+        }
+        else
+        {
+            character.m_pCharacter->DestroySystem<GameTestSystem>();
+        }
+
         character.m_meshComponentID = pCharacterMeshComponent->GetID();
         character.m_armorComponentID = pArmorMeshComponent->GetID();
         character.m_hairComponentID = pHairMeshComponent->GetID();
-        character.m_lastCustomizedTime = Milliseconds::Now();
         character.m_cooldown = Milliseconds( Math::GetRandomFloat( 500, 1500 ) );
+        character.m_cooldownTimer.Reset();
+        character.m_createSystem = !character.m_createSystem;
     }
 }

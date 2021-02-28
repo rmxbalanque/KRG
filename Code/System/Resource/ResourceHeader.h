@@ -2,7 +2,6 @@
 
 #include "ResourceID.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "System/Core/Core.h"
 
 //-------------------------------------------------------------------------
 

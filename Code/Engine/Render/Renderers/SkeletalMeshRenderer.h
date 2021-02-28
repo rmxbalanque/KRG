@@ -3,7 +3,7 @@
 #include "Engine/Render/_Module/API.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
 #include "System/Render/IRenderer.h"
-#include "System/Entity/EntityGlobalSystem.h"
+#include "System/Entity/EntityWorldSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,11 +16,11 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        class KRG_ENGINE_RENDER_API SkeletalMeshRenderer final : public IGlobalEntitySystem, public Render::IRenderer
+        class KRG_ENGINE_RENDER_API SkeletalMeshRenderer final : public IWorldEntitySystem, public Render::IRenderer
         {
         public:
 
-            KRG_ENTITY_GLOBAL_SYSTEM( SkeletalMeshRenderer );
+            KRG_ENTITY_WORLD_SYSTEM( SkeletalMeshRenderer );
             KRG_RENDERER_ID( SkeletalMeshRenderer, RendererPriorityLevel::Game );
 
         private:

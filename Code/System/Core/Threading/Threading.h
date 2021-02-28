@@ -1,7 +1,7 @@
 #pragma once
 
 #include "System/Core/Types/String.h"
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 #include "System/Core/ThirdParty/concurrentqueue/concurrentqueue.h"
 #include <mutex>
 #include <shared_mutex>
@@ -13,6 +13,18 @@ namespace KRG
     namespace Threading
     {
         using ThreadID = U32;
+
+        //-------------------------------------------------------------------------
+        // Processor Info
+        //-------------------------------------------------------------------------
+
+        struct ProcessorInfo
+        {
+            U16 m_numPhysicalCores = 0;
+            U16 m_numLogicalCores = 0;
+        };
+
+        KRG_SYSTEM_CORE_API ProcessorInfo GetProcessorInfo();
 
         //-------------------------------------------------------------------------
         // Mutexes and Locks

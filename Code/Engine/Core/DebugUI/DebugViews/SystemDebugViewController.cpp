@@ -1,11 +1,11 @@
 #include "SystemDebugViewController.h"
-#include "System/Imgui/ImguiCore.h"
-#include "System/Core/Logging/Log.h"
+#include "System/Imgui/ImguiSystem.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     namespace Debug
@@ -47,23 +47,62 @@ namespace KRG
             ImGui::SetNextWindowBgAlpha( 0.75f );
             if ( ImGui::Begin( "System Log", &m_isSystemLogWindowOpen ) )
             {
-                auto const logEntries = Log::GetLogEntries();
-                for ( auto const& entry : logEntries )
+                if ( ImGui::BeginTable( "System Log Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
                 {
-                    ImVec4 textColor( 1.0f, 1.0f, 1.0f, 1.0f );
-                    switch ( entry.m_severity )
-                    {
-                        case Log::Severity::Warning:
-                        textColor = Colors::Yellow.ToFloat4();
-                        break;
+                    ImGui::TableSetupColumn( "Time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 55 );
+                    ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 55 );
+                    ImGui::TableSetupColumn( "Channel", ImGuiTableColumnFlags_WidthFixed, 60 );
+                    ImGui::TableSetupColumn( "Message", ImGuiTableColumnFlags_WidthStretch );
 
-                        case Log::Severity::Error:
-                        textColor = Colors::Red.ToFloat4();
-                        break;
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableHeadersRow();
+
+                    //-------------------------------------------------------------------------
+
+                    auto const& logEntries = Log::GetLogEntries();
+                    for ( auto const& entry : logEntries )
+                    {
+                        ImGui::TableNextRow();
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 0 );
+                        ImGui::Text( entry.m_timestamp.c_str() );
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 1 );
+                        switch ( entry.m_severity )
+                        {
+                            case Log::Severity::Warning:
+                            ImGui::TextColored( Colors::Yellow.ToFloat4(), "Warning" );
+                            break;
+
+                            case Log::Severity::Error:
+                            ImGui::TextColored( Colors::Red.ToFloat4(), "Error" );
+                            break;
+
+                            case Log::Severity::Message:
+                            ImGui::Text( "Message" );
+                            break;
+                        }
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 2 );
+                        ImGui::Text( entry.m_channel.c_str() );
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 3 );
+                        ImGui::Text( entry.m_message.c_str() );
                     }
 
-                    ImGui::TextColored( textColor, "[%s] %s: %s", entry.m_timestamp.c_str(), entry.m_channel.c_str(), entry.m_message.c_str() );
+                    ImGui::EndTable();
                 }
+
+                //-------------------------------------------------------------------------
 
                 ImGui::End();
             }

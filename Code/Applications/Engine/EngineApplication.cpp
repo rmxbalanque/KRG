@@ -2,10 +2,8 @@
 #include "Applications/Shared/cmdParser/krg_cmdparser.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
 #include "System/Entity/EntityTypeHelpers.h"
-#include "System/Resource/ResourceProviders/NetworkResourceProvider.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "System/Core/Settings/ConfigSettings.h"
 #include "System/Core/Time/Timers.h"
 #include <string>
 
@@ -18,14 +16,6 @@
 
 namespace KRG
 {
-    namespace Settings
-    {
-        static ConfigSettingString     g_resourceServerNetworkAddress( "ResourceServerAddress", "Resource" );
-        static ConfigSettingInt        g_resourceServerPort( "ResourceServerPort", "Resource", 5556, 0, 9999 );
-    }
-
-    //-------------------------------------------------------------------------
-
     bool EngineApplication::ReadSettings( S32 argc, char** argv )
     {
         // Get command line settings
@@ -77,7 +67,7 @@ namespace KRG
         if ( m_startupMap.IsValid() )
         {
             auto const sceneResourceID = KRG::ResourceID( m_startupMap );
-            m_entityWorld.LoadMap( sceneResourceID );
+            m_pEntityWorld->LoadMap( sceneResourceID );
         }
     }
 
@@ -88,10 +78,7 @@ namespace KRG
         // !!! Order is important !!!
         //-------------------------------------------------------------------------
 
-        if ( !m_module_engine_core.Initialize( m_moduleContext ) )
-        {
-            return FatalError( "Failed to initialize module" );
-        }
+        // CORE MODULE IS SPECIAL
 
         if ( !m_module_engine_physics.Initialize( m_moduleContext ) )
         {
@@ -136,106 +123,85 @@ namespace KRG
         m_module_engine_animation.Shutdown( m_moduleContext );
         m_module_engine_render.Shutdown( m_moduleContext );
         m_module_engine_physics.Shutdown( m_moduleContext );
-        m_module_engine_core.Shutdown( m_moduleContext );
+
+        // Core module is special
     }
 
     //-------------------------------------------------------------------------
 
     bool EngineApplication::Initialize()
     {
-        KRG_LOG_MESSAGE( "KRG", "Engine Application Startup" );
+        KRG_LOG_MESSAGE( "System", "Engine Application Startup" );
 
-        // Initialize Systems
+        // Initialize Core
         //-------------------------------------------------------------------------
 
-        m_taskSystem.Initialize();
-
-        //-------------------------------------------------------------------------
-
-        m_pResourceProvider = KRG::New<Resource::NetworkResourceProvider>( Settings::g_resourceServerNetworkAddress, (U32) Settings::g_resourceServerPort );
-        if ( !m_pResourceProvider->Initialize() )
+        if ( !m_module_engine_core.Initialize( m_moduleContext ) )
         {
-            return FatalError( "Engine Application Startup failed - See EngineApplication log for details" );
+            return FatalError( "Failed to initialize engine core" );
         }
 
-        m_resourceSystem.Initialize( m_pResourceProvider );
+        m_pTaskSystem = m_module_engine_core.GetTaskSystem();
+        m_pTypeRegistry = m_module_engine_core.GetTypeRegistry();
+        m_pSystemRegistry = m_module_engine_core.GetSystemRegistry();
+        m_pInputSystem = m_module_engine_core.GetInputSystem();
+        m_pResourceSystem = m_module_engine_core.GetResourceSystem();
+        m_pRenderDevice = m_module_engine_core.GetRenderDevice();
+        m_pRendererRegistry = m_module_engine_core.GetRendererRegistry();
+        m_pImguiSystem = m_module_engine_core.GetImguiSystem();
+        m_pEntityWorld = m_module_engine_core.GetEntityWorld();
+        m_pCameraSystem = m_module_engine_core.GetCameraSystem();
 
-        //-------------------------------------------------------------------------
-
-        if ( !m_renderDevice.Initialize() )
-        {
-            KRG_LOG_ERROR( "Render", "Failed to create render device" );
-            return FatalError( "Engine Application Startup failed - See EngineApplication log for details" );
-        }
-
-        //-------------------------------------------------------------------------
-
-        m_inputSystem.Initialize();
-        m_imguiSystem.Initialize();
-
-        #if KRG_DEBUG_INSTRUMENTATION
-        m_debugUISystem.Initialize( m_settingsRegistry );
+        #if KRG_DEVELOPMENT_TOOLS
+        m_pDebugUISystem = m_module_engine_core.GetDebugUISystem();
+        m_pDebugDrawingSystem = m_module_engine_core.GetDebugDrawingSystem();
         #endif
 
-        // Register systems
+        // Register Types
         //-------------------------------------------------------------------------
 
-        m_systemRegistry.RegisterSystem( &m_settingsRegistry );
-        m_systemRegistry.RegisterSystem( &m_typeRegistry );
-        m_systemRegistry.RegisterSystem( &m_taskSystem );
-        m_systemRegistry.RegisterSystem( &m_resourceSystem );
-        m_systemRegistry.RegisterSystem( &m_inputSystem );
-        m_systemRegistry.RegisterSystem( &m_cameraSystem );
-        m_systemRegistry.RegisterSystem( &m_entityWorld );
-
-        #if KRG_DEBUG_INSTRUMENTATION
-        m_systemRegistry.RegisterSystem( &m_debugUISystem );
-        m_systemRegistry.RegisterSystem( &m_debugDrawingSystem );
-        #endif
-
-        // Module context
-        //-------------------------------------------------------------------------
-
-        m_moduleContext.m_pSettingsRegistry = &m_settingsRegistry;
-        m_moduleContext.m_pTaskSystem = &m_taskSystem;
-        m_moduleContext.m_pTypeRegistry = &m_typeRegistry;
-        m_moduleContext.m_pResourceSystem = &m_resourceSystem;
-        m_moduleContext.m_pSystemRegistry = &m_systemRegistry;
-        m_moduleContext.m_pRenderDevice = &m_renderDevice;
-        m_moduleContext.m_pRendererRegistry = m_renderingSystem.GetRendererRegistry();
-        m_moduleContext.m_pEntityWorld = &m_entityWorld;
-        
-        #if KRG_DEBUG_INSTRUMENTATION
-        m_moduleContext.m_pDebugUISystem = &m_debugUISystem;
-        #endif
+        AutoGenerated::RegisterTypes( *m_pTypeRegistry );
 
         // Modules
         //-------------------------------------------------------------------------
 
-        AutoGenerated::RegisterTypes( m_typeRegistry );
+        m_moduleContext.m_pSettingsRegistry = &m_settingsRegistry;
+        m_moduleContext.m_pTaskSystem = m_pTaskSystem;
+        m_moduleContext.m_pTypeRegistry = m_pTypeRegistry;
+        m_moduleContext.m_pResourceSystem = m_pResourceSystem;
+        m_moduleContext.m_pSystemRegistry = m_pSystemRegistry;
+        m_moduleContext.m_pRenderDevice = m_pRenderDevice;
+        m_moduleContext.m_pRendererRegistry = m_pRendererRegistry;
+        m_moduleContext.m_pEntityWorld = m_pEntityWorld;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_moduleContext.m_pDebugUISystem = m_pDebugUISystem;
+        #endif
 
         if ( !InitializeModules() )
         {
             return FatalError( "Engine Application Startup failed - See EngineApplication log for details" );
         }
 
-        // Update Context
-        //-------------------------------------------------------------------------
-
-        m_updateContext.m_pSystemRegistry = &m_systemRegistry;
-
-        #if KRG_DEBUG_INSTRUMENTATION
-        m_updateContext.m_pDebugDrawingSystem = &m_debugDrawingSystem;
-        #endif
+        m_pPhysicsSystem = m_pSystemRegistry->GetSystem<Physics::PhysicsSystem>();
+        m_pNavmeshSystem = m_pSystemRegistry->GetSystem<Navmesh::NavmeshSystem>();
 
         // World and runtime state initialization
         //-------------------------------------------------------------------------
 
-        m_cameraSystem.SetViewDimensions( m_renderDevice.GetRenderTargetDimensions() );
-        m_renderingSystem.Initialize();
+        m_updateContext.m_pSystemRegistry = m_pSystemRegistry;
 
-        m_entityWorld.RegisterGlobalSystem( &m_cameraSystem );
-        m_entityWorld.Initialize( m_systemRegistry );
+        #if KRG_DEVELOPMENT_TOOLS
+        m_updateContext.m_pDebugDrawingSystem = m_pDebugDrawingSystem;
+        #endif
+
+        //-------------------------------------------------------------------------
+
+        m_pCameraSystem->SetViewDimensions( m_pRenderDevice->GetRenderTargetDimensions() );
+        m_renderingSystem.Initialize( m_pRendererRegistry );
+
+        m_pEntityWorld->RegisterWorldSystem( m_pCameraSystem );
+        m_pEntityWorld->Initialize( *m_pSystemRegistry );
 
         //-------------------------------------------------------------------------
 
@@ -245,28 +211,25 @@ namespace KRG
 
     bool EngineApplication::Shutdown()
     {
-        KRG_LOG_MESSAGE( "KRG", "Engine Application Shutdown Started" );
+        KRG_LOG_MESSAGE( "System", "Engine Application Shutdown Started" );
 
-        m_taskSystem.WaitForAll();
+        m_pTaskSystem->WaitForAll();
 
         // Shutdown World and runtime state
         //-------------------------------------------------------------------------
 
         // Wait for resource/object systems to complete all resource unloading
-        m_entityWorld.Shutdown();
+        m_pEntityWorld->Shutdown();
 
-        while ( m_entityWorld.IsBusyLoading() || m_resourceSystem.IsBusy() )
+        while ( m_pEntityWorld->IsBusyLoading() || m_pResourceSystem->IsBusy() )
         {
-            m_resourceSystem.Update();
+            m_pResourceSystem->Update();
         }
 
-        m_entityWorld.UnregisterGlobalSystem( &m_cameraSystem );
+        m_pEntityWorld->UnregisterWorldSystem( m_pCameraSystem );
         m_renderingSystem.Shutdown();
 
-        // Update Context
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         m_updateContext.m_pDebugDrawingSystem = nullptr;
         #endif
 
@@ -276,10 +239,10 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ShutdownModules();
-        AutoGenerated::UnregisterTypes( m_typeRegistry );
 
-        // Module Context
-        //-------------------------------------------------------------------------
+        #if KRG_DEVELOPMENT_TOOLS
+        m_moduleContext.m_pDebugUISystem = nullptr;
+        #endif
 
         m_moduleContext.m_pSettingsRegistry = nullptr;
         m_moduleContext.m_pTaskSystem = nullptr;
@@ -290,46 +253,15 @@ namespace KRG
         m_moduleContext.m_pRendererRegistry = nullptr;
         m_moduleContext.m_pEntityWorld = nullptr;
 
-        // Unregister Systems
+        // Unregister types
         //-------------------------------------------------------------------------
 
-        #if KRG_DEBUG_INSTRUMENTATION
-        m_systemRegistry.UnregisterSystem( &m_debugDrawingSystem );
-        m_systemRegistry.UnregisterSystem( &m_debugUISystem );
-        #endif
+        AutoGenerated::UnregisterTypes( *m_pTypeRegistry );
 
-        m_systemRegistry.UnregisterSystem( &m_entityWorld );
-        m_systemRegistry.UnregisterSystem( &m_cameraSystem );
-        m_systemRegistry.UnregisterSystem( &m_inputSystem );
-        m_systemRegistry.UnregisterSystem( &m_resourceSystem );
-        m_systemRegistry.UnregisterSystem( &m_taskSystem );
-        m_systemRegistry.UnregisterSystem( &m_typeRegistry );
-        m_systemRegistry.UnregisterSystem( &m_settingsRegistry );
-
-        // Shutdown Systems
+        // Shutdown Core
         //-------------------------------------------------------------------------
 
-        #if KRG_DEBUG_INSTRUMENTATION
-        m_debugUISystem.Shutdown();
-        #endif
-
-        m_imguiSystem.Shutdown();
-        m_inputSystem.Shutdown();
-
-        m_renderDevice.Shutdown();
-
-        if ( m_resourceSystem.IsInitialized() )
-        {
-            m_resourceSystem.Shutdown();
-        }
-
-        if ( m_pResourceProvider != nullptr )
-        {
-            m_pResourceProvider->Shutdown();
-            KRG::Delete( m_pResourceProvider );
-        }
-
-        m_taskSystem.Shutdown();
+        m_module_engine_core.Shutdown( m_moduleContext );
 
         return true;
     }
@@ -339,13 +271,18 @@ namespace KRG
     void EngineApplication::ResizeMainWindow( Int2 windowDimensions )
     {
         KRG_ASSERT( m_initialized );
-        m_renderDevice.ResizeRenderTargets( windowDimensions );
-        m_cameraSystem.SetViewDimensions( windowDimensions );
+        m_pRenderDevice->ResizeRenderTargets( windowDimensions );
+        m_pCameraSystem->SetViewDimensions( windowDimensions );
     }
 
     bool EngineApplication::Update()
     {
         KRG_ASSERT( m_initialized );
+
+        if ( m_exitRequested )
+        {
+            return false;
+        }
 
         // Check for fatal errors
         //-------------------------------------------------------------------------
@@ -360,16 +297,16 @@ namespace KRG
 
         Profiling::StartFrame();
 
-        Milliseconds timeDeltaMS = 0;
+        Milliseconds deltaTime = 0;
         {
-            ScopedTimer frameTimer( timeDeltaMS );
+            ScopedSystemTimer frameTimer( deltaTime );
 
             // Streaming / Loading
             //-------------------------------------------------------------------------
             {
                 KRG_PROFILE_SCOPE_RESOURCE( "Loading/Streaming" );
-                m_resourceSystem.Update();
-                m_entityWorld.UpdateLoading();
+                m_pResourceSystem->Update();
+                m_pEntityWorld->UpdateLoading();
             }
 
             // Frame Start
@@ -380,14 +317,14 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_inputSystem.Update();
+                m_pInputSystem->Update();
 
-                #if KRG_DEBUG_INSTRUMENTATION
-                m_imguiSystem.Update( m_updateContext.GetDeltaTime() );
-                m_debugUISystem.Update( m_updateContext );
+                #if KRG_DEVELOPMENT_TOOLS
+                m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
+                m_pDebugUISystem->Update( m_updateContext );
                 #endif
 
-                m_entityWorld.Update( m_updateContext );
+                m_pEntityWorld->Update( m_updateContext );
             }
 
             // Pre-Physics
@@ -398,9 +335,9 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_entityWorld.Update( m_updateContext );
-                m_cameraSystem.Update(); // Camera entities should have been updated as part of the pre-physics step, so update the viewports
-                m_renderingSystem.Update( m_updateContext, m_cameraSystem.GetActiveViewports() );
+                m_pEntityWorld->Update( m_updateContext );
+                m_pCameraSystem->Update(); // Camera entities should have been updated as part of the pre-physics step, so update the viewports
+                m_renderingSystem.Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
             }
 
             // Physics
@@ -411,8 +348,9 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_entityWorld.Update( m_updateContext );
-                m_renderingSystem.Update( m_updateContext, m_cameraSystem.GetActiveViewports() );
+                m_pPhysicsSystem->Update( m_updateContext );
+                m_pEntityWorld->Update( m_updateContext );
+                m_renderingSystem.Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
             }
 
             // Post-Physics
@@ -422,9 +360,10 @@ namespace KRG
                 m_updateContext.m_stage = UpdateStage::PostPhysics;
 
                 //-------------------------------------------------------------------------
-
-                m_entityWorld.Update( m_updateContext );
-                m_renderingSystem.Update( m_updateContext, m_cameraSystem.GetActiveViewports() );
+                
+                m_pNavmeshSystem->Update( m_updateContext );
+                m_pEntityWorld->Update( m_updateContext );
+                m_renderingSystem.Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
             }
 
             // Frame End
@@ -435,31 +374,37 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_entityWorld.Update( m_updateContext );
+                m_pEntityWorld->Update( m_updateContext );
 
-                #if KRG_DEBUG_INSTRUMENTATION
-                m_debugUISystem.Update( m_updateContext );
+                #if KRG_DEVELOPMENT_TOOLS
+                m_pDebugUISystem->Update( m_updateContext );
+                m_pImguiSystem->EndFrame();
                 #endif
 
-                m_renderingSystem.Update( m_updateContext, m_cameraSystem.GetActiveViewports() );
-                m_inputSystem.ClearFrameState();
-                m_renderDevice.PresentFrame();
+                m_renderingSystem.Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_pInputSystem->ClearFrameState();
+                m_pRenderDevice->PresentFrame();
             }
         }
 
-        m_updateContext.SetTimeDelta( timeDeltaMS.ToSeconds() );
+        // Update Time
+        //-------------------------------------------------------------------------
+
+        // Ensure we dont get crazy time delta's when we hit breakpoints
+        #if !KRG_CONFIGURATION_FINAL
+        if ( deltaTime.ToSeconds() > 1.0f )
+        {
+            deltaTime = m_updateContext.GetDeltaTime(); // Keep last frame delta
+        }
+        #endif
+
+        m_updateContext.UpdateDeltaTime( deltaTime );
+        EngineClock::Update( deltaTime );
         Profiling::EndFrame();
 
         // Should we exit?
         //-------------------------------------------------------------------------
 
-        if ( m_exitRequested )
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return true;
     }
 }

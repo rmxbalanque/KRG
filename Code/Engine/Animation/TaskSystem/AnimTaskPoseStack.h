@@ -23,7 +23,7 @@ namespace KRG
             Pose* PushPose();
             Pose* PopPose();
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             void EnablePoseDebugging( bool enabled ) const { m_isPoseDebuggingEnabled = enabled; }
             void RecordDebugPose( Pose const* pPose );
             #endif
@@ -36,7 +36,7 @@ namespace KRG
 
         private:
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             TVector<Pose>                   m_debugBuffers;
             S32                             m_firstFreeDebugBuffer;
             mutable bool                    m_isPoseDebuggingEnabled;

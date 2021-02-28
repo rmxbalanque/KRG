@@ -1,7 +1,7 @@
 #pragma once
 
 #include "QWidget"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 
 //-------------------------------------------------------------------------
 

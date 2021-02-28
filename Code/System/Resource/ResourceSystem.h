@@ -6,6 +6,8 @@
 #include "System/Core/Threading/TaskSystem.h"
 #include "System/Core/Systems/ISystem.h"
 #include "System/Core/Types/Event.h"
+#include "System/Core/Time/TimeStamp.h"
+#include <ctime>
 
 //-------------------------------------------------------------------------
 
@@ -20,11 +22,12 @@ namespace KRG
         class ResourceProvider;
         class ResourceLoader;
         class ResourceRequest;
-
         //-------------------------------------------------------------------------
 
         class KRG_SYSTEM_RESOURCE_API ResourceSystem : public ISystem
         {
+            friend class ResourceDebugViewController;
+
             struct PendingRequest
             {
                 enum class Type { Load, Unload };
@@ -45,6 +48,17 @@ namespace KRG
                 UUID                m_requesterID;
                 Type                m_type = Type::Load;
             };
+
+            #if KRG_DEVELOPMENT_TOOLS
+            struct CompletedRequestLog
+            {
+                CompletedRequestLog( PendingRequest::Type type, ResourceID ID ) : m_type( type ), m_ID( ID ) {}
+
+                PendingRequest::Type    m_type;
+                ResourceID              m_ID;
+                TimeStamp               m_time;
+            };
+            #endif
 
         public:
 
@@ -167,6 +181,10 @@ namespace KRG
             // ASync
             AsyncTask                                               m_asyncProcessingTask;
             bool                                                    m_isAsyncTaskRunning = false;
+
+            #if KRG_DEVELOPMENT_TOOLS
+            TVector<CompletedRequestLog>                            m_history;
+            #endif
         };
     }
 }

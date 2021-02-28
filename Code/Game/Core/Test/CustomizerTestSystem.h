@@ -2,6 +2,7 @@
 
 #include "System/Entity/EntitySystem.h"
 #include "System/Entity/Map/EntityMap.h"
+#include "System/Core/Time/Timers.h"
 
 //-------------------------------------------------------------------------
 
@@ -21,8 +22,9 @@ namespace KRG
             UUID            m_meshComponentID;
             UUID            m_armorComponentID;
             UUID            m_hairComponentID;
-            Milliseconds    m_lastCustomizedTime;
+            EngineTimer     m_cooldownTimer;
             Milliseconds    m_cooldown;
+            bool            m_createSystem = false;
         };
 
     public:
@@ -47,5 +49,6 @@ namespace KRG
 
         TVector<CustomizedCharacter>    m_spawnedEntities;
         bool                            charactersSpawned = false;
+        bool                            attach = false;
     };
 }

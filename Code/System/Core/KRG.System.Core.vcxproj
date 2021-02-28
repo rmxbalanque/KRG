@@ -15,11 +15,12 @@
     <ClInclude Include="Algorithm\Quantization.h" />
     <ClInclude Include="Algorithm\TopologicalSort.h" />
     <ClInclude Include="Algorithm\Encoding.h" />
+    <ClInclude Include="Core\Defines.h" />
+    <ClInclude Include="Core\Platform\Defines_Win32.h" />
     <ClInclude Include="Debug\DebugDrawingSystem.h" />
     <ClInclude Include="Math\Viewport.h" />
     <ClInclude Include="Settings\Setting.h" />
     <ClInclude Include="Settings\ConfigSettings.h" />
-    <ClInclude Include="Core.h" />
     <ClInclude Include="Debug\DebugDrawingCommands.h" />
     <ClInclude Include="Debug\DebugDrawing.h" />
     <ClInclude Include="Settings\DebugSettings.h" />
@@ -37,6 +38,7 @@
     <ClInclude Include="ThirdParty\concurrentqueue\blockingconcurrentqueue.h" />
     <ClInclude Include="ThirdParty\concurrentqueue\concurrentqueue.h" />
     <ClInclude Include="ThirdParty\concurrentqueue\lightweightsemaphore.h" />
+    <ClInclude Include="Time\TimeStamp.h" />
     <ClInclude Include="Types\Event.h" />
     <ClInclude Include="FileSystem\DataPath.h" />
     <ClInclude Include="FileSystem\FileSystemPath.h" />
@@ -64,9 +66,7 @@
     <ClInclude Include="Math\ViewVolume.h" />
     <ClInclude Include="Memory\Memory.h" />
     <ClInclude Include="Memory\Pointers.h" />
-    <ClInclude Include="Platform\ProcessorInfo.h" />
-    <ClInclude Include="Platform\Platform\Core_Win32.h" />
-    <ClInclude Include="Platform\Platform\Platform_Win32.h" />
+    <ClInclude Include="Platform\Platform_Win32.h" />
     <ClInclude Include="Profiling\Profiling.h" />
     <ClInclude Include="Systems\ISystem.h" />
     <ClInclude Include="Systems\SystemRegistry.h" />
@@ -306,7 +306,9 @@
     <ClInclude Include="ThirdParty\rpmalloc\rpmalloc.h" />
     <ClInclude Include="ThirdParty\xxhash\xxhash.h" />
     <ClInclude Include="Threading\Threading.h" />
-    <ClInclude Include="Types\Time.h" />
+    <ClInclude Include="Core\IntegralTypes.h" />
+    <ClInclude Include="Types\Pool.h" />
+    <ClInclude Include="Time\Time.h" />
     <ClInclude Include="Types\Percentage.h" />
     <ClInclude Include="Time\Timers.h" />
     <ClInclude Include="Types\Color.h" />
@@ -352,7 +354,7 @@
     <ClCompile Include="Math\Vector.cpp" />
     <ClCompile Include="Math\ViewVolume.cpp" />
     <ClCompile Include="Memory\Memory.cpp" />
-    <ClCompile Include="Platform\Platform\Platform_Win32.cpp" />
+    <ClCompile Include="Platform\Platform_Win32.cpp" />
     <ClCompile Include="Profiling\Profiling.cpp" />
     <ClCompile Include="Serialization\BinaryArchive.cpp" />
     <ClCompile Include="Settings\SettingsRegistry.cpp" />
@@ -377,11 +379,13 @@
     <ClCompile Include="Threading\Threading.cpp" />
     <ClCompile Include="Threading\Platform\Threading_Win32.cpp" />
     <ClCompile Include="Memory\MemoryStreamHelpers.cpp" />
-    <ClCompile Include="Types\Time.cpp" />
+    <ClCompile Include="Time\Time.cpp" />
+    <ClCompile Include="Time\TimeStamp.cpp" />
     <ClCompile Include="Types\Percentage.cpp" />
     <ClCompile Include="Types\StringID.cpp" />
     <ClCompile Include="Types\UUID.cpp" />
     <ClCompile Include="Types\Platform\Types_Win32.cpp" />
+    <ClCompile Include="Update\UpdateContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\concurrentqueue\LICENSE.md" />

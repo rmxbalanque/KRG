@@ -88,7 +88,7 @@ namespace KRG
             return true;
         }
 
-        bool RenderDevice::Shutdown()
+        void RenderDevice::Shutdown()
         {
             DefaultResources::Shutdown( this );
 
@@ -99,7 +99,6 @@ namespace KRG
             DestroyDepthStencilView();
             DestroyRenderTargets();
             DestroyDeviceAndSwapchain();
-            return true;
         }
 
         //-------------------------------------------------------------------------

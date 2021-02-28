@@ -25,22 +25,16 @@ namespace KRG
 
         public:
 
-            RendererRegistry* GetRendererRegistry() { return &m_rendererRegistry; }
-
-            void Initialize();
+            void Initialize( Render::RendererRegistry* pRegistry );
             void Shutdown();
 
             void Update( UpdateContext const& ctx, TInlineVector<Math::Viewport, 2> activeViewports );
 
         private:
-            
-            RendererRegistry                                m_rendererRegistry;
 
             StaticMeshRenderer*                             m_pStaticMeshRenderer = nullptr;
             SkeletalMeshRenderer*                           m_pSkeletalMeshRenderer = nullptr;
-
             TVector<IRenderer*>                             m_customRenderers;
-            bool                                            m_initialized = false;
         };
     }
 }

@@ -3,7 +3,7 @@
 #include "Applications/Reflector/ReflectorSettingsAndUtils.h"
 #include "Applications/Reflector/Database/ReflectionDatabase.h"
 #include "System/Core/Time/Timers.h"
-#include "System/Core/Platform/Platform/Platform_Win32.h"
+#include "System/Core/Platform/Platform_Win32.h"
 #include <fstream>
 
 //-------------------------------------------------------------------------
@@ -72,13 +72,13 @@ namespace KRG
                 CXTranslationUnit tu;
                 CXErrorCode result = CXError_Failure;
                 {
-                    ScopedTimer timer( m_totalParsingTime );
+                    ScopedSystemTimer timer( m_totalParsingTime );
                     result = clang_parseTranslationUnit2( idx, reflectorHeader.c_str(), clangArgs.data(), clangArgs.size(), 0, 0, clangOptions, &tu );
                 }
 
                 if ( result == CXError_Success )
                 {
-                    ScopedTimer timer( m_totalVisitingTime );
+                    ScopedSystemTimer timer( m_totalVisitingTime );
                     m_context.Reset( &tu );
                     auto cursor = clang_getTranslationUnitCursor( tu );
                     clang_visitChildren( cursor, VisitTranslationUnit, &m_context );

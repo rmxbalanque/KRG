@@ -1,8 +1,8 @@
 #include "ResourceRequest.h"
-#include "System/Core/Logging/Log.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Threading/Threading.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
@@ -140,17 +140,6 @@ namespace KRG
             }
         }
 
-        void ResourceRequest::SwitchToReloadTask()
-        {
-            m_isReloadRequest = true;
-
-            // If we are currently loading, switch to an unload
-            if ( m_type == Type::Load )
-            {
-                SwitchToUnloadTask();
-            }
-        }
-
         //-------------------------------------------------------------------------
 
         bool ResourceRequest::Update( RequestContext& requestContext )
@@ -270,7 +259,7 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_RESOURCE( "Load Resource" );
 
-                #if KRG_DEBUG_INSTRUMENTATION
+                #if KRG_DEVELOPMENT_TOOLS
                 char resTypeID[5];
                 m_pResourceRecord->GetResourceTypeID().GetString( resTypeID );
                 KRG_PROFILE_TAG( "Loader", resTypeID );

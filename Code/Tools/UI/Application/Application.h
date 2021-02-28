@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Window.h"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 
 #include <QApplication>
 #include <QSplashScreen>

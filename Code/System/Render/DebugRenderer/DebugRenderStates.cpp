@@ -2,12 +2,12 @@
 #include "System/Render/DebugRenderer/Shaders/DebugShaders.h"
 #include "System/Render/ThirdParty/stb/stb_truetype.h"
 #include "System/Render/Fonts/FontData_ProggyTiny.h"
-#include "System/Render/Fonts/FontData_PixelCarnage.h"
+#include "System/Render/Fonts/FontData_ProggyClean.h"
 #include "System/Render/Fonts/FontDecompressor.h"
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     namespace Render
@@ -588,7 +588,7 @@ namespace KRG
             DebugTextFontAtlas::FontDesc fonts[] =
             {
                 { Fonts::ProggyTiny::GetFontCompressedData(), 10 },
-                { Fonts::PixelCarnage::GetFontCompressedData(), 16 },
+                { Fonts::ProggyClean::GetFontCompressedData(), 13 },
             };
 
             if ( !m_fontAtlas.Generate( fonts, 2 ) )

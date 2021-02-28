@@ -26,7 +26,7 @@ namespace KRG::EntityModel
         // Read collection
         //-------------------------------------------------------------------------
 
-        if ( !EntityCollectionReader::ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionTemplate ) )
+        if ( !EntityCollectionReader::ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionDescriptor ) )
         {
             return Resource::CompilationResult::Failure;
         }
@@ -35,7 +35,7 @@ namespace KRG::EntityModel
         // Additional Resources
         //-------------------------------------------------------------------------
 
-        auto const navmeshComponents = map.m_collectionTemplate.GetComponentsOfType<Navmesh::NavmeshComponent>( ctx.m_typeRegistry, false );
+        auto const navmeshComponents = map.m_collectionDescriptor.GetComponentsOfType<Navmesh::NavmeshComponent>( ctx.m_typeRegistry, false );
 
         // If we have a navmesh component 
         if ( !navmeshComponents.empty() )
@@ -64,7 +64,7 @@ namespace KRG::EntityModel
             navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
 
             Navmesh::NavmeshBuilder navmeshBuilder;
-            navmeshBuilder.Build( ctx, map.GetCollection(), navmeshResourcePath );
+            navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshResourcePath );
         }
 
         //-------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 #include "EntityDebugViewController.h"
-#include "System/Imgui/ImguiCore.h"
+#include "System/Imgui/ImguiSystem.h"
 #include "System/Entity/EntityWorld.h"
 #include "System/Entity/EntitySystem.h"
 #include "System/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     EntityDebugViewController::EntityDebugViewController()
@@ -48,7 +48,7 @@ namespace KRG
 
     void EntityDebugViewController::DrawMapLoader( UpdateContext const& context )
     {
-        ImGui::SetNextWindowBgAlpha( 0.5f );
+        ImGui::SetNextWindowBgAlpha( 0.75f );
         if ( ImGui::Begin( "Map Loader", &m_isMapLoaderOpen ) )
         {
             ResourceID const BRMinimal( "data://maps/BR_Minimal.map" );
@@ -274,42 +274,44 @@ namespace KRG
             filter.Draw( "##EntityFilter", 300 );
 
             ImGui::SetNextWindowBgAlpha( 0.5f );
-            ImGui::BeginChild( ImGui::GetID( (void*) (intptr_t) 0 ), ImVec2( 300, -1 ), true, 0 );
-
-            for ( auto i = 0u; i < m_entities.size(); i++ )
+            if ( ImGui::BeginChild( ImGui::GetID( (void*) (intptr_t) 0 ), ImVec2( 300, -1 ), true, 0 ) )
             {
-                if ( !filter.PassFilter( m_entities[i]->GetName().c_str() ) )
+                for ( auto i = 0u; i < m_entities.size(); i++ )
                 {
-                    continue;
-                }
-
-                if ( m_pSelectedEntity == m_entities[i] )
-                {
-                    ImGui::PushStyleColor( ImGuiCol_Text, 0xFF00FFFF );
-                    ImGui::Button( m_entities[i]->GetName().c_str() );
-                    ImGui::PopStyleColor( 1 );
-                }
-                else
-                {
-                    String const buttonLabel = String().sprintf( "%s##%d", m_entities[i]->GetName().c_str(), i );
-                    if ( ImGui::Button( buttonLabel.c_str() ) )
+                    if ( !filter.PassFilter( m_entities[i]->GetName().c_str() ) )
                     {
-                        m_pSelectedEntity = m_entities[i];
+                        continue;
+                    }
+
+                    if ( m_pSelectedEntity == m_entities[i] )
+                    {
+                        ImGui::PushStyleColor( ImGuiCol_Text, 0xFF00FFFF );
+                        ImGui::Button( m_entities[i]->GetName().c_str() );
+                        ImGui::PopStyleColor( 1 );
+                    }
+                    else
+                    {
+                        String const buttonLabel = String().sprintf( "%s##%d", m_entities[i]->GetName().c_str(), i );
+                        if ( ImGui::Button( buttonLabel.c_str() ) )
+                        {
+                            m_pSelectedEntity = m_entities[i];
+                        }
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    if ( ImGui::IsItemHovered() )
+                    {
+                        if ( m_entities[i]->IsSpatialEntity() )
+                        {
+                            drawingCtx.DrawPoint( m_entities[i]->GetWorldTransform().GetTranslation(), Colors::Yellow, 10.0f );
+                        }
                     }
                 }
 
-                //-------------------------------------------------------------------------
-
-                if ( ImGui::IsItemHovered() )
-                {
-                    if ( m_entities[i]->IsSpatialEntity() )
-                    {
-                        drawingCtx.DrawPoint( m_entities[i]->GetWorldTransform().GetTranslation(), Colors::Yellow, 10.0f );
-                    }
-                }
+                ImGui::EndChild();
             }
 
-            ImGui::EndChild();
             ImGui::EndGroup();
 
             //-------------------------------------------------------------------------
@@ -322,79 +324,81 @@ namespace KRG
             ImGui::BeginGroup();
 
             ImGui::SetNextWindowBgAlpha( 0.5f );
-            ImGui::BeginChild( ImGui::GetID( (void*) (intptr_t) 1 ), ImVec2( -1, -1 ), true, 0 );
-
-            if ( m_pSelectedEntity != nullptr )
+            if ( ImGui::BeginChild( ImGui::GetID( (void*) (intptr_t) 1 ), ImVec2( -1, -1 ), true, 0 ) )
             {
-                ImGui::Text( "Entity Name: %s", m_pSelectedEntity->GetName().c_str() );
-                ImGui::Text( "Entity ID: %s", m_pSelectedEntity->GetID().ToString().c_str() );
-
-                ImGui::Separator();
-
-                //-------------------------------------------------------------------------
-
-                if ( m_pSelectedEntity->IsSpatialEntity() )
+                if ( m_pSelectedEntity != nullptr )
                 {
-                    if ( ImGui::CollapsingHeader( "Spatial Info", ImGuiTreeNodeFlags_DefaultOpen ) )
-                    {
-                        auto const transform = m_pSelectedEntity->GetWorldTransform();
-                        auto const eulerAngles = transform.GetRotation().ToEulerAngles();
-                        ImGui::Text( "Rotation: %.2f %.2f %.2f", eulerAngles.x, eulerAngles.y, eulerAngles.z );
-                        ImGui::Text( "Translation: %.2f %.2f %.2f", transform.GetTranslation().x, transform.GetTranslation().y, transform.GetTranslation().z );
-                        ImGui::Text( "Scale: %.2f %.2f %.2f", transform.GetScale().x, transform.GetScale().y, transform.GetScale().z );
-                    }
-                }
+                    ImGui::Text( "Entity Name: %s", m_pSelectedEntity->GetName().c_str() );
+                    ImGui::Text( "Entity ID: %s", m_pSelectedEntity->GetID().ToString().c_str() );
 
-                //-------------------------------------------------------------------------
+                    ImGui::Separator();
 
-                if ( !m_pSelectedEntity->GetSystems().empty() )
-                {
-                    if ( ImGui::CollapsingHeader( "Systems", ImGuiTreeNodeFlags_DefaultOpen ) )
+                    //-------------------------------------------------------------------------
+
+                    if ( m_pSelectedEntity->IsSpatialEntity() )
                     {
-                        for ( auto pSystem : m_pSelectedEntity->GetSystems() )
+                        if ( ImGui::CollapsingHeader( "Spatial Info", ImGuiTreeNodeFlags_DefaultOpen ) )
                         {
-                            ImGui::Text( pSystem->GetName() );
+                            auto const transform = m_pSelectedEntity->GetWorldTransform();
+                            auto const eulerAngles = transform.GetRotation().ToEulerAngles();
+                            ImGui::Text( "Rotation: %.2f %.2f %.2f", eulerAngles.x, eulerAngles.y, eulerAngles.z );
+                            ImGui::Text( "Translation: %.2f %.2f %.2f", transform.GetTranslation().x, transform.GetTranslation().y, transform.GetTranslation().z );
+                            ImGui::Text( "Scale: %.2f %.2f %.2f", transform.GetScale().x, transform.GetScale().y, transform.GetScale().z );
+                        }
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    if ( !m_pSelectedEntity->GetSystems().empty() )
+                    {
+                        if ( ImGui::CollapsingHeader( "Systems", ImGuiTreeNodeFlags_DefaultOpen ) )
+                        {
+                            for ( auto pSystem : m_pSelectedEntity->GetSystems() )
+                            {
+                                ImGui::Text( pSystem->GetName() );
+                            }
+                        }
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    TInlineVector<EntityComponent*, 10> components;
+                    for ( auto pComponent : m_pSelectedEntity->GetComponents() )
+                    {
+                        if ( auto pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent ) )
+                        {
+                            continue;
+                        }
+
+                        components.emplace_back( pComponent );
+                    }
+
+                    if ( !components.empty() )
+                    {
+                        if ( ImGui::CollapsingHeader( "Components", ImGuiTreeNodeFlags_DefaultOpen ) )
+                        {
+                            for ( auto pComponent : components )
+                            {
+                                DrawComponentEntry( pComponent );
+                            }
+                        }
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    auto pRootComponent = m_pSelectedEntity->GetRootSpatialComponent();
+                    if ( pRootComponent != nullptr )
+                    {
+                        if ( ImGui::CollapsingHeader( "Spatial Components", ImGuiTreeNodeFlags_DefaultOpen ) )
+                        {
+                            DrawSpatialComponentTree( pRootComponent );
                         }
                     }
                 }
 
-                //-------------------------------------------------------------------------
-
-                TInlineVector<EntityComponent*, 10> components;
-                for ( auto pComponent : m_pSelectedEntity->GetComponents() )
-                {
-                    if ( auto pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent ) )
-                    {
-                        continue;
-                    }
-
-                    components.emplace_back( pComponent );
-                }
-
-                if ( !components.empty() )
-                {
-                    if ( ImGui::CollapsingHeader( "Components", ImGuiTreeNodeFlags_DefaultOpen ) )
-                    {
-                        for ( auto pComponent : components )
-                        {
-                            DrawComponentEntry( pComponent );
-                        }
-                    }
-                }
-
-                //-------------------------------------------------------------------------
-
-                auto pRootComponent = m_pSelectedEntity->GetRootSpatialComponent();
-                if ( pRootComponent != nullptr )
-                {
-                    if ( ImGui::CollapsingHeader( "Spatial Components", ImGuiTreeNodeFlags_DefaultOpen ) )
-                    {
-                        DrawSpatialComponentTree( pRootComponent );
-                    }
-                }
+                ImGui::EndChild();
             }
 
-            ImGui::EndChild();
             ImGui::EndGroup();
 
             //-------------------------------------------------------------------------

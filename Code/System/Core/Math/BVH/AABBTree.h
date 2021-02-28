@@ -58,7 +58,7 @@ namespace KRG
                 return FindOverlaps( queryBox, reinterpret_cast<TVector<U64>&>( outResults ) );
             }
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             void DrawDebug( Debug::DrawingContext& drawingContext ) const;
             #endif
 
@@ -74,7 +74,7 @@ namespace KRG
             S32 FindBestLeafNodeToCreateSiblingFor( S32 startNodeIdx, AABB const& newBox ) const;
             void FindAllOverlappingLeafNodes( S32 currentNodeIdx, AABB const& queryBox, TVector<U64>& outResults ) const;
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             void DrawBranch( Debug::DrawingContext& drawingContext, S32 nodeIdx ) const;
             void DrawLeaf( Debug::DrawingContext& drawingContext, S32 nodeIdx ) const;
             #endif

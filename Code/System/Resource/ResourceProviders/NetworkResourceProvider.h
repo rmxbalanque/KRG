@@ -37,7 +37,7 @@ namespace KRG
 
             Network::IPC::Client                                m_networkClient;
             String                                              m_address;
-            Timer                                               m_keepAliveTimer;
+            SystemTimer                                               m_keepAliveTimer;
             TVector<NetworkResourceResponse>                    m_serverReponses;
             Threading::LockFreeQueue<Network::IPC::Message>     m_messagesToSend;
         };

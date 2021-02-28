@@ -5,6 +5,7 @@
 #include "System/Entity/Collections/EntityCollection.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Types/Event.h"
+#include "System/Core/Threading/Threading.h"
 
 //-------------------------------------------------------------------------
 
@@ -18,6 +19,7 @@ namespace KRG
     namespace EntityModel
     {
         struct LoadingContext;
+        struct ActivationContext;
         class EntityCollectionDescriptor;
 
         //-------------------------------------------------------------------------
@@ -29,7 +31,7 @@ namespace KRG
         // Maps manage lifetime, loading and activation of entities
         //-------------------------------------------------------------------------
 
-        class KRG_SYSTEM_ENTITY_API EntityMap
+        class KRG_SYSTEM_ENTITY_API EntityMap : EntityCollection
         {
             friend EntityWorld;
 
@@ -41,6 +43,19 @@ namespace KRG
                 EntitiesLoading,
                 Loaded,
                 Activated,
+            };
+
+            struct ReloadRequest
+            {
+                ReloadRequest( Entity* pEntity ) : m_pEntity( pEntity ) {}
+
+                inline bool operator==( Entity* const& pEntity ) const { return m_pEntity == pEntity; }
+                inline bool operator==( ReloadRequest const& request ) const { return m_pEntity == request.m_pEntity; }
+
+            public:
+
+                Entity*     m_pEntity = nullptr;
+                bool        m_isUnloading = true;
             };
 
         public:
@@ -56,7 +71,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             inline ResourceID const& GetMapResourceID() const { return m_pMapDesc.GetResourceID(); }
-            inline UUID GetMapID() const { return m_pCollection->GetID(); }
+            inline UUID GetMapID() const { return GetID(); }
             inline bool IsTransientMap() const { return m_isTransientMap; }
 
             // Map Status
@@ -71,8 +86,9 @@ namespace KRG
             // Entity API
             //-------------------------------------------------------------------------
 
-            inline TVector<Entity*> const& GetEntities() const { KRG_ASSERT( m_pCollection != nullptr ); return m_pCollection->GetEntities(); }
-            Entity* FindEntity( UUID entityID ) const;
+            using EntityCollection::GetEntities;
+            using EntityCollection::FindEntity;
+            using EntityCollection::ContainsEntity;
 
             // Add a newly created entity to the map - Transfers ownership of the entity to the map
             // Will take 1 frame to be fully added, as the addition occurs during the loading update
@@ -93,27 +109,36 @@ namespace KRG
             void Load( LoadingContext const& loadingContext );
             void Unload( LoadingContext const& loadingContext );
 
-            void Activate( LoadingContext const& loadingContext );
-            void Deactivate( LoadingContext const& loadingContext );
+            void Activate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            void Deactivate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
 
             //-------------------------------------------------------------------------
 
             void OnEntityStateUpdated( Entity* pEntity );
 
+            //-------------------------------------------------------------------------
+
+            void ProcessHotReloadRequests( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            bool ProcessUnloadRequest( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            bool ProcessMapLoading( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            void ProcessEntityAdditionAndRemoval( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            bool ProcessEntityLoadingAndActivation( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+
             // Updates map loading and entity state, returns true if all loading/state changes are complete, false otherwise
-            bool UpdateState( LoadingContext const& loadingContext );
+            bool UpdateState( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
 
         private:
 
             TResourcePtr<EntityMapDescriptor>           m_pMapDesc;
-            EntityCollection*                           m_pCollection = nullptr;
-            TVector<Entity*>                            m_loadingEntities;
-            TVector<Entity*>                            m_entitiesToReload;
+            TVector<Entity*>                            m_entitiesToLoad;
             TInlineVector<Entity*, 5>                   m_entitiesToAdd;
             TInlineVector<Entity*, 5>                   m_entitiesToRemove;
+            TVector<ReloadRequest>                      m_reloadRequests;
             Status                                      m_status = Status::Unloaded;
             EventBindingID                              m_entityUpdateEventBindingID;
-            bool                                        m_unloadRequested = false;
+            Threading::Mutex                            m_entityStateUpdateMutex;
+            bool                                        m_isUnloadRequested = false;
+            bool                                        m_isCollectionInstantiated = false;
             bool const                                  m_isTransientMap = false; // If this is set, then this is a transient map i.e.created and managed at runtime and not loaded from disk
         };
     }

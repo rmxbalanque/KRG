@@ -2,7 +2,7 @@
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     DebugSetting::DebugSetting( char const* pName, char const* pCategory, char const* pDescription, Type type )

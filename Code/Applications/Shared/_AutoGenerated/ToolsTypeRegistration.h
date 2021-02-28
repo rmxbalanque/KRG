@@ -6,8 +6,6 @@
 #include "System/TypeSystem/TypeRegistry.h"
 
 #include "D:\Kruger\Code\Game\Core\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Render\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Entity\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
@@ -16,6 +14,8 @@
 #include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
 #include "D:\Kruger\Code\Compilers\Physics\_Module\Module.h"
+#include "D:\Kruger\Code\Compilers\Entity\_Module\Module.h"
+#include "D:\Kruger\Code\Compilers\Render\_Module\Module.h"
 
 namespace KRG
 {

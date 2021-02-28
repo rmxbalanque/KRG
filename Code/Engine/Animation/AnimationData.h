@@ -6,6 +6,7 @@
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Math/Range.h"
 #include "System/Core/Types/Percentage.h"
+#include "System/Core/Time/Time.h"
 #include "System/Core/Algorithm/Quantization.h"
 
 //-------------------------------------------------------------------------

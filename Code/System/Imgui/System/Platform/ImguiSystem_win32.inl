@@ -5,32 +5,31 @@
 #include "../ImguiSystemBase.h"
 
 //-------------------------------------------------------------------------
+// Windows ImGui platform integration
+//-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::ImGuiX
 {
-    namespace ImGuiX
+    class KRG_SYSTEM_IMGUI_API ImguiSystem final : public ImguiSystemBase
     {
-        class KRG_SYSTEM_IMGUI_API System final : public SystemBase
-        {
-        public:
+    public:
 
-            LRESULT ImguiWndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+        LRESULT ImguiWndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 
-            bool Initialize();
-            using SystemBase::Shutdown;
+        bool Initialize();
+        using ImguiSystemBase::Shutdown;
 
-        private:
+    private:
 
-            virtual void UpdateDisplayInformation() override final;
-            virtual void UpdateKeyStates() override final;
-            virtual void UpdateMousePosition() override final;
-            virtual bool UpdateMouseCursor() override final;
-            virtual void InitializePlatform() override final;
+        virtual void UpdateDisplayInformation() override final;
+        virtual void UpdateKeyStates() override final;
+        virtual void UpdateMousePosition() override final;
+        virtual bool UpdateMouseCursor() override final;
+        virtual void InitializePlatform() override final;
 
-        private:
+    private:
 
-            HWND m_mainwindowHandle = nullptr;
-        };
-    }
+        HWND m_mainwindowHandle = nullptr;
+    };
 }
 #endif

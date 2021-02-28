@@ -1,48 +1,96 @@
 #pragma once
 
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    class Timer
+    //-------------------------------------------------------------------------
+    // Timers
+    //-------------------------------------------------------------------------
+
+    class SystemTimer
     {
     public:
 
-        Timer() { Start(); }
+        SystemTimer() { Start(); }
 
-        inline void Start() { m_startTime = Ticks::Now(); }
+        inline void Start() { m_startTime = SystemClock::GetTime(); }
         inline void Reset() { Start(); }
 
-        inline Ticks GetElapsedTimeTicks() const { return Ticks::Now() - m_startTime; }
-        inline Seconds GetElapsedTimeSeconds() const { return GetElapsedTimeTicks().ToSeconds(); }
-        inline Milliseconds GetElapsedTimeMilliseconds() const { return GetElapsedTimeTicks().ToMilliseconds(); }
-        inline Microseconds GetElapsedTimeMicroseconds() const { return GetElapsedTimeTicks().ToMicroseconds(); }
+        inline Nanoseconds GetElapsedTimeNanoseconds() const { return SystemClock::GetTime() - m_startTime; }
+        inline Seconds GetElapsedTimeSeconds() const { return GetElapsedTimeNanoseconds().ToSeconds(); }
+        inline Milliseconds GetElapsedTimeMilliseconds() const { return GetElapsedTimeNanoseconds().ToMilliseconds(); }
+        inline Microseconds GetElapsedTimeMicroseconds() const { return GetElapsedTimeNanoseconds().ToMicroseconds(); }
 
     private:
 
-        Ticks m_startTime;
+        Nanoseconds m_startTime;
     };
 
     //-------------------------------------------------------------------------
 
-    class ScopedTimer
+    class EngineTimer
+    {
+    public:
+
+        EngineTimer() { Start(); }
+
+        inline void Start() { m_startTime = EngineClock::GetTime(); }
+        inline void Reset() { Start(); }
+
+        inline Nanoseconds GetElapsedTimeNanoseconds() const { return EngineClock::GetTime() - m_startTime; }
+        inline Seconds GetElapsedTimeSeconds() const { return GetElapsedTimeNanoseconds().ToSeconds(); }
+        inline Milliseconds GetElapsedTimeMilliseconds() const { return GetElapsedTimeNanoseconds().ToMilliseconds(); }
+        inline Microseconds GetElapsedTimeMicroseconds() const { return GetElapsedTimeNanoseconds().ToMicroseconds(); }
+
+    private:
+
+        Nanoseconds m_startTime;
+    };
+
+    //-------------------------------------------------------------------------
+    // Scoped Timers
+    //-------------------------------------------------------------------------
+
+    class ScopedSystemTimer
     {
 
     public:
 
-        ScopedTimer( Milliseconds& result ) : m_result( result ) {};
-        ~ScopedTimer() { m_result = m_timer.GetElapsedTimeMilliseconds(); }
+        ScopedSystemTimer( Milliseconds& result ) : m_result( result ) {};
+        ~ScopedSystemTimer() { m_result = m_timer.GetElapsedTimeMilliseconds(); }
 
     private:
 
-        ScopedTimer() = delete;
-        void operator=( ScopedTimer const& ) = delete;
+        ScopedSystemTimer() = delete;
+        void operator=( ScopedSystemTimer const& ) = delete;
 
     private:
 
-        Timer               m_timer;
+        SystemTimer         m_timer;
+        Milliseconds&       m_result;
+    };
+
+    //-------------------------------------------------------------------------
+
+    class ScopedEngineTimer
+    {
+
+    public:
+
+        ScopedEngineTimer( Milliseconds& result ) : m_result( result ) {};
+        ~ScopedEngineTimer() { m_result = m_timer.GetElapsedTimeMilliseconds(); }
+
+    private:
+
+        ScopedEngineTimer() = delete;
+        void operator=( ScopedEngineTimer const& ) = delete;
+
+    private:
+
+        EngineTimer         m_timer;
         Milliseconds&       m_result;
     };
 }

@@ -13,7 +13,7 @@
 #include "System/Core/Math/Vector.h"
 #include "System/Core/Math/Matrix.h"
 #include "System/Core/Math/Transform.h"
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 

@@ -19,7 +19,7 @@ namespace KRG
                 BlendTask( S32 sourceNodeIdx, F32 const blendWeight, U32 const blendOptions, BoneMask const* pBoneMask = nullptr );
                 virtual void Execute( TaskPoseStack& poseStack ) const override;
 
-                #if KRG_DEBUG_INSTRUMENTATION
+                #if KRG_DEVELOPMENT_TOOLS
                 virtual String GetDebugText() const override { return String().sprintf( "Blend Task: %.2f", m_blendWeight ); }
                 virtual S32 GetDependencyCount() const { return 2; }
                 virtual Color GetDebugColor() const { return Colors::Red; }

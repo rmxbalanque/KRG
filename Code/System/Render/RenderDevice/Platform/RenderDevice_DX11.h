@@ -29,7 +29,7 @@ namespace KRG
 
             bool IsInitialized() const;
             bool Initialize();
-            bool Shutdown();
+            void Shutdown();
 
             // Device locking: required since we create/destroy resources while rendering
             //-------------------------------------------------------------------------

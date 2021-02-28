@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG { class Entity; }
+namespace KRG { class Entity; class TaskSystem; }
 namespace KRG::TypeSystem { class TypeRegistry; }
 
 //-------------------------------------------------------------------------
@@ -23,6 +23,8 @@ namespace KRG::EntityModel
 
     class KRG_SYSTEM_ENTITY_API EntityCollection
     {
+        // Instantiate a single entity from a descriptor
+        static Entity* CreateEntityFromDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc );
 
     public:
 
@@ -52,11 +54,21 @@ namespace KRG::EntityModel
         // Remove an entity from this collection
         void RemoveEntity( UUID entityID );
 
-    private:
+    protected:
 
-        Entity* CreateEntityFromDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc );
+        // Creates all entities from a descriptor on a single thread.
+        void CreateAllEntitiesSequential( TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionDescriptor const& entityCollectionTemplate );
 
-    private:
+        // Creates all entities from a descriptor using multiple threads, blocks until complete
+        void CreateAllEntitiesParallel( TaskSystem& taskSystem, TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionDescriptor const& entityCollectionTemplate );
+        
+        // Resolves all inter-entity attachments
+        void ResolveEntitySpatialAttachments( EntityCollectionDescriptor const& entityCollectionTemplate );
+
+        // Destroy all created entity instances
+        void DestroyAllEntities();
+
+    protected:
 
         UUID                                                        m_ID;
         TVector<Entity*>                                            m_entities;

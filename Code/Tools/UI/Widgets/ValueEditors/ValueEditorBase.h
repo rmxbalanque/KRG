@@ -1,6 +1,6 @@
 #pragma once
 #include "../../_Module/API.h"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 #include "System/Core/Types/ScopedValue.h"
 #include "QWidget"
 #include "QPushButton"

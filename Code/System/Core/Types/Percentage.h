@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Time.h"
+#include "../_Module/API.h"
+#include "System/Core/Serialization/Serialization.h"
+#include "System/Core/Math/Math.h"
 
 //-------------------------------------------------------------------------
 

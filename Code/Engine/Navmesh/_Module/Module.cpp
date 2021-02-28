@@ -8,7 +8,9 @@ namespace KRG::Navmesh
 {
     bool EngineModule::Initialize( ModuleContext& context )
     {
-        m_navmeshSystem.Initialize();
+        auto pDebugDrawingSystem = context.GetSystem<Debug::DrawingSystem>();
+        KRG_ASSERT( pDebugDrawingSystem != nullptr );
+        m_navmeshSystem.Initialize( pDebugDrawingSystem );
 
         //-------------------------------------------------------------------------
 
@@ -17,11 +19,11 @@ namespace KRG::Navmesh
         //-------------------------------------------------------------------------
 
         context.RegisterSystem( m_navmeshSystem );
-        context.RegisterGlobalSystem( &m_navmeshSystem );
+        context.RegisterWorldSystem( &m_navmeshWorldSystem );
 
         //-------------------------------------------------------------------------
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         m_navmeshDebugViewController.Initialize();
         context.RegisterDebugView( &m_navmeshDebugViewController );
         #endif
@@ -36,14 +38,14 @@ namespace KRG::Navmesh
     {
         if ( m_initialized )
         {
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             context.UnregisterDebugView( &m_navmeshDebugViewController );
             m_navmeshDebugViewController.Shutdown();
             #endif
 
             //-------------------------------------------------------------------------
 
-            context.UnregisterGlobalSystem( &m_navmeshSystem );
+            context.UnregisterWorldSystem( &m_navmeshWorldSystem );
             context.UnregisterSystem( m_navmeshSystem );
 
             //-------------------------------------------------------------------------

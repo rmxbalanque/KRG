@@ -273,7 +273,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         void AABBTree::DrawDebug( Debug::DrawingContext& drawingContext ) const
         {
             if ( m_rootNodeIdx == InvalidIndex )

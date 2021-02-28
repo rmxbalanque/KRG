@@ -263,7 +263,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         void ViewVolume::DrawDebug( Debug::DrawingContext& drawingContext ) const
         {
             Vector corners[8];

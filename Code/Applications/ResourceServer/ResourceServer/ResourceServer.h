@@ -28,7 +28,7 @@ namespace KRG
             {
                 explicit ClientRecord( U64 clientID ) : m_clientID( clientID ) { KRG_ASSERT( clientID != 0 ); }
 
-                Seconds                             m_lastUpdateTime = Seconds::Now();
+                Seconds                             m_lastUpdateTime = SystemClock::GetTimeInSeconds();
                 U64                                 m_clientID = 0;
             };
 

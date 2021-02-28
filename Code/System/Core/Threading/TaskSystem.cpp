@@ -2,7 +2,6 @@
 #include "Threading.h"
 #include "System/Core/Math/Math.h"
 #include "System/Core/Memory/Memory.h"
-#include "System/Core/Platform/ProcessorInfo.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
@@ -41,7 +40,7 @@ namespace KRG
     TaskSystem::TaskSystem()
     {
         // Get number of worker threads that we should create (excluding main thread)
-        auto const processorInfo = Platform::GetProcessorInfo();
+        auto const processorInfo = Threading::GetProcessorInfo();
         const_cast<U32&>( m_numWorkers ) = processorInfo.m_numPhysicalCores - 1;
         KRG_ASSERT( m_numWorkers >= 0 );
     }

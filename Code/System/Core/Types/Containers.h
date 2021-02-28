@@ -1,6 +1,5 @@
 #pragma once
 
-#include "System/Core/Core.h"
 #include "System/Core/Memory/Memory.h"
 #include <EASTL/vector.h>
 #include <EASTL/array.h>
@@ -221,35 +220,5 @@ namespace KRG
         {
             vector.emplace_back( item );
         }
-    }
-
-    //-------------------------------------------------------------------------
-
-    template<typename T>
-    inline void VectorEraseUnsorted( TVector<T>& vector, size_t indexToErase )
-    {
-        KRG_ASSERT( indexToErase < vector.size() );
-
-        auto const lastElementIndex = ( vector.size() - 1 );
-        if ( indexToErase != lastElementIndex )
-        {
-            vector[indexToErase] = eastl::move( vector[lastElementIndex] );
-        }
-
-        vector.pop_back();
-    }
-
-    template<typename T, eastl_size_t S>
-    inline void VectorEraseUnsorted( TInlineVector<T,S>& vector, size_t indexToErase )
-    {
-        KRG_ASSERT( indexToErase < vector.size() );
-
-        auto const lastElementIndex = ( vector.size() - 1 );
-        if ( indexToErase != lastElementIndex )
-        {
-            vector[indexToErase] = eastl::move( vector[lastElementIndex] );
-        }
-
-        vector.pop_back();
     }
 }

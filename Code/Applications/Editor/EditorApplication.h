@@ -4,7 +4,7 @@
 #include "Tools/UI/Application/Application.h"
 #include "Tools/UI/Application/Window.h"
 #include "System/TypeSystem/TypeRegistry.h"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 #include <DockManager.h>
 
 //-------------------------------------------------------------------------

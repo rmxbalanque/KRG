@@ -65,6 +65,7 @@
   <ItemGroup>
     <ClInclude Include="Components\NavmeshComponent.h" />
     <ClInclude Include="Debug\NavmeshDebugViewController.h" />
+    <ClInclude Include="NavmeshWorldSystem.h" />
     <ClInclude Include="NavmeshData.h" />
     <ClInclude Include="NavmeshSystem.h" />
     <ClInclude Include="NavPower.h" />
@@ -75,6 +76,7 @@
   <ItemGroup>
     <ClCompile Include="Components\NavmeshComponent.cpp" />
     <ClCompile Include="Debug\NavmeshDebugViewController.cpp" />
+    <ClCompile Include="NavmeshWorldSystem.cpp" />
     <ClCompile Include="NavmeshData.cpp" />
     <ClCompile Include="NavmeshSystem.cpp" />
     <ClCompile Include="NavPower.cpp" />

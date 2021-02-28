@@ -23,7 +23,7 @@ namespace KRG
             // Add at least one pose
             m_poses.emplace_back( Pose( m_pSkeleton ) );
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             m_firstFreeDebugBuffer = 0;
             for ( auto i = 0; i < g_numDebugBuffers; i++ )
             {
@@ -42,7 +42,7 @@ namespace KRG
                 pose.ClearGlobalTransforms();
             }
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             m_firstFreeDebugBuffer = 0;
             #endif
         }
@@ -78,7 +78,7 @@ namespace KRG
             return &m_poses[m_firstFreePose];
         }
 
-        #if KRG_DEBUG_INSTRUMENTATION
+        #if KRG_DEVELOPMENT_TOOLS
         void TaskPoseStack::RecordDebugPose( Pose const* pPose )
         {
             if ( !m_isPoseDebuggingEnabled )

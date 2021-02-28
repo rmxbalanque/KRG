@@ -2,6 +2,7 @@
 
 #include "_Module/API.h"
 #include "System/Core/Types/Percentage.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 

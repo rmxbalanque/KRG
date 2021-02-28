@@ -4,7 +4,7 @@
 #include "System/Render/DebugRenderer/DebugRenderStates.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
 #include "System/Render/IRenderer.h"
-#include "System/Entity/EntityGlobalSystem.h"
+#include "System/Entity/EntityWorldSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ namespace physx
 
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Physics
 {
     class PhysicsSystem;
@@ -32,7 +32,7 @@ namespace KRG::Physics
     public:
 
         bool IsInitialized() const { return m_initialized; }
-        bool Initialize( Render::RenderDevice* pRenderDevice, Physics::PhysicsSystem* pPhysicsWorld );
+        bool Initialize( Render::RenderDevice* pRenderDevice, PhysicsSystem* pPhysicsSystem );
         void Shutdown();
         void Render( Math::Viewport const& viewport ) override final;
 
@@ -46,7 +46,7 @@ namespace KRG::Physics
     private:
 
         Render::RenderDevice*                       m_pRenderDevice = nullptr;
-        Physics::PhysicsSystem*                      m_pPhysicsWorld = nullptr;
+        PhysicsSystem*                              m_pPhysicsSystem = nullptr;
 
         Render::DebugLineRenderState                m_lineRS;
         Render::DebugPointRenderState               m_pointRS;

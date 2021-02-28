@@ -3,7 +3,7 @@
 #include "Tools/UI/_Module/API.h"
 #include "Tools/UI/Fonts/ForkAwesome.h"
 #include "Tools/UI/Fonts/MaterialDesign.h"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 
 #include <QColor>
 #include <QLabel>

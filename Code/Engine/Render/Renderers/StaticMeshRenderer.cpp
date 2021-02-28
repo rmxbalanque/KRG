@@ -16,7 +16,7 @@ namespace KRG
     {
         namespace Settings
         {
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             static DebugSettingBool g_showStaticMeshBounds( "ShowStaticMeshBounds", "Rendering/Static Meshes", "", false );
             #endif
         }
@@ -201,7 +201,7 @@ namespace KRG
                 if ( mobilityListIdx != InvalidIndex )
                 {
                     realMobility = ( realMobility == Mobility::Dynamic ) ? Mobility::Static : Mobility::Dynamic;
-                    VectorEraseUnsorted( m_mobilityUpdateList, mobilityListIdx );
+                    m_mobilityUpdateList.erase_unsorted( m_mobilityUpdateList.begin() + mobilityListIdx );
                 }
 
                 // Remove from the relevant runtime list
@@ -255,7 +255,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             if ( Settings::g_showStaticMeshBounds )
             {
                 Debug::DrawingContext drawCtx = ctx.GetDrawingContext();

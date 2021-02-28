@@ -16,7 +16,7 @@
 //
 //-------------------------------------------------------------------------
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
     class KRG_SYSTEM_CORE_API DebugSetting : public Setting

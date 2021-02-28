@@ -544,8 +544,8 @@ namespace KRG
                                 }
                             }
 
-                            VectorEraseUnsorted( vert.m_boneWeights, smallestWeightIdx );
-                            VectorEraseUnsorted( vert.m_boneIndices, smallestWeightIdx );
+                            vert.m_boneWeights.erase_unsorted( vert.m_boneWeights.begin() + smallestWeightIdx );
+                            vert.m_boneIndices.erase_unsorted( vert.m_boneIndices.begin() + smallestWeightIdx );
                         }
 
                         vertexInfluencesReduced = true;

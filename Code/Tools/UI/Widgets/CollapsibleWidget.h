@@ -1,6 +1,6 @@
 #pragma once
 
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 #include "QFrame"
 #include "QWidget"
 #include "QPolygon"

@@ -6,6 +6,6 @@ namespace KRG::EntityModel
 {
     bool EntityMapDescriptor::IsValid() const
     {
-        return m_collectionTemplate.IsValid();
+        return m_collectionDescriptor.IsValid();
     }
 }

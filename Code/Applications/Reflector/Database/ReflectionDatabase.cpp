@@ -1,8 +1,8 @@
 #if _WIN32
 #include "ReflectionDatabase.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "System/Core/Logging/Log.h"
 #include "System/TypeSystem/TypeRegistry.h"
+#include "System/Core/Logging/Log.h"
 #include <sqlite3.h>
 
 //-------------------------------------------------------------------------
@@ -252,7 +252,7 @@ namespace KRG
                 {
                     if ( m_typeDescs[j].m_headerID == headerID )
                     {
-                        VectorEraseUnsorted( m_typeDescs, j );
+                        m_typeDescs.erase_unsorted( m_typeDescs.begin() + j );
                     }
                 }
 
@@ -260,7 +260,7 @@ namespace KRG
                 {
                     if ( m_resourceDescs[j].m_headerID == headerID )
                     {
-                        VectorEraseUnsorted( m_resourceDescs, j );
+                        m_resourceDescs.erase_unsorted( m_resourceDescs.begin() + j );
                     }
                 }
             }
@@ -273,7 +273,7 @@ namespace KRG
                     if ( eastl::find( registeredHeaders.begin(), registeredHeaders.end(), hdrID ) == registeredHeaders.end() )
                     {
                         DeleteTypesForHeader( hdrID );
-                        VectorEraseUnsorted( m_headerDescs, i );
+                        m_headerDescs.erase_unsorted( m_headerDescs.begin() + i );
                     }
                 }
             }
@@ -285,7 +285,7 @@ namespace KRG
                     auto const prjID = m_projectDescs[i].m_ID;
                     if ( eastl::find_if( registeredProjects.begin(), registeredProjects.end(), [prjID] ( ProjectDesc const& desc )->bool { return desc.m_ID == prjID; } ) == registeredProjects.end() )
                     {
-                        VectorEraseUnsorted( m_projectDescs, i );
+                        m_projectDescs.erase_unsorted( m_projectDescs.begin() + i );
                     }
                 }
             }

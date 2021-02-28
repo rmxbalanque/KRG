@@ -1,6 +1,6 @@
 #pragma once
 #include "QTreeView"
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "QSortFilterProxyModel"
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "System/Core/Core.h"
+#include "System/Core/Core/IntegralTypes.h"
 
-#if KRG_DEBUG_INSTRUMENTATION
+#if KRG_DEVELOPMENT_TOOLS
 
 //-------------------------------------------------------------------------
 

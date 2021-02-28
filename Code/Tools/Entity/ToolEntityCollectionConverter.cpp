@@ -116,7 +116,7 @@ namespace KRG::EntityModel
                 if ( !components[i].m_pComponent->IsSpatialComponent() )
                 {
                     pCreatedEntity->AddComponent( components[i].m_pComponent );
-                    VectorEraseUnsorted( components, i );
+                    components.erase_unsorted( components.begin() + i );
                 }
                 else // Spatial component
                 {
@@ -132,7 +132,7 @@ namespace KRG::EntityModel
                         if ( components[p].m_pComponent->GetID() == components[i].m_pDesc->m_spatialParentID )
                         {
                             components[p].m_pComponent->AddChildComponent( components[i].m_pComponent );
-                            VectorEraseUnsorted( components, i );
+                            components.erase_unsorted( components.begin() + i );
                             break;
                         }
                     }
@@ -236,7 +236,7 @@ namespace KRG::EntityModel
                         if ( entities[p].m_pEntity->GetID() == entities[i].m_pDesc->m_spatialParentID )
                         {
                             entities[p].m_pEntity->AddChildEntity( entities[i].m_pEntity );
-                            VectorEraseUnsorted( entities, i );
+                            entities.erase_unsorted( entities.begin() + i );
                             parentEntityFound = true;
                             break;
                         }
@@ -253,7 +253,7 @@ namespace KRG::EntityModel
             else
             {
                 outCollection.AddEntity( entities[i].m_pEntity );
-                VectorEraseUnsorted( entities, i );
+                entities.erase_unsorted( entities.begin() + i );
             }
         }
 

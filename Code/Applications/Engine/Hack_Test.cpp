@@ -1,7 +1,6 @@
 #include "Hack_Test.h"
 #include "System/Core/Math/Random.h"
 #include "System/Core/Time/Timers.h"
-#include "System/Core/Logging/Log.h"
 #include "System/Core/Math/BVH/AABBTree.h"
 
 //-------------------------------------------------------------------------

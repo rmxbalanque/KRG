@@ -17,7 +17,7 @@ namespace KRG
     {
         namespace Settings
         {
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             static DebugSettingBool g_showSkeletalMeshBounds( "ShowSkeletalMeshBounds", "Rendering/Skeletal Meshes", "", false );
             static DebugSettingBool g_showSkeletalMeshBones( "ShowSkeletalMeshBones", "Rendering/Skeletal Meshes", "", false );
             static DebugSettingBool g_showSkeletalMeshBindPoses( "ShowSkeletalMeshBindPoses", "Rendering/Skeletal Meshes", "", false );
@@ -213,7 +213,7 @@ namespace KRG
                 // Remove empty groups
                 if ( m_meshGroups[foundGroupIdx].m_components.size() == 0 )
                 {
-                    VectorEraseUnsorted( m_meshGroups, foundGroupIdx );
+                    m_meshGroups.erase_unsorted( m_meshGroups.begin() + foundGroupIdx );
                 }
             }
         }
@@ -224,7 +224,7 @@ namespace KRG
         {
             KRG_PROFILE_FUNCTION_RENDER();
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             Debug::DrawingContext drawCtx = ctx.GetDrawingContext();
             for ( auto const& record : m_registeredComponents )
             {

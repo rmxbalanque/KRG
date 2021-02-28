@@ -3,7 +3,7 @@
 #include "System/Core/FileSystem/FileSystemPath.h"
 
 #if _WIN32
-#include "System/Core/Platform/Platform/Platform_Win32.h"
+#include "System/Core/Platform/Platform_Win32.h"
 #include <shellapi.h>
 #endif
 

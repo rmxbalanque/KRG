@@ -16,7 +16,7 @@ namespace KRG
         {
             THashMap<U32, Setting*>* pSettingsList = nullptr;
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             if ( pSetting->GetTypeID() == DebugSetting::StaticTypeID )
             {
                 pSettingsList = &m_debugSettings;

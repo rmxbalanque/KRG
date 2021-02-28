@@ -2,7 +2,7 @@
 
 #include "_Module/API.h"
 #include "EntityComponent.h"
-#include "EntityGlobalSystem.h"
+#include "EntityWorldSystem.h"
 #include "Entity.h"
 #include "Map/EntityMap.h"
 #include "System/Resource/ResourcePtr.h"
@@ -38,8 +38,8 @@ namespace KRG
         // World Systems
         //-------------------------------------------------------------------------
 
-        void RegisterGlobalSystem( IGlobalEntitySystem* pSystem );
-        void UnregisterGlobalSystem( IGlobalEntitySystem* pSystem );
+        void RegisterWorldSystem( IWorldEntitySystem* pSystem );
+        void UnregisterWorldSystem( IWorldEntitySystem* pSystem );
 
         //-------------------------------------------------------------------------
         // Map Management
@@ -65,6 +65,12 @@ namespace KRG
         // Any queued requests will be handled here as will any requests to the resource system.
         void UpdateLoading();
 
+        // Process entity registration/unregistration requests occurring during map loading
+        void ProcessEntityRegistrationRequests();
+
+        // Process component registration/unregistration requests occurring during map loading
+        void ProcessComponentRegistrationRequests();
+
         //-------------------------------------------------------------------------
         // Events
         //-------------------------------------------------------------------------
@@ -73,18 +79,11 @@ namespace KRG
 
     private:
 
-        void RegisterEntityUpdate( Entity* pEntity );
-        void UnregisterEntityUpdate( Entity* pEntity );
-
-        void RegisterComponentWithGlobalSystems( Entity* pEntity, EntityComponent* pComponent );
-        void UnregisterComponentFromGlobalSystems( Entity* pEntity, EntityComponent* pComponent );
-
-    private:
-
         SystemRegistry const*                                       m_pSystemsRegistry = nullptr;
         TaskSystem*                                                 m_pTaskSystem = nullptr;
         EntityModel::LoadingContext                                 m_loadingContext;
-        TVector<IGlobalEntitySystem*>                               m_globalSystems;
+        EntityModel::ActivationContext                              m_activationContext;
+        TVector<IWorldEntitySystem*>                                m_worldSystems;
 
         // Events
         TMultiUserEventInternal<EntityModel::EntityMap*>            m_createPersistentEntitiesEvent;
@@ -94,8 +93,8 @@ namespace KRG
 
         // Entities
         THashMap<UUID, Entity*>                                     m_entityLookupMap;
-        TVector<Entity*>                                            m_entityUpdateLists[(S8) UpdateStage::NumStages];
-        TVector<IGlobalEntitySystem*>                               m_systemUpdateLists[(S8) UpdateStage::NumStages];
+        TVector<Entity*>                                            m_entityUpdateList;
+        TVector<IWorldEntitySystem*>                                m_systemUpdateLists[(S8) UpdateStage::NumStages];
         bool                                                        m_initialized = false;
     };
 }

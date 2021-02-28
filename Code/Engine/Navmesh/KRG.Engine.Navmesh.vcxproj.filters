@@ -31,6 +31,7 @@
     <ClCompile Include="NavPower.cpp" />
     <ClCompile Include="ResourceLoaders\NavmeshLoader.cpp" />
     <ClCompile Include="NavmeshData.cpp" />
+    <ClCompile Include="NavmeshWorldSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\NavmeshDebugViewController.h">
@@ -49,5 +50,6 @@
     <ClInclude Include="NavPower.h" />
     <ClInclude Include="ResourceLoaders\NavmeshLoader.h" />
     <ClInclude Include="NavmeshData.h" />
+    <ClInclude Include="NavmeshWorldSystem.h" />
   </ItemGroup>
 </Project>

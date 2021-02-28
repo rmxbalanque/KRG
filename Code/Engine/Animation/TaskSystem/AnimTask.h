@@ -19,7 +19,7 @@ namespace KRG
             virtual void Execute( TaskPoseStack& poseStack ) const = 0;
             virtual bool IsPostPhysicsTask() const { return false; }
 
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             virtual S32 GetDependencyCount() const { return 0; }
             virtual Color GetDebugColor() const { return Colors::Yellow; }
             virtual String GetDebugText() const { return String(); }

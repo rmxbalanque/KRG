@@ -24,7 +24,7 @@ namespace KRG::Physics
     {
         KRG_REGISTER_ENTITY_COMPONENT;
 
-        friend class PhysicsSystem;
+        friend class PhysicsWorldSystem;
 
     protected:
 

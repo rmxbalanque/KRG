@@ -5,7 +5,7 @@
 #include "System/Render/RenderDevice/RenderDeviceSettings.h"
 #include "System/Core/Settings/ConfigSettings.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "System/Core/Platform/Platform/Platform_Win32.h"
+#include "System/Core/Platform/Platform_Win32.h"
 #include "System/Core/Time/Timers.h"
 
 //-------------------------------------------------------------------------
@@ -336,13 +336,13 @@ namespace KRG
 
             case WM_SETFOCUS:
             {
-                m_inputSystem.ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
             case WM_KILLFOCUS:
             {
-                m_inputSystem.ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
@@ -365,7 +365,7 @@ namespace KRG
             case WM_CHAR:
             case WM_MOUSEMOVE:
             {
-                m_inputSystem.ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
@@ -385,10 +385,10 @@ namespace KRG
             break;
         }
 
-        // Imgui specific message processing
+        // ImGui specific message processing
         //-------------------------------------------------------------------------
 
-        auto const imguiResult = m_imguiSystem.ImguiWndProcess( hWnd, message, wParam, lParam );
+        auto const imguiResult = m_pImguiSystem->ImguiWndProcess( hWnd, message, wParam, lParam );
         if ( imguiResult != 0 )
         {
             return imguiResult;

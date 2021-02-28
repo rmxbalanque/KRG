@@ -2,7 +2,7 @@
 
 #include "Tools/Core/_Module/API.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
-#include "System/Core/Types/Time.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 // Basic Win32 File System Watcher
@@ -43,7 +43,7 @@ namespace KRG
                 FileModificationEvent( FileSystemPath const& path ) : m_path( path ) { KRG_ASSERT( path.IsValid() && path.IsFilePath() ); }
 
                 FileSystemPath      m_path;
-                Milliseconds        m_startTime = Milliseconds::Now();
+                Milliseconds        m_startTime = SystemClock::GetTimeInMilliseconds();
             };
 
         public:

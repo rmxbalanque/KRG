@@ -13,7 +13,7 @@ namespace KRG
     {
         namespace Settings
         {
-            #if KRG_DEBUG_INSTRUMENTATION
+            #if KRG_DEVELOPMENT_TOOLS
             static DebugSettingBool g_showCompressionStats( "ShowCompressionStats", "Animation/Show Compression Stats", "", true );
             #endif
         }

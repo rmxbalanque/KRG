@@ -1,186 +1,226 @@
 #include "ImguiSystemBase.h"
+#include "ImguiFont.h"
 #include "System/Render/Fonts/FontDecompressor.h"
 #include "System/Render/Fonts/FontData_ProggyTiny.h"
-#include "System/Render/Fonts/FontData_PixelCarnage.h"
+#include "System/Render/Fonts/FontData_ProggyClean.h"
 #include "System/Render/Fonts/FontData_Roboto.h"
 #include "System/Render/Fonts/FontData_FontAwesome4.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::ImGuiX
 {
-    namespace ImGuiX
+    bool ImguiSystemBase::Initialize()
     {
-        ImFont* SystemBase::SystemFonts[(U8) Font::NumFonts] = { nullptr };
+        ImGui::CreateContext();
 
         //-------------------------------------------------------------------------
 
-        bool SystemBase::Initialize()
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        //-------------------------------------------------------------------------
+
+        InitializePlatform();
+        InitializeFonts();
+        InitializeStyle();
+
+        return true;
+    }
+
+    void ImguiSystemBase::Shutdown()
+    {
+        for ( int i = 0; i < (S8) Font::NumFonts; i++ )
         {
-            ImGui::CreateContext();
-
-            //-------------------------------------------------------------------------
-
-            ImGuiIO& io = ImGui::GetIO();
-            io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-            //-------------------------------------------------------------------------
-
-            InitializePlatform();
-            InitializeFonts();
-            InitializeStyle();
-
-            return true;
+            SystemFonts::s_fonts[i] = nullptr;
         }
 
-        void SystemBase::Shutdown()
-        {
-            for ( int i = 0; i < (S8) Font::NumFonts; i++ )
-            {
-                SystemFonts[i] = nullptr;
-            }
+        ImGui::DestroyContext();
+    }
 
-            ImGui::DestroyContext();
+    void ImguiSystemBase::StartFrame( float deltaTime )
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.DeltaTime = deltaTime;
+
+        //-------------------------------------------------------------------------
+
+        UpdateDisplayInformation();
+        UpdateKeyStates();
+        UpdateMousePosition();
+
+        //-------------------------------------------------------------------------
+
+        ImGuiMouseCursor newMouseCursorState = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
+        if ( m_lastMouseCursorState != newMouseCursorState )
+        {
+            m_lastMouseCursorState = newMouseCursorState;
+            UpdateMouseCursor();
         }
 
-        void SystemBase::Update( float deltaTime )
-        {
-            ImGui::NewFrame();
+        //-------------------------------------------------------------------------
 
-            //-------------------------------------------------------------------------
+        ImGui::NewFrame();
+    }
 
-            ImGuiIO& io = ImGui::GetIO();
-            io.DeltaTime = deltaTime;
+    void ImguiSystemBase::EndFrame()
+    {
+        ImGui::EndFrame();
+    }
 
-            //-------------------------------------------------------------------------
+    void ImguiSystemBase::InitializeFonts()
+    {
+        ImGuiIO& io = ImGui::GetIO();
 
-            UpdateDisplayInformation();
-            UpdateKeyStates();
-            UpdateMousePosition();
+        //-------------------------------------------------------------------------
 
-            //-------------------------------------------------------------------------
+        TVector<Byte> fontAwesomeCompressedData, fontAwesomeData;
+        Fonts::FontAwesome4::GetFontCompressedData( fontAwesomeCompressedData );
+        Fonts::GetDecompressedFontData( fontAwesomeCompressedData.data(), fontAwesomeData );
+        ImWchar const icons_ranges[] = { KRG_ICON_MIN_FA, KRG_ICON_MAX_FA, 0 };
 
-            ImGuiMouseCursor newMouseCursorState = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
-            if ( m_lastMouseCursorState != newMouseCursorState )
-            {
-                m_lastMouseCursorState = newMouseCursorState;
-                UpdateMouseCursor();
-            }
-        }
+        TVector<Byte> fontData;
+        ImFontConfig fontConfig;
+        fontConfig.FontDataOwnedByAtlas = false;
 
-        void SystemBase::InitializeFonts()
-        {
-            ImGuiIO& io = ImGui::GetIO();
+        ImFontConfig iconFontConfig;
+        iconFontConfig.FontDataOwnedByAtlas = false;
+        iconFontConfig.MergeMode = true;
+        iconFontConfig.PixelSnapH = true;
 
-            //-------------------------------------------------------------------------
+        // Create default fonts for IMGUI
+        //-------------------------------------------------------------------------
 
-            TVector<Byte> fontAwesomeCompressedData, fontAwesomeData;
-            Fonts::FontAwesome4::GetFontCompressedData( fontAwesomeCompressedData );
-            Fonts::GetDecompressedFontData( fontAwesomeCompressedData.data(), fontAwesomeData );
-            ImWchar const icons_ranges[] = { Fonts::FontAwesome4::ICON_RANGE_START, Fonts::FontAwesome4::ICON_RANGE_END, 0 };
+        Fonts::GetDecompressedFontData( Fonts::ProggyTiny::GetFontCompressedData(), fontData );
+        fontConfig.GlyphOffset = ImVec2( 0, 0 );
+        ImFont* pSmallFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 10, &fontConfig );
+        SystemFonts::s_fonts[(U8) Font::Small] = pSmallFont;
 
-            TVector<Byte> fontCompressedData, fontData;
-            ImFontConfig fontConfig;
-            fontConfig.FontDataOwnedByAtlas = false;
+        iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
+        iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 12.0f;
+        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 10.0f, &iconFontConfig, icons_ranges );
 
-            ImFontConfig iconFontConfig;
-            iconFontConfig.FontDataOwnedByAtlas = false;
-            iconFontConfig.MergeMode = true;
-            iconFontConfig.PixelSnapH = true;
+        //-------------------------------------------------------------------------
 
-            // Create default fonts for IMGUI
-            //-------------------------------------------------------------------------
+        Fonts::GetDecompressedFontData( Fonts::ProggyClean::GetFontCompressedData(), fontData );
+        fontConfig.GlyphOffset = ImVec2( 0, 0 );
+        ImFont* pMediumFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 13, &fontConfig );
+        SystemFonts::s_fonts[(U8) Font::Medium] = pMediumFont;
 
-            Fonts::GetDecompressedFontData( Fonts::ProggyTiny::GetFontCompressedData(), fontData );
-            fontConfig.GlyphOffset = ImVec2( 0, 1 );
-            ImFont* pSmallFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 10, &fontConfig );
-            iconFontConfig.GlyphOffset = ImVec2( 0, 3 );
-            iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 18.0f;
-            io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 16.0f, &iconFontConfig, icons_ranges );
-            SystemFonts[(U8) Font::Small] = pSmallFont;
+        iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
+        iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 13.0f;
+        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 11.0f, &iconFontConfig, icons_ranges );
 
-            Fonts::GetDecompressedFontData( Fonts::PixelCarnage::GetFontCompressedData(), fontData );
-            fontConfig.GlyphOffset = ImVec2( 0, -1 );
-            ImFont* pMediumFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 16, &fontConfig );
-            iconFontConfig.GlyphOffset = ImVec2( 0, -3 );
-            iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 20.0f;
-            io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 18.0f, &iconFontConfig, icons_ranges );
-            SystemFonts[(U8) Font::Medium] = pMediumFont;
+        //-------------------------------------------------------------------------
 
-            Fonts::Roboto::GetFontCompressedData( fontCompressedData );
-            Fonts::GetDecompressedFontData( fontCompressedData.data(), fontData );
-            fontConfig.GlyphOffset = ImVec2( 0, 0 );
-            ImFont* pLargeFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 24, &fontConfig );
-            iconFontConfig.GlyphOffset = ImVec2( 0, 1 );
-            iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 26.0f;
-            io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 24.0f, &iconFontConfig, icons_ranges );
-            SystemFonts[(U8) Font::Large] = pLargeFont;
-        }
+        TVector<Byte> fontCompressedData;
+        Fonts::Roboto::GetFontCompressedData( fontCompressedData );
+        Fonts::GetDecompressedFontData( fontCompressedData.data(), fontData );
 
-        void SystemBase::InitializeStyle()
-        {
-            ImGuiStyle& style = ImGui::GetStyle();
-            style.Colors[ImGuiCol_Text] = ImVec4( 0.90f, 0.90f, 0.90f, 1.00f );
-            style.Colors[ImGuiCol_TextDisabled] = ImVec4( 0.60f, 0.60f, 0.60f, 1.00f );
-            style.Colors[ImGuiCol_WindowBg] = ImVec4( 0.24f, 0.24f, 0.24f, 1.00f );
-            style.Colors[ImGuiCol_ChildBg] = ImVec4( 0.24f, 0.24f, 0.24f, 1.00f );
-            style.Colors[ImGuiCol_PopupBg] = ImVec4( 0.05f, 0.05f, 0.10f, 0.90f );
-            style.Colors[ImGuiCol_Border] = ImVec4( 0.70f, 0.70f, 0.70f, 0.65f );
-            style.Colors[ImGuiCol_BorderShadow] = ImVec4( 0.00f, 0.00f, 0.00f, 0.00f );
-            style.Colors[ImGuiCol_FrameBg] = ImVec4( 0.44f, 0.44f, 0.44f, 1.00f );
-            style.Colors[ImGuiCol_FrameBgHovered] = ImVec4( 0.47f, 0.47f, 0.47f, 0.40f );
-            style.Colors[ImGuiCol_FrameBgActive] = ImVec4( 0.47f, 0.47f, 0.47f, 1.00f );
-            style.Colors[ImGuiCol_TitleBg] = ImVec4( 0.33f, 0.33f, 0.33f, 1.00f );
-            style.Colors[ImGuiCol_TitleBgActive] = ImVec4( 0.37f, 0.37f, 0.37f, 1.00f );
-            style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4( 0.33f, 0.33f, 0.33f, 1.00f );
-            style.Colors[ImGuiCol_MenuBarBg] = ImVec4( 0.34f, 0.34f, 0.34f, 1.00f );
-            style.Colors[ImGuiCol_ScrollbarBg] = ImVec4( 0.24f, 0.24f, 0.24f, 1.00f );
-            style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4( 0.69f, 0.69f, 0.69f, 1.00f );
-            style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4( 0.65f, 0.65f, 0.65f, 1.00f );
-            style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4( 0.59f, 0.59f, 0.59f, 1.00f );
-            style.Colors[ImGuiCol_CheckMark] = ImColor( 0, 200, 0, 255 );
-            style.Colors[ImGuiCol_SliderGrab] = ImVec4( 1.00f, 1.00f, 1.00f, 0.30f );
-            style.Colors[ImGuiCol_SliderGrabActive] = ImColor( 0, 200, 0, 255 );
-            style.Colors[ImGuiCol_Button] = ImColor( 112, 112, 112, 255 );
-            style.Colors[ImGuiCol_ButtonHovered] = ImColor( 135, 135, 135, 255 );
-            style.Colors[ImGuiCol_ButtonActive] = ImColor( 170, 170, 170, 255 );
-            style.Colors[ImGuiCol_Header] = ImVec4( 0.47f, 0.47f, 0.47f, 1.00f );
-            style.Colors[ImGuiCol_HeaderHovered] = ImVec4( 0.45f, 0.45f, 0.45f, 1.00f );
-            style.Colors[ImGuiCol_HeaderActive] = ImVec4( 0.45f, 0.45f, 0.45f, 1.00f );
-            style.Colors[ImGuiCol_Separator] = ImVec4( 0.50f, 0.50f, 0.50f, 1.00f );
-            style.Colors[ImGuiCol_SeparatorHovered] = ImVec4( 0.70f, 0.60f, 0.60f, 1.00f );
-            style.Colors[ImGuiCol_SeparatorActive] = ImVec4( 0.90f, 0.70f, 0.70f, 1.00f );
-            style.Colors[ImGuiCol_ResizeGrip] = ImVec4( 1.00f, 1.00f, 1.00f, 0.30f );
-            style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4( 1.00f, 1.00f, 1.00f, 0.60f );
-            style.Colors[ImGuiCol_ResizeGripActive] = ImVec4( 1.00f, 1.00f, 1.00f, 0.90f );
-            style.Colors[ImGuiCol_Tab] = ImVec4( 1.00f, 1.00f, 1.00f, 0.30f );
-            style.Colors[ImGuiCol_TabHovered] = ImColor( 30, 185, 0, 255 );
-            style.Colors[ImGuiCol_TabActive] = ImColor( 30, 160, 0, 255 );
-            style.Colors[ImGuiCol_TabUnfocused] = ImVec4( 1.00f, 1.00f, 1.00f, 0.30f );
-            style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4( 1.00f, 1.00f, 1.00f, 0.60f );
-            style.Colors[ImGuiCol_PlotLines] = ImVec4( 1.00f, 1.00f, 1.00f, 1.00f );
-            style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
-            style.Colors[ImGuiCol_PlotHistogram] = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
-            style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4( 1.00f, 0.60f, 0.00f, 1.00f );
-            style.Colors[ImGuiCol_TextSelectedBg] = ImVec4( 0.16f, 0.16f, 0.16f, 0.71f );
+        fontConfig.GlyphOffset = ImVec2( 0, 0 );
+        ImFont* pLargeFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 18, &fontConfig );
+        SystemFonts::s_fonts[(U8) Font::Large] = pLargeFont;
 
-            style.Colors[ImGuiCol_DragDropTarget] = ImVec4( 0.16f, 0.16f, 0.16f, 0.71f );
-            style.Colors[ImGuiCol_NavHighlight] = ImVec4( 0.16f, 0.16f, 0.16f, 0.71f );
-            style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4( 0.16f, 0.16f, 0.16f, 0.71f );
-            style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4( 0.20f, 0.20f, 0.20f, 0.35f );
-            style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4( 0.20f, 0.20f, 0.20f, 0.35f );
+        iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
+        iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 18.0f;
+        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 16.0f, &iconFontConfig, icons_ranges );
 
-            style.WindowPadding = Float2( 8, 8 );
-            style.WindowRounding = 0;
-            style.WindowBorderSize = 0;
-            style.ChildRounding = 0;
-            style.FramePadding = Float2( 3, 3 );
-            style.FrameRounding = 0;
-            style.ItemSpacing = Float2( 4, 4 );
-            style.ScrollbarRounding = 0;
-            style.GrabRounding = 0;
-            style.GrabMinSize = 8;
-        }
+        //-------------------------------------------------------------------------
+
+        fontConfig.GlyphOffset = ImVec2( 0, 0 );
+        ImFont* pExtraLargeFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 24, &fontConfig );
+        SystemFonts::s_fonts[(U8) Font::ExtraLarge] = pExtraLargeFont;
+
+        iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
+        iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 24.0f;
+        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 20.0f, &iconFontConfig, icons_ranges );
+
+        // Build font atlas
+        //-------------------------------------------------------------------------
+
+        io.Fonts->Build();
+
+        #if KRG_DEVELOPMENT_TOOLS
+        KRG_ASSERT( pSmallFont->IsLoaded() );
+        KRG_ASSERT( pMediumFont->IsLoaded() );
+        KRG_ASSERT( pLargeFont->IsLoaded() );
+        KRG_ASSERT( pExtraLargeFont->IsLoaded() );
+        #endif
+    }
+
+    void ImguiSystemBase::InitializeStyle()
+    {
+        ImGuiStyle& style = ImGui::GetStyle();
+        ImVec4* colors = ImGui::GetStyle().Colors;
+        colors[ImGuiCol_Text] = ImVec4( 0.90f, 0.90f, 0.90f, 1.00f );
+        colors[ImGuiCol_TextDisabled] = ImVec4( 0.60f, 0.60f, 0.60f, 1.00f );
+        colors[ImGuiCol_WindowBg] = ImVec4( 0.24f, 0.24f, 0.24f, 1.00f );
+        colors[ImGuiCol_ChildBg] = ImVec4( 0.24f, 0.24f, 0.24f, 1.00f );
+        colors[ImGuiCol_PopupBg] = ImVec4( 0.05f, 0.05f, 0.10f, 0.90f );
+        colors[ImGuiCol_Border] = ImVec4( 0.70f, 0.70f, 0.70f, 0.65f );
+        colors[ImGuiCol_BorderShadow] = ImVec4( 0.00f, 0.00f, 0.00f, 0.00f );
+        colors[ImGuiCol_FrameBg] = ImVec4( 0.44f, 0.44f, 0.44f, 1.00f );
+        colors[ImGuiCol_FrameBgHovered] = ImVec4( 0.47f, 0.47f, 0.47f, 0.40f );
+        colors[ImGuiCol_FrameBgActive] = ImVec4( 0.47f, 0.47f, 0.47f, 1.00f );
+        colors[ImGuiCol_TitleBg] = ImVec4( 0.33f, 0.33f, 0.33f, 1.00f );
+        colors[ImGuiCol_TitleBgActive] = ImVec4( 0.37f, 0.37f, 0.37f, 1.00f );
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4( 0.33f, 0.33f, 0.33f, 1.00f );
+        colors[ImGuiCol_MenuBarBg] = ImVec4( 0.34f, 0.34f, 0.34f, 1.00f );
+        colors[ImGuiCol_ScrollbarBg] = ImVec4( 0.24f, 0.24f, 0.24f, 1.00f );
+        colors[ImGuiCol_ScrollbarGrab] = ImVec4( 0.69f, 0.69f, 0.69f, 1.00f );
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4( 0.65f, 0.65f, 0.65f, 1.00f );
+        colors[ImGuiCol_ScrollbarGrabActive] = ImVec4( 0.59f, 0.59f, 0.59f, 1.00f );
+        colors[ImGuiCol_CheckMark] = ImVec4( 0.89f, 0.90f, 0.92f, 1.00f );
+        colors[ImGuiCol_SliderGrab] = ImVec4( 0.28f, 0.28f, 0.28f, 1.00f );
+        colors[ImGuiCol_SliderGrabActive] = ImVec4( 0.36f, 0.36f, 0.36f, 1.00f );
+        colors[ImGuiCol_Button] = ImVec4( 0.44f, 0.44f, 0.44f, 1.00f );
+        colors[ImGuiCol_ButtonHovered] = ImVec4( 0.53f, 0.53f, 0.53f, 1.00f );
+        colors[ImGuiCol_ButtonActive] = ImVec4( 0.67f, 0.67f, 0.67f, 1.00f );
+        colors[ImGuiCol_Header] = ImVec4( 0.47f, 0.47f, 0.47f, 1.00f );
+        colors[ImGuiCol_HeaderHovered] = ImVec4( 0.45f, 0.45f, 0.45f, 1.00f );
+        colors[ImGuiCol_HeaderActive] = ImVec4( 0.45f, 0.45f, 0.45f, 1.00f );
+        colors[ImGuiCol_Separator] = ImVec4( 0.50f, 0.50f, 0.50f, 1.00f );
+        colors[ImGuiCol_SeparatorHovered] = ImVec4( 0.89f, 0.90f, 0.92f, 1.00f );
+        colors[ImGuiCol_SeparatorActive] = ImVec4( 0.90f, 0.90f, 0.92f, 1.00f );
+        colors[ImGuiCol_ResizeGrip] = ImVec4( 0.89f, 0.90f, 0.92f, 1.00f );
+        colors[ImGuiCol_ResizeGripHovered] = ImVec4( 0.89f, 0.90f, 0.92f, 1.00f );
+        colors[ImGuiCol_ResizeGripActive] = ImVec4( 0.89f, 0.90f, 0.92f, 1.00f );
+        colors[ImGuiCol_Tab] = ImVec4( 0.24f, 0.24f, 0.24f, 1.00f );
+        colors[ImGuiCol_TabHovered] = ImVec4( 0.46f, 0.46f, 0.46f, 1.00f );
+        colors[ImGuiCol_TabActive] = ImVec4( 0.50f, 0.50f, 0.50f, 1.00f );
+        colors[ImGuiCol_TabUnfocused] = ImVec4( 0.50f, 0.50f, 0.50f, 1.00f );
+        colors[ImGuiCol_TabUnfocusedActive] = ImVec4( 0.50f, 0.50f, 0.50f, 1.00f );
+        colors[ImGuiCol_DockingPreview] = ImVec4( 0.71f, 0.72f, 0.73f, 0.70f );
+        colors[ImGuiCol_DockingEmptyBg] = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
+        colors[ImGuiCol_PlotLines] = ImVec4( 1.00f, 1.00f, 1.00f, 1.00f );
+        colors[ImGuiCol_PlotLinesHovered] = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
+        colors[ImGuiCol_PlotHistogram] = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
+        colors[ImGuiCol_PlotHistogramHovered] = ImVec4( 1.00f, 0.60f, 0.00f, 1.00f );
+        colors[ImGuiCol_TableHeaderBg] = ImVec4( 0.19f, 0.19f, 0.20f, 1.00f );
+        colors[ImGuiCol_TableBorderStrong] = ImVec4( 0.31f, 0.31f, 0.35f, 1.00f );
+        colors[ImGuiCol_TableBorderLight] = ImVec4( 0.23f, 0.23f, 0.25f, 1.00f );
+        colors[ImGuiCol_TableRowBg] = ImVec4( 0.00f, 0.00f, 0.00f, 0.00f );
+        colors[ImGuiCol_TableRowBgAlt] = ImVec4( 1.00f, 1.00f, 1.00f, 0.06f );
+        colors[ImGuiCol_TextSelectedBg] = ImVec4( 0.16f, 0.16f, 0.16f, 0.71f );
+        colors[ImGuiCol_DragDropTarget] = ImVec4( 0.16f, 0.16f, 0.16f, 0.71f );
+        colors[ImGuiCol_NavHighlight] = ImVec4( 0.16f, 0.16f, 0.16f, 0.71f );
+        colors[ImGuiCol_NavWindowingHighlight] = ImVec4( 0.16f, 0.16f, 0.16f, 0.71f );
+        colors[ImGuiCol_NavWindowingDimBg] = ImVec4( 0.20f, 0.20f, 0.20f, 0.35f );
+        colors[ImGuiCol_ModalWindowDimBg] = ImVec4( 0.20f, 0.20f, 0.20f, 0.35f );
+
+        //-------------------------------------------------------------------------
+
+        style.WindowPadding = Float2( 8, 8 );
+        style.WindowRounding = 0;
+        style.WindowBorderSize = 0;
+        style.ChildRounding = 0;
+        style.FramePadding = Float2( 3, 3 );
+        style.FrameRounding = 0;
+        style.ItemSpacing = Float2( 4, 4 );
+        style.ScrollbarRounding = 0;
+        style.GrabRounding = 0;
+        style.GrabMinSize = 8;
+        style.TabRounding = 2;
     }
 }

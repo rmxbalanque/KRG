@@ -45,9 +45,6 @@
     <ClCompile Include="Fonts\FontData_FontAwesome4.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="Fonts\FontData_PixelCarnage.cpp">
-      <Filter>Fonts</Filter>
-    </ClCompile>
     <ClCompile Include="Fonts\FontData_ProggyTiny.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
@@ -79,6 +76,7 @@
     <ClCompile Include="RenderShader.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="RenderVertexFormats.cpp" />
+    <ClCompile Include="Fonts\FontData_ProggyClean.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugRenderer\DebugRenderer.h">
@@ -88,9 +86,6 @@
       <Filter>DebugRenderer</Filter>
     </ClInclude>
     <ClInclude Include="Fonts\FontData_FontAwesome4.h">
-      <Filter>Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="Fonts\FontData_PixelCarnage.h">
       <Filter>Fonts</Filter>
     </ClInclude>
     <ClInclude Include="Fonts\FontData_ProggyTiny.h">
@@ -150,6 +145,7 @@
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="RenderVertexFormats.h" />
+    <ClInclude Include="Fonts\FontData_ProggyClean.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">

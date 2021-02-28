@@ -12,7 +12,7 @@ namespace KRG::Navmesh
     class KRG_ENGINE_NAVMESH_API NavmeshComponent : public SpatialEntityComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT;
-        friend class NavmeshSystem;
+        friend class NavmeshWorldSystem;
 
     private:
 
