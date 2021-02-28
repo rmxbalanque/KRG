@@ -18,10 +18,28 @@
     <ClInclude Include="ResourceProviders\NetworkResourceProvider.h">
       <Filter>ResourceProviders</Filter>
     </ClInclude>
+    <ClInclude Include="IResource.h" />
+    <ClInclude Include="ResourceHeader.h" />
+    <ClInclude Include="ResourceID.h" />
+    <ClInclude Include="ResourceLoader.h" />
+    <ClInclude Include="ResourceProvider.h" />
+    <ClInclude Include="ResourcePtr.h" />
+    <ClInclude Include="ResourceRecord.h" />
+    <ClInclude Include="ResourceRequest.h" />
+    <ClInclude Include="ResourceSystem.h" />
+    <ClInclude Include="ResourceTypeID.h" />
+    <ClInclude Include="ResourceRequesterID.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceProviders\NetworkResourceProvider.cpp">
       <Filter>ResourceProviders</Filter>
     </ClCompile>
+    <ClCompile Include="ResourceID.cpp" />
+    <ClCompile Include="ResourceLoader.cpp" />
+    <ClCompile Include="ResourceProvider.cpp" />
+    <ClCompile Include="ResourceRecord.cpp" />
+    <ClCompile Include="ResourceRequest.cpp" />
+    <ClCompile Include="ResourceSystem.cpp" />
+    <ClCompile Include="ResourceTypeID.cpp" />
   </ItemGroup>
 </Project>

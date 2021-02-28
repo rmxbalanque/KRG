@@ -93,7 +93,7 @@ namespace KRG::ImGuiX
         //-------------------------------------------------------------------------
 
         Fonts::GetDecompressedFontData( Fonts::ProggyTiny::GetFontCompressedData(), fontData );
-        fontConfig.GlyphOffset = ImVec2( 0, 0 );
+        fontConfig.GlyphOffset = ImVec2( 0, 1 );
         ImFont* pSmallFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 10, &fontConfig );
         SystemFonts::s_fonts[(U8) Font::Small] = pSmallFont;
 
@@ -212,15 +212,19 @@ namespace KRG::ImGuiX
         //-------------------------------------------------------------------------
 
         style.WindowPadding = Float2( 8, 8 );
-        style.WindowRounding = 0;
-        style.WindowBorderSize = 0;
-        style.ChildRounding = 0;
         style.FramePadding = Float2( 3, 3 );
-        style.FrameRounding = 0;
         style.ItemSpacing = Float2( 4, 4 );
+        style.CellPadding = Float2( 4, 2 );
+
+        style.WindowBorderSize = 0;
+
+        style.WindowRounding = 0;
+        style.ChildRounding = 0;
+        style.FrameRounding = 0;
         style.ScrollbarRounding = 0;
         style.GrabRounding = 0;
-        style.GrabMinSize = 8;
         style.TabRounding = 2;
+
+        style.GrabMinSize = 8;
     }
 }

@@ -36,7 +36,7 @@ namespace KRG
 
                 PendingRequest() = default;
 
-                PendingRequest( Type type, ResourceRecord* pRecord, UUID const& requesterID )
+                PendingRequest( Type type, ResourceRecord* pRecord, ResourceRequesterID const& requesterID )
                     : m_pRecord( pRecord )
                     , m_requesterID( requesterID )
                     , m_type( type )
@@ -44,9 +44,9 @@ namespace KRG
                     KRG_ASSERT( m_pRecord != nullptr );
                 }
 
-                ResourceRecord*     m_pRecord = nullptr;
-                UUID                m_requesterID;
-                Type                m_type = Type::Load;
+                ResourceRecord*         m_pRecord = nullptr;
+                ResourceRequesterID     m_requesterID;
+                Type                    m_type = Type::Load;
             };
 
             #if KRG_DEVELOPMENT_TOOLS
@@ -89,8 +89,8 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            // Request a load of a resource, can optionally provide a UUID for identification of the request source
-            inline void LoadResource( ResourcePtr& resourcePtr, UUID const& requesterID = UUID() )
+            // Request a load of a resource, can optionally provide a ResourceRequesterID for identification of the request source
+            inline void LoadResource( ResourcePtr& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() )
             {
                 Threading::RecursiveScopeLock lock( m_accessLock );
 
@@ -108,8 +108,8 @@ namespace KRG
                 pRecord->AddReference( requesterID );
             }
 
-            // Request an unload of a resource, can optionally provide a UUID for identification of the request source
-            inline void UnloadResource( ResourcePtr& resourcePtr, UUID const& requesterID = UUID() )
+            // Request an unload of a resource, can optionally provide a ResourceRequesterID for identification of the request source
+            inline void UnloadResource( ResourcePtr& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() )
             {
                 Threading::RecursiveScopeLock lock( m_accessLock );
 
@@ -128,14 +128,14 @@ namespace KRG
             }
 
             template<typename T> 
-            inline void LoadResource( TResourcePtr<T>& resourcePtr, UUID const& userID = UUID() ) { LoadResource( (ResourcePtr&) resourcePtr, userID ); }
+            inline void LoadResource( TResourcePtr<T>& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() ) { LoadResource( (ResourcePtr&) resourcePtr, requesterID ); }
 
             template<typename T> 
-            inline void UnloadResource( TResourcePtr<T>& resourcePtr, UUID const& userID = UUID() ) { UnloadResource( (ResourcePtr&) resourcePtr, userID ); }
+            inline void UnloadResource( TResourcePtr<T>& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() ) { UnloadResource( (ResourcePtr&) resourcePtr, requesterID ); }
 
             //-------------------------------------------------------------------------
 
-            inline TVector<UUID> const& GetUsersThatRequireReload() const { return m_usersThatRequireReload; }
+            inline TVector<ResourceRequesterID> const& GetUsersThatRequireReload() const { return m_usersThatRequireReload; }
 
         private:
 
@@ -152,7 +152,7 @@ namespace KRG
             ResourceRequest* TryFindActiveRequest( ResourceRecord const* pResourceRecord ) const;
 
             // Returns a list of all unique external references for the given resource
-            void GetUsersForResource( ResourceRecord const* pResourceRecord, TVector<UUID>& userIDs ) const;
+            void GetUsersForResource( ResourceRecord const* pResourceRecord, TVector<ResourceRequesterID>& requesterIDs ) const;
 
             // Called whenever a resource is changed externally and requires reloading
             void OnResourceExternallyUpdated( ResourceID const& resourceID );
@@ -169,7 +169,7 @@ namespace KRG
             mutable Threading::RecursiveMutex                       m_accessLock;
 
             // Hot reload
-            TVector<UUID>                                           m_usersThatRequireReload;
+            TVector<ResourceRequesterID>                            m_usersThatRequireReload;
             TVector<ResourceID>                                     m_externallyUpdatedResources;
             EventBindingID                                          m_resourceExternalUpdateEventBinding;
 

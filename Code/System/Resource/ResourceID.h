@@ -45,13 +45,14 @@ namespace KRG
         inline ResourceID( char const* pPath ) : m_dataPath( pPath ) { OnDataPathChanged(); }
 
         inline bool IsValid() const { return m_dataPath.IsValid(); }
-
+        inline U32 GetID() const { return m_dataPath.GetID(); }
         inline DataPath const& GetDataPath() const { return m_dataPath; }
         inline ResourceTypeID GetResourceTypeID() const { return m_type; }
 
+        //-------------------------------------------------------------------------
+
         inline String const& ToString() const { return m_dataPath.ToString(); }
         inline char const* c_str() const { return m_dataPath.c_str(); }
-        inline U32 GetID() const { return m_dataPath.GetID(); }
 
         //-------------------------------------------------------------------------
 

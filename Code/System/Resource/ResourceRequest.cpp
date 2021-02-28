@@ -10,7 +10,7 @@ namespace KRG
 {
     namespace Resource
     {
-        ResourceRequest::ResourceRequest( UUID const& requesterID, ResourceRecord* pRecord, ResourceLoader* pResourceLoader )
+        ResourceRequest::ResourceRequest( ResourceRequesterID const& requesterID, ResourceRecord* pRecord, ResourceLoader* pResourceLoader )
             : m_requesterID( requesterID )
             , m_pResourceRecord( pRecord )
             , m_pResourceLoader( pResourceLoader )
@@ -284,13 +284,13 @@ namespace KRG
 
             // Create the resource ptrs for the install dependencies and request their load
             // These resource ptrs are temporary and will be clear upon completion of the request
-            UUID const installDependencyRequesterID = CreateInstallDependencyRequesterID( m_pResourceRecord->GetResourceID() );
+            ResourceRequesterID const installDependencyRequesterID( m_pResourceRecord->GetResourceID() );
             U32 const numInstallDependencies = (U32) m_pResourceRecord->m_installDependencyResourceIDs.size();
             m_installDependencies.resize( numInstallDependencies );
             for ( U32 i = 0; i < numInstallDependencies; i++ )
             {
                 // Do not use the requester ID for install dependencies! Since they are not explicitly loaded by a specific user!
-                // Instead we create a UUID from the depending resource's resourceID
+                // Instead we create a ResourceRequesterID from the depending resource's resourceID
                 m_installDependencies[i] = ResourcePtr( m_pResourceRecord->m_installDependencyResourceIDs[i] );
                 requestContext.m_loadResourceFunction( installDependencyRequesterID, m_installDependencies[i] );
             }
@@ -391,13 +391,13 @@ namespace KRG
 
             // Create the resource ptrs for the install dependencies and request the unload
             // These resource ptrs are temporary and will be cleared upon completion of the request
-            UUID const installDependencyRequesterID = CreateInstallDependencyRequesterID( m_pResourceRecord->GetResourceID() );
+            ResourceRequesterID const installDependencyRequesterID( m_pResourceRecord->GetResourceID() );
             U32 const numInstallDependencies = (U32) m_pResourceRecord->m_installDependencyResourceIDs.size();
             m_installDependencies.resize( numInstallDependencies );
             for ( U32 i = 0; i < numInstallDependencies; i++ )
             {
                 // Do not use the user ID for install dependencies! Since they are not explicitly loaded by a specific user!
-                // Instead we create a UUID from the depending resource's resourceID
+                // Instead we create a ResourceRequesterID from the depending resource's resourceID
                 m_installDependencies[i] = ResourcePtr( m_pResourceRecord->m_installDependencyResourceIDs[i] );
                 requestContext.m_unloadResourceFunction( installDependencyRequesterID, m_installDependencies[i] );
             }

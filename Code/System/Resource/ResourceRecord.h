@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IResource.h"
+#include "ResourceRequesterID.h"
 #include "System/Core/Types/LoadingStatus.h"
 #include "System/Core/Types/UUID.h"
 
@@ -20,6 +21,7 @@ namespace KRG
             friend class ResourceSystem;
             friend class ResourceRequest;
             friend class ResourceLoader;
+            friend class ResourceDebugViewController;
 
         public:
 
@@ -44,12 +46,12 @@ namespace KRG
 
             inline bool HasReferences() const { return !m_references.empty(); }
 
-            inline void AddReference( UUID const& requesterID )
+            inline void AddReference( ResourceRequesterID const& requesterID )
             { 
                 m_references.emplace_back( requesterID );
             }
 
-            inline void RemoveReference( UUID const& requesterID )
+            inline void RemoveReference( ResourceRequesterID const& requesterID )
             { 
                 auto iter = eastl::find( m_references.begin(), m_references.end(), requesterID );
                 KRG_ASSERT( iter != m_references.end() );
@@ -71,7 +73,7 @@ namespace KRG
             ResourceID                              m_resourceID;                                   // The ID of the resource this record refers to
             IResource*                              m_pResource = nullptr;                          // The actual loaded resource data
             std::atomic<LoadingStatus>              m_loadingStatus = LoadingStatus::Unloaded;      // The state of this resource (atomic since it will be modify by resource requests which run across multiple frames)
-            TVector<UUID>                           m_references;                                   // The list of references to this resources
+            TVector<ResourceRequesterID>            m_references;                                   // The list of references to this resources
             TInlineVector<ResourceID, 4>            m_installDependencyResourceIDs;                 // The list of resources that need to be loaded and installed before we can install this resource
         };
     }

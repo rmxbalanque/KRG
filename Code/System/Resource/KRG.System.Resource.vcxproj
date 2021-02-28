@@ -20,6 +20,7 @@
     <ClInclude Include="ResourceProviders\ResourceNetworkMessages.h" />
     <ClInclude Include="ResourcePtr.h" />
     <ClInclude Include="ResourceRecord.h" />
+    <ClInclude Include="ResourceRequesterID.h" />
     <ClInclude Include="ResourceRequest.h" />
     <ClInclude Include="ResourceSystem.h" />
     <ClInclude Include="ResourceTypeID.h" />

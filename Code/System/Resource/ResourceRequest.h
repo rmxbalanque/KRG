@@ -54,14 +54,14 @@ namespace KRG
             {
                 eastl::function<void( ResourceRequest* )> m_createRawRequestRequestFunction;
                 eastl::function<void( ResourceRequest* )> m_cancelRawRequestRequestFunction;
-                eastl::function<void( UUID const&, ResourcePtr& )> m_loadResourceFunction;
-                eastl::function<void( UUID const&, ResourcePtr& )> m_unloadResourceFunction;
+                eastl::function<void( ResourceRequesterID const&, ResourcePtr& )> m_loadResourceFunction;
+                eastl::function<void( ResourceRequesterID const&, ResourcePtr& )> m_unloadResourceFunction;
             };
 
         public:
 
             ResourceRequest() = default;
-            ResourceRequest( UUID const& userID, ResourceRecord* pRecord, ResourceLoader* pResourceLoader );
+            ResourceRequest( ResourceRequesterID const& requesterID, ResourceRecord* pRecord, ResourceLoader* pResourceLoader );
 
             inline bool IsValid() const { return m_pResourceRecord != nullptr; }
             inline bool IsActive() const { return m_stage != Stage::Complete; }
@@ -93,10 +93,6 @@ namespace KRG
             // This will interrupt an unload task and convert it into a load task
             void SwitchToUnloadTask();
 
-        private:
-
-            inline UUID CreateInstallDependencyRequesterID( ResourceID const& resourceID ) const { return UUID( 0, 0, 0, resourceID.GetDataPath().GetID() ); }
-
             //-------------------------------------------------------------------------
 
             void RequestRawResource( RequestContext& requestContext );
@@ -109,7 +105,7 @@ namespace KRG
 
         private:
 
-            UUID                                    m_requesterID;
+            ResourceRequesterID                     m_requesterID;
             ResourceRecord*                         m_pResourceRecord = nullptr;
             ResourceLoader*                         m_pResourceLoader = nullptr;
             FileSystemPath                          m_rawResourcePath;

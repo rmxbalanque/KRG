@@ -55,21 +55,16 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void ResourceSystem::GetUsersForResource( ResourceRecord const* pResourceRecord, TVector<UUID>& userIDs ) const
+        void ResourceSystem::GetUsersForResource( ResourceRecord const* pResourceRecord, TVector<ResourceRequesterID>& userIDs ) const
         {
             KRG_ASSERT( pResourceRecord != nullptr );
 
             for ( auto const& requesterID : pResourceRecord->m_references )
             {
-                auto IsValidInstallDependencyUUID = [] ( UUID const& ID )
-                {
-                    return ID.GetValueU32( 0 ) == 0 && ID.GetValueU32( 1 ) == 0 && ID.GetValueU32( 2 ) == 0 && ID.GetValueU32( 3 ) != 0;
-                };
-
                 // Internal user i.e. install dependency
-                if ( IsValidInstallDependencyUUID( requesterID ) )
+                if ( requesterID.IsInstallDependencyRequest() )
                 {
-                    U32 const resourceDataPathID( requesterID.GetValueU32( 3 ) );
+                    U32 const resourceDataPathID( requesterID.GetInstallDependencyDataPathID() );
                     auto const recordIter = m_resourceRecords.find_as( resourceDataPathID );
                     KRG_ASSERT( recordIter != m_resourceRecords.end() );
 
@@ -78,8 +73,14 @@ namespace KRG
                 }
                 else // Actual external user
                 {
+                    // Skip manual requests
+                    if ( requesterID.IsManualRequest() )
+                    {
+                        continue;
+                    }
+
                     // Add unique users to the list
-                    if ( requesterID.IsValid() && !VectorContains( userIDs, requesterID ) )
+                    if ( !VectorContains( userIDs, requesterID ) )
                     {
                         userIDs.emplace_back( requesterID );
                     }
@@ -336,8 +337,8 @@ namespace KRG
                 ResourceRequest::RequestContext context;
                 context.m_createRawRequestRequestFunction = [this] ( ResourceRequest* pRequest ) { m_pResourceProvider->RequestRawResource( pRequest ); };
                 context.m_cancelRawRequestRequestFunction = [this] ( ResourceRequest* pRequest ) { m_pResourceProvider->CancelRequest( pRequest ); };
-                context.m_loadResourceFunction = [this] ( UUID const& requesterID, ResourcePtr& resourcePtr ) { LoadResource( resourcePtr, requesterID ); };
-                context.m_unloadResourceFunction = [this] ( UUID const& requesterID, ResourcePtr& resourcePtr ) { UnloadResource( resourcePtr, requesterID ); };
+                context.m_loadResourceFunction = [this] ( ResourceRequesterID const& requesterID, ResourcePtr& resourcePtr ) { LoadResource( resourcePtr, requesterID ); };
+                context.m_unloadResourceFunction = [this] ( ResourceRequesterID const& requesterID, ResourcePtr& resourcePtr ) { UnloadResource( resourcePtr, requesterID ); };
 
                 //-------------------------------------------------------------------------
 

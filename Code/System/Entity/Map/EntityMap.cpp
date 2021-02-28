@@ -256,9 +256,9 @@ namespace KRG::EntityModel
         auto const& entitiesThatRequireReload = loadingContext.m_pResourceSystem->GetUsersThatRequireReload();
         if ( !entitiesThatRequireReload.empty() )
         {
-            for ( auto const& entityID : entitiesThatRequireReload )
+            for ( auto const& requesterID : entitiesThatRequireReload )
             {
-                auto pFoundEntity = FindEntity( entityID );
+                auto pFoundEntity = FindEntity( requesterID.GetID() );
                 if ( pFoundEntity != nullptr )
                 {
                     m_reloadRequests.emplace_back( ReloadRequest( pFoundEntity ) );
