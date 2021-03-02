@@ -14,13 +14,13 @@ namespace physx
 
 namespace KRG::Physics
 {
-    class KRG_ENGINE_PHYSICS_API PhysicsGeometry : public Resource::IResource
+    class KRG_ENGINE_PHYSICS_API PhysicsMesh : public Resource::IResource
     {
         KRG_REGISTER_RESOURCE( 'PHYS' );
-        friend class PhysicsGeometryCompiler;
-        friend class PhysicsGeometryLoader;
+        friend class PhysicsMeshCompiler;
+        friend class PhysicsMeshLoader;
 
-        KRG_SERIALIZE_MEMBERS( KRG_NVP( m_hasTriangleMeshData ) );
+        KRG_SERIALIZE_NONE();
 
     public:
 
@@ -31,6 +31,5 @@ namespace KRG::Physics
     private:
 
         physx::PxTriangleMesh*      m_pTriangleMesh = nullptr;
-        bool                        m_hasTriangleMeshData = false;
     };
 }

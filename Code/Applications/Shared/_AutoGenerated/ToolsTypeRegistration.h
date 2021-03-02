@@ -6,6 +6,8 @@
 #include "System/TypeSystem/TypeRegistry.h"
 
 #include "D:\Kruger\Code\Game\Core\_Module\Module.h"
+#include "D:\Kruger\Code\Compilers\Render\_Module\Module.h"
+#include "D:\Kruger\Code\Compilers\Entity\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
@@ -14,8 +16,6 @@
 #include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
 #include "D:\Kruger\Code\Compilers\Physics\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Entity\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Render\_Module\Module.h"
 
 namespace KRG
 {
@@ -49,7 +49,7 @@ namespace KRG
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton"), ResourceTypeID( "SKEL" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationData"), ResourceTypeID( "ANIM" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Navmesh::NavmeshData"), ResourceTypeID( "NAV" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsGeometry"), ResourceTypeID( "PHYS" ) );
+            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMesh"), ResourceTypeID( "PHYS" ) );
         }
 
         inline void UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
@@ -66,7 +66,7 @@ namespace KRG
             KRG::Render::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Engine::EngineModule::UnregisterTypes( typeRegistry );
 
-            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsGeometry" ) );
+            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMesh" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Navmesh::NavmeshData" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationData" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton" ) );

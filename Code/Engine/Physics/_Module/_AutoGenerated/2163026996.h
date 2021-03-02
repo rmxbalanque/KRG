@@ -4,24 +4,24 @@
 // This is an auto-generated file - DO NOT edit
 //-------------------------------------------------------------------------
 
-// HeaderID: 3942467760
+// HeaderID: 2163026996
 
 #include "../API.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Engine\Physics\Components\PhysicsGeometryComponent.h"
+#include "D:\Kruger\Code\Engine\Physics\Components\PhysicsBoxComponent.h"
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Physics::PhysicsGeometryComponent
+// TypeHelper: KRG::Physics::PhysicsBoxComponent
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsGeometryComponent& type )
+    KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsBoxComponent& type )
     {
-        archive( cereal::base_class<KRG::SpatialEntityComponent>( &type ), KRG_NVP( m_transform ), KRG_NVP( m_pPhysicsGeometry ) );
+        archive( cereal::base_class<KRG::Physics::PhysicsShapeComponent>( &type ), KRG_NVP( m_transform ), KRG_NVP( m_boxExtents ) );
     }
 
     //-------------------------------------------------------------------------
@@ -29,10 +29,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsGeometryComponent> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsBoxComponent> >( void const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Physics::PhysicsGeometryComponent const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsGeometryComponent const* ) pDefaultTypeInstance;
+            KRG::Physics::PhysicsBoxComponent const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsBoxComponent const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
 
@@ -40,23 +40,23 @@ namespace KRG
 
             propertyInfo.m_ID = StringID( "m_transform" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Transform" );
-            propertyInfo.m_parentTypeID = 1565674642;
+            propertyInfo.m_parentTypeID = 2002438577;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_transform;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsGeometryComponent, m_transform );
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_pPhysicsGeometry" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
-            propertyInfo.m_parentTypeID = 1565674642;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Physics::PhysicsGeometry" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pPhysicsGeometry;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsGeometryComponent, m_pPhysicsGeometry );
-            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Physics::PhysicsGeometry> );
+            propertyInfo.m_ID = StringID( "m_boxExtents" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Float3" );
+            propertyInfo.m_parentTypeID = 2002438577;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_boxExtents;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_boxExtents );
+            propertyInfo.m_size = sizeof( KRG::Float3 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
@@ -66,9 +66,9 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_PHYSICS_API TTypeHelper<KRG::Physics::PhysicsGeometryComponent> : public ITypeHelper
+            class KRG_ENGINE_PHYSICS_API TTypeHelper<KRG::Physics::PhysicsBoxComponent> : public ITypeHelper
             {
-                static TTypeHelper<KRG::Physics::PhysicsGeometryComponent> StaticTypeHelper;
+                static TTypeHelper<KRG::Physics::PhysicsBoxComponent> StaticTypeHelper;
 
                 static void const* DefaultTypeInstancePtr;
 
@@ -77,13 +77,13 @@ namespace KRG
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Physics::PhysicsGeometryComponent ), alignof( KRG::Physics::PhysicsGeometryComponent ) );
-                    new ( pDefaultTypeInstance ) KRG::Physics::PhysicsGeometryComponent;
+                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Physics::PhysicsBoxComponent ), alignof( KRG::Physics::PhysicsBoxComponent ) );
+                    new ( pDefaultTypeInstance ) KRG::Physics::PhysicsBoxComponent;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Physics::PhysicsGeometryComponent" );
-                    typeInfo.m_size = sizeof( KRG::Physics::PhysicsGeometryComponent );
-                    typeInfo.m_alignment = alignof( KRG::Physics::PhysicsGeometryComponent );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Physics::PhysicsBoxComponent" );
+                    typeInfo.m_size = sizeof( KRG::Physics::PhysicsBoxComponent );
+                    typeInfo.m_alignment = alignof( KRG::Physics::PhysicsBoxComponent );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::EntityComponent );
 
@@ -92,90 +92,65 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::SpatialEntityComponent::StaticTypeInfo;
+                    pParentType = KRG::Physics::PhysicsShapeComponent::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsGeometryComponent> >( DefaultTypeInstancePtr );
-                    KRG::Physics::PhysicsGeometryComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsBoxComponent> >( DefaultTypeInstancePtr );
+                    KRG::Physics::PhysicsBoxComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Physics::PhysicsGeometryComponent" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Physics::PhysicsBoxComponent" );
                     typeRegistry.UnregisterType( ID );
 
                     void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Physics::PhysicsGeometryComponent*>( pDefaultTypeInstance )->~PhysicsGeometryComponent();
+                    reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pDefaultTypeInstance )->~PhysicsBoxComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
                 virtual void* CreateType() const override final
                 {
-                    return KRG::New<KRG::Physics::PhysicsGeometryComponent>();
+                    return KRG::New<KRG::Physics::PhysicsBoxComponent>();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryComponent*>( pType );
-
-                    if ( pActualType->m_pPhysicsGeometry.IsValid() )
-                    {
-                        pResourceSystem->LoadResource( pActualType->m_pPhysicsGeometry, requesterID );
-                    }
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pType );
 
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryComponent*>( pType );
-
-                    if ( pActualType->m_pPhysicsGeometry.IsValid() )
-                    {
-                        pResourceSystem->UnloadResource( pActualType->m_pPhysicsGeometry, requesterID );
-                    }
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pType );
 
                 }
 
                 virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
-
-                    if ( !pActualType->m_pPhysicsGeometry.IsValid() || pActualType->m_pPhysicsGeometry.HasLoadingFailed() )
-                    {
-                        status = LoadingStatus::Failed;
-                    }
-                    else if ( pActualType->m_pPhysicsGeometry.IsUnloaded() || pActualType->m_pPhysicsGeometry.IsLoading() )
-                    {
-                        return LoadingStatus::Loading;
-                    }
 
                     return status;
                 }
 
                 virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
-
-                    KRG_ASSERT( !pActualType->m_pPhysicsGeometry.IsLoading() );
-                    if ( !pActualType->m_pPhysicsGeometry.IsUnloaded() )
-                    {
-                        return LoadingStatus::Unloading;
-                    }
 
                     return LoadingStatus::Unloaded;
                 }
 
                 virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
@@ -183,12 +158,7 @@ namespace KRG
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryComponent*>( pType );
-                    if ( propertyID == 1235152315 )
-                    {
-                        return KRG::Physics::PhysicsGeometry::GetStaticResourceTypeID();
-                    }
-
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();

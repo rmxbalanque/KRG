@@ -1,5 +1,4 @@
 #include "PhysicsSystem.h"
-#include "Engine/Physics/Components/PhysicsGeometryComponent.h"
 #include "System/Entity/Entity.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "PhysicsScene.h"

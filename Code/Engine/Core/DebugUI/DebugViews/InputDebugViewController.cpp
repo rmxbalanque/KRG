@@ -229,7 +229,6 @@ namespace KRG
         {
             auto drawSystemLogMenuOptions = [this] ( UpdateContext const& context )
             {
-
                 if ( ImGui::BeginMenu( "Controllers" ) )
                 {
                     auto pInputSystem = context.GetSystem<InputSystem>();
@@ -286,8 +285,8 @@ namespace KRG
                 if ( ImGui::Begin( buffer, &isWindowOpen, ImGuiWindowFlags_NoResize ) )
                 {
                     DrawControllerState( *m_openControllerWindows[i] );
-                    ImGui::End();
                 }
+                ImGui::End();
 
                 // Should we close the window?
                 if ( !isWindowOpen )

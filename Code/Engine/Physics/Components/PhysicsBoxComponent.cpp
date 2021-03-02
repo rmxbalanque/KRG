@@ -1,11 +1,7 @@
-#include "PhysicsGeometry.h"
+#include "PhysicsBoxComponent.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Physics
 {
-    bool PhysicsGeometry::IsValid() const
-    {
-        return true;
-    }
 }

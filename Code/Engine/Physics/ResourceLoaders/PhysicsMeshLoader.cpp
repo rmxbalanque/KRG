@@ -1,6 +1,6 @@
-#include "PhysicsGeometryLoader.h"
+#include "PhysicsMeshLoader.h"
 #include "Engine/Physics/PhysX.h"
-#include "Engine/Physics/PhysicsGeometry.h"
+#include "Engine/Physics/PhysicsMesh.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
 //-------------------------------------------------------------------------
@@ -34,42 +34,39 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    PhysicsGeometryLoader::PhysicsGeometryLoader()
+    PhysicsMeshLoader::PhysicsMeshLoader()
     {
-        m_loadableTypes.push_back( PhysicsGeometry::GetStaticResourceTypeID() );
+        m_loadableTypes.push_back( PhysicsMesh::GetStaticResourceTypeID() );
     }
 
-    void PhysicsGeometryLoader::SetPhysics( PxPhysics* pPhysics )
+    void PhysicsMeshLoader::SetPhysics( PxPhysics* pPhysics )
     {
         KRG_ASSERT( pPhysics != nullptr && m_pPhysics == nullptr );
         m_pPhysics = pPhysics;
     }
 
-    bool PhysicsGeometryLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
+    bool PhysicsMeshLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
     {
         KRG_ASSERT( archive.IsValid() );
 
         // Create mesh resource
-        PhysicsGeometry* pPhysicsGeometry = KRG::New<PhysicsGeometry>();
+        PhysicsMesh* pPhysicsGeometry = KRG::New<PhysicsMesh>();
         archive >> *pPhysicsGeometry;
 
         // Deserialize cooked mesh data
-        if ( pPhysicsGeometry->m_hasTriangleMeshData )
-        {
-            TVector<Byte> cookedTriangleMeshData;
-            archive >> cookedTriangleMeshData;
+        TVector<Byte> cookedTriangleMeshData;
+        archive >> cookedTriangleMeshData;
 
-            PhysXSerializedInputData cooked( cookedTriangleMeshData );
-            pPhysicsGeometry->m_pTriangleMesh = m_pPhysics->createTriangleMesh( cooked );
-        }
+        PhysXSerializedInputData cooked( cookedTriangleMeshData );
+        pPhysicsGeometry->m_pTriangleMesh = m_pPhysics->createTriangleMesh( cooked );
 
         pResourceRecord->SetResourceData( pPhysicsGeometry );
         return true;
     }
 
-    void PhysicsGeometryLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const
+    void PhysicsMeshLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const
     {
-        PhysicsGeometry* pPhysicsGeometry = pResourceRecord->GetResourceData<PhysicsGeometry>();
+        PhysicsMesh* pPhysicsGeometry = pResourceRecord->GetResourceData<PhysicsMesh>();
         if ( pPhysicsGeometry != nullptr )
         {
             if ( pPhysicsGeometry->m_pTriangleMesh != nullptr )

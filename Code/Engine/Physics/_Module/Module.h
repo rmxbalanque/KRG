@@ -6,7 +6,7 @@
 #include "Engine/Physics/Debug/PhysicsDebugViewController.h"
 #include "Engine/Physics/Debug/PhysxDebugRenderer.h"
 #include "Engine/Core/Modules/IEngineModule.h"
-#include "Engine/Physics/ResourceLoaders/PhysicsGeometryLoader.h"
+#include "Engine/Physics/ResourceLoaders/PhysicsMeshLoader.h"
 
 //-------------------------------------------------------------------------
 
@@ -24,8 +24,8 @@ namespace KRG::Physics
     private:
 
         PhysicsSystem               m_physicsSystem;
+        PhysicsMeshLoader           m_physicsMeshLoader;
         PhysicsWorldSystem*         m_pPhysicsWorldSystem = nullptr;
-        PhysicsGeometryLoader       m_physicsGeometryLoader;
 
         #if KRG_DEVELOPMENT_TOOLS
         PhysicsRenderer             m_physicsRenderer;

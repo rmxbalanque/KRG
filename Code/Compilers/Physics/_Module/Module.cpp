@@ -1,6 +1,6 @@
 #if _WIN32
 #include "Module.h"
-#include "Compilers/Physics/CollisionMeshCompiler/PhysicsGeometryCompiler.h"
+#include "Compilers/Physics/PhysicsMeshCompiler.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ namespace KRG
         ResourceCompilerModule::ResourceCompilerModule()
             : KRG::ResourceCompilerModule( "Resource.Physics" )
         {
-            AddCompiler( KRG::New<KRG::Physics::PhysicsGeometryCompiler>() );
+            AddCompiler( KRG::New<KRG::Physics::PhysicsMeshCompiler>() );
         }
     }
 }

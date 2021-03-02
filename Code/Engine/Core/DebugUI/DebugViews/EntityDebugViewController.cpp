@@ -123,11 +123,8 @@ namespace KRG
                     m_pWorld->LoadMap( Tiny );
                 }
             }
-
-            //-------------------------------------------------------------------------
-
-            ImGui::End();
         }
+        ImGui::End();
     }
 
     //-------------------------------------------------------------------------
@@ -308,9 +305,8 @@ namespace KRG
                         }
                     }
                 }
-
-                ImGui::EndChild();
             }
+            ImGui::EndChild();
 
             ImGui::EndGroup();
 
@@ -395,16 +391,12 @@ namespace KRG
                         }
                     }
                 }
-
-                ImGui::EndChild();
             }
+            ImGui::EndChild();
 
             ImGui::EndGroup();
-
-            //-------------------------------------------------------------------------
-
-            ImGui::End();
         }
+        ImGui::End();
     }
 }
 #endif

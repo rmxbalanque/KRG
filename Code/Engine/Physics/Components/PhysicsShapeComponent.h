@@ -1,9 +1,8 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "Engine/Physics/PhysicsGeometry.h"
-#include "System/Resource/ResourcePtr.h"
 #include "System/Entity/EntitySpatialComponent.h"
+#include "Engine/Physics/PhysX.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,19 +15,11 @@ namespace physx
 
 namespace KRG::Physics
 {
-    class PhysicsGeometry;
-
-    //-------------------------------------------------------------------------
-
-    class KRG_ENGINE_PHYSICS_API PhysicsGeometryComponent : public SpatialEntityComponent
+    class KRG_ENGINE_PHYSICS_API PhysicsShapeComponent : public SpatialEntityComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT;
 
         friend class PhysicsWorldSystem;
-
-    protected:
-
-        EXPOSE TResourcePtr<PhysicsGeometry>        m_pPhysicsGeometry;
 
     private:
 

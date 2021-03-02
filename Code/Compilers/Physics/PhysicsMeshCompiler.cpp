@@ -1,8 +1,8 @@
-#include "PhysicsGeometryCompiler.h"
+#include "PhysicsMeshCompiler.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Resource/RawAssets/RawMesh.h"
 #include "Engine/Physics/Physx.h"
-#include "Engine/Physics/PhysicsGeometry.h"
+#include "Engine/Physics/PhysicsMesh.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
@@ -44,15 +44,15 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        PhysicsGeometryCompiler::PhysicsGeometryCompiler()
+        PhysicsMeshCompiler::PhysicsMeshCompiler()
             : Resource::Compiler( "PhysicsGeometryCompiler", VERSION )
         {
             m_outputTypes.push_back('PHYS' );
         }
 
-        Resource::CompilationResult PhysicsGeometryCompiler::Compile( Resource::CompileContext const& ctx ) const
+        Resource::CompilationResult PhysicsMeshCompiler::Compile( Resource::CompileContext const& ctx ) const
         {
-            PhysicsGeometryResourceDescriptor resourceDescriptor;
+            PhysicsMeshResourceDescriptor resourceDescriptor;
             if ( !ctx.TryReadResourceDescriptor( resourceDescriptor ) )
             {
                 return Error( "Failed to read resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
@@ -62,13 +62,13 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             FileSystemPath meshFilePath;
-            if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_geometryDataPath, meshFilePath ) )
+            if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_meshDataPath, meshFilePath ) )
             {
-                return Error( "Invalid source data path: %s", resourceDescriptor.m_geometryDataPath.c_str() );
+                return Error( "Invalid source data path: %s", resourceDescriptor.m_meshDataPath.c_str() );
             }
 
             RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };
-            TUniquePtr<RawAssets::RawMesh> pRawMesh = RawAssets::ReadStaticMesh( readerCtx, meshFilePath, resourceDescriptor.m_geometryName );
+            TUniquePtr<RawAssets::RawMesh> pRawMesh = RawAssets::ReadStaticMesh( readerCtx, meshFilePath, resourceDescriptor.m_meshName );
             if ( pRawMesh == nullptr )
             {
                 return Error( "Failed to read mesh from source file" );
@@ -79,9 +79,7 @@ namespace KRG
             // Reflect FBX data into physics format
             //-------------------------------------------------------------------------
             
-            PhysicsGeometry physicsGeo;
-            physicsGeo.m_hasTriangleMeshData = true;
-
+            PhysicsMesh physicsGeo;
             TVector<Byte> cookedTriangleMeshData;
             CookTriangleMeshData( *pRawMesh, cookedTriangleMeshData );
 
@@ -96,10 +94,7 @@ namespace KRG
                 archive << hdr << physicsGeo;
 
                 // Serialize the mesh data
-                if ( physicsGeo.m_hasTriangleMeshData )
-                {
-                    archive << cookedTriangleMeshData;
-                }
+                archive << cookedTriangleMeshData;
 
                 if( pRawMesh->HasWarnings() )
                 {
@@ -116,7 +111,7 @@ namespace KRG
             }
         }
 
-        bool PhysicsGeometryCompiler::CookTriangleMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const
+        bool PhysicsMeshCompiler::CookTriangleMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const
         {
             PhysXAllocator allocator;
             PhysXUserErrorCallback errorCallback;

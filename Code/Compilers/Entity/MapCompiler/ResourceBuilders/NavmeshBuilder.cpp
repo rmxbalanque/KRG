@@ -1,5 +1,5 @@
 #include "NavmeshBuilder.h"
-#include "Compilers/Physics/CollisionMeshCompiler/PhysicsGeometryCompiler.h"
+#include "Compilers/Physics/PhysicsMeshCompiler.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Resource/RawAssets/RawMesh.h"
 #include "Tools/Entity/ToolEntityCollectionConverter.h"
@@ -9,7 +9,7 @@
 #include "Engine/Navmesh/NavmeshData.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Entity/Collections/EntityCollectionDescriptor.h"
-#include "Engine/Physics/Components/PhysicsGeometryComponent.h"
+#include "Engine/Physics/Components/PhysicsMeshComponent.h"
 
 #include <bfxSystem.h>
 
@@ -95,12 +95,15 @@ namespace KRG::Navmesh
         // Collect all collision geometry
         //-------------------------------------------------------------------------
 
-        auto foundPhysicsComponents = toolEntityCollection.GetAllComponentsOfType( Physics::PhysicsGeometryComponent::GetStaticTypeID() );
+        auto foundPhysicsComponents = toolEntityCollection.GetAllComponentsOfType( Physics::PhysicsMeshComponent::GetStaticTypeID() );
         for ( auto pPhysicsComponent : foundPhysicsComponents )
         {
             // TODO: see if there is a smart way to avoid using strings for property access
-            auto pProperty = pPhysicsComponent->GetProperty( TypeSystem::PropertyPath( "m_pPhysicsGeometry" ) );
-            KRG_ASSERT( pProperty != nullptr );
+            auto pProperty = pPhysicsComponent->GetProperty( TypeSystem::PropertyPath( "m_pPhysicsMesh" ) );
+            if ( pProperty == nullptr )
+            {
+                return Error( "Cant find 'm_pPhysicsMesh' property on physics mesh component: %s", ctx.m_inputFilePath.c_str() );
+            }
 
             Resource::ResourcePtr geometryPtr = pProperty->GetValue<Resource::ResourcePtr>();
             if ( geometryPtr.IsValid() )
@@ -125,7 +128,7 @@ namespace KRG::Navmesh
                 return Error( "Invalid source data path: %s", primitiveDesc.first.c_str() );
             }
 
-            Physics::PhysicsGeometryResourceDescriptor resourceDescriptor;
+            Physics::PhysicsMeshResourceDescriptor resourceDescriptor;
             if ( !ctx.TryReadResourceDescriptorFromFile( descFilePath, resourceDescriptor ) )
             {
                 return Error( "Failed to read resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
@@ -135,13 +138,13 @@ namespace KRG::Navmesh
             //-------------------------------------------------------------------------
 
             FileSystemPath meshFilePath;
-            if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_geometryDataPath, meshFilePath ) )
+            if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_meshDataPath, meshFilePath ) )
             {
-                return Error( "Invalid source data path: %s", resourceDescriptor.m_geometryDataPath.c_str() );
+                return Error( "Invalid source data path: %s", resourceDescriptor.m_meshDataPath.c_str() );
             }
 
             RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };
-            TUniquePtr<RawAssets::RawMesh> pRawMesh = RawAssets::ReadStaticMesh( readerCtx, meshFilePath, resourceDescriptor.m_geometryName );
+            TUniquePtr<RawAssets::RawMesh> pRawMesh = RawAssets::ReadStaticMesh( readerCtx, meshFilePath, resourceDescriptor.m_meshName );
             if ( pRawMesh == nullptr )
             {
                 return Error( "Failed to read mesh from source file: %s" );

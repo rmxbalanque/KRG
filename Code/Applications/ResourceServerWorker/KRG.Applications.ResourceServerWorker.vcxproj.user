@@ -4,4 +4,8 @@
     <LocalDebuggerCommandArguments>-compile data://maps/br_minimal.map</LocalDebuggerCommandArguments>
     <RemoteDebuggerCommandArguments>-compile data://maps/br_minimal.map</RemoteDebuggerCommandArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-compile data://maps/br_minimal.map</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://maps/br_minimal.map</RemoteDebuggerCommandArguments>
+  </PropertyGroup>
 </Project>

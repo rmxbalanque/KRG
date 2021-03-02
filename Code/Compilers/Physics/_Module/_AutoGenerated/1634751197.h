@@ -4,24 +4,24 @@
 // This is an auto-generated file - DO NOT edit
 //-------------------------------------------------------------------------
 
-// HeaderID: 3500931963
+// HeaderID: 1634751197
 
 #include "../API.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Compilers\Physics\CollisionMeshCompiler\PhysicsGeometryCompiler.h"
+#include "D:\Kruger\Code\Compilers\Physics\PhysicsMeshCompiler.h"
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Physics::PhysicsGeometryResourceDescriptor
+// TypeHelper: KRG::Physics::PhysicsMeshResourceDescriptor
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_RESOURCECOMPILERS_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsGeometryResourceDescriptor& type )
+    KRG_RESOURCECOMPILERS_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMeshResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_geometryDataPath ), KRG_NVP( m_geometryName ) );
+        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_meshName ) );
     }
 
     //-------------------------------------------------------------------------
@@ -29,10 +29,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsGeometryResourceDescriptor> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor> >( void const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Physics::PhysicsGeometryResourceDescriptor const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsGeometryResourceDescriptor const* ) pDefaultTypeInstance;
+            KRG::Physics::PhysicsMeshResourceDescriptor const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsMeshResourceDescriptor const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
 
@@ -40,34 +40,34 @@ namespace KRG
 
             propertyInfo.m_ID = StringID( "m_resourceTypeID" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceTypeID" );
-            propertyInfo.m_parentTypeID = 4010018826;
+            propertyInfo.m_parentTypeID = 1428198006;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsGeometryResourceDescriptor, m_resourceTypeID );
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshResourceDescriptor, m_resourceTypeID );
             propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_geometryDataPath" );
+            propertyInfo.m_ID = StringID( "m_meshDataPath" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::DataPath" );
-            propertyInfo.m_parentTypeID = 4010018826;
+            propertyInfo.m_parentTypeID = 1428198006;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_geometryDataPath;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsGeometryResourceDescriptor, m_geometryDataPath );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_meshDataPath;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshResourceDescriptor, m_meshDataPath );
             propertyInfo.m_size = sizeof( KRG::DataPath );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_geometryName" );
+            propertyInfo.m_ID = StringID( "m_meshName" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::String" );
-            propertyInfo.m_parentTypeID = 4010018826;
+            propertyInfo.m_parentTypeID = 1428198006;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_geometryName;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsGeometryResourceDescriptor, m_geometryName );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_meshName;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshResourceDescriptor, m_meshName );
             propertyInfo.m_size = sizeof( KRG::String );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -78,9 +78,9 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_RESOURCECOMPILERS_PHYSICS_API TTypeHelper<KRG::Physics::PhysicsGeometryResourceDescriptor> : public ITypeHelper
+            class KRG_RESOURCECOMPILERS_PHYSICS_API TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor> : public ITypeHelper
             {
-                static TTypeHelper<KRG::Physics::PhysicsGeometryResourceDescriptor> StaticTypeHelper;
+                static TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor> StaticTypeHelper;
 
                 static void const* DefaultTypeInstancePtr;
 
@@ -89,13 +89,13 @@ namespace KRG
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Physics::PhysicsGeometryResourceDescriptor ), alignof( KRG::Physics::PhysicsGeometryResourceDescriptor ) );
-                    new ( pDefaultTypeInstance ) KRG::Physics::PhysicsGeometryResourceDescriptor;
+                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Physics::PhysicsMeshResourceDescriptor ), alignof( KRG::Physics::PhysicsMeshResourceDescriptor ) );
+                    new ( pDefaultTypeInstance ) KRG::Physics::PhysicsMeshResourceDescriptor;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Physics::PhysicsGeometryResourceDescriptor" );
-                    typeInfo.m_size = sizeof( KRG::Physics::PhysicsGeometryResourceDescriptor );
-                    typeInfo.m_alignment = alignof( KRG::Physics::PhysicsGeometryResourceDescriptor );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Physics::PhysicsMeshResourceDescriptor" );
+                    typeInfo.m_size = sizeof( KRG::Physics::PhysicsMeshResourceDescriptor );
+                    typeInfo.m_alignment = alignof( KRG::Physics::PhysicsMeshResourceDescriptor );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -110,42 +110,42 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsGeometryResourceDescriptor> >( DefaultTypeInstancePtr );
-                    KRG::Physics::PhysicsGeometryResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor> >( DefaultTypeInstancePtr );
+                    KRG::Physics::PhysicsMeshResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Physics::PhysicsGeometryResourceDescriptor" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Physics::PhysicsMeshResourceDescriptor" );
                     typeRegistry.UnregisterType( ID );
 
                     void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Physics::PhysicsGeometryResourceDescriptor*>( pDefaultTypeInstance )->~PhysicsGeometryResourceDescriptor();
+                    reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pDefaultTypeInstance )->~PhysicsMeshResourceDescriptor();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
                 virtual void* CreateType() const override final
                 {
-                    return KRG::New<KRG::Physics::PhysicsGeometryResourceDescriptor>();
+                    return KRG::New<KRG::Physics::PhysicsMeshResourceDescriptor>();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryResourceDescriptor*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
 
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryResourceDescriptor*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
 
                 }
 
                 virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryResourceDescriptor*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
@@ -153,7 +153,7 @@ namespace KRG
 
                 virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryResourceDescriptor*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
@@ -161,7 +161,7 @@ namespace KRG
 
                 virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryResourceDescriptor*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
@@ -169,7 +169,7 @@ namespace KRG
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsGeometryResourceDescriptor*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();

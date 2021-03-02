@@ -11,12 +11,12 @@ namespace physx { class PxPhysics; }
 
 namespace KRG::Physics
 {
-    class PhysicsGeometryLoader : public Resource::ResourceLoader
+    class PhysicsMeshLoader : public Resource::ResourceLoader
     {
     public:
 
-        PhysicsGeometryLoader();
-        ~PhysicsGeometryLoader() { KRG_ASSERT( m_pPhysics == nullptr ); }
+        PhysicsMeshLoader();
+        ~PhysicsMeshLoader() { KRG_ASSERT( m_pPhysics == nullptr ); }
 
         void SetPhysics( physx::PxPhysics* pPhysics );
         void ClearPhysics() { m_pPhysics = nullptr; }

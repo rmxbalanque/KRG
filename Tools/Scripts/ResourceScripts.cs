@@ -112,7 +112,7 @@ namespace Scripts
                 {
                     new ResourceDescriptorProperty()
                     {
-                        Path = "TypeID", Value = "KRG::Physics::PhysicsGeometryResourceDescriptor"
+                        Path = "TypeID", Value = "KRG::Physics::PhysicsMeshResourceDescriptor"
                     },
                     new ResourceDescriptorProperty()
                     {

@@ -103,9 +103,8 @@ namespace KRG::Resource
 
                 ImGui::EndTable();
             }
-
-            ImGui::End();
         }
+        ImGui::End();
     }
 
     void ResourceDebugViewController::DrawReferenceTrackerWindow( UpdateContext const& context )
@@ -170,9 +169,8 @@ namespace KRG::Resource
 
                 ImGui::EndTable();
             }
-
-            ImGui::End();
         }
+        ImGui::End();
     }
 }
 #endif

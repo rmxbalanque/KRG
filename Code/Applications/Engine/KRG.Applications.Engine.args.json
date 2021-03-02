@@ -20,7 +20,7 @@
     },
     {
       "Id": "d940b311-5c3a-49c9-9ac6-d23f6afaf0ae",
-      "Command": "-map data://maps/animtest.map"
+      "Command": "-map data://maps/physicstestmap.map"
     },
     {
       "Id": "6f5deab1-daf6-4ec2-bc3b-a567ef260229",

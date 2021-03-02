@@ -19,11 +19,11 @@ class CameraComponent:
         self.Name = "CameraComponent"
         self.TypeData = { "TypeID" : "KRG::CameraComponent" }
 
-class PhysicsGeometryComponent:
+class PhysicsMeshComponent:
     def __init__(self, name):
         self.ID = uuid.uuid4()
         self.Name = name
-        self.TypeData = { "TypeID" : "KRG::Physics::PhysicsGeometryComponent" }
+        self.TypeData = { "TypeID" : "KRG::Physics::PhysicsMeshComponent" }
 
 class StaticMeshComponent:
     def __init__(self, name):
@@ -52,7 +52,7 @@ class MapEncoder(JSONEncoder):
             return obj.__dict__
         if isinstance(obj, StaticMeshComponent):
             return obj.__dict__
-        if isinstance(obj, PhysicsGeometryComponent):
+        if isinstance(obj, PhysicsMeshComponent):
             return obj.__dict__
         if isinstance(obj, CameraComponent):
             return obj.__dict__
@@ -131,9 +131,9 @@ try:
             entity.Components.append( meshComponent )
 
             # Create physics component
-            physicsComponent = PhysicsGeometryComponent( "phys_" + ob.name )
+            physicsComponent = PhysicsMeshComponent( "phys_" + ob.name )
             physicsComponent.SpatialParent = meshComponent.ID
-            physicsComponent.TypeData[ "m_pPhysicsGeometry"] = physicsGeoDataPath
+            physicsComponent.TypeData[ "m_pPhysicsMesh"] = physicsGeoDataPath
             entity.Components.append( physicsComponent )
 
             entityMap.Entities.append( entity )

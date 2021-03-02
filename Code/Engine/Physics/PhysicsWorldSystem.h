@@ -8,18 +8,27 @@
 
 //-------------------------------------------------------------------------
 
+namespace physx
+{
+    class PxShape;
+}
+
+//-------------------------------------------------------------------------
+
 namespace KRG::Physics
 {
     class PhysicsSystem;
-    class PhysicsGeometryComponent;
+    class PhysicsShapeComponent;
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_PHYSICS_API PhysicsWorldSystem : public IWorldEntitySystem
     {
-        struct RegisteredGeometryComponent : public EntityRegistryRecord
+        struct EntityPhysicsRecord : public EntityRegistryRecord
         {
-            PhysicsGeometryComponent*                   m_pComponent = nullptr;
+            inline bool IsEmpty() const { return m_shapeComponents.empty(); }
+
+            TVector<PhysicsShapeComponent*>         m_shapeComponents;
         };
 
     public:
@@ -38,10 +47,15 @@ namespace KRG::Physics
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
 
+        void RegisterShapeComponent( Entity const* pEntity, PhysicsShapeComponent* pComponent );
+        void UnregisterShapeComponent( Entity const* pEntity, PhysicsShapeComponent* pComponent );
+
+        physx::PxShape* CreateShape( PhysicsShapeComponent* pComponent );
+
     private:
 
         PhysicsSystem&                                  m_physicsSystem;
         PhysicsScene*                                   m_pScene = nullptr;
-        EntityRegistry<RegisteredGeometryComponent>     m_geometryComponents;
+        EntityRegistry<EntityPhysicsRecord>             m_registeredEntities;
     };
 }
