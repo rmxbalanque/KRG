@@ -85,10 +85,17 @@ namespace KRG
         }
 
         template<typename T>
-        KRG_FORCE_INLINE bool IsInRange( T value, T lowerBound, T upperBound )
+        KRG_FORCE_INLINE bool IsInRangeInclusive( T value, T lowerBound, T upperBound )
         {
             KRG_ASSERT( lowerBound < upperBound );
             return value >= lowerBound && value <= upperBound;
+        }
+
+        template<typename T>
+        KRG_FORCE_INLINE bool IsInRangeExclusive( T value, T lowerBound, T upperBound )
+        {
+            KRG_ASSERT( lowerBound < upperBound );
+            return value > lowerBound && value < upperBound;
         }
 
         KRG_FORCE_INLINE F32 ModF( F32 value, F32* pIntegerPortion )

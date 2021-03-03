@@ -19,14 +19,14 @@ namespace KRG
         // Sanity check: viewport values
         //-------------------------------------------------------------------------
 
-        if( !Math::IsInRange( m_viewportTopLeft.x, 0.0f, 1.0f ) || !Math::IsInRange( m_viewportTopLeft.y, 0.0f, 1.0f ) )
+        if( !Math::IsInRangeInclusive( m_viewportTopLeft.x, 0.0f, 1.0f ) || !Math::IsInRangeInclusive( m_viewportTopLeft.y, 0.0f, 1.0f ) )
         {
             KRG_LOG_WARNING( "Camera", "Invalid viewport top-left position supplied. Clamping values!" );
             m_viewportTopLeft.x = Math::Clamp( m_viewportTopLeft.x, 0.0f, 1.0f );
             m_viewportTopLeft.y = Math::Clamp( m_viewportTopLeft.y, 0.0f, 1.0f );
         }
 
-        if ( !Math::IsInRange( m_viewportBottomRight.x, 0.0f, 1.0f ) || !Math::IsInRange( m_viewportBottomRight.y, 0.0f, 1.0f ) )
+        if ( !Math::IsInRangeInclusive( m_viewportBottomRight.x, 0.0f, 1.0f ) || !Math::IsInRangeInclusive( m_viewportBottomRight.y, 0.0f, 1.0f ) )
         {
             KRG_LOG_WARNING( "Camera", "Invalid viewport dimensions supplied. Clamping values!" );
             m_viewportBottomRight.x = Math::Clamp( m_viewportBottomRight.x, 0.0f, 1.0f );

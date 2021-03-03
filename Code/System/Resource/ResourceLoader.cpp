@@ -28,7 +28,7 @@ namespace KRG
                 // Perform resource load
                 if ( !LoadInternal( resourceID, pResourceRecord, archive ) )
                 {
-                    KRG_LOG_ERROR( "Resource", "Failed to load binary resource" );
+                    KRG_LOG_ERROR( "Resource", "Resource loader failed to load resource: %s", resourceID.c_str() );
                     return false;
                 }
 
@@ -40,7 +40,7 @@ namespace KRG
             }
             else
             {
-                KRG_LOG_ERROR( "Resource", "Failed to read resource" );
+                KRG_LOG_ERROR( "Resource", "Failed to read binary resource data (%s)", resourceID.c_str() );
                 return false;
             }
         }

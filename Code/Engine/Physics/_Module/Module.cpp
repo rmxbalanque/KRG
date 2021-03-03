@@ -15,6 +15,9 @@ namespace KRG::Physics
         m_physicsMeshLoader.SetPhysics( &m_physicsSystem.GetPxPhysics() );
         context.RegisterResourceLoader( &m_physicsMeshLoader );
 
+        m_physicsMaterialLoader.SetPhysics( &m_physicsSystem.GetPxPhysics() );
+        context.RegisterResourceLoader( &m_physicsMaterialLoader );
+
         //-------------------------------------------------------------------------
 
         context.RegisterSystem( m_physicsSystem );
@@ -45,6 +48,9 @@ namespace KRG::Physics
         context.UnregisterSystem( m_physicsSystem );
 
         //-------------------------------------------------------------------------
+
+        context.UnregisterResourceLoader( &m_physicsMaterialLoader );
+        m_physicsMaterialLoader.ClearPhysics();
 
         context.UnregisterResourceLoader( &m_physicsMeshLoader );
         m_physicsMeshLoader.ClearPhysics();

@@ -55,6 +55,7 @@ namespace KRG::Physics
     {
         KRG_ASSERT( pComponent != nullptr );
 
+        // Add component to entity record
         //-------------------------------------------------------------------------
 
         EntityPhysicsRecord* pRecord = m_registeredEntities[pEntity->GetID()];
@@ -63,11 +64,16 @@ namespace KRG::Physics
             pRecord = &m_registeredEntities.AddRecord( pEntity->GetID() );
         }
 
-        //-------------------------------------------------------------------------
-
         pRecord->m_shapeComponents.emplace_back( pComponent );
 
+        // Create PhysX actor
         //-------------------------------------------------------------------------
+
+        if ( pComponent->m_pPhysicsMaterial == nullptr )
+        {
+            KRG_LOG_WARNING( "Physics", "No Physics Material set for component: %s (%s), no physics actors will be created!", pComponent->GetName().c_str(), pComponent->GetID().ToString().c_str() );
+            return;
+        }
 
         PxShape* pShape = CreateShape( pComponent );
         if ( pShape != nullptr )
@@ -82,6 +88,8 @@ namespace KRG::Physics
             PxRigidStatic* pStaticBody = physics.createRigidStatic( bodyPose );
             pStaticBody->attachShape( *pShape );
             pScene->addActor( *pStaticBody );
+            pStaticBody->userData = pComponent;
+
             pComponent->m_pPhysicsActor = pStaticBody;
 
             // Release created temp resources
@@ -95,7 +103,7 @@ namespace KRG::Physics
         auto const pRecord = m_registeredEntities[pEntity->GetID()];
         KRG_ASSERT( pRecord != nullptr );
 
-        // Destroy physics actor
+        // Destroy physics actor (if one exists)
         //-------------------------------------------------------------------------
 
         if ( pComponent->m_pPhysicsActor != nullptr )
@@ -128,11 +136,12 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
 
         PxPhysics& physics = m_physicsSystem.GetPxPhysics();
-        auto pMaterial = physics.createMaterial( 0.5f, 0.5f, 0.6f );
 
         //-------------------------------------------------------------------------
 
         PxShape* pShape = nullptr;
+        PxMaterial* pMaterial = pComponent->m_pPhysicsMaterial->GetMaterial();
+        KRG_ASSERT( pMaterial != nullptr );
 
         if ( auto pMeshComponent = ComponentCast<PhysicsMeshComponent>( pComponent ) )
         {
@@ -159,11 +168,9 @@ namespace KRG::Physics
             pShape = physics.createShape( capsuleGeo, *pMaterial );
         }
 
-        // Release temporary resource
-        pMaterial->release();
-
         //-------------------------------------------------------------------------
 
+        pShape->userData = pComponent;
         return pShape;
     }
 }

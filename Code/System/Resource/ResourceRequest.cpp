@@ -17,10 +17,15 @@ namespace KRG
         {
             KRG_ASSERT( Threading::IsMainThread() );
             KRG_ASSERT( m_pResourceRecord != nullptr && m_pResourceRecord->IsValid() );
-            KRG_ASSERT( m_pResourceRecord->IsLoaded() || m_pResourceRecord->IsUnloaded() );
+            KRG_ASSERT( m_pResourceRecord->IsLoaded() || m_pResourceRecord->IsUnloaded() || m_pResourceRecord->HasLoadingFailed() );
             KRG_ASSERT( pResourceLoader != nullptr );
 
-            if ( m_pResourceRecord->IsLoaded() )
+            if ( m_pResourceRecord->HasLoadingFailed() )
+            {
+                m_type = Type::Unload;
+                m_stage = Stage::UnloadFailedResource;
+            }
+            else if ( m_pResourceRecord->IsLoaded() )
             {
                 m_type = Type::Unload;
                 m_stage = Stage::UninstallResource;
@@ -193,6 +198,12 @@ namespace KRG
                 case ResourceRequest::Stage::UnloadResource:
                 {
                     UnloadResource( requestContext );
+                }
+                break;
+
+                case ResourceRequest::Stage::UnloadFailedResource:
+                {
+                    UnloadFailedResource( requestContext );
                 }
                 break;
 
@@ -411,6 +422,23 @@ namespace KRG
             m_pResourceLoader->Unload( GetResourceID(), m_pResourceRecord );
             m_pResourceRecord->SetLoadingStatus( LoadingStatus::Unloaded );
 
+            m_stage = ResourceRequest::Stage::Complete;
+
+            if ( m_isReloadRequest )
+            {
+                // Clear the flag here, in case we re-used this request again
+                m_isReloadRequest = false;
+                SwitchToLoadTask();
+            }
+        }
+
+        void ResourceRequest::UnloadFailedResource( RequestContext& requestContext )
+        {
+            KRG_ASSERT( m_stage == ResourceRequest::Stage::UnloadFailedResource );
+            KRG_ASSERT( m_pResourceRecord->HasLoadingFailed() );
+
+            m_pResourceLoader->Unload( GetResourceID(), m_pResourceRecord );
+            m_pResourceRecord->SetLoadingStatus( LoadingStatus::Unloaded );
             m_stage = ResourceRequest::Stage::Complete;
 
             if ( m_isReloadRequest )

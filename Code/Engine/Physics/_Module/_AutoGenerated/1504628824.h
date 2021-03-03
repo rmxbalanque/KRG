@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMeshComponent& type )
     {
-        archive( cereal::base_class<KRG::Physics::PhysicsShapeComponent>( &type ), KRG_NVP( m_transform ), KRG_NVP( m_pPhysicsMesh ) );
+        archive( cereal::base_class<KRG::Physics::PhysicsShapeComponent>( &type ), KRG_NVP( m_pPhysicsMaterial ), KRG_NVP( m_transform ), KRG_NVP( m_pPhysicsMesh ) );
     }
 
     //-------------------------------------------------------------------------
@@ -35,6 +35,18 @@ namespace KRG
             KRG::Physics::PhysicsMeshComponent const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsMeshComponent const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_pPhysicsMaterial" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
+            propertyInfo.m_parentTypeID = 3338692939;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Physics::PhysicsMaterial" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pPhysicsMaterial;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_pPhysicsMaterial );
+            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Physics::PhysicsMaterial> );
+            propertyInfo.m_flags.SetAll( 0 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
@@ -123,6 +135,11 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshComponent*>( pType );
 
+                    if ( pActualType->m_pPhysicsMaterial.IsValid() )
+                    {
+                        pResourceSystem->LoadResource( pActualType->m_pPhysicsMaterial, requesterID );
+                    }
+
                     if ( pActualType->m_pPhysicsMesh.IsValid() )
                     {
                         pResourceSystem->LoadResource( pActualType->m_pPhysicsMesh, requesterID );
@@ -135,6 +152,11 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshComponent*>( pType );
 
+                    if ( pActualType->m_pPhysicsMaterial.IsValid() )
+                    {
+                        pResourceSystem->UnloadResource( pActualType->m_pPhysicsMaterial, requesterID );
+                    }
+
                     if ( pActualType->m_pPhysicsMesh.IsValid() )
                     {
                         pResourceSystem->UnloadResource( pActualType->m_pPhysicsMesh, requesterID );
@@ -146,6 +168,15 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
+
+                    if ( !pActualType->m_pPhysicsMaterial.IsValid() || pActualType->m_pPhysicsMaterial.HasLoadingFailed() )
+                    {
+                        status = LoadingStatus::Failed;
+                    }
+                    else if ( pActualType->m_pPhysicsMaterial.IsUnloaded() || pActualType->m_pPhysicsMaterial.IsLoading() )
+                    {
+                        return LoadingStatus::Loading;
+                    }
 
                     if ( !pActualType->m_pPhysicsMesh.IsValid() || pActualType->m_pPhysicsMesh.HasLoadingFailed() )
                     {
@@ -163,6 +194,12 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
+
+                    KRG_ASSERT( !pActualType->m_pPhysicsMaterial.IsLoading() );
+                    if ( !pActualType->m_pPhysicsMaterial.IsUnloaded() )
+                    {
+                        return LoadingStatus::Unloading;
+                    }
 
                     KRG_ASSERT( !pActualType->m_pPhysicsMesh.IsLoading() );
                     if ( !pActualType->m_pPhysicsMesh.IsUnloaded() )
@@ -184,6 +221,11 @@ namespace KRG
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshComponent*>( pType );
+                    if ( propertyID == 838471742 )
+                    {
+                        return KRG::Physics::PhysicsMaterial::GetStaticResourceTypeID();
+                    }
+
                     if ( propertyID == 1875393011 )
                     {
                         return KRG::Physics::PhysicsMesh::GetStaticResourceTypeID();

@@ -45,9 +45,9 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         PhysicsMeshCompiler::PhysicsMeshCompiler()
-            : Resource::Compiler( "PhysicsGeometryCompiler", VERSION )
+            : Resource::Compiler( "PhysicsMeshCompiler", VERSION )
         {
-            m_outputTypes.push_back('PHYS' );
+            m_outputTypes.push_back( PhysicsMesh::GetStaticResourceTypeID() );
         }
 
         Resource::CompilationResult PhysicsMeshCompiler::Compile( Resource::CompileContext const& ctx ) const

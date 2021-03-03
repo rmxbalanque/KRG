@@ -27,6 +27,7 @@ namespace KRG
                 // Unload Stages
                 UninstallResource,
                 UnloadResource,
+                UnloadFailedResource,
 
                 // Special Cases
                 CancelWaitForLoadDependencies, // This stage is needed so we can resume correctly when going from load -> unload -> load
@@ -101,6 +102,7 @@ namespace KRG
             void InstallResource( RequestContext& requestContext );
             void UninstallResource( RequestContext& requestContext );
             void UnloadResource( RequestContext& requestContext );
+            void UnloadFailedResource( RequestContext& requestContext );
             void CancelRawRequestRequest( RequestContext& requestContext );
 
         private:

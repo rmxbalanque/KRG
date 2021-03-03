@@ -35,6 +35,10 @@
         {
           "Id": "032c51fb-7fec-426b-980e-033e95c50370",
           "Command": "-compile data://br/sm_env_grass_square_01.phys.krg"
+        },
+        {
+          "Id": "24a59036-d75e-4e0b-9a95-dbde628c364f",
+          "Command": "-compile data://Physics/DefaultPhysicsMaterial.pmat"
         }
       ]
     },

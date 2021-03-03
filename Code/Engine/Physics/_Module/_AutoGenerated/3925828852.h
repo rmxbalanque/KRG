@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsCapsuleComponent& type )
     {
-        archive( cereal::base_class<KRG::Physics::PhysicsShapeComponent>( &type ), KRG_NVP( m_transform ), KRG_NVP( m_capsuleHalfHeight ), KRG_NVP( m_capsuleRadius ) );
+        archive( cereal::base_class<KRG::Physics::PhysicsShapeComponent>( &type ), KRG_NVP( m_pPhysicsMaterial ), KRG_NVP( m_transform ), KRG_NVP( m_capsuleHalfHeight ), KRG_NVP( m_capsuleRadius ) );
     }
 
     //-------------------------------------------------------------------------
@@ -35,6 +35,18 @@ namespace KRG
             KRG::Physics::PhysicsCapsuleComponent const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsCapsuleComponent const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_pPhysicsMaterial" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
+            propertyInfo.m_parentTypeID = 235916608;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Physics::PhysicsMaterial" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pPhysicsMaterial;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsCapsuleComponent, m_pPhysicsMaterial );
+            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Physics::PhysicsMaterial> );
+            propertyInfo.m_flags.SetAll( 0 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
@@ -135,12 +147,22 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
 
+                    if ( pActualType->m_pPhysicsMaterial.IsValid() )
+                    {
+                        pResourceSystem->LoadResource( pActualType->m_pPhysicsMaterial, requesterID );
+                    }
+
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
+
+                    if ( pActualType->m_pPhysicsMaterial.IsValid() )
+                    {
+                        pResourceSystem->UnloadResource( pActualType->m_pPhysicsMaterial, requesterID );
+                    }
 
                 }
 
@@ -149,6 +171,15 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
+                    if ( !pActualType->m_pPhysicsMaterial.IsValid() || pActualType->m_pPhysicsMaterial.HasLoadingFailed() )
+                    {
+                        status = LoadingStatus::Failed;
+                    }
+                    else if ( pActualType->m_pPhysicsMaterial.IsUnloaded() || pActualType->m_pPhysicsMaterial.IsLoading() )
+                    {
+                        return LoadingStatus::Loading;
+                    }
+
                     return status;
                 }
 
@@ -156,6 +187,12 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
+
+                    KRG_ASSERT( !pActualType->m_pPhysicsMaterial.IsLoading() );
+                    if ( !pActualType->m_pPhysicsMaterial.IsUnloaded() )
+                    {
+                        return LoadingStatus::Unloading;
+                    }
 
                     return LoadingStatus::Unloaded;
                 }
@@ -171,6 +208,11 @@ namespace KRG
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
+                    if ( propertyID == 838471742 )
+                    {
+                        return KRG::Physics::PhysicsMaterial::GetStaticResourceTypeID();
+                    }
+
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();

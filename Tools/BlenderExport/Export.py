@@ -13,11 +13,11 @@ class Property:
         self.Path = path
         self.Value = value
 
-class CameraComponent:
+class NavmeshComponent:
     def __init__(self):
         self.ID = uuid.uuid4()
-        self.Name = "CameraComponent"
-        self.TypeData = { "TypeID" : "KRG::CameraComponent" }
+        self.Name = "NavmeshComponent"
+        self.TypeData = { "TypeID" : "KRG::Navmesh::NavmeshComponent" }
 
 class PhysicsMeshComponent:
     def __init__(self, name):
@@ -54,7 +54,7 @@ class MapEncoder(JSONEncoder):
             return obj.__dict__
         if isinstance(obj, PhysicsMeshComponent):
             return obj.__dict__
-        if isinstance(obj, CameraComponent):
+        if isinstance(obj, NavmeshComponent):
             return obj.__dict__
         if isinstance(obj, Property):
             return { obj.Path: obj.Value }
@@ -82,6 +82,11 @@ try:
     # Create map
     entityMap = EntityMap()
 
+    # Add navmesh
+    navmeshEntity = Entity( "NavmeshEntity" )
+    navmeshEntity.Components.append( NavmeshComponent() )
+    entityMap.Entities.append( navmeshEntity )
+
     # Create scene entities
     for ob in ob_list:
 
@@ -98,11 +103,11 @@ try:
             sx, sy, sz = sca * 100 # unpack the ob.rot tuple for printing
 
             meshDataPath = "data://Packs/BR/Environment/{}.msh".format( mesh.name )
-            physicsGeoDataPath = 'data://Packs/BR/Environment/{}.phys'.format( mesh.name )
+            physicsGeoDataPath = 'data://Packs/BR/Environment/{}.pmsh'.format( mesh.name )
 
             if "sm_veh" in mesh.name.lower():
                 meshDataPath = "data://Packs/BR/Vehicles/{}.msh".format( mesh.name )
-                physicsGeoDataPath = 'data://Packs/BR/Vehicles/{}.phys'.format( mesh.name )
+                physicsGeoDataPath = 'data://Packs/BR/Vehicles/{}.pmsh'.format( mesh.name )
 
             if "01_wires" in mesh.name.lower() or "02_wires" in mesh.name.lower():
                 meshDataPath = meshDataPath.replace("_Wires", "")
@@ -134,6 +139,7 @@ try:
             physicsComponent = PhysicsMeshComponent( "phys_" + ob.name )
             physicsComponent.SpatialParent = meshComponent.ID
             physicsComponent.TypeData[ "m_pPhysicsMesh"] = physicsGeoDataPath
+            physicsComponent.TypeData[ "m_pPhysicsMaterial"] = "data://Physics/DefaultPhysicsMaterial.pmat"
             entity.Components.append( physicsComponent )
 
             entityMap.Entities.append( entity )

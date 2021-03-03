@@ -50,17 +50,17 @@ namespace KRG::Physics
         KRG_ASSERT( archive.IsValid() );
 
         // Create mesh resource
-        PhysicsMesh* pPhysicsGeometry = KRG::New<PhysicsMesh>();
-        archive >> *pPhysicsGeometry;
+        PhysicsMesh* pPhysicsMesh = KRG::New<PhysicsMesh>();
+        archive >> *pPhysicsMesh;
 
         // Deserialize cooked mesh data
         TVector<Byte> cookedTriangleMeshData;
         archive >> cookedTriangleMeshData;
 
         PhysXSerializedInputData cooked( cookedTriangleMeshData );
-        pPhysicsGeometry->m_pTriangleMesh = m_pPhysics->createTriangleMesh( cooked );
+        pPhysicsMesh->m_pTriangleMesh = m_pPhysics->createTriangleMesh( cooked );
 
-        pResourceRecord->SetResourceData( pPhysicsGeometry );
+        pResourceRecord->SetResourceData( pPhysicsMesh );
         return true;
     }
 

@@ -116,7 +116,7 @@ namespace Scripts
                     },
                     new ResourceDescriptorProperty()
                     {
-                        Path = "m_resourceTypeID", Value = "PHYS"
+                        Path = "m_resourceTypeID", Value = "PMSH"
                     },
                     new ResourceDescriptorProperty()
                     {
@@ -126,7 +126,7 @@ namespace Scripts
             };
 
             string fileContents = JValue.Parse( JsonConvert.SerializeObject( desc, settings ) ).ToString( Formatting.Indented );
-            var outFile = sourceFile.Directory.FullName + "\\" + filename + ".phys";
+            var outFile = sourceFile.Directory.FullName + "\\" + filename + ".pmsh";
             File.WriteAllText( outFile, fileContents );
         }
 
@@ -224,7 +224,7 @@ namespace Scripts
         #region Conversion
         public static void RemoveRootArraysFromResourceDescriptors( DirectoryInfo directory )
         {
-            var files = directory.GetFilesByExtensions( ".mtrl", ".txtr", ".skms", ".stms", ".phys", ".anim", ".skel" );
+            var files = directory.GetFilesByExtensions( ".mtrl", ".txtr", ".skms", ".stms", ".pmsh", ".anim", ".skel" );
             foreach ( var file in files )
             {
                 try

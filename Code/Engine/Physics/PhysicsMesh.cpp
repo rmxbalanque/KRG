@@ -6,6 +6,6 @@ namespace KRG::Physics
 {
     bool PhysicsMesh::IsValid() const
     {
-        return true;
+        return m_pTriangleMesh != nullptr;
     }
 }

@@ -55,7 +55,7 @@ namespace KRG
             inline bool Contains( Float2 const& point ) const
             {
                 Float2 const bottomRight = GetBottomRight();
-                return Math::IsInRange( point.x, m_topLeft.x, bottomRight.x ) && Math::IsInRange( point.y, bottomRight.y, m_topLeft.y );
+                return Math::IsInRangeInclusive( point.x, m_topLeft.x, bottomRight.x ) && Math::IsInRangeInclusive( point.y, bottomRight.y, m_topLeft.y );
             }
 
             inline bool Overlaps( Rectangle const& other ) const

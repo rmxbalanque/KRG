@@ -394,31 +394,29 @@ namespace KRG
                 ImVec4 const titleBarTextColor = ( message.m_severity == Log::Severity::Warning ) ? ImGuiX::ConvertColor( Colors::Black ) : ImGuiX::ConvertColor( Colors::Black );
 
                 ImGui::OpenPopup( message.m_ID.c_str() );
-                ImGui::SetNextWindowSize( ImVec2( 400, 0 ) );
                 ImGui::PushStyleColor( ImGuiCol_Text, titleBarTextColor );
                 ImGui::PushStyleColor( ImGuiCol_TitleBgActive, titleBarColor );
-                if ( ImGui::BeginPopupModal( message.m_ID.c_str(), &message.m_isOpen, ImGuiWindowFlags_AlwaysAutoResize ) )
+                if ( ImGui::BeginPopupModal( message.m_ID.c_str(), &message.m_isOpen, ImGuiWindowFlags_NoSavedSettings ) )
                 {
                     ImGui::PopStyleColor( 2 );
 
-                    if ( ImGui::BeginTable( "ErrorPopup", 2 ) )
+                    ImGui::BeginGroup();
                     {
-                        ImGui::TableNextColumn();
+                        ImGui::PushStyleColor( ImGuiCol_Text, titleBarColor );
+                        ImGuiX::ScopedFont font( ImGuiX::Font::ExtraLarge );
+                        ImGui::Text( KRG_ICON_EXCLAMATION_TRIANGLE );
+                        ImGui::PopStyleColor( 1 );
+                    }
+                    ImGui::EndGroup();
 
-                        {
-                            ImGui::PushStyleColor( ImGuiCol_Text, titleBarColor );
-                            ImGuiX::ScopedFont font( ImGuiX::Font::ExtraLarge );
-                            ImGui::Text( KRG_ICON_EXCLAMATION_TRIANGLE );
-                            ImGui::PopStyleColor( 1 );
-                        }
+                    ImGui::SameLine();
 
-                        ImGui::TableNextColumn();
-
+                    ImGui::BeginGroup();
+                    {
                         ImGui::Text( "Channel: %s", message.m_channel.c_str() );
                         ImGui::Text( "Message: %s", message.m_message.c_str() );
-
-                        ImGui::EndTable();
                     }
+                    ImGui::EndGroup();
 
                     //-------------------------------------------------------------------------
 

@@ -39,6 +39,8 @@
     </ClCompile>
     <ClCompile Include="PhysicsMesh.cpp" />
     <ClCompile Include="ResourceLoaders\PhysicsMeshLoader.cpp" />
+    <ClCompile Include="PhysicsMaterial.cpp" />
+    <ClCompile Include="ResourceLoaders\PhysicsMaterialLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\PhysicsDebugViewController.h">
@@ -66,5 +68,7 @@
     </ClInclude>
     <ClInclude Include="PhysicsMesh.h" />
     <ClInclude Include="ResourceLoaders\PhysicsMeshLoader.h" />
+    <ClInclude Include="PhysicsMaterial.h" />
+    <ClInclude Include="ResourceLoaders\PhysicsMaterialLoader.h" />
   </ItemGroup>
 </Project>
