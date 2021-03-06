@@ -281,8 +281,8 @@ namespace KRG
             {
                 POINTS pt;
                 pt = MAKEPOINTS( paramL );
-                m_mouseState.m_position.x = pt.x;
-                m_mouseState.m_position.y = pt.y;
+                m_mouseState.m_position.m_x = pt.x;
+                m_mouseState.m_position.m_y = pt.y;
             }
 
             // Mouse Input
@@ -306,8 +306,8 @@ namespace KRG
                     RAWMOUSE const& rawMouse = pRawInputData->data.mouse;
 
                     // Mouse Movement
-                    m_mouseState.m_movementDelta.x = rawMouse.lLastX;
-                    m_mouseState.m_movementDelta.y = rawMouse.lLastY;
+                    m_mouseState.m_movementDelta.m_x = rawMouse.lLastX;
+                    m_mouseState.m_movementDelta.m_y = rawMouse.lLastY;
 
                     // Mouse button state
                     if ( rawMouse.usButtonFlags != 0 )

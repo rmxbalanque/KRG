@@ -257,10 +257,10 @@ namespace KRG
         void RenderContext::SetViewport( Float2 dimensions, Float2 topLeft ) const
         {
             D3D11_VIEWPORT dxViewport;
-            dxViewport.Width = dimensions.x;
-            dxViewport.Height = dimensions.y;
-            dxViewport.TopLeftX = topLeft.x;
-            dxViewport.TopLeftY = topLeft.y;
+            dxViewport.Width = dimensions.m_x;
+            dxViewport.Height = dimensions.m_y;
+            dxViewport.TopLeftX = topLeft.m_x;
+            dxViewport.TopLeftY = topLeft.m_y;
             dxViewport.MinDepth = 0;
             dxViewport.MaxDepth = 1;
             m_pDeviceContext->RSSetViewports( 1, &dxViewport );

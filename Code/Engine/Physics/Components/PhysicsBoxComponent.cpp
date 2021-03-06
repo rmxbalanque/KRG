@@ -6,7 +6,7 @@ namespace KRG::Physics
 {
     bool PhysicsBoxComponent::HasValidPhysicsSetup() const
     {
-        if ( m_boxExtents.x <= 0.0f || m_boxExtents.y <= 0.0f || m_boxExtents.z <= 0.0f )
+        if ( m_boxExtents.m_x <= 0.0f || m_boxExtents.m_y <= 0.0f || m_boxExtents.m_z <= 0.0f )
         {
             KRG_LOG_ERROR( "Invalid box extents on Physics Box Component: %s (%s). Negative or zero values are not allowed!", GetName().c_str(), GetID().ToString().c_str() );
             return false;

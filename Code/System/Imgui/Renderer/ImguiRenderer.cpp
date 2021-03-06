@@ -125,12 +125,12 @@ namespace KRG
 
             // Set render dimensions
             auto const renderTargetDimensions = m_pRenderDevice->GetRenderTargetDimensions();
-            io.DisplaySize = ImVec2( (float) renderTargetDimensions.x, (float) renderTargetDimensions.y );
+            io.DisplaySize = ImVec2( (float) renderTargetDimensions.m_x, (float) renderTargetDimensions.m_y );
 
             Byte* pPixels = nullptr;
             Int2 dimensions;
-            io.Fonts->GetTexDataAsRGBA32( &pPixels, &dimensions.x, &dimensions.y );
-            m_fontTexture = Texture::InitializeTexture( TextureFormat::Raw, dimensions, pPixels, dimensions.x * dimensions.y * 4 );
+            io.Fonts->GetTexDataAsRGBA32( &pPixels, &dimensions.m_x, &dimensions.m_y );
+            m_fontTexture = Texture::InitializeTexture( TextureFormat::Raw, dimensions, pPixels, dimensions.m_x * dimensions.m_y * 4 );
             KRG_ASSERT( pPixels != nullptr );
             m_pRenderDevice->CreateTexture( m_fontTexture );
 
@@ -227,7 +227,7 @@ namespace KRG
             // Update viewport dimensions
             ImGuiIO& io = ImGui::GetIO();
             Int2 const viewportDimensions = viewport.GetSize();
-            io.DisplaySize = ImVec2( (float) viewportDimensions.x, (float) viewportDimensions.y );
+            io.DisplaySize = ImVec2( (float) viewportDimensions.m_x, (float) viewportDimensions.m_y );
 
             if ( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
             {
@@ -294,7 +294,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Set view projection matrix
-            auto const dimensions = ImGui::GetIO().DisplaySize;
+            ImVec2 const dimensions = ImGui::GetIO().DisplaySize;
             auto const matrix = Matrix::OrthographicProjectionMatrixOffCenter( 0.0f, dimensions.x, dimensions.y, 0.0f, 0, 1.0f );
             renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &matrix, sizeof( Matrix ) );
 

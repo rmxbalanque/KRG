@@ -384,7 +384,7 @@ namespace KRG
             Vector arrowDirection, arrowLength;
             ( vEnd - vStart ).ToDirectionAndLength3( arrowDirection, arrowLength );
 
-            float const arrowHeadLength = Math::Max( arrowLength.x * 0.8f, arrowLength.x - maxArrowHeadLength );
+            float const arrowHeadLength = Math::Max( arrowLength.m_x * 0.8f, arrowLength.m_x - maxArrowHeadLength );
             float const arrowHeadThickness = Math::Max( thickness * 2, minArrowHeadThickness );
             Vector const vArrowHeadStartPoint = vStart + ( arrowDirection * arrowHeadLength );
             Float3 const arrowHeadStartPoint = vArrowHeadStartPoint.ToFloat3();

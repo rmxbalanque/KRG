@@ -41,16 +41,24 @@
     </Expand>
   </Type>
 
+  <Type Name="KRG::Float2">
+    <DisplayString>{{x={m_x} y={m_y}}}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::Float3">
+    <DisplayString>{{x={m_x} y={m_y} z={m_z}}}</DisplayString>
+  </Type>
+
   <Type Name="KRG::Float4">
-    <DisplayString>{{x={x} y={y} z={z} w={w}}}</DisplayString>
+    <DisplayString>{{x={m_x} y={m_y} z={m_z} w={m_w}}}</DisplayString>
   </Type>
 
   <Type Name="KRG::Vector">
-    <DisplayString>{{x={x} y={y} z={z} w={w}}}</DisplayString>
+    <DisplayString>{{x={m_x} y={m_y} z={m_z} w={m_w}}}</DisplayString>
   </Type>
 
   <Type Name="KRG::Quaternion">
-    <DisplayString>{{x={x} y={y} z={z} w={w}}}</DisplayString>
+    <DisplayString>{{x={m_x} y={m_y} z={m_z} w={m_w}}}</DisplayString>
   </Type>
 
   <Type Name="KRG::TypeSystem::TypeID">
@@ -62,11 +70,11 @@
   </Type>
 
   <Type Name="KRG::AABB">
-    <DisplayString>{{Ctr( {m_center.x}, {m_center.y}, {m_center.z} ), Ext( {m_extents.x}, {m_extents.y}, {m_extents.z} )}}</DisplayString>
+    <DisplayString>{{Ctr( {m_center.m_x}, {m_center.m_y}, {m_center.m_z} ), Ext( {m_extents.m_x}, {m_extents.m_y}, {m_extents.m_z} )}}</DisplayString>
   </Type>
 
   <Type Name="KRG::OBB">
-    <DisplayString>{{Ctr( {m_center.x}, {m_center.y}, {m_center.z} ), Ext( {m_extents.x}, {m_extents.y}, {m_extents.z} ), Rot( {m_orientation} )}}</DisplayString>
+    <DisplayString>{{Ctr( {m_center.m_x}, {m_center.m_y}, {m_center.m_z} ), Ext( {m_extents.m_x}, {m_extents.m_y}, {m_extents.m_z} ), Rot( {m_orientation} )}}</DisplayString>
   </Type>
 
   <Type Name="KRG::DataPath">

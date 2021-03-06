@@ -34,8 +34,8 @@ namespace KRG
         {
             auto calculateRawValue = [this] ( Float2 const rawValue, bool bInvertY )
             {
-                float const normalizedX = Math::Clamp( rawValue.x, -1.0f, 1.0f );
-                float const normalizedY = Math::Clamp( rawValue.y, -1.0f, 1.0f );
+                float const normalizedX = Math::Clamp( rawValue.m_x, -1.0f, 1.0f );
+                float const normalizedY = Math::Clamp( rawValue.m_y, -1.0f, 1.0f );
                 return Float2( normalizedX, bInvertY ? -normalizedY : normalizedY );
             };
 

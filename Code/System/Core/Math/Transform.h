@@ -41,7 +41,7 @@ namespace KRG
             , m_translation( translation )
             , m_scale( scale )
         {
-            auto f = m_translation.w;
+            auto f = m_translation.m_w;
             KRG_ASSERT( m_translation.IsPoint() );
             m_scale.SetW0();
         }
@@ -91,8 +91,8 @@ namespace KRG
         inline void SetScale( Vector const& scale ) { m_scale = scale; m_scale.SetW0(); }
         inline void SetScale( float uniformScale ) { m_scale = Vector( uniformScale, uniformScale, uniformScale, 0.0f ); }
         inline bool HasNegativeScale() const { return m_scale.IsAnyLessThan( Vector::Zero ); }
-        inline bool HasUniformScale() const { return m_scale.x == m_scale.y && m_scale.y == m_scale.z; }
-        inline bool HasShearOrSkew() const { auto const abs = m_scale.GetAbs(); return abs.x != abs.y || abs.y != abs.z; }
+        inline bool HasUniformScale() const { return m_scale.m_x == m_scale.m_y && m_scale.m_y == m_scale.m_z; }
+        inline bool HasShearOrSkew() const { auto const abs = m_scale.GetAbs(); return abs.m_x != abs.m_y || abs.m_y != abs.m_z; }
 
         // This function will sanitize the scale values to remove any trailing values from scale factors i.e. 1.000000012 will be converted to 1
         // If values are really close to each other ( 1.0000012, 0.9999996, 1.0 ) this function will create a uniform scale (1, 1, 1)
@@ -129,10 +129,10 @@ namespace KRG
         // Handle zero scale case
         if ( m_scale.IsAnyEqualsZero() )
         {
-            inverseScale.x = Math::IsNearlyZero( m_scale.x ) ? 0.0f : 1.0f / m_scale.x;
-            inverseScale.y = Math::IsNearlyZero( m_scale.y ) ? 0.0f : 1.0f / m_scale.y;
-            inverseScale.z = Math::IsNearlyZero( m_scale.z ) ? 0.0f : 1.0f / m_scale.z;
-            inverseScale.w = 1.0f;
+            inverseScale.m_x = Math::IsNearlyZero( m_scale.m_x ) ? 0.0f : 1.0f / m_scale.m_x;
+            inverseScale.m_y = Math::IsNearlyZero( m_scale.m_y ) ? 0.0f : 1.0f / m_scale.m_y;
+            inverseScale.m_z = Math::IsNearlyZero( m_scale.m_z ) ? 0.0f : 1.0f / m_scale.m_z;
+            inverseScale.m_w = 1.0f;
         }
         else // Just invert
         {
@@ -192,10 +192,10 @@ namespace KRG
         // Handle zero scale case
         if ( from.m_scale.IsAnyEqualsZero() )
         {
-            inverseScale.x = Math::IsNearlyZero( from.m_scale.x ) ? 0.0f : 1.0f / from.m_scale.x;
-            inverseScale.y = Math::IsNearlyZero( from.m_scale.y ) ? 0.0f : 1.0f / from.m_scale.y;
-            inverseScale.z = Math::IsNearlyZero( from.m_scale.z ) ? 0.0f : 1.0f / from.m_scale.z;
-            inverseScale.w = 1.0f;
+            inverseScale.m_x = Math::IsNearlyZero( from.m_scale.m_x ) ? 0.0f : 1.0f / from.m_scale.m_x;
+            inverseScale.m_y = Math::IsNearlyZero( from.m_scale.m_y ) ? 0.0f : 1.0f / from.m_scale.m_y;
+            inverseScale.m_z = Math::IsNearlyZero( from.m_scale.m_z ) ? 0.0f : 1.0f / from.m_scale.m_z;
+            inverseScale.m_w = 1.0f;
         }
         else // Just invert
         {

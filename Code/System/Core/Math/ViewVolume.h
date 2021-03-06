@@ -65,7 +65,7 @@ namespace KRG
 
             inline TRange<float> GetDepthRange() const { return m_depthRange; }
             inline Float2 GetViewDimensions() const { return m_viewDimensions; }
-            inline float GetAspectRatio() const { return m_viewDimensions.x / m_viewDimensions.y; }
+            inline float GetAspectRatio() const { return m_viewDimensions.m_x / m_viewDimensions.m_y; }
             inline Radians GetFOV() const { KRG_ASSERT( IsPerspective() ); return m_FOV; }
 
             // Spatial Info

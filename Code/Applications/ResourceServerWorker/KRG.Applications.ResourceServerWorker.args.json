@@ -93,6 +93,10 @@
       "Command": "Animation",
       "Items": [
         {
+          "Id": "b8487d62-a70c-4723-b2b6-a6c915b7556a",
+          "Command": "-compile data://animation/stand_crowd_ambient4.anim"
+        },
+        {
           "Id": "fe3f7226-4f1e-44fa-8a8b-974dc399976c",
           "Command": "-compile data://gltf/gltf_test.anim"
         },

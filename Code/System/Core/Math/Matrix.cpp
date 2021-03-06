@@ -36,9 +36,9 @@ namespace KRG
     {
         float cx, cy, cz, sx, sy, sz, czsx, cxcz, sysz;
 
-        sx = sinf( eulerAngles.x ); cx = cosf( eulerAngles.x );
-        sy = sinf( eulerAngles.y ); cy = cosf( eulerAngles.y );
-        sz = sinf( eulerAngles.z ); cz = cosf( eulerAngles.z );
+        sx = sinf( eulerAngles.m_x ); cx = cosf( eulerAngles.m_x );
+        sy = sinf( eulerAngles.m_y ); cy = cosf( eulerAngles.m_y );
+        sz = sinf( eulerAngles.m_z ); cz = cosf( eulerAngles.m_z );
 
         czsx = cz * sx;
         cxcz = cx * cz;
@@ -68,14 +68,14 @@ namespace KRG
 
         EulerAngles result;
 
-        result.x = Math::ATan2( m_values[1][2], m_values[2][2] );
+        result.m_x = Math::ATan2( m_values[1][2], m_values[2][2] );
 
         float const c2 = Math::Sqrt( ( m_values[0][0] * m_values[0][0] ) + ( m_values[0][1] * m_values[0][1] ) );
-        result.y = Math::ATan2( -m_values[0][2], c2 );
+        result.m_y = Math::ATan2( -m_values[0][2], c2 );
 
-        float const s1 = Math::Sin( result.x );
-        float const c1 = Math::Cos( result.x );
-        result.z = Math::ATan2( ( s1 * m_values[2][0] ) - ( c1 * m_values[1][0] ), ( c1 * m_values[1][1] ) - ( s1 * m_values[2][1] ) );
+        float const s1 = Math::Sin( result.m_x );
+        float const c1 = Math::Cos( result.m_x );
+        result.m_z = Math::ATan2( ( s1 * m_values[2][0] ) - ( c1 * m_values[1][0] ), ( c1 * m_values[1][1] ) - ( s1 * m_values[2][1] ) );
 
         return result;
     }
@@ -146,14 +146,14 @@ namespace KRG
         }
 
         // Compute X scale factor.
-        scale.x = row[0].Length3().GetX();
-        if ( !CheckForZeroScaleInRow( scale.x, row[0] ) )
+        scale.m_x = row[0].Length3().GetX();
+        if ( !CheckForZeroScaleInRow( scale.m_x, row[0] ) )
         {
             return false;
         }
 
         // Normalize first row.
-        row[0] /= scale.x;
+        row[0] /= scale.m_x;
 
         // An XY shear factor will shear the X coord. as the Y coord. changes.
         // There are 6 combinations (XY, XZ, YZ, YX, ZX, ZY), although we only
@@ -170,15 +170,15 @@ namespace KRG
         row[1] -= row[0] * shear[0];
 
         // Now, compute Y scale.
-        scale.y = row[1].Length3().GetX();
-        if ( !CheckForZeroScaleInRow( scale.y, row[1] ) )
+        scale.m_y = row[1].Length3().GetX();
+        if ( !CheckForZeroScaleInRow( scale.m_y, row[1] ) )
         {
             return false;
         }
 
         // Normalize 2nd row and correct the XY shear factor for Y scaling.
-        row[1] /= scale.y;
-        shear[0] /= scale.y;
+        row[1] /= scale.m_y;
+        shear[0] /= scale.m_y;
 
         // Compute XZ and YZ shears, orthogonalize 3rd row.
         shear[1] = Vector::Dot3( row[0], row[2] ).ToFloat();
@@ -187,16 +187,16 @@ namespace KRG
         row[2] -= row[1] * shear[2];
 
         // Next, get Z scale.
-        scale.z = row[2].Length3().ToFloat();
-        if ( !CheckForZeroScaleInRow( scale.z, row[2] ) )
+        scale.m_z = row[2].Length3().ToFloat();
+        if ( !CheckForZeroScaleInRow( scale.m_z, row[2] ) )
         {
             return false;
         }
 
         // Normalize 3rd row and correct the XZ and YZ shear factors for Z scaling.
-        row[2] /= scale.z;
-        shear[1] /= scale.z;
-        shear[2] /= scale.z;
+        row[2] /= scale.m_z;
+        shear[1] /= scale.m_z;
+        shear[2] /= scale.m_z;
 
         // At this point, the upper 3x3 matrix in mat is orthonormal.
         // Check for a coordinate system flip. If the determinant
@@ -270,9 +270,9 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        m_rows[0] = m_rows[0] * newScale.x;
-        m_rows[1] = m_rows[1] * newScale.y;
-        m_rows[2] = m_rows[2] * newScale.z;
+        m_rows[0] = m_rows[0] * newScale.m_x;
+        m_rows[1] = m_rows[1] * newScale.m_y;
+        m_rows[2] = m_rows[2] * newScale.m_z;
         return *this;
     }
 

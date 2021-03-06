@@ -116,7 +116,7 @@ namespace KRG
             // Calculate position delta
             positionDelta = deltaRight * rightDirection;
             positionDelta += deltaForward * forwardDirection;
-            positionDelta.w = 0.0f;
+            positionDelta.m_w = 0.0f;
 
             // Update character transform
             Transform newEntityTransform = entityTransform;
@@ -132,11 +132,11 @@ namespace KRG
         if ( pMouseState->IsHeldDown( Input::MouseButton::Right ) )
         {
             auto const directionDelta = pMouseState->GetMovementDelta();
-            if ( directionDelta.x != 0 || directionDelta.y != 0 )
+            if ( directionDelta.m_x != 0 || directionDelta.m_y != 0 )
             {
                 // Adjust heading and pitch based on input
-                headingDelta = -directionDelta.x * g_lookSpeed * deltaTime;
-                pitchDelta = -directionDelta.y * g_lookSpeed * deltaTime;
+                headingDelta = -directionDelta.m_x * g_lookSpeed * deltaTime;
+                pitchDelta = -directionDelta.m_y * g_lookSpeed * deltaTime;
                 m_pCameraComponent->AdjustHeadingAndPitch( headingDelta, pitchDelta );
             }
         }

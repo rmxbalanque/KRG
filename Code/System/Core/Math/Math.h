@@ -35,20 +35,20 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE float Sin( float x ) { return sinf( x ); }
-        KRG_FORCE_INLINE float Cos( float x ) { return cosf( x ); }
-        KRG_FORCE_INLINE float Tan( float x ) { return tanf( x ); }
+        KRG_FORCE_INLINE float Sin( float m_x ) { return sinf( m_x ); }
+        KRG_FORCE_INLINE float Cos( float m_x ) { return cosf( m_x ); }
+        KRG_FORCE_INLINE float Tan( float m_x ) { return tanf( m_x ); }
 
-        KRG_FORCE_INLINE float ASin( float x ) { return asinf( x ); }
-        KRG_FORCE_INLINE float ACos( float x ) { return acosf( x ); }
-        KRG_FORCE_INLINE float ATan( float x ) { return atanf( x ); }
-        KRG_FORCE_INLINE float ATan2( float y, float x ) { return atan2f( y, x ); }
+        KRG_FORCE_INLINE float ASin( float m_x ) { return asinf( m_x ); }
+        KRG_FORCE_INLINE float ACos( float m_x ) { return acosf( m_x ); }
+        KRG_FORCE_INLINE float ATan( float m_x ) { return atanf( m_x ); }
+        KRG_FORCE_INLINE float ATan2( float m_y, float m_x ) { return atan2f( m_y, m_x ); }
 
-        KRG_FORCE_INLINE float Cosec( float x ) { return 1.0f / sinf( x ); }
-        KRG_FORCE_INLINE float Sec( float x ) { return 1.0f / cosf( x ); }
-        KRG_FORCE_INLINE float Cot( float x ) { return 1.0f / tanf( PiDivTwo - x ); }
+        KRG_FORCE_INLINE float Cosec( float m_x ) { return 1.0f / sinf( m_x ); }
+        KRG_FORCE_INLINE float Sec( float m_x ) { return 1.0f / cosf( m_x ); }
+        KRG_FORCE_INLINE float Cot( float m_x ) { return 1.0f / tanf( PiDivTwo - m_x ); }
 
-        KRG_FORCE_INLINE float Pow( float x, float y ) { return pow( x, y ); }
+        KRG_FORCE_INLINE float Pow( float m_x, float m_y ) { return pow( m_x, m_y ); }
         KRG_FORCE_INLINE float Sqrt( float v ) { return sqrtf( v ); }
 
         KRG_FORCE_INLINE float AddToMovingAverage( float currentAverage, uint64 numCurrentSamples, float newValue )
@@ -103,9 +103,9 @@ namespace KRG
             return modff( value, pIntegerPortion );
         }
 
-        KRG_FORCE_INLINE float FModF( float x, float y )
+        KRG_FORCE_INLINE float FModF( float m_x, float m_y )
         {
-            return fmodf( x, y );
+            return fmodf( m_x, m_y );
         }
 
         template<typename T>
@@ -181,11 +181,11 @@ namespace KRG
             return lcm;
         }
 
-        inline float RemapRange( float x, float fromRangeMin, float fromRangeMax, float toRangeMin, float toRangeMax )
+        inline float RemapRange( float m_x, float fromRangeMin, float fromRangeMax, float toRangeMin, float toRangeMax )
         {
             float const fromRangeLength = fromRangeMax - fromRangeMin;
             float const toRangeLength = toRangeMax - toRangeMin;
-            float const percentageThroughFromRange = ( x - fromRangeMin ) / fromRangeLength;
+            float const percentageThroughFromRange = ( m_x - fromRangeMin ) / fromRangeLength;
             float const result = toRangeMin + ( percentageThroughFromRange * toRangeLength );
 
             return result;
@@ -230,102 +230,102 @@ namespace KRG
 
     struct KRG_SYSTEM_CORE_API Int2
     {
-        KRG_SERIALIZE_MEMBERS( x, y );
+        KRG_SERIALIZE_MEMBERS( m_x, m_y );
 
         static Int2 const Zero;
 
     public:
 
         inline Int2() {}
-        inline Int2( ZeroInit ) : x( 0 ), y( 0 ) {}
+        inline Int2( ZeroInit ) : m_x( 0 ), m_y( 0 ) {}
         inline Int2( Float2 const& v );
-        inline explicit Int2( int32 v ) : x( v ), y( v ) {}
-        inline explicit Int2( int32 ix, int32 iy ) : x( ix ), y( iy ) {}
+        inline explicit Int2( int32 v ) : m_x( v ), m_y( v ) {}
+        inline explicit Int2( int32 ix, int32 iy ) : m_x( ix ), m_y( iy ) {}
 
         inline int32& operator[]( uint32 i ) { KRG_ASSERT( i < 2 ); return ( (int32*) this )[i]; }
         inline int32 const& operator[]( uint32 i ) const { KRG_ASSERT( i < 2 ); return ( (int32*) this )[i]; }
 
-        inline bool operator==( Int2 const rhs ) const { return x == rhs.x && y == rhs.y; }
-        inline bool operator!=( Int2 const rhs ) const { return x != rhs.x || y != rhs.y; }
+        inline bool operator==( Int2 const rhs ) const { return m_x == rhs.m_x && m_y == rhs.m_y; }
+        inline bool operator!=( Int2 const rhs ) const { return m_x != rhs.m_x || m_y != rhs.m_y; }
 
-        inline Int2 operator+( Int2 const& rhs ) const { return Int2( x + rhs.x, y + rhs.y ); }
-        inline Int2 operator-( Int2 const& rhs ) const { return Int2( x - rhs.x, y - rhs.y ); }
-        inline Int2 operator*( Int2 const& rhs ) const { return Int2( x * rhs.x, y * rhs.y ); }
-        inline Int2 operator/( Int2 const& rhs ) const { return Int2( x / rhs.x, y / rhs.y ); }
+        inline Int2 operator+( Int2 const& rhs ) const { return Int2( m_x + rhs.m_x, m_y + rhs.m_y ); }
+        inline Int2 operator-( Int2 const& rhs ) const { return Int2( m_x - rhs.m_x, m_y - rhs.m_y ); }
+        inline Int2 operator*( Int2 const& rhs ) const { return Int2( m_x * rhs.m_x, m_y * rhs.m_y ); }
+        inline Int2 operator/( Int2 const& rhs ) const { return Int2( m_x / rhs.m_x, m_y / rhs.m_y ); }
 
-        inline Int2& operator+=( int32 const& rhs ) { x += rhs; y += rhs; return *this; }
-        inline Int2& operator-=( int32 const& rhs ) { x -= rhs; y -= rhs; return *this; }
-        inline Int2& operator*=( int32 const& rhs ) { x *= rhs; y *= rhs; return *this; }
-        inline Int2& operator/=( int32 const& rhs ) { x /= rhs; y /= rhs; return *this; }
+        inline Int2& operator+=( int32 const& rhs ) { m_x += rhs; m_y += rhs; return *this; }
+        inline Int2& operator-=( int32 const& rhs ) { m_x -= rhs; m_y -= rhs; return *this; }
+        inline Int2& operator*=( int32 const& rhs ) { m_x *= rhs; m_y *= rhs; return *this; }
+        inline Int2& operator/=( int32 const& rhs ) { m_x /= rhs; m_y /= rhs; return *this; }
 
         // Component wise operation
-        inline Int2 operator+( int32 const& rhs ) const { return Int2( x + rhs, y + rhs ); }
-        inline Int2 operator-( int32 const& rhs ) const { return Int2( x - rhs, y - rhs ); }
-        inline Int2 operator*( int32 const& rhs ) const { return Int2( x * rhs, y * rhs ); }
-        inline Int2 operator/( int32 const& rhs ) const { return Int2( x / rhs, y / rhs ); }
+        inline Int2 operator+( int32 const& rhs ) const { return Int2( m_x + rhs, m_y + rhs ); }
+        inline Int2 operator-( int32 const& rhs ) const { return Int2( m_x - rhs, m_y - rhs ); }
+        inline Int2 operator*( int32 const& rhs ) const { return Int2( m_x * rhs, m_y * rhs ); }
+        inline Int2 operator/( int32 const& rhs ) const { return Int2( m_x / rhs, m_y / rhs ); }
 
-        inline Int2& operator+=( Int2 const& rhs ) { x += rhs.x; y += rhs.y; return *this; }
-        inline Int2& operator-=( Int2 const& rhs ) { x -= rhs.x; y -= rhs.y; return *this; }
-        inline Int2& operator*=( Int2 const& rhs ) { x *= rhs.x; y *= rhs.y; return *this; }
-        inline Int2& operator/=( Int2 const& rhs ) { x /= rhs.x; y /= rhs.y; return *this; }
+        inline Int2& operator+=( Int2 const& rhs ) { m_x += rhs.m_x; m_y += rhs.m_y; return *this; }
+        inline Int2& operator-=( Int2 const& rhs ) { m_x -= rhs.m_x; m_y -= rhs.m_y; return *this; }
+        inline Int2& operator*=( Int2 const& rhs ) { m_x *= rhs.m_x; m_y *= rhs.m_y; return *this; }
+        inline Int2& operator/=( Int2 const& rhs ) { m_x /= rhs.m_x; m_y /= rhs.m_y; return *this; }
 
     public:
 
-        int32 x, y;
+        int32 m_x, m_y;
     };
 
     //-------------------------------------------------------------------------
 
     struct KRG_SYSTEM_CORE_API Int4
     {
-        KRG_SERIALIZE_MEMBERS( x, y, z, w );
+        KRG_SERIALIZE_MEMBERS( m_x, m_y, m_z, m_w );
 
         static Int4 const Zero;
 
     public:
 
         inline Int4() {}
-        inline Int4( ZeroInit ) : x( 0 ), y( 0 ), z( 0 ), w( 0 ) {}
-        inline explicit Int4( int32 v ) : x( v ), y( v ), z( v ), w( v ) {}
-        inline explicit Int4( int32 ix, int32 iy, int32 iz, int32 iw ) : x( ix ), y( iy ), z( iz ), w( iw ) {}
+        inline Int4( ZeroInit ) : m_x( 0 ), m_y( 0 ), m_z( 0 ), m_w( 0 ) {}
+        inline explicit Int4( int32 v ) : m_x( v ), m_y( v ), m_z( v ), m_w( v ) {}
+        inline explicit Int4( int32 ix, int32 iy, int32 iz, int32 iw ) : m_x( ix ), m_y( iy ), m_z( iz ), m_w( iw ) {}
 
         inline int32& operator[]( uint32 i ) { KRG_ASSERT( i < 4 ); return ( (int32*) this )[i]; }
         inline int32 const& operator[]( uint32 i ) const { KRG_ASSERT( i < 4 ); return ( (int32*) this )[i]; }
 
-        inline bool operator==( Int4 const rhs ) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
-        inline bool operator!=( Int4 const rhs ) const { return x != rhs.x || y != rhs.y || z != rhs.z || w != rhs.w; }
+        inline bool operator==( Int4 const rhs ) const { return m_x == rhs.m_x && m_y == rhs.m_y && m_z == rhs.m_z && m_w == rhs.m_w; }
+        inline bool operator!=( Int4 const rhs ) const { return m_x != rhs.m_x || m_y != rhs.m_y || m_z != rhs.m_z || m_w != rhs.m_w; }
 
-        inline Int4 operator+( int32 const& rhs ) const { return Int4( x + rhs, y + rhs, z + rhs, w + rhs ); }
-        inline Int4 operator-( int32 const& rhs ) const { return Int4( x - rhs, y - rhs, z - rhs, w - rhs ); }
-        inline Int4 operator*( int32 const& rhs ) const { return Int4( x * rhs, y * rhs, z * rhs, w * rhs ); }
-        inline Int4 operator/( int32 const& rhs ) const { return Int4( x / rhs, y / rhs, z / rhs, w / rhs ); }
+        inline Int4 operator+( int32 const& rhs ) const { return Int4( m_x + rhs, m_y + rhs, m_z + rhs, m_w + rhs ); }
+        inline Int4 operator-( int32 const& rhs ) const { return Int4( m_x - rhs, m_y - rhs, m_z - rhs, m_w - rhs ); }
+        inline Int4 operator*( int32 const& rhs ) const { return Int4( m_x * rhs, m_y * rhs, m_z * rhs, m_w * rhs ); }
+        inline Int4 operator/( int32 const& rhs ) const { return Int4( m_x / rhs, m_y / rhs, m_z / rhs, m_w / rhs ); }
 
-        inline Int4& operator+=( int32 const& rhs ) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; }
-        inline Int4& operator-=( int32 const& rhs ) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; }
-        inline Int4& operator*=( int32 const& rhs ) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; }
-        inline Int4& operator/=( int32 const& rhs ) { x /= rhs; y /= rhs; z /= rhs; w /= rhs; return *this; }
+        inline Int4& operator+=( int32 const& rhs ) { m_x += rhs; m_y += rhs; m_z += rhs; m_w += rhs; return *this; }
+        inline Int4& operator-=( int32 const& rhs ) { m_x -= rhs; m_y -= rhs; m_z -= rhs; m_w -= rhs; return *this; }
+        inline Int4& operator*=( int32 const& rhs ) { m_x *= rhs; m_y *= rhs; m_z *= rhs; m_w *= rhs; return *this; }
+        inline Int4& operator/=( int32 const& rhs ) { m_x /= rhs; m_y /= rhs; m_z /= rhs; m_w /= rhs; return *this; }
 
         // Component wise operation
-        inline Int4 operator+( Int4 const& rhs ) const { return Int4( x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w ); }
-        inline Int4 operator-( Int4 const& rhs ) const { return Int4( x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w ); }
-        inline Int4 operator*( Int4 const& rhs ) const { return Int4( x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w ); }
-        inline Int4 operator/( Int4 const& rhs ) const { return Int4( x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.w ); }
+        inline Int4 operator+( Int4 const& rhs ) const { return Int4( m_x + rhs.m_x, m_y + rhs.m_y, m_z + rhs.m_z, m_w + rhs.m_w ); }
+        inline Int4 operator-( Int4 const& rhs ) const { return Int4( m_x - rhs.m_x, m_y - rhs.m_y, m_z - rhs.m_z, m_w - rhs.m_w ); }
+        inline Int4 operator*( Int4 const& rhs ) const { return Int4( m_x * rhs.m_x, m_y * rhs.m_y, m_z * rhs.m_z, m_w * rhs.m_w ); }
+        inline Int4 operator/( Int4 const& rhs ) const { return Int4( m_x / rhs.m_x, m_y / rhs.m_y, m_z / rhs.m_z, m_w / rhs.m_w ); }
 
-        inline Int4& operator+=( Int4 const& rhs ) { x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w; return *this; }
-        inline Int4& operator-=( Int4 const& rhs ) { x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w; return *this; }
-        inline Int4& operator*=( Int4 const& rhs ) { x *= rhs.x; y *= rhs.y; z *= rhs.z; w *= rhs.w; return *this; }
-        inline Int4& operator/=( Int4 const& rhs ) { x /= rhs.x; y /= rhs.y; z /= rhs.z; w /= rhs.w; return *this; }
+        inline Int4& operator+=( Int4 const& rhs ) { m_x += rhs.m_x; m_y += rhs.m_y; m_z += rhs.m_z; m_w += rhs.m_w; return *this; }
+        inline Int4& operator-=( Int4 const& rhs ) { m_x -= rhs.m_x; m_y -= rhs.m_y; m_z -= rhs.m_z; m_w -= rhs.m_w; return *this; }
+        inline Int4& operator*=( Int4 const& rhs ) { m_x *= rhs.m_x; m_y *= rhs.m_y; m_z *= rhs.m_z; m_w *= rhs.m_w; return *this; }
+        inline Int4& operator/=( Int4 const& rhs ) { m_x /= rhs.m_x; m_y /= rhs.m_y; m_z /= rhs.m_z; m_w /= rhs.m_w; return *this; }
 
     public:
 
-        int32 x, y, z, w;
+        int32 m_x, m_y, m_z, m_w;
     };
 
     //-------------------------------------------------------------------------
 
     struct KRG_SYSTEM_CORE_API Float2
     {
-        KRG_SERIALIZE_MEMBERS( x, y );
+        KRG_SERIALIZE_MEMBERS( m_x, m_y );
 
         static Float2 const Zero;
         static Float2 const One;
@@ -335,47 +335,47 @@ namespace KRG
     public:
 
         inline Float2() {}
-        KRG_FORCE_INLINE Float2( ZeroInit ) : x( 0 ), y( 0 ) {}
-        KRG_FORCE_INLINE explicit Float2( float v ) : x( v ), y( v ) {}
-        KRG_FORCE_INLINE explicit Float2( float ix, float iy ) : x( ix ), y( iy ) {}
-        inline explicit Float2( Int2 const& v ) : x( (float) v.x ), y( (float) v.y ) {}
+        KRG_FORCE_INLINE Float2( ZeroInit ) : m_x( 0 ), m_y( 0 ) {}
+        KRG_FORCE_INLINE explicit Float2( float v ) : m_x( v ), m_y( v ) {}
+        KRG_FORCE_INLINE explicit Float2( float ix, float iy ) : m_x( ix ), m_y( iy ) {}
+        inline explicit Float2( Int2 const& v ) : m_x( (float) v.m_x ), m_y( (float) v.m_y ) {}
         inline explicit Float2( Float3 const& v );
         inline explicit Float2( Float4 const& v );
 
         inline float& operator[]( uint32 i ) { KRG_ASSERT( i < 2 ); return ( (float*) this )[i]; }
         inline float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 2 ); return ( (float*) this )[i]; }
 
-        inline bool operator==( Float2 const rhs ) const { return x == rhs.x && y == rhs.y; }
-        inline bool operator!=( Float2 const rhs ) const { return x != rhs.x || y != rhs.y; }
+        inline bool operator==( Float2 const rhs ) const { return m_x == rhs.m_x && m_y == rhs.m_y; }
+        inline bool operator!=( Float2 const rhs ) const { return m_x != rhs.m_x || m_y != rhs.m_y; }
 
-        inline Float2 operator+( Float2 const& rhs ) const { return Float2( x + rhs.x, y + rhs.y ); }
-        inline Float2 operator-( Float2 const& rhs ) const { return Float2( x - rhs.x, y - rhs.y ); }
-        inline Float2 operator*( Float2 const& rhs ) const { return Float2( x * rhs.x, y * rhs.y ); }
-        inline Float2 operator/( Float2 const& rhs ) const { return Float2( x / rhs.x, y / rhs.y ); }
+        inline Float2 operator+( Float2 const& rhs ) const { return Float2( m_x + rhs.m_x, m_y + rhs.m_y ); }
+        inline Float2 operator-( Float2 const& rhs ) const { return Float2( m_x - rhs.m_x, m_y - rhs.m_y ); }
+        inline Float2 operator*( Float2 const& rhs ) const { return Float2( m_x * rhs.m_x, m_y * rhs.m_y ); }
+        inline Float2 operator/( Float2 const& rhs ) const { return Float2( m_x / rhs.m_x, m_y / rhs.m_y ); }
 
-        inline Float2 operator+( float const& rhs ) const { return Float2( x + rhs, y + rhs ); }
-        inline Float2 operator-( float const& rhs ) const { return Float2( x - rhs, y - rhs ); }
-        inline Float2 operator*( float const& rhs ) const { return Float2( x * rhs, y * rhs ); }
-        inline Float2 operator/( float const& rhs ) const { return Float2( x / rhs, y / rhs ); }
+        inline Float2 operator+( float const& rhs ) const { return Float2( m_x + rhs, m_y + rhs ); }
+        inline Float2 operator-( float const& rhs ) const { return Float2( m_x - rhs, m_y - rhs ); }
+        inline Float2 operator*( float const& rhs ) const { return Float2( m_x * rhs, m_y * rhs ); }
+        inline Float2 operator/( float const& rhs ) const { return Float2( m_x / rhs, m_y / rhs ); }
 
-        inline Float2& operator+=( Float2 const& rhs ) { x += rhs.x; y += rhs.y; return *this; }
-        inline Float2& operator-=( Float2 const& rhs ) { x -= rhs.x; y -= rhs.y; return *this; }
-        inline Float2& operator*=( Float2 const& rhs ) { x *= rhs.x; y *= rhs.y; return *this; }
-        inline Float2& operator/=( Float2 const& rhs ) { x /= rhs.x; y /= rhs.y; return *this; }
+        inline Float2& operator+=( Float2 const& rhs ) { m_x += rhs.m_x; m_y += rhs.m_y; return *this; }
+        inline Float2& operator-=( Float2 const& rhs ) { m_x -= rhs.m_x; m_y -= rhs.m_y; return *this; }
+        inline Float2& operator*=( Float2 const& rhs ) { m_x *= rhs.m_x; m_y *= rhs.m_y; return *this; }
+        inline Float2& operator/=( Float2 const& rhs ) { m_x /= rhs.m_x; m_y /= rhs.m_y; return *this; }
 
-        inline Float2& operator+=( float const& rhs ) { x += rhs; y += rhs; return *this; }
-        inline Float2& operator-=( float const& rhs ) { x -= rhs; y -= rhs; return *this; }
-        inline Float2& operator*=( float const& rhs ) { x *= rhs; y *= rhs; return *this; }
-        inline Float2& operator/=( float const& rhs ) { x /= rhs; y /= rhs; return *this; }
+        inline Float2& operator+=( float const& rhs ) { m_x += rhs; m_y += rhs; return *this; }
+        inline Float2& operator-=( float const& rhs ) { m_x -= rhs; m_y -= rhs; return *this; }
+        inline Float2& operator*=( float const& rhs ) { m_x *= rhs; m_y *= rhs; return *this; }
+        inline Float2& operator/=( float const& rhs ) { m_x /= rhs; m_y /= rhs; return *this; }
 
-        float x, y;
+        float m_x, m_y;
     };
 
     //-------------------------------------------------------------------------
 
     struct KRG_SYSTEM_CORE_API Float3
     {
-        KRG_SERIALIZE_MEMBERS( x, y, z );
+        KRG_SERIALIZE_MEMBERS( m_x, m_y, m_z );
 
         static Float3 const Zero;
         static Float3 const One;
@@ -390,48 +390,48 @@ namespace KRG
     public:
 
         inline Float3() {}
-        KRG_FORCE_INLINE Float3( ZeroInit ) : x( 0 ), y( 0 ), z( 0 ) {}
-        KRG_FORCE_INLINE explicit Float3( float v ) : x( v ), y( v ), z( v ) {}
-        KRG_FORCE_INLINE explicit Float3( float ix, float iy, float iz ) : x( ix ), y( iy ), z( iz ) {}
-        inline explicit Float3( Float2 const& v, float iz = 0.0f ) : x( v.x ), y( v.y ), z( iz ) {}
+        KRG_FORCE_INLINE Float3( ZeroInit ) : m_x( 0 ), m_y( 0 ), m_z( 0 ) {}
+        KRG_FORCE_INLINE explicit Float3( float v ) : m_x( v ), m_y( v ), m_z( v ) {}
+        KRG_FORCE_INLINE explicit Float3( float ix, float iy, float iz ) : m_x( ix ), m_y( iy ), m_z( iz ) {}
+        inline explicit Float3( Float2 const& v, float iz = 0.0f ) : m_x( v.m_x ), m_y( v.m_y ), m_z( iz ) {}
         inline explicit Float3( Float4 const& v );
 
         inline float& operator[]( uint32 i ) { KRG_ASSERT( i < 3 ); return ( (float*) this )[i]; }
         inline float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 3 ); return ( (float*) this )[i]; }
 
-        inline bool operator==( Float3 const rhs ) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
-        inline bool operator!=( Float3 const rhs ) const { return x != rhs.x || y != rhs.y || z != rhs.z; }
+        inline bool operator==( Float3 const rhs ) const { return m_x == rhs.m_x && m_y == rhs.m_y && m_z == rhs.m_z; }
+        inline bool operator!=( Float3 const rhs ) const { return m_x != rhs.m_x || m_y != rhs.m_y || m_z != rhs.m_z; }
 
-        inline operator Float2() const { return Float2( x, y ); }
+        inline operator Float2() const { return Float2( m_x, m_y ); }
 
-        inline Float3 operator+( Float3 const& rhs ) const { return Float3( x + rhs.x, y + rhs.y, z + rhs.z ); }
-        inline Float3 operator-( Float3 const& rhs ) const { return Float3( x - rhs.x, y - rhs.y, z - rhs.z ); }
-        inline Float3 operator*( Float3 const& rhs ) const { return Float3( x * rhs.x, y * rhs.y, z * rhs.z ); }
-        inline Float3 operator/( Float3 const& rhs ) const { return Float3( x / rhs.x, y / rhs.y, z / rhs.z ); }
+        inline Float3 operator+( Float3 const& rhs ) const { return Float3( m_x + rhs.m_x, m_y + rhs.m_y, m_z + rhs.m_z ); }
+        inline Float3 operator-( Float3 const& rhs ) const { return Float3( m_x - rhs.m_x, m_y - rhs.m_y, m_z - rhs.m_z ); }
+        inline Float3 operator*( Float3 const& rhs ) const { return Float3( m_x * rhs.m_x, m_y * rhs.m_y, m_z * rhs.m_z ); }
+        inline Float3 operator/( Float3 const& rhs ) const { return Float3( m_x / rhs.m_x, m_y / rhs.m_y, m_z / rhs.m_z ); }
 
-        inline Float3 operator+( float const& rhs ) const { return Float3( x + rhs, y + rhs, z + rhs ); }
-        inline Float3 operator-( float const& rhs ) const { return Float3( x - rhs, y - rhs, z - rhs ); }
-        inline Float3 operator*( float const& rhs ) const { return Float3( x * rhs, y * rhs, z * rhs ); }
-        inline Float3 operator/( float const& rhs ) const { return Float3( x / rhs, y / rhs, z / rhs ); }
+        inline Float3 operator+( float const& rhs ) const { return Float3( m_x + rhs, m_y + rhs, m_z + rhs ); }
+        inline Float3 operator-( float const& rhs ) const { return Float3( m_x - rhs, m_y - rhs, m_z - rhs ); }
+        inline Float3 operator*( float const& rhs ) const { return Float3( m_x * rhs, m_y * rhs, m_z * rhs ); }
+        inline Float3 operator/( float const& rhs ) const { return Float3( m_x / rhs, m_y / rhs, m_z / rhs ); }
 
-        inline Float3& operator+=( Float3 const& rhs ) { x += rhs.x; y += rhs.y; z += rhs.z; return *this; }
-        inline Float3& operator-=( Float3 const& rhs ) { x -= rhs.x; y -= rhs.y; z -= rhs.z; return *this; }
-        inline Float3& operator*=( Float3 const& rhs ) { x *= rhs.x; y *= rhs.y; z *= rhs.z; return *this; }
-        inline Float3& operator/=( Float3 const& rhs ) { x /= rhs.x; y /= rhs.y; z /= rhs.z; return *this; }
+        inline Float3& operator+=( Float3 const& rhs ) { m_x += rhs.m_x; m_y += rhs.m_y; m_z += rhs.m_z; return *this; }
+        inline Float3& operator-=( Float3 const& rhs ) { m_x -= rhs.m_x; m_y -= rhs.m_y; m_z -= rhs.m_z; return *this; }
+        inline Float3& operator*=( Float3 const& rhs ) { m_x *= rhs.m_x; m_y *= rhs.m_y; m_z *= rhs.m_z; return *this; }
+        inline Float3& operator/=( Float3 const& rhs ) { m_x /= rhs.m_x; m_y /= rhs.m_y; m_z /= rhs.m_z; return *this; }
 
-        inline Float3& operator+=( float const& rhs ) { x += rhs; y += rhs; z += rhs; return *this; }
-        inline Float3& operator-=( float const& rhs ) { x -= rhs; y -= rhs; z -= rhs; return *this; }
-        inline Float3& operator*=( float const& rhs ) { x *= rhs; y *= rhs; z *= rhs; return *this; }
-        inline Float3& operator/=( float const& rhs ) { x /= rhs; y /= rhs; z /= rhs; return *this; }
+        inline Float3& operator+=( float const& rhs ) { m_x += rhs; m_y += rhs; m_z += rhs; return *this; }
+        inline Float3& operator-=( float const& rhs ) { m_x -= rhs; m_y -= rhs; m_z -= rhs; return *this; }
+        inline Float3& operator*=( float const& rhs ) { m_x *= rhs; m_y *= rhs; m_z *= rhs; return *this; }
+        inline Float3& operator/=( float const& rhs ) { m_x /= rhs; m_y /= rhs; m_z /= rhs; return *this; }
 
-        float x, y, z;
+        float m_x, m_y, m_z;
     };
 
     //-------------------------------------------------------------------------
 
     struct KRG_SYSTEM_CORE_API Float4
     {
-        KRG_SERIALIZE_MEMBERS( x, y, z, w );
+        KRG_SERIALIZE_MEMBERS( m_x, m_y, m_z, m_w );
 
         static Float4 const Zero;
         static Float4 const One;
@@ -447,66 +447,66 @@ namespace KRG
     public:
 
         Float4() {}
-        KRG_FORCE_INLINE Float4( ZeroInit ) : x( 0 ), y( 0 ), z( 0 ), w( 0 ) {}
-        KRG_FORCE_INLINE explicit Float4( float v ) : x( v ), y( v ), z( v ), w( v ) {}
-        KRG_FORCE_INLINE explicit Float4( float ix, float iy, float iz, float iw ) : x( ix ), y( iy ), z( iz ), w( iw ) {}
-        explicit Float4( Float2 const& v, float iz = 0.0f, float iw = 0.0f ) : x( v.x ), y( v.y ), z( iz ), w( iw ) {}
-        explicit Float4( Float3 const& v, float iw = 0.0f ) : x( v.x ), y( v.y ), z( v.z ), w( iw ) {}
+        KRG_FORCE_INLINE Float4( ZeroInit ) : m_x( 0 ), m_y( 0 ), m_z( 0 ), m_w( 0 ) {}
+        KRG_FORCE_INLINE explicit Float4( float v ) : m_x( v ), m_y( v ), m_z( v ), m_w( v ) {}
+        KRG_FORCE_INLINE explicit Float4( float ix, float iy, float iz, float iw ) : m_x( ix ), m_y( iy ), m_z( iz ), m_w( iw ) {}
+        explicit Float4( Float2 const& v, float iz = 0.0f, float iw = 0.0f ) : m_x( v.m_x ), m_y( v.m_y ), m_z( iz ), m_w( iw ) {}
+        explicit Float4( Float3 const& v, float iw = 0.0f ) : m_x( v.m_x ), m_y( v.m_y ), m_z( v.m_z ), m_w( iw ) {}
 
         float& operator[]( uint32 i ) { KRG_ASSERT( i < 4 ); return ( (float*) this )[i]; }
         float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 4 ); return ( (float*) this )[i]; }
 
-        bool operator==( Float4 const rhs ) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
-        bool operator!=( Float4 const rhs ) const { return x != rhs.x || y != rhs.y || z != rhs.z || w != rhs.w; }
+        bool operator==( Float4 const rhs ) const { return m_x == rhs.m_x && m_y == rhs.m_y && m_z == rhs.m_z && m_w == rhs.m_w; }
+        bool operator!=( Float4 const rhs ) const { return m_x != rhs.m_x || m_y != rhs.m_y || m_z != rhs.m_z || m_w != rhs.m_w; }
 
-        inline operator Float2() const { return Float2( x, y ); }
-        inline operator Float3() const { return Float3( x, y, z ); }
+        inline operator Float2() const { return Float2( m_x, m_y ); }
+        inline operator Float3() const { return Float3( m_x, m_y, m_z ); }
 
-        inline Float4 operator+( Float4 const& rhs ) const { return Float4( x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w ); }
-        inline Float4 operator-( Float4 const& rhs ) const { return Float4( x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w ); }
-        inline Float4 operator*( Float4 const& rhs ) const { return Float4( x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w ); }
-        inline Float4 operator/( Float4 const& rhs ) const { return Float4( x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.w ); }
+        inline Float4 operator+( Float4 const& rhs ) const { return Float4( m_x + rhs.m_x, m_y + rhs.m_y, m_z + rhs.m_z, m_w + rhs.m_w ); }
+        inline Float4 operator-( Float4 const& rhs ) const { return Float4( m_x - rhs.m_x, m_y - rhs.m_y, m_z - rhs.m_z, m_w - rhs.m_w ); }
+        inline Float4 operator*( Float4 const& rhs ) const { return Float4( m_x * rhs.m_x, m_y * rhs.m_y, m_z * rhs.m_z, m_w * rhs.m_w ); }
+        inline Float4 operator/( Float4 const& rhs ) const { return Float4( m_x / rhs.m_x, m_y / rhs.m_y, m_z / rhs.m_z, m_w / rhs.m_w ); }
 
-        inline Float4 operator+( float const& rhs ) const { return Float4( x + rhs, y + rhs, z + rhs, w + rhs ); }
-        inline Float4 operator-( float const& rhs ) const { return Float4( x - rhs, y - rhs, z - rhs, w - rhs ); }
-        inline Float4 operator*( float const& rhs ) const { return Float4( x * rhs, y * rhs, z * rhs, w * rhs ); }
-        inline Float4 operator/( float const& rhs ) const { return Float4( x / rhs, y / rhs, z / rhs, w / rhs ); }
+        inline Float4 operator+( float const& rhs ) const { return Float4( m_x + rhs, m_y + rhs, m_z + rhs, m_w + rhs ); }
+        inline Float4 operator-( float const& rhs ) const { return Float4( m_x - rhs, m_y - rhs, m_z - rhs, m_w - rhs ); }
+        inline Float4 operator*( float const& rhs ) const { return Float4( m_x * rhs, m_y * rhs, m_z * rhs, m_w * rhs ); }
+        inline Float4 operator/( float const& rhs ) const { return Float4( m_x / rhs, m_y / rhs, m_z / rhs, m_w / rhs ); }
 
-        inline Float4& operator+=( Float4 const& rhs ) { x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w; return *this; }
-        inline Float4& operator-=( Float4 const& rhs ) { x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w; return *this; }
-        inline Float4& operator*=( Float4 const& rhs ) { x *= rhs.x; y *= rhs.y; z *= rhs.z; w *= rhs.w; return *this; }
-        inline Float4& operator/=( Float4 const& rhs ) { x /= rhs.x; y /= rhs.y; z /= rhs.z; w /= rhs.w; return *this; }
+        inline Float4& operator+=( Float4 const& rhs ) { m_x += rhs.m_x; m_y += rhs.m_y; m_z += rhs.m_z; m_w += rhs.m_w; return *this; }
+        inline Float4& operator-=( Float4 const& rhs ) { m_x -= rhs.m_x; m_y -= rhs.m_y; m_z -= rhs.m_z; m_w -= rhs.m_w; return *this; }
+        inline Float4& operator*=( Float4 const& rhs ) { m_x *= rhs.m_x; m_y *= rhs.m_y; m_z *= rhs.m_z; m_w *= rhs.m_w; return *this; }
+        inline Float4& operator/=( Float4 const& rhs ) { m_x /= rhs.m_x; m_y /= rhs.m_y; m_z /= rhs.m_z; m_w /= rhs.m_w; return *this; }
 
-        inline Float4& operator+=( float const& rhs ) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; }
-        inline Float4& operator-=( float const& rhs ) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; }
-        inline Float4& operator*=( float const& rhs ) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; }
-        inline Float4& operator/=( float const& rhs ) { x /= rhs; y /= rhs; z /= rhs; w /= rhs; return *this; }
+        inline Float4& operator+=( float const& rhs ) { m_x += rhs; m_y += rhs; m_z += rhs; m_w += rhs; return *this; }
+        inline Float4& operator-=( float const& rhs ) { m_x -= rhs; m_y -= rhs; m_z -= rhs; m_w -= rhs; return *this; }
+        inline Float4& operator*=( float const& rhs ) { m_x *= rhs; m_y *= rhs; m_z *= rhs; m_w *= rhs; return *this; }
+        inline Float4& operator/=( float const& rhs ) { m_x /= rhs; m_y /= rhs; m_z /= rhs; m_w /= rhs; return *this; }
 
-        float x, y, z, w;
+        float m_x, m_y, m_z, m_w;
     };
 
     // Implicit conversions
     //-------------------------------------------------------------------------
 
     inline Int2::Int2( Float2 const& v )
-        : x( (int32) v.x )
-        , y( (int32) v.y )
+        : m_x( (int32) v.m_x )
+        , m_y( (int32) v.m_y )
     {}
 
     inline Float2::Float2( Float3 const& v )
-        : x( v.x )
-        , y( v.y )
+        : m_x( v.m_x )
+        , m_y( v.m_y )
     {}
 
     inline Float2::Float2( Float4 const& v )
-        : x( v.x )
-        , y( v.y )
+        : m_x( v.m_x )
+        , m_y( v.m_y )
     {}
 
     inline Float3::Float3( Float4 const& v )
-        : x( v.x )
-        , y( v.y )
-        , z( v.z )
+        : m_x( v.m_x )
+        , m_y( v.m_y )
+        , m_z( v.m_z )
     {}
 
     //-------------------------------------------------------------------------
@@ -834,23 +834,23 @@ namespace KRG
 
     struct EulerAngles
     {
-        KRG_SERIALIZE_MEMBERS( x, y, z );
+        KRG_SERIALIZE_MEMBERS( m_x, m_y, m_z );
 
     public:
 
         EulerAngles() = default;
 
         inline EulerAngles( Degrees inX, Degrees inY, Degrees inZ )
-            : x( inX )
-            , y( inY )
-            , z( inZ )
+            : m_x( inX )
+            , m_y( inY )
+            , m_z( inZ )
         {}
 
         inline void Clamp()
         {
-            x.Clamp();
-            y.Clamp();
-            z.Clamp();
+            m_x.Clamp();
+            m_y.Clamp();
+            m_z.Clamp();
         }
 
         inline EulerAngles GetClamped() const
@@ -860,21 +860,21 @@ namespace KRG
             return clamped;
         }
 
-        inline Radians GetYaw() const { return z; }
-        inline Radians GetPitch() const { return x; }
-        inline Radians GetRoll() const { return y; }
+        inline Radians GetYaw() const { return m_z; }
+        inline Radians GetPitch() const { return m_x; }
+        inline Radians GetRoll() const { return m_y; }
 
-        inline bool operator==( EulerAngles const& other ) const { return x == other.x && y == other.y && z == other.z; }
-        inline bool operator!=( EulerAngles const& other ) const { return x != other.x || y != other.y || z != other.z; }
+        inline bool operator==( EulerAngles const& other ) const { return m_x == other.m_x && m_y == other.m_y && m_z == other.m_z; }
+        inline bool operator!=( EulerAngles const& other ) const { return m_x != other.m_x || m_y != other.m_y || m_z != other.m_z; }
 
         inline Radians& operator[]( uint32 i ) { KRG_ASSERT( i < 3 ); return ( (Radians*) this )[i]; }
         inline Radians const& operator[]( uint32 i ) const { KRG_ASSERT( i < 3 ); return ( (Radians*) this )[i]; }
 
     public:
 
-        Radians x = 0;
-        Radians y = 0;
-        Radians z = 0;
+        Radians m_x = 0;
+        Radians m_y = 0;
+        Radians m_z = 0;
     };
 
     //-------------------------------------------------------------------------
@@ -892,7 +892,7 @@ namespace KRG
 
         inline bool IsValid() const
         {
-            float const lengthSq = m_axis.x * m_axis.x + m_axis.y * m_axis.y + m_axis.z * m_axis.z;
+            float const lengthSq = m_axis.m_x * m_axis.m_x + m_axis.m_y * m_axis.m_y + m_axis.m_z * m_axis.m_z;
             return Math::Abs( lengthSq - 1.0f ) < Math::Epsilon;
         }
 

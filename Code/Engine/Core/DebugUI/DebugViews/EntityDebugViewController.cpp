@@ -355,9 +355,9 @@ namespace KRG
                         {
                             auto const transform = m_pSelectedEntity->GetWorldTransform();
                             auto const eulerAngles = transform.GetRotation().ToEulerAngles();
-                            ImGui::Text( "Rotation: %.2f %.2f %.2f", eulerAngles.x, eulerAngles.y, eulerAngles.z );
-                            ImGui::Text( "Translation: %.2f %.2f %.2f", transform.GetTranslation().x, transform.GetTranslation().y, transform.GetTranslation().z );
-                            ImGui::Text( "Scale: %.2f %.2f %.2f", transform.GetScale().x, transform.GetScale().y, transform.GetScale().z );
+                            ImGui::Text( "Rotation: %.2f %.2f %.2f", eulerAngles.m_x, eulerAngles.m_y, eulerAngles.m_z );
+                            ImGui::Text( "Translation: %.2f %.2f %.2f", transform.GetTranslation().m_x, transform.GetTranslation().m_y, transform.GetTranslation().m_z );
+                            ImGui::Text( "Scale: %.2f %.2f %.2f", transform.GetScale().m_x, transform.GetScale().m_y, transform.GetScale().m_z );
                         }
                     }
 

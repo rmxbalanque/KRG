@@ -28,7 +28,7 @@ namespace KRG
         explicit Plane( Float3 const& point, Float3 const& normal ) : Plane( Vector( point ), Vector( normal ) ) {}
         explicit Plane( float distance, Float3 const& normal ) : Plane( distance, Vector( normal ) ) {}
         explicit Plane( Float3 const& point0, Float3 const& point1, Float3 const& point2 ) : Plane( Vector( point0 ), Vector( point1 ) , Vector( point2 ) ) {}
-        explicit Plane( Float4 const& planeEquation ) { m_data = _mm_set_ps( planeEquation.w, planeEquation.z, planeEquation.y, planeEquation.x ); }
+        explicit Plane( Float4 const& planeEquation ) { m_data = _mm_set_ps( planeEquation.m_w, planeEquation.m_z, planeEquation.m_y, planeEquation.m_x ); }
 
         explicit Plane( Vector const planeEquation ) : m_data( planeEquation.m_data ) {}
 
@@ -115,7 +115,7 @@ namespace KRG
 
         inline Vector ProjectPoint( Vector const point ) const
         {
-            KRG_ASSERT( point.w == 1.0f && IsNormalized() );
+            KRG_ASSERT( point.m_w == 1.0f && IsNormalized() );
             auto const planeVector = ToVector();
             auto const planeNormal = GetNormal();
             auto const distanceToPlane = Vector::Dot4( point, planeVector );
@@ -127,7 +127,7 @@ namespace KRG
 
         inline Vector SignedDistanceToPoint( Vector const point ) const
         {
-            KRG_ASSERT( point.w == 1.0f && IsNormalized() );
+            KRG_ASSERT( point.m_w == 1.0f && IsNormalized() );
             return Vector::Dot4( point, ToVector() );
         }
 

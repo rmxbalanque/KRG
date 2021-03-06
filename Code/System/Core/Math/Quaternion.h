@@ -12,7 +12,7 @@ namespace KRG
 {
     class KRG_SYSTEM_CORE_API alignas( 16 ) Quaternion
     {
-        KRG_SERIALIZE_MEMBERS( x, y, z, w );
+        KRG_SERIALIZE_MEMBERS( m_x, m_y, m_z, m_w );
 
     public:
 
@@ -32,7 +32,7 @@ namespace KRG
         inline explicit Quaternion( IdentityInit ) : m_data( Vector::UnitW.m_data ) {}
         inline explicit Quaternion( Vector const v ) : m_data( v.m_data ) {}
         inline explicit Quaternion( float ix, float iy, float iz, float iw ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
-        inline explicit Quaternion( Float4 const& v ) : Quaternion( v.x, v.y, v.z, v.w ) {}
+        inline explicit Quaternion( Float4 const& v ) : Quaternion( v.m_x, v.m_y, v.m_z, v.m_w ) {}
 
         inline explicit Quaternion( Vector const axis, Radians angle );
         inline explicit Quaternion( AxisAngle axisAngle ) : Quaternion( Vector( axisAngle.m_axis ), axisAngle.m_angle ) {}
@@ -71,8 +71,8 @@ namespace KRG
         inline Quaternion operator*( Quaternion const& rhs ) const;
         inline Quaternion& operator*=( Quaternion const& rhs ) { *this = *this * rhs; return *this; }
 
-        inline bool operator==( Quaternion const& rhs ) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
-        inline bool operator!=( Quaternion const& rhs ) const { return x != rhs.x || y != rhs.y || z != rhs.z || w != rhs.w; }
+        inline bool operator==( Quaternion const& rhs ) const { return m_x == rhs.m_x && m_y == rhs.m_y && m_z == rhs.m_z && m_w == rhs.m_w; }
+        inline bool operator!=( Quaternion const& rhs ) const { return m_x != rhs.m_x || m_y != rhs.m_y || m_z != rhs.m_z || m_w != rhs.m_w; }
 
     private:
 
@@ -85,7 +85,7 @@ namespace KRG
 
         union
         {
-            struct { float x, y, z, w; };
+            struct { float m_x, m_y, m_z, m_w; };
             __m128 m_data;
         };
     };
@@ -179,9 +179,9 @@ namespace KRG
 
     inline Quaternion::Quaternion( EulerAngles const& eulerAngles )
     {
-        auto const rotationX = Quaternion( Vector::UnitX, eulerAngles.x );
-        auto const rotationY = Quaternion( Vector::UnitY, eulerAngles.y );
-        auto const rotationZ = Quaternion( Vector::UnitZ, eulerAngles.z );
+        auto const rotationX = Quaternion( Vector::UnitX, eulerAngles.m_x );
+        auto const rotationY = Quaternion( Vector::UnitY, eulerAngles.m_y );
+        auto const rotationZ = Quaternion( Vector::UnitZ, eulerAngles.m_z );
 
         // Rotation order is XYZ - all in global space, hence the order is reversed
         m_data = ( rotationX * rotationY * rotationZ ).GetNormalized().m_data;
@@ -200,7 +200,7 @@ namespace KRG
         // Opposite vectors - return 180 rotation around any orthogonal axis
         else if ( dot.IsLessThanEqual4( Vector::EpsilonMinusOne ) )
         {
-            result = Quaternion( -v0.z, v0.y, v0.x, 0 );
+            result = Quaternion( -v0.m_z, v0.m_y, v0.m_x, 0 );
             result.Normalize();
         }
         else // Calculate quaternion rotation
@@ -219,7 +219,7 @@ namespace KRG
 
     inline AxisAngle Quaternion::ToAxisAngle() const
     {
-        return AxisAngle( AsVector(), 2.0f * Math::ACos( w ) );
+        return AxisAngle( AsVector(), 2.0f * Math::ACos( m_w ) );
     }
 
     inline Vector Quaternion::RotateVector( Vector const vector ) const
@@ -260,17 +260,17 @@ namespace KRG
         // Mul by Q1WZYX
         Q2X = _mm_mul_ps( Q2X, Q1Shuffle );
         Q1Shuffle = _mm_shuffle_ps( Q1Shuffle, Q1Shuffle, _MM_SHUFFLE( 2, 3, 0, 1 ) );
-        // Flip the signs on y and z
+        // Flip the signs on m_y and m_z
         Q2X = _mm_mul_ps( Q2X, ControlWZYX );
         // Mul by Q1ZWXY
         Q2Y = _mm_mul_ps( Q2Y, Q1Shuffle );
         Q1Shuffle = _mm_shuffle_ps( Q1Shuffle, Q1Shuffle, _MM_SHUFFLE( 0, 1, 2, 3 ) );
-        // Flip the signs on z and w
+        // Flip the signs on m_z and m_w
         Q2Y = _mm_mul_ps( Q2Y, ControlZWXY );
         // Mul by Q1YXWZ
         Q2Z = _mm_mul_ps( Q2Z, Q1Shuffle );
         vResult = _mm_add_ps( vResult, Q2X );
-        // Flip the signs on x and w
+        // Flip the signs on m_x and m_w
         Q2Z = _mm_mul_ps( Q2Z, ControlYXWZ );
         Q2Y = _mm_add_ps( Q2Y, Q2Z );
         vResult = _mm_add_ps( vResult, Q2Y );

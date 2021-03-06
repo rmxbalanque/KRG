@@ -180,9 +180,9 @@ namespace KRG
                     Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[0];
                     Vector const& translation = rawBoneTransform.GetTranslation();
 
-                    trackSettings.m_translationRangeX = { translation.x, defaultQuantizationRangeLength };
-                    trackSettings.m_translationRangeY = { translation.y, defaultQuantizationRangeLength };
-                    trackSettings.m_translationRangeZ = { translation.z, defaultQuantizationRangeLength };
+                    trackSettings.m_translationRangeX = { translation.m_x, defaultQuantizationRangeLength };
+                    trackSettings.m_translationRangeY = { translation.m_y, defaultQuantizationRangeLength };
+                    trackSettings.m_translationRangeZ = { translation.m_z, defaultQuantizationRangeLength };
                     trackSettings.m_isTranslationStatic = true;
                 }
                 else
@@ -199,13 +199,13 @@ namespace KRG
                     Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[0];
                     Vector const& translation = rawBoneTransform.GetTranslation();
 
-                    uint16 const x = Quantization::EncodeFloat( translation.x, trackSettings.m_translationRangeX.m_rangeStart, trackSettings.m_translationRangeX.m_rangeLength );
-                    uint16 const y = Quantization::EncodeFloat( translation.y, trackSettings.m_translationRangeY.m_rangeStart, trackSettings.m_translationRangeY.m_rangeLength );
-                    uint16 const z = Quantization::EncodeFloat( translation.z, trackSettings.m_translationRangeZ.m_rangeStart, trackSettings.m_translationRangeZ.m_rangeLength );
+                    uint16 const m_x = Quantization::EncodeFloat( translation.m_x, trackSettings.m_translationRangeX.m_rangeStart, trackSettings.m_translationRangeX.m_rangeLength );
+                    uint16 const m_y = Quantization::EncodeFloat( translation.m_y, trackSettings.m_translationRangeY.m_rangeStart, trackSettings.m_translationRangeY.m_rangeLength );
+                    uint16 const m_z = Quantization::EncodeFloat( translation.m_z, trackSettings.m_translationRangeZ.m_rangeStart, trackSettings.m_translationRangeZ.m_rangeLength );
 
-                    animData.m_compressedPoseData.push_back( x );
-                    animData.m_compressedPoseData.push_back( y );
-                    animData.m_compressedPoseData.push_back( z );
+                    animData.m_compressedPoseData.push_back( m_x );
+                    animData.m_compressedPoseData.push_back( m_y );
+                    animData.m_compressedPoseData.push_back( m_z );
                 }
                 else // Store all frames
                 {
@@ -214,45 +214,76 @@ namespace KRG
                         Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[frameIdx];
                         Vector const& translation = rawBoneTransform.GetTranslation();
 
-                        uint16 const x = Quantization::EncodeFloat( translation.x, trackSettings.m_translationRangeX.m_rangeStart, trackSettings.m_translationRangeX.m_rangeLength );
-                        uint16 const y = Quantization::EncodeFloat( translation.y, trackSettings.m_translationRangeY.m_rangeStart, trackSettings.m_translationRangeY.m_rangeLength );
-                        uint16 const z = Quantization::EncodeFloat( translation.z, trackSettings.m_translationRangeZ.m_rangeStart, trackSettings.m_translationRangeZ.m_rangeLength );
+                        uint16 const m_x = Quantization::EncodeFloat( translation.m_x, trackSettings.m_translationRangeX.m_rangeStart, trackSettings.m_translationRangeX.m_rangeLength );
+                        uint16 const m_y = Quantization::EncodeFloat( translation.m_y, trackSettings.m_translationRangeY.m_rangeStart, trackSettings.m_translationRangeY.m_rangeLength );
+                        uint16 const m_z = Quantization::EncodeFloat( translation.m_z, trackSettings.m_translationRangeZ.m_rangeStart, trackSettings.m_translationRangeZ.m_rangeLength );
 
-                        animData.m_compressedPoseData.push_back( x );
-                        animData.m_compressedPoseData.push_back( y );
-                        animData.m_compressedPoseData.push_back( z );
+                        animData.m_compressedPoseData.push_back( m_x );
+                        animData.m_compressedPoseData.push_back( m_y );
+                        animData.m_compressedPoseData.push_back( m_z );
                     }
                 }
 
                 //-------------------------------------------------------------------------
                 // Scale
                 //-------------------------------------------------------------------------
+                
+                auto const& rawScaleValueRangeX = rawTrackData[boneIdx].m_scaleValueRangeX;
+                auto const& rawScaleValueRangeY = rawTrackData[boneIdx].m_scaleValueRangeY;
+                auto const& rawScaleValueRangeZ = rawTrackData[boneIdx].m_scaleValueRangeZ;
 
-                auto const& rawScaleValueRange = rawTrackData[boneIdx].m_scaleValueRange;
-                if ( Math::IsNearlyZero( rawScaleValueRange.GetLength() ) )
+                float const& rawScaleValueRangeLengthX = rawScaleValueRangeX.GetLength();
+                float const& rawScaleValueRangeLengthY = rawScaleValueRangeY.GetLength();
+                float const& rawScaleValueRangeLengthZ = rawScaleValueRangeZ.GetLength();
+
+                // We could arguably compress more by saving each component individually at the cost of sampling performance. If we absolutely need more compression, we can do it here
+                bool const isScaleConstant = Math::IsNearlyZero( rawScaleValueRangeLengthX ) && Math::IsNearlyZero( rawScaleValueRangeLengthY ) && Math::IsNearlyZero( rawScaleValueRangeLengthZ );
+                if ( isScaleConstant )
                 {
                     Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[0];
-                    trackSettings.m_scaleRange = { rawBoneTransform.GetScale().x, defaultQuantizationRangeLength };
+                    Vector const& scale = rawBoneTransform.GetScale();
+
+                    trackSettings.m_scaleRangeX = { scale.m_x, defaultQuantizationRangeLength };
+                    trackSettings.m_scaleRangeY = { scale.m_y, defaultQuantizationRangeLength };
+                    trackSettings.m_scaleRangeZ = { scale.m_z, defaultQuantizationRangeLength };
                     trackSettings.m_isScaleStatic = true;
                 }
                 else
                 {
-                    trackSettings.m_scaleRange = { rawScaleValueRange.m_min, rawScaleValueRange.GetLength() };
+                    trackSettings.m_scaleRangeX = { rawScaleValueRangeX.m_min, rawScaleValueRangeLengthX };
+                    trackSettings.m_scaleRangeY = { rawScaleValueRangeY.m_min, rawScaleValueRangeLengthY };
+                    trackSettings.m_scaleRangeZ = { rawScaleValueRangeZ.m_min, rawScaleValueRangeLengthZ };
                 }
+
+                //-------------------------------------------------------------------------
 
                 if ( trackSettings.IsScaleTrackStatic() )
                 {
                     Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[0];
-                    uint16 const encodedScale = Quantization::EncodeFloat( rawBoneTransform.GetScale().x, trackSettings.m_scaleRange.m_rangeStart, trackSettings.m_scaleRange.m_rangeLength );
-                    animData.m_compressedPoseData.push_back( encodedScale );
+                    Vector const& scale = rawBoneTransform.GetScale();
+
+                    uint16 const m_x = Quantization::EncodeFloat( scale.m_x, trackSettings.m_scaleRangeX.m_rangeStart, trackSettings.m_scaleRangeX.m_rangeLength );
+                    uint16 const m_y = Quantization::EncodeFloat( scale.m_y, trackSettings.m_scaleRangeY.m_rangeStart, trackSettings.m_scaleRangeY.m_rangeLength );
+                    uint16 const m_z = Quantization::EncodeFloat( scale.m_z, trackSettings.m_scaleRangeZ.m_rangeStart, trackSettings.m_scaleRangeZ.m_rangeLength );
+
+                    animData.m_compressedPoseData.push_back( m_x );
+                    animData.m_compressedPoseData.push_back( m_y );
+                    animData.m_compressedPoseData.push_back( m_z );
                 }
                 else // Store all frames
                 {
                     for ( uint32 frameIdx = 0; frameIdx < animData.m_numFrames; frameIdx++ )
                     {
                         Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[frameIdx];
-                        uint16 const encodedScale = Quantization::EncodeFloat( rawBoneTransform.GetScale().x, trackSettings.m_scaleRange.m_rangeStart, trackSettings.m_scaleRange.m_rangeLength );
-                        animData.m_compressedPoseData.push_back( encodedScale );
+                        Vector const& scale = rawBoneTransform.GetScale();
+
+                        uint16 const m_x = Quantization::EncodeFloat( scale.m_x, trackSettings.m_scaleRangeX.m_rangeStart, trackSettings.m_scaleRangeX.m_rangeLength );
+                        uint16 const m_y = Quantization::EncodeFloat( scale.m_y, trackSettings.m_scaleRangeY.m_rangeStart, trackSettings.m_scaleRangeY.m_rangeLength );
+                        uint16 const m_z = Quantization::EncodeFloat( scale.m_z, trackSettings.m_scaleRangeZ.m_rangeStart, trackSettings.m_scaleRangeZ.m_rangeLength );
+
+                        animData.m_compressedPoseData.push_back( m_x );
+                        animData.m_compressedPoseData.push_back( m_y );
+                        animData.m_compressedPoseData.push_back( m_z );
                     }
                 }
 

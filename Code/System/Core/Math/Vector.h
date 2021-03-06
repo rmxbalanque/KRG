@@ -14,7 +14,7 @@ namespace KRG
 {
     class KRG_SYSTEM_CORE_API alignas( 16 ) Vector
     {
-        KRG_SERIALIZE_MEMBERS( x, y, z, w );
+        KRG_SERIALIZE_MEMBERS( m_x, m_y, m_z, m_w );
 
     public:
 
@@ -128,9 +128,9 @@ namespace KRG
         KRG_FORCE_INLINE Vector( __m128 v ) : m_data( v ) {}
         KRG_FORCE_INLINE Vector( float ix, float iy, float iz, float iw = 1.0f ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
 
-        KRG_FORCE_INLINE Vector( Float2 const& v, float iz = 0.0f, float iw = 0.0f ) { m_data = _mm_set_ps( iw, iz, v.y, v.x ); }
-        KRG_FORCE_INLINE Vector( Float3 const& v, float iw = 1.0f ) { m_data = _mm_set_ps( iw, v.z, v.y, v.x ); } // Default behavior: create points (w=1)
-        KRG_FORCE_INLINE Vector( Float4 const& v ) { m_data = _mm_loadu_ps( &v.x ); }
+        KRG_FORCE_INLINE Vector( Float2 const& v, float iz = 0.0f, float iw = 0.0f ) { m_data = _mm_set_ps( iw, iz, v.m_y, v.m_x ); }
+        KRG_FORCE_INLINE Vector( Float3 const& v, float iw = 1.0f ) { m_data = _mm_set_ps( iw, v.m_z, v.m_y, v.m_x ); } // Default behavior: create points (m_w=1)
+        KRG_FORCE_INLINE Vector( Float4 const& v ) { m_data = _mm_loadu_ps( &v.m_x ); }
 
         //-------------------------------------------------------------------------
 
@@ -154,8 +154,8 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE Vector& SetW0() { w = 0.0f; return *this; }
-        KRG_FORCE_INLINE Vector& SetW1() { w = 1.0f; return *this; }
+        KRG_FORCE_INLINE Vector& SetW0() { m_w = 0.0f; return *this; }
+        KRG_FORCE_INLINE Vector& SetW1() { m_w = 1.0f; return *this; }
 
         float& operator[]( uint32 i ) { KRG_ASSERT( i < 4 ); return ( ( float* ) this )[i]; }
         float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 4 ); return ( ( float* ) this )[i]; }
@@ -249,11 +249,11 @@ namespace KRG
         }
 
         // Queries
-        KRG_FORCE_INLINE bool IsPoint() const { return w == 1.0f; }
+        KRG_FORCE_INLINE bool IsPoint() const { return m_w == 1.0f; }
         KRG_FORCE_INLINE Vector const& MakePoint() { SetW1(); return *this; }
         KRG_FORCE_INLINE Vector const GetAsPoint() const { Vector p = *this; return p.MakePoint(); }
 
-        KRG_FORCE_INLINE bool IsVector() const { return w == 0.0f; }
+        KRG_FORCE_INLINE bool IsVector() const { return m_w == 0.0f; }
         KRG_FORCE_INLINE Vector const& MakeVector() { SetW0(); return *this; }
         KRG_FORCE_INLINE Vector const GetAsVector() const { Vector p = *this; return p.MakeVector(); }
 
@@ -390,7 +390,7 @@ namespace KRG
 
         union
         {
-            struct { float x, y, z, w; };
+            struct { float m_x, m_y, m_z, m_w; };
             __m128 m_data;
         };
     };
@@ -409,22 +409,22 @@ namespace KRG
     KRG_FORCE_INLINE void Vector::StoreFloat2( Float2& value ) const
     {
         auto yVec = _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 1, 1, 1, 1 ) );
-        _mm_store_ss( &value.x, m_data );
-        _mm_store_ss( &value.y, yVec );
+        _mm_store_ss( &value.m_x, m_data );
+        _mm_store_ss( &value.m_y, yVec );
     }
 
     KRG_FORCE_INLINE void Vector::StoreFloat3( Float3& value ) const
     {
         auto yVec = _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         auto zVec = _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 2, 2, 2, 2 ) );
-        _mm_store_ss( &value.x, m_data );
-        _mm_store_ss( &value.y, yVec );
-        _mm_store_ss( &value.z, zVec );
+        _mm_store_ss( &value.m_x, m_data );
+        _mm_store_ss( &value.m_y, yVec );
+        _mm_store_ss( &value.m_z, zVec );
     }
 
     KRG_FORCE_INLINE void Vector::StoreFloat4( Float4& value ) const
     {
-        _mm_storeu_ps( &value.x, m_data );
+        _mm_storeu_ps( &value.m_x, m_data );
     }
 
     //-------------------------------------------------------------------------
@@ -461,7 +461,7 @@ namespace KRG
 
     KRG_FORCE_INLINE Vector& Vector::Normalize2()
     {
-        // Perform the dot product on x and y only
+        // Perform the dot product on m_x and m_y only
         auto vLengthSq = _mm_mul_ps( m_data, m_data );
         auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         vLengthSq = _mm_add_ss( vLengthSq, vTemp );
@@ -496,7 +496,7 @@ namespace KRG
 
     KRG_FORCE_INLINE Vector& Vector::Normalize3()
     {
-        // Perform the dot product on x,y and z only
+        // Perform the dot product on m_x,m_y and m_z only
         auto vLengthSq = _mm_mul_ps( m_data, m_data );
         auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 2, 1, 2, 1 ) );
         vLengthSq = _mm_add_ss( vLengthSq, vTemp );
@@ -533,17 +533,17 @@ namespace KRG
 
     KRG_FORCE_INLINE Vector& Vector::Normalize4()
     {
-        // Perform the dot product on x,y,z and w
+        // Perform the dot product on m_x,m_y,m_z and m_w
         auto vLengthSq = _mm_mul_ps( m_data, m_data );
-        // vTemp has z and w
+        // vTemp has m_z and m_w
         auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 3, 2, 3, 2 ) );
-        // x+z, y+w
+        // m_x+m_z, m_y+m_w
         vLengthSq = _mm_add_ps( vLengthSq, vTemp );
-        // x+z,x+z,x+z,y+w
+        // m_x+m_z,m_x+m_z,m_x+m_z,m_y+m_w
         vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 0, 0, 0 ) );
-        // ??,??,y+w,y+w
+        // ??,??,m_y+m_w,m_y+m_w
         vTemp = _mm_shuffle_ps( vTemp, vLengthSq, _MM_SHUFFLE( 3, 3, 0, 0 ) );
-        // ??,??,x+z+y+w,??
+        // ??,??,m_x+m_z+m_y+m_w,??
         vLengthSq = _mm_add_ps( vLengthSq, vTemp );
         // Splat the length
         vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 2, 2, 2, 2 ) );
@@ -672,7 +672,7 @@ namespace KRG
 
         result = _mm_mul_ps( m_data, m_data );
         auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 1, 1, 1 ) );
-        // x+y
+        // m_x+m_y
         result = _mm_add_ss( result, vTemp );
         result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         result = _mm_sqrt_ps( result );
@@ -683,15 +683,15 @@ namespace KRG
     {
         Vector result;
 
-        // Perform the dot product on x,y and z
+        // Perform the dot product on m_x,m_y and m_z
         result = _mm_mul_ps( m_data, m_data );
-        // vTemp has z and y
+        // vTemp has m_z and m_y
         auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 2, 1, 2 ) );
-        // x+z, y
+        // m_x+m_z, m_y
         result = _mm_add_ss( result, vTemp );
-        // y,y,y,y
+        // m_y,m_y,m_y,m_y
         vTemp = _mm_shuffle_ps( vTemp, vTemp, _MM_SHUFFLE( 1, 1, 1, 1 ) );
-        // x+z+y,??,??,??
+        // m_x+m_z+m_y,??,??,??
         result = _mm_add_ss( result, vTemp );
         // Splat the length squared
         result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 0, 0, 0, 0 ) );
@@ -705,17 +705,17 @@ namespace KRG
     {
         Vector result;
 
-        // Perform the dot product on x,y,z and w
+        // Perform the dot product on m_x,m_y,m_z and m_w
         result = _mm_mul_ps( m_data, m_data );
-        // vTemp has z and w
+        // vTemp has m_z and m_w
         auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 3, 2, 3, 2 ) );
-        // x+z, y+w
+        // m_x+m_z, m_y+m_w
         result = _mm_add_ps( result, vTemp );
-        // x+z,x+z,x+z,y+w
+        // m_x+m_z,m_x+m_z,m_x+m_z,m_y+m_w
         result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 0, 0, 0 ) );
-        // ??,??,y+w,y+w
+        // ??,??,m_y+m_w,m_y+m_w
         vTemp = _mm_shuffle_ps( vTemp, result, _MM_SHUFFLE( 3, 3, 0, 0 ) );
-        // ??,??,x+z+y+w,??
+        // ??,??,m_x+m_z+m_y+m_w,??
         result = _mm_add_ps( result, vTemp );
         // Splat the length
         result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 2, 2, 2, 2 ) );
@@ -727,11 +727,11 @@ namespace KRG
 
     KRG_FORCE_INLINE Vector Vector::InverseLength2() const
     {
-        // Perform the dot product on x and y
+        // Perform the dot product on m_x and m_y
         auto vLengthSq = _mm_mul_ps( m_data, m_data );
-        // vTemp has y splatted
+        // vTemp has m_y splatted
         auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 1, 1, 1 ) );
-        // x+y
+        // m_x+m_y
         vLengthSq = _mm_add_ss( vLengthSq, vTemp );
         vLengthSq = _mm_sqrt_ss( vLengthSq );
         vLengthSq = _mm_div_ss( Vector::One, vLengthSq );
@@ -743,15 +743,15 @@ namespace KRG
     {
         // Perform the dot product
         auto vDot = _mm_mul_ps( m_data, m_data );
-        // x=Dot.y, y=Dot.z
+        // m_x=Dot.m_y, m_y=Dot.m_z
         auto vTemp = _mm_shuffle_ps( vDot, vDot, _MM_SHUFFLE( 2, 1, 2, 1 ) );
-        // Result.x = x+y
+        // Result.m_x = m_x+m_y
         vDot = _mm_add_ss( vDot, vTemp );
-        // x=Dot.z
+        // m_x=Dot.m_z
         vTemp = _mm_shuffle_ps( vTemp, vTemp, _MM_SHUFFLE( 1, 1, 1, 1 ) );
-        // Result.x = (x+y)+z
+        // Result.m_x = (m_x+m_y)+m_z
         vDot = _mm_add_ss( vDot, vTemp );
-        // Splat x
+        // Splat m_x
         vDot = _mm_shuffle_ps( vDot, vDot, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         // Get the reciprocal
         vDot = _mm_sqrt_ps( vDot );
@@ -762,17 +762,17 @@ namespace KRG
 
     KRG_FORCE_INLINE Vector Vector::InverseLength4() const
     {
-        // Perform the dot product on x,y,z and w
+        // Perform the dot product on m_x,m_y,m_z and m_w
         auto vLengthSq = _mm_mul_ps( m_data, m_data );
-        // vTemp has z and w
+        // vTemp has m_z and m_w
         auto vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 3, 2, 3, 2 ) );
-        // x+z, y+w
+        // m_x+m_z, m_y+m_w
         vLengthSq = _mm_add_ps( vLengthSq, vTemp );
-        // x+z,x+z,x+z,y+w
+        // m_x+m_z,m_x+m_z,m_x+m_z,m_y+m_w
         vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 0, 0, 0 ) );
-        // ??,??,y+w,y+w
+        // ??,??,m_y+m_w,m_y+m_w
         vTemp = _mm_shuffle_ps( vTemp, vLengthSq, _MM_SHUFFLE( 3, 3, 0, 0 ) );
-        // ??,??,x+z+y+w,??
+        // ??,??,m_x+m_z+m_y+m_w,??
         vLengthSq = _mm_add_ps( vLengthSq, vTemp );
         // Splat the length
         vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 2, 2, 2, 2 ) );
@@ -834,11 +834,11 @@ namespace KRG
     {
         Vector result;
 
-        // Swap x and y
+        // Swap m_x and m_y
         result = _mm_shuffle_ps( other, other, _MM_SHUFFLE( 0, 1, 0, 1 ) );
         // Perform the muls
         result = _mm_mul_ps( result, m_data );
-        // Splat y
+        // Splat m_y
         auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         // Sub the values
         result = _mm_sub_ss( result, vTemp );
@@ -863,7 +863,7 @@ namespace KRG
         vTemp1 = _mm_mul_ps( vTemp1, vTemp2 );
         // Subtract the right from left, and return answer
         result = _mm_sub_ps( result, vTemp1 );
-        // Set w to zero
+        // Set m_w to zero
         result = _mm_and_ps( result, SIMD::g_maskXYZ0 );
 
         return result;
@@ -871,11 +871,11 @@ namespace KRG
 
     KRG_FORCE_INLINE Vector Vector::Dot2( Vector const& other ) const
     {
-        // Perform the dot product on x and y
+        // Perform the dot product on m_x and m_y
         Vector result = _mm_mul_ps( m_data, other );
-        // vTemp has y splatted
+        // vTemp has m_y splatted
         auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 1, 1, 1 ) );
-        // x+y
+        // m_x+m_y
         result = _mm_add_ss( result, vTemp );
         result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         return result;
@@ -885,15 +885,15 @@ namespace KRG
     {
         // Perform the dot product
         auto vDot = _mm_mul_ps( m_data, vOther );
-        // x=Dot.vector4_f32[1], y=Dot.vector4_f32[2]
+        // m_x=Dot.vector4_f32[1], m_y=Dot.vector4_f32[2]
         auto vTemp = _mm_shuffle_ps( vDot, vDot, _MM_SHUFFLE( 2, 1, 2, 1 ) );
-        // Result.vector4_f32[0] = x+y
+        // Result.vector4_f32[0] = m_x+m_y
         vDot = _mm_add_ss( vDot, vTemp );
-        // x=Dot.vector4_f32[2]
+        // m_x=Dot.vector4_f32[2]
         vTemp = _mm_shuffle_ps( vTemp, vTemp, _MM_SHUFFLE( 1, 1, 1, 1 ) );
-        // Result.vector4_f32[0] = (x+y)+z
+        // Result.vector4_f32[0] = (m_x+m_y)+m_z
         vDot = _mm_add_ss( vDot, vTemp );
-        // Splat x
+        // Splat m_x
         Vector result = _mm_shuffle_ps( vDot, vDot, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         return result;
     }
@@ -1025,19 +1025,19 @@ namespace KRG
     KRG_FORCE_INLINE Vector Vector::Sin( Vector const& vec )
     {
         // Force the value within the bounds of pi
-        auto x = Vector::AngleMod2Pi( vec );
+        auto m_x = Vector::AngleMod2Pi( vec );
 
-        // Map in [-pi/2,pi/2] with sin(y) = sin(x).
-        __m128 sign = _mm_and_ps( x, SIMD::g_signMask );
-        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
-        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
-        __m128 rflx = _mm_sub_ps( c, x );
+        // Map in [-pi/2,pi/2] with sin(m_y) = sin(m_x).
+        __m128 sign = _mm_and_ps( m_x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when m_x >= 0, -pi when m_x < 0
+        __m128 absx = _mm_andnot_ps( sign, m_x );  // |m_x|
+        __m128 rflx = _mm_sub_ps( c, m_x );
         __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
-        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select0 = _mm_and_ps( comp, m_x );
         __m128 select1 = _mm_andnot_ps( comp, rflx );
-        x = _mm_or_ps( select0, select1 );
+        m_x = _mm_or_ps( select0, select1 );
 
-        __m128 x2 = _mm_mul_ps( x, x );
+        __m128 x2 = _mm_mul_ps( m_x, m_x );
 
         // Compute polynomial approximation
         const auto SC1 = SIMD::g_sinCoefficients1;
@@ -1061,29 +1061,29 @@ namespace KRG
         Result = _mm_add_ps( Result, vConstants );
         Result = _mm_mul_ps( Result, x2 );
         Result = _mm_add_ps( Result, Vector::One );
-        Result = _mm_mul_ps( Result, x );
+        Result = _mm_mul_ps( Result, m_x );
         return Result;
     }
 
     KRG_FORCE_INLINE Vector Vector::Cos( Vector const& vec )
     {
-        // Map V to x in [-pi,pi].
-        auto x = Vector::AngleMod2Pi( vec );
+        // Map V to m_x in [-pi,pi].
+        auto m_x = Vector::AngleMod2Pi( vec );
 
-        // Map in [-pi/2,pi/2] with cos(y) = sign*cos(x).
-        auto sign = _mm_and_ps( x, SIMD::g_signMask );
-        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
-        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
-        __m128 rflx = _mm_sub_ps( c, x );
+        // Map in [-pi/2,pi/2] with cos(m_y) = sign*cos(m_x).
+        auto sign = _mm_and_ps( m_x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when m_x >= 0, -pi when m_x < 0
+        __m128 absx = _mm_andnot_ps( sign, m_x );  // |m_x|
+        __m128 rflx = _mm_sub_ps( c, m_x );
         __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
-        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select0 = _mm_and_ps( comp, m_x );
         __m128 select1 = _mm_andnot_ps( comp, rflx );
-        x = _mm_or_ps( select0, select1 );
+        m_x = _mm_or_ps( select0, select1 );
         select0 = _mm_and_ps( comp, Vector::One );
         select1 = _mm_andnot_ps( comp, Vector::NegativeOne );
         sign = _mm_or_ps( select0, select1 );
 
-        __m128 x2 = _mm_mul_ps( x, x );
+        __m128 x2 = _mm_mul_ps( m_x, m_x );
 
         // Compute polynomial approximation
         const auto CC1 = SIMD::g_cosCoefficients1;
@@ -1114,22 +1114,22 @@ namespace KRG
     void Vector::SinCos( Vector& sin, Vector& cos, Vector const& angle )
     {
         // Force the value within the bounds of pi
-        auto x = Vector::AngleMod2Pi( angle );
+        auto m_x = Vector::AngleMod2Pi( angle );
 
-        // Map in [-pi/2,pi/2] with sin(y) = sin(x), cos(y) = sign*cos(x).
-        auto sign = _mm_and_ps( x, SIMD::g_signMask );
-        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
-        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
-        __m128 rflx = _mm_sub_ps( c, x );
+        // Map in [-pi/2,pi/2] with sin(m_y) = sin(m_x), cos(m_y) = sign*cos(m_x).
+        auto sign = _mm_and_ps( m_x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when m_x >= 0, -pi when m_x < 0
+        __m128 absx = _mm_andnot_ps( sign, m_x );  // |m_x|
+        __m128 rflx = _mm_sub_ps( c, m_x );
         __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
-        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select0 = _mm_and_ps( comp, m_x );
         __m128 select1 = _mm_andnot_ps( comp, rflx );
-        x = _mm_or_ps( select0, select1 );
+        m_x = _mm_or_ps( select0, select1 );
         select0 = _mm_and_ps( comp, Vector::One );
         select1 = _mm_andnot_ps( comp, Vector::NegativeOne );
         sign = _mm_or_ps( select0, select1 );
 
-        __m128 x2 = _mm_mul_ps( x, x );
+        __m128 x2 = _mm_mul_ps( m_x, m_x );
 
         // Compute polynomial approximation of sine
         const auto SC1 = SIMD::g_sinCoefficients1;
@@ -1153,7 +1153,7 @@ namespace KRG
         Result = _mm_add_ps( Result, vConstants );
         Result = _mm_mul_ps( Result, x2 );
         Result = _mm_add_ps( Result, Vector::One );
-        Result = _mm_mul_ps( Result, x );
+        Result = _mm_mul_ps( Result, m_x );
         sin = Result;
 
         // Compute polynomial approximation of cosine
@@ -1241,42 +1241,42 @@ namespace KRG
     {
         __m128 nonnegative = _mm_cmpge_ps( vec, Vector::Zero );
         __m128 mvalue = _mm_sub_ps( Vector::Zero, vec );
-        __m128 x = _mm_max_ps( vec, mvalue );  // |vec|
+        __m128 m_x = _mm_max_ps( vec, mvalue );  // |vec|
 
         // Compute (1-|vec|), clamp to zero to avoid sqrt of negative number.
-        __m128 oneMValue = _mm_sub_ps( Vector::One, x );
+        __m128 oneMValue = _mm_sub_ps( Vector::One, m_x );
         __m128 clampOneMValue = _mm_max_ps( Vector::Zero, oneMValue );
         __m128 root = _mm_sqrt_ps( clampOneMValue );  // sqrt(1-|vec|)
 
         // Compute polynomial approximation
         const auto AC1 = SIMD::g_arcCoefficients1;
         auto vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 3, 3, 3, 3 ) );
-        __m128 t0 = _mm_mul_ps( vConstants, x );
+        __m128 t0 = _mm_mul_ps( vConstants, m_x );
 
         vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 2, 2, 2, 2 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         const auto AC0 = SIMD::g_arcCoefficients0;
         vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         t0 = _mm_add_ps( t0, vConstants );
@@ -1294,42 +1294,42 @@ namespace KRG
     {
         __m128 nonnegative = _mm_cmpge_ps( vec, Vector::Zero );
         __m128 mvalue = _mm_sub_ps( Vector::Zero, vec );
-        __m128 x = _mm_max_ps( vec, mvalue );  // |vec|
+        __m128 m_x = _mm_max_ps( vec, mvalue );  // |vec|
 
         // Compute (1-|vec|), clamp to zero to avoid sqrt of negative number.
-        __m128 oneMValue = _mm_sub_ps( Vector::One, x );
+        __m128 oneMValue = _mm_sub_ps( Vector::One, m_x );
         __m128 clampOneMValue = _mm_max_ps( Vector::Zero, oneMValue );
         __m128 root = _mm_sqrt_ps( clampOneMValue );  // sqrt(1-|vec|)
 
         // Compute polynomial approximation
         const auto AC1 = SIMD::g_arcCoefficients1;
         auto vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 3, 3, 3, 3 ) );
-        __m128 t0 = _mm_mul_ps( vConstants, x );
+        __m128 t0 = _mm_mul_ps( vConstants, m_x );
 
         vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 2, 2, 2, 2 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC1, AC1, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         const auto AC0 = SIMD::g_arcCoefficients0;
         vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 3, 3, 3, 3 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 2, 2, 2, 2 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AC0, AC0, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         t0 = _mm_add_ps( t0, vConstants );
@@ -1356,9 +1356,9 @@ namespace KRG
         sign = _mm_or_ps( select0, select1 );
         select0 = _mm_and_ps( comp, vec );
         select1 = _mm_andnot_ps( comp, invV );
-        __m128 x = _mm_or_ps( select0, select1 );
+        __m128 m_x = _mm_or_ps( select0, select1 );
 
-        __m128 x2 = _mm_mul_ps( x, x );
+        __m128 x2 = _mm_mul_ps( m_x, m_x );
 
         // Compute polynomial approximation
         Vector const TC1 = SIMD::g_aTanCoefficients1;
@@ -1394,7 +1394,7 @@ namespace KRG
         Result = _mm_add_ps( Result, vConstants );
         Result = _mm_mul_ps( Result, x2 );
         Result = _mm_add_ps( Result, Vector::One );
-        Result = _mm_mul_ps( Result, x );
+        Result = _mm_mul_ps( Result, m_x );
         __m128 result1 = _mm_mul_ps( sign, Vector::PiDivTwo );
         result1 = _mm_sub_ps( result1, Result );
 
@@ -1446,19 +1446,19 @@ namespace KRG
     KRG_FORCE_INLINE Vector Vector::SinEst( Vector const& vec )
     {
         // Force the value within the bounds of pi
-        auto x = Vector::AngleMod2Pi( vec );
+        auto m_x = Vector::AngleMod2Pi( vec );
 
-        // Map in [-pi/2,pi/2] with sin(y) = sin(x).
-        __m128 sign = _mm_and_ps( x, SIMD::g_signMask );
-        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
-        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
-        __m128 rflx = _mm_sub_ps( c, x );
+        // Map in [-pi/2,pi/2] with sin(m_y) = sin(m_x).
+        __m128 sign = _mm_and_ps( m_x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when m_x >= 0, -pi when m_x < 0
+        __m128 absx = _mm_andnot_ps( sign, m_x );  // |m_x|
+        __m128 rflx = _mm_sub_ps( c, m_x );
         __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
-        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select0 = _mm_and_ps( comp, m_x );
         __m128 select1 = _mm_andnot_ps( comp, rflx );
-        x = _mm_or_ps( select0, select1 );
+        m_x = _mm_or_ps( select0, select1 );
 
-        __m128 x2 = _mm_mul_ps( x, x );
+        __m128 x2 = _mm_mul_ps( m_x, m_x );
 
         // Compute polynomial approximation
         const auto SEC = SIMD::g_sinCoefficients1;
@@ -1474,29 +1474,29 @@ namespace KRG
         Result = _mm_mul_ps( Result, x2 );
 
         Result = _mm_add_ps( Result, Vector::One );
-        Result = _mm_mul_ps( Result, x );
+        Result = _mm_mul_ps( Result, m_x );
         return Result;
     }
 
     KRG_FORCE_INLINE Vector Vector::CosEst( Vector const& vec )
     {
-        // Map V to x in [-pi,pi].
-        auto x = Vector::AngleMod2Pi( vec );
+        // Map V to m_x in [-pi,pi].
+        auto m_x = Vector::AngleMod2Pi( vec );
 
-        // Map in [-pi/2,pi/2] with cos(y) = sign*cos(x).
-        auto sign = _mm_and_ps( x, SIMD::g_signMask );
-        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when x >= 0, -pi when x < 0
-        __m128 absx = _mm_andnot_ps( sign, x );  // |x|
-        __m128 rflx = _mm_sub_ps( c, x );
+        // Map in [-pi/2,pi/2] with cos(m_y) = sign*cos(m_x).
+        auto sign = _mm_and_ps( m_x, SIMD::g_signMask );
+        __m128 c = _mm_or_ps( Vector::Pi, sign );  // pi when m_x >= 0, -pi when m_x < 0
+        __m128 absx = _mm_andnot_ps( sign, m_x );  // |m_x|
+        __m128 rflx = _mm_sub_ps( c, m_x );
         __m128 comp = _mm_cmple_ps( absx, Vector::PiDivTwo );
-        __m128 select0 = _mm_and_ps( comp, x );
+        __m128 select0 = _mm_and_ps( comp, m_x );
         __m128 select1 = _mm_andnot_ps( comp, rflx );
-        x = _mm_or_ps( select0, select1 );
+        m_x = _mm_or_ps( select0, select1 );
         select0 = _mm_and_ps( comp, Vector::One );
         select1 = _mm_andnot_ps( comp, Vector::NegativeOne );
         sign = _mm_or_ps( select0, select1 );
 
-        __m128 x2 = _mm_mul_ps( x, x );
+        __m128 x2 = _mm_mul_ps( m_x, m_x );
 
         // Compute polynomial approximation
         const auto CEC = SIMD::g_cosCoefficients1;
@@ -1540,25 +1540,25 @@ namespace KRG
     {
         __m128 nonnegative = _mm_cmpge_ps( vec, Vector::Zero );
         __m128 mvalue = _mm_sub_ps( Vector::Zero, vec );
-        __m128 x = _mm_max_ps( vec, mvalue );  // |vec|
+        __m128 m_x = _mm_max_ps( vec, mvalue );  // |vec|
 
         // Compute (1-|vec|), clamp to zero to avoid sqrt of negative number.
-        __m128 oneMValue = _mm_sub_ps( Vector::One, x );
+        __m128 oneMValue = _mm_sub_ps( Vector::One, m_x );
         __m128 clampOneMValue = _mm_max_ps( Vector::Zero, oneMValue );
         __m128 root = _mm_sqrt_ps( clampOneMValue );  // sqrt(1-|vec|)
 
         // Compute polynomial approximation
         const auto AEC = SIMD::g_arcEstCoefficients;
         auto vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 3, 3, 3, 3 ) );
-        __m128 t0 = _mm_mul_ps( vConstants, x );
+        __m128 t0 = _mm_mul_ps( vConstants, m_x );
 
         vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 2, 2, 2, 2 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( AEC, AEC, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         t0 = _mm_add_ps( t0, vConstants );
@@ -1576,24 +1576,24 @@ namespace KRG
     {
         __m128 nonnegative = _mm_cmpge_ps( vec, Vector::Zero );
         __m128 mvalue = _mm_sub_ps( Vector::Zero, vec );
-        __m128 x = _mm_max_ps( vec, mvalue );  // |vec|
+        __m128 m_x = _mm_max_ps( vec, mvalue );  // |vec|
 
         // Compute (1-|vec|), clamp to zero to avoid sqrt of negative number.
-        __m128 oneMValue = _mm_sub_ps( Vector::One, x );
+        __m128 oneMValue = _mm_sub_ps( Vector::One, m_x );
         __m128 clampOneMValue = _mm_max_ps( Vector::Zero, oneMValue );
         __m128 root = _mm_sqrt_ps( clampOneMValue );  // sqrt(1-|vec|)
 
         // Compute polynomial approximation
         auto vConstants = _mm_shuffle_ps( SIMD::g_arcEstCoefficients, SIMD::g_arcEstCoefficients, _MM_SHUFFLE( 3, 3, 3, 3 ) );
-        __m128 t0 = _mm_mul_ps( vConstants, x );
+        __m128 t0 = _mm_mul_ps( vConstants, m_x );
 
         vConstants = _mm_shuffle_ps( SIMD::g_arcEstCoefficients, SIMD::g_arcEstCoefficients, _MM_SHUFFLE( 2, 2, 2, 2 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( SIMD::g_arcEstCoefficients, SIMD::g_arcEstCoefficients, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         t0 = _mm_add_ps( t0, vConstants );
-        t0 = _mm_mul_ps( t0, x );
+        t0 = _mm_mul_ps( t0, m_x );
 
         vConstants = _mm_shuffle_ps( SIMD::g_arcEstCoefficients, SIMD::g_arcEstCoefficients, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         t0 = _mm_add_ps( t0, vConstants );
@@ -1620,9 +1620,9 @@ namespace KRG
         sign = _mm_or_ps( select0, select1 );
         select0 = _mm_and_ps( comp, vec );
         select1 = _mm_andnot_ps( comp, invV );
-        __m128 x = _mm_or_ps( select0, select1 );
+        __m128 m_x = _mm_or_ps( select0, select1 );
 
-        __m128 x2 = _mm_mul_ps( x, x );
+        __m128 x2 = _mm_mul_ps( m_x, m_x );
 
         // Compute polynomial approximation
         Vector const AEC = SIMD::g_aTanEstCoefficients1;
@@ -1643,7 +1643,7 @@ namespace KRG
 
         // ATanEstCoefficients0 is already splatted
         Result = _mm_add_ps( Result, SIMD::g_aTanEstCoefficients0 );
-        Result = _mm_mul_ps( Result, x );
+        Result = _mm_mul_ps( Result, m_x );
         __m128 result1 = _mm_mul_ps( sign, Vector::PiDivTwo );
         result1 = _mm_sub_ps( result1, Result );
 

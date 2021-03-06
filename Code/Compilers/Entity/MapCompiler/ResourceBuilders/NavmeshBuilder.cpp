@@ -159,9 +159,9 @@ namespace KRG::Navmesh
             {
                 auto const scale = transform.GetScale();
 
-                int32 numNegativelyScaledAxes = ( scale.x < 0 ) ? 1 : 0;
-                numNegativelyScaledAxes += ( scale.y < 0 ) ? 1 : 0;
-                numNegativelyScaledAxes += ( scale.z < 0 ) ? 1 : 0;
+                int32 numNegativelyScaledAxes = ( scale.m_x < 0 ) ? 1 : 0;
+                numNegativelyScaledAxes += ( scale.m_y < 0 ) ? 1 : 0;
+                numNegativelyScaledAxes += ( scale.m_z < 0 ) ? 1 : 0;
 
                 bool const flipWindingDueToScale = Math::IsOdd( numNegativelyScaledAxes );
 

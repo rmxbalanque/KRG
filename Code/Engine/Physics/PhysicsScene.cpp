@@ -98,7 +98,7 @@ namespace KRG::Physics
         ( end - start ).ToDirectionAndLength3( dir, length );
         KRG_ASSERT( !dir.IsNearZero3() );
 
-        return RayCast( start, dir, length.x, rules );
+        return RayCast( start, dir, length.m_x, rules );
     }
 
     //-------------------------------------------------------------------------
@@ -125,7 +125,7 @@ namespace KRG::Physics
         ( end - start ).ToDirectionAndLength3( dir, length );
         KRG_ASSERT( !dir.IsNearZero3() );
 
-        return SphereCast( radius, start, dir, length.x, rules );
+        return SphereCast( radius, start, dir, length.m_x, rules );
     }
 
     bool PhysicsScene::SphereOverlap( float radius, Vector const& position, QueryRules const& rules )
@@ -166,7 +166,7 @@ namespace KRG::Physics
         ( end - start ).ToDirectionAndLength3( dir, length );
         KRG_ASSERT( !dir.IsNearZero3() );
 
-        return CapsuleCast( halfHeight, radius, orientation, start, dir, length.x, rules );
+        return CapsuleCast( halfHeight, radius, orientation, start, dir, length.m_x, rules );
     }
 
     bool PhysicsScene::CapsuleOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules )
@@ -208,7 +208,7 @@ namespace KRG::Physics
         ( end - start ).ToDirectionAndLength3( dir, length );
         KRG_ASSERT( !dir.IsNearZero3() );
 
-        return CylinderCast( halfHeight, radius, orientation, start, dir, length.x, rules );
+        return CylinderCast( halfHeight, radius, orientation, start, dir, length.m_x, rules );
     }
 
     bool PhysicsScene::CylinderOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules )
@@ -249,7 +249,7 @@ namespace KRG::Physics
         ( end - start ).ToDirectionAndLength3( dir, length );
         KRG_ASSERT( !dir.IsNearZero3() );
 
-        return BoxCast( halfExtents, position, orientation, start, dir, length.x, rules );
+        return BoxCast( halfExtents, position, orientation, start, dir, length.m_x, rules );
     }
 
     bool PhysicsScene::BoxOverlap( Vector halfExtents, Vector const& position, Quaternion const& orientation, QueryRules const& rules )
@@ -275,7 +275,7 @@ namespace KRG::Physics
         ( desiredEndPosition - transform.GetTranslation() ).ToDirectionAndLength3( dir, length );
         KRG_ASSERT( !dir.IsNearZero3() );
 
-        return ShapeCast( pShape, transform, dir, length.x, rules );
+        return ShapeCast( pShape, transform, dir, length.m_x, rules );
     }
 
     bool PhysicsScene::ShapeCast( physx::PxShape* pShape, Transform const& transform, Vector const& unitDirection, float distance, QueryRules const& rules )

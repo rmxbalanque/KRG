@@ -13,27 +13,27 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         auto currentRotation = GetLocalTransform().ToEulerAngles();
-        m_heading = currentRotation.z;
-        m_pitch = currentRotation.x;
+        m_heading = currentRotation.m_z;
+        m_pitch = currentRotation.m_x;
 
         // Sanity check: viewport values
         //-------------------------------------------------------------------------
 
-        if( !Math::IsInRangeInclusive( m_viewportTopLeft.x, 0.0f, 1.0f ) || !Math::IsInRangeInclusive( m_viewportTopLeft.y, 0.0f, 1.0f ) )
+        if( !Math::IsInRangeInclusive( m_viewportTopLeft.m_x, 0.0f, 1.0f ) || !Math::IsInRangeInclusive( m_viewportTopLeft.m_y, 0.0f, 1.0f ) )
         {
             KRG_LOG_WARNING( "Camera", "Invalid viewport top-left position supplied. Clamping values!" );
-            m_viewportTopLeft.x = Math::Clamp( m_viewportTopLeft.x, 0.0f, 1.0f );
-            m_viewportTopLeft.y = Math::Clamp( m_viewportTopLeft.y, 0.0f, 1.0f );
+            m_viewportTopLeft.m_x = Math::Clamp( m_viewportTopLeft.m_x, 0.0f, 1.0f );
+            m_viewportTopLeft.m_y = Math::Clamp( m_viewportTopLeft.m_y, 0.0f, 1.0f );
         }
 
-        if ( !Math::IsInRangeInclusive( m_viewportBottomRight.x, 0.0f, 1.0f ) || !Math::IsInRangeInclusive( m_viewportBottomRight.y, 0.0f, 1.0f ) )
+        if ( !Math::IsInRangeInclusive( m_viewportBottomRight.m_x, 0.0f, 1.0f ) || !Math::IsInRangeInclusive( m_viewportBottomRight.m_y, 0.0f, 1.0f ) )
         {
             KRG_LOG_WARNING( "Camera", "Invalid viewport dimensions supplied. Clamping values!" );
-            m_viewportBottomRight.x = Math::Clamp( m_viewportBottomRight.x, 0.0f, 1.0f );
-            m_viewportBottomRight.y = Math::Clamp( m_viewportBottomRight.y, 0.0f, 1.0f );
+            m_viewportBottomRight.m_x = Math::Clamp( m_viewportBottomRight.m_x, 0.0f, 1.0f );
+            m_viewportBottomRight.m_y = Math::Clamp( m_viewportBottomRight.m_y, 0.0f, 1.0f );
         }
 
-        if( m_viewportBottomRight.x <= m_viewportTopLeft.x || m_viewportBottomRight.y <= m_viewportTopLeft.y )
+        if( m_viewportBottomRight.m_x <= m_viewportTopLeft.m_x || m_viewportBottomRight.m_y <= m_viewportTopLeft.m_y )
         {
             KRG_LOG_WARNING( "Camera", "Invalid viewport dimensions supplied. resetting values to fullscreen." );
             m_viewportTopLeft = Float2::Zero;
@@ -66,8 +66,8 @@ namespace KRG
         // Calculate the actual space that this camera's viewport covers
         //-------------------------------------------------------------------------
         Float2 const viewportDimensions( m_viewportBottomRight - m_viewportTopLeft );
-        float const sizeX = viewportDimensions.x * newViewDimensions.x;
-        float const sizeY = viewportDimensions.y * newViewDimensions.y;
+        float const sizeX = viewportDimensions.m_x * newViewDimensions.m_x;
+        float const sizeY = viewportDimensions.m_y * newViewDimensions.m_y;
         Float2 const actualViewDimensions( sizeX, sizeY );
         m_viewVolume.SetViewDimensions( actualViewDimensions );
     }

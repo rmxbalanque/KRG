@@ -121,34 +121,34 @@ namespace KRG
 
                 // X
                 uint16 largestValueIndex = 0;
-                float maxAbsValue = Math::Abs( value.x );
-                float signMultiplier = ( value.x < 0 ) ? -1.0f : 1.0f;
+                float maxAbsValue = Math::Abs( value.m_x );
+                float signMultiplier = ( value.m_x < 0 ) ? -1.0f : 1.0f;
 
                 // Y
-                float absValue = Math::Abs( value.y );
+                float absValue = Math::Abs( value.m_y );
                 if ( absValue > maxAbsValue )
                 {
                     largestValueIndex = 1;
                     maxAbsValue = absValue;
-                    signMultiplier = ( value.y < 0 ) ? -1.0f : 1.0f;
+                    signMultiplier = ( value.m_y < 0 ) ? -1.0f : 1.0f;
                 }
 
                 // Z
-                absValue = Math::Abs( value.z );
+                absValue = Math::Abs( value.m_z );
                 if ( absValue > maxAbsValue )
                 {
                     largestValueIndex = 2;
                     maxAbsValue = absValue;
-                    signMultiplier = ( value.z < 0 ) ? -1.0f : 1.0f;
+                    signMultiplier = ( value.m_z < 0 ) ? -1.0f : 1.0f;
                 }
 
                 // W
-                absValue = Math::Abs( value.w );
+                absValue = Math::Abs( value.m_w );
                 if ( absValue > maxAbsValue )
                 {
                     largestValueIndex = 3;
                     maxAbsValue = absValue;
-                    signMultiplier = ( value.w < 0 ) ? -1.0f : 1.0f;
+                    signMultiplier = ( value.m_w < 0 ) ? -1.0f : 1.0f;
                 }
 
                 //-------------------------------------------------------------------------
@@ -159,31 +159,31 @@ namespace KRG
 
                 if ( largestValueIndex == 0 )
                 {
-                    a = (uint16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    b = (uint16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    c = (uint16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    a = (uint16) Math::RoundToInt( ( ( value.m_y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    b = (uint16) Math::RoundToInt( ( ( value.m_z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    c = (uint16) Math::RoundToInt( ( ( value.m_w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
                 }
                 else if ( largestValueIndex == 1 )
                 {
-                    a = (uint16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    b = (uint16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    c = (uint16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    a = (uint16) Math::RoundToInt( ( ( value.m_x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    b = (uint16) Math::RoundToInt( ( ( value.m_z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    c = (uint16) Math::RoundToInt( ( ( value.m_w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
 
                     m_data1 = 0x8000; // 1 << 16
                 }
                 else if ( largestValueIndex == 2 )
                 {
-                    a = (uint16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    b = (uint16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    c = (uint16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    a = (uint16) Math::RoundToInt( ( ( value.m_x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    b = (uint16) Math::RoundToInt( ( ( value.m_y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    c = (uint16) Math::RoundToInt( ( ( value.m_w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
 
                     m_data0 = 0x8000; // 1 << 16
                 }
                 else if ( largestValueIndex == 3 )
                 {
-                    a = (uint16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    b = (uint16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    c = (uint16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    a = (uint16) Math::RoundToInt( ( ( value.m_x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    b = (uint16) Math::RoundToInt( ( ( value.m_y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    c = (uint16) Math::RoundToInt( ( ( value.m_z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
 
                     m_data0 = 0x8000; // 1 << 16
                     m_data1 = 0x8000; // 1 << 16

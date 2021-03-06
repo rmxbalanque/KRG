@@ -8,42 +8,42 @@ namespace KRG
     {
         KRG_ASSERT( points != nullptr && numPoints > 0 );
 
-        // Find the points with minimum and maximum x, y, and z
+        // Find the points with minimum and maximum m_x, m_y, and m_z
         Vector minX, maxX, minY, maxY, minZ, maxZ;
         minX = maxX = minY = maxY = minZ = maxZ = points[0];
 
         for ( uint32 i = 1u; i < numPoints; ++i )
         {
-            float px = points[i].x;
-            float py = points[i].y;
-            float pz = points[i].z;
+            float px = points[i].m_x;
+            float py = points[i].m_y;
+            float pz = points[i].m_z;
 
-            if ( px < minX.x )
+            if ( px < minX.m_x )
             {
                 minX = points[i];
             }
 
-            if ( px > maxX.x )
+            if ( px > maxX.m_x )
             {
                 maxX = points[i];
             }
 
-            if ( py < minY.y )
+            if ( py < minY.m_y )
             {
                 minY = points[i];
             }
 
-            if ( py > maxY.y )
+            if ( py > maxY.m_y )
             {
                 maxY = points[i];
             }
 
-            if ( pz < minZ.z )
+            if ( pz < minZ.m_z )
             {
                 minZ = points[i];
             }
 
-            if ( pz >  maxZ.z )
+            if ( pz >  maxZ.m_z )
             {
                 maxZ = points[i];
             }
@@ -63,13 +63,13 @@ namespace KRG
         {
             if ( DistX.IsGreaterThan3( DistZ ) )
             {
-                // Use min/max x.
+                // Use min/max m_x.
                 m_center = Vector::Lerp( maxX, minX, 0.5f );
                 m_radius = DistX * 0.5f;
             }
             else
             {
-                // Use min/max z.
+                // Use min/max m_z.
                 m_center = Vector::Lerp( maxZ, minZ, 0.5f );
                 m_radius = DistZ * 0.5f;
             }
@@ -78,13 +78,13 @@ namespace KRG
         {
             if ( DistY.IsGreaterThan3( DistZ ) )
             {
-                // Use min/max y.
+                // Use min/max m_y.
                 m_center = Vector::Lerp( maxY, minY, 0.5f );
                 m_radius = DistY * 0.5f;
             }
             else
             {
-                // Use min/max z.
+                // Use min/max m_z.
                 m_center = Vector::Lerp( maxZ, minZ, 0.5f );
                 m_radius = DistZ, 0.5f;
             }
@@ -145,7 +145,7 @@ namespace KRG
         Vector const boxMax = m_center + m_extents;
 
         // Find the distance to the nearest point on the box.
-        // for each i in (x, y, z)
+        // for each i in (m_x, m_y, m_z)
         // if (sphere.m_center(i) < BoxMin(i)) d2 += (sphere.m_center(i) - BoxMin(i)) ^ 2
         // else if (sphere.m_center(i) > BoxMax(i)) d2 += (sphere.m_center(i) - BoxMax(i)) ^ 2
 
@@ -274,19 +274,19 @@ namespace KRG
         // b(u) = axes of B relative to A = (r00,r10,r20), (r01,r11,r21), (r02,r12,r22)
         //  
         // For each possible separating axis l:
-        //   d(A) = sum (for i = u,v,w) h(A)(i) * abs( a(i) dot l )
-        //   d(B) = sum (for i = u,v,w) h(B)(i) * abs( b(i) dot l )
+        //   d(A) = sum (for i = u,v,m_w) h(A)(i) * abs( a(i) dot l )
+        //   d(B) = sum (for i = u,v,m_w) h(B)(i) * abs( b(i) dot l )
         //   if abs( t dot l ) > d(A) + d(B) then disjoint
         //
 
-        // Rows. Note R[0,1,2]X.w = 0.
+        // Rows. Note R[0,1,2]X.m_w = 0.
         Vector const R0X = R[0];
         Vector const R1X = R[1];
         Vector const R2X = R[2];
 
         R = R.Transpose();
 
-        // Columns. Note RX[0,1,2].w = 0.
+        // Columns. Note RX[0,1,2].m_w = 0.
         Vector const RX0 = R[0];
         Vector const RX1 = R[1];
         Vector const RX2 = R[2];
@@ -309,8 +309,8 @@ namespace KRG
         Vector d, d_A, d_B;
 
         // l = a(u) = (1, 0, 0)
-        // t dot l = t.x
-        // d(A) = h(A).x
+        // t dot l = t.m_x
+        // d(A) = h(A).m_x
         // d(B) = h(B) dot abs(r00, r01, r02)
         d = t.GetSplatX();
         d_A = m_extents.GetSplatX();
@@ -320,17 +320,17 @@ namespace KRG
         #define NO_INTERSECTION_TEST NoIntersection = SIMD::Int::Or( NoIntersection, d.Abs().GreaterThan( ( d_A + d_B ).Abs() ) );
 
         // l = a(v) = (0, 1, 0)
-        // t dot l = t.y
-        // d(A) = h(A).y
+        // t dot l = t.m_y
+        // d(A) = h(A).m_y
         // d(B) = h(B) dot abs(r10, r11, r12)
         d = t.GetSplatY();
         d_A = m_extents.GetSplatY();
         d_B = box.m_extents.Dot3( AR1X );
         NO_INTERSECTION_TEST
 
-        // l = a(w) = (0, 0, 1)
-        // t dot l = t.z
-        // d(A) = h(A).z
+        // l = a(m_w) = (0, 0, 1)
+        // t dot l = t.m_z
+        // d(A) = h(A).m_z
         // d(B) = h(B) dot abs(r20, r21, r22)
         d = t.GetSplatZ();
         d_A = m_extents.GetSplatZ();
@@ -339,7 +339,7 @@ namespace KRG
 
         // l = b(u) = (r00, r10, r20)
         // d(A) = h(A) dot abs(r00, r10, r20)
-        // d(B) = h(B).x
+        // d(B) = h(B).m_x
         d = t.Dot3( RX0 );
         d_A = m_extents.Dot3( ARX0 );
         d_B = box.m_extents.GetSplatX();
@@ -347,21 +347,21 @@ namespace KRG
 
         // l = b(v) = (r01, r11, r21)
         // d(A) = h(A) dot abs(r01, r11, r21)
-        // d(B) = h(B).y
+        // d(B) = h(B).m_y
         d = t.Dot3( RX1 );
         d_A = m_extents.Dot3( ARX1 );
         d_B = box.m_extents.GetSplatY();
         NO_INTERSECTION_TEST
 
-        // l = b(w) = (r02, r12, r22)
+        // l = b(m_w) = (r02, r12, r22)
         // d(A) = h(A) dot abs(r02, r12, r22)
-        // d(B) = h(B).z
+        // d(B) = h(B).m_z
         d = t.Dot3( RX2 );
         d_A = m_extents.Dot3( ARX2 );
         d_B = box.m_extents.GetSplatZ();
         NO_INTERSECTION_TEST
 
-        // l = a(u) x b(u) = (0, -r20, r10)
+        // l = a(u) m_x b(u) = (0, -r20, r10)
         // d(A) = h(A) dot abs(0, r20, r10)
         // d(B) = h(B) dot abs(0, r02, r01)
         d = t.Dot3( Vector::Permute<3, 6, 1, 0>( RX0, NRX0 ) );
@@ -369,7 +369,7 @@ namespace KRG
         d_B = box.m_extents.Dot3( AR0X.Swizzle<3, 2, 1, 0>() );
         NO_INTERSECTION_TEST
 
-        // l = a(u) x b(v) = (0, -r21, r11)
+        // l = a(u) m_x b(v) = (0, -r21, r11)
         // d(A) = h(A) dot abs(0, r21, r11)
         // d(B) = h(B) dot abs(r02, 0, r00)
         d = t.Dot3( Vector::Permute<3, 6, 1, 0>( RX1, NRX1 ) );
@@ -377,7 +377,7 @@ namespace KRG
         d_B = box.m_extents.Dot3( AR0X.Swizzle<2, 3, 0, 1>() );
         NO_INTERSECTION_TEST
 
-        // l = a(u) x b(w) = (0, -r22, r12)
+        // l = a(u) m_x b(m_w) = (0, -r22, r12)
         // d(A) = h(A) dot abs(0, r22, r12)
         // d(B) = h(B) dot abs(r01, r00, 0)
         d = t.Dot3( Vector::Permute<3, 6, 1, 0>( RX2, NRX2 ) );
@@ -385,14 +385,14 @@ namespace KRG
         d_B = box.m_extents.Dot3( AR0X.Swizzle<1, 0, 3, 2>() );
         NO_INTERSECTION_TEST
 
-        // l = a(v) x b(u) = (r20, 0, -r00)
+        // l = a(v) m_x b(u) = (r20, 0, -r00)
         // d(A) = h(A) dot abs(r20, 0, r00)
         // d(B) = h(B) dot abs(0, r12, r11)
         d = t.Dot3( Vector::Permute<2, 3, 4, 1>( RX0, NRX0 ) );
         d_A = m_extents.Dot3( ARX0.Swizzle<2, 3, 0, 1>(  ) );
         d_B = box.m_extents.Dot3( AR1X.Swizzle<3, 2, 1, 0>(  ) );
 
-        // l = a(v) x b(v) = (r21, 0, -r01)
+        // l = a(v) m_x b(v) = (r21, 0, -r01)
         // d(A) = h(A) dot abs(r21, 0, r01)
         // d(B) = h(B) dot abs(r12, 0, r10)
         d = t.Dot3( Vector::Permute<2, 3, 4, 1>( RX1, NRX1 ) );
@@ -400,7 +400,7 @@ namespace KRG
         d_B = box.m_extents.Dot3( AR1X.Swizzle<2, 3, 0, 1>() );
         NO_INTERSECTION_TEST
 
-        // l = a(v) x b(w) = (r22, 0, -r02)
+        // l = a(v) m_x b(m_w) = (r22, 0, -r02)
         // d(A) = h(A) dot abs(r22, 0, r02)
         // d(B) = h(B) dot abs(r11, r10, 0)
         d = t.Dot3( Vector::Permute<2, 3, 4, 1>( RX2, NRX2 ) );
@@ -408,7 +408,7 @@ namespace KRG
         d_B = box.m_extents.Dot3( AR1X.Swizzle<1, 0, 3, 2>() );
         NO_INTERSECTION_TEST
 
-        // l = a(w) x b(u) = (-r10, r00, 0)
+        // l = a(m_w) m_x b(u) = (-r10, r00, 0)
         // d(A) = h(A) dot abs(r10, r00, 0)
         // d(B) = h(B) dot abs(0, r22, r21)
         d = t.Dot3( Vector::Permute<5, 0, 3, 2>( RX0, NRX0 ) );
@@ -416,7 +416,7 @@ namespace KRG
         d_B = box.m_extents.Dot3( AR2X.Swizzle<3, 2, 1, 0>() );
         NO_INTERSECTION_TEST
 
-        // l = a(w) x b(v) = (-r11, r01, 0)
+        // l = a(m_w) m_x b(v) = (-r11, r01, 0)
         // d(A) = h(A) dot abs(r11, r01, 0)
         // d(B) = h(B) dot abs(r22, 0, r20)
         d = t.Dot3( Vector::Permute<5, 0, 3, 2>( RX1, NRX1 ) );
@@ -424,7 +424,7 @@ namespace KRG
         d_B = box.m_extents.Dot3( AR2X.Swizzle<2, 3, 0, 1>() );
         NO_INTERSECTION_TEST
 
-        // l = a(w) x b(w) = (-r12, r02, 0)
+        // l = a(m_w) m_x b(m_w) = (-r12, r02, 0)
         // d(A) = h(A) dot abs(r12, r02, 0)
         // d(B) = h(B) dot abs(r21, r20, 0)
         d = t.Dot3( Vector::Permute<5, 0, 3, 2>( RX2, NRX2 ) );
@@ -448,7 +448,7 @@ namespace KRG
         Vector const transformedSphereCenter = m_orientation.RotateVectorInverse( sphere.m_center - m_center );
 
         // Find the distance to the nearest point on the box.
-        // for each i in (x, y, z)
+        // for each i in (m_x, m_y, m_z)
         // if (transformedSphereCenter(i) < BoxMin(i)) d2 += (transformedSphereCenter(i) - BoxMin(i)) ^ 2
         // else if (transformedSphereCenter(i) > BoxMax(i)) d2 += (transformedSphereCenter(i) - BoxMax(i)) ^ 2
 
@@ -478,7 +478,7 @@ namespace KRG
         Vector const transformedSphereCenter = m_orientation.RotateVectorInverse( sphere.m_center - m_center );
 
         // Find the distance to the nearest point on the box.
-        // for each i in (x, y, z)
+        // for each i in (m_x, m_y, m_z)
         // if (transformedSphereCenter(i) < BoxMin(i)) d2 += (transformedSphereCenter(i) - BoxMin(i)) ^ 2
         // else if (transformedSphereCenter(i) > BoxMax(i)) d2 += (transformedSphereCenter(i) - BoxMax(i)) ^ 2
 

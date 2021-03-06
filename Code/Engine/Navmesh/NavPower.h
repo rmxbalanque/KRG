@@ -39,26 +39,26 @@ namespace KRG::Navmesh
 
     KRG_FORCE_INLINE bfx::Vector3 ToBfx( Float3 const& v )
     {
-        return bfx::Vector3( v.x, v.y, v.z );
+        return bfx::Vector3( v.m_x, v.m_y, v.m_z );
     }
 
     KRG_FORCE_INLINE bfx::Vector3 ToBfx( Float4 const& v )
     {
-        return bfx::Vector3( v.x, v.y, v.z );
+        return bfx::Vector3( v.m_x, v.m_y, v.m_z );
     }
 
     KRG_FORCE_INLINE bfx::Vector3 ToBfx( Vector const& v )
     {
-        return bfx::Vector3( v.x, v.y, v.z );
+        return bfx::Vector3( v.m_x, v.m_y, v.m_z );
     }
 
     KRG_FORCE_INLINE bfx::Quaternion ToBfx( Quaternion const& q )
     {
         bfx::Quaternion quaternion;
-        quaternion.m_x = q.x;
-        quaternion.m_y = q.y;
-        quaternion.m_z = q.z;
-        quaternion.m_w = q.w;
+        quaternion.m_x = q.m_x;
+        quaternion.m_y = q.m_y;
+        quaternion.m_z = q.m_z;
+        quaternion.m_w = q.m_w;
         return quaternion;
     }
 

@@ -170,8 +170,8 @@ namespace KRG
 
             CB cb;
             cb.m_viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
-            cb.m_viewport.x = ( float ) viewport.GetSize().x;
-            cb.m_viewport.y = ( float ) viewport.GetSize().y;
+            cb.m_viewport.m_x = ( float ) viewport.GetSize().m_x;
+            cb.m_viewport.m_y = ( float ) viewport.GetSize().m_y;
 
             renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
             renderContext.WriteToBuffer( m_geometryShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
@@ -344,8 +344,8 @@ namespace KRG
 
             CB cb;
             cb.m_viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
-            cb.m_viewport.x = ( float ) viewport.GetSize().x;
-            cb.m_viewport.y = ( float ) viewport.GetSize().y;
+            cb.m_viewport.m_x = ( float ) viewport.GetSize().m_x;
+            cb.m_viewport.m_y = ( float ) viewport.GetSize().m_y;
 
             renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
             renderContext.WriteToBuffer( m_geometryShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
@@ -482,8 +482,8 @@ namespace KRG
 
             CB cb;
             cb.m_viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
-            cb.m_viewport.x = ( float) viewport.GetSize().x;
-            cb.m_viewport.y = ( float) viewport.GetSize().y;
+            cb.m_viewport.m_x = ( float) viewport.GetSize().m_x;
+            cb.m_viewport.m_y = ( float) viewport.GetSize().m_y;
             renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
         }
 
@@ -597,7 +597,7 @@ namespace KRG
             }
 
             Int2 const fontAtlasDimensions = m_fontAtlas.GetDimensions();
-            int32 const fontAtlasDimensionsSq = fontAtlasDimensions.x * fontAtlasDimensions.y;
+            int32 const fontAtlasDimensionsSq = fontAtlasDimensions.m_x * fontAtlasDimensions.m_y;
 
             m_nonZeroAlphaTexCoords = Float2( 0, 0 );
 
@@ -608,15 +608,15 @@ namespace KRG
             {
                 if ( m_nonZeroAlphaTexCoords == Float2::Zero && *pSrc == 0xFF )
                 {
-                    float const u = float( i % fontAtlasDimensions.x );
-                    float const v = float( i / fontAtlasDimensions.x );
+                    float const u = float( i % fontAtlasDimensions.m_x );
+                    float const v = float( i / fontAtlasDimensions.m_x );
                     m_nonZeroAlphaTexCoords = Float2( u, v );
                 }
 
                 fontdata[i] = ( ( uint32 ) ( *pSrc++ ) << 24 ) | 0x00FFFFFF;
             }
 
-            m_fontAtlasTexture = Texture::InitializeTexture( TextureFormat::Raw, fontAtlasDimensions, ( Byte* ) fontdata.data(), fontAtlasDimensions.x * fontAtlasDimensions.y * 4 );
+            m_fontAtlasTexture = Texture::InitializeTexture( TextureFormat::Raw, fontAtlasDimensions, ( Byte* ) fontdata.data(), fontAtlasDimensions.m_x * fontAtlasDimensions.m_y * 4 );
             pRenderDevice->CreateTexture( m_fontAtlasTexture );
 
             // Set up PSO
@@ -697,7 +697,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             Int2 const fontAtlasDimensions = GetDimensions();
-            int32 const fontAtlasDimensionsSq = fontAtlasDimensions.x * fontAtlasDimensions.y;
+            int32 const fontAtlasDimensionsSq = fontAtlasDimensions.m_x * fontAtlasDimensions.m_y;
             m_atlasData.resize( fontAtlasDimensionsSq, 0 );
 
             // Render debug fonts to atlas
@@ -706,7 +706,7 @@ namespace KRG
             stbtt_pack_context context;
             stbtt_PackSetOversampling( &context, 2, 2 );
 
-            if ( !stbtt_PackBegin( &context, m_atlasData.data(), fontAtlasDimensions.x, fontAtlasDimensions.y, 0, 0, nullptr ) )
+            if ( !stbtt_PackBegin( &context, m_atlasData.data(), fontAtlasDimensions.m_x, fontAtlasDimensions.m_y, 0, 0, nullptr ) )
             {
                 return false;
             }
@@ -756,7 +756,7 @@ namespace KRG
                     int32 charIdx = g - glyphRange.m_min;
                     stbtt_aligned_quad q;
                     Float2 pos( 0.0f );
-                    stbtt_GetPackedQuad( charInfo.data(), fontAtlasDimensions.x, fontAtlasDimensions.y, charIdx, &pos.x, &pos.y, &q, 0 );
+                    stbtt_GetPackedQuad( charInfo.data(), fontAtlasDimensions.m_x, fontAtlasDimensions.m_y, charIdx, &pos.m_x, &pos.m_y, &q, 0 );
 
                     // Glyphs positions are stored relative of their baseline positions (i.e. bottom left)
                     DebugFontGlyph glyph;
@@ -764,7 +764,7 @@ namespace KRG
                     glyph.m_positionBR = Float2( q.x1, q.y1 );
                     glyph.m_texCoordsTL = Float2( q.s0, q.t0 );
                     glyph.m_texCoordsBR = Float2( q.s1, q.t1 );
-                    glyph.m_advanceX = pos.x + 0.5f;
+                    glyph.m_advanceX = pos.m_x + 0.5f;
                     fontInfo.m_glyphs.emplace_back( std::move( glyph ) );
                 }
             }
@@ -892,7 +892,7 @@ namespace KRG
 
             uint32 numGlyphsDrawn = 0;
             Float2 textDrawPos = textPosTopLeft;
-            textDrawPos.y += ( lineHeight - descent );
+            textDrawPos.m_y += ( lineHeight - descent );
 
             //-------------------------------------------------------------------------
 
@@ -901,25 +901,25 @@ namespace KRG
             {
                 if ( glyphIndices[i] == '\n' )
                 {
-                    textDrawPos.x = textPosTopLeft.x;
-                    textDrawPos.y += lineHeight;
+                    textDrawPos.m_x = textPosTopLeft.m_x;
+                    textDrawPos.m_y += lineHeight;
                 }
                 else
                 {
                     DebugFontGlyph const& glyph = fontInfo.GetGlyph( glyphIndices[i] );
 
-                    Float2 const bl( Math::Floor( textDrawPos.x + glyph.m_positionTL.x ), Math::Floor( textDrawPos.y + glyph.m_positionBR.y ) );
-                    Float2 const tl( Math::Floor( textDrawPos.x + glyph.m_positionTL.x ), Math::Floor( textDrawPos.y + glyph.m_positionTL.y ) );
-                    Float2 const tr( Math::Floor( textDrawPos.x + glyph.m_positionBR.x ), Math::Floor( textDrawPos.y + glyph.m_positionTL.y ) );
-                    Float2 const br( Math::Floor( textDrawPos.x + glyph.m_positionBR.x ), Math::Floor( textDrawPos.y + glyph.m_positionBR.y ) );
+                    Float2 const bl( Math::Floor( textDrawPos.m_x + glyph.m_positionTL.m_x ), Math::Floor( textDrawPos.m_y + glyph.m_positionBR.m_y ) );
+                    Float2 const tl( Math::Floor( textDrawPos.m_x + glyph.m_positionTL.m_x ), Math::Floor( textDrawPos.m_y + glyph.m_positionTL.m_y ) );
+                    Float2 const tr( Math::Floor( textDrawPos.m_x + glyph.m_positionBR.m_x ), Math::Floor( textDrawPos.m_y + glyph.m_positionTL.m_y ) );
+                    Float2 const br( Math::Floor( textDrawPos.m_x + glyph.m_positionBR.m_x ), Math::Floor( textDrawPos.m_y + glyph.m_positionBR.m_y ) );
 
                     uint32 const vertexColor = ( uint8( color[3] * 255 ) << 24 ) | ( uint8( color[2] * 255 ) << 16 ) | ( uint8( color[1] * 255 ) << 8 ) | uint8( color[0] * 255 );
 
                     // 0 = BL, 1 = TL, 2 = TR, 3 = BR
-                    pVertexBuffer[0] = DebugFontGlyphVertex{ bl, Float2( glyph.m_texCoordsTL.x, glyph.m_texCoordsBR.y ), vertexColor };
-                    pVertexBuffer[1] = DebugFontGlyphVertex{ tl, Float2( glyph.m_texCoordsTL.x, glyph.m_texCoordsTL.y ), vertexColor };
-                    pVertexBuffer[2] = DebugFontGlyphVertex{ tr, Float2( glyph.m_texCoordsBR.x, glyph.m_texCoordsTL.y ), vertexColor };
-                    pVertexBuffer[3] = DebugFontGlyphVertex{ br, Float2( glyph.m_texCoordsBR.x, glyph.m_texCoordsBR.y ), vertexColor };
+                    pVertexBuffer[0] = DebugFontGlyphVertex{ bl, Float2( glyph.m_texCoordsTL.m_x, glyph.m_texCoordsBR.m_y ), vertexColor };
+                    pVertexBuffer[1] = DebugFontGlyphVertex{ tl, Float2( glyph.m_texCoordsTL.m_x, glyph.m_texCoordsTL.m_y ), vertexColor };
+                    pVertexBuffer[2] = DebugFontGlyphVertex{ tr, Float2( glyph.m_texCoordsBR.m_x, glyph.m_texCoordsTL.m_y ), vertexColor };
+                    pVertexBuffer[3] = DebugFontGlyphVertex{ br, Float2( glyph.m_texCoordsBR.m_x, glyph.m_texCoordsBR.m_y ), vertexColor };
 
                     pIndexBuffer[0] = indexStartOffset + 3;
                     pIndexBuffer[1] = indexStartOffset + 1;
@@ -938,7 +938,7 @@ namespace KRG
                     // Update glyph draw state
                     //-------------------------------------------------------------------------
 
-                    textDrawPos.x += glyph.m_advanceX;
+                    textDrawPos.m_x += glyph.m_advanceX;
                     numGlyphsDrawn++;
                 }
             }
@@ -956,14 +956,14 @@ namespace KRG
             float const lineHeight = fontInfo.GetAscent() + fontInfo.GetDescent() + fontInfo.GetLineGap();
 
             Float2 textDrawPos = textPosTopLeft;
-            textDrawPos.y += ( lineHeight - descent );
+            textDrawPos.m_y += ( lineHeight - descent );
 
             DebugFontGlyph const& glyph = fontInfo.GetGlyph( firstGlyphIdx );
 
-            Float2 const tl( Math::Floor( textDrawPos.x + glyph.m_positionTL.x - pixelPadding ), Math::Floor( textDrawPos.y + glyph.m_positionTL.y - pixelPadding ) );
-            Float2 const tr( Math::Floor( textDrawPos.x + textExtents.x + pixelPadding ), Math::Floor( textDrawPos.y + glyph.m_positionTL.y - pixelPadding ) );
-            Float2 const bl( Math::Floor( textDrawPos.x + glyph.m_positionTL.x - pixelPadding ), Math::Floor( textDrawPos.y - ascent + textExtents.y + pixelPadding ) );
-            Float2 const br( Math::Floor( textDrawPos.x + textExtents.x + pixelPadding ), Math::Floor( textDrawPos.y - ascent + textExtents.y + pixelPadding ) );
+            Float2 const tl( Math::Floor( textDrawPos.m_x + glyph.m_positionTL.m_x - pixelPadding ), Math::Floor( textDrawPos.m_y + glyph.m_positionTL.m_y - pixelPadding ) );
+            Float2 const tr( Math::Floor( textDrawPos.m_x + textExtents.m_x + pixelPadding ), Math::Floor( textDrawPos.m_y + glyph.m_positionTL.m_y - pixelPadding ) );
+            Float2 const bl( Math::Floor( textDrawPos.m_x + glyph.m_positionTL.m_x - pixelPadding ), Math::Floor( textDrawPos.m_y - ascent + textExtents.m_y + pixelPadding ) );
+            Float2 const br( Math::Floor( textDrawPos.m_x + textExtents.m_x + pixelPadding ), Math::Floor( textDrawPos.m_y - ascent + textExtents.m_y + pixelPadding ) );
 
             uint32 const vertexColor = ( uint8( color[3] * 255 ) << 24 ) | ( uint8( color[2] * 255 ) << 16 ) | ( uint8( color[1] * 255 ) << 8 ) | uint8( color[0] * 255 );
 

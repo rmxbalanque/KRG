@@ -233,25 +233,25 @@ namespace KRG
                 {
                     if ( drawTextBox )
                     {
-                        textPosTopLeft.x += textBoxPadding;
+                        textPosTopLeft.m_x += textBoxPadding;
                     }
                 }
                 else if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignRight ) )
                 {
-                    textPosTopLeft.x -= extents.x;
+                    textPosTopLeft.m_x -= extents.m_x;
 
                     if ( drawTextBox )
                     {
-                        textPosTopLeft.x -= textBoxPadding;
+                        textPosTopLeft.m_x -= textBoxPadding;
                     }
                 }
                 else if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignCenter ) )
                 {
-                    textPosTopLeft.x -= ( extents.x / 2 );
+                    textPosTopLeft.m_x -= ( extents.m_x / 2 );
 
                     if ( drawTextBox )
                     {
-                        textPosTopLeft.x -= 0.5f * textBoxPadding;
+                        textPosTopLeft.m_x -= 0.5f * textBoxPadding;
                     }
                 }
 
@@ -260,25 +260,25 @@ namespace KRG
                 {
                     if ( drawTextBox )
                     {
-                        textPosTopLeft.y += textBoxPadding;
+                        textPosTopLeft.m_y += textBoxPadding;
                     }
                 }
                 else if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignBottom ) )
                 {
-                    textPosTopLeft.y -= extents.y;
+                    textPosTopLeft.m_y -= extents.m_y;
 
                     if ( drawTextBox )
                     {
-                        textPosTopLeft.y -= textBoxPadding;
+                        textPosTopLeft.m_y -= textBoxPadding;
                     }
                 }
                 else if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignMiddle ) )
                 {
-                    textPosTopLeft.y -= extents.y / 2;
+                    textPosTopLeft.m_y -= extents.m_y / 2;
 
                     if ( drawTextBox )
                     {
-                        textPosTopLeft.y -= 0.5f * textBoxPadding;
+                        textPosTopLeft.m_y -= 0.5f * textBoxPadding;
                     }
                 }
 
@@ -289,7 +289,7 @@ namespace KRG
 
                 if ( drawTextBox )
                 {
-                    textPosTopLeft.y += textBoxPadding;
+                    textPosTopLeft.m_y += textBoxPadding;
                     m_textRS.m_fontAtlas.WriteCustomGlyphToBuffer( &pVertexData[numGlyphsDrawn * 4], uint16( numGlyphsDrawn * 4 ), &pIndexData[numGlyphsDrawn * 6], fontIdx, glyphIndices[0], m_textRS.m_nonZeroAlphaTexCoords, textPosTopLeft, extents, textBoxPadding, Float4( 0, 0, 0, 128.0f / 255 ) );
                     numGlyphsDrawn++;
                 }

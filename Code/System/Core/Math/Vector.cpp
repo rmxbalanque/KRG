@@ -67,7 +67,7 @@ namespace KRG
     Vector Vector::SLerp( Vector const& from, Vector const& to, float t )
     {
         KRG_ASSERT( t >= 0.0f && t <= 1.0f );
-        if ( from.GetLengthSquared3() < Epsilon.x || from.GetLengthSquared3() < Epsilon.x )
+        if ( from.GetLengthSquared3() < Epsilon.m_x || from.GetLengthSquared3() < Epsilon.m_x )
         {
             return Lerp( from, to, t );
         }
@@ -94,7 +94,7 @@ namespace KRG
             Vector const axis = Cross3( normalizedFrom, normalizedTo ).Normalize3();
             Vector const interpolatedAngle = Lerp( Zero, angle, t );
 
-            Quaternion const rotation( axis, interpolatedAngle.x );
+            Quaternion const rotation( axis, interpolatedAngle.m_x );
             Vector const finalDirection = rotation.RotateVector( normalizedFrom );
             result = finalDirection.GetNormalized3() * finalLength;
         }

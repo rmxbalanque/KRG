@@ -116,7 +116,7 @@ namespace KRG
 
             inline Vector ApplyScaleCorrection( Vector const& vector ) const
             {
-                return Vector( vector.x * m_scaleConversionMultiplier, vector.y * m_scaleConversionMultiplier, vector.z * m_scaleConversionMultiplier, vector.w );
+                return Vector( vector.m_x * m_scaleConversionMultiplier, vector.m_y * m_scaleConversionMultiplier, vector.m_z * m_scaleConversionMultiplier, vector.m_w );
             }
 
         private:

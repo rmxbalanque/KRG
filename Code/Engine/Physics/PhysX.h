@@ -102,27 +102,27 @@ namespace KRG::Physics
 
     KRG_FORCE_INLINE physx::PxVec2 ToPx( Float2 const& v )
     {
-        return physx::PxVec2( v.x, v.y );
+        return physx::PxVec2( v.m_x, v.m_y );
     }
 
     KRG_FORCE_INLINE physx::PxVec3 ToPx( Float3 const& v )
     {
-        return physx::PxVec3( v.x, v.y, v.z );
+        return physx::PxVec3( v.m_x, v.m_y, v.m_z );
     }
 
     KRG_FORCE_INLINE physx::PxVec3 ToPx( Vector const& v )
     {
-        return physx::PxVec3( v.x, v.y, v.z );
+        return physx::PxVec3( v.m_x, v.m_y, v.m_z );
     }
 
     KRG_FORCE_INLINE physx::PxVec4 ToPx( Float4 const& v )
     {
-        return physx::PxVec4( v.x, v.y, v.z, v.w );
+        return physx::PxVec4( v.m_x, v.m_y, v.m_z, v.m_w );
     }
 
     KRG_FORCE_INLINE physx::PxQuat ToPx( Quaternion const& v )
     {
-        return physx::PxQuat( v.x, v.y, v.z, v.w );
+        return physx::PxQuat( v.m_x, v.m_y, v.m_z, v.m_w );
     }
 
     KRG_FORCE_INLINE physx::PxTransform ToPx( Transform const& v )

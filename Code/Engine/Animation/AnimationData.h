@@ -42,7 +42,7 @@ namespace KRG
 
         struct TrackCompressionSettings
         {
-            KRG_SERIALIZE_MEMBERS( m_translationRangeX, m_translationRangeY, m_translationRangeZ, m_scaleRange, m_trackStartIndex, m_isTranslationStatic, m_isScaleStatic );
+            KRG_SERIALIZE_MEMBERS( m_translationRangeX, m_translationRangeY, m_translationRangeZ, m_scaleRangeX, m_scaleRangeY, m_scaleRangeZ, m_trackStartIndex, m_isTranslationStatic, m_isScaleStatic );
 
             friend class AnimationCompiler;
 
@@ -61,8 +61,10 @@ namespace KRG
             QuantizationRange                       m_translationRangeX;
             QuantizationRange                       m_translationRangeY;
             QuantizationRange                       m_translationRangeZ;
-            QuantizationRange                       m_scaleRange;
-            uint32                                     m_trackStartIndex = 0; // The start offset for this track in the compressed data block (in number of uint16s)
+            QuantizationRange                       m_scaleRangeX;
+            QuantizationRange                       m_scaleRangeY;
+            QuantizationRange                       m_scaleRangeZ;
+            uint32                                  m_trackStartIndex = 0; // The start offset for this track in the compressed data block (in number of uint16s)
 
         private:
 
@@ -84,7 +86,7 @@ namespace KRG
 
             inline static Quaternion DecodeRotation( uint16 const* pData );
             inline static Vector DecodeTranslation( uint16 const* pData, TrackCompressionSettings const& settings );
-            inline static float DecodeScale( uint16 const* pData, TrackCompressionSettings const& settings );
+            inline static Vector DecodeScale( uint16 const* pData, TrackCompressionSettings const& settings );
 
         public:
 
@@ -132,9 +134,9 @@ namespace KRG
         private:
 
             TResourcePtr<Skeleton>                  m_pSkeleton;
-            uint32                                     m_numFrames = 0;
+            uint32                                  m_numFrames = 0;
             Seconds                                 m_duration = 0.0f;
-            TVector<uint16>                            m_compressedPoseData;
+            TVector<uint16>                         m_compressedPoseData;
             TVector<TrackCompressionSettings>       m_trackCompressionSettings;
             TVector<Transform>                      m_displacementTrack;
             bool                                    m_isAdditive = false;
@@ -150,15 +152,18 @@ namespace KRG
 
         inline Vector AnimationData::DecodeTranslation( uint16 const* pData, TrackCompressionSettings const& settings )
         {
-            float const x = Quantization::DecodeFloat( pData[0], settings.m_translationRangeX.m_rangeStart, settings.m_translationRangeX.m_rangeLength );
-            float const y = Quantization::DecodeFloat( pData[1], settings.m_translationRangeY.m_rangeStart, settings.m_translationRangeY.m_rangeLength );
-            float const z = Quantization::DecodeFloat( pData[2], settings.m_translationRangeZ.m_rangeStart, settings.m_translationRangeZ.m_rangeLength );
-            return Vector( x, y, z );
+            float const m_x = Quantization::DecodeFloat( pData[0], settings.m_translationRangeX.m_rangeStart, settings.m_translationRangeX.m_rangeLength );
+            float const m_y = Quantization::DecodeFloat( pData[1], settings.m_translationRangeY.m_rangeStart, settings.m_translationRangeY.m_rangeLength );
+            float const m_z = Quantization::DecodeFloat( pData[2], settings.m_translationRangeZ.m_rangeStart, settings.m_translationRangeZ.m_rangeLength );
+            return Vector( m_x, m_y, m_z );
         }
 
-        inline float AnimationData::DecodeScale( uint16 const* pData, TrackCompressionSettings const& settings )
+        inline Vector AnimationData::DecodeScale( uint16 const* pData, TrackCompressionSettings const& settings )
         {
-            return Quantization::DecodeFloat( *pData, settings.m_scaleRange.m_rangeStart, settings.m_scaleRange.m_rangeLength );
+            float const m_x = Quantization::DecodeFloat( pData[0], settings.m_scaleRangeX.m_rangeStart, settings.m_scaleRangeX.m_rangeLength );
+            float const m_y = Quantization::DecodeFloat( pData[1], settings.m_scaleRangeY.m_rangeStart, settings.m_scaleRangeY.m_rangeLength );
+            float const m_z = Quantization::DecodeFloat( pData[2], settings.m_scaleRangeZ.m_rangeStart, settings.m_scaleRangeZ.m_rangeLength );
+            return Vector( m_x, m_y, m_z );
         }
 
         inline Transform AnimationData::GetDisplacementDelta( TRange<Percentage> const& timeRange ) const
@@ -234,12 +239,12 @@ namespace KRG
             // Read scale
             //-------------------------------------------------------------------------
 
-            // Scales are 16bits (1 x uint16)
-            static constexpr uint32 const scaleStride = 1;
+             // Scales are 48bits (3 x uint16)
+            static constexpr uint32 const scaleStride = 3;
 
             if ( trackSettings.IsScaleTrackStatic() )
             {
-                float const scale = DecodeScale( pTrackData, trackSettings );
+                Vector const scale = DecodeScale( pTrackData, trackSettings );
                 transform0.SetScale( scale );
                 transform1.SetScale( scale );
 
@@ -324,7 +329,7 @@ namespace KRG
 
             if ( trackSettings.IsScaleTrackStatic() )
             {
-                float const scale = DecodeScale( pTrackData, trackSettings );
+                Vector const scale = DecodeScale( pTrackData, trackSettings );
                 outTransform.SetScale( scale );
 
                 // Shift the track data ptr to the next track's rotation data

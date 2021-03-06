@@ -20,16 +20,16 @@ namespace KRG
                 : m_topLeft( topLeft )
                 , m_size( size )
             {
-                KRG_ASSERT( size.x >= 0 && size.y >= 0 );
+                KRG_ASSERT( size.m_x >= 0 && size.m_y >= 0 );
             }
 
             inline Float2 GetTopLeft() const { return m_topLeft; }
-            inline Float2 GetBottomRight() const { return m_topLeft + Float2( m_size.x, -m_size.y ); }
+            inline Float2 GetBottomRight() const { return m_topLeft + Float2( m_size.m_x, -m_size.m_y ); }
             inline Float2 GetSize() const { return m_size; }
 
             inline float GetArea() const
             {
-               return m_size.x * m_size.y;
+               return m_size.m_x * m_size.m_y;
             }
 
             inline bool IsDegenerate() const
@@ -39,7 +39,7 @@ namespace KRG
 
             inline Float2 GetCenter() const
             {
-                return Float2( m_topLeft.x + ( m_size. x / 2.0f ), m_topLeft.y + ( m_size.x / 2.0f ) );
+                return Float2( m_topLeft.m_x + ( m_size. m_x / 2.0f ), m_topLeft.m_y + ( m_size.m_x / 2.0f ) );
             }
 
             inline Float2 GetClosestPoint( Float2 const& point )
@@ -47,26 +47,26 @@ namespace KRG
                 Float2 const bottomRight = GetBottomRight();
 
                 Float2 closestPoint;
-                closestPoint.x = Math::Clamp( point.x, m_topLeft.x, bottomRight.x );
-                closestPoint.y = Math::Clamp( point.y, bottomRight.y, m_topLeft.y);
+                closestPoint.m_x = Math::Clamp( point.m_x, m_topLeft.m_x, bottomRight.m_x );
+                closestPoint.m_y = Math::Clamp( point.m_y, bottomRight.m_y, m_topLeft.m_y);
                 return closestPoint;
             }
 
             inline bool Contains( Float2 const& point ) const
             {
                 Float2 const bottomRight = GetBottomRight();
-                return Math::IsInRangeInclusive( point.x, m_topLeft.x, bottomRight.x ) && Math::IsInRangeInclusive( point.y, bottomRight.y, m_topLeft.y );
+                return Math::IsInRangeInclusive( point.m_x, m_topLeft.m_x, bottomRight.m_x ) && Math::IsInRangeInclusive( point.m_y, bottomRight.m_y, m_topLeft.m_y );
             }
 
             inline bool Overlaps( Rectangle const& other ) const
             {
                 Float2 const bottomRight = GetBottomRight();
-                TRange<float> rangeX( m_topLeft.x, bottomRight.x );
-                TRange<float> rangeY( bottomRight.y, m_topLeft.y );
+                TRange<float> rangeX( m_topLeft.m_x, bottomRight.m_x );
+                TRange<float> rangeY( bottomRight.m_y, m_topLeft.m_y );
 
                 Float2 const otherBottomRight = other.GetBottomRight();
-                TRange<float> otherRangeX( other.m_topLeft.x, otherBottomRight.x );
-                TRange<float> otherRangeY( otherBottomRight.y, other.m_topLeft.y );
+                TRange<float> otherRangeX( other.m_topLeft.m_x, otherBottomRight.m_x );
+                TRange<float> otherRangeY( otherBottomRight.m_y, other.m_topLeft.m_y );
 
                 return rangeX.Overlaps( otherRangeX ) && rangeY.Overlaps( otherRangeY );
             }

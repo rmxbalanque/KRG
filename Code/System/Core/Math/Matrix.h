@@ -98,9 +98,9 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         inline Vector const& GetTranslation() const { return m_rows[3]; }
-        inline Matrix& SetTranslation( Vector const& v ) { KRG_ASSERT( v.w == 1.0f ); m_rows[3] = v; return *this; }
+        inline Matrix& SetTranslation( Vector const& v ) { KRG_ASSERT( v.m_w == 1.0f ); m_rows[3] = v; return *this; }
         inline Matrix& SetTranslation( Float3 const& v ) { m_rows[3] = Vector( v, 1.0f ); return *this; }
-        inline Matrix& SetTranslation( Float4 const& v ) { KRG_ASSERT( v.w == 1.0f ); m_rows[3] = v; return *this; }
+        inline Matrix& SetTranslation( Float4 const& v ) { KRG_ASSERT( v.m_w == 1.0f ); m_rows[3] = v; return *this; }
 
         // Rotation
         //-------------------------------------------------------------------------
@@ -167,9 +167,9 @@ namespace KRG
     inline Matrix::Matrix( Quaternion const& rotation, Vector const& translation, Vector const& scale )
     {
         SetRotation( rotation );
-        m_rows[0] = m_rows[0] * scale.x;
-        m_rows[1] = m_rows[1] * scale.y;
-        m_rows[2] = m_rows[2] * scale.z;
+        m_rows[0] = m_rows[0] * scale.m_x;
+        m_rows[1] = m_rows[1] * scale.m_y;
+        m_rows[2] = m_rows[2] * scale.m_z;
         m_rows[3] = translation;
     }
 
@@ -177,9 +177,9 @@ namespace KRG
 
     Matrix& Matrix::SetScaleFast( Vector const& scale )
     {
-        m_rows[0] = m_rows[0].GetNormalized3() * scale.x;
-        m_rows[1] = m_rows[1].GetNormalized3() * scale.y;
-        m_rows[2] = m_rows[2].GetNormalized3() * scale.z;
+        m_rows[0] = m_rows[0].GetNormalized3() * scale.m_x;
+        m_rows[1] = m_rows[1].GetNormalized3() * scale.m_y;
+        m_rows[2] = m_rows[2].GetNormalized3() * scale.m_z;
         return *this;
     }
 
@@ -335,7 +335,7 @@ namespace KRG
 
     inline Matrix& Matrix::SetRotation( Matrix const& rotation )
     {
-        KRG_ASSERT( Math::Abs( rotation.GetDeterminant().x ) == 1.0f );
+        KRG_ASSERT( Math::Abs( rotation.GetDeterminant().m_x ) == 1.0f );
         m_rows[0] = rotation.m_rows[0];
         m_rows[1] = rotation.m_rows[1];
         m_rows[2] = rotation.m_rows[2];
@@ -435,12 +435,12 @@ namespace KRG
             float const inv_trace = Math::Reciprocal( Math::Sqrt( mtx_trace + 1.0f ) );
             float const half_inv_trace = inv_trace * 0.5f;
 
-            float const x = ( axisY_z - axisZ_y ) * half_inv_trace;
-            float const y = ( axisZ_x - axisX_z ) * half_inv_trace;
-            float const z = ( axisX_y - axisY_x ) * half_inv_trace;
-            float const w = Math::Reciprocal( inv_trace ) * 0.5f;
+            float const m_x = ( axisY_z - axisZ_y ) * half_inv_trace;
+            float const m_y = ( axisZ_x - axisX_z ) * half_inv_trace;
+            float const m_z = ( axisX_y - axisY_x ) * half_inv_trace;
+            float const m_w = Math::Reciprocal( inv_trace ) * 0.5f;
 
-            return Quaternion( x, y, z, w ).GetNormalized();
+            return Quaternion( m_x, m_y, m_z, m_w ).GetNormalized();
         }
         else
         {
@@ -581,7 +581,7 @@ namespace KRG
 
     inline Vector Matrix::ApplyTransform( Vector const& V ) const
     {
-        // Splat x,y,z and w
+        // Splat m_x,m_y,m_z and m_w
         Vector vTempX = V.GetSplatX();
         Vector vTempY = V.GetSplatY();
         Vector vTempZ = V.GetSplatZ();
@@ -766,7 +766,7 @@ namespace KRG
         Vector height = cosFov / sinFov;
 
         float const fRange = farPlane / ( nearPlane - farPlane );
-        Vector vValues( height.x / aspectRatio, height.x, fRange, fRange * nearPlane );
+        Vector vValues( height.m_x / aspectRatio, height.m_x, fRange, fRange * nearPlane );
         Vector vTemp = _mm_setzero_ps();
         vTemp = _mm_move_ss( vTemp, vValues );
 
@@ -779,7 +779,7 @@ namespace KRG
         vTemp = vValues;
         vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
         M.m_rows[1] = vTemp;
-        // x=fRange,y=-fRange * NearZ,0,-1.0f
+        // m_x=fRange,m_y=-fRange * NearZ,0,-1.0f
         vTemp = _mm_setzero_ps();
         vValues = _mm_shuffle_ps( vValues, negativeUnitW, _MM_SHUFFLE( 3, 2, 3, 2 ) );
         // 0,0,fRange,-1.0f
@@ -799,7 +799,7 @@ namespace KRG
 
         Vector vValues = { 2.0f / width, 2.0f / height, fRange, fRange * nearPlane };
         Vector vTemp = _mm_setzero_ps();
-        // Copy x only
+        // Copy m_x only
         vTemp = _mm_move_ss( vTemp, vValues );
 
         Matrix M;
@@ -809,7 +809,7 @@ namespace KRG
         vTemp = vValues;
         vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
         M.m_rows[1] = vTemp;
-        // x=fRange,y=fRange * nearPlane,0,1.0f
+        // m_x=fRange,m_y=fRange * nearPlane,0,1.0f
         vTemp = _mm_setzero_ps();
         vValues = _mm_shuffle_ps( vValues, Vector::UnitW, _MM_SHUFFLE( 3, 2, 3, 2 ) );
         // 0,0,fRange,0.0f
@@ -833,7 +833,7 @@ namespace KRG
         Vector rMem2 = { -( left + right ), -( top + bottom ), nearPlane, 1.0f };
         Vector vTemp = _mm_setzero_ps();
 
-        // Copy x only
+        // Copy m_x only
         vTemp = _mm_move_ss( vTemp, vValues );
         // fReciprocalWidth*2,0,0,0
         vTemp = _mm_add_ss( vTemp, vTemp );

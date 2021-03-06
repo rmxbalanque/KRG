@@ -26,7 +26,7 @@ namespace KRG
             Viewport();
             Viewport( Int2 const& topLeft, Int2 const& size, Math::ViewVolume const& viewVolume = Math::ViewVolume() );
 
-            inline bool IsValid() const { return ( m_size.x > 0 && m_size.y > 0 ) && ( m_topLeftPosition.x >= 0 && m_topLeftPosition.y >= 0 ); }
+            inline bool IsValid() const { return ( m_size.m_x > 0 && m_size.m_y > 0 ) && ( m_topLeftPosition.m_x >= 0 && m_topLeftPosition.m_y >= 0 ); }
 
             void Resize( Int2 const& dimensions, Int2 const& topLeftPosition = Int2::Zero );
 
@@ -35,7 +35,7 @@ namespace KRG
 
             inline Float2 const& GetSize() const { return m_size; }
             inline Float2 const& GetTopLeftPosition() const { return m_topLeftPosition; }
-            inline float GetAspectRatio() const { return m_size.x / m_size.y; }
+            inline float GetAspectRatio() const { return m_size.m_x / m_size.m_y; }
 
             // View Volume
             //-------------------------------------------------------------------------

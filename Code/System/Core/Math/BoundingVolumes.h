@@ -272,8 +272,8 @@ namespace KRG
     // Full overlap test
     KRG_FORCE_INLINE OverlapResult Sphere::OverlapTest( Sphere const& other ) const
     {
-        float const r1 = m_radius.x;
-        float const r2 = other.m_radius.x;
+        float const r1 = m_radius.m_x;
+        float const r2 = other.m_radius.m_x;
         float const distance = ( other.m_center - m_center ).Length3().ToFloat();
 
         if ( r1 + r2 >= distance )
@@ -317,7 +317,7 @@ namespace KRG
     KRG_FORCE_INLINE float AABB::GetVolume() const
     {
         Vector const fullExtents = m_extents * 2;
-        return m_extents.x * m_extents.y * m_extents.z;
+        return m_extents.m_x * m_extents.m_y * m_extents.m_z;
     }
 
     // Full overlap test
@@ -355,7 +355,7 @@ namespace KRG
         Vector boxMax = m_center + m_extents;
 
         // Find the distance to the nearest point on the box.
-        // for each i in (x, y, z)
+        // for each i in (m_x, m_y, m_z)
         // if (SphereCenter(i) < BoxMin(i)) d2 += (SphereCenter(i) - BoxMin(i)) ^ 2
         // else if (SphereCenter(i) > BoxMax(i)) d2 += (SphereCenter(i) - BoxMax(i)) ^ 2
 

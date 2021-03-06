@@ -341,7 +341,7 @@ namespace KRG
                 auto eulerAngles = value.ToEulerAngles();
 
                 float floatData[9];
-                (Float3&) floatData = Float3( (float) eulerAngles.x.ToDegrees(), (float) eulerAngles.y.ToDegrees(), (float) eulerAngles.z.ToDegrees() );
+                (Float3&) floatData = Float3( (float) eulerAngles.m_x.ToDegrees(), (float) eulerAngles.m_y.ToDegrees(), (float) eulerAngles.m_z.ToDegrees() );
                 (Float3&) floatData[3] = value.GetTranslation().ToFloat3();
                 (Float3&) floatData[6] = value.GetScale().ToFloat3();
 
@@ -378,17 +378,17 @@ namespace KRG
 
             float floatData[9];
 
-            floatData[0] = (float) eulerAngles.x.ToDegrees();
-            floatData[1] = (float) eulerAngles.y.ToDegrees();
-            floatData[2] = (float) eulerAngles.z.ToDegrees();
+            floatData[0] = (float) eulerAngles.m_x.ToDegrees();
+            floatData[1] = (float) eulerAngles.m_y.ToDegrees();
+            floatData[2] = (float) eulerAngles.m_z.ToDegrees();
 
-            floatData[3] = value.GetTranslation().x;
-            floatData[4] = value.GetTranslation().y;
-            floatData[5] = value.GetTranslation().z;
+            floatData[3] = value.GetTranslation().m_x;
+            floatData[4] = value.GetTranslation().m_y;
+            floatData[5] = value.GetTranslation().m_z;
 
-            floatData[6] = value.GetScale().x;
-            floatData[7] = value.GetScale().y;
-            floatData[8] = value.GetScale().z;
+            floatData[6] = value.GetScale().m_x;
+            floatData[7] = value.GetScale().m_y;
+            floatData[8] = value.GetScale().m_z;
 
             //-------------------------------------------------------------------------
 
@@ -417,13 +417,13 @@ namespace KRG
         template<>
         inline void TypeValueConverter::ValueToString( EulerAngles const& value, String& outStr )
         {
-            FloatArrayToString( (float*) &value.x, ",", 3, outStr );
+            FloatArrayToString( (float*) &value.m_x, ",", 3, outStr );
         }
 
         template<>
         inline void TypeValueConverter::StringToValue( String const& str, EulerAngles& value )
         {
-            StringToFloatArray( str, ",", 3, (float*) &value.x );
+            StringToFloatArray( str, ",", 3, (float*) &value.m_x );
         }
 
         //-------------------------------------------------------------------------
@@ -432,14 +432,14 @@ namespace KRG
         inline void TypeValueConverter::ValueToString( Quaternion const& value, String& outStr )
         {
             EulerAngles angles = value.ToEulerAngles();
-            FloatArrayToString( (float*) &angles.x, ",", 3, outStr );
+            FloatArrayToString( (float*) &angles.m_x, ",", 3, outStr );
         }
 
         template<>
         inline void TypeValueConverter::StringToValue( String const& str, Quaternion& value )
         {
             EulerAngles angles;
-            StringToFloatArray( str, ",", 3, (float*) &angles.x );
+            StringToFloatArray( str, ",", 3, (float*) &angles.m_x );
             value = Quaternion( angles );
         }
 

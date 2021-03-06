@@ -110,8 +110,8 @@ namespace KRG
 
             // Set buffer dimensions and format
             swapChainDesc.BufferCount = 2;
-            swapChainDesc.BufferDesc.Width = m_resolution.x;
-            swapChainDesc.BufferDesc.Height = m_resolution.y;
+            swapChainDesc.BufferDesc.Width = m_resolution.m_x;
+            swapChainDesc.BufferDesc.Height = m_resolution.m_y;
             swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
             swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
             swapChainDesc.BufferDesc.RefreshRate.Numerator = m_refreshRate;
@@ -234,8 +234,8 @@ namespace KRG
         {
             // Create depth stencil texture
             D3D11_TEXTURE2D_DESC descDepth;
-            descDepth.Width = m_resolution.x;
-            descDepth.Height = m_resolution.y;
+            descDepth.Width = m_resolution.m_x;
+            descDepth.Height = m_resolution.m_y;
             descDepth.MipLevels = 1;
             descDepth.ArraySize = 1;
             descDepth.Format = DXGI_FORMAT_D32_FLOAT;
@@ -349,7 +349,7 @@ namespace KRG
 
         void RenderDevice::ResizeRenderTargets( Int2 const& dimensions )
         {
-            KRG_ASSERT( dimensions.x > 0 && dimensions.y > 0 );
+            KRG_ASSERT( dimensions.m_x > 0 && dimensions.m_y > 0 );
             m_resolution = dimensions;
 
             // Release render target and depth stencil
@@ -358,7 +358,7 @@ namespace KRG
             m_immediateContext.m_pDeviceContext->Flush();
 
             // Create new render targets
-            if ( FAILED( m_pSwapChain->ResizeBuffers( 2, m_resolution.x, m_resolution.y, DXGI_FORMAT_UNKNOWN, 0 ) ) )
+            if ( FAILED( m_pSwapChain->ResizeBuffers( 2, m_resolution.m_x, m_resolution.m_y, DXGI_FORMAT_UNKNOWN, 0 ) ) )
             {
                 KRG_LOG_ERROR( "RenderingSystem", "Failed to resize swap chain buffers" );
                 KRG_HALT();
@@ -795,8 +795,8 @@ namespace KRG
 
             D3D11_TEXTURE2D_DESC texDesc;
             Memory::MemsetZero( &texDesc, sizeof( texDesc ) );
-            texDesc.Width = texture.m_dimensions.x;
-            texDesc.Height = texture.m_dimensions.y;
+            texDesc.Width = texture.m_dimensions.m_x;
+            texDesc.Height = texture.m_dimensions.m_y;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;

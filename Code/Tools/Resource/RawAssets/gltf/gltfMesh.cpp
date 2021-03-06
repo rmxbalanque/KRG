@@ -98,7 +98,7 @@ namespace KRG
                                 for ( auto i = 0; i < numVertices; i++ )
                                 {
                                     Float3 position;
-                                    cgltf_accessor_read_float( primitive.attributes[a].data, i, &position.x, 3 );
+                                    cgltf_accessor_read_float( primitive.attributes[a].data, i, &position.m_x, 3 );
                                     geometrySection.m_vertices[i].m_position = ctx.ApplyUpAxisCorrection( Vector( position ) ).ToFloat4();
                                 }
                             }
@@ -111,7 +111,7 @@ namespace KRG
                                 for ( auto i = 0; i < numVertices; i++ )
                                 {
                                     Float3 position;
-                                    cgltf_accessor_read_float( primitive.attributes[a].data, i, &position.x, 3 );
+                                    cgltf_accessor_read_float( primitive.attributes[a].data, i, &position.m_x, 3 );
                                     geometrySection.m_vertices[i].m_normal = Float4( position, 1.0f );
                                 }
                             }
@@ -124,7 +124,7 @@ namespace KRG
                                 for ( auto i = 0; i < numVertices; i++ )
                                 {
                                     Float3 tangent;
-                                    cgltf_accessor_read_float( primitive.attributes[a].data, i, &tangent.x, 3 );
+                                    cgltf_accessor_read_float( primitive.attributes[a].data, i, &tangent.m_x, 3 );
                                     geometrySection.m_vertices[i].m_tangent = Float4( tangent, 1.0f );
                                 }
                             }
@@ -137,7 +137,7 @@ namespace KRG
                                 for ( auto i = 0; i < numVertices; i++ )
                                 {
                                     Float2 texcoord;
-                                    cgltf_accessor_read_float( primitive.attributes[a].data, i, &texcoord.x, 3 );
+                                    cgltf_accessor_read_float( primitive.attributes[a].data, i, &texcoord.m_x, 3 );
                                     geometrySection.m_vertices[i].m_texCoords[primitive.attributes[a].index] = texcoord;
                                 }
                             }

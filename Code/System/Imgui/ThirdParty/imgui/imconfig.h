@@ -80,15 +80,15 @@
 #include "System/Core/Math/Vector.h"
 
 #define IM_VEC2_CLASS_EXTRA                                                 \
-        ImVec2(const KRG::Float2& f) { x = f.x; y = f.y; }\
+        ImVec2(const KRG::Float2& f) { x = f.m_x; y = f.m_y; }\
         operator KRG::Float2() const { return KRG::Float2(x,y); }\
-        ImVec2(const KRG::Vector& f) { x = f.x; y = f.y; }\
+        ImVec2(const KRG::Vector& f) { x = f.m_x; y = f.m_y; }\
         operator KRG::Vector() const { return KRG::Vector(x,y,0,0); }
 
 #define IM_VEC4_CLASS_EXTRA                                                 \
-        ImVec4(const KRG::Float4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }\
+        ImVec4(const KRG::Float4& f) { x = f.m_x; y = f.m_y; z = f.m_z; w = f.m_w; }\
         operator KRG::Float4() const { return KRG::Float4(x,y,z,w); }\
-        ImVec4(const KRG::Vector& f) { x = f.x; y = f.y; z = f.z; w = f.w; }\
+        ImVec4(const KRG::Vector& f) { x = f.m_x; y = f.m_y; z = f.m_z; w = f.m_w; }\
         operator KRG::Vector() const { return KRG::Vector(x,y,z,w); }
 
 #define IMGUI_DEFINE_MATH_OPERATORS

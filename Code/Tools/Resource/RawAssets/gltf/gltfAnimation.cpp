@@ -147,7 +147,7 @@ namespace KRG
                             for ( auto i = 0; i < numFrames; i++ )
                             {
                                 Float4 rotation;
-                                cgltf_accessor_read_float( channel.sampler->output, i, &rotation.x, 4 );
+                                cgltf_accessor_read_float( channel.sampler->output, i, &rotation.m_x, 4 );
                                 trackData[boneIdx][i].m_rotation = Quaternion( rotation );
                             }
                         }
@@ -160,7 +160,7 @@ namespace KRG
                             for ( auto i = 0; i < numFrames; i++ )
                             {
                                 Float3 translation;
-                                cgltf_accessor_read_float( channel.sampler->output, i, &translation.x, 3 );
+                                cgltf_accessor_read_float( channel.sampler->output, i, &translation.m_x, 3 );
                                 trackData[boneIdx][i].m_translation = translation;
                             }
                         }
@@ -173,7 +173,7 @@ namespace KRG
                             for ( auto i = 0; i < numFrames; i++ )
                             {
                                 Float3 scale;
-                                cgltf_accessor_read_float( channel.sampler->output, i, &scale.x, 3 );
+                                cgltf_accessor_read_float( channel.sampler->output, i, &scale.m_x, 3 );
                                 trackData[boneIdx][i].m_scale = scale;
                             }
                         }

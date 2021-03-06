@@ -41,7 +41,7 @@ namespace KRG
             if ( pLabel != nullptr )
             {
                 Float2 const textDimensions = ImGui::CalcTextSize( pLabel );
-                Float2 const textPos = Float2( buttonTopLeft.x + ( dimensions.x / 2 ) - ( textDimensions.x / 2 ) + 1, buttonTopLeft.y + ( dimensions.y / 2 ) - ( textDimensions.y / 2 ) );
+                Float2 const textPos = Float2( buttonTopLeft.m_x + ( dimensions.m_x / 2 ) - ( textDimensions.m_x / 2 ) + 1, buttonTopLeft.m_y + ( dimensions.m_y / 2 ) - ( textDimensions.m_y / 2 ) );
                 pDrawList->AddText( textPos, 0xFFFFFFFF, pLabel );
             }
         }
@@ -55,13 +55,13 @@ namespace KRG
             if ( pLabel != nullptr )
             {
                 Float2 const textDimensions = ImGui::CalcTextSize( pLabel );
-                Float2 const textPos = Float2( drawPosition.x + ( dimensions.x / 2 ) - ( textDimensions.x / 2 ) + 1, drawPosition.y + g_buttonBorderThickness );
+                Float2 const textPos = Float2( drawPosition.m_x + ( dimensions.m_x / 2 ) - ( textDimensions.m_x / 2 ) + 1, drawPosition.m_y + g_buttonBorderThickness );
                 pDrawList->AddText( textPos, 0xFFFFFFFF, pLabel );
-                drawPosition.y += textDimensions.y + 4;
+                drawPosition.m_y += textDimensions.m_y + 4;
             }
 
             // Draw the border
-            Float2 const borderDimensions( dimensions.x, dimensions.y - ( drawPosition.y - position.y + 4 ) );
+            Float2 const borderDimensions( dimensions.m_x, dimensions.m_y - ( drawPosition.m_y - position.m_y + 4 ) );
             Float2 const triggerTopLeft = drawPosition;
             Float2 const triggerBottomRight = triggerTopLeft + borderDimensions;
             pDrawList->AddRect( triggerTopLeft, triggerBottomRight, g_controlOutlineColor, 0.0f, ~0, g_buttonBorderThickness );
@@ -91,19 +91,19 @@ namespace KRG
                     triggerValue1Color = 0xFF0000FF;
                 }
 
-                float const valueMaxLength = borderDimensions.y - ( g_buttonBorderThickness * 2 );
-                float const triggerValueWidth = ( borderDimensions.x - g_buttonBorderThickness * 2 ) / 2;
-                float const triggerValue0TopLeftX = drawPosition.x + g_buttonBorderThickness;
+                float const valueMaxLength = borderDimensions.m_y - ( g_buttonBorderThickness * 2 );
+                float const triggerValueWidth = ( borderDimensions.m_x - g_buttonBorderThickness * 2 ) / 2;
+                float const triggerValue0TopLeftX = drawPosition.m_x + g_buttonBorderThickness;
                 float const triggerValue1TopLeftX = triggerValue0TopLeftX + triggerValueWidth;
-                float const triggerValue0TopLeftY = drawPosition.y + g_buttonBorderThickness + ( 1.0f - triggerValue0 ) * valueMaxLength;
-                float const triggerValue1TopLeftY = drawPosition.y + g_buttonBorderThickness + ( 1.0f - triggerValue1 ) * valueMaxLength;
+                float const triggerValue0TopLeftY = drawPosition.m_y + g_buttonBorderThickness + ( 1.0f - triggerValue0 ) * valueMaxLength;
+                float const triggerValue1TopLeftY = drawPosition.m_y + g_buttonBorderThickness + ( 1.0f - triggerValue1 ) * valueMaxLength;
 
                 Float2 const triggerValue0TopLeft( triggerValue0TopLeftX, triggerValue0TopLeftY );
-                Float2 const triggerValue0BottomRight( triggerValue1TopLeftX, triggerBottomRight.y - g_buttonBorderThickness );
+                Float2 const triggerValue0BottomRight( triggerValue1TopLeftX, triggerBottomRight.m_y - g_buttonBorderThickness );
                 pDrawList->AddRectFilled( triggerValue0TopLeft, triggerValue0BottomRight, triggerValue0Color );
 
                 Float2 const triggerValue1TopLeft( triggerValue0TopLeftX + triggerValueWidth, triggerValue1TopLeftY );
-                Float2 const triggerValue1BottomRight( triggerValue1TopLeftX + triggerValueWidth, triggerBottomRight.y - g_buttonBorderThickness );
+                Float2 const triggerValue1BottomRight( triggerValue1TopLeftX + triggerValueWidth, triggerBottomRight.m_y - g_buttonBorderThickness );
                 pDrawList->AddRectFilled( triggerValue1TopLeft, triggerValue1BottomRight, triggerValue1Color );
             }
         }
@@ -118,9 +118,9 @@ namespace KRG
             Float2 rawValue = isLeftStick ? controllerState.GetLeftAnalogStickRawValue() : controllerState.GetRightAnalogStickRawValue();
             Float2 filteredValue = isLeftStick ? controllerState.GetLeftAnalogStickValue() : controllerState.GetRightAnalogStickValue();
 
-            // Invert the y values to match screen space
-            rawValue.y = -rawValue.y;
-            filteredValue.y = -filteredValue.y;
+            // Invert the m_y values to match screen space
+            rawValue.m_y = -rawValue.m_y;
+            filteredValue.m_y = -filteredValue.m_y;
 
             // Draw max stick range and dead zone range
             float const innerDeadZoneRadius = g_analogStickRangeRadius * ( isLeftStick ? settings.m_leftStickInnerDeadzone : settings.m_rightStickInnerDeadzone );
@@ -156,68 +156,68 @@ namespace KRG
             // Left Shoulder and trigger buttons
             drawPosition = FirstRowTopLeft;
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "LB", controllerState.IsHeldDown( Input::ControllerButton::ShoulderLeft ) );
-            drawPosition.y += g_buttonDimensions.y;
+            drawPosition.m_y += g_buttonDimensions.m_y;
             DrawTriggerButton( pDrawList, drawPosition, triggerButtonDimensions, "LT", controllerState, true );
 
             // Left analog stick
-            drawPosition = Float2( drawPosition.x + g_buttonDimensions.x + 9, FirstRowTopLeft.y );
+            drawPosition = Float2( drawPosition.m_x + g_buttonDimensions.m_x + 9, FirstRowTopLeft.m_y );
             DrawAnalogStick( pDrawList, drawPosition, controller, true );
 
             // Right analog stick
-            drawPosition = Float2( drawPosition.x + 26 + g_analogStickRangeRadius * 2, FirstRowTopLeft.y );
+            drawPosition = Float2( drawPosition.m_x + 26 + g_analogStickRangeRadius * 2, FirstRowTopLeft.m_y );
             DrawAnalogStick( pDrawList, drawPosition, controller, false );
 
             // Right Shoulder and trigger buttons
-            drawPosition = Float2( drawPosition.x + g_analogStickRangeRadius * 2 + 9, FirstRowTopLeft.y );
+            drawPosition = Float2( drawPosition.m_x + g_analogStickRangeRadius * 2 + 9, FirstRowTopLeft.m_y );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "RB", controllerState.IsHeldDown( Input::ControllerButton::ShoulderRight ) );
-            drawPosition.y += g_buttonDimensions.y;
+            drawPosition.m_y += g_buttonDimensions.m_y;
             DrawTriggerButton( pDrawList, drawPosition, triggerButtonDimensions, "RT", controllerState, false );
 
-            totalSize.x = ( drawPosition.x + g_buttonWidth ) - FirstRowTopLeft.x;
-            totalSize.y = ( g_analogStickRangeRadius * 2 ) + 8;
+            totalSize.m_x = ( drawPosition.m_x + g_buttonWidth ) - FirstRowTopLeft.m_x;
+            totalSize.m_y = ( g_analogStickRangeRadius * 2 ) + 8;
 
             //-------------------------------------------------------------------------
 
-            Float2 const SecondRowTopLeft = Float2( FirstRowTopLeft.x, FirstRowTopLeft.y + totalSize.y );
+            Float2 const SecondRowTopLeft = Float2( FirstRowTopLeft.m_x, FirstRowTopLeft.m_y + totalSize.m_y );
 
             // D-Pad
-            float const upButtonTopLeft = SecondRowTopLeft.x + ( g_buttonWidth + 9 + g_analogStickRangeRadius ) - g_buttonWidth / 2;
+            float const upButtonTopLeft = SecondRowTopLeft.m_x + ( g_buttonWidth + 9 + g_analogStickRangeRadius ) - g_buttonWidth / 2;
 
-            drawPosition = Float2( upButtonTopLeft, SecondRowTopLeft.y );
+            drawPosition = Float2( upButtonTopLeft, SecondRowTopLeft.m_y );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "Up", controllerState.IsHeldDown( Input::ControllerButton::DPadUp ) );
-            drawPosition = Float2( upButtonTopLeft - g_buttonWidth, SecondRowTopLeft.y + g_buttonWidth );
+            drawPosition = Float2( upButtonTopLeft - g_buttonWidth, SecondRowTopLeft.m_y + g_buttonWidth );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "Lt", controllerState.IsHeldDown( Input::ControllerButton::DPadLeft ) );
-            drawPosition = Float2( upButtonTopLeft + g_buttonWidth, SecondRowTopLeft.y + g_buttonWidth );
+            drawPosition = Float2( upButtonTopLeft + g_buttonWidth, SecondRowTopLeft.m_y + g_buttonWidth );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "Rt", controllerState.IsHeldDown( Input::ControllerButton::DPadRight ) );
-            drawPosition = Float2( upButtonTopLeft, SecondRowTopLeft.y + g_buttonWidth + g_buttonWidth );
+            drawPosition = Float2( upButtonTopLeft, SecondRowTopLeft.m_y + g_buttonWidth + g_buttonWidth );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "Dn", controllerState.IsHeldDown( Input::ControllerButton::DPadDown ) );
 
             // Face Buttons
-            float const topFaceButtonTopLeft = SecondRowTopLeft.x + ( ( g_buttonWidth + g_analogStickRangeRadius ) - g_buttonWidth / 2 ) * 2 + 34 + ( g_buttonWidth * 2 );
+            float const topFaceButtonTopLeft = SecondRowTopLeft.m_x + ( ( g_buttonWidth + g_analogStickRangeRadius ) - g_buttonWidth / 2 ) * 2 + 34 + ( g_buttonWidth * 2 );
 
-            drawPosition = Float2( topFaceButtonTopLeft, SecondRowTopLeft.y );
+            drawPosition = Float2( topFaceButtonTopLeft, SecondRowTopLeft.m_y );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "Y", controllerState.IsHeldDown( Input::ControllerButton::FaceButtonUp ), 0xFF00FFFF );
-            drawPosition = Float2( topFaceButtonTopLeft - g_buttonWidth, SecondRowTopLeft.y + g_buttonWidth );
+            drawPosition = Float2( topFaceButtonTopLeft - g_buttonWidth, SecondRowTopLeft.m_y + g_buttonWidth );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "X", controllerState.IsHeldDown( Input::ControllerButton::FaceButtonLeft ), 0xFFFF0000 );
-            drawPosition = Float2( topFaceButtonTopLeft + g_buttonWidth, SecondRowTopLeft.y + g_buttonWidth );
+            drawPosition = Float2( topFaceButtonTopLeft + g_buttonWidth, SecondRowTopLeft.m_y + g_buttonWidth );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "B", controllerState.IsHeldDown( Input::ControllerButton::FaceButtonRight ), 0xFF0000FF );
-            drawPosition = Float2( topFaceButtonTopLeft, SecondRowTopLeft.y + g_buttonWidth + g_buttonWidth );
+            drawPosition = Float2( topFaceButtonTopLeft, SecondRowTopLeft.m_y + g_buttonWidth + g_buttonWidth );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "A", controllerState.IsHeldDown( Input::ControllerButton::FaceButtonDown ), 0xFF00FF00 );
 
             // System Buttons
-            drawPosition = Float2( SecondRowTopLeft.x + g_buttonWidth + g_analogStickRangeRadius * 2, SecondRowTopLeft.y + 10 );
+            drawPosition = Float2( SecondRowTopLeft.m_x + g_buttonWidth + g_analogStickRangeRadius * 2, SecondRowTopLeft.m_y + 10 );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "S0", controllerState.IsHeldDown( Input::ControllerButton::System0 ) );
-            drawPosition = Float2( drawPosition.x + g_buttonWidth + 4, drawPosition.y );
+            drawPosition = Float2( drawPosition.m_x + g_buttonWidth + 4, drawPosition.m_y );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "S1", controllerState.IsHeldDown( Input::ControllerButton::System1 ) );
 
             // Stick Buttons
-            drawPosition = Float2( SecondRowTopLeft.x + g_buttonWidth + g_analogStickRangeRadius * 2, drawPosition.y + g_buttonWidth + 4 );
+            drawPosition = Float2( SecondRowTopLeft.m_x + g_buttonWidth + g_analogStickRangeRadius * 2, drawPosition.m_y + g_buttonWidth + 4 );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "LS", controllerState.IsHeldDown( Input::ControllerButton::ThumbstickLeft ) );
-            drawPosition = Float2( drawPosition.x + g_buttonWidth + 4, drawPosition.y );
+            drawPosition = Float2( drawPosition.m_x + g_buttonWidth + 4, drawPosition.m_y );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "RS", controllerState.IsHeldDown( Input::ControllerButton::ThumbstickRight ) );
 
-            totalSize.x = ( drawPosition.x + g_buttonWidth ) - FirstRowTopLeft.x;
-            totalSize.y = triggerButtonDimensions.y + g_buttonWidth + 4;
+            totalSize.m_x = ( drawPosition.m_x + g_buttonWidth ) - FirstRowTopLeft.m_x;
+            totalSize.m_y = triggerButtonDimensions.m_y + g_buttonWidth + 4;
 
             //-------------------------------------------------------------------------
             ImGui::Dummy( totalSize );

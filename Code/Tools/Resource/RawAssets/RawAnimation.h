@@ -22,11 +22,13 @@ namespace KRG
 
             struct TrackData
             {
-                TVector<Transform>                  m_transforms;
+                TVector<Transform>                    m_transforms;
                 TRange<float>                         m_translationValueRangeX;
                 TRange<float>                         m_translationValueRangeY;
                 TRange<float>                         m_translationValueRangeZ;
-                TRange<float>                         m_scaleValueRange;
+                TRange<float>                         m_scaleValueRangeX;
+                TRange<float>                         m_scaleValueRangeY;
+                TRange<float>                         m_scaleValueRangeZ;
             };
 
         public:
@@ -51,10 +53,10 @@ namespace KRG
         protected:
 
             RawSkeleton const                   m_skeleton;
-            float                                 m_samplingFrameRate = 0;
+            float                               m_samplingFrameRate = 0;
             Seconds                             m_start = 0;
             Seconds                             m_end = 0;
-            uint32                                 m_numFrames = 0;
+            uint32                              m_numFrames = 0;
             TVector<TrackData>                  m_tracks;
         };
     }

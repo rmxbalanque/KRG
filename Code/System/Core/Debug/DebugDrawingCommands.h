@@ -149,7 +149,7 @@ namespace KRG
             struct TextCommand 
             {
                 TextCommand( Float2 const& position, char const* pText, Float4 const& color, TextSize size, TBitFlags<TextFlags> textFlags = TBitFlags<TextFlags>( TextFlags::Default ), DepthTestState state = DepthTestState::Off )
-                    : m_position( position.x, position.y, 0 )
+                    : m_position( position.m_x, position.m_y, 0 )
                     , m_text( pText )
                     , m_color( color )
                     , m_size( size )
