@@ -9,7 +9,7 @@ namespace KRG
     {
         namespace Tasks
         {
-            BlendTask::BlendTask( S32 sourceNodeIdx, F32 const blendWeight, U32 const blendOptions, BoneMask const* pBoneMask )
+            BlendTask::BlendTask( int32 sourceNodeIdx, float const blendWeight, uint32 const blendOptions, BoneMask const* pBoneMask )
                 : Task( sourceNodeIdx )
                 , m_blendWeight( blendWeight )
                 , m_pBoneMask( pBoneMask )

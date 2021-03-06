@@ -71,7 +71,7 @@ namespace KRG
             return pRawMesh;
         }
 
-        TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, S32 maxBoneInfluences )
+        TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, int32 maxBoneInfluences )
         {
             KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
 

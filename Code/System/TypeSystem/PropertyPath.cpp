@@ -31,7 +31,7 @@ namespace KRG
         {
             String pathString;
 
-            S32 const numElements = (S32) m_pathElements.size();
+            int32 const numElements = (int32) m_pathElements.size();
             if ( numElements > 0 )
             {
                 for ( auto i = 0; i < numElements - 1; i++ )

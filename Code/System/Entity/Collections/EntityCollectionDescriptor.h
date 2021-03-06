@@ -28,8 +28,8 @@ namespace KRG::EntityModel
         {
             KRG_SERIALIZE_MEMBERS( m_entityIdx, m_parentEntityIdx );
 
-            S32                                                         m_entityIdx = InvalidIndex;
-            S32                                                         m_parentEntityIdx = InvalidIndex;
+            int32                                                         m_entityIdx = InvalidIndex;
+            int32                                                         m_parentEntityIdx = InvalidIndex;
         };
 
     public:
@@ -42,12 +42,12 @@ namespace KRG::EntityModel
         // Template Creation
         //-------------------------------------------------------------------------
 
-        void Reserve( S32 numEntities );
+        void Reserve( int32 numEntities );
 
         inline void AddEntity( EntityDescriptor const& entityDesc )
         {
             KRG_ASSERT( entityDesc.IsValid() );
-            m_entityLookupMap.insert( TPair<UUID, S32>( entityDesc.m_ID, (S32) m_entityDescriptors.size() ) );
+            m_entityLookupMap.insert( TPair<UUID, int32>( entityDesc.m_ID, (int32) m_entityDescriptors.size() ) );
             m_entityDescriptors.emplace_back( entityDesc );
         }
 
@@ -58,9 +58,9 @@ namespace KRG::EntityModel
         // Entity Access
         //-------------------------------------------------------------------------
 
-        inline S32 GetNumEntityDescriptors() const
+        inline int32 GetNumEntityDescriptors() const
         {
-            return (S32) m_entityDescriptors.size();
+            return (int32) m_entityDescriptors.size();
         }
 
         inline TVector<EntityDescriptor> const& GetEntityDescriptors() const
@@ -83,7 +83,7 @@ namespace KRG::EntityModel
             }
         }
 
-        inline S32 FindEntityIndex( UUID const& entityID ) const
+        inline int32 FindEntityIndex( UUID const& entityID ) const
         {
             KRG_ASSERT( entityID.IsValid() );
 
@@ -116,7 +116,7 @@ namespace KRG::EntityModel
     protected:
 
         TVector<EntityDescriptor>                                   m_entityDescriptors;
-        THashMap<UUID, S32>                                         m_entityLookupMap;
+        THashMap<UUID, int32>                                         m_entityLookupMap;
         TVector<SpatialAttachmentInfo>                              m_entitySpatialAttachmentInfo;
     };
 }

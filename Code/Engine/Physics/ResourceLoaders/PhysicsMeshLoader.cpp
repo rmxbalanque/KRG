@@ -1,5 +1,6 @@
 #include "PhysicsMeshLoader.h"
 #include "Engine/Physics/PhysX.h"
+#include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/PhysicsMesh.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
@@ -39,10 +40,10 @@ namespace KRG::Physics
         m_loadableTypes.push_back( PhysicsMesh::GetStaticResourceTypeID() );
     }
 
-    void PhysicsMeshLoader::SetPhysics( PxPhysics* pPhysics )
+    void PhysicsMeshLoader::SetPhysics( PhysicsSystem* pPhysicsSystem )
     {
-        KRG_ASSERT( pPhysics != nullptr && m_pPhysics == nullptr );
-        m_pPhysics = pPhysics;
+        KRG_ASSERT( pPhysicsSystem != nullptr && m_pPhysicsSystem == nullptr );
+        m_pPhysicsSystem = pPhysicsSystem;
     }
 
     bool PhysicsMeshLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
@@ -54,11 +55,21 @@ namespace KRG::Physics
         archive >> *pPhysicsMesh;
 
         // Deserialize cooked mesh data
-        TVector<Byte> cookedTriangleMeshData;
-        archive >> cookedTriangleMeshData;
+        TVector<Byte> cookedMeshData;
+        archive >> cookedMeshData;
 
-        PhysXSerializedInputData cooked( cookedTriangleMeshData );
-        pPhysicsMesh->m_pTriangleMesh = m_pPhysics->createTriangleMesh( cooked );
+        PhysXSerializedInputData cooked( cookedMeshData );
+        {
+            SystemScopeLock const lock( m_pPhysicsSystem );
+            if ( pPhysicsMesh->m_isConvexMesh )
+            {
+                pPhysicsMesh->m_pMesh = m_pPhysicsSystem->GetPxPhysics().createConvexMesh( cooked );
+            }
+            else
+            {
+                pPhysicsMesh->m_pMesh = m_pPhysicsSystem->GetPxPhysics().createTriangleMesh( cooked );
+            }
+        }
 
         pResourceRecord->SetResourceData( pPhysicsMesh );
         return true;
@@ -69,10 +80,11 @@ namespace KRG::Physics
         PhysicsMesh* pPhysicsGeometry = pResourceRecord->GetResourceData<PhysicsMesh>();
         if ( pPhysicsGeometry != nullptr )
         {
-            if ( pPhysicsGeometry->m_pTriangleMesh != nullptr )
+            if ( pPhysicsGeometry->m_pMesh != nullptr )
             {
-                pPhysicsGeometry->m_pTriangleMesh->release();
-                pPhysicsGeometry->m_pTriangleMesh = nullptr;
+                SystemScopeLock const lock( m_pPhysicsSystem );
+                pPhysicsGeometry->m_pMesh->release();
+                pPhysicsGeometry->m_pMesh = nullptr;
             }
         }
 

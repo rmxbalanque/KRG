@@ -45,11 +45,17 @@ namespace KRG
         inline Transform const& GetWorldTransform() const { return m_worldTransform; }
         inline OBB const& GetWorldBounds() const { return m_worldBounds; }
 
-        // Call to update the local transform - this will also updated the world transform for this component and all children
+        // Call to update the local transform - this will also update the world transform for this component and all children
         inline void SetLocalTransform( Transform const& newTransform )
         {
             m_transform = newTransform;
             CalculateWorldTransform();
+        }
+
+        // Call to update the world transform - this will also updated the local transform for this component and all children's world transforms
+        inline void SetWorldTransform( Transform const& newTransform )
+        {
+            SetWorldTransformDirectly( newTransform );
         }
 
         // The socket that this component is attached to
@@ -87,6 +93,38 @@ namespace KRG
         // Called whenever the world transform is updated, try to avoid doing anything expensive in this function
         virtual void OnWorldTransformUpdated() {}
 
+        // This function allows you to directly set the world transform for a component and skip the callback.
+        // This must be used with care and so not be exposed externally.
+        inline void SetWorldTransformDirectly( Transform NewWorldTransform, bool triggerCallback = true )
+        {
+            // Only update the transform if we have a parent, if we dont have a parent it means we are the root transform
+            if ( m_pSpatialParent != nullptr )
+            {
+                auto parentWorldTransform = m_pSpatialParent->GetAttachmentSocketTransform( m_parentAttachmentSocketID );
+                m_worldTransform = NewWorldTransform;
+                m_transform = m_worldTransform * parentWorldTransform.GetInverse();
+            }
+            else
+            {
+                m_worldTransform = NewWorldTransform;
+                m_transform = NewWorldTransform;
+            }
+
+            // Calculate world bounds
+            m_worldBounds = m_bounds.GetTransformed( m_worldTransform );
+
+            // Propagate the world transforms on the children
+            for ( auto pChild : m_spatialChildren )
+            {
+                pChild->CalculateWorldTransform( triggerCallback );
+            }
+
+            if ( triggerCallback )
+            {
+                OnWorldTransformUpdated();
+            }
+        }
+    
     private:
 
         // Called whenever the local transform is modified

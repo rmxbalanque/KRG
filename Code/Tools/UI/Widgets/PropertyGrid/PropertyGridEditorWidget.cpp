@@ -86,7 +86,7 @@ namespace KRG
             m_pMainLayout->addLayout( m_pChildContentLayout, 1, 0, 1, 3 );
         }
 
-        void PropertyEditor::SetHeaderWidth( InitializationContext& context, S32 headerWidth )
+        void PropertyEditor::SetHeaderWidth( InitializationContext& context, int32 headerWidth )
         {
             KRG_ASSERT( m_pHeader != nullptr );
             KRG_ASSERT( headerWidth > 10 );

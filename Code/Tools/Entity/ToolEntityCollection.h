@@ -35,7 +35,7 @@ namespace KRG::EntityModel
         // Entity Access
         //-------------------------------------------------------------------------
 
-        inline S32 GetNumEntities() const { return (S32) m_entities.size(); }
+        inline int32 GetNumEntities() const { return (int32) m_entities.size(); }
 
         inline TVector<ToolEntity*>& GetEntities() { return m_entities; }
 
@@ -45,7 +45,7 @@ namespace KRG::EntityModel
         
         inline ToolEntity* FindEntity( UUID const& entityID ) { return const_cast<ToolEntity*>( TryFindEntity( entityID ) ); }
 
-        inline S32 FindEntityIndex( UUID const& entityID ) const
+        inline int32 FindEntityIndex( UUID const& entityID ) const
         {
             KRG_ASSERT( entityID.IsValid() );
 
@@ -54,7 +54,7 @@ namespace KRG::EntityModel
             {
                 if ( m_entities[i]->GetID() == entityID )
                 {
-                    return (S32) i;
+                    return (int32) i;
                 }
             }
 

@@ -76,9 +76,9 @@ namespace KRG
                 auto const T = fbxMatrix.GetT();
                 auto const S = fbxMatrix.GetS();
                 
-                auto const rotation = Quaternion( (F32) Q[0], (F32) Q[1], (F32) Q[2], (F32) Q[3] ).GetNormalized();
-                auto const translation = Vector( (F32) T[0], (F32) T[1], (F32) T[2], 1.0f );
-                auto const scale = Vector( (F32) S[0], (F32) S[1], (F32) S[2], 0.0f );
+                auto const rotation = Quaternion( (float) Q[0], (float) Q[1], (float) Q[2], (float) Q[3] ).GetNormalized();
+                auto const translation = Vector( (float) T[0], (float) T[1], (float) T[2], 1.0f );
+                auto const scale = Vector( (float) S[0], (float) S[1], (float) S[2], 0.0f );
 
                 Transform transform( rotation, translation, scale );
                 transform.SanitizeScaleValues();
@@ -87,7 +87,7 @@ namespace KRG
 
             inline Vector ConvertVector( FbxVector4 const& fbxVector ) const
             {
-                Vector krgVector( (F32) fbxVector[0], (F32) fbxVector[1], (F32) fbxVector[2], 1.0f );
+                Vector krgVector( (float) fbxVector[0], (float) fbxVector[1], (float) fbxVector[2], 1.0f );
                 return krgVector;
             }
 
@@ -110,7 +110,7 @@ namespace KRG
             // Scale correction
             //-------------------------------------------------------------------------
 
-            inline F32 GetScaleConversionMultiplier() const { return m_scaleConversionMultiplier; }
+            inline float GetScaleConversionMultiplier() const { return m_scaleConversionMultiplier; }
 
             inline Transform const& GetScaleConversionTransform() const { return m_scaleConversionTransform; }
 
@@ -133,7 +133,7 @@ namespace KRG
         private:
 
             String                      m_error;
-            F32                         m_scaleConversionMultiplier = 1.0f;
+            float                         m_scaleConversionMultiplier = 1.0f;
             Transform                   m_scaleConversionTransform;
             Transform                   m_upAxisCorrectionTransform;
         };

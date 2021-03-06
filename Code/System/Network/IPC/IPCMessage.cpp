@@ -12,7 +12,7 @@ namespace KRG
             KRG::Network::IPC::ClientID ClientID::Generate()
             {
                 ClientID ID;
-                auto pData = reinterpret_cast<U32*>( &ID.m_ID );
+                auto pData = reinterpret_cast<uint32*>( &ID.m_ID );
                 pData[0] = Math::GetRandomInt();
                 pData[1] = Math::GetRandomInt();
                 return ID;

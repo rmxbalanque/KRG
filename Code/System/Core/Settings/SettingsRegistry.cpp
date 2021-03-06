@@ -14,7 +14,7 @@ namespace KRG
         Setting* pSetting = Setting::Head;
         while ( pSetting != nullptr )
         {
-            THashMap<U32, Setting*>* pSettingsList = nullptr;
+            THashMap<uint32, Setting*>* pSettingsList = nullptr;
 
             #if KRG_DEVELOPMENT_TOOLS
             if ( pSetting->GetTypeID() == DebugSetting::StaticTypeID )
@@ -39,7 +39,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Add to global list
-            pSettingsList->insert( TPair<U32, Setting*>( pSetting->m_nameHash, pSetting ) );
+            pSettingsList->insert( TPair<uint32, Setting*>( pSetting->m_nameHash, pSetting ) );
 
             // Move onto next setting
             pSetting = pSetting->m_pNext;
@@ -89,7 +89,7 @@ namespace KRG
 
                 case Setting::Type::Int:
                 {
-                    S32 value;
+                    int32 value;
                     if ( iniParser.TryGetInt( iniKey.c_str(), value ) )
                     {
                         auto pRealSetting = static_cast<ConfigSettingInt*>( pSetting );
@@ -101,7 +101,7 @@ namespace KRG
 
                 case Setting::Type::Float:
                 {
-                    F32 value;
+                    float value;
                     if ( iniParser.TryGetFloat( iniKey.c_str(), value ) )
                     {
                         auto pRealSetting = static_cast<ConfigSettingFloat*>( pSetting );

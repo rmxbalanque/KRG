@@ -737,7 +737,7 @@ static DXGI_FORMAT GetDXGIFormat( const DDS_PIXELFORMAT& ddpf )
         case 36: // D3DFMT_A16B16G16R16
             return DXGI_FORMAT_R16G16B16A16_UNORM;
 
-        case 110: // D3DFMT_Q16W16V16U16
+        case 110: // D3DFMT_Q16W16V16uint16
             return DXGI_FORMAT_R16G16B16A16_SNORM;
 
         case 111: // D3DFMT_R16F

@@ -25,8 +25,8 @@ namespace KRG
 
             char const* GetReflectionMacroText( ReflectionMacro macro )
             {
-                U32 const macroIdx = (U32) macro;
-                KRG_ASSERT( macroIdx < (U32) ReflectionMacro::NumMacros );
+                uint32 const macroIdx = (uint32) macro;
+                KRG_ASSERT( macroIdx < (uint32) ReflectionMacro::NumMacros );
                 return g_macroNames[macroIdx];
             }
         }

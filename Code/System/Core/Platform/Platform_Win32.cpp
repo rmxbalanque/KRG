@@ -10,9 +10,9 @@
 
 namespace KRG::Platform::Win32
 {
-    U32 GetProcessID( char const* processName )
+    uint32 GetProcessID( char const* processName )
     {
-        U32 processID = 0;
+        uint32 processID = 0;
         PROCESSENTRY32 entry;
         entry.dwSize = sizeof( PROCESSENTRY32 );
 
@@ -33,7 +33,7 @@ namespace KRG::Platform::Win32
         return processID;
     }
 
-    U32 StartProcess( char const* exePath, char const* cmdLine )
+    uint32 StartProcess( char const* exePath, char const* cmdLine )
     {
         PROCESS_INFORMATION processInfo;
         memset( &processInfo, 0, sizeof( processInfo ) );
@@ -64,7 +64,7 @@ namespace KRG::Platform::Win32
         return 0;
     }
 
-    bool KillProcess( U32 processID )
+    bool KillProcess( uint32 processID )
     {
         KRG_ASSERT( processID != 0 );
         HANDLE pProcess = OpenProcess( PROCESS_TERMINATE, false, processID );
@@ -76,7 +76,7 @@ namespace KRG::Platform::Win32
         return false;
     }
 
-    String GetProcessPath( U32 processID )
+    String GetProcessPath( uint32 processID )
     {
         KRG_ASSERT( processID != 0 );
 

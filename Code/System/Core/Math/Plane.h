@@ -19,20 +19,20 @@ namespace KRG
 
         Plane() {}
 
-        Plane( F32 a, F32 b, F32 c, F32 d )
+        Plane( float a, float b, float c, float d )
         {
             m_data = _mm_set_ps( d, c, b, a );
             Normalize();
         }
 
         explicit Plane( Float3 const& point, Float3 const& normal ) : Plane( Vector( point ), Vector( normal ) ) {}
-        explicit Plane( F32 distance, Float3 const& normal ) : Plane( distance, Vector( normal ) ) {}
+        explicit Plane( float distance, Float3 const& normal ) : Plane( distance, Vector( normal ) ) {}
         explicit Plane( Float3 const& point0, Float3 const& point1, Float3 const& point2 ) : Plane( Vector( point0 ), Vector( point1 ) , Vector( point2 ) ) {}
         explicit Plane( Float4 const& planeEquation ) { m_data = _mm_set_ps( planeEquation.w, planeEquation.z, planeEquation.y, planeEquation.x ); }
 
         explicit Plane( Vector const planeEquation ) : m_data( planeEquation.m_data ) {}
 
-        explicit Plane( F32 const& distance, Vector const normal )
+        explicit Plane( float const& distance, Vector const normal )
         {
             KRG_ASSERT( normal.IsNormalized3() );
             m_data = normal.m_data;
@@ -182,7 +182,7 @@ namespace KRG
 
         union
         {
-            struct { F32 a,b,c,d; };
+            struct { float a,b,c,d; };
             __m128 m_data;
         };
     };

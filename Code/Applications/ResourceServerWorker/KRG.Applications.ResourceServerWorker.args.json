@@ -29,16 +29,16 @@
       "Command": "Physics",
       "Items": [
         {
-          "Id": "e1c5dc2c-0db5-4135-8c06-09a3253fc65b",
-          "Command": "-compile data://BR/SM_Bld_House_02.phys"
+          "Id": "0f518efa-9b58-4db9-942d-ffa488c2273b",
+          "Command": "-compile data://geometry/floor.pmsh"
+        },
+        {
+          "Id": "d35b3fd7-1138-487b-8884-6e0350cb6378",
+          "Command": "-compile data://geometry/convexmesh.pmsh"
         },
         {
           "Id": "032c51fb-7fec-426b-980e-033e95c50370",
-          "Command": "-compile data://br/sm_env_grass_square_01.phys.krg"
-        },
-        {
-          "Id": "24a59036-d75e-4e0b-9a95-dbde628c364f",
-          "Command": "-compile data://Physics/DefaultPhysicsMaterial.pmat"
+          "Command": "-compile data://Packs/BR/Environment/SM_Env_Grass_Square_01.pmsh"
         }
       ]
     },

@@ -9,8 +9,8 @@ namespace KRG
         Percentage clampedValue = value;
         if ( allowLooping )
         {
-            F32 integerPortion;
-            clampedValue = Percentage( Math::ModF( F32( value ), &integerPortion ) );
+            float integerPortion;
+            clampedValue = Percentage( Math::ModF( float( value ), &integerPortion ) );
             if ( clampedValue < 0.0f ) // wrapping backwards
             {
                 clampedValue = Percentage( 1.0f - clampedValue );

@@ -75,7 +75,7 @@ namespace KRG
             setFocus();
         }
 
-        void ContainerPropertyEditor::SetHeaderWidth( InitializationContext& context, S32 headerWidth )
+        void ContainerPropertyEditor::SetHeaderWidth( InitializationContext& context, int32 headerWidth )
         {
             m_cachedHeaderWidth = headerWidth;
 
@@ -257,8 +257,8 @@ namespace KRG
 
             m_cachedContext.IncreaseIndentLevel();
 
-            S32 const numArrayElements = m_pPropertyInstance->GetNumArrayElements();
-            for ( S32 i = 0; i < numArrayElements; i++ )
+            int32 const numArrayElements = m_pPropertyInstance->GetNumArrayElements();
+            for ( int32 i = 0; i < numArrayElements; i++ )
             {
                 auto pPropertyEditor = PropertyGrid::CreateEditor( m_cachedContext, const_cast<TypeSystem::ToolPropertyInstance*>( &m_pPropertyInstance->GetArrayElement( i ) ) );
                 if ( pPropertyEditor != nullptr )
@@ -301,7 +301,7 @@ namespace KRG
             NotifyValueChanged();
         }
 
-        void DynamicArrayPropertyEditor::OnRemoveArrayElement( S32 arrayElementIdx )
+        void DynamicArrayPropertyEditor::OnRemoveArrayElement( int32 arrayElementIdx )
         {
             m_pPropertyInstance->RemoveArrayElement( arrayElementIdx );
             RecreateChildPropertyEditors();

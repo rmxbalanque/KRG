@@ -15,7 +15,7 @@ namespace KRG
         namespace
         {
             static bool g_circleVerticesInitialized = false;
-            static U32 const g_numCircleVertices = 16;
+            static uint32 const g_numCircleVertices = 16;
             Float4 g_circleVerticesXUp[g_numCircleVertices];
             Float4 g_circleVerticesYUp[g_numCircleVertices];
             Float4 g_circleVerticesZUp[g_numCircleVertices];
@@ -42,7 +42,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Actual length is 2 since we specify dimensions in a half-size and then scale
-            static U32 const g_unitCubeNumVertices = 8;
+            static uint32 const g_unitCubeNumVertices = 8;
             static Float4 const g_unitCubeVertices[8] =
             {
                 Float4( -1.0f, -1.0f, -1.0f, 1.0f ),    // BFL
@@ -56,8 +56,8 @@ namespace KRG
             };
 
             // Box Primitives
-            static U32 const g_unitCubeSolidNumIndices = 36;
-            static const U16 g_unitCubeSolidIndices[36] =
+            static uint32 const g_unitCubeSolidNumIndices = 36;
+            static const uint16 g_unitCubeSolidIndices[36] =
             {
                 // Triangle faces for a solid box
                 0, 1, 3, 3, 1, 2,
@@ -68,8 +68,8 @@ namespace KRG
                 4, 0, 7, 7, 0, 3
             };
 
-            static U32 const g_unitCubeWireNumIndices = 24;
-            static const U16 g_unitCubeWireIndices[24] =
+            static uint32 const g_unitCubeWireNumIndices = 24;
+            static const uint16 g_unitCubeWireIndices[24] =
             {
                 // Lines for a wire-frame box
                 0, 1, 1, 2, 2, 3, 3, 0,
@@ -244,9 +244,9 @@ namespace KRG
             }
         }
 
-        void DrawingContext::DrawDisc( Float3 const& worldPoint, F32 radius, Float4 const& color, DepthTestState depthTestState /*= false */ )
+        void DrawingContext::DrawDisc( Float3 const& worldPoint, float radius, Float4 const& color, DepthTestState depthTestState /*= false */ )
         {
-            S32 const numVerts = g_numCircleVertices;
+            int32 const numVerts = g_numCircleVertices;
 
             // Create and transform vertices
             Vector const radiusVector( radius );
@@ -267,7 +267,7 @@ namespace KRG
             InternalDrawTriangle( m_commandBuffer, worldPoint, verts[numVerts - 1], verts[0], color, depthTestState );
         }
 
-        void DrawingContext::DrawCylinder( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, F32 thickness, Drawing::DepthTestState depthTestState )
+        void DrawingContext::DrawCylinder( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, float thickness, Drawing::DepthTestState depthTestState )
         {
             Vector const axisX = worldTransform.GetAxisX();
             Vector const axisY = worldTransform.GetAxisY();
@@ -325,7 +325,7 @@ namespace KRG
             DrawLine( lt7, lb7, color, thickness, depthTestState );
         }
 
-        void DrawingContext::DrawCapsule( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, F32 thickness, Drawing::DepthTestState depthTestState )
+        void DrawingContext::DrawCapsule( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, float thickness, Drawing::DepthTestState depthTestState )
         {
             Vector const axisX = worldTransform.GetAxisX();
             Vector const axisY = worldTransform.GetAxisY();

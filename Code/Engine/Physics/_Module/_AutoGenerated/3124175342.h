@@ -72,36 +72,36 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_dynamicFriction" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::F32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
             propertyInfo.m_parentTypeID = 612453115;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicFriction;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_dynamicFriction );
-            propertyInfo.m_size = sizeof( KRG::F32 );
+            propertyInfo.m_size = sizeof( float );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_staticFriction" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::F32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
             propertyInfo.m_parentTypeID = 612453115;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_staticFriction;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_staticFriction );
-            propertyInfo.m_size = sizeof( KRG::F32 );
+            propertyInfo.m_size = sizeof( float );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_restitution" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::F32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
             propertyInfo.m_parentTypeID = 612453115;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_restitution;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_restitution );
-            propertyInfo.m_size = sizeof( KRG::F32 );
+            propertyInfo.m_size = sizeof( float );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
@@ -207,7 +207,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
@@ -215,7 +215,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property

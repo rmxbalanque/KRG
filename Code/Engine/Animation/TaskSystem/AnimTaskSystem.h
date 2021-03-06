@@ -28,8 +28,8 @@ namespace KRG
 
             inline bool HasPhysicsTasks() const { return !m_postPhysicsTasks.empty(); }
 
-            void ExecutePrePhysicsTasks( F32 deltaTime );
-            void ExecutePostPhysicsTasks( F32 deltaTime );
+            void ExecutePrePhysicsTasks( float deltaTime );
+            void ExecutePostPhysicsTasks( float deltaTime );
 
             inline void SwitchMode( RegistrationMode mode ) { m_mode = mode; }
 

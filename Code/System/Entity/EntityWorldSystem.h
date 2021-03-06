@@ -27,7 +27,7 @@ namespace KRG
 
     public:
 
-        virtual U32 GetEntitySystemID() const = 0;
+        virtual uint32 GetEntitySystemID() const = 0;
 
     protected:
 
@@ -54,8 +54,8 @@ namespace KRG
 //-------------------------------------------------------------------------
 
 #define KRG_ENTITY_WORLD_SYSTEM( Type )\
-    constexpr static U32 const EntitySystemID = Hash::FNV1a::GetHash32( #Type );\
-    virtual U32 GetEntitySystemID() const override final { return Type::EntitySystemID; }\
+    constexpr static uint32 const EntitySystemID = Hash::FNV1a::GetHash32( #Type );\
+    virtual uint32 GetEntitySystemID() const override final { return Type::EntitySystemID; }\
     static UpdatePriorityList const PriorityList;\
     virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { return Type::PriorityList; };
 
@@ -93,15 +93,15 @@ namespace KRG
     public:
 
         KRG_FORCE_INLINE bool IsEmpty() const { return m_recordIndices.size() == 0; }
-        KRG_FORCE_INLINE S32 GetNumRegisteredEntities() const { return (S32) m_recordIndices.size(); }
+        KRG_FORCE_INLINE int32 GetNumRegisteredEntities() const { return (int32) m_recordIndices.size(); }
 
         // Flat array access
         //-------------------------------------------------------------------------
 
         // Fast access to records as if they were inline
         KRG_FORCE_INLINE TVector<RecordType> const& GetRecords() { return m_records; }
-        KRG_FORCE_INLINE RecordType& operator[]( S32 idx ) { return m_records[idx]; }
-        KRG_FORCE_INLINE S32 size() const { return (S32) m_records.size(); }
+        KRG_FORCE_INLINE RecordType& operator[]( int32 idx ) { return m_records[idx]; }
+        KRG_FORCE_INLINE int32 size() const { return (int32) m_records.size(); }
 
         KRG_FORCE_INLINE typename TVector<RecordType>::iterator begin() { return m_records.begin(); }
         KRG_FORCE_INLINE typename TVector<RecordType>::iterator end() { return m_records.end(); }
@@ -117,11 +117,11 @@ namespace KRG
         {
             KRG_ASSERT( entityID.IsValid() && m_recordIndices.find( entityID ) == m_recordIndices.end() );
 
-            S32 const recordIdx = m_firstFreeIdx;
+            int32 const recordIdx = m_firstFreeIdx;
             m_firstFreeIdx++;
 
             // Update the free idx tracker
-            S32 const numRecords = (S32) m_records.size();
+            int32 const numRecords = (int32) m_records.size();
             for ( m_firstFreeIdx; m_firstFreeIdx < numRecords; m_firstFreeIdx++ )
             {
                 if ( !m_records[m_firstFreeIdx].m_isSet )
@@ -131,7 +131,7 @@ namespace KRG
             }
 
             // Add record
-            m_recordIndices.insert( TPair<UUID, S32>( entityID, recordIdx ) );
+            m_recordIndices.insert( TPair<UUID, int32>( entityID, recordIdx ) );
             if ( recordIdx >= numRecords )
             {
                 auto& newRecord = m_records.emplace_back();
@@ -176,7 +176,7 @@ namespace KRG
     private:
 
         TVector<RecordType>                 m_records;
-        THashMap<UUID, S32>                 m_recordIndices;
-        S32                                 m_firstFreeIdx = 0;
+        THashMap<UUID, int32>               m_recordIndices;
+        int32                               m_firstFreeIdx = 0;
     };
 }

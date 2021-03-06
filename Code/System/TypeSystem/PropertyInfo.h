@@ -2,7 +2,7 @@
 
 #include "_Module/API.h"
 #include "TypeID.h"
-#include "System/Core/Types/Flags.h"
+#include "System/Core/Types/BitFlags.h"
 
 //-------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ namespace KRG
                 return defaultValue;
             }
 
-            inline void const* GetArrayDefaultElementPtr( S32 elementIdx ) const
+            inline void const* GetArrayDefaultElementPtr( int32 elementIdx ) const
             {
                 KRG_ASSERT( IsArrayProperty() && m_pDefaultArrayData != nullptr );
                 KRG_ASSERT( elementIdx >= 0 && elementIdx < m_arraySize );
@@ -90,13 +90,13 @@ namespace KRG
             TypeID                      m_typeID;                               // Property Type ID
             TypeID                      m_parentTypeID;                         // The type ID for the parent type that this property belongs to
             TypeID                      m_templateArgumentTypeID;               // A property's contained TypeID for templatized types i.e. the specialization type for a TResourcePtr
-            S32                         m_size = -1;                            // Byte size of property / total array byte size for static array properties
-            S32                         m_offset = -1;                          // The byte offset from its owning type
-            S32                         m_arraySize = -1;                       // Number of elements the array (for static arrays this is the static dimensions, for dynamic arrays this is the default size)
-            S32                         m_arrayElementSize = -1;                // Byte size of an individual array element
+            int32                       m_size = -1;                            // Byte size of property / total array byte size for static array properties
+            int32                       m_offset = -1;                          // The byte offset from its owning type
+            int32                       m_arraySize = -1;                       // Number of elements the array (for static arrays this is the static dimensions, for dynamic arrays this is the default size)
+            int32                       m_arrayElementSize = -1;                // Byte size of an individual array element
             void const*                 m_pDefaultValue = nullptr;              // A ptr to the default value of the property
             void const*                 m_pDefaultArrayData = nullptr;          // A ptr to the contained data within the default value array
-            TFlags<Flags>               m_flags;                                // Info about property type
+            TBitFlags<Flags>            m_flags;                                // Info about property type
         };
 
         //-------------------------------------------------------------------------
@@ -140,8 +140,8 @@ namespace KRG
 
         public:
 
-            PropertyInfo const*     m_pPropertyInfo = nullptr;  // The found property info
-            S32                     m_offset = -1;              // Byte offset from parent type
+            PropertyInfo const*         m_pPropertyInfo = nullptr;  // The found property info
+            int32                       m_offset = -1;              // Byte offset from parent type
         };
     }
 }

@@ -78,9 +78,9 @@ namespace KRG
 
                 TypeSystem::EnumInfo enumInfo;
                 enumInfo.m_ID = TypeSystem::TypeID( "KRG::TestComponent::InternalEnum" );
-                enumInfo.m_underlyingType = TypeSystem::CoreTypes::U8;
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Bar" ), 75 ) );
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "foo" ), 54 ) );
+                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Uint8;
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Bar" ), 75 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "foo" ), 54 ) );
 
                 typeRegistry.RegisterEnum( enumInfo );
             }
@@ -115,9 +115,9 @@ namespace KRG
 
                 TypeSystem::EnumInfo enumInfo;
                 enumInfo.m_ID = TypeSystem::TypeID( "KRG::TestComponent::Test::InternalEnum" );
-                enumInfo.m_underlyingType = TypeSystem::CoreTypes::S16;
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Bar" ), 0 ) );
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "foo" ), -1 ) );
+                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int16;
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Bar" ), 0 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "foo" ), -1 ) );
 
                 typeRegistry.RegisterEnum( enumInfo );
             }

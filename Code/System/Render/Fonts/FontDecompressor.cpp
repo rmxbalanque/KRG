@@ -13,14 +13,14 @@ namespace KRG
 
     namespace
     {
-        static U32 stb_decompress_length( Byte *input )
+        static uint32 stb_decompress_length( Byte *input )
         {
             return ( input[8] << 24 ) + ( input[9] << 16 ) + ( input[10] << 8 ) + input[11];
         }
 
         static Byte *stb__barrier, *stb__barrier2, *stb__barrier3, *stb__barrier4;
         static Byte *stb__dout;
-        static void stb__match( Byte *data, U32 length )
+        static void stb__match( Byte *data, uint32 length )
         {
             // INVERSE of memmove... write each byte before copying the next...
             KRG_ASSERT( stb__dout + length <= stb__barrier );
@@ -29,7 +29,7 @@ namespace KRG
             while ( length-- ) *stb__dout++ = *data++;
         }
 
-        static void stb__lit( Byte *data, U32 length )
+        static void stb__lit( Byte *data, uint32 length )
         {
             KRG_ASSERT( stb__dout + length <= stb__barrier );
             if ( stb__dout + length > stb__barrier ) { stb__dout += length; return; }
@@ -60,7 +60,7 @@ namespace KRG
             return i;
         }
 
-        static U32 stb_adler32( U32 adler32, Byte *buffer, U32 buflen )
+        static uint32 stb_adler32( uint32 adler32, Byte *buffer, uint32 buflen )
         {
             const unsigned long ADLER_MOD = 65521;
             unsigned long s1 = adler32 & 0xffff, s2 = adler32 >> 16;
@@ -88,12 +88,12 @@ namespace KRG
                 buflen -= blocklen;
                 blocklen = 5552;
             }
-            return (U32) ( s2 << 16 ) + (U32) s1;
+            return (uint32) ( s2 << 16 ) + (uint32) s1;
         }
 
-        static U32 stb_decompress( Byte *output, Byte *i, U32 length )
+        static uint32 stb_decompress( Byte *output, Byte *i, uint32 length )
         {
-            U32 olen;
+            uint32 olen;
             if ( stb__in4( 0 ) != 0x57bC0000 ) return 0;
             if ( stb__in4( 4 ) != 0 )          return 0; // error! stream is > 4GB
             olen = stb_decompress_length( i );
@@ -111,7 +111,7 @@ namespace KRG
                     if ( *i == 0x05 && i[1] == 0xfa ) {
                         KRG_ASSERT( stb__dout == output + olen );
                         if ( stb__dout != output + olen ) return 0;
-                        if ( stb_adler32( 1, output, olen ) != (U32) stb__in4( 2 ) )
+                        if ( stb_adler32( 1, output, olen ) != (uint32) stb__in4( 2 ) )
                             return 0;
                         return olen;
                     }
@@ -126,13 +126,13 @@ namespace KRG
             }
         }
 
-        static U32 Decode85Byte( Byte c ) { return c >= '\\' ? c - 36 : c - 35; }
+        static uint32 Decode85Byte( Byte c ) { return c >= '\\' ? c - 36 : c - 35; }
 
         static void DecodeFontData( Byte const* src, Byte* dst )
         {
             while ( *src )
             {
-                S32 tmp = Decode85Byte( src[0] ) + 85 * ( Decode85Byte( src[1] ) + 85 * ( Decode85Byte( src[2] ) + 85 * ( Decode85Byte( src[3] ) + 85 * Decode85Byte( src[4] ) ) ) );
+                int32 tmp = Decode85Byte( src[0] ) + 85 * ( Decode85Byte( src[1] ) + 85 * ( Decode85Byte( src[2] ) + 85 * ( Decode85Byte( src[3] ) + 85 * Decode85Byte( src[4] ) ) ) );
                 dst[0] = ( ( tmp >> 0 ) & 0xFF );
                 dst[1] = ( ( tmp >> 8 ) & 0xFF );
                 dst[2] = ( ( tmp >> 16 ) & 0xFF );
@@ -150,12 +150,12 @@ namespace KRG
         void GetDecompressedFontData( Byte const* pSourceData, TVector<Byte>& fontData )
         {
             // Decode font data
-            U32 const decodedDataSize = U32( ( strlen( (char*) pSourceData ) + 4 ) / 5 ) * 4;
+            uint32 const decodedDataSize = uint32( ( strlen( (char*) pSourceData ) + 4 ) / 5 ) * 4;
             Byte* pDecodedData = KRG_STACK_ARRAY_ALLOC( Byte, decodedDataSize );
             DecodeFontData( (Byte const*) pSourceData, pDecodedData );
 
             // Decompress font data
-            S32 const decompressedDataSize = stb_decompress_length( (Byte*) pDecodedData );
+            int32 const decompressedDataSize = stb_decompress_length( (Byte*) pDecodedData );
             fontData.resize( decompressedDataSize );
             stb_decompress( fontData.data(), pDecodedData, decodedDataSize );
         }

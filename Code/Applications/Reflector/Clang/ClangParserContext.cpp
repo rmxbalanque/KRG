@@ -36,9 +36,9 @@ namespace KRG
                     //-------------------------------------------------------------------------
 
                     CXToken* tokens = nullptr;
-                    U32 numTokens = 0;
+                    uint32 numTokens = 0;
                     clang_tokenize( translationUnit, sourceRange, &tokens, &numTokens );
-                    for ( U32 n = 0; n < numTokens; n++ )
+                    for ( uint32 n = 0; n < numTokens; n++ )
                     {
                         m_macroContents += ClangUtils::GetString( clang_getTokenSpelling( translationUnit, tokens[n] ) );
                     }

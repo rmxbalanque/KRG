@@ -50,7 +50,7 @@ namespace KRG
             m_workerFullPath = FileSystemPath( m_workingDir + Settings::g_resourceServerExecutablePath ).GetFullPath().c_str();
 
             // Generate any additional required settings from read data
-            m_networkAddress = String().sprintf( "localhost:%d", (S32) Settings::g_resourceServerPort );
+            m_networkAddress = String().sprintf( "localhost:%d", (int32) Settings::g_resourceServerPort );
 
             // Connect to compiled resource database
             //-------------------------------------------------------------------------
@@ -168,8 +168,8 @@ namespace KRG
                     // Track connected clients
                     //-------------------------------------------------------------------------
 
-                    U64 const clientID = message.GetClientID().m_ID;
-                    auto foundClientIter = VectorFind( m_knownClients, clientID, [] ( ClientRecord const& record, U64 clientID ) { return record.m_clientID == clientID; } );
+                    uint64 const clientID = message.GetClientID().m_ID;
+                    auto foundClientIter = VectorFind( m_knownClients, clientID, [] ( ClientRecord const& record, uint64 clientID ) { return record.m_clientID == clientID; } );
                     if ( foundClientIter != m_knownClients.end() )
                     {
                         foundClientIter->m_lastUpdateTime = SystemClock::GetTimeInSeconds();
@@ -182,7 +182,7 @@ namespace KRG
                     // Process messages
                     //-------------------------------------------------------------------------
 
-                    if ( message.GetMessageID() == (S32) NetworkMessageID::RequestResource )
+                    if ( message.GetMessageID() == (int32) NetworkMessageID::RequestResource )
                     {
                         NetworkResourceRequest networkRequest = message.GetData<NetworkResourceRequest>();
                         auto pCompilationRequest = ProcessResourceRequest( networkRequest.m_path, clientID );
@@ -203,7 +203,7 @@ namespace KRG
 
                 static Seconds const keepAliveTime( 10 );
                 Seconds const currentTime = SystemClock::GetTimeInSeconds();
-                for ( S32 i = (S32) m_knownClients.size() - 1; i >= 0; i-- )
+                for ( int32 i = (int32) m_knownClients.size() - 1; i >= 0; i-- )
                 {
                     Seconds const timeSinceLastUpdate = currentTime - m_knownClients[i].m_lastUpdateTime;
                     if( timeSinceLastUpdate > keepAliveTime )
@@ -217,7 +217,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Check status of active requests
-            for ( S32 i = ( S32) m_activeRequests.size() - 1; i >= 0; i-- )
+            for ( int32 i = ( int32) m_activeRequests.size() - 1; i >= 0; i-- )
             {
                 auto const pActiveRequest = m_activeRequests[i];
                 if ( pActiveRequest->IsComplete() )
@@ -348,7 +348,7 @@ namespace KRG
 
         void ResourceServer::CleanupCompletedRequests()
         {
-            for ( S32 i = (S32) m_completedRequests.size() - 1; i >= 0; i-- )
+            for ( int32 i = (int32) m_completedRequests.size() - 1; i >= 0; i-- )
             {
                 KRG_ASSERT( !VectorContains( m_activeRequests, m_completedRequests[i] ) && !VectorContains( m_pendingRequests, m_completedRequests[i] ) );
                 KRG::Delete( m_completedRequests[i] );
@@ -382,7 +382,7 @@ namespace KRG
             return false;
         }
 
-        S32 ResourceServer::GetCompilerVersion( ResourceTypeID typeID ) const
+        int32 ResourceServer::GetCompilerVersion( ResourceTypeID typeID ) const
         {
             for ( auto const& compiler : m_compilers )
             {
@@ -397,7 +397,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        CompilationRequest const* ResourceServer::ProcessResourceRequest( ResourceID const& resourceID, U64 clientID )
+        CompilationRequest const* ResourceServer::ProcessResourceRequest( ResourceID const& resourceID, uint64 clientID )
         {
             KRG_ASSERT( m_compiledResourceDatabase.IsConnected() );
 
@@ -520,7 +520,7 @@ namespace KRG
                     for ( auto const& clientRecord : m_knownClients )
                     {
                         Network::IPC::Message message;
-                        message.SetData( (S32) NetworkMessageID::ResourceUpdated, response );
+                        message.SetData( (int32) NetworkMessageID::ResourceUpdated, response );
                         m_networkServer.SendMessageToClient( clientRecord.m_clientID, message );
                     }
                 }
@@ -528,7 +528,7 @@ namespace KRG
             else // Notify single client
             {
                 Network::IPC::Message message;
-                message.SetData( (S32) NetworkMessageID::ResourceRequestComplete, response );
+                message.SetData( (int32) NetworkMessageID::ResourceRequestComplete, response );
                 m_networkServer.SendMessageToClient( pRequest->GetClientID(), message );
             }
         }
@@ -662,12 +662,12 @@ namespace KRG
             // Read all up to date information
             //-------------------------------------------------------------------------
 
-            S32 const compilerVersion = GetCompilerVersion( resourceID.GetResourceTypeID() );
+            int32 const compilerVersion = GetCompilerVersion( resourceID.GetResourceTypeID() );
             KRG_ASSERT( compilerVersion >= 0 );
 
             FileSystemPath const sourceFilePath = DataPath::ToFileSystemPath( m_sourceDataDir, resourceID.GetDataPath() );
-            U64 const fileTimestamp = FileSystem::GetFileModifiedTime( sourceFilePath );
-            U64 sourceTimestampHash = 0;
+            uint64 const fileTimestamp = FileSystem::GetFileModifiedTime( sourceFilePath );
+            uint64 sourceTimestampHash = 0;
 
             bool areCompileDependenciesAreUpToDate = true;
             TVector<DataPath> compileDependencies;

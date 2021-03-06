@@ -14,50 +14,50 @@ namespace KRG
 {
     namespace Math
     {
-        static constexpr F32 const Epsilon = 1.0e-06f;
-        static constexpr F32 const LargeEpsilon = 1.0e-04f;
-        static constexpr F32 const HugeEpsilon = 1.0e-02f;
-        static constexpr F32 const Pi = 3.141592654f;
-        static constexpr F32 const TwoPi = 6.283185307f;
-        static constexpr F32 const OneDivPi = 0.318309886f;
-        static constexpr F32 const OneDivTwoPi = 0.159154943f;
-        static constexpr F32 const PiDivTwo = 1.570796327f;
-        static constexpr F32 const PiDivFour = 0.785398163f;
+        static constexpr float const Epsilon = 1.0e-06f;
+        static constexpr float const LargeEpsilon = 1.0e-04f;
+        static constexpr float const HugeEpsilon = 1.0e-02f;
+        static constexpr float const Pi = 3.141592654f;
+        static constexpr float const TwoPi = 6.283185307f;
+        static constexpr float const OneDivPi = 0.318309886f;
+        static constexpr float const OneDivTwoPi = 0.159154943f;
+        static constexpr float const PiDivTwo = 1.570796327f;
+        static constexpr float const PiDivFour = 0.785398163f;
 
-        static constexpr F32 const SqrtTwo = 1.4142135623730950488016887242097f;
-        static constexpr F32 const OneDivSqrtTwo = 1.0f / SqrtTwo;
+        static constexpr float const SqrtTwo = 1.4142135623730950488016887242097f;
+        static constexpr float const OneDivSqrtTwo = 1.0f / SqrtTwo;
 
-        static constexpr F32 const DegreesToRadians = 0.0174532925f;
-        static constexpr F32 const RadiansToDegrees = 57.2957795f;
+        static constexpr float const DegreesToRadians = 0.0174532925f;
+        static constexpr float const RadiansToDegrees = 57.2957795f;
 
-        static constexpr F32 const Infinity = std::numeric_limits<float>::infinity();
-        static constexpr F32 const QNaN = std::numeric_limits<float>::quiet_NaN();
+        static constexpr float const Infinity = std::numeric_limits<float>::infinity();
+        static constexpr float const QNaN = std::numeric_limits<float>::quiet_NaN();
 
         //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE F32 Sin( F32 x ) { return sinf( x ); }
-        KRG_FORCE_INLINE F32 Cos( F32 x ) { return cosf( x ); }
-        KRG_FORCE_INLINE F32 Tan( F32 x ) { return tanf( x ); }
+        KRG_FORCE_INLINE float Sin( float x ) { return sinf( x ); }
+        KRG_FORCE_INLINE float Cos( float x ) { return cosf( x ); }
+        KRG_FORCE_INLINE float Tan( float x ) { return tanf( x ); }
 
-        KRG_FORCE_INLINE F32 ASin( F32 x ) { return asinf( x ); }
-        KRG_FORCE_INLINE F32 ACos( F32 x ) { return acosf( x ); }
-        KRG_FORCE_INLINE F32 ATan( F32 x ) { return atanf( x ); }
-        KRG_FORCE_INLINE F32 ATan2( F32 y, F32 x ) { return atan2f( y, x ); }
+        KRG_FORCE_INLINE float ASin( float x ) { return asinf( x ); }
+        KRG_FORCE_INLINE float ACos( float x ) { return acosf( x ); }
+        KRG_FORCE_INLINE float ATan( float x ) { return atanf( x ); }
+        KRG_FORCE_INLINE float ATan2( float y, float x ) { return atan2f( y, x ); }
 
-        KRG_FORCE_INLINE F32 Cosec( F32 x ) { return 1.0f / sinf( x ); }
-        KRG_FORCE_INLINE F32 Sec( F32 x ) { return 1.0f / cosf( x ); }
-        KRG_FORCE_INLINE F32 Cot( F32 x ) { return 1.0f / tanf( PiDivTwo - x ); }
+        KRG_FORCE_INLINE float Cosec( float x ) { return 1.0f / sinf( x ); }
+        KRG_FORCE_INLINE float Sec( float x ) { return 1.0f / cosf( x ); }
+        KRG_FORCE_INLINE float Cot( float x ) { return 1.0f / tanf( PiDivTwo - x ); }
 
-        KRG_FORCE_INLINE F32 Pow( F32 x, F32 y ) { return pow( x, y ); }
-        KRG_FORCE_INLINE F32 Sqrt( F32 v ) { return sqrtf( v ); }
+        KRG_FORCE_INLINE float Pow( float x, float y ) { return pow( x, y ); }
+        KRG_FORCE_INLINE float Sqrt( float v ) { return sqrtf( v ); }
 
-        KRG_FORCE_INLINE F32 AddToMovingAverage( F32 currentAverage, U64 numCurrentSamples, F32 newValue )
+        KRG_FORCE_INLINE float AddToMovingAverage( float currentAverage, uint64 numCurrentSamples, float newValue )
         {
             return currentAverage + ( ( newValue - currentAverage ) / ( numCurrentSamples + 1 ) );
         }
 
-        KRG_FORCE_INLINE F32 Reciprocal( F32 r ) { return 1.0f / r; }
-        KRG_FORCE_INLINE F64 Reciprocal( F64 r ) { return 1.0 / r; }
+        KRG_FORCE_INLINE float Reciprocal( float r ) { return 1.0f / r; }
+        KRG_FORCE_INLINE double Reciprocal( double r ) { return 1.0 / r; }
 
         template<typename T>
         KRG_FORCE_INLINE T Min( T a, T b ) { return a <= b ? a : b; }
@@ -98,18 +98,18 @@ namespace KRG
             return value > lowerBound && value < upperBound;
         }
 
-        KRG_FORCE_INLINE F32 ModF( F32 value, F32* pIntegerPortion )
+        KRG_FORCE_INLINE float ModF( float value, float* pIntegerPortion )
         {
             return modff( value, pIntegerPortion );
         }
 
-        KRG_FORCE_INLINE F32 FModF( F32 x, F32 y )
+        KRG_FORCE_INLINE float FModF( float x, float y )
         {
             return fmodf( x, y );
         }
 
         template<typename T>
-        KRG_FORCE_INLINE T Lerp( T A, T B, F32 t )
+        KRG_FORCE_INLINE T Lerp( T A, T B, float t )
         {
             return A + ( B - A ) * t;
         }
@@ -122,13 +122,13 @@ namespace KRG
         }
 
         template<typename T>
-        KRG_FORCE_INLINE bool IsNearEqual( T value, T comparand, F32 epsilon = Epsilon )
+        KRG_FORCE_INLINE bool IsNearEqual( T value, T comparand, float epsilon = Epsilon )
         {
-            return abs( (F64) value - comparand ) <= epsilon;
+            return abs( (double) value - comparand ) <= epsilon;
         }
 
         template<typename T>
-        KRG_FORCE_INLINE bool IsNearlyZero( T value, F32 epsilon = Epsilon )
+        KRG_FORCE_INLINE bool IsNearlyZero( T value, float epsilon = Epsilon )
         {
             return abs( value ) <= epsilon;
         }
@@ -140,9 +140,9 @@ namespace KRG
         }
 
         template<typename T>
-        KRG_FORCE_INLINE S32 CeilingToInt( T value )
+        KRG_FORCE_INLINE int32 CeilingToInt( T value )
         {
-            return (S32) ceil( value );
+            return (int32) ceil( value );
         }
 
         template<typename T>
@@ -152,9 +152,9 @@ namespace KRG
         }
 
         template <typename T>
-        KRG_FORCE_INLINE S32 FloorToInt( T value )
+        KRG_FORCE_INLINE int32 FloorToInt( T value )
         {
-            return (S32) floor( value );
+            return (int32) floor( value );
         }
 
         template<typename T>
@@ -164,29 +164,29 @@ namespace KRG
         }
 
         template<typename T>
-        KRG_FORCE_INLINE S32 RoundToInt( T value )
+        KRG_FORCE_INLINE int32 RoundToInt( T value )
         {
-            return (S32) round( value );
+            return (int32) round( value );
         }
 
-        inline S32 GreatestCommonDivisor( S32 a, S32 b )
+        inline int32 GreatestCommonDivisor( int32 a, int32 b )
         {
             return b == 0 ? a : GreatestCommonDivisor( b, a % b );
         }
 
-        inline S32 LowestCommonMultiple( S32 a, S32 b )
+        inline int32 LowestCommonMultiple( int32 a, int32 b )
         {
-            S32 const gcd = GreatestCommonDivisor( a, b );
-            S32 const lcm = ( a / gcd ) * b;
+            int32 const gcd = GreatestCommonDivisor( a, b );
+            int32 const lcm = ( a / gcd ) * b;
             return lcm;
         }
 
-        inline F32 RemapRange( F32 x, F32 fromRangeMin, F32 fromRangeMax, F32 toRangeMin, F32 toRangeMax )
+        inline float RemapRange( float x, float fromRangeMin, float fromRangeMax, float toRangeMin, float toRangeMax )
         {
-            F32 const fromRangeLength = fromRangeMax - fromRangeMin;
-            F32 const toRangeLength = toRangeMax - toRangeMin;
-            F32 const percentageThroughFromRange = ( x - fromRangeMin ) / fromRangeLength;
-            F32 const result = toRangeMin + ( percentageThroughFromRange * toRangeLength );
+            float const fromRangeLength = fromRangeMax - fromRangeMin;
+            float const toRangeLength = toRangeMax - toRangeMin;
+            float const percentageThroughFromRange = ( x - fromRangeMin ) / fromRangeLength;
+            float const result = toRangeMin + ( percentageThroughFromRange * toRangeLength );
 
             return result;
         }
@@ -239,11 +239,11 @@ namespace KRG
         inline Int2() {}
         inline Int2( ZeroInit ) : x( 0 ), y( 0 ) {}
         inline Int2( Float2 const& v );
-        inline explicit Int2( S32 v ) : x( v ), y( v ) {}
-        inline explicit Int2( S32 ix, S32 iy ) : x( ix ), y( iy ) {}
+        inline explicit Int2( int32 v ) : x( v ), y( v ) {}
+        inline explicit Int2( int32 ix, int32 iy ) : x( ix ), y( iy ) {}
 
-        inline S32& operator[]( U32 i ) { KRG_ASSERT( i < 2 ); return ( (S32*) this )[i]; }
-        inline S32 const& operator[]( U32 i ) const { KRG_ASSERT( i < 2 ); return ( (S32*) this )[i]; }
+        inline int32& operator[]( uint32 i ) { KRG_ASSERT( i < 2 ); return ( (int32*) this )[i]; }
+        inline int32 const& operator[]( uint32 i ) const { KRG_ASSERT( i < 2 ); return ( (int32*) this )[i]; }
 
         inline bool operator==( Int2 const rhs ) const { return x == rhs.x && y == rhs.y; }
         inline bool operator!=( Int2 const rhs ) const { return x != rhs.x || y != rhs.y; }
@@ -253,16 +253,16 @@ namespace KRG
         inline Int2 operator*( Int2 const& rhs ) const { return Int2( x * rhs.x, y * rhs.y ); }
         inline Int2 operator/( Int2 const& rhs ) const { return Int2( x / rhs.x, y / rhs.y ); }
 
-        inline Int2& operator+=( S32 const& rhs ) { x += rhs; y += rhs; return *this; }
-        inline Int2& operator-=( S32 const& rhs ) { x -= rhs; y -= rhs; return *this; }
-        inline Int2& operator*=( S32 const& rhs ) { x *= rhs; y *= rhs; return *this; }
-        inline Int2& operator/=( S32 const& rhs ) { x /= rhs; y /= rhs; return *this; }
+        inline Int2& operator+=( int32 const& rhs ) { x += rhs; y += rhs; return *this; }
+        inline Int2& operator-=( int32 const& rhs ) { x -= rhs; y -= rhs; return *this; }
+        inline Int2& operator*=( int32 const& rhs ) { x *= rhs; y *= rhs; return *this; }
+        inline Int2& operator/=( int32 const& rhs ) { x /= rhs; y /= rhs; return *this; }
 
         // Component wise operation
-        inline Int2 operator+( S32 const& rhs ) const { return Int2( x + rhs, y + rhs ); }
-        inline Int2 operator-( S32 const& rhs ) const { return Int2( x - rhs, y - rhs ); }
-        inline Int2 operator*( S32 const& rhs ) const { return Int2( x * rhs, y * rhs ); }
-        inline Int2 operator/( S32 const& rhs ) const { return Int2( x / rhs, y / rhs ); }
+        inline Int2 operator+( int32 const& rhs ) const { return Int2( x + rhs, y + rhs ); }
+        inline Int2 operator-( int32 const& rhs ) const { return Int2( x - rhs, y - rhs ); }
+        inline Int2 operator*( int32 const& rhs ) const { return Int2( x * rhs, y * rhs ); }
+        inline Int2 operator/( int32 const& rhs ) const { return Int2( x / rhs, y / rhs ); }
 
         inline Int2& operator+=( Int2 const& rhs ) { x += rhs.x; y += rhs.y; return *this; }
         inline Int2& operator-=( Int2 const& rhs ) { x -= rhs.x; y -= rhs.y; return *this; }
@@ -271,7 +271,7 @@ namespace KRG
 
     public:
 
-        S32 x, y;
+        int32 x, y;
     };
 
     //-------------------------------------------------------------------------
@@ -286,24 +286,24 @@ namespace KRG
 
         inline Int4() {}
         inline Int4( ZeroInit ) : x( 0 ), y( 0 ), z( 0 ), w( 0 ) {}
-        inline explicit Int4( S32 v ) : x( v ), y( v ), z( v ), w( v ) {}
-        inline explicit Int4( S32 ix, S32 iy, S32 iz, S32 iw ) : x( ix ), y( iy ), z( iz ), w( iw ) {}
+        inline explicit Int4( int32 v ) : x( v ), y( v ), z( v ), w( v ) {}
+        inline explicit Int4( int32 ix, int32 iy, int32 iz, int32 iw ) : x( ix ), y( iy ), z( iz ), w( iw ) {}
 
-        inline S32& operator[]( U32 i ) { KRG_ASSERT( i < 4 ); return ( (S32*) this )[i]; }
-        inline S32 const& operator[]( U32 i ) const { KRG_ASSERT( i < 4 ); return ( (S32*) this )[i]; }
+        inline int32& operator[]( uint32 i ) { KRG_ASSERT( i < 4 ); return ( (int32*) this )[i]; }
+        inline int32 const& operator[]( uint32 i ) const { KRG_ASSERT( i < 4 ); return ( (int32*) this )[i]; }
 
         inline bool operator==( Int4 const rhs ) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
         inline bool operator!=( Int4 const rhs ) const { return x != rhs.x || y != rhs.y || z != rhs.z || w != rhs.w; }
 
-        inline Int4 operator+( S32 const& rhs ) const { return Int4( x + rhs, y + rhs, z + rhs, w + rhs ); }
-        inline Int4 operator-( S32 const& rhs ) const { return Int4( x - rhs, y - rhs, z - rhs, w - rhs ); }
-        inline Int4 operator*( S32 const& rhs ) const { return Int4( x * rhs, y * rhs, z * rhs, w * rhs ); }
-        inline Int4 operator/( S32 const& rhs ) const { return Int4( x / rhs, y / rhs, z / rhs, w / rhs ); }
+        inline Int4 operator+( int32 const& rhs ) const { return Int4( x + rhs, y + rhs, z + rhs, w + rhs ); }
+        inline Int4 operator-( int32 const& rhs ) const { return Int4( x - rhs, y - rhs, z - rhs, w - rhs ); }
+        inline Int4 operator*( int32 const& rhs ) const { return Int4( x * rhs, y * rhs, z * rhs, w * rhs ); }
+        inline Int4 operator/( int32 const& rhs ) const { return Int4( x / rhs, y / rhs, z / rhs, w / rhs ); }
 
-        inline Int4& operator+=( S32 const& rhs ) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; }
-        inline Int4& operator-=( S32 const& rhs ) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; }
-        inline Int4& operator*=( S32 const& rhs ) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; }
-        inline Int4& operator/=( S32 const& rhs ) { x /= rhs; y /= rhs; z /= rhs; w /= rhs; return *this; }
+        inline Int4& operator+=( int32 const& rhs ) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; }
+        inline Int4& operator-=( int32 const& rhs ) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; }
+        inline Int4& operator*=( int32 const& rhs ) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; }
+        inline Int4& operator/=( int32 const& rhs ) { x /= rhs; y /= rhs; z /= rhs; w /= rhs; return *this; }
 
         // Component wise operation
         inline Int4 operator+( Int4 const& rhs ) const { return Int4( x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w ); }
@@ -318,7 +318,7 @@ namespace KRG
 
     public:
 
-        S32 x, y, z, w;
+        int32 x, y, z, w;
     };
 
     //-------------------------------------------------------------------------
@@ -336,14 +336,14 @@ namespace KRG
 
         inline Float2() {}
         KRG_FORCE_INLINE Float2( ZeroInit ) : x( 0 ), y( 0 ) {}
-        KRG_FORCE_INLINE explicit Float2( F32 v ) : x( v ), y( v ) {}
-        KRG_FORCE_INLINE explicit Float2( F32 ix, F32 iy ) : x( ix ), y( iy ) {}
-        inline explicit Float2( Int2 const& v ) : x( (F32) v.x ), y( (F32) v.y ) {}
+        KRG_FORCE_INLINE explicit Float2( float v ) : x( v ), y( v ) {}
+        KRG_FORCE_INLINE explicit Float2( float ix, float iy ) : x( ix ), y( iy ) {}
+        inline explicit Float2( Int2 const& v ) : x( (float) v.x ), y( (float) v.y ) {}
         inline explicit Float2( Float3 const& v );
         inline explicit Float2( Float4 const& v );
 
-        inline F32& operator[]( U32 i ) { KRG_ASSERT( i < 2 ); return ( (F32*) this )[i]; }
-        inline F32 const& operator[]( U32 i ) const { KRG_ASSERT( i < 2 ); return ( (F32*) this )[i]; }
+        inline float& operator[]( uint32 i ) { KRG_ASSERT( i < 2 ); return ( (float*) this )[i]; }
+        inline float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 2 ); return ( (float*) this )[i]; }
 
         inline bool operator==( Float2 const rhs ) const { return x == rhs.x && y == rhs.y; }
         inline bool operator!=( Float2 const rhs ) const { return x != rhs.x || y != rhs.y; }
@@ -353,22 +353,22 @@ namespace KRG
         inline Float2 operator*( Float2 const& rhs ) const { return Float2( x * rhs.x, y * rhs.y ); }
         inline Float2 operator/( Float2 const& rhs ) const { return Float2( x / rhs.x, y / rhs.y ); }
 
-        inline Float2 operator+( F32 const& rhs ) const { return Float2( x + rhs, y + rhs ); }
-        inline Float2 operator-( F32 const& rhs ) const { return Float2( x - rhs, y - rhs ); }
-        inline Float2 operator*( F32 const& rhs ) const { return Float2( x * rhs, y * rhs ); }
-        inline Float2 operator/( F32 const& rhs ) const { return Float2( x / rhs, y / rhs ); }
+        inline Float2 operator+( float const& rhs ) const { return Float2( x + rhs, y + rhs ); }
+        inline Float2 operator-( float const& rhs ) const { return Float2( x - rhs, y - rhs ); }
+        inline Float2 operator*( float const& rhs ) const { return Float2( x * rhs, y * rhs ); }
+        inline Float2 operator/( float const& rhs ) const { return Float2( x / rhs, y / rhs ); }
 
         inline Float2& operator+=( Float2 const& rhs ) { x += rhs.x; y += rhs.y; return *this; }
         inline Float2& operator-=( Float2 const& rhs ) { x -= rhs.x; y -= rhs.y; return *this; }
         inline Float2& operator*=( Float2 const& rhs ) { x *= rhs.x; y *= rhs.y; return *this; }
         inline Float2& operator/=( Float2 const& rhs ) { x /= rhs.x; y /= rhs.y; return *this; }
 
-        inline Float2& operator+=( F32 const& rhs ) { x += rhs; y += rhs; return *this; }
-        inline Float2& operator-=( F32 const& rhs ) { x -= rhs; y -= rhs; return *this; }
-        inline Float2& operator*=( F32 const& rhs ) { x *= rhs; y *= rhs; return *this; }
-        inline Float2& operator/=( F32 const& rhs ) { x /= rhs; y /= rhs; return *this; }
+        inline Float2& operator+=( float const& rhs ) { x += rhs; y += rhs; return *this; }
+        inline Float2& operator-=( float const& rhs ) { x -= rhs; y -= rhs; return *this; }
+        inline Float2& operator*=( float const& rhs ) { x *= rhs; y *= rhs; return *this; }
+        inline Float2& operator/=( float const& rhs ) { x /= rhs; y /= rhs; return *this; }
 
-        F32 x, y;
+        float x, y;
     };
 
     //-------------------------------------------------------------------------
@@ -391,13 +391,13 @@ namespace KRG
 
         inline Float3() {}
         KRG_FORCE_INLINE Float3( ZeroInit ) : x( 0 ), y( 0 ), z( 0 ) {}
-        KRG_FORCE_INLINE explicit Float3( F32 v ) : x( v ), y( v ), z( v ) {}
-        KRG_FORCE_INLINE explicit Float3( F32 ix, F32 iy, F32 iz ) : x( ix ), y( iy ), z( iz ) {}
-        inline explicit Float3( Float2 const& v, F32 iz = 0.0f ) : x( v.x ), y( v.y ), z( iz ) {}
+        KRG_FORCE_INLINE explicit Float3( float v ) : x( v ), y( v ), z( v ) {}
+        KRG_FORCE_INLINE explicit Float3( float ix, float iy, float iz ) : x( ix ), y( iy ), z( iz ) {}
+        inline explicit Float3( Float2 const& v, float iz = 0.0f ) : x( v.x ), y( v.y ), z( iz ) {}
         inline explicit Float3( Float4 const& v );
 
-        inline F32& operator[]( U32 i ) { KRG_ASSERT( i < 3 ); return ( (F32*) this )[i]; }
-        inline F32 const& operator[]( U32 i ) const { KRG_ASSERT( i < 3 ); return ( (F32*) this )[i]; }
+        inline float& operator[]( uint32 i ) { KRG_ASSERT( i < 3 ); return ( (float*) this )[i]; }
+        inline float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 3 ); return ( (float*) this )[i]; }
 
         inline bool operator==( Float3 const rhs ) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
         inline bool operator!=( Float3 const rhs ) const { return x != rhs.x || y != rhs.y || z != rhs.z; }
@@ -409,22 +409,22 @@ namespace KRG
         inline Float3 operator*( Float3 const& rhs ) const { return Float3( x * rhs.x, y * rhs.y, z * rhs.z ); }
         inline Float3 operator/( Float3 const& rhs ) const { return Float3( x / rhs.x, y / rhs.y, z / rhs.z ); }
 
-        inline Float3 operator+( F32 const& rhs ) const { return Float3( x + rhs, y + rhs, z + rhs ); }
-        inline Float3 operator-( F32 const& rhs ) const { return Float3( x - rhs, y - rhs, z - rhs ); }
-        inline Float3 operator*( F32 const& rhs ) const { return Float3( x * rhs, y * rhs, z * rhs ); }
-        inline Float3 operator/( F32 const& rhs ) const { return Float3( x / rhs, y / rhs, z / rhs ); }
+        inline Float3 operator+( float const& rhs ) const { return Float3( x + rhs, y + rhs, z + rhs ); }
+        inline Float3 operator-( float const& rhs ) const { return Float3( x - rhs, y - rhs, z - rhs ); }
+        inline Float3 operator*( float const& rhs ) const { return Float3( x * rhs, y * rhs, z * rhs ); }
+        inline Float3 operator/( float const& rhs ) const { return Float3( x / rhs, y / rhs, z / rhs ); }
 
         inline Float3& operator+=( Float3 const& rhs ) { x += rhs.x; y += rhs.y; z += rhs.z; return *this; }
         inline Float3& operator-=( Float3 const& rhs ) { x -= rhs.x; y -= rhs.y; z -= rhs.z; return *this; }
         inline Float3& operator*=( Float3 const& rhs ) { x *= rhs.x; y *= rhs.y; z *= rhs.z; return *this; }
         inline Float3& operator/=( Float3 const& rhs ) { x /= rhs.x; y /= rhs.y; z /= rhs.z; return *this; }
 
-        inline Float3& operator+=( F32 const& rhs ) { x += rhs; y += rhs; z += rhs; return *this; }
-        inline Float3& operator-=( F32 const& rhs ) { x -= rhs; y -= rhs; z -= rhs; return *this; }
-        inline Float3& operator*=( F32 const& rhs ) { x *= rhs; y *= rhs; z *= rhs; return *this; }
-        inline Float3& operator/=( F32 const& rhs ) { x /= rhs; y /= rhs; z /= rhs; return *this; }
+        inline Float3& operator+=( float const& rhs ) { x += rhs; y += rhs; z += rhs; return *this; }
+        inline Float3& operator-=( float const& rhs ) { x -= rhs; y -= rhs; z -= rhs; return *this; }
+        inline Float3& operator*=( float const& rhs ) { x *= rhs; y *= rhs; z *= rhs; return *this; }
+        inline Float3& operator/=( float const& rhs ) { x /= rhs; y /= rhs; z /= rhs; return *this; }
 
-        F32 x, y, z;
+        float x, y, z;
     };
 
     //-------------------------------------------------------------------------
@@ -448,13 +448,13 @@ namespace KRG
 
         Float4() {}
         KRG_FORCE_INLINE Float4( ZeroInit ) : x( 0 ), y( 0 ), z( 0 ), w( 0 ) {}
-        KRG_FORCE_INLINE explicit Float4( F32 v ) : x( v ), y( v ), z( v ), w( v ) {}
-        KRG_FORCE_INLINE explicit Float4( F32 ix, F32 iy, F32 iz, F32 iw ) : x( ix ), y( iy ), z( iz ), w( iw ) {}
-        explicit Float4( Float2 const& v, F32 iz = 0.0f, F32 iw = 0.0f ) : x( v.x ), y( v.y ), z( iz ), w( iw ) {}
-        explicit Float4( Float3 const& v, F32 iw = 0.0f ) : x( v.x ), y( v.y ), z( v.z ), w( iw ) {}
+        KRG_FORCE_INLINE explicit Float4( float v ) : x( v ), y( v ), z( v ), w( v ) {}
+        KRG_FORCE_INLINE explicit Float4( float ix, float iy, float iz, float iw ) : x( ix ), y( iy ), z( iz ), w( iw ) {}
+        explicit Float4( Float2 const& v, float iz = 0.0f, float iw = 0.0f ) : x( v.x ), y( v.y ), z( iz ), w( iw ) {}
+        explicit Float4( Float3 const& v, float iw = 0.0f ) : x( v.x ), y( v.y ), z( v.z ), w( iw ) {}
 
-        F32& operator[]( U32 i ) { KRG_ASSERT( i < 4 ); return ( (F32*) this )[i]; }
-        F32 const& operator[]( U32 i ) const { KRG_ASSERT( i < 4 ); return ( (F32*) this )[i]; }
+        float& operator[]( uint32 i ) { KRG_ASSERT( i < 4 ); return ( (float*) this )[i]; }
+        float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 4 ); return ( (float*) this )[i]; }
 
         bool operator==( Float4 const rhs ) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
         bool operator!=( Float4 const rhs ) const { return x != rhs.x || y != rhs.y || z != rhs.z || w != rhs.w; }
@@ -467,30 +467,30 @@ namespace KRG
         inline Float4 operator*( Float4 const& rhs ) const { return Float4( x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w ); }
         inline Float4 operator/( Float4 const& rhs ) const { return Float4( x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.w ); }
 
-        inline Float4 operator+( F32 const& rhs ) const { return Float4( x + rhs, y + rhs, z + rhs, w + rhs ); }
-        inline Float4 operator-( F32 const& rhs ) const { return Float4( x - rhs, y - rhs, z - rhs, w - rhs ); }
-        inline Float4 operator*( F32 const& rhs ) const { return Float4( x * rhs, y * rhs, z * rhs, w * rhs ); }
-        inline Float4 operator/( F32 const& rhs ) const { return Float4( x / rhs, y / rhs, z / rhs, w / rhs ); }
+        inline Float4 operator+( float const& rhs ) const { return Float4( x + rhs, y + rhs, z + rhs, w + rhs ); }
+        inline Float4 operator-( float const& rhs ) const { return Float4( x - rhs, y - rhs, z - rhs, w - rhs ); }
+        inline Float4 operator*( float const& rhs ) const { return Float4( x * rhs, y * rhs, z * rhs, w * rhs ); }
+        inline Float4 operator/( float const& rhs ) const { return Float4( x / rhs, y / rhs, z / rhs, w / rhs ); }
 
         inline Float4& operator+=( Float4 const& rhs ) { x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w; return *this; }
         inline Float4& operator-=( Float4 const& rhs ) { x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w; return *this; }
         inline Float4& operator*=( Float4 const& rhs ) { x *= rhs.x; y *= rhs.y; z *= rhs.z; w *= rhs.w; return *this; }
         inline Float4& operator/=( Float4 const& rhs ) { x /= rhs.x; y /= rhs.y; z /= rhs.z; w /= rhs.w; return *this; }
 
-        inline Float4& operator+=( F32 const& rhs ) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; }
-        inline Float4& operator-=( F32 const& rhs ) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; }
-        inline Float4& operator*=( F32 const& rhs ) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; }
-        inline Float4& operator/=( F32 const& rhs ) { x /= rhs; y /= rhs; z /= rhs; w /= rhs; return *this; }
+        inline Float4& operator+=( float const& rhs ) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; }
+        inline Float4& operator-=( float const& rhs ) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; }
+        inline Float4& operator*=( float const& rhs ) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; }
+        inline Float4& operator/=( float const& rhs ) { x /= rhs; y /= rhs; z /= rhs; w /= rhs; return *this; }
 
-        F32 x, y, z, w;
+        float x, y, z, w;
     };
 
     // Implicit conversions
     //-------------------------------------------------------------------------
 
     inline Int2::Int2( Float2 const& v )
-        : x( (S32) v.x )
-        , y( (S32) v.y )
+        : x( (int32) v.x )
+        , y( (int32) v.y )
     {}
 
     inline Float2::Float2( Float3 const& v )
@@ -525,12 +525,12 @@ namespace KRG
     public:
 
         inline Degrees() = default;
-        inline Degrees( F32 degrees ) : m_value( degrees ) {}
+        inline Degrees( float degrees ) : m_value( degrees ) {}
         inline explicit Degrees( Radians const& radians );
 
-        inline explicit operator F32() const { return m_value; }
+        inline explicit operator float() const { return m_value; }
         inline operator Radians() const;
-        inline F32 GetValue() const { return m_value; }
+        inline float GetValue() const { return m_value; }
         inline Radians ToRadians() const;
 
         inline Degrees operator-() const { return Degrees( -m_value ); }
@@ -545,40 +545,40 @@ namespace KRG
         inline Degrees& operator*=( Degrees const& rhs ) { m_value *= rhs.m_value; return *this; }
         inline Degrees& operator/=( Degrees const& rhs ) { m_value /= rhs.m_value; return *this; }
 
-        inline Degrees operator+( F32 const& rhs ) const { return m_value + rhs; }
-        inline Degrees operator-( F32 const& rhs ) const { return m_value - rhs; }
-        inline Degrees operator*( F32 const& rhs ) const { return m_value * rhs; }
-        inline Degrees operator/( F32 const& rhs ) const { return m_value / rhs; }
+        inline Degrees operator+( float const& rhs ) const { return m_value + rhs; }
+        inline Degrees operator-( float const& rhs ) const { return m_value - rhs; }
+        inline Degrees operator*( float const& rhs ) const { return m_value * rhs; }
+        inline Degrees operator/( float const& rhs ) const { return m_value / rhs; }
 
-        inline Degrees& operator+=( F32 const& rhs ) { m_value += rhs; return *this; }
-        inline Degrees& operator-=( F32 const& rhs ) { m_value -= rhs; return *this; }
-        inline Degrees& operator*=( F32 const& rhs ) { m_value *= rhs; return *this; }
-        inline Degrees& operator/=( F32 const& rhs ) { m_value /= rhs; return *this; }
+        inline Degrees& operator+=( float const& rhs ) { m_value += rhs; return *this; }
+        inline Degrees& operator-=( float const& rhs ) { m_value -= rhs; return *this; }
+        inline Degrees& operator*=( float const& rhs ) { m_value *= rhs; return *this; }
+        inline Degrees& operator/=( float const& rhs ) { m_value /= rhs; return *this; }
 
-        inline Degrees operator+( S32 const& rhs ) const { return m_value + rhs; }
-        inline Degrees operator-( S32 const& rhs ) const { return m_value - rhs; }
-        inline Degrees operator*( S32 const& rhs ) const { return m_value * rhs; }
-        inline Degrees operator/( S32 const& rhs ) const { return m_value / rhs; }
+        inline Degrees operator+( int32 const& rhs ) const { return m_value + rhs; }
+        inline Degrees operator-( int32 const& rhs ) const { return m_value - rhs; }
+        inline Degrees operator*( int32 const& rhs ) const { return m_value * rhs; }
+        inline Degrees operator/( int32 const& rhs ) const { return m_value / rhs; }
 
-        inline Degrees& operator+=( S32 const& rhs ) { m_value += rhs; return *this; }
-        inline Degrees& operator-=( S32 const& rhs ) { m_value -= rhs; return *this; }
-        inline Degrees& operator*=( S32 const& rhs ) { m_value *= rhs; return *this; }
-        inline Degrees& operator/=( S32 const& rhs ) { m_value /= rhs; return *this; }
+        inline Degrees& operator+=( int32 const& rhs ) { m_value += rhs; return *this; }
+        inline Degrees& operator-=( int32 const& rhs ) { m_value -= rhs; return *this; }
+        inline Degrees& operator*=( int32 const& rhs ) { m_value *= rhs; return *this; }
+        inline Degrees& operator/=( int32 const& rhs ) { m_value /= rhs; return *this; }
 
-        inline Degrees operator+( U32 const& rhs ) const { return m_value + rhs; }
-        inline Degrees operator-( U32 const& rhs ) const { return m_value - rhs; }
-        inline Degrees operator*( U32 const& rhs ) const { return m_value * rhs; }
-        inline Degrees operator/( U32 const& rhs ) const { return m_value / rhs; }
+        inline Degrees operator+( uint32 const& rhs ) const { return m_value + rhs; }
+        inline Degrees operator-( uint32 const& rhs ) const { return m_value - rhs; }
+        inline Degrees operator*( uint32 const& rhs ) const { return m_value * rhs; }
+        inline Degrees operator/( uint32 const& rhs ) const { return m_value / rhs; }
 
-        inline Degrees& operator+=( U32 const& rhs ) { m_value += rhs; return *this; }
-        inline Degrees& operator-=( U32 const& rhs ) { m_value -= rhs; return *this; }
-        inline Degrees& operator*=( U32 const& rhs ) { m_value *= rhs; return *this; }
-        inline Degrees& operator/=( U32 const& rhs ) { m_value /= rhs; return *this; }
+        inline Degrees& operator+=( uint32 const& rhs ) { m_value += rhs; return *this; }
+        inline Degrees& operator-=( uint32 const& rhs ) { m_value -= rhs; return *this; }
+        inline Degrees& operator*=( uint32 const& rhs ) { m_value *= rhs; return *this; }
+        inline Degrees& operator/=( uint32 const& rhs ) { m_value /= rhs; return *this; }
 
-        inline bool operator>( F32 const& rhs ) const { return m_value > rhs; };
-        inline bool operator<( F32 const& rhs ) const { return m_value < rhs; }
-        inline bool operator>=( F32 const& rhs ) const { return m_value >= rhs; }
-        inline bool operator<=( F32 const& rhs ) const { return m_value <= rhs; }
+        inline bool operator>( float const& rhs ) const { return m_value > rhs; };
+        inline bool operator<( float const& rhs ) const { return m_value < rhs; }
+        inline bool operator>=( float const& rhs ) const { return m_value >= rhs; }
+        inline bool operator<=( float const& rhs ) const { return m_value <= rhs; }
 
         inline bool operator>( Degrees const& rhs ) const { return m_value > rhs.m_value; }
         inline bool operator<( Degrees const& rhs ) const { return m_value < rhs.m_value; }
@@ -625,7 +625,7 @@ namespace KRG
 
     private:
 
-        F32 m_value = 0;
+        float m_value = 0;
     };
 
     //-------------------------------------------------------------------------
@@ -644,12 +644,12 @@ namespace KRG
     public:
 
         inline Radians() = default;
-        inline Radians( F32 radians ) : m_value( radians ) {}
+        inline Radians( float radians ) : m_value( radians ) {}
         inline explicit Radians( Degrees const& degrees );
 
-        inline operator F32() const { return m_value; }
+        inline operator float() const { return m_value; }
         inline operator Degrees() const { return ToDegrees(); }
-        inline F32 GetValue() const { return m_value; }
+        inline float GetValue() const { return m_value; }
         inline Degrees ToDegrees() const { return m_value * Math::RadiansToDegrees; }
 
         inline Radians operator-() const { return Radians( -m_value ); }
@@ -664,40 +664,40 @@ namespace KRG
         inline Radians& operator*=( Radians const& rhs ) { m_value *= rhs.m_value; return *this; }
         inline Radians& operator/=( Radians const& rhs ) { m_value /= rhs.m_value; return *this; }
 
-        inline Radians operator+( F32 const& rhs ) const { return m_value + rhs; }
-        inline Radians operator-( F32 const& rhs ) const { return m_value - rhs; }
-        inline Radians operator*( F32 const& rhs ) const { return m_value * rhs; }
-        inline Radians operator/( F32 const& rhs ) const { return m_value / rhs; }
+        inline Radians operator+( float const& rhs ) const { return m_value + rhs; }
+        inline Radians operator-( float const& rhs ) const { return m_value - rhs; }
+        inline Radians operator*( float const& rhs ) const { return m_value * rhs; }
+        inline Radians operator/( float const& rhs ) const { return m_value / rhs; }
 
-        inline Radians& operator+=( F32 const& rhs ) { m_value += rhs; return *this; }
-        inline Radians& operator-=( F32 const& rhs ) { m_value -= rhs; return *this; }
-        inline Radians& operator*=( F32 const& rhs ) { m_value *= rhs; return *this; }
-        inline Radians& operator/=( F32 const& rhs ) { m_value /= rhs; return *this; }
+        inline Radians& operator+=( float const& rhs ) { m_value += rhs; return *this; }
+        inline Radians& operator-=( float const& rhs ) { m_value -= rhs; return *this; }
+        inline Radians& operator*=( float const& rhs ) { m_value *= rhs; return *this; }
+        inline Radians& operator/=( float const& rhs ) { m_value /= rhs; return *this; }
 
-        inline Radians operator+( S32 const& rhs ) const { return m_value + rhs; }
-        inline Radians operator-( S32 const& rhs ) const { return m_value - rhs; }
-        inline Radians operator*( S32 const& rhs ) const { return m_value * rhs; }
-        inline Radians operator/( S32 const& rhs ) const { return m_value / rhs; }
+        inline Radians operator+( int32 const& rhs ) const { return m_value + rhs; }
+        inline Radians operator-( int32 const& rhs ) const { return m_value - rhs; }
+        inline Radians operator*( int32 const& rhs ) const { return m_value * rhs; }
+        inline Radians operator/( int32 const& rhs ) const { return m_value / rhs; }
 
-        inline Radians& operator+=( S32 const& rhs ) { m_value += rhs; return *this; }
-        inline Radians& operator-=( S32 const& rhs ) { m_value -= rhs; return *this; }
-        inline Radians& operator*=( S32 const& rhs ) { m_value *= rhs; return *this; }
-        inline Radians& operator/=( S32 const& rhs ) { m_value /= rhs; return *this; }
+        inline Radians& operator+=( int32 const& rhs ) { m_value += rhs; return *this; }
+        inline Radians& operator-=( int32 const& rhs ) { m_value -= rhs; return *this; }
+        inline Radians& operator*=( int32 const& rhs ) { m_value *= rhs; return *this; }
+        inline Radians& operator/=( int32 const& rhs ) { m_value /= rhs; return *this; }
 
-        inline Radians operator+( U32 const& rhs ) const { return m_value + rhs; }
-        inline Radians operator-( U32 const& rhs ) const { return m_value - rhs; }
-        inline Radians operator*( U32 const& rhs ) const { return m_value * rhs; }
-        inline Radians operator/( U32 const& rhs ) const { return m_value / rhs; }
+        inline Radians operator+( uint32 const& rhs ) const { return m_value + rhs; }
+        inline Radians operator-( uint32 const& rhs ) const { return m_value - rhs; }
+        inline Radians operator*( uint32 const& rhs ) const { return m_value * rhs; }
+        inline Radians operator/( uint32 const& rhs ) const { return m_value / rhs; }
 
-        inline Radians& operator+=( U32 const& rhs ) { m_value += rhs; return *this; }
-        inline Radians& operator-=( U32 const& rhs ) { m_value -= rhs; return *this; }
-        inline Radians& operator*=( U32 const& rhs ) { m_value *= rhs; return *this; }
-        inline Radians& operator/=( U32 const& rhs ) { m_value /= rhs; return *this; }
+        inline Radians& operator+=( uint32 const& rhs ) { m_value += rhs; return *this; }
+        inline Radians& operator-=( uint32 const& rhs ) { m_value -= rhs; return *this; }
+        inline Radians& operator*=( uint32 const& rhs ) { m_value *= rhs; return *this; }
+        inline Radians& operator/=( uint32 const& rhs ) { m_value /= rhs; return *this; }
 
-        inline bool operator>( F32 const& rhs ) const { return m_value > rhs; };
-        inline bool operator<( F32 const& rhs ) const { return m_value < rhs; }
-        inline bool operator>=( F32 const& rhs ) const { return m_value >= rhs; }
-        inline bool operator<=( F32 const& rhs ) const { return m_value <= rhs; }
+        inline bool operator>( float const& rhs ) const { return m_value > rhs; };
+        inline bool operator<( float const& rhs ) const { return m_value < rhs; }
+        inline bool operator>=( float const& rhs ) const { return m_value >= rhs; }
+        inline bool operator<=( float const& rhs ) const { return m_value <= rhs; }
 
         inline bool operator>( Radians const& rhs ) const { return m_value > rhs.m_value; }
         inline bool operator<( Radians const& rhs ) const { return m_value < rhs.m_value; }
@@ -714,7 +714,7 @@ namespace KRG
         // Clamps between -2Pi to 2Pi
         inline void Clamp()
         {
-            m_value -= S32( m_value / Math::TwoPi ) * Math::TwoPi;
+            m_value -= int32( m_value / Math::TwoPi ) * Math::TwoPi;
         }
 
         inline Radians GetClamped() const
@@ -745,7 +745,7 @@ namespace KRG
         inline void Invert()
         {
             Clamp();
-            F32 const delta = Math::TwoPi - Math::Abs( m_value );
+            float const delta = Math::TwoPi - Math::Abs( m_value );
             m_value = ( m_value < 0 ) ? delta : -delta;
         }
 
@@ -761,7 +761,7 @@ namespace KRG
         {
             Clamp();
 
-            F32 delta = Math::Pi - Math::Abs( m_value );
+            float delta = Math::Pi - Math::Abs( m_value );
             if ( delta < 0 )
             {
                 delta += Math::Pi;
@@ -780,7 +780,7 @@ namespace KRG
         inline void Flip()
         {
             ClampPi();
-            F32 const delta = Math::Pi - Math::Abs( m_value );
+            float const delta = Math::Pi - Math::Abs( m_value );
             m_value = ( m_value < 0 ) ? delta : -delta;
         }
 
@@ -793,7 +793,7 @@ namespace KRG
 
     private:
 
-        F32 m_value = 0;
+        float m_value = 0;
     };
 
     //-------------------------------------------------------------------------
@@ -867,8 +867,8 @@ namespace KRG
         inline bool operator==( EulerAngles const& other ) const { return x == other.x && y == other.y && z == other.z; }
         inline bool operator!=( EulerAngles const& other ) const { return x != other.x || y != other.y || z != other.z; }
 
-        inline Radians& operator[]( U32 i ) { KRG_ASSERT( i < 3 ); return ( (Radians*) this )[i]; }
-        inline Radians const& operator[]( U32 i ) const { KRG_ASSERT( i < 3 ); return ( (Radians*) this )[i]; }
+        inline Radians& operator[]( uint32 i ) { KRG_ASSERT( i < 3 ); return ( (Radians*) this )[i]; }
+        inline Radians const& operator[]( uint32 i ) const { KRG_ASSERT( i < 3 ); return ( (Radians*) this )[i]; }
 
     public:
 
@@ -892,7 +892,7 @@ namespace KRG
 
         inline bool IsValid() const
         {
-            F32 const lengthSq = m_axis.x * m_axis.x + m_axis.y * m_axis.y + m_axis.z * m_axis.z;
+            float const lengthSq = m_axis.x * m_axis.x + m_axis.y * m_axis.y + m_axis.z * m_axis.z;
             return Math::Abs( lengthSq - 1.0f ) < Math::Epsilon;
         }
 

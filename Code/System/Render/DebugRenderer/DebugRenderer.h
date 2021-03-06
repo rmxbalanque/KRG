@@ -29,7 +29,7 @@ namespace KRG
             void DrawPoints( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::PointCommand> const& commands );
             void DrawLines( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::LineCommand> const& commands );
             void DrawTriangles( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TriangleCommand> const& commands );
-            void DrawText( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<U32> cmdRange );
+            void DrawText( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<uint32> cmdRange );
 
         private:
 
@@ -46,7 +46,7 @@ namespace KRG
 
             // Text rendering
             TVector<DebugFontGlyphVertex>               m_intermediateGlyphVertexData;
-            TVector<U16>                                m_intermediateGlyphIndexData;
+            TVector<uint16>                                m_intermediateGlyphIndexData;
         };
     }
 }

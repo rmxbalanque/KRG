@@ -15,7 +15,7 @@ namespace KRG
 
                 if ( cursorName == GetReflectionMacroText( ReflectionMacro::ExposeProperty ) )
                 {
-                    U32 lineNumber;
+                    uint32 lineNumber;
                     clang_getExpansionLocation( clang_getRangeStart( range ), nullptr, &lineNumber, nullptr, nullptr );
                     pContext->AddFoundExposedPropertyMacro( ExposedPropertyMacro( headerID, lineNumber ) );
                 }

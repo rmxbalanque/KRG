@@ -271,7 +271,7 @@ namespace KRG
 
         void FileSystemWatcher::ProcessPendingModificationEvents()
         {
-            for ( S32 i = (S32) m_pendingFileModificationEvents.size() - 1; i >= 0; i-- )
+            for ( int32 i = (int32) m_pendingFileModificationEvents.size() - 1; i >= 0; i-- )
             {
                 auto& pendingEvent = m_pendingFileModificationEvents[i];
 

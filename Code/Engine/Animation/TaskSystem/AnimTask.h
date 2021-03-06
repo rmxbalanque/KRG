@@ -14,20 +14,20 @@ namespace KRG
 
         public:
 
-            Task( S32 sourceID = InvalidIndex ) : m_taskSourceID( sourceID ) {}
+            Task( int32 sourceID = InvalidIndex ) : m_taskSourceID( sourceID ) {}
             virtual ~Task() {}
             virtual void Execute( TaskPoseStack& poseStack ) const = 0;
             virtual bool IsPostPhysicsTask() const { return false; }
 
             #if KRG_DEVELOPMENT_TOOLS
-            virtual S32 GetDependencyCount() const { return 0; }
+            virtual int32 GetDependencyCount() const { return 0; }
             virtual Color GetDebugColor() const { return Colors::Yellow; }
             virtual String GetDebugText() const { return String(); }
             #endif
 
         protected:
 
-            S32 m_taskSourceID;
+            int32 m_taskSourceID;
         };
     }
 }

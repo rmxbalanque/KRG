@@ -15,27 +15,27 @@ namespace KRG
         // Supports variable output bits (0-16)
 
         template<unsigned N>
-        inline U16 EncodeUnsignedNormalizedFloat( F32 value )
+        inline uint16 EncodeUnsignedNormalizedFloat( float value )
         {
             static_assert( N > 0, "Invalid number of bits specified" );
             static_assert( N <= 16, "Encoding into more than 16bits is not allowed" );
 
             KRG_ASSERT( value >= 0 && value <= 1.0f );
 
-            F32 const quantizedValue = value * ( ( 1 << ( N ) ) - 1 ) + 0.5f;
-            return U16( quantizedValue );
+            float const quantizedValue = value * ( ( 1 << ( N ) ) - 1 ) + 0.5f;
+            return uint16( quantizedValue );
         }
 
         template<unsigned N>
-        inline F32 DecodeUnsignedNormalizedFloat( U16 encodedValue )
+        inline float DecodeUnsignedNormalizedFloat( uint16 encodedValue )
         {
             static_assert( N > 0, "Invalid number of bits specified" );
             static_assert( N <= 16, "Decoding from more than 16bits is not allowed" );
-            return encodedValue / F32( ( 1 << ( N ) ) - 1 );
+            return encodedValue / float( ( 1 << ( N ) ) - 1 );
         }
 
         template<unsigned N>
-        inline U16 EncodeSignedNormalizedFloat( F32 value )
+        inline uint16 EncodeSignedNormalizedFloat( float value )
         {
             static_assert( N > 0, "Invalid number of bits specified" );
             static_assert( N <= 16, "Encoding into more than 16bits is not allowed" );
@@ -43,7 +43,7 @@ namespace KRG
             KRG_ASSERT( value >= -1.0f && value <= 1.0f );
 
             // Track the sign and create a unsigned normalized float
-            U16 sign = 0;
+            uint16 sign = 0;
             if ( value < 0 )
             {
                 sign = 1;
@@ -54,12 +54,12 @@ namespace KRG
         }
 
         template<unsigned N>
-        inline F32 DecodeSignedNormalizedFloat( U16 encodedValue )
+        inline float DecodeSignedNormalizedFloat( uint16 encodedValue )
         {
             static_assert( N > 0, "Invalid number of bits specified" );
             static_assert( N <= 16, "Decoding from more than 16bits is not allowed" );
 
-            F32 const sign = F32( encodedValue & 1 ? -1 : 1 );
+            float const sign = float( encodedValue & 1 ? -1 : 1 );
             return DecodeUnsignedNormalizedFloat<N - 1>( encodedValue >> 1 ) * sign;
         }
 
@@ -68,21 +68,21 @@ namespace KRG
         //-------------------------------------------------------------------------
         // 32 bit float to 16bit uint
 
-        inline U16 EncodeFloat( F32 value, F32 const quantizationRangeStartValue, F32 const quantizationRangeLength )
+        inline uint16 EncodeFloat( float value, float const quantizationRangeStartValue, float const quantizationRangeLength )
         {
             KRG_ASSERT( quantizationRangeLength != 0 );
 
-            F32 const normalizedValue = ( value - quantizationRangeStartValue ) / quantizationRangeLength;
-            U16 const encodedValue = EncodeUnsignedNormalizedFloat<16>( normalizedValue );
+            float const normalizedValue = ( value - quantizationRangeStartValue ) / quantizationRangeLength;
+            uint16 const encodedValue = EncodeUnsignedNormalizedFloat<16>( normalizedValue );
             return encodedValue;
         }
 
-        inline F32 DecodeFloat( U16 encodedValue, F32 const quantizationRangeStartValue, F32 const quantizationRangeLength )
+        inline float DecodeFloat( uint16 encodedValue, float const quantizationRangeStartValue, float const quantizationRangeLength )
         {
             KRG_ASSERT( quantizationRangeLength != 0 );
 
-            F32 const normalizedValue = DecodeUnsignedNormalizedFloat<16>( encodedValue );
-            F32 const decodedValue = ( normalizedValue * quantizationRangeLength ) + quantizationRangeStartValue;
+            float const normalizedValue = DecodeUnsignedNormalizedFloat<16>( encodedValue );
+            float const decodedValue = ( normalizedValue * quantizationRangeLength ) + quantizationRangeStartValue;
             return decodedValue;
         }
 
@@ -101,15 +101,15 @@ namespace KRG
 
         private:
 
-            static constexpr F32 const ValueRangeMin = -Math::OneDivSqrtTwo;
-            static constexpr F32 const ValueRangeMax = Math::OneDivSqrtTwo;
-            static constexpr F32 const ValueRangeLength = ValueRangeMax - ValueRangeMin;
+            static constexpr float const ValueRangeMin = -Math::OneDivSqrtTwo;
+            static constexpr float const ValueRangeMax = Math::OneDivSqrtTwo;
+            static constexpr float const ValueRangeLength = ValueRangeMax - ValueRangeMin;
 
         public:
 
             EncodedQuaternion() = default;
 
-            EncodedQuaternion( U16 const& a, U16 const& b, U16 const& c )
+            EncodedQuaternion( uint16 const& a, uint16 const& b, uint16 const& c )
                 : m_data0( a )
                 , m_data1( b )
                 , m_data2( c )
@@ -120,12 +120,12 @@ namespace KRG
                 KRG_ASSERT( value.IsNormalized() );
 
                 // X
-                U16 largestValueIndex = 0;
-                F32 maxAbsValue = Math::Abs( value.x );
-                F32 signMultiplier = ( value.x < 0 ) ? -1.0f : 1.0f;
+                uint16 largestValueIndex = 0;
+                float maxAbsValue = Math::Abs( value.x );
+                float signMultiplier = ( value.x < 0 ) ? -1.0f : 1.0f;
 
                 // Y
-                F32 absValue = Math::Abs( value.y );
+                float absValue = Math::Abs( value.y );
                 if ( absValue > maxAbsValue )
                 {
                     largestValueIndex = 1;
@@ -153,37 +153,37 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                static constexpr F32 const rangeMultiplier15Bit = F32( 0x7FFF ) / ValueRangeLength;
+                static constexpr float const rangeMultiplier15Bit = float( 0x7FFF ) / ValueRangeLength;
 
-                U16 a = 0, b = 0, c = 0;
+                uint16 a = 0, b = 0, c = 0;
 
                 if ( largestValueIndex == 0 )
                 {
-                    a = (U16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    b = (U16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    c = (U16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    a = (uint16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    b = (uint16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    c = (uint16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
                 }
                 else if ( largestValueIndex == 1 )
                 {
-                    a = (U16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    b = (U16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    c = (U16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    a = (uint16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    b = (uint16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    c = (uint16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
 
                     m_data1 = 0x8000; // 1 << 16
                 }
                 else if ( largestValueIndex == 2 )
                 {
-                    a = (U16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    b = (U16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    c = (U16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    a = (uint16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    b = (uint16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    c = (uint16) Math::RoundToInt( ( ( value.w * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
 
                     m_data0 = 0x8000; // 1 << 16
                 }
                 else if ( largestValueIndex == 3 )
                 {
-                    a = (U16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    b = (U16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
-                    c = (U16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    a = (uint16) Math::RoundToInt( ( ( value.x * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    b = (uint16) Math::RoundToInt( ( ( value.y * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
+                    c = (uint16) Math::RoundToInt( ( ( value.z * signMultiplier ) - ValueRangeMin ) * rangeMultiplier15Bit );
 
                     m_data0 = 0x8000; // 1 << 16
                     m_data1 = 0x8000; // 1 << 16
@@ -202,19 +202,19 @@ namespace KRG
 
             inline Quaternion ToQuaternion() const
             {
-                U16 const largestValueIndex = ( m_data0 >> 14 & 0x0002 ) | m_data1 >> 15;
-                U16 const da = m_data0 & 0x7FFF;
-                U16 const db = m_data1 & 0x7FFF;
-                U16 const dc = m_data2;
+                uint16 const largestValueIndex = ( m_data0 >> 14 & 0x0002 ) | m_data1 >> 15;
+                uint16 const da = m_data0 & 0x7FFF;
+                uint16 const db = m_data1 & 0x7FFF;
+                uint16 const dc = m_data2;
 
-                static constexpr F32 const rangeMultiplier15Bit = ValueRangeLength / F32( 0x7FFF );
-                F32 const a = ( da * rangeMultiplier15Bit ) + ValueRangeMin;
-                F32 const b = ( db * rangeMultiplier15Bit ) + ValueRangeMin;
-                F32 const c = ( dc * rangeMultiplier15Bit ) + ValueRangeMin;
+                static constexpr float const rangeMultiplier15Bit = ValueRangeLength / float( 0x7FFF );
+                float const a = ( da * rangeMultiplier15Bit ) + ValueRangeMin;
+                float const b = ( db * rangeMultiplier15Bit ) + ValueRangeMin;
+                float const c = ( dc * rangeMultiplier15Bit ) + ValueRangeMin;
 
-                F32 const sum = ( a * a + b * b + c * c );
+                float const sum = ( a * a + b * b + c * c );
                 KRG_ASSERT( sum <= 1.0f );
-                F32 const d = Math::Sqrt( 1.0f - sum );
+                float const d = Math::Sqrt( 1.0f - sum );
 
                 if ( largestValueIndex == 0 )
                 {
@@ -239,15 +239,15 @@ namespace KRG
                 }
             }
 
-            inline U16 GetData0() const { return m_data0; }
-            inline U16 GetData1() const { return m_data1; }
-            inline U16 GetData2() const { return m_data2; }
+            inline uint16 GetData0() const { return m_data0; }
+            inline uint16 GetData1() const { return m_data1; }
+            inline uint16 GetData2() const { return m_data2; }
 
         public:
 
-            U16 m_data0 = 0;
-            U16 m_data1 = 0;
-            U16 m_data2 = 0;
+            uint16 m_data0 = 0;
+            uint16 m_data1 = 0;
+            uint16 m_data2 = 0;
         };
     }
 }

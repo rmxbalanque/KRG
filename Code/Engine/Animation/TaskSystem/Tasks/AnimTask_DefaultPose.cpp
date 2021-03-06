@@ -8,7 +8,7 @@ namespace KRG
     {
         namespace Tasks
         {
-            DefaultPoseTask::DefaultPoseTask( S32 sourceNodeIdx, PoseType type )
+            DefaultPoseTask::DefaultPoseTask( int32 sourceNodeIdx, PoseType type )
                 : Task( sourceNodeIdx )
                 , m_type( type )
             {}

@@ -4,7 +4,7 @@
 
 namespace KRG
 {
-    Sphere::Sphere( Vector* points, U32 numPoints )
+    Sphere::Sphere( Vector* points, uint32 numPoints )
     {
         KRG_ASSERT( points != nullptr && numPoints > 0 );
 
@@ -12,7 +12,7 @@ namespace KRG
         Vector minX, maxX, minY, maxY, minZ, maxZ;
         minX = maxX = minY = maxY = minZ = maxZ = points[0];
 
-        for ( U32 i = 1u; i < numPoints; ++i )
+        for ( uint32 i = 1u; i < numPoints; ++i )
         {
             float px = points[i].x;
             float py = points[i].y;
@@ -91,7 +91,7 @@ namespace KRG
         }
 
         // Add any points not inside the sphere.
-        for ( U32 i = 0u; i < numPoints; ++i )
+        for ( uint32 i = 0u; i < numPoints; ++i )
         {
             Vector Delta = points[i] - m_center;
             Vector Dist =  Delta.Length3();
@@ -123,14 +123,14 @@ namespace KRG
         KRG_UNIMPLEMENTED_FUNCTION();
     }
 
-    AABB::AABB( Vector* points, U32 numPoints )
+    AABB::AABB( Vector* points, uint32 numPoints )
     {
         KRG_ASSERT( points != nullptr && numPoints > 0 );
 
         Vector min( FLT_MAX );
         Vector max( -FLT_MAX );
 
-        for ( U32 i = 0u; i < numPoints; i++ )
+        for ( uint32 i = 0u; i < numPoints; i++ )
         {
             min = Vector::Min( min, points[i] );
             max = Vector::Max( max, points[i] );
@@ -185,7 +185,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         Vector insideAll = SIMD::g_trueMask;
-        for ( U32 i = 0; i < 8; i++ )
+        for ( uint32 i = 0; i < 8; i++ )
         {
             Vector const c = box.m_center + box.m_orientation.RotateVector( box.m_extents * Vector::BoxCorners[i] );
             Vector const d = c.GetAbs();

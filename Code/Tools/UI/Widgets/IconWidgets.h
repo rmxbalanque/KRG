@@ -35,8 +35,8 @@ namespace KRG
     {
     public:
 
-        KIconLabel( QIcon const& icon, S32 w = 16, S32 h = 16 );
-        KIconLabel( ForkAwesome codePoint, S32 w = 16, S32 h = 16, QColor const& baseColor = QColor() );
-        KIconLabel( MaterialDesign codePoint, S32 w = 16, S32 h = 16, QColor const& baseColor = QColor() );
+        KIconLabel( QIcon const& icon, int32 w = 16, int32 h = 16 );
+        KIconLabel( ForkAwesome codePoint, int32 w = 16, int32 h = 16, QColor const& baseColor = QColor() );
+        KIconLabel( MaterialDesign codePoint, int32 w = 16, int32 h = 16, QColor const& baseColor = QColor() );
     };
 }

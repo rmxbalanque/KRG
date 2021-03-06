@@ -64,8 +64,8 @@ namespace KRG
 
         QVariant ActiveRequestsViewModel::data( const QModelIndex& index, int role ) const
         {
-            S32 const row = index.row();
-            S32 const column = index.column();
+            int32 const row = index.row();
+            int32 const column = index.column();
 
             auto pRequest = m_requests[row];
 

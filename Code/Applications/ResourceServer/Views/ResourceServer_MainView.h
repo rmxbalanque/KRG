@@ -23,7 +23,7 @@ namespace KRG
 
         signals:
 
-            void ChangePageIndex( S32 pageIdx );
+            void ChangePageIndex( int32 pageIdx );
 
         public:
 
@@ -31,7 +31,7 @@ namespace KRG
 
         private slots:
 
-            void OnChangePageIndex( S32 pageIdx );
+            void OnChangePageIndex( int32 pageIdx );
 
             QWidget* CreateCompilerPage( ResourceServer& resourceServer );
             QWidget* CreateRequestsPage( ResourceServer& resourceServer );

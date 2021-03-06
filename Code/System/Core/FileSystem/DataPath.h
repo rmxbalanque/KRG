@@ -51,7 +51,7 @@ namespace KRG
         // Accessors
         inline bool IsValid() const { return !m_path.empty() && IsValidDataPath( m_path ); }
         inline void Clear() { m_path.clear(); m_ID = 0; }
-        inline U32 GetID() const { return m_ID; }
+        inline uint32 GetID() const { return m_ID; }
 
         // Extension
         String GetExtension() const;
@@ -74,7 +74,7 @@ namespace KRG
     private:
 
         String              m_path;
-        U32                 m_ID = 0;
+        uint32                 m_ID = 0;
     };
 }
 

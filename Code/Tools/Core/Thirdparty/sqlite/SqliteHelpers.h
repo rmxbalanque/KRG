@@ -19,7 +19,7 @@ namespace KRG
         {
         protected:
 
-            static U32 const constexpr s_defaultStatementBufferSize = 8096;
+            static uint32 const constexpr s_defaultStatementBufferSize = 8096;
 
         public:
 

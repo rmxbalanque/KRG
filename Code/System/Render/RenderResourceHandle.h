@@ -10,7 +10,7 @@ namespace KRG
     {
         struct ResourceHandle
         {
-            enum class Type : U8
+            enum class Type : uint8
             {
                 None,
                 Buffer,

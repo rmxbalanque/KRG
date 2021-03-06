@@ -10,7 +10,7 @@ namespace KRG
 {
     namespace Render
     {
-        enum class DataSemantic : U8
+        enum class DataSemantic : uint8
         {
             Position = 0,
             Normal,
@@ -24,7 +24,7 @@ namespace KRG
             None,
         };
 
-        enum class DataTypeFormat : U8
+        enum class DataTypeFormat : uint8
         {
             UInt_R8 = 0,
             UInt_R8G8,
@@ -52,7 +52,7 @@ namespace KRG
             Unknown,
         };
 
-        KRG_SYSTEM_RENDER_API U32 GetDataTypeFormatByteSize( DataTypeFormat format );
+        KRG_SYSTEM_RENDER_API uint32 GetDataTypeFormatByteSize( DataTypeFormat format );
 
         //-------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ namespace KRG
 
                 ElementDescriptor() = default;
 
-                ElementDescriptor( DataSemantic semantic, DataTypeFormat format, U16 semanticIndex, U16 offset ) : m_semantic( semantic )
+                ElementDescriptor( DataSemantic semantic, DataTypeFormat format, uint16 semanticIndex, uint16 offset ) : m_semantic( semantic )
                     , m_format( format )
                     , m_semanticIndex( semanticIndex )
                     , m_offset( offset )
@@ -83,8 +83,8 @@ namespace KRG
 
                 DataSemantic        m_semantic = DataSemantic::None;
                 DataTypeFormat      m_format = DataTypeFormat::Unknown;
-                U16                 m_semanticIndex = 0;
-                U16                 m_offset = 0;
+                uint16                 m_semanticIndex = 0;
+                uint16                 m_offset = 0;
             };
 
         public:
@@ -95,7 +95,7 @@ namespace KRG
         public:
 
             TInlineVector<ElementDescriptor, 6>     m_elementDescriptors;
-            U32                                     m_byteSize = 0;             // The total byte size per vertex
+            uint32                                     m_byteSize = 0;             // The total byte size per vertex
         };
 
         //-------------------------------------------------------------------------

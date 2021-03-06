@@ -66,15 +66,15 @@ namespace KRG
                     const FbxTakeInfo* pTakeInfo = sceneCtx.m_pScene->GetTakeInfo( pAnimStack->GetNameWithoutNameSpacePrefix() );
                     if ( pTakeInfo )
                     {
-                        pRawAnimation->m_start = (F32) pTakeInfo->mLocalTimeSpan.GetStart().GetSecondDouble();
-                        pRawAnimation->m_end = (F32) pTakeInfo->mLocalTimeSpan.GetStop().GetSecondDouble();
+                        pRawAnimation->m_start = (float) pTakeInfo->mLocalTimeSpan.GetStart().GetSecondDouble();
+                        pRawAnimation->m_end = (float) pTakeInfo->mLocalTimeSpan.GetStop().GetSecondDouble();
                     }
                     else // Take the time line value
                     {
                         FbxTimeSpan timeLineSpan;
                         sceneCtx.m_pScene->GetGlobalSettings().GetTimelineDefaultTimeSpan( timeLineSpan );
-                        pRawAnimation->m_start = (F32) timeLineSpan.GetStart().GetSecondDouble();
-                        pRawAnimation->m_end = (F32) timeLineSpan.GetStop().GetSecondDouble();
+                        pRawAnimation->m_start = (float) timeLineSpan.GetStart().GetSecondDouble();
+                        pRawAnimation->m_end = (float) timeLineSpan.GetStop().GetSecondDouble();
                     }
 
                     FbxTime const duration = pTakeInfo->mLocalTimeSpan.GetDuration();
@@ -82,9 +82,9 @@ namespace KRG
                     double frameRate = duration.GetFrameRate( mode );
 
                     // Set sampling rate and allocate memory
-                    pRawAnimation->m_samplingFrameRate = (F32) duration.GetFrameRate( mode );
-                    F32 const samplingTimeStep = 1.0f / pRawAnimation->m_samplingFrameRate;
-                    pRawAnimation->m_numFrames = (U32) Math::Floor( pRawAnimation->GetDuration() / samplingTimeStep ) + 1;
+                    pRawAnimation->m_samplingFrameRate = (float) duration.GetFrameRate( mode );
+                    float const samplingTimeStep = 1.0f / pRawAnimation->m_samplingFrameRate;
+                    pRawAnimation->m_numFrames = (uint32) Math::Floor( pRawAnimation->GetDuration() / samplingTimeStep ) + 1;
 
                     // Read animation data
                     //-------------------------------------------------------------------------
@@ -101,9 +101,9 @@ namespace KRG
 
             static void ReadTrackData( Fbx::FbxSceneContext const& sceneCtx, FbxRawAnimation& rawAnimation )
             {
-                S32 const numBones = rawAnimation.m_skeleton.GetNumBones();
-                F32 const samplingTimeStep = 1.0f / rawAnimation.m_samplingFrameRate;
-                U32 const maxKeys = rawAnimation.m_numFrames * 3;
+                int32 const numBones = rawAnimation.m_skeleton.GetNumBones();
+                float const samplingTimeStep = 1.0f / rawAnimation.m_samplingFrameRate;
+                uint32 const maxKeys = rawAnimation.m_numFrames * 3;
 
                 rawAnimation.m_tracks.resize( numBones );
 
@@ -135,7 +135,7 @@ namespace KRG
                         animTrack.m_transforms.reserve( maxKeys );
 
                         // Sample animation data
-                        F32 currentTime = rawAnimation.m_start;
+                        float currentTime = rawAnimation.m_start;
                         for ( auto l = 0u; l < rawAnimation.m_numFrames; l++, currentTime += samplingTimeStep )
                         {
                             // Get bone transform at current time, and store components per track

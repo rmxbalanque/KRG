@@ -23,12 +23,12 @@ namespace KRG
 
             public:
 
-                DefaultPoseTask( S32 sourceNodeIdx, PoseType type );
+                DefaultPoseTask( int32 sourceNodeIdx, PoseType type );
                 virtual void Execute( TaskPoseStack& poseStack ) const override;
 
                 #if KRG_DEVELOPMENT_TOOLS
                 virtual String GetDebugText() const override { return "Default Pose Task"; }
-                virtual S32 GetDependencyCount() const { return 0; }
+                virtual int32 GetDependencyCount() const { return 0; }
                 virtual Color GetDebugColor() const { return Colors::LightGray; }
                 #endif
 

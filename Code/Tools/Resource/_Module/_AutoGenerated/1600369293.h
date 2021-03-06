@@ -126,7 +126,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Resource::ResourceDescriptor*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
@@ -134,7 +134,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Resource::ResourceDescriptor*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property

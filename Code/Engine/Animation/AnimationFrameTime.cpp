@@ -9,7 +9,7 @@ namespace KRG
         FrameTime FrameTime::operator+( Percentage const& RHS ) const
         {
             FrameTime newTime = *this;
-            S32 loopCount;
+            int32 loopCount;
             Percentage newPercent = m_percentageThrough + RHS;
             newPercent.GetLoopCountAndNormalizedTime( loopCount, newTime.m_percentageThrough );
             newTime.m_frameIndex += loopCount;
@@ -18,7 +18,7 @@ namespace KRG
 
         FrameTime& FrameTime::operator+=( Percentage const& RHS )
         {
-            S32 loopCount;
+            int32 loopCount;
             Percentage newPercent = m_percentageThrough + RHS;
             newPercent.GetLoopCountAndNormalizedTime( loopCount, m_percentageThrough );
             m_frameIndex += loopCount;
@@ -29,7 +29,7 @@ namespace KRG
         {
             FrameTime newTime = *this;
 
-            S32 loopCount;
+            int32 loopCount;
             Percentage newPercent = m_percentageThrough - RHS;
             newPercent.GetLoopCountAndNormalizedTime( loopCount, newTime.m_percentageThrough );
 
@@ -44,7 +44,7 @@ namespace KRG
 
         FrameTime& FrameTime::operator-=( Percentage const& RHS )
         {
-            S32 loopCount;
+            int32 loopCount;
             Percentage newPercent = m_percentageThrough - RHS;
             newPercent.GetLoopCountAndNormalizedTime( loopCount, m_percentageThrough );
 

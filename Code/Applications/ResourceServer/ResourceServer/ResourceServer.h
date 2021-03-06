@@ -26,10 +26,10 @@ namespace KRG
 
             struct ClientRecord
             {
-                explicit ClientRecord( U64 clientID ) : m_clientID( clientID ) { KRG_ASSERT( clientID != 0 ); }
+                explicit ClientRecord( uint64 clientID ) : m_clientID( clientID ) { KRG_ASSERT( clientID != 0 ); }
 
                 Seconds                             m_lastUpdateTime = SystemClock::GetTimeInSeconds();
-                U64                                 m_clientID = 0;
+                uint64                                 m_clientID = 0;
             };
 
         signals:
@@ -67,8 +67,8 @@ namespace KRG
 
             inline bool IsBusy() const { return m_pendingRequests.size() + m_activeRequests.size() > 0; }
 
-            inline S32 GetNumWorkers() const { return (S32) m_workers.size(); }
-            inline CompilationRequest* GetActiveRequestForWorker( U32 workerIdx ) const { KRG_ASSERT( workerIdx < (U32) GetNumWorkers() ); return m_workers[workerIdx]->GetActiveRequest(); }
+            inline int32 GetNumWorkers() const { return (int32) m_workers.size(); }
+            inline CompilationRequest* GetActiveRequestForWorker( uint32 workerIdx ) const { KRG_ASSERT( workerIdx < (uint32) GetNumWorkers() ); return m_workers[workerIdx]->GetActiveRequest(); }
 
         private slots:
 
@@ -81,10 +81,10 @@ namespace KRG
             // Compiler Info
             bool HasCompilerForType( ResourceTypeID typeID ) const;
             bool IsVirtualResource( ResourceTypeID typeID ) const;
-            S32 GetCompilerVersion( ResourceTypeID typeID ) const;
+            int32 GetCompilerVersion( ResourceTypeID typeID ) const;
 
             // Request Actions
-            CompilationRequest const* ProcessResourceRequest( ResourceID const& resourceID, U64 clientID = 0 );
+            CompilationRequest const* ProcessResourceRequest( ResourceID const& resourceID, uint64 clientID = 0 );
             void NotifyClientOnCompletedRequest( CompilationRequest* pRequest );
 
             // Up-to-date system
@@ -114,7 +114,7 @@ namespace KRG
             FileSystemPath                          m_compiledResourceDatabasePath;
             String                                  m_networkAddress;
             String                                  m_workerFullPath;
-            U32                                     m_maxSimultaneousCompilationTasks = 16;
+            uint32                                     m_maxSimultaneousCompilationTasks = 16;
 
             // Compiler list
             TVector<CompilerInfo>                   m_compilers;

@@ -24,9 +24,9 @@ namespace KRG
 
                 TypeSystem::EnumInfo enumInfo;
                 enumInfo.m_ID = TypeSystem::TypeID( "KRG::Render::Mobility" );
-                enumInfo.m_underlyingType = TypeSystem::CoreTypes::S32;
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Dynamic" ), 1 ) );
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Static" ), 0 ) );
+                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int32;
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Dynamic" ), 1 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Static" ), 0 ) );
 
                 typeRegistry.RegisterEnum( enumInfo );
             }

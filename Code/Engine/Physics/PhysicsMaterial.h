@@ -31,11 +31,11 @@ namespace KRG::Physics
         EXPOSE StringID                    m_name;
 
         // The friction coefficients - [0, FloatMax]
-        EXPOSE F32                         m_dynamicFriction = 0.5f;
-        EXPOSE F32                         m_staticFriction = 0.5f;
+        EXPOSE float                         m_dynamicFriction = 0.5f;
+        EXPOSE float                         m_staticFriction = 0.5f;
 
         // The amount of restitution (bounciness) - [0,1]
-        EXPOSE F32                         m_restitution = 0.0f;
+        EXPOSE float                         m_restitution = 0.0f;
 
         // How material properties will be combined on collision
         EXPOSE PhysicMaterialCombineMode   m_frictionCombineMode = PhysicMaterialCombineMode::Average;
@@ -53,6 +53,8 @@ namespace KRG::Physics
         KRG_SERIALIZE_NONE();
 
     public:
+
+        PhysicsMaterial( StringID name ) : m_name( name ) { KRG_ASSERT( name.IsValid() ); }
 
         virtual bool IsValid() const override;
 

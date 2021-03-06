@@ -49,7 +49,7 @@ namespace KRG
 
             Skeleton skeleton;
 
-            S32 const numFbxBones = pRawSkeleton->GetNumBones();
+            int32 const numFbxBones = pRawSkeleton->GetNumBones();
             for ( auto fbxBoneIdx = 0; fbxBoneIdx < numFbxBones; fbxBoneIdx++ )
             {
                 auto const& boneData = pRawSkeleton->GetBoneData( fbxBoneIdx );

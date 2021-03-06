@@ -15,9 +15,9 @@ namespace KRG
             inline bool IsValid() const { return m_resourceID.IsValid(); }
 
             ResourceID      m_resourceID;
-            S32             m_compilerVersion = -1;         // The compiler version used for the last compilation
-            U64             m_fileTimestamp = 0;            // The timestamp of the resource file
-            U64             m_sourceTimestampHash = 0;      // The timestamp hash of any source assets used in the compilation
+            int32             m_compilerVersion = -1;         // The compiler version used for the last compilation
+            uint64             m_fileTimestamp = 0;            // The timestamp of the resource file
+            uint64             m_sourceTimestampHash = 0;      // The timestamp hash of any source assets used in the compilation
         };
 
         //-------------------------------------------------------------------------

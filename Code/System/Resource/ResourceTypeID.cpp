@@ -17,7 +17,7 @@ namespace KRG
 
         for ( size_t x = 0; x < numChars; x++ )
         {
-            m_ID |= (U32) toupper( pStr[x] ) << ( numChars - 1 - x ) * 8;
+            m_ID |= (uint32) toupper( pStr[x] ) << ( numChars - 1 - x ) * 8;
         }
     }
 }

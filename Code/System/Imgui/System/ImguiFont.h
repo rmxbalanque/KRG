@@ -11,7 +11,7 @@ struct ImFont;
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
-    enum class Font : U8
+    enum class Font : uint8
     {
         Small = 0,
         Medium,
@@ -26,9 +26,9 @@ namespace KRG::ImGuiX
 
     struct SystemFonts
     {
-        static ImFont* GetFont( Font font ) { return s_fonts[(S32) font]; }
+        static ImFont* GetFont( Font font ) { return s_fonts[(int32) font]; }
 
-        static ImFont* s_fonts[(S32) Font::NumFonts];
+        static ImFont* s_fonts[(int32) Font::NumFonts];
     };
 
     //-------------------------------------------------------------------------

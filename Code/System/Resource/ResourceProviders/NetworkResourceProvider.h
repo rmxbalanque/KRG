@@ -19,7 +19,7 @@ namespace KRG
 
         public:
 
-            NetworkResourceProvider( char const* pAddress, U32 port );
+            NetworkResourceProvider( char const* pAddress, uint32 port );
 
             virtual bool IsReady() const override final;
 

@@ -29,7 +29,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, String const& nameOfMeshToCompile = String() );
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, S32 maxBoneInfluences = 4 );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, int32 maxBoneInfluences = 4 );
 
         KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, String const& skeletonRootBoneName = String() );
         KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawAnimation> ReadAnimation( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName = String() );

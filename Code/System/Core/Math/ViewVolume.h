@@ -29,14 +29,14 @@ namespace KRG
             enum class ProjectionType { Orthographic, Perspective };
             enum class IntersectionResult { FullyOutside = 0, FullyInside, Intersects };
 
-            inline static Radians ConvertVerticalToHorizontalFOV( F32 width, F32 height, Radians VerticalAngle )
+            inline static Radians ConvertVerticalToHorizontalFOV( float width, float height, Radians VerticalAngle )
             {
                 KRG_ASSERT( !Math::IsNearlyZero( height ) );
                 Radians const horizontalFOV = 2.0f * Math::ATan( width / height * Math::Tan( VerticalAngle / 2.0f ) );
                 return horizontalFOV;
             }
 
-            inline static Radians ConvertHorizontalToVerticalFOV( F32 width, F32 height, Radians HorizontalAngle )
+            inline static Radians ConvertHorizontalToVerticalFOV( float width, float height, Radians HorizontalAngle )
             {
                 KRG_ASSERT( !Math::IsNearlyZero( width ) );
                 Radians const verticalFOV = 2.0f * Math::ATan( height / width * Math::Tan( HorizontalAngle / 2.0f ) );
@@ -46,14 +46,14 @@ namespace KRG
         public:
 
             ViewVolume() {} // Warning: Leaves most members uninitialized!
-            ViewVolume( Float2 const& viewDimensions, TRange<F32> depthRange, Matrix const& worldMatrix = Matrix::Identity );
-            ViewVolume( Float2 const& viewDimensions, TRange<F32> depthRange, Radians FOV, Matrix const& worldMatrix = Matrix::Identity );
+            ViewVolume( Float2 const& viewDimensions, TRange<float> depthRange, Matrix const& worldMatrix = Matrix::Identity );
+            ViewVolume( Float2 const& viewDimensions, TRange<float> depthRange, Radians FOV, Matrix const& worldMatrix = Matrix::Identity );
 
             bool IsValid() const;
 
             void SetWorldMatrix( Matrix const& worldTransform );
             void SetView( Float3 const& position, Float3 const& viewDir, Float3 const& upDir );
-            void SetDepthRange( TRange<F32> depthRange );
+            void SetDepthRange( TRange<float> depthRange );
             void SetViewDimensions( Float2 dimensions );
             void SetHorizontalFOV( Radians FOV );
 
@@ -63,9 +63,9 @@ namespace KRG
             inline bool IsPerspective() const { return m_type == ProjectionType::Perspective; }
             inline bool IsOrthographic() const { return m_type == ProjectionType::Orthographic; }
 
-            inline TRange<F32> GetDepthRange() const { return m_depthRange; }
+            inline TRange<float> GetDepthRange() const { return m_depthRange; }
             inline Float2 GetViewDimensions() const { return m_viewDimensions; }
-            inline F32 GetAspectRatio() const { return m_viewDimensions.x / m_viewDimensions.y; }
+            inline float GetAspectRatio() const { return m_viewDimensions.x / m_viewDimensions.y; }
             inline Radians GetFOV() const { KRG_ASSERT( IsPerspective() ); return m_FOV; }
 
             // Spatial Info
@@ -86,8 +86,8 @@ namespace KRG
             // View Planes
             //-------------------------------------------------------------------------
 
-            inline Plane const& GetViewPlane( PlaneID p ) const { return GetViewPlane( (U32) p ); }
-            inline Plane const& GetViewPlane( U32 p ) const { KRG_ASSERT( p < 6 ); return m_viewPlanes[p]; }
+            inline Plane const& GetViewPlane( PlaneID p ) const { return GetViewPlane( (uint32) p ); }
+            inline Plane const& GetViewPlane( uint32 p ) const { KRG_ASSERT( p < 6 ); return m_viewPlanes[p]; }
             inline void GetCorners( Vector corners[8] ) const; // The first 4 points are the near plane corners, the last 4 are the far plane corners
 
             // Bounds and Intersection tests
@@ -129,7 +129,7 @@ namespace KRG
 
             Float2                  m_viewDimensions = Float2::Zero;        // The dimensions of the view volume
             Radians                 m_FOV = 0.0f;                           // The horizontal field of view angle (only for perspective projection)
-            TRange<F32>             m_depthRange = TRange<F32>( 0 );        // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
+            TRange<float>             m_depthRange = TRange<float>( 0 );        // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
             ProjectionType          m_type = ProjectionType::Perspective;   // The projection type
         };
     }

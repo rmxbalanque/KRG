@@ -80,9 +80,9 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        U32 InputSystem::GetNumConnectedControllers()
+        uint32 InputSystem::GetNumConnectedControllers()
         {
-            U32 numControllers = 0;
+            uint32 numControllers = 0;
             for ( auto pDevice : m_inputDevices )
             {
                 if ( pDevice->GetDeviceCategory() == DeviceCategory::Controller )
@@ -98,9 +98,9 @@ namespace KRG
             return numControllers;
         }
 
-        ControllerInputDevice const* InputSystem::GetControllerDevice( U32 controllerIdx ) const
+        ControllerInputDevice const* InputSystem::GetControllerDevice( uint32 controllerIdx ) const
         {
-            U32 currentControllerIdx = 0;
+            uint32 currentControllerIdx = 0;
             for ( auto pDevice : m_inputDevices )
             {
                 if ( pDevice->GetDeviceCategory() == DeviceCategory::Controller )

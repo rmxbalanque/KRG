@@ -104,8 +104,8 @@ namespace KRG::EntityModel
         ToolEntityComponent* CreateChildComponent( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo, UUID const& ID = UUID::GenerateID(), StringID const& name = StringID() );
         
         void AddChildComponent( ToolEntityComponent* pComponent);
-        ToolEntityComponent* RemoveChildComponent( S32 childComponentIdx );
-        void DestroyChildComponent( S32 childComponentIdx );
+        ToolEntityComponent* RemoveChildComponent( int32 childComponentIdx );
+        void DestroyChildComponent( int32 childComponentIdx );
 
     private:
 

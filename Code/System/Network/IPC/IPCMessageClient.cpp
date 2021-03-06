@@ -64,7 +64,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            bool Client::WaitForMessage( Message& message, S32 timeout )
+            bool Client::WaitForMessage( Message& message, int32 timeout )
             {
                 KRG_ASSERT( m_pSocket != nullptr );
 
@@ -94,10 +94,10 @@ namespace KRG
 
             void Client::SendMessageToServer( Message const& message )
             {
-                S32 result = zmq_send( m_pSocket, message.m_data.data(), message.m_data.size(), 0 );
+                int32 result = zmq_send( m_pSocket, message.m_data.data(), message.m_data.size(), 0 );
                 if ( result == -1 )
                 {
-                    S32 const error = zmq_errno();
+                    int32 const error = zmq_errno();
                     KRG_LOG_ERROR( "Network", "ZMQ failed to send message: %s", zmq_strerror( error ) );
                 }
             }

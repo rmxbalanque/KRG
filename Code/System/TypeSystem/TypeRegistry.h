@@ -47,7 +47,7 @@ namespace KRG
 
             bool IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const;
 
-            TVector<TypeInfo const*> GetAllTypesWithMatchingMetadata( TFlags<ETypeInfoMetaData> metadataFlags ) const;
+            TVector<TypeInfo const*> GetAllTypesWithMatchingMetadata( TBitFlags<ETypeInfoMetaData> metadataFlags ) const;
 
             //-------------------------------------------------------------------------
             // Enums

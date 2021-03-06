@@ -45,6 +45,6 @@ namespace KRG::TypeSystem
         String                                                      m_scratchBuffer = String( 256, '0' );
         Serialization::RapidJsonStringBuffer                        m_stringBuffer;
         rapidjson::Writer<Serialization::RapidJsonStringBuffer>     m_writer = rapidjson::Writer<Serialization::RapidJsonStringBuffer>( m_stringBuffer );
-        S32                                                         m_numTypesSerialized = 0;
+        int32                                                       m_numTypesSerialized = 0;
     };
 }

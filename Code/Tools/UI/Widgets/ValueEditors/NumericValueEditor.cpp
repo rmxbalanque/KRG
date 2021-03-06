@@ -9,7 +9,7 @@ namespace KRG
 {
     namespace ValueEditors
     {
-        SignedIntegerEditor::SignedIntegerEditor( S64 value )
+        SignedIntegerEditor::SignedIntegerEditor( int64 value )
             : ValueEditorBase()
             , m_value( value )
         {
@@ -24,7 +24,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onValueChanged = [this] ( S64 newValue )
+            auto onValueChanged = [this] ( int64 newValue )
             {
                 if ( m_enableInputChangeHandlers )
                 {
@@ -32,12 +32,12 @@ namespace KRG
                 }
             };
 
-            connect( m_pSpinBox, QOverload<S64>::of( &KLongLongSpinBox::valueChanged ), this, onValueChanged );
+            connect( m_pSpinBox, QOverload<int64>::of( &KLongLongSpinBox::valueChanged ), this, onValueChanged );
         }
 
-        void SignedIntegerEditor::SetValueInternal( S64 newValue )
+        void SignedIntegerEditor::SetValueInternal( int64 newValue )
         {
-            S64 const oldValue = m_value;
+            int64 const oldValue = m_value;
             m_value = newValue;
 
             {
@@ -49,7 +49,7 @@ namespace KRG
             emit OnValueChanged( m_value, oldValue );
         }
 
-        void SignedIntegerEditor::SetRange( S64 min, S64 max )
+        void SignedIntegerEditor::SetRange( int64 min, int64 max )
         {
             m_pSpinBox->setRange( min, max );
         }
@@ -61,7 +61,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        UnsignedIntegerEditor::UnsignedIntegerEditor( U64 value )
+        UnsignedIntegerEditor::UnsignedIntegerEditor( uint64 value )
             : ValueEditorBase()
             , m_value( value )
         {
@@ -76,7 +76,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onValueChanged = [this] ( U64 newValue )
+            auto onValueChanged = [this] ( uint64 newValue )
             {
                 if ( m_enableInputChangeHandlers )
                 {
@@ -84,12 +84,12 @@ namespace KRG
                 }
             };
 
-            connect( m_pSpinBox, QOverload<U64>::of( &KULongLongSpinBox::valueChanged ), this, onValueChanged );
+            connect( m_pSpinBox, QOverload<uint64>::of( &KULongLongSpinBox::valueChanged ), this, onValueChanged );
         }
 
-        void UnsignedIntegerEditor::SetValueInternal( U64 newValue )
+        void UnsignedIntegerEditor::SetValueInternal( uint64 newValue )
         {
-            U64 const oldValue = m_value;
+            uint64 const oldValue = m_value;
             m_value = newValue;
 
             {
@@ -101,7 +101,7 @@ namespace KRG
             emit OnValueChanged( m_value, oldValue );
         }
 
-        void UnsignedIntegerEditor::SetRange( U64 min, U64 max )
+        void UnsignedIntegerEditor::SetRange( uint64 min, uint64 max )
         {
             m_pSpinBox->setRange( min, max );
         }
@@ -113,7 +113,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        FloatingPointEditor::FloatingPointEditor( F64 value )
+        FloatingPointEditor::FloatingPointEditor( double value )
             : ValueEditorBase()
             , m_value( value )
         {
@@ -129,7 +129,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onValueChanged = [this] ( F64 newValue )
+            auto onValueChanged = [this] ( double newValue )
             {
                 if ( m_enableInputChangeHandlers )
                 {
@@ -137,12 +137,12 @@ namespace KRG
                 }
             };
 
-            connect( m_pSpinBox, QOverload<F64>::of( &QDoubleSpinBox::valueChanged ), this, onValueChanged );
+            connect( m_pSpinBox, QOverload<double>::of( &QDoubleSpinBox::valueChanged ), this, onValueChanged );
         }
 
-        void FloatingPointEditor::SetValueInternal( F64 newValue )
+        void FloatingPointEditor::SetValueInternal( double newValue )
         {
-            F64 const oldValue = m_value;
+            double const oldValue = m_value;
             m_value = newValue;
 
             {
@@ -154,7 +154,7 @@ namespace KRG
             emit OnValueChanged( m_value, oldValue );
         }
 
-        void FloatingPointEditor::SetRange( F64 min, F64 max )
+        void FloatingPointEditor::SetRange( double min, double max )
         {
             m_pSpinBox->setRange( min, max );
         }

@@ -44,18 +44,18 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        inline F32 ScalarProjectionOnLine( Vector const point ) const
+        inline float ScalarProjectionOnLine( Vector const point ) const
         {
             auto const dot = Vector::Dot3( ( point - m_startPoint ), m_direction );
             return dot.ToFloat();
         }
 
-        inline Vector GetPointAlongLine( F32 distanceFromStartPoint ) const 
+        inline Vector GetPointAlongLine( float distanceFromStartPoint ) const 
         { 
             return Vector::MultiplyAdd( m_direction, Vector( distanceFromStartPoint ), m_startPoint );
         }
 
-        inline Vector VectorProjectionOnLine( Vector const point, F32& outScalarResolute ) const
+        inline Vector VectorProjectionOnLine( Vector const point, float& outScalarResolute ) const
         {
             outScalarResolute = ScalarProjectionOnLine( point );
             return GetPointAlongLine( outScalarResolute );
@@ -63,7 +63,7 @@ namespace KRG
 
         inline Vector GetClosestPointOnLine( Vector const& point ) const
         {
-            F32 scalarResolute;
+            float scalarResolute;
             return VectorProjectionOnLine( point, scalarResolute );
         }
 
@@ -72,7 +72,7 @@ namespace KRG
             return Vector( ScalarProjectionOnLine( point ) );
         }
 
-        inline F32 GetDistanceBetweenLineAndPoint( Vector const& point ) const
+        inline float GetDistanceBetweenLineAndPoint( Vector const& point ) const
         {
             Vector const closestPointOnLine = GetClosestPointOnLine( point );
             return closestPointOnLine.GetDistance3( point );
@@ -105,26 +105,26 @@ namespace KRG
         {}
 
         inline Vector GetEndPoint() const { return m_endPoint; }
-        inline F32 GetLength() const { return m_length.ToFloat(); }
+        inline float GetLength() const { return m_length.ToFloat(); }
 
         //-------------------------------------------------------------------------
 
-        inline F32 ScalarProjectionOnSegment( Vector const point ) const
+        inline float ScalarProjectionOnSegment( Vector const point ) const
         {
             auto const dot = Vector::Dot3( ( point - m_startPoint ), m_direction );
-            F32 distance = Math::Clamp( dot.ToFloat(), 0.0f, GetLength() );
+            float distance = Math::Clamp( dot.ToFloat(), 0.0f, GetLength() );
             return distance;
         }
 
         // Returns a point on the segment at the desired percentage between start and end points
-        inline Vector GetPointOnSegment( F32 percentageAlongSegment ) const
+        inline Vector GetPointOnSegment( float percentageAlongSegment ) const
         {
             KRG_ASSERT( percentageAlongSegment >= 0 && percentageAlongSegment <= 1.0f );
             Vector const distance = m_length * percentageAlongSegment;
             return Vector::MultiplyAdd( m_direction, distance, m_startPoint );
         }
 
-        inline Vector VectorProjectionOnSegment( Vector const point, F32& outScalarResolute ) const
+        inline Vector VectorProjectionOnSegment( Vector const point, float& outScalarResolute ) const
         {
             outScalarResolute = ScalarProjectionOnSegment( point );
             return GetPointAlongLine( outScalarResolute );
@@ -132,7 +132,7 @@ namespace KRG
 
         inline Vector GetClosestPointOnSegment( Vector point ) const
         {
-            F32 scalarResolute;
+            float scalarResolute;
             return VectorProjectionOnSegment( point, scalarResolute );
         }
 
@@ -141,7 +141,7 @@ namespace KRG
             return Vector( ScalarProjectionOnSegment( point ) );
         }
 
-        inline F32 GetDistanceBetweenSegmentAndPoint( Vector point ) const
+        inline float GetDistanceBetweenSegmentAndPoint( Vector point ) const
         {
             Vector const closestPointOnSegment = GetClosestPointOnSegment( point );
             return closestPointOnSegment.GetDistance3( point );
@@ -206,30 +206,30 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        inline F32 ScalarProjectionOnRay( Vector const point ) const
+        inline float ScalarProjectionOnRay( Vector const point ) const
         {
             auto const dot = Vector::Dot3( ( point - m_startPoint ), m_direction );
-            F32 const distance = Math::Max( 0.f, dot.ToFloat() );
+            float const distance = Math::Max( 0.f, dot.ToFloat() );
             return distance;
         }
 
-        inline Vector GetPointAlongRay( F32 distanceFromStartPoint ) const 
+        inline Vector GetPointAlongRay( float distanceFromStartPoint ) const 
         { 
             KRG_ASSERT( distanceFromStartPoint >= 0.0f );
             return Vector::MultiplyAdd( m_direction, Vector( distanceFromStartPoint ), m_startPoint );
         }
 
-        inline Vector VectorProjectionOnRay( Vector const point, F32& outScalarResolute ) const
+        inline Vector VectorProjectionOnRay( Vector const point, float& outScalarResolute ) const
         {
             outScalarResolute = ScalarProjectionOnRay( point );
             return GetPointAlongRay( outScalarResolute );
         }
 
-        inline F32 GetDistanceAlongRay( Vector const point ) const { return ScalarProjectionOnRay( point ); }
+        inline float GetDistanceAlongRay( Vector const point ) const { return ScalarProjectionOnRay( point ); }
 
         inline Vector GetClosestPointOnRay( Vector const point ) const 
         { 
-            F32 scalarResolute;
+            float scalarResolute;
             return VectorProjectionOnRay( point, scalarResolute );
         }
 
@@ -251,7 +251,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        inline LineSegment ToLineSegment( F32 length ) const
+        inline LineSegment ToLineSegment( float length ) const
         { 
             LineSegment segment;
             segment.m_startPoint = m_startPoint;

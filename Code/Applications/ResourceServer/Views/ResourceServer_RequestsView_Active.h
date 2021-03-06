@@ -28,7 +28,7 @@ namespace KRG
             ActiveRequestsViewModel() = default;
 
             void UpdateRequests( TVector<CompilationRequest const*> const* pPendingRequests, TVector<CompilationRequest const*> const* pActiveRequests );
-            inline CompilationRequest const* GetRequest( S32 index ) const { return m_requests[index]; }
+            inline CompilationRequest const* GetRequest( int32 index ) const { return m_requests[index]; }
 
         private:
 

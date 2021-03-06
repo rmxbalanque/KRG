@@ -200,7 +200,7 @@ namespace KRG
             return SUCCEEDED( DeleteFileA( filePath ) );
         }
 
-        U64 GetFileModifiedTime( FileSystemPath const& filePath )
+        uint64 GetFileModifiedTime( FileSystemPath const& filePath )
         {
             auto file = CreateFileA( filePath, GENERIC_READ, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
             if ( file != INVALID_HANDLE_VALUE )

@@ -20,7 +20,7 @@ namespace KRG
 
         class ShaderCompiler : public Resource::Compiler
         {
-            static const S32 VERSION = 1;
+            static const int32 VERSION = 1;
 
         public:
 

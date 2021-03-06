@@ -9,9 +9,9 @@ namespace KRG
 {
     namespace
     {
-        static F32 const g_lookSpeed = Math::Pi;
-        static F32 const g_moveSpeed = 10.0f; // 10 m/s
-        static TRange<F32> const g_moveSpeedLimits( 0.5f, 100 );
+        static float const g_lookSpeed = Math::Pi;
+        static float const g_moveSpeed = 10.0f; // 10 m/s
+        static TRange<float> const g_moveSpeedLimits( 0.5f, 100 );
     }
 
     UpdatePriorityList const DefaultPlayerController::PriorityList = UpdatePriorityList().EnableUpdateStage( UpdateStage::FrameStart );
@@ -87,7 +87,7 @@ namespace KRG
             m_currentMoveSpeed = g_moveSpeed;
         }
 
-        S32 const wheelDelta = pMouseState->GetWheelDelta();
+        int32 const wheelDelta = pMouseState->GetWheelDelta();
         m_currentMoveSpeed = g_moveSpeedLimits.GetClampedValue( m_currentMoveSpeed + ( wheelDelta * 0.5f ) );
 
         // Position update

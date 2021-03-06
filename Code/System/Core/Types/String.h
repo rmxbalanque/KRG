@@ -25,16 +25,16 @@ namespace KRG
     // Additional utility functions for string class
     //-------------------------------------------------------------------------
 
-    inline S32 VPrintf( char* pBuffer, U32 bufferSize, char const* pMessageFormat, va_list args )
+    inline int32 VPrintf( char* pBuffer, uint32 bufferSize, char const* pMessageFormat, va_list args )
     {
         return vsnprintf( pBuffer, size_t( bufferSize ), pMessageFormat, args );
     }
 
-    inline S32 Printf( char* pBuffer, U32 bufferSize, char const* pMessageFormat, ... )
+    inline int32 Printf( char* pBuffer, uint32 bufferSize, char const* pMessageFormat, ... )
     {
         va_list args;
         va_start( args, pMessageFormat );
-        S32 const numChars = VPrintf( pBuffer, size_t( bufferSize ), pMessageFormat, args );
+        int32 const numChars = VPrintf( pBuffer, size_t( bufferSize ), pMessageFormat, args );
         va_end( args );
         return numChars;
     }
@@ -46,7 +46,7 @@ namespace KRG
         inline String ReplaceAllOccurrences( String const& originalString, char const* pSearchString, char const* pReplacement )
         {
             KRG_ASSERT( pSearchString != nullptr );
-            S32 const searchLength = (S32) strlen( pSearchString );
+            int32 const searchLength = (int32) strlen( pSearchString );
             if ( originalString.empty() || searchLength == 0 )
             {
                 return originalString;
@@ -66,7 +66,7 @@ namespace KRG
         inline String& ReplaceAllOccurrencesInPlace( String& originalString, char const* pSearchString, char const* pReplacement )
         {
             KRG_ASSERT( pSearchString != nullptr );
-            S32 const searchLength = (S32) strlen( pSearchString );
+            int32 const searchLength = (int32) strlen( pSearchString );
             if ( originalString.empty() || searchLength == 0 )
             {
                 return originalString;
@@ -131,7 +131,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        inline U32 StrToU32( String const& str )
+        inline uint32 StrToU32( String const& str )
         {
             char* pEnd;
             auto result = strtoul( str.c_str(), &pEnd, 10 );
@@ -139,7 +139,7 @@ namespace KRG
             return result;
         }
 
-        inline U64 StrToU64( String const& str )
+        inline uint64 StrToU64( String const& str )
         {
             char* pEnd;
             auto result = strtoull( str.c_str(), &pEnd, 10 );
@@ -147,7 +147,7 @@ namespace KRG
             return result;
         }
 
-        inline S32 StrToS32( String const& str )
+        inline int32 StrToS32( String const& str )
         {
             char* pEnd;
             auto result = strtol( str.c_str(), &pEnd, 10 );
@@ -155,7 +155,7 @@ namespace KRG
             return result;
         }
 
-        inline S64 StrToS64( String const& str )
+        inline int64 StrToS64( String const& str )
         {
             char* pEnd;
             auto result = strtoll( str.c_str(), &pEnd, 10 );
@@ -163,7 +163,7 @@ namespace KRG
             return result;
         }
 
-        inline F32 StrToF32( String const& str )
+        inline float StrToF32( String const& str )
         {
             char* pEnd;
             auto result = strtof( str.c_str(), &pEnd );
@@ -171,7 +171,7 @@ namespace KRG
             return result;
         }
 
-        inline F64 StrToF64( String const& str )
+        inline double StrToF64( String const& str )
         {
             char* pEnd;
             auto result = strtod( str.c_str(), &pEnd );

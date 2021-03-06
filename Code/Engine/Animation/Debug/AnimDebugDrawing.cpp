@@ -7,7 +7,7 @@ namespace KRG
 {
     namespace Animation
     {
-        void DrawLocalTransforms( Debug::DrawingContext& drawingContext, TVector<Transform> const& transforms, TVector<S32> const& parentIndices, Transform const& worldTransform, Color color0, Color color1 )
+        void DrawLocalTransforms( Debug::DrawingContext& drawingContext, TVector<Transform> const& transforms, TVector<int32> const& parentIndices, Transform const& worldTransform, Color color0, Color color1 )
         {
             auto const numBones = transforms.size();
             if ( numBones > 0 )
@@ -67,8 +67,8 @@ namespace KRG
 
         void DrawRootMotionGizmo( Debug::DrawingContext& drawingContext, Transform const& transform, Color color )
         {
-            static F32 const gizmoRadius = 0.35f;
-            static F32 const arrowGap = 0.01f;
+            static float const gizmoRadius = 0.35f;
+            static float const arrowGap = 0.01f;
             Transform const rootMotionMatrix = transform;
 
             Vector fwdDir = rootMotionMatrix.GetAxisY();
@@ -78,7 +78,7 @@ namespace KRG
             drawingContext.DrawArrow( arrowStartPos, fwdDir, gizmoRadius, color );
         }
 
-        void DrawRootMotionPath( Debug::DrawingContext& drawingContext, TVector<Transform> const& rootMotionTransforms, Transform const& worldTransform, Color const& color0, Color const& color1, F32 axisSize /*= 0.25f */ )
+        void DrawRootMotionPath( Debug::DrawingContext& drawingContext, TVector<Transform> const& rootMotionTransforms, Transform const& worldTransform, Color const& color0, Color const& color1, float axisSize /*= 0.25f */ )
         {
             if ( rootMotionTransforms.empty() )
             {

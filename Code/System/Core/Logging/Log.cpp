@@ -19,7 +19,7 @@ namespace KRG
                 TVector<LogEntry>               m_logEntries;
                 TVector<LogEntry>               m_unhandledWarningsAndErrors;
                 Threading::Mutex                m_mutex;
-                S32                             m_fatalErrorIndex = InvalidIndex;
+                int32                             m_fatalErrorIndex = InvalidIndex;
             };
 
             static LogData* g_pLog = nullptr;
@@ -74,7 +74,7 @@ namespace KRG
 
                 if ( severity == Severity::FatalError )
                 {
-                    g_pLog->m_fatalErrorIndex = (S32) g_pLog->m_logEntries.size();
+                    g_pLog->m_fatalErrorIndex = (int32) g_pLog->m_logEntries.size();
                 }
                 
                 auto& entry = g_pLog->m_logEntries.emplace_back( LogEntry() );
@@ -95,7 +95,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
                 // This uses a less verbose format, if you want more info look at the saved log
 
-                Printf( msgbuffer, 1024, "[%s][%s][%s] %s", entry.m_timestamp.c_str(), g_severityLabels[(S32) entry.m_severity], entry.m_channel.c_str(), entry.m_message.c_str() );
+                Printf( msgbuffer, 1024, "[%s][%s][%s] %s", entry.m_timestamp.c_str(), g_severityLabels[(int32) entry.m_severity], entry.m_channel.c_str(), entry.m_message.c_str() );
 
                 // Print to debug trace
                 KRG_TRACE_MSG( msgbuffer );
@@ -127,7 +127,7 @@ namespace KRG
             std::lock_guard<std::mutex> lock( g_pLog->m_mutex );
             for ( auto const& entry : g_pLog->m_logEntries )
             {
-                Printf( buffer, 1024, "[%s] %s >>> %s: %s, Source: %s, %i\r\n", entry.m_timestamp.c_str(), entry.m_channel.c_str(), g_severityLabels[(S32) entry.m_severity], entry.m_message.c_str(), entry.m_filename.c_str(), entry.m_lineNumber );
+                Printf( buffer, 1024, "[%s] %s >>> %s: %s, Source: %s, %i\r\n", entry.m_timestamp.c_str(), entry.m_channel.c_str(), g_severityLabels[(int32) entry.m_severity], entry.m_message.c_str(), entry.m_filename.c_str(), entry.m_lineNumber );
                 logData.append( buffer );
             }
 

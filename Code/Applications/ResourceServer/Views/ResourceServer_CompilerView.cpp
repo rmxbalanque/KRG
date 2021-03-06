@@ -26,7 +26,7 @@ namespace KRG
 
                 size_t const numTypes = compilerInfo.m_outputTypes.size();
                 QString typesList;
-                for ( S32 i = 0; i < numTypes; i++ )
+                for ( int32 i = 0; i < numTypes; i++ )
                 {
                     typesList.append( compilerInfo.m_outputTypes[i].ToString().c_str() );
                     if ( i != numTypes - 1 )

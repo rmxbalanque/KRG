@@ -126,7 +126,7 @@ namespace KRG::EntityModel
         }
     }
 
-    ToolEntityComponent* ToolEntity::RemoveComponent( S32 componentIdx )
+    ToolEntityComponent* ToolEntity::RemoveComponent( int32 componentIdx )
     {
         KRG_ASSERT( IsValid() && componentIdx >= 0 && componentIdx < m_components.size() );
 
@@ -145,7 +145,7 @@ namespace KRG::EntityModel
         return pComponent;
     }
 
-    void ToolEntity::DestroyComponent( S32 componentIdx )
+    void ToolEntity::DestroyComponent( int32 componentIdx )
     {
         KRG_ASSERT( IsValid() && componentIdx >= 0 && componentIdx < m_components.size() );
 
@@ -190,7 +190,7 @@ namespace KRG::EntityModel
         m_systems.emplace_back( pSystem );
     }
 
-    ToolEntitySystem* ToolEntity::RemoveSystem( S32 systemIdx )
+    ToolEntitySystem* ToolEntity::RemoveSystem( int32 systemIdx )
     {
         KRG_ASSERT( IsValid() && systemIdx >= 0 && systemIdx < m_systems.size() );
         auto pSystem = m_systems[systemIdx];
@@ -200,7 +200,7 @@ namespace KRG::EntityModel
         return pSystem;
     }
 
-    void ToolEntity::DestroySystem( S32 systemIdx )
+    void ToolEntity::DestroySystem( int32 systemIdx )
     {
         KRG_ASSERT( IsValid() && systemIdx >= 0 && systemIdx < m_systems.size() );
         KRG::Delete( m_systems[systemIdx] );
@@ -224,7 +224,7 @@ namespace KRG::EntityModel
         m_childEntities.emplace_back( pEntity );
     }
 
-    ToolEntity* ToolEntity::RemoveChildEntity( S32 childEntityIdx )
+    ToolEntity* ToolEntity::RemoveChildEntity( int32 childEntityIdx )
     {
         KRG_ASSERT( IsValid() && childEntityIdx >= 0 && childEntityIdx < m_childEntities.size() );        
         auto pEntity = m_childEntities[childEntityIdx];
@@ -234,7 +234,7 @@ namespace KRG::EntityModel
         return pEntity;
     }
 
-    void ToolEntity::DestroyChildEntity( S32 childEntityIdx )
+    void ToolEntity::DestroyChildEntity( int32 childEntityIdx )
     {
         KRG_ASSERT( IsValid() && childEntityIdx >= 0 && childEntityIdx < m_childEntities.size() );
         KRG::Delete( m_childEntities[childEntityIdx] );

@@ -27,7 +27,7 @@ namespace KRG
             struct RecordedCmdBuffer
             {
                 TVector<ImDrawCmd>          m_cmdBuffer;
-                U32                         m_numVertices;
+                uint32                         m_numVertices;
             };
 
         public:

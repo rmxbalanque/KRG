@@ -54,7 +54,7 @@ namespace KRG
 
             // Buffers
             void CreateBuffer( RenderBuffer& buffer, void const* pInitializationData = nullptr );
-            void ResizeBuffer( RenderBuffer& buffer, U32 newSize );
+            void ResizeBuffer( RenderBuffer& buffer, uint32 newSize );
             void DestroyBuffer( RenderBuffer& buffer );
 
             // Vertex shader input mappings
@@ -95,7 +95,7 @@ namespace KRG
         private:
 
             Int2                        m_resolution;
-            U32                         m_refreshRate;
+            uint32                         m_refreshRate;
             bool                        m_fullscreen;
 
             // Device Core 

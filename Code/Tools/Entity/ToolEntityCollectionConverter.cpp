@@ -111,7 +111,7 @@ namespace KRG::EntityModel
             // Fix component parenting
             //-------------------------------------------------------------------------
 
-            for ( S32 i = (S32) components.size() - 1; i >= 0; i-- )
+            for ( int32 i = (int32) components.size() - 1; i >= 0; i-- )
             {
                 if ( !components[i].m_pComponent->IsSpatialComponent() )
                 {
@@ -126,7 +126,7 @@ namespace KRG::EntityModel
                     }
 
                     // Try to find parent component
-                    for ( S32 p = 0; p < (S32) components.size(); p++ )
+                    for ( int32 p = 0; p < (int32) components.size(); p++ )
                     {
                         // if we found the parent component, add this component to its parent and delete its entry
                         if ( components[p].m_pComponent->GetID() == components[i].m_pDesc->m_spatialParentID )
@@ -221,7 +221,7 @@ namespace KRG::EntityModel
         // Fix parenting and add to collection
         //-------------------------------------------------------------------------
 
-        for ( S32 i = (S32) entities.size() - 1; i >= 0; i-- )
+        for ( int32 i = (int32) entities.size() - 1; i >= 0; i-- )
         {
             if ( entities[i].m_pEntity->IsSpatialEntity() )
             {
@@ -230,7 +230,7 @@ namespace KRG::EntityModel
                     bool parentEntityFound = false;
 
                     // Try to find parent component
-                    for ( S32 p = 0; p < (S32) entities.size(); p++ )
+                    for ( int32 p = 0; p < (int32) entities.size(); p++ )
                     {
                         // If we found the parent entity, add this entity to its parent and delete its entry
                         if ( entities[p].m_pEntity->GetID() == entities[i].m_pDesc->m_spatialParentID )

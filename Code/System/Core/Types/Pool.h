@@ -75,7 +75,7 @@ namespace KRG
 
             if ( idx < m_firstFreeBufferIdx )
             {
-                m_firstFreeBufferIdx = (S32) idx;
+                m_firstFreeBufferIdx = (int32) idx;
             }
         }
 
@@ -90,7 +90,7 @@ namespace KRG
 
     private:
 
-        S32                                             m_firstFreeBufferIdx = InvalidIndex;
+        int32                                             m_firstFreeBufferIdx = InvalidIndex;
         TInlineVector<Buffer, MinimumPoolSize>          m_pool;
     };
 }

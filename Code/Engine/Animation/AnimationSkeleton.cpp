@@ -11,12 +11,12 @@ namespace KRG
             return !m_boneIDs.empty() && ( m_boneIDs.size() == m_parentMap.size() ) && ( m_boneIDs.size() == m_referencePose.size() );
         }
 
-        Transform Skeleton::GetBoneGlobalTransform( S32 idx ) const
+        Transform Skeleton::GetBoneGlobalTransform( int32 idx ) const
         {
             KRG_ASSERT( idx >= 0 && idx < m_referencePose.size() );
 
             Transform boneGlobalTransform = m_referencePose[idx];
-            S32 parentIdx = GetParentIndex( idx );
+            int32 parentIdx = GetParentIndex( idx );
 
             while ( parentIdx != InvalidIndex )
             {

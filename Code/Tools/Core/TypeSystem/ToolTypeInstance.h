@@ -87,7 +87,7 @@ namespace KRG::TypeSystem
         //-------------------------------------------------------------------------
 
         inline bool HasProperties() const { return !m_childProperties.empty(); }
-        inline S32 GetNumProperties() const { return (S32) m_childProperties.size(); }
+        inline int32 GetNumProperties() const { return (int32) m_childProperties.size(); }
         inline TVector<ToolPropertyInstance>& GetProperties() { return m_childProperties; }
         inline TVector<ToolPropertyInstance> const& GetProperties() const { return m_childProperties; }
 
@@ -102,8 +102,8 @@ namespace KRG::TypeSystem
 
         TVector<char const*> GetEnumValues() const;
         bool IsValidEnumStringValue( char const* pString );
-        S64 GetIntForEnumStringValue( char const* pString );
-        char const* GetStringValueForEnumValue( S64 value );
+        int64 GetIntForEnumStringValue( char const* pString );
+        char const* GetStringValueForEnumValue( int64 value );
 
         // Resource values
         //-------------------------------------------------------------------------
@@ -118,43 +118,43 @@ namespace KRG::TypeSystem
         inline bool IsDynamicArray() const { return m_propertyInfo.IsDynamicArrayProperty(); }
         inline bool IsArrayElement() const { return m_arrayElementIdx != InvalidIndex; }
 
-        inline S32 GetArrayElementIndex() const
+        inline int32 GetArrayElementIndex() const
         {
             KRG_ASSERT( m_arrayElementIdx != InvalidIndex );
             return m_arrayElementIdx;
         }
 
-        inline S32 GetNumArrayElements() const
+        inline int32 GetNumArrayElements() const
         {
             KRG_ASSERT( IsArray() );
-            return (S32) m_childProperties.size();
+            return (int32) m_childProperties.size();
         }
 
-        inline S32 GetNumDefaultArrayElements() const
+        inline int32 GetNumDefaultArrayElements() const
         {
             KRG_ASSERT( IsArray() );
             return m_propertyInfo.m_arraySize;
         }
 
-        inline bool IsValidArrayElementIndex( S32 elementIdx ) const
+        inline bool IsValidArrayElementIndex( int32 elementIdx ) const
         {
             KRG_ASSERT( IsArray() );
-            return elementIdx >= 0 && elementIdx < (S32) m_childProperties.size();
+            return elementIdx >= 0 && elementIdx < (int32) m_childProperties.size();
         }
 
-        inline ToolPropertyInstance& GetArrayElement( S32 elementIdx )
-        {
-            KRG_ASSERT( IsArray() );
-            return m_childProperties[elementIdx];
-        }
-
-        inline ToolPropertyInstance const& GetArrayElement( S32 elementIdx ) const
+        inline ToolPropertyInstance& GetArrayElement( int32 elementIdx )
         {
             KRG_ASSERT( IsArray() );
             return m_childProperties[elementIdx];
         }
 
-        void SetNumArrayElements( S32 numElements );
+        inline ToolPropertyInstance const& GetArrayElement( int32 elementIdx ) const
+        {
+            KRG_ASSERT( IsArray() );
+            return m_childProperties[elementIdx];
+        }
+
+        void SetNumArrayElements( int32 numElements );
 
         inline void AddArrayElement()
         {
@@ -162,7 +162,7 @@ namespace KRG::TypeSystem
             AddArrayElementInternal();
         }
 
-        void RemoveArrayElement( S32 elementIdx );
+        void RemoveArrayElement( int32 elementIdx );
 
         // Values
         //-------------------------------------------------------------------------
@@ -222,7 +222,7 @@ namespace KRG::TypeSystem
         TypeRegistry const*                             m_pTypeRegistry = nullptr;
         PropertyInfo                                    m_propertyInfo; // Only valid for actual properties
         TypeInfo const*                                 m_pTypeInfo = nullptr;  // If this is a struct/class instance, we stored the type info here
-        S32                                                         m_arrayElementIdx = InvalidIndex; // Only set if this is an element in an array
+        int32                                                         m_arrayElementIdx = InvalidIndex; // Only set if this is an element in an array
         String                                                      m_friendlyName;
         String                                                      m_value;
         String                                                      m_defaultValue;

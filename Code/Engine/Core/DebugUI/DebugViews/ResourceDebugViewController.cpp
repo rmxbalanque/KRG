@@ -61,7 +61,7 @@ namespace KRG::Resource
 
                 //-------------------------------------------------------------------------
 
-                for ( auto i = (S32) m_pResourceSystem->m_history.size() - 1; i >= 0; i-- )
+                for ( auto i = (int32) m_pResourceSystem->m_history.size() - 1; i >= 0; i-- )
                 {
                     auto const& entry = m_pResourceSystem->m_history[i];
 

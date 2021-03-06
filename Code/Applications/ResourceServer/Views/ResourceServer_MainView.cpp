@@ -63,7 +63,7 @@ namespace KRG
             connect( this, &MainViewWidget::ChangePageIndex, this, &MainViewWidget::OnChangePageIndex );
         }
 
-        void MainViewWidget::OnChangePageIndex( S32 pageIdx )
+        void MainViewWidget::OnChangePageIndex( int32 pageIdx )
         {
             KRG_ASSERT( m_pStackedLayout != nullptr && pageIdx < m_pStackedLayout->count() );
             m_pStackedLayout->setCurrentIndex( pageIdx );

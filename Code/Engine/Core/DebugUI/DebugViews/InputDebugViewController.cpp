@@ -12,21 +12,21 @@ namespace KRG
     {
         namespace
         {
-            static U32 const g_controlOutlineColor = 0xFF666666;
-            static U32 const g_controlFillColor = 0xFF888888;
+            static uint32 const g_controlOutlineColor = 0xFF666666;
+            static uint32 const g_controlFillColor = 0xFF888888;
 
-            static F32 const g_buttonWidth = 20;
-            static F32 const g_buttonBorderThickness = 2.0f;
-            static F32 const g_buttonBorderRounding = 4.0f;
+            static float const g_buttonWidth = 20;
+            static float const g_buttonBorderThickness = 2.0f;
+            static float const g_buttonBorderRounding = 4.0f;
 
-            static F32 const g_analogStickRangeRadius = 50;
-            static F32 const g_analogStickPositionRadius = 2;
+            static float const g_analogStickRangeRadius = 50;
+            static float const g_analogStickPositionRadius = 2;
 
             static Float2 const g_buttonBorderOffset( g_buttonBorderThickness );
             static Float2 const g_buttonDimensions( g_buttonWidth, g_buttonWidth );
         }
 
-        static void DrawButton( ImDrawList* pDrawList, Float2 const& position, Float2 const& dimensions, char const* const pLabel, bool IsHeldDown, U32 buttonColor = g_controlOutlineColor, U32 pressedColor = g_controlFillColor )
+        static void DrawButton( ImDrawList* pDrawList, Float2 const& position, Float2 const& dimensions, char const* const pLabel, bool IsHeldDown, uint32 buttonColor = g_controlOutlineColor, uint32 pressedColor = g_controlFillColor )
         {
             KRG_ASSERT( pDrawList != nullptr );
             Float2 const buttonTopLeft = position;
@@ -67,14 +67,14 @@ namespace KRG
             pDrawList->AddRect( triggerTopLeft, triggerBottomRight, g_controlOutlineColor, 0.0f, ~0, g_buttonBorderThickness );
 
             // Draw the trigger values
-            F32 const triggerValueRaw = isLeftTrigger ? controllerState.GetLeftTriggerRawValue() : controllerState.GetRightTriggerRawValue();
+            float const triggerValueRaw = isLeftTrigger ? controllerState.GetLeftTriggerRawValue() : controllerState.GetRightTriggerRawValue();
             if ( triggerValueRaw > 0 )
             {
-                F32 triggerValue0;
-                U32 triggerValue0Color;
+                float triggerValue0;
+                uint32 triggerValue0Color;
 
-                F32 triggerValue1;
-                U32 triggerValue1Color;
+                float triggerValue1;
+                uint32 triggerValue1Color;
 
                 if ( isLeftTrigger )
                 {
@@ -91,12 +91,12 @@ namespace KRG
                     triggerValue1Color = 0xFF0000FF;
                 }
 
-                F32 const valueMaxLength = borderDimensions.y - ( g_buttonBorderThickness * 2 );
-                F32 const triggerValueWidth = ( borderDimensions.x - g_buttonBorderThickness * 2 ) / 2;
-                F32 const triggerValue0TopLeftX = drawPosition.x + g_buttonBorderThickness;
-                F32 const triggerValue1TopLeftX = triggerValue0TopLeftX + triggerValueWidth;
-                F32 const triggerValue0TopLeftY = drawPosition.y + g_buttonBorderThickness + ( 1.0f - triggerValue0 ) * valueMaxLength;
-                F32 const triggerValue1TopLeftY = drawPosition.y + g_buttonBorderThickness + ( 1.0f - triggerValue1 ) * valueMaxLength;
+                float const valueMaxLength = borderDimensions.y - ( g_buttonBorderThickness * 2 );
+                float const triggerValueWidth = ( borderDimensions.x - g_buttonBorderThickness * 2 ) / 2;
+                float const triggerValue0TopLeftX = drawPosition.x + g_buttonBorderThickness;
+                float const triggerValue1TopLeftX = triggerValue0TopLeftX + triggerValueWidth;
+                float const triggerValue0TopLeftY = drawPosition.y + g_buttonBorderThickness + ( 1.0f - triggerValue0 ) * valueMaxLength;
+                float const triggerValue1TopLeftY = drawPosition.y + g_buttonBorderThickness + ( 1.0f - triggerValue1 ) * valueMaxLength;
 
                 Float2 const triggerValue0TopLeft( triggerValue0TopLeftX, triggerValue0TopLeftY );
                 Float2 const triggerValue0BottomRight( triggerValue1TopLeftX, triggerBottomRight.y - g_buttonBorderThickness );
@@ -123,8 +123,8 @@ namespace KRG
             filteredValue.y = -filteredValue.y;
 
             // Draw max stick range and dead zone range
-            F32 const innerDeadZoneRadius = g_analogStickRangeRadius * ( isLeftStick ? settings.m_leftStickInnerDeadzone : settings.m_rightStickInnerDeadzone );
-            F32 const outerDeadZoneRadius = g_analogStickRangeRadius * ( 1.0f - ( isLeftStick ? settings.m_leftStickOuterDeadzone : settings.m_rightStickOuterDeadzone ) );
+            float const innerDeadZoneRadius = g_analogStickRangeRadius * ( isLeftStick ? settings.m_leftStickInnerDeadzone : settings.m_rightStickInnerDeadzone );
+            float const outerDeadZoneRadius = g_analogStickRangeRadius * ( 1.0f - ( isLeftStick ? settings.m_leftStickOuterDeadzone : settings.m_rightStickOuterDeadzone ) );
             Float2 const analogStickCenter = position + Float2( g_analogStickRangeRadius );
             pDrawList->AddCircle( analogStickCenter, g_analogStickRangeRadius, g_controlFillColor, 20 );
             pDrawList->AddCircleFilled( analogStickCenter, outerDeadZoneRadius, g_controlFillColor, 20 );
@@ -181,7 +181,7 @@ namespace KRG
             Float2 const SecondRowTopLeft = Float2( FirstRowTopLeft.x, FirstRowTopLeft.y + totalSize.y );
 
             // D-Pad
-            F32 const upButtonTopLeft = SecondRowTopLeft.x + ( g_buttonWidth + 9 + g_analogStickRangeRadius ) - g_buttonWidth / 2;
+            float const upButtonTopLeft = SecondRowTopLeft.x + ( g_buttonWidth + 9 + g_analogStickRangeRadius ) - g_buttonWidth / 2;
 
             drawPosition = Float2( upButtonTopLeft, SecondRowTopLeft.y );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "Up", controllerState.IsHeldDown( Input::ControllerButton::DPadUp ) );
@@ -193,7 +193,7 @@ namespace KRG
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "Dn", controllerState.IsHeldDown( Input::ControllerButton::DPadDown ) );
 
             // Face Buttons
-            F32 const topFaceButtonTopLeft = SecondRowTopLeft.x + ( ( g_buttonWidth + g_analogStickRangeRadius ) - g_buttonWidth / 2 ) * 2 + 34 + ( g_buttonWidth * 2 );
+            float const topFaceButtonTopLeft = SecondRowTopLeft.x + ( ( g_buttonWidth + g_analogStickRangeRadius ) - g_buttonWidth / 2 ) * 2 + 34 + ( g_buttonWidth * 2 );
 
             drawPosition = Float2( topFaceButtonTopLeft, SecondRowTopLeft.y );
             DrawButton( pDrawList, drawPosition, g_buttonDimensions, "Y", controllerState.IsHeldDown( Input::ControllerButton::FaceButtonUp ), 0xFF00FFFF );
@@ -234,12 +234,12 @@ namespace KRG
                     auto pInputSystem = context.GetSystem<InputSystem>();
                     KRG_ASSERT( pInputSystem != nullptr );
 
-                    U32 const numControllers = pInputSystem->GetNumConnectedControllers();
+                    uint32 const numControllers = pInputSystem->GetNumConnectedControllers();
                     if ( numControllers > 0 )
                     {
                         char buffer[256];
                         bool noControllersConnected = true;
-                        for ( U32 i = 0u; i < numControllers; i++ )
+                        for ( uint32 i = 0u; i < numControllers; i++ )
                         {
 
                             Printf( buffer, 256, "Show Controller State: %d", i );
@@ -274,8 +274,8 @@ namespace KRG
             char buffer[256];
 
             // Draw the open controller windows
-            S32 const numControllers = (S32) m_openControllerWindows.size();
-            for ( S32 i = numControllers - 1; i >= 0; i-- )
+            int32 const numControllers = (int32) m_openControllerWindows.size();
+            for ( int32 i = numControllers - 1; i >= 0; i-- )
             {
                 // Draw the window
                 Printf( buffer, 256, "Controller State: Controller %d", i );

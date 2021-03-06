@@ -197,7 +197,7 @@ namespace KRG
 
                 // Get the real mobility of the component
                 Mobility realMobility = pRecord->m_pComponent->GetMobility();
-                S32 const mobilityListIdx = VectorFindIndex( m_mobilityUpdateList, pRecord->m_pComponent );
+                int32 const mobilityListIdx = VectorFindIndex( m_mobilityUpdateList, pRecord->m_pComponent );
                 if ( mobilityListIdx != InvalidIndex )
                 {
                     realMobility = ( realMobility == Mobility::Dynamic ) ? Mobility::Static : Mobility::Dynamic;

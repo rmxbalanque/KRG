@@ -62,8 +62,8 @@ namespace KRG::EntityModel
         // Create component spatial hierarchy
         //-------------------------------------------------------------------------
 
-        S32 const numComponents = (S32) pEntity->m_components.size();
-        for ( S32 spatialComponentIdx = 0; spatialComponentIdx < entityDesc.m_numSpatialComponents; spatialComponentIdx++ )
+        int32 const numComponents = (int32) pEntity->m_components.size();
+        for ( int32 spatialComponentIdx = 0; spatialComponentIdx < entityDesc.m_numSpatialComponents; spatialComponentIdx++ )
         {
             auto const& spatialComponentDesc = entityDesc.m_components[spatialComponentIdx];
             KRG_ASSERT( spatialComponentDesc.IsSpatialComponent() );
@@ -76,7 +76,7 @@ namespace KRG::EntityModel
             }
 
             // Todo: profile this lookup and if it becomes too costly, pre-compute the parent indices and serialize them
-            S32 const parentComponentIdx = entityDesc.FindComponentIndex( spatialComponentDesc.m_spatialParentID );
+            int32 const parentComponentIdx = entityDesc.FindComponentIndex( spatialComponentDesc.m_spatialParentID );
             KRG_ASSERT( parentComponentIdx != InvalidIndex );
 
             auto pParentSpatialComponent = static_cast<SpatialEntityComponent*>( pEntity->m_components[parentComponentIdx] );
@@ -86,7 +86,6 @@ namespace KRG::EntityModel
                 pSpatialComponent->m_pSpatialParent = pParentSpatialComponent;
 
                 pParentSpatialComponent->m_spatialChildren.emplace_back( pSpatialComponent );
-                break;
             }
         }
 
@@ -175,14 +174,14 @@ namespace KRG::EntityModel
                 , m_descriptors( descriptors )
                 , m_targetCollection( targetCollection )
             {
-                m_SetSize = (U32) descriptors.size();
+                m_SetSize = (uint32) descriptors.size();
                 m_MinRange = 10;
             }
 
-            virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
+            virtual void ExecuteRange( TaskSetPartition range, uint32 threadnum ) override final
             {
                 KRG_PROFILE_SCOPE_SCENE( "Entity Creation Task" );
-                for ( U64 i = range.start; i < range.end; ++i )
+                for ( uint64 i = range.start; i < range.end; ++i )
                 {
                     m_targetCollection.m_entities[i] = EntityCollection::CreateEntityFromDescriptor( m_typeRegistry, m_descriptors[i] );
                 }

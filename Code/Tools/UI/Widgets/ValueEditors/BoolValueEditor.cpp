@@ -22,7 +22,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onValueChanged = [this]( S32 newState )
+            auto onValueChanged = [this]( int32 newState )
             {
                 if ( m_enableInputChangeHandlers )
                 {

@@ -12,7 +12,7 @@ namespace KRG
     namespace Fbx
     {
         KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( FileSystemPath const& sourceFilePath, String const& nameOfMeshToCompile = String() );
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( FileSystemPath const& sourceFilePath, S32 maxBoneInfluences = 4 );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( FileSystemPath const& sourceFilePath, int32 maxBoneInfluences = 4 );
     }
 }
 #endif

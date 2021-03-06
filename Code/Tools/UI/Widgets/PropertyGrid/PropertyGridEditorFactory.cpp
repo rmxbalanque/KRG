@@ -44,16 +44,16 @@ namespace KRG
                     }
                     break;
 
-                    case TypeSystem::CoreTypes::U8:
-                    case TypeSystem::CoreTypes::U16:
-                    case TypeSystem::CoreTypes::U32:
-                    case TypeSystem::CoreTypes::U64:
-                    case TypeSystem::CoreTypes::S8:
-                    case TypeSystem::CoreTypes::S16:
-                    case TypeSystem::CoreTypes::S32:
-                    case TypeSystem::CoreTypes::S64:
-                    case TypeSystem::CoreTypes::F32:
-                    case TypeSystem::CoreTypes::F64:
+                    case TypeSystem::CoreTypes::Uint8:
+                    case TypeSystem::CoreTypes::Uint16:
+                    case TypeSystem::CoreTypes::Uint32:
+                    case TypeSystem::CoreTypes::Uint64:
+                    case TypeSystem::CoreTypes::Int8:
+                    case TypeSystem::CoreTypes::Int16:
+                    case TypeSystem::CoreTypes::Int32:
+                    case TypeSystem::CoreTypes::Int64:
+                    case TypeSystem::CoreTypes::Float:
+                    case TypeSystem::CoreTypes::Double:
                     case TypeSystem::CoreTypes::Radians:
                     case TypeSystem::CoreTypes::Degrees:
                     case TypeSystem::CoreTypes::Microseconds:

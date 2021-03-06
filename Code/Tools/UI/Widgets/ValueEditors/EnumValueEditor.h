@@ -17,33 +17,33 @@ namespace KRG
 
          signals:
 
-            void OnValueChanged( QStringList const& stringValues, S64 newValue, S64 OldValue );
+            void OnValueChanged( QStringList const& stringValues, int64 newValue, int64 OldValue );
 
         public:
 
-            EnumEditor( QStringList const& stringValues, S64 value );
+            EnumEditor( QStringList const& stringValues, int64 value );
             EnumEditor( QStringList const& stringValues, QString const& value );
 
-            inline S64 GetValue() const { return m_value; }
+            inline int64 GetValue() const { return m_value; }
             inline QString const& GetStringValue() const { KRG_ASSERT( IsValidEnumValue( m_value ) ); return m_enumStringValues[m_value]; }
             inline QStringList GetEnumValues() const { return m_enumStringValues; }
 
-            inline void SetValue( S64 value ) { SetValueInternal( value ); }
+            inline void SetValue( int64 value ) { SetValueInternal( value ); }
             inline void SetValue( QString const& value );
 
         private:
 
-            void SetValueInternal( S64 newValue );
+            void SetValueInternal( int64 newValue );
 
-            inline S64 GetIndexForStringValue( QString const& enumValue ) const { return m_enumStringValues.indexOf( enumValue ); }
-            inline bool IsValidEnumValue( S64 value ) const { return value >= 0 && value < (S64) m_enumStringValues.size(); }
+            inline int64 GetIndexForStringValue( QString const& enumValue ) const { return m_enumStringValues.indexOf( enumValue ); }
+            inline bool IsValidEnumValue( int64 value ) const { return value >= 0 && value < (int64) m_enumStringValues.size(); }
 
         private:
 
             QComboBox*          m_pInput = nullptr;
             QStringList         m_enumStringValues;
-            S64                 m_value = InvalidIndex;
-            S64                 m_defaultValue = InvalidIndex;
+            int64                 m_value = InvalidIndex;
+            int64                 m_defaultValue = InvalidIndex;
         };
     }
 }

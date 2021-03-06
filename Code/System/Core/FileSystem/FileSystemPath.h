@@ -69,6 +69,6 @@ namespace KRG
     private:
 
         String  m_fullpath;
-        U32     m_ID;
+        uint32     m_ID;
     };
 }

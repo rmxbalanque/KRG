@@ -8,7 +8,7 @@ namespace KRG
 {
     namespace Input
     {
-        enum class KeyboardButton : U16
+        enum class KeyboardButton : uint16
         {
             Key_A = 0,
             Key_B,
@@ -129,13 +129,13 @@ namespace KRG
 
         public:
 
-            inline U8 GetCharKeyPressed() const { return m_charKeyPressed; }
+            inline uint8 GetCharKeyPressed() const { return m_charKeyPressed; }
 
             // Get the controller button states
-            KRG_FORCE_INLINE bool WasPressed( KeyboardButton buttonID ) const { return ButtonStates::WasPressed( (U32) buttonID ); }
-            KRG_FORCE_INLINE bool WasReleased( KeyboardButton buttonID ) const { return ButtonStates::WasReleased( (U32) buttonID ); }
-            KRG_FORCE_INLINE bool IsHeldDown( KeyboardButton buttonID ) const { return ButtonStates::IsHeldDown( (U32) buttonID ); }
-            KRG_FORCE_INLINE Milliseconds GetHeldDuration( KeyboardButton buttonID ) const { return ButtonStates::GetHeldDuration( (U32) buttonID ); }
+            KRG_FORCE_INLINE bool WasPressed( KeyboardButton buttonID ) const { return ButtonStates::WasPressed( (uint32) buttonID ); }
+            KRG_FORCE_INLINE bool WasReleased( KeyboardButton buttonID ) const { return ButtonStates::WasReleased( (uint32) buttonID ); }
+            KRG_FORCE_INLINE bool IsHeldDown( KeyboardButton buttonID ) const { return ButtonStates::IsHeldDown( (uint32) buttonID ); }
+            KRG_FORCE_INLINE Milliseconds GetHeldDuration( KeyboardButton buttonID ) const { return ButtonStates::GetHeldDuration( (uint32) buttonID ); }
 
             // Syntactic Sugar
             KRG_FORCE_INLINE bool WasEnterPressed() const { return WasPressed( KeyboardButton::Key_Enter ) || WasPressed( KeyboardButton::Key_NumpadEnter ); }
@@ -160,8 +160,8 @@ namespace KRG
 
         private:
 
-            KRG_FORCE_INLINE void Press( KeyboardButton buttonID ) { ButtonStates::Press( (U32) buttonID ); }
-            KRG_FORCE_INLINE void Release( KeyboardButton buttonID ) { ButtonStates::Release( (U32) buttonID ); }
+            KRG_FORCE_INLINE void Press( KeyboardButton buttonID ) { ButtonStates::Press( (uint32) buttonID ); }
+            KRG_FORCE_INLINE void Release( KeyboardButton buttonID ) { ButtonStates::Release( (uint32) buttonID ); }
 
             inline void ResetFrameState()
             {
@@ -170,7 +170,7 @@ namespace KRG
 
         private:
 
-            U8  m_charKeyPressed;
+            uint8  m_charKeyPressed;
         };
     }
 }

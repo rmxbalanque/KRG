@@ -89,7 +89,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        ViewVolume::ViewVolume( Float2 const& viewDimensions, TRange<F32> depthRange, Matrix const& worldMatrix )
+        ViewVolume::ViewVolume( Float2 const& viewDimensions, TRange<float> depthRange, Matrix const& worldMatrix )
             : m_worldMatrix( worldMatrix )
             , m_viewDimensions( viewDimensions )
             , m_depthRange( depthRange )
@@ -99,7 +99,7 @@ namespace KRG
             CalculateProjectionMatrix();
         }
 
-        ViewVolume::ViewVolume( Float2 const& viewDimensions, TRange<F32> depthRange, Radians FOV, Matrix const& worldMatrix )
+        ViewVolume::ViewVolume( Float2 const& viewDimensions, TRange<float> depthRange, Radians FOV, Matrix const& worldMatrix )
             : m_worldMatrix( worldMatrix )
             , m_viewDimensions( viewDimensions )
             , m_FOV( FOV )
@@ -189,7 +189,7 @@ namespace KRG
             return OBB();
         }
 
-        void ViewVolume::SetDepthRange( TRange<F32> depthRange )
+        void ViewVolume::SetDepthRange( TRange<float> depthRange )
         {
             KRG_ASSERT( depthRange.m_min > 0 && depthRange.m_max > 0 && depthRange.IsValid() );
             m_depthRange = depthRange;
@@ -242,12 +242,12 @@ namespace KRG
 
                 // Get projected viewport extents on near/far planes
                 Radians const verticalFOV = ConvertHorizontalToVerticalFOV( m_viewDimensions.x, m_viewDimensions.y, m_FOV );
-                F32 const aspectRatio = GetAspectRatio();
-                F32 e = Math::Tan( verticalFOV * 0.5f );
-                F32 extentUpNear = e * m_depthRange.m_min;
-                F32 extentRightNear = extentUpNear * aspectRatio;
-                F32 extentUpFar = e * m_depthRange.m_max;
-                F32 extentRightFar = extentUpFar * aspectRatio;
+                float const aspectRatio = GetAspectRatio();
+                float e = Math::Tan( verticalFOV * 0.5f );
+                float extentUpNear = e * m_depthRange.m_min;
+                float extentRightNear = extentUpNear * aspectRatio;
+                float extentUpFar = e * m_depthRange.m_max;
+                float extentRightFar = extentUpFar * aspectRatio;
 
                 // Points are just offset from the center points along camera basis
                 corners[0] = centerNear - rightDir * extentRightNear - upDir * extentUpNear;

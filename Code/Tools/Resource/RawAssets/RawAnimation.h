@@ -23,10 +23,10 @@ namespace KRG
             struct TrackData
             {
                 TVector<Transform>                  m_transforms;
-                TRange<F32>                         m_translationValueRangeX;
-                TRange<F32>                         m_translationValueRangeY;
-                TRange<F32>                         m_translationValueRangeZ;
-                TRange<F32>                         m_scaleValueRange;
+                TRange<float>                         m_translationValueRangeX;
+                TRange<float>                         m_translationValueRangeY;
+                TRange<float>                         m_translationValueRangeZ;
+                TRange<float>                         m_scaleValueRange;
             };
 
         public:
@@ -39,10 +39,10 @@ namespace KRG
             inline Seconds GetStartTime() const { return m_start; }
             inline Seconds GetEndTime() const { return m_end; }
             inline Seconds GetDuration() const { return m_end - m_start; }
-            inline U32 GetNumFrames() const { return m_numFrames; }
-            inline F32 GetSamplingFrameRate() const { return m_samplingFrameRate; }
+            inline uint32 GetNumFrames() const { return m_numFrames; }
+            inline float GetSamplingFrameRate() const { return m_samplingFrameRate; }
 
-            inline S32 GetNumBones() const { return m_skeleton.GetNumBones(); }
+            inline int32 GetNumBones() const { return m_skeleton.GetNumBones(); }
             inline TVector<TrackData> const& GetTrackData() const { return m_tracks; }
             inline RawSkeleton const& GetSkeleton() const { return m_skeleton; }
 
@@ -51,10 +51,10 @@ namespace KRG
         protected:
 
             RawSkeleton const                   m_skeleton;
-            F32                                 m_samplingFrameRate = 0;
+            float                                 m_samplingFrameRate = 0;
             Seconds                             m_start = 0;
             Seconds                             m_end = 0;
-            U32                                 m_numFrames = 0;
+            uint32                                 m_numFrames = 0;
             TVector<TrackData>                  m_tracks;
         };
     }

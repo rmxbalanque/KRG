@@ -555,15 +555,15 @@ namespace KRG
                 if ( prop.IsDynamicArrayProperty() )
                 {
                     file << "            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->" << prop.m_name << ".data();\n";
-                    file << "            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->" << prop.m_name << ".size();\n";
-                    file << "            propertyInfo.m_arrayElementSize = (S32) sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
+                    file << "            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->" << prop.m_name << ".size();\n";
+                    file << "            propertyInfo.m_arrayElementSize = (int32) sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
                     file << "            propertyInfo.m_size = sizeof( TVector<" << prop.m_typeName << templateSpecializationString << "> );\n";
                 }
                 else if ( prop.IsStaticArrayProperty() )
                 {
                     file << "            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->" << prop.m_name << ";\n";
                     file << "            propertyInfo.m_arraySize = " << prop.GetArraySize() << ";\n";
-                    file << "            propertyInfo.m_arrayElementSize = (S32) sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
+                    file << "            propertyInfo.m_arrayElementSize = (int32) sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
                     file << "            propertyInfo.m_size = sizeof( " << prop.m_typeName << templateSpecializationString << " ) * " << prop.GetArraySize() << ";\n";
                 }
                 else
@@ -740,10 +740,10 @@ namespace KRG
             file << "                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final\n";
             GenerateResourceUnloadingStatusMethod( database, file, type );
 
-            file << "                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final\n";
+            file << "                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final\n";
             GenerateDynamicArrayAccessorMethod( file, type );
 
-            file << "                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final\n";
+            file << "                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final\n";
             GenerateExpectedResourceTypeMethod( file, type );
 
             file << "            };\n";

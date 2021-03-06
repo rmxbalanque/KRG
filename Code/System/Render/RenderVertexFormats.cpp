@@ -6,7 +6,7 @@ namespace KRG
 {
     namespace Render
     {
-        static U32 const g_dataTypeSizes[] =
+        static uint32 const g_dataTypeSizes[] =
         {
             1,
             2,
@@ -32,13 +32,13 @@ namespace KRG
             16,
         };
 
-        static_assert( sizeof( g_dataTypeSizes ) / sizeof( U32 ) == (U32) DataTypeFormat::Unknown, "Mismatched data type and size arrays" );
+        static_assert( sizeof( g_dataTypeSizes ) / sizeof( uint32 ) == (uint32) DataTypeFormat::Unknown, "Mismatched data type and size arrays" );
 
-        U32 GetDataTypeFormatByteSize( DataTypeFormat format )
+        uint32 GetDataTypeFormatByteSize( DataTypeFormat format )
         {
-            U32 const formatIdx = (U32) format;
-            KRG_ASSERT( formatIdx < (U32) DataTypeFormat::Unknown );
-            U32 const size = g_dataTypeSizes[formatIdx];
+            uint32 const formatIdx = (uint32) format;
+            KRG_ASSERT( formatIdx < (uint32) DataTypeFormat::Unknown );
+            uint32 const size = g_dataTypeSizes[formatIdx];
             return size;
         }
 

@@ -69,8 +69,8 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_materials;
             propertyInfo.m_offset = offsetof( KRG::Render::SkeletalMeshComponent, m_materials );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_materials.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_materials.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_materials.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
             propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -225,7 +225,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Render::SkeletalMeshComponent*>( pType );
                     if ( arrayID == 2630520838 )
@@ -243,7 +243,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Render::SkeletalMeshComponent*>( pType );
                     if ( propertyID == 1674268345 )

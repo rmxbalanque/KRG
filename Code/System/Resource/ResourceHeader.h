@@ -20,7 +20,7 @@ namespace KRG
                 : m_version( -1 )
             {}
 
-            ResourceHeader( S32 version, ResourceTypeID type )
+            ResourceHeader( int32 version, ResourceTypeID type )
                 : m_version( version )
                 , m_resourceType( type )
             {}
@@ -30,7 +30,7 @@ namespace KRG
 
         public:
 
-            S32                     m_version;
+            int32                     m_version;
             ResourceTypeID          m_resourceType;
             TVector<ResourceID>     m_installDependencies;
         };

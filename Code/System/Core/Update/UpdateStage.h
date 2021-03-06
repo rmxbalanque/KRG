@@ -6,7 +6,7 @@
 
 namespace KRG
 {
-    enum class UpdateStage : S8
+    enum class UpdateStage : int8
     {
         None = -1,
 
@@ -33,7 +33,7 @@ namespace KRG
 
         inline void DisableAllStages()
         {
-            for ( S32 stageIdx = 0; stageIdx < (S32) UpdateStage::NumStages; stageIdx++ )
+            for ( int32 stageIdx = 0; stageIdx < (int32) UpdateStage::NumStages; stageIdx++ )
             {
                 m_priorities[stageIdx] = -1;
             }
@@ -41,7 +41,7 @@ namespace KRG
 
         inline bool AreAllStagesDisabled() const
         {
-            for( S32 stageIdx = 0; stageIdx < (S32) UpdateStage::NumStages; stageIdx++ )
+            for( int32 stageIdx = 0; stageIdx < (int32) UpdateStage::NumStages; stageIdx++ )
             {
                 if ( m_priorities[stageIdx] >= 0 )
                 {
@@ -52,47 +52,47 @@ namespace KRG
             return true;
         }
 
-        inline S8& operator[] ( UpdateStage stage )
+        inline int8& operator[] ( UpdateStage stage )
         {
             KRG_ASSERT( stage != UpdateStage::None && stage != UpdateStage::NumStages );
-            return m_priorities[(S8) stage];
+            return m_priorities[(int8) stage];
         }
 
-        inline S8 const& operator[] ( UpdateStage stage ) const
+        inline int8 const& operator[] ( UpdateStage stage ) const
         {
             KRG_ASSERT( stage != UpdateStage::None && stage != UpdateStage::NumStages );
-            return m_priorities[(S8) stage];
+            return m_priorities[(int8) stage];
         }
 
         inline bool IsUpdateStageEnabled( UpdateStage stage ) const
         {
             KRG_ASSERT( stage != UpdateStage::None && stage != UpdateStage::NumStages );
-            return m_priorities[(S8) stage] >= 0;
+            return m_priorities[(int8) stage] >= 0;
         }
 
-        inline S8 GetPriorityForStage( UpdateStage stage ) const 
+        inline int8 GetPriorityForStage( UpdateStage stage ) const 
         {
             KRG_ASSERT( stage != UpdateStage::None && stage != UpdateStage::NumStages );
-            return m_priorities[(S8) stage];
+            return m_priorities[(int8) stage];
         }
 
         inline UpdatePriorityList& DisableUpdateStage( UpdateStage stage )
         {
             KRG_ASSERT( stage != UpdateStage::None && stage != UpdateStage::NumStages );
-            m_priorities[(S8) stage] = 0;
+            m_priorities[(int8) stage] = 0;
             return *this;
         }
 
-        inline UpdatePriorityList& EnableUpdateStage( UpdateStage stage, U8 priority = 64 )
+        inline UpdatePriorityList& EnableUpdateStage( UpdateStage stage, uint8 priority = 64 )
         {
             KRG_ASSERT( stage != UpdateStage::None && stage != UpdateStage::NumStages );
             KRG_ASSERT( priority != 0 ); // Call DisableUpdate instead
-            m_priorities[(S8) stage] = priority;
+            m_priorities[(int8) stage] = priority;
             return *this;
         }
 
     private:
 
-        S8 m_priorities[(S32) UpdateStage::NumStages];
+        int8 m_priorities[(int32) UpdateStage::NumStages];
     };
 }

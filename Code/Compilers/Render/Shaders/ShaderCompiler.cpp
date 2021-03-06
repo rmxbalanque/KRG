@@ -133,7 +133,7 @@ namespace KRG
 
                 VertexLayoutDescriptor::ElementDescriptor elementDesc;
                 elementDesc.m_semantic = GetSemanticForName( paramDesc.SemanticName );
-                elementDesc.m_semanticIndex = (U16) paramDesc.SemanticIndex;
+                elementDesc.m_semanticIndex = (uint16) paramDesc.SemanticIndex;
 
                 // Determine DXGI format
                 if ( paramDesc.Mask == 1 )
@@ -206,7 +206,7 @@ namespace KRG
                 return Error( "Unknown shader type" );
             }
 
-            U32 shaderCompileFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
+            uint32 shaderCompileFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
             #ifdef KRG_CONFIGURATION_DEBUG
             shaderCompileFlags |= D3DCOMPILE_DEBUG;
             #endif

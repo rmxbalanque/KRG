@@ -65,16 +65,16 @@ namespace KRG
             switch ( CoreType )
             {
                 case TypeSystem::CoreTypes::Bool:
-                case TypeSystem::CoreTypes::U8:
-                case TypeSystem::CoreTypes::U16:
-                case TypeSystem::CoreTypes::U32:
-                case TypeSystem::CoreTypes::U64:
-                case TypeSystem::CoreTypes::S8:
-                case TypeSystem::CoreTypes::S16:
-                case TypeSystem::CoreTypes::S32:
-                case TypeSystem::CoreTypes::S64:
-                case TypeSystem::CoreTypes::F32:
-                case TypeSystem::CoreTypes::F64:
+                case TypeSystem::CoreTypes::Uint8:
+                case TypeSystem::CoreTypes::Uint16:
+                case TypeSystem::CoreTypes::Uint32:
+                case TypeSystem::CoreTypes::Uint64:
+                case TypeSystem::CoreTypes::Int8:
+                case TypeSystem::CoreTypes::Int16:
+                case TypeSystem::CoreTypes::Int32:
+                case TypeSystem::CoreTypes::Int64:
+                case TypeSystem::CoreTypes::Float:
+                case TypeSystem::CoreTypes::Double:
                 case TypeSystem::CoreTypes::Radians:
                 case TypeSystem::CoreTypes::Degrees:
                 case TypeSystem::CoreTypes::Microseconds:
@@ -101,16 +101,16 @@ namespace KRG
             auto const CoreType = TypeSystem::GetCoreType( m_pPropertyInstance->GetTypeID() );
             switch ( CoreType )
             {
-                case TypeSystem::CoreTypes::U8:
+                case TypeSystem::CoreTypes::Uint8:
                 {
-                    m_pUnsignedValueEditor = new ValueEditors::UnsignedIntegerEditor( m_pPropertyInstance->GetValue<U8>() );
-                    m_pUnsignedValueEditor->SetRange( std::numeric_limits<U8>::min(), std::numeric_limits<U8>::max() );
+                    m_pUnsignedValueEditor = new ValueEditors::UnsignedIntegerEditor( m_pPropertyInstance->GetValue<uint8>() );
+                    m_pUnsignedValueEditor->SetRange( std::numeric_limits<uint8>::min(), std::numeric_limits<uint8>::max() );
 
                     m_pEditorLayout->addWidget( m_pUnsignedValueEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( U8 newValue, U8 oldValue )
+                    auto onValueChanged = [this] ( uint8 newValue, uint8 oldValue )
                     {
-                        m_pPropertyInstance->SetValue<U8>( newValue );
+                        m_pPropertyInstance->SetValue<uint8>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -118,15 +118,15 @@ namespace KRG
                 }
                 break;
 
-                case TypeSystem::CoreTypes::U16:
+                case TypeSystem::CoreTypes::Uint16:
                 {
-                    m_pUnsignedValueEditor = new ValueEditors::UnsignedIntegerEditor( m_pPropertyInstance->GetValue<U16>() );
-                    m_pUnsignedValueEditor->SetRange( std::numeric_limits<U16>::min(), std::numeric_limits<U16>::max() );
+                    m_pUnsignedValueEditor = new ValueEditors::UnsignedIntegerEditor( m_pPropertyInstance->GetValue<uint16>() );
+                    m_pUnsignedValueEditor->SetRange( std::numeric_limits<uint16>::min(), std::numeric_limits<uint16>::max() );
                     m_pEditorLayout->addWidget( m_pUnsignedValueEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( U16 newValue, U16 oldValue )
+                    auto onValueChanged = [this] ( uint16 newValue, uint16 oldValue )
                     {
-                        m_pPropertyInstance->SetValue<U16>( newValue );
+                        m_pPropertyInstance->SetValue<uint16>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -134,15 +134,15 @@ namespace KRG
                 }
                 break;
 
-                case TypeSystem::CoreTypes::U32:
+                case TypeSystem::CoreTypes::Uint32:
                 {
-                    m_pUnsignedValueEditor = new ValueEditors::UnsignedIntegerEditor( m_pPropertyInstance->GetValue<U32>() );
-                    m_pUnsignedValueEditor->SetRange( std::numeric_limits<U32>::min(), std::numeric_limits<U32>::max() );
+                    m_pUnsignedValueEditor = new ValueEditors::UnsignedIntegerEditor( m_pPropertyInstance->GetValue<uint32>() );
+                    m_pUnsignedValueEditor->SetRange( std::numeric_limits<uint32>::min(), std::numeric_limits<uint32>::max() );
                     m_pEditorLayout->addWidget( m_pUnsignedValueEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( U32 newValue, U32 oldValue )
+                    auto onValueChanged = [this] ( uint32 newValue, uint32 oldValue )
                     {
-                        m_pPropertyInstance->SetValue<U32>( newValue );
+                        m_pPropertyInstance->SetValue<uint32>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -150,15 +150,15 @@ namespace KRG
                 }
                 break;
 
-                case TypeSystem::CoreTypes::U64:
+                case TypeSystem::CoreTypes::Uint64:
                 {
-                    m_pUnsignedValueEditor = new ValueEditors::UnsignedIntegerEditor( m_pPropertyInstance->GetValue<U64>() );
-                    m_pUnsignedValueEditor->SetRange( std::numeric_limits<U64>::min(), std::numeric_limits<U64>::max() );
+                    m_pUnsignedValueEditor = new ValueEditors::UnsignedIntegerEditor( m_pPropertyInstance->GetValue<uint64>() );
+                    m_pUnsignedValueEditor->SetRange( std::numeric_limits<uint64>::min(), std::numeric_limits<uint64>::max() );
                     m_pEditorLayout->addWidget( m_pUnsignedValueEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( U64 newValue, U64 oldValue )
+                    auto onValueChanged = [this] ( uint64 newValue, uint64 oldValue )
                     {
-                        m_pPropertyInstance->SetValue<U64>( newValue );
+                        m_pPropertyInstance->SetValue<uint64>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -168,15 +168,15 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                case TypeSystem::CoreTypes::S8:
+                case TypeSystem::CoreTypes::Int8:
                 {
-                    m_pSignedValueEditor = new ValueEditors::SignedIntegerEditor( m_pPropertyInstance->GetValue<S8>() );
-                    m_pSignedValueEditor->SetRange( std::numeric_limits<S8>::min(), std::numeric_limits<S8>::max() );
+                    m_pSignedValueEditor = new ValueEditors::SignedIntegerEditor( m_pPropertyInstance->GetValue<int8>() );
+                    m_pSignedValueEditor->SetRange( std::numeric_limits<int8>::min(), std::numeric_limits<int8>::max() );
                     m_pEditorLayout->addWidget( m_pSignedValueEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( S8 newValue, S8 oldValue )
+                    auto onValueChanged = [this] ( int8 newValue, int8 oldValue )
                     {
-                        m_pPropertyInstance->SetValue<S8>( newValue );
+                        m_pPropertyInstance->SetValue<int8>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -184,15 +184,15 @@ namespace KRG
                 }
                 break;
 
-                case TypeSystem::CoreTypes::S16:
+                case TypeSystem::CoreTypes::Int16:
                 {
-                    m_pSignedValueEditor = new ValueEditors::SignedIntegerEditor( m_pPropertyInstance->GetValue<S16>() );
-                    m_pSignedValueEditor->SetRange( std::numeric_limits<S16>::min(), std::numeric_limits<S16>::max() );
+                    m_pSignedValueEditor = new ValueEditors::SignedIntegerEditor( m_pPropertyInstance->GetValue<int16>() );
+                    m_pSignedValueEditor->SetRange( std::numeric_limits<int16>::min(), std::numeric_limits<int16>::max() );
                     m_pEditorLayout->addWidget( m_pSignedValueEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( S16 newValue, S16 oldValue )
+                    auto onValueChanged = [this] ( int16 newValue, int16 oldValue )
                     {
-                        m_pPropertyInstance->SetValue<S16>( newValue );
+                        m_pPropertyInstance->SetValue<int16>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -200,15 +200,15 @@ namespace KRG
                 }
                 break;
 
-                case TypeSystem::CoreTypes::S32:
+                case TypeSystem::CoreTypes::Int32:
                 {
-                    m_pSignedValueEditor = new ValueEditors::SignedIntegerEditor( m_pPropertyInstance->GetValue<S32>() );
-                    m_pSignedValueEditor->SetRange( std::numeric_limits<S32>::min(), std::numeric_limits<S32>::max() );
+                    m_pSignedValueEditor = new ValueEditors::SignedIntegerEditor( m_pPropertyInstance->GetValue<int32>() );
+                    m_pSignedValueEditor->SetRange( std::numeric_limits<int32>::min(), std::numeric_limits<int32>::max() );
                     m_pEditorLayout->addWidget( m_pSignedValueEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( S32 newValue, S32 oldValue )
+                    auto onValueChanged = [this] ( int32 newValue, int32 oldValue )
                     {
-                        m_pPropertyInstance->SetValue<S32>( newValue );
+                        m_pPropertyInstance->SetValue<int32>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -216,15 +216,15 @@ namespace KRG
                 }
                 break;
 
-                case TypeSystem::CoreTypes::S64:
+                case TypeSystem::CoreTypes::Int64:
                 {
-                    m_pSignedValueEditor = new ValueEditors::SignedIntegerEditor( m_pPropertyInstance->GetValue<S64>() );
-                    m_pSignedValueEditor->SetRange( std::numeric_limits<S64>::min(), std::numeric_limits<S64>::max() );
+                    m_pSignedValueEditor = new ValueEditors::SignedIntegerEditor( m_pPropertyInstance->GetValue<int64>() );
+                    m_pSignedValueEditor->SetRange( std::numeric_limits<int64>::min(), std::numeric_limits<int64>::max() );
                     m_pEditorLayout->addWidget( m_pSignedValueEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( S64 newValue, S64 oldValue )
+                    auto onValueChanged = [this] ( int64 newValue, int64 oldValue )
                     {
-                        m_pPropertyInstance->SetValue<S8>( newValue );
+                        m_pPropertyInstance->SetValue<int8>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -234,7 +234,7 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                case TypeSystem::CoreTypes::F32:
+                case TypeSystem::CoreTypes::Float:
                 case TypeSystem::CoreTypes::Radians:
                 case TypeSystem::CoreTypes::Degrees:
                 case TypeSystem::CoreTypes::Microseconds:
@@ -242,13 +242,13 @@ namespace KRG
                 case TypeSystem::CoreTypes::Seconds:
                 case TypeSystem::CoreTypes::Percentage:
                 {
-                    m_pFloatingPointEditor = new ValueEditors::FloatingPointEditor( m_pPropertyInstance->GetValue<F32>() );
+                    m_pFloatingPointEditor = new ValueEditors::FloatingPointEditor( m_pPropertyInstance->GetValue<float>() );
                     m_pFloatingPointEditor->SetRange( -FLT_MAX, FLT_MAX );
                     m_pEditorLayout->addWidget( m_pFloatingPointEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( F32 newValue, F32 oldValue )
+                    auto onValueChanged = [this] ( float newValue, float oldValue )
                     {
-                        m_pPropertyInstance->SetValue<F32>( newValue );
+                        m_pPropertyInstance->SetValue<float>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -256,15 +256,15 @@ namespace KRG
                 }
                 break;
 
-                case TypeSystem::CoreTypes::F64:
+                case TypeSystem::CoreTypes::Double:
                 {
-                    m_pFloatingPointEditor = new ValueEditors::FloatingPointEditor( m_pPropertyInstance->GetValue<F64>() );
+                    m_pFloatingPointEditor = new ValueEditors::FloatingPointEditor( m_pPropertyInstance->GetValue<double>() );
                     m_pFloatingPointEditor->SetRange( -DBL_MAX, DBL_MAX );
                     m_pEditorLayout->addWidget( m_pFloatingPointEditor, 1.0f );
 
-                    auto onValueChanged = [this] ( F64 newValue, F64 oldValue )
+                    auto onValueChanged = [this] ( double newValue, double oldValue )
                     {
-                        m_pPropertyInstance->SetValue<F64>( newValue );
+                        m_pPropertyInstance->SetValue<double>( newValue );
                         NotifyValueChanged();
                     };
 
@@ -283,59 +283,59 @@ namespace KRG
             auto const CoreType = TypeSystem::GetCoreType( m_pPropertyInstance->GetTypeID() );
             switch ( CoreType )
             {
-                case TypeSystem::CoreTypes::U8:
+                case TypeSystem::CoreTypes::Uint8:
                 {
-                    m_pUnsignedValueEditor->SetValue( m_pPropertyInstance->GetValue<U8>() );
+                    m_pUnsignedValueEditor->SetValue( m_pPropertyInstance->GetValue<uint8>() );
                 }
                 break;
 
-                case TypeSystem::CoreTypes::U16:
+                case TypeSystem::CoreTypes::Uint16:
                 {
-                    m_pUnsignedValueEditor->SetValue( m_pPropertyInstance->GetValue<U16>() );
+                    m_pUnsignedValueEditor->SetValue( m_pPropertyInstance->GetValue<uint16>() );
                 }
                 break;
 
-                case TypeSystem::CoreTypes::U32:
+                case TypeSystem::CoreTypes::Uint32:
                 {
-                    m_pUnsignedValueEditor->SetValue( m_pPropertyInstance->GetValue<U32>() );
+                    m_pUnsignedValueEditor->SetValue( m_pPropertyInstance->GetValue<uint32>() );
                 }
                 break;
 
-                case TypeSystem::CoreTypes::U64:
+                case TypeSystem::CoreTypes::Uint64:
                 {
-                    m_pUnsignedValueEditor->SetValue( m_pPropertyInstance->GetValue<U64>() );
-                }
-                break;
-
-                //-------------------------------------------------------------------------
-
-                case TypeSystem::CoreTypes::S8:
-                {
-                    m_pSignedValueEditor->SetValue( m_pPropertyInstance->GetValue<S8>() );
-                }
-                break;
-
-                case TypeSystem::CoreTypes::S16:
-                {
-                    m_pSignedValueEditor->SetValue( m_pPropertyInstance->GetValue<S16>() );
-                }
-                break;
-
-                case TypeSystem::CoreTypes::S32:
-                {
-                    m_pSignedValueEditor->SetValue( m_pPropertyInstance->GetValue<S32>() );
-                }
-                break;
-
-                case TypeSystem::CoreTypes::S64:
-                {
-                    m_pSignedValueEditor->SetValue( m_pPropertyInstance->GetValue<S64>() );
+                    m_pUnsignedValueEditor->SetValue( m_pPropertyInstance->GetValue<uint64>() );
                 }
                 break;
 
                 //-------------------------------------------------------------------------
 
-                case TypeSystem::CoreTypes::F32:
+                case TypeSystem::CoreTypes::Int8:
+                {
+                    m_pSignedValueEditor->SetValue( m_pPropertyInstance->GetValue<int8>() );
+                }
+                break;
+
+                case TypeSystem::CoreTypes::Int16:
+                {
+                    m_pSignedValueEditor->SetValue( m_pPropertyInstance->GetValue<int16>() );
+                }
+                break;
+
+                case TypeSystem::CoreTypes::Int32:
+                {
+                    m_pSignedValueEditor->SetValue( m_pPropertyInstance->GetValue<int32>() );
+                }
+                break;
+
+                case TypeSystem::CoreTypes::Int64:
+                {
+                    m_pSignedValueEditor->SetValue( m_pPropertyInstance->GetValue<int64>() );
+                }
+                break;
+
+                //-------------------------------------------------------------------------
+
+                case TypeSystem::CoreTypes::Float:
                 case TypeSystem::CoreTypes::Radians:
                 case TypeSystem::CoreTypes::Degrees:
                 case TypeSystem::CoreTypes::Microseconds:
@@ -343,13 +343,13 @@ namespace KRG
                 case TypeSystem::CoreTypes::Seconds:
                 case TypeSystem::CoreTypes::Percentage:
                 {
-                    m_pFloatingPointEditor->SetValue( m_pPropertyInstance->GetValue<F32>() );
+                    m_pFloatingPointEditor->SetValue( m_pPropertyInstance->GetValue<float>() );
                 }
                 break;
 
-                case TypeSystem::CoreTypes::F64:
+                case TypeSystem::CoreTypes::Double:
                 {
-                    m_pFloatingPointEditor->SetValue( m_pPropertyInstance->GetValue<F64>() );
+                    m_pFloatingPointEditor->SetValue( m_pPropertyInstance->GetValue<double>() );
                 }
                 break;
             }
@@ -847,7 +847,7 @@ namespace KRG
             m_pValueEditor = new ValueEditors::EnumEditor( stringValues, m_pPropertyInstance->GetStringValue().c_str() );
             m_pEditorLayout->addWidget( m_pValueEditor, 1.0f );
 
-            auto onValueChanged = [this] ( QStringList const& stringValues, S32 const& newValue, S32 const& oldValue )
+            auto onValueChanged = [this] ( QStringList const& stringValues, int32 const& newValue, int32 const& oldValue )
             {
                 m_pPropertyInstance->SetStringValue( stringValues[newValue].toUtf8().data() );
                 NotifyValueChanged();

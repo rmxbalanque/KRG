@@ -100,7 +100,7 @@ namespace KRG
                 auto pContext = reinterpret_cast<ClangParserContext*>( pClientData );
                 auto pClass = reinterpret_cast<TypeDescriptor*>( pContext->m_pCurrentEntry );
 
-                U32 const lineNumber = ClangUtils::GetLineNumberForCursor( cr );
+                uint32 const lineNumber = ClangUtils::GetLineNumberForCursor( cr );
                 CXCursorKind kind = clang_getCursorKind( cr );
                 switch ( kind )
                 {
@@ -162,7 +162,7 @@ namespace KRG
 
                                 auto const pArrayType = ( clang::ConstantArrayType* ) pFieldQualType.getTypePtr();
                                 propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsArray );
-                                propertyDesc.m_arraySize = (S32) pArrayType->getSize().getSExtValue();
+                                propertyDesc.m_arraySize = (int32) pArrayType->getSize().getSExtValue();
 
                                 // Set property type to array type
                                 type = clang_getElementType( type );

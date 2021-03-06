@@ -4,7 +4,7 @@
 
 namespace KRG
 {
-    void UpdateContext::SetTimeScale( F32 scale )
+    void UpdateContext::SetTimeScale( float scale )
     {
         KRG_ASSERT( scale > 0 && scale < 100 );
         m_timeScale = scale;

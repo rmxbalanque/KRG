@@ -84,7 +84,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onSpinBoxValueChanged = [this] ( F64 )
+            auto onSpinBoxValueChanged = [this] ( double )
             { 
                 if ( m_enableInputChangeHandlers )
                 {
@@ -98,7 +98,7 @@ namespace KRG
                 m_inputs[i]->setDecimals( 2 );
                 m_inputs[i]->setRange( -FLT_MAX, FLT_MAX );
                 m_inputs[i]->setValue( m_value[i] );
-                connect( m_inputs[i], QOverload<F64>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
+                connect( m_inputs[i], QOverload<double>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
             }
         }
 
@@ -163,7 +163,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onSpinBoxValueChanged = [this] ( F64 )
+            auto onSpinBoxValueChanged = [this] ( double )
             {
                 if ( m_enableInputChangeHandlers )
                 {
@@ -177,7 +177,7 @@ namespace KRG
                 m_inputs[i]->setDecimals( 2 );
                 m_inputs[i]->setRange( -FLT_MAX, FLT_MAX );
                 m_inputs[i]->setValue( m_value[i] );
-                connect( m_inputs[i], QOverload<F64>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
+                connect( m_inputs[i], QOverload<double>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
             }
         }
 
@@ -254,7 +254,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onSpinBoxValueChanged = [this] ( F64 )
+            auto onSpinBoxValueChanged = [this] ( double )
             {
                 if ( m_enableInputChangeHandlers )
                 {
@@ -268,7 +268,7 @@ namespace KRG
                 m_inputs[i]->setDecimals( 2 );
                 m_inputs[i]->setRange( -FLT_MAX, FLT_MAX );
                 m_inputs[i]->setValue( m_value[i] );
-                connect( m_inputs[i], QOverload<F64>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
+                connect( m_inputs[i], QOverload<double>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
             }
         }
 
@@ -347,7 +347,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onSpinBoxValueChanged = [this] ( F64 )
+            auto onSpinBoxValueChanged = [this] ( double )
             {
                 if ( m_enableInputChangeHandlers )
                 {
@@ -360,9 +360,9 @@ namespace KRG
                 m_inputs[i]->setSingleStep( 1.0f );
                 m_inputs[i]->setDecimals( 2 );
                 m_inputs[i]->setRange( -FLT_MAX, FLT_MAX );
-                m_inputs[i]->setValue( (F32) m_value[i].ToDegrees() );
+                m_inputs[i]->setValue( (float) m_value[i].ToDegrees() );
 
-                connect( m_inputs[i], QOverload<F64>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
+                connect( m_inputs[i], QOverload<double>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
 
                 auto onClampButtonPressed = [this, i] ()
                 {
@@ -389,9 +389,9 @@ namespace KRG
 
             {
                 TScopedValue<bool> disableChangeHandlers( m_enableInputChangeHandlers, false );
-                m_inputs[0]->setValue( (F32) m_value[0].ToDegrees() );
-                m_inputs[1]->setValue( (F32) m_value[1].ToDegrees() );
-                m_inputs[2]->setValue( (F32) m_value[2].ToDegrees() );
+                m_inputs[0]->setValue( (float) m_value[0].ToDegrees() );
+                m_inputs[1]->setValue( (float) m_value[1].ToDegrees() );
+                m_inputs[2]->setValue( (float) m_value[2].ToDegrees() );
             }
 
             emit OnValueChanged( m_value, oldValue );
@@ -521,7 +521,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto onSpinBoxValueChanged = [this] ( F64 )
+            auto onSpinBoxValueChanged = [this] ( double )
             {
                 if ( m_enableInputChangeHandlers )
                 {
@@ -534,7 +534,7 @@ namespace KRG
                 m_inputs[i]->setSingleStep( 0.01f );
                 m_inputs[i]->setDecimals( 2 );
                 m_inputs[i]->setRange( -FLT_MAX, FLT_MAX );
-                connect( m_inputs[i], QOverload<F64>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
+                connect( m_inputs[i], QOverload<double>::of( &QDoubleSpinBox::valueChanged ), this, onSpinBoxValueChanged );
             }
         }
 

@@ -94,7 +94,7 @@ namespace KRG
         // Entities
         THashMap<UUID, Entity*>                                     m_entityLookupMap;
         TVector<Entity*>                                            m_entityUpdateList;
-        TVector<IWorldEntitySystem*>                                m_systemUpdateLists[(S8) UpdateStage::NumStages];
+        TVector<IWorldEntitySystem*>                                m_systemUpdateLists[(int8) UpdateStage::NumStages];
         bool                                                        m_initialized = false;
     };
 }

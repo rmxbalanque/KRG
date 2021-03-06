@@ -13,8 +13,8 @@ namespace KRG
 
     namespace
     {
-        static U32 const g_numInitialVertices = 2000;
-        static U32 const g_numInitialIndices = 2000;
+        static uint32 const g_numInitialVertices = 2000;
+        static uint32 const g_numInitialIndices = 2000;
     }
 
     //-------------------------------------------------------------------------
@@ -125,7 +125,7 @@ namespace KRG
 
             // Set render dimensions
             auto const renderTargetDimensions = m_pRenderDevice->GetRenderTargetDimensions();
-            io.DisplaySize = ImVec2( (F32) renderTargetDimensions.x, (F32) renderTargetDimensions.y );
+            io.DisplaySize = ImVec2( (float) renderTargetDimensions.x, (float) renderTargetDimensions.y );
 
             Byte* pPixels = nullptr;
             Int2 dimensions;
@@ -227,7 +227,7 @@ namespace KRG
             // Update viewport dimensions
             ImGuiIO& io = ImGui::GetIO();
             Int2 const viewportDimensions = viewport.GetSize();
-            io.DisplaySize = ImVec2( (F32) viewportDimensions.x, (F32) viewportDimensions.y );
+            io.DisplaySize = ImVec2( (float) viewportDimensions.x, (float) viewportDimensions.y );
 
             if ( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
             {
@@ -247,12 +247,12 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Check if our vertex and index buffers are large enough, if not then grow them
-            if ( (S32) m_vertexBuffer.GetNumElements() < pData->TotalVtxCount )
+            if ( (int32) m_vertexBuffer.GetNumElements() < pData->TotalVtxCount )
             {
                 m_pRenderDevice->ResizeBuffer( m_vertexBuffer, m_vertexBuffer.m_byteStride * pData->TotalVtxCount );
             }
 
-            if ( (S32) m_indexBuffer.GetNumElements() < pData->TotalIdxCount )
+            if ( (int32) m_indexBuffer.GetNumElements() < pData->TotalIdxCount )
             {
                 m_pRenderDevice->ResizeBuffer( m_indexBuffer, m_indexBuffer.m_byteStride * pData->TotalIdxCount );
             }
@@ -265,16 +265,16 @@ namespace KRG
             // Copy vertices into our vertex and index buffers and record the command lists
             auto pVertexMemory = renderContext.MapBuffer( m_vertexBuffer );
             auto pVertex = (ImDrawVert*) pVertexMemory;
-            auto endVertexMemoryBounds = ( (U8*) pVertexMemory ) + m_vertexBuffer.m_byteSize;
+            auto endVertexMemoryBounds = ( (uint8*) pVertexMemory ) + m_vertexBuffer.m_byteSize;
 
             auto pIndexMemory = renderContext.MapBuffer( m_indexBuffer );
             auto pIndex = (ImDrawIdx*) pIndexMemory;
-            auto endIndexMemoryBounds = ( (U8*) pIndexMemory ) + m_indexBuffer.m_byteSize;
+            auto endIndexMemoryBounds = ( (uint8*) pIndexMemory ) + m_indexBuffer.m_byteSize;
 
             for ( int n = 0; n < pData->CmdListsCount; n++ )
             {
                 // Copy vertex / index data
-                KRG_ASSERT( (U8*) pVertex < endVertexMemoryBounds && (U8*) pIndex < endIndexMemoryBounds );
+                KRG_ASSERT( (uint8*) pVertex < endVertexMemoryBounds && (uint8*) pIndex < endIndexMemoryBounds );
                 const ImDrawList* cmd_list = pData->CmdLists[n];
                 memcpy( pVertex, &cmd_list->VtxBuffer[0], cmd_list->VtxBuffer.size() * sizeof( ImDrawVert ) );
                 memcpy( pIndex, &cmd_list->IdxBuffer[0], cmd_list->IdxBuffer.size() * sizeof( ImDrawIdx ) );
@@ -283,7 +283,7 @@ namespace KRG
 
                 // Copy command buffer
                 m_cmdBuffers.emplace_back( RecordedCmdBuffer() );
-                m_cmdBuffers.back().m_numVertices = (U32) cmd_list->VtxBuffer.size();
+                m_cmdBuffers.back().m_numVertices = (uint32) cmd_list->VtxBuffer.size();
                 m_cmdBuffers.back().m_cmdBuffer.resize( cmd_list->CmdBuffer.size() );
                 memcpy( m_cmdBuffers.back().m_cmdBuffer.data(), cmd_list->CmdBuffer.Data, cmd_list->CmdBuffer.size() * sizeof( ImDrawCmd ) );
             }
@@ -332,7 +332,7 @@ namespace KRG
                             KRG_HALT();
                         }
 
-                        ScissorRect scissorRect = { (S32) pCmd->ClipRect.x, (S32) pCmd->ClipRect.y, (S32) pCmd->ClipRect.z, (S32) pCmd->ClipRect.w };
+                        ScissorRect scissorRect = { (int32) pCmd->ClipRect.x, (int32) pCmd->ClipRect.y, (int32) pCmd->ClipRect.z, (int32) pCmd->ClipRect.w };
                         renderContext.SetRasterizerScissorRectangles( &scissorRect, 1 );
                         renderContext.DrawIndexed( pCmd->ElemCount, indexOffset, vertexOffset );
                     }

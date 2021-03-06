@@ -20,9 +20,9 @@ namespace KRG
 
         inline static Quaternion FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector );
 
-        inline static Quaternion NLerp( Quaternion from, Quaternion to, F32 t );
-        inline static Quaternion SLerp( Quaternion from, Quaternion to, F32 t );
-        inline static Quaternion SQuad( Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, F32 t );
+        inline static Quaternion NLerp( Quaternion from, Quaternion to, float t );
+        inline static Quaternion SLerp( Quaternion from, Quaternion to, float t );
+        inline static Quaternion SQuad( Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, float t );
 
         inline static Vector Dot( Quaternion const& q0, Quaternion const& q1 ) { return Vector::Dot4( q0.AsVector(), q1.AsVector() ); }
         inline static Radians Distance( Quaternion const& q0, Quaternion const& q1 );
@@ -31,7 +31,7 @@ namespace KRG
         inline Quaternion() = default;
         inline explicit Quaternion( IdentityInit ) : m_data( Vector::UnitW.m_data ) {}
         inline explicit Quaternion( Vector const v ) : m_data( v.m_data ) {}
-        inline explicit Quaternion( F32 ix, F32 iy, F32 iz, F32 iw ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
+        inline explicit Quaternion( float ix, float iy, float iz, float iw ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
         inline explicit Quaternion( Float4 const& v ) : Quaternion( v.x, v.y, v.z, v.w ) {}
 
         inline explicit Quaternion( Vector const axis, Radians angle );
@@ -85,7 +85,7 @@ namespace KRG
 
         union
         {
-            struct { F32 x, y, z, w; };
+            struct { float x, y, z, w; };
             __m128 m_data;
         };
     };
@@ -164,7 +164,7 @@ namespace KRG
 
         auto N = _mm_and_ps( axis, SIMD::g_maskXYZ0 );
         N = _mm_or_ps( N, Vector::UnitW );
-        auto scale = _mm_set_ps1( 0.5f * (F32) angle );
+        auto scale = _mm_set_ps1( 0.5f * (float) angle );
 
         Vector sine, cosine;
         Vector::SinCos( sine, cosine, scale );
@@ -280,7 +280,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    inline Quaternion Quaternion::NLerp( Quaternion from, Quaternion to, F32 T )
+    inline Quaternion Quaternion::NLerp( Quaternion from, Quaternion to, float T )
     {
         KRG_ASSERT( T >= 0.0f && T <= 1.0f );
 
@@ -295,7 +295,7 @@ namespace KRG
         return result;
     }
 
-    inline Quaternion Quaternion::SLerp( Quaternion from, Quaternion to, F32 T )
+    inline Quaternion Quaternion::SLerp( Quaternion from, Quaternion to, float T )
     {
         KRG_ASSERT( T >= 0.0f && T <= 1.0f );
 
@@ -339,7 +339,7 @@ namespace KRG
         return Quaternion( result );
     }
 
-    inline Quaternion Quaternion::SQuad( Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, F32 t )
+    inline Quaternion Quaternion::SQuad( Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, float t )
     {
         KRG_ASSERT( t >= 0.0f && t <= 1.0f );
 

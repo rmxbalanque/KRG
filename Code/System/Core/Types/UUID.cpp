@@ -43,7 +43,7 @@ namespace KRG
 
         size_t const strLength = strlen( pString );
         KRG_ASSERT( strLength == 36 );
-        U32 byteIdx = 0;
+        uint32 byteIdx = 0;
 
         for ( auto i = 0u; i < strLength; i++ )
         {

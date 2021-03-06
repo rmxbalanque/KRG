@@ -26,7 +26,7 @@ namespace KRG
     {
         struct InitializationContext
         {
-            InitializationContext( S32 desiredMinimumHeaderWidth = 0 ) 
+            InitializationContext( int32 desiredMinimumHeaderWidth = 0 ) 
                 : m_maxHeaderWidth( desiredMinimumHeaderWidth )
             {
                 KRG_ASSERT( desiredMinimumHeaderWidth >= 0 );
@@ -34,9 +34,9 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            inline S32 GetIndent() const { return m_indentLevel * m_indentPerLevel; }
+            inline int32 GetIndent() const { return m_indentLevel * m_indentPerLevel; }
 
-            inline S32 GetIndentLevel() const { return m_indentLevel; }
+            inline int32 GetIndentLevel() const { return m_indentLevel; }
 
             inline void IncreaseIndentLevel() 
             { 
@@ -49,7 +49,7 @@ namespace KRG
                 m_indentLevel--;
             }
 
-            inline void SetIndentLevel( S32 indentLevel )
+            inline void SetIndentLevel( int32 indentLevel )
             {
                 KRG_ASSERT( indentLevel >= 0 );
                 m_indentLevel = indentLevel;
@@ -57,9 +57,9 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            inline S32 GetMaxHeaderWidth() const { return m_maxHeaderWidth; }
+            inline int32 GetMaxHeaderWidth() const { return m_maxHeaderWidth; }
 
-            inline void UpdateMaxHeaderWidth( S32 headerWidth ) 
+            inline void UpdateMaxHeaderWidth( int32 headerWidth ) 
             {
                 KRG_ASSERT( headerWidth >= 0 );
                 m_maxHeaderWidth = Math::Max( m_maxHeaderWidth, headerWidth ); 
@@ -67,9 +67,9 @@ namespace KRG
 
         private:
 
-            S32                 m_indentLevel = 0;
-            S32                 m_indentPerLevel = 20;
-            mutable S32         m_maxHeaderWidth = 0;
+            int32                 m_indentLevel = 0;
+            int32                 m_indentPerLevel = 20;
+            mutable int32         m_maxHeaderWidth = 0;
         };
 
         //-------------------------------------------------------------------------
@@ -111,7 +111,7 @@ namespace KRG
 
             PropertyEditor( InitializationContext& context, TypeSystem::ToolPropertyInstance* pPropertyInstance );
 
-            virtual void SetHeaderWidth( InitializationContext& context, S32 headerWidth );
+            virtual void SetHeaderWidth( InitializationContext& context, int32 headerWidth );
 
             // Useful for injecting extra controls from a parent widget i.e. array row controls
             QHBoxLayout* GetExtraControlsLayout() { return m_pExtraControlsLayout; }

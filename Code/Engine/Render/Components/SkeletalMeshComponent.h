@@ -31,7 +31,7 @@ namespace KRG
                 m_pMesh = meshResourceID;
             }
 
-            inline void SetMaterial( S32 materialIdx, ResourceID materialResourceID )
+            inline void SetMaterial( int32 materialIdx, ResourceID materialResourceID )
             {
                 KRG_ASSERT( IsUnloaded() );
                 KRG_ASSERT( materialResourceID.IsValid() );
@@ -62,7 +62,7 @@ namespace KRG
             inline TVector<Transform> const& GetBoneTransforms() const { return m_boneTransforms; }
 
             // The the global space transform for a specific bone
-            inline void SetBoneTransform( S32 boneIdx, Transform const& transform )
+            inline void SetBoneTransform( int32 boneIdx, Transform const& transform )
             {
                 KRG_ASSERT( boneIdx >= 0 && boneIdx < m_boneTransforms.size() );
                 m_boneTransforms[boneIdx] = transform;

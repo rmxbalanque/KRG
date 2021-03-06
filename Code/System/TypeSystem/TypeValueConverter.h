@@ -69,8 +69,8 @@ namespace KRG
 
         private:
 
-            static void StringToFloatArray( String const& str, char const* delim, S32 const numFloats, F32* pFloats );
-            static void FloatArrayToString( F32 const* pFloats, char const* delim, S32 const numFloats, String& outStr );
+            static void StringToFloatArray( String const& str, char const* delim, int32 const numFloats, float* pFloats );
+            static void FloatArrayToString( float const* pFloats, char const* delim, int32 const numFloats, String& outStr );
         };
 
         //-------------------------------------------------------------------------
@@ -92,141 +92,141 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( U8 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( uint8 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, U8& value )
+        inline void TypeValueConverter::StringToValue( String const& str, uint8& value )
         {
-            value = (U8) strtoul( str.c_str(), nullptr, 10 );
+            value = (uint8) strtoul( str.c_str(), nullptr, 10 );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( U16 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( uint16 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, U16& value )
+        inline void TypeValueConverter::StringToValue( String const& str, uint16& value )
         {
-            value = (U16) strtoul( str.c_str(), nullptr, 10 );
+            value = (uint16) strtoul( str.c_str(), nullptr, 10 );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( U32 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( uint32 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, U32& value )
+        inline void TypeValueConverter::StringToValue( String const& str, uint32& value )
         {
-            value = (U32) strtoul( str.c_str(), nullptr, 10 );
+            value = (uint32) strtoul( str.c_str(), nullptr, 10 );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( U64 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( uint64 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, U64& value )
+        inline void TypeValueConverter::StringToValue( String const& str, uint64& value )
         {
-            value = (U64) strtoull( str.c_str(), nullptr, 10 );
+            value = (uint64) strtoull( str.c_str(), nullptr, 10 );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( S8 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( int8 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, S8& value )
+        inline void TypeValueConverter::StringToValue( String const& str, int8& value )
         {
-            value = (S8) strtol( str.c_str(), nullptr, 10 );
+            value = (int8) strtol( str.c_str(), nullptr, 10 );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( S16 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( int16 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, S16& value )
+        inline void TypeValueConverter::StringToValue( String const& str, int16& value )
         {
-            value = (S16) strtol( str.c_str(), nullptr, 10 );
+            value = (int16) strtol( str.c_str(), nullptr, 10 );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( S32 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( int32 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, S32& value )
+        inline void TypeValueConverter::StringToValue( String const& str, int32& value )
         {
-            value = (S32) strtol( str.c_str(), nullptr, 10 );
+            value = (int32) strtol( str.c_str(), nullptr, 10 );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( S64 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( int64 const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, S64& value )
+        inline void TypeValueConverter::StringToValue( String const& str, int64& value )
         {
-            value = (S64) strtoll( str.c_str(), nullptr, 10 );
+            value = (int64) strtoll( str.c_str(), nullptr, 10 );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( F32 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( float const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, F32& value )
+        inline void TypeValueConverter::StringToValue( String const& str, float& value )
         {
-            value = (F32) atof( str.c_str() );
+            value = (float) atof( str.c_str() );
         }
 
         //-------------------------------------------------------------------------
 
         template<>
-        inline void TypeValueConverter::ValueToString( F64 const& value, String& outStr )
+        inline void TypeValueConverter::ValueToString( double const& value, String& outStr )
         {
             outStr = eastl::to_string( value );
         }
 
         template<>
-        inline void TypeValueConverter::StringToValue( String const& str, F64& value )
+        inline void TypeValueConverter::StringToValue( String const& str, double& value )
         {
-            value = (F64) atof( str.c_str() );
+            value = atof( str.c_str() );
         }
 
         //-------------------------------------------------------------------------
@@ -270,7 +270,7 @@ namespace KRG
         template<>
         inline void TypeValueConverter::StringToValue( String const& str, Color& value )
         {
-            U32 const colorValue = (U32) strtoul( str.c_str(), nullptr, 16 );
+            uint32 const colorValue = (uint32) strtoul( str.c_str(), nullptr, 16 );
             value = Color( colorValue );
         }
 
@@ -340,8 +340,8 @@ namespace KRG
             {
                 auto eulerAngles = value.ToEulerAngles();
 
-                F32 floatData[9];
-                (Float3&) floatData = Float3( (F32) eulerAngles.x.ToDegrees(), (F32) eulerAngles.y.ToDegrees(), (F32) eulerAngles.z.ToDegrees() );
+                float floatData[9];
+                (Float3&) floatData = Float3( (float) eulerAngles.x.ToDegrees(), (float) eulerAngles.y.ToDegrees(), (float) eulerAngles.z.ToDegrees() );
                 (Float3&) floatData[3] = value.GetTranslation().ToFloat3();
                 (Float3&) floatData[6] = value.GetScale().ToFloat3();
 
@@ -358,7 +358,7 @@ namespace KRG
         template<>
         inline void TypeValueConverter::StringToValue( String const& str, Matrix& value )
         {
-            F32 floatData[9];
+            float floatData[9];
             StringToFloatArray( str, ",", 9, floatData );
 
             EulerAngles const rotation( floatData[0], floatData[1], floatData[2] );
@@ -376,11 +376,11 @@ namespace KRG
         {
             auto eulerAngles = value.GetRotation().ToEulerAngles();
 
-            F32 floatData[9];
+            float floatData[9];
 
-            floatData[0] = (F32) eulerAngles.x.ToDegrees();
-            floatData[1] = (F32) eulerAngles.y.ToDegrees();
-            floatData[2] = (F32) eulerAngles.z.ToDegrees();
+            floatData[0] = (float) eulerAngles.x.ToDegrees();
+            floatData[1] = (float) eulerAngles.y.ToDegrees();
+            floatData[2] = (float) eulerAngles.z.ToDegrees();
 
             floatData[3] = value.GetTranslation().x;
             floatData[4] = value.GetTranslation().y;
@@ -400,7 +400,7 @@ namespace KRG
         template<>
         inline void TypeValueConverter::StringToValue( String const& str, Transform& value )
         {
-            F32 floatData[9];
+            float floatData[9];
             StringToFloatArray( str, ",", 9, floatData );
 
             // Set rotation

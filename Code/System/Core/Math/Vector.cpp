@@ -10,6 +10,7 @@ namespace KRG
     Vector const Vector::UnitZ = { 0, 0, 1, 0 };
     Vector const Vector::UnitW = { 0, 0, 0, 1 };
 
+    Vector const Vector::Origin = { 0, 0, 0, 1 };
     Vector const Vector::WorldForward = { 0, -1, 0, 0 };
     Vector const Vector::WorldUp = { 0, 0, 1, 0 };
     Vector const Vector::WorldRight = { -1, 0, 0, 0 };
@@ -63,7 +64,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    Vector Vector::SLerp( Vector const& from, Vector const& to, F32 t )
+    Vector Vector::SLerp( Vector const& from, Vector const& to, float t )
     {
         KRG_ASSERT( t >= 0.0f && t <= 1.0f );
         if ( from.GetLengthSquared3() < Epsilon.x || from.GetLengthSquared3() < Epsilon.x )

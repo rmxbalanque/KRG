@@ -24,9 +24,9 @@ namespace KRG
 
                 TypeSystem::EnumInfo enumInfo;
                 enumInfo.m_ID = TypeSystem::TypeID( "KRG::CameraComponent::ProjectionType" );
-                enumInfo.m_underlyingType = TypeSystem::CoreTypes::S32;
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Orthographic" ), 1 ) );
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Perspective" ), 0 ) );
+                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int32;
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Orthographic" ), 1 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Perspective" ), 0 ) );
 
                 typeRegistry.RegisterEnum( enumInfo );
             }

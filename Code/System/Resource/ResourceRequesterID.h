@@ -50,7 +50,7 @@ namespace KRG::Resource
         inline UUID GetID() const { return m_ID; }
 
         // Get the ID for the data path for install dependencies, used for reverse look ups
-        inline U32 GetInstallDependencyDataPathID() const
+        inline uint32 GetInstallDependencyDataPathID() const
         {
             KRG_ASSERT( IsInstallDependencyRequest() );
             return m_ID.GetValueU32( 3 );

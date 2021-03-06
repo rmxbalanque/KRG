@@ -11,8 +11,8 @@ namespace KRG
 {
     namespace Input
     {
-        static F32 const g_maxThumbstickRange = 32767.0f;
-        static F32 const g_maxTriggerRange = 255.0f;
+        static float const g_maxThumbstickRange = 32767.0f;
+        static float const g_maxTriggerRange = 255.0f;
 
         //-------------------------------------------------------------------------
 

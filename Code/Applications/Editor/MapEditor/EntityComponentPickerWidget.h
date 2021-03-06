@@ -28,14 +28,14 @@ namespace KRG
             inline TypeSystem::TypeInfo const* GetTypeInfo() const { KRG_ASSERT( !IsCategory() ); return m_pTypeInfo; }
             inline TreeItem* GetParent() const { return m_pParent; }
 
-            S32 GetNumChildren() const;
+            int32 GetNumChildren() const;
             TreeItem* GetChild( int row );
             TreeItem* GetChild( QString const& name ) const;
-            S32 GetRowIndex() const;
+            int32 GetRowIndex() const;
 
             void AddChild( TreeItem* pChild );
 
-            QVariant GetDataForColumn( S32 column ) const;
+            QVariant GetDataForColumn( int32 column ) const;
             QIcon GetIcon() const;
 
         private:
@@ -86,7 +86,7 @@ namespace KRG
 
         private:
 
-            virtual bool filterAcceptsRow( S32 sourceRow, QModelIndex const& sourceParentIndex ) const override final;
+            virtual bool filterAcceptsRow( int32 sourceRow, QModelIndex const& sourceParentIndex ) const override final;
             virtual bool lessThan( QModelIndex const& left, QModelIndex const& right ) const override final;
 
         private:

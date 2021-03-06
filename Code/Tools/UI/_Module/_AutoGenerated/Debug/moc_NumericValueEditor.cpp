@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_KRG__ValueEditors__SignedIntegerEditor_t {
     QByteArrayData data[6];
-    char stringdata0[77];
+    char stringdata0[79];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -35,13 +35,13 @@ static const qt_meta_stringdata_KRG__ValueEditors__SignedIntegerEditor_t qt_meta
 QT_MOC_LITERAL(0, 0, 38), // "KRG::ValueEditors::SignedInte..."
 QT_MOC_LITERAL(1, 39, 14), // "OnValueChanged"
 QT_MOC_LITERAL(2, 54, 0), // ""
-QT_MOC_LITERAL(3, 55, 3), // "S64"
-QT_MOC_LITERAL(4, 59, 8), // "newValue"
-QT_MOC_LITERAL(5, 68, 8) // "OldValue"
+QT_MOC_LITERAL(3, 55, 5), // "int64"
+QT_MOC_LITERAL(4, 61, 8), // "newValue"
+QT_MOC_LITERAL(5, 70, 8) // "OldValue"
 
     },
     "KRG::ValueEditors::SignedIntegerEditor\0"
-    "OnValueChanged\0\0S64\0newValue\0OldValue"
+    "OnValueChanged\0\0int64\0newValue\0OldValue"
 };
 #undef QT_MOC_LITERAL
 
@@ -73,13 +73,13 @@ void KRG::ValueEditors::SignedIntegerEditor::qt_static_metacall(QObject *_o, QMe
         auto *_t = static_cast<SignedIntegerEditor *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->OnValueChanged((*reinterpret_cast< S64(*)>(_a[1])),(*reinterpret_cast< S64(*)>(_a[2]))); break;
+        case 0: _t->OnValueChanged((*reinterpret_cast< int64(*)>(_a[1])),(*reinterpret_cast< int64(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (SignedIntegerEditor::*)(S64 , S64 );
+            using _t = void (SignedIntegerEditor::*)(int64 , int64 );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&SignedIntegerEditor::OnValueChanged)) {
                 *result = 0;
                 return;
@@ -129,14 +129,14 @@ int KRG::ValueEditors::SignedIntegerEditor::qt_metacall(QMetaObject::Call _c, in
 }
 
 // SIGNAL 0
-void KRG::ValueEditors::SignedIntegerEditor::OnValueChanged(S64 _t1, S64 _t2)
+void KRG::ValueEditors::SignedIntegerEditor::OnValueChanged(int64 _t1, int64 _t2)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 struct qt_meta_stringdata_KRG__ValueEditors__UnsignedIntegerEditor_t {
     QByteArrayData data[6];
-    char stringdata0[79];
+    char stringdata0[82];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -148,13 +148,14 @@ static const qt_meta_stringdata_KRG__ValueEditors__UnsignedIntegerEditor_t qt_me
 QT_MOC_LITERAL(0, 0, 40), // "KRG::ValueEditors::UnsignedIn..."
 QT_MOC_LITERAL(1, 41, 14), // "OnValueChanged"
 QT_MOC_LITERAL(2, 56, 0), // ""
-QT_MOC_LITERAL(3, 57, 3), // "U64"
-QT_MOC_LITERAL(4, 61, 8), // "newValue"
-QT_MOC_LITERAL(5, 70, 8) // "OldValue"
+QT_MOC_LITERAL(3, 57, 6), // "uint64"
+QT_MOC_LITERAL(4, 64, 8), // "newValue"
+QT_MOC_LITERAL(5, 73, 8) // "OldValue"
 
     },
     "KRG::ValueEditors::UnsignedIntegerEditor\0"
-    "OnValueChanged\0\0U64\0newValue\0OldValue"
+    "OnValueChanged\0\0uint64\0newValue\0"
+    "OldValue"
 };
 #undef QT_MOC_LITERAL
 
@@ -186,13 +187,13 @@ void KRG::ValueEditors::UnsignedIntegerEditor::qt_static_metacall(QObject *_o, Q
         auto *_t = static_cast<UnsignedIntegerEditor *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->OnValueChanged((*reinterpret_cast< U64(*)>(_a[1])),(*reinterpret_cast< U64(*)>(_a[2]))); break;
+        case 0: _t->OnValueChanged((*reinterpret_cast< uint64(*)>(_a[1])),(*reinterpret_cast< uint64(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (UnsignedIntegerEditor::*)(U64 , U64 );
+            using _t = void (UnsignedIntegerEditor::*)(uint64 , uint64 );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&UnsignedIntegerEditor::OnValueChanged)) {
                 *result = 0;
                 return;
@@ -242,14 +243,14 @@ int KRG::ValueEditors::UnsignedIntegerEditor::qt_metacall(QMetaObject::Call _c, 
 }
 
 // SIGNAL 0
-void KRG::ValueEditors::UnsignedIntegerEditor::OnValueChanged(U64 _t1, U64 _t2)
+void KRG::ValueEditors::UnsignedIntegerEditor::OnValueChanged(uint64 _t1, uint64 _t2)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 struct qt_meta_stringdata_KRG__ValueEditors__FloatingPointEditor_t {
-    QByteArrayData data[6];
-    char stringdata0[77];
+    QByteArrayData data[5];
+    char stringdata0[73];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -261,13 +262,12 @@ static const qt_meta_stringdata_KRG__ValueEditors__FloatingPointEditor_t qt_meta
 QT_MOC_LITERAL(0, 0, 38), // "KRG::ValueEditors::FloatingPo..."
 QT_MOC_LITERAL(1, 39, 14), // "OnValueChanged"
 QT_MOC_LITERAL(2, 54, 0), // ""
-QT_MOC_LITERAL(3, 55, 3), // "F64"
-QT_MOC_LITERAL(4, 59, 8), // "newValue"
-QT_MOC_LITERAL(5, 68, 8) // "OldValue"
+QT_MOC_LITERAL(3, 55, 8), // "newValue"
+QT_MOC_LITERAL(4, 64, 8) // "OldValue"
 
     },
     "KRG::ValueEditors::FloatingPointEditor\0"
-    "OnValueChanged\0\0F64\0newValue\0OldValue"
+    "OnValueChanged\0\0newValue\0OldValue"
 };
 #undef QT_MOC_LITERAL
 
@@ -288,7 +288,7 @@ static const uint qt_meta_data_KRG__ValueEditors__FloatingPointEditor[] = {
        1,    2,   19,    2, 0x06 /* Public */,
 
  // signals: parameters
-    QMetaType::Void, 0x80000000 | 3, 0x80000000 | 3,    4,    5,
+    QMetaType::Void, QMetaType::Double, QMetaType::Double,    3,    4,
 
        0        // eod
 };
@@ -299,13 +299,13 @@ void KRG::ValueEditors::FloatingPointEditor::qt_static_metacall(QObject *_o, QMe
         auto *_t = static_cast<FloatingPointEditor *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->OnValueChanged((*reinterpret_cast< F64(*)>(_a[1])),(*reinterpret_cast< F64(*)>(_a[2]))); break;
+        case 0: _t->OnValueChanged((*reinterpret_cast< double(*)>(_a[1])),(*reinterpret_cast< double(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (FloatingPointEditor::*)(F64 , F64 );
+            using _t = void (FloatingPointEditor::*)(double , double );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&FloatingPointEditor::OnValueChanged)) {
                 *result = 0;
                 return;
@@ -355,7 +355,7 @@ int KRG::ValueEditors::FloatingPointEditor::qt_metacall(QMetaObject::Call _c, in
 }
 
 // SIGNAL 0
-void KRG::ValueEditors::FloatingPointEditor::OnValueChanged(F64 _t1, F64 _t2)
+void KRG::ValueEditors::FloatingPointEditor::OnValueChanged(double _t1, double _t2)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

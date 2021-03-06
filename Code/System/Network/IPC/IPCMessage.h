@@ -26,19 +26,19 @@ namespace KRG
             public:
 
                 ClientID() = default;
-                ClientID( U64 ID ) : m_ID( ID ) {}
+                ClientID( uint64 ID ) : m_ID( ID ) {}
 
                 inline void const* Data() const { return &m_ID; }
-                inline size_t Size() const { return sizeof( U64 ); }
+                inline size_t Size() const { return sizeof( uint64 ); }
 
             public:
 
-                U64 m_ID = 0;
+                uint64 m_ID = 0;
             };
 
             //-------------------------------------------------------------------------
 
-            typedef S32 MessageID;
+            typedef int32 MessageID;
 
             //-------------------------------------------------------------------------
 

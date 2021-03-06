@@ -22,27 +22,27 @@ namespace KRG
             struct ByteColor
             {
                 #ifdef KRG_LITTLE_ENDIAN
-                U8 m_a;
-                U8 m_b;
-                U8 m_g;
-                U8 m_r;
+                uint8 m_a;
+                uint8 m_b;
+                uint8 m_g;
+                uint8 m_r;
                 #elif
-                U8 m_r;
-                U8 m_g;
-                U8 m_b;
-                U8 m_a;
+                uint8 m_r;
+                uint8 m_g;
+                uint8 m_b;
+                uint8 m_a;
                 #endif
             };
 
             ByteColor   m_byteColor;
-            U32         m_color;
+            uint32         m_color;
         };
 
         inline Color() : m_color( 0xFFFFFFFF ) {}
 
-        inline Color( U32 c ) : m_color( c ) {}
+        inline Color( uint32 c ) : m_color( c ) {}
 
-        inline Color( U8 r, U8 g, U8 b, U8 a )
+        inline Color( uint8 r, uint8 g, uint8 b, uint8 a )
         {
             m_byteColor.m_r = r;
             m_byteColor.m_g = g;
@@ -52,29 +52,29 @@ namespace KRG
 
         inline Color( Float4 const& c )
         {
-            m_byteColor.m_r = U8( c[0] * 255 );
-            m_byteColor.m_g = U8( c[1] * 255 );
-            m_byteColor.m_b = U8( c[2] * 255 );
-            m_byteColor.m_a = U8( c[3] * 255 );
+            m_byteColor.m_r = uint8( c[0] * 255 );
+            m_byteColor.m_g = uint8( c[1] * 255 );
+            m_byteColor.m_b = uint8( c[2] * 255 );
+            m_byteColor.m_a = uint8( c[3] * 255 );
         }
 
-        inline Color GetAlphaVersion( U8 newAlpha ) const
+        inline Color GetAlphaVersion( uint8 newAlpha ) const
         {
             Color newColor = *this;
             newColor.m_byteColor.m_a = newAlpha;
             return newColor;
         }
 
-        inline Color GetAlphaVersion( F32 alpha ) const
+        inline Color GetAlphaVersion( float alpha ) const
         {
             auto floatAlpha = Math::Clamp( alpha * 255, 0.0f, 255.0f );
-            return GetAlphaVersion( (U8) floatAlpha );
+            return GetAlphaVersion( (uint8) floatAlpha );
         }
 
-        inline U32 ToU32() const { return m_color; }
-        inline Float4 ToFloat4() const { return Float4( (F32) m_byteColor.m_r / 255, (F32) m_byteColor.m_g / 255, (F32) m_byteColor.m_b / 255, (F32) m_byteColor.m_a / 255 ); }
+        inline uint32 ToU32() const { return m_color; }
+        inline Float4 ToFloat4() const { return Float4( (float) m_byteColor.m_r / 255, (float) m_byteColor.m_g / 255, (float) m_byteColor.m_b / 255, (float) m_byteColor.m_a / 255 ); }
 
-        inline operator U32() const { return ToU32(); }
+        inline operator uint32() const { return ToU32(); }
         inline operator Float4() const { return ToFloat4(); }
     };
 }
@@ -88,7 +88,7 @@ namespace eastl
     {
         eastl_size_t operator()( const KRG::Color& color ) const
         {
-            return color.operator KRG::U32();
+            return color.operator KRG::uint32();
         }
     };
 }

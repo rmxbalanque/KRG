@@ -24,7 +24,7 @@ namespace KRG
 
     public:
 
-        static U32 const StaticTypeID = 'CFG';
+        static uint32 const StaticTypeID = 'CFG';
 
     public:
 
@@ -33,7 +33,7 @@ namespace KRG
     protected:
 
         ConfigSetting( char const* pName, char const* pCategory, Type type, bool isOptional );
-        virtual S32 GetTypeID() const override final { return ConfigSetting::StaticTypeID; }
+        virtual int32 GetTypeID() const override final { return ConfigSetting::StaticTypeID; }
 
     protected:
 
@@ -77,31 +77,31 @@ namespace KRG
     public:
 
         ConfigSettingInt( char const* pName, char const* pCategory );
-        ConfigSettingInt( char const* pName, char const* pCategory, S32 initialValue );
-        ConfigSettingInt( char const* pName, char const* pCategory, S32 initialValue, S32 min, S32 max );
+        ConfigSettingInt( char const* pName, char const* pCategory, int32 initialValue );
+        ConfigSettingInt( char const* pName, char const* pCategory, int32 initialValue, int32 min, int32 max );
 
-        inline S32 GetMin() const { return m_min; }
-        inline S32 GetMax() const { return m_max; }
+        inline int32 GetMin() const { return m_min; }
+        inline int32 GetMax() const { return m_max; }
         inline bool HasLimits() const { return m_min != INT_MIN || m_max != INT_MAX; }
 
-        inline operator S32() const { return m_value; }
+        inline operator int32() const { return m_value; }
 
-        inline ConfigSettingInt& operator=( S32 value ) 
+        inline ConfigSettingInt& operator=( int32 value ) 
         { 
-            S32 oldValue = m_value;
+            int32 oldValue = m_value;
             m_value = Math::Clamp( value, m_min, m_max ); 
             m_onValueChangedEvent.Execute( oldValue, m_value );
             return *this; 
         }
 
-        inline TMultiUserEvent<S32, S32> OnValueChangedEvent() { return m_onValueChangedEvent; }
+        inline TMultiUserEvent<int32, int32> OnValueChangedEvent() { return m_onValueChangedEvent; }
 
     private:
 
-        S32                                     m_value = false;
-        S32                                     m_min = INT_MIN;
-        S32                                     m_max = INT_MAX;
-        TMultiUserEventInternal<S32, S32>       m_onValueChangedEvent;
+        int32                                     m_value = false;
+        int32                                     m_min = INT_MIN;
+        int32                                     m_max = INT_MAX;
+        TMultiUserEventInternal<int32, int32>       m_onValueChangedEvent;
     };
 
     //-------------------------------------------------------------------------
@@ -113,31 +113,31 @@ namespace KRG
     public:
 
         ConfigSettingFloat( char const* pName, char const* pCategory );
-        ConfigSettingFloat( char const* pName, char const* pCategory, F32 initialValue );
-        ConfigSettingFloat( char const* pName, char const* pCategory, F32 initialValue, F32 min, F32 max );
+        ConfigSettingFloat( char const* pName, char const* pCategory, float initialValue );
+        ConfigSettingFloat( char const* pName, char const* pCategory, float initialValue, float min, float max );
 
-        inline F32 GetMin() const { return m_min; }
-        inline F32 GetMax() const { return m_max; }
+        inline float GetMin() const { return m_min; }
+        inline float GetMax() const { return m_max; }
         inline bool HasLimits() const { return m_min != -FLT_MAX || m_max != FLT_MAX; }
 
-        inline operator F32() const { return m_value; }
+        inline operator float() const { return m_value; }
 
-        inline ConfigSettingFloat& operator=( F32 value )
+        inline ConfigSettingFloat& operator=( float value )
         { 
-            F32 oldValue = m_value;
+            float oldValue = m_value;
             m_value = Math::Clamp( value, m_min, m_max );
             m_onValueChangedEvent.Execute( oldValue, m_value );
             return *this; 
         }
 
-        inline TMultiUserEvent<F32, F32> OnValueChangedEvent() { return m_onValueChangedEvent; }
+        inline TMultiUserEvent<float, float> OnValueChangedEvent() { return m_onValueChangedEvent; }
 
     private:
 
-        F32                                     m_value = false;
-        F32                                     m_min = -FLT_MAX;
-        F32                                     m_max = FLT_MAX;
-        TMultiUserEventInternal<F32, F32>       m_onValueChangedEvent;
+        float                                     m_value = false;
+        float                                     m_min = -FLT_MAX;
+        float                                     m_max = FLT_MAX;
+        TMultiUserEventInternal<float, float>       m_onValueChangedEvent;
     };
 
     //-------------------------------------------------------------------------
@@ -146,7 +146,7 @@ namespace KRG
     {
         friend SettingsRegistry;
 
-        constexpr static S32 const BufferSize = 256;
+        constexpr static int32 const BufferSize = 256;
 
     public:
 

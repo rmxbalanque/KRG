@@ -27,7 +27,7 @@ namespace KRG
         KRG_ASSERT( m_worldSystems.empty() );
         KRG_ASSERT( m_entityUpdateList.empty() );
 
-        for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
+        for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
         {
             KRG_ASSERT( m_systemUpdateLists[i].empty() );
         }
@@ -104,7 +104,7 @@ namespace KRG
                 : m_context( context )
                 , m_updateList( updateList )
             {
-                m_SetSize = (U32) updateList.size();
+                m_SetSize = (uint32) updateList.size();
             }
 
             // Only used for spatial dependency chain updates
@@ -118,9 +118,9 @@ namespace KRG
                 }
             }
 
-            virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
+            virtual void ExecuteRange( TaskSetPartition range, uint32 threadnum ) override final
             {
-                for ( U64 i = range.start; i < range.end; ++i )
+                for ( uint64 i = range.start; i < range.end; ++i )
                 {
                     auto pEntity = m_updateList[i];
 
@@ -153,7 +153,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        S8 const updateStageIdx = (S8) context.GetUpdateStage();
+        int8 const updateStageIdx = (int8) context.GetUpdateStage();
 
         // Update entities
         //-------------------------------------------------------------------------
@@ -198,7 +198,7 @@ namespace KRG
         // Add to update lists
         //-------------------------------------------------------------------------
 
-        for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
+        for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
         {
             if ( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) i ) )
             {
@@ -208,8 +208,8 @@ namespace KRG
             // Sort update list
             auto comparator = [i] ( IWorldEntitySystem* const& pSystemA, IWorldEntitySystem* const& pSystemB )
             {
-                U8 const A = pSystemA->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
-                U8 const B = pSystemB->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
+                uint8 const A = pSystemA->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
+                uint8 const B = pSystemB->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
                 return A > B;
             };
 
@@ -228,7 +228,7 @@ namespace KRG
         // Remove from update lists
         //-------------------------------------------------------------------------
 
-        for ( S8 i = 0; i < (S8) UpdateStage::NumStages; i++ )
+        for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
         {
             if ( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) i ) )
             {
@@ -298,7 +298,7 @@ namespace KRG
         //-------------------------------------------------------------------------
         // This will fill the world activation/registration lists used below
 
-        for ( S32 i = (S32) m_maps.size() - 1; i >= 0; i-- )
+        for ( int32 i = (int32) m_maps.size() - 1; i >= 0; i-- )
         {
             if ( m_maps[i].UpdateState( m_loadingContext, m_activationContext ) )
             {
@@ -359,14 +359,14 @@ namespace KRG
                 , m_componentsToRegister( componentsToRegister )
                 , m_componentsToUnregister( componentsToUnregister )
             {
-                m_SetSize = (U32) worldSystems.size();
+                m_SetSize = (uint32) worldSystems.size();
             }
 
-            virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
+            virtual void ExecuteRange( TaskSetPartition range, uint32 threadnum ) override final
             {
                 KRG_PROFILE_SCOPE_SCENE( "Component World Registration Task" );
 
-                for ( U64 i = range.start; i < range.end; ++i )
+                for ( uint64 i = range.start; i < range.end; ++i )
                 {
                     auto pSystem = m_worldSystems[i];
 

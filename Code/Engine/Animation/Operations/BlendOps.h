@@ -30,12 +30,12 @@ namespace KRG
 
             struct InterpolativeBlender
             {
-                inline static Quaternion BlendRotation( Quaternion const& quat0, Quaternion const& quat1, F32 t )
+                inline static Quaternion BlendRotation( Quaternion const& quat0, Quaternion const& quat1, float t )
                 {
                     return Quaternion::SLerp( quat0, quat1, t );
                 }
 
-                inline static Vector BlendTranslation( Vector const& trans0, Vector const& trans1, F32 t )
+                inline static Vector BlendTranslation( Vector const& trans0, Vector const& trans1, float t )
                 {
                     return Vector::Lerp( trans0, trans1, t );
                 }
@@ -43,13 +43,13 @@ namespace KRG
 
             struct AdditiveBlender
             {
-                inline static Quaternion BlendRotation( Quaternion const& quat0, Quaternion const& quat1, F32 t )
+                inline static Quaternion BlendRotation( Quaternion const& quat0, Quaternion const& quat1, float t )
                 {
                     auto const targetQuat = quat0 * quat1;
                     return Quaternion::SLerp( quat0, targetQuat, t );
                 }
 
-                inline static Vector BlendTranslation( Vector const& trans0, Vector const& trans1, F32 t )
+                inline static Vector BlendTranslation( Vector const& trans0, Vector const& trans1, float t )
                 {
                     return Vector::MultiplyAdd( trans1, Vector( t ), trans0 ).SetW1();
                 }
@@ -57,7 +57,7 @@ namespace KRG
 
             struct BlendWeight
             {
-                inline static F32 GetBlendWeight( F32 const blendWeight, BoneMask const* pBoneMask, S32 const boneIdx )
+                inline static float GetBlendWeight( float const blendWeight, BoneMask const* pBoneMask, int32 const boneIdx )
                 {
                     return blendWeight;
                 }
@@ -65,7 +65,7 @@ namespace KRG
 
             struct BoneWeight
             {
-                inline static F32 GetBlendWeight( F32 const blendWeight, BoneMask const* pBoneMask, S32 const boneIdx )
+                inline static float GetBlendWeight( float const blendWeight, BoneMask const* pBoneMask, int32 const boneIdx )
                 {
                     return blendWeight * pBoneMask->GetWeight( boneIdx );
                 }
@@ -73,11 +73,11 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            static void Blend( Pose const* pSourcePose, Pose const* pTargetPose, F32 blendWeight, U32 blendOptions, BoneMask const* pBoneMask, Pose* pResultPose );
+            static void Blend( Pose const* pSourcePose, Pose const* pTargetPose, float blendWeight, uint32 blendOptions, BoneMask const* pBoneMask, Pose* pResultPose );
 
             //-------------------------------------------------------------------------
 
-            inline static Transform BlendRootMotionDeltas( Transform const& from, Transform const& to, F32 blendWeight )
+            inline static Transform BlendRootMotionDeltas( Transform const& from, Transform const& to, float blendWeight )
             {
                 if ( blendWeight <= 0.0f )
                 {

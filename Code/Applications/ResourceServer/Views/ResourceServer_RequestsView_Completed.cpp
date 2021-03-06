@@ -21,7 +21,7 @@ namespace KRG
 {
     namespace Resource
     {
-        void CompletedRequestsViewModel::UpdateRequests( TVector<CompilationRequest const*> const* pRequests, S32 column, Qt::SortOrder order )
+        void CompletedRequestsViewModel::UpdateRequests( TVector<CompilationRequest const*> const* pRequests, int32 column, Qt::SortOrder order )
         {
             emit layoutAboutToBeChanged();
             m_requests = *pRequests;
@@ -110,8 +110,8 @@ namespace KRG
 
         QVariant CompletedRequestsViewModel::data( const QModelIndex& index, int role ) const
         {
-            S32 const row = index.row();
-            S32 const column = index.column();
+            int32 const row = index.row();
+            int32 const column = index.column();
 
             auto pRequest = m_requests[row];
 
@@ -185,8 +185,8 @@ namespace KRG
             {
                 auto sortPredicate = [order] ( CompilationRequest const* const& pA, CompilationRequest const* const& pB )
                 {
-                    S32 const a = ( S32 ) pA->GetStatus();
-                    S32 const b = ( S32 ) pB->GetStatus();
+                    int32 const a = ( int32 ) pA->GetStatus();
+                    int32 const b = ( int32 ) pB->GetStatus();
 
                     if ( a == b )
                     {
@@ -269,8 +269,8 @@ namespace KRG
             {
                 auto sortPredicate = [order] ( CompilationRequest const* const& pA, CompilationRequest const* const& pB )
                 {
-                    F32 const a = pA->GetUptoDateCheckElapsedTime().ToFloat();
-                    F32 const b = pB->GetUptoDateCheckElapsedTime().ToFloat();
+                    float const a = pA->GetUptoDateCheckElapsedTime().ToFloat();
+                    float const b = pB->GetUptoDateCheckElapsedTime().ToFloat();
 
                     if ( a == b )
                     {
@@ -294,8 +294,8 @@ namespace KRG
             {
                 auto sortPredicate = [order] ( CompilationRequest const* const& pA, CompilationRequest const* const& pB )
                 {
-                    F32 const a = pA->GetCompilationElapsedTime().ToFloat();
-                    F32 const b = pB->GetCompilationElapsedTime().ToFloat();
+                    float const a = pA->GetCompilationElapsedTime().ToFloat();
+                    float const b = pB->GetCompilationElapsedTime().ToFloat();
 
                     if ( a == b )
                     {
@@ -419,7 +419,7 @@ namespace KRG
         {
             KRG_ASSERT( pRequests != nullptr );
 
-            S32 const sortedColumnIdx = m_pTableWidget->horizontalHeader()->sortIndicatorSection();
+            int32 const sortedColumnIdx = m_pTableWidget->horizontalHeader()->sortIndicatorSection();
             Qt::SortOrder const sortOrder = m_pTableWidget->horizontalHeader()->sortIndicatorOrder();
 
             m_model.UpdateRequests( pRequests, sortedColumnIdx, sortOrder );
@@ -433,7 +433,7 @@ namespace KRG
             if ( indices.count() != 0 )
             {
                 QModelIndex index = indices[0];
-                S32 const requestIdx = index.row();
+                int32 const requestIdx = index.row();
                 m_pSelectedRequest = m_model.GetRequest( requestIdx );
 
                 m_pCommandLineWidget->setText( QString( "-compile %1" ).arg( m_pSelectedRequest->GetCompilerArgs() ) );

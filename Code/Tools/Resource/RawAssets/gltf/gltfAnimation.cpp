@@ -75,7 +75,7 @@ namespace KRG
                     // Get animation details
                     //-------------------------------------------------------------------------
 
-                    F32 animationDuration = -1.0f;
+                    float animationDuration = -1.0f;
                     size_t numFrames = 0;
                     for ( auto s = 0; s < pAnimationNode->samplers_count; s++ )
                     {
@@ -87,7 +87,7 @@ namespace KRG
 
                     pRawAnimation->m_start = 0.0f;
                     pRawAnimation->m_end = animationDuration;
-                    pRawAnimation->m_numFrames = (U32) numFrames;
+                    pRawAnimation->m_numFrames = (uint32) numFrames;
                     pRawAnimation->m_samplingFrameRate = animationDuration / numFrames;
 
                     // Read animation transforms
@@ -130,7 +130,7 @@ namespace KRG
                         return;
                     }
 
-                    S32 const boneIdx = rawAnimation.m_skeleton.GetBoneIndex( StringID( channel.target_node->name ) );
+                    int32 const boneIdx = rawAnimation.m_skeleton.GetBoneIndex( StringID( channel.target_node->name ) );
                     if ( boneIdx == InvalidIndex )
                     {
                         continue;

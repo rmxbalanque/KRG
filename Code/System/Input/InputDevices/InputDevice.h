@@ -11,10 +11,10 @@ namespace KRG
         // Generic message data for various input messages (e.g. keyboard/mouse messages )
         struct GenericMessage
         {
-            U64 m_data0;
-            U64 m_data1;
-            U64 m_data2;
-            U64 m_data3;
+            uint64 m_data0;
+            uint64 m_data1;
+            uint64 m_data2;
+            uint64 m_data3;
         };
 
         //-------------------------------------------------------------------------

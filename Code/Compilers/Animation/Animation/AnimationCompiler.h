@@ -33,7 +33,7 @@ namespace KRG
 
         class AnimationCompiler : public Resource::Compiler
         {
-            static const S32 VERSION = 4;
+            static const int32 VERSION = 4;
 
         public:
 

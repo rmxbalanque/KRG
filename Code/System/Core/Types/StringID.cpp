@@ -6,7 +6,7 @@
 
 namespace KRG
 {
-    THashMap<U32, char*> const StringID::StringIDMap;
+    THashMap<uint32, char*> const StringID::StringIDMap;
 
     //-------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ namespace KRG
 
             ~DebugStringAllocator()
             {
-                auto& nonConstStringMap = const_cast<THashMap<U32, char*>&>( StringID::StringIDMap );
+                auto& nonConstStringMap = const_cast<THashMap<uint32, char*>&>( StringID::StringIDMap );
                 for ( auto& debugString : nonConstStringMap )
                 {
                     KRG::DeleteArray( debugString.second );
@@ -34,7 +34,7 @@ namespace KRG
             }
 
             // TODO: Make threadsafe
-            char const* GetString( U32 ID ) const
+            char const* GetString( uint32 ID ) const
             {
                 if ( ID == 0 )
                 {
@@ -53,7 +53,7 @@ namespace KRG
             }
 
             // TODO: Make threadsafe
-            void RegisterDebugString( U32 ID, char const* pStr )
+            void RegisterDebugString( uint32 ID, char const* pStr )
             {
                 auto iter = StringID::StringIDMap.find( ID );
                 if ( iter == StringID::StringIDMap.end() )
@@ -62,7 +62,7 @@ namespace KRG
                     auto pNewString = KRG::NewArray<char>( size );
                     memcpy( pNewString, pStr, size );
 
-                    auto& nonConstStringMap = const_cast<THashMap<U32, char*>&>( StringID::StringIDMap );
+                    auto& nonConstStringMap = const_cast<THashMap<uint32, char*>&>( StringID::StringIDMap );
                     nonConstStringMap[ID] = pNewString;
                 }
             }
@@ -100,7 +100,7 @@ namespace KRG
         #endif
     }
 
-    StringID::StringID( U32 ID )
+    StringID::StringID( uint32 ID )
         : m_ID( ID )
     {}
 

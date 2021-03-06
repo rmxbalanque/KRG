@@ -6,12 +6,12 @@
 
 namespace KRG
 {
-    template<U32 HistorySize>
+    template<uint32 HistorySize>
     class SimpleMovingAverage
     {
     public:
 
-        SimpleMovingAverage( F32 startValue )
+        SimpleMovingAverage( float startValue )
             : m_average( startValue )
             , m_nextFreeIdx( 0 )
         {
@@ -22,9 +22,9 @@ namespace KRG
             }
         }
 
-        inline F32 GetAverage() const { return m_average; }
+        inline float GetAverage() const { return m_average; }
 
-        inline void AddValue( F32 const value )
+        inline void AddValue( float const value )
         {
             m_values[m_nextFreeIdx++] = value;
             if ( m_nextFreeIdx == m_values.Num() )
@@ -33,7 +33,7 @@ namespace KRG
             }
 
             m_average = 0;
-            for ( F32 v : m_values )
+            for ( float v : m_values )
             {
                 m_average += v;
             }
@@ -42,8 +42,8 @@ namespace KRG
 
     private:
 
-        F32                     m_values[HistorySize];
-        F32                     m_average;
-        S32                     m_nextFreeIdx;
+        float                     m_values[HistorySize];
+        float                     m_average;
+        int32                     m_nextFreeIdx;
     };
 }

@@ -9,7 +9,7 @@ namespace KRG
     namespace QuadraticBezier
     {
         template<typename T>
-        T Evaluate( T p0, T p1, T p2, F32 t )
+        T Evaluate( T p0, T p1, T p2, float t )
         {
             auto const a = p0 * ( 1 - t ) * ( 1 - t );
             auto const b = p1 * ( 2 * t ) * ( 1 - t );
@@ -18,7 +18,7 @@ namespace KRG
         }
 
         template<typename T>
-        T GetTangent( T p0, T p1, T p2, F32 t )
+        T GetTangent( T p0, T p1, T p2, float t )
         {
             auto const a = ( p1 - p0 ) * ( 2 * ( 1 - t ) );
             auto const b = ( p2 - p1 ) * 2 * t;
@@ -31,7 +31,7 @@ namespace KRG
     namespace CubicBezier
     {
         template<typename T>
-        T Evaluate( T p0, T p1, T p2, T p3, F32 t )
+        T Evaluate( T p0, T p1, T p2, T p3, float t )
         {
             auto const a = p0 * ( 1 - t ) * ( 1 - t ) * ( 1 - t );
             auto const b = p1 * 3 * t * ( 1 - t ) * ( 1 - t );
@@ -41,7 +41,7 @@ namespace KRG
         }
 
         template<typename T>
-        T GetTangent( T p0, T p1, T p2, T p3, F32 t )
+        T GetTangent( T p0, T p1, T p2, T p3, float t )
         {
             auto const a = p0 * ( -1 + ( 2 * t ) - ( t * t ) );
             auto const b = p1 * ( 1 - ( 4 * t ) + ( 3 * t * t ) );

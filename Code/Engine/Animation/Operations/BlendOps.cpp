@@ -1,5 +1,5 @@
 #include "BlendOps.h"
-#include "../Types/Flags.h"
+#include "System/Core/Types/BitFlags.h"
 
 //-------------------------------------------------------------------------
 
@@ -8,7 +8,7 @@ namespace KRG
     namespace Animation
     {
         template<typename Blender, typename BlendWeight>
-        void BlenderLocal( Pose const* pSourcePose, Pose const* pTargetPose, F32 const blendWeight, BoneMask const* pBoneMask, Pose* pResultPose )
+        void BlenderLocal( Pose const* pSourcePose, Pose const* pTargetPose, float const blendWeight, BoneMask const* pBoneMask, Pose* pResultPose )
         {
             KRG_ASSERT( blendWeight >= 0.0f && blendWeight <= 1.0f );
             KRG_ASSERT( pSourcePose != nullptr && pTargetPose != nullptr && pResultPose != nullptr );
@@ -18,11 +18,11 @@ namespace KRG
                 KRG_ASSERT( pBoneMask->GetNumWeights() == pSourcePose->GetSkeleton()->GetNumBones() );
             }
 
-            S32 const numBones = pResultPose->GetNumBones();
-            for ( S32 boneIdx = 0; boneIdx < numBones; boneIdx++ )
+            int32 const numBones = pResultPose->GetNumBones();
+            for ( int32 boneIdx = 0; boneIdx < numBones; boneIdx++ )
             {
                 // If the bone has been masked out
-                F32 const boneBlendWeight = BlendWeight::GetBlendWeight( blendWeight, pBoneMask, boneIdx );
+                float const boneBlendWeight = BlendWeight::GetBlendWeight( blendWeight, pBoneMask, boneIdx );
                 if ( boneBlendWeight == 0.0f )
                 {
                     pResultPose->SetTransform( boneIdx, pSourcePose->GetTransform( boneIdx ) );
@@ -43,7 +43,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         template<typename Blender, typename BlendWeight>
-        void BlenderGlobal( Pose const* pSourcePose, Pose const* pTargetPose, F32 const blendWeight, BoneMask const* pBoneMask, Pose* pResultPose )
+        void BlenderGlobal( Pose const* pSourcePose, Pose const* pTargetPose, float const blendWeight, BoneMask const* pBoneMask, Pose* pResultPose )
         {
             static auto const rootBoneIndex = 0;
             KRG_ASSERT( blendWeight >= 0.0f && blendWeight <= 1.0f );
@@ -129,8 +129,8 @@ namespace KRG
                 auto& resultGlobalTransforms = pResultPose->GetGlobalTransforms();
 
                 // Copy global transforms from the original pose
-                S32 const numBones = pResultPose->GetNumBones();
-                for ( S32 boneIdx = 1; boneIdx < numBones; boneIdx++ )
+                int32 const numBones = pResultPose->GetNumBones();
+                for ( int32 boneIdx = 1; boneIdx < numBones; boneIdx++ )
                 {
                     auto const boneBlendWeight = pBoneMask->GetWeight( boneIdx );
                     if ( boneBlendWeight == 0.0f )
@@ -152,9 +152,9 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void Blender::Blend( Pose const* pSourcePose, Pose const* pTargetPose, F32 const blendWeight, U32 const blendOptions, BoneMask const* pBoneMask, Pose* pResultPose )
+        void Blender::Blend( Pose const* pSourcePose, Pose const* pTargetPose, float const blendWeight, uint32 const blendOptions, BoneMask const* pBoneMask, Pose* pResultPose )
         {
-            TFlags<Options::Values> optionFlags( blendOptions );
+            TBitFlags<Options::Values> optionFlags( blendOptions );
 
             pResultPose->ClearGlobalTransforms();
 

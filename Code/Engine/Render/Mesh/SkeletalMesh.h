@@ -18,11 +18,11 @@ namespace KRG::Render
         virtual bool IsValid() const override;
 
         inline bool IsSkeletalMesh() const { return !m_boneIDs.empty(); }
-        inline S32 GetNumBones() const { return (S32) m_boneIDs.size(); }
-        inline S32 GetBoneIndex( StringID const& boneID ) const;
-        inline TVector<S32> const& GetBoneParentIndices() const { return m_parentBoneIndices; }
-        inline S32 GetBoneParentIndex( S32 const& idx ) const { KRG_ASSERT( idx < m_parentBoneIndices.size() ); return m_parentBoneIndices[idx]; }
-        StringID GetBoneID( S32 idx ) const { KRG_ASSERT( idx < m_boneIDs.size() ); return m_boneIDs[idx]; }
+        inline int32 GetNumBones() const { return (int32) m_boneIDs.size(); }
+        inline int32 GetBoneIndex( StringID const& boneID ) const;
+        inline TVector<int32> const& GetBoneParentIndices() const { return m_parentBoneIndices; }
+        inline int32 GetBoneParentIndex( int32 const& idx ) const { KRG_ASSERT( idx < m_parentBoneIndices.size() ); return m_parentBoneIndices[idx]; }
+        StringID GetBoneID( int32 idx ) const { KRG_ASSERT( idx < m_boneIDs.size() ); return m_boneIDs[idx]; }
 
         inline TVector<Transform> const& GetBindPose() const { return m_bindPose; }
         inline TVector<Transform> const& GetInverseBindPose() const { return m_inverseBindPose; }
@@ -30,7 +30,7 @@ namespace KRG::Render
     private:
 
         TVector<StringID>                   m_boneIDs;
-        TVector<S32>                        m_parentBoneIndices;
+        TVector<int32>                        m_parentBoneIndices;
         TVector<Transform>                  m_bindPose;             // Note: bind pose is in global space
         TVector<Transform>                  m_inverseBindPose;      // Not serialized, created upon installation
     };

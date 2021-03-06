@@ -54,7 +54,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             FbxSystemUnit const originalSystemUnits = globalSettings.GetSystemUnit();
-            m_scaleConversionMultiplier = (F32) originalSystemUnits.GetConversionFactorTo( FbxSystemUnit::m );
+            m_scaleConversionMultiplier = (float) originalSystemUnits.GetConversionFactorTo( FbxSystemUnit::m );
             m_scaleConversionTransform = Transform::FromUniformScale( m_scaleConversionMultiplier );
 
             FbxSystemUnit::m.ConvertScene( m_pScene );

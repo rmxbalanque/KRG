@@ -14,7 +14,7 @@ namespace KRG
             inline operator __m128i( ) const { return _mm_castps_si128( *this ); }
             inline operator __m128d( ) const { return _mm_castps_pd( *this ); }
 
-            S32 i[4];
+            int32 i[4];
         };
 
         struct alignas( 16 ) UIntMask
@@ -23,7 +23,7 @@ namespace KRG
             inline operator __m128i( ) const { return _mm_castps_si128( *this ); }
             inline operator __m128d( ) const { return _mm_castps_pd( *this ); }
 
-            U32 v[4];
+            uint32 v[4];
         };
 
         struct alignas( 16 ) FloatMask
@@ -32,7 +32,7 @@ namespace KRG
             inline operator __m128i() const { return _mm_castps_si128( *this ); }
             inline operator __m128d() const { return _mm_castps_pd( *this ); }
 
-            F32 v[4];
+            float v[4];
         };
 
         // Int Operations

@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_RESOURCECOMPILERS_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMeshResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_meshName ) );
+        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_meshName ), KRG_NVP( m_isConvexMesh ) );
     }
 
     //-------------------------------------------------------------------------
@@ -69,6 +69,18 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_meshName;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshResourceDescriptor, m_meshName );
             propertyInfo.m_size = sizeof( KRG::String );
+            propertyInfo.m_flags.SetAll( 0 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_isConvexMesh" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "bool" );
+            propertyInfo.m_parentTypeID = 1428198006;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_isConvexMesh;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshResourceDescriptor, m_isConvexMesh );
+            propertyInfo.m_size = sizeof( bool );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
@@ -159,7 +171,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
@@ -167,7 +179,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property

@@ -36,12 +36,12 @@ namespace KRG
         : ConfigSetting( pName, pCategory, Setting::Type::Int, false )
     {}
 
-    ConfigSettingInt::ConfigSettingInt( char const* pName, char const* pCategory, S32 initialValue )
+    ConfigSettingInt::ConfigSettingInt( char const* pName, char const* pCategory, int32 initialValue )
         : ConfigSetting( pName, pCategory, Setting::Type::Int, true )
         , m_value( initialValue )
     {}
 
-    ConfigSettingInt::ConfigSettingInt( char const* pName, char const* pCategory, S32 initialValue, S32 min, S32 max )
+    ConfigSettingInt::ConfigSettingInt( char const* pName, char const* pCategory, int32 initialValue, int32 min, int32 max )
         : ConfigSetting( pName, pCategory, Setting::Type::Int, true )
         , m_value( initialValue )
         , m_min( min )
@@ -54,12 +54,12 @@ namespace KRG
         : ConfigSetting( pName, pCategory, Setting::Type::Float, false )
     {}
 
-    ConfigSettingFloat::ConfigSettingFloat( char const* pName, char const* pCategory, F32 initialValue )
+    ConfigSettingFloat::ConfigSettingFloat( char const* pName, char const* pCategory, float initialValue )
         : ConfigSetting( pName, pCategory, Setting::Type::Float, true )
         , m_value( initialValue )
     {}
 
-    ConfigSettingFloat::ConfigSettingFloat( char const* pName, char const* pCategory, F32 initialValue, F32 min, F32 max )
+    ConfigSettingFloat::ConfigSettingFloat( char const* pName, char const* pCategory, float initialValue, float min, float max )
         : ConfigSetting( pName, pCategory, Setting::Type::Float, true )
         , m_value( initialValue )
         , m_min( min )

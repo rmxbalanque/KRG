@@ -42,12 +42,12 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    DebugSettingInt::DebugSettingInt( char const* pName, char const* pCategory, char const* pDescription, S32 initialValue )
+    DebugSettingInt::DebugSettingInt( char const* pName, char const* pCategory, char const* pDescription, int32 initialValue )
         : DebugSetting( pName, pCategory, pDescription, Setting::Type::Int )
         , m_value( initialValue )
     {}
 
-    DebugSettingInt::DebugSettingInt( char const* pName, char const* pCategory, char const* pDescription, S32 initialValue, S32 min, S32 max )
+    DebugSettingInt::DebugSettingInt( char const* pName, char const* pCategory, char const* pDescription, int32 initialValue, int32 min, int32 max )
         : DebugSetting( pName, pCategory, pDescription, Setting::Type::Int )
         , m_value( initialValue )
         , m_min( min )
@@ -56,12 +56,12 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    DebugSettingFloat::DebugSettingFloat( char const* pName, char const* pCategory, char const* pDescription, F32 initialValue )
+    DebugSettingFloat::DebugSettingFloat( char const* pName, char const* pCategory, char const* pDescription, float initialValue )
         : DebugSetting( pName, pCategory, pDescription, Setting::Type::Float )
         , m_value( initialValue )
     {}
 
-    DebugSettingFloat::DebugSettingFloat( char const* pName, char const* pCategory, char const* pDescription, F32 initialValue, F32 min, F32 max )
+    DebugSettingFloat::DebugSettingFloat( char const* pName, char const* pCategory, char const* pDescription, float initialValue, float min, float max )
         : DebugSetting( pName, pCategory, pDescription, Setting::Type::Float )
         , m_value( initialValue )
         , m_min( min )

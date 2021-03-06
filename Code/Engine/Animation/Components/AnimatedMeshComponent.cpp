@@ -18,10 +18,10 @@ namespace KRG
         {
             KRG_ASSERT( pPose != nullptr && pPose->HasGlobalTransforms() );
 
-            S32 const numAnimBones = pPose->GetNumBones();
+            int32 const numAnimBones = pPose->GetNumBones();
             for ( auto animBoneIdx = 0; animBoneIdx < numAnimBones; animBoneIdx++ )
             {
-                S32 const meshBoneIdx = m_animToMeshBoneMap[animBoneIdx];
+                int32 const meshBoneIdx = m_animToMeshBoneMap[animBoneIdx];
                 if ( meshBoneIdx != InvalidIndex )
                 {
                     Transform const boneTransform = pPose->GetGlobalTransform( animBoneIdx );

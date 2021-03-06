@@ -10,11 +10,11 @@ namespace KRG
 {
     namespace ImGuiX
     {
-        static F32 const g_axisLength = 75.0f;
-        static F32 const g_axisThickness = 5.0f;
-        static F32 const g_originSphereRadius = 8.0f;
-        static F32 const g_selectedOriginSphereRadius = 12.0f;
-        static F32 const g_originSphereAxisOffset = g_originSphereRadius + 8.0f;
+        static float const g_axisLength = 75.0f;
+        static float const g_axisThickness = 5.0f;
+        static float const g_originSphereRadius = 8.0f;
+        static float const g_selectedOriginSphereRadius = 12.0f;
+        static float const g_originSphereAxisOffset = g_originSphereRadius + 8.0f;
         static Color const g_selectedColor = Colors::Yellow;
         static Color const g_planeColor = Colors::Gray;
 
@@ -27,7 +27,7 @@ namespace KRG
             auto pDrawList = ImGui::GetWindowDrawList();
             KRG_ASSERT( pDrawList != nullptr );
 
-            U32 const originColor = ImGuiExtensions::GetImguiColorU32( ( m_mode == ManipulationMode::ScaleXYZ || m_isOriginHovered ) ? g_selectedColor : Colors::White );
+            uint32 const originColor = ImGuiExtensions::GetImguiColorU32( ( m_mode == ManipulationMode::ScaleXYZ || m_isOriginHovered ) ? g_selectedColor : Colors::White );
 
             pDrawList->AddCircleFilled( originPosition.ToFloat2(), 3.0f, originColor, 20 );
             pDrawList->AddCircle( originPosition.ToFloat2(), 8.0f, originColor, 20, 2.0f );
@@ -40,7 +40,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             Vector const mousePos = io.MousePos;
-            F32 const mouseToOriginDistance = originPosition.GetDistance2( mousePos );
+            float const mouseToOriginDistance = originPosition.GetDistance2( mousePos );
             bool const isHovered = mouseToOriginDistance < g_originSphereRadius;
             return isHovered;
         }
@@ -61,7 +61,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             Vector const offsetStart = start + ( axisDirection * g_originSphereAxisOffset );
-            U32 const axisColor = ImGuiExtensions::GetImguiColorU32( color );
+            uint32 const axisColor = ImGuiExtensions::GetImguiColorU32( color );
             pDrawList->AddLine( offsetStart.ToFloat2(), end.ToFloat2(), axisColor, g_axisThickness );
             pDrawList->AddCircleFilled ( end.ToFloat2(), g_axisThickness * 1.5, axisColor );
 
@@ -69,7 +69,7 @@ namespace KRG
 
             LineSegment const axisLine( offsetStart, end );
             Vector const mousePos = io.MousePos;
-            F32 const mouseToLineDistance = axisLine.GetDistanceBetweenSegmentAndPoint( mousePos );
+            float const mouseToLineDistance = axisLine.GetDistanceBetweenSegmentAndPoint( mousePos );
             bool const isHovered = mouseToLineDistance < ( ( g_axisThickness / 2 ) + 3.0f );
 
             return isHovered;
@@ -100,9 +100,9 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             Vector const mousePos = io.MousePos;
-            auto LeftHandTest = [&mousePos, &manipulationQuadVerts] ( S32 side0, S32 side1 )
+            auto LeftHandTest = [&mousePos, &manipulationQuadVerts] ( int32 side0, int32 side1 )
             {
-                F32 D = ( manipulationQuadVerts[side1].x - manipulationQuadVerts[side0].x ) * ( mousePos.y - manipulationQuadVerts[side0].y ) - ( mousePos.x - manipulationQuadVerts[side0].x ) * ( manipulationQuadVerts[side1].y - manipulationQuadVerts[side0].y );
+                float D = ( manipulationQuadVerts[side1].x - manipulationQuadVerts[side0].x ) * ( mousePos.y - manipulationQuadVerts[side0].y ) - ( mousePos.x - manipulationQuadVerts[side0].x ) * ( manipulationQuadVerts[side1].y - manipulationQuadVerts[side0].y );
                 return D > 0;
             };
 
@@ -222,9 +222,9 @@ namespace KRG
                             Vector const localAxisY = m_targetTransform.GetUnitAxisY();
                             Vector const localAxisZ = m_targetTransform.GetUnitAxisZ();
 
-                            F32 const projectedLengthX = Math::Abs( manipulationAxis.GetScalarProjection( localAxisX ) );
-                            F32 const projectedLengthY = Math::Abs( manipulationAxis.GetScalarProjection( localAxisY ) );
-                            F32 const projectedLengthZ = Math::Abs( manipulationAxis.GetScalarProjection( localAxisZ ) );
+                            float const projectedLengthX = Math::Abs( manipulationAxis.GetScalarProjection( localAxisX ) );
+                            float const projectedLengthY = Math::Abs( manipulationAxis.GetScalarProjection( localAxisY ) );
+                            float const projectedLengthZ = Math::Abs( manipulationAxis.GetScalarProjection( localAxisZ ) );
 
                             scaleDeltaAxis = Vector( projectedLengthX, projectedLengthY, projectedLengthZ );
                         }

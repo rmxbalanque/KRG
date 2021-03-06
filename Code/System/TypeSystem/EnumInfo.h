@@ -17,14 +17,14 @@ namespace KRG
                 return iter != m_constants.end();
             }
 
-            inline S64 GetConstantValue( StringID label ) const
+            inline int64 GetConstantValue( StringID label ) const
             {
                 auto const iter = m_constants.find( label );
                 KRG_ASSERT( iter != m_constants.end() );
                 return iter->second;
             }
 
-            inline StringID GetConstantLabel( S64 value ) const
+            inline StringID GetConstantLabel( int64 value ) const
             {
                 for ( auto const& pair : m_constants )
                 {
@@ -42,7 +42,7 @@ namespace KRG
 
             TypeID                                              m_ID;
             CoreTypes                                           m_underlyingType;
-            THashMap<StringID, S64>                             m_constants;
+            THashMap<StringID, int64>                             m_constants;
         };
     }
 }

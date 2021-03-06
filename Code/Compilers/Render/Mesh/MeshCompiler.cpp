@@ -15,29 +15,29 @@ namespace KRG
             // Merge all mesh geometries into the main vertex and index buffers
             //-------------------------------------------------------------------------
 
-            U32 numVertices = 0;
-            U32 numIndices = 0;
+            uint32 numVertices = 0;
+            uint32 numIndices = 0;
 
             for ( auto const& geometrySection : rawMesh.GetGeometrySections() )
             {
                 // Add sub-mesh record
-                mesh.m_sections.push_back( MeshGeometry::GeometrySection( numIndices, (U32) geometrySection.m_indices.size() ) );
+                mesh.m_sections.push_back( MeshGeometry::GeometrySection( numIndices, (uint32) geometrySection.m_indices.size() ) );
 
                 for ( auto idx : geometrySection.m_indices )
                 {
                     mesh.m_indices.push_back( numVertices + idx );
                 }
 
-                numIndices += (U32) geometrySection.m_indices.size();
-                numVertices += (U32) geometrySection.m_vertices.size();
+                numIndices += (uint32) geometrySection.m_indices.size();
+                numVertices += (uint32) geometrySection.m_vertices.size();
             }
 
             // Copy mesh vertex data
             //-------------------------------------------------------------------------
 
             AABB meshAlignedBounds;
-            S32 vertexSize = 0;
-            S32 vertexBufferSize = 0;
+            int32 vertexSize = 0;
+            int32 vertexBufferSize = 0;
 
             if ( rawMesh.IsSkeletalMesh() )
             {
@@ -117,8 +117,8 @@ namespace KRG
             mesh.m_vertexBuffer.m_type = RenderBuffer::Type::Vertex;
             mesh.m_vertexBuffer.m_usage = RenderBuffer::Usage::GPU_only;
 
-            mesh.m_indexBuffer.m_byteStride = sizeof( U32 );
-            mesh.m_indexBuffer.m_byteSize = (U32) mesh.m_indices.size() * sizeof( U32 );
+            mesh.m_indexBuffer.m_byteStride = sizeof( uint32 );
+            mesh.m_indexBuffer.m_byteSize = (uint32) mesh.m_indices.size() * sizeof( uint32 );
             mesh.m_indexBuffer.m_type = RenderBuffer::Type::Index;
             mesh.m_indexBuffer.m_usage = RenderBuffer::Usage::GPU_only;
 

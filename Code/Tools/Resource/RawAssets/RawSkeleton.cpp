@@ -15,9 +15,9 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        S32 RawSkeleton::GetBoneIndex( StringID const& boneName ) const
+        int32 RawSkeleton::GetBoneIndex( StringID const& boneName ) const
         {
-            S32 const numBones = GetNumBones();
+            int32 const numBones = GetNumBones();
 
             for ( auto i = 0; i < numBones; i++ )
             {
@@ -38,7 +38,7 @@ namespace KRG
             auto const numBones = m_bones.size();
             for ( auto i = numBones - 1; i > 0; i-- )
             {
-                S32 parentIdx = m_bones[i].m_parentBoneIdx;
+                int32 parentIdx = m_bones[i].m_parentBoneIdx;
                 auto const& parentInverseTransform = m_bones[parentIdx].m_globalTransform.GetInverse();
                 m_bones[i].m_localTransform = m_bones[i].m_globalTransform * parentInverseTransform;
             }
@@ -52,7 +52,7 @@ namespace KRG
             auto const numBones = m_bones.size();
             for ( auto i = 1; i < numBones; i++ )
             {
-                S32 parentIdx = m_bones[i].m_parentBoneIdx;
+                int32 parentIdx = m_bones[i].m_parentBoneIdx;
                 KRG_ASSERT( parentIdx != InvalidIndex );
                 m_bones[i].m_globalTransform = m_bones[i].m_localTransform * m_bones[parentIdx].m_globalTransform;
             }

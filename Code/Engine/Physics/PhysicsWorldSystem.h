@@ -11,6 +11,7 @@
 namespace physx
 {
     class PxShape;
+    class PxRigidActor;
 }
 
 //-------------------------------------------------------------------------
@@ -18,17 +19,19 @@ namespace physx
 namespace KRG::Physics
 {
     class PhysicsSystem;
-    class PhysicsShapeComponent;
+    class PhysicsComponent;
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_PHYSICS_API PhysicsWorldSystem : public IWorldEntitySystem
     {
+        friend class PhysicsDebugViewController;
+
         struct EntityPhysicsRecord : public EntityRegistryRecord
         {
-            inline bool IsEmpty() const { return m_shapeComponents.empty(); }
+            inline bool IsEmpty() const { return m_components.empty(); }
 
-            TVector<PhysicsShapeComponent*>         m_shapeComponents;
+            TVector<PhysicsComponent*>                  m_components;
         };
 
     public:
@@ -46,16 +49,15 @@ namespace KRG::Physics
 
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
+        virtual void UpdateEntitySystem( UpdateContext const& ctx ) override final;
 
-        void RegisterShapeComponent( Entity const* pEntity, PhysicsShapeComponent* pComponent );
-        void UnregisterShapeComponent( Entity const* pEntity, PhysicsShapeComponent* pComponent );
-
-        physx::PxShape* CreateShape( PhysicsShapeComponent* pComponent );
-
+        physx::PxRigidActor* CreateActor( PhysicsComponent* pComponent ) const;
+        physx::PxShape* CreateShape( PhysicsComponent* pComponent, physx::PxRigidActor* pActor ) const;
     private:
 
         PhysicsSystem&                                  m_physicsSystem;
         PhysicsScene*                                   m_pScene = nullptr;
         EntityRegistry<EntityPhysicsRecord>             m_registeredEntities;
+        THashMap<UUID, PhysicsComponent*>               m_dynamicComponents; // TODO: profile and see if we need to use a dynamic pool
     };
 }

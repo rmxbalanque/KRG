@@ -57,7 +57,7 @@ namespace KRG
             }
         }
 
-        Transform Pose::GetGlobalTransform( S32 boneIdx ) const
+        Transform Pose::GetGlobalTransform( int32 boneIdx ) const
         {
             KRG_ASSERT( boneIdx < m_pSkeleton->GetNumBones() );
 
@@ -68,11 +68,11 @@ namespace KRG
             }
             else
             {
-                auto boneParents = KRG_STACK_ARRAY_ALLOC( S32, m_pSkeleton->GetNumBones() );
-                S32 nextEntry = 0;
+                auto boneParents = KRG_STACK_ARRAY_ALLOC( int32, m_pSkeleton->GetNumBones() );
+                int32 nextEntry = 0;
 
                 // Get parent list
-                S32 parentIdx = m_pSkeleton->GetParentIndex( boneIdx );
+                int32 parentIdx = m_pSkeleton->GetParentIndex( boneIdx );
                 while ( parentIdx != InvalidIndex )
                 {
                     boneParents[nextEntry++] = parentIdx;
@@ -84,12 +84,12 @@ namespace KRG
                 if ( nextEntry > 0 )
                 {
                     // Calculate global transform of parent
-                    S32 arrayIdx = nextEntry - 1;
+                    int32 arrayIdx = nextEntry - 1;
                     parentIdx = boneParents[arrayIdx--];
                     auto parentGlobalTransform = m_localTransforms[parentIdx];
                     for ( arrayIdx; arrayIdx >= 0; arrayIdx-- )
                     {
-                        S32 const nextIdx = boneParents[arrayIdx];
+                        int32 const nextIdx = boneParents[arrayIdx];
                         auto const nextTransform = m_localTransforms[nextIdx];
                         parentGlobalTransform = nextTransform * parentGlobalTransform;
                     }

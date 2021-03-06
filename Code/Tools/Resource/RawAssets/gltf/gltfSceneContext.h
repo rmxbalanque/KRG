@@ -41,10 +41,10 @@ namespace KRG
             {
                 Matrix krgMatrix
                 (
-                    (F32) gltfMatrix[0], (F32) gltfMatrix[1], (F32) gltfMatrix[2], (F32) gltfMatrix[3],
-                    (F32) gltfMatrix[4], (F32) gltfMatrix[5], (F32) gltfMatrix[6], (F32) gltfMatrix[7],
-                    (F32) gltfMatrix[8], (F32) gltfMatrix[9], (F32) gltfMatrix[10], (F32) gltfMatrix[11],
-                    (F32) gltfMatrix[12], (F32) gltfMatrix[13], (F32) gltfMatrix[14], (F32) gltfMatrix[15]
+                    (float) gltfMatrix[0], (float) gltfMatrix[1], (float) gltfMatrix[2], (float) gltfMatrix[3],
+                    (float) gltfMatrix[4], (float) gltfMatrix[5], (float) gltfMatrix[6], (float) gltfMatrix[7],
+                    (float) gltfMatrix[8], (float) gltfMatrix[9], (float) gltfMatrix[10], (float) gltfMatrix[11],
+                    (float) gltfMatrix[12], (float) gltfMatrix[13], (float) gltfMatrix[14], (float) gltfMatrix[15]
                 );
 
                 Transform convertedTransform = Transform( krgMatrix );
@@ -54,7 +54,7 @@ namespace KRG
 
             inline Vector ConvertVector( cgltf_float const gltfVector[3] ) const
             {
-                Vector krgVector( (F32) gltfVector[0], (F32) gltfVector[1], (F32) gltfVector[2], 1.0f );
+                Vector krgVector( (float) gltfVector[0], (float) gltfVector[1], (float) gltfVector[2], 1.0f );
                 return krgVector;
             }
 

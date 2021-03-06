@@ -14,15 +14,15 @@ namespace KRG
 
         static Transform const Identity;
 
-        inline static Transform Lerp( Transform const& from, Transform const& to, F32 t );
-        inline static Transform Slerp( Transform const& from, Transform const& to, F32 t );
+        inline static Transform Lerp( Transform const& from, Transform const& to, float t );
+        inline static Transform Slerp( Transform const& from, Transform const& to, float t );
         inline static Transform Delta( Transform const& from, Transform const& to );
         inline static Transform DeltaNoScale( Transform const& from, Transform const& to );
 
         KRG_FORCE_INLINE static Transform FromRotation( Quaternion const& rotation ) { return Transform( rotation ); }
         KRG_FORCE_INLINE static Transform FromTranslation( Vector const& translation ) { return Transform( Quaternion::Identity, translation ); }
         KRG_FORCE_INLINE static Transform FromScale( Vector const& scale ) { return Transform( Quaternion::Identity, Vector::UnitW, scale ); }
-        KRG_FORCE_INLINE static Transform FromUniformScale( F32 uniformScale ) { return Transform( Quaternion::Identity, Vector::UnitW, Vector( uniformScale, uniformScale, uniformScale, 1.0f ) ); }
+        KRG_FORCE_INLINE static Transform FromUniformScale( float uniformScale ) { return Transform( Quaternion::Identity, Vector::UnitW, Vector( uniformScale, uniformScale, uniformScale, 1.0f ) ); }
         KRG_FORCE_INLINE static Transform FromTranslationAndScale( Vector const& translation, Vector const& scale ) { return Transform( Quaternion::Identity, translation, scale ); }
         KRG_FORCE_INLINE static Transform FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return Transform( Quaternion::FromRotationBetweenVectors( sourceVector, targetVector ) ); }
 
@@ -89,7 +89,7 @@ namespace KRG
 
         inline Vector GetScale() const { return m_scale; }
         inline void SetScale( Vector const& scale ) { m_scale = scale; m_scale.SetW0(); }
-        inline void SetScale( F32 uniformScale ) { m_scale = Vector( uniformScale, uniformScale, uniformScale, 0.0f ); }
+        inline void SetScale( float uniformScale ) { m_scale = Vector( uniformScale, uniformScale, uniformScale, 0.0f ); }
         inline bool HasNegativeScale() const { return m_scale.IsAnyLessThan( Vector::Zero ); }
         inline bool HasUniformScale() const { return m_scale.x == m_scale.y && m_scale.y == m_scale.z; }
         inline bool HasShearOrSkew() const { auto const abs = m_scale.GetAbs(); return abs.x != abs.y || abs.y != abs.z; }
@@ -163,7 +163,7 @@ namespace KRG
         return inverse.Inverse();
     }
 
-    inline Transform Transform::Lerp( Transform const& from, Transform const& to, F32 t )
+    inline Transform Transform::Lerp( Transform const& from, Transform const& to, float t )
     {
         Quaternion const rotation = Quaternion::NLerp( Quaternion( from.m_rotation ), Quaternion( to.m_rotation ), t );
         Vector const translation = Vector::Lerp( from.m_translation, to.m_translation, t );
@@ -171,7 +171,7 @@ namespace KRG
         return Transform( rotation, translation, scale );
     }
 
-    inline Transform Transform::Slerp( Transform const& from, Transform const& to, F32 t )
+    inline Transform Transform::Slerp( Transform const& from, Transform const& to, float t )
     {
         Quaternion const rotation = Quaternion::SLerp( Quaternion( from.m_rotation ), Quaternion( to.m_rotation ), t );
         Vector const translation = Vector::Lerp( Vector( from.m_translation ), Vector( to.m_translation ), t );

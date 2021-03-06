@@ -20,15 +20,18 @@ namespace KRG
 
             EXPOSE DataPath         m_meshDataPath;
 
-            // Optional value that specifies the specific sub-mesh to compile, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
+            // Optional value: Specifies a single sub-mesh to use to generated the physics collision, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
             EXPOSE String           m_meshName;
+
+            // Optional value: Specifies if the mesh is a convex mesh (meshes are considered triangle meshes by default)
+            EXPOSE bool             m_isConvexMesh = false;
         };
 
         //-------------------------------------------------------------------------
 
         class PhysicsMeshCompiler : public Resource::Compiler
         {
-            static const S32 VERSION = 2;
+            static const int32 VERSION = 3;
 
         public:
 
@@ -38,6 +41,7 @@ namespace KRG
         private:
 
             bool CookTriangleMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const;
+            bool CookConvexMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const;
         };
     }
 }

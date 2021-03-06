@@ -77,19 +77,19 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             auto pData = reinterpret_cast<Float4*>( m_pointRS.m_stagingVertexData.data() );
-            auto const dataSize = (U32) m_pointRS.m_stagingVertexData.size();
+            auto const dataSize = (uint32) m_pointRS.m_stagingVertexData.size();
 
-            S32 const numPoints = (S32) commands.size();
+            int32 const numPoints = (int32) commands.size();
             if ( numPoints > 0 )
             {
                 // Fill the points vertex buffer
-                U32 const numDrawCalls = (U32) Math::Ceiling( (F32) numPoints / DebugPointRenderState::MaxPointsPerDrawCall );
+                uint32 const numDrawCalls = (uint32) Math::Ceiling( (float) numPoints / DebugPointRenderState::MaxPointsPerDrawCall );
                 for ( auto i = 0u; i < numDrawCalls; i++ )
                 {
-                    U32 const drawRangeStart = ( i * DebugPointRenderState::MaxPointsPerDrawCall );
-                    U32 const drawRangeEnd = drawRangeStart + Math::Min( U32( numPoints - ( i * DebugPointRenderState::MaxPointsPerDrawCall ) ), (U32) DebugPointRenderState::MaxPointsPerDrawCall );
-                    U32 const drawRangeLength = ( drawRangeEnd - drawRangeStart );
-                    U32 const drawCommandMemorySize = drawRangeLength * sizeof( Debug::Drawing::PointCommand );
+                    uint32 const drawRangeStart = ( i * DebugPointRenderState::MaxPointsPerDrawCall );
+                    uint32 const drawRangeEnd = drawRangeStart + Math::Min( uint32( numPoints - ( i * DebugPointRenderState::MaxPointsPerDrawCall ) ), (uint32) DebugPointRenderState::MaxPointsPerDrawCall );
+                    uint32 const drawRangeLength = ( drawRangeEnd - drawRangeStart );
+                    uint32 const drawCommandMemorySize = drawRangeLength * sizeof( Debug::Drawing::PointCommand );
                     memcpy( pData, &commands[drawRangeStart], drawCommandMemorySize );
 
                     renderContext.WriteToBuffer( m_pointRS.m_vertexBuffer, pData, dataSize );
@@ -106,19 +106,19 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             auto pData = reinterpret_cast<Float4*>( m_lineRS.m_stagingVertexData.data() );
-            auto const dataSize = (U32) m_lineRS.m_stagingVertexData.size();
+            auto const dataSize = (uint32) m_lineRS.m_stagingVertexData.size();
 
-            S32 const numLines = (S32) commands.size();
+            int32 const numLines = (int32) commands.size();
             if ( numLines > 0 )
             {
                 // Fill the lines vertex buffer
-                U32 const numDrawCalls = (U32) Math::Ceiling( (F32) numLines / DebugLineRenderState::MaxLinesPerDrawCall );
+                uint32 const numDrawCalls = (uint32) Math::Ceiling( (float) numLines / DebugLineRenderState::MaxLinesPerDrawCall );
                 for ( auto i = 0u; i < numDrawCalls; i++ )
                 {
-                    U32 const drawRangeStart = ( i * DebugLineRenderState::MaxLinesPerDrawCall );
-                    U32 const drawRangeEnd = drawRangeStart + Math::Min( U32( numLines - ( i * DebugLineRenderState::MaxLinesPerDrawCall ) ), (U32) DebugLineRenderState::MaxLinesPerDrawCall );
-                    U32 const drawRangeLength = ( drawRangeEnd - drawRangeStart );
-                    U32 const drawCommandMemorySize = drawRangeLength * sizeof( Debug::Drawing::LineCommand );
+                    uint32 const drawRangeStart = ( i * DebugLineRenderState::MaxLinesPerDrawCall );
+                    uint32 const drawRangeEnd = drawRangeStart + Math::Min( uint32( numLines - ( i * DebugLineRenderState::MaxLinesPerDrawCall ) ), (uint32) DebugLineRenderState::MaxLinesPerDrawCall );
+                    uint32 const drawRangeLength = ( drawRangeEnd - drawRangeStart );
+                    uint32 const drawCommandMemorySize = drawRangeLength * sizeof( Debug::Drawing::LineCommand );
                     memcpy( pData, &commands[drawRangeStart], drawCommandMemorySize );
 
                     renderContext.WriteToBuffer( m_lineRS.m_vertexBuffer, pData, dataSize );
@@ -135,19 +135,19 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             auto pData = reinterpret_cast<Float4*>( m_primitiveRS.m_stagingVertexData.data() );
-            auto const dataSize = (U32) m_primitiveRS.m_stagingVertexData.size();
+            auto const dataSize = (uint32) m_primitiveRS.m_stagingVertexData.size();
 
-            S32 const numTriangles = (S32) commands.size();
+            int32 const numTriangles = (int32) commands.size();
             if ( numTriangles > 0 )
             {
                 // Fill the triangles vertex buffer
-                U32 const numDrawCalls = (U32) Math::Ceiling( (F32) numTriangles / DebugPrimitiveRenderState::MaxTrianglesPerDrawCall );
+                uint32 const numDrawCalls = (uint32) Math::Ceiling( (float) numTriangles / DebugPrimitiveRenderState::MaxTrianglesPerDrawCall );
                 for ( auto i = 0u; i < numDrawCalls; i++ )
                 {
-                    U32 const drawRangeStart = ( i * DebugPrimitiveRenderState::MaxTrianglesPerDrawCall );
-                    U32 const drawRangeEnd = drawRangeStart + Math::Min( numTriangles - ( i * DebugPrimitiveRenderState::MaxTrianglesPerDrawCall ), DebugPrimitiveRenderState::MaxTrianglesPerDrawCall );
-                    U32 const drawRangeLength = ( drawRangeEnd - drawRangeStart );
-                    U32 const drawCommandMemorySize = drawRangeLength * sizeof( Debug::Drawing::TriangleCommand );
+                    uint32 const drawRangeStart = ( i * DebugPrimitiveRenderState::MaxTrianglesPerDrawCall );
+                    uint32 const drawRangeEnd = drawRangeStart + Math::Min( numTriangles - ( i * DebugPrimitiveRenderState::MaxTrianglesPerDrawCall ), DebugPrimitiveRenderState::MaxTrianglesPerDrawCall );
+                    uint32 const drawRangeLength = ( drawRangeEnd - drawRangeStart );
+                    uint32 const drawCommandMemorySize = drawRangeLength * sizeof( Debug::Drawing::TriangleCommand );
                     memcpy( pData, &commands[drawRangeStart], drawCommandMemorySize );
 
                     renderContext.WriteToBuffer( m_primitiveRS.m_vertexBuffer, pData, dataSize );
@@ -156,11 +156,11 @@ namespace KRG
             }
         }
 
-        void DebugRenderer::DrawText( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<U32> cmdRange )
+        void DebugRenderer::DrawText( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<uint32> cmdRange )
         {
             KRG_ASSERT( cmdRange.IsValid() );
 
-            S32 const fontIdx = ( commands[cmdRange.m_min].m_size == Debug::Drawing::TextSize::Small ) ? 0 : 1;
+            int32 const fontIdx = ( commands[cmdRange.m_min].m_size == Debug::Drawing::TextSize::Small ) ? 0 : 1;
 
             //-------------------------------------------------------------------------
 
@@ -168,12 +168,12 @@ namespace KRG
             size_t const vertexDataSize = m_intermediateGlyphVertexData.size() * sizeof( DebugFontGlyphVertex );
 
             auto pIndexData = m_intermediateGlyphIndexData.data();
-            size_t const indexDataSize = m_intermediateGlyphIndexData.size() * sizeof( U16 );
+            size_t const indexDataSize = m_intermediateGlyphIndexData.size() * sizeof( uint16 );
 
             //-------------------------------------------------------------------------
 
-            S32 numGlyphsDrawn = 0;
-            S32 const numCommands = (S32) cmdRange.GetLength();
+            int32 numGlyphsDrawn = 0;
+            int32 const numCommands = (int32) cmdRange.GetLength();
             for ( auto c = cmdRange.m_min; c < cmdRange.m_max; c++ )
             {
                 auto const& cmd = commands[c];
@@ -181,10 +181,10 @@ namespace KRG
                 // Get the glyph string and number of glyphs needed to render it
                 //-------------------------------------------------------------------------
 
-                TInlineVector<S32, 100> glyphIndices;
+                TInlineVector<int32, 100> glyphIndices;
                 m_textRS.m_fontAtlas.GetGlyphsForString( fontIdx, cmd.m_text, glyphIndices );
 
-                S32 numGlyphsToDraw = (S32) glyphIndices.size();
+                int32 numGlyphsToDraw = (int32) glyphIndices.size();
                 bool const drawTextBox = cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::DrawBackground );
                 if ( drawTextBox )
                 {
@@ -225,7 +225,7 @@ namespace KRG
                 // Adjust text position based on alignment settings
                 //-------------------------------------------------------------------------
 
-                static S32 const textBoxPadding = 3;
+                static int32 const textBoxPadding = 3;
                 Float2 const extents( m_textRS.m_fontAtlas.GetTextExtents( fontIdx, cmd.m_text.c_str() ) );
 
                 // Horizontal Alignment
@@ -290,11 +290,11 @@ namespace KRG
                 if ( drawTextBox )
                 {
                     textPosTopLeft.y += textBoxPadding;
-                    m_textRS.m_fontAtlas.WriteCustomGlyphToBuffer( &pVertexData[numGlyphsDrawn * 4], U16( numGlyphsDrawn * 4 ), &pIndexData[numGlyphsDrawn * 6], fontIdx, glyphIndices[0], m_textRS.m_nonZeroAlphaTexCoords, textPosTopLeft, extents, textBoxPadding, Float4( 0, 0, 0, 128.0f / 255 ) );
+                    m_textRS.m_fontAtlas.WriteCustomGlyphToBuffer( &pVertexData[numGlyphsDrawn * 4], uint16( numGlyphsDrawn * 4 ), &pIndexData[numGlyphsDrawn * 6], fontIdx, glyphIndices[0], m_textRS.m_nonZeroAlphaTexCoords, textPosTopLeft, extents, textBoxPadding, Float4( 0, 0, 0, 128.0f / 255 ) );
                     numGlyphsDrawn++;
                 }
 
-                numGlyphsDrawn += m_textRS.m_fontAtlas.WriteGlyphsToBuffer( &pVertexData[numGlyphsDrawn * 4], U16( numGlyphsDrawn * 4 ), &pIndexData[numGlyphsDrawn * 6], 0, glyphIndices, textPosTopLeft, cmd.m_color );
+                numGlyphsDrawn += m_textRS.m_fontAtlas.WriteGlyphsToBuffer( &pVertexData[numGlyphsDrawn * 4], uint16( numGlyphsDrawn * 4 ), &pIndexData[numGlyphsDrawn * 6], 0, glyphIndices, textPosTopLeft, cmd.m_color );
             }
 
             // Draw glyphs
@@ -308,11 +308,11 @@ namespace KRG
         
         //-------------------------------------------------------------------------
 
-        static void DrawTextCommands( TVector<Debug::Drawing::TextCommand> const& commands, RenderContext const& renderContext, Math::Viewport const& viewport, TFunction<void( RenderContext const&, Math::Viewport const&, TVector<Debug::Drawing::TextCommand> const&, TRange<U32> )> renderFunction )
+        static void DrawTextCommands( TVector<Debug::Drawing::TextCommand> const& commands, RenderContext const& renderContext, Math::Viewport const& viewport, TFunction<void( RenderContext const&, Math::Viewport const&, TVector<Debug::Drawing::TextCommand> const&, TRange<uint32> )> renderFunction )
         {
-            U32 const numCommands = (U32) commands.size();
-            TRange<U32> cmdRange = TRange<U32>( 0, 0 );
-            for ( U32 i = cmdRange.m_min; i < numCommands; i++ )
+            uint32 const numCommands = (uint32) commands.size();
+            TRange<uint32> cmdRange = TRange<uint32>( 0, 0 );
+            for ( uint32 i = cmdRange.m_min; i < numCommands; i++ )
             {
                 // If the text sizes differ
                 if ( commands[i].m_size != commands[cmdRange.m_min].m_size )
@@ -424,7 +424,7 @@ namespace KRG
                 KRG_PROFILE_SCOPE_RENDER( "DebugDrawing::DrawText" );
                 m_textRS.SetState( renderContext, viewport );
 
-                auto textRenderfunc = [this] ( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<U32> cmdRange ) { DebugRenderer::DrawText( renderContext, viewport, commands, cmdRange ); };
+                auto textRenderfunc = [this] ( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<uint32> cmdRange ) { DebugRenderer::DrawText( renderContext, viewport, commands, cmdRange ); };
 
                 renderContext.SetDepthTestMode( DepthTestMode::On );
                 DrawTextCommands( m_drawCommands.m_opaqueDepthOn.m_textCommands, renderContext, viewport, textRenderfunc );

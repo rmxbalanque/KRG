@@ -23,10 +23,10 @@ namespace KRG
 
                 struct HeaderTimestamp
                 {
-                    HeaderTimestamp( HeaderID ID, U64 timestamp ) : m_ID( ID ), m_timestamp( timestamp ) {}
+                    HeaderTimestamp( HeaderID ID, uint64 timestamp ) : m_ID( ID ), m_timestamp( timestamp ) {}
 
                     HeaderID    m_ID;
-                    U64         m_timestamp;
+                    uint64         m_timestamp;
                 };
 
             public:
@@ -43,7 +43,7 @@ namespace KRG
                 bool ParseProject( FileSystemPath const& prjPath );
 
                 HeaderProcessResult ProcessHeaderFile( FileSystemPath const& filePath, String& exportMacro );
-                U64 CalculateHeaderChecksum( FileSystemPath const& engineIncludePath, FileSystemPath const& filePath );
+                uint64 CalculateHeaderChecksum( FileSystemPath const& engineIncludePath, FileSystemPath const& filePath );
 
                 bool UpToDateCheck();
                 bool ParseRegisteredHeaders();

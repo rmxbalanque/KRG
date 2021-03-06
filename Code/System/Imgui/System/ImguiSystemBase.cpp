@@ -31,7 +31,7 @@ namespace KRG::ImGuiX
 
     void ImguiSystemBase::Shutdown()
     {
-        for ( int i = 0; i < (S8) Font::NumFonts; i++ )
+        for ( int i = 0; i < (int8) Font::NumFonts; i++ )
         {
             SystemFonts::s_fonts[i] = nullptr;
         }
@@ -94,23 +94,23 @@ namespace KRG::ImGuiX
 
         Fonts::GetDecompressedFontData( Fonts::ProggyTiny::GetFontCompressedData(), fontData );
         fontConfig.GlyphOffset = ImVec2( 0, 1 );
-        ImFont* pSmallFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 10, &fontConfig );
-        SystemFonts::s_fonts[(U8) Font::Small] = pSmallFont;
+        ImFont* pSmallFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (int32) fontData.size(), 10, &fontConfig );
+        SystemFonts::s_fonts[(uint8) Font::Small] = pSmallFont;
 
         iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
         iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 12.0f;
-        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 10.0f, &iconFontConfig, icons_ranges );
+        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (int32) fontAwesomeData.size(), 10.0f, &iconFontConfig, icons_ranges );
 
         //-------------------------------------------------------------------------
 
         Fonts::GetDecompressedFontData( Fonts::ProggyClean::GetFontCompressedData(), fontData );
         fontConfig.GlyphOffset = ImVec2( 0, 0 );
-        ImFont* pMediumFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 13, &fontConfig );
-        SystemFonts::s_fonts[(U8) Font::Medium] = pMediumFont;
+        ImFont* pMediumFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (int32) fontData.size(), 13, &fontConfig );
+        SystemFonts::s_fonts[(uint8) Font::Medium] = pMediumFont;
 
         iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
         iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 13.0f;
-        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 11.0f, &iconFontConfig, icons_ranges );
+        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (int32) fontAwesomeData.size(), 11.0f, &iconFontConfig, icons_ranges );
 
         //-------------------------------------------------------------------------
 
@@ -119,22 +119,22 @@ namespace KRG::ImGuiX
         Fonts::GetDecompressedFontData( fontCompressedData.data(), fontData );
 
         fontConfig.GlyphOffset = ImVec2( 0, 0 );
-        ImFont* pLargeFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 18, &fontConfig );
-        SystemFonts::s_fonts[(U8) Font::Large] = pLargeFont;
+        ImFont* pLargeFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (int32) fontData.size(), 18, &fontConfig );
+        SystemFonts::s_fonts[(uint8) Font::Large] = pLargeFont;
 
         iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
         iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 18.0f;
-        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 16.0f, &iconFontConfig, icons_ranges );
+        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (int32) fontAwesomeData.size(), 16.0f, &iconFontConfig, icons_ranges );
 
         //-------------------------------------------------------------------------
 
         fontConfig.GlyphOffset = ImVec2( 0, 0 );
-        ImFont* pExtraLargeFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (S32) fontData.size(), 24, &fontConfig );
-        SystemFonts::s_fonts[(U8) Font::ExtraLarge] = pExtraLargeFont;
+        ImFont* pExtraLargeFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (int32) fontData.size(), 24, &fontConfig );
+        SystemFonts::s_fonts[(uint8) Font::ExtraLarge] = pExtraLargeFont;
 
         iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
         iconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMaxAdvanceX = 24.0f;
-        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (S32) fontAwesomeData.size(), 20.0f, &iconFontConfig, icons_ranges );
+        io.Fonts->AddFontFromMemoryTTF( fontAwesomeData.data(), (int32) fontAwesomeData.size(), 20.0f, &iconFontConfig, icons_ranges );
 
         // Build font atlas
         //-------------------------------------------------------------------------

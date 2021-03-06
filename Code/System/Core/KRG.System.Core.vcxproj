@@ -313,7 +313,7 @@
     <ClInclude Include="Time\Timers.h" />
     <ClInclude Include="Types\Color.h" />
     <ClInclude Include="Types\Containers.h" />
-    <ClInclude Include="Types\Flags.h" />
+    <ClInclude Include="Types\BitFlags.h" />
     <ClInclude Include="Types\LoadingStatus.h" />
     <ClInclude Include="Memory\MemoryStreamHelpers.h" />
     <ClInclude Include="Types\ScopedValue.h" />

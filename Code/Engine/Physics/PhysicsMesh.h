@@ -2,12 +2,15 @@
 
 #include "_Module/API.h"
 #include "System/Resource/IResource.h"
+#include "geometry/PxTriangleMesh.h"
+#include "geometry/PxConvexMesh.h"
 
 //-------------------------------------------------------------------------
 
 namespace physx
 {
     class PxTriangleMesh;
+    class PxConvexMesh;
 }
 
 //-------------------------------------------------------------------------
@@ -20,16 +23,37 @@ namespace KRG::Physics
         friend class PhysicsMeshCompiler;
         friend class PhysicsMeshLoader;
 
-        KRG_SERIALIZE_NONE();
+        KRG_SERIALIZE_MEMBERS( m_numMaterialsNeeded, m_isConvexMesh );
 
     public:
 
         virtual bool IsValid() const override;
 
-        physx::PxTriangleMesh* GetTriangleMesh() const { return m_pTriangleMesh; }
+        //-------------------------------------------------------------------------
+
+        inline bool IsTriangleMesh() const { return !m_isConvexMesh; }
+        inline bool IsConvexMesh() const { return m_isConvexMesh; }
+
+        inline uint16 GetNumMaterialsNeeded() const { KRG_ASSERT( IsTriangleMesh() ); return m_numMaterialsNeeded; }
+
+        //-------------------------------------------------------------------------
+
+        inline physx::PxTriangleMesh const* GetTriangleMesh() const
+        {
+            KRG_ASSERT( !m_isConvexMesh );
+            return m_pMesh->is<physx::PxTriangleMesh>(); 
+        }
+        
+        inline physx::PxConvexMesh const* GetConvexMesh() const 
+        {
+            KRG_ASSERT( m_isConvexMesh );
+            return m_pMesh->is<physx::PxConvexMesh>();
+        }
 
     private:
 
-        physx::PxTriangleMesh*      m_pTriangleMesh = nullptr;
+        physx::PxBase*              m_pMesh = nullptr;
+        uint16                      m_numMaterialsNeeded = 0; // Only relevant for triangle meshes
+        bool                        m_isConvexMesh = false;
     };
 }

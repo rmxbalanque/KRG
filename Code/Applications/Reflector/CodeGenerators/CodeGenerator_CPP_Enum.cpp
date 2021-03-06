@@ -81,28 +81,28 @@ namespace KRG
 
             switch ( type.m_underlyingType )
             {
-                case TypeSystem::CoreTypes::U8:
-                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::U8;\n";
+                case TypeSystem::CoreTypes::Uint8:
+                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Uint8;\n";
                 break;
 
-                case TypeSystem::CoreTypes::S8:
-                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::S8;\n";
+                case TypeSystem::CoreTypes::Int8:
+                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int8;\n";
                 break;
 
-                case TypeSystem::CoreTypes::U16:
-                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::U16;\n";
+                case TypeSystem::CoreTypes::Uint16:
+                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Uint16;\n";
                 break;
 
-                case TypeSystem::CoreTypes::S16:
-                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::S16;\n";
+                case TypeSystem::CoreTypes::Int16:
+                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int16;\n";
                 break;
 
-                case TypeSystem::CoreTypes::U32:
-                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::U32;\n";
+                case TypeSystem::CoreTypes::Uint32:
+                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Uint32;\n";
                 break;
 
-                case TypeSystem::CoreTypes::S32:
-                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::S32;\n";
+                case TypeSystem::CoreTypes::Int32:
+                file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int32;\n";
                 break;
 
                 default:
@@ -112,7 +112,7 @@ namespace KRG
 
             for ( auto const& c : type.m_constants )
             {
-                file << "                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( \"" << c.second.m_label << "\" ), " << c.second.m_value << " ) );\n";
+                file << "                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( \"" << c.second.m_label << "\" ), " << c.second.m_value << " ) );\n";
             }
 
             file << "\n";

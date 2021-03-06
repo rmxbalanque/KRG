@@ -11,7 +11,7 @@ namespace KRG
 {
     // Helper to create flag variables from enum types
     template<typename T>
-    class TFlags
+    class TBitFlags
     {
         KRG_SERIALIZE_MEMBERS( KRG_NVP( m_flags ) );
 
@@ -20,13 +20,13 @@ namespace KRG
 
     public:
 
-        inline static U32 GetFlagMask( T flag ) { return (U32) ( 1u << (U32) flag ); }
+        inline static uint32 GetFlagMask( T flag ) { return (uint32) ( 1u << (uint32) flag ); }
 
     public:
 
-        inline TFlags() = default;
-        inline explicit TFlags( T value ) : m_flags( GetFlagMask( value ) ) {}
-        inline explicit TFlags( U32 flags ) : m_flags( flags ) {}
+        inline TBitFlags() = default;
+        inline explicit TBitFlags( T value ) : m_flags( GetFlagMask( value ) ) {}
+        inline explicit TBitFlags( uint32 flags ) : m_flags( flags ) {}
 
         //-------------------------------------------------------------------------
 
@@ -34,28 +34,28 @@ namespace KRG
         inline void SetFlag( T flag, bool value ) { value ? SetFlag( flag ) : ClearFlag( flag ); }
         inline void SetFlag( T flag ) { m_flags |= GetFlagMask( flag ); }
         inline void ClearFlag( T flag ) { m_flags &= ~GetFlagMask( flag ); }
-        inline void SetAll( U32 flags ) { m_flags = flags; }
+        inline void SetAll( uint32 flags ) { m_flags = flags; }
         inline void SetAll() { m_flags = 0xFFFFFFFF; }
         inline void ClearAll() { m_flags = 0; }
 
         //-------------------------------------------------------------------------
 
-        inline TFlags& operator| ( T flag )
+        inline TBitFlags& operator| ( T flag )
         {
             m_flags |= GetFlagMask( flag );
             return *this;
         }
 
-        inline TFlags& operator& ( T flag )
+        inline TBitFlags& operator& ( T flag )
         {
             m_flags &= GetFlagMask( flag );
             return *this;
         }
 
-        inline operator U32() const { return m_flags; }
+        inline operator uint32() const { return m_flags; }
 
     protected:
 
-        U32 m_flags = 0;
+        uint32 m_flags = 0;
     };
 }

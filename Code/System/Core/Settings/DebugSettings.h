@@ -25,7 +25,7 @@ namespace KRG
 
     public:
 
-        static U32 const StaticTypeID = 'DBG';
+        static uint32 const StaticTypeID = 'DBG';
 
     protected:
 
@@ -33,7 +33,7 @@ namespace KRG
         DebugSetting( char const* pName, char const* pCategory, char const* pDescription, Type type );
 
         inline char const* GetDescription() const { return m_description; }
-        virtual S32 GetTypeID() const override final { return DebugSetting::StaticTypeID; }
+        virtual int32 GetTypeID() const override final { return DebugSetting::StaticTypeID; }
 
     protected:
 
@@ -66,21 +66,21 @@ namespace KRG
 
     public:
 
-        DebugSettingInt( char const* pName, char const* pCategory, char const* pDescription, S32 initialValue );
-        DebugSettingInt( char const* pName, char const* pCategory, char const* pDescription, S32 initialValue, S32 min, S32 max );
+        DebugSettingInt( char const* pName, char const* pCategory, char const* pDescription, int32 initialValue );
+        DebugSettingInt( char const* pName, char const* pCategory, char const* pDescription, int32 initialValue, int32 min, int32 max );
 
-        inline DebugSettingInt& operator=( S32 value ) { m_value = Math::Clamp( value, m_min, m_max ); return *this; }
-        inline operator S32() const { return m_value; }
+        inline DebugSettingInt& operator=( int32 value ) { m_value = Math::Clamp( value, m_min, m_max ); return *this; }
+        inline operator int32() const { return m_value; }
 
-        inline S32 GetMin() const { return m_min; }
-        inline S32 GetMax() const { return m_max; }
+        inline int32 GetMin() const { return m_min; }
+        inline int32 GetMax() const { return m_max; }
         inline bool HasLimits() const { return m_min != INT_MIN || m_max != INT_MAX; }
 
     private:
 
-        S32                 m_value = false;
-        S32                 m_min = INT_MIN;
-        S32                 m_max = INT_MAX;
+        int32                 m_value = false;
+        int32                 m_min = INT_MIN;
+        int32                 m_max = INT_MAX;
     };
 
     //-------------------------------------------------------------------------
@@ -91,21 +91,21 @@ namespace KRG
 
     public:
 
-        DebugSettingFloat( char const* pName, char const* pCategory, char const* pDescription, F32 initialValue );
-        DebugSettingFloat( char const* pName, char const* pCategory, char const* pDescription, F32 initialValue, F32 min, F32 max );
+        DebugSettingFloat( char const* pName, char const* pCategory, char const* pDescription, float initialValue );
+        DebugSettingFloat( char const* pName, char const* pCategory, char const* pDescription, float initialValue, float min, float max );
 
-        inline DebugSettingFloat& operator=( F32 value ) { m_value = Math::Clamp( value, m_min, m_max ); return *this; }
-        inline operator F32() const { return m_value; }
+        inline DebugSettingFloat& operator=( float value ) { m_value = Math::Clamp( value, m_min, m_max ); return *this; }
+        inline operator float() const { return m_value; }
 
-        inline F32 GetMin() const { return m_min; }
-        inline F32 GetMax() const { return m_max; }
+        inline float GetMin() const { return m_min; }
+        inline float GetMax() const { return m_max; }
         inline bool HasLimits() const { return m_min != -FLT_MAX || m_max != FLT_MAX; }
 
     private:
 
-        F32                 m_value = false;
-        F32                 m_min = -FLT_MAX;
-        F32                 m_max = FLT_MAX;
+        float                 m_value = false;
+        float                 m_min = -FLT_MAX;
+        float                 m_max = FLT_MAX;
     };
 }
 #endif

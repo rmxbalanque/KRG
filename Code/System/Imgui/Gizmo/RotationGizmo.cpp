@@ -12,9 +12,9 @@ namespace KRG
 {
     namespace ImGuiX
     {
-        static U32 const g_halfCircleSegmentCount = 64;
-        static F32 const g_widgetRadius = 40.0f;
-        static F32 const g_gizmoPickingSelectionBuffer = 3.0f;
+        static uint32 const g_halfCircleSegmentCount = 64;
+        static float const g_widgetRadius = 40.0f;
+        static float const g_gizmoPickingSelectionBuffer = 3.0f;
         static Color const g_selectedColor = Colors::Yellow;
 
         //-------------------------------------------------------------------------
@@ -25,8 +25,8 @@ namespace KRG
 
             Color const innerColor = ( m_isScreenRotationWidgetHovered ) ? g_selectedColor : Colors::White;
             Color const outerColor = ( m_isScreenRotationWidgetHovered ) ? g_selectedColor : Colors::White.GetAlphaVersion( 0.5f );
-            U32 const imguiInnerColor = ImGuiExtensions::GetImguiColorU32( innerColor );
-            U32 const imguiOuterColor = ImGuiExtensions::GetImguiColorU32( outerColor );
+            uint32 const imguiInnerColor = ImGuiExtensions::GetImguiColorU32( innerColor );
+            uint32 const imguiOuterColor = ImGuiExtensions::GetImguiColorU32( outerColor );
 
             // Draw current Rotation Covered
             //-------------------------------------------------------------------------
@@ -55,8 +55,8 @@ namespace KRG
             // Calculate rough scaling factor
             Vector const viewRightDir_WS = viewport.GetViewRightDirection();
             Float2 const offsetPosition = viewport.WorldSpaceToScreenSpace( m_origin_WS + viewRightDir_WS );
-            F32 const pixelsPerM = 1.0f / m_origin_SS.GetDistance2( offsetPosition );
-            F32 const scaleMultiplier = g_widgetRadius * pixelsPerM;
+            float const pixelsPerM = 1.0f / m_origin_SS.GetDistance2( offsetPosition );
+            float const scaleMultiplier = g_widgetRadius * pixelsPerM;
 
             //-------------------------------------------------------------------------
 
@@ -64,11 +64,11 @@ namespace KRG
             Vector const mousePos = io.MousePos;
 
             bool isHovered = false;
-            S32 const numPoints = g_halfCircleSegmentCount;
+            int32 const numPoints = g_halfCircleSegmentCount;
             ImVec2 circlePointsSS[numPoints];
 
             Vector const startRotationVector = axisOfRotation_WS.Cross3( viewport.GetViewForwardDirection().GetNegated() ).GetNormalized3().GetNegated();
-            Radians const angleStepDelta = Radians::Pi / (F32) ( numPoints - 1 );
+            Radians const angleStepDelta = Radians::Pi / (float) ( numPoints - 1 );
             for ( auto i = 0; i < numPoints; i++ )
             {
                 Quaternion deltaRot = Quaternion( axisOfRotation_WS, angleStepDelta * i );
@@ -105,8 +105,8 @@ namespace KRG
 
         void RotationGizmo::DrawManipulationWidget( Render::Viewport const& viewport, Vector const& axisOfRotation_ws, Vector const& axisOfRotation_ss, Color color )
         {
-            static F32 const gizmoRadius = 40.0f;
-            static F32 const gizmoThickness = 3.0f;
+            static float const gizmoRadius = 40.0f;
+            static float const gizmoThickness = 3.0f;
 
             ImGuiIO& io = ImGui::GetIO();
             auto pDrawList = ImGui::GetWindowDrawList();
@@ -128,8 +128,8 @@ namespace KRG
 
             // Calculate rough scaling factor
             Float2 const offsetPosition = viewport.WorldSpaceToScreenSpace( m_origin_WS + viewport.GetViewRightDirection() );
-            F32 const pixelsPerM = 1.0f / m_origin_SS.GetDistance2( offsetPosition );
-            F32 const scaleMultiplier = gizmoRadius * pixelsPerM;
+            float const pixelsPerM = 1.0f / m_origin_SS.GetDistance2( offsetPosition );
+            float const scaleMultiplier = gizmoRadius * pixelsPerM;
 
             // Draw manipulation circle
             //-------------------------------------------------------------------------
@@ -145,7 +145,7 @@ namespace KRG
             Vector const startRotationVector = ( intersectionPoint - m_origin_WS ).GetNormalized3();
 
             ImVec2 outerCirclePointsSS[g_halfCircleSegmentCount * 2];
-            Radians angleStepDelta = Radians::TwoPi / (F32) ( g_halfCircleSegmentCount * 2 - 1 );
+            Radians angleStepDelta = Radians::TwoPi / (float) ( g_halfCircleSegmentCount * 2 - 1 );
             for ( auto i = 0; i < g_halfCircleSegmentCount * 2; i++ )
             {
                 Quaternion deltaRot = Quaternion( axisOfRotation_ws, angleStepDelta * i );
@@ -169,12 +169,12 @@ namespace KRG
             }
             else
             {
-                U32 const numCoveredCirclePoints = (U32) Math::Ceiling( Math::Abs( m_rotationDeltaAngle.GetValue() / Math::TwoPi ) * ( g_halfCircleSegmentCount * 2 ) );
+                uint32 const numCoveredCirclePoints = (uint32) Math::Ceiling( Math::Abs( m_rotationDeltaAngle.GetValue() / Math::TwoPi ) * ( g_halfCircleSegmentCount * 2 ) );
                 ImVec2 innerCirclePointsSS[g_halfCircleSegmentCount * 2 + 2];
-                angleStepDelta = m_rotationDeltaAngle / (F32) numCoveredCirclePoints;
+                angleStepDelta = m_rotationDeltaAngle / (float) numCoveredCirclePoints;
                 for ( auto i = 0u; i < numCoveredCirclePoints; i++ )
                 {
-                    Quaternion deltaRot = Quaternion( axisOfRotation_ws, angleStepDelta * (F32) i );
+                    Quaternion deltaRot = Quaternion( axisOfRotation_ws, angleStepDelta * (float) i );
                     Vector pointOnCircle_WS = m_origin_WS + ( ( deltaRot.RotateVector( startRotationVector ).GetNormalized3() ) * scaleMultiplier );
                     Float2 pointOnCircle_SS = viewport.WorldSpaceToScreenSpace( pointOnCircle_WS );
                     innerCirclePointsSS[i] = pointOnCircle_SS;
@@ -192,7 +192,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 static char buff[16];
-                Printf( buff, 255, " %.2f", (F32) m_rotationDeltaAngle.ToDegrees() );
+                Printf( buff, 255, " %.2f", (float) m_rotationDeltaAngle.ToDegrees() );
 
                 auto textSize = ImGui::CalcTextSize( buff );
                 Vector const textPosition = Vector( innerCirclePointsSS[numCoveredCirclePoints - 1] ) - Float2( textSize.x / 2, 0 );

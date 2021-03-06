@@ -7,7 +7,7 @@ namespace KRG
     namespace Math
     {
         Viewport::Viewport()
-            : m_viewVolume( Float2( 1, 1 ), TRange<F32>( 0.1f, 1000.0f ) )
+            : m_viewVolume( Float2( 1, 1 ), TRange<float>( 0.1f, 1000.0f ) )
         {}
 
         Viewport::Viewport( Int2 const& topLeft, Int2 const& dimensions, Math::ViewVolume const& viewVolume )
@@ -57,8 +57,8 @@ namespace KRG
         Float2 Viewport::ClipSpaceToScreenSpace( Vector const& pointCS ) const
         {
             // Convert from [-1,1] to [0,1]
-            F32 x = ( pointCS.x + 1 ) / 2;
-            F32 y = ( pointCS.y + 1 ) / 2;
+            float x = ( pointCS.x + 1 ) / 2;
+            float y = ( pointCS.y + 1 ) / 2;
 
             // Invert Y since screen space origin (0,0) is the top left and in CS it is the bottom right
             y = 1.0f - y;

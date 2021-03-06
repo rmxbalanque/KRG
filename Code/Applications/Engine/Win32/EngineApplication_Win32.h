@@ -18,7 +18,7 @@ namespace KRG
 
         virtual bool StartDependencies() override final;
         virtual bool Initialize() override final;
-        virtual int Run( S32 argc, char** argv ) override final;
+        virtual int Run( int32 argc, char** argv ) override final;
 
         LRESULT WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 

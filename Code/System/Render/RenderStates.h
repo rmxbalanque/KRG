@@ -11,13 +11,13 @@ namespace KRG
     {
         struct ScissorRect
         {
-            S32 m_left;
-            S32 m_top;
-            S32 m_right;
-            S32 m_bottom;
+            int32 m_left;
+            int32 m_top;
+            int32 m_right;
+            int32 m_bottom;
         };
 
-        enum class Topology : U8
+        enum class Topology : uint8
         {
             PointList = 0,
             LineList,
@@ -28,26 +28,26 @@ namespace KRG
             None,
         };
 
-        enum class WindingMode : U8
+        enum class WindingMode : uint8
         {
             Clockwise = 0,
             CounterClockwise,
         };
 
-        enum class CullMode : U8
+        enum class CullMode : uint8
         {
             BackFace = 0,
             FrontFace,
             None,
         };
 
-        enum class FillMode : U8
+        enum class FillMode : uint8
         {
             Solid = 0,
             Wireframe,
         };
 
-        enum class BlendValue : U8
+        enum class BlendValue : uint8
         {
             Zero = 0,
             One,
@@ -68,7 +68,7 @@ namespace KRG
             InverseSource1Alpha,
         };
 
-        enum class BlendOp : U8
+        enum class BlendOp : uint8
         {
             Add = 0,
             SourceMinusDestination,
@@ -77,7 +77,7 @@ namespace KRG
             Max,
         };
 
-        enum class DepthTestMode : U8
+        enum class DepthTestMode : uint8
         {
             On = 0,
             Off,

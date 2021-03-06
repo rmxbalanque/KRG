@@ -27,7 +27,7 @@ namespace KRG
         // File functions
         KRG_SYSTEM_CORE_API bool IsFileReadOnly( FileSystemPath const& filePath );
         KRG_SYSTEM_CORE_API bool FileExists( FileSystemPath const& filePath );
-        KRG_SYSTEM_CORE_API U64  GetFileModifiedTime( FileSystemPath const& filePath );
+        KRG_SYSTEM_CORE_API uint64 GetFileModifiedTime( FileSystemPath const& filePath );
         KRG_SYSTEM_CORE_API bool LoadFile( FileSystemPath const& filePath, TVector<Byte>& fileData );
         KRG_SYSTEM_CORE_API bool EraseFile( FileSystemPath const& filePath );
 

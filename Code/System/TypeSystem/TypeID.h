@@ -20,11 +20,11 @@ namespace KRG
             TypeID( String const& type ) : m_ID( type ) {}
             TypeID( char const* pType ) : m_ID( pType ) {}
             TypeID( StringID ID ) : m_ID( ID ) {}
-            TypeID( U32 ID ) : m_ID( ID ) {}
+            TypeID( uint32 ID ) : m_ID( ID ) {}
 
             inline bool IsValid() const { return m_ID.IsValid(); }
 
-            inline operator U32() const { return m_ID.GetID(); }
+            inline operator uint32() const { return m_ID.GetID(); }
             inline StringID GetAsStringID() const { return m_ID; }
 
         private:
@@ -43,7 +43,7 @@ namespace eastl
     {
         eastl_size_t operator()( KRG::TypeSystem::TypeID const& ID ) const 
         {
-            return (KRG::U32) ID; 
+            return (KRG::uint32) ID; 
         }
     };
 }

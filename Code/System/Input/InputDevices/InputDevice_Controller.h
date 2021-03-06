@@ -22,13 +22,13 @@ namespace KRG
 
             public:
 
-                F32     m_leftStickInnerDeadzone = 0.0f;
-                F32     m_leftStickOuterDeadzone = 0.0f;
-                F32     m_leftTriggerThreshold = 0.0f;
+                float     m_leftStickInnerDeadzone = 0.0f;
+                float     m_leftStickOuterDeadzone = 0.0f;
+                float     m_leftTriggerThreshold = 0.0f;
 
-                F32     m_rightStickInnerDeadzone = 0.0f;
-                F32     m_rightStickOuterDeadzone = 0.0f;
-                F32     m_rightTriggerThreshold = 0.0f;
+                float     m_rightStickInnerDeadzone = 0.0f;
+                float     m_rightStickOuterDeadzone = 0.0f;
+                float     m_rightTriggerThreshold = 0.0f;
 
                 bool    m_leftStickInvertY = false;
                 bool    m_rightStickInvertY = false;
@@ -65,7 +65,7 @@ namespace KRG
                 }
             }
 
-            void SetTriggerValues( F32 leftRawValue, F32 rightRawValue );
+            void SetTriggerValues( float leftRawValue, float rightRawValue );
             void SetAnalogStickValues( Float2 const& leftRawValue, Float2 const& rightRawValue );
             void ClearControllerState() { m_controllerState.ClearState(); }
 

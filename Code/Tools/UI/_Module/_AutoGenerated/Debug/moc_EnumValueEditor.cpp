@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_KRG__ValueEditors__EnumEditor_t {
     QByteArrayData data[7];
-    char stringdata0[81];
+    char stringdata0[83];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,13 +36,13 @@ QT_MOC_LITERAL(0, 0, 29), // "KRG::ValueEditors::EnumEditor"
 QT_MOC_LITERAL(1, 30, 14), // "OnValueChanged"
 QT_MOC_LITERAL(2, 45, 0), // ""
 QT_MOC_LITERAL(3, 46, 12), // "stringValues"
-QT_MOC_LITERAL(4, 59, 3), // "S64"
-QT_MOC_LITERAL(5, 63, 8), // "newValue"
-QT_MOC_LITERAL(6, 72, 8) // "OldValue"
+QT_MOC_LITERAL(4, 59, 5), // "int64"
+QT_MOC_LITERAL(5, 65, 8), // "newValue"
+QT_MOC_LITERAL(6, 74, 8) // "OldValue"
 
     },
     "KRG::ValueEditors::EnumEditor\0"
-    "OnValueChanged\0\0stringValues\0S64\0"
+    "OnValueChanged\0\0stringValues\0int64\0"
     "newValue\0OldValue"
 };
 #undef QT_MOC_LITERAL
@@ -75,13 +75,13 @@ void KRG::ValueEditors::EnumEditor::qt_static_metacall(QObject *_o, QMetaObject:
         auto *_t = static_cast<EnumEditor *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->OnValueChanged((*reinterpret_cast< const QStringList(*)>(_a[1])),(*reinterpret_cast< S64(*)>(_a[2])),(*reinterpret_cast< S64(*)>(_a[3]))); break;
+        case 0: _t->OnValueChanged((*reinterpret_cast< const QStringList(*)>(_a[1])),(*reinterpret_cast< int64(*)>(_a[2])),(*reinterpret_cast< int64(*)>(_a[3]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (EnumEditor::*)(QStringList const & , S64 , S64 );
+            using _t = void (EnumEditor::*)(QStringList const & , int64 , int64 );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&EnumEditor::OnValueChanged)) {
                 *result = 0;
                 return;
@@ -131,7 +131,7 @@ int KRG::ValueEditors::EnumEditor::qt_metacall(QMetaObject::Call _c, int _id, vo
 }
 
 // SIGNAL 0
-void KRG::ValueEditors::EnumEditor::OnValueChanged(QStringList const & _t1, S64 _t2, S64 _t3)
+void KRG::ValueEditors::EnumEditor::OnValueChanged(QStringList const & _t1, int64 _t2, int64 _t3)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t3))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

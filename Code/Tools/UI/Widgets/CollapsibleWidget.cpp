@@ -39,13 +39,13 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    CollapsibleWidgetHeader::CollapsibleWidgetHeader( QWidget* pHeaderWidget, S32 headerIndent )
+    CollapsibleWidgetHeader::CollapsibleWidgetHeader( QWidget* pHeaderWidget, int32 headerIndent )
     {
         auto pMainLayout = CreateMainLayout( headerIndent );
         pMainLayout->addWidget( pHeaderWidget, 1.0f );
     }
 
-    CollapsibleWidgetHeader::CollapsibleWidgetHeader( QLayout* pHeaderLayout, S32 headerIndent )
+    CollapsibleWidgetHeader::CollapsibleWidgetHeader( QLayout* pHeaderLayout, int32 headerIndent )
     {
         auto pMainLayout = CreateMainLayout( headerIndent );
         pMainLayout->addLayout( pHeaderLayout, 1.0f );
@@ -57,7 +57,7 @@ namespace KRG
         emit Clicked();
     }
 
-    QHBoxLayout* CollapsibleWidgetHeader::CreateMainLayout( S32 headerIndent )
+    QHBoxLayout* CollapsibleWidgetHeader::CreateMainLayout( int32 headerIndent )
     {
         setFixedHeight( 24 );
 
@@ -73,7 +73,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    KCollapsibleWidget::KCollapsibleWidget( QLayout* pHeaderLayout, QLayout* pContentLayout, S32 headerIndent, S32 contentIndent )
+    KCollapsibleWidget::KCollapsibleWidget( QLayout* pHeaderLayout, QLayout* pContentLayout, int32 headerIndent, int32 contentIndent )
     {
         KRG_ASSERT( pHeaderLayout != nullptr && pContentLayout != nullptr );
 

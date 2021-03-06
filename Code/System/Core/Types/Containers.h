@@ -91,7 +91,7 @@ namespace KRG
     }
 
     template<typename T>
-    inline S32 VectorFindIndex( TVector<T> const& vector, T const& value )
+    inline int32 VectorFindIndex( TVector<T> const& vector, T const& value )
     {
         auto iter = eastl::find( vector.begin(), vector.end(), value );
         if ( iter == vector.end() )
@@ -100,12 +100,12 @@ namespace KRG
         }
         else
         {
-            return (S32) ( iter - vector.begin() );
+            return (int32) ( iter - vector.begin() );
         }
     }
 
     template<typename T, typename V, typename Predicate>
-    inline S32 VectorFindIndex( TVector<T> const& vector, V const& value, Predicate predicate )
+    inline int32 VectorFindIndex( TVector<T> const& vector, V const& value, Predicate predicate )
     {
         auto iter = eastl::find( vector.begin(), vector.end(), value, predicate );
         if ( iter == vector.end() )
@@ -114,7 +114,7 @@ namespace KRG
         }
         else
         {
-            return (S32) ( iter - vector.begin() );
+            return (int32) ( iter - vector.begin() );
         }
     }
 
@@ -157,7 +157,7 @@ namespace KRG
     }
 
     template<typename T, eastl_size_t S>
-    inline S32 VectorFindIndex( TInlineVector<T, S> const& vector, T const& value )
+    inline int32 VectorFindIndex( TInlineVector<T, S> const& vector, T const& value )
     {
         auto iter = eastl::find( vector.begin(), vector.end(), value );
         if ( iter == vector.end() )
@@ -166,12 +166,12 @@ namespace KRG
         }
         else
         {
-            return ( S32) ( iter - vector.begin() );
+            return ( int32) ( iter - vector.begin() );
         }
     }
 
     template<typename T, eastl_size_t S, typename V, typename Predicate>
-    inline S32 VectorFindIndex( TInlineVector<T, S> const& vector, V const& value, Predicate predicate )
+    inline int32 VectorFindIndex( TInlineVector<T, S> const& vector, V const& value, Predicate predicate )
     {
         auto iter = eastl::find( vector.begin(), vector.end(), value, predicate );
         if ( iter == vector.end() )
@@ -180,7 +180,7 @@ namespace KRG
         }
         else
         {
-            return ( S32) ( iter - vector.begin() );
+            return ( int32) ( iter - vector.begin() );
         }
     }
 

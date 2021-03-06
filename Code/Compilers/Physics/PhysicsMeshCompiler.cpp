@@ -79,9 +79,28 @@ namespace KRG
             // Reflect FBX data into physics format
             //-------------------------------------------------------------------------
             
-            PhysicsMesh physicsGeo;
-            TVector<Byte> cookedTriangleMeshData;
-            CookTriangleMeshData( *pRawMesh, cookedTriangleMeshData );
+            PhysicsMesh physicsMesh;
+            TVector<Byte> cookedMeshData;
+
+            if ( resourceDescriptor.m_isConvexMesh )
+            {
+                if ( !CookConvexMeshData( *pRawMesh, cookedMeshData ) )
+                {
+                    return CompilationFailed( ctx );
+                }
+
+                physicsMesh.m_isConvexMesh = true;
+            }
+            else
+            {
+                if ( !CookTriangleMeshData( *pRawMesh, cookedMeshData ) )
+                {
+                    return CompilationFailed( ctx );
+                }
+
+                physicsMesh.m_isConvexMesh = false;
+                physicsMesh.m_numMaterialsNeeded = (uint16) pRawMesh->GetNumGeometrySections();
+            }
 
             // Serialize
             //-------------------------------------------------------------------------
@@ -91,10 +110,10 @@ namespace KRG
             if ( archive.IsValid() )
             {
                 Resource::ResourceHeader hdr( VERSION, resourceDescriptor.m_resourceTypeID );
-                archive << hdr << physicsGeo;
+                archive << hdr << physicsMesh;
 
-                // Serialize the mesh data
-                archive << cookedTriangleMeshData;
+                // Serialize the mesh data separately
+                archive << cookedMeshData;
 
                 if( pRawMesh->HasWarnings() )
                 {
@@ -117,8 +136,8 @@ namespace KRG
             PhysXUserErrorCallback errorCallback;
 
             PxTolerancesScale tolerancesScale;
-            tolerancesScale.length = Constants::LengthScale;
-            tolerancesScale.speed = Constants::SpeedScale;
+            tolerancesScale.length = Constants::s_lengthScale;
+            tolerancesScale.speed = Constants::s_speedScale;
 
             auto pFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, allocator, errorCallback );
             auto pCooking = PxCreateCooking( PX_PHYSICS_VERSION, *pFoundation, PxCookingParams( tolerancesScale ) );
@@ -135,13 +154,15 @@ namespace KRG
             // PhysX meshes require counterclockwise winding
 
             PxTriangleMeshDesc meshDesc;
-            meshDesc.flags = PxMeshFlag::eFLIPNORMALS;
-            meshDesc.points.stride = sizeof( F32 ) * 3;
-            meshDesc.triangles.stride = sizeof( U32 ) * 3;
+            meshDesc.points.stride = sizeof( float ) * 3;
+            meshDesc.triangles.stride = sizeof( uint32 ) * 3;
+            meshDesc.materialIndices.stride = sizeof( PxMaterialTableIndex );
 
             TVector<Float3> vertexData;
-            TVector<U32> indexData;
+            TVector<uint32> indexData;
+            TVector<PxMaterialTableIndex> materialIndexData;
 
+            PxMaterialTableIndex materialIdx = 0;
             for ( auto const& geometrySection : rawMesh.GetGeometrySections() )
             {
                 // Add the verts
@@ -156,18 +177,28 @@ namespace KRG
                     indexData.push_back( meshDesc.points.count + idx );
                 }
 
-                meshDesc.points.count += (U32) geometrySection.m_vertices.size();
-                meshDesc.triangles.count += geometrySection.GetNumTriangles();
+                // Add material indices
+                uint32 const numTriangles = geometrySection.GetNumTriangles();
+                for ( auto triIdx = 0u; triIdx < geometrySection.GetNumTriangles(); triIdx++ )
+                {
+                    materialIndexData.emplace_back( materialIdx );
+                }
+
+                meshDesc.points.count += (uint32) geometrySection.m_vertices.size();
+                meshDesc.triangles.count += numTriangles;
+                materialIdx++;
             }
 
             meshDesc.points.data = vertexData.data();
             meshDesc.triangles.data = indexData.data();
+            meshDesc.materialIndices.data = materialIndexData.data();
 
             //-------------------------------------------------------------------------
 
             outCookedData.clear();
             PhysxMemoryStream stream( outCookedData );
-            bool const cookingResult = pCooking->cookTriangleMesh( meshDesc, stream );
+            PxTriangleMeshCookingResult::Enum result;
+            pCooking->cookTriangleMesh( meshDesc, stream, &result );
 
             //-------------------------------------------------------------------------
 
@@ -175,7 +206,110 @@ namespace KRG
             pFoundation->release();
             pFoundation = nullptr;
 
-            return cookingResult;
+            //-------------------------------------------------------------------------
+
+            if ( result == PxTriangleMeshCookingResult::eLARGE_TRIANGLE )
+            {
+                Error( "Triangle mesh cooking failed - Large triangle detected" );
+                return false;
+            }
+            else if ( result == PxTriangleMeshCookingResult::eFAILURE )
+            {
+                Error( "Triangle mesh cooking failed!" );
+                return false;
+            }
+
+            return true;
+        }
+
+        bool PhysicsMeshCompiler::CookConvexMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const
+        {
+            PhysXAllocator allocator;
+            PhysXUserErrorCallback errorCallback;
+
+            PxTolerancesScale tolerancesScale;
+            tolerancesScale.length = Constants::s_lengthScale;
+            tolerancesScale.speed = Constants::s_speedScale;
+
+            auto pFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, allocator, errorCallback );
+            auto pCooking = PxCreateCooking( PX_PHYSICS_VERSION, *pFoundation, PxCookingParams( tolerancesScale ) );
+            if ( pCooking == nullptr )
+            {
+                pFoundation->release();
+                pFoundation = nullptr;
+                Error( "PxCreateCooking failed!" );
+                return false;
+            }
+
+            // Reflect raw mesh into a physx convex mesh
+            //-------------------------------------------------------------------------
+
+            TVector<Float3> vertexData;
+            TVector<uint32> indexData;
+            uint32 indexOffset = 0;
+
+            for ( auto const& geometrySection : rawMesh.GetGeometrySections() )
+            {
+                // Add the verts
+                for ( auto const& vert : geometrySection.m_vertices )
+                {
+                    vertexData.push_back( vert.m_position );
+                }
+
+                // Add the indices - taking into account offset from previously added verts
+                for ( auto idx : geometrySection.m_indices )
+                {
+                    indexData.push_back( indexOffset + idx );
+                }
+
+                indexOffset += (uint32) geometrySection.m_vertices.size();
+            }
+
+            //-------------------------------------------------------------------------
+
+            PxConvexMeshDesc convexMeshDesc;
+            convexMeshDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+            convexMeshDesc.points.count = (uint32) vertexData.size();
+            convexMeshDesc.points.stride = sizeof( float ) * 3;
+            convexMeshDesc.points.data = vertexData.data();
+
+            convexMeshDesc.indices.count = (uint32) indexData.size();
+            convexMeshDesc.indices.stride = sizeof( uint32 ) * 3;
+            convexMeshDesc.indices.data = indexData.data();
+
+            //-------------------------------------------------------------------------
+
+            outCookedData.clear();
+            PhysxMemoryStream stream( outCookedData );
+
+            PxConvexMeshCookingResult::Enum result;
+            pCooking->cookConvexMesh( convexMeshDesc, stream, &result );
+
+            //-------------------------------------------------------------------------
+
+            pCooking->release();
+            pFoundation->release();
+            pFoundation = nullptr;
+
+            //-------------------------------------------------------------------------
+
+            if ( result == PxConvexMeshCookingResult::eZERO_AREA_TEST_FAILED )
+            {
+                Error( "Convex mesh cooking failed - Zero area test failed" );
+                return false;
+            }
+            else if ( result == PxConvexMeshCookingResult::ePOLYGONS_LIMIT_REACHED )
+            {
+                Error( "Convex mesh cooking failed - Polygon limit reached" );
+                return false;
+            }
+            else if ( result == PxTriangleMeshCookingResult::eFAILURE )
+            {
+                Error( "Convex mesh cooking failed!" );
+                return false;
+            }
+
+            return true;
         }
     }
 }

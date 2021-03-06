@@ -41,14 +41,14 @@ namespace KRG
                 inline bool IsArrayProperty() const { return m_flags.IsFlagSet( PropertyInfo::Flags::IsArray ) || m_flags.IsFlagSet( PropertyInfo::Flags::IsDynamicArray ); }
                 inline bool IsStaticArrayProperty() const { return m_flags.IsFlagSet( PropertyInfo::Flags::IsArray ) && !m_flags.IsFlagSet( PropertyInfo::Flags::IsDynamicArray ); }
                 inline bool IsDynamicArrayProperty() const { return m_flags.IsFlagSet( PropertyInfo::Flags::IsDynamicArray ); }
-                inline U32 GetArraySize() const { KRG_ASSERT( m_arraySize > 0 ); return (U32) m_arraySize; }
+                inline uint32 GetArraySize() const { KRG_ASSERT( m_arraySize > 0 ); return (uint32) m_arraySize; }
 
                 inline bool operator==( PropertyDescriptor const& RHS ) const { return m_propertyID == RHS.m_propertyID; }
                 inline bool operator!=( PropertyDescriptor const& RHS ) const { return m_propertyID != RHS.m_propertyID; }
-                inline bool operator<( PropertyDescriptor const& RHS ) const { return (U32) m_propertyID < (U32) RHS.m_propertyID; }
-                inline bool operator<=( PropertyDescriptor const& RHS ) const { return (U32) m_propertyID <= (U32) RHS.m_propertyID; }
-                inline bool operator>( PropertyDescriptor const& RHS ) const { return (U32) m_propertyID > (U32) RHS.m_propertyID; }
-                inline bool operator>=( PropertyDescriptor const& RHS ) const { return (U32) m_propertyID >= (U32) RHS.m_propertyID; }
+                inline bool operator<( PropertyDescriptor const& RHS ) const { return (uint32) m_propertyID < (uint32) RHS.m_propertyID; }
+                inline bool operator<=( PropertyDescriptor const& RHS ) const { return (uint32) m_propertyID <= (uint32) RHS.m_propertyID; }
+                inline bool operator>( PropertyDescriptor const& RHS ) const { return (uint32) m_propertyID > (uint32) RHS.m_propertyID; }
+                inline bool operator>=( PropertyDescriptor const& RHS ) const { return (uint32) m_propertyID >= (uint32) RHS.m_propertyID; }
 
             public:
 
@@ -57,8 +57,8 @@ namespace KRG
                 String                                  m_name;
                 String                                  m_typeName;
                 String                                  m_templateArgTypeName;
-                S32                                     m_arraySize;
-                TFlags<PropertyInfo::Flags>             m_flags;
+                int32                                   m_arraySize;
+                TBitFlags<PropertyInfo::Flags>          m_flags;
             };
 
             //-------------------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace KRG
             struct EnumConstantDescriptor
             {
                 String                                  m_label;
-                S32                                     m_value;
+                int32                                   m_value;
             };
 
             struct TypeDescriptor
@@ -104,7 +104,7 @@ namespace KRG
                 // Enum functions
                 void AddValue( EnumConstantDescriptor const& constant );
                 bool IsValidLabelID( StringID labelID ) const { return m_constants.find( labelID ) != m_constants.end(); }
-                bool GetValueFromLabel( StringID labelID, U32& value ) const;
+                bool GetValueFromLabel( StringID labelID, uint32& value ) const;
 
             public:
 
@@ -112,14 +112,14 @@ namespace KRG
                 HeaderID                                        m_headerID;
                 String                                          m_name;
                 String                                          m_namespace;
-                TFlags<Flags>                                   m_flags;
+                TBitFlags<Flags>                                m_flags;
 
                 // Structures
                 TVector<TypeID>                                 m_parents;
                 TVector<PropertyDescriptor>                     m_properties;
 
                 // Enums
-                CoreTypes                                       m_underlyingType = CoreTypes::U8;
+                CoreTypes                                       m_underlyingType = CoreTypes::Uint8;
                 THashMap<StringID, EnumConstantDescriptor>      m_constants;
             };
 

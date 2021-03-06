@@ -25,16 +25,16 @@ namespace KRG::TypeSystem
     //-------------------------------------------------------------------------\
 
     template<> inline bool IsCoreType<bool>() { return true; }
-    template<> inline bool IsCoreType<S8>() { return true; }
-    template<> inline bool IsCoreType<S16>() { return true; }
-    template<> inline bool IsCoreType<S32>() { return true; }
-    template<> inline bool IsCoreType<S64>() { return true; }
-    template<> inline bool IsCoreType<U8>() { return true; }
-    template<> inline bool IsCoreType<U16>() { return true; }
-    template<> inline bool IsCoreType<U32>() { return true; }
-    template<> inline bool IsCoreType<U64>() { return true; }
-    template<> inline bool IsCoreType<F32>() { return true; }
-    template<> inline bool IsCoreType<F64>() { return true; }
+    template<> inline bool IsCoreType<int8>() { return true; }
+    template<> inline bool IsCoreType<int16>() { return true; }
+    template<> inline bool IsCoreType<int32>() { return true; }
+    template<> inline bool IsCoreType<int64>() { return true; }
+    template<> inline bool IsCoreType<uint8>() { return true; }
+    template<> inline bool IsCoreType<uint16>() { return true; }
+    template<> inline bool IsCoreType<uint32>() { return true; }
+    template<> inline bool IsCoreType<uint64>() { return true; }
+    template<> inline bool IsCoreType<float>() { return true; }
+    template<> inline bool IsCoreType<double>() { return true; }
     template<> inline bool IsCoreType<UUID>() { return true; }
     template<> inline bool IsCoreType<StringID>() { return true; }
     template<> inline bool IsCoreType<String>() { return true; }
@@ -66,16 +66,16 @@ namespace KRG::TypeSystem
     template<template<typename> typename C> inline TypeID GetCoreType() { return TypeID(); }
 
     template<> inline TypeID GetCoreType<bool>() { return GetCoreTypeID( CoreTypes::Bool ); }
-    template<> inline TypeID GetCoreType<S8>() { return GetCoreTypeID( CoreTypes::S8 ); }
-    template<> inline TypeID GetCoreType<S16>() { return GetCoreTypeID( CoreTypes::S16 ); }
-    template<> inline TypeID GetCoreType<S32>() { return GetCoreTypeID( CoreTypes::S32 ); }
-    template<> inline TypeID GetCoreType<S64>() { return GetCoreTypeID( CoreTypes::S64 ); }
-    template<> inline TypeID GetCoreType<U8>() { return GetCoreTypeID( CoreTypes::U8 ); }
-    template<> inline TypeID GetCoreType<U16>() { return GetCoreTypeID( CoreTypes::U16 ); }
-    template<> inline TypeID GetCoreType<U32>() { return GetCoreTypeID( CoreTypes::U32 ); }
-    template<> inline TypeID GetCoreType<U64>() { return GetCoreTypeID( CoreTypes::U64 ); }
-    template<> inline TypeID GetCoreType<F32>() { return GetCoreTypeID( CoreTypes::F32 ); }
-    template<> inline TypeID GetCoreType<F64>() { return GetCoreTypeID( CoreTypes::F64 ); }
+    template<> inline TypeID GetCoreType<int8>() { return GetCoreTypeID( CoreTypes::Int8 ); }
+    template<> inline TypeID GetCoreType<int16>() { return GetCoreTypeID( CoreTypes::Int16 ); }
+    template<> inline TypeID GetCoreType<int32>() { return GetCoreTypeID( CoreTypes::Int32 ); }
+    template<> inline TypeID GetCoreType<int64>() { return GetCoreTypeID( CoreTypes::Int64 ); }
+    template<> inline TypeID GetCoreType<uint8>() { return GetCoreTypeID( CoreTypes::Uint8 ); }
+    template<> inline TypeID GetCoreType<uint16>() { return GetCoreTypeID( CoreTypes::Uint16 ); }
+    template<> inline TypeID GetCoreType<uint32>() { return GetCoreTypeID( CoreTypes::Uint32 ); }
+    template<> inline TypeID GetCoreType<uint64>() { return GetCoreTypeID( CoreTypes::Uint64 ); }
+    template<> inline TypeID GetCoreType<float>() { return GetCoreTypeID( CoreTypes::Float ); }
+    template<> inline TypeID GetCoreType<double>() { return GetCoreTypeID( CoreTypes::Double ); }
     template<> inline TypeID GetCoreType<UUID>() { return GetCoreTypeID( CoreTypes::UUID ); }
     template<> inline TypeID GetCoreType<StringID>() { return GetCoreTypeID( CoreTypes::StringID ); }
     template<> inline TypeID GetCoreType<String>() { return GetCoreTypeID( CoreTypes::String ); }

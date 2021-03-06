@@ -23,7 +23,7 @@ namespace KRG
             union Data
             {
                 void* m_pData;
-                U32   m_syncID;
+                uint32   m_syncID;
             };
 
         public:
@@ -33,7 +33,7 @@ namespace KRG
             Type GetType() const { return m_type; }
 
             inline bool IsSyncEvent() const { return m_type == Type::SyncEvent; }
-            inline U32 GetSyncID() const { KRG_ASSERT( IsSyncEvent() ); return m_data.m_syncID; }
+            inline uint32 GetSyncID() const { KRG_ASSERT( IsSyncEvent() ); return m_data.m_syncID; }
 
             inline bool IsMarkupEvent() const { return m_type == Type::MarkupEvent; }
             inline void* GetMarkupData() const { KRG_ASSERT( IsMarkupEvent() ); return m_data.m_pData; }

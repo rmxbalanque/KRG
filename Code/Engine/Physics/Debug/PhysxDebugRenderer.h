@@ -38,10 +38,10 @@ namespace KRG::Physics
 
     private:
 
-        void DrawPoints( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugPoint const* pPoints, U32 numPoints );
-        void DrawLines( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugLine const* pLines, U32 numLines );
-        void DrawTriangles( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugTriangle const* pTriangles, U32 numTriangles );
-        void DrawStrings( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugText const* pStrings, U32 numStrings );
+        void DrawPoints( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugPoint const* pPoints, uint32 numPoints );
+        void DrawLines( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugLine const* pLines, uint32 numLines );
+        void DrawTriangles( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugTriangle const* pTriangles, uint32 numTriangles );
+        void DrawStrings( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugText const* pStrings, uint32 numStrings );
 
     private:
 

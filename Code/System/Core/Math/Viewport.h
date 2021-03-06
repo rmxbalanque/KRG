@@ -35,7 +35,7 @@ namespace KRG
 
             inline Float2 const& GetSize() const { return m_size; }
             inline Float2 const& GetTopLeftPosition() const { return m_topLeftPosition; }
-            inline F32 GetAspectRatio() const { return m_size.x / m_size.y; }
+            inline float GetAspectRatio() const { return m_size.x / m_size.y; }
 
             // View Volume
             //-------------------------------------------------------------------------

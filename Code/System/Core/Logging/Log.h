@@ -25,7 +25,7 @@ namespace KRG
             String      m_message;
             String      m_channel;
             String      m_filename;
-            U32         m_lineNumber;
+            uint32         m_lineNumber;
             Severity    m_severity;
         };
 

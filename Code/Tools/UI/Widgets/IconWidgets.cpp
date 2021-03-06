@@ -10,7 +10,7 @@ namespace KRG
 {
     namespace IconFonts
     {
-        static S32          g_loadedFontIDs[2];
+        static int32          g_loadedFontIDs[2];
 
         //-------------------------------------------------------------------------
 
@@ -78,8 +78,8 @@ namespace KRG
                 // Sizes
                 //-------------------------------------------------------------------------
 
-                S32 const drawSize = rect.height();
-                S32 const shadowOffset = drawSize > 16 ? 2 : 1;
+                int32 const drawSize = rect.height();
+                int32 const shadowOffset = drawSize > 16 ? 2 : 1;
 
                 //-------------------------------------------------------------------------
 
@@ -133,30 +133,30 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     KIcon::KIcon( ForkAwesome codePoint, QColor const& baseColor )
-        : QIcon( new IconFonts::QFontIconEngine( (S32) codePoint, baseColor, QFontDatabase::applicationFontFamilies( IconFonts::g_loadedFontIDs[0] ).first() ) )
+        : QIcon( new IconFonts::QFontIconEngine( (int32) codePoint, baseColor, QFontDatabase::applicationFontFamilies( IconFonts::g_loadedFontIDs[0] ).first() ) )
     {}
 
     KIcon::KIcon( MaterialDesign codePoint, QColor const& baseColor )
-        : QIcon( new IconFonts::QFontIconEngine( (S32) codePoint, baseColor, QFontDatabase::applicationFontFamilies( IconFonts::g_loadedFontIDs[1] ).first() ) )
+        : QIcon( new IconFonts::QFontIconEngine( (int32) codePoint, baseColor, QFontDatabase::applicationFontFamilies( IconFonts::g_loadedFontIDs[1] ).first() ) )
     {}
 
     //-------------------------------------------------------------------------
 
-    KIconLabel::KIconLabel( ForkAwesome codePoint, S32 w, S32 h, QColor const& baseColor )
+    KIconLabel::KIconLabel( ForkAwesome codePoint, int32 w, int32 h, QColor const& baseColor )
         : QLabel()
     {
         KRG_ASSERT( w > 0 && h > 0 );
         setPixmap( KIcon( codePoint, baseColor ).pixmap( QSize( w, h ) ) );
     }
 
-    KIconLabel::KIconLabel( MaterialDesign codePoint, S32 w, S32 h, QColor const& baseColor )
+    KIconLabel::KIconLabel( MaterialDesign codePoint, int32 w, int32 h, QColor const& baseColor )
         : QLabel()
     {
         KRG_ASSERT( w > 0 && h > 0 );
         setPixmap( KIcon( codePoint, baseColor ).pixmap( QSize( w, h ) ) );
     }
 
-    KIconLabel::KIconLabel( QIcon const& icon, S32 w, S32 h )
+    KIconLabel::KIconLabel( QIcon const& icon, int32 w, int32 h )
         : QLabel()
     {
         KRG_ASSERT( w > 0 && h > 0 );

@@ -27,21 +27,21 @@ namespace KRG::Physics
         #endif
 
         PxTolerancesScale tolerancesScale;
-        tolerancesScale.length = Constants::LengthScale;
-        tolerancesScale.speed = Constants::SpeedScale;
+        tolerancesScale.length = Constants::s_lengthScale;
+        tolerancesScale.speed = Constants::s_speedScale;
         m_pPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *m_pFoundation, tolerancesScale, true, m_pPVD );
         m_pCooking = PxCreateCooking( PX_PHYSICS_VERSION, *m_pFoundation, PxCookingParams( tolerancesScale ) );
 
         //-------------------------------------------------------------------------
 
-        PhysicsScene::CreateUnitCylinderMesh( *m_pPhysics, m_pCooking );
+        CreateSharedMeshes();
     }
 
     void PhysicsSystem::Shutdown()
     {
         KRG_ASSERT( m_pFoundation != nullptr && m_pPhysics != nullptr && m_pDispatcher != nullptr );
 
-        PhysicsScene::DestroyUnitCylinderMesh();
+        DestroySharedMeshes();
 
         //-------------------------------------------------------------------------
 
@@ -69,11 +69,56 @@ namespace KRG::Physics
         KRG::Delete( m_pAllocatorCallback );
     }
 
+    //-------------------------------------------------------------------------
+
+    void PhysicsSystem::CreateSharedMeshes()
+    {
+        KRG_ASSERT( m_pCooking != nullptr );
+        KRG_ASSERT( SharedMeshes::s_pUnitCylinderMesh == nullptr );
+
+        Threading::ScopeLock lock( m_systemLock );
+
+        //-------------------------------------------------------------------------
+
+        static const PxVec3 convexVerts[] = { PxVec3( 0,1,0 ), PxVec3( 1,0,0 ), PxVec3( -1,0,0 ), PxVec3( 0,0,1 ), PxVec3( 0,0,-1 ) };
+
+        //-------------------------------------------------------------------------
+
+        PxConvexMeshDesc convexDesc;
+        convexDesc.points.count = 5;
+        convexDesc.points.stride = sizeof( PxVec3 );
+        convexDesc.points.data = convexVerts;
+        convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+        PxDefaultMemoryOutputStream buf;
+        PxConvexMeshCookingResult::Enum result;
+        if ( !m_pCooking->cookConvexMesh( convexDesc, buf, &result ) )
+        {
+            KRG_UNREACHABLE_CODE();
+        }
+
+        //-------------------------------------------------------------------------
+
+        PxDefaultMemoryInputData input( buf.getData(), buf.getSize() );
+        SharedMeshes::s_pUnitCylinderMesh = m_pPhysics->createConvexMesh( input );
+        KRG_ASSERT( SharedMeshes::s_pUnitCylinderMesh != nullptr );
+    }
+
+    void PhysicsSystem::DestroySharedMeshes()
+    {
+        Threading::ScopeLock lock( m_systemLock );
+
+        SharedMeshes::s_pUnitCylinderMesh->release();
+        SharedMeshes::s_pUnitCylinderMesh = nullptr;
+    }
+
+    //-------------------------------------------------------------------------
+
     void PhysicsSystem::Update( UpdateContext& ctx )
     {
         for ( auto pScene : m_scenes )
         {
-            pScene->Simulate();
+            pScene->Simulate( ctx.GetDeltaTime() );
         }
 
         //-------------------------------------------------------------------------
@@ -89,11 +134,15 @@ namespace KRG::Physics
 
     PhysicsScene* PhysicsSystem::CreateScene()
     {
+        Threading::ScopeLock lock( m_systemLock );
+
         return m_scenes.emplace_back( KRG::New<PhysicsScene>( *m_pPhysics, m_pDispatcher ) );
     }
 
     void PhysicsSystem::DestroyScene( PhysicsScene* pScene )
     {
+        Threading::ScopeLock lock( m_systemLock );
+
         auto foundIter = eastl::find( m_scenes.begin(), m_scenes.end(), pScene );
         KRG_ASSERT( foundIter != m_scenes.end() );
         KRG::Delete( *foundIter );

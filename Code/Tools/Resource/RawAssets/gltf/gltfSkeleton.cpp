@@ -54,7 +54,7 @@ namespace KRG
                 cgltf_node* pSkeletonToRead = nullptr;
                 if ( !skeletonRootBoneName.empty() )
                 {
-                    for ( S32 i = 0; i < pSceneData->skins_count; i++ )
+                    for ( int32 i = 0; i < pSceneData->skins_count; i++ )
                     {
                         if ( pSceneData->skins[i].joints_count > 0 && pSceneData->skins[i].joints[0]->name == skeletonRootBoneName )
                         {
@@ -96,11 +96,11 @@ namespace KRG
                 }
             }
 
-            static void ReadBoneHierarchy( gltfRawSkeleton& rawSkeleton, gltf::gltfSceneContext const& sceneCtx, cgltf_node* pNode, S32 parentIdx )
+            static void ReadBoneHierarchy( gltfRawSkeleton& rawSkeleton, gltf::gltfSceneContext const& sceneCtx, cgltf_node* pNode, int32 parentIdx )
             {
                 KRG_ASSERT( pNode != nullptr );
 
-                auto const boneIdx = (S32) rawSkeleton.m_bones.size();
+                auto const boneIdx = (int32) rawSkeleton.m_bones.size();
                 rawSkeleton.m_bones.push_back( RawSkeleton::BoneData( pNode->name ) );
                 rawSkeleton.m_bones[boneIdx].m_parentBoneIdx = parentIdx;
 

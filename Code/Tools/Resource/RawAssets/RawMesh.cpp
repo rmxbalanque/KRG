@@ -29,8 +29,8 @@ namespace KRG
                 return false;
             }
 
-            S32 const numTexCoords = (S32) m_texCoords.size();
-            for ( S32 i = 0; i < numTexCoords; i++ )
+            int32 const numTexCoords = (int32) m_texCoords.size();
+            for ( int32 i = 0; i < numTexCoords; i++ )
             {
                 if ( m_texCoords[i] != rhs.m_texCoords[i] )
                 {

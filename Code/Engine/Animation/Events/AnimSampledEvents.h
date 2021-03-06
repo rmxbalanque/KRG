@@ -24,7 +24,7 @@ namespace KRG
         //        , m_sourceAnimationReversed( sourceIsReversed )
         //    {}
 
-        //    inline void UpdateWeight( F32 scaleMultiplier ) { m_weight *= scaleMultiplier; }
+        //    inline void UpdateWeight( float scaleMultiplier ) { m_weight *= scaleMultiplier; }
 
         //    inline bool IsSyncEvent() const { return m_pSourceEvent->IsSyncEvent(); }
         //    inline bool IsMarkupEvent() const { return m_pSourceEvent->IsMarkupEvent(); }
@@ -40,17 +40,17 @@ namespace KRG
         //    Event const*                m_pSourceEvent;             // The actual animation event
         //    Seconds               m_duration;                 // Duration for the event in seconds
         //    Percent               m_percentageThrough;        // How far through the event we are (only relevant for events with duration > 0)
-        //    F32                         m_weight;                   // Weight of this event - adjusted through blending operations (always starts at 1)
+        //    float                         m_weight;                   // Weight of this event - adjusted through blending operations (always starts at 1)
         //    bool                        m_sourceAnimationReversed;  // Was this event sampled from an animation playing in reverse
         //};
 
         ////-------------------------------------------------------------------------
 
-        //struct SampledEventRange : public Range<U16>
+        //struct SampledEventRange : public Range<uint16>
         //{
-        //    static U16 const InvalidEventIndex = 0xFFFF;
+        //    static uint16 const InvalidEventIndex = 0xFFFF;
         //    SampledEventRange() : Range( InvalidEventIndex, InvalidEventIndex ) {}
-        //    SampledEventRange( U16 const startIndex ) : Range( startIndex, startIndex ) {}
+        //    SampledEventRange( uint16 const startIndex ) : Range( startIndex, startIndex ) {}
         //};
 
         ////-------------------------------------------------------------------------
@@ -59,11 +59,11 @@ namespace KRG
         //{
         //public:
 
-        //    inline void UpdateEventWeights( SampledEventRange range, F32 scaleMultiplier );
+        //    inline void UpdateEventWeights( SampledEventRange range, float scaleMultiplier );
         //    SampledEvent const* GetDominantSyncEvent() const;
 
-        //    SampledEvent& operator[]( U32 i ) { KRG_ASSERT( i < m_events.size() ); return m_events[i]; }
-        //    SampledEvent const& operator[]( U32 i ) const { KRG_ASSERT( i < m_events.size() ); return m_events[i]; }
+        //    SampledEvent& operator[]( uint32 i ) { KRG_ASSERT( i < m_events.size() ); return m_events[i]; }
+        //    SampledEvent const& operator[]( uint32 i ) const { KRG_ASSERT( i < m_events.size() ); return m_events[i]; }
 
         //public:
 
@@ -72,7 +72,7 @@ namespace KRG
 
         ////-------------------------------------------------------------------------
 
-        //void SampledEventsBuffer::UpdateEventWeights( SampledEventRange range, F32 scaleMultiplier )
+        //void SampledEventsBuffer::UpdateEventWeights( SampledEventRange range, float scaleMultiplier )
         //{
         //    for ( auto i = range.m_start; i < range.m_end; i++ )
         //    {

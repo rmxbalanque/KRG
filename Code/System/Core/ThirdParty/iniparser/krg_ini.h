@@ -26,8 +26,8 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         bool TryGetBool( char const* key, bool& outValue );
-        bool TryGetInt( char const* key, S32& outValue );
-        bool TryGetUInt( char const* key, U32& outValue );
+        bool TryGetInt( char const* key, int32& outValue );
+        bool TryGetUInt( char const* key, uint32& outValue );
         bool TryGetString( char const* key, String& outValue );
         bool TryGetFloat( char const* key, float& outValue );
 
@@ -37,16 +37,16 @@ namespace KRG
             return (bool) iniparser_getboolean( m_pDictionary, key, defaultValue );
         }
 
-        inline S32 GetIntOrDefault( char const* key, S32 defaultValue )
+        inline int32 GetIntOrDefault( char const* key, int32 defaultValue )
         {
             KRG_ASSERT( IsValid() );
-            return ( S32) iniparser_getint( m_pDictionary, key, defaultValue );
+            return ( int32) iniparser_getint( m_pDictionary, key, defaultValue );
         }
 
-        inline U32 GetUIntOrDefault( char const* key, U32 defaultValue )
+        inline uint32 GetUIntOrDefault( char const* key, uint32 defaultValue )
         {
             KRG_ASSERT( IsValid() );
-            return ( U32) iniparser_getint( m_pDictionary, key, defaultValue );
+            return ( uint32) iniparser_getint( m_pDictionary, key, defaultValue );
         }
 
         inline KRG::String GetStringOrDefault( char const* key, String const& defaultValue )
@@ -61,10 +61,10 @@ namespace KRG
             return iniparser_getstring( m_pDictionary, key, pDefaultValue );
         }
 
-        inline float GetFloatOrDefault( char const* key, F32 defaultValue )
+        inline float GetFloatOrDefault( char const* key, float defaultValue )
         {
             KRG_ASSERT( IsValid() );
-            return ( F32) iniparser_getdouble( m_pDictionary, key, defaultValue );
+            return ( float) iniparser_getdouble( m_pDictionary, key, defaultValue );
         }
 
         //-------------------------------------------------------------------------
@@ -81,7 +81,7 @@ namespace KRG
             iniparser_set( m_pDictionary, key, value ? "True" : "False" );
         }
 
-        inline void SetInt( char const* key, S32 value )
+        inline void SetInt( char const* key, int32 value )
         {
             KRG_ASSERT( IsValid() );
             char buffer[255];
@@ -89,7 +89,7 @@ namespace KRG
             iniparser_set( m_pDictionary, key, buffer );
         }
 
-        inline void SetUInt( char const* key, U32 value )
+        inline void SetUInt( char const* key, uint32 value )
         {
             KRG_ASSERT( IsValid() );
             char buffer[255];
@@ -97,7 +97,7 @@ namespace KRG
             iniparser_set( m_pDictionary, key, buffer );
         }
 
-        inline void SetFloat( char const* key, F32 value )
+        inline void SetFloat( char const* key, float value )
         {
             KRG_ASSERT( IsValid() );
             char buffer[255];

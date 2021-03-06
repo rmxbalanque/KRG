@@ -29,7 +29,7 @@ namespace KRG
         public:
 
             // Get the client that requested this resource
-            inline U64 GetClientID() const { KRG_ASSERT( !IsInternalRequest() ); return m_clientID; }
+            inline uint64 GetClientID() const { KRG_ASSERT( !IsInternalRequest() ); return m_clientID; }
 
             // Get the resource ID for this request
             inline ResourceID GetResourceID() const { return m_resourceID; }
@@ -71,11 +71,11 @@ namespace KRG
 
         private:
 
-            U64                                 m_clientID = 0;
+            uint64                                 m_clientID = 0;
             ResourceID                          m_resourceID;
-            S32                                 m_compilerVersion = -1;
-            U64                                 m_fileTimestamp = 0;
-            U64                                 m_sourceTimestampHash = 0;
+            int32                                 m_compilerVersion = -1;
+            uint64                                 m_fileTimestamp = 0;
+            uint64                                 m_sourceTimestampHash = 0;
             FileSystemPath                      m_sourceFile;
             FileSystemPath                      m_destinationFile;
             String                              m_compilerArgs;

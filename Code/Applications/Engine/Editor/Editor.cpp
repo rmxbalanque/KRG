@@ -99,7 +99,7 @@ namespace KRG
             //ImGui::PushStyleVar( ImGuiStyleVar_WindowMinSize, ImVec2( 0.0f, 0.0f ) );
             //ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( g_windowPadding, g_windowPadding ) );
             //ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, g_windowRounding );
-            //U32 const flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
+            //uint32 const flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
             //if ( ImGui::Begin( "Editor_ManipulationToolbar", &alwaysOpen, flags ) )
             //{
             //    {
@@ -198,7 +198,7 @@ namespace KRG
             //            if ( m_manipulationMode == ManipulationMode::Rotate )
             //            {
             //                auto const rotation = m_pGizmo->GetTransform().GetRotation().ToEulerAngles();
-            //                ImGui::Text( "R: %.2f, %.2f, %.2f", (F32) rotation.x.ToDegrees(), (F32) rotation.y.ToDegrees(), (F32) rotation.z.ToDegrees() );
+            //                ImGui::Text( "R: %.2f, %.2f, %.2f", (float) rotation.x.ToDegrees(), (float) rotation.y.ToDegrees(), (float) rotation.z.ToDegrees() );
             //            }
             //            else if ( m_manipulationMode == ManipulationMode::Translate )
             //            {
@@ -238,7 +238,7 @@ namespace KRG
             //ImGui::PushStyleVar( ImGuiStyleVar_WindowMinSize, ImVec2( 0.0f, 0.0f ) );
             //ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( g_windowPadding, g_windowPadding ) );
             //ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, g_windowRounding );
-            //U32 const flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
+            //uint32 const flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
             //if ( ImGui::Begin( "Editor_OrientationGuide", &alwaysOpen, flags ) )
             //{
             //    // Project world space axis positions to screen space
@@ -266,15 +266,15 @@ namespace KRG
             //    // Calculate screen space axis lengths
             //    //-------------------------------------------------------------------------
 
-            //    F32 const axisLengthX = axisStartPointX.GetDistance2( axisEndPointX );
-            //    F32 const axisLengthY = axisStartPointY.GetDistance2( axisEndPointY );
-            //    F32 const axisLengthZ = axisStartPointZ.GetDistance2( axisEndPointZ );
-            //    F32 const maxAxisLength = Math::Max( axisLengthX, Math::Max( axisLengthY, axisLengthZ ) );
+            //    float const axisLengthX = axisStartPointX.GetDistance2( axisEndPointX );
+            //    float const axisLengthY = axisStartPointY.GetDistance2( axisEndPointY );
+            //    float const axisLengthZ = axisStartPointZ.GetDistance2( axisEndPointZ );
+            //    float const maxAxisLength = Math::Max( axisLengthX, Math::Max( axisLengthY, axisLengthZ ) );
 
-            //    static F32 const axisHalfLengthSS = OrientationGuide::g_axisHalfLength;
-            //    F32 const axisScaleX = ( axisLengthX / maxAxisLength ) * axisHalfLengthSS;
-            //    F32 const axisScaleY = ( axisLengthY / maxAxisLength ) * axisHalfLengthSS;
-            //    F32 const axisScaleZ = ( axisLengthZ / maxAxisLength ) * axisHalfLengthSS;
+            //    static float const axisHalfLengthSS = OrientationGuide::g_axisHalfLength;
+            //    float const axisScaleX = ( axisLengthX / maxAxisLength ) * axisHalfLengthSS;
+            //    float const axisScaleY = ( axisLengthY / maxAxisLength ) * axisHalfLengthSS;
+            //    float const axisScaleZ = ( axisLengthZ / maxAxisLength ) * axisHalfLengthSS;
 
             //    // Calculate screen space axis directions
             //    Vector const origin = viewport.WorldSpaceToScreenSpace( originWS );
@@ -355,7 +355,7 @@ namespace KRG
             ImGui::PushStyleVar( ImGuiStyleVar_WindowMinSize, ImVec2( 0.0f, 0.0f ) );
             ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( g_windowPadding, g_windowPadding ) );
             ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, g_windowRounding );
-            U32 const flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
+            uint32 const flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
             if ( ImGui::Begin( "Editor_TopRightToolBar", &alwaysOpen, flags ) )
             {
                 {

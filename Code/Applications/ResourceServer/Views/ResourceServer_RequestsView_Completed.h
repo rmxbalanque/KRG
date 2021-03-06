@@ -31,8 +31,8 @@ namespace KRG
 
             inline CompletedRequestsViewModel() : QAbstractTableModel() {}
 
-            void UpdateRequests( TVector<CompilationRequest const*> const* pRequests, S32 column, Qt::SortOrder order );
-            inline CompilationRequest const* GetRequest( S32 index ) const { return m_requests[index]; }
+            void UpdateRequests( TVector<CompilationRequest const*> const* pRequests, int32 column, Qt::SortOrder order );
+            inline CompilationRequest const* GetRequest( int32 index ) const { return m_requests[index]; }
 
         private:
 

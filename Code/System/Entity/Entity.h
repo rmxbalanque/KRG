@@ -107,8 +107,8 @@ namespace KRG
         inline UUID GetID() const { return m_ID; }
         inline StringID GetName() const { return m_name; }
         inline UUID GetCollectionID() const { return m_collectionID; }
-        inline U32 GetNumComponents() const { return (U32) m_components.size(); }
-        inline U32 GetNumSystems() const { return (U32) m_systems.size(); }
+        inline uint32 GetNumComponents() const { return (uint32) m_components.size(); }
+        inline uint32 GetNumSystems() const { return (uint32) m_systems.size(); }
 
         // Spatial Info
         //-------------------------------------------------------------------------
@@ -275,7 +275,7 @@ namespace KRG
 
         TVector<IEntitySystem*>                         m_systems;
         TVector<EntityComponent*>                       m_components;
-        SystemUpdateList                                m_systemUpdateLists[(S8) UpdateStage::NumStages];
+        SystemUpdateList                                m_systemUpdateLists[(int8) UpdateStage::NumStages];
 
         SpatialEntityComponent*                         m_pRootSpatialComponent = nullptr;      // This spatial component defines our world position
         TVector<Entity*>                                m_attachedEntities;                     // The list of entities that are attached to this entity

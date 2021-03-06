@@ -52,7 +52,7 @@ namespace KRG
 
             TypeInfo const* pParentTypeInfo = pTypeInfo;
             PropertyInfo const* pFoundPropertyInfo = nullptr;
-            S32 propertyOffset = 0;
+            int32 propertyOffset = 0;
 
             // Resolve property path
             size_t const numPathElements = pathID.GetNumElements();
@@ -109,7 +109,7 @@ namespace KRG
             return pTypeInfo->IsDerivedFrom( parentTypeID );
         }
 
-        TVector<TypeInfo const*> TypeRegistry::GetAllTypesWithMatchingMetadata( TFlags<ETypeInfoMetaData> metadataFlags ) const
+        TVector<TypeInfo const*> TypeRegistry::GetAllTypesWithMatchingMetadata( TBitFlags<ETypeInfoMetaData> metadataFlags ) const
         {
             TVector<TypeInfo const*> matchingTypes;
 

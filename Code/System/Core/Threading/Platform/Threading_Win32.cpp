@@ -17,13 +17,13 @@ namespace KRG
         {
             DWORD requiredSize = 0;
             GetLogicalProcessorInformation( nullptr, &requiredSize );
-            S32 const numEntries = requiredSize / sizeof( SYSTEM_LOGICAL_PROCESSOR_INFORMATION );
+            int32 const numEntries = requiredSize / sizeof( SYSTEM_LOGICAL_PROCESSOR_INFORMATION );
 
             auto pProcInfos = reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION*>( alloca( sizeof( SYSTEM_LOGICAL_PROCESSOR_INFORMATION ) * numEntries ) );
             auto const result = GetLogicalProcessorInformation( pProcInfos, &requiredSize );
 
-            U32 numLogicalProcessors = 0;
-            U32 numCores = 0;
+            uint32 numLogicalProcessors = 0;
+            uint32 numCores = 0;
 
             //-------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ namespace KRG
                 if ( pProcInfos[i].Relationship == RelationProcessorCore )
                 {
                     procInfo.m_numPhysicalCores++;
-                    procInfo.m_numLogicalCores += (U16) CountSetBits( pProcInfos[i].ProcessorMask );
+                    procInfo.m_numLogicalCores += (uint16) CountSetBits( pProcInfos[i].ProcessorMask );
                 }
             }
 
@@ -109,7 +109,7 @@ namespace KRG
         void SyncEvent::Wait( Milliseconds maxWaitTime ) const
         {
             KRG_ASSERT( m_pNativeHandle != nullptr );
-            WaitForSingleObject( m_pNativeHandle, (U32) maxWaitTime );
+            WaitForSingleObject( m_pNativeHandle, (uint32) maxWaitTime );
         }
     }
 }

@@ -14,19 +14,19 @@ namespace KRG
         {
             class KRG_SYSTEM_NETWORK_API Server
             {
-                static constexpr S32 const MaxConnections = 64;
+                static constexpr int32 const MaxConnections = 64;
 
             public:
 
                 Server();
                 ~Server();
 
-                bool Start( S32 portNumber );
+                bool Start( int32 portNumber );
                 void Stop();
 
                 inline bool IsRunning() const { return m_pSocket != nullptr; }
 
-                bool WaitForMessage( Message& message, S32 timeout = 0 );
+                bool WaitForMessage( Message& message, int32 timeout = 0 );
                 void SendMessageToClient( ClientID clientID, Message& message );
 
             private:

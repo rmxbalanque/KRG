@@ -8,7 +8,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    Matrix::Matrix( F32 v00, F32 v01, F32 v02, F32 v03, F32 v10, F32 v11, F32 v12, F32 v13, F32 v20, F32 v21, F32 v22, F32 v23, F32 v30, F32 v31, F32 v32, F32 v33 )
+    Matrix::Matrix( float v00, float v01, float v02, float v03, float v10, float v11, float v12, float v13, float v20, float v21, float v22, float v23, float v30, float v31, float v32, float v33 )
     {
         m_rows[0] = Vector( v00, v01, v02, v03 );
         m_rows[1] = Vector( v10, v11, v12, v13 );
@@ -70,11 +70,11 @@ namespace KRG
 
         result.x = Math::ATan2( m_values[1][2], m_values[2][2] );
 
-        F32 const c2 = Math::Sqrt( ( m_values[0][0] * m_values[0][0] ) + ( m_values[0][1] * m_values[0][1] ) );
+        float const c2 = Math::Sqrt( ( m_values[0][0] * m_values[0][0] ) + ( m_values[0][1] * m_values[0][1] ) );
         result.y = Math::ATan2( -m_values[0][2], c2 );
 
-        F32 const s1 = Math::Sin( result.x );
-        F32 const c1 = Math::Cos( result.x );
+        float const s1 = Math::Sin( result.x );
+        float const c1 = Math::Cos( result.x );
         result.z = Math::ATan2( ( s1 * m_values[2][0] ) - ( c1 * m_values[1][0] ), ( c1 * m_values[1][1] ) - ( s1 * m_values[2][1] ) );
 
         return result;
@@ -84,9 +84,9 @@ namespace KRG
     // Matrix Decomposition
     //-------------------------------------------------------------------------
 
-    static bool CheckForZeroScaleInRow( F32 scale, Vector const& row )
+    static bool CheckForZeroScaleInRow( float scale, Vector const& row )
     {
-        F32 const absScale = Math::Abs( scale );
+        float const absScale = Math::Abs( scale );
 
         for ( int i = 0; i < 3; i++ )
         {
@@ -111,7 +111,7 @@ namespace KRG
         row[1] = Vector( matrix[1][0], matrix[1][1], matrix[1][2] );
         row[2] = Vector( matrix[2][0], matrix[2][1], matrix[2][2] );
 
-        F32 maxVal = 0;
+        float maxVal = 0;
         for ( int i = 0; i < 3; i++ )
         {
             for ( int j = 0; j < 3; j++ )
@@ -253,9 +253,9 @@ namespace KRG
         Vector scale = Vector::Zero, shear;
         if ( !ExtractAndRemoveScalingAndShear( copy, scale, shear ) )
         {
-            F32 const lengthX = m_rows[0].Length3().ToFloat();
-            F32 const lengthY = m_rows[1].Length3().ToFloat();
-            F32 const lengthZ = m_rows[2].Length3().ToFloat();
+            float const lengthX = m_rows[0].Length3().ToFloat();
+            float const lengthY = m_rows[1].Length3().ToFloat();
+            float const lengthZ = m_rows[2].Length3().ToFloat();
             scale = Vector( lengthX, lengthY, lengthZ, 0.0f );
         }
 

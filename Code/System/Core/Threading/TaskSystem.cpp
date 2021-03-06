@@ -8,7 +8,7 @@
 
 namespace KRG
 {
-    static void OnStartThread( U32 threadNum )
+    static void OnStartThread( uint32 threadNum )
     {
         Memory::InitializeThreadHeap();
 
@@ -19,7 +19,7 @@ namespace KRG
         Threading::SetCurrentThreadName( nameBuffer );
     }
 
-    static void OnStopThread( U32 threadNum )
+    static void OnStopThread( uint32 threadNum )
     {
         Memory::ShutdownThreadHeap();
         KRG_PROFILE_THREAD_END();
@@ -41,7 +41,7 @@ namespace KRG
     {
         // Get number of worker threads that we should create (excluding main thread)
         auto const processorInfo = Threading::GetProcessorInfo();
-        const_cast<U32&>( m_numWorkers ) = processorInfo.m_numPhysicalCores - 1;
+        const_cast<uint32&>( m_numWorkers ) = processorInfo.m_numPhysicalCores - 1;
         KRG_ASSERT( m_numWorkers >= 0 );
     }
 

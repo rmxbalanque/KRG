@@ -8,7 +8,7 @@ namespace KRG
 {
     namespace ValueEditors
     {
-        EnumEditor::EnumEditor( QStringList const& stringValues, S64 value )
+        EnumEditor::EnumEditor( QStringList const& stringValues, int64 value )
             : ValueEditorBase()
             , m_enumStringValues( stringValues )
             , m_value( value )
@@ -26,18 +26,18 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            connect( m_pInput, QOverload<S32>::of( &QComboBox::currentIndexChanged ), this, [this] ( S32 newIndex ) { SetValueInternal( newIndex ); } );
+            connect( m_pInput, QOverload<int32>::of( &QComboBox::currentIndexChanged ), this, [this] ( int32 newIndex ) { SetValueInternal( newIndex ); } );
         }
 
         EnumEditor::EnumEditor( QStringList const& stringValues, QString const& value )
             : EnumEditor( stringValues, stringValues.indexOf( value ) )
         {}
 
-        void EnumEditor::SetValueInternal( S64 newValue )
+        void EnumEditor::SetValueInternal( int64 newValue )
         {
             KRG_ASSERT( IsValidEnumValue( newValue ) );
 
-            S64 oldValue = m_value;
+            int64 oldValue = m_value;
             m_value = newValue;
 
             {
@@ -51,7 +51,7 @@ namespace KRG
 
         void EnumEditor::SetValue( QString const& value )
         {
-            S64 const valueIdx = GetIndexForStringValue( value );
+            int64 const valueIdx = GetIndexForStringValue( value );
             if ( valueIdx != InvalidIndex )
             {
                 SetValueInternal( valueIdx );

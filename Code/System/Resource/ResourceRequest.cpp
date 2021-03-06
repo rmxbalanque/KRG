@@ -296,9 +296,9 @@ namespace KRG
             // Create the resource ptrs for the install dependencies and request their load
             // These resource ptrs are temporary and will be clear upon completion of the request
             ResourceRequesterID const installDependencyRequesterID( m_pResourceRecord->GetResourceID() );
-            U32 const numInstallDependencies = (U32) m_pResourceRecord->m_installDependencyResourceIDs.size();
+            uint32 const numInstallDependencies = (uint32) m_pResourceRecord->m_installDependencyResourceIDs.size();
             m_installDependencies.resize( numInstallDependencies );
-            for ( U32 i = 0; i < numInstallDependencies; i++ )
+            for ( uint32 i = 0; i < numInstallDependencies; i++ )
             {
                 // Do not use the requester ID for install dependencies! Since they are not explicitly loaded by a specific user!
                 // Instead we create a ResourceRequesterID from the depending resource's resourceID
@@ -403,9 +403,9 @@ namespace KRG
             // Create the resource ptrs for the install dependencies and request the unload
             // These resource ptrs are temporary and will be cleared upon completion of the request
             ResourceRequesterID const installDependencyRequesterID( m_pResourceRecord->GetResourceID() );
-            U32 const numInstallDependencies = (U32) m_pResourceRecord->m_installDependencyResourceIDs.size();
+            uint32 const numInstallDependencies = (uint32) m_pResourceRecord->m_installDependencyResourceIDs.size();
             m_installDependencies.resize( numInstallDependencies );
-            for ( U32 i = 0; i < numInstallDependencies; i++ )
+            for ( uint32 i = 0; i < numInstallDependencies; i++ )
             {
                 // Do not use the user ID for install dependencies! Since they are not explicitly loaded by a specific user!
                 // Instead we create a ResourceRequesterID from the depending resource's resourceID
@@ -416,7 +416,7 @@ namespace KRG
             // Unload resource
             //-------------------------------------------------------------------------
 
-            S32 const t = m_pResourceRecord->GetResourceID().GetID();
+            int32 const t = m_pResourceRecord->GetResourceID().GetID();
 
             KRG_ASSERT( m_pResourceRecord->IsUnloading() );
             m_pResourceLoader->Unload( GetResourceID(), m_pResourceRecord );

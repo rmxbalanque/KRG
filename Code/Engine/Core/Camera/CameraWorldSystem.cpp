@@ -78,13 +78,13 @@ namespace KRG
         {
             Math::Rectangle const viewportRect = pCamera.m_pComponent->GetViewportRect();
 
-            F32 const TLX = viewportRect.GetTopLeft().x * m_viewDimensions.x;
-            F32 const TLY = viewportRect.GetTopLeft().y * m_viewDimensions.y;
-            Int2 const topLeft = Int2( (S32) TLX, (S32) TLY );
+            float const TLX = viewportRect.GetTopLeft().x * m_viewDimensions.x;
+            float const TLY = viewportRect.GetTopLeft().y * m_viewDimensions.y;
+            Int2 const topLeft = Int2( (int32) TLX, (int32) TLY );
 
-            F32 const sizeX = viewportRect.GetSize().x * m_viewDimensions.x;
-            F32 const sizeY = viewportRect.GetSize().y * m_viewDimensions.y;
-            Int2 const size = Int2( (S32) sizeX, (S32) sizeY );
+            float const sizeX = viewportRect.GetSize().x * m_viewDimensions.x;
+            float const sizeY = viewportRect.GetSize().y * m_viewDimensions.y;
+            Int2 const size = Int2( (int32) sizeX, (int32) sizeY );
             m_activeViewports.emplace_back( Math::Viewport( topLeft, size, pCamera.m_pComponent->GetViewVolume() ) );
         }
     }

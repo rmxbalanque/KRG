@@ -27,7 +27,7 @@ namespace KRG
             m_mode = RegistrationMode::PrePhys;
         }
 
-        void TaskSystem::ExecutePrePhysicsTasks( F32 deltaTime )
+        void TaskSystem::ExecutePrePhysicsTasks( float deltaTime )
         {
             // Execute tasks
             for ( auto pTask : m_prePhysicsTasks )
@@ -36,7 +36,7 @@ namespace KRG
             }
         }
 
-        void TaskSystem::ExecutePostPhysicsTasks( F32 deltaTime )
+        void TaskSystem::ExecutePostPhysicsTasks( float deltaTime )
         {
             for ( auto pTask : m_postPhysicsTasks )
             {

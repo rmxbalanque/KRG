@@ -22,7 +22,7 @@ namespace KRG
 
             FileSystem::EnsurePathExists( databasePath );
 
-            S32 sqlFlags = 0;
+            int32 sqlFlags = 0;
             
             if ( readOnlyAccess )
             {

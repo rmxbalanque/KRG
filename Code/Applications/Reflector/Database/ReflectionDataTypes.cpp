@@ -34,7 +34,7 @@ namespace KRG
                 m_constants[id] = constant;
             }
 
-            bool TypeDescriptor::GetValueFromLabel( StringID labelID, U32& value ) const
+            bool TypeDescriptor::GetValueFromLabel( StringID labelID, uint32& value ) const
             {
                 KRG_ASSERT( m_ID.IsValid() && IsEnum() );
 

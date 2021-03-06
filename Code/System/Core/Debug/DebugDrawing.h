@@ -76,25 +76,25 @@ namespace KRG
 
             void DrawWireTriangle( Float3 const& v0, Float3 const& v1, Float3 const& v2, Float4 const& color, float lineThickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
 
-            inline void DrawText2D( Float2 const& screenPosition, char const* pText, Float4 const& color, Drawing::TextSize size = Drawing::TextSize::Regular, TFlags<Drawing::TextFlags> textFlags = TFlags<Drawing::TextFlags>( Drawing::TextFlags::Default ), Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            inline void DrawText2D( Float2 const& screenPosition, char const* pText, Float4 const& color, Drawing::TextSize size = Drawing::TextSize::Regular, TBitFlags<Drawing::TextFlags> textFlags = TBitFlags<Drawing::TextFlags>( Drawing::TextFlags::Default ), Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 textFlags.ClearFlag( Drawing::TextFlags::WorldSpace );
                 InternalDrawText2D( m_commandBuffer, screenPosition, pText, color, size, textFlags, depthTestState );
             }
 
-            inline void DrawText3D( Float3 const& worldPosition, char const* pText, Float4 const& color, Drawing::TextSize size = Drawing::TextSize::Regular, TFlags<Drawing::TextFlags> textFlags = TFlags<Drawing::TextFlags>( Drawing::TextFlags::Default ), Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            inline void DrawText3D( Float3 const& worldPosition, char const* pText, Float4 const& color, Drawing::TextSize size = Drawing::TextSize::Regular, TBitFlags<Drawing::TextFlags> textFlags = TBitFlags<Drawing::TextFlags>( Drawing::TextFlags::Default ), Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 textFlags.SetFlag( Drawing::TextFlags::WorldSpace );
                 InternalDrawText3D( m_commandBuffer, worldPosition, pText, color, size, textFlags, depthTestState );
             }
 
-            inline void DrawTextBox2D( Float2 const& screenPos, char const* pText, Float4 const& color, Drawing::TextSize size = Drawing::TextSize::Regular, TFlags<Drawing::TextFlags> textFlags = TFlags<Drawing::TextFlags>( Drawing::TextFlags::Default ), Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            inline void DrawTextBox2D( Float2 const& screenPos, char const* pText, Float4 const& color, Drawing::TextSize size = Drawing::TextSize::Regular, TBitFlags<Drawing::TextFlags> textFlags = TBitFlags<Drawing::TextFlags>( Drawing::TextFlags::Default ), Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 textFlags.SetFlag( Drawing::TextFlags::DrawBackground );
                 DrawText2D( screenPos, pText, color, size, textFlags, depthTestState );
             }
 
-            inline void DrawTextBox3D( Float3 const& worldPos, char const* pText, Float4 const& color, Drawing::TextSize size = Drawing::TextSize::Regular, TFlags<Drawing::TextFlags> textFlags = TFlags<Drawing::TextFlags>( Drawing::TextFlags::Default ), Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            inline void DrawTextBox3D( Float3 const& worldPos, char const* pText, Float4 const& color, Drawing::TextSize size = Drawing::TextSize::Regular, TBitFlags<Drawing::TextFlags> textFlags = TBitFlags<Drawing::TextFlags>( Drawing::TextFlags::Default ), Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 textFlags.SetFlag( Drawing::TextFlags::DrawBackground );
                 DrawText3D( worldPos, pText, color, size, textFlags, depthTestState );
@@ -179,13 +179,13 @@ namespace KRG
 
             void DrawCircle( Transform const& transform, Axis upAxis, Float4 const& color, float lineThickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
 
-            inline void DrawCircle( Float3 const& origin, Axis upAxis, F32 const& radii, Float4 const& color, float lineThickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            inline void DrawCircle( Float3 const& origin, Axis upAxis, float const& radii, Float4 const& color, float lineThickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 auto const transform = Transform::FromScale( Vector( radii ) ) * Transform( Quaternion::Identity, origin );
                 DrawCircle( transform, upAxis, color, lineThickness, depthTestState );
             }
 
-            inline void DrawCircle( Transform const& worldTransform, Axis upAxis, F32 const& radii, Float4 const& color, float lineThickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            inline void DrawCircle( Transform const& worldTransform, Axis upAxis, float const& radii, Float4 const& color, float lineThickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 auto const transform = Transform::FromScale( Vector( radii ) ) * Transform( worldTransform );
                 DrawCircle( transform, upAxis, color, lineThickness, depthTestState );
@@ -241,19 +241,19 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            void DrawDisc( Float3 const& worldPoint, F32 radius, Float4 const& color, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
+            void DrawDisc( Float3 const& worldPoint, float radius, Float4 const& color, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
 
             // Cylinder with radius on the XY plane and half-height along Z
-            void DrawCylinder( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, F32 thickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
+            void DrawCylinder( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, float thickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
 
             // Capsule with radius on the XY plane and half-height along Z, total capsule height = 2 * ( halfHeight + radius )
-            void DrawCapsule( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, F32 thickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
+            void DrawCapsule( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, float thickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
 
             //-------------------------------------------------------------------------
             // Complex Shapes
             //-------------------------------------------------------------------------
 
-            inline void DrawAxis( Transform const& worldTransform, F32 axisLength = 0.05f, F32 axisThickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            inline void DrawAxis( Transform const& worldTransform, float axisLength = 0.05f, float axisThickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 Vector const xAxis = worldTransform.GetAxisX().GetNormalized3() * axisLength;
                 Vector const yAxis = worldTransform.GetAxisY().GetNormalized3() * axisLength;
@@ -266,7 +266,7 @@ namespace KRG
 
             void DrawArrow( Float3 const& startPoint, Float3 const& endPoint, Float4 const& color, float thickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off );
 
-            inline void DrawArrow( Float3 const& startPoint, Float3 const& direction, F32 arrowLength, Float4 const& color, float thickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            inline void DrawArrow( Float3 const& startPoint, Float3 const& direction, float arrowLength, Float4 const& color, float thickness = DefaultLineThickness, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 Vector const endPoint = Vector::MultiplyAdd( Vector( direction ).GetNormalized3(), Vector( arrowLength ), Vector( startPoint ) );
                 DrawArrow( startPoint, endPoint.ToFloat3(), color, thickness, depthTestState );
@@ -309,12 +309,12 @@ namespace KRG
                 cmdList.AddCommand( Drawing::TriangleCommand( v0, v1, v2, color0, color1, color2), depthTestState );
             }
 
-            KRG_FORCE_INLINE void InternalDrawText2D( Drawing::ThreadCommandBuffer& cmdList, Float2 const& position, char const* pText, Float4 const& color, Drawing::TextSize size, TFlags<Drawing::TextFlags> textFlags, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            KRG_FORCE_INLINE void InternalDrawText2D( Drawing::ThreadCommandBuffer& cmdList, Float2 const& position, char const* pText, Float4 const& color, Drawing::TextSize size, TBitFlags<Drawing::TextFlags> textFlags, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 cmdList.AddCommand( Drawing::TextCommand( position, pText, color, size, textFlags), depthTestState );
             }
 
-            KRG_FORCE_INLINE void InternalDrawText3D( Drawing::ThreadCommandBuffer& cmdList, Float3 const& position, char const* pText, Float4 const& color, Drawing::TextSize size, TFlags<Drawing::TextFlags> textFlags, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
+            KRG_FORCE_INLINE void InternalDrawText3D( Drawing::ThreadCommandBuffer& cmdList, Float3 const& position, char const* pText, Float4 const& color, Drawing::TextSize size, TBitFlags<Drawing::TextFlags> textFlags, Drawing::DepthTestState depthTestState = Drawing::DepthTestState::Off )
             {
                 cmdList.AddCommand( Drawing::TextCommand( position, pText, color, size, textFlags), depthTestState );
             }

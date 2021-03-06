@@ -31,8 +31,8 @@ namespace KRG
     public:
 
         Sphere() = default;
-        Sphere( Vector position, F32 radius ) : m_center( position ), m_radius( radius ) { KRG_ASSERT( radius >= 0.0f ); }
-        Sphere( Vector* points, U32 numPoints );
+        Sphere( Vector position, float radius ) : m_center( position ), m_radius( radius ) { KRG_ASSERT( radius >= 0.0f ); }
+        Sphere( Vector* points, uint32 numPoints );
         explicit Sphere( AABB const& box );
         explicit Sphere( OBB const& box );
 
@@ -40,8 +40,8 @@ namespace KRG
 
         KRG_FORCE_INLINE Vector GetCenter() const { return m_center; }
         KRG_FORCE_INLINE void SetCenter( Vector const& newCenter ) { m_center = newCenter; }
-        KRG_FORCE_INLINE F32 GetRadius() const{ return m_radius.ToFloat(); }
-        KRG_FORCE_INLINE void GetRadius( F32 newRadius ) { KRG_ASSERT( newRadius > 0 ); m_radius = Vector( newRadius ); }
+        KRG_FORCE_INLINE float GetRadius() const{ return m_radius.ToFloat(); }
+        KRG_FORCE_INLINE void GetRadius( float newRadius ) { KRG_ASSERT( newRadius > 0 ); m_radius = Vector( newRadius ); }
         KRG_FORCE_INLINE bool IsPoint() { return m_radius.IsNearZero4(); }
 
         // Queries
@@ -87,10 +87,10 @@ namespace KRG
     public:
 
         AABB() = default;
-        AABB( Vector* points, U32 numPoints );
+        AABB( Vector* points, uint32 numPoints );
         AABB( Vector const& center ) : m_center( center ), m_extents( Vector::Zero ) {}
         AABB( Vector const& center, Vector const& extents ) : m_center( center ), m_extents( extents ) { KRG_ASSERT( IsValid() ); }
-        AABB( Vector const& center, F32 const& extents ) : m_center( center ), m_extents( extents ) { KRG_ASSERT( IsValid() ); }
+        AABB( Vector const& center, float const& extents ) : m_center( center ), m_extents( extents ) { KRG_ASSERT( IsValid() ); }
         explicit AABB( OBB const& box );
 
         inline bool IsValid() const { return m_extents.IsGreaterThanEqual3( Vector::Zero ); }
@@ -141,7 +141,7 @@ namespace KRG
         KRG_FORCE_INLINE Vector GetMax() const { return m_center + m_extents; }
 
         KRG_FORCE_INLINE void GetCorners( Vector corners[8] ) const;
-        KRG_FORCE_INLINE F32 GetVolume() const;
+        KRG_FORCE_INLINE float GetVolume() const;
 
         // Queries
         //-------------------------------------------------------------------------
@@ -204,7 +204,7 @@ namespace KRG
 
         KRG_FORCE_INLINE void GetCorners( Vector corners[8] ) const
         {
-            for ( S32 i = 0; i < 8; ++i )
+            for ( int32 i = 0; i < 8; ++i )
             {
                 corners[i] = m_center + m_orientation.RotateVector( m_extents * Vector::BoxCorners[i] );
             }
@@ -272,9 +272,9 @@ namespace KRG
     // Full overlap test
     KRG_FORCE_INLINE OverlapResult Sphere::OverlapTest( Sphere const& other ) const
     {
-        F32 const r1 = m_radius.x;
-        F32 const r2 = other.m_radius.x;
-        F32 const distance = ( other.m_center - m_center ).Length3().ToFloat();
+        float const r1 = m_radius.x;
+        float const r2 = other.m_radius.x;
+        float const distance = ( other.m_center - m_center ).Length3().ToFloat();
 
         if ( r1 + r2 >= distance )
         {
@@ -308,13 +308,13 @@ namespace KRG
 
     KRG_FORCE_INLINE void AABB::GetCorners( Vector corners[8] ) const
     {
-        for ( S32 i = 0; i < 8; ++i )
+        for ( int32 i = 0; i < 8; ++i )
         {
             corners[i] = Vector::MultiplyAdd( m_extents, Vector::BoxCorners[i], m_center );
         }
     }
 
-    KRG_FORCE_INLINE F32 AABB::GetVolume() const
+    KRG_FORCE_INLINE float AABB::GetVolume() const
     {
         Vector const fullExtents = m_extents * 2;
         return m_extents.x * m_extents.y * m_extents.z;
@@ -404,7 +404,7 @@ namespace KRG
         }
 
         Vector const offset = other.m_center - m_center;
-        for ( S32 i = 0; i < 8; ++i )
+        for ( int32 i = 0; i < 8; ++i )
         {
             Vector C = other.m_orientation.RotateVector( other.m_extents * Vector::BoxCorners[i] ) + offset;
             C = m_orientation.RotateVectorInverse( C );

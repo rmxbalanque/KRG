@@ -8,7 +8,7 @@ namespace KRG
     {
         namespace Tasks
         {
-            Sample::Sample( S32 sourceID, AnimationData const* pAnimSequence, Percentage time )
+            Sample::Sample( int32 sourceID, AnimationData const* pAnimSequence, Percentage time )
                 : Task( sourceID )
                 , m_pAnimation( pAnimSequence )
                 , m_time( time )
@@ -33,11 +33,11 @@ namespace KRG
             {
                 if ( m_pAnimation->IsAdditive() )
                 {
-                    return String().sprintf( "Sample Task (Additive): %s at %.2f", m_pAnimation->GetName(), (F32) m_time );
+                    return String().sprintf( "Sample Task (Additive): %s at %.2f", m_pAnimation->GetName(), (float) m_time );
                 }
                 else
                 {
-                    return String().sprintf( "Sample Task: %s at %.2f", m_pAnimation->GetName(), (F32) m_time );
+                    return String().sprintf( "Sample Task: %s at %.2f", m_pAnimation->GetName(), (float) m_time );
                 }
             }
             #endif

@@ -11,13 +11,13 @@ namespace KRG
 {
     namespace ImGuiX
     {
-        static F32 const g_axisLength = 75.0f;
-        static F32 const g_axisThickness = 5.0f;
-        static F32 const g_axisGuideThickness = 3.0f;
-        static F32 const g_originSphereRadius = 5.0f;
-        static F32 const g_originSphereAxisOffset = g_originSphereRadius + 4.0f;
-        static F32 const g_planeWidgetLength = 20.0f;
-        static F32 const g_planeWidgetOffset = 15.0f;
+        static float const g_axisLength = 75.0f;
+        static float const g_axisThickness = 5.0f;
+        static float const g_axisGuideThickness = 3.0f;
+        static float const g_originSphereRadius = 5.0f;
+        static float const g_originSphereAxisOffset = g_originSphereRadius + 4.0f;
+        static float const g_planeWidgetLength = 20.0f;
+        static float const g_planeWidgetOffset = 15.0f;
         static Color const g_selectedColor = Colors::Yellow;
         static Color const g_planeColor = Colors::Gray;
 
@@ -36,8 +36,8 @@ namespace KRG
                 return false;
             }
 
-            F32 const arrowHeadThickness = g_axisThickness * 2;
-            F32 const arrowHeadLength = g_axisThickness * 2;
+            float const arrowHeadThickness = g_axisThickness * 2;
+            float const arrowHeadLength = g_axisThickness * 2;
 
             Float2 const arrowHeadBase = end - ( arrowDirection * arrowHeadLength );
             Float2 const orthogonalDir( arrowDirection.y, -arrowDirection.x );
@@ -47,7 +47,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             Vector const offsetStart = start + ( arrowDirection * g_originSphereAxisOffset );
-            U32 const axisColor = ImGuiExtensions::GetImguiColorU32( color );
+            uint32 const axisColor = ImGuiExtensions::GetImguiColorU32( color );
             pDrawList->AddLine( offsetStart.ToFloat2(), arrowHeadBase + arrowDirection, axisColor, g_axisThickness );
             pDrawList->AddTriangleFilled( end.ToFloat2(), arrowHeadBase - orthogonalOffset, arrowHeadBase + orthogonalOffset, axisColor );
 
@@ -55,7 +55,7 @@ namespace KRG
 
             LineSegment const arrowLine( offsetStart, end );
             Vector const mousePos = io.MousePos;
-            F32 const mouseToLineDistance = arrowLine.GetDistanceBetweenSegmentAndPoint( mousePos );
+            float const mouseToLineDistance = arrowLine.GetDistanceBetweenSegmentAndPoint( mousePos );
             bool const isHovered = mouseToLineDistance < ( ( g_axisThickness / 2 ) + 3.0f );
 
             return isHovered;
@@ -81,8 +81,8 @@ namespace KRG
                 ( origin + planeAxisDeltaFarX + planeAxisDeltaFarY ),
             };
 
-            F32 const distanceAcross0 = quadVerts[0].GetDistance2( quadVerts[2] );
-            F32 const distanceAcross1 = quadVerts[1].GetDistance2( quadVerts[3] );
+            float const distanceAcross0 = quadVerts[0].GetDistance2( quadVerts[2] );
+            float const distanceAcross1 = quadVerts[1].GetDistance2( quadVerts[3] );
             if ( distanceAcross0 < 5.0f || distanceAcross1 < 5.0f )
             {
                 return false;
@@ -104,9 +104,9 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             Vector const mousePos = io.MousePos;
-            auto LeftHandTest = [&mousePos, &drawQuadVerts] ( S32 side0, S32 side1 )
+            auto LeftHandTest = [&mousePos, &drawQuadVerts] ( int32 side0, int32 side1 )
             {
-                F32 D = ( drawQuadVerts[side1].x - drawQuadVerts[side0].x ) * ( mousePos.y - drawQuadVerts[side0].y ) - ( mousePos.x - drawQuadVerts[side0].x ) * ( drawQuadVerts[side1].y - drawQuadVerts[side0].y );
+                float D = ( drawQuadVerts[side1].x - drawQuadVerts[side0].x ) * ( mousePos.y - drawQuadVerts[side0].y ) - ( mousePos.x - drawQuadVerts[side0].x ) * ( drawQuadVerts[side1].y - drawQuadVerts[side0].y );
                 return D > 0;
             };
 

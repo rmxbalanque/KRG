@@ -7,7 +7,7 @@ namespace KRG
     void CameraComponent::Initialize()
     {
         SpatialEntityComponent::Initialize();
-        m_viewVolume = Math::ViewVolume( Float2( 1.0f ), TRange<F32>( 0.1f, m_depth ), Radians( m_FOV ), GetWorldTransform().ToMatrix() );
+        m_viewVolume = Math::ViewVolume( Float2( 1.0f ), TRange<float>( 0.1f, m_depth ), Radians( m_FOV ), GetWorldTransform().ToMatrix() );
 
         // Decompose current view into heading and pitch
         //-------------------------------------------------------------------------
@@ -66,8 +66,8 @@ namespace KRG
         // Calculate the actual space that this camera's viewport covers
         //-------------------------------------------------------------------------
         Float2 const viewportDimensions( m_viewportBottomRight - m_viewportTopLeft );
-        F32 const sizeX = viewportDimensions.x * newViewDimensions.x;
-        F32 const sizeY = viewportDimensions.y * newViewDimensions.y;
+        float const sizeX = viewportDimensions.x * newViewDimensions.x;
+        float const sizeY = viewportDimensions.y * newViewDimensions.y;
         Float2 const actualViewDimensions( sizeX, sizeY );
         m_viewVolume.SetViewDimensions( actualViewDimensions );
     }

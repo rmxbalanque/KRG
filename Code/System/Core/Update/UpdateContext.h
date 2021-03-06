@@ -18,7 +18,7 @@ namespace KRG
 
         inline Seconds GetDeltaTime() const { return m_deltaTime * m_timeScale; }
         inline Seconds GetRawDeltaTime() const { return m_deltaTime; }
-        inline U64 GetFrameID() const { return m_frameID; }
+        inline uint64 GetFrameID() const { return m_frameID; }
 
         inline UpdateStage GetUpdateStage() const { return m_stage; }
         template<typename T> inline T* GetSystem() const { return m_pSystemRegistry->GetSystem<T>(); }
@@ -30,7 +30,7 @@ namespace KRG
     protected:
 
         // Set the time scale for this update ( only positive values under 100 allowed )
-        void SetTimeScale( F32 scale );
+        void SetTimeScale( float scale );
 
         // Set the time delta for this update
         void UpdateDeltaTime( Milliseconds deltaTime );
@@ -38,8 +38,8 @@ namespace KRG
     protected:
 
         Seconds                                     m_deltaTime = 1.0f / 60.0f;
-        F32                                         m_timeScale = 1.0f;
-        U64                                         m_frameID = 0;
+        float                                         m_timeScale = 1.0f;
+        uint64                                         m_frameID = 0;
         UpdateStage                                 m_stage = UpdateStage::FrameStart;
         SystemRegistry*                             m_pSystemRegistry = nullptr;
 

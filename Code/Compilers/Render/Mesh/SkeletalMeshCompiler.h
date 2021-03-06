@@ -34,7 +34,7 @@ namespace KRG
 
         class SkeletalMeshCompiler : public MeshCompiler
         {
-            static const S32 VERSION = 2;
+            static const int32 VERSION = 2;
 
         public:
 

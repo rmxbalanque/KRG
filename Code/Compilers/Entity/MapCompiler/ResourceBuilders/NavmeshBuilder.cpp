@@ -159,7 +159,7 @@ namespace KRG::Navmesh
             {
                 auto const scale = transform.GetScale();
 
-                S32 numNegativelyScaledAxes = ( scale.x < 0 ) ? 1 : 0;
+                int32 numNegativelyScaledAxes = ( scale.x < 0 ) ? 1 : 0;
                 numNegativelyScaledAxes += ( scale.y < 0 ) ? 1 : 0;
                 numNegativelyScaledAxes += ( scale.z < 0 ) ? 1 : 0;
 
@@ -178,17 +178,17 @@ namespace KRG::Navmesh
 
                     //-------------------------------------------------------------------------
 
-                    S32 const numTriangles = geometrySection.GetNumTriangles();
-                    S32 const numIndices = (S32) geometrySection.m_indices.size();
+                    int32 const numTriangles = geometrySection.GetNumTriangles();
+                    int32 const numIndices = (int32) geometrySection.m_indices.size();
                     for ( auto t = 0; t < numTriangles; t++ )
                     {
-                        S32 const i = t * 3;
+                        int32 const i = t * 3;
                         KRG_ASSERT( i <= numIndices - 3 );
 
                         // NavPower expects counterclockwise winding
-                        S32 const index0 = geometrySection.m_indices[flipWinding ? i + 2 : i];
-                        S32 const index1 = geometrySection.m_indices[i + 1];
-                        S32 const index2 = geometrySection.m_indices[flipWinding ? i : i + 2];
+                        int32 const index0 = geometrySection.m_indices[flipWinding ? i + 2 : i];
+                        int32 const index1 = geometrySection.m_indices[i + 1];
+                        int32 const index2 = geometrySection.m_indices[flipWinding ? i : i + 2];
 
                         // Add triangle
                         auto& buildFace = m_buildFaces.emplace_back( bfx::BuildFace() );
@@ -244,9 +244,9 @@ namespace KRG::Navmesh
         surfaceInput.m_globalParams.m_maxNumCores = 16;
 
         surfaceInput.m_pFaces = m_buildFaces.data();
-        surfaceInput.m_numFaces = (U32) m_buildFaces.size();
+        surfaceInput.m_numFaces = (uint32) m_buildFaces.size();
         surfaceInput.m_pParams = m_buildParams.data();
-        surfaceInput.m_numParams = (U32) m_buildParams.size();
+        surfaceInput.m_numParams = (uint32) m_buildParams.size();
 
         //-------------------------------------------------------------------------
 

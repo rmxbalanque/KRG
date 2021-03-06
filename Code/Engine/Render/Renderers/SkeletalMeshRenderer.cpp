@@ -167,7 +167,7 @@ namespace KRG
 
                 // Add to mesh groups
                 auto predicate = [] ( MeshGroup const& group, SkeletalMesh const* pMesh ) { return group.m_pMesh == pMesh; };
-                S32 const foundGroupIdx = VectorFindIndex( m_meshGroups, pMesh, predicate );
+                int32 const foundGroupIdx = VectorFindIndex( m_meshGroups, pMesh, predicate );
                 if ( foundGroupIdx == InvalidIndex )
                 {
                     auto& foundGroup = m_meshGroups.emplace_back( MeshGroup( pMesh ) );
@@ -190,7 +190,7 @@ namespace KRG
                 // Remove from record
                 //-------------------------------------------------------------------------
 
-                S32 const foundIdx = VectorFindIndex( pRecord->m_components, pMeshComponent );
+                int32 const foundIdx = VectorFindIndex( pRecord->m_components, pMeshComponent );
                 KRG_ASSERT( foundIdx != InvalidIndex );
                 pRecord->m_components.erase_unsorted( pRecord->m_components.begin() + foundIdx );
 
@@ -206,7 +206,7 @@ namespace KRG
                 auto pMesh = pMeshComponent->GetMesh();
 
                 auto predicate = [] ( MeshGroup const& group, SkeletalMesh const* pMesh ) { return group.m_pMesh == pMesh; };
-                S32 const foundGroupIdx = VectorFindIndex( m_meshGroups, pMesh, predicate );
+                int32 const foundGroupIdx = VectorFindIndex( m_meshGroups, pMesh, predicate );
                 KRG_ASSERT( foundGroupIdx != InvalidIndex );
                 m_meshGroups[foundGroupIdx].m_components.erase_first( pMeshComponent );
 

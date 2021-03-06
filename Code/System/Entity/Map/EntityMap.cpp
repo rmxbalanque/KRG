@@ -101,7 +101,7 @@ namespace KRG::EntityModel
         }
         else // Cancel add request if the collection doesnt exists yet
         {
-            S32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
+            int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
             KRG_ASSERT( entityIdx != InvalidIndex );
             pEntityToRemove = m_entitiesToAdd[entityIdx];
             m_entitiesToAdd.erase_unsorted( m_entitiesToAdd.begin() + entityIdx );
@@ -150,14 +150,14 @@ namespace KRG::EntityModel
                 , m_activationContext( activationContext )
                 , m_entities( entities )
             {
-                m_SetSize = (U32) m_entities.size();
+                m_SetSize = (uint32) m_entities.size();
             }
 
-            virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
+            virtual void ExecuteRange( TaskSetPartition range, uint32 threadnum ) override final
             {
                 KRG_PROFILE_SCOPE_SCENE( "Activate Entities Task" );
 
-                for ( U64 i = range.start; i < range.end; ++i )
+                for ( uint64 i = range.start; i < range.end; ++i )
                 {
                     auto pEntity = m_entities[i];
                     if ( pEntity->IsLoaded() )
@@ -201,14 +201,14 @@ namespace KRG::EntityModel
                 , m_activationContext( activationContext )
                 , m_entities( entities )
             {
-                m_SetSize = (U32) m_entities.size();
+                m_SetSize = (uint32) m_entities.size();
             }
 
-            virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
+            virtual void ExecuteRange( TaskSetPartition range, uint32 threadnum ) override final
             {
                 KRG_PROFILE_SCOPE_SCENE( "Deactivate Entities Task" );
 
-                for ( U64 i = range.start; i < range.end; ++i )
+                for ( uint64 i = range.start; i < range.end; ++i )
                 {
                     auto pEntity = m_entities[i];
                     if ( pEntity->IsActivated() )
@@ -268,7 +268,7 @@ namespace KRG::EntityModel
 
         // We need to have at least a single frame delay between the unload and load requests
         // so that the resource system can actually unload the resource, instead of just canceling the unload request
-        for ( S32 i = (S32) m_reloadRequests.size() - 1; i >= 0; i-- )
+        for ( int32 i = (int32) m_reloadRequests.size() - 1; i >= 0; i-- )
         {
             auto& request = m_reloadRequests[i];
 
@@ -452,14 +452,14 @@ namespace KRG::EntityModel
                 , m_entitiesToLoad( entitiesToLoad )
                 , m_isActivated( isActivated )
             {
-                m_SetSize = (U32) m_entitiesToLoad.size();
+                m_SetSize = (uint32) m_entitiesToLoad.size();
             }
 
-            virtual void ExecuteRange( TaskSetPartition range, U32 threadnum ) override final
+            virtual void ExecuteRange( TaskSetPartition range, uint32 threadnum ) override final
             {
                 KRG_PROFILE_SCOPE_SCENE( "Load and Activate Entities Task" );
 
-                for ( U32 i = range.start; i < range.end; ++i )
+                for ( uint32 i = range.start; i < range.end; ++i )
                 {
                     auto pEntity = m_entitiesToLoad[i];
 

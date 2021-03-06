@@ -33,7 +33,7 @@ namespace KRG
                 auto const numCbuffers = pipelineState.m_pVertexShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->VSSetConstantBuffers( (U32) i, 1, (ID3D11Buffer**) &pipelineState.m_pVertexShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->VSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pVertexShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
                 }
             }
             else
@@ -53,7 +53,7 @@ namespace KRG
                 auto const numCbuffers = pipelineState.m_pGeometryShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->GSSetConstantBuffers( (U32) i, 1, (ID3D11Buffer**) &pipelineState.m_pGeometryShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->GSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pGeometryShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
                 }
             }
             else
@@ -71,7 +71,7 @@ namespace KRG
                 auto const numCbuffers = pipelineState.m_pHullShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->HSSetConstantBuffers( (U32) i, 1, (ID3D11Buffer**) &pipelineState.m_pHullShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->HSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pHullShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
                 }
             }
             else
@@ -89,7 +89,7 @@ namespace KRG
                 auto const numCbuffers = pipelineState.m_pComputeShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->CSSetConstantBuffers( (U32) i, 1, (ID3D11Buffer**) &pipelineState.m_pComputeShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->CSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pComputeShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
                 }
             }
             else
@@ -107,7 +107,7 @@ namespace KRG
                 auto const numCbuffers = pipelineState.m_pPixelShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->PSSetConstantBuffers( (U32) i, 1, (ID3D11Buffer**) &pipelineState.m_pPixelShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->PSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pPixelShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
                 }
             }
             else
@@ -142,7 +142,7 @@ namespace KRG
             m_pDeviceContext->IASetInputLayout( (ID3D11InputLayout*) inputBinding.m_pHandle );
         }
 
-        void RenderContext::SetTexture( PipelineStage stage, U32 slot, Texture const& texture ) const
+        void RenderContext::SetTexture( PipelineStage stage, uint32 slot, Texture const& texture ) const
         {
             KRG_ASSERT( IsValid() && texture.IsValid() );
 
@@ -176,7 +176,7 @@ namespace KRG
             }
         }
 
-        void RenderContext::SetSampler( PipelineStage stage, U32 slot, SamplerState const& state ) const
+        void RenderContext::SetSampler( PipelineStage stage, uint32 slot, SamplerState const& state ) const
         {
             KRG_ASSERT( IsValid() && state.IsValid() );
 
@@ -240,13 +240,13 @@ namespace KRG
             UnmapBuffer( buffer );
         }
 
-        void RenderContext::SetVertexBuffer( RenderBuffer const& buffer, U32 offset ) const
+        void RenderContext::SetVertexBuffer( RenderBuffer const& buffer, uint32 offset ) const
         {
             KRG_ASSERT( IsValid() && buffer.IsValid() && buffer.m_type == RenderBuffer::Type::Vertex );
             m_pDeviceContext->IASetVertexBuffers( 0, 1, (ID3D11Buffer**) &buffer.GetResourceHandle().m_pHandle, &buffer.m_byteStride, &offset );
         }
 
-        void RenderContext::SetIndexBuffer( RenderBuffer const& buffer, U32 offset ) const
+        void RenderContext::SetIndexBuffer( RenderBuffer const& buffer, uint32 offset ) const
         {
             KRG_ASSERT( IsValid() && buffer.IsValid() && buffer.m_type == RenderBuffer::Type::Index );
             m_pDeviceContext->IASetIndexBuffer( (ID3D11Buffer*) buffer.GetResourceHandle().m_pHandle, buffer.m_byteStride == 4 ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT, offset );
@@ -284,7 +284,7 @@ namespace KRG
             }
         }
 
-        void RenderContext::SetRasterizerScissorRectangles( ScissorRect const* pScissorRects, U32 numRects ) const
+        void RenderContext::SetRasterizerScissorRectangles( ScissorRect const* pScissorRects, uint32 numRects ) const
         {
             KRG_ASSERT( IsValid() );
 
@@ -346,13 +346,13 @@ namespace KRG
             m_pDeviceContext->IASetPrimitiveTopology( d3dTopology );
         }
 
-        void RenderContext::Draw( U32 vertexCount, U32 vertexStartIndex ) const
+        void RenderContext::Draw( uint32 vertexCount, uint32 vertexStartIndex ) const
         {
             KRG_ASSERT( IsValid() );
             m_pDeviceContext->Draw( vertexCount, vertexStartIndex );
         }
 
-        void RenderContext::DrawIndexed( U32 vertexCount, U32 indexStartIndex, U32 vertexStartIndex ) const
+        void RenderContext::DrawIndexed( uint32 vertexCount, uint32 indexStartIndex, uint32 vertexStartIndex ) const
         {
             KRG_ASSERT( IsValid() );
             m_pDeviceContext->DrawIndexed( vertexCount, indexStartIndex, vertexStartIndex );

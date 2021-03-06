@@ -54,7 +54,7 @@ namespace KRG
 
         protected:
 
-            virtual void SetHeaderWidth( InitializationContext& context, S32 headerWidth ) override final;
+            virtual void SetHeaderWidth( InitializationContext& context, int32 headerWidth ) override final;
             virtual void OnResetButtonClicked() override final;
             virtual void UpdateCustomDisplay() {}
             virtual void RecreateChildPropertyEditors() = 0;
@@ -66,7 +66,7 @@ namespace KRG
             QVBoxLayout*                                    m_pContentLayout = nullptr;
             TVector<PropertyGrid::PropertyEditor*>          m_propertyEditors;
             InitializationContext                           m_cachedContext;
-            S32                                             m_cachedHeaderWidth = 0;
+            int32                                             m_cachedHeaderWidth = 0;
         };
 
         //-------------------------------------------------------------------------
@@ -118,7 +118,7 @@ namespace KRG
             virtual void UpdateCustomDisplay() override;
             
             void OnAddNewArrayElement();
-            void OnRemoveArrayElement( S32 arrayElementIdx );
+            void OnRemoveArrayElement( int32 arrayElementIdx );
 
         private:
 

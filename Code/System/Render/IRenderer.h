@@ -34,8 +34,8 @@ namespace KRG
         public:
 
             virtual void Render( Math::Viewport const& viewport ) = 0;
-            virtual U32 GetRendererID() const = 0;
-            virtual S32 GetPriority() const = 0;
+            virtual uint32 GetRendererID() const = 0;
+            virtual int32 GetPriority() const = 0;
         };
     }
 }
@@ -43,6 +43,6 @@ namespace KRG
 //-------------------------------------------------------------------------
 
 #define KRG_RENDERER_ID( typeName, priority ) \
-constexpr static U32 const RendererID = Hash::FNV1a::GetHash32( #typeName ); \
-virtual U32 GetRendererID() const override final { return typeName::RendererID; } \
-virtual S32 GetPriority() const override{ return priority; }
+constexpr static uint32 const RendererID = Hash::FNV1a::GetHash32( #typeName ); \
+virtual uint32 GetRendererID() const override final { return typeName::RendererID; } \
+virtual int32 GetPriority() const override{ return priority; }

@@ -64,7 +64,7 @@ namespace KRG
         {
             if ( m_value.IsValid() )
             {
-                QString IDStr = QString( "%1" ).arg( (U32) m_value );
+                QString IDStr = QString( "%1" ).arg( (uint32) m_value );
                 m_pIDBox->setText( IDStr );
             }
             else

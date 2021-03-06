@@ -14,7 +14,7 @@ namespace KRG
 {
     namespace Resource
     {
-        NetworkResourceProvider::NetworkResourceProvider( char const* pAddress, U32 port )
+        NetworkResourceProvider::NetworkResourceProvider( char const* pAddress, uint32 port )
             : ResourceProvider()
          {
             KRG_ASSERT( pAddress != nullptr && port < 9999 );
@@ -32,7 +32,7 @@ namespace KRG
 
             if ( !m_networkClient.IsConnected() )
             {
-                S32 numRetries = 25;
+                int32 numRetries = 25;
                 while ( numRetries > 0 )
                 {
                     KRG_LOG_ERROR( "Resource", "Couldnt connect to resource server at %s - retrying %d / 100", m_networkClient.GetAddress().c_str(), 100 - numRetries );
@@ -94,7 +94,7 @@ namespace KRG
 
             if ( m_keepAliveTimer.GetElapsedTimeSeconds() > Seconds( 5.0f ) )
             {
-                Network::IPC::Message const keepAliveMessage( (S32) NetworkMessageID::KeepAlive );
+                Network::IPC::Message const keepAliveMessage( (int32) NetworkMessageID::KeepAlive );
                 m_networkClient.SendMessageToServer( keepAliveMessage );
                 m_keepAliveTimer.Reset();
             }
@@ -132,7 +132,7 @@ namespace KRG
 
         void NetworkResourceProvider::RequestResourceInternal( ResourceRequest* pRequest )
         {
-            m_messagesToSend.enqueue( Network::IPC::Message( (S32) NetworkMessageID::RequestResource, NetworkResourceRequest( pRequest->GetResourceID() ) ) );
+            m_messagesToSend.enqueue( Network::IPC::Message( (int32) NetworkMessageID::RequestResource, NetworkResourceRequest( pRequest->GetResourceID() ) ) );
         }
 
         void NetworkResourceProvider::CancelRequestInternal( ResourceRequest* pRequest )

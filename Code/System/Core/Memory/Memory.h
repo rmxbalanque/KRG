@@ -123,8 +123,8 @@ namespace KRG
         }
 
         // Record the number of array elements
-        U32* pNumElements = reinterpret_cast<U32*>( pArrayAddress ) - 1;
-        *pNumElements = U32( numElements );
+        uint32* pNumElements = reinterpret_cast<uint32*>( pArrayAddress ) - 1;
+        *pNumElements = uint32( numElements );
 
         return pArrayAddress;
     }
@@ -147,8 +147,8 @@ namespace KRG
         }
 
         // Record the number of array elements
-        U32* pNumElements = reinterpret_cast<U32*>( pArrayAddress ) - 1;
-        *pNumElements = U32( numElements );
+        uint32* pNumElements = reinterpret_cast<uint32*>( pArrayAddress ) - 1;
+        *pNumElements = uint32( numElements );
 
         return pArrayAddress;
     }
@@ -160,8 +160,8 @@ namespace KRG
         size_t const requiredExtraMemory = std::max( requiredAlignment, size_t( 4 ) );
 
         // Get number of elements in array and call destructor on each entity
-        U32 const numElements = *( reinterpret_cast<U32*>( pArray ) - 1 );
-        for ( U32 i = 0; i < numElements; i++ )
+        uint32 const numElements = *( reinterpret_cast<uint32*>( pArray ) - 1 );
+        for ( uint32 i = 0; i < numElements; i++ )
         {
             pArray[i].~T();
         }

@@ -45,7 +45,7 @@ namespace KRG
                 // Clang args
                 TInlineVector<String, 10> fullIncludePaths;
                 TInlineVector<char const*, 10> clangArgs;
-                S32 const numIncludePaths = sizeof( Settings::g_includePaths ) / sizeof( Settings::g_includePaths[0] );
+                int32 const numIncludePaths = sizeof( Settings::g_includePaths ) / sizeof( Settings::g_includePaths[0] );
                 for ( auto i = 0; i < numIncludePaths; i++ )
                 {
                     String const fullPath = m_context.m_pSolution->m_path + Settings::g_includePaths[i];
@@ -66,7 +66,7 @@ namespace KRG
 
                 // Set up clang
                 auto idx = clang_createIndex( 0, 1 );
-                U32 const clangOptions = CXTranslationUnit_DetailedPreprocessingRecord | CXTranslationUnit_SkipFunctionBodies;
+                uint32 const clangOptions = CXTranslationUnit_DetailedPreprocessingRecord | CXTranslationUnit_SkipFunctionBodies;
 
                 // Parse Headers
                 CXTranslationUnit tu;

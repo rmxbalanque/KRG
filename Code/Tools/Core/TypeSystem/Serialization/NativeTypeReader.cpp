@@ -39,37 +39,37 @@ namespace KRG::TypeSystem
             }
             else if ( typeValue.IsInt64() || typeValue.IsUint64() )
             {
-                if ( typeID == CoreTypes::F32 )
+                if ( typeID == CoreTypes::Uint8 )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (U8) typeValue.IsUint64() );
+                    SetPropertyValue( pPropertyDataAddress, (uint8) typeValue.GetUint64() );
                 }
-                else if ( typeID == CoreTypes::F64 )
+                else if ( typeID == CoreTypes::Int8 )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (S8) typeValue.GetInt64() );
+                    SetPropertyValue( pPropertyDataAddress, (int8) typeValue.GetInt64() );
                 }
-                else if ( typeID == CoreTypes::F32 )
+                else if ( typeID == CoreTypes::Uint16 )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (U16) typeValue.IsUint64() );
+                    SetPropertyValue( pPropertyDataAddress, (uint16) typeValue.GetUint64() );
                 }
-                else if ( typeID == CoreTypes::F64 )
+                else if ( typeID == CoreTypes::Int16 )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (S16) typeValue.GetInt64() );
+                    SetPropertyValue( pPropertyDataAddress, (int16) typeValue.GetInt64() );
                 }
-                else if ( typeID == CoreTypes::F32 )
+                else if ( typeID == CoreTypes::Uint32 )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (U32) typeValue.IsUint64() );
+                    SetPropertyValue( pPropertyDataAddress, (uint32) typeValue.GetUint64() );
                 }
-                else if ( typeID == CoreTypes::F64 )
+                else if ( typeID == CoreTypes::Int32 )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (S32) typeValue.GetInt64() );
+                    SetPropertyValue( pPropertyDataAddress, (int32) typeValue.GetInt64() );
                 }
-                else if ( typeID == CoreTypes::F32 )
+                else if ( typeID == CoreTypes::Uint64 )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (U64) typeValue.IsUint64() );
+                    SetPropertyValue( pPropertyDataAddress, typeValue.GetUint64() );
                 }
-                else if ( typeID == CoreTypes::F64 )
+                else if ( typeID == CoreTypes::Int64 )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (S64) typeValue.GetInt64() );
+                    SetPropertyValue( pPropertyDataAddress, typeValue.GetInt64() );
                 }
                 else
                 {
@@ -78,13 +78,13 @@ namespace KRG::TypeSystem
             }
             else if ( typeValue.IsDouble() )
             {
-                if ( typeID == CoreTypes::F32 )
+                if ( typeID == CoreTypes::Float )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (F32) typeValue.GetDouble() );
+                    SetPropertyValue( pPropertyDataAddress, typeValue.GetFloat() );
                 }
-                else if ( typeID == CoreTypes::F64 )
+                else if ( typeID == CoreTypes::Double )
                 {
-                    SetPropertyValue( pPropertyDataAddress, (F64) typeValue.GetDouble() );
+                    SetPropertyValue( pPropertyDataAddress, typeValue.GetDouble() );
                 }
                 else
                 {
@@ -233,7 +233,7 @@ namespace KRG::TypeSystem
                     {
                         if ( propInfo.m_size < numArrayElements )
                         {
-                            KRG_LOG_WARNING( "Resource", "Static array size mismatch for %s, expected maximum %d elements, encountered %d elements", propInfo.m_size, propInfo.m_size, (S32) numArrayElements );
+                            KRG_LOG_WARNING( "Resource", "Static array size mismatch for %s, expected maximum %d elements, encountered %d elements", propInfo.m_size, propInfo.m_size, (int32) numArrayElements );
                             continue;
                         }
 
@@ -250,7 +250,7 @@ namespace KRG::TypeSystem
                     else
                     {
                         // Do the traversal backwards to only allocate once
-                        for ( S32 i = (S32) ( numArrayElements - 1 ); i >= 0; i-- )
+                        for ( int32 i = (int32) ( numArrayElements - 1 ); i >= 0; i-- )
                         {
                             auto pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetDynamicArrayElementDataPtr( pTypeData, propInfo.m_ID, i );
                             DeserializeType( jsonArrayValue[i], propInfo.m_typeID, pArrayElementAddress );

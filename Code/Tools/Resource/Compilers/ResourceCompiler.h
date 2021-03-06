@@ -91,12 +91,12 @@ namespace KRG
 
         public:
 
-            Compiler( String const& name, S32 version ) : m_name( name ), m_version( version ) {}
+            Compiler( String const& name, int32 version ) : m_name( name ), m_version( version ) {}
             virtual ~Compiler() {}
             virtual CompilationResult Compile( CompileContext const& ctx ) const = 0;
 
             String const& GetName() const { return m_name; }
-            inline S32 GetVersion() const { return m_version; }
+            inline int32 GetVersion() const { return m_version; }
             
             // The list of resource type we can compile
             virtual TVector<ResourceTypeID> const& GetOutputTypes() const { return m_outputTypes; }
@@ -118,7 +118,7 @@ namespace KRG
 
         protected:
 
-            S32                         m_version;
+            int32                         m_version;
             String                      m_name;
             TVector<ResourceTypeID>     m_outputTypes;
             TVector<ResourceTypeID>     m_virtualTypes;

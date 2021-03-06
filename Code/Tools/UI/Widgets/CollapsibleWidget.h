@@ -48,8 +48,8 @@ namespace KRG
 
     public:
 
-        CollapsibleWidgetHeader( QWidget* pHeaderWidget, S32 headerIndent = 0 );
-        CollapsibleWidgetHeader( QLayout* pHeaderLayout, S32 headerIndent = 0 );
+        CollapsibleWidgetHeader( QWidget* pHeaderWidget, int32 headerIndent = 0 );
+        CollapsibleWidgetHeader( QLayout* pHeaderLayout, int32 headerIndent = 0 );
 
         bool IsCollapsed() const { return m_pArrow->IsCollapsed(); }
 
@@ -59,7 +59,7 @@ namespace KRG
 
     private:
 
-        QHBoxLayout* CreateMainLayout( S32 headerIndent );
+        QHBoxLayout* CreateMainLayout( int32 headerIndent );
 
     private:
 
@@ -74,7 +74,7 @@ namespace KRG
 
     public:
 
-        KCollapsibleWidget( QLayout* pHeaderLayout, QLayout* pContentLayout, S32 headerIndent = 0, S32 contentIndent = 0 );
+        KCollapsibleWidget( QLayout* pHeaderLayout, QLayout* pContentLayout, int32 headerIndent = 0, int32 contentIndent = 0 );
 
     private:
 

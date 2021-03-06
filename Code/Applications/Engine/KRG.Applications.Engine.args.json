@@ -7,10 +7,6 @@
       "Command": "-map data://maps/br_nav.map"
     },
     {
-      "Id": "f38484d2-a77c-4ca1-a101-c89f8394d723",
-      "Command": "-map data://maps/br_minimal.map"
-    },
-    {
       "Id": "0de5ee5f-a2e2-4323-9326-f7920cadcce2",
       "Command": "-map data://maps/EntityTest.map"
     },
@@ -29,6 +25,10 @@
     {
       "Id": "e1dc9a7b-a015-4150-a00f-a22a2e7a95ce",
       "Command": "-map data://maps/br_full.map"
+    },
+    {
+      "Id": "9f4e3eb2-43a5-4d5b-b8d2-42f2115be8f9",
+      "Command": "-map data://maps/br_minimal.map"
     },
     {
       "Id": "c9d23cdf-2302-4200-a0d2-690576acbd7d",

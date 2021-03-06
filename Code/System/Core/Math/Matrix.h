@@ -11,7 +11,7 @@
 
 namespace KRG
 {
-    enum class CoordinateSpace : U8
+    enum class CoordinateSpace : uint8
     {
         World,
         Object,
@@ -36,21 +36,21 @@ namespace KRG
         inline static Matrix FromRotation( Quaternion const& rotation ) { return Matrix( rotation ); }
         inline static Matrix FromTranslation( Vector const& translation );
         inline static Matrix FromScale( Vector const& scale );
-        inline static Matrix FromUniformScale( F32 uniformScale );
+        inline static Matrix FromUniformScale( float uniformScale );
         inline static Matrix FromTranslationAndScale( Vector const& translation, Vector const& scale );
         inline static Matrix FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return Matrix( Quaternion::FromRotationBetweenVectors( sourceVector, targetVector ) ); }
 
         // Projection matrix helpers, note: These assume a unit cube with a Z (depth) range of [0,1] i.e. DirectX
-        inline static Matrix PerspectiveProjectionMatrix( F32 verticalFOV, F32 aspectRatio, F32 nearPlane, F32 farPlane );
-        inline static Matrix OrthographicProjectionMatrix( F32 width, F32 height, F32 nearPlane, F32 farPlane );
-        inline static Matrix OrthographicProjectionMatrixOffCenter( F32 left, F32 right, F32 bottom, F32 top, F32 nearPlane, F32 farPlane );
+        inline static Matrix PerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlane, float farPlane );
+        inline static Matrix OrthographicProjectionMatrix( float width, float height, float nearPlane, float farPlane );
+        inline static Matrix OrthographicProjectionMatrixOffCenter( float left, float right, float bottom, float top, float nearPlane, float farPlane );
 
     public:
 
         explicit Matrix() {}
         explicit Matrix( ZeroInit ) { memset( this, 0, sizeof( Matrix ) ); }
         explicit Matrix( IdentityInit ) { memcpy( this, &Matrix::Identity, sizeof( Matrix ) ); }
-        explicit Matrix( F32 v00, F32 v01, F32 v02, F32 v03, F32 v10, F32 v11, F32 v12, F32 v13, F32 v20, F32 v21, F32 v22, F32 v23, F32 v30, F32 v31, F32 v32, F32 v33 );
+        explicit Matrix( float v00, float v01, float v02, float v03, float v10, float v11, float v12, float v13, float v20, float v21, float v22, float v23, float v30, float v31, float v32, float v33 );
         explicit Matrix( Vector const xAxis, Vector const yAxis, Vector const zAxis );
         explicit Matrix( Vector const xAxis, Vector const yAxis, Vector const zAxis, Vector const translation );
 
@@ -63,7 +63,7 @@ namespace KRG
 
         EulerAngles ToEulerAngles() const;
 
-        inline Vector const& GetRow( U32 row ) const { return m_rows[row]; }
+        inline Vector const& GetRow( uint32 row ) const { return m_rows[row]; }
 
         inline Vector const& GetAxisX() const { return m_rows[0]; }
         inline Vector const& GetAxisY() const { return m_rows[1]; }
@@ -92,7 +92,7 @@ namespace KRG
         inline Matrix GetInverse() const;
 
         inline Vector GetDeterminant() const;
-        inline F32 GetDeterminantAsFloat() const { return GetDeterminant().GetX(); }
+        inline float GetDeterminantAsFloat() const { return GetDeterminant().GetX(); }
 
         // Translation
         //-------------------------------------------------------------------------
@@ -123,12 +123,12 @@ namespace KRG
         // These functions perform a full decomposition to extract the scale/shear from the matrix
         Matrix& RemoveScale();
         Matrix& SetScale( Vector const& scale );
-        inline Matrix& SetScale( F32 uniformScale ) { SetScale( Vector( uniformScale ) ); return *this; }
+        inline Matrix& SetScale( float uniformScale ) { SetScale( Vector( uniformScale ) ); return *this; }
         
         // These are naive and fast versions of the above functions (simply normalization and multiplication of the 3x3 rotation part)
         inline Matrix& RemoveScaleFast();
         inline Matrix& SetScaleFast( Vector const& scale );
-        inline Matrix& SetScaleFast( F32 uniformScale ) { SetScaleFast( Vector( uniformScale ) ); return *this; }
+        inline Matrix& SetScaleFast( float uniformScale ) { SetScaleFast( Vector( uniformScale ) ); return *this; }
 
         // Operators
         //-------------------------------------------------------------------------
@@ -138,8 +138,8 @@ namespace KRG
         inline Vector TransformPoint( Vector const& point ) const;      // Out: W=1
         inline Vector ApplyTransform( Vector const& vector ) const;     // Out: W=W
 
-        Vector& operator[]( U32 i ) { KRG_ASSERT( i < 4 ); return m_rows[i]; }
-        Vector const operator[]( U32 i ) const { KRG_ASSERT( i < 4 ); return m_rows[i]; }
+        Vector& operator[]( uint32 i ) { KRG_ASSERT( i < 4 ); return m_rows[i]; }
+        Vector const operator[]( uint32 i ) const { KRG_ASSERT( i < 4 ); return m_rows[i]; }
 
         inline Matrix operator*( Matrix const& rhs ) const;
         inline Matrix& operator*=( Matrix const& rhs );
@@ -152,7 +152,7 @@ namespace KRG
         union
         {
             Vector  m_rows[4];
-            F32     m_values[4][4];
+            float     m_values[4][4];
         };
     };
 
@@ -416,36 +416,36 @@ namespace KRG
             KRG_HALT();
         }
 
-        F32 const axisX_X = axisX.GetX();
-        F32 const axisY_Y = axisY.GetY();
-        F32 const axisZ_Z = axisZ.GetZ();
+        float const axisX_X = axisX.GetX();
+        float const axisY_Y = axisY.GetY();
+        float const axisZ_Z = axisZ.GetZ();
 
-        F32 const mtx_trace = axisX_X + axisY_Y + axisZ_Z;
+        float const mtx_trace = axisX_X + axisY_Y + axisZ_Z;
         if ( mtx_trace > 0.0 )
         {
-            F32 const axisX_y = axisX.GetY();
-            F32 const axisX_z = axisX.GetZ();
+            float const axisX_y = axisX.GetY();
+            float const axisX_z = axisX.GetZ();
 
-            F32 const axisY_x = axisY.GetX();
-            F32 const axisY_z = axisY.GetZ();
+            float const axisY_x = axisY.GetX();
+            float const axisY_z = axisY.GetZ();
 
-            F32 const axisZ_x = axisZ.GetX();
-            F32 const axisZ_y = axisZ.GetY();
+            float const axisZ_x = axisZ.GetX();
+            float const axisZ_y = axisZ.GetY();
 
-            F32 const inv_trace = Math::Reciprocal( Math::Sqrt( mtx_trace + 1.0f ) );
-            F32 const half_inv_trace = inv_trace * 0.5f;
+            float const inv_trace = Math::Reciprocal( Math::Sqrt( mtx_trace + 1.0f ) );
+            float const half_inv_trace = inv_trace * 0.5f;
 
-            F32 const x = ( axisY_z - axisZ_y ) * half_inv_trace;
-            F32 const y = ( axisZ_x - axisX_z ) * half_inv_trace;
-            F32 const z = ( axisX_y - axisY_x ) * half_inv_trace;
-            F32 const w = Math::Reciprocal( inv_trace ) * 0.5f;
+            float const x = ( axisY_z - axisZ_y ) * half_inv_trace;
+            float const y = ( axisZ_x - axisX_z ) * half_inv_trace;
+            float const z = ( axisX_y - axisY_x ) * half_inv_trace;
+            float const w = Math::Reciprocal( inv_trace ) * 0.5f;
 
             return Quaternion( x, y, z, w ).GetNormalized();
         }
         else
         {
             // Find the axis with the highest diagonal value
-            S32 axisIdx0 = 0;
+            int32 axisIdx0 = 0;
             if ( axisY_Y > axisX_X )
             {
                 axisIdx0 = 1;
@@ -456,12 +456,12 @@ namespace KRG
                 axisIdx0 = 2;
             }
 
-            S32 const axisIdx1 = ( axisIdx0 + 1 ) % 3;
-            S32 const axisIdx2 = ( axisIdx1 + 1 ) % 3;
+            int32 const axisIdx1 = ( axisIdx0 + 1 ) % 3;
+            int32 const axisIdx2 = ( axisIdx1 + 1 ) % 3;
 
-            F32 const pseudoTrace = 1.0f + m_rows[axisIdx0][axisIdx0] - m_rows[axisIdx1][axisIdx1] - m_rows[axisIdx2][axisIdx2];
-            F32 const inversePseudoTrace = Math::Reciprocal( Math::Sqrt( pseudoTrace ) );
-            F32 const halfInversePseudoTrace = inversePseudoTrace * 0.5f;
+            float const pseudoTrace = 1.0f + m_rows[axisIdx0][axisIdx0] - m_rows[axisIdx1][axisIdx1] - m_rows[axisIdx2][axisIdx2];
+            float const inversePseudoTrace = Math::Reciprocal( Math::Sqrt( pseudoTrace ) );
+            float const halfInversePseudoTrace = inversePseudoTrace * 0.5f;
 
             //-------------------------------------------------------------------------
 
@@ -676,7 +676,7 @@ namespace KRG
         Vector normal = axis.GetNormalized3();
 
         Vector C0, C1;
-        Vector::SinCos( C0, C1, Vector( (F32) angleRadians ) );
+        Vector::SinCos( C0, C1, Vector( (float) angleRadians ) );
         Vector C2 = Vector::One - C1;
 
         __m128 N0 = _mm_shuffle_ps( normal, normal, _MM_SHUFFLE( 3, 0, 2, 1 ) );
@@ -736,7 +736,7 @@ namespace KRG
         return M;
     }
    
-    inline Matrix Matrix::FromUniformScale( F32 uniformScale )
+    inline Matrix Matrix::FromUniformScale( float uniformScale )
     {
         Matrix M;
         M.m_rows[0] = _mm_set_ps( 0, 0, 0, uniformScale );
@@ -756,7 +756,7 @@ namespace KRG
         return M;
     }
 
-    inline Matrix Matrix::PerspectiveProjectionMatrix( F32 verticalFOV, F32 aspectRatio, F32 nearPlane, F32 farPlane )
+    inline Matrix Matrix::PerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlane, float farPlane )
     {
         KRG_ASSERT( nearPlane > 0.f && farPlane > 0.f );
         KRG_ASSERT( !Math::IsNearEqual( verticalFOV, 0.0f, 0.00001f * 2.0f ) && !Math::IsNearEqual( aspectRatio, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
@@ -765,7 +765,7 @@ namespace KRG
         Vector::SinCos( sinFov, cosFov, 0.5f * verticalFOV );
         Vector height = cosFov / sinFov;
 
-        F32 const fRange = farPlane / ( nearPlane - farPlane );
+        float const fRange = farPlane / ( nearPlane - farPlane );
         Vector vValues( height.x / aspectRatio, height.x, fRange, fRange * nearPlane );
         Vector vTemp = _mm_setzero_ps();
         vTemp = _mm_move_ss( vTemp, vValues );
@@ -791,11 +791,11 @@ namespace KRG
         return M;
     }
 
-    inline Matrix Matrix::OrthographicProjectionMatrix( F32 width, F32 height, F32 nearPlane, F32 farPlane )
+    inline Matrix Matrix::OrthographicProjectionMatrix( float width, float height, float nearPlane, float farPlane )
     {
         KRG_ASSERT( !Math::IsNearEqual( width, 0.0f, 0.00001f ) && !Math::IsNearEqual( height, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
 
-        F32 const fRange = 1.0f / ( nearPlane - farPlane );
+        float const fRange = 1.0f / ( nearPlane - farPlane );
 
         Vector vValues = { 2.0f / width, 2.0f / height, fRange, fRange * nearPlane };
         Vector vTemp = _mm_setzero_ps();
@@ -821,13 +821,13 @@ namespace KRG
         return M;
     }
 
-    inline Matrix Matrix::OrthographicProjectionMatrixOffCenter( F32 left, F32 right, F32 bottom, F32 top, F32 nearPlane, F32 farPlane )
+    inline Matrix Matrix::OrthographicProjectionMatrixOffCenter( float left, float right, float bottom, float top, float nearPlane, float farPlane )
     {
         KRG_ASSERT( !Math::IsNearEqual( right, left, 0.00001f ) && !Math::IsNearEqual( top, bottom, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
 
-        F32 const fReciprocalWidth = 1.0f / ( right - left );
-        F32 const fReciprocalHeight = 1.0f / ( top - bottom );
-        F32 const fRange = 1.0f / ( nearPlane - farPlane );
+        float const fReciprocalWidth = 1.0f / ( right - left );
+        float const fReciprocalHeight = 1.0f / ( top - bottom );
+        float const fRange = 1.0f / ( nearPlane - farPlane );
 
         Vector vValues = { fReciprocalWidth, fReciprocalHeight, fRange, 1.0f };
         Vector rMem2 = { -( left + right ), -( top + bottom ), nearPlane, 1.0f };

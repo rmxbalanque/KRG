@@ -35,8 +35,8 @@ namespace KRG
 
         class KRG_TOOLS_CORE_API FileSystemWatcher
         {
-            static constexpr U32 const ResultBufferSize = 16384; // 1000 results
-            static constexpr F32 const FileModificationBatchTimeout = 250; // How long to wait between the start of the first modification event and notifying the event listeners
+            static constexpr uint32 const ResultBufferSize = 16384; // 1000 results
+            static constexpr float const FileModificationBatchTimeout = 250; // How long to wait between the start of the first modification event and notifying the event listeners
 
             struct FileModificationEvent
             {

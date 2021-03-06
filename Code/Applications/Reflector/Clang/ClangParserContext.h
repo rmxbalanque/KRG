@@ -39,7 +39,7 @@ namespace KRG
 
             public:
 
-                U32                 m_position;
+                uint32                 m_position;
                 ReflectionMacro     m_type;
                 String              m_macroContents;
             };
@@ -48,7 +48,7 @@ namespace KRG
 
             struct ExposedPropertyMacro
             {
-                ExposedPropertyMacro( HeaderID ID, U32 line )
+                ExposedPropertyMacro( HeaderID ID, uint32 line )
                     : m_headerID( ID )
                     , m_lineNumber( line )
                 {}
@@ -66,7 +66,7 @@ namespace KRG
             public:
 
                 HeaderID        m_headerID;
-                U32             m_lineNumber;
+                uint32             m_lineNumber;
             };
 
             //-------------------------------------------------------------------------

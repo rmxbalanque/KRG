@@ -43,9 +43,9 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            KRG::F32 EvaluateEasingFunction( Type type, F32 parameter )
+            float EvaluateEasingFunction( Type type, float parameter )
             {
-                return g_easingFunctions[(U32) type]( parameter );
+                return g_easingFunctions[(uint32) type]( parameter );
             }
         }
     }

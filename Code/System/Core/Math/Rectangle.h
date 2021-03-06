@@ -27,7 +27,7 @@ namespace KRG
             inline Float2 GetBottomRight() const { return m_topLeft + Float2( m_size.x, -m_size.y ); }
             inline Float2 GetSize() const { return m_size; }
 
-            inline F32 GetArea() const
+            inline float GetArea() const
             {
                return m_size.x * m_size.y;
             }
@@ -61,12 +61,12 @@ namespace KRG
             inline bool Overlaps( Rectangle const& other ) const
             {
                 Float2 const bottomRight = GetBottomRight();
-                TRange<F32> rangeX( m_topLeft.x, bottomRight.x );
-                TRange<F32> rangeY( bottomRight.y, m_topLeft.y );
+                TRange<float> rangeX( m_topLeft.x, bottomRight.x );
+                TRange<float> rangeY( bottomRight.y, m_topLeft.y );
 
                 Float2 const otherBottomRight = other.GetBottomRight();
-                TRange<F32> otherRangeX( other.m_topLeft.x, otherBottomRight.x );
-                TRange<F32> otherRangeY( otherBottomRight.y, other.m_topLeft.y );
+                TRange<float> otherRangeX( other.m_topLeft.x, otherBottomRight.x );
+                TRange<float> otherRangeY( otherBottomRight.y, other.m_topLeft.y );
 
                 return rangeX.Overlaps( otherRangeX ) && rangeY.Overlaps( otherRangeY );
             }

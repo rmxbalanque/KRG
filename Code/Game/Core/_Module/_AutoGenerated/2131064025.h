@@ -45,8 +45,8 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_meshIDs;
             propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_meshIDs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_meshIDs.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_meshIDs.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_meshIDs.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ResourceID );
             propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -60,8 +60,8 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_armorMeshIDs;
             propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_armorMeshIDs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_armorMeshIDs.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_armorMeshIDs.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_armorMeshIDs.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ResourceID );
             propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -75,8 +75,8 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_hairMeshIDs;
             propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_hairMeshIDs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_hairMeshIDs.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_hairMeshIDs.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_hairMeshIDs.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ResourceID );
             propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -90,8 +90,8 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_materialIDs;
             propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_materialIDs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_materialIDs.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_materialIDs.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_materialIDs.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ResourceID );
             propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -105,8 +105,8 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_animationIDs;
             propertyInfo.m_offset = offsetof( KRG::CustomizerTestComponent, m_animationIDs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_animationIDs.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_animationIDs.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::ResourceID );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_animationIDs.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ResourceID );
             propertyInfo.m_size = sizeof( TVector<KRG::ResourceID> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -211,7 +211,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pType );
                     if ( arrayID == 1813730029 )
@@ -269,7 +269,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property

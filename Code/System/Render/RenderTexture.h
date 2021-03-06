@@ -12,7 +12,7 @@ namespace KRG
 {
     namespace Render
     {
-        enum class TextureFiltering : U8
+        enum class TextureFiltering : uint8
         {
             MinMagMipPoint = 0,
             MinMagPointMipLinear,
@@ -52,7 +52,7 @@ namespace KRG
             MaximumAnisotropic,
         };
 
-        enum class TextureAddressMode : U8
+        enum class TextureAddressMode : uint8
         {
             Wrap = 0,
             Mirror,
@@ -60,7 +60,7 @@ namespace KRG
             Border,
         };
 
-        enum class TextureFormat : U8
+        enum class TextureFormat : uint8
         {
             Raw,
             DDS,
@@ -82,10 +82,10 @@ namespace KRG
             TextureAddressMode      m_addressModeU = TextureAddressMode::Wrap;
             TextureAddressMode      m_addressModeV = TextureAddressMode::Wrap;
             TextureAddressMode      m_addressModeW = TextureAddressMode::Wrap;
-            U32                     m_maxAnisotropyValue = 1;
-            F32                     m_LODBias = 0;
-            F32                     m_minLOD = 0;
-            F32                     m_maxLOD = FLT_MAX;
+            uint32                     m_maxAnisotropyValue = 1;
+            float                     m_LODBias = 0;
+            float                     m_minLOD = 0;
+            float                     m_maxLOD = FLT_MAX;
 
         private:
 

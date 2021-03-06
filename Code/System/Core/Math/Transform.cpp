@@ -10,17 +10,17 @@ namespace KRG
 
     void Transform::SanitizeScaleValues()
     {
-        F32 sx = m_scale.GetX();
-        F32 sy = m_scale.GetY();
-        F32 sz = m_scale.GetZ();
+        float sx = m_scale.GetX();
+        float sy = m_scale.GetY();
+        float sz = m_scale.GetZ();
 
         // Remove variance from values
         //-------------------------------------------------------------------------
 
-        F32 averageScaleValue = sx + sy + sz;
+        float averageScaleValue = sx + sy + sz;
         averageScaleValue /= 3.0f;
 
-        F32 maxDeviation = Math::Max( Math::Abs( sx - averageScaleValue ), Math::Abs( sy - averageScaleValue ) );
+        float maxDeviation = Math::Max( Math::Abs( sx - averageScaleValue ), Math::Abs( sy - averageScaleValue ) );
         maxDeviation = Math::Max( maxDeviation, Math::Abs( sz - averageScaleValue ) );
 
         if ( maxDeviation < Math::LargeEpsilon )

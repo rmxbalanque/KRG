@@ -43,7 +43,7 @@ namespace KRG::EntityModel
         // Component Interface
         //-------------------------------------------------------------------------
 
-        U32 GetNumComponents() const { return (U32) m_components.size(); }
+        uint32 GetNumComponents() const { return (uint32) m_components.size(); }
         TVector<ToolEntityComponent*> const& GetComponents() const { return m_components; }
         TVector<ToolEntityComponent*>& GetComponents() { return m_components; }
 
@@ -76,17 +76,17 @@ namespace KRG::EntityModel
 
         void AddComponent( ToolEntityComponent* pComponent );
         void CreateComponent( TypeSystem::TypeID componentTypeID, StringID const& name = StringID() );
-        ToolEntityComponent* RemoveComponent( S32 componentIdx );
-        void DestroyComponent( S32 componentIdx );
+        ToolEntityComponent* RemoveComponent( int32 componentIdx );
+        void DestroyComponent( int32 componentIdx );
 
         // Systems Interface
         //-------------------------------------------------------------------------
 
-        U32 GetNumSystems() const { return (U32) m_systems.size(); }
+        uint32 GetNumSystems() const { return (uint32) m_systems.size(); }
         inline TVector<ToolEntitySystem*> const& GetSystems() const { return m_systems; }
         void AddSystem( ToolEntitySystem* pSystem );
-        ToolEntitySystem* RemoveSystem( S32 systemIdx );
-        void DestroySystem( S32 systemIdx );
+        ToolEntitySystem* RemoveSystem( int32 systemIdx );
+        void DestroySystem( int32 systemIdx );
 
         // Child Entities
         //-------------------------------------------------------------------------
@@ -95,8 +95,8 @@ namespace KRG::EntityModel
         TVector<ToolEntity*> const& GetChildEntities() const { return m_childEntities; }
         ToolEntity* CreateChildEntity( UUID const& ID = UUID::GenerateID(), StringID name = StringID( "Entity" ) );
         void AddChildEntity( ToolEntity* pEntity );
-        ToolEntity* RemoveChildEntity( S32 childEntityIdx );
-        void DestroyChildEntity( S32 childEntityIdx );
+        ToolEntity* RemoveChildEntity( int32 childEntityIdx );
+        void DestroyChildEntity( int32 childEntityIdx );
 
     private:
 

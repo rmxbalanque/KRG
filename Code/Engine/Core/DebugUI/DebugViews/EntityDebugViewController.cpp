@@ -55,6 +55,7 @@ namespace KRG
             ResourceID const BRFull( "data://maps/BR_full.map" );
             ResourceID const ECS( "data://maps/ecs_testmap.map" );
             ResourceID const Tiny( "data://maps/tiny.map" );
+            ResourceID const PhysicsTest( "data://maps/PhysicsTestMap.map" );
 
             //-------------------------------------------------------------------------
 
@@ -121,6 +122,23 @@ namespace KRG
                 if ( ImGui::Button( "Load Tiny map" ) )
                 {
                     m_pWorld->LoadMap( Tiny );
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( m_pWorld->IsMapLoaded( PhysicsTest ) )
+            {
+                if ( ImGui::Button( "Unload Physics Test map" ) )
+                {
+                    m_pWorld->UnloadMap( PhysicsTest );
+                }
+            }
+            else
+            {
+                if ( ImGui::Button( "Load Physics Test map" ) )
+                {
+                    m_pWorld->LoadMap( PhysicsTest );
                 }
             }
         }
@@ -213,9 +231,9 @@ namespace KRG
 
         m_entities.clear();
 
-        S32 numEntities = 0 ;
-        S32 numSpatialEntities = 0;
-        S32 numComponents = 0;
+        int32 numEntities = 0 ;
+        int32 numSpatialEntities = 0;
+        int32 numComponents = 0;
 
         bool foundSelectedEntity = false;
 
@@ -223,7 +241,7 @@ namespace KRG
         {
             if ( loadedMap.IsLoaded() || loadedMap.IsActivated() )
             {
-                numEntities += (S32) loadedMap.GetEntities().size();
+                numEntities += (int32) loadedMap.GetEntities().size();
                 m_entities.insert( m_entities.end(), loadedMap.GetEntities().begin(), loadedMap.GetEntities().end() );
 
                 for ( Entity* pEntity : loadedMap.GetEntities() )

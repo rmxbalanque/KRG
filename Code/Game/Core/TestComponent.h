@@ -15,17 +15,17 @@ namespace KRG
     {
         KRG_REGISTER_TYPE;
 
-        EXPOSE TVector<F32>                                 m_dynamicArray = { 0.3f, 5.0f, 7.0f };
+        EXPOSE TVector<float>                                 m_dynamicArray = { 0.3f, 5.0f, 7.0f };
     };
 
     struct KRG_GAME_CORE_API TestStruct
     {
         KRG_REGISTER_TYPE;
 
-        EXPOSE U8                                           m_U8 = 8;
-        EXPOSE U16                                          m_U16 = 16;
-        EXPOSE U32                                          m_U32 = 32;
-        EXPOSE U64                                          m_U64 = 64;
+        EXPOSE uint8                                           m_U8 = 8;
+        EXPOSE uint16                                          m_uint16 = 16;
+        EXPOSE uint32                                          m_U32 = 32;
+        EXPOSE uint64                                          m_U64 = 64;
         EXPOSE UUID                                         m_UUID;
         EXPOSE EulerAngles                                  m_eulerAngles = EulerAngles( 23, 45, 56 );
         EXPOSE TVector<AnotherTestStruct>                   m_dynamicArray = { AnotherTestStruct(), AnotherTestStruct() };
@@ -47,7 +47,7 @@ namespace KRG
             EXPOSE ResourceID                                       m_resourceID;
         };
 
-        enum class InternalEnum : U8
+        enum class InternalEnum : uint8
         {
             KRG_REGISTER_ENUM
 
@@ -57,7 +57,7 @@ namespace KRG
 
         struct Test
         {
-            enum class InternalEnum : S16
+            enum class InternalEnum : int16
             {
                 KRG_REGISTER_ENUM
 
@@ -73,16 +73,16 @@ namespace KRG
     protected:
 
         EXPOSE bool                                             m_bool = true;
-        EXPOSE U8                                               m_U8 = 8;
-        EXPOSE U16                                              m_U16 = 16;
-        EXPOSE U32                                              m_U32 = 32;
-        EXPOSE U64                                              m_U64 = 64;
-        EXPOSE S8                                               m_S8 = -8;
-        EXPOSE S16                                              m_S16 = -16;
-        EXPOSE S32                                              m_S32 = -32;
-        EXPOSE S64                                              m_S64 = -64;
-        EXPOSE F32                                              m_F32 = -343.23432432423f;
-        EXPOSE F64                                              m_F64 = 343.23432432423;
+        EXPOSE uint8                                               m_U8 = 8;
+        EXPOSE uint16                                              m_uint16 = 16;
+        EXPOSE uint32                                              m_U32 = 32;
+        EXPOSE uint64                                              m_U64 = 64;
+        EXPOSE int8                                               m_S8 = -8;
+        EXPOSE int16                                              m_S16 = -16;
+        EXPOSE int32                                              m_S32 = -32;
+        EXPOSE int64                                              m_S64 = -64;
+        EXPOSE float                                              m_F32 = -343.23432432423f;
+        EXPOSE double                                              m_F64 = 343.23432432423;
         EXPOSE Color                                            m_Color = Colors::Pink;
         EXPOSE UUID                                             m_UUID;
         EXPOSE String                                           m_String = "Default Test String";
@@ -105,8 +105,8 @@ namespace KRG
 
         EXPOSE TestStruct                                       m_struct;
 
-        EXPOSE F32                                              m_staticArray[4];
-        EXPOSE TVector<F32>                                     m_dynamicArray;
+        EXPOSE float                                              m_staticArray[4];
+        EXPOSE TVector<float>                                     m_dynamicArray;
 
         EXPOSE StringID                                         m_staticArrayOfIDs[4] = { StringID( "A" ), StringID( "B" ), StringID( "C" ), StringID( "D" ) };
         EXPOSE TVector<TestStruct>                              m_dynamicArrayOfStructs = { TestStruct(), TestStruct(), TestStruct() };

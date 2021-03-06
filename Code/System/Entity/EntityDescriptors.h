@@ -55,11 +55,11 @@ namespace KRG::EntityModel
         inline bool IsSpatialEntity() const { return m_numSpatialComponents > 0; }
         inline bool HasSpatialParent() const { return m_spatialParentID.IsValid(); }
 
-        S32 FindComponentIndex( UUID const& componentID ) const;
+        int32 FindComponentIndex( UUID const& componentID ) const;
 
         inline EntityComponentDescriptor const* FindComponent( UUID const& componentID ) const 
         {
-            S32 const componentIdx = FindComponentIndex( componentID );
+            int32 const componentIdx = FindComponentIndex( componentID );
             return ( componentIdx != InvalidIndex ) ? &m_components[componentIdx] : nullptr;
         }
 
@@ -73,6 +73,6 @@ namespace KRG::EntityModel
         StringID                                                    m_attachmentSocketID;
         TInlineVector<EntitySystemDescriptor,5>                     m_systems;
         TVector<EntityComponentDescriptor>                          m_components; // Ordered list of components: spatial components are first, followed by regular components
-        S32                                                         m_numSpatialComponents = 0;
+        int32                                                         m_numSpatialComponents = 0;
     };
 }

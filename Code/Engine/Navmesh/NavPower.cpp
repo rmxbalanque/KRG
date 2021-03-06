@@ -14,7 +14,7 @@ namespace KRG::Navmesh
         m_statsPos = Float2( 5, 20 );
     }
 
-    void NavPowerRenderer::DrawLineList( bfx::LineSegment const* pLines, U32 numLines, bfx::Color const& color )
+    void NavPowerRenderer::DrawLineList( bfx::LineSegment const* pLines, uint32 numLines, bfx::Color const& color )
     {
         auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
         for ( auto i = 0u; i < numLines; i++ )
@@ -24,7 +24,7 @@ namespace KRG::Navmesh
         }
     }
 
-    void NavPowerRenderer::DrawTriList( bfx::Triangle const* pTris, U32 numTris, bfx::Color const& color )
+    void NavPowerRenderer::DrawTriList( bfx::Triangle const* pTris, uint32 numTris, bfx::Color const& color )
     {
         auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
         for ( auto i = 0u; i < numTris; i++ )
@@ -37,7 +37,7 @@ namespace KRG::Navmesh
     void NavPowerRenderer::DrawString( bfx::Color const& color, char const* str )
     {
         auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-        ctx.DrawText2D( m_statsPos, str, FromBfx( color ), Debug::Drawing::TextSize::Small, TFlags<Debug::Drawing::TextFlags>( Debug::Drawing::TextFlags::AlignLeft ) );
+        ctx.DrawText2D( m_statsPos, str, FromBfx( color ), Debug::Drawing::TextSize::Small, TBitFlags<Debug::Drawing::TextFlags>( Debug::Drawing::TextFlags::AlignLeft ) );
         m_statsPos += Float2( 0, 15 );
     }
 

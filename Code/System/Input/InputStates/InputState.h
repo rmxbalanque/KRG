@@ -11,7 +11,7 @@ namespace KRG
     {
         class Button
         {
-            template<U32> friend class ButtonStates;
+            template<uint32> friend class ButtonStates;
 
             enum class State
             {
@@ -61,7 +61,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        template<U32 NumButtons>
+        template<uint32 NumButtons>
         class ButtonStates
         {
             friend class InputDevice;
@@ -73,24 +73,24 @@ namespace KRG
                 m_buttons.resize( NumButtons );
             }
 
-            inline bool WasPressed( U32 buttonIdx ) const
+            inline bool WasPressed( uint32 buttonIdx ) const
             {
                 KRG_ASSERT( buttonIdx < NumButtons );
                 return ( m_buttons[buttonIdx].WasPressed() );
             }
 
-            inline bool WasReleased( U32 buttonIdx ) const
+            inline bool WasReleased( uint32 buttonIdx ) const
             {
                 KRG_ASSERT( buttonIdx < NumButtons );
                 return ( m_buttons[buttonIdx].WasReleased() );
             }
 
-            inline bool IsHeldDown( U32 buttonIdx ) const
+            inline bool IsHeldDown( uint32 buttonIdx ) const
             {
                 return WasPressed( buttonIdx ) || m_buttons[buttonIdx].IsHeldDown();
             }
 
-            inline Milliseconds GetHeldDuration( U32 buttonIdx ) const
+            inline Milliseconds GetHeldDuration( uint32 buttonIdx ) const
             {
                 KRG_ASSERT( buttonIdx < NumButtons );
                 return WasPressed( buttonIdx ) ? m_buttons[buttonIdx].GetTimeHeld() : 0.0f;
@@ -131,13 +131,13 @@ namespace KRG
             }
 
             // Called when we detect a pressed event for a button
-            inline void Press( U32 buttonIdx )
+            inline void Press( uint32 buttonIdx )
             {
                 m_buttons[buttonIdx].UpdateState( Button::State::Pressed );
             }
 
             // Called when we detect a released event for a button
-            inline void Release( U32 buttonIdx )
+            inline void Release( uint32 buttonIdx )
             {
                 m_buttons[buttonIdx].UpdateState( Button::State::Released );
             }

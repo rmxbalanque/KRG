@@ -5,21 +5,21 @@
 
 //-------------------------------------------------------------------------
 
-namespace physx { class PxPhysics; }
-
-//-------------------------------------------------------------------------
-
 namespace KRG::Physics
 {
+    class PhysicsSystem;
+
+    //-------------------------------------------------------------------------
+
     class PhysicsMaterialLoader : public Resource::ResourceLoader
     {
     public:
 
         PhysicsMaterialLoader();
-        ~PhysicsMaterialLoader() { KRG_ASSERT( m_pPhysics == nullptr ); }
+        ~PhysicsMaterialLoader() { KRG_ASSERT( m_pPhysicsSystem == nullptr ); }
 
-        void SetPhysics( physx::PxPhysics* pPhysics );
-        void ClearPhysics() { m_pPhysics = nullptr; }
+        void SetPhysics( PhysicsSystem* pPhysicsSystem );
+        void ClearPhysics() { m_pPhysicsSystem = nullptr; }
 
     private:
 
@@ -28,6 +28,6 @@ namespace KRG::Physics
 
     private:
 
-        physx::PxPhysics* m_pPhysics = nullptr;
+        PhysicsSystem* m_pPhysicsSystem = nullptr;
     };
 }

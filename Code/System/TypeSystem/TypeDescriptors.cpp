@@ -10,7 +10,7 @@ namespace KRG::TypeSystem
     {
         KRG_ASSERT( m_byteValue.size() == 4 );
 
-        U32 rawStringID = 0;
+        uint32 rawStringID = 0;
         rawStringID |= m_byteValue[0];
         rawStringID |= m_byteValue[1] << 8;
         rawStringID |= m_byteValue[2] << 16;
@@ -21,7 +21,7 @@ namespace KRG::TypeSystem
 
     void PropertyDescriptor::SetEnumValueID( StringID enumValueID )
     {
-        U32 const rawStringID = enumValueID.GetID();
+        uint32 const rawStringID = enumValueID.GetID();
         m_byteValue.emplace_back( rawStringID & 0xFF );
         m_byteValue.emplace_back( ( rawStringID >> 8 ) & 0xFF );
         m_byteValue.emplace_back( ( rawStringID >> 16 ) & 0xFF );
@@ -32,7 +32,7 @@ namespace KRG::TypeSystem
 
     void TypeDescriptor::RemovePropertyValue( TypeSystem::PropertyPath const& path )
     {
-        for ( S32 i = (S32) m_propertyValues.size() - 1; i >= 0; i-- )
+        for ( int32 i = (int32) m_propertyValues.size() - 1; i >= 0; i-- )
         {
             if ( m_propertyValues[i].m_path == path )
             {
@@ -66,7 +66,7 @@ namespace KRG::TypeSystem
             if ( pPropertyInfo->IsArrayProperty() )
             {
                 KRG_ASSERT( propertyValue.m_path.GetLastElement().IsArrayElement() );
-                U32 const arrayIdx = propertyValue.m_path.GetLastElement().m_arrayElementIdx;
+                uint32 const arrayIdx = propertyValue.m_path.GetLastElement().m_arrayElementIdx;
 
                 if ( pPropertyInfo->IsStaticArrayProperty() )
                 {
@@ -91,22 +91,22 @@ namespace KRG::TypeSystem
                 KRG_ASSERT( pEnumInfo != nullptr );
 
                 StringID const enumID = propertyValue.GetEnumValueID();
-                S64 const enumValue = pEnumInfo->GetConstantValue( enumID );
+                int64 const enumValue = pEnumInfo->GetConstantValue( enumID );
 
                 // TODO: make this more elegant
                 if ( pPropertyInfo->m_size == 1 )
                 {
-                    S8 value = (S8) enumValue;
+                    int8 value = (int8) enumValue;
                     memcpy( pPropertyData, &value, pPropertyInfo->m_size );
                 }
                 else if ( pPropertyInfo->m_size == 2 )
                 {
-                    S16 value = (S16) enumValue;
+                    int16 value = (int16) enumValue;
                     memcpy( pPropertyData, &value, pPropertyInfo->m_size );
                 }
                 if ( pPropertyInfo->m_size == 4 )
                 {
-                    S32 value = (S32) enumValue;
+                    int32 value = (int32) enumValue;
                     memcpy( pPropertyData, &value, pPropertyInfo->m_size );
                 }
                 else // 64bit enum

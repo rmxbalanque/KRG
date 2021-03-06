@@ -27,7 +27,7 @@ namespace KRG
                 inline ClientID const& GetClientID() const { return m_clientID; }
                 inline String const& GetAddress() const { return m_address; }
 
-                bool WaitForMessage( Message& message, S32 timeout = 0 );
+                bool WaitForMessage( Message& message, int32 timeout = 0 );
                 void SendMessageToServer( Message const& message );
 
             private:

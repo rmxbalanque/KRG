@@ -16,7 +16,7 @@
 
 namespace KRG
 {
-    bool EngineApplication::ReadSettings( S32 argc, char** argv )
+    bool EngineApplication::ReadSettings( int32 argc, char** argv )
     {
         // Get command line settings
         //-------------------------------------------------------------------------

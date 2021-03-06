@@ -20,13 +20,13 @@ namespace KRG
 
         Percentage() = default;
 
-        inline explicit Percentage( F32 percentage )
+        inline explicit Percentage( float percentage )
             : m_value( percentage )
         {}
 
-        inline operator F32() const { return m_value; }
-        inline F32 ToFloat() const { return m_value; }
-        inline S32 GetLoopCount() const { return (S32) Math::Floor( m_value ); }
+        inline operator float() const { return m_value; }
+        inline float ToFloat() const { return m_value; }
+        inline int32 GetLoopCount() const { return (int32) Math::Floor( m_value ); }
 
         inline void Invert() { m_value = 1.0f - m_value; }
         inline Percentage GetInverse() const { return Percentage( 1.0f - m_value ); }
@@ -34,7 +34,7 @@ namespace KRG
         inline Percentage& Clamp( bool allowLooping = true ) { *this = Clamp( *this, allowLooping ); return *this; }
         inline Percentage GetClamped( bool allowLooping = true ) const { return Clamp( *this, allowLooping ); }
 
-        inline void GetLoopCountAndNormalizedTime( S32& loopCount, Percentage& normalizedValue ) const;
+        inline void GetLoopCountAndNormalizedTime( int32& loopCount, Percentage& normalizedValue ) const;
         inline Percentage GetNormalizedTime() const;
 
         inline Percentage operator+( Percentage const f ) const { return Percentage( m_value + f.m_value ); }
@@ -46,33 +46,33 @@ namespace KRG
         inline Percentage& operator*=( Percentage const f ) { m_value *= f.m_value; return *this; }
         inline Percentage& operator/=( Percentage const f ) { m_value /= f.m_value; return *this; }
 
-        inline Percentage operator+( F32 const f ) const { return Percentage( m_value + f ); }
-        inline Percentage operator-( F32 const f ) const { return Percentage( m_value - f ); }
-        inline Percentage& operator+=( F32 const f ) { m_value += f; return *this; }
-        inline Percentage& operator-=( F32 const f ) { m_value -= f; return *this; }
-        inline Percentage operator*( F32 const f ) const { return Percentage( m_value * f ); }
-        inline Percentage operator/ ( F32 const f ) const { return Percentage( m_value / f ); }
-        inline Percentage& operator*=( F32 const f ) { m_value *= f; return *this; }
-        inline Percentage& operator/=( F32 const f ) { m_value /= f; return *this; }
+        inline Percentage operator+( float const f ) const { return Percentage( m_value + f ); }
+        inline Percentage operator-( float const f ) const { return Percentage( m_value - f ); }
+        inline Percentage& operator+=( float const f ) { m_value += f; return *this; }
+        inline Percentage& operator-=( float const f ) { m_value -= f; return *this; }
+        inline Percentage operator*( float const f ) const { return Percentage( m_value * f ); }
+        inline Percentage operator/ ( float const f ) const { return Percentage( m_value / f ); }
+        inline Percentage& operator*=( float const f ) { m_value *= f; return *this; }
+        inline Percentage& operator/=( float const f ) { m_value /= f; return *this; }
 
     private:
 
-        F32 m_value = 0.0f;
+        float m_value = 0.0f;
     };
 
     //-------------------------------------------------------------------------
 
-    inline void Percentage::GetLoopCountAndNormalizedTime( S32& loopCount, Percentage& normalizedValue ) const
+    inline void Percentage::GetLoopCountAndNormalizedTime( int32& loopCount, Percentage& normalizedValue ) const
     {
-        F32 integerPortion;
+        float integerPortion;
         normalizedValue = Percentage( Math::ModF( m_value, &integerPortion ) );
-        loopCount = (S32) integerPortion;
+        loopCount = (int32) integerPortion;
     }
 
     inline Percentage Percentage::GetNormalizedTime() const
     {
-        F32 loopCount;
-        F32 normalizedValue = Math::ModF( m_value, &loopCount );
+        float loopCount;
+        float normalizedValue = Math::ModF( m_value, &loopCount );
         if ( loopCount > 0 && normalizedValue == 0.0f )
         {
             normalizedValue = 1.0f;

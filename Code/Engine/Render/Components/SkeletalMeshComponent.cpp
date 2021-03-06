@@ -60,7 +60,7 @@ namespace KRG
 
             if( m_pMesh.IsLoaded() )
             {
-                S32 boneIdx = m_pMesh->GetBoneIndex( socketID );
+                int32 boneIdx = m_pMesh->GetBoneIndex( socketID );
                 return boneIdx != InvalidIndex;
             }
             

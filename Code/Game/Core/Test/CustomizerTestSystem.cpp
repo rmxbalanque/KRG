@@ -74,13 +74,13 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            S32 const numPerRowCol = 10;
+            int32 const numPerRowCol = 10;
             for ( auto i = 0; i < numPerRowCol; i++ )
             {
                 for ( auto j = 0; j < numPerRowCol; j++ )
                 {
                     Transform characterTransform;
-                    characterTransform.SetTranslation( Vector( (F32) i, (F32) j, 0 ) );
+                    characterTransform.SetTranslation( Vector( (float) i, (float) j, 0 ) );
                     SpawnCharacter( pPersisentMap, characterTransform );
                 }
             }
@@ -93,13 +93,13 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        S32 const meshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_meshIDs.size() - 1 );
-        S32 const materialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
-        S32 const animIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_animationIDs.size() - 1 );
-        S32 const armorMeshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_armorMeshIDs.size() - 1 );
-        S32 const armorMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
-        S32 const hairIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_hairMeshIDs.size() - 1 );
-        S32 const hairMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
+        int32 const meshIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_meshIDs.size() - 1 );
+        int32 const materialIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_materialIDs.size() - 1 );
+        int32 const animIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_animationIDs.size() - 1 );
+        int32 const armorMeshIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_armorMeshIDs.size() - 1 );
+        int32 const armorMaterialIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_materialIDs.size() - 1 );
+        int32 const hairIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_hairMeshIDs.size() - 1 );
+        int32 const hairMaterialIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_materialIDs.size() - 1 );
 
         //-------------------------------------------------------------------------
 
@@ -165,13 +165,13 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        S32 const meshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_meshIDs.size() - 1 );
-        S32 const materialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
-        S32 const animIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_animationIDs.size() - 1 );
-        S32 const armorMeshIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_armorMeshIDs.size() - 1 );
-        S32 const armorMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
-        S32 const hairIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_hairMeshIDs.size() - 1 );
-        S32 const hairMaterialIdx = Math::GetRandomInt( 0, (U32) m_pComponent->m_materialIDs.size() - 1 );
+        int32 const meshIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_meshIDs.size() - 1 );
+        int32 const materialIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_materialIDs.size() - 1 );
+        int32 const animIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_animationIDs.size() - 1 );
+        int32 const armorMeshIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_armorMeshIDs.size() - 1 );
+        int32 const armorMaterialIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_materialIDs.size() - 1 );
+        int32 const hairIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_hairMeshIDs.size() - 1 );
+        int32 const hairMaterialIdx = Math::GetRandomInt( 0, (uint32) m_pComponent->m_materialIDs.size() - 1 );
 
         auto pCharacterMeshComponent = KRG::New<Animation::AnimatedMeshComponent>( StringID( "Character" ) );
         pCharacterMeshComponent->SetMesh( m_pComponent->m_meshIDs[meshIdx] );

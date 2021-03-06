@@ -24,11 +24,11 @@ namespace KRG
 
                 TypeSystem::EnumInfo enumInfo;
                 enumInfo.m_ID = TypeSystem::TypeID( "KRG::Physics::PhysicMaterialCombineMode" );
-                enumInfo.m_underlyingType = TypeSystem::CoreTypes::S32;
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Max" ), 3 ) );
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Average" ), 0 ) );
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Multiply" ), 2 ) );
-                enumInfo.m_constants.insert( TPair<StringID, S64>( StringID( "Min" ), 1 ) );
+                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int32;
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Max" ), 3 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Average" ), 0 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Multiply" ), 2 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Min" ), 1 ) );
 
                 typeRegistry.RegisterEnum( enumInfo );
             }

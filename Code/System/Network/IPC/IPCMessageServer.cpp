@@ -21,7 +21,7 @@ namespace KRG
                 m_pContext = nullptr;
             }
 
-            bool Server::Start( S32 portNumber )
+            bool Server::Start( int32 portNumber )
             {
                 // Create server address string
                 KRG_ASSERT( m_pSocket == nullptr );
@@ -48,7 +48,7 @@ namespace KRG
                 }
             }
 
-            bool Server::WaitForMessage( Message& message, S32 timeout )
+            bool Server::WaitForMessage( Message& message, int32 timeout )
             {
                 zmq_pollitem_t pollItem = { m_pSocket, 0, ZMQ_POLLIN, 0 };
                 if ( zmq_poll( &pollItem, 1, timeout ) )
@@ -88,14 +88,14 @@ namespace KRG
             void Server::SendMessageToClient( ClientID clientID, Message& message )
             {
                 // Send client ID
-                S32 result = zmq_send( m_pSocket, clientID.Data(), clientID.Size(), ZMQ_SNDMORE );
+                int32 result = zmq_send( m_pSocket, clientID.Data(), clientID.Size(), ZMQ_SNDMORE );
                 KRG_ASSERT( result != -1 );
 
                 // Send message
                 result = zmq_send( m_pSocket, message.m_data.data(), message.m_data.size(), 0 );
                 if ( result == -1 )
                 {
-                    S32 const error = zmq_errno();
+                    int32 const error = zmq_errno();
                     KRG_LOG_ERROR( "Network", "ZMQ failed to send message: %s", zmq_strerror( error ) );
                 }
             }

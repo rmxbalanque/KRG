@@ -12,10 +12,10 @@ namespace KRG::Physics
 
         //-------------------------------------------------------------------------
 
-        m_physicsMeshLoader.SetPhysics( &m_physicsSystem.GetPxPhysics() );
+        m_physicsMeshLoader.SetPhysics( &m_physicsSystem );
         context.RegisterResourceLoader( &m_physicsMeshLoader );
 
-        m_physicsMaterialLoader.SetPhysics( &m_physicsSystem.GetPxPhysics() );
+        m_physicsMaterialLoader.SetPhysics( &m_physicsSystem );
         context.RegisterResourceLoader( &m_physicsMaterialLoader );
 
         //-------------------------------------------------------------------------
@@ -27,7 +27,7 @@ namespace KRG::Physics
         m_physicsRenderer.Initialize( context.GetRenderDevice(), &m_physicsSystem );
         context.RegisterRenderer( &m_physicsRenderer );
 
-        m_physicsDebugViewController.Initialize( &m_physicsSystem );
+        m_physicsDebugViewController.Initialize( &m_physicsSystem, m_pPhysicsWorldSystem );
         context.RegisterDebugView( &m_physicsDebugViewController );
         #endif
 

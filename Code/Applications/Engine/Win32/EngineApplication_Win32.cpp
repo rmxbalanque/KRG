@@ -33,7 +33,7 @@ namespace KRG
             return outRect;
         }
 
-        KRG::S32 v = 0;
+        KRG::int32 v = 0;
         if ( userIni.TryGetInt( "WindowSettings:Left", v ) )
         {
             outRect.left = v;
@@ -63,10 +63,10 @@ namespace KRG
         if ( userIni.IsValid() )
         {
             userIni.CreateSection( "WindowSettings" );
-            userIni.SetInt( "WindowSettings:Left", ( KRG::S32 ) windowRect.left );
-            userIni.SetInt( "WindowSettings:Right", ( KRG::S32 ) windowRect.right );
-            userIni.SetInt( "WindowSettings:Top", ( KRG::S32 ) windowRect.top );
-            userIni.SetInt( "WindowSettings:Bottom", ( KRG::S32 ) windowRect.bottom );
+            userIni.SetInt( "WindowSettings:Left", ( KRG::int32 ) windowRect.left );
+            userIni.SetInt( "WindowSettings:Right", ( KRG::int32 ) windowRect.right );
+            userIni.SetInt( "WindowSettings:Top", ( KRG::int32 ) windowRect.top );
+            userIni.SetInt( "WindowSettings:Bottom", ( KRG::int32 ) windowRect.bottom );
             userIni.SaveToFile( KRG::FileSystemPath( "User.ini" ) );
         }
     }
@@ -129,7 +129,7 @@ namespace KRG
         return true;
     }
 
-    int EngineApplication_Win32::Run( S32 argc, char** argv )
+    int EngineApplication_Win32::Run( int32 argc, char** argv )
     {
         if ( m_windowHandle == nullptr )
         {
@@ -323,8 +323,8 @@ namespace KRG
         {
             case WM_SIZE:
             {
-                KRG::U32 width = LOWORD( lParam );
-                KRG::U32 height = HIWORD( lParam );
+                KRG::uint32 width = LOWORD( lParam );
+                KRG::uint32 height = HIWORD( lParam );
                 if ( width > 0 && height > 0 )
                 {
                     ResizeMainWindow( Int2( width, height ) );

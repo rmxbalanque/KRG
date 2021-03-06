@@ -22,8 +22,8 @@ namespace KRG
 
     private:
 
-        CameraWorldSystem*       m_pCameraSystem = nullptr;
-        F32                 m_recordingTime = 0.1f;
+        CameraWorldSystem*      m_pCameraSystem = nullptr;
+        float                   m_recordingTime = 0.1f;
     };
 }
 #endif

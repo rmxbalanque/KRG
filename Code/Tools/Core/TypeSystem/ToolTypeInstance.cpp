@@ -9,47 +9,47 @@ namespace KRG::TypeSystem
 {
     namespace
     {
-        static S64 GetEnumValue( EnumInfo const* pEnumInfo, void const* pPropertyValue )
+        static int64 GetEnumValue( EnumInfo const* pEnumInfo, void const* pPropertyValue )
         {
             KRG_ASSERT( pEnumInfo != nullptr && pPropertyValue != nullptr );
 
-            S64 value = 0;
+            int64 value = 0;
 
             switch ( pEnumInfo->m_underlyingType )
             {
-                case CoreTypes::U8:
+                case CoreTypes::Uint8:
                 {
-                    value = ( S64 ) * reinterpret_cast<U8 const*>( pPropertyValue );
+                    value = ( int64 ) * reinterpret_cast<uint8 const*>( pPropertyValue );
                 }
                 break;
 
-                case CoreTypes::S8:
+                case CoreTypes::Int8:
                 {
-                    value = ( S64 ) * reinterpret_cast<S8 const*>( pPropertyValue );
+                    value = ( int64 ) * reinterpret_cast<int8 const*>( pPropertyValue );
                 }
                 break;
 
-                case CoreTypes::U16:
+                case CoreTypes::Uint16:
                 {
-                    value = ( S64 ) * reinterpret_cast<U16 const*>( pPropertyValue );
+                    value = ( int64 ) * reinterpret_cast<uint16 const*>( pPropertyValue );
                 }
                 break;
 
-                case CoreTypes::S16:
+                case CoreTypes::Int16:
                 {
-                    value = ( S64 ) * reinterpret_cast<S16 const*>( pPropertyValue );
+                    value = ( int64 ) * reinterpret_cast<int16 const*>( pPropertyValue );
                 }
                 break;
 
-                case CoreTypes::U32:
+                case CoreTypes::Uint32:
                 {
-                    value = ( S64 ) * reinterpret_cast<U32 const*>( pPropertyValue );
+                    value = ( int64 ) * reinterpret_cast<uint32 const*>( pPropertyValue );
                 }
                 break;
 
-                case CoreTypes::S32:
+                case CoreTypes::Int32:
                 {
-                    value = ( S64 ) * reinterpret_cast<S32 const*>( pPropertyValue );
+                    value = ( int64 ) * reinterpret_cast<int32 const*>( pPropertyValue );
                 }
                 break;
 
@@ -63,7 +63,7 @@ namespace KRG::TypeSystem
 
         static String GetEnumStringValue( EnumInfo const* pEnumInfo, void const* pPropertyValue )
         {
-            S64 const defaultValue = GetEnumValue( pEnumInfo, pPropertyValue );
+            int64 const defaultValue = GetEnumValue( pEnumInfo, pPropertyValue );
             return pEnumInfo->GetConstantLabel( defaultValue ).c_str();
         }
     }
@@ -213,7 +213,7 @@ namespace KRG::TypeSystem
                 {
                     if ( allowDynamicArrayElementCreation )
                     {
-                        S32 const numElementsToAdd = pathElement.m_arrayElementIdx - pFoundPropertyInstance->GetNumArrayElements() + 1;
+                        int32 const numElementsToAdd = pathElement.m_arrayElementIdx - pFoundPropertyInstance->GetNumArrayElements() + 1;
                         for ( auto i = 0; i < numElementsToAdd; i++ )
                         {
                             pFoundPropertyInstance->AddArrayElement();
@@ -273,7 +273,7 @@ namespace KRG::TypeSystem
         return outValues;
     }
 
-    S64 ToolPropertyInstance::GetIntForEnumStringValue( char const* pString )
+    int64 ToolPropertyInstance::GetIntForEnumStringValue( char const* pString )
     {
         KRG_ASSERT( IsEnum() );
 
@@ -282,7 +282,7 @@ namespace KRG::TypeSystem
         return pEnumInfo->GetConstantValue( StringID( pString ) );
     }
 
-    char const* ToolPropertyInstance::GetStringValueForEnumValue( S64 value )
+    char const* ToolPropertyInstance::GetStringValueForEnumValue( int64 value )
     {
         KRG_ASSERT( IsEnum() );
 
@@ -339,7 +339,7 @@ namespace KRG::TypeSystem
         KRG_ASSERT( IsArray() );
 
         ToolPropertyInstance* pAddedArrayElement = nullptr;
-        S32 const newArrayElementIdx = (S32) m_childProperties.size();
+        int32 const newArrayElementIdx = (int32) m_childProperties.size();
 
         PropertyInfo arrayElementInfo = m_propertyInfo;
         arrayElementInfo.m_flags.ClearFlag( PropertyInfo::Flags::IsArray );
@@ -381,7 +381,7 @@ namespace KRG::TypeSystem
         pAddedArrayElement->m_arrayElementIdx = newArrayElementIdx;
     }
 
-    void ToolPropertyInstance::SetNumArrayElements( S32 numElements )
+    void ToolPropertyInstance::SetNumArrayElements( int32 numElements )
     {
         KRG_ASSERT( IsValid() );
         KRG_ASSERT( IsDynamicArray() );
@@ -394,14 +394,14 @@ namespace KRG::TypeSystem
 
         else
         {
-            S32 const currentNumElements = GetNumArrayElements();
+            int32 const currentNumElements = GetNumArrayElements();
             if ( numElements == currentNumElements )
             {
                 return;
             }
             else if ( numElements > currentNumElements )
             {
-                S32 const numElementsToAdd = numElements - currentNumElements;
+                int32 const numElementsToAdd = numElements - currentNumElements;
                 for ( auto i = 0; i < numElementsToAdd; i++ )
                 {
                     AddArrayElement();
@@ -409,7 +409,7 @@ namespace KRG::TypeSystem
             }
             else
             {
-                S32 const numElementsToRemove = currentNumElements - numElements;
+                int32 const numElementsToRemove = currentNumElements - numElements;
                 for ( auto i = 0; i < numElementsToRemove; i++ )
                 {
                     m_childProperties.pop_back();
@@ -418,7 +418,7 @@ namespace KRG::TypeSystem
         }
     }
 
-    void ToolPropertyInstance::RemoveArrayElement( S32 elementIdx )
+    void ToolPropertyInstance::RemoveArrayElement( int32 elementIdx )
     {
         KRG_ASSERT( IsValid() );
         KRG_ASSERT( IsDynamicArray() );
@@ -426,7 +426,7 @@ namespace KRG::TypeSystem
         m_childProperties.erase( m_childProperties.begin() + elementIdx );
 
         // Fix up array element IDs and indices
-        for ( S32 i = elementIdx; i < (S32) m_childProperties.size(); i++ )
+        for ( int32 i = elementIdx; i < (int32) m_childProperties.size(); i++ )
         {
             m_childProperties[i].m_propertyInfo.m_ID = StringID( String().sprintf( "m_%d", i ) );
             m_childProperties[i].m_arrayElementIdx = i;
@@ -442,7 +442,7 @@ namespace KRG::TypeSystem
         if ( IsDynamicArray() )
         {
             m_value = stringValue;
-            S32 const numElements = StringUtils::StrToS32( stringValue );
+            int32 const numElements = StringUtils::StrToS32( stringValue );
             SetNumArrayElements( numElements );
         }
         else if ( IsEnum() )

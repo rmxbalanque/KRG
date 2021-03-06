@@ -24,7 +24,7 @@ namespace KRG
 
         class MaterialCompiler : public Resource::Compiler
         {
-            static const S32 VERSION = 0;
+            static const int32 VERSION = 0;
 
         public:
 

@@ -31,14 +31,14 @@ namespace KRG
             inline bool IsSpatialComponent() const { return m_pComponent->IsSpatialComponent(); }
 
             inline ComponentItem* GetParent() const { return m_pParent; }
-            S32 GetNumChildren() const;
-            S32 GetRowIndex() const;
+            int32 GetNumChildren() const;
+            int32 GetRowIndex() const;
 
-            ComponentItem* GetChild( S32 row );
+            ComponentItem* GetChild( int32 row );
             ComponentItem* GetChild( QString const& name ) const;
             void AddChild( ComponentItem* pChild );
 
-            QVariant GetDataForColumn( S32 column ) const;
+            QVariant GetDataForColumn( int32 column ) const;
             QIcon GetIcon() const;
 
         private:
@@ -63,13 +63,13 @@ namespace KRG
             inline bool HasEntitySet() const { return m_pEntity != nullptr; }
             void SetEntityToEdit( EntityModel::ToolEntity* pEntity );
 
-            virtual QVariant data( QModelIndex const& index, S32 role ) const override;
+            virtual QVariant data( QModelIndex const& index, int32 role ) const override;
             virtual Qt::ItemFlags flags( QModelIndex const& index ) const override;
-            virtual QVariant headerData( S32 section, Qt::Orientation orientation, S32 role = Qt::DisplayRole ) const override;
-            virtual QModelIndex index( S32 row, S32 column, QModelIndex const& parentIndex = QModelIndex() ) const override;
+            virtual QVariant headerData( int32 section, Qt::Orientation orientation, int32 role = Qt::DisplayRole ) const override;
+            virtual QModelIndex index( int32 row, int32 column, QModelIndex const& parentIndex = QModelIndex() ) const override;
             virtual QModelIndex parent( QModelIndex const& index ) const override;
-            virtual S32 rowCount( QModelIndex const& parentIndex = QModelIndex() ) const override;
-            virtual S32 columnCount( QModelIndex const& parentIndex = QModelIndex() ) const override;
+            virtual int32 rowCount( QModelIndex const& parentIndex = QModelIndex() ) const override;
+            virtual int32 columnCount( QModelIndex const& parentIndex = QModelIndex() ) const override;
 
         private:
 
@@ -90,7 +90,7 @@ namespace KRG
 
         private:
 
-            virtual bool filterAcceptsRow( S32 sourceRow, QModelIndex const& sourceParentIndex ) const override final;
+            virtual bool filterAcceptsRow( int32 sourceRow, QModelIndex const& sourceParentIndex ) const override final;
             virtual bool lessThan( QModelIndex const& left, QModelIndex const& right ) const override final;
 
         private:

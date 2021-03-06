@@ -9,10 +9,10 @@ namespace KRG
 {
     namespace TypeSystem
     {
-        void TypeValueConverter::StringToFloatArray( String const& str, char const* delim, S32 const numFloats, F32* pFloats )
+        void TypeValueConverter::StringToFloatArray( String const& str, char const* delim, int32 const numFloats, float* pFloats )
         {
             char substr[128] = { 0 };
-            S32 resIdx = 0;
+            int32 resIdx = 0;
             auto delimLength = strlen( delim );
 
             bool complete = false;
@@ -31,16 +31,16 @@ namespace KRG
                 memcpy( substr, &str.c_str()[startIdx], sizeToCopy );
                 substr[sizeToCopy] = '\0';
 
-                pFloats[resIdx++] = (F32) atof( substr );
+                pFloats[resIdx++] = (float) atof( substr );
                 startIdx = endIdx + delimLength;
             }
         }
 
-        void TypeValueConverter::FloatArrayToString( F32 const* pFloats, char const* delim, S32 const numFloats, String& outStr )
+        void TypeValueConverter::FloatArrayToString( float const* pFloats, char const* delim, int32 const numFloats, String& outStr )
         {
             outStr.clear();
 
-            for ( S32 i = 0; i < numFloats; i++ )
+            for ( int32 i = 0; i < numFloats; i++ )
             {
                 outStr += eastl::to_string( pFloats[i] );
 
@@ -62,39 +62,39 @@ namespace KRG
             {
                 TypeValueConverter::ValueToString<bool>( *(bool*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::U8 )
+            else if ( typeID == CoreTypes::Uint8 )
             {
-                TypeValueConverter::ValueToString( *(U8*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(uint8*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::S8 )
+            else if ( typeID == CoreTypes::Int8 )
             {
-                TypeValueConverter::ValueToString( *(S8*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(int8*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::U16 )
+            else if ( typeID == CoreTypes::Uint16 )
             {
-                TypeValueConverter::ValueToString( *(U16*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(uint16*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::S16 )
+            else if ( typeID == CoreTypes::Int16 )
             {
-                TypeValueConverter::ValueToString( *(S16*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(int16*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::U32 )
+            else if ( typeID == CoreTypes::Uint32 )
             {
-                TypeValueConverter::ValueToString( *(U32*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(uint32*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::S32 )
+            else if ( typeID == CoreTypes::Int32 )
             {
-                TypeValueConverter::ValueToString( *(S32*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(int32*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::U64 )
+            else if ( typeID == CoreTypes::Uint64 )
             {
-                TypeValueConverter::ValueToString( *(U64*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(uint64*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::S64 )
+            else if ( typeID == CoreTypes::Int64 )
             {
-                TypeValueConverter::ValueToString( *(S64*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(int64*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::F32 || 
+            else if ( typeID == CoreTypes::Float || 
                       typeID == CoreTypes::Microseconds || 
                       typeID == CoreTypes::Milliseconds || 
                       typeID == CoreTypes::Seconds || 
@@ -102,11 +102,11 @@ namespace KRG
                       typeID == CoreTypes::Degrees ||
                       typeID == CoreTypes::Radians )
             {
-                TypeValueConverter::ValueToString( *(F32*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(float*) pValueData, strValue );
             }
-            else if ( typeID == CoreTypes::F64 )
+            else if ( typeID == CoreTypes::Double )
             {
-                TypeValueConverter::ValueToString( *(F64*) pValueData, strValue );
+                TypeValueConverter::ValueToString( *(double*) pValueData, strValue );
             }
             else if ( typeID == CoreTypes::String )
             {
@@ -183,39 +183,39 @@ namespace KRG
             {
                 TypeValueConverter::StringToValue( strValue, *(bool*) pValueData );
             }
-            else if ( typeID == CoreTypes::U8 )
+            else if ( typeID == CoreTypes::Uint8 )
             {
-                TypeValueConverter::StringToValue( strValue, *(U8*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(uint8*) pValueData );
             }
-            else if ( typeID == CoreTypes::S8 )
+            else if ( typeID == CoreTypes::Int8 )
             {
-                TypeValueConverter::StringToValue( strValue, *(S8*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(int8*) pValueData );
             }
-            else if ( typeID == CoreTypes::U16 )
+            else if ( typeID == CoreTypes::Uint16 )
             {
-                TypeValueConverter::StringToValue( strValue, *(U16*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(uint16*) pValueData );
             }
-            else if ( typeID == CoreTypes::S16 )
+            else if ( typeID == CoreTypes::Int16 )
             {
-                TypeValueConverter::StringToValue( strValue, *(S16*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(int16*) pValueData );
             }
-            else if ( typeID == CoreTypes::U32 )
+            else if ( typeID == CoreTypes::Uint32 )
             {
-                TypeValueConverter::StringToValue( strValue, *(U32*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(uint32*) pValueData );
             }
-            else if ( typeID == CoreTypes::S32 )
+            else if ( typeID == CoreTypes::Int32 )
             {
-                TypeValueConverter::StringToValue( strValue, *(S32*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(int32*) pValueData );
             }
-            else if ( typeID == CoreTypes::U64 )
+            else if ( typeID == CoreTypes::Uint64 )
             {
-                TypeValueConverter::StringToValue( strValue, *(U64*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(uint64*) pValueData );
             }
-            else if ( typeID == CoreTypes::S64 )
+            else if ( typeID == CoreTypes::Int64 )
             {
-                TypeValueConverter::StringToValue( strValue, *(S64*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(int64*) pValueData );
             }
-            else if ( typeID == CoreTypes::F32 || 
+            else if ( typeID == CoreTypes::Float || 
                       typeID == CoreTypes::Microseconds || 
                       typeID == CoreTypes::Milliseconds || 
                       typeID == CoreTypes::Seconds || 
@@ -223,11 +223,11 @@ namespace KRG
                       typeID == CoreTypes::Degrees ||
                       typeID == CoreTypes::Radians )
             {
-                TypeValueConverter::StringToValue( strValue, *(F32*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(float*) pValueData );
             }
-            else if ( typeID == CoreTypes::F64 )
+            else if ( typeID == CoreTypes::Double )
             {
-                TypeValueConverter::StringToValue( strValue, *(F64*) pValueData );
+                TypeValueConverter::StringToValue( strValue, *(double*) pValueData );
             }
             else if ( typeID == CoreTypes::String )
             {
@@ -301,39 +301,39 @@ namespace KRG
             {
                 TypeValueConverter::StringToByteArray<bool>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::U8 )
+            else if ( typeID == CoreTypes::Uint8 )
             {
-                TypeValueConverter::StringToByteArray<U8>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<uint8>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::S8 )
+            else if ( typeID == CoreTypes::Int8 )
             {
-                TypeValueConverter::StringToByteArray<S8>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<int8>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::U16 )
+            else if ( typeID == CoreTypes::Uint16 )
             {
-                TypeValueConverter::StringToByteArray<U16>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<uint16>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::S16 )
+            else if ( typeID == CoreTypes::Int16 )
             {
-                TypeValueConverter::StringToByteArray<S16>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<int16>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::U32 )
+            else if ( typeID == CoreTypes::Uint32 )
             {
-                TypeValueConverter::StringToByteArray<U32>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<uint32>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::S32 )
+            else if ( typeID == CoreTypes::Int32 )
             {
-                TypeValueConverter::StringToByteArray<S32>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<int32>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::U64 )
+            else if ( typeID == CoreTypes::Uint64 )
             {
-                TypeValueConverter::StringToByteArray<U64>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<uint64>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::S64 )
+            else if ( typeID == CoreTypes::Int64 )
             {
-                TypeValueConverter::StringToByteArray<S64>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<int64>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::F32 || 
+            else if ( typeID == CoreTypes::Float || 
                       typeID == CoreTypes::Microseconds ||
                       typeID == CoreTypes::Milliseconds ||
                       typeID == CoreTypes::Seconds ||
@@ -341,11 +341,11 @@ namespace KRG
                       typeID == CoreTypes::Degrees ||
                       typeID == CoreTypes::Radians )
             {
-                TypeValueConverter::StringToByteArray<F32>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<float>( strValue, byteArray );
             }
-            else if ( typeID == CoreTypes::F64 )
+            else if ( typeID == CoreTypes::Double )
             {
-                TypeValueConverter::StringToByteArray<F64>( strValue, byteArray );
+                TypeValueConverter::StringToByteArray<double>( strValue, byteArray );
             }
             else if ( typeID == CoreTypes::String )
             {
@@ -417,45 +417,45 @@ namespace KRG
             {
                 TypeValueConverter::ByteArrayToValue( byteArray, (bool*) pValue );
             }
-            else if ( typeID == CoreTypes::U8 )
+            else if ( typeID == CoreTypes::Uint8 )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (U8*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (uint8*) pValue );
             }
-            else if ( typeID == CoreTypes::S8 )
+            else if ( typeID == CoreTypes::Int8 )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (S8*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (int8*) pValue );
             }
-            else if ( typeID == CoreTypes::U16 )
+            else if ( typeID == CoreTypes::Uint16 )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (U16*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (uint16*) pValue );
             }
-            else if ( typeID == CoreTypes::S16 )
+            else if ( typeID == CoreTypes::Int16 )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (S16*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (int16*) pValue );
             }
-            else if ( typeID == CoreTypes::U32 )
+            else if ( typeID == CoreTypes::Uint32 )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (U32*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (uint32*) pValue );
             }
-            else if ( typeID == CoreTypes::S32 )
+            else if ( typeID == CoreTypes::Int32 )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (S32*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (int32*) pValue );
             }
-            else if ( typeID == CoreTypes::U64 )
+            else if ( typeID == CoreTypes::Uint64 )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (U64*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (uint64*) pValue );
             }
-            else if ( typeID == CoreTypes::S64 )
+            else if ( typeID == CoreTypes::Int64 )
             {
-                TypeValueConverter::ByteArrayToValue<S64>( byteArray, (S64*) pValue );
+                TypeValueConverter::ByteArrayToValue<int64>( byteArray, (int64*) pValue );
             }
-            else if ( typeID == CoreTypes::S64 )
+            else if ( typeID == CoreTypes::Int64 )
             {
-                TypeValueConverter::ByteArrayToValue<S64>( byteArray, (S64*) pValue );
+                TypeValueConverter::ByteArrayToValue<int64>( byteArray, (int64*) pValue );
             }
-            else if ( typeID == CoreTypes::F32 )
+            else if ( typeID == CoreTypes::Float )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (F32*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (float*) pValue );
             }
             else if ( typeID == CoreTypes::Microseconds )
             {
@@ -481,9 +481,9 @@ namespace KRG
             {
                 TypeValueConverter::ByteArrayToValue( byteArray, (Radians*) pValue );
             }
-            else if ( typeID == CoreTypes::F64 )
+            else if ( typeID == CoreTypes::Double )
             {
-                TypeValueConverter::ByteArrayToValue( byteArray, (F64*) pValue );
+                TypeValueConverter::ByteArrayToValue( byteArray, (double*) pValue );
             }
             else if ( typeID == CoreTypes::String )
             {

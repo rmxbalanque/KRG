@@ -4,7 +4,7 @@
 
 namespace KRG::Render
 {
-    MeshGeometry::GeometrySection::GeometrySection( U32 startIndex, U32 numIndices )
+    MeshGeometry::GeometrySection::GeometrySection( uint32 startIndex, uint32 numIndices )
         : m_startIndex( startIndex )
         , m_numIndices( numIndices )
     {}

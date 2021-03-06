@@ -26,8 +26,8 @@ namespace KRG
             virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const = 0;
             virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const = 0;
 
-            virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const = 0;
-            virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const = 0;
+            virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const = 0;
+            virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const = 0;
         };
 
         //-------------------------------------------------------------------------

@@ -41,7 +41,7 @@ namespace KRG
             m_children.emplace_back( pItem );
         }
 
-        TreeItem* TreeItem::GetChild( S32 row )
+        TreeItem* TreeItem::GetChild( int32 row )
         {
             KRG_ASSERT( row >= 0 && row < m_children.size() );
             return m_children[row];
@@ -60,16 +60,16 @@ namespace KRG
             return nullptr;
         }
 
-        S32 TreeItem::GetNumChildren() const
+        int32 TreeItem::GetNumChildren() const
         {
-            return (S32) m_children.size();
+            return (int32) m_children.size();
         }
 
-        S32 TreeItem::GetRowIndex() const
+        int32 TreeItem::GetRowIndex() const
         {
             if ( m_pParent != nullptr )
             {
-                S32 const row = VectorFindIndex( m_pParent->m_children, const_cast<TreeItem*>( this ) );
+                int32 const row = VectorFindIndex( m_pParent->m_children, const_cast<TreeItem*>( this ) );
                 KRG_ASSERT( row != InvalidIndex );
                 return row;
             }
@@ -77,7 +77,7 @@ namespace KRG
             return 0;
         }
 
-        QVariant TreeItem::GetDataForColumn( S32 column ) const
+        QVariant TreeItem::GetDataForColumn( int32 column ) const
         {
             return m_name;
         }
@@ -112,16 +112,16 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto const componentTypeInfos = typeRegistry.GetAllTypesWithMatchingMetadata( TFlags<TypeSystem::ETypeInfoMetaData>( TypeSystem::ETypeInfoMetaData::EntityComponent ) );
+            auto const componentTypeInfos = typeRegistry.GetAllTypesWithMatchingMetadata( TBitFlags<TypeSystem::ETypeInfoMetaData>( TypeSystem::ETypeInfoMetaData::EntityComponent ) );
             for ( auto pComponentTypeInfo : componentTypeInfos )
             {
                 TreeItem* pCategoryForItem = m_pRootItem;
 
                 QStringList const path = QString( pComponentTypeInfo->GetTypeName() ).split( "::", Qt::SkipEmptyParts );
-                S32 const numElements = (S32) path.size();
+                int32 const numElements = (int32) path.size();
                 KRG_ASSERT( numElements > 1 || path.front() != "KRG" ); // Type reflector enforces this
 
-                for ( S32 i = 1; i < ( numElements - 1 ); i++ )
+                for ( int32 i = 1; i < ( numElements - 1 ); i++ )
                 {
                     pCategoryForItem = FindOrAddCategory( pCategoryForItem, path[i] );
                     KRG_ASSERT( pCategoryForItem != nullptr );
@@ -149,7 +149,7 @@ namespace KRG
             return pFoundCategory;
         }
 
-        QModelIndex Model::index( S32 row, S32 column, QModelIndex const& parentIndex ) const
+        QModelIndex Model::index( int32 row, int32 column, QModelIndex const& parentIndex ) const
         {
             KRG_ASSERT( hasIndex( row, column, parentIndex ) );
 
@@ -190,7 +190,7 @@ namespace KRG
             return createIndex( pParentItem->GetRowIndex(), 0, pParentItem );
         }
 
-        S32 Model::rowCount( QModelIndex const& parentIndex ) const
+        int32 Model::rowCount( QModelIndex const& parentIndex ) const
         {
             TreeItem* pParentItem = nullptr;
             if ( !parentIndex.isValid() )
@@ -205,12 +205,12 @@ namespace KRG
             return pParentItem->GetNumChildren();
         }
 
-        S32 Model::columnCount( QModelIndex const& parent ) const
+        int32 Model::columnCount( QModelIndex const& parent ) const
         {
             return 1;
         }
 
-        QVariant Model::data( QModelIndex const& index, S32 role ) const
+        QVariant Model::data( QModelIndex const& index, int32 role ) const
         {
             if ( !index.isValid() )
             {
@@ -243,7 +243,7 @@ namespace KRG
             return QAbstractItemModel::flags( index );
         }
 
-        QVariant Model::headerData( S32 column, Qt::Orientation orientation, S32 role ) const
+        QVariant Model::headerData( int32 column, Qt::Orientation orientation, int32 role ) const
         {
             if ( orientation == Qt::Horizontal && role == Qt::DisplayRole )
             {
@@ -269,7 +269,7 @@ namespace KRG
             invalidateFilter();
         }
 
-        bool FilterModel::filterAcceptsRow( S32 sourceRow, QModelIndex const& sourceParentIndex ) const
+        bool FilterModel::filterAcceptsRow( int32 sourceRow, QModelIndex const& sourceParentIndex ) const
         {
             auto pModel = static_cast<Model*>( sourceModel() );
             auto pItem = static_cast<TreeItem*>( pModel->index( sourceRow, 0, sourceParentIndex ).internalPointer() );

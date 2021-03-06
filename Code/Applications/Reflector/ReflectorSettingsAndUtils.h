@@ -11,7 +11,7 @@ namespace KRG
     {
         namespace Reflection
         {
-            enum class EngineLayer : U8
+            enum class EngineLayer : uint8
             {
                 System = 0,
                 Engine,
@@ -61,7 +61,7 @@ namespace KRG
 
                 static char const* const g_engineNamespace = "KRG";
 
-                char const* const LayerPaths[(U8) EngineLayer::NumLayers] =
+                char const* const LayerPaths[(uint8) EngineLayer::NumLayers] =
                 {
                     "System\\",
                     "Engine\\",
@@ -70,7 +70,7 @@ namespace KRG
                     "Compilers\\",
                 };
 
-                char const* const LayerProjectNamePrefixes[(U8) EngineLayer::NumLayers] =
+                char const* const LayerProjectNamePrefixes[(uint8) EngineLayer::NumLayers] =
                 {
                     "KRG.System.",
                     "KRG.Engine.",
@@ -79,7 +79,7 @@ namespace KRG
                     "KRG.ResourceCompilers.",
                 };
 
-                char const* const ModuleNames[(U8) EngineLayer::NumLayers] =
+                char const* const ModuleNames[(uint8) EngineLayer::NumLayers] =
                 {
                     "SystemModule",
                     "EngineModule",
@@ -126,7 +126,7 @@ namespace KRG
             {
                 inline EngineLayer GetLayerForModule( String const& moduleName )
                 {
-                    for ( auto i = 0u; i < (U8) EngineLayer::NumLayers; i++ )
+                    for ( auto i = 0u; i < (uint8) EngineLayer::NumLayers; i++ )
                     {
                         if ( moduleName == Settings::ModuleNames[i] )
                         {
@@ -146,9 +146,9 @@ namespace KRG
                 {
                     String message = "Only [ ";
 
-                    for ( auto i = 0u; i < (U8) EngineLayer::NumLayers; i++ )
+                    for ( auto i = 0u; i < (uint8) EngineLayer::NumLayers; i++ )
                     {
-                        bool const isLastName = i == (U8) EngineLayer::NumLayers - 1;
+                        bool const isLastName = i == (uint8) EngineLayer::NumLayers - 1;
                         message += "\"";
                         message += Settings::ModuleNames[i];
                         message += isLastName ? "\" " : "\", ";
@@ -158,11 +158,11 @@ namespace KRG
                     return message;
                 }
 
-                inline bool IsSystemModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(U8) EngineLayer::System] ) != String::npos; }
-                inline bool IsEngineModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(U8) EngineLayer::Engine] ) != String::npos; }
-                inline bool IsGameModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(U8) EngineLayer::Game] ) != String::npos; }
-                inline bool IsToolsModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(U8) EngineLayer::Tools] ) != String::npos; }
-                inline bool IsResourceCompilerModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(U8) EngineLayer::Resource] ) != String::npos; }
+                inline bool IsSystemModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(uint8) EngineLayer::System] ) != String::npos; }
+                inline bool IsEngineModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(uint8) EngineLayer::Engine] ) != String::npos; }
+                inline bool IsGameModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(uint8) EngineLayer::Game] ) != String::npos; }
+                inline bool IsToolsModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(uint8) EngineLayer::Tools] ) != String::npos; }
+                inline bool IsResourceCompilerModule( String const& moduleName ) { return moduleName.find( Settings::ModuleNames[(uint8) EngineLayer::Resource] ) != String::npos; }
 
                 //-------------------------------------------------------------------------
 
@@ -170,7 +170,7 @@ namespace KRG
                 {
                     String const& pathString = filePath.GetString();
 
-                    for ( auto i = 0u; i < (U8) EngineLayer::NumLayers; i++ )
+                    for ( auto i = 0u; i < (uint8) EngineLayer::NumLayers; i++ )
                     {
                         if ( pathString.find( Settings::LayerPaths[i] ) != String::npos )
                         {
@@ -181,11 +181,11 @@ namespace KRG
                     return EngineLayer::Unknown;
                 }
 
-                inline bool IsFileInSystemLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(U8) EngineLayer::System] ) != String::npos; }
-                inline bool IsFileInEngineLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(U8) EngineLayer::Engine] ) != String::npos; }
-                inline bool IsFileInGameLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(U8) EngineLayer::Game] ) != String::npos; }
-                inline bool IsFileInToolsLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(U8) EngineLayer::Tools] ) != String::npos; }
-                inline bool IsFileInResourceCompilerLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(U8) EngineLayer::Resource] ) != String::npos; }
+                inline bool IsFileInSystemLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(uint8) EngineLayer::System] ) != String::npos; }
+                inline bool IsFileInEngineLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(uint8) EngineLayer::Engine] ) != String::npos; }
+                inline bool IsFileInGameLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(uint8) EngineLayer::Game] ) != String::npos; }
+                inline bool IsFileInToolsLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(uint8) EngineLayer::Tools] ) != String::npos; }
+                inline bool IsFileInResourceCompilerLayer( FileSystemPath const& filePath ) { return filePath.GetString().find( Settings::LayerPaths[(uint8) EngineLayer::Resource] ) != String::npos; }
             }
         }
     }

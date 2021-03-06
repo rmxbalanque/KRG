@@ -24,7 +24,7 @@ namespace KRG
                 StringID        m_name;
                 Transform       m_localTransform = Transform::Identity;
                 Transform       m_globalTransform = Transform::Identity;
-                S32             m_parentBoneIdx = InvalidIndex;
+                int32             m_parentBoneIdx = InvalidIndex;
             };
 
         public:
@@ -37,14 +37,14 @@ namespace KRG
             inline StringID const& GetName() const { return m_name; }
             inline BoneData const& GetRootBone() const { return m_bones[0]; }
             inline TVector<BoneData> const& GetBoneData() const { return m_bones; }
-            inline BoneData const& GetBoneData( S32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx]; }
-            inline StringID const& GetBoneName( S32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_name; }
-            inline S32 GetNumBones() const { return (S32) m_bones.size(); }
+            inline BoneData const& GetBoneData( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx]; }
+            inline StringID const& GetBoneName( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_name; }
+            inline int32 GetNumBones() const { return (int32) m_bones.size(); }
 
-            S32 GetBoneIndex( StringID const& boneName ) const;
-            inline S32 GetParentIndex( S32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_parentBoneIdx; }
-            inline Transform const& GetLocalTransform( S32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_localTransform; }
-            inline Transform const& GetGlobalTransform( S32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_globalTransform; }
+            int32 GetBoneIndex( StringID const& boneName ) const;
+            inline int32 GetParentIndex( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_parentBoneIdx; }
+            inline Transform const& GetLocalTransform( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_localTransform; }
+            inline Transform const& GetGlobalTransform( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_globalTransform; }
 
         protected:
 

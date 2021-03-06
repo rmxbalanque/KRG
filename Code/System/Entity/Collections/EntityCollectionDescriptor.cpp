@@ -5,7 +5,7 @@
 
 namespace KRG::EntityModel
 {
-    void EntityCollectionDescriptor::Reserve( S32 numEntities )
+    void EntityCollectionDescriptor::Reserve( int32 numEntities )
     {
         m_entityDescriptors.reserve( numEntities );
         m_entityLookupMap.reserve( numEntities );
@@ -16,8 +16,8 @@ namespace KRG::EntityModel
         m_entitySpatialAttachmentInfo.clear();
         m_entitySpatialAttachmentInfo.reserve( m_entityDescriptors.size() );
 
-        S32 const numEntities = (S32) m_entityDescriptors.size();
-        for ( S32 i = 0; i < numEntities; i++ )
+        int32 const numEntities = (int32) m_entityDescriptors.size();
+        for ( int32 i = 0; i < numEntities; i++ )
         {
             auto const& entityDesc = m_entityDescriptors[i];
             if ( !entityDesc.IsSpatialEntity() || !entityDesc.HasSpatialParent() )

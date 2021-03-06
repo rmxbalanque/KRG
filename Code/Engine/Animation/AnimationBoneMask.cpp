@@ -13,7 +13,7 @@ namespace KRG
             //auto const numWeights = commonBoneWeights.size();
             //for ( auto i = 0; i < numWeights; i++ )
             //{
-            //    S32 boneIdx = m_pSkeleton->GetBoneIndex( commonBoneWeights[i].BoneName );
+            //    int32 boneIdx = m_pSkeleton->GetBoneIndex( commonBoneWeights[i].BoneName );
             //    if ( boneIdx != InvalidIndex )
             //    {
             //        m_weights[boneIdx] = commonBoneWeights[i].Weight;
@@ -21,16 +21,16 @@ namespace KRG
             //}
 
             //// Fill in weights for intermediate bones in the skeleton
-            //S32* pParentChain = (S32*) appAlloca( sizeof( S32 ) * 15 );
+            //int32* pParentChain = (int32*) appAlloca( sizeof( int32 ) * 15 );
 
-            //F32 startWeight = -1, endWeight = -1;
+            //float startWeight = -1, endWeight = -1;
             //auto const numBones = m_pSkeleton->GetNumBones();
             //for ( auto i = numBones - 1; i >= 0; i-- )
             //{
             //    // Find the chain of bones with -1 weights
             //    if ( m_weights[i] == -1 )
             //    {
-            //        S32 chainCount = 0;
+            //        int32 chainCount = 0;
             //        auto boneIdx = i;
             //        while ( m_weights[boneIdx] == -1 )
             //        {
@@ -55,7 +55,7 @@ namespace KRG
             //        {
             //            for ( auto c = 0; c < chainCount; c++ )
             //            {
-            //                m_weights[pParentChain[c]] = Lerp( startWeight, endWeight, F32( c + 1 ) / ( chainCount + 1 ) );
+            //                m_weights[pParentChain[c]] = Lerp( startWeight, endWeight, float( c + 1 ) / ( chainCount + 1 ) );
             //            }
             //        }
             //    }
@@ -73,14 +73,14 @@ namespace KRG
             m_weights.resize( pSkeleton->GetNumBones(), 0.0f );
         }
 
-        BoneMask::BoneMask( Skeleton const* pSkeleton, F32 const defaultWeight )
+        BoneMask::BoneMask( Skeleton const* pSkeleton, float const defaultWeight )
             : m_pSkeleton( pSkeleton )
         {
             KRG_ASSERT( pSkeleton != nullptr );
             m_weights.resize( pSkeleton->GetNumBones(), defaultWeight );
         }
 
-        void BoneMask::ResetWeights( F32 defaultWeight )
+        void BoneMask::ResetWeights( float defaultWeight )
         {
             for ( auto& weight : m_weights )
             {
@@ -99,7 +99,7 @@ namespace KRG
             memcpy( m_weights.data(), rhs.m_weights.data(), m_weights.size() );
         }
 
-        void BoneMask::BlendFrom( BoneMask const& source, F32 blendWeight )
+        void BoneMask::BlendFrom( BoneMask const& source, float blendWeight )
         {
             KRG_ASSERT( source.m_pSkeleton == m_pSkeleton && m_weights.size() == source.m_weights.size() && blendWeight >= 0.0f && blendWeight <= 1.0f );
 
@@ -110,7 +110,7 @@ namespace KRG
             }
         }
 
-        void BoneMask::BlendTo( BoneMask const& target, F32 blendWeight )
+        void BoneMask::BlendTo( BoneMask const& target, float blendWeight )
         {
             KRG_ASSERT( target.m_pSkeleton == m_pSkeleton && m_weights.size() == target.m_weights.size() && blendWeight >= 0.0f && blendWeight <= 1.0f );
 

@@ -35,7 +35,7 @@ static const qt_meta_stringdata_KRG__Resource__MainViewWidget_t qt_meta_stringda
 QT_MOC_LITERAL(0, 0, 29), // "KRG::Resource::MainViewWidget"
 QT_MOC_LITERAL(1, 30, 15), // "ChangePageIndex"
 QT_MOC_LITERAL(2, 46, 0), // ""
-QT_MOC_LITERAL(3, 47, 3), // "S32"
+QT_MOC_LITERAL(3, 47, 3), // "int32"
 QT_MOC_LITERAL(4, 51, 7), // "pageIdx"
 QT_MOC_LITERAL(5, 59, 17), // "OnChangePageIndex"
 QT_MOC_LITERAL(6, 77, 18), // "CreateCompilerPage"
@@ -91,8 +91,8 @@ void KRG::Resource::MainViewWidget::qt_static_metacall(QObject *_o, QMetaObject:
         auto *_t = static_cast<MainViewWidget *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->ChangePageIndex((*reinterpret_cast< S32(*)>(_a[1]))); break;
-        case 1: _t->OnChangePageIndex((*reinterpret_cast< S32(*)>(_a[1]))); break;
+        case 0: _t->ChangePageIndex((*reinterpret_cast< int32(*)>(_a[1]))); break;
+        case 1: _t->OnChangePageIndex((*reinterpret_cast< int32(*)>(_a[1]))); break;
         case 2: { QWidget* _r = _t->CreateCompilerPage((*reinterpret_cast< ResourceServer(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QWidget**>(_a[0]) = std::move(_r); }  break;
         case 3: { QWidget* _r = _t->CreateRequestsPage((*reinterpret_cast< ResourceServer(*)>(_a[1])));
@@ -102,7 +102,7 @@ void KRG::Resource::MainViewWidget::qt_static_metacall(QObject *_o, QMetaObject:
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (MainViewWidget::*)(S32 );
+            using _t = void (MainViewWidget::*)(int32 );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MainViewWidget::ChangePageIndex)) {
                 *result = 0;
                 return;
@@ -152,7 +152,7 @@ int KRG::Resource::MainViewWidget::qt_metacall(QMetaObject::Call _c, int _id, vo
 }
 
 // SIGNAL 0
-void KRG::Resource::MainViewWidget::ChangePageIndex(S32 _t1)
+void KRG::Resource::MainViewWidget::ChangePageIndex(int32 _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

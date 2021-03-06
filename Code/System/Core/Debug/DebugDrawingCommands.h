@@ -4,7 +4,7 @@
 #include "System/Core/Math/Math.h"
 #include "System/Core/Math/Range.h"
 #include "System/Core/Types/String.h"
-#include "System/Core/Types/Flags.h"
+#include "System/Core/Types/BitFlags.h"
 #include "System/Core/Threading/Threading.h"
 
 //-------------------------------------------------------------------------
@@ -148,7 +148,7 @@ namespace KRG
 
             struct TextCommand 
             {
-                TextCommand( Float2 const& position, char const* pText, Float4 const& color, TextSize size, TFlags<TextFlags> textFlags = TFlags<TextFlags>( TextFlags::Default ), DepthTestState state = DepthTestState::Off )
+                TextCommand( Float2 const& position, char const* pText, Float4 const& color, TextSize size, TBitFlags<TextFlags> textFlags = TBitFlags<TextFlags>( TextFlags::Default ), DepthTestState state = DepthTestState::Off )
                     : m_position( position.x, position.y, 0 )
                     , m_text( pText )
                     , m_color( color )
@@ -158,7 +158,7 @@ namespace KRG
                     KRG_ASSERT( !textFlags.IsFlagSet( TextFlags::WorldSpace ) );
                 }
 
-                TextCommand( Float3 const& position, char const* pText, Float4 const& color, TextSize size, TFlags<TextFlags> textFlags = TFlags<TextFlags>( TextFlags::Default ), DepthTestState state = DepthTestState::Off )
+                TextCommand( Float3 const& position, char const* pText, Float4 const& color, TextSize size, TBitFlags<TextFlags> textFlags = TBitFlags<TextFlags>( TextFlags::Default ), DepthTestState state = DepthTestState::Off )
                     : m_position( position )
                     , m_text( pText )
                     , m_color( color )
@@ -171,7 +171,7 @@ namespace KRG
                 Float4                  m_color;
                 Float3                  m_position;
                 TextSize                m_size;
-                TFlags<TextFlags>       m_textFlags;
+                TBitFlags<TextFlags>    m_textFlags;
                 String                  m_text;
             };
 

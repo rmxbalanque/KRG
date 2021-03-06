@@ -37,8 +37,8 @@ namespace KRG
 
             auto comparator = [] ( IRenderer* const& pRendererA, IRenderer* const& pRendererB )
             {
-                S32 const A = pRendererA->GetPriority();
-                S32 const B = pRendererB->GetPriority();
+                int32 const A = pRendererA->GetPriority();
+                int32 const B = pRendererB->GetPriority();
                 return A < B;
             };
 

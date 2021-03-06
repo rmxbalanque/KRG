@@ -50,7 +50,7 @@ namespace KRG
         Setting( const char* pName, const char* pCategory, Type type );
         virtual ~Setting();
 
-        virtual S32 GetTypeID() const = 0;
+        virtual int32 GetTypeID() const = 0;
 
     private:
 
@@ -62,7 +62,7 @@ namespace KRG
         Setting*            m_pNext = nullptr;
         char const          m_name[100] = { 0 };
         char const          m_category[156] = { 0 };
-        U32                 m_nameHash = 0; // The hash of the combined category and name strings
+        uint32                 m_nameHash = 0; // The hash of the combined category and name strings
         Type                m_type;
     };
 }

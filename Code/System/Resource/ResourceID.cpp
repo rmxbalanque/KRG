@@ -50,7 +50,7 @@ namespace KRG
             if ( delimIdx != String::npos && lastCharIdx - delimIdx <= 4 )
             {
                 char buffer[5] = { 0, 0, 0, 0, 0 };
-                for( S32 i = (S32) delimIdx + 1, c = 0; i <= lastCharIdx; i++, c++ )
+                for( int32 i = (int32) delimIdx + 1, c = 0; i <= lastCharIdx; i++, c++ )
                 {
                     buffer[c] = pathString[i];
                 }

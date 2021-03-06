@@ -11,47 +11,7 @@ namespace KRG::Physics
 {
     namespace
     {
-        constexpr static S32 const g_hitBufferSize = 256;
-    }
-
-    //-------------------------------------------------------------------------
-
-    physx::PxConvexMesh* PhysicsScene::s_pUnitCylinderMesh = nullptr;
-
-    void PhysicsScene::CreateUnitCylinderMesh( physx::PxPhysics& physics, physx::PxCooking* pCooking )
-    {
-        KRG_ASSERT( pCooking != nullptr );
-
-        //-------------------------------------------------------------------------
-
-        static const PxVec3 convexVerts[] = { PxVec3( 0,1,0 ),PxVec3( 1,0,0 ),PxVec3( -1,0,0 ),PxVec3( 0,0,1 ), PxVec3( 0,0,-1 ) };
-
-        //-------------------------------------------------------------------------
-
-        PxConvexMeshDesc convexDesc;
-        convexDesc.points.count = 5;
-        convexDesc.points.stride = sizeof( PxVec3 );
-        convexDesc.points.data = convexVerts;
-        convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-
-        PxDefaultMemoryOutputStream buf;
-        PxConvexMeshCookingResult::Enum result;
-        if ( !pCooking->cookConvexMesh( convexDesc, buf, &result ) )
-        {
-            KRG_UNREACHABLE_CODE();
-        }
-
-        //-------------------------------------------------------------------------
-
-        PxDefaultMemoryInputData input( buf.getData(), buf.getSize() );
-        s_pUnitCylinderMesh = physics.createConvexMesh( input );
-        KRG_ASSERT( s_pUnitCylinderMesh != nullptr );
-    }
-
-    void PhysicsScene::DestroyUnitCylinderMesh()
-    {
-        s_pUnitCylinderMesh->release();
-        s_pUnitCylinderMesh = nullptr;
+        constexpr static int32 const g_hitBufferSize = 256;
     }
 
     //-------------------------------------------------------------------------
@@ -68,7 +28,7 @@ namespace KRG::Physics
 
         KRG_ASSERT( m_pScene == nullptr );
         PxSceneDesc sceneDesc( tolerancesScale );
-        sceneDesc.gravity = ToPx( Constants::Gravity );
+        sceneDesc.gravity = ToPx( Constants::s_gravity );
         sceneDesc.cpuDispatcher = pDispatcher;
         sceneDesc.filterShader = PxDefaultSimulationFilterShader;
         m_pScene = physics.createScene( sceneDesc );
@@ -99,11 +59,11 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsScene::Simulate()
+    void PhysicsScene::Simulate( Seconds deltaTime )
     {
         {
             KRG_PROFILE_SCOPE_PHYSICS( "Simulate" );
-            m_pScene->simulate( 1.0f / 60.0f );
+            m_pScene->simulate( deltaTime );
         }
 
         {
@@ -118,8 +78,9 @@ namespace KRG::Physics
 
 namespace KRG::Physics
 {
-    bool PhysicsScene::RayCast( Vector const& start, Vector const& unitDirection, F32 distance, QueryRules const& rules )
+    bool PhysicsScene::RayCast( Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
         PxRaycastHit hits[256];
@@ -142,8 +103,9 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    bool PhysicsScene::SphereCast( F32 radius, Vector const& start, Vector const& unitDirection, F32 distance, QueryRules const& rules )
+    bool PhysicsScene::SphereCast( float radius, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
         PxSweepHit hits[g_hitBufferSize];
@@ -157,7 +119,7 @@ namespace KRG::Physics
         return result;
     }
 
-    bool PhysicsScene::SphereCast( F32 radius, Vector const& start, Vector const& end, QueryRules const& rules )
+    bool PhysicsScene::SphereCast( float radius, Vector const& start, Vector const& end, QueryRules const& rules )
     {
         Vector dir, length;
         ( end - start ).ToDirectionAndLength3( dir, length );
@@ -166,8 +128,9 @@ namespace KRG::Physics
         return SphereCast( radius, start, dir, length.x, rules );
     }
 
-    bool PhysicsScene::SphereOverlap( F32 radius, Vector const& position, QueryRules const& rules )
+    bool PhysicsScene::SphereOverlap( float radius, Vector const& position, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         PxOverlapHit hits[g_hitBufferSize];
         PxOverlapBuffer sweepBuffer( hits, g_hitBufferSize );
 
@@ -181,8 +144,9 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    bool PhysicsScene::CapsuleCast( F32 halfHeight, F32 radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, F32 distance, QueryRules const& rules )
+    bool PhysicsScene::CapsuleCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
         PxSweepHit hits[g_hitBufferSize];
@@ -196,7 +160,7 @@ namespace KRG::Physics
         return result;
     }
 
-    bool PhysicsScene::CapsuleCast( F32 halfHeight, F32 radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules )
+    bool PhysicsScene::CapsuleCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules )
     {
         Vector dir, length;
         ( end - start ).ToDirectionAndLength3( dir, length );
@@ -205,12 +169,13 @@ namespace KRG::Physics
         return CapsuleCast( halfHeight, radius, orientation, start, dir, length.x, rules );
     }
 
-    bool PhysicsScene::CapsuleOverlap( F32 halfHeight, F32 radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules )
+    bool PhysicsScene::CapsuleOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         PxOverlapHit hits[g_hitBufferSize];
         PxOverlapBuffer sweepBuffer( hits, g_hitBufferSize );
 
-        PxConvexMeshGeometry const cylinderGeo( s_pUnitCylinderMesh, PxMeshScale( PxVec3( radius, radius, halfHeight ) ) );
+        PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, PxMeshScale( PxVec3( radius, radius, halfHeight ) ) );
         bool result = m_pScene->overlap( cylinderGeo, PxTransform( ToPx( position ), ToPx( orientation ) ), sweepBuffer, rules, m_pQueryFilter );
 
         // TODO: return hit results
@@ -220,15 +185,16 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    bool PhysicsScene::CylinderCast( F32 halfHeight, F32 radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, F32 distance, QueryRules const& rules )
+    bool PhysicsScene::CylinderCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-        KRG_ASSERT( s_pUnitCylinderMesh != nullptr );
+        KRG_ASSERT( SharedMeshes::s_pUnitCylinderMesh != nullptr );
 
         PxSweepHit hits[g_hitBufferSize];
         PxSweepBuffer sweepBuffer( hits, g_hitBufferSize );
 
-        PxConvexMeshGeometry const cylinderGeo( s_pUnitCylinderMesh, PxMeshScale( PxVec3( radius, radius, halfHeight ) ) );
+        PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, PxMeshScale( PxVec3( radius, radius, halfHeight ) ) );
         bool const result = m_pScene->sweep( cylinderGeo, PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, sweepBuffer, PxHitFlag::eDEFAULT, rules, m_pQueryFilter );
 
         // TODO: return hit results
@@ -236,7 +202,7 @@ namespace KRG::Physics
         return result;
     }
 
-    bool PhysicsScene::CylinderCast( F32 halfHeight, F32 radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules )
+    bool PhysicsScene::CylinderCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules )
     {
         Vector dir, length;
         ( end - start ).ToDirectionAndLength3( dir, length );
@@ -245,8 +211,9 @@ namespace KRG::Physics
         return CylinderCast( halfHeight, radius, orientation, start, dir, length.x, rules );
     }
 
-    bool PhysicsScene::CylinderOverlap( F32 halfHeight, F32 radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules )
+    bool PhysicsScene::CylinderOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         PxOverlapHit hits[g_hitBufferSize];
         PxOverlapBuffer sweepBuffer( hits, g_hitBufferSize );
 
@@ -260,8 +227,9 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    bool PhysicsScene::BoxCast( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, F32 distance, QueryRules const& rules )
+    bool PhysicsScene::BoxCast( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
         PxSweepHit hits[g_hitBufferSize];
@@ -286,6 +254,7 @@ namespace KRG::Physics
 
     bool PhysicsScene::BoxOverlap( Vector halfExtents, Vector const& position, Quaternion const& orientation, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         PxOverlapHit hits[g_hitBufferSize];
         PxOverlapBuffer sweepBuffer( hits, g_hitBufferSize );
 
@@ -301,6 +270,7 @@ namespace KRG::Physics
 
     bool PhysicsScene::ShapeCast( physx::PxShape* pShape, Transform const& transform, Vector const& desiredEndPosition, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         Vector dir, length;
         ( desiredEndPosition - transform.GetTranslation() ).ToDirectionAndLength3( dir, length );
         KRG_ASSERT( !dir.IsNearZero3() );
@@ -308,7 +278,7 @@ namespace KRG::Physics
         return ShapeCast( pShape, transform, dir, length.x, rules );
     }
 
-    bool PhysicsScene::ShapeCast( physx::PxShape* pShape, Transform const& transform, Vector const& unitDirection, F32 distance, QueryRules const& rules )
+    bool PhysicsScene::ShapeCast( physx::PxShape* pShape, Transform const& transform, Vector const& unitDirection, float distance, QueryRules const& rules )
     {
         KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
@@ -321,6 +291,7 @@ namespace KRG::Physics
 
     bool PhysicsScene::ShapeOverlap( physx::PxShape* pShape, Transform const& transform, QueryRules const& rules )
     {
+        KRG_ASSERT( m_readLockAcquired );
         PxOverlapHit hits[g_hitBufferSize];
         PxOverlapBuffer sweepBuffer( hits, g_hitBufferSize );
 
@@ -343,19 +314,20 @@ namespace KRG::Physics
         return m_sceneDebugFlags && ( 1 << physx::PxVisualizationParameter::eSCALE ) != 0;
     }
 
-    void PhysicsScene::SetDebugFlags( U32 debugFlags )
+    void PhysicsScene::SetDebugFlags( uint32 debugFlags )
     {
         KRG_ASSERT( m_pScene != nullptr );
         m_sceneDebugFlags = debugFlags;
 
         //-------------------------------------------------------------------------
 
-        auto SetVisualizationParameter = [this] ( PxVisualizationParameter::Enum flag, F32 onValue, F32 offValue )
+        auto SetVisualizationParameter = [this] ( PxVisualizationParameter::Enum flag, float onValue, float offValue )
         {
             bool const isFlagSet = ( m_sceneDebugFlags & ( 1 << flag ) ) != 0;
             m_pScene->setVisualizationParameter( flag, isFlagSet ? onValue : offValue );
         };
 
+        AcquireWriteLock();
         SetVisualizationParameter( PxVisualizationParameter::eSCALE, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_AABBS, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f, 0.0f );
@@ -372,6 +344,7 @@ namespace KRG::Physics
         SetVisualizationParameter( PxVisualizationParameter::eBODY_MASS_AXES, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eJOINT_LIMITS, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f, 0.0f );
+        ReleaseWriteLock();
     }
     #endif
 }

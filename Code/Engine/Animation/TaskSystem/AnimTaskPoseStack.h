@@ -32,13 +32,13 @@ namespace KRG
 
             Skeleton const*                 m_pSkeleton;
             TVector<Pose>                   m_poses;
-            S32                             m_firstFreePose;
+            int32                             m_firstFreePose;
 
         private:
 
             #if KRG_DEVELOPMENT_TOOLS
             TVector<Pose>                   m_debugBuffers;
-            S32                             m_firstFreeDebugBuffer;
+            int32                             m_firstFreeDebugBuffer;
             mutable bool                    m_isPoseDebuggingEnabled;
             #endif
         };

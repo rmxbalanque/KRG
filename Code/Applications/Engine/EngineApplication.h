@@ -26,7 +26,7 @@ namespace KRG
 
         EngineApplication() : m_module_engine_core( m_settingsRegistry ) {}
         virtual ~EngineApplication() = default;
-        virtual int Run( S32 argc, char** argv ) = 0;
+        virtual int Run( int32 argc, char** argv ) = 0;
 
     protected:
 
@@ -37,7 +37,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // This function will process all commandline settings and load all ini settings. Needs to be the very first thing called from the derived application's run method.
-        bool ReadSettings( S32 argc, char** argv );
+        bool ReadSettings( int32 argc, char** argv );
 
         // This function will save ini settings. Needs to be the very last thing called from the derived application's run method.
         void WriteSettings();

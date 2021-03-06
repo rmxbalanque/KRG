@@ -8,8 +8,8 @@ namespace KRG
     {
         namespace
         {
-            static S32 const g_numDebugBuffers = 20;
-            static S32 const g_numWorkingBuffers = 1;
+            static int32 const g_numDebugBuffers = 20;
+            static int32 const g_numWorkingBuffers = 1;
         }
 
         //-------------------------------------------------------------------------

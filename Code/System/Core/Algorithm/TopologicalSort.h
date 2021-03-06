@@ -22,9 +22,9 @@ namespace KRG
             };
 
             Node() : m_mark( Mark::None ), m_ID( -1 ) {}
-            Node( S32 ID ) : m_mark( Mark::None ), m_ID( ID ) {}
+            Node( int32 ID ) : m_mark( Mark::None ), m_ID( ID ) {}
 
-            S32             m_ID;           // Some way to identify the actual data this refers to
+            int32             m_ID;           // Some way to identify the actual data this refers to
             TVector<Node*>  m_children;     // The children of this node
             Mark            m_mark;         // Marking mechanism for algorithm
         };

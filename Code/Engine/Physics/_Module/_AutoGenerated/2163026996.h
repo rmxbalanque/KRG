@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsBoxComponent& type )
     {
-        archive( cereal::base_class<KRG::Physics::PhysicsShapeComponent>( &type ), KRG_NVP( m_pPhysicsMaterial ), KRG_NVP( m_transform ), KRG_NVP( m_boxExtents ) );
+        archive( cereal::base_class<KRG::Physics::PhysicsComponent>( &type ), KRG_NVP( m_actorType ), KRG_NVP( m_pPhysicsMaterial ), KRG_NVP( m_transform ), KRG_NVP( m_shapeType ), KRG_NVP( m_boxExtents ) );
     }
 
     //-------------------------------------------------------------------------
@@ -35,6 +35,18 @@ namespace KRG
             KRG::Physics::PhysicsBoxComponent const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsBoxComponent const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_actorType" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::ActorType" );
+            propertyInfo.m_parentTypeID = 2002438577;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_actorType;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_actorType );
+            propertyInfo.m_size = sizeof( KRG::Physics::ActorType );
+            propertyInfo.m_flags.SetAll( 4 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
@@ -58,6 +70,18 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
             propertyInfo.m_flags.SetAll( 0 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_shapeType" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::ShapeType" );
+            propertyInfo.m_parentTypeID = 2002438577;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_shapeType;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_shapeType );
+            propertyInfo.m_size = sizeof( KRG::Physics::ShapeType );
+            propertyInfo.m_flags.SetAll( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -104,7 +128,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Physics::PhysicsShapeComponent::StaticTypeInfo;
+                    pParentType = KRG::Physics::PhysicsComponent::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -185,7 +209,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
@@ -193,7 +217,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsBoxComponent*>( pType );
                     if ( propertyID == 838471742 )

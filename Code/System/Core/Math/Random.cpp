@@ -13,7 +13,7 @@ namespace KRG
             m_rng.seed( pcg_extras::seed_seq_from<std::random_device>() );
         }
 
-        RNG::RNG( U32 seed )
+        RNG::RNG( uint32 seed )
             : m_rng( seed )
         {
             KRG_ASSERT( seed != 0 );
@@ -33,13 +33,13 @@ namespace KRG
             return g_rng.GetInt( 0, 1 ) == 1;
         }
 
-        U32 GetRandomInt( U32 min, U32 max )
+        uint32 GetRandomInt( uint32 min, uint32 max )
         {
             Threading::ScopeLock lock( g_globalRandomMutex );
             return g_rng.GetInt( min, max );
         }
 
-        F32 GetRandomFloat( F32 min, F32 max )
+        float GetRandomFloat( float min, float max )
         {
             Threading::ScopeLock lock( g_globalRandomMutex );
             return g_rng.GetFloat( min, max );

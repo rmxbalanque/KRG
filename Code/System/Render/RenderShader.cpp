@@ -10,7 +10,7 @@ namespace KRG
             : m_pipelineStage( stage )
         {}
 
-        Shader::Shader( PipelineStage stage, U8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers )
+        Shader::Shader( PipelineStage stage, uint8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers )
             : m_pipelineStage( stage )
         {
             KRG_ASSERT( pByteCode != nullptr && byteCodeSize > 0 );
@@ -23,19 +23,19 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        PixelShader::PixelShader( U8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers )
+        PixelShader::PixelShader( uint8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers )
             : Shader( PipelineStage::Pixel, pByteCode, byteCodeSize, constBuffers )
         {}
 
         //-------------------------------------------------------------------------
 
-        GeometryShader::GeometryShader( U8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers )
+        GeometryShader::GeometryShader( uint8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers )
             : Shader( PipelineStage::Geometry, pByteCode, byteCodeSize, constBuffers )
         {}
 
         //-------------------------------------------------------------------------
 
-        VertexShader::VertexShader( U8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers, VertexLayoutDescriptor const& vertexLayoutDesc )
+        VertexShader::VertexShader( uint8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers, VertexLayoutDescriptor const& vertexLayoutDesc )
             : Shader( PipelineStage::Vertex, pByteCode, byteCodeSize, constBuffers )
             , m_vertexLayoutDesc( vertexLayoutDesc )
         {

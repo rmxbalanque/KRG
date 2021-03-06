@@ -65,7 +65,7 @@ namespace KRG
             KRG_ASSERT( !path.empty() );
 
             size_t const numPathLevels = path.size();
-            S32 currentPathLevel = 0;
+            int32 currentPathLevel = 0;
             
             Menu* pCurrentMenu = this;
             while ( true )
@@ -308,7 +308,7 @@ namespace KRG
                     // Update internal state
                     //-------------------------------------------------------------------------
 
-                    F32 const k = 2.0f / ( context.GetFrameID() + 1 );
+                    float const k = 2.0f / ( context.GetFrameID() + 1 );
                     m_avgTimeDelta = context.GetRawDeltaTime() * k + m_avgTimeDelta * ( 1.0f - k );
 
                     // Enable/disable debug overlay
@@ -462,9 +462,9 @@ namespace KRG
 
         void DebugUISystem::DrawOverlayStatusBar( UpdateContext const& context )
         {
-            static const F32 barHeight = 14;
+            static const float barHeight = 14;
             bool showAlways = true;
-            U32 flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
+            uint32 flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
 
             ImGuiIO& io = ImGui::GetIO();
             ImGui::SetNextWindowPos( ImVec2( 0, io.DisplaySize.y - barHeight ) );
@@ -519,7 +519,7 @@ namespace KRG
                 case Setting::Type::Int:
                 {
                     auto pSetting = static_cast<DebugSettingInt*>( pSettingBase );
-                    S32 value = *pSetting;
+                    int32 value = *pSetting;
 
                     if ( pSetting->HasLimits() )
                     {
@@ -541,7 +541,7 @@ namespace KRG
                 case Setting::Type::Float:
                 {
                     auto pSetting = static_cast<DebugSettingFloat*>( pSettingBase );
-                    F32 value = *pSetting;
+                    float value = *pSetting;
 
                     if ( pSetting->HasLimits() )
                     {

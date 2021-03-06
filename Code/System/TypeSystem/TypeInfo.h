@@ -44,12 +44,12 @@ namespace KRG::TypeSystem
 
     public:
 
-        TypeID                              m_ID;
-        S32                                 m_size = -1;
-        S32                                 m_alignment = -1;
-        ITypeHelper*                        m_pTypeHelper = nullptr;
-        TVector<TypeInfo const*>            m_parentTypes;
-        THashMap<StringID, PropertyInfo>    m_properties;
-        TFlags<ETypeInfoMetaData>           m_metadata;
+        TypeID                                  m_ID;
+        int32                                   m_size = -1;
+        int32                                   m_alignment = -1;
+        ITypeHelper*                            m_pTypeHelper = nullptr;
+        TVector<TypeInfo const*>                m_parentTypes;
+        THashMap<StringID, PropertyInfo>        m_properties;
+        TBitFlags<ETypeInfoMetaData>            m_metadata;
     };
 }

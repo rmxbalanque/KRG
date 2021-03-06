@@ -250,11 +250,11 @@ namespace KRG
                     // Read component data
                     //-------------------------------------------------------------------------
 
-                    S32 const numComponents = (S32) componentsArrayValue.Size();
+                    int32 const numComponents = (int32) componentsArrayValue.Size();
                     KRG_ASSERT( outEntityDesc.m_components.empty() && outEntityDesc.m_numSpatialComponents == 0 );
                     outEntityDesc.m_components.resize( numComponents );
 
-                    for ( S32 i = 0; i < numComponents; i++ )
+                    for ( int32 i = 0; i < numComponents; i++ )
                     {
                         if ( !ReadComponent( ctx, componentsArrayValue[i], outEntityDesc.m_components[i] ) )
                         {
@@ -336,9 +336,9 @@ namespace KRG
 
             static bool ReadEntityArray( ParsingContext& ctx, rapidjson::Value const& entitiesArrayValue, EntityCollectionDescriptor& outCollection )
             {
-                S32 const numEntities = (S32) entitiesArrayValue.Size();
+                int32 const numEntities = (int32) entitiesArrayValue.Size();
                 outCollection.Reserve( numEntities );
-                for ( S32 i = 0; i < numEntities; i++ )
+                for ( int32 i = 0; i < numEntities; i++ )
                 {
                     if ( !entitiesArrayValue[i].IsObject() )
                     {

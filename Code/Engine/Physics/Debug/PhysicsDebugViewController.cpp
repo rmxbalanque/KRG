@@ -1,5 +1,7 @@
 #include "PhysicsDebugViewController.h"
 #include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Physics/Components/PhysicsComponent.h"
+#include "Engine/Physics/PhysicsWorldSystem.h"
 #include "Engine/Physics/PhysicsScene.h"
 #include "Engine/Physics/PhysX.h"
 #include "System/Imgui/ImguiSystem.h"
@@ -26,10 +28,11 @@ namespace KRG
             m_menuCallbacks.emplace_back( Debug::DebugMenuCallback( "Debug Options", "Physics", drawDebugMenu ) );
         }
 
-        void PhysicsDebugViewController::Initialize( PhysicsSystem* pPhysicsSystem )
+        void PhysicsDebugViewController::Initialize( PhysicsSystem* pPhysicsSystem, PhysicsWorldSystem* pPhysicsWorldSystem )
         {
-            KRG_ASSERT( pPhysicsSystem != nullptr );
+            KRG_ASSERT( pPhysicsSystem != nullptr && pPhysicsWorldSystem != nullptr );
             m_pPhysicsSystem = pPhysicsSystem;
+            m_pPhysicsWorldSystem = pPhysicsWorldSystem;
         }
 
         void PhysicsDebugViewController::Shutdown()
@@ -41,62 +44,58 @@ namespace KRG
 
         void PhysicsDebugViewController::DrawDebugMenu( UpdateContext const& context )
         {
-            DrawPhysXMenu( context );
+            //-------------------------------------------------------------------------
+            // Scenes
+            //-------------------------------------------------------------------------
+
+            auto const& scenes = m_pPhysicsSystem->GetScenes();
+            for ( auto pScene : scenes )
+            {
+                DrawSceneMenu( pScene );
+            }
+
+            //-------------------------------------------------------------------------
+            // PVD
+            //-------------------------------------------------------------------------
+
+            ImGui::Separator();
+
+            if ( !m_pPhysicsSystem->IsConnectedToPVD() )
+            {
+                if ( ImGui::Button( "Connect to PVD", ImVec2( -1, 0 ) ) )
+                {
+                    m_pPhysicsSystem->ConnectToPVD();
+                }
+            }
+            else
+            {
+                if ( ImGui::Button( "Disconnect From PVD", ImVec2( -1, 0 ) ) )
+                {
+                    m_pPhysicsSystem->DisconnectFromPVD();
+                }
+            }
+
+            ImGui::SliderFloat( "Recording Time (s)", &m_recordingTimeSeconds, 0.25f, 10.0f );
+            if ( ImGui::Button( "PVD Timed Recording", ImVec2( -1, 0 ) ) )
+            {
+                m_pPhysicsSystem->ConnectToPVD( m_recordingTimeSeconds );
+            }
 
             //-------------------------------------------------------------------------
 
             ImGui::Separator();
 
-            //-------------------------------------------------------------------------
+            if ( ImGui::Button( "Physics Components", ImVec2( -1, 0 ) ) )
+            {
+                m_isComponentWindowOpen = true;
+            }
         }
 
         void PhysicsDebugViewController::DrawWindows( UpdateContext const& context )
-        {}
-
-        void PhysicsDebugViewController::DrawPhysXMenu( UpdateContext const& context )
         {
-            if ( ImGui::BeginMenu( "PhysX" ) )
+            if ( m_isComponentWindowOpen )
             {
-                //-------------------------------------------------------------------------
-                // Scenes
-                //-------------------------------------------------------------------------
-
-                auto const& scenes = m_pPhysicsSystem->GetScenes();
-                for ( auto pScene : scenes )
-                {
-                    DrawSceneMenu( pScene );
-                }
-
-                //-------------------------------------------------------------------------
-                // PVD
-                //-------------------------------------------------------------------------
-
-                ImGui::Separator();
-
-                if ( !m_pPhysicsSystem->IsConnectedToPVD() )
-                {
-                    if ( ImGui::Button( "Connect to PVD", ImVec2( -1, 0 ) ) )
-                    {
-                        m_pPhysicsSystem->ConnectToPVD();
-                    }
-                }
-                else
-                {
-                    if ( ImGui::Button( "Disconnect From PVD", ImVec2( -1, 0 ) ) )
-                    {
-                        m_pPhysicsSystem->DisconnectFromPVD();
-                    }
-                }
-
-                ImGui::SliderFloat( "Recording Time (s)", &m_recordingTimeSeconds, 0.25f, 10.0f );
-                if ( ImGui::Button( "PVD Timed Recording", ImVec2( -1, 0 ) ) )
-                {
-                    m_pPhysicsSystem->ConnectToPVD( m_recordingTimeSeconds );
-                }
-
-                //-------------------------------------------------------------------------
-
-                ImGui::EndMenu();
+                DrawComponentsWindow( context );
             }
         }
 
@@ -109,7 +108,7 @@ namespace KRG
                 // Debug State
                 //-------------------------------------------------------------------------
 
-                U32 debugFlags = pScene->GetDebugFlags();
+                uint32 debugFlags = pScene->GetDebugFlags();
                 float drawDistance = pScene->GetDebugDrawDistance();
 
                 bool stateUpdated = false;
@@ -152,6 +151,30 @@ namespace KRG
 
                 ImGui::EndMenu();
             }
+        }
+
+        void PhysicsDebugViewController::DrawComponentsWindow( UpdateContext const& context )
+        {
+            ImGui::SetNextWindowBgAlpha( 0.5f );
+            if ( ImGui::Begin( "Physics Components", &m_isComponentWindowOpen ) )
+            {
+                auto const& scenes = m_pPhysicsSystem->GetScenes();
+                auto pPrimaryScene = scenes[0];
+
+                for ( auto const& entityRecord : m_pPhysicsWorldSystem->m_registeredEntities )
+                {
+                    for ( PhysicsComponent* pPhysicsComponent : entityRecord.m_components )
+                    {
+                        ImGui::Text( "%s", pPhysicsComponent->GetName().c_str() );
+                        if ( ImGui::IsItemHovered() )
+                        {
+                            auto drawingContext = context.GetDrawingContext();
+                            drawingContext.DrawWireBox( pPhysicsComponent->GetWorldBounds(), Colors::Cyan );
+                        }
+                    }
+                }
+            }
+            ImGui::End();
         }
     }
 }

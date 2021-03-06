@@ -23,7 +23,7 @@ namespace KRG
                     constant.m_label = ClangUtils::GetCursorDisplayName( cr );
 
                     auto const& initVal = pEnumConstantDecl->getInitVal();
-                    constant.m_value = (S32) initVal.getExtValue();
+                    constant.m_value = (int32) initVal.getExtValue();
 
                     pEnum->AddValue( constant );
                 }
@@ -59,27 +59,27 @@ namespace KRG
                 switch ( pBT->getKind() )
                 {
                     case clang::BuiltinType::UChar:
-                    underlyingCoreType = CoreTypes::U8;
+                    underlyingCoreType = CoreTypes::Uint8;
                     break;
 
                     case clang::BuiltinType::SChar:
-                    underlyingCoreType = CoreTypes::S8;
+                    underlyingCoreType = CoreTypes::Int8;
                     break;
 
                     case clang::BuiltinType::UShort:
-                    underlyingCoreType = CoreTypes::U16;
+                    underlyingCoreType = CoreTypes::Uint16;
                     break;
 
                     case clang::BuiltinType::Short:
-                    underlyingCoreType = CoreTypes::S16;
+                    underlyingCoreType = CoreTypes::Int16;
                     break;
 
                     case clang::BuiltinType::UInt:
-                    underlyingCoreType = CoreTypes::U32;
+                    underlyingCoreType = CoreTypes::Uint32;
                     break;
 
                     case clang::BuiltinType::Int:
-                    underlyingCoreType = CoreTypes::S32;
+                    underlyingCoreType = CoreTypes::Int32;
                     break;
 
                     case clang::BuiltinType::ULongLong:

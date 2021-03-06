@@ -7,13 +7,13 @@
 
 namespace KRG
 {
-    static constexpr S32 const NumBoxes = 100;
-    static constexpr F32 const ExtentRangeMin = 0.75f;
-    static constexpr F32 const ExtentRangeMax = 6.0f;
-    static constexpr F32 const CenterRange = 60.0f;
+    static constexpr int32 const NumBoxes = 100;
+    static constexpr float const ExtentRangeMin = 0.75f;
+    static constexpr float const ExtentRangeMax = 6.0f;
+    static constexpr float const CenterRange = 60.0f;
     Vector g_centerPoints[NumBoxes];
     AABB g_testBoxes[NumBoxes];
-    U64 g_testBoxIDs[NumBoxes];
+    uint64 g_testBoxIDs[NumBoxes];
 
     void HACK_Test( UpdateContext const& context )
     {
@@ -73,14 +73,14 @@ namespace KRG
         //perspectiveSettings.m_aspectRatio = 4.0f / 3;
         //perspectiveSettings.m_verticalFOV = Degrees( 10.0f );
 
-        //Math::ViewVolume volume( perspectiveSettings, TRange<F32>( 5.0f, 100.0f ), viewOrigin );
+        //Math::ViewVolume volume( perspectiveSettings, TRange<float>( 5.0f, 100.0f ), viewOrigin );
 
         //drawingContext.Draw( volume );
 
         ////-------------------------------------------------------------------------
 
         //auto queryBox = volume.GetAABB();
-        //TVector<U64> results;
+        //TVector<uint64> results;
         //tree.FindOverlaps( queryBox, results );
 
         //drawingContext.DrawBox( queryBox, Colors::LimeGreen.GetAlphaVersion( 0.25f ) );

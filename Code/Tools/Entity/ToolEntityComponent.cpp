@@ -63,7 +63,7 @@ namespace KRG::EntityModel
         return m_childComponents.emplace_back( KRG::New<ToolEntityComponent>( typeRegistry, pTypeInfo, ID, name ) );
     }
 
-    void ToolEntityComponent::DestroyChildComponent( S32 childComponentIdx )
+    void ToolEntityComponent::DestroyChildComponent( int32 childComponentIdx )
     {
         KRG_ASSERT( IsValid() && IsSpatialComponent() && childComponentIdx >= 0 && childComponentIdx < m_childComponents.size() );
         m_childComponents.erase( m_childComponents.begin() + childComponentIdx );
@@ -100,7 +100,7 @@ namespace KRG::EntityModel
         pComponent->SetParentEntityID( m_parentEntityID );
     }
 
-   ToolEntityComponent* ToolEntityComponent::RemoveChildComponent( S32 childComponentIdx )
+   ToolEntityComponent* ToolEntityComponent::RemoveChildComponent( int32 childComponentIdx )
     {
        KRG_ASSERT( IsValid() && IsSpatialComponent() && childComponentIdx >= 0 && childComponentIdx < m_childComponents.size() );
        auto pComponent = m_childComponents[childComponentIdx];

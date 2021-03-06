@@ -39,18 +39,18 @@ namespace KRG
         public:
 
             inline Int2 GetMovementDelta() const { return m_movementDelta; }
-            inline S16 GetWheelDelta( WheelType wheelType = WheelType::Vertical ) const { return ( wheelType == WheelType::Vertical ) ? m_verticalWheelDelta : m_horizontalWheelDelta; }
+            inline int16 GetWheelDelta( WheelType wheelType = WheelType::Vertical ) const { return ( wheelType == WheelType::Vertical ) ? m_verticalWheelDelta : m_horizontalWheelDelta; }
             inline Int2 GetCursorPosition() const { return m_position; }
 
-            KRG_FORCE_INLINE bool WasPressed( MouseButton buttonID ) const { return ButtonStates::WasPressed( (U32) buttonID ); }
-            KRG_FORCE_INLINE bool WasReleased( MouseButton buttonID ) const { return ButtonStates::WasReleased( (U32) buttonID ); }
-            KRG_FORCE_INLINE bool IsHeldDown( MouseButton buttonID ) const { return ButtonStates::IsHeldDown( (U32) buttonID ); }
-            KRG_FORCE_INLINE Milliseconds GetHeldDuration( MouseButton buttonID ) const { return ButtonStates::GetHeldDuration( (U32) buttonID ); }
+            KRG_FORCE_INLINE bool WasPressed( MouseButton buttonID ) const { return ButtonStates::WasPressed( (uint32) buttonID ); }
+            KRG_FORCE_INLINE bool WasReleased( MouseButton buttonID ) const { return ButtonStates::WasReleased( (uint32) buttonID ); }
+            KRG_FORCE_INLINE bool IsHeldDown( MouseButton buttonID ) const { return ButtonStates::IsHeldDown( (uint32) buttonID ); }
+            KRG_FORCE_INLINE Milliseconds GetHeldDuration( MouseButton buttonID ) const { return ButtonStates::GetHeldDuration( (uint32) buttonID ); }
 
         private:
 
-            KRG_FORCE_INLINE void Press( MouseButton buttonID ) { ButtonStates::Press( (U32) buttonID ); }
-            KRG_FORCE_INLINE void Release( MouseButton buttonID ) { ButtonStates::Release( (U32) buttonID ); }
+            KRG_FORCE_INLINE void Press( MouseButton buttonID ) { ButtonStates::Press( (uint32) buttonID ); }
+            KRG_FORCE_INLINE void Release( MouseButton buttonID ) { ButtonStates::Release( (uint32) buttonID ); }
 
             inline void ResetFrameState()
             {
@@ -62,8 +62,8 @@ namespace KRG
 
             Int2                                    m_movementDelta;
             Int2                                    m_position;
-            S16                                     m_verticalWheelDelta = 0;
-            S16                                     m_horizontalWheelDelta = 0;
+            int16                                     m_verticalWheelDelta = 0;
+            int16                                     m_horizontalWheelDelta = 0;
         };
     }
 }

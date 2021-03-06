@@ -37,7 +37,7 @@ namespace KRG
         private:
 
             EXPOSE TResourcePtr<Skeleton>           m_pSkeleton = nullptr;
-            TVector<S32>                            m_animToMeshBoneMap;
+            TVector<int32>                            m_animToMeshBoneMap;
         };
     }
 }

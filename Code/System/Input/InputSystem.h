@@ -50,9 +50,9 @@ namespace KRG
             // Controllers
             //-------------------------------------------------------------------------
 
-            U32 GetNumConnectedControllers();
+            uint32 GetNumConnectedControllers();
 
-            inline ControllerInputState const* GetControllerState( U32 controllerIdx = 0 ) const
+            inline ControllerInputState const* GetControllerState( uint32 controllerIdx = 0 ) const
             {
                 auto pDevice = GetControllerDevice( controllerIdx );
                 KRG_ASSERT( pDevice != nullptr );
@@ -62,7 +62,7 @@ namespace KRG
         private:
 
             KeyboardMouseInputDevice const* GetKeyboardMouseDevice() const;
-            ControllerInputDevice const* GetControllerDevice( U32 controllerIdx = 0 ) const;
+            ControllerInputDevice const* GetControllerDevice( uint32 controllerIdx = 0 ) const;
 
         private:
 

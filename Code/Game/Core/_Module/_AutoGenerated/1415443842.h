@@ -39,15 +39,15 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_dynamicArray" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::F32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
             propertyInfo.m_parentTypeID = 2593117954;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicArray;
             propertyInfo.m_offset = offsetof( KRG::AnotherTestStruct, m_dynamicArray );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_dynamicArray.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_dynamicArray.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::F32 );
-            propertyInfo.m_size = sizeof( TVector<KRG::F32> );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( float );
+            propertyInfo.m_size = sizeof( TVector<float> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
@@ -129,7 +129,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::AnotherTestStruct*>( pType );
                     if ( arrayID == 1528863423 )
@@ -147,7 +147,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::AnotherTestStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -169,7 +169,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::TestStruct& type )
     {
-        archive( KRG_NVP( m_U8 ), KRG_NVP( m_U16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_UUID ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_dynamicArray ) );
+        archive( KRG_NVP( m_U8 ), KRG_NVP( m_uint16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_UUID ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_dynamicArray ) );
     }
 
     //-------------------------------------------------------------------------
@@ -187,48 +187,48 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_U8" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::U8" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::uint8" );
             propertyInfo.m_parentTypeID = 3498272077;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U8;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_U8 );
-            propertyInfo.m_size = sizeof( KRG::U8 );
+            propertyInfo.m_size = sizeof( KRG::uint8 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_U16" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::U16" );
+            propertyInfo.m_ID = StringID( "m_uint16" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::uint16" );
             propertyInfo.m_parentTypeID = 3498272077;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U16;
-            propertyInfo.m_offset = offsetof( KRG::TestStruct, m_U16 );
-            propertyInfo.m_size = sizeof( KRG::U16 );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_uint16;
+            propertyInfo.m_offset = offsetof( KRG::TestStruct, m_uint16 );
+            propertyInfo.m_size = sizeof( KRG::uint16 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_U32" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::U32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::uint32" );
             propertyInfo.m_parentTypeID = 3498272077;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U32;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_U32 );
-            propertyInfo.m_size = sizeof( KRG::U32 );
+            propertyInfo.m_size = sizeof( KRG::uint32 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_U64" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::U64" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::uint64" );
             propertyInfo.m_parentTypeID = 3498272077;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U64;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_U64 );
-            propertyInfo.m_size = sizeof( KRG::U64 );
+            propertyInfo.m_size = sizeof( KRG::uint64 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
@@ -265,8 +265,8 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicArray;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_dynamicArray );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_dynamicArray.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_dynamicArray.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::AnotherTestStruct );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::AnotherTestStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::AnotherTestStruct> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -377,7 +377,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestStruct*>( pType );
                     if ( arrayID == 1528863423 )
@@ -395,7 +395,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -534,7 +534,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
@@ -542,7 +542,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -606,7 +606,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::TestComponent& type )
     {
-        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_bool ), KRG_NVP( m_U8 ), KRG_NVP( m_U16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_S8 ), KRG_NVP( m_S16 ), KRG_NVP( m_S32 ), KRG_NVP( m_S64 ), KRG_NVP( m_F32 ), KRG_NVP( m_F64 ), KRG_NVP( m_Color ), KRG_NVP( m_UUID ), KRG_NVP( m_String ), KRG_NVP( m_StringID ), KRG_NVP( m_DataPath ), KRG_NVP( m_Float2 ), KRG_NVP( m_Float3 ), KRG_NVP( m_Float4 ), KRG_NVP( m_Quaternion ), KRG_NVP( m_Matrix ), KRG_NVP( m_AffineTransform ), KRG_NVP( m_internalEnum ), KRG_NVP( m_testIinternalEnum ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourceID ), KRG_NVP( m_struct ), KRG_NVP( m_staticArray ), KRG_NVP( m_dynamicArray ), KRG_NVP( m_staticArrayOfIDs ), KRG_NVP( m_dynamicArrayOfStructs ), KRG_NVP( m_staticArrayOfStructs ), KRG_NVP( m_staticArrayOfEnums ) );
+        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_bool ), KRG_NVP( m_U8 ), KRG_NVP( m_uint16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_S8 ), KRG_NVP( m_S16 ), KRG_NVP( m_S32 ), KRG_NVP( m_S64 ), KRG_NVP( m_F32 ), KRG_NVP( m_F64 ), KRG_NVP( m_Color ), KRG_NVP( m_UUID ), KRG_NVP( m_String ), KRG_NVP( m_StringID ), KRG_NVP( m_DataPath ), KRG_NVP( m_Float2 ), KRG_NVP( m_Float3 ), KRG_NVP( m_Float4 ), KRG_NVP( m_Quaternion ), KRG_NVP( m_Matrix ), KRG_NVP( m_AffineTransform ), KRG_NVP( m_internalEnum ), KRG_NVP( m_testIinternalEnum ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourceID ), KRG_NVP( m_struct ), KRG_NVP( m_staticArray ), KRG_NVP( m_dynamicArray ), KRG_NVP( m_staticArrayOfIDs ), KRG_NVP( m_dynamicArrayOfStructs ), KRG_NVP( m_staticArrayOfStructs ), KRG_NVP( m_staticArrayOfEnums ) );
     }
 
     //-------------------------------------------------------------------------
@@ -636,120 +636,120 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_U8" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::U8" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::uint8" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U8;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U8 );
-            propertyInfo.m_size = sizeof( KRG::U8 );
+            propertyInfo.m_size = sizeof( KRG::uint8 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_U16" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::U16" );
+            propertyInfo.m_ID = StringID( "m_uint16" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::uint16" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U16;
-            propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U16 );
-            propertyInfo.m_size = sizeof( KRG::U16 );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_uint16;
+            propertyInfo.m_offset = offsetof( KRG::TestComponent, m_uint16 );
+            propertyInfo.m_size = sizeof( KRG::uint16 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_U32" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::U32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::uint32" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U32 );
-            propertyInfo.m_size = sizeof( KRG::U32 );
+            propertyInfo.m_size = sizeof( KRG::uint32 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_U64" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::U64" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::uint64" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U64 );
-            propertyInfo.m_size = sizeof( KRG::U64 );
+            propertyInfo.m_size = sizeof( KRG::uint64 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_S8" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::S8" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::int8" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S8;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S8 );
-            propertyInfo.m_size = sizeof( KRG::S8 );
+            propertyInfo.m_size = sizeof( KRG::int8 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_S16" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::S16" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::int16" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S16;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S16 );
-            propertyInfo.m_size = sizeof( KRG::S16 );
+            propertyInfo.m_size = sizeof( KRG::int16 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_S32" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::S32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::int32" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S32 );
-            propertyInfo.m_size = sizeof( KRG::S32 );
+            propertyInfo.m_size = sizeof( KRG::int32 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_S64" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::S64" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::int64" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S64 );
-            propertyInfo.m_size = sizeof( KRG::S64 );
+            propertyInfo.m_size = sizeof( KRG::int64 );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_F32" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::F32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_F32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_F32 );
-            propertyInfo.m_size = sizeof( KRG::F32 );
+            propertyInfo.m_size = sizeof( float );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_F64" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::F64" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "double" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_F64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_F64 );
-            propertyInfo.m_size = sizeof( KRG::F64 );
+            propertyInfo.m_size = sizeof( double );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
@@ -948,30 +948,30 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_staticArray" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::F32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_staticArray;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_staticArray );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_staticArray;
             propertyInfo.m_arraySize = 4;
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::F32 );
-            propertyInfo.m_size = sizeof( KRG::F32 ) * 4;
+            propertyInfo.m_arrayElementSize = (int32) sizeof( float );
+            propertyInfo.m_size = sizeof( float ) * 4;
             propertyInfo.m_flags.SetAll( 1 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_dynamicArray" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::F32" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicArray;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_dynamicArray );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_dynamicArray.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_dynamicArray.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::F32 );
-            propertyInfo.m_size = sizeof( TVector<KRG::F32> );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( float );
+            propertyInfo.m_size = sizeof( TVector<float> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
@@ -985,7 +985,7 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_staticArrayOfIDs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_staticArrayOfIDs;
             propertyInfo.m_arraySize = 4;
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::StringID );
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::StringID );
             propertyInfo.m_size = sizeof( KRG::StringID ) * 4;
             propertyInfo.m_flags.SetAll( 1 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -999,8 +999,8 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicArrayOfStructs;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_dynamicArrayOfStructs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_dynamicArrayOfStructs.data();
-            propertyInfo.m_arraySize = (S32) pActualDefaultTypeInstance->m_dynamicArrayOfStructs.size();
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::TestStruct );
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArrayOfStructs.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::TestStruct> );
             propertyInfo.m_flags.SetAll( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -1015,7 +1015,7 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_staticArrayOfStructs );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_staticArrayOfStructs;
             propertyInfo.m_arraySize = 2;
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::TestComponent::InternalStruct );
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::InternalStruct );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalStruct ) * 2;
             propertyInfo.m_flags.SetAll( 1 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -1030,7 +1030,7 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_staticArrayOfEnums );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_staticArrayOfEnums;
             propertyInfo.m_arraySize = 6;
-            propertyInfo.m_arrayElementSize = (S32) sizeof( KRG::TestComponent::Test::InternalEnum );
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::Test::InternalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::Test::InternalEnum ) * 6;
             propertyInfo.m_flags.SetAll( 5 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -1199,7 +1199,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, U32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
                     if ( arrayID == 1528863423 )
@@ -1227,7 +1227,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, U32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property

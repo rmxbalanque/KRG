@@ -85,11 +85,11 @@ namespace KRG
                 rawSkeleton.CalculateGlobalTransforms();
             }
 
-            static void ReadBoneHierarchy( FbxRawSkeleton& rawSkeleton, Fbx::FbxSceneContext const& sceneCtx, fbxsdk::FbxNode* pNode, S32 parentIdx )
+            static void ReadBoneHierarchy( FbxRawSkeleton& rawSkeleton, Fbx::FbxSceneContext const& sceneCtx, fbxsdk::FbxNode* pNode, int32 parentIdx )
             {
                 KRG_ASSERT( pNode != nullptr && pNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton );
 
-                auto const boneIdx = (S32) rawSkeleton.m_bones.size();
+                auto const boneIdx = (int32) rawSkeleton.m_bones.size();
                 rawSkeleton.m_bones.push_back( RawSkeleton::BoneData( (char const*) pNode->GetNameWithoutNameSpacePrefix() ) );
                 rawSkeleton.m_bones[boneIdx].m_parentBoneIdx = parentIdx;
 

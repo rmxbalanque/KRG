@@ -24,7 +24,7 @@ namespace KRG
 
         bool EngineModule::Initialize( ModuleContext& context )
         {
-            m_pResourceProvider = KRG::New<Resource::NetworkResourceProvider>( Settings::g_resourceServerNetworkAddress, (U32) Settings::g_resourceServerPort );
+            m_pResourceProvider = KRG::New<Resource::NetworkResourceProvider>( Settings::g_resourceServerNetworkAddress, (uint32) Settings::g_resourceServerPort );
             if ( !m_pResourceProvider->Initialize() )
             {
                 KRG_LOG_ERROR( "Resource", "Failed to intialize resource provider" );

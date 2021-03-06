@@ -35,26 +35,26 @@ namespace KRG
 
             // Shaders
             void SetShaderInputBinding( ResourceHandle const& inputBinding ) const;
-            void SetTexture( PipelineStage stage, U32 slot, Texture const& texture ) const;
-            void SetSampler( PipelineStage stage, U32 slot, SamplerState const& state ) const;
+            void SetTexture( PipelineStage stage, uint32 slot, Texture const& texture ) const;
+            void SetSampler( PipelineStage stage, uint32 slot, SamplerState const& state ) const;
 
             // Buffers
             void* MapBuffer( RenderBuffer const& buffer ) const;
             void UnmapBuffer( RenderBuffer const& buffer ) const;
             void WriteToBuffer( RenderBuffer const& buffer, void const* pData, size_t const dataSize ) const;
-            void SetVertexBuffer( RenderBuffer const& buffer, U32 offset = 0 ) const;
-            void SetIndexBuffer( RenderBuffer const& buffer, U32 offset = 0 ) const;
+            void SetVertexBuffer( RenderBuffer const& buffer, uint32 offset = 0 ) const;
+            void SetIndexBuffer( RenderBuffer const& buffer, uint32 offset = 0 ) const;
 
             // Rasterizer
             void SetViewport( Float2 dimensions, Float2 topLeft ) const;
             void SetDepthTestMode( DepthTestMode mode ) const;
-            void SetRasterizerScissorRectangles( ScissorRect const* pScissorRects, U32 numRects = 0 ) const;
+            void SetRasterizerScissorRectangles( ScissorRect const* pScissorRects, uint32 numRects = 0 ) const;
             void SetBlendState( BlendState const& blendState ) const;
 
             // Drawing
             void SetPrimitiveTopology( Topology topology ) const;
-            void Draw( U32 vertexCount, U32 vertexStartIndex = 0 ) const;
-            void DrawIndexed( U32 vertexCount, U32 indexStartIndex = 0, U32 vertexStartIndex = 0 ) const;
+            void Draw( uint32 vertexCount, uint32 vertexStartIndex = 0 ) const;
+            void DrawIndexed( uint32 vertexCount, uint32 indexStartIndex = 0, uint32 vertexStartIndex = 0 ) const;
 
         private:
 

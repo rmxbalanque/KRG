@@ -14,7 +14,7 @@ namespace KRG
             Percentage const clampedTime = percentageThrough.GetClamped( false );
             if ( clampedTime == 1.0f )
             {
-                frameTime = FrameTime( (S32) m_numFrames - 1 );
+                frameTime = FrameTime( (int32) m_numFrames - 1 );
             }
             // Find time range in key list
             else if ( clampedTime != 0.0f )
@@ -38,7 +38,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             Transform boneTransform;
-            U16 const* pTrackData = m_compressedPoseData.data();
+            uint16 const* pTrackData = m_compressedPoseData.data();
 
             // Read exact key frame
             if ( frameTime.IsExactlyAtKeyFrame() )
@@ -89,17 +89,17 @@ namespace KRG
             return displacementTransform;
         }
 
-        Transform AnimationData::GetLocalSpaceTransform( S32 boneIdx, FrameTime const& frameTime ) const
+        Transform AnimationData::GetLocalSpaceTransform( int32 boneIdx, FrameTime const& frameTime ) const
         {
             KRG_ASSERT( IsValid() && m_pSkeleton->IsValidBoneIndex( boneIdx ) );
 
-            U32 frameIdx = frameTime.GetFrameIndex();
+            uint32 frameIdx = frameTime.GetFrameIndex();
             KRG_ASSERT( frameIdx < m_numFrames );
 
             //-------------------------------------------------------------------------
 
             auto const& trackSettings = m_trackCompressionSettings[boneIdx];
-            U16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
+            uint16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
 
             //-------------------------------------------------------------------------
 
@@ -116,20 +116,20 @@ namespace KRG
             return boneLocalTransform;
         }
 
-        Transform AnimationData::GetGlobalSpaceTransform( S32 boneIdx, FrameTime const& frameTime ) const
+        Transform AnimationData::GetGlobalSpaceTransform( int32 boneIdx, FrameTime const& frameTime ) const
         {
             KRG_ASSERT( IsValid() && m_pSkeleton->IsValidBoneIndex( boneIdx ) );
 
-            U32 frameIdx = frameTime.GetFrameIndex();
+            uint32 frameIdx = frameTime.GetFrameIndex();
             KRG_ASSERT( frameIdx < m_numFrames );
 
             // Find all parent bones
             //-------------------------------------------------------------------------
 
-            TInlineVector<S32, 20> boneHierarchy;
+            TInlineVector<int32, 20> boneHierarchy;
             boneHierarchy.emplace_back( boneIdx );
 
-            S32 parentBoneIdx = m_pSkeleton->GetParentIndex( boneIdx );
+            int32 parentBoneIdx = m_pSkeleton->GetParentIndex( boneIdx );
             while ( parentBoneIdx != InvalidIndex )
             {
                 boneHierarchy.emplace_back( parentBoneIdx );
@@ -146,17 +146,17 @@ namespace KRG
                 // Read root transform
                 {
                     auto const& trackSettings = m_trackCompressionSettings[boneHierarchy.back()];
-                    U16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
+                    uint16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
                     ReadCompressedTrackKeyFrame( pTrackData, trackSettings, frameIdx, globalTransform );
                 }
 
                 // Read and multiply out all the transforms moving down the hierarchy
                 Transform localTransform;
-                for ( S32 i = (S32) boneHierarchy.size() - 2; i >= 0; i-- )
+                for ( int32 i = (int32) boneHierarchy.size() - 2; i >= 0; i-- )
                 {
-                    S32 const trackIdx = boneHierarchy[i];
+                    int32 const trackIdx = boneHierarchy[i];
                     auto const& trackSettings = m_trackCompressionSettings[trackIdx];
-                    U16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
+                    uint16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
                     ReadCompressedTrackKeyFrame( pTrackData, trackSettings, frameIdx, localTransform );
 
                     globalTransform = localTransform * globalTransform;
@@ -167,17 +167,17 @@ namespace KRG
                 // Read root transform
                 {
                     auto const& trackSettings = m_trackCompressionSettings[boneHierarchy.back()];
-                    U16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
+                    uint16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
                     ReadCompressedTrackTransform( pTrackData, trackSettings, frameTime, globalTransform );
                 }
 
                 // Read and multiply out all the transforms moving down the hierarchy
                 Transform localTransform;
-                for ( S32 i = (S32) boneHierarchy.size() - 2; i >= 0; i-- )
+                for ( int32 i = (int32) boneHierarchy.size() - 2; i >= 0; i-- )
                 {
-                    S32 const trackIdx = boneHierarchy[i];
+                    int32 const trackIdx = boneHierarchy[i];
                     auto const& trackSettings = m_trackCompressionSettings[trackIdx];
-                    U16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
+                    uint16 const* pTrackData = m_compressedPoseData.data() + trackSettings.m_trackStartIndex;
                     ReadCompressedTrackTransform( pTrackData, trackSettings, frameTime, localTransform );
 
                     globalTransform = localTransform * globalTransform;

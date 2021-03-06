@@ -59,8 +59,8 @@ namespace KRG::TypeSystem
         TypeRegistry const&                                         m_typeRegistry;
         Byte*                                                       m_pFileBuffer = nullptr;
         rapidjson::Document                                         m_document;
-        S32                                                         m_numSerializedTypes = 0;
-        mutable S32                                                 m_deserializedTypeIdx = 0;
+        int32                                                         m_numSerializedTypes = 0;
+        mutable int32                                                 m_deserializedTypeIdx = 0;
     };
 }
 

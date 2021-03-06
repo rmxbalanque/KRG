@@ -16,9 +16,18 @@ namespace KRG::Physics
 {
     struct KRG_ENGINE_PHYSICS_API Constants
     {
-        static constexpr F32 const  LengthScale = 1.0f;
-        static constexpr F32 const  SpeedScale = 9.81f;
-        static Float3 const         Gravity;
+        static constexpr float const    s_lengthScale = 1.0f;
+        static constexpr float const    s_speedScale = 9.81f;
+        static Float3 const             s_gravity;
+    };
+
+    //-------------------------------------------------------------------------
+    // Shared Resources
+    //-------------------------------------------------------------------------
+
+    struct KRG_ENGINE_PHYSICS_API SharedMeshes
+    {
+        static physx::PxConvexMesh*     s_pUnitCylinderMesh;
     };
 
     //-------------------------------------------------------------------------

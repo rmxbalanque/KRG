@@ -131,7 +131,7 @@ namespace KRG
             // Setup D3D feature levels
             D3D_FEATURE_LEVEL featureLevelsRequested[] = { D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0 };
             D3D_FEATURE_LEVEL featureLevelSupported;
-            U32 const numLevelsRequested = 2;
+            uint32 const numLevelsRequested = 2;
 
             // Create the D3D device
             HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevelsRequested, numLevelsRequested, D3D11_SDK_VERSION, &swapChainDesc, &m_pSwapChain, &m_pDevice, &featureLevelSupported, &m_immediateContext.m_pDeviceContext );
@@ -343,7 +343,7 @@ namespace KRG
 
             // Clear render targets and depth stencil
             m_immediateContext.m_pDeviceContext->OMSetRenderTargets( 1, &m_pRenderTargetView, m_pDepthStencilView );
-            m_immediateContext.m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView, (F32*) &backgroundColor );
+            m_immediateContext.m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView, (float*) &backgroundColor );
             m_immediateContext.m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView, D3D10_CLEAR_DEPTH, 1.0f, 0 );
         }
 
@@ -515,7 +515,7 @@ namespace KRG
             KRG_ASSERT( buffer.IsValid() );
         }
 
-        void RenderDevice::ResizeBuffer( RenderBuffer& buffer, U32 newSize )
+        void RenderDevice::ResizeBuffer( RenderBuffer& buffer, uint32 newSize )
         {
             KRG_ASSERT( buffer.IsValid() && newSize % buffer.m_byteStride == 0 );
 

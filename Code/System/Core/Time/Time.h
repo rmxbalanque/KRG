@@ -30,17 +30,17 @@ namespace KRG
     public:
 
         Microseconds() : m_value(0) {}
-        Microseconds( F32 time ) : m_value( time ) {}
+        Microseconds( float time ) : m_value( time ) {}
         inline explicit Microseconds( Nanoseconds time );
         inline explicit Microseconds( Milliseconds time );
         inline explicit Microseconds( Seconds time );
 
-        inline Microseconds& operator= ( F32 time ) { m_value = time; return *this; }
+        inline Microseconds& operator= ( float time ) { m_value = time; return *this; }
         inline Microseconds& operator= ( Milliseconds time );
         inline Microseconds& operator= ( Seconds time );
 
-        inline operator F32() const { return m_value; }
-        inline F32 ToFloat() const { return m_value; }
+        inline operator float() const { return m_value; }
+        inline float ToFloat() const { return m_value; }
         inline explicit operator Nanoseconds() const;
         inline explicit operator Milliseconds() const;
         inline explicit operator Seconds() const;
@@ -49,29 +49,29 @@ namespace KRG
         inline Milliseconds ToMilliseconds() const;
         inline Seconds ToSeconds() const;
 
-        inline Microseconds operator+ ( F32 const time ) const;
+        inline Microseconds operator+ ( float const time ) const;
         inline Microseconds operator+ ( Microseconds const time )  const;
         inline Microseconds operator+ ( Milliseconds const time ) const;
         inline Microseconds operator+ ( Seconds const time )  const;
 
-        inline Microseconds operator- ( F32 const time )  const;
+        inline Microseconds operator- ( float const time )  const;
         inline Microseconds operator- ( Microseconds const time ) const;
         inline Microseconds operator- ( Milliseconds const time ) const;
         inline Microseconds operator- ( Seconds const time ) const;
 
-        inline Microseconds& operator+= ( F32 const time );
+        inline Microseconds& operator+= ( float const time );
         inline Microseconds& operator+= ( Microseconds const time );
         inline Microseconds& operator+= ( Milliseconds const time );
         inline Microseconds& operator+= ( Seconds const time );
 
-        inline Microseconds& operator-= ( F32 const time );
+        inline Microseconds& operator-= ( float const time );
         inline Microseconds& operator-= ( Microseconds const time );
         inline Microseconds& operator-= ( Milliseconds const time );
         inline Microseconds& operator-= ( Seconds const time );
 
     private:
 
-        F32 m_value;
+        float m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -85,17 +85,17 @@ namespace KRG
     public:
 
         Milliseconds() : m_value( 0 ) {}
-        Milliseconds( F32 time ) : m_value( time ) {}
+        Milliseconds( float time ) : m_value( time ) {}
         inline explicit Milliseconds( Nanoseconds time );
         inline explicit Milliseconds( Microseconds time );
         inline explicit Milliseconds( Seconds time );
 
-        inline Milliseconds& operator= ( F32 time ) { m_value = time; return *this; }
+        inline Milliseconds& operator= ( float time ) { m_value = time; return *this; }
         inline Milliseconds& operator= ( Microseconds time );
         inline Milliseconds& operator= ( Seconds time );
 
-        inline operator F32() const { return m_value; }
-        inline F32 ToFloat() const { return m_value; }
+        inline operator float() const { return m_value; }
+        inline float ToFloat() const { return m_value; }
         inline explicit operator Nanoseconds() const;
         inline explicit operator Microseconds() const;
         inline explicit operator Seconds() const;
@@ -104,29 +104,29 @@ namespace KRG
         inline Microseconds ToMicroseconds() const;
         inline Seconds ToSeconds() const;
 
-        inline Milliseconds operator+ ( F32 const time ) const;
+        inline Milliseconds operator+ ( float const time ) const;
         inline Milliseconds operator+ ( Milliseconds const time ) const;
         inline Milliseconds operator+ ( Microseconds const time ) const;
         inline Milliseconds operator+ ( Seconds const time ) const;
 
-        inline Milliseconds operator- ( F32 const time ) const;
+        inline Milliseconds operator- ( float const time ) const;
         inline Milliseconds operator- ( Milliseconds const time ) const;
         inline Milliseconds operator- ( Microseconds const time ) const;
         inline Milliseconds operator- ( Seconds const time ) const;
 
-        inline Milliseconds& operator+= ( F32 const time );
+        inline Milliseconds& operator+= ( float const time );
         inline Milliseconds& operator+= ( Milliseconds const time );
         inline Milliseconds& operator+= ( Microseconds const time );
         inline Milliseconds& operator+= ( Seconds const time );
 
-        inline Milliseconds& operator-= ( F32 const time );
+        inline Milliseconds& operator-= ( float const time );
         inline Milliseconds& operator-= ( Milliseconds const time );
         inline Milliseconds& operator-= ( Microseconds const time );
         inline Milliseconds& operator-= ( Seconds const time );
 
     private:
 
-        F32 m_value;
+        float m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -140,17 +140,17 @@ namespace KRG
     public:
 
         Seconds() : m_value( 0 ) {}
-        Seconds( F32 time ) : m_value( time ) {}
+        Seconds( float time ) : m_value( time ) {}
         inline explicit Seconds( Nanoseconds time );
         inline explicit Seconds( Microseconds time );
         inline explicit Seconds( Milliseconds time );
 
-        inline Seconds& operator= ( F32 time ) { m_value = time; return *this; }
+        inline Seconds& operator= ( float time ) { m_value = time; return *this; }
         inline Seconds& operator= ( Microseconds time );
         inline Seconds& operator= ( Milliseconds time );
 
-        inline operator F32() const { return m_value; }
-        inline F32 ToFloat() const { return m_value; }
+        inline operator float() const { return m_value; }
+        inline float ToFloat() const { return m_value; }
         inline explicit operator Nanoseconds() const;
         inline explicit operator Microseconds() const;
         inline explicit operator Milliseconds() const;
@@ -159,49 +159,49 @@ namespace KRG
         inline Microseconds ToMicroseconds() const;
         inline Milliseconds ToMilliseconds() const;
 
-        inline Seconds operator+ ( F32 const time ) const;
+        inline Seconds operator+ ( float const time ) const;
         inline Seconds operator+ ( Seconds const time ) const;
         inline Seconds operator+ ( Microseconds const time ) const;
         inline Seconds operator+ ( Milliseconds const time ) const;
 
-        inline Seconds operator- ( F32 const time ) const;
+        inline Seconds operator- ( float const time ) const;
         inline Seconds operator- ( Seconds const time ) const;
         inline Seconds operator- ( Microseconds const time ) const;
         inline Seconds operator- ( Milliseconds const time ) const;
 
-        inline Seconds& operator+= ( F32 const time );
+        inline Seconds& operator+= ( float const time );
         inline Seconds& operator+= ( Seconds const time );
         inline Seconds& operator+= ( Microseconds const time );
         inline Seconds& operator+= ( Milliseconds const time );
 
-        inline Seconds& operator-= ( F32 const time );
+        inline Seconds& operator-= ( float const time );
         inline Seconds& operator-= ( Seconds const time );
         inline Seconds& operator-= ( Microseconds const time );
         inline Seconds& operator-= ( Milliseconds const time );
 
-        inline Seconds operator* ( F32 const time ) const;
+        inline Seconds operator* ( float const time ) const;
         inline Seconds operator* ( Seconds const time ) const;
         inline Seconds operator* ( Microseconds const time ) const;
         inline Seconds operator* ( Milliseconds const time ) const;
 
-        inline Seconds operator/ ( F32 const time ) const;
+        inline Seconds operator/ ( float const time ) const;
         inline Seconds operator/ ( Seconds const time ) const;
         inline Seconds operator/ ( Microseconds const time ) const;
         inline Seconds operator/ ( Milliseconds const time ) const;
 
-        inline Seconds& operator*= ( F32 const time );
+        inline Seconds& operator*= ( float const time );
         inline Seconds& operator*= ( Seconds const time );
         inline Seconds& operator*= ( Microseconds const time );
         inline Seconds& operator*= ( Milliseconds const time );
 
-        inline Seconds& operator/= ( F32 const time );
+        inline Seconds& operator/= ( float const time );
         inline Seconds& operator/= ( Seconds const time );
         inline Seconds& operator/= ( Microseconds const time );
         inline Seconds& operator/= ( Milliseconds const time );
 
     private:
 
-        F32 m_value;
+        float m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -215,14 +215,14 @@ namespace KRG
     public:
 
         Nanoseconds() : m_value( 0 ) {}
-        Nanoseconds( U64 time ) : m_value( time ) {}
+        Nanoseconds( uint64 time ) : m_value( time ) {}
         explicit Nanoseconds( Nanoseconds const& time ) : m_value( time.m_value ) {}
 
-        inline Nanoseconds& operator= ( U64 time ) { m_value = time; return *this; }
+        inline Nanoseconds& operator= ( uint64 time ) { m_value = time; return *this; }
         inline Nanoseconds& operator= ( Nanoseconds time ) { m_value = time.m_value; return *this; }
 
-        inline operator U64() const { return m_value; }
-        inline U64 ToU64() const { return m_value; }
+        inline operator uint64() const { return m_value; }
+        inline uint64 ToU64() const { return m_value; }
         explicit operator Microseconds() const;
         inline explicit operator Milliseconds() const { return Milliseconds( operator Microseconds() ); }
         inline explicit operator Seconds() const { return Seconds( operator Microseconds() ); }
@@ -231,21 +231,21 @@ namespace KRG
         inline Milliseconds ToMilliseconds() const { return operator Milliseconds(); }
         inline Seconds ToSeconds() const { return operator Seconds(); }
 
-        inline Nanoseconds operator+ ( U64 const time ) const { return Nanoseconds( m_value + time ); }
+        inline Nanoseconds operator+ ( uint64 const time ) const { return Nanoseconds( m_value + time ); }
         inline Nanoseconds operator+ ( Nanoseconds const time ) const { return Nanoseconds( m_value + time.m_value ); }
 
-        inline Nanoseconds operator- ( U64 const time ) const { return Nanoseconds( m_value - time ); }
+        inline Nanoseconds operator- ( uint64 const time ) const { return Nanoseconds( m_value - time ); }
         inline Nanoseconds operator- ( Nanoseconds const time ) const { return Nanoseconds( m_value - time.m_value ); }
 
-        inline Nanoseconds& operator+= ( U64 const time ) { m_value += time; return *this; };
+        inline Nanoseconds& operator+= ( uint64 const time ) { m_value += time; return *this; };
         inline Nanoseconds& operator+= ( Nanoseconds const time ) { m_value += time.m_value; return *this; };
 
-        inline Nanoseconds& operator-= ( U64 const time ) { m_value -= time; return *this; }
+        inline Nanoseconds& operator-= ( uint64 const time ) { m_value -= time; return *this; }
         inline Nanoseconds& operator-= ( Nanoseconds const time ) { m_value -= time.m_value; return *this; }
 
     private:
 
-        U64 m_value;
+        uint64 m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -257,7 +257,7 @@ namespace KRG
     inline Microseconds::Microseconds( Seconds time ) : m_value( time.m_value * 1000000 ) {}
     inline Microseconds& Microseconds::operator= ( Milliseconds time ) { m_value = time.m_value * 1000; return *this; }
     inline Microseconds& Microseconds::operator= ( Seconds time ) { m_value = time.m_value * 1000000; return *this; }
-    inline Microseconds::operator Nanoseconds() const { return Nanoseconds( U64( F64( m_value ) * 1000 ) ); }
+    inline Microseconds::operator Nanoseconds() const { return Nanoseconds( uint64( double( m_value ) * 1000 ) ); }
     inline Microseconds::operator Milliseconds() const { return Milliseconds( m_value / 1000 ); }
     inline Microseconds::operator Seconds() const { return Seconds( m_value / 1000000 ); }
     inline Nanoseconds Microseconds::ToNanoseconds() const { return operator Nanoseconds(); }
@@ -271,7 +271,7 @@ namespace KRG
     inline Milliseconds::Milliseconds( Seconds time ) : m_value( time.m_value * 1000 ) {}
     inline Milliseconds& Milliseconds::operator= ( Microseconds time ) { m_value = time.m_value / 1000; return *this; }
     inline Milliseconds& Milliseconds::operator= ( Seconds time ) { m_value = time.m_value * 1000; return *this; }
-    inline Milliseconds::operator Nanoseconds() const { return Nanoseconds( U64( F64( m_value ) * 1e+6 ) ); }
+    inline Milliseconds::operator Nanoseconds() const { return Nanoseconds( uint64( double( m_value ) * 1e+6 ) ); }
     inline Milliseconds::operator Microseconds() const { return Microseconds( m_value * 1000 ); }
     inline Milliseconds::operator Seconds() const { return Seconds( m_value / 1000 ); }
     inline Nanoseconds Milliseconds::ToNanoseconds() const { return operator Nanoseconds(); }
@@ -285,7 +285,7 @@ namespace KRG
     inline Seconds::Seconds( Milliseconds time ) : m_value( time.m_value / 1000 ) {}
     inline Seconds& Seconds::operator= ( Microseconds time ) { m_value = time.m_value / 1000000; return *this; }
     inline Seconds& Seconds::operator= ( Milliseconds time ) { m_value = time.m_value / 1000; return *this; }
-    inline Seconds::operator Nanoseconds() const { return Nanoseconds( U64( F64(m_value) / 1e+9 ) ); }
+    inline Seconds::operator Nanoseconds() const { return Nanoseconds( uint64( double(m_value) / 1e+9 ) ); }
     inline Seconds::operator Microseconds() const { return Microseconds( m_value * 1000000 ); }
     inline Seconds::operator Milliseconds() const { return Milliseconds( m_value * 1000 ); }
     inline Nanoseconds Seconds::ToNanoseconds() const { return operator Nanoseconds(); }
@@ -296,86 +296,86 @@ namespace KRG
     // Arithmetic functions
     //-------------------------------------------------------------------------
 
-    inline Microseconds Microseconds::operator+ ( F32 const time ) const { return Microseconds( m_value + time ); }
+    inline Microseconds Microseconds::operator+ ( float const time ) const { return Microseconds( m_value + time ); }
     inline Microseconds Microseconds::operator+ ( Microseconds const time ) const { return Microseconds( m_value + time.m_value ); }
     inline Microseconds Microseconds::operator+ ( Milliseconds const time ) const { return *this + (Microseconds) time; }
     inline Microseconds Microseconds::operator+ ( Seconds const time ) const { return *this + (Microseconds) time; }
 
-    inline Microseconds Microseconds::operator- ( F32 const time ) const { return Microseconds( m_value - time ); }
+    inline Microseconds Microseconds::operator- ( float const time ) const { return Microseconds( m_value - time ); }
     inline Microseconds Microseconds::operator- ( Microseconds const time ) const { return Microseconds( m_value - time.m_value ); }
     inline Microseconds Microseconds::operator- ( Milliseconds const time ) const { return *this - (Microseconds) time; }
     inline Microseconds Microseconds::operator- ( Seconds const time ) const { return *this - (Microseconds) time; }
 
-    inline Microseconds& Microseconds::operator+= ( F32 const time ) { m_value += time; return *this; }
+    inline Microseconds& Microseconds::operator+= ( float const time ) { m_value += time; return *this; }
     inline Microseconds& Microseconds::operator+= ( Microseconds const time ) { m_value += time.m_value; return *this; }
     inline Microseconds& Microseconds::operator+= ( Milliseconds const time ) { *this += (Microseconds) time; return *this; }
     inline Microseconds& Microseconds::operator+= ( Seconds const time ) { *this += (Microseconds) time; return *this; }
 
-    inline Microseconds& Microseconds::operator-= ( F32 const time ) { m_value -= time; return *this; }
+    inline Microseconds& Microseconds::operator-= ( float const time ) { m_value -= time; return *this; }
     inline Microseconds& Microseconds::operator-= ( Microseconds const time ) { m_value -= time.m_value; return *this; }
     inline Microseconds& Microseconds::operator-= ( Milliseconds const time ) { *this -= (Microseconds) time; return *this; }
     inline Microseconds& Microseconds::operator-= ( Seconds const time ) { *this -= (Microseconds) time; return *this; }
 
     //-------------------------------------------------------------------------
 
-    inline Milliseconds Milliseconds::operator+ ( F32 const time ) const { return Milliseconds( m_value + time ); }
+    inline Milliseconds Milliseconds::operator+ ( float const time ) const { return Milliseconds( m_value + time ); }
     inline Milliseconds Milliseconds::operator+ ( Milliseconds const time ) const { return Milliseconds( m_value + time.m_value ); }
     inline Milliseconds Milliseconds::operator+ ( Microseconds const time ) const { return *this + (Milliseconds) time; }
     inline Milliseconds Milliseconds::operator+ ( Seconds const time ) const { return *this + (Milliseconds) time; }
 
-    inline Milliseconds Milliseconds::operator- ( F32 const time ) const { return Milliseconds( m_value - time ); }
+    inline Milliseconds Milliseconds::operator- ( float const time ) const { return Milliseconds( m_value - time ); }
     inline Milliseconds Milliseconds::operator- ( Milliseconds const time ) const { return Milliseconds( m_value - time.m_value ); }
     inline Milliseconds Milliseconds::operator- ( Microseconds const time ) const { return *this - (Milliseconds) time; }
     inline Milliseconds Milliseconds::operator- ( Seconds const time ) const { return *this - (Milliseconds) time; }
 
-    inline Milliseconds& Milliseconds::operator+= ( F32 const time ) { m_value += time; return *this; }
+    inline Milliseconds& Milliseconds::operator+= ( float const time ) { m_value += time; return *this; }
     inline Milliseconds& Milliseconds::operator+= ( Milliseconds const time ) { m_value += time.m_value; return *this; }
     inline Milliseconds& Milliseconds::operator+= ( Microseconds const time ) { *this += (Milliseconds) time; return *this; }
     inline Milliseconds& Milliseconds::operator+= ( Seconds const time ) { *this += (Milliseconds) time; return *this; }
 
-    inline Milliseconds& Milliseconds::operator-= ( F32 const time ) { m_value -= time; return *this; }
+    inline Milliseconds& Milliseconds::operator-= ( float const time ) { m_value -= time; return *this; }
     inline Milliseconds& Milliseconds::operator-= ( Milliseconds const time ) { m_value -= time.m_value; return *this; }
     inline Milliseconds& Milliseconds::operator-= ( Microseconds const time ) { *this -= (Milliseconds) time; return *this; }
     inline Milliseconds& Milliseconds::operator-= ( Seconds const time ) { *this -= (Milliseconds) time; return *this; }
 
     //-------------------------------------------------------------------------
 
-    inline Seconds Seconds::operator+ ( F32 const time ) const { return Seconds( m_value + time ); }
+    inline Seconds Seconds::operator+ ( float const time ) const { return Seconds( m_value + time ); }
     inline Seconds Seconds::operator+ ( Seconds const time ) const { return Seconds( m_value + time.m_value ); }
     inline Seconds Seconds::operator+ ( Microseconds const time ) const { return *this + (Seconds) time; }
     inline Seconds Seconds::operator+ ( Milliseconds const time ) const { return *this + (Seconds) time; }
 
-    inline Seconds Seconds::operator- ( F32 const time ) const { return Seconds( m_value - time ); }
+    inline Seconds Seconds::operator- ( float const time ) const { return Seconds( m_value - time ); }
     inline Seconds Seconds::operator- ( Seconds const time ) const { return Seconds( m_value - time.m_value ); }
     inline Seconds Seconds::operator- ( Microseconds const time ) const { return *this - (Seconds) time; }
     inline Seconds Seconds::operator- ( Milliseconds const time ) const { return *this - (Seconds) time; }
 
-    inline Seconds& Seconds::operator+= ( F32 const time ) { m_value += time; return *this; }
+    inline Seconds& Seconds::operator+= ( float const time ) { m_value += time; return *this; }
     inline Seconds& Seconds::operator+= ( Seconds const time ) { m_value += time.m_value; return *this; }
     inline Seconds& Seconds::operator+= ( Microseconds const time ) { *this += (Seconds) time; return *this; }
     inline Seconds& Seconds::operator+= ( Milliseconds const time ) { *this += (Seconds) time; return *this; }
 
-    inline Seconds& Seconds::operator-= ( F32 const time ) { m_value -= time; return *this; }
+    inline Seconds& Seconds::operator-= ( float const time ) { m_value -= time; return *this; }
     inline Seconds& Seconds::operator-= ( Seconds const time ) { m_value -= time.m_value; return *this; }
     inline Seconds& Seconds::operator-= ( Microseconds const time ) { *this -= (Seconds) time; return *this; }
     inline Seconds& Seconds::operator-= ( Milliseconds const time ) { *this -= (Seconds) time; return *this; }
 
-    inline Seconds Seconds::operator* ( F32 const time ) const { return Seconds( m_value * time ); }
+    inline Seconds Seconds::operator* ( float const time ) const { return Seconds( m_value * time ); }
     inline Seconds Seconds::operator* ( Seconds const time ) const { return Seconds( m_value * time.m_value ); }
     inline Seconds Seconds::operator* ( Microseconds const time ) const { return *this * (Seconds) time; }
     inline Seconds Seconds::operator* ( Milliseconds const time ) const { return *this * (Seconds) time; }
 
-    inline Seconds Seconds::operator/ ( F32 const time ) const { return Seconds( m_value / time ); }
+    inline Seconds Seconds::operator/ ( float const time ) const { return Seconds( m_value / time ); }
     inline Seconds Seconds::operator/ ( Seconds const time ) const { return Seconds( m_value / time.m_value ); }
     inline Seconds Seconds::operator/ ( Microseconds const time ) const { return *this / (Seconds) time; }
     inline Seconds Seconds::operator/ ( Milliseconds const time ) const { return *this / (Seconds) time; }
 
-    inline Seconds& Seconds::operator*= ( F32 const time ) { m_value *= time; return *this; }
+    inline Seconds& Seconds::operator*= ( float const time ) { m_value *= time; return *this; }
     inline Seconds& Seconds::operator*= ( Seconds const time ) { m_value *= time.m_value; return *this; }
     inline Seconds& Seconds::operator*= ( Microseconds const time ) { *this *= (Seconds) time; return *this; }
     inline Seconds& Seconds::operator*= ( Milliseconds const time ) { *this *= (Seconds) time; return *this; }
 
-    inline Seconds& Seconds::operator/= ( F32 const time ) { m_value /= time; return *this; }
+    inline Seconds& Seconds::operator/= ( float const time ) { m_value /= time; return *this; }
     inline Seconds& Seconds::operator/= ( Seconds const time ) { m_value /= time.m_value; return *this; }
     inline Seconds& Seconds::operator/= ( Microseconds const time ) { *this /= (Seconds) time; return *this; }
     inline Seconds& Seconds::operator/= ( Milliseconds const time ) { *this /= (Seconds) time; return *this; }

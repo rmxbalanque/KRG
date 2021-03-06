@@ -9,23 +9,23 @@
 
 #define REGISTER_TYPE_RECORD( coreTypeEnum, fullyQualifiedTypeName ) \
 ID = TypeID( #fullyQualifiedTypeName );\
-KRG_ASSERT( !CoreTypeRecords[(U8)coreTypeEnum].m_ID.IsValid() );\
-CoreTypeRecords[(U8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName ), alignof( fullyQualifiedTypeName ) };
+KRG_ASSERT( !CoreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
+CoreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName ), alignof( fullyQualifiedTypeName ) };
 
 #define REGISTER_TEMPLATE_TYPE_RECORD_GENERIC( coreTypeEnum, fullyQualifiedTypeName ) \
 ID = TypeID( #fullyQualifiedTypeName );\
-KRG_ASSERT( !CoreTypeRecords[(U8)coreTypeEnum].m_ID.IsValid() );\
-CoreTypeRecords[(U8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<U8> ), alignof( fullyQualifiedTypeName<U8> ) };
+KRG_ASSERT( !CoreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
+CoreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<uint8> ), alignof( fullyQualifiedTypeName<uint8> ) };
 
 #define REGISTER_TEMPLATE_TYPE_RECORD_RESOURCE( coreTypeEnum, fullyQualifiedTypeName ) \
 ID = TypeID( #fullyQualifiedTypeName );\
-KRG_ASSERT( !CoreTypeRecords[(U8)coreTypeEnum].m_ID.IsValid() );\
-CoreTypeRecords[(U8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<KRG::Resource::IResource> ), alignof( fullyQualifiedTypeName<KRG::Resource::IResource> ) };
+KRG_ASSERT( !CoreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
+CoreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<KRG::Resource::IResource> ), alignof( fullyQualifiedTypeName<KRG::Resource::IResource> ) };
 
 #define REGISTER_TEMPLATE_TYPE_RECORD_OBJECT( coreTypeEnum, fullyQualifiedTypeName ) \
 ID = TypeID( #fullyQualifiedTypeName );\
-KRG_ASSERT( !CoreTypeRecords[(U8)coreTypeEnum].m_ID.IsValid() );\
-CoreTypeRecords[(U8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<KRG::Entity> ), alignof( fullyQualifiedTypeName<KRG::Entity> ) };
+KRG_ASSERT( !CoreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
+CoreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<KRG::Entity> ), alignof( fullyQualifiedTypeName<KRG::Entity> ) };
 
 //-------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ namespace KRG::TypeSystem
         size_t          m_typeAlignment;
     };
 
-    static TInlineVector<CoreTypeRecord, (U8) CoreTypes::NumTypes> CoreTypeRecords;
+    static TInlineVector<CoreTypeRecord, (uint8) CoreTypes::NumTypes> CoreTypeRecords;
     static bool g_areCoreTypeRecordsInitialized = false;
 
     //-------------------------------------------------------------------------
@@ -49,21 +49,21 @@ namespace KRG::TypeSystem
     {
         KRG_ASSERT( !g_areCoreTypeRecordsInitialized );
 
-        CoreTypeRecords.resize( (U8) CoreTypes::NumTypes );
+        CoreTypeRecords.resize( (uint8) CoreTypes::NumTypes );
 
         TypeID ID;
 
         REGISTER_TYPE_RECORD( CoreTypes::Bool, bool );
-        REGISTER_TYPE_RECORD( CoreTypes::U8, KRG::U8 );
-        REGISTER_TYPE_RECORD( CoreTypes::S8, KRG::S8 );
-        REGISTER_TYPE_RECORD( CoreTypes::U16, KRG::U16 );
-        REGISTER_TYPE_RECORD( CoreTypes::S16, KRG::S16 );
-        REGISTER_TYPE_RECORD( CoreTypes::U32, KRG::U32 );
-        REGISTER_TYPE_RECORD( CoreTypes::S32, KRG::S32 );
-        REGISTER_TYPE_RECORD( CoreTypes::U64, KRG::U64 );
-        REGISTER_TYPE_RECORD( CoreTypes::S64, KRG::S64 );
-        REGISTER_TYPE_RECORD( CoreTypes::F32, KRG::F32 );
-        REGISTER_TYPE_RECORD( CoreTypes::F64, KRG::F64 );
+        REGISTER_TYPE_RECORD( CoreTypes::Uint8, KRG::uint8 );
+        REGISTER_TYPE_RECORD( CoreTypes::Int8, KRG::int8 );
+        REGISTER_TYPE_RECORD( CoreTypes::Uint16, KRG::uint16 );
+        REGISTER_TYPE_RECORD( CoreTypes::Int16, KRG::int16 );
+        REGISTER_TYPE_RECORD( CoreTypes::Uint32, KRG::uint32 );
+        REGISTER_TYPE_RECORD( CoreTypes::Int32, KRG::int32 );
+        REGISTER_TYPE_RECORD( CoreTypes::Uint64, KRG::uint64 );
+        REGISTER_TYPE_RECORD( CoreTypes::Int64, KRG::int64 );
+        REGISTER_TYPE_RECORD( CoreTypes::Float, float );
+        REGISTER_TYPE_RECORD( CoreTypes::Double, double );
         REGISTER_TYPE_RECORD( CoreTypes::UUID, KRG::UUID );
         REGISTER_TYPE_RECORD( CoreTypes::StringID, KRG::StringID );
         REGISTER_TYPE_RECORD( CoreTypes::String, KRG::String );
@@ -106,24 +106,24 @@ namespace KRG::TypeSystem
 
     TypeID GetCoreTypeID( CoreTypes coreType )
     {
-        return CoreTypeRecords[(U8) coreType].m_ID;
+        return CoreTypeRecords[(uint8) coreType].m_ID;
     }
 
     size_t GetCoreTypeSize( CoreTypes coreType )
     {
-        return CoreTypeRecords[(U8) coreType].m_typeSize;
+        return CoreTypeRecords[(uint8) coreType].m_typeSize;
     }
 
     size_t GetCoreTypeAlignment( CoreTypes coreType )
     {
-        return CoreTypeRecords[(U8) coreType].m_typeAlignment;
+        return CoreTypeRecords[(uint8) coreType].m_typeAlignment;
     }
 
     CoreTypes GetCoreType( TypeID typeID )
     {
         KRG_ASSERT( g_areCoreTypeRecordsInitialized );
 
-        for ( S32 i = 0; i < (S32) CoreTypes::NumTypes; i++ )
+        for ( int32 i = 0; i < (int32) CoreTypes::NumTypes; i++ )
         {
             if ( CoreTypeRecords[i].m_ID == typeID )
             {

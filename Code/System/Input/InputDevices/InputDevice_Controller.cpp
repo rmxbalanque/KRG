@@ -7,13 +7,13 @@ namespace KRG
 {
     namespace Input
     {
-        void ControllerInputDevice::SetTriggerValues( F32 leftRawValue, F32 rightRawValue )
+        void ControllerInputDevice::SetTriggerValues( float leftRawValue, float rightRawValue )
         {
-            auto calculateFilteredTriggerValue = [this] ( F32 rawValue, F32 threshold )
+            auto calculateFilteredTriggerValue = [this] ( float rawValue, float threshold )
             {
                 KRG_ASSERT( threshold >= 0 && threshold <= 1.0f );
 
-                F32 filteredValue = 0.0f;
+                float filteredValue = 0.0f;
                 if ( rawValue > threshold )
                 {
                     filteredValue = ( rawValue - threshold ) / ( 1.0f - threshold );
@@ -34,15 +34,15 @@ namespace KRG
         {
             auto calculateRawValue = [this] ( Float2 const rawValue, bool bInvertY )
             {
-                F32 const normalizedX = Math::Clamp( rawValue.x, -1.0f, 1.0f );
-                F32 const normalizedY = Math::Clamp( rawValue.y, -1.0f, 1.0f );
+                float const normalizedX = Math::Clamp( rawValue.x, -1.0f, 1.0f );
+                float const normalizedY = Math::Clamp( rawValue.y, -1.0f, 1.0f );
                 return Float2( normalizedX, bInvertY ? -normalizedY : normalizedY );
             };
 
             m_controllerState.m_analogInputRaw[ControllerInputState::Direction::Left] = calculateRawValue( leftRawValue, m_settings.m_leftStickInvertY );
             m_controllerState.m_analogInputRaw[ControllerInputState::Direction::Right] = calculateRawValue( rightRawValue, m_settings.m_rightStickInvertY );
 
-            auto calculateFilteredValue = [this] ( Float2 const rawValue, F32 const innerDeadzoneRange, F32 const outerDeadzoneRange )
+            auto calculateFilteredValue = [this] ( Float2 const rawValue, float const innerDeadzoneRange, float const outerDeadzoneRange )
             {
                 KRG_ASSERT( innerDeadzoneRange >= 0 && innerDeadzoneRange <= 1.0f && outerDeadzoneRange >= 0 && outerDeadzoneRange <= 1.0f );
 
@@ -53,11 +53,11 @@ namespace KRG
                 Vector( rawValue ).ToDirectionAndLength2( vDirection, vMagnitude );
 
                 // Apply dead zones
-                F32 const magnitude = vMagnitude.ToFloat();
+                float const magnitude = vMagnitude.ToFloat();
                 if ( magnitude > innerDeadzoneRange )
                 {
-                    F32 const remainingRange = ( 1.0f - outerDeadzoneRange - innerDeadzoneRange );
-                    F32 const newMagnitude = Math::Min( 1.0f, ( magnitude - innerDeadzoneRange ) / remainingRange );
+                    float const remainingRange = ( 1.0f - outerDeadzoneRange - innerDeadzoneRange );
+                    float const newMagnitude = Math::Min( 1.0f, ( magnitude - innerDeadzoneRange ) / remainingRange );
                     filteredValue = ( vDirection * newMagnitude ).ToFloat2();
                 }
                 else // Set the value to zero

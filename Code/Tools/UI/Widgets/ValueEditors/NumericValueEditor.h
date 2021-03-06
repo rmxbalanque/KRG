@@ -25,26 +25,26 @@ namespace KRG
 
         signals:
 
-            void OnValueChanged( S64 newValue, S64 OldValue );
+            void OnValueChanged( int64 newValue, int64 OldValue );
 
         public:
 
-            SignedIntegerEditor( S64 value );
+            SignedIntegerEditor( int64 value );
 
-            void SetRange( S64 min, S64 max );
+            void SetRange( int64 min, int64 max );
             void SetWrapping( bool isWrappingEnabled );
 
-            inline S64 GetValue() const { return m_value; }
-            inline void SetValue( S64 value ) { SetValueInternal( value ); }
+            inline int64 GetValue() const { return m_value; }
+            inline void SetValue( int64 value ) { SetValueInternal( value ); }
 
         private:
 
-            void SetValueInternal( S64 newValue );
+            void SetValueInternal( int64 newValue );
 
         private:
 
             KLongLongSpinBox*   m_pSpinBox = nullptr;
-            S64                 m_value = false;
+            int64                 m_value = false;
         };
 
         //-------------------------------------------------------------------------
@@ -55,26 +55,26 @@ namespace KRG
 
         signals:
 
-            void OnValueChanged( U64 newValue, U64 OldValue );
+            void OnValueChanged( uint64 newValue, uint64 OldValue );
 
         public:
 
-            UnsignedIntegerEditor( U64 value );
+            UnsignedIntegerEditor( uint64 value );
 
-            void SetRange( U64 min, U64 max );
+            void SetRange( uint64 min, uint64 max );
             void SetWrapping( bool isWrappingEnabled );
 
-            inline U64 GetValue() const { return m_value; }
-            inline void SetValue( U64 value ) { SetValueInternal( value ); }
+            inline uint64 GetValue() const { return m_value; }
+            inline void SetValue( uint64 value ) { SetValueInternal( value ); }
 
         private:
 
-            void SetValueInternal( U64 newValue );
+            void SetValueInternal( uint64 newValue );
 
         private:
 
             KULongLongSpinBox*  m_pSpinBox = nullptr;
-            U64                 m_value = false;
+            uint64                 m_value = false;
         };
 
         //-------------------------------------------------------------------------
@@ -85,26 +85,26 @@ namespace KRG
 
         signals:
 
-            void OnValueChanged( F64 newValue, F64 OldValue );
+            void OnValueChanged( double newValue, double OldValue );
 
         public:
 
-            FloatingPointEditor( F64 value );
+            FloatingPointEditor( double value );
 
-            void SetRange( F64 min, F64 max );
+            void SetRange( double min, double max );
             void SetWrapping( bool isWrappingEnabled );
 
-            inline F64 GetValue() const { return m_value; }
-            inline void SetValue( F64 value ) { SetValueInternal( value ); }
+            inline double GetValue() const { return m_value; }
+            inline void SetValue( double value ) { SetValueInternal( value ); }
 
         private:
 
-            void SetValueInternal( F64 newValue );
+            void SetValueInternal( double newValue );
 
         private:
 
             QDoubleSpinBox*     m_pSpinBox = nullptr;
-            F64                 m_value = false;
+            double                 m_value = false;
         };
     }
 }

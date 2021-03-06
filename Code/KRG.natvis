@@ -94,4 +94,11 @@
     </Expand>
   </Type>
 
+  <Type Name="KRG::Entity">
+    <DisplayString>{m_name} - {m_ID}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::EntityComponent">
+    <DisplayString>{m_name} - {m_ID}</DisplayString>
+  </Type>
 </AutoVisualizer>

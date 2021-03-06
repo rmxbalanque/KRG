@@ -23,6 +23,7 @@ namespace KRG
         static Vector const UnitZ;
         static Vector const UnitW;
 
+        static Vector const Origin;
         static Vector const WorldForward;
         static Vector const WorldUp;
         static Vector const WorldRight;
@@ -77,7 +78,7 @@ namespace KRG
         KRG_FORCE_INLINE static Vector MultiplyAdd( Vector const& vec, Vector const& multiplier, Vector const& add );
         KRG_FORCE_INLINE static Vector NegativeMultiplySubtract( Vector const& vec, Vector const& multiplier, Vector const& subtrahend );
         KRG_FORCE_INLINE static Vector Xor( Vector const& vec0, Vector const& vec1 );
-        KRG_FORCE_INLINE static Vector LinearCombination( Vector const& v0, Vector const& v1, F32 scale0, F32 scale1 ) { return ( v0 * scale0 ) + ( v1 * scale1 ); }
+        KRG_FORCE_INLINE static Vector LinearCombination( Vector const& v0, Vector const& v1, float scale0, float scale1 ) { return ( v0 * scale0 ) + ( v1 * scale1 ); }
 
         KRG_FORCE_INLINE static Vector Sin( Vector const& vec );
         KRG_FORCE_INLINE static Vector Cos( Vector const& vec );
@@ -95,16 +96,16 @@ namespace KRG
         KRG_FORCE_INLINE static Vector ATanEst( Vector const& vec );
         KRG_FORCE_INLINE static Vector ATan2Est( Vector const& vec0, Vector const& vec1 );
 
-        KRG_FORCE_INLINE static void SinCos( Vector& sin, Vector& cos, F32 angle ) { return SinCos( sin, cos, Vector( angle ) ); }
+        KRG_FORCE_INLINE static void SinCos( Vector& sin, Vector& cos, float angle ) { return SinCos( sin, cos, Vector( angle ) ); }
         KRG_FORCE_INLINE static void SinCos( Vector& sin, Vector& cos, Vector const& angle );
 
         KRG_FORCE_INLINE static Vector AngleMod2Pi( Vector const& angles );
         KRG_FORCE_INLINE static Vector AngleBetweenVectors( Vector const& v0, Vector const& v1 ) { return v0.AngleBetween( v1 ); }
         KRG_FORCE_INLINE static Radians GetAngleBetweenVectors( Vector const& v0, Vector const& v1 ) { return v0.GetAngleBetween( v1 ); }
 
-        KRG_FORCE_INLINE static Vector Lerp( Vector const& from, Vector const& to, F32 t ); // Linear interpolation
-        KRG_FORCE_INLINE static Vector NLerp( Vector const& from, Vector const& to, F32 t ); // Normalized linear interpolation of a vector
-        static Vector SLerp( Vector const& from, Vector const& to, F32 t ); // Spherical interpolation of a vector
+        KRG_FORCE_INLINE static Vector Lerp( Vector const& from, Vector const& to, float t ); // Linear interpolation
+        KRG_FORCE_INLINE static Vector NLerp( Vector const& from, Vector const& to, float t ); // Normalized linear interpolation of a vector
+        static Vector SLerp( Vector const& from, Vector const& to, float t ); // Spherical interpolation of a vector
 
         //-------------------------------------------------------------------------
 
@@ -112,7 +113,7 @@ namespace KRG
         KRG_FORCE_INLINE static Vector Select( Vector const& v0, Vector const& v1, Vector const& control );
 
         // Get a permutation of two vectors, each template argument represents the element index to select ( v0: 0-3, v1: 4-7 );
-        template<U32 PermuteX, U32 PermuteY, U32 PermuteZ, U32 PermuteW>
+        template<uint32 PermuteX, uint32 PermuteY, uint32 PermuteZ, uint32 PermuteW>
         KRG_FORCE_INLINE static Vector Permute( Vector const& v0, Vector const& v1 );
 
     public:
@@ -123,12 +124,12 @@ namespace KRG
         KRG_FORCE_INLINE Vector() {}
         KRG_FORCE_INLINE explicit Vector( Axis axis );
         KRG_FORCE_INLINE explicit Vector( ZeroInit ) { memset( this, 0, sizeof( Vector ) ); }
-        KRG_FORCE_INLINE explicit Vector( F32 v ) { m_data = _mm_shuffle_ps( _mm_load_ss( &v ), _mm_load_ss( &v ), _MM_SHUFFLE( 0, 0, 0, 0 ) ); }
+        KRG_FORCE_INLINE explicit Vector( float v ) { m_data = _mm_shuffle_ps( _mm_load_ss( &v ), _mm_load_ss( &v ), _MM_SHUFFLE( 0, 0, 0, 0 ) ); }
         KRG_FORCE_INLINE Vector( __m128 v ) : m_data( v ) {}
-        KRG_FORCE_INLINE Vector( F32 ix, F32 iy, F32 iz, F32 iw = 1.0f ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
+        KRG_FORCE_INLINE Vector( float ix, float iy, float iz, float iw = 1.0f ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
 
-        KRG_FORCE_INLINE Vector( Float2 const& v, F32 iz = 0.0f, F32 iw = 0.0f ) { m_data = _mm_set_ps( iw, iz, v.y, v.x ); }
-        KRG_FORCE_INLINE Vector( Float3 const& v, F32 iw = 1.0f ) { m_data = _mm_set_ps( iw, v.z, v.y, v.x ); } // Default behavior: create points (w=1)
+        KRG_FORCE_INLINE Vector( Float2 const& v, float iz = 0.0f, float iw = 0.0f ) { m_data = _mm_set_ps( iw, iz, v.y, v.x ); }
+        KRG_FORCE_INLINE Vector( Float3 const& v, float iw = 1.0f ) { m_data = _mm_set_ps( iw, v.z, v.y, v.x ); } // Default behavior: create points (w=1)
         KRG_FORCE_INLINE Vector( Float4 const& v ) { m_data = _mm_loadu_ps( &v.x ); }
 
         //-------------------------------------------------------------------------
@@ -137,12 +138,12 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE void StoreFloat( F32& value ) const;
+        KRG_FORCE_INLINE void StoreFloat( float& value ) const;
         KRG_FORCE_INLINE void StoreFloat2( Float2& value ) const;
         KRG_FORCE_INLINE void StoreFloat3( Float3& value ) const;
         KRG_FORCE_INLINE void StoreFloat4( Float4& value ) const;
 
-        KRG_FORCE_INLINE F32 ToFloat() const;
+        KRG_FORCE_INLINE float ToFloat() const;
         KRG_FORCE_INLINE Float2 ToFloat2() const;
         KRG_FORCE_INLINE Float3 ToFloat3() const;
         KRG_FORCE_INLINE Float4 ToFloat4() const;
@@ -156,14 +157,14 @@ namespace KRG
         KRG_FORCE_INLINE Vector& SetW0() { w = 0.0f; return *this; }
         KRG_FORCE_INLINE Vector& SetW1() { w = 1.0f; return *this; }
 
-        F32& operator[]( U32 i ) { KRG_ASSERT( i < 4 ); return ( ( F32* ) this )[i]; }
-        F32 const& operator[]( U32 i ) const { KRG_ASSERT( i < 4 ); return ( ( F32* ) this )[i]; }
+        float& operator[]( uint32 i ) { KRG_ASSERT( i < 4 ); return ( ( float* ) this )[i]; }
+        float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 4 ); return ( ( float* ) this )[i]; }
 
         // Element access (while you can still access the individual elements via the union, that is not performant, and it is preferable to call these functions to go between scalar and vector)
-        KRG_FORCE_INLINE F32 GetX() const { return _mm_cvtss_f32( m_data ); }
-        KRG_FORCE_INLINE F32 GetY() const { auto vTemp = GetSplatY(); return _mm_cvtss_f32( vTemp ); }
-        KRG_FORCE_INLINE F32 GetZ() const { auto vTemp = GetSplatZ(); return _mm_cvtss_f32( vTemp ); }
-        KRG_FORCE_INLINE F32 GetW() const { auto vTemp = GetSplatW(); return _mm_cvtss_f32( vTemp ); }
+        KRG_FORCE_INLINE float GetX() const { return _mm_cvtss_f32( m_data ); }
+        KRG_FORCE_INLINE float GetY() const { auto vTemp = GetSplatY(); return _mm_cvtss_f32( vTemp ); }
+        KRG_FORCE_INLINE float GetZ() const { auto vTemp = GetSplatZ(); return _mm_cvtss_f32( vTemp ); }
+        KRG_FORCE_INLINE float GetW() const { auto vTemp = GetSplatW(); return _mm_cvtss_f32( vTemp ); }
 
         // Algebraic operators
         KRG_FORCE_INLINE Vector operator+( Vector const& v ) const { return _mm_add_ps( m_data, v ); }
@@ -175,10 +176,10 @@ namespace KRG
         KRG_FORCE_INLINE Vector operator/( Vector const& v ) const { return _mm_div_ps( m_data, v ); }
         KRG_FORCE_INLINE Vector& operator/=( Vector const& v ) { m_data = _mm_div_ps( m_data, v ); return *this; }
 
-        KRG_FORCE_INLINE Vector operator*( F32 const f ) const { return operator*( Vector( f ) ); }
-        KRG_FORCE_INLINE Vector& operator*=( F32 const f ) { return operator*=( Vector( f ) ); }
-        KRG_FORCE_INLINE Vector operator/( F32 const f ) const { return operator/( Vector( f ) ); }
-        KRG_FORCE_INLINE Vector& operator/=( F32 const f ) { return operator/=( Vector( f ) ); }
+        KRG_FORCE_INLINE Vector operator*( float const f ) const { return operator*( Vector( f ) ); }
+        KRG_FORCE_INLINE Vector& operator*=( float const f ) { return operator*=( Vector( f ) ); }
+        KRG_FORCE_INLINE Vector operator/( float const f ) const { return operator/( Vector( f ) ); }
+        KRG_FORCE_INLINE Vector& operator/=( float const f ) { return operator/=( Vector( f ) ); }
 
         KRG_FORCE_INLINE Vector operator-() const { return GetNegated(); }
         KRG_FORCE_INLINE Vector& operator-() { Negate(); return *this; }
@@ -190,7 +191,7 @@ namespace KRG
         KRG_FORCE_INLINE Vector Dot4( Vector const& other ) const;
 
         KRG_FORCE_INLINE Vector ScalarProjection( Vector const& other ) const;
-        KRG_FORCE_INLINE F32 GetScalarProjection( Vector const& other ) const { return ScalarProjection( other ).ToFloat(); }
+        KRG_FORCE_INLINE float GetScalarProjection( Vector const& other ) const { return ScalarProjection( other ).ToFloat(); }
         KRG_FORCE_INLINE Vector VectorProjection( Vector const& other ) const;
 
         // Transformations
@@ -230,7 +231,7 @@ namespace KRG
         KRG_FORCE_INLINE Vector GetSplatW() const { return _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 3, 3, 3, 3 ) ); }
 
         // Get a shuffled version of the vector, each template argument represents the element index in the original vector
-        template<U32 ElementX, U32 ElementY, U32 ElementZ, U32 ElementW>
+        template<uint32 ElementX, uint32 ElementY, uint32 ElementZ, uint32 ElementW>
         KRG_FORCE_INLINE Vector Swizzle() const
         {
             static_assert( ElementX <= 3, "Element index parameter out of range" );
@@ -240,7 +241,7 @@ namespace KRG
             return _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( ElementW, ElementZ, ElementY, ElementX ) );
         }
 
-        KRG_FORCE_INLINE Vector Shuffle( U32 xIdx, U32 yIdx, U32 zIdx, U32 wIdx ) const
+        KRG_FORCE_INLINE Vector Shuffle( uint32 xIdx, uint32 yIdx, uint32 zIdx, uint32 wIdx ) const
         {
             KRG_ASSERT( xIdx < 4 && yIdx < 4 && zIdx < 4 && wIdx < 4 );
             Vector result( (*this)[xIdx], ( *this )[yIdx], ( *this )[zIdx], ( *this )[wIdx] );
@@ -260,41 +261,41 @@ namespace KRG
         KRG_FORCE_INLINE Vector Length3() const;
         KRG_FORCE_INLINE Vector Length4() const;
 
-        KRG_FORCE_INLINE F32 GetLength2() const { return Length2().GetX(); }
-        KRG_FORCE_INLINE F32 GetLength3() const { return Length3().GetX(); }
-        KRG_FORCE_INLINE F32 GetLength4() const { return Length4().GetX(); }
+        KRG_FORCE_INLINE float GetLength2() const { return Length2().GetX(); }
+        KRG_FORCE_INLINE float GetLength3() const { return Length3().GetX(); }
+        KRG_FORCE_INLINE float GetLength4() const { return Length4().GetX(); }
 
         KRG_FORCE_INLINE Vector InverseLength2() const;
         KRG_FORCE_INLINE Vector InverseLength3() const;
         KRG_FORCE_INLINE Vector InverseLength4() const;
 
-        KRG_FORCE_INLINE F32 GetInverseLength2() const { return InverseLength2().GetX(); }
-        KRG_FORCE_INLINE F32 GetInverseLength3() const { return InverseLength3().GetX(); }
-        KRG_FORCE_INLINE F32 GetInverseLength4() const { return InverseLength4().GetX(); }
+        KRG_FORCE_INLINE float GetInverseLength2() const { return InverseLength2().GetX(); }
+        KRG_FORCE_INLINE float GetInverseLength3() const { return InverseLength3().GetX(); }
+        KRG_FORCE_INLINE float GetInverseLength4() const { return InverseLength4().GetX(); }
 
         KRG_FORCE_INLINE Vector LengthSquared2() const { return Vector::Dot2( m_data, m_data ); }
         KRG_FORCE_INLINE Vector LengthSquared3() const { return Vector::Dot3( m_data, m_data ); }
         KRG_FORCE_INLINE Vector LengthSquared4() const { return Vector::Dot4( m_data, m_data ); }
 
-        KRG_FORCE_INLINE F32 GetLengthSquared2() const { return LengthSquared2().GetX(); }
-        KRG_FORCE_INLINE F32 GetLengthSquared3() const { return LengthSquared3().GetX(); }
-        KRG_FORCE_INLINE F32 GetLengthSquared4() const { return LengthSquared4().GetX(); }
+        KRG_FORCE_INLINE float GetLengthSquared2() const { return LengthSquared2().GetX(); }
+        KRG_FORCE_INLINE float GetLengthSquared3() const { return LengthSquared3().GetX(); }
+        KRG_FORCE_INLINE float GetLengthSquared4() const { return LengthSquared4().GetX(); }
 
         KRG_FORCE_INLINE Vector Distance2( Vector const& to ) const { return ( to - *this ).Length2(); }
         KRG_FORCE_INLINE Vector Distance3( Vector const& to ) const { return ( to - *this ).Length3(); }
         KRG_FORCE_INLINE Vector Distance4( Vector const& to ) const { return ( to - *this ).Length4(); }
 
-        KRG_FORCE_INLINE F32 GetDistance2( Vector const& to ) const { return ( to - *this ).Length2().GetX(); }
-        KRG_FORCE_INLINE F32 GetDistance3( Vector const& to ) const { return ( to - *this ).Length3().GetX(); }
-        KRG_FORCE_INLINE F32 GetDistance4( Vector const& to ) const { return ( to - *this ).Length4().GetX(); }
+        KRG_FORCE_INLINE float GetDistance2( Vector const& to ) const { return ( to - *this ).Length2().GetX(); }
+        KRG_FORCE_INLINE float GetDistance3( Vector const& to ) const { return ( to - *this ).Length3().GetX(); }
+        KRG_FORCE_INLINE float GetDistance4( Vector const& to ) const { return ( to - *this ).Length4().GetX(); }
 
         KRG_FORCE_INLINE Vector DistanceSquared2( Vector const& to ) const { return ( to - *this ).LengthSquared2(); }
         KRG_FORCE_INLINE Vector DistanceSquared3( Vector const& to ) const { return ( to - *this ).LengthSquared3(); }
         KRG_FORCE_INLINE Vector DistanceSquared4( Vector const& to ) const { return ( to - *this ).LengthSquared4(); }
 
-        KRG_FORCE_INLINE F32 GetDistanceSquared2( Vector const& to ) const { return ( to - *this ).GetLengthSquared2(); }
-        KRG_FORCE_INLINE F32 GetDistanceSquared3( Vector const& to ) const { return ( to - *this ).GetLengthSquared3(); }
-        KRG_FORCE_INLINE F32 GetDistanceSquared4( Vector const& to ) const { return ( to - *this ).GetLengthSquared4(); }
+        KRG_FORCE_INLINE float GetDistanceSquared2( Vector const& to ) const { return ( to - *this ).GetLengthSquared2(); }
+        KRG_FORCE_INLINE float GetDistanceSquared3( Vector const& to ) const { return ( to - *this ).GetLengthSquared3(); }
+        KRG_FORCE_INLINE float GetDistanceSquared4( Vector const& to ) const { return ( to - *this ).GetLengthSquared4(); }
 
         KRG_FORCE_INLINE bool IsNormalized2() const { return ( LengthSquared2() - Vector::One ).Abs().IsLessThanEqual4( Vector::Epsilon ); }
         KRG_FORCE_INLINE bool IsNormalized3() const { return ( LengthSquared3() - Vector::One ).Abs().IsLessThanEqual4( Vector::Epsilon ); }
@@ -314,9 +315,9 @@ namespace KRG
 
         KRG_FORCE_INLINE Vector NearEqual( Vector const& v, Vector const& epsilon ) const;
 
-        KRG_FORCE_INLINE bool IsNearEqual2( Vector const& v, F32 epsilon ) const { return IsNearEqual2( v, Vector( epsilon ) ); }
-        KRG_FORCE_INLINE bool IsNearEqual3( Vector const& v, F32 epsilon ) const { return IsNearEqual3( v, Vector( epsilon ) ); }
-        KRG_FORCE_INLINE bool IsNearEqual4( Vector const& v, F32 epsilon ) const { return IsNearEqual4( v, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearEqual2( Vector const& v, float epsilon ) const { return IsNearEqual2( v, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearEqual3( Vector const& v, float epsilon ) const { return IsNearEqual3( v, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearEqual4( Vector const& v, float epsilon ) const { return IsNearEqual4( v, Vector( epsilon ) ); }
 
         KRG_FORCE_INLINE bool IsNearEqual2( Vector const& v, Vector const& epsilon = Vector::Epsilon ) const { return ( ( ( _mm_movemask_ps( NearEqual( v, epsilon ) ) & 3 ) == 0x3 ) != 0 ); }
         KRG_FORCE_INLINE bool IsNearEqual3( Vector const& v, Vector const& epsilon = Vector::Epsilon ) const { return ( ( ( _mm_movemask_ps( NearEqual( v, epsilon ) ) & 7 ) == 0x7 ) != 0 ); }
@@ -357,11 +358,11 @@ namespace KRG
         KRG_FORCE_INLINE bool IsZero3() const { return IsEqual3( Vector::Zero ); }
         KRG_FORCE_INLINE bool IsZero4() const { return IsEqual4( Vector::Zero ); }
 
-        KRG_FORCE_INLINE Vector NearEqualsZero( F32 epsilon = Math::Epsilon ) const { return NearEqual( Vector::Zero, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE Vector NearEqualsZero( float epsilon = Math::Epsilon ) const { return NearEqual( Vector::Zero, Vector( epsilon ) ); }
 
-        KRG_FORCE_INLINE bool IsNearZero2( F32 epsilon = Math::Epsilon ) const { return IsNearEqual2( Vector::Zero, Vector( epsilon ) ); }
-        KRG_FORCE_INLINE bool IsNearZero3( F32 epsilon = Math::Epsilon ) const { return IsNearEqual3( Vector::Zero, Vector( epsilon ) ); }
-        KRG_FORCE_INLINE bool IsNearZero4( F32 epsilon = Math::Epsilon ) const { return IsNearEqual4( Vector::Zero, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearZero2( float epsilon = Math::Epsilon ) const { return IsNearEqual2( Vector::Zero, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearZero3( float epsilon = Math::Epsilon ) const { return IsNearEqual3( Vector::Zero, Vector( epsilon ) ); }
+        KRG_FORCE_INLINE bool IsNearZero4( float epsilon = Math::Epsilon ) const { return IsNearEqual4( Vector::Zero, Vector( epsilon ) ); }
 
         KRG_FORCE_INLINE Vector EqualsInfinity() const { __m128 vTemp = _mm_and_ps( m_data, SIMD::g_absMask ); return _mm_cmpeq_ps( vTemp, Vector::Infinity ); }
 
@@ -389,7 +390,7 @@ namespace KRG
 
         union
         {
-            struct { F32 x, y, z, w; };
+            struct { float x, y, z, w; };
             __m128 m_data;
         };
     };
@@ -400,7 +401,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    KRG_FORCE_INLINE void Vector::StoreFloat( F32& value ) const
+    KRG_FORCE_INLINE void Vector::StoreFloat( float& value ) const
     {
         _mm_store_ss( &value, m_data );
     }
@@ -428,9 +429,9 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    KRG_FORCE_INLINE F32 Vector::ToFloat() const
+    KRG_FORCE_INLINE float Vector::ToFloat() const
     {
-        F32 v;
+        float v;
         StoreFloat( v );
         return v;
     }
@@ -997,7 +998,7 @@ namespace KRG
         return result;
     }
 
-    template<U32 PermuteX, U32 PermuteY, U32 PermuteZ, U32 PermuteW>
+    template<uint32 PermuteX, uint32 PermuteY, uint32 PermuteZ, uint32 PermuteW>
     KRG_FORCE_INLINE Vector Vector::Permute( Vector const& v0, Vector const& v1 )
     {
         static_assert( PermuteX <= 7, "Element index parameter out of range" );
@@ -1005,7 +1006,7 @@ namespace KRG
         static_assert( PermuteZ <= 7, "Element index parameter out of range" );
         static_assert( PermuteW <= 7, "Element index parameter out of range" );
 
-        U32 const shuffle = _MM_SHUFFLE( PermuteW & 3, PermuteZ & 3, PermuteY & 3, PermuteX & 3 );
+        uint32 const shuffle = _MM_SHUFFLE( PermuteW & 3, PermuteZ & 3, PermuteY & 3, PermuteX & 3 );
         bool const whichX = PermuteX > 3;
         bool const whichY = PermuteY > 3;
         bool const whichZ = PermuteZ > 3;
@@ -1714,7 +1715,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    KRG_FORCE_INLINE Vector Vector::Lerp( Vector const& from, Vector const& to, F32 t )
+    KRG_FORCE_INLINE Vector Vector::Lerp( Vector const& from, Vector const& to, float t )
     {
         KRG_ASSERT( t >= 0.0f && t <= 1.0f );
 
@@ -1726,7 +1727,7 @@ namespace KRG
         return result;
     }
     
-    KRG_FORCE_INLINE Vector Vector::NLerp( Vector const& from, Vector const& to, F32 t )
+    KRG_FORCE_INLINE Vector Vector::NLerp( Vector const& from, Vector const& to, float t )
     {
         KRG_ASSERT( t >= 0.0f && t <= 1.0f );
 

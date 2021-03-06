@@ -15,7 +15,7 @@ namespace KRG
     // i.e. InputSystem, ResourceSystem, TypeRegistry...
     //
     // This interface exists primarily for type safety and ease of use
-    // Each system needs a publicly accessible U32 ID called 'SystemID'
+    // Each system needs a publicly accessible uint32 ID called 'SystemID'
     // Use the macro provided below to declare new systems
     // 
     //-------------------------------------------------------------------------
@@ -24,12 +24,12 @@ namespace KRG
     {
     public:
 
-        virtual U32 GetSystemID() const = 0;
+        virtual uint32 GetSystemID() const = 0;
     };
 }
 
 //-------------------------------------------------------------------------
 
 #define KRG_SYSTEM_ID( TypeName ) \
-constexpr static U32 const SystemID = Hash::FNV1a::GetHash32( #TypeName ); \
-virtual U32 GetSystemID() const override final { return TypeName::SystemID; }
+constexpr static uint32 const SystemID = Hash::FNV1a::GetHash32( #TypeName ); \
+virtual uint32 GetSystemID() const override final { return TypeName::SystemID; }

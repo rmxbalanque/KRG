@@ -33,19 +33,19 @@ namespace KRG
         void SaveToFile( FileSystemPath const& iniFilePath );
 
         // Configuration Settings
-        THashMap<U32, Setting*> const& GetAllConfigSettings() const { return m_configSettings; }
+        THashMap<uint32, Setting*> const& GetAllConfigSettings() const { return m_configSettings; }
 
         // Debug Settings
         #if KRG_DEVELOPMENT_TOOLS
-        THashMap<U32, Setting*> const& GetAllDebugSettings() const { return m_debugSettings; }
+        THashMap<uint32, Setting*> const& GetAllDebugSettings() const { return m_debugSettings; }
         #endif
 
     private:
 
-        THashMap<U32, Setting*>     m_configSettings;
+        THashMap<uint32, Setting*>     m_configSettings;
 
         #if KRG_DEVELOPMENT_TOOLS
-        THashMap<U32, Setting*>     m_debugSettings;
+        THashMap<uint32, Setting*>     m_debugSettings;
         #endif
     };
 }

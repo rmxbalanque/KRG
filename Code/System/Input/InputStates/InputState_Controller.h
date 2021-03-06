@@ -8,7 +8,7 @@ namespace KRG
 {
     namespace Input
     {
-        enum class ControllerButton : U16
+        enum class ControllerButton : uint16
         {
             DPadUp = 0,
             DPadDown,
@@ -48,25 +48,25 @@ namespace KRG
             // Get the filtered values once deadzones and trigger thresholds have been applied
             inline Float2 GetLeftAnalogStickValue() const { return m_analogInputFiltered[Left]; }
             inline Float2 GetRightAnalogStickValue() const { return m_analogInputFiltered[Right]; }
-            inline F32 GetLeftTriggerValue() const { return m_triggerFiltered[Left]; }
-            inline F32 GetRightTriggerValue() const { return m_triggerFiltered[Right]; }
+            inline float GetLeftTriggerValue() const { return m_triggerFiltered[Left]; }
+            inline float GetRightTriggerValue() const { return m_triggerFiltered[Right]; }
 
             // The raw hardware value from the controller
             inline Float2 GetLeftAnalogStickRawValue() const { return m_analogInputRaw[Left]; }
             inline Float2 GetRightAnalogStickRawValue() const { return m_analogInputRaw[Right]; }
-            inline F32 GetLeftTriggerRawValue() const { return m_triggerRaw[Left]; }
-            inline F32 GetRightTriggerRawValue() const { return m_triggerRaw[Right]; }
+            inline float GetLeftTriggerRawValue() const { return m_triggerRaw[Left]; }
+            inline float GetRightTriggerRawValue() const { return m_triggerRaw[Right]; }
 
             // Get the controller button states
-            KRG_FORCE_INLINE bool WasPressed( ControllerButton buttonID ) const { return ButtonStates::WasPressed( (U32) buttonID ); }
-            KRG_FORCE_INLINE bool WasReleased( ControllerButton buttonID ) const { return ButtonStates::WasReleased( (U32) buttonID ); }
-            KRG_FORCE_INLINE bool IsHeldDown( ControllerButton buttonID ) const { return ButtonStates::IsHeldDown( (U32) buttonID ); }
-            KRG_FORCE_INLINE Milliseconds GetHeldDuration( ControllerButton buttonID ) const { return ButtonStates::GetHeldDuration( (U32) buttonID ); }
+            KRG_FORCE_INLINE bool WasPressed( ControllerButton buttonID ) const { return ButtonStates::WasPressed( (uint32) buttonID ); }
+            KRG_FORCE_INLINE bool WasReleased( ControllerButton buttonID ) const { return ButtonStates::WasReleased( (uint32) buttonID ); }
+            KRG_FORCE_INLINE bool IsHeldDown( ControllerButton buttonID ) const { return ButtonStates::IsHeldDown( (uint32) buttonID ); }
+            KRG_FORCE_INLINE Milliseconds GetHeldDuration( ControllerButton buttonID ) const { return ButtonStates::GetHeldDuration( (uint32) buttonID ); }
 
         private:
 
-            KRG_FORCE_INLINE void Press( ControllerButton buttonID ) { ButtonStates::Press( (U32) buttonID ); }
-            KRG_FORCE_INLINE void Release( ControllerButton buttonID ) { ButtonStates::Release( (U32) buttonID ); }
+            KRG_FORCE_INLINE void Press( ControllerButton buttonID ) { ButtonStates::Press( (uint32) buttonID ); }
+            KRG_FORCE_INLINE void Release( ControllerButton buttonID ) { ButtonStates::Release( (uint32) buttonID ); }
             
             inline void ClearState()
             {
@@ -81,8 +81,8 @@ namespace KRG
 
             Float2                                  m_analogInputRaw[2];
             Float2                                  m_analogInputFiltered[2];
-            F32                                     m_triggerRaw[2];
-            F32                                     m_triggerFiltered[2];
+            float                                     m_triggerRaw[2];
+            float                                     m_triggerFiltered[2];
         };
     }
 }

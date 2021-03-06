@@ -46,10 +46,10 @@ namespace KRG::Render
             KRG_SERIALIZE_MEMBERS( m_startIndex, m_numIndices );
 
             GeometrySection() = default;
-            GeometrySection( U32 startIndex, U32 numIndices );
+            GeometrySection( uint32 startIndex, uint32 numIndices );
 
-            U32                 m_startIndex = 0;
-            U32                 m_numIndices = 0;
+            uint32                 m_startIndex = 0;
+            uint32                 m_numIndices = 0;
         };
 
     public:
@@ -58,22 +58,22 @@ namespace KRG::Render
 
         // Vertices
         inline TVector<Byte> const& GetVertexData() const { return m_vertices; }
-        inline S32 const GetNumVertices() const { return m_vertexBuffer.m_byteSize / m_vertexBuffer.m_byteStride; }
+        inline int32 const GetNumVertices() const { return m_vertexBuffer.m_byteSize / m_vertexBuffer.m_byteStride; }
         inline VertexFormat const& GetVertexFormat() const { return m_vertexBuffer.m_vertexFormat; }
         inline RenderBuffer const& GetVertexBuffer() const { return m_vertexBuffer; }
 
         // Indices
-        inline TVector<U32> const& GetIndices() const { return m_indices; }
+        inline TVector<uint32> const& GetIndices() const { return m_indices; }
         inline RenderBuffer const& GetIndexBuffer() const { return m_indexBuffer; }
 
         // Mesh Sections
-        inline U32 GetNumSections() const { return (U32) m_sections.size(); }
-        inline GeometrySection GetSection( U32 i ) const { KRG_ASSERT( i < GetNumSections() ); return m_sections[i]; }
+        inline uint32 GetNumSections() const { return (uint32) m_sections.size(); }
+        inline GeometrySection GetSection( uint32 i ) const { KRG_ASSERT( i < GetNumSections() ); return m_sections[i]; }
 
     protected:
 
         TVector<Byte>                       m_vertices;
-        TVector<U32>                        m_indices;
+        TVector<uint32>                        m_indices;
         TVector<GeometrySection>            m_sections;
         VertexBuffer                        m_vertexBuffer;
         RenderBuffer                        m_indexBuffer;

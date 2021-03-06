@@ -426,7 +426,7 @@
     <ClInclude Include="Types\Containers.h">
       <Filter>Types</Filter>
     </ClInclude>
-    <ClInclude Include="Types\Flags.h">
+    <ClInclude Include="Types\BitFlags.h">
       <Filter>Types</Filter>
     </ClInclude>
     <ClInclude Include="Types\LoadingStatus.h">

@@ -17,7 +17,7 @@ namespace KRG
                 KRG_ASSERT( pDataToEncode != nullptr && dataSize > 0 );
 
                 TVector<Byte> encodedData;
-                S32 i = 0, j = 0;
+                int32 i = 0, j = 0;
                 Byte byte3[3];
                 Byte byte4[4];
 
@@ -89,7 +89,7 @@ namespace KRG
                 KRG_ASSERT( pDataToDecode != nullptr && dataSize > 0 );
                 TVector<Byte> decodedData;
 
-                S32 idx = 0;
+                int32 idx = 0;
                 size_t i = 0, j = 0;
                 Byte byte4[4], byte3[3];
 
