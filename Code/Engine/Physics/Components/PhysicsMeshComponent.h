@@ -13,7 +13,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_PHYSICS_API PhysicsMeshComponent : public PhysicsComponent
+    class KRG_ENGINE_PHYSICS_API PhysicsMeshComponent final : public PhysicsComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT;
 
@@ -23,12 +23,12 @@ namespace KRG::Physics
 
         virtual bool HasValidPhysicsSetup() const override final;
 
-        TInlineVector<physx::PxMaterial*, 4> GetPhysicalMaterials() const;
+        virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const override final;
 
     protected:
 
         // Any additional physical materials needed for a triangle mesh
-        EXPOSE TVector<TResourcePtr<PhysicsMaterial>>       m_additionalPhysicsMaterials;
+        EXPOSE TVector<StringID>                            m_additionalPhysicsMaterialIDs;
 
         // The collision mesh to load (can be either convex or concave)
         EXPOSE TResourcePtr<PhysicsMesh>                    m_pPhysicsMesh;

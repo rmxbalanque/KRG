@@ -4,7 +4,6 @@
 #include "Engine/Physics/PhysX.h"
 #include "Engine/Physics/PhysicsMaterial.h"
 #include "System/Entity/EntitySpatialComponent.h"
-#include "System/Resource/ResourcePtr.h"
 
 //-------------------------------------------------------------------------
 
@@ -49,8 +48,12 @@ namespace KRG::Physics
 
     public:
 
+        PhysicsComponent();
+
         inline ActorType GetActorType() const { return m_actorType; }
         inline ShapeType GetShapeType() const { return m_shapeType; }
+
+        virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const { return { m_physicsMaterialID }; }
 
         // Static API
         //-------------------------------------------------------------------------
@@ -85,8 +88,8 @@ namespace KRG::Physics
 
     protected:
 
-        // The physical material for the shape
-        EXPOSE TResourcePtr<PhysicsMaterial>        m_pPhysicsMaterial = nullptr;
+        // The physical material ID for the shape
+        EXPOSE StringID                             m_physicsMaterialID;
 
         // The type of physics actor for this component
         EXPOSE ActorType                            m_actorType = ActorType::Static;

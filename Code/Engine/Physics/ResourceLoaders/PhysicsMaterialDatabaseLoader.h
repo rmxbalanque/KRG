@@ -11,12 +11,12 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    class PhysicsMaterialLoader : public Resource::ResourceLoader
+    class PhysicsMaterialDatabaseLoader : public Resource::ResourceLoader
     {
     public:
 
-        PhysicsMaterialLoader();
-        ~PhysicsMaterialLoader() { KRG_ASSERT( m_pPhysicsSystem == nullptr ); }
+        PhysicsMaterialDatabaseLoader();
+        ~PhysicsMaterialDatabaseLoader() { KRG_ASSERT( m_pPhysicsSystem == nullptr ); }
 
         void SetPhysics( PhysicsSystem* pPhysicsSystem );
         void ClearPhysics() { m_pPhysicsSystem = nullptr; }

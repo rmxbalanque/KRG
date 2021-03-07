@@ -13,7 +13,7 @@
 #include "D:\Kruger\Code\Engine\Physics\PhysicsMaterial.h"
 
 //-------------------------------------------------------------------------
-// Enum Helper: KRG::Physics::PhysicMaterialCombineMode
+// Enum Helper: KRG::Physics::PhysicsCombineMode
 //-------------------------------------------------------------------------
 
 namespace KRG
@@ -22,7 +22,7 @@ namespace KRG
     {
         namespace EnumHelpers
         {
-            class EnumHelper_KRG_Physics_PhysicMaterialCombineMode
+            class EnumHelper_KRG_Physics_PhysicsCombineMode
             {
             public:
 
@@ -42,7 +42,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMaterialSettings& type )
     {
-        archive( KRG_NVP( m_name ), KRG_NVP( m_dynamicFriction ), KRG_NVP( m_staticFriction ), KRG_NVP( m_restitution ), KRG_NVP( m_frictionCombineMode ), KRG_NVP( m_restitutionCombineMode ) );
+        archive( KRG_NVP( m_ID ), KRG_NVP( m_staticFriction ), KRG_NVP( m_dynamicFriction ), KRG_NVP( m_restitution ), KRG_NVP( m_frictionCombineMode ), KRG_NVP( m_restitutionCombineMode ) );
     }
 
     //-------------------------------------------------------------------------
@@ -59,25 +59,13 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_name" );
+            propertyInfo.m_ID = StringID( "m_ID" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::StringID" );
             propertyInfo.m_parentTypeID = 612453115;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_name;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_name );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_ID;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_ID );
             propertyInfo.m_size = sizeof( KRG::StringID );
-            propertyInfo.m_flags.SetAll( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_dynamicFriction" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
-            propertyInfo.m_parentTypeID = 612453115;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicFriction;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_dynamicFriction );
-            propertyInfo.m_size = sizeof( float );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
@@ -89,6 +77,18 @@ namespace KRG
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_staticFriction;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_staticFriction );
+            propertyInfo.m_size = sizeof( float );
+            propertyInfo.m_flags.SetAll( 0 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_dynamicFriction" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
+            propertyInfo.m_parentTypeID = 612453115;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicFriction;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_dynamicFriction );
             propertyInfo.m_size = sizeof( float );
             propertyInfo.m_flags.SetAll( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
@@ -108,24 +108,24 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_frictionCombineMode" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::PhysicMaterialCombineMode" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::PhysicsCombineMode" );
             propertyInfo.m_parentTypeID = 612453115;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_frictionCombineMode;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_frictionCombineMode );
-            propertyInfo.m_size = sizeof( KRG::Physics::PhysicMaterialCombineMode );
+            propertyInfo.m_size = sizeof( KRG::Physics::PhysicsCombineMode );
             propertyInfo.m_flags.SetAll( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_restitutionCombineMode" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::PhysicMaterialCombineMode" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::PhysicsCombineMode" );
             propertyInfo.m_parentTypeID = 612453115;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_restitutionCombineMode;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialSettings, m_restitutionCombineMode );
-            propertyInfo.m_size = sizeof( KRG::Physics::PhysicMaterialCombineMode );
+            propertyInfo.m_size = sizeof( KRG::Physics::PhysicsCombineMode );
             propertyInfo.m_flags.SetAll( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }

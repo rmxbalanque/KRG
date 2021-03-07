@@ -109,4 +109,16 @@
   <Type Name="KRG::EntityComponent">
     <DisplayString>{m_name} - {m_ID}</DisplayString>
   </Type>
+
+  <Type Name="KRG::Physics::RayCastResults">
+    <DisplayString>Has blocked: {hasBlock} - Touches: {nbTouches}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::Physics::ShapeCastResults">
+    <DisplayString>Was blocked: {hasBlock} - Touches: {nbTouches}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::Physics::OverlapResults">
+    <DisplayString>Overlaps: {nbTouches}</DisplayString>
+  </Type>
 </AutoVisualizer>

@@ -107,7 +107,46 @@ namespace KRG
             return FatalError( "Failed to initialize module" );
         }
 
+        // Fill module array
+        //-------------------------------------------------------------------------
+
+        m_modules.emplace_back( &m_module_engine_core );
+        m_modules.emplace_back( &m_module_engine_physics );
+        m_modules.emplace_back( &m_module_engine_render );
+        m_modules.emplace_back( &m_module_engine_animation );
+        m_modules.emplace_back( &m_module_engine_navmesh );
+        m_modules.emplace_back( &m_module_game_core );
+
         return true;
+    }
+
+    void EngineApplication::LoadModuleResources( Resource::ResourceSystem& resourceSystem )
+    {
+        for ( auto pModule : m_modules )
+        {
+            pModule->LoadModuleResources( resourceSystem );
+        }
+    }
+
+    bool EngineApplication::OnModuleResourceLoadingComplete()
+    {
+        for ( auto pModule : m_modules )
+        {
+            if ( !pModule->OnEngineResourceLoadingComplete() )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void EngineApplication::UnloadModuleResources( Resource::ResourceSystem& resourceSystem )
+    {
+        for ( auto pModule : m_modules )
+        {
+            pModule->UnloadModuleResources( resourceSystem );
+        }
     }
 
     void EngineApplication::ShutdownModules()
@@ -125,6 +164,10 @@ namespace KRG
         m_module_engine_physics.Shutdown( m_moduleContext );
 
         // Core module is special
+
+        //-------------------------------------------------------------------------
+
+        m_modules.clear();
     }
 
     //-------------------------------------------------------------------------
@@ -186,17 +229,31 @@ namespace KRG
         m_pPhysicsSystem = m_pSystemRegistry->GetSystem<Physics::PhysicsSystem>();
         m_pNavmeshSystem = m_pSystemRegistry->GetSystem<Navmesh::NavmeshSystem>();
 
-        // World and runtime state initialization
-        //-------------------------------------------------------------------------
-
         m_updateContext.m_pSystemRegistry = m_pSystemRegistry;
 
         #if KRG_DEVELOPMENT_TOOLS
         m_updateContext.m_pDebugDrawingSystem = m_pDebugDrawingSystem;
         #endif
 
+        // Load engine resources
         //-------------------------------------------------------------------------
 
+        LoadModuleResources( *m_pResourceSystem );
+
+        while ( m_pResourceSystem->IsBusy() )
+        {
+            m_pResourceSystem->Update();
+        }
+
+        if ( !OnModuleResourceLoadingComplete() )
+        {
+            return FatalError( "Failed to load required engine resources - See EngineApplication log for details" );
+        }
+
+        // Final initialization
+        //-------------------------------------------------------------------------
+
+        m_initialized = true;
         m_pCameraSystem->SetViewDimensions( m_pRenderDevice->GetRenderTargetDimensions() );
         m_renderingSystem.Initialize( m_pRendererRegistry );
 
@@ -205,7 +262,6 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        m_initialized = true;
         return true;
     }
 
@@ -218,25 +274,39 @@ namespace KRG
         // Shutdown World and runtime state
         //-------------------------------------------------------------------------
 
-        // Wait for resource/object systems to complete all resource unloading
-        m_pEntityWorld->Shutdown();
+        if ( m_initialized )
+        {
+            // Wait for resource/object systems to complete all resource unloading
+            m_pEntityWorld->Shutdown();
 
-        while ( m_pEntityWorld->IsBusyLoading() || m_pResourceSystem->IsBusy() )
+            while ( m_pEntityWorld->IsBusyLoading() || m_pResourceSystem->IsBusy() )
+            {
+                m_pResourceSystem->Update();
+            }
+
+            m_pEntityWorld->UnregisterWorldSystem( m_pCameraSystem );
+            m_renderingSystem.Shutdown();
+            m_initialized = false;
+        }
+
+        // Unload engine resources
+        //-------------------------------------------------------------------------
+
+        UnloadModuleResources( *m_pResourceSystem );
+
+        while ( m_pResourceSystem->IsBusy() )
         {
             m_pResourceSystem->Update();
         }
 
-        m_pEntityWorld->UnregisterWorldSystem( m_pCameraSystem );
-        m_renderingSystem.Shutdown();
+        // Shutdown modules
+        //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
         m_updateContext.m_pDebugDrawingSystem = nullptr;
         #endif
 
         m_updateContext.m_pSystemRegistry = nullptr;
-
-        // Modules
-        //-------------------------------------------------------------------------
 
         ShutdownModules();
 
@@ -321,7 +391,7 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
-                m_pDebugUISystem->Update( m_updateContext );
+                m_pDebugUISystem->Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
                 #endif
 
                 m_pEntityWorld->Update( m_updateContext );
@@ -377,7 +447,7 @@ namespace KRG
                 m_pEntityWorld->Update( m_updateContext );
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDebugUISystem->Update( m_updateContext );
+                m_pDebugUISystem->Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
                 m_pImguiSystem->EndFrame();
                 #endif
 

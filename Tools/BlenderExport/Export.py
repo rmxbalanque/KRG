@@ -139,7 +139,6 @@ try:
             physicsComponent = PhysicsMeshComponent( "phys_" + ob.name )
             physicsComponent.SpatialParent = meshComponent.ID
             physicsComponent.TypeData[ "m_pPhysicsMesh"] = physicsGeoDataPath
-            physicsComponent.TypeData[ "m_pPhysicsMaterial"] = "data://Physics/DefaultPhysicsMaterial.pmat"
             entity.Components.append( physicsComponent )
 
             entityMap.Entities.append( entity )

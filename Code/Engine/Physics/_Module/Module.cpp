@@ -1,10 +1,19 @@
 #include "Module.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
+#include "Engine/Physics/PhysicsMaterialDatabase.h"
+#include "System/Core/Settings/ConfigSettings.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Physics
 {
+    namespace Settings
+    {
+        static ConfigSettingString const g_physicalMaterialDataPath( "PhysicalMaterialDatabasePath", "Physics", "" );
+    }
+
+    //-------------------------------------------------------------------------
+
     bool EngineModule::Initialize( ModuleContext& context )
     {
         m_physicsSystem.Initialize();
@@ -30,6 +39,18 @@ namespace KRG::Physics
         m_physicsDebugViewController.Initialize( &m_physicsSystem, m_pPhysicsWorldSystem );
         context.RegisterDebugView( &m_physicsDebugViewController );
         #endif
+
+        //-------------------------------------------------------------------------
+
+        if ( !DataPath::IsValidDataPath( Settings::g_physicalMaterialDataPath ) )
+        {
+            KRG_LOG_ERROR( "Physics", "Invalid physics material database path set: %s", m_pPhysicMaterialDB.GetResourceID().c_str() );
+            return false;
+        }
+        else
+        {
+            m_pPhysicMaterialDB = ResourceID( Settings::g_physicalMaterialDataPath );
+        }
 
         return true;
     }
@@ -59,5 +80,22 @@ namespace KRG::Physics
         
         KRG::Delete( m_pPhysicsWorldSystem );
         m_physicsSystem.Shutdown();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EngineModule::LoadModuleResources( Resource::ResourceSystem& resourceSystem )
+    {
+        resourceSystem.LoadResource( m_pPhysicMaterialDB );
+    }
+
+    bool EngineModule::OnEngineResourceLoadingComplete()
+    {
+        return m_pPhysicMaterialDB.IsLoaded() && m_pPhysicMaterialDB->IsValid();
+    }
+
+    void EngineModule::UnloadModuleResources( Resource::ResourceSystem& resourceSystem )
+    {
+        resourceSystem.UnloadResource( m_pPhysicMaterialDB );
     }
 }

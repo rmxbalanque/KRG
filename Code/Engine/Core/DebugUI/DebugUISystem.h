@@ -13,6 +13,10 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
+    namespace Math { class Viewport; }
+
+    //-------------------------------------------------------------------------
+
     namespace Debug
     {
         class KRG_ENGINE_CORE_API DebugUISystem : public ISystem
@@ -75,7 +79,7 @@ namespace KRG
 
             inline bool HasModalPopupOpen() const { return !m_modalPopups.empty(); }
 
-            void Update( UpdateContext const& context );
+            void Update( UpdateContext const& context, TInlineVector<Math::Viewport, 2> activeViewports );
 
         private:
 
@@ -91,6 +95,8 @@ namespace KRG
             void DrawOverlayStatusBar( UpdateContext const& context );
 
             void DrawSettingUI( Setting* pSettingBase );
+
+            void DrawOrientationGuide( UpdateContext const& context, Math::Viewport const& viewport );
 
         protected:
 

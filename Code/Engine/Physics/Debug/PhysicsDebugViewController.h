@@ -10,7 +10,6 @@ namespace KRG::Physics
 {
     class PhysicsSystem;
     class PhysicsWorldSystem;
-    class PhysicsScene;
 
     //-------------------------------------------------------------------------
 
@@ -27,9 +26,10 @@ namespace KRG::Physics
 
         virtual void DrawWindows( UpdateContext const& context ) override final;
 
-        void DrawDebugMenu( UpdateContext const& context );
-        void DrawSceneMenu( PhysicsScene* pScene );
+        void DrawPhysicsMenu( UpdateContext const& context );
+        void DrawPVDMenu( UpdateContext const& context );
         void DrawComponentsWindow( UpdateContext const& context );
+        void DrawMaterialDatabaseWindow( UpdateContext const& context );
 
     private:
 
@@ -37,6 +37,7 @@ namespace KRG::Physics
         PhysicsWorldSystem*     m_pPhysicsWorldSystem = nullptr;
         float                   m_recordingTimeSeconds = 0.5f;
         bool                    m_isComponentWindowOpen = false;
+        bool                    m_isMaterialDatabaseWindowOpen = false;
     };
 }
 #endif

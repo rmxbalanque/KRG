@@ -60,7 +60,7 @@ namespace KRG::Physics
 
         PhysXSerializedInputData cooked( cookedMeshData );
         {
-            SystemScopeLock const lock( m_pPhysicsSystem );
+            ScopeLock const lock( const_cast<PhysicsSystem*>( m_pPhysicsSystem ), ScopeLock::Type::Write );
             if ( pPhysicsMesh->m_isConvexMesh )
             {
                 pPhysicsMesh->m_pMesh = m_pPhysicsSystem->GetPxPhysics().createConvexMesh( cooked );
@@ -82,7 +82,7 @@ namespace KRG::Physics
         {
             if ( pPhysicsGeometry->m_pMesh != nullptr )
             {
-                SystemScopeLock const lock( m_pPhysicsSystem );
+                ScopeLock const lock( const_cast<PhysicsSystem*>( m_pPhysicsSystem ), ScopeLock::Type::Write );
                 pPhysicsGeometry->m_pMesh->release();
                 pPhysicsGeometry->m_pMesh = nullptr;
             }

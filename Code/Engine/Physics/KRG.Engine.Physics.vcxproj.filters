@@ -30,7 +30,6 @@
     <ClCompile Include="PhysX.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PhysicsWorldSystem.cpp" />
-    <ClCompile Include="PhysicsScene.cpp" />
     <ClCompile Include="Components\PhysicsCapsuleComponent.cpp" />
     <ClCompile Include="Components\PhysicsBoxComponent.cpp" />
     <ClCompile Include="Components\PhysicsComponent.cpp" />
@@ -39,9 +38,12 @@
     </ClCompile>
     <ClCompile Include="PhysicsMesh.cpp" />
     <ClCompile Include="ResourceLoaders\PhysicsMeshLoader.cpp" />
-    <ClCompile Include="PhysicsMaterial.cpp" />
-    <ClCompile Include="ResourceLoaders\PhysicsMaterialLoader.cpp" />
+    <ClCompile Include="PhysicsMaterialDatabase.cpp" />
+    <ClCompile Include="ResourceLoaders\PhysicsMaterialDatabaseLoader.cpp" />
     <ClCompile Include="Components\PhysicsSphereComponent.cpp" />
+    <ClCompile Include="PhysicsQueryFilter.cpp" />
+    <ClCompile Include="PhysicsSimulationFilter.cpp" />
+    <ClCompile Include="PhysicsMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\PhysicsDebugViewController.h">
@@ -59,7 +61,6 @@
     <ClInclude Include="PhysX.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PhysicsWorldSystem.h" />
-    <ClInclude Include="PhysicsScene.h" />
     <ClInclude Include="Components\PhysicsCapsuleComponent.h" />
     <ClInclude Include="Components\PhysicsBoxComponent.h" />
     <ClInclude Include="Components\PhysicsComponent.h" />
@@ -68,8 +69,12 @@
     </ClInclude>
     <ClInclude Include="PhysicsMesh.h" />
     <ClInclude Include="ResourceLoaders\PhysicsMeshLoader.h" />
-    <ClInclude Include="PhysicsMaterial.h" />
-    <ClInclude Include="ResourceLoaders\PhysicsMaterialLoader.h" />
+    <ClInclude Include="PhysicsMaterialDatabase.h" />
+    <ClInclude Include="ResourceLoaders\PhysicsMaterialDatabaseLoader.h" />
     <ClInclude Include="Components\PhysicsSphereComponent.h" />
+    <ClInclude Include="PhysicsQueryTypes.h" />
+    <ClInclude Include="PhysicsQueryFilter.h" />
+    <ClInclude Include="PhysicsSimulationFilter.h" />
+    <ClInclude Include="PhysicsMaterial.h" />
   </ItemGroup>
 </Project>

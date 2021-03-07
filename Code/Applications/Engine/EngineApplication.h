@@ -45,6 +45,9 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         bool InitializeModules();
+        void LoadModuleResources( Resource::ResourceSystem& resourceSystem );
+        bool OnModuleResourceLoadingComplete();
+        void UnloadModuleResources( Resource::ResourceSystem& resourceSystem );
         void ShutdownModules();
 
         //-------------------------------------------------------------------------
@@ -63,6 +66,8 @@ namespace KRG
 
         // Modules
         //-------------------------------------------------------------------------
+
+        TVector<IModule*>                               m_modules;
 
         Engine::EngineModule                            m_module_engine_core;
         Physics::EngineModule                           m_module_engine_physics;

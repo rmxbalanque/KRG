@@ -87,7 +87,7 @@ namespace KRG
         EXPOSE UUID                                             m_UUID;
         EXPOSE String                                           m_String = "Default Test String";
         EXPOSE StringID                                         m_StringID = StringID( "Default ID" );
-        EXPOSE DataPath                                         m_DataPath = "Data://Default.txt";
+        EXPOSE DataPath                                         m_DataPath = "data://Default.txt";
         EXPOSE Float2                                           m_Float2 = Float2( 1.0f, 2.0f );
         EXPOSE Float3                                           m_Float3 = Float3( 1.0f, 2.0f, 3.0f);
         EXPOSE Float4                                           m_Float4 = Float4( 1.0f, 2.0f, 3.0f, 4.0f );

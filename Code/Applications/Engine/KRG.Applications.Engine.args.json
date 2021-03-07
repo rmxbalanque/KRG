@@ -23,10 +23,6 @@
       "Command": "-map data://maps/ecs_testmap.map"
     },
     {
-      "Id": "e1dc9a7b-a015-4150-a00f-a22a2e7a95ce",
-      "Command": "-map data://maps/br_full.map"
-    },
-    {
       "Id": "9f4e3eb2-43a5-4d5b-b8d2-42f2115be8f9",
       "Command": "-map data://maps/br_minimal.map"
     },

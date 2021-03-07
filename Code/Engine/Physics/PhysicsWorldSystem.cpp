@@ -20,17 +20,7 @@ namespace KRG::Physics
 
     PhysicsWorldSystem::PhysicsWorldSystem( PhysicsSystem& physicsSystem )
         : m_physicsSystem( physicsSystem )
-        , m_pScene( physicsSystem.CreateScene() )
-    {
-        #if KRG_DEVELOPMENT_TOOLS
-        m_pScene->SetDebugName( "Primary Scene" );
-        #endif
-    }
-
-    PhysicsWorldSystem::~PhysicsWorldSystem()
-    {
-        m_physicsSystem.DestroyScene( m_pScene );
-    }
+    {}
 
     //-------------------------------------------------------------------------
 
@@ -64,7 +54,7 @@ namespace KRG::Physics
             // Create PhysX actor and shapes
             //-------------------------------------------------------------------------
             {
-                SystemScopeLock const systemLock( &m_physicsSystem );
+                ScopeLock const lock( m_physicsSystem, ScopeLock::Type::Write );
 
                 PxRigidActor*pPhysicsActor = CreateActor( pPhysicsComponent );
                 if ( pPhysicsActor == nullptr )
@@ -83,15 +73,14 @@ namespace KRG::Physics
                 // Add actor to scene
                 if ( pPhysicsActor != nullptr && pShape != nullptr )
                 {
-                    SceneScopeLock const sceneLock( m_pScene, SceneScopeLock::Type::Write );
-                    m_pScene->GetPxScene()->addActor( *pPhysicsActor );
+                    m_physicsSystem.GetPxScene()->addActor( *pPhysicsActor );
                 }
             }
 
             // Add to dynamic component list if needed
             //-------------------------------------------------------------------------
 
-            if ( pPhysicsComponent->m_actorType == ActorType::Dynamic )
+            if ( pPhysicsComponent->m_actorType != ActorType::Static )
             {
                 KRG_ASSERT( m_dynamicComponents.find( pPhysicsComponent->GetID() ) == m_dynamicComponents.end() );
                 m_dynamicComponents.insert( TPair<UUID, PhysicsComponent*>( pPhysicsComponent->GetID(), pPhysicsComponent ) );
@@ -109,7 +98,7 @@ namespace KRG::Physics
             // Remove from dynamic components list
             //-------------------------------------------------------------------------
 
-            if ( pPhysicsComponent->m_pPhysicsActor != nullptr && pPhysicsComponent->m_actorType == ActorType::Dynamic )
+            if ( pPhysicsComponent->m_pPhysicsActor != nullptr && pPhysicsComponent->m_actorType != ActorType::Static )
             {
                 m_dynamicComponents.erase( pPhysicsComponent->GetID() );
             }
@@ -119,17 +108,9 @@ namespace KRG::Physics
 
             if ( pPhysicsComponent->m_pPhysicsActor != nullptr )
             {
-                {
-                    SceneScopeLock const sceneLock( m_pScene, SceneScopeLock::Type::Write );
-                    m_pScene->GetPxScene()->removeActor( *pPhysicsComponent->m_pPhysicsActor );
-                }
-
-                //-------------------------------------------------------------------------
-
-                {
-                    SystemScopeLock const systemLock( &m_physicsSystem );
-                    pPhysicsComponent->m_pPhysicsActor->release();
-                }
+                ScopeLock const sceneLock( m_physicsSystem, ScopeLock::Type::Write );
+                m_physicsSystem.GetPxScene()->removeActor( *pPhysicsComponent->m_pPhysicsActor );
+                pPhysicsComponent->m_pPhysicsActor->release();
             }
 
             // Clear component data
@@ -219,6 +200,30 @@ namespace KRG::Physics
 
         physx::PxShape* pPhysicsShape = nullptr;
 
+        // Get physics materials
+        //-------------------------------------------------------------------------
+
+        // Get physic materials
+        TInlineVector<StringID, 4> const physicsMaterialIDs = pComponent->GetPhysicsMaterialIDs();
+        TInlineVector<PxMaterial*, 4> physicsMaterials;
+
+        for ( auto const& materialID : physicsMaterialIDs )
+        {
+            PxMaterial* pPhysicsMaterial = m_physicsSystem.GetMaterial( materialID );
+            if ( pPhysicsMaterial == nullptr )
+            {
+                return false;
+            }
+
+            physicsMaterials.emplace_back( pPhysicsMaterial );
+        }
+
+        if ( physicsMaterials.empty() )
+        {
+            KRG_LOG_ERROR( "Physics", "No physics materials set for component %s (%s). No shapes will be created!", pComponent->GetName().c_str(), pComponent->GetID().ToString().c_str() );
+            return false;
+        }
+
         // Calculate shape flags
         //-------------------------------------------------------------------------
 
@@ -258,14 +263,12 @@ namespace KRG::Physics
             Transform const& worldTransform = pComponent->GetWorldTransform();
             Vector const& scale = worldTransform.GetScale();
 
-            TInlineVector<PxMaterial*, 4> const physicalMaterials = pMeshComponent->GetPhysicalMaterials();
-
             // Calculate bounds
             if ( pMeshComponent->m_pPhysicsMesh->IsTriangleMesh() )
             {
                 PxTriangleMesh const* pTriMesh = pMeshComponent->m_pPhysicsMesh->GetTriangleMesh();
                 PxTriangleMeshGeometry const meshGeo( const_cast<PxTriangleMesh*>( pTriMesh ), ToPx( scale ) );
-                pPhysicsShape = physics.createShape( meshGeo, physicalMaterials.data(), (uint16) physicalMaterials.size(), true, shapeFlags );
+                pPhysicsShape = physics.createShape( meshGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
 
                 auto const meshLocalBounds = pTriMesh->getLocalBounds();
                 localBounds = OBB( FromPx( meshLocalBounds.getCenter() ), FromPx( meshLocalBounds.getExtents() ) * scale.GetAbs() );
@@ -274,7 +277,7 @@ namespace KRG::Physics
             {
                 PxConvexMesh const* pConvexMesh = pMeshComponent->m_pPhysicsMesh->GetConvexMesh();
                 PxConvexMeshGeometry const meshGeo( const_cast<PxConvexMesh*>( pConvexMesh ), ToPx( scale ) );
-                pPhysicsShape = physics.createShape( meshGeo, physicalMaterials.data(), (uint16) physicalMaterials.size(), true, shapeFlags );
+                pPhysicsShape = physics.createShape( meshGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
 
                 auto const meshLocalBounds = pConvexMesh->getLocalBounds();
                 localBounds = OBB( FromPx( meshLocalBounds.getCenter() ), FromPx( meshLocalBounds.getExtents() ) * scale.GetAbs() );
@@ -282,29 +285,20 @@ namespace KRG::Physics
         }
         else if ( auto pBoxComponent = ComponentCast<PhysicsBoxComponent>( pComponent ) )
         {
-            PxMaterial* pPhysicsMaterial = pBoxComponent->m_pPhysicsMaterial->GetMaterial();
-            KRG_ASSERT( pPhysicsMaterial != nullptr );
-
             PxBoxGeometry const boxGeo( ToPx( pBoxComponent->m_boxExtents ) );
-            pPhysicsShape = physics.createShape( boxGeo, *pPhysicsMaterial, true, shapeFlags );
+            pPhysicsShape = physics.createShape( boxGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
             localBounds = OBB( Vector::Origin, pBoxComponent->m_boxExtents );
         }
         else if ( auto pSphereComponent = ComponentCast<PhysicsSphereComponent>( pComponent ) )
         {
-            PxMaterial* pPhysicsMaterial = pSphereComponent->m_pPhysicsMaterial->GetMaterial();
-            KRG_ASSERT( pPhysicsMaterial != nullptr );
-
             PxSphereGeometry const sphereGeo( pSphereComponent->m_radius );
-            pPhysicsShape = physics.createShape( sphereGeo, *pPhysicsMaterial, true, shapeFlags );
+            pPhysicsShape = physics.createShape( sphereGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
             localBounds = OBB( Vector::Origin, Vector( pSphereComponent->m_radius ) );
         }
         else if ( auto pCapsuleComponent = ComponentCast<PhysicsCapsuleComponent>( pComponent ) )
         {
-            PxMaterial* pPhysicsMaterial = pCapsuleComponent->m_pPhysicsMaterial->GetMaterial();
-            KRG_ASSERT( pPhysicsMaterial != nullptr );
-
             PxCapsuleGeometry const capsuleGeo( pCapsuleComponent->m_capsuleRadius, pCapsuleComponent->m_capsuleHalfHeight );
-            pPhysicsShape = physics.createShape( capsuleGeo, *pPhysicsMaterial, true, shapeFlags );
+            pPhysicsShape = physics.createShape( capsuleGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
             localBounds = OBB( Vector::Origin, Vector( pCapsuleComponent->m_capsuleHalfHeight + pCapsuleComponent->m_capsuleRadius, pCapsuleComponent->m_capsuleRadius, pCapsuleComponent->m_capsuleRadius ) );
         }
 
@@ -312,6 +306,8 @@ namespace KRG::Physics
 
         // Set component <-> physics shape links
         //-------------------------------------------------------------------------
+
+        pPhysicsShape->setQueryFilterData( PxFilterData( 0xFFFFFFFF, 0, 0, 0 ) );
 
         pPhysicsShape->userData = const_cast<PhysicsComponent*>( pComponent );
         pComponent->m_pPhysicsShape = pPhysicsShape;
@@ -335,7 +331,11 @@ namespace KRG::Physics
     
     void PhysicsWorldSystem::UpdateEntitySystem( UpdateContext const& ctx )
     {
-        SceneScopeLock const sceneLock( m_pScene, SceneScopeLock::Type::Read );
+        ScopeLock const lock( m_physicsSystem, ScopeLock::Type::Read );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        auto drawingContext = ctx.GetDrawingContext();
+        #endif
 
         for ( auto const& registeredDynamicComponent : m_dynamicComponents )
         {
@@ -347,6 +347,23 @@ namespace KRG::Physics
                 auto physicsPose = pComponent->m_pPhysicsActor->getGlobalPose();
                 pComponent->SetWorldTransform( FromPx( physicsPose ) );
             }
+
+            // Debug
+            //-------------------------------------------------------------------------
+
+            #if KRG_DEVELOPMENT_TOOLS
+            if ( m_drawDynamicActorBounds && pComponent->m_actorType == ActorType::Dynamic )
+            {
+                drawingContext.DrawBox( pComponent->GetWorldBounds(), Colors::Orange.GetAlphaVersion( 0.5f ) );
+                drawingContext.DrawWireBox( pComponent->GetWorldBounds(), Colors::Orange );
+            }
+
+            if ( m_drawKinematicActorBounds && pComponent->m_actorType == ActorType::Kinematic )
+            {
+                drawingContext.DrawBox( pComponent->GetWorldBounds(), Colors::HotPink.GetAlphaVersion( 0.5f ) );
+                drawingContext.DrawWireBox( pComponent->GetWorldBounds(), Colors::HotPink );
+            }
+            #endif
         }
     }
 }

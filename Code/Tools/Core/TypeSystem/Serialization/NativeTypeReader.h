@@ -30,13 +30,14 @@ namespace KRG::TypeSystem
 
         bool ReadFromFile( FileSystemPath const& filePath );
 
+        inline int32 GetNumSerializedTypes() const { return m_numSerializedTypes; }
+
         //-------------------------------------------------------------------------
 
         template<typename T>
         inline NativeTypeReader const& operator>>( T* pType ) const
         {
             DeserializeType( GetValueToBeDeserialized(), T::GetStaticTypeID(), pType );
-            m_deserializedTypeIdx++;
             return *this;
         }
 
@@ -44,7 +45,6 @@ namespace KRG::TypeSystem
         inline NativeTypeReader const& operator>>( T& pType ) const
         {
             DeserializeType( GetValueToBeDeserialized(), T::GetStaticTypeID(), &pType );
-            m_deserializedTypeIdx++;
             return *this;
         }
 
@@ -59,8 +59,8 @@ namespace KRG::TypeSystem
         TypeRegistry const&                                         m_typeRegistry;
         Byte*                                                       m_pFileBuffer = nullptr;
         rapidjson::Document                                         m_document;
-        int32                                                         m_numSerializedTypes = 0;
-        mutable int32                                                 m_deserializedTypeIdx = 0;
+        int32                                                       m_numSerializedTypes = 0;
+        mutable int32                                               m_deserializedTypeIdx = 0;
     };
 }
 

@@ -38,8 +38,8 @@ namespace KRG
     protected:
 
         Seconds                                     m_deltaTime = 1.0f / 60.0f;
-        float                                         m_timeScale = 1.0f;
-        uint64                                         m_frameID = 0;
+        float                                       m_timeScale = 1.0f;
+        uint64                                      m_frameID = 0;
         UpdateStage                                 m_stage = UpdateStage::FrameStart;
         SystemRegistry*                             m_pSystemRegistry = nullptr;
 

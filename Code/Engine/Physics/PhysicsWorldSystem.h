@@ -1,7 +1,6 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "PhysicsScene.h"
 #include "System/Entity/EntityWorldSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
@@ -41,9 +40,6 @@ namespace KRG::Physics
     public:
 
         PhysicsWorldSystem( PhysicsSystem& physicsSystem );
-        ~PhysicsWorldSystem();
-
-        inline PhysicsScene* GetScene() const { return m_pScene; }
 
     private:
 
@@ -53,11 +49,16 @@ namespace KRG::Physics
 
         physx::PxRigidActor* CreateActor( PhysicsComponent* pComponent ) const;
         physx::PxShape* CreateShape( PhysicsComponent* pComponent, physx::PxRigidActor* pActor ) const;
+
     private:
 
         PhysicsSystem&                                  m_physicsSystem;
-        PhysicsScene*                                   m_pScene = nullptr;
         EntityRegistry<EntityPhysicsRecord>             m_registeredEntities;
         THashMap<UUID, PhysicsComponent*>               m_dynamicComponents; // TODO: profile and see if we need to use a dynamic pool
+
+        #if KRG_DEVELOPMENT_TOOLS
+        bool                                            m_drawDynamicActorBounds = false;
+        bool                                            m_drawKinematicActorBounds = false;
+        #endif
     };
 }

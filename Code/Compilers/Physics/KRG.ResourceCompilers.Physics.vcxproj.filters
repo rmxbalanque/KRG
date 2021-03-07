@@ -17,7 +17,7 @@
     </ClCompile>
     <ClCompile Include="PhysicsMeshCompiler.cpp" />
     <ClCompile Include="DLLMain.cpp" />
-    <ClCompile Include="PhysicsMaterialCompiler.cpp" />
+    <ClCompile Include="PhysicsMaterialDatabaseCompiler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -27,6 +27,6 @@
       <Filter>_Module</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsMeshCompiler.h" />
-    <ClInclude Include="PhysicsMaterialCompiler.h" />
+    <ClInclude Include="PhysicsMaterialDatabaseCompiler.h" />
   </ItemGroup>
 </Project>

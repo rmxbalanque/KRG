@@ -29,6 +29,10 @@
       "Command": "Physics",
       "Items": [
         {
+          "Id": "e2cea9c5-2906-4fc8-99a0-4f5e64e6e7b8",
+          "Command": "-compile data://physics/PhysicsMaterials.pmdb"
+        },
+        {
           "Id": "0f518efa-9b58-4db9-942d-ffa488c2273b",
           "Command": "-compile data://geometry/floor.pmsh"
         },

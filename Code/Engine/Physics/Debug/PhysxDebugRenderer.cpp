@@ -1,7 +1,6 @@
 #include "PhysxDebugRenderer.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/PhysX.h"
-#include "Engine/Physics/PhysicsScene.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
@@ -220,45 +219,42 @@ namespace KRG::Physics
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
 
-        for ( PhysicsScene* pScene : m_pPhysicsSystem->GetScenes() )
+        if ( !m_pPhysicsSystem->IsDebugDrawingEnabled() )
         {
-            if ( !pScene->IsDebugDrawingEnabled() )
-            {
-                return;
-            }
-
-            auto renderContext = m_pRenderDevice->GetImmediateContext();
-            renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
-
-            //-------------------------------------------------------------------------
-
-            // Offset the culling bounds in front of the camera, no point in visualizing lines off-screen
-            float const debugHalfDistance = ( pScene->GetDebugDrawDistance() );
-
-            Vector const viewForward = viewport.GetViewForwardDirection();
-            Vector cullingBoundsPosition = viewport.GetViewOrigin();
-            cullingBoundsPosition += viewForward * debugHalfDistance;
-
-            AABB const debugBounds = AABB( cullingBoundsPosition, debugHalfDistance );
-
-            auto pPxScene = pScene->GetPxScene();
-            pPxScene->setVisualizationCullingBox( ToPx( debugBounds ) );
-
-            //-------------------------------------------------------------------------
-
-            auto const& renderBuffer = pPxScene->getRenderBuffer();
-
-            uint32 const numPoints = renderBuffer.getNbPoints();
-            DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numPoints );
-
-            uint32 const numLines = renderBuffer.getNbLines();
-            DrawLines( renderContext, viewport, renderBuffer.getLines(), numLines );
-
-            uint32 const numTriangles = renderBuffer.getNbTriangles();
-            DrawTriangles( renderContext, viewport, renderBuffer.getTriangles(), numTriangles );
-
-            uint32 const numStrings = renderBuffer.getNbTexts();
-            DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numStrings );
+            return;
         }
+
+        auto const& renderContext = m_pRenderDevice->GetImmediateContext();
+        renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
+
+        //-------------------------------------------------------------------------
+
+        // Offset the culling bounds in front of the camera, no point in visualizing lines off-screen
+        float const debugHalfDistance = ( m_pPhysicsSystem->GetDebugDrawDistance() );
+
+        Vector const viewForward = viewport.GetViewForwardDirection();
+        Vector cullingBoundsPosition = viewport.GetViewOrigin();
+        cullingBoundsPosition += viewForward * debugHalfDistance;
+
+        AABB const debugBounds = AABB( cullingBoundsPosition, debugHalfDistance );
+
+        auto pPxScene = m_pPhysicsSystem->GetPxScene();
+        pPxScene->setVisualizationCullingBox( ToPx( debugBounds ) );
+
+        //-------------------------------------------------------------------------
+
+        auto const& renderBuffer = pPxScene->getRenderBuffer();
+
+        uint32 const numPoints = renderBuffer.getNbPoints();
+        DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numPoints );
+
+        uint32 const numLines = renderBuffer.getNbLines();
+        DrawLines( renderContext, viewport, renderBuffer.getLines(), numLines );
+
+        uint32 const numTriangles = renderBuffer.getNbTriangles();
+        DrawTriangles( renderContext, viewport, renderBuffer.getTriangles(), numTriangles );
+
+        uint32 const numStrings = renderBuffer.getNbTexts();
+        DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numStrings );
     }
 }

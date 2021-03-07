@@ -33,8 +33,11 @@ namespace KRG
 
         void GameModule::Shutdown( ModuleContext& context )
         {
-            auto pEntityWorld = context.GetEntityWorld();
-            pEntityWorld->OnCreatePersistentEntities().Unbind( m_createPersistentEntitiesBinding );
+            if ( m_createPersistentEntitiesBinding.IsValid() )
+            {
+                auto pEntityWorld = context.GetEntityWorld();
+                pEntityWorld->OnCreatePersistentEntities().Unbind( m_createPersistentEntitiesBinding );
+            }
         }
     }
 }

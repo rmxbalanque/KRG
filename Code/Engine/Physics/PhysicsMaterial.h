@@ -1,15 +1,41 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "System/Resource/IResource.h"
+#include "PhysX.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
-#include "PxMaterial.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Physics
 {
-    enum class PhysicMaterialCombineMode
+    //-------------------------------------------------------------------------
+    // Physics Material
+    //-------------------------------------------------------------------------
+    // Physics material instance, created from the serialized settings
+
+    struct KRG_ENGINE_PHYSICS_API PhysicsMaterial
+    {
+        constexpr static char const* const DefaultID = "Default";
+        constexpr static float const DefaultStaticFriction = 0.5f;
+        constexpr static float const DefaultDynamicFriction = 0.5f;
+        constexpr static float const DefaultRestitution = 0.5f;
+
+    public:
+
+        PhysicsMaterial( StringID ID, physx::PxMaterial* pMaterial )
+            : m_ID( ID )
+            , m_pMaterial( pMaterial )
+        {
+            KRG_ASSERT( ID.IsValid() && pMaterial != nullptr );
+        }
+
+    public:
+
+        StringID                                m_ID;
+        physx::PxMaterial*                      m_pMaterial = nullptr;
+    };
+
+    enum class PhysicsCombineMode
     {
         KRG_REGISTER_ENUM
 
@@ -20,53 +46,28 @@ namespace KRG::Physics
     };
 
     //-------------------------------------------------------------------------
+    // Material Settings
+    //-------------------------------------------------------------------------
+    // Serialized physical material settings
 
     struct KRG_ENGINE_PHYSICS_API PhysicsMaterialSettings
     {
         KRG_REGISTER_TYPE;
-        KRG_SERIALIZE_MEMBERS( m_name, m_dynamicFriction, m_staticFriction, m_restitution, m_frictionCombineMode, m_restitutionCombineMode );
+        KRG_SERIALIZE_MEMBERS( m_ID, m_dynamicFriction, m_staticFriction, m_restitution, m_frictionCombineMode, m_restitutionCombineMode );
 
         bool IsValid() const;
 
-        EXPOSE StringID                    m_name;
+        EXPOSE StringID                         m_ID;
 
         // The friction coefficients - [0, FloatMax]
-        EXPOSE float                         m_dynamicFriction = 0.5f;
-        EXPOSE float                         m_staticFriction = 0.5f;
+        EXPOSE float                            m_staticFriction = PhysicsMaterial::DefaultStaticFriction;
+        EXPOSE float                            m_dynamicFriction = PhysicsMaterial::DefaultDynamicFriction;
 
         // The amount of restitution (bounciness) - [0,1]
-        EXPOSE float                         m_restitution = 0.0f;
+        EXPOSE float                            m_restitution = PhysicsMaterial::DefaultRestitution;
 
         // How material properties will be combined on collision
-        EXPOSE PhysicMaterialCombineMode   m_frictionCombineMode = PhysicMaterialCombineMode::Average;
-        EXPOSE PhysicMaterialCombineMode   m_restitutionCombineMode = PhysicMaterialCombineMode::Average;
-    };
-
-    //-------------------------------------------------------------------------
-
-    class KRG_ENGINE_PHYSICS_API PhysicsMaterial : public Resource::IResource
-    {
-        KRG_REGISTER_RESOURCE( 'PMAT' );
-        friend class PhysicsMaterialCompiler;
-        friend class PhysicsMaterialLoader;
-
-        KRG_SERIALIZE_NONE();
-
-    public:
-
-        PhysicsMaterial( StringID name ) : m_name( name ) { KRG_ASSERT( name.IsValid() ); }
-
-        virtual bool IsValid() const override;
-
-        // KRG material properties
-        inline StringID GetMaterialName() const { return m_name; }
-
-        // PhysX material properties
-        physx::PxMaterial* GetMaterial() const { return m_pMaterial; }
-
-    private:
-
-        StringID                    m_name;
-        physx::PxMaterial*          m_pMaterial = nullptr;
+        EXPOSE PhysicsCombineMode               m_frictionCombineMode = PhysicsCombineMode::Average;
+        EXPOSE PhysicsCombineMode               m_restitutionCombineMode = PhysicsCombineMode::Average;
     };
 }

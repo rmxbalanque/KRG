@@ -51,6 +51,7 @@ namespace KRG
         ConfigSettingBool( char const* pName, char const* pCategory );
         ConfigSettingBool( char const* pName, char const* pCategory, bool initialValue );
 
+        inline bool GetValue() const { return m_value; }
         inline operator bool() const { return m_value; }
 
         inline ConfigSettingBool& operator=( bool value ) 
@@ -84,6 +85,7 @@ namespace KRG
         inline int32 GetMax() const { return m_max; }
         inline bool HasLimits() const { return m_min != INT_MIN || m_max != INT_MAX; }
 
+        inline int32 GetValue() const { return m_value; }
         inline operator int32() const { return m_value; }
 
         inline ConfigSettingInt& operator=( int32 value ) 
@@ -120,6 +122,7 @@ namespace KRG
         inline float GetMax() const { return m_max; }
         inline bool HasLimits() const { return m_min != -FLT_MAX || m_max != FLT_MAX; }
 
+        inline float GetValue() const { return m_value; }
         inline operator float() const { return m_value; }
 
         inline ConfigSettingFloat& operator=( float value )
@@ -134,9 +137,9 @@ namespace KRG
 
     private:
 
-        float                                     m_value = false;
-        float                                     m_min = -FLT_MAX;
-        float                                     m_max = FLT_MAX;
+        float                                       m_value = false;
+        float                                       m_min = -FLT_MAX;
+        float                                       m_max = FLT_MAX;
         TMultiUserEventInternal<float, float>       m_onValueChangedEvent;
     };
 
@@ -153,6 +156,7 @@ namespace KRG
         ConfigSettingString( char const* pName, char const* pCategory );
         ConfigSettingString( char const* pName, char const* pCategory, char const* pInitialValue );
 
+        inline char const* GetValue() const { return m_value; }
         inline operator char const*() const { return m_value; }
         ConfigSettingString& operator=( char const* pValue );
 
