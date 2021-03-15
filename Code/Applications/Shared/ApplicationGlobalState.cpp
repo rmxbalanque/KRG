@@ -30,7 +30,7 @@ namespace KRG
         StringID::Initialize();
         Log::Initialize();
 
-        TypeSystem::Initialize();
+        TypeSystem::CoreTypeRegistry::Initialize();
 
         g_platformInitialized = true;
         m_primaryState = true;
@@ -44,7 +44,7 @@ namespace KRG
             g_platformInitialized = false;
             m_primaryState = false;
 
-            TypeSystem::Shutdown();
+            TypeSystem::CoreTypeRegistry::Shutdown();
 
             Log::Shutdown();
             StringID::Shutdown();

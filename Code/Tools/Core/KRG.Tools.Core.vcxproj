@@ -62,27 +62,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\NativeTypeWriter.cpp" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
     <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
-    <ClInclude Include="TypeSystem\Serialization\ToolTypeWriter.h" />
-    <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
-    <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
-    <ClCompile Include="TypeSystem\Serialization\ToolTypeWriter.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\ToolTypeReader.cpp" />
     <ClInclude Include="ThirdParty\sqlite\SqliteHelpers.h" />
-    <ClInclude Include="TypeSystem\ToolTypeInstance.h" />
-    <ClInclude Include="TypeSystem\Serialization\ToolTypeReader.h" />
+    <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h" />
     <ClInclude Include="TypeSystem\Serialization\NativeTypeWriter.h" />
+    <ClInclude Include="TypeSystem\Serialization\ToolTypeReader.h" />
+    <ClInclude Include="TypeSystem\Serialization\ToolTypeWriter.h" />
+    <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
+    <ClInclude Include="TypeSystem\ToolTypeInstance.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\NativeTypeReader.cpp" />
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\NativeTypeReader.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\NativeTypeWriter.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\ToolTypeReader.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\ToolTypeWriter.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
     <ClCompile Include="TypeSystem\ToolTypeInstance.cpp" />
   </ItemGroup>
   <ItemGroup>

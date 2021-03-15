@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_KRG__Resource__MainViewWidget_t {
     QByteArrayData data[11];
-    char stringdata0[155];
+    char stringdata0[157];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -35,18 +35,18 @@ static const qt_meta_stringdata_KRG__Resource__MainViewWidget_t qt_meta_stringda
 QT_MOC_LITERAL(0, 0, 29), // "KRG::Resource::MainViewWidget"
 QT_MOC_LITERAL(1, 30, 15), // "ChangePageIndex"
 QT_MOC_LITERAL(2, 46, 0), // ""
-QT_MOC_LITERAL(3, 47, 3), // "int32"
-QT_MOC_LITERAL(4, 51, 7), // "pageIdx"
-QT_MOC_LITERAL(5, 59, 17), // "OnChangePageIndex"
-QT_MOC_LITERAL(6, 77, 18), // "CreateCompilerPage"
-QT_MOC_LITERAL(7, 96, 8), // "QWidget*"
-QT_MOC_LITERAL(8, 105, 15), // "ResourceServer&"
-QT_MOC_LITERAL(9, 121, 14), // "resourceServer"
-QT_MOC_LITERAL(10, 136, 18) // "CreateRequestsPage"
+QT_MOC_LITERAL(3, 47, 5), // "int32"
+QT_MOC_LITERAL(4, 53, 7), // "pageIdx"
+QT_MOC_LITERAL(5, 61, 17), // "OnChangePageIndex"
+QT_MOC_LITERAL(6, 79, 18), // "CreateCompilerPage"
+QT_MOC_LITERAL(7, 98, 8), // "QWidget*"
+QT_MOC_LITERAL(8, 107, 15), // "ResourceServer&"
+QT_MOC_LITERAL(9, 123, 14), // "resourceServer"
+QT_MOC_LITERAL(10, 138, 18) // "CreateRequestsPage"
 
     },
     "KRG::Resource::MainViewWidget\0"
-    "ChangePageIndex\0\0S32\0pageIdx\0"
+    "ChangePageIndex\0\0int32\0pageIdx\0"
     "OnChangePageIndex\0CreateCompilerPage\0"
     "QWidget*\0ResourceServer&\0resourceServer\0"
     "CreateRequestsPage"

@@ -1,6 +1,14 @@
 #pragma once
 
 //-------------------------------------------------------------------------
+// Common
+//-------------------------------------------------------------------------
+
+#define KRG_STRINGIZING(x) #x
+#define KRG_MAKE_STRING(x) KRG_STRINGIZING(x)
+#define KRG_FILE_LINE __FILE__ ":" KRG_MAKE_STRING(__LINE__)
+
+//-------------------------------------------------------------------------
 // Configurations
 //-------------------------------------------------------------------------
 
@@ -39,7 +47,6 @@
     //-------------------------------------------------------------------------
 
     #define KRG_STATIC_ASSERT( cond, error ) static_assert( cond, error )
-    #define KRG_TRACE_MSG( msg ) { KRG_TRACE_MSG_WIN32( msg ); }
     #define KRG_TRACE_ASSERT( msg ) { KRG_TRACE_MSG( msg ); KRG_HALT(); }
     #define KRG_UNIMPLEMENTED_FUNCTION() KRG_TRACE_ASSERT("Function not implemented!\n")
     #define KRG_UNREACHABLE_CODE() KRG_TRACE_ASSERT("Unreachable code encountered!\n")

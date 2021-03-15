@@ -48,12 +48,8 @@ namespace KRG::Physics
 
     public:
 
-        PhysicsComponent();
-
         inline ActorType GetActorType() const { return m_actorType; }
         inline ShapeType GetShapeType() const { return m_shapeType; }
-
-        virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const { return { m_physicsMaterialID }; }
 
         // Static API
         //-------------------------------------------------------------------------
@@ -79,17 +75,19 @@ namespace KRG::Physics
         // Note: the actor physics actor will only be moved during the next physics simulation step
         void MoveTo( Transform const& newWorldTransform );
 
-    private:
-
-        virtual void OnWorldTransformUpdated() override final;
+    protected:
 
         // Check if the physics setup if valid for this component, will log any problems detected!
         virtual bool HasValidPhysicsSetup() const = 0;
 
-    protected:
+        // Get physics materials for this component
+        virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const = 0;
 
-        // The physical material ID for the shape
-        EXPOSE StringID                             m_physicsMaterialID;
+    private:
+
+        virtual void OnWorldTransformUpdated() override final;
+
+    protected:
 
         // The type of physics actor for this component
         EXPOSE ActorType                            m_actorType = ActorType::Static;

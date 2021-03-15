@@ -13,12 +13,18 @@ namespace KRG::Physics
 
         friend class PhysicsWorldSystem;
 
+    public:
+
+        PhysicsSphereComponent();
+
     private:
 
         virtual bool HasValidPhysicsSetup() const override final;
+        virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const override final { return { m_physicsMaterialID }; }
 
     protected:
 
+        EXPOSE StringID                                 m_physicsMaterialID;
         EXPOSE float                                    m_radius = 0.5f;
     };
 }

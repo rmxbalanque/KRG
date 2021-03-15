@@ -2,7 +2,6 @@
 #include "EntityCollectionDescriptor.h"
 #include "System/Entity/Entity.h"
 #include "System/Entity/EntitySystem.h"
-#include "System/TypeSystem/TypeValueConverter.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Threading/TaskSystem.h"
 

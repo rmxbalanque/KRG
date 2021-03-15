@@ -378,7 +378,7 @@ namespace KRG
                         type.m_headerID = StringID( sqlite3_column_int( pStatement, 1 ) );
                         type.m_name = (char const*) sqlite3_column_text( pStatement, 2 );
                         type.m_namespace = (char const*) sqlite3_column_text( pStatement, 3 );
-                        type.m_flags.SetAll( (uint32) sqlite3_column_int( pStatement, 4 ) );
+                        type.m_flags.SetFlags( (uint32) sqlite3_column_int( pStatement, 4 ) );
 
                         // Read additional type data
                         if ( type.IsEnum() )
@@ -707,7 +707,7 @@ namespace KRG
                         propDesc.m_name = (char const*) sqlite3_column_text( pStatement, 3 );
                         propDesc.m_typeName = (char const*) sqlite3_column_text( pStatement, 4 );
                         propDesc.m_templateArgTypeName = (char const*) sqlite3_column_text( pStatement, 5 );
-                        propDesc.m_flags.SetAll( (uint32) sqlite3_column_int( pStatement, 6 ) );
+                        propDesc.m_flags.SetFlags( (uint32) sqlite3_column_int( pStatement, 6 ) );
                         propDesc.m_arraySize = sqlite3_column_int( pStatement, 7 );
                         propDesc.m_propertyID = StringID( propDesc.m_name );
                         KRG_ASSERT( propDesc.m_propertyID == (uint32) sqlite3_column_int( pStatement, 0 ) ); // Ensure the property ID matches the recorded one

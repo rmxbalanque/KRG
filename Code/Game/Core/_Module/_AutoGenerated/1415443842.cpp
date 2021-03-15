@@ -41,6 +41,47 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
+// Enum Helper: KRG::SomeFlags
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    namespace TypeSystem
+    {
+        namespace EnumHelpers
+        {
+            void EnumHelper_KRG_SomeFlags::RegisterEnum( TypeSystem::TypeRegistry& typeRegistry )
+            {
+                TypeSystem::TypeInfo typeInfo;
+                typeInfo.m_ID = TypeSystem::TypeID( "KRG::SomeFlags" );
+                typeInfo.m_size = sizeof( KRG::SomeFlags );
+                typeInfo.m_alignment = alignof( KRG::SomeFlags );
+                typeRegistry.RegisterType( typeInfo );
+
+                TypeSystem::EnumInfo enumInfo;
+                enumInfo.m_ID = TypeSystem::TypeID( "KRG::SomeFlags" );
+                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int32;
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "c" ), 3 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "a" ), 1 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "CoW" ), 5 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "B" ), 2 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "D" ), 4 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "A" ), 5 ) );
+
+                typeRegistry.RegisterEnum( enumInfo );
+            }
+
+            void EnumHelper_KRG_SomeFlags::UnregisterEnum( TypeSystem::TypeRegistry& typeRegistry )
+            {
+                auto const ID = TypeSystem::TypeID( "KRG::SomeFlags" );
+                typeRegistry.UnregisterType( ID );
+                typeRegistry.UnregisterEnum( ID );
+            }
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
 // TypeHelper: KRG::TestComponent::InternalStruct
 //-------------------------------------------------------------------------
 

@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_KRG__ValueEditors__SignedIntegerEditor_t {
     QByteArrayData data[6];
-    char stringdata0[77];
+    char stringdata0[79];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -35,13 +35,13 @@ static const qt_meta_stringdata_KRG__ValueEditors__SignedIntegerEditor_t qt_meta
 QT_MOC_LITERAL(0, 0, 38), // "KRG::ValueEditors::SignedInte..."
 QT_MOC_LITERAL(1, 39, 14), // "OnValueChanged"
 QT_MOC_LITERAL(2, 54, 0), // ""
-QT_MOC_LITERAL(3, 55, 3), // "int64"
-QT_MOC_LITERAL(4, 59, 8), // "newValue"
-QT_MOC_LITERAL(5, 68, 8) // "OldValue"
+QT_MOC_LITERAL(3, 55, 5), // "int64"
+QT_MOC_LITERAL(4, 61, 8), // "newValue"
+QT_MOC_LITERAL(5, 70, 8) // "OldValue"
 
     },
     "KRG::ValueEditors::SignedIntegerEditor\0"
-    "OnValueChanged\0\0S64\0newValue\0OldValue"
+    "OnValueChanged\0\0int64\0newValue\0OldValue"
 };
 #undef QT_MOC_LITERAL
 
@@ -136,7 +136,7 @@ void KRG::ValueEditors::SignedIntegerEditor::OnValueChanged(int64 _t1, int64 _t2
 }
 struct qt_meta_stringdata_KRG__ValueEditors__UnsignedIntegerEditor_t {
     QByteArrayData data[6];
-    char stringdata0[79];
+    char stringdata0[82];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -148,13 +148,14 @@ static const qt_meta_stringdata_KRG__ValueEditors__UnsignedIntegerEditor_t qt_me
 QT_MOC_LITERAL(0, 0, 40), // "KRG::ValueEditors::UnsignedIn..."
 QT_MOC_LITERAL(1, 41, 14), // "OnValueChanged"
 QT_MOC_LITERAL(2, 56, 0), // ""
-QT_MOC_LITERAL(3, 57, 3), // "uint64"
-QT_MOC_LITERAL(4, 61, 8), // "newValue"
-QT_MOC_LITERAL(5, 70, 8) // "OldValue"
+QT_MOC_LITERAL(3, 57, 6), // "uint64"
+QT_MOC_LITERAL(4, 64, 8), // "newValue"
+QT_MOC_LITERAL(5, 73, 8) // "OldValue"
 
     },
     "KRG::ValueEditors::UnsignedIntegerEditor\0"
-    "OnValueChanged\0\0U64\0newValue\0OldValue"
+    "OnValueChanged\0\0uint64\0newValue\0"
+    "OldValue"
 };
 #undef QT_MOC_LITERAL
 
@@ -248,8 +249,8 @@ void KRG::ValueEditors::UnsignedIntegerEditor::OnValueChanged(uint64 _t1, uint64
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 struct qt_meta_stringdata_KRG__ValueEditors__FloatingPointEditor_t {
-    QByteArrayData data[6];
-    char stringdata0[77];
+    QByteArrayData data[5];
+    char stringdata0[73];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -261,13 +262,12 @@ static const qt_meta_stringdata_KRG__ValueEditors__FloatingPointEditor_t qt_meta
 QT_MOC_LITERAL(0, 0, 38), // "KRG::ValueEditors::FloatingPo..."
 QT_MOC_LITERAL(1, 39, 14), // "OnValueChanged"
 QT_MOC_LITERAL(2, 54, 0), // ""
-QT_MOC_LITERAL(3, 55, 3), // "double"
-QT_MOC_LITERAL(4, 59, 8), // "newValue"
-QT_MOC_LITERAL(5, 68, 8) // "OldValue"
+QT_MOC_LITERAL(3, 55, 8), // "newValue"
+QT_MOC_LITERAL(4, 64, 8) // "OldValue"
 
     },
     "KRG::ValueEditors::FloatingPointEditor\0"
-    "OnValueChanged\0\0F64\0newValue\0OldValue"
+    "OnValueChanged\0\0newValue\0OldValue"
 };
 #undef QT_MOC_LITERAL
 
@@ -288,7 +288,7 @@ static const uint qt_meta_data_KRG__ValueEditors__FloatingPointEditor[] = {
        1,    2,   19,    2, 0x06 /* Public */,
 
  // signals: parameters
-    QMetaType::Void, 0x80000000 | 3, 0x80000000 | 3,    4,    5,
+    QMetaType::Void, QMetaType::Double, QMetaType::Double,    3,    4,
 
        0        // eod
 };

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-compile data://physics/PhysicsMaterials.pmdb -compile data://animation/stand_crowd_ambient4.anim</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://physics/PhysicsMaterials.pmdb -compile data://animation/stand_crowd_ambient4.anim</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-compile data://maps/SerializationTest.map</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://maps/SerializationTest.map</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>-compile data://Physics/DefaultPhysicsMaterial.pmat</LocalDebuggerCommandArguments>

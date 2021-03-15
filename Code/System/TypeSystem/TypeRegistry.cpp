@@ -17,7 +17,7 @@ namespace KRG
 
         TypeInfo const* TypeRegistry::RegisterType( TypeInfo const& type )
         {
-            KRG_ASSERT( type.m_ID.IsValid() && !IsCoreType( type.m_ID ) );
+            KRG_ASSERT( type.m_ID.IsValid() && !CoreTypeRegistry::IsCoreType( type.m_ID ) );
             KRG_ASSERT( m_registeredTypes.find( type.m_ID ) == m_registeredTypes.end() );
             m_registeredTypes.insert( eastl::pair<TypeID, TypeInfo*>( type.m_ID, KRG::New<TypeInfo>( type ) ) );
             return m_registeredTypes[type.m_ID];
@@ -25,7 +25,7 @@ namespace KRG
 
         void TypeRegistry::UnregisterType( TypeID const typeID )
         {
-            KRG_ASSERT( typeID.IsValid() && !IsCoreType( typeID ) );
+            KRG_ASSERT( typeID.IsValid() && !CoreTypeRegistry::IsCoreType( typeID ) );
             auto iter = m_registeredTypes.find( typeID );
             KRG_ASSERT( iter != m_registeredTypes.end() );
             KRG::Delete<TypeInfo>( iter->second );
@@ -34,7 +34,7 @@ namespace KRG
 
         TypeInfo const* TypeRegistry::GetTypeInfo( TypeID typeID ) const
         {
-            KRG_ASSERT( typeID.IsValid() && !IsCoreType( typeID ) );
+            KRG_ASSERT( typeID.IsValid() && !CoreTypeRegistry::IsCoreType( typeID ) );
             auto iter = m_registeredTypes.find( typeID );
             if ( iter != m_registeredTypes.end() )
             {
@@ -71,7 +71,7 @@ namespace KRG
                 if ( i != lastElementIdx )
                 {
                     // If this occurs, we have an invalid path as each element must contain other properties
-                    if ( IsCoreType( pFoundPropertyInfo->m_typeID ) && !pFoundPropertyInfo->IsArrayProperty() )
+                    if ( CoreTypeRegistry::IsCoreType( pFoundPropertyInfo->m_typeID ) && !pFoundPropertyInfo->IsArrayProperty() )
                     {
                         KRG_LOG_WARNING( "TypeSystem", "Cant resolve malformed property path" ); \
                         pFoundPropertyInfo = nullptr;
@@ -101,7 +101,7 @@ namespace KRG
         bool TypeRegistry::IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const
         {
             KRG_ASSERT( typeID.IsValid() && parentTypeID.IsValid() );
-            KRG_ASSERT( !IsCoreType( typeID ) && !IsCoreType( parentTypeID ) );
+            KRG_ASSERT( !CoreTypeRegistry::IsCoreType( typeID ) && !CoreTypeRegistry::IsCoreType( parentTypeID ) );
 
             auto pTypeInfo = GetTypeInfo( typeID );
             KRG_ASSERT( pTypeInfo != nullptr );
@@ -161,7 +161,7 @@ namespace KRG
 
         void TypeRegistry::RegisterResourceTypeID( TypeID typeID, ResourceTypeID resourceTypeID )
         {
-            KRG_ASSERT( typeID.IsValid() && !IsCoreType( typeID ) );
+            KRG_ASSERT( typeID.IsValid() && !CoreTypeRegistry::IsCoreType( typeID ) );
             KRG_ASSERT( resourceTypeID.IsValid() );
             KRG_ASSERT( m_registeredResourceTypes.find( typeID ) == m_registeredResourceTypes.end() );
             m_registeredResourceTypes.insert( eastl::pair<TypeID, ResourceTypeID>( typeID, resourceTypeID ) );
@@ -169,7 +169,7 @@ namespace KRG
 
         void TypeRegistry::UnregisterResourceTypeID( TypeID typeID )
         {
-            KRG_ASSERT( typeID.IsValid() && !IsCoreType( typeID ) );
+            KRG_ASSERT( typeID.IsValid() && !CoreTypeRegistry::IsCoreType( typeID ) );
             auto iter = m_registeredResourceTypes.find( typeID );
             KRG_ASSERT( iter != m_registeredResourceTypes.end() );
             m_registeredResourceTypes.erase( iter );
@@ -196,7 +196,7 @@ namespace KRG
 
             if ( IsCoreType( typeID ) )
             {
-                return GetCoreTypeSize( typeID );
+                return CoreTypeRegistry::GetTypeSize( typeID );
             }
             else
             {

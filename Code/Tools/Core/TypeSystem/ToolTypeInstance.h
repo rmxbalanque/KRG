@@ -5,7 +5,8 @@
 #include "System/TypeSystem/PropertyInfo.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/CoreTypeIDs.h"
-#include "System/TypeSystem/TypeValueConverter.h"
+#include "System/TypeSystem/CoreTypeValidation.h"
+#include "System/TypeSystem/CoreTypeSerializers.h"
 
 //-------------------------------------------------------------------------
 // Tool Type Instance
@@ -24,10 +25,11 @@ namespace KRG::TypeSystem
 
     struct ToolPropertyInstanceDescriptor
     {
-        ToolPropertyInstanceDescriptor( PropertyPath const& path, String const& value, TypeID typeID = TypeID() )
+        ToolPropertyInstanceDescriptor( PropertyPath const& path, String const& value, TypeID typeID = TypeID(), TypeID templatedArgumentTypeID = TypeID() )
             : m_path( path )
             , m_value( value )
             , m_typeID( typeID )
+            , m_templatedArgumentTypeID( templatedArgumentTypeID )
         {
             KRG_ASSERT( path.IsValid() && !value.empty() );
         }
@@ -39,6 +41,7 @@ namespace KRG::TypeSystem
         PropertyPath                                    m_path;
         String                                          m_value;
         TypeID                                          m_typeID; // Not serialized - but needed for certain conversions
+        TypeID                                          m_templatedArgumentTypeID; // Not serialized - but needed for certain conversions
     };
 
     //-------------------------------------------------------------------------
@@ -46,7 +49,7 @@ namespace KRG::TypeSystem
     struct ToolTypeInstanceDescriptor
     {
         TypeID                                          m_typeID;
-        TVector<ToolPropertyInstanceDescriptor>                     m_properties;
+        TVector<ToolPropertyInstanceDescriptor>         m_properties;
     };
 
     //-------------------------------------------------------------------------
@@ -75,10 +78,12 @@ namespace KRG::TypeSystem
         //-------------------------------------------------------------------------
 
         inline TypeID const& GetTypeID() const { return m_propertyInfo.m_typeID; }
+        inline TypeID const& GetTemplatedArgumentTypeID() const { return m_propertyInfo.m_templateArgumentTypeID; }
         inline PropertyInfo const& GetPropertyInfo() const { return m_propertyInfo; }
         inline TypeInfo const* GetTypeInfo() const { return m_pTypeInfo; }
 
         inline bool IsEnum() const { return m_propertyInfo.IsEnumProperty(); }
+        inline bool IsBitFlags() const { return m_propertyInfo.IsBitFlagsProperty(); }
         inline bool IsCoreType() const { return TypeSystem::IsCoreType( m_propertyInfo.m_typeID ); }
         inline bool IsStructure() const { return m_pTypeInfo != nullptr; }
         inline bool IsResourcePtr() const { return m_propertyInfo.m_typeID == CoreTypes::ResourcePtr || m_propertyInfo.m_typeID == CoreTypes::TResourcePtr; }
@@ -101,7 +106,6 @@ namespace KRG::TypeSystem
         //-------------------------------------------------------------------------
 
         TVector<char const*> GetEnumValues() const;
-        bool IsValidEnumStringValue( char const* pString );
         int64 GetIntForEnumStringValue( char const* pString );
         char const* GetStringValueForEnumValue( int64 value );
 
@@ -184,18 +188,20 @@ namespace KRG::TypeSystem
         template<typename T>
         inline T GetValue() const
         {
+            KRG_ASSERT( TypeSystem::ValidateTypeAgainstTypeID<T>( m_propertyInfo.m_typeID ) );
             KRG_ASSERT( IsCoreType() && !IsArray() );
 
             T outValue;
-            TypeValueConverter::StringToValue( m_value, outValue );
+            Conversion::ConvertStringValueToTypeValue( *m_pTypeRegistry, m_propertyInfo, m_value, &outValue );
             return outValue;
         }
 
         template<typename T>
         inline void SetValue( T const& value )
         {
+            KRG_ASSERT( TypeSystem::ValidateTypeAgainstTypeID<T>( m_propertyInfo.m_typeID ) );
             KRG_ASSERT( IsCoreType() && !IsArray() );
-            TypeValueConverter::ValueToString( value, m_value );
+            Conversion::ConvertTypeValueToStringValue( *m_pTypeRegistry, m_propertyInfo, &value, m_value );
         }
 
         template<typename T>
@@ -219,14 +225,14 @@ namespace KRG::TypeSystem
 
     protected:
 
-        TypeRegistry const*                             m_pTypeRegistry = nullptr;
-        PropertyInfo                                    m_propertyInfo; // Only valid for actual properties
-        TypeInfo const*                                 m_pTypeInfo = nullptr;  // If this is a struct/class instance, we stored the type info here
-        int32                                                         m_arrayElementIdx = InvalidIndex; // Only set if this is an element in an array
-        String                                                      m_friendlyName;
-        String                                                      m_value;
-        String                                                      m_defaultValue;
-        TVector<ToolPropertyInstance>                               m_childProperties;
+        TypeRegistry const*                                 m_pTypeRegistry = nullptr;
+        PropertyInfo                                        m_propertyInfo; // Only valid for actual properties
+        TypeInfo const*                                     m_pTypeInfo = nullptr;  // If this is a struct/class instance, we stored the type info here
+        int32                                               m_arrayElementIdx = InvalidIndex; // Only set if this is an element in an array
+        String                                              m_friendlyName;
+        String                                              m_value;
+        String                                              m_defaultValue;
+        TVector<ToolPropertyInstance>                       m_childProperties;
     };
 
     //-------------------------------------------------------------------------

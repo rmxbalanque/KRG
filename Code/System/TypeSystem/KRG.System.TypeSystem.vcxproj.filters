@@ -17,7 +17,7 @@
     <ClInclude Include="TypeInfo.h" />
     <ClInclude Include="TypeRegistrationMacros.h" />
     <ClInclude Include="TypeRegistry.h" />
-    <ClInclude Include="TypeValueConverter.h" />
+    <ClInclude Include="CoreTypeSerializers.h" />
     <ClInclude Include="PropertyPath.h" />
     <ClInclude Include="CoreTypeValidation.h" />
     <ClInclude Include="TypeDescriptors.h" />
@@ -27,7 +27,7 @@
     <ClCompile Include="PropertyInfo.cpp" />
     <ClCompile Include="TypeInfo.cpp" />
     <ClCompile Include="TypeRegistry.cpp" />
-    <ClCompile Include="TypeValueConverter.cpp" />
+    <ClCompile Include="CoreTypeSerializers.cpp" />
     <ClCompile Include="PropertyPath.cpp" />
     <ClCompile Include="TypeDescriptors.cpp" />
   </ItemGroup>

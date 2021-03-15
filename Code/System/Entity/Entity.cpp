@@ -96,6 +96,7 @@ namespace KRG
             if ( pComponent->IsInitialized() )
             {
                 pComponent->Shutdown();
+                KRG_ASSERT( !pComponent->IsInitialized() ); // Did you forget to call the parent class shutdown?
             }
 
             pComponent->Unload( loadingContext, m_ID );
@@ -887,7 +888,7 @@ namespace KRG
                 if ( pComponent->IsLoaded() )
                 {
                     pComponent->Initialize();
-                    KRG_ASSERT( pComponent->IsInitialized() );
+                    KRG_ASSERT( pComponent->IsInitialized() ); // Did you forget to call the parent class initialize?
 
                     // If we are already activated, then register with entity systems
                     if ( IsActivated() )

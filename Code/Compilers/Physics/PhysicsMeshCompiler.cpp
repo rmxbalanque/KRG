@@ -3,6 +3,7 @@
 #include "Tools/Resource/RawAssets/RawMesh.h"
 #include "Engine/Physics/Physx.h"
 #include "Engine/Physics/PhysicsMesh.h"
+#include "Engine/Physics/PhysicsMaterial.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
@@ -99,7 +100,23 @@ namespace KRG
                 }
 
                 physicsMesh.m_isConvexMesh = false;
-                physicsMesh.m_numMaterialsNeeded = (uint16) pRawMesh->GetNumGeometrySections();
+            }
+
+            // Set Materials
+            //-------------------------------------------------------------------------
+            // For now just use the default material until we have a proper DCC physics pipeline
+
+            static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
+            if ( physicsMesh.IsConvexMesh() )
+            {
+                physicsMesh.m_physicsMaterialIDs.emplace_back( defaultMaterialID );
+            }
+            else // One material per geometry section
+            {
+                for ( auto i = 0; i < pRawMesh->GetNumGeometrySections(); i++ )
+                {
+                    physicsMesh.m_physicsMaterialIDs.emplace_back( defaultMaterialID );
+                }
             }
 
             // Serialize

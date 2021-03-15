@@ -2,6 +2,7 @@
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Types/Percentage.h"
 #include "System/Core/Types/Color.h"
+#include "System/Core/Types/BitFlags.h"
 #include "System/Core/Time/Time.h"
 #include "System/Core/Math/Transform.h"
 
@@ -9,47 +10,36 @@
 
 #define REGISTER_TYPE_RECORD( coreTypeEnum, fullyQualifiedTypeName ) \
 ID = TypeID( #fullyQualifiedTypeName );\
-KRG_ASSERT( !CoreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
-CoreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName ), alignof( fullyQualifiedTypeName ) };
+KRG_ASSERT( !CoreTypeRegistry::s_coreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
+CoreTypeRegistry::s_coreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName ), alignof( fullyQualifiedTypeName ) };
 
-#define REGISTER_TEMPLATE_TYPE_RECORD_GENERIC( coreTypeEnum, fullyQualifiedTypeName ) \
+#define REGISTER_TEMPLATE_TYPE_RECORD_GENERIC( coreTypeEnum, fullyQualifiedTypeName, baseSpecialization ) \
 ID = TypeID( #fullyQualifiedTypeName );\
-KRG_ASSERT( !CoreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
-CoreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<uint8> ), alignof( fullyQualifiedTypeName<uint8> ) };
+KRG_ASSERT( !CoreTypeRegistry::s_coreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
+CoreTypeRegistry::s_coreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<baseSpecialization> ), alignof( fullyQualifiedTypeName<baseSpecialization> ) };
 
 #define REGISTER_TEMPLATE_TYPE_RECORD_RESOURCE( coreTypeEnum, fullyQualifiedTypeName ) \
 ID = TypeID( #fullyQualifiedTypeName );\
-KRG_ASSERT( !CoreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
-CoreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<KRG::Resource::IResource> ), alignof( fullyQualifiedTypeName<KRG::Resource::IResource> ) };
+KRG_ASSERT( !CoreTypeRegistry::s_coreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
+CoreTypeRegistry::s_coreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<KRG::Resource::IResource> ), alignof( fullyQualifiedTypeName<KRG::Resource::IResource> ) };
 
 #define REGISTER_TEMPLATE_TYPE_RECORD_OBJECT( coreTypeEnum, fullyQualifiedTypeName ) \
 ID = TypeID( #fullyQualifiedTypeName );\
-KRG_ASSERT( !CoreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
-CoreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<KRG::Entity> ), alignof( fullyQualifiedTypeName<KRG::Entity> ) };
+KRG_ASSERT( !CoreTypeRegistry::s_coreTypeRecords[(uint8)coreTypeEnum].m_ID.IsValid() );\
+CoreTypeRegistry::s_coreTypeRecords[(uint8)coreTypeEnum] = { ID, sizeof( fullyQualifiedTypeName<KRG::Entity> ), alignof( fullyQualifiedTypeName<KRG::Entity> ) };
 
 //-------------------------------------------------------------------------
 
 namespace KRG::TypeSystem
 {
-    struct CoreTypeRecord
-    {
-        inline bool operator==( TypeID ID ) const { return m_ID == ID; }
-
-        TypeID          m_ID;
-        size_t          m_typeSize;
-        size_t          m_typeAlignment;
-    };
-
-    static TInlineVector<CoreTypeRecord, (uint8) CoreTypes::NumTypes> CoreTypeRecords;
-    static bool g_areCoreTypeRecordsInitialized = false;
+    TArray<CoreTypeRegistry::CoreTypeRecord, (uint8) CoreTypes::NumTypes> CoreTypeRegistry::s_coreTypeRecords;
+    bool CoreTypeRegistry::s_areCoreTypeRecordsInitialized = false;
 
     //-------------------------------------------------------------------------
 
-    void Initialize()
+    void CoreTypeRegistry::Initialize()
     {
-        KRG_ASSERT( !g_areCoreTypeRecordsInitialized );
-
-        CoreTypeRecords.resize( (uint8) CoreTypes::NumTypes );
+        KRG_ASSERT( !s_areCoreTypeRecordsInitialized );
 
         TypeID ID;
 
@@ -84,48 +74,41 @@ namespace KRG::TypeSystem
         REGISTER_TYPE_RECORD( CoreTypes::EulerAngles, KRG::EulerAngles );
         REGISTER_TYPE_RECORD( CoreTypes::DataPath, KRG::DataPath );
 
-        REGISTER_TEMPLATE_TYPE_RECORD_GENERIC( CoreTypes::TVector, KRG::TVector );
+        REGISTER_TYPE_RECORD( CoreTypes::BitFlags, KRG::BitFlags );
+        REGISTER_TEMPLATE_TYPE_RECORD_GENERIC( CoreTypes::TBitFlags, KRG::TBitFlags, enum class TempEnum );
 
+        REGISTER_TEMPLATE_TYPE_RECORD_GENERIC( CoreTypes::TVector, KRG::TVector, uint8 );
+
+        // Resources
         REGISTER_TYPE_RECORD( CoreTypes::ResourceID, KRG::ResourceID );
         REGISTER_TYPE_RECORD( CoreTypes::ResourceTypeID, KRG::ResourceTypeID );
         REGISTER_TYPE_RECORD( CoreTypes::ResourcePtr, KRG::Resource::ResourcePtr );
-
         REGISTER_TEMPLATE_TYPE_RECORD_RESOURCE( CoreTypes::TResourcePtr, KRG::TResourcePtr );
 
-        g_areCoreTypeRecordsInitialized = true;
+        s_areCoreTypeRecordsInitialized = true;
     }
 
-    void Shutdown()
+    void CoreTypeRegistry::Shutdown()
     {
-        KRG_ASSERT( g_areCoreTypeRecordsInitialized );
-        CoreTypeRecords.clear();
-        g_areCoreTypeRecordsInitialized = false;
+        KRG_ASSERT( s_areCoreTypeRecordsInitialized );
+        s_areCoreTypeRecordsInitialized = false;
     }
 
     //-------------------------------------------------------------------------
-
-    TypeID GetCoreTypeID( CoreTypes coreType )
+ 
+    bool CoreTypeRegistry::IsCoreType( TypeID typeID )
     {
-        return CoreTypeRecords[(uint8) coreType].m_ID;
+        KRG_ASSERT( s_areCoreTypeRecordsInitialized );
+        return eastl::find( s_coreTypeRecords.begin(), s_coreTypeRecords.end(), typeID ) != s_coreTypeRecords.end();
     }
 
-    size_t GetCoreTypeSize( CoreTypes coreType )
+    CoreTypes CoreTypeRegistry::GetType( TypeID typeID )
     {
-        return CoreTypeRecords[(uint8) coreType].m_typeSize;
-    }
-
-    size_t GetCoreTypeAlignment( CoreTypes coreType )
-    {
-        return CoreTypeRecords[(uint8) coreType].m_typeAlignment;
-    }
-
-    CoreTypes GetCoreType( TypeID typeID )
-    {
-        KRG_ASSERT( g_areCoreTypeRecordsInitialized );
+        KRG_ASSERT( s_areCoreTypeRecordsInitialized );
 
         for ( int32 i = 0; i < (int32) CoreTypes::NumTypes; i++ )
         {
-            if ( CoreTypeRecords[i].m_ID == typeID )
+            if ( CoreTypeRegistry::s_coreTypeRecords[i].m_ID == typeID )
             {
                 return (CoreTypes) i;
             }
@@ -135,27 +118,21 @@ namespace KRG::TypeSystem
         return CoreTypes::NumTypes;
     }
 
-    bool IsCoreType( TypeID typeID )
+    size_t CoreTypeRegistry::GetTypeSize( TypeID typeID )
     {
-        KRG_ASSERT( g_areCoreTypeRecordsInitialized );
-        return eastl::find( CoreTypeRecords.begin(), CoreTypeRecords.end(), typeID ) != CoreTypeRecords.end();
-    }
+        KRG_ASSERT( s_areCoreTypeRecordsInitialized );
 
-    size_t GetCoreTypeSize( TypeID typeID )
-    {
-        KRG_ASSERT( g_areCoreTypeRecordsInitialized );
-
-        auto RecordIter = eastl::find( CoreTypeRecords.begin(), CoreTypeRecords.end(), typeID );
-        KRG_ASSERT( RecordIter != CoreTypeRecords.end() );
+        auto RecordIter = eastl::find( s_coreTypeRecords.begin(), s_coreTypeRecords.end(), typeID );
+        KRG_ASSERT( RecordIter != s_coreTypeRecords.end() );
         return RecordIter->m_typeSize;
     }
 
-    size_t GetCoreTypeAlignment( TypeID typeID )
+    size_t CoreTypeRegistry::GetTypeAlignment( TypeID typeID )
     {
-        KRG_ASSERT( g_areCoreTypeRecordsInitialized );
+        KRG_ASSERT( s_areCoreTypeRecordsInitialized );
 
-        auto RecordIter = eastl::find( CoreTypeRecords.begin(), CoreTypeRecords.end(), typeID );
-        KRG_ASSERT( RecordIter != CoreTypeRecords.end() );
+        auto RecordIter = eastl::find( s_coreTypeRecords.begin(), s_coreTypeRecords.end(), typeID );
+        KRG_ASSERT( RecordIter != s_coreTypeRecords.end() );
         return RecordIter->m_typeAlignment;
     }
 }

@@ -158,7 +158,7 @@ namespace KRG
                         file << "                    }\n\n";
                     }
                 }
-                else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() )
+                else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() && !propertyDesc.IsBitFlagsProperty() )
                 {
                     if ( propertyDesc.IsArrayProperty() )
                     {
@@ -228,7 +228,7 @@ namespace KRG
                         file << "                    }\n\n";
                     }
                 }
-                else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() )
+                else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() && !propertyDesc.IsBitFlagsProperty() )
                 {
                     if ( propertyDesc.IsArrayProperty() )
                     {
@@ -310,7 +310,7 @@ namespace KRG
                         file << "                    }\n\n";
                     }
                 }
-                else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() )
+                else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() && !propertyDesc.IsBitFlagsProperty() )
                 {
                     if ( propertyDesc.IsArrayProperty() )
                     {
@@ -396,7 +396,7 @@ namespace KRG
                         file << "                    }\n\n";
                     }
                 }
-                else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() )
+                else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() && !propertyDesc.IsBitFlagsProperty() )
                 {
                     if ( propertyDesc.IsArrayProperty() )
                     {
@@ -571,7 +571,7 @@ namespace KRG
                     file << "            propertyInfo.m_size = sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
                 }
 
-                file << "            propertyInfo.m_flags.SetAll( " << prop.m_flags << " );\n";
+                file << "            propertyInfo.m_flags.SetFlags( " << prop.m_flags << " );\n";
                 file << "            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );\n";
             };
 

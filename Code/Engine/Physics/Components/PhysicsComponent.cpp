@@ -6,13 +6,6 @@
 
 namespace KRG::Physics
 {
-    // This constructor only exists to lazy initialize the static default material ID
-    PhysicsComponent::PhysicsComponent()
-    {
-        static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
-        m_physicsMaterialID = defaultMaterialID;
-    }
-
     void PhysicsComponent::OnWorldTransformUpdated()
     {
         if ( m_pPhysicsActor != nullptr && IsKinematic() )

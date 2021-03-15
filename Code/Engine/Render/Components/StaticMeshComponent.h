@@ -6,6 +6,7 @@
 #include "System/Entity/EntitySpatialComponent.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Types/Event.h"
+#include "System/Core/Types/Containers.h"
 
 //-------------------------------------------------------------------------
 

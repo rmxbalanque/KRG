@@ -181,9 +181,11 @@ namespace KRG
 
                             if ( fieldTypeID == GetCoreTypeID( CoreTypes::TVector ) )
                             {
-                                // We need to remove the TVector type from the property info as we allow for templated types to be contained within arrays
+                                // We need to flag this in advance as we are about to change the field type ID
                                 propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsDynamicArray );
-                                auto newName = fieldName.m_templateArgs.front();
+
+                                // We need to remove the TVector type from the property info as we allow for templated types to be contained within arrays
+                                auto const& newName = fieldName.m_templateArgs.front();
                                 fieldName = newName;
                                 fieldTypeID = StringID( fieldName.m_name );
                             }
@@ -196,7 +198,7 @@ namespace KRG
                             //-------------------------------------------------------------------------
 
                             // Set property typename and validate
-                            // If it is a templated type, we only support one level of templatization for exposed properties, so flatten the type
+                            // If it is a templated type, we only support one level of specialization for exposed properties, so flatten the type
                             propertyDesc.m_typeName = fieldName.m_name;
                             propertyDesc.m_typeID = fieldTypeID;
 
@@ -225,6 +227,24 @@ namespace KRG
                                     pContext->LogError( "Generic resource pointers ( TResourcePtr<IResource> ) are not allowed to be exposed, please use a specific resource type instead! ( property: %s in class: %s )", propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
                                     return CXChildVisit_Break;
                                 }
+
+                                // Bit flags
+                                if ( propertyDesc.m_typeID == CoreTypes::BitFlags )
+                                {
+                                    propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsBitFlags );
+                                }
+                                else if ( propertyDesc.m_typeID == CoreTypes::TBitFlags )
+                                {
+                                    propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsBitFlags );
+
+                                    // Perform validation on the enum type for the bit-flags
+                                    TypeDescriptor const* pFlagTypeDesc = pContext->m_pDatabase->GetType( propertyDesc.m_templateArgTypeName );
+                                    if ( pFlagTypeDesc == nullptr || !pFlagTypeDesc->IsEnum() )
+                                    {
+                                        pContext->LogError( "Unsupported type encountered: %s for bitflags property: %s in class: %s", propertyDesc.m_typeName.c_str(), propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
+                                        return CXChildVisit_Break;
+                                    }
+                                }
                             }
                             else // Non-Core Types
                             {
@@ -236,7 +256,7 @@ namespace KRG
                                     return CXChildVisit_Break;
                                 }
 
-                                // Check for enums
+                                // Check for enum types - bitflags are a special case and are not an enum
                                 if ( pPropertyTypeDesc->IsEnum() )
                                 {
                                     propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsEnum );

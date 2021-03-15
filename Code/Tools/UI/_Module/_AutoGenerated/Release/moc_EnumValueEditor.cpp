@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_KRG__ValueEditors__EnumEditor_t {
     QByteArrayData data[7];
-    char stringdata0[81];
+    char stringdata0[83];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,13 +36,13 @@ QT_MOC_LITERAL(0, 0, 29), // "KRG::ValueEditors::EnumEditor"
 QT_MOC_LITERAL(1, 30, 14), // "OnValueChanged"
 QT_MOC_LITERAL(2, 45, 0), // ""
 QT_MOC_LITERAL(3, 46, 12), // "stringValues"
-QT_MOC_LITERAL(4, 59, 3), // "int64"
-QT_MOC_LITERAL(5, 63, 8), // "newValue"
-QT_MOC_LITERAL(6, 72, 8) // "OldValue"
+QT_MOC_LITERAL(4, 59, 5), // "int64"
+QT_MOC_LITERAL(5, 65, 8), // "newValue"
+QT_MOC_LITERAL(6, 74, 8) // "OldValue"
 
     },
     "KRG::ValueEditors::EnumEditor\0"
-    "OnValueChanged\0\0stringValues\0S64\0"
+    "OnValueChanged\0\0stringValues\0int64\0"
     "newValue\0OldValue"
 };
 #undef QT_MOC_LITERAL

@@ -1,6 +1,6 @@
 #include "ToolTypeInstance.h"
 #include "System/TypeSystem/EnumInfo.h"
-#include "System/TypeSystem/TypeValueConverter.h"
+#include "System/TypeSystem/CoreTypeSerializers.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------
@@ -95,7 +95,7 @@ namespace KRG::TypeSystem
         {
             if ( IsCoreType() )
             {
-                TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.m_pDefaultValue, m_defaultValue );
+                Conversion::ConvertTypeValueToStringValue( typeRegistry, m_propertyInfo, m_propertyInfo.m_pDefaultValue, m_defaultValue );
                 m_value = m_defaultValue;
             }
             else if ( IsEnum() )
@@ -301,16 +301,6 @@ namespace KRG::TypeSystem
         return nullptr;
     }
 
-    bool ToolPropertyInstance::IsValidEnumStringValue( char const* pString )
-    {
-        KRG_ASSERT( IsEnum() );
-
-        auto const pEnumInfo = m_pTypeRegistry->GetEnumInfo( GetTypeID() );
-        KRG_ASSERT( pEnumInfo != nullptr );
-
-        return pEnumInfo->IsValidValue( StringID( pString ) );
-    }
-
     //-------------------------------------------------------------------------
 
     void ToolPropertyInstance::CreateDefaultArrayElements()
@@ -354,7 +344,7 @@ namespace KRG::TypeSystem
             if ( TypeSystem::IsCoreType( arrayElementInfo.m_typeID ) )
             {
                 String arrayElementDefaultStringValue;
-                TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
+                Conversion::ConvertTypeValueToStringValue( *m_pTypeRegistry, m_propertyInfo, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
                 pAddedArrayElement = &m_childProperties.emplace_back( ToolPropertyInstance( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
             }
             else if ( m_propertyInfo.IsEnumProperty() )
@@ -445,13 +435,10 @@ namespace KRG::TypeSystem
             int32 const numElements = StringUtils::StrToS32( stringValue );
             SetNumArrayElements( numElements );
         }
-        else if ( IsEnum() )
+
+        if ( !Conversion::IsValidStringValueForType( *m_pTypeRegistry, m_propertyInfo, stringValue ) )
         {
-            IsValidEnumStringValue( stringValue.c_str() );
-        }
-        else
-        {
-            KRG_ASSERT( TypeValueConverter::IsValidStringValueForType( GetTypeID(), stringValue ) );
+            return;
         }
 
         m_value = stringValue;
@@ -479,7 +466,7 @@ namespace KRG::TypeSystem
                 if ( TypeSystem::IsCoreType( m_propertyInfo.m_typeID ) )
                 {
                     String defaultElementValue;
-                    TypeValueConverter::ConvertValueToString( m_propertyInfo.m_typeID, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
+                    Conversion::ConvertTypeValueToStringValue( *m_pTypeRegistry, m_propertyInfo, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
                     if ( m_childProperties[i].GetStringValue() != defaultElementValue )
                     {
                         return false;
@@ -579,7 +566,7 @@ namespace KRG::TypeSystem
             }
             else // Core Types/Enums
             {
-                outProperties.push_back( ToolPropertyInstanceDescriptor( propertyPath, propertyInstance.GetStringValue(), propertyInstance.GetTypeID() ) );
+                outProperties.push_back( ToolPropertyInstanceDescriptor( propertyPath, propertyInstance.GetStringValue(), propertyInstance.GetTypeID(), propertyInstance.GetTemplatedArgumentTypeID() ) );
             }
         }
     }

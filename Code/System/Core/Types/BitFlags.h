@@ -6,48 +6,96 @@
 #include <type_traits>
 
 //-------------------------------------------------------------------------
+//  Bit Flags
+//-------------------------------------------------------------------------
+// Generic flag flags type
 
 namespace KRG
 {
-    // Helper to create flag variables from enum types
-    template<typename T>
-    class TBitFlags
+    class BitFlags
     {
         KRG_SERIALIZE_MEMBERS( KRG_NVP( m_flags ) );
 
-        static_assert( std::is_enum<T>::value, "Flags only support enum types" );
-        static_assert( sizeof( T ) <= 4, "Max number of support flags is 32" );
+    public:
+
+        constexpr static uint8 const MaxFlags = 32;
+        KRG_FORCE_INLINE static uint32 GetFlagMask( uint8 flag ) { return (uint32) ( 1u << flag ); }
 
     public:
 
-        inline static uint32 GetFlagMask( T flag ) { return (uint32) ( 1u << (uint32) flag ); }
+        inline BitFlags() = default;
+        inline explicit BitFlags( uint32 flags ) : m_flags( flags ) {}
 
-    public:
+        KRG_FORCE_INLINE uint32 GetFlags() const { return m_flags; }
 
-        inline TBitFlags() = default;
-        inline explicit TBitFlags( T value ) : m_flags( GetFlagMask( value ) ) {}
-        inline explicit TBitFlags( uint32 flags ) : m_flags( flags ) {}
-
-        //-------------------------------------------------------------------------
-
-        inline bool IsFlagSet( T flag ) const { return ( m_flags & GetFlagMask( flag ) ) > 0; }
-        inline void SetFlag( T flag, bool value ) { value ? SetFlag( flag ) : ClearFlag( flag ); }
-        inline void SetFlag( T flag ) { m_flags |= GetFlagMask( flag ); }
-        inline void ClearFlag( T flag ) { m_flags &= ~GetFlagMask( flag ); }
-        inline void SetAll( uint32 flags ) { m_flags = flags; }
-        inline void SetAll() { m_flags = 0xFFFFFFFF; }
-        inline void ClearAll() { m_flags = 0; }
-
-        //-------------------------------------------------------------------------
-
-        inline TBitFlags& operator| ( T flag )
+        KRG_FORCE_INLINE bool IsFlagSet( uint8 flag ) const
         {
+            KRG_ASSERT( flag < MaxFlags );
+            return ( m_flags & GetFlagMask( flag ) ) > 0;
+        }
+
+        KRG_FORCE_INLINE bool IsFlagCleared( uint8 flag ) const
+        {
+            KRG_ASSERT( flag < MaxFlags );
+            return ( m_flags & GetFlagMask( flag ) ) == 0;
+        }
+
+        KRG_FORCE_INLINE void SetFlag( uint8 flag )
+        {
+            KRG_ASSERT( flag >= 0 && flag < MaxFlags );
+            m_flags |= GetFlagMask( flag );
+        }
+
+        KRG_FORCE_INLINE void SetFlag( uint8 flag, bool value )
+        {
+            KRG_ASSERT( flag < MaxFlags );
+            value ? SetFlag( flag ) : ClearFlag( flag );
+        }
+
+        KRG_FORCE_INLINE void SetFlags( uint32 flags )
+        {
+            m_flags = flags;
+        }
+
+        KRG_FORCE_INLINE void SetAllFlags()
+        {
+            m_flags = 0xFFFFFFFF;
+        }
+
+        KRG_FORCE_INLINE void FlipFlag( uint8 flag )
+        {
+            KRG_ASSERT( flag >= 0 && (uint32) flag < MaxFlags );
+            m_flags ^= GetFlagMask( flag );
+        }
+
+        KRG_FORCE_INLINE void FlipAllFlags()
+        {
+            m_flags = ~m_flags;
+        }
+
+        KRG_FORCE_INLINE void ClearFlag( uint8 flag )
+        {
+            KRG_ASSERT( flag < MaxFlags );
+            m_flags &= ~GetFlagMask( flag );
+        }
+
+        KRG_FORCE_INLINE void ClearAllFlags()
+        {
+            m_flags = 0;
+        }
+
+        //-------------------------------------------------------------------------
+
+        KRG_FORCE_INLINE BitFlags& operator| ( uint8 flag )
+        {
+            KRG_ASSERT( (uint32) flag < MaxFlags );
             m_flags |= GetFlagMask( flag );
             return *this;
         }
 
-        inline TBitFlags& operator& ( T flag )
+        KRG_FORCE_INLINE BitFlags& operator& ( uint8 flag )
         {
+            KRG_ASSERT( (uint32) flag < MaxFlags );
             m_flags &= GetFlagMask( flag );
             return *this;
         }
@@ -58,4 +106,52 @@ namespace KRG
 
         uint32 m_flags = 0;
     };
+}
+
+//-------------------------------------------------------------------------
+//  Templatized Bit Flags
+//-------------------------------------------------------------------------
+// Helper to create flag flags variables from a specific enum type
+
+namespace KRG
+{
+    template<typename T>
+    class TBitFlags : public BitFlags
+    {
+        static_assert( std::is_enum<T>::value, "TBitFlags only supports enum types" );
+
+    public:
+
+        using BitFlags::BitFlags;
+        inline explicit TBitFlags( T value ) : BitFlags( GetFlagMask( (uint8) value ) ) { KRG_ASSERT( (uint32) value < MaxFlags ); }
+
+        //-------------------------------------------------------------------------
+
+        KRG_FORCE_INLINE bool IsFlagSet( T flag ) const { return BitFlags::IsFlagSet( (uint8) flag ); }
+        KRG_FORCE_INLINE bool IsFlagCleared( T flag ) const { return BitFlags::IsFlagCleared( (uint8) flag ); }
+        KRG_FORCE_INLINE void SetFlag( T flag ) { BitFlags::SetFlag( (uint8) flag ); }
+        KRG_FORCE_INLINE void SetFlag( T flag, bool value ) { BitFlags::SetFlag( (uint8) flag, value ); }
+        KRG_FORCE_INLINE void FlipFlag( T flag ) { BitFlags::FlipFlag( (uint8) flag ); }
+        KRG_FORCE_INLINE void ClearFlag( T flag ) { BitFlags::ClearFlag( (uint8) flag ); }
+        
+        //-------------------------------------------------------------------------
+
+        KRG_FORCE_INLINE TBitFlags& operator| ( T flag )
+        {
+            KRG_ASSERT( (uint8) flag < MaxFlags );
+            m_flags |= GetFlagMask( flag );
+            return *this;
+        }
+
+        KRG_FORCE_INLINE TBitFlags& operator& ( T flag )
+        {
+            KRG_ASSERT( (uint8) flag < MaxFlags );
+            m_flags &= GetFlagMask( flag );
+            return *this;
+        }
+    };
+
+    //-------------------------------------------------------------------------
+
+    static_assert( sizeof( TBitFlags<enum class Temp> ) == sizeof( BitFlags ), "TBitFlags is purely syntactic sugar for easy conversion of enums to flags. It must not contain any members!" );
 }

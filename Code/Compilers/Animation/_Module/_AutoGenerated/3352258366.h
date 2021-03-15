@@ -45,7 +45,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationResourceDescriptor, m_resourceTypeID );
             propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -57,7 +57,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_animationDataPath;
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationResourceDescriptor, m_animationDataPath );
             propertyInfo.m_size = sizeof( KRG::DataPath );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -69,7 +69,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pSkeleton;
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationResourceDescriptor, m_pSkeleton );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::Skeleton> );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -81,7 +81,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_animationName;
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationResourceDescriptor, m_animationName );
             propertyInfo.m_size = sizeof( KRG::String );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 

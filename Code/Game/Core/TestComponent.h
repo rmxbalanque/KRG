@@ -33,6 +33,18 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    enum class SomeFlags
+    {
+        KRG_REGISTER_ENUM
+
+        a = 1,
+        B = 2,
+        c = 3,
+        D = 4,
+        A = 5,
+        CoW = 5,
+    };
+
     class KRG_GAME_CORE_API TestComponent : public EntityComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT;
@@ -113,6 +125,12 @@ namespace KRG
 
         EXPOSE InternalStruct                                   m_staticArrayOfStructs[2];
         EXPOSE Test::InternalEnum                               m_staticArrayOfEnums[6];
+
+        EXPOSE BitFlags                                         m_genericFlags;
+        EXPOSE TBitFlags<SomeFlags>                          m_specificFlags;
+
+        virtual void Initialize() override;
+
     };
 
 

@@ -16,7 +16,7 @@
         },
         {
           "Id": "3e350972-2b51-4550-9e06-be679782a3c3",
-          "Command": "-compile data://maps/entitytest.map"
+          "Command": "-compile data://maps/SerializationTest.map"
         },
         {
           "Id": "e9351240-7dc9-46e7-ae9d-0b118849b5d2",

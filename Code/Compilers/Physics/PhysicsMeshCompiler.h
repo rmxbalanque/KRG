@@ -31,7 +31,7 @@ namespace KRG
 
         class PhysicsMeshCompiler : public Resource::Compiler
         {
-            static const int32 VERSION = 3;
+            static const int32 VERSION = 4;
 
         public:
 

@@ -32,8 +32,8 @@
 #define KRG_DISABLE_OPTIMIZATION __pragma( optimize( "", off ) )
 #define KRG_ENABLE_OPTIMIZATION __pragma( optimize( "", on ) )
 
-#define KRG_ASSERT( cond ) (!(cond)) ? __debugbreak() : 0
-#define KRG_TRACE_MSG_WIN32( msg ) OutputDebugStringA( msg ); OutputDebugStringA("\r\n")
+#define KRG_TRACE_MSG( msg ) OutputDebugStringA( msg ); OutputDebugStringA("\r\n")
+#define KRG_ASSERT( cond ) do { if( !(cond) ) { KRG_TRACE_MSG( "KRG Assert fired: " #cond " (" KRG_FILE_LINE ")"  ); __debugbreak(); } } while( 0 )
 #define KRG_BREAK() __debugbreak()
 #define KRG_HALT() __debugbreak()
 

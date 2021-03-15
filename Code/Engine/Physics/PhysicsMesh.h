@@ -4,6 +4,7 @@
 #include "System/Resource/IResource.h"
 #include "geometry/PxTriangleMesh.h"
 #include "geometry/PxConvexMesh.h"
+#include "System/Core/Types/StringID.h"
 
 //-------------------------------------------------------------------------
 
@@ -23,7 +24,7 @@ namespace KRG::Physics
         friend class PhysicsMeshCompiler;
         friend class PhysicsMeshLoader;
 
-        KRG_SERIALIZE_MEMBERS( m_numMaterialsNeeded, m_isConvexMesh );
+        KRG_SERIALIZE_MEMBERS( m_physicsMaterialIDs, m_isConvexMesh );
 
     public:
 
@@ -34,7 +35,8 @@ namespace KRG::Physics
         inline bool IsTriangleMesh() const { return !m_isConvexMesh; }
         inline bool IsConvexMesh() const { return m_isConvexMesh; }
 
-        inline uint16 GetNumMaterialsNeeded() const { KRG_ASSERT( IsTriangleMesh() ); return m_numMaterialsNeeded; }
+        inline uint16 GetNumMaterialsNeeded() const { return (uint16) m_physicsMaterialIDs.size(); }
+        inline TInlineVector<StringID, 4> const& GetPhysicsMaterials() const { return m_physicsMaterialIDs; }
 
         //-------------------------------------------------------------------------
 
@@ -44,7 +46,7 @@ namespace KRG::Physics
             return m_pMesh->is<physx::PxTriangleMesh>(); 
         }
         
-        inline physx::PxConvexMesh const* GetConvexMesh() const 
+        inline physx::PxConvexMesh const* GetConvexMesh() const
         {
             KRG_ASSERT( m_isConvexMesh );
             return m_pMesh->is<physx::PxConvexMesh>();
@@ -53,7 +55,7 @@ namespace KRG::Physics
     private:
 
         physx::PxBase*              m_pMesh = nullptr;
-        uint16                      m_numMaterialsNeeded = 0; // Only relevant for triangle meshes
+        TInlineVector<StringID, 4>  m_physicsMaterialIDs;
         bool                        m_isConvexMesh = false;
     };
 }

@@ -40,16 +40,12 @@
       <Filter>ThirdParty\sqlite</Filter>
     </ClInclude>
     <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
+    <ClInclude Include="TypeSystem\ToolTypeInstance.h" />
+    <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h" />
+    <ClInclude Include="TypeSystem\Serialization\NativeTypeWriter.h" />
     <ClInclude Include="TypeSystem\Serialization\ToolTypeReader.h" />
     <ClInclude Include="TypeSystem\Serialization\ToolTypeWriter.h" />
     <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
-    <ClInclude Include="TypeSystem\ToolTypeInstance.h">
-      <Filter>TypeSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h">
-      <Filter>Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="TypeSystem\Serialization\NativeTypeWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp">
@@ -58,15 +54,11 @@
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
       <Filter>ThirdParty\sqlite</Filter>
     </ClCompile>
+    <ClCompile Include="TypeSystem\ToolTypeInstance.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\NativeTypeReader.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\NativeTypeWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\ToolTypeReader.cpp" />
     <ClCompile Include="TypeSystem\Serialization\ToolTypeWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
-    <ClCompile Include="TypeSystem\ToolTypeInstance.cpp">
-      <Filter>TypeSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="TypeSystem\Serialization\NativeTypeReader.cpp">
-      <Filter>Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="TypeSystem\Serialization\NativeTypeWriter.cpp" />
   </ItemGroup>
 </Project>

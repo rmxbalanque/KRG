@@ -121,7 +121,6 @@ namespace KRG
         inline OBB const& GetWorldBounds() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetWorldBounds(); }
         inline bool HasSpatialParent() const { return m_pParentSpatialEntity != nullptr; }
         inline bool HasAttachedEntities() const { return !m_attachedEntities.empty(); }
-        inline Entity const* GetSpatialParent() const { return m_pParentSpatialEntity; }
         inline Transform GetAttachmentSocketTransform( StringID socketID ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetAttachmentSocketTransform( socketID ); }
 
         // Status
@@ -209,6 +208,9 @@ namespace KRG
 
         // Clear attachment info - Assumes spatial attachment has not been created
         void ClearSpatialParent();
+
+        // Return the spatial parent if set
+        inline Entity const* GetSpatialParent() const { return m_pParentSpatialEntity; }
 
         // Create the component-to-component attachment between this entity and the parent entity
         void CreateSpatialAttachment();

@@ -74,7 +74,7 @@ namespace KRG
     private:
 
         String              m_path;
-        uint32                 m_ID = 0;
+        uint32              m_ID = 0;
     };
 }
 

@@ -4,6 +4,13 @@
 
 namespace KRG::Physics
 {
+    // This constructor only exists to lazy initialize the static default material ID
+    PhysicsCapsuleComponent::PhysicsCapsuleComponent()
+    {
+        static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
+        m_physicsMaterialID = defaultMaterialID;
+    }
+
     bool PhysicsCapsuleComponent::HasValidPhysicsSetup() const
     {
         if ( m_capsuleRadius <= 0 || m_capsuleHalfHeight <= 0 )

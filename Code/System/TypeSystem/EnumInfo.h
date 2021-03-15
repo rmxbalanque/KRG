@@ -24,6 +24,18 @@ namespace KRG
                 return iter->second;
             }
 
+            inline bool TryGetConstantValue( StringID label, int64& outValue ) const
+            {
+                auto const iter = m_constants.find( label );
+                if ( iter != m_constants.end() )
+                {
+                    outValue = iter->second;
+                    return true;
+                }
+
+                return false;
+            }
+
             inline StringID GetConstantLabel( int64 value ) const
             {
                 for ( auto const& pair : m_constants )
@@ -38,11 +50,25 @@ namespace KRG
                 return StringID();
             }
 
+            inline bool TryGetConstantLabel( int64 value, StringID& outValue ) const
+            {
+                for ( auto const& pair : m_constants )
+                {
+                    if ( pair.second == value )
+                    {
+                         outValue = pair.first;
+                         return true;
+                    }
+                }
+
+                return false;
+            }
+
         public:
 
             TypeID                                              m_ID;
             CoreTypes                                           m_underlyingType;
-            THashMap<StringID, int64>                             m_constants;
+            THashMap<StringID, int64>                           m_constants;
         };
     }
 }

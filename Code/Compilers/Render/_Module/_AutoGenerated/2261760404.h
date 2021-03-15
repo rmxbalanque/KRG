@@ -45,7 +45,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
             propertyInfo.m_offset = offsetof( KRG::Render::ShaderResourceDescriptor, m_resourceTypeID );
             propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -57,7 +57,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_shaderDataPath;
             propertyInfo.m_offset = offsetof( KRG::Render::ShaderResourceDescriptor, m_shaderDataPath );
             propertyInfo.m_size = sizeof( KRG::DataPath );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 

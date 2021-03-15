@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMeshComponent& type )
     {
-        archive( cereal::base_class<KRG::Physics::PhysicsComponent>( &type ), KRG_NVP( m_actorType ), KRG_NVP( m_physicsMaterialID ), KRG_NVP( m_transform ), KRG_NVP( m_shapeType ), KRG_NVP( m_additionalPhysicsMaterialIDs ), KRG_NVP( m_pPhysicsMesh ) );
+        archive( cereal::base_class<KRG::Physics::PhysicsComponent>( &type ), KRG_NVP( m_actorType ), KRG_NVP( m_transform ), KRG_NVP( m_shapeType ), KRG_NVP( m_physicsMaterialOverrideIDs ), KRG_NVP( m_pPhysicsMesh ) );
     }
 
     //-------------------------------------------------------------------------
@@ -45,19 +45,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_actorType;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_actorType );
             propertyInfo.m_size = sizeof( KRG::Physics::ActorType );
-            propertyInfo.m_flags.SetAll( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_physicsMaterialID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::StringID" );
-            propertyInfo.m_parentTypeID = 3338692939;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_physicsMaterialID;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_physicsMaterialID );
-            propertyInfo.m_size = sizeof( KRG::StringID );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -69,7 +57,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_transform;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -81,22 +69,22 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_shapeType;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_shapeType );
             propertyInfo.m_size = sizeof( KRG::Physics::ShapeType );
-            propertyInfo.m_flags.SetAll( 4 );
+            propertyInfo.m_flags.SetFlags( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_additionalPhysicsMaterialIDs" );
+            propertyInfo.m_ID = StringID( "m_physicsMaterialOverrideIDs" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::StringID" );
             propertyInfo.m_parentTypeID = 3338692939;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_additionalPhysicsMaterialIDs;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_additionalPhysicsMaterialIDs );
-            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_additionalPhysicsMaterialIDs.data();
-            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_additionalPhysicsMaterialIDs.size();
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_physicsMaterialOverrideIDs;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_physicsMaterialOverrideIDs );
+            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_physicsMaterialOverrideIDs.data();
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_physicsMaterialOverrideIDs.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::StringID );
             propertyInfo.m_size = sizeof( TVector<KRG::StringID> );
-            propertyInfo.m_flags.SetAll( 2 );
+            propertyInfo.m_flags.SetFlags( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -108,7 +96,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pPhysicsMesh;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_pPhysicsMesh );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Physics::PhysicsMesh> );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 
@@ -227,14 +215,14 @@ namespace KRG
                 virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshComponent*>( pType );
-                    if ( arrayID == 4284397202 )
+                    if ( arrayID == 2552322612 )
                     {
-                        if ( ( arrayIdx + 1 ) >= pActualType->m_additionalPhysicsMaterialIDs.size() )
+                        if ( ( arrayIdx + 1 ) >= pActualType->m_physicsMaterialOverrideIDs.size() )
                         {
-                            pActualType->m_additionalPhysicsMaterialIDs.resize( arrayIdx + 1 );
+                            pActualType->m_physicsMaterialOverrideIDs.resize( arrayIdx + 1 );
                         }
 
-                        return (Byte*) &pActualType->m_additionalPhysicsMaterialIDs[arrayIdx];
+                        return (Byte*) &pActualType->m_physicsMaterialOverrideIDs[arrayIdx];
                     }
 
                     // We should never get here since we are asking for a ptr to an invalid property

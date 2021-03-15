@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsBoxComponent& type )
     {
-        archive( cereal::base_class<KRG::Physics::PhysicsComponent>( &type ), KRG_NVP( m_actorType ), KRG_NVP( m_physicsMaterialID ), KRG_NVP( m_transform ), KRG_NVP( m_shapeType ), KRG_NVP( m_boxExtents ) );
+        archive( cereal::base_class<KRG::Physics::PhysicsComponent>( &type ), KRG_NVP( m_actorType ), KRG_NVP( m_transform ), KRG_NVP( m_shapeType ), KRG_NVP( m_physicsMaterialID ), KRG_NVP( m_boxExtents ) );
     }
 
     //-------------------------------------------------------------------------
@@ -45,19 +45,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_actorType;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_actorType );
             propertyInfo.m_size = sizeof( KRG::Physics::ActorType );
-            propertyInfo.m_flags.SetAll( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_physicsMaterialID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::StringID" );
-            propertyInfo.m_parentTypeID = 2002438577;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_physicsMaterialID;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_physicsMaterialID );
-            propertyInfo.m_size = sizeof( KRG::StringID );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -69,7 +57,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_transform;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -81,7 +69,19 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_shapeType;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_shapeType );
             propertyInfo.m_size = sizeof( KRG::Physics::ShapeType );
-            propertyInfo.m_flags.SetAll( 4 );
+            propertyInfo.m_flags.SetFlags( 4 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_physicsMaterialID" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::StringID" );
+            propertyInfo.m_parentTypeID = 2002438577;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_physicsMaterialID;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_physicsMaterialID );
+            propertyInfo.m_size = sizeof( KRG::StringID );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -93,7 +93,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_boxExtents;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsBoxComponent, m_boxExtents );
             propertyInfo.m_size = sizeof( KRG::Float3 );
-            propertyInfo.m_flags.SetAll( 0 );
+            propertyInfo.m_flags.SetFlags( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 

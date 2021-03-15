@@ -7,9 +7,10 @@
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/NavmeshData.h"
-#include "System/Core/FileSystem/FileSystem.h"
-#include "System/Entity/Collections/EntityCollectionDescriptor.h"
 #include "Engine/Physics/Components/PhysicsMeshComponent.h"
+#include "System/Entity/Collections/EntityCollectionDescriptor.h"
+#include "System/Core/FileSystem/FileSystem.h"
+#include "System/Core/Serialization/BinaryArchive.h"
 
 #include <bfxSystem.h>
 

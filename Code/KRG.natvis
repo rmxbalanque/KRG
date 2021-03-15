@@ -121,4 +121,37 @@
   <Type Name="KRG::Physics::OverlapResults">
     <DisplayString>Overlaps: {nbTouches}</DisplayString>
   </Type>
+
+  <Type Name="KRG::BitFlags">
+    <DisplayString>{m_flags,x} ({m_flags})</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="bit" InitialValue="0" />
+        <Variable Name="bitValue" InitialValue="false" />
+        <Size>32</Size>
+        <Loop>
+          <Exec>bitValue = ((m_flags >> bit) % 2) != 0 ? true : false</Exec>
+          <Item>bitValue</Item>
+          <Exec>bit++</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="KRG::TBitFlags&lt;*&gt;">
+    <DisplayString>{m_flags,x} ({m_flags})</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="bit" InitialValue="0" />
+        <Variable Name="bitValue" InitialValue="false" />
+        <Size>32</Size>
+        <Loop>
+          <Exec>bitValue = ((m_flags >> bit) % 2) != 0 ? true : false</Exec>
+          <Item>bitValue</Item>
+          <Exec>bit++</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  
 </AutoVisualizer>

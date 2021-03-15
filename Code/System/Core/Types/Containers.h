@@ -39,7 +39,6 @@ namespace KRG
     template<typename K, typename V, typename H = eastl::hash<K>> using THashMap = eastl::hash_map<K, V, H>;
     template<typename V, typename H = eastl::hash<V>> using THashSet = eastl::hash_set<V, H>;
     template<typename K, typename V> using TPair = eastl::pair<K, V>;
-    template<eastl_size_t N> using TBitSet = eastl::bitset<N>;
 
     //-------------------------------------------------------------------------
     // Simple utility functions to improve syntactic usage of container types

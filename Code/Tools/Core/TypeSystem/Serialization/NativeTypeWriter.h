@@ -12,10 +12,12 @@
 namespace KRG::TypeSystem
 {
     class TypeRegistry;
+    struct PropertyInfo;
 
     // Native type serialization
     //-------------------------------------------------------------------------
-    // Supports multiple types in a single archive
+    // Supports multiple compound types in a single archive
+    // // Do not try to serialize core-types using this writer
     // An archive is either a single serialized type or an array of serialized types
     // Each type is serialized as a JSON object with a 'TypeID' property containing the type ID of the serialized type
 
@@ -76,6 +78,7 @@ namespace KRG::TypeSystem
 
         void PrepareBuffer();
         void SerializeType( TypeID typeID, void const* pTypeData );
+        void SerializeProperty( PropertyInfo const& propertyInfo, void const* pTypeData );
 
     private:
 

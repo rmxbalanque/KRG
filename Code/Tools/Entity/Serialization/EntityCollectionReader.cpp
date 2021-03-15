@@ -3,7 +3,7 @@
 #include "Tools/Core/TypeSystem/Serialization/TypeSerializationCommon.h"
 #include "System/Entity/Entity.h"
 #include "System/Entity/Collections/EntityCollectionDescriptor.h"
-#include "System/TypeSystem/TypeValueConverter.h"
+#include "System/TypeSystem/CoreTypeSerializers.h"
 #include "System/Core/ThirdParty/cereal/external/rapidjson/error/en.h"
 #include "System/Core/Logging/Log.h"
 
@@ -73,18 +73,9 @@ namespace KRG
                     return false;
                 }
 
-                if ( TypeSystem::IsCoreType( resolvedPropertyInfo.m_pPropertyInfo->m_typeID ) )
+                if ( TypeSystem::IsCoreType( resolvedPropertyInfo.m_pPropertyInfo->m_typeID ) || resolvedPropertyInfo.m_pPropertyInfo->IsEnumProperty() || resolvedPropertyInfo.m_pPropertyInfo->IsBitFlagsProperty() )
                 {
-                    TypeSystem::TypeValueConverter::ConvertStringToByteArray( resolvedPropertyInfo.m_pPropertyInfo->m_typeID, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue );
-                }
-                else
-                {
-                    auto pEnumInfo = ctx.m_typeRegistry.GetEnumInfo( resolvedPropertyInfo.m_pPropertyInfo->m_typeID );
-                    KRG_ASSERT( pEnumInfo != nullptr );
-
-                    StringID const enumValue( outPropertyDesc.m_stringValue );
-                    KRG_ASSERT( pEnumInfo->IsValidValue( enumValue ) );
-                    outPropertyDesc.SetEnumValueID( enumValue );
+                    TypeSystem::Conversion::ConvertStringValueToBinary( ctx.m_typeRegistry, *resolvedPropertyInfo.m_pPropertyInfo, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue );
                 }
 
                 return true;

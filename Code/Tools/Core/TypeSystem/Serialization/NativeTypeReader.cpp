@@ -1,15 +1,11 @@
 #if _WIN32
 #include "NativeTypeReader.h"
 #include "TypeSerializationCommon.h"
-#include "System/TypeSystem/TypeValueConverter.h"
+#include "System/TypeSystem/CoreTypeSerializers.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Logging/Log.h"
-
-//-------------------------------------------------------------------------
-
-using namespace rapidjson;
 
 //-------------------------------------------------------------------------
 
@@ -23,75 +19,75 @@ namespace KRG::TypeSystem
             *( (T*) pAddress ) = value;
         }
 
-        static void ReadCoreType( TypeID const& typeID, Value const& typeValue, void* pPropertyDataAddress )
+        static void ReadCoreType( TypeRegistry const& typeRegistry, PropertyInfo const& propInfo, rapidjson::Value const& typeValue, void* pPropertyDataAddress )
         {
             KRG_ASSERT( pPropertyDataAddress != nullptr );
 
             if ( typeValue.IsString() )
             {
                 String const valueString = String( typeValue.GetString() );
-                TypeValueConverter::ConvertStringToValue( typeID, valueString, pPropertyDataAddress );
+                Conversion::ConvertStringValueToTypeValue( typeRegistry, propInfo, valueString, pPropertyDataAddress );
             }
             else if ( typeValue.IsBool() )
             {
-                KRG_ASSERT( typeID == CoreTypes::Bool );
+                KRG_ASSERT( propInfo.m_typeID == CoreTypes::Bool );
                 SetPropertyValue( pPropertyDataAddress, typeValue.GetBool() );
             }
             else if ( typeValue.IsInt64() || typeValue.IsUint64() )
             {
-                if ( typeID == CoreTypes::Uint8 )
+                if ( propInfo.m_typeID == CoreTypes::Uint8 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (uint8) typeValue.GetUint64() );
                 }
-                else if ( typeID == CoreTypes::Int8 )
+                else if ( propInfo.m_typeID == CoreTypes::Int8 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (int8) typeValue.GetInt64() );
                 }
-                else if ( typeID == CoreTypes::Uint16 )
+                else if ( propInfo.m_typeID == CoreTypes::Uint16 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (uint16) typeValue.GetUint64() );
                 }
-                else if ( typeID == CoreTypes::Int16 )
+                else if ( propInfo.m_typeID == CoreTypes::Int16 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (int16) typeValue.GetInt64() );
                 }
-                else if ( typeID == CoreTypes::Uint32 )
+                else if ( propInfo.m_typeID == CoreTypes::Uint32 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (uint32) typeValue.GetUint64() );
                 }
-                else if ( typeID == CoreTypes::Int32 )
+                else if ( propInfo.m_typeID == CoreTypes::Int32 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (int32) typeValue.GetInt64() );
                 }
-                else if ( typeID == CoreTypes::Uint64 )
+                else if ( propInfo.m_typeID == CoreTypes::Uint64 )
                 {
                     SetPropertyValue( pPropertyDataAddress, typeValue.GetUint64() );
                 }
-                else if ( typeID == CoreTypes::Int64 )
+                else if ( propInfo.m_typeID == CoreTypes::Int64 )
                 {
                     SetPropertyValue( pPropertyDataAddress, typeValue.GetInt64() );
                 }
-                else
+                else // Invalid JSON data encountered
                 {
                     KRG_HALT();
                 }
             }
             else if ( typeValue.IsDouble() )
             {
-                if ( typeID == CoreTypes::Float )
+                if ( propInfo.m_typeID == CoreTypes::Float )
                 {
                     SetPropertyValue( pPropertyDataAddress, typeValue.GetFloat() );
                 }
-                else if ( typeID == CoreTypes::Double )
+                else if ( propInfo.m_typeID == CoreTypes::Double )
                 {
                     SetPropertyValue( pPropertyDataAddress, typeValue.GetDouble() );
                 }
-                else
+                else // Invalid JSON data encountered
                 {
                     KRG_HALT();
                 }
             }
-            else
+            else // Invalid JSON data encountered
             {
                 KRG_HALT();
             }
@@ -136,7 +132,7 @@ namespace KRG::TypeSystem
 
             m_document.ParseInsitu( (char*) m_pFileBuffer );
 
-            bool const isValidJsonFile = ( m_document.GetParseError() == kParseErrorNone );
+            bool const isValidJsonFile = ( m_document.GetParseError() == rapidjson::kParseErrorNone );
             if ( isValidJsonFile )
             {
                 if ( m_document.IsArray() )
@@ -184,88 +180,91 @@ namespace KRG::TypeSystem
 
     void NativeTypeReader::DeserializeType( rapidjson::Value const& currentJsonValue, TypeID typeID, void* pTypeData ) const
     {
-        String const typeName = typeID.GetAsStringID().ToString();
+        KRG_ASSERT( !IsCoreType( typeID ) );
 
-        if ( IsCoreType( typeID ) )
+        auto const pTypeInfo = m_typeRegistry.GetTypeInfo( typeID );
+        KRG_ASSERT( pTypeInfo != nullptr );
+
+        KRG_ASSERT( currentJsonValue.IsObject() && currentJsonValue.HasMember( Serialization::TypeSerialization::Key_TypeID ) );
+        TypeID const readTypeID( currentJsonValue[Serialization::TypeSerialization::Key_TypeID].GetString() );
+
+        // If you hit this the type in the JSON file and the type you are trying to deserialize do not match
+        KRG_ASSERT( readTypeID == typeID );
+
+        //-------------------------------------------------------------------------
+
+        for ( auto const& propInfoPair : pTypeInfo->m_properties )
         {
-            ReadCoreType( typeID, currentJsonValue, pTypeData );
-        }
-        else // Complex type
-        {
-            auto const pTypeInfo = m_typeRegistry.GetTypeInfo( typeID );
-            KRG_ASSERT( pTypeInfo != nullptr );
+            PropertyInfo const& propInfo = propInfoPair.second;
 
-            KRG_ASSERT( currentJsonValue.IsObject() && currentJsonValue.HasMember( Serialization::TypeSerialization::Key_TypeID ) );
-            TypeID const readTypeID( currentJsonValue[Serialization::TypeSerialization::Key_TypeID].GetString() );
-
-            // If you hit this the type in the JSON file and the type you are trying to deserialize do not match
-            KRG_ASSERT( readTypeID == typeID );
-
-            //-------------------------------------------------------------------------
-
-            for ( auto const& propInfoPair : pTypeInfo->m_properties )
+            // Try get serialized value
+            const char* pPropertyName = propInfo.m_ID.ToString();
+            if ( !currentJsonValue.HasMember( pPropertyName ) )
             {
-                PropertyInfo const& propInfo = propInfoPair.second;
+                continue;
+            }
 
-                // Try get serialized value
-                const char* pPropertyName = propInfo.m_ID.ToString();
-                if ( !currentJsonValue.HasMember( pPropertyName ) )
+            // Read value
+            auto pPropertyDataAddress = propInfo.GetPropertyAddress( pTypeData );
+            if ( propInfo.IsArrayProperty() )
+            {
+                KRG_ASSERT( currentJsonValue[pPropertyName].IsArray() );
+                auto jsonArrayValue = currentJsonValue[pPropertyName].GetArray();
+
+                // Skip empty arrays
+                size_t const numArrayElements = jsonArrayValue.Size();
+                if ( numArrayElements == 0 )
                 {
                     continue;
                 }
 
-                // Read value
-                auto pPropertyDataAddress = propInfo.GetPropertyAddress( pTypeData );
-                if ( propInfo.IsArrayProperty() )
+                // Static array
+                if ( propInfo.IsStaticArrayProperty() )
                 {
-                    KRG_ASSERT( currentJsonValue[pPropertyName].IsArray() );
-                    auto jsonArrayValue = currentJsonValue[pPropertyName].GetArray();
-
-                    // Skip empty arrays
-                    size_t const numArrayElements = jsonArrayValue.Size();
-                    if ( numArrayElements == 0 )
+                    if ( propInfo.m_size < numArrayElements )
                     {
+                        KRG_LOG_WARNING( "Resource", "Static array size mismatch for %s, expected maximum %d elements, encountered %d elements", propInfo.m_size, propInfo.m_size, (int32) numArrayElements );
                         continue;
                     }
 
-                    // Static array
-                    if ( propInfo.IsStaticArrayProperty() )
-                    {
-                        if ( propInfo.m_size < numArrayElements )
-                        {
-                            KRG_LOG_WARNING( "Resource", "Static array size mismatch for %s, expected maximum %d elements, encountered %d elements", propInfo.m_size, propInfo.m_size, (int32) numArrayElements );
-                            continue;
-                        }
+                    size_t const elementByteSize = m_typeRegistry.GetTypeByteSize( propInfo.m_typeID );
+                    KRG_ASSERT( elementByteSize > 0 );
 
-                        size_t const elementByteSize = m_typeRegistry.GetTypeByteSize( propInfo.m_typeID );
-                        KRG_ASSERT( elementByteSize > 0 );
-
-                        Byte* pArrayElementAddress = reinterpret_cast<Byte*>( pPropertyDataAddress );
-                        for ( auto i = 0; i < numArrayElements; i++ )
-                        {
-                            DeserializeType( jsonArrayValue[i], propInfo.m_typeID, pArrayElementAddress );
-                            pArrayElementAddress += elementByteSize;
-                        }
-                    }
-                    else
+                    Byte* pArrayElementAddress = reinterpret_cast<Byte*>( pPropertyDataAddress );
+                    for ( auto i = 0; i < numArrayElements; i++ )
                     {
-                        // Do the traversal backwards to only allocate once
-                        for ( int32 i = (int32) ( numArrayElements - 1 ); i >= 0; i-- )
-                        {
-                            auto pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetDynamicArrayElementDataPtr( pTypeData, propInfo.m_ID, i );
-                            DeserializeType( jsonArrayValue[i], propInfo.m_typeID, pArrayElementAddress );
-                        }
+                        DeserializeProperty( jsonArrayValue[i], propInfo, pArrayElementAddress );
+                        pArrayElementAddress += elementByteSize;
                     }
                 }
-                else if ( IsCoreType( propInfo.m_typeID ) )
+                else
                 {
-                    ReadCoreType( propInfo.m_typeID, currentJsonValue[pPropertyName], pPropertyDataAddress );
-                }
-                else // Complex Type
-                {
-                    DeserializeType( currentJsonValue[pPropertyName], propInfo.m_typeID, pPropertyDataAddress );
+                    // Do the traversal backwards to only allocate once
+                    for ( int32 i = (int32) ( numArrayElements - 1 ); i >= 0; i-- )
+                    {
+                        auto pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetDynamicArrayElementDataPtr( pTypeData, propInfo.m_ID, i );
+                        DeserializeProperty( jsonArrayValue[i], propInfo, pArrayElementAddress );
+                    }
                 }
             }
+            else // Complex Type
+            {
+                DeserializeProperty( currentJsonValue[pPropertyName], propInfo, pPropertyDataAddress );
+            }
+        }
+    }
+
+    void NativeTypeReader::DeserializeProperty( rapidjson::Value const& currentJsonValue, PropertyInfo const& propertyInfo, void* pTypeData ) const
+    {
+        if ( IsCoreType( propertyInfo.m_typeID ) )
+        {
+            String const typeName = propertyInfo.m_typeID.GetAsStringID().ToString();
+            KRG_ASSERT( IsCoreType( propertyInfo.m_typeID ) );
+            ReadCoreType( m_typeRegistry, propertyInfo, currentJsonValue, pTypeData );
+        }
+        else // Complex Type
+        {
+            DeserializeType( currentJsonValue, propertyInfo.m_typeID, pTypeData );
         }
     }
 }

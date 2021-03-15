@@ -283,7 +283,7 @@ namespace KRG::EntityModel
 
     namespace
     {
-        static void CreateComponentDesc( EntityDescriptor& entityDesc, ToolEntityComponent const* pComponent, UUID const& parentComponentID = UUID() )
+        static void CreateComponentDesc( TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor& entityDesc, ToolEntityComponent const* pComponent, UUID const& parentComponentID = UUID() )
         {
             KRG_ASSERT( pComponent != nullptr );
 
@@ -301,7 +301,7 @@ namespace KRG::EntityModel
             auto const toolTypeDescriptor = pComponent->GetTypeInstance().GetDescriptor();
             for ( auto const& prop : toolTypeDescriptor.m_properties )
             {
-                componentDesc.m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( prop.m_path, prop.m_typeID, prop.m_value ) );
+                componentDesc.m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( typeRegistry, prop.m_path, prop.m_typeID, prop.m_templatedArgumentTypeID, prop.m_value ) );
             }
 
             // Add component to entity
@@ -314,11 +314,11 @@ namespace KRG::EntityModel
             
             for ( auto pChildComponent : pComponent->GetChildComponents() )
             {
-                CreateComponentDesc( entityDesc, pChildComponent, pComponent->GetID() );
+                CreateComponentDesc( typeRegistry, entityDesc, pChildComponent, pComponent->GetID() );
             }
         }
 
-        static void CreateEntityDesc( EntityCollectionDescriptor& outCollection, ToolEntity const* pEntity )
+        static void CreateEntityDesc( TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionDescriptor& outCollection, ToolEntity const* pEntity )
         {
             KRG_ASSERT( pEntity != nullptr );
 
@@ -342,7 +342,7 @@ namespace KRG::EntityModel
 
             for ( auto pComponent : pEntity->GetComponents() )
             {
-                CreateComponentDesc( entityDesc, pComponent );
+                CreateComponentDesc( typeRegistry, entityDesc, pComponent );
             }
 
             // Add entity to collection
@@ -355,7 +355,7 @@ namespace KRG::EntityModel
 
             for ( auto pChildEntity : pEntity->GetChildEntities() )
             {
-                CreateEntityDesc( outCollection, pChildEntity );
+                CreateEntityDesc( typeRegistry, outCollection, pChildEntity );
             }
         }
     }
@@ -366,7 +366,7 @@ namespace KRG::EntityModel
 
         for ( auto pEntity : inCollection.GetEntities() )
         {
-            CreateEntityDesc( outCollection, pEntity );
+            CreateEntityDesc( typeRegistry, outCollection, pEntity );
         }
 
         return true;

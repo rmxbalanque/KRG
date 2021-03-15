@@ -22,13 +22,12 @@ namespace KRG::Physics
     private:
 
         virtual bool HasValidPhysicsSetup() const override final;
-
         virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const override final;
 
     protected:
 
-        // Any additional physical materials needed for a triangle mesh
-        EXPOSE TVector<StringID>                            m_additionalPhysicsMaterialIDs;
+        // Optional: Allows the user to override physical materials needed for a triangle mesh. Invalid stringIDs will keep the material defined in the mesh
+        EXPOSE TVector<StringID>                            m_physicsMaterialOverrideIDs;
 
         // The collision mesh to load (can be either convex or concave)
         EXPOSE TResourcePtr<PhysicsMesh>                    m_pPhysicsMesh;

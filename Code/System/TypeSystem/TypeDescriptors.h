@@ -2,7 +2,7 @@
 #include "_Module/API.h"
 #include "System/TypeSystem/PropertyPath.h"
 #include "System/TypeSystem/CoreTypeValidation.h"
-#include "System/TypeSystem/TypeValueConverter.h"
+#include "System/TypeSystem/CoreTypeSerializers.h"
 #include "System/Core/Types/UUID.h"
 
 //-------------------------------------------------------------------------
@@ -10,6 +10,7 @@
 namespace KRG::TypeSystem
 {
     class TypeRegistry;
+    struct TypeInfo;
 
     //-------------------------------------------------------------------------
 
@@ -19,17 +20,23 @@ namespace KRG::TypeSystem
 
         PropertyDescriptor() = default;
 
-        inline bool IsValid() const { return m_path.IsValid() && !m_byteValue.empty(); }
-
-        // Default byte value ctor
-        //-------------------------------------------------------------------------
-
-        PropertyDescriptor( TypeSystem::PropertyPath const& path, TVector<Byte> const& byteValue )
+        PropertyDescriptor( TypeRegistry const& typeRegistry, TypeSystem::PropertyPath const& path, PropertyInfo const& propertyInfo, String const& stringValue )
             : m_path( path )
-            , m_byteValue( byteValue )
+            , m_stringValue( stringValue )
         {
-            KRG_ASSERT( m_path.IsValid() && byteValue.size() > 0 );
+            KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
+            Conversion::ConvertStringValueToBinary( typeRegistry, propertyInfo, stringValue, m_byteValue );
         }
+
+        PropertyDescriptor( TypeRegistry const& typeRegistry, TypeSystem::PropertyPath const& path, TypeID propertyTypeID, TypeID propertyTemplatedArgumentTypeID, String const& stringValue )
+            : m_path( path )
+            , m_stringValue( stringValue )
+        {
+            KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
+            Conversion::ConvertStringValueToBinary( typeRegistry, propertyTypeID, propertyTemplatedArgumentTypeID, stringValue, m_byteValue );
+        }
+
+        inline bool IsValid() const { return m_path.IsValid() && !m_byteValue.empty(); }
 
         // Tools only - string value ctor
         //-------------------------------------------------------------------------
@@ -46,44 +53,6 @@ namespace KRG::TypeSystem
             , m_stringValue( stringValue )
         {
             KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
-        }
-
-        PropertyDescriptor( TypeSystem::PropertyPath const& path, TypeSystem::TypeID typeID, String const& stringValue )
-            : m_path( path )
-            , m_stringValue( stringValue )
-        {
-            KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
-            TypeSystem::TypeValueConverter::ConvertStringToByteArray( typeID, stringValue, m_byteValue );
-        }
-
-        PropertyDescriptor( TypeSystem::CoreTypes coreType, TypeSystem::PropertyPath const& path, String const& stringValue )
-            : m_path( path )
-            , m_stringValue( stringValue )
-        {
-            KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
-            TypeSystem::TypeValueConverter::ConvertStringToByteArray( TypeSystem::GetCoreTypeID( coreType ), stringValue, m_byteValue );
-        }
-
-        // Enum property descriptor ctors
-        //-------------------------------------------------------------------------
-
-        PropertyDescriptor( TypeSystem::PropertyPath const& path, StringID ID )
-            : m_path( path )
-        {
-            KRG_ASSERT( m_path.IsValid() && ID.IsValid() );
-            SetEnumValueID( ID );
-        }
-
-        // Enum values are serialized as a raw StringID
-        void SetEnumValueID( StringID enumValueID );
-        StringID GetEnumValueID() const;
-
-        // Set byte value
-        template<typename T>
-        void SetByteValue( T const& value )
-        {
-            KRG_ASSERT( TypeSystem::IsCoreType<T>() );
-            TypeSystem::TypeValueConverter::ValueToByteArray( value, m_byteValue );
         }
 
     public:
