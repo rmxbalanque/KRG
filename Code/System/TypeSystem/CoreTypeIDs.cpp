@@ -1,10 +1,4 @@
 #include "CoreTypeIDs.h"
-#include "System/Resource/ResourcePtr.h"
-#include "System/Core/Types/Percentage.h"
-#include "System/Core/Types/Color.h"
-#include "System/Core/Types/BitFlags.h"
-#include "System/Core/Time/Time.h"
-#include "System/Core/Math/Transform.h"
 
 //-------------------------------------------------------------------------
 

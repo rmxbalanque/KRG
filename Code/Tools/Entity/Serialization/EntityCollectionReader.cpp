@@ -3,7 +3,7 @@
 #include "Tools/Core/TypeSystem/Serialization/TypeSerializationCommon.h"
 #include "System/Entity/Entity.h"
 #include "System/Entity/Collections/EntityCollectionDescriptor.h"
-#include "System/TypeSystem/CoreTypeSerializers.h"
+#include "System/TypeSystem/CoreTypeConversions.h"
 #include "System/Core/ThirdParty/cereal/external/rapidjson/error/en.h"
 #include "System/Core/Logging/Log.h"
 
@@ -75,7 +75,7 @@ namespace KRG
 
                 if ( TypeSystem::IsCoreType( resolvedPropertyInfo.m_pPropertyInfo->m_typeID ) || resolvedPropertyInfo.m_pPropertyInfo->IsEnumProperty() || resolvedPropertyInfo.m_pPropertyInfo->IsBitFlagsProperty() )
                 {
-                    TypeSystem::Conversion::ConvertStringValueToBinary( ctx.m_typeRegistry, *resolvedPropertyInfo.m_pPropertyInfo, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue );
+                    TypeSystem::Conversion::ConvertStringToBinary( ctx.m_typeRegistry, *resolvedPropertyInfo.m_pPropertyInfo, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue );
                 }
 
                 return true;

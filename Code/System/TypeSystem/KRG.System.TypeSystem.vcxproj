@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreTypeIDs.h" />
-    <ClInclude Include="CoreTypeValidation.h" />
     <ClInclude Include="TypeDescriptors.h" />
     <ClInclude Include="EnumInfo.h" />
     <ClInclude Include="ITypeHelper.h" />
@@ -22,7 +21,7 @@
     <ClInclude Include="TypeInfo.h" />
     <ClInclude Include="TypeRegistrationMacros.h" />
     <ClInclude Include="TypeRegistry.h" />
-    <ClInclude Include="CoreTypeSerializers.h" />
+    <ClInclude Include="CoreTypeConversions.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
@@ -40,7 +39,7 @@
     <ClCompile Include="PropertyPath.cpp" />
     <ClCompile Include="TypeInfo.cpp" />
     <ClCompile Include="TypeRegistry.cpp" />
-    <ClCompile Include="CoreTypeSerializers.cpp" />
+    <ClCompile Include="CoreTypeConversions.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EC1A0A10-5C84-4971-A883-C13E7F76C327}</ProjectGuid>

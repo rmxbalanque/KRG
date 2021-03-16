@@ -1,7 +1,7 @@
 #if _WIN32
 #include "NativeTypeWriter.h"
 #include "TypeSerializationCommon.h"
-#include "System/TypeSystem/CoreTypeSerializers.h"
+#include "System/TypeSystem/CoreTypeConversions.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -138,7 +138,7 @@ namespace KRG::TypeSystem
     {
         if ( IsCoreType( propertyInfo.m_typeID ) )
         {
-            Conversion::ConvertTypeValueToStringValue( m_typeRegistry, propertyInfo, pTypeData, m_scratchBuffer );
+            Conversion::ConvertNativeTypeToString( m_typeRegistry, propertyInfo, pTypeData, m_scratchBuffer );
             m_writer.String( m_scratchBuffer.c_str() );
         }
         else

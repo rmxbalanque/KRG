@@ -62,7 +62,7 @@ namespace KRG::TypeSystem
             }
 
             // Set actual property value
-            Conversion::ConvertBinaryToTypeValue( typeRegistry, *pPropertyInfo, propertyValue.m_byteValue, pPropertyData );
+            Conversion::ConvertBinaryToNativeType( typeRegistry, *pPropertyInfo, propertyValue.m_byteValue, pPropertyData );
         }
 
         return pTypeInstance;

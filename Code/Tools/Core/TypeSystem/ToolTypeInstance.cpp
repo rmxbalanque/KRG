@@ -1,6 +1,6 @@
 #include "ToolTypeInstance.h"
 #include "System/TypeSystem/EnumInfo.h"
-#include "System/TypeSystem/CoreTypeSerializers.h"
+#include "System/TypeSystem/CoreTypeConversions.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------
@@ -95,7 +95,7 @@ namespace KRG::TypeSystem
         {
             if ( IsCoreType() )
             {
-                Conversion::ConvertTypeValueToStringValue( typeRegistry, m_propertyInfo, m_propertyInfo.m_pDefaultValue, m_defaultValue );
+                Conversion::ConvertNativeTypeToString( typeRegistry, m_propertyInfo, m_propertyInfo.m_pDefaultValue, m_defaultValue );
                 m_value = m_defaultValue;
             }
             else if ( IsEnum() )
@@ -344,7 +344,7 @@ namespace KRG::TypeSystem
             if ( TypeSystem::IsCoreType( arrayElementInfo.m_typeID ) )
             {
                 String arrayElementDefaultStringValue;
-                Conversion::ConvertTypeValueToStringValue( *m_pTypeRegistry, m_propertyInfo, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
+                Conversion::ConvertNativeTypeToString( *m_pTypeRegistry, m_propertyInfo, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
                 pAddedArrayElement = &m_childProperties.emplace_back( ToolPropertyInstance( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
             }
             else if ( m_propertyInfo.IsEnumProperty() )
@@ -466,7 +466,7 @@ namespace KRG::TypeSystem
                 if ( TypeSystem::IsCoreType( m_propertyInfo.m_typeID ) )
                 {
                     String defaultElementValue;
-                    Conversion::ConvertTypeValueToStringValue( *m_pTypeRegistry, m_propertyInfo, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
+                    Conversion::ConvertNativeTypeToString( *m_pTypeRegistry, m_propertyInfo, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
                     if ( m_childProperties[i].GetStringValue() != defaultElementValue )
                     {
                         return false;

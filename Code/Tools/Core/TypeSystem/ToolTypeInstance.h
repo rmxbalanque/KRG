@@ -5,8 +5,7 @@
 #include "System/TypeSystem/PropertyInfo.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/CoreTypeIDs.h"
-#include "System/TypeSystem/CoreTypeValidation.h"
-#include "System/TypeSystem/CoreTypeSerializers.h"
+#include "System/TypeSystem/CoreTypeConversions.h"
 
 //-------------------------------------------------------------------------
 // Tool Type Instance
@@ -192,7 +191,7 @@ namespace KRG::TypeSystem
             KRG_ASSERT( IsCoreType() && !IsArray() );
 
             T outValue;
-            Conversion::ConvertStringValueToTypeValue( *m_pTypeRegistry, m_propertyInfo, m_value, &outValue );
+            Conversion::ConvertStringToNativeType( *m_pTypeRegistry, m_propertyInfo, m_value, &outValue );
             return outValue;
         }
 
@@ -201,7 +200,7 @@ namespace KRG::TypeSystem
         {
             KRG_ASSERT( TypeSystem::ValidateTypeAgainstTypeID<T>( m_propertyInfo.m_typeID ) );
             KRG_ASSERT( IsCoreType() && !IsArray() );
-            Conversion::ConvertTypeValueToStringValue( *m_pTypeRegistry, m_propertyInfo, &value, m_value );
+            Conversion::ConvertNativeTypeToString( *m_pTypeRegistry, m_propertyInfo, &value, m_value );
         }
 
         template<typename T>

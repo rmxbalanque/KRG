@@ -1,9 +1,8 @@
 #pragma once
 #include "_Module/API.h"
 #include "System/TypeSystem/PropertyPath.h"
-#include "System/TypeSystem/CoreTypeValidation.h"
-#include "System/TypeSystem/CoreTypeSerializers.h"
-#include "System/Core/Types/UUID.h"
+#include "System/TypeSystem/CoreTypeIDs.h"
+#include "System/TypeSystem/CoreTypeConversions.h"
 
 //-------------------------------------------------------------------------
 
@@ -25,7 +24,7 @@ namespace KRG::TypeSystem
             , m_stringValue( stringValue )
         {
             KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
-            Conversion::ConvertStringValueToBinary( typeRegistry, propertyInfo, stringValue, m_byteValue );
+            Conversion::ConvertStringToBinary( typeRegistry, propertyInfo, stringValue, m_byteValue );
         }
 
         PropertyDescriptor( TypeRegistry const& typeRegistry, TypeSystem::PropertyPath const& path, TypeID propertyTypeID, TypeID propertyTemplatedArgumentTypeID, String const& stringValue )
@@ -33,7 +32,7 @@ namespace KRG::TypeSystem
             , m_stringValue( stringValue )
         {
             KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
-            Conversion::ConvertStringValueToBinary( typeRegistry, propertyTypeID, propertyTemplatedArgumentTypeID, stringValue, m_byteValue );
+            Conversion::ConvertStringToBinary( typeRegistry, propertyTypeID, propertyTemplatedArgumentTypeID, stringValue, m_byteValue );
         }
 
         inline bool IsValid() const { return m_path.IsValid() && !m_byteValue.empty(); }

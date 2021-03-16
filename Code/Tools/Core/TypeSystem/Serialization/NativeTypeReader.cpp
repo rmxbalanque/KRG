@@ -1,7 +1,7 @@
 #if _WIN32
 #include "NativeTypeReader.h"
 #include "TypeSerializationCommon.h"
-#include "System/TypeSystem/CoreTypeSerializers.h"
+#include "System/TypeSystem/CoreTypeConversions.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -26,7 +26,7 @@ namespace KRG::TypeSystem
             if ( typeValue.IsString() )
             {
                 String const valueString = String( typeValue.GetString() );
-                Conversion::ConvertStringValueToTypeValue( typeRegistry, propInfo, valueString, pPropertyDataAddress );
+                Conversion::ConvertStringToNativeType( typeRegistry, propInfo, valueString, pPropertyDataAddress );
             }
             else if ( typeValue.IsBool() )
             {

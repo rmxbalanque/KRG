@@ -530,7 +530,7 @@ namespace KRG
 
         inline explicit operator float() const { return m_value; }
         inline operator Radians() const;
-        inline float GetValue() const { return m_value; }
+        inline float ToFloat() const { return m_value; }
         inline Radians ToRadians() const;
 
         inline Degrees operator-() const { return Degrees( -m_value ); }
@@ -649,7 +649,7 @@ namespace KRG
 
         inline operator float() const { return m_value; }
         inline operator Degrees() const { return ToDegrees(); }
-        inline float GetValue() const { return m_value; }
+        inline float ToFloat() const { return m_value; }
         inline Degrees ToDegrees() const { return m_value * Math::RadiansToDegrees; }
 
         inline Radians operator-() const { return Radians( -m_value ); }
@@ -863,6 +863,9 @@ namespace KRG
         inline Radians GetYaw() const { return m_z; }
         inline Radians GetPitch() const { return m_x; }
         inline Radians GetRoll() const { return m_y; }
+
+        inline Float3 GetAsRadians() const { return Float3( m_x.ToFloat(), m_y.ToFloat(), m_z.ToFloat() ); }
+        inline Float3 GetAsDegrees() const { return Float3( m_x.ToDegrees().ToFloat(), m_y.ToDegrees().ToFloat(), m_z.ToDegrees().ToFloat() ); }
 
         inline bool operator==( EulerAngles const& other ) const { return m_x == other.m_x && m_y == other.m_y && m_z == other.m_z; }
         inline bool operator!=( EulerAngles const& other ) const { return m_x != other.m_x || m_y != other.m_y || m_z != other.m_z; }
