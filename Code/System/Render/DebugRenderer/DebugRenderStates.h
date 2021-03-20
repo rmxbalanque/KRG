@@ -119,7 +119,7 @@ namespace KRG
             struct FontDesc
             {
                 Byte const*                 m_compressedFontData = nullptr;
-                float                         m_fontSize = 10.0f;
+                float                       m_fontSize = 10.0f;
             };
 
         private:

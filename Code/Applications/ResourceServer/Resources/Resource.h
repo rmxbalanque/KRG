@@ -3,10 +3,9 @@
 // Used by KRG.Applications.ResourceServer.rc
 //
 #define IDI_ICON1                       101
-#define IDI_APPICON                     101
-#define IDI_RESOURCESERVER_ICON         101
-#define IDI_TRAYICON_BUSY               108
-#define IDI_TRAYICON_IDLE               109
+#define IDI_RESOURCESERVER              101
+#define IDI_TRAY_BUSY                   108
+#define IDI_TRAY_IDLE                   109
 #define IDR_SYSTRAY_MENU                110
 #define ID_REQUEST_EXIT                 40001
 #define ID_EXIT_EXIT                    40002

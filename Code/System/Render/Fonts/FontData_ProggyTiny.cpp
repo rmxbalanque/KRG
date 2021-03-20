@@ -86,16 +86,10 @@ static const char g_proggyTiny_compressed_data_base85[10950+1] =
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fonts::ProggyTiny
 {
-    namespace Fonts
+    Byte const* GetFontCompressedData()
     {
-        namespace ProggyTiny
-        {
-            Byte const* GetFontCompressedData()
-            {
-                return (Byte*) g_proggyTiny_compressed_data_base85;
-            }
-        }
+        return (Byte*) g_proggyTiny_compressed_data_base85;
     }
 }

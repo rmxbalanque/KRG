@@ -1125,24 +1125,18 @@ static const char g_fa4_compressed_data_base85_2[] =
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fonts::FontAwesome4
 {
-    namespace Fonts
+    void GetFontCompressedData( TVector<Byte>& compressedData )
     {
-        namespace FontAwesome4
-        {
-            void GetFontCompressedData( TVector<Byte>& compressedData )
-            {
-                size_t const sizeBlob0 = ( sizeof( g_fa4_compressed_data_base85_0 ) / sizeof( char ) ) - 1;
-                size_t const sizeBlob1 = ( sizeof( g_fa4_compressed_data_base85_0 ) / sizeof( char ) ) - 1;
-                size_t const sizeBlob2 = ( sizeof( g_fa4_compressed_data_base85_0 ) / sizeof( char ) ) - 1;
+        size_t const sizeBlob0 = ( sizeof( g_fa4_compressed_data_base85_0 ) / sizeof( char ) ) - 1;
+        size_t const sizeBlob1 = ( sizeof( g_fa4_compressed_data_base85_0 ) / sizeof( char ) ) - 1;
+        size_t const sizeBlob2 = ( sizeof( g_fa4_compressed_data_base85_0 ) / sizeof( char ) ) - 1;
 
-                compressedData.resize( sizeBlob0 + sizeBlob1 + sizeBlob2 );
+        compressedData.resize( sizeBlob0 + sizeBlob1 + sizeBlob2 );
 
-                memcpy( compressedData.data(), g_fa4_compressed_data_base85_0, sizeBlob0 );
-                memcpy( compressedData.data() + sizeBlob0, g_fa4_compressed_data_base85_1, sizeBlob1 );
-                memcpy( compressedData.data() + sizeBlob0 + sizeBlob1, g_fa4_compressed_data_base85_2, sizeBlob2 );
-            }
-        }
+        memcpy( compressedData.data(), g_fa4_compressed_data_base85_0, sizeBlob0 );
+        memcpy( compressedData.data() + sizeBlob0, g_fa4_compressed_data_base85_1, sizeBlob1 );
+        memcpy( compressedData.data() + sizeBlob0 + sizeBlob1, g_fa4_compressed_data_base85_2, sizeBlob2 );
     }
 }

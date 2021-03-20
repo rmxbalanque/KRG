@@ -5,13 +5,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fonts::ProggyClean
 {
-    namespace Fonts
-    {
-        namespace ProggyClean
-        {
-            KRG_SYSTEM_RENDER_API Byte const* GetFontCompressedData();
-        }
-    }
+    KRG_SYSTEM_RENDER_API Byte const* GetFontCompressedData();
 }

@@ -46,7 +46,7 @@ namespace KRG
 
             // Text rendering
             TVector<DebugFontGlyphVertex>               m_intermediateGlyphVertexData;
-            TVector<uint16>                                m_intermediateGlyphIndexData;
+            TVector<uint16>                             m_intermediateGlyphIndexData;
         };
     }
 }

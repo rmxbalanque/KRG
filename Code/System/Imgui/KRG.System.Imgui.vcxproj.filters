@@ -45,7 +45,7 @@
     <ClInclude Include="ThirdParty\imgui\imstb_truetype.h">
       <Filter>ThirdParty\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="System\ImguiSystemBase.h">
+    <ClInclude Include="System\ImguiSystem.h">
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shaders\ImguiShaders.h">
@@ -61,7 +61,9 @@
       <Filter>_Module</Filter>
     </ClInclude>
     <ClInclude Include="System\ImguiFont.h" />
-    <ClInclude Include="ImguiSystem.h" />
+    <ClInclude Include="ImguiX.h" />
+    <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h" />
+    <ClInclude Include="System\ImguiTheme.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\imgui.natvis">
@@ -84,7 +86,7 @@
     <ClCompile Include="ThirdParty\imgui\imgui.cpp">
       <Filter>ThirdParty\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="System\ImguiSystemBase.cpp">
+    <ClCompile Include="System\ImguiSystem.cpp">
       <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="System\Platform\ImguiSystem_win32.cpp">
@@ -92,12 +94,8 @@
     </ClCompile>
     <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp" />
     <ClCompile Include="System\ImguiFont.cpp" />
-    <ClCompile Include="ImguiSystem.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="System\Platform\ImguiSystem_win32.inl">
-      <Filter>System\Platform</Filter>
-    </None>
+    <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
+    <ClCompile Include="System\ImguiTheme.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ThirdParty\imgui\LICENSE.txt">
@@ -111,5 +109,8 @@
     <FxCompile Include="Renderer\Shaders\HLSL\VS_imgui.hlsl">
       <Filter>Renderer\Shaders\HLSL</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="System\Platform\ImguiSystem.inl" />
   </ItemGroup>
 </Project>

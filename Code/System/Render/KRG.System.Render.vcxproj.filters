@@ -48,9 +48,6 @@
     <ClCompile Include="Fonts\FontData_ProggyTiny.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="Fonts\FontData_Roboto.cpp">
-      <Filter>Fonts</Filter>
-    </ClCompile>
     <ClCompile Include="Fonts\FontDecompressor.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
@@ -77,6 +74,7 @@
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="RenderVertexFormats.cpp" />
     <ClCompile Include="Fonts\FontData_ProggyClean.cpp" />
+    <ClCompile Include="Fonts\FontData_Segoe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugRenderer\DebugRenderer.h">
@@ -89,9 +87,6 @@
       <Filter>Fonts</Filter>
     </ClInclude>
     <ClInclude Include="Fonts\FontData_ProggyTiny.h">
-      <Filter>Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="Fonts\FontData_Roboto.h">
       <Filter>Fonts</Filter>
     </ClInclude>
     <ClInclude Include="Fonts\FontDecompressor.h">
@@ -146,6 +141,7 @@
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="RenderVertexFormats.h" />
     <ClInclude Include="Fonts\FontData_ProggyClean.h" />
+    <ClInclude Include="Fonts\FontData_Segoe.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">

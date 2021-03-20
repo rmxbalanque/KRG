@@ -21,8 +21,8 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
     //-------------------------------------------------------------------------
 
     #if LIVEPP_ENABLED
-    HMODULE livePP = lpp::lppLoadAndRegister( L"../../External/LivePP", "Quickstart" );
-    lpp::lppEnableAllCallingModulesSync( livePP );
+    /*HMODULE livePP = lpp::lppLoadAndRegister( L"../../External/LivePP", "Quickstart" );
+    lpp::lppEnableAllCallingModulesSync( livePP );*/
     #endif
 
     //-------------------------------------------------------------------------

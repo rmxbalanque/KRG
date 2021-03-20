@@ -3,8 +3,6 @@
 #include "System/Core/Logging/Log.h"
 #include "System/Core/Time/Timers.h"
 
-#include "ResourceServer/CompilationWorker.h"
-
 //-------------------------------------------------------------------------
 
 namespace KRG
@@ -14,7 +12,7 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     ResourceServerApplication::ResourceServerApplication( HINSTANCE pInstance )
-        : Win32Application( pInstance, "Kruger Resource Server", IDI_RESOURCESERVER_ICON )
+        : Win32Application( pInstance, "Kruger Resource Server", IDI_RESOURCESERVER )
         , m_resourceServerUI( &m_resourceServer )
     {}
 
@@ -118,7 +116,7 @@ namespace KRG
         // ImGui specific message processing
         //-------------------------------------------------------------------------
 
-        auto const imguiResult = m_imguiSystem.ImguiWndProcess( hWnd, message, wParam, lParam );
+        auto const imguiResult = m_imguiSystem.ProcessInput( { hWnd, message, wParam, lParam } );
         if ( imguiResult != 0 )
         {
             return imguiResult;
@@ -149,7 +147,7 @@ namespace KRG
     {
         m_systemTrayIconData.cbSize = sizeof( NOTIFYICONDATA );
         m_systemTrayIconData.hWnd = m_pWindow;
-        m_systemTrayIconData.uID = IDI_TRAYICON_IDLE;
+        m_systemTrayIconData.uID = IDI_TRAY_IDLE;
         m_systemTrayIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
         m_systemTrayIconData.hIcon = LoadIcon( m_pInstance, (LPCTSTR) MAKEINTRESOURCE( iconID ) );
         m_systemTrayIconData.uCallbackMessage = g_shellIconCallbackMessageID;
@@ -240,8 +238,8 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        CreateSystemTrayIcon( IDI_TRAYICON_IDLE );
-
+        CreateSystemTrayIcon( IDI_TRAY_IDLE );
+        HideApplicationWindow();
         return true;
     }
 
@@ -283,8 +281,13 @@ namespace KRG
 
             m_resourceServer.Update();
 
-            if ( !m_resourceServer.IsBusy() )
+            if ( m_resourceServer.IsBusy() )
             {
+                RefreshSystemTrayIcon( IDI_TRAY_BUSY );
+            }
+            else // Wait
+            {
+                RefreshSystemTrayIcon( IDI_TRAY_IDLE );
                 Threading::Sleep( 1 );
             }
 

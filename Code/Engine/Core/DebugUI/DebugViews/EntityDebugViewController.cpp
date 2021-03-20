@@ -1,5 +1,5 @@
 #include "EntityDebugViewController.h"
-#include "System/Imgui/ImguiSystem.h"
+#include "System/Imgui/ImguiX.h"
 #include "System/Entity/EntityWorld.h"
 #include "System/Entity/EntitySystem.h"
 #include "System/Core/Update/UpdateContext.h"
@@ -218,6 +218,8 @@ namespace KRG
             {
                 DrawSpatialComponentTree( pChildComponent );
             }
+
+            ImGui::TreePop();
         }
     }
 
@@ -335,8 +337,6 @@ namespace KRG
             // Draw Entity Details
             //-------------------------------------------------------------------------
 
-            ImGui::BeginGroup();
-
             ImGui::SetNextWindowBgAlpha( 0.5f );
             if ( ImGui::BeginChild( ImGui::GetID( (void*) (intptr_t) 1 ), ImVec2( -1, -1 ), true, 0 ) )
             {
@@ -353,7 +353,7 @@ namespace KRG
                     {
                         if ( ImGui::CollapsingHeader( "Spatial Info", ImGuiTreeNodeFlags_DefaultOpen ) )
                         {
-                            auto const transform = m_pSelectedEntity->GetWorldTransform();
+                            auto const& transform = m_pSelectedEntity->GetWorldTransform();
                             auto const eulerAngles = transform.GetRotation().ToEulerAngles();
                             ImGui::Text( "Rotation: %.2f %.2f %.2f", eulerAngles.m_x, eulerAngles.m_y, eulerAngles.m_z );
                             ImGui::Text( "Translation: %.2f %.2f %.2f", transform.GetTranslation().m_x, transform.GetTranslation().m_y, transform.GetTranslation().m_z );
@@ -411,8 +411,6 @@ namespace KRG
                 }
             }
             ImGui::EndChild();
-
-            ImGui::EndGroup();
         }
         ImGui::End();
     }

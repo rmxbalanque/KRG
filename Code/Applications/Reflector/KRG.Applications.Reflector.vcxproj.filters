@@ -94,12 +94,12 @@
     </ClInclude>
     <ClInclude Include="Reflector.h" />
     <ClInclude Include="ReflectorSettingsAndUtils.h" />
-    <ClInclude Include="Resource.h" />
+    <ClInclude Include="Resources\Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="KRG.Applications.Reflector.rc" />
+    <ResourceCompile Include="Resources\KRG.Applications.Reflector.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Reflector.ico" />
+    <Image Include="Resources\Reflector.ico" />
   </ItemGroup>
 </Project>

@@ -36,7 +36,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.System.Network", "Code\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.ResourceCompilers.Render", "Code\Compilers\Render\KRG.ResourceCompilers.Render.vcxproj", "{A15B3800-5260-4F44-A0F5-612DEB60B64E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceServerWorker", "Code\Applications\ResourceServerWorker\KRG.Applications.ResourceServerWorker.vcxproj", "{BBCF3423-E4B4-4CDD-8A97-C6C390BACC23}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceCompiler", "Code\Applications\ResourceCompiler\KRG.Applications.ResourceCompiler.vcxproj", "{BBCF3423-E4B4-4CDD-8A97-C6C390BACC23}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F3D9D4BA-4D04-402B-B8D8-9A4A9400BFB6} = {F3D9D4BA-4D04-402B-B8D8-9A4A9400BFB6}
 	EndProjectSection

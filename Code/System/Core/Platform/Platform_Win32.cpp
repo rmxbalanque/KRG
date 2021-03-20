@@ -81,7 +81,7 @@ namespace KRG::Platform::Win32
         KRG_ASSERT( processID != 0 );
 
         String returnPath;
-        HANDLE pProcess = OpenProcess( PROCESS_QUERY_INFORMATION, false, processID );
+        HANDLE pProcess = OpenProcess( PROCESS_QUERY_LIMITED_INFORMATION, false, processID );
         if ( pProcess != nullptr )
         {
             TCHAR currentProcessPath[MAX_PATH + 1];

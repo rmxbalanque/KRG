@@ -1,5 +1,5 @@
 #if _WIN32
-#include "ImguiSystem_win32.inl"
+#include "../ImguiSystem.h"
 #include <tchar.h>
 
 //-------------------------------------------------------------------------
@@ -237,15 +237,13 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    bool ImguiSystem::Initialize( String const& iniFilename )
-    {
-        KRG_ASSERT( g_mainWindowHandle == nullptr );
-        g_mainWindowHandle = m_mainwindowHandle = GetActiveWindow();
-        return ImguiSystemBase::Initialize( iniFilename );
-    }
-
     void ImguiSystem::InitializePlatform()
     {
+        KRG_ASSERT( g_mainWindowHandle == nullptr );
+        m_mainWindowHandle = g_mainWindowHandle = GetActiveWindow();
+
+        //-------------------------------------------------------------------------
+
         ImGuiIO& io = ImGui::GetIO();
 
         io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
@@ -253,7 +251,7 @@ namespace KRG::ImGuiX
         io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport; // We can set io.MouseHoveredViewport correctly (optional, not easy)
 
         ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-        mainViewport->PlatformHandle = mainViewport->PlatformHandleRaw = (void*) m_mainwindowHandle;
+        mainViewport->PlatformHandle = mainViewport->PlatformHandleRaw = (void*) m_mainWindowHandle;
 
         // Set key mappings
         //-------------------------------------------------------------------------
@@ -310,7 +308,7 @@ namespace KRG::ImGuiX
         ImGuiIO& io = ImGui::GetIO();
 
         RECT rect;
-        ::GetClientRect( m_mainwindowHandle, &rect );
+        ::GetClientRect( (HWND) m_mainWindowHandle, &rect );
         io.DisplaySize = ImVec2( (float) ( rect.right - rect.left ), (float) ( rect.bottom - rect.top ) );
 
         if ( m_updateMonitorInfo )
@@ -351,9 +349,9 @@ namespace KRG::ImGuiX
 
         if ( HWND focused_hwnd = ::GetForegroundWindow() )
         {
-            if ( ::IsChild( focused_hwnd, m_mainwindowHandle ) )
+            if ( ::IsChild( focused_hwnd, (HWND) m_mainWindowHandle ) )
             {
-                focused_hwnd = m_mainwindowHandle;
+                focused_hwnd = (HWND) m_mainWindowHandle;
             }
 
             if ( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
@@ -369,7 +367,7 @@ namespace KRG::ImGuiX
             {
                 // Single viewport mode: mouse position in client window coordinates (io.MousePos is (0,0) when the mouse is on the upper-left corner of the app window.)
                 // This is the position you can get with GetCursorPos() + ScreenToClient() or from WM_MOUSEMOVE.
-                if ( focused_hwnd == m_mainwindowHandle )
+                if ( focused_hwnd == m_mainWindowHandle )
                 {
                     POINT mouse_client_pos = mouse_screen_pos;
                     ::ScreenToClient( focused_hwnd, &mouse_client_pos );
@@ -435,10 +433,10 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    LRESULT ImguiSystem::ImguiWndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+    LRESULT ImguiSystem::ProcessInput( PlatformInputData const& data )
     {
         ImGuiIO& io = ImGui::GetIO();
-        switch ( message )
+        switch ( data.m_message )
         {
             case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
             case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
@@ -446,13 +444,13 @@ namespace KRG::ImGuiX
             case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
             {
                 int button = 0;
-                if ( message == WM_LBUTTONDOWN || message == WM_LBUTTONDBLCLK ) { button = 0; }
-                if ( message == WM_RBUTTONDOWN || message == WM_RBUTTONDBLCLK ) { button = 1; }
-                if ( message == WM_MBUTTONDOWN || message == WM_MBUTTONDBLCLK ) { button = 2; }
-                if ( message == WM_XBUTTONDOWN || message == WM_XBUTTONDBLCLK ) { button = ( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ) ? 3 : 4; }
+                if ( data.m_message == WM_LBUTTONDOWN || data.m_message == WM_LBUTTONDBLCLK ) { button = 0; }
+                if ( data.m_message == WM_RBUTTONDOWN || data.m_message == WM_RBUTTONDBLCLK ) { button = 1; }
+                if ( data.m_message == WM_MBUTTONDOWN || data.m_message == WM_MBUTTONDBLCLK ) { button = 2; }
+                if ( data.m_message == WM_XBUTTONDOWN || data.m_message == WM_XBUTTONDBLCLK ) { button = ( GET_XBUTTON_WPARAM( data.m_wParam ) == XBUTTON1 ) ? 3 : 4; }
                 if ( !ImGui::IsAnyMouseDown() && ::GetCapture() == NULL )
                 {
-                    ::SetCapture( hWnd );
+                    ::SetCapture( data.m_hWnd );
                 }
                 io.MouseDown[button] = true;
                 break;
@@ -464,12 +462,12 @@ namespace KRG::ImGuiX
             case WM_XBUTTONUP:
             {
                 int button = 0;
-                if ( message == WM_LBUTTONUP ) { button = 0; }
-                if ( message == WM_RBUTTONUP ) { button = 1; }
-                if ( message == WM_MBUTTONUP ) { button = 2; }
-                if ( message == WM_XBUTTONUP ) { button = ( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ) ? 3 : 4; }
+                if ( data.m_message == WM_LBUTTONUP ) { button = 0; }
+                if ( data.m_message == WM_RBUTTONUP ) { button = 1; }
+                if ( data.m_message == WM_MBUTTONUP ) { button = 2; }
+                if ( data.m_message == WM_XBUTTONUP ) { button = ( GET_XBUTTON_WPARAM( data.m_wParam ) == XBUTTON1 ) ? 3 : 4; }
                 io.MouseDown[button] = false;
-                if ( !ImGui::IsAnyMouseDown() && ::GetCapture() == hWnd )
+                if ( !ImGui::IsAnyMouseDown() && ::GetCapture() == data.m_hWnd )
                 {
                     ::ReleaseCapture();
                 }
@@ -478,43 +476,43 @@ namespace KRG::ImGuiX
 
             case WM_MOUSEWHEEL:
             {
-                io.MouseWheel += (float) GET_WHEEL_DELTA_WPARAM( wParam ) / (float) WHEEL_DELTA;
+                io.MouseWheel += (float) GET_WHEEL_DELTA_WPARAM( data.m_wParam ) / (float) WHEEL_DELTA;
             }
             break;
 
             case WM_MOUSEHWHEEL:
             {
-                io.MouseWheelH += (float) GET_WHEEL_DELTA_WPARAM( wParam ) / (float) WHEEL_DELTA;
+                io.MouseWheelH += (float) GET_WHEEL_DELTA_WPARAM( data.m_wParam ) / (float) WHEEL_DELTA;
             }
             break;
 
             case WM_KEYDOWN:
             case WM_SYSKEYDOWN:
-            if ( wParam < 256 )
+            if ( data.m_wParam < 256 )
             {
-                io.KeysDown[wParam] = 1;
+                io.KeysDown[data.m_wParam] = 1;
             }
             break;
 
             case WM_KEYUP:
             case WM_SYSKEYUP:
-            if ( wParam < 256 )
+            if ( data.m_wParam < 256 )
             {
-                io.KeysDown[wParam] = 0;
+                io.KeysDown[data.m_wParam] = 0;
             }
             break;
 
             case WM_CHAR:
             // You can also use ToAscii()+GetKeyboardState() to retrieve characters.
-            if ( wParam > 0 && wParam < 0x10000 )
+            if ( data.m_wParam > 0 && data.m_wParam < 0x10000 )
             {
-                io.AddInputCharacterUTF16( (unsigned short) wParam );
+                io.AddInputCharacterUTF16( (unsigned short) data.m_wParam );
             }
             break;
 
             case WM_SETCURSOR:
             {
-                if ( LOWORD( lParam ) == HTCLIENT && UpdateMouseCursor() )
+                if ( LOWORD( data.m_lParam ) == HTCLIENT && UpdateMouseCursor() )
                 {
                     return 1;
                 }
@@ -531,9 +529,9 @@ namespace KRG::ImGuiX
         // Imgui Viewports
         //-------------------------------------------------------------------------
 
-        if ( ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle( (void*) hWnd ) )
+        if ( ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle( (void*) data.m_hWnd ) )
         {
-            switch ( message )
+            switch ( data.m_message )
             {
                 case WM_CLOSE:
                 {

@@ -1,5 +1,5 @@
 #include "NavmeshDebugViewController.h"
-#include "System/Imgui/ImguiSystem.h"
+#include "System/Imgui/ImguiX.h"
 
 #include <bfxSystem.h>
 #include <bfxPlanner.h>

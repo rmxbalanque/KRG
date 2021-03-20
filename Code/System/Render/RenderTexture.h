@@ -82,10 +82,10 @@ namespace KRG
             TextureAddressMode      m_addressModeU = TextureAddressMode::Wrap;
             TextureAddressMode      m_addressModeV = TextureAddressMode::Wrap;
             TextureAddressMode      m_addressModeW = TextureAddressMode::Wrap;
-            uint32                     m_maxAnisotropyValue = 1;
-            float                     m_LODBias = 0;
-            float                     m_minLOD = 0;
-            float                     m_maxLOD = FLT_MAX;
+            uint32                  m_maxAnisotropyValue = 1;
+            float                   m_LODBias = 0;
+            float                   m_minLOD = -FLT_MAX;
+            float                   m_maxLOD = FLT_MAX;
 
         private:
 

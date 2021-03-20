@@ -93,16 +93,10 @@ static const char g_proggyclean_compressed_data_base85[] =
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fonts::ProggyClean
 {
-    namespace Fonts
+    Byte const* GetFontCompressedData()
     {
-        namespace ProggyClean
-        {
-            Byte const* GetFontCompressedData()
-            {
-                return (Byte*) g_proggyclean_compressed_data_base85;
-            }
-        }
+        return (Byte*) g_proggyclean_compressed_data_base85;
     }
 }

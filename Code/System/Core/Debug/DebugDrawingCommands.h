@@ -125,17 +125,17 @@ namespace KRG
 
             enum class TextFlags
             {
-                WorldSpace = 1 << 1,
+                WorldSpace = 1,
 
-                AlignLeft = 1 << 2,
-                AlignCenter = 1 << 3,
-                AlignRight = 1 << 4,
+                AlignLeft = 2,
+                AlignCenter = 3,
+                AlignRight = 4,
 
-                AlignTop = 1 << 5,
-                AlignMiddle = 1 << 6,
-                AlignBottom = 1 << 7,
+                AlignTop = 5,
+                AlignMiddle = 6,
+                AlignBottom = 7,
 
-                DrawBackground = 1 << 10,
+                DrawBackground = 10,
 
                 Default = AlignCenter | AlignMiddle,
             };

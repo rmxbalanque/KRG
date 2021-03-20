@@ -5,13 +5,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fonts::ProggyTiny
 {
-    namespace Fonts
-    {
-        namespace ProggyTiny
-        {
-            KRG_SYSTEM_RENDER_API Byte const* GetFontCompressedData();
-        }
-    }
+    KRG_SYSTEM_RENDER_API Byte const* GetFontCompressedData();
 }

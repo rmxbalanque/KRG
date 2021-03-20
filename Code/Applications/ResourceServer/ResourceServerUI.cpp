@@ -1,6 +1,7 @@
 #include "ResourceServerUI.h"
-#include "ResourceServer/ResourceServer.h"
-#include "System/Imgui/ImguiSystem.h"
+#include "ResourceServer.h"
+#include "System/Imgui/ImguiX.h"
+#include <shellapi.h>
 
 //-------------------------------------------------------------------------
 
@@ -65,7 +66,14 @@ namespace KRG::Resource
                     ImGui::TableNextRow();
 
                     ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( "%llu", pPendingRequest->GetClientID() );
+                    if ( pPendingRequest->IsInternalRequest() )
+                    {
+                        ImGui::Text( "File System Watcher" );
+                    }
+                    else
+                    {
+                        ImGui::Text( "%llu", pPendingRequest->GetClientID() );
+                    }
 
                     ImGui::TableSetColumnIndex( 1 );
                     ImGui::Text( pPendingRequest->GetResourceID().c_str() );
@@ -81,20 +89,26 @@ namespace KRG::Resource
     {
         if ( ImGui::Begin( "Completed Requests" ) )
         {
+            float const OutputFieldHeight = 75;
+            float const TableHeight = ImGui::GetContentRegionAvail().y - OutputFieldHeight - 32;
+            float const buttonWidth = 120;
+            float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+            float const textfieldWidth = ImGui::GetWindowContentRegionWidth() - ( ( buttonWidth + itemSpacing ) * 4 );
+
             //-------------------------------------------------------------------------
             // Table
             //-------------------------------------------------------------------------
 
-            float const OutputFieldHeight = 60;
-            float const TableHeight = ImGui::GetContentRegionAvail().y - OutputFieldHeight - 32;
+            ImGuiX::ScopedFont const BigScopedFont( ImGuiX::Font::Small );
 
-            if ( ImGui::BeginTable( "Completed Requests Table", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX, ImVec2( 0, TableHeight ) ) )
+            if ( ImGui::BeginTable( "Completed Requests Table", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX, ImVec2( 0, TableHeight ) ) )
             {
                 ImGui::TableSetupColumn( "##Status", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 10 );
+                ImGui::TableSetupColumn( "Client", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 120 );
                 ImGui::TableSetupColumn( "Source", ImGuiTableColumnFlags_WidthStretch );
                 ImGui::TableSetupColumn( "Destination", ImGuiTableColumnFlags_WidthStretch );
-                ImGui::TableSetupColumn( "UT", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 40 );
-                ImGui::TableSetupColumn( "CT", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 40 );
+                ImGui::TableSetupColumn( "Up To Date", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 60 );
+                ImGui::TableSetupColumn( "Compile", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 60 );
 
                 //-------------------------------------------------------------------------
 
@@ -102,26 +116,32 @@ namespace KRG::Resource
 
                 for ( auto const& pCompletedRequest : m_pResourceServer->GetCompletedRequests() )
                 {
+                    ImVec4 itemColor;
                     ImGui::TableNextRow();
+
+                    //-------------------------------------------------------------------------
 
                     ImGui::TableSetColumnIndex( 0 );
                     switch ( pCompletedRequest->GetStatus() )
                     {
                         case CompilationRequest::Status::Succeeded:
                         {
-                            ImGui::TextColored( ImVec4( 0, 1, 0, 1 ), KRG_ICON_CHECK );
+                            itemColor = ImVec4( 0, 1, 0, 1 );
+                            ImGui::TextColored( itemColor, KRG_ICON_CHECK );
                         }
                         break;
 
                         case CompilationRequest::Status::SucceededWithWarnings:
                         {
-                            ImGui::TextColored( ImVec4( 1, 1, 0, 1 ), KRG_ICON_EXCLAMATION_TRIANGLE );
+                            itemColor = ImVec4( 1, 1, 0, 1 );
+                            ImGui::TextColored( itemColor, KRG_ICON_EXCLAMATION_TRIANGLE );
                         }
                         break;
 
                         case CompilationRequest::Status::Failed:
                         {
-                            ImGui::TextColored( ImVec4( 1, 0, 0, 1 ), KRG_ICON_TIMES );
+                            itemColor = ImVec4( 1, 0, 0, 1 );
+                            ImGui::TextColored( itemColor, KRG_ICON_TIMES );
                         }
                         break;
 
@@ -129,23 +149,39 @@ namespace KRG::Resource
                         break;
                     }
 
+                    //-------------------------------------------------------------------------
+
                     ImGui::TableSetColumnIndex( 1 );
-                    bool const item_is_selected = ( pCompletedRequest == m_pSelectedCompletedRequest );
-                    if ( ImGui::Selectable( pCompletedRequest->GetSourceFilePath().c_str(), item_is_selected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2( 0, 0 ) ) )
+                    if ( pCompletedRequest->IsInternalRequest() )
                     {
-                        m_pSelectedCompletedRequest = pCompletedRequest;
+                        ImGui::Text( "File System Watcher" );
+                    }
+                    else
+                    {
+                        ImGui::Text( "%llu", pCompletedRequest->GetClientID() );
                     }
 
+                    //-------------------------------------------------------------------------
+
                     ImGui::TableSetColumnIndex( 2 );
-                    ImGui::Text( pCompletedRequest->GetDestinationFilePath().c_str() );
+                    ImGui::TextColored( itemColor, pCompletedRequest->GetSourceFilePath().c_str() );
 
                     //-------------------------------------------------------------------------
 
                     ImGui::TableSetColumnIndex( 3 );
-                    ImGui::Text( "%.3f", pCompletedRequest->GetUptoDateCheckElapsedTime() );
+                    bool const item_is_selected = ( pCompletedRequest == m_pSelectedCompletedRequest );
+                    if ( ImGui::Selectable( pCompletedRequest->GetDestinationFilePath().c_str(), item_is_selected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2( 0, 0 ) ) )
+                    {
+                        m_pSelectedCompletedRequest = pCompletedRequest;
+                    }
+
+                    //-------------------------------------------------------------------------
 
                     ImGui::TableSetColumnIndex( 4 );
-                    ImGui::Text( "%.3f", pCompletedRequest->GetCompilationElapsedTime() );
+                    ImGui::Text( "%.3fms", pCompletedRequest->GetUptoDateCheckElapsedTime().ToFloat() );
+
+                    ImGui::TableSetColumnIndex( 5 );
+                    ImGui::Text( "%.3fms", pCompletedRequest->GetCompilationElapsedTime().ToFloat() );
                 }
 
                 ImGui::EndTable();
@@ -156,11 +192,9 @@ namespace KRG::Resource
             //-------------------------------------------------------------------------
             // Info Panel
             //-------------------------------------------------------------------------
-            
-            float const buttonWidth = 140;
-            float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-            float const textfieldWidth = ImGui::GetWindowContentRegionWidth() - ( ( buttonWidth + itemSpacing ) * 3 );
+
             char emptyBuffer[2] = { 0 };
+            bool const hasSelectedItem = m_pSelectedCompletedRequest != nullptr;
 
             {
                 ImGuiX::ScopedFont const scopedFont( ImGuiX::Font::Medium );
@@ -172,22 +206,47 @@ namespace KRG::Resource
                 }
                 else
                 {
+                    ImGui::SetNextItemWidth( textfieldWidth );
                     ImGui::InputText( "##Name", emptyBuffer, 2, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_ReadOnly );
                 }
 
                 ImGui::SameLine();
-                if( ImGui::Button( KRG_ICON_FILES_O "Copy Args", ImVec2( buttonWidth, 0 ) ) )
+                if( ImGui::Button( KRG_ICON_FILES_O " Copy Args", ImVec2( buttonWidth, 0 ) ) )
                 {
+                    if ( hasSelectedItem )
+                    {
+                        String path( "-compile " );
+                        path += m_pSelectedCompletedRequest->GetCompilerArgs();
+                        ImGui::SetClipboardText( path.c_str() );
+                    }
                 }
 
                 ImGui::SameLine();
-                if ( ImGui::Button( KRG_ICON_FILE "Go To Source", ImVec2( buttonWidth, 0 ) ) )
+                if ( ImGui::Button( KRG_ICON_FILE " Go To Source", ImVec2( buttonWidth, 0 ) ) )
                 {
+                    if ( hasSelectedItem )
+                    {
+                        String path( "/select," );
+                        path += m_pSelectedCompletedRequest->GetSourceFilePath();
+                        ShellExecute( 0, NULL, "explorer.exe", path.c_str(), NULL, SW_SHOWNORMAL );
+                    }
                 }
 
                 ImGui::SameLine();
-                if ( ImGui::Button( KRG_ICON_FILE_ARCHIVE_O "Go To Destination", ImVec2( buttonWidth, 0 ) ) )
+                if ( ImGui::Button( KRG_ICON_FILE_ARCHIVE_O " Go To Output", ImVec2( buttonWidth, 0 ) ) )
                 {
+                    if ( hasSelectedItem )
+                    {
+                        String path( "/select," );
+                        path += m_pSelectedCompletedRequest->GetDestinationFilePath();
+                        ShellExecute( 0, NULL, "explorer.exe", path.c_str(), NULL, SW_SHOWNORMAL );
+                    }
+                }
+
+                ImGui::SameLine();
+                if ( ImGui::Button( KRG_ICON_TRASH " Clear History", ImVec2( buttonWidth, 0 ) ) )
+                {
+                    m_pResourceServer->RequestCleanupOfCompletedRequests();
                 }
             }
 
@@ -214,7 +273,7 @@ namespace KRG::Resource
             {
                 ImGui::Text( "Worker %02d: ", i );
                 ImGui::SameLine();
-                if ( m_pResourceServer->GetWorkerStatus( i ) == CompilationWorker::Status::Compiling )
+                if ( m_pResourceServer->GetWorkerStatus( i ) == ResourceServerWorker::Status::Compiling )
                 {
                     ImGui::TextColored( ImGuiX::ConvertColor( Colors::LimeGreen ), m_pResourceServer->GetCompilationTaskResourceID( i ).c_str() );
                 }

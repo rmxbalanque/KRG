@@ -130,13 +130,13 @@
     <ClInclude Include="Database\ReflectionProjectTypes.h" />
     <ClInclude Include="Reflector.h" />
     <ClInclude Include="ReflectorSettingsAndUtils.h" />
-    <ClInclude Include="Resource.h" />
+    <ClInclude Include="Resources\Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Reflector.ico" />
+    <Image Include="Resources\Reflector.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="KRG.Applications.Reflector.rc" />
+    <ResourceCompile Include="Resources\KRG.Applications.Reflector.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">

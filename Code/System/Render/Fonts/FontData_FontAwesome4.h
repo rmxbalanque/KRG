@@ -6,13 +6,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fonts::FontAwesome4
 {
-    namespace Fonts
-    {
-        namespace FontAwesome4
-        {
-            KRG_SYSTEM_RENDER_API void GetFontCompressedData( TVector<Byte>& compressedData );
-        }
-    }
+    KRG_SYSTEM_RENDER_API void GetFontCompressedData( TVector<Byte>& compressedData );
 }

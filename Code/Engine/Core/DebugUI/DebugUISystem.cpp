@@ -1,5 +1,5 @@
 #include "DebugUISystem.h"
-#include "System/Imgui/ImguiSystem.h"
+#include "System/Imgui/ImguiX.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
@@ -367,7 +367,7 @@ namespace KRG::Debug
 {
     namespace StatusBar
     {
-        static float const g_height = 14.0f;
+        static float const g_height = 16.0f;
     }
 
     namespace OrientationGuide
@@ -472,6 +472,8 @@ namespace KRG::Debug
     {
         if ( ImGui::BeginMainMenuBar() )
         {
+            ImGui::TextColored( ImGuiX::Theme::s_accentColorDark, KRG_ICON_BUG );
+
             if ( m_mainMenu.IsEmpty() )
             {
                 ImGui::Text( "No Menu Options" );

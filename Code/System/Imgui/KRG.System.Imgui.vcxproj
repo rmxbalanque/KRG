@@ -11,12 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImguiSystem.h" />
+    <ClInclude Include="ImguiX.h" />
+    <ClInclude Include="System\ImguiTheme.h" />
     <ClInclude Include="Renderer\ImguiRenderer.h" />
     <ClInclude Include="System\ImguiFont.h" />
-    <ClInclude Include="System\ImguiSystemBase.h" />
+    <ClInclude Include="System\ImguiSystem.h" />
     <ClInclude Include="ThirdParty\imgui\imconfig.h" />
     <ClInclude Include="ThirdParty\imgui\imgui.h" />
+    <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="ThirdParty\imgui\imgui_internal.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_textedit.h" />
@@ -33,13 +35,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ImguiSystem.cpp" />
+    <ClCompile Include="System\ImguiTheme.cpp" />
     <ClCompile Include="Renderer\ImguiRenderer.cpp" />
-    <ClCompile Include="System\ImguiSystemBase.cpp" />
+    <ClCompile Include="System\ImguiSystem.cpp" />
     <ClCompile Include="System\Platform\ImguiSystem_win32.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
   </ItemGroup>
@@ -51,7 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System\ImguiFont.cpp" />
-    <None Include="System\Platform\ImguiSystem_win32.inl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Renderer\Shaders\HLSL\PS_imgui.hlsl">
@@ -79,6 +81,9 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="System\Platform\ImguiSystem.inl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}</ProjectGuid>
     <ProjectName>KRG.System.Imgui</ProjectName>
@@ -102,10 +107,12 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\KRG.props" />
+    <Import Project="..\..\..\External\Freetype\FreeType.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\KRG.props" />
+    <Import Project="..\..\..\External\Freetype\FreeType.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />

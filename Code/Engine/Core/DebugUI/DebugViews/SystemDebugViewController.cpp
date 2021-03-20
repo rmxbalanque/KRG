@@ -1,5 +1,5 @@
 #include "SystemDebugViewController.h"
-#include "System/Imgui/ImguiSystem.h"
+#include "System/Imgui/ImguiX.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Logging/Log.h"
 

@@ -13,11 +13,11 @@
   <ItemGroup>
     <ClInclude Include="DebugRenderer\DebugRenderer.h" />
     <ClInclude Include="DebugRenderer\DebugRenderStates.h" />
+    <ClInclude Include="Fonts\FontData_Segoe.h" />
     <ClInclude Include="DebugRenderer\Shaders\DebugShaders.h" />
     <ClInclude Include="Fonts\FontData_FontAwesome4.h" />
     <ClInclude Include="Fonts\FontData_ProggyClean.h" />
     <ClInclude Include="Fonts\FontData_ProggyTiny.h" />
-    <ClInclude Include="Fonts\FontData_Roboto.h" />
     <ClInclude Include="Fonts\FontDecompressor.h" />
     <ClInclude Include="IRenderer.h" />
     <ClInclude Include="RenderSettings.h" />
@@ -52,10 +52,10 @@
   <ItemGroup>
     <ClCompile Include="DebugRenderer\DebugRenderer.cpp" />
     <ClCompile Include="DebugRenderer\DebugRenderStates.cpp" />
+    <ClCompile Include="Fonts\FontData_Segoe.cpp" />
     <ClCompile Include="Fonts\FontData_FontAwesome4.cpp" />
     <ClCompile Include="Fonts\FontData_ProggyClean.cpp" />
     <ClCompile Include="Fonts\FontData_ProggyTiny.cpp" />
-    <ClCompile Include="Fonts\FontData_Roboto.cpp" />
     <ClCompile Include="Fonts\FontDecompressor.cpp" />
     <ClCompile Include="RendererRegistry.cpp" />
     <ClCompile Include="RenderDevice\Platform\RenderContext_DX11.cpp" />

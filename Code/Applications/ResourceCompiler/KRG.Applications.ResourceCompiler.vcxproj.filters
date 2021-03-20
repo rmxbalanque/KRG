@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ResourceCompilerManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Resources\Resource.h" />
+    <ClInclude Include="ResourceCompilerManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\ResourceCompiler.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Resource.rc" />
+  </ItemGroup>
+</Project>

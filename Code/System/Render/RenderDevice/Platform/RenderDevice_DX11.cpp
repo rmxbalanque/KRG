@@ -941,7 +941,7 @@ namespace KRG
             samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
             samplerDesc.MinLOD = state.m_minLOD;
             samplerDesc.MaxLOD = state.m_maxLOD;
-            samplerDesc.MaxAnisotropy = 16;
+            samplerDesc.MaxAnisotropy = state.m_maxAnisotropyValue;
 
             m_pDevice->CreateSamplerState( &samplerDesc, (ID3D11SamplerState**) &state.m_resourceHandle.m_pHandle );
             state.m_resourceHandle.m_type = ResourceHandle::Type::SamplerState;

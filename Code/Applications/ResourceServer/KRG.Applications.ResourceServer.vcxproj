@@ -72,15 +72,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ResourceServer.cpp" />
     <ClCompile Include="ResourceServerApplication.cpp" />
     <ClCompile Include="ResourceServerUI.cpp" />
-    <ClCompile Include="ResourceServer\CompilationWorker.cpp" />
-    <ClCompile Include="ResourceServer\CompiledResourceDatabase.cpp" />
-    <ClCompile Include="ResourceServer\ResourceServer.cpp" />
+    <ClCompile Include="CompiledResourceDatabase.cpp" />
+    <ClCompile Include="ResourceServerWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Icons\ResourceServer.ico" />
-    <Image Include="Resources\icon2.ico" />
     <Image Include="Resources\ResourceServer.ico" />
     <Image Include="Resources\ResourceServer.png" />
     <Image Include="Resources\TrayIconBusy.ico" />
@@ -94,11 +92,11 @@
   <ItemGroup>
     <ClInclude Include="ResourceServerApplication.h" />
     <ClInclude Include="ResourceServerUI.h" />
-    <ClInclude Include="ResourceServer\CompilationRequest.h" />
-    <ClInclude Include="ResourceServer\CompilationWorker.h" />
-    <ClInclude Include="ResourceServer\CompiledResourceDatabase.h" />
-    <ClInclude Include="ResourceServer\CompilerInfo.h" />
-    <ClInclude Include="ResourceServer\ResourceServer.h" />
+    <ClInclude Include="ResourceCompilationRequest.h" />
+    <ClInclude Include="ResourceServerWorker.h" />
+    <ClInclude Include="CompiledResourceDatabase.h" />
+    <ClInclude Include="ResourceCompilerInfo.h" />
+    <ClInclude Include="ResourceServer.h" />
     <ClInclude Include="Resources\Resource.h" />
   </ItemGroup>
   <ItemGroup>

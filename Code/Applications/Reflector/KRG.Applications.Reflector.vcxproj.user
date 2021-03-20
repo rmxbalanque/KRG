@@ -4,4 +4,7 @@
     <LocalDebuggerCommandArguments>-s "D:\Kruger\KRG.sln" -rebuild</LocalDebuggerCommandArguments>
     <RemoteDebuggerCommandArguments>-s "D:\Kruger\KRG.sln" -rebuild</RemoteDebuggerCommandArguments>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
 </Project>

@@ -179,8 +179,10 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            case WM_DISPLAYCHANGE:
+            case WM_CLOSE:
+            case WM_QUIT:
             {
+                RequestExit();
             }
             break;
 
@@ -196,7 +198,7 @@ namespace KRG
         // ImGui specific message processing
         //-------------------------------------------------------------------------
 
-        auto const imguiResult = m_engine.m_pImguiSystem->ImguiWndProcess( hWnd, message, wParam, lParam );
+        auto const imguiResult = m_engine.m_pImguiSystem->ProcessInput( { hWnd, message, wParam, lParam } );
         if ( imguiResult != 0 )
         {
             return imguiResult;
