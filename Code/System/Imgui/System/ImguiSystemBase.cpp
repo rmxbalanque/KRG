@@ -10,7 +10,7 @@
 
 namespace KRG::ImGuiX
 {
-    bool ImguiSystemBase::Initialize()
+    bool ImguiSystemBase::Initialize( String const& iniFilename )
     {
         ImGui::CreateContext();
 
@@ -19,6 +19,14 @@ namespace KRG::ImGuiX
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        //-------------------------------------------------------------------------
+
+        m_iniFilename = iniFilename;
+        if ( !m_iniFilename.empty() )
+        {
+            io.IniFilename = m_iniFilename.c_str();
+        }
 
         //-------------------------------------------------------------------------
 

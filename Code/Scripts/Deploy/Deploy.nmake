@@ -11,7 +11,6 @@ prebuild:
     nmake -f $(EXTERNAL_DIR)\Optick\Optick.nmake WORKING_DIR=$(EXTERNAL_DIR)\Optick\ PLATFORM=$(PLATFORM) CONFIG=$(CONFIG) OUT_DIR=$(OUT_DIR)
     nmake -f $(EXTERNAL_DIR)\ZeroMQ\ZeroMQ.nmake WORKING_DIR=$(EXTERNAL_DIR)\ZeroMQ\ PLATFORM=$(PLATFORM) CONFIG=$(CONFIG) OUT_DIR=$(OUT_DIR)
     nmake -f $(EXTERNAL_DIR)\SQLite\SQLite.nmake WORKING_DIR=$(EXTERNAL_DIR)\SQLite\ PLATFORM=$(PLATFORM) CONFIG=$(CONFIG) OUT_DIR=$(OUT_DIR)
-    nmake -f $(EXTERNAL_DIR)\Qt\Qt.nmake WORKING_DIR=$(EXTERNAL_DIR)\Qt\ PLATFORM=$(PLATFORM) CONFIG=$(CONFIG) OUT_DIR=$(OUT_DIR)
     xcopy /y /d /f "KRG.ini" "$(OUT_DIR)*"
 
 ##########################################
@@ -21,5 +20,4 @@ clean:
     nmake clean -f $(EXTERNAL_DIR)\Optick\Optick.nmake WORKING_DIR=$(EXTERNAL_DIR)\Optick\ PLATFORM=$(PLATFORM) CONFIG=$(CONFIG) OUT_DIR=$(OUT_DIR)
     nmake clean -f $(EXTERNAL_DIR)\ZeroMQ\ZeroMQ.nmake WORKING_DIR=$(EXTERNAL_DIR)\ZeroMQ\ PLATFORM=$(PLATFORM) CONFIG=$(CONFIG) OUT_DIR=$(OUT_DIR)
     nmake clean -f $(EXTERNAL_DIR)\SQLite\SQLite.nmake WORKING_DIR=$(EXTERNAL_DIR)\SQLite\ PLATFORM=$(PLATFORM) CONFIG=$(CONFIG) OUT_DIR=$(OUT_DIR)
-    nmake clean -f $(EXTERNAL_DIR)\Qt\Qt.nmake WORKING_DIR=$(EXTERNAL_DIR)\Qt\ PLATFORM=$(PLATFORM) CONFIG=$(CONFIG) OUT_DIR=$(OUT_DIR)
     del /F /Q "$(OUT_DIR)KRG.ini"

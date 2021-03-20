@@ -1763,15 +1763,22 @@ namespace KRG
 
             // Call texconv
             wchar_t* args[] = { L"", wc, L"-nologo" };
-            
             Blob textureBlob;
-            auto result = main( 3, args, textureBlob );
-            
-            rawData.resize( textureBlob.GetBufferSize() );
-            memcpy( rawData.data(), textureBlob.GetBufferPointer(), textureBlob.GetBufferSize() );
-            textureBlob.Release();
+            if ( main( 3, args, textureBlob ) == 0 )
+            {
+                // Error occurred
+                if ( textureBlob.GetBufferSize() == 0 )
+                {
+                    return false;
+                }
 
-            return result == 0;
+                rawData.resize( textureBlob.GetBufferSize() );
+                memcpy( rawData.data(), textureBlob.GetBufferPointer(), textureBlob.GetBufferSize() );
+                textureBlob.Release();
+                return true;
+            }
+
+            return false;
         }
     }
 }

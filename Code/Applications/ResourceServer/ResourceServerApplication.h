@@ -1,66 +1,71 @@
 #pragma once
+
+#include "ApplicationGlobalState.h"
 #include "ResourceServer/ResourceServer.h"
-#include "Tools/UI/Helpers/SingleInstanceLock.h"
-#include "Tools/UI/Application/Window.h"
-#include "Tools/UI/Application/Application.h"
+#include "ResourceServerUI.h"
+#include "System/Render/RenderDevice/RenderDevice.h"
+#include "System/Render/RendererRegistry.h"
+#include "System/Imgui/ImguiSystem.h"
+#include "System/Imgui/Renderer/ImguiRenderer.h"
+#include "System/Core/Types/String.h"
+#include "System/Core/Core/IntegralTypes.h"
+#include "System/Core/Update/UpdateContext.h"
+#include "System/Core/Math/Viewport.h"
+#include "Win32/Application_Win32.h"
+#include <shellapi.h>
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    namespace Resource
+    class ResourceServerApplication : public Win32Application
     {
-        class ResourceServerMainWindow : public Tools::Window
+        class InternalUpdateContext : public UpdateContext
         {
-        public:
-
-            using Tools::Window::Window;
-
-        private:
-
-            virtual bool ShouldStartHidden() const override final { return true; }
-            virtual void closeEvent( QCloseEvent* pEvent ) override final;
+            friend ResourceServerApplication;
         };
+
+    public:
+
+        ResourceServerApplication( HINSTANCE hInstance );
+
+    private:
+
+        virtual bool Initialize() override;
+        virtual bool Shutdown() override;
+        virtual bool ApplicationLoop() override;
+        virtual LRESULT WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) override;
+
+        // System Tray
+        //-------------------------------------------------------------------------
+
+        void ShowApplicationWindow();
+        void HideApplicationWindow();
+
+        bool CreateSystemTrayIcon( int32 iconID );
+        void DestroySystemTrayIcon();
+        void RefreshSystemTrayIcon( int32 iconID );
+        bool ShowSystemTrayMenu();
+
+    private:
+
+        NOTIFYICONDATA                          m_systemTrayIconData;
+        int32                                   m_currentIconID = 0;
+        bool                                    m_applicationWindowHidden = false;
 
         //-------------------------------------------------------------------------
 
-        class ResourceServerApplication : public Tools::Application
-        {
-            Q_OBJECT
+        InternalUpdateContext                   m_updateContext;
 
-        public:
+        // Rendering
+        Render::RenderDevice*                   m_pRenderDevice = nullptr;
 
-            ResourceServerApplication( int argc, char* argv[] );
+        // Imgui
+        ImGuiX::ImguiSystem                     m_imguiSystem;
+        ImGuiX::ImguiRenderer                   m_imguiRenderer;
+        Math::Viewport                          m_viewport;
 
-        private:
-
-            virtual bool Initialize() override final;
-            virtual void Shutdown() override final;
-
-            virtual Tools::Window* CreateMainWindow( QString const& windowName, QString const& windowIconPath, QString const& windowTitle ) override;
-
-        private slots:
-
-            void OnServerStopped();
-            void OnTrayIconActivated( QSystemTrayIcon::ActivationReason reason );
-            void OnServerBusyStateChanged();
-
-            void CreateMainContent();
-            void CreateStatusBarContent();
-
-        private:
-
-            // Tray Icon
-            QSystemTrayIcon*                m_pTrayIcon = nullptr;
-            QMenu*                          m_pTrayIconMenu = nullptr;
-            QAction*                        m_pQuitAction = nullptr;
-            QIcon                           m_idleIcon = QIcon( ":/KRG/TrayIconIdle.png" );
-            QIcon                           m_busyIcon = QIcon( ":/KRG/TrayIconBusy.png" );
-
-            // Server
-            ResourceServer*                 m_pServer = nullptr;
-            QThread*                        m_pServerThread = nullptr;
-            Tools::SingleInstanceLock       m_instanceLock;
-        };
-    }
+        Resource::ResourceServer                m_resourceServer;
+        Resource::ResourceServerUI              m_resourceServerUI;
+    };
 }

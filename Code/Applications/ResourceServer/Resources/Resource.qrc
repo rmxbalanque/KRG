@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/KRG">
-        <file>ResourceServer.png</file>
-        <file>TrayIconBusy.png</file>
-        <file>TrayIconIdle.png</file>
-    </qresource>
-</RCC>

@@ -81,8 +81,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Tools.Resource", "Code\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Tools.Entity", "Code\Tools\Entity\KRG.Tools.Entity.vcxproj", "{8F3DF129-8BE4-47B8-A96C-AC58B15ED3BA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Tools.UI", "Code\Tools\UI\KRG.Tools.UI.vcxproj", "{B12702AD-ABFB-343A-A199-8E24837244A3}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceServer", "Code\Applications\ResourceServer\KRG.Applications.ResourceServer.vcxproj", "{92F52A23-7513-43A0-8299-8FC752D2B401}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F3D9D4BA-4D04-402B-B8D8-9A4A9400BFB6} = {F3D9D4BA-4D04-402B-B8D8-9A4A9400BFB6}
@@ -90,17 +88,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceSe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Shared", "Code\Applications\Shared\KRG.Applications.Shared.vcxitems", "{AC5E982D-B267-4CAA-9DB7-EDA06AD36843}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Editor", "Code\Applications\Editor\KRG.Applications.Editor.vcxproj", "{6E8CC214-10DA-470C-A1AF-484A89513D26}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F3D9D4BA-4D04-402B-B8D8-9A4A9400BFB6} = {F3D9D4BA-4D04-402B-B8D8-9A4A9400BFB6}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Engine.Navmesh", "Code\Engine\Navmesh\KRG.Engine.Navmesh.vcxproj", "{CDA27ACA-1A2F-4DAC-8A7F-EE13A597F0BC}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{15e4867a-f174-4f2a-a7c1-99cc6376d8d2}*SharedItemsImports = 4
-		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{6e8cc214-10da-470c-a1af-484a89513d26}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{8778c386-a74a-4545-8297-ce68639d4ade}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{92f52a23-7513-43a0-8299-8fc752d2b401}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{ac5e982d-b267-4caa-9db7-eda06ad36843}*SharedItemsImports = 9
@@ -276,24 +268,12 @@ Global
 		{8F3DF129-8BE4-47B8-A96C-AC58B15ED3BA}.Release|x64.ActiveCfg = Release|x64
 		{8F3DF129-8BE4-47B8-A96C-AC58B15ED3BA}.Release|x64.Build.0 = Release|x64
 		{8F3DF129-8BE4-47B8-A96C-AC58B15ED3BA}.Release|x86.ActiveCfg = Release|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.ActiveCfg = Debug|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.Build.0 = Debug|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x86.ActiveCfg = Debug|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.ActiveCfg = Release|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.Build.0 = Release|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x86.ActiveCfg = Release|x64
 		{92F52A23-7513-43A0-8299-8FC752D2B401}.Debug|x64.ActiveCfg = Debug|x64
 		{92F52A23-7513-43A0-8299-8FC752D2B401}.Debug|x64.Build.0 = Debug|x64
 		{92F52A23-7513-43A0-8299-8FC752D2B401}.Debug|x86.ActiveCfg = Debug|x64
 		{92F52A23-7513-43A0-8299-8FC752D2B401}.Release|x64.ActiveCfg = Release|x64
 		{92F52A23-7513-43A0-8299-8FC752D2B401}.Release|x64.Build.0 = Release|x64
 		{92F52A23-7513-43A0-8299-8FC752D2B401}.Release|x86.ActiveCfg = Release|x64
-		{6E8CC214-10DA-470C-A1AF-484A89513D26}.Debug|x64.ActiveCfg = Debug|x64
-		{6E8CC214-10DA-470C-A1AF-484A89513D26}.Debug|x64.Build.0 = Debug|x64
-		{6E8CC214-10DA-470C-A1AF-484A89513D26}.Debug|x86.ActiveCfg = Debug|x64
-		{6E8CC214-10DA-470C-A1AF-484A89513D26}.Release|x64.ActiveCfg = Release|x64
-		{6E8CC214-10DA-470C-A1AF-484A89513D26}.Release|x64.Build.0 = Release|x64
-		{6E8CC214-10DA-470C-A1AF-484A89513D26}.Release|x86.ActiveCfg = Release|x64
 		{CDA27ACA-1A2F-4DAC-8A7F-EE13A597F0BC}.Debug|x64.ActiveCfg = Debug|x64
 		{CDA27ACA-1A2F-4DAC-8A7F-EE13A597F0BC}.Debug|x64.Build.0 = Debug|x64
 		{CDA27ACA-1A2F-4DAC-8A7F-EE13A597F0BC}.Debug|x86.ActiveCfg = Debug|x64
@@ -333,15 +313,13 @@ Global
 		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913} = {9D6C7A6E-449A-4D52-AA7F-7F6DA3B418D4}
 		{8C38C3BB-6980-4188-964B-984C11B26819} = {FA658C92-4747-4F44-84F5-90F90BD69B5A}
 		{8F3DF129-8BE4-47B8-A96C-AC58B15ED3BA} = {FA658C92-4747-4F44-84F5-90F90BD69B5A}
-		{B12702AD-ABFB-343A-A199-8E24837244A3} = {FA658C92-4747-4F44-84F5-90F90BD69B5A}
 		{92F52A23-7513-43A0-8299-8FC752D2B401} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{AC5E982D-B267-4CAA-9DB7-EDA06AD36843} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
-		{6E8CC214-10DA-470C-A1AF-484A89513D26} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{CDA27ACA-1A2F-4DAC-8A7F-EE13A597F0BC} = {3C9C040D-006B-4742-8BE6-B9B74339F1D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		Qt5Version = $(DefaultQtVersion)
 		SolutionGuid = {EDA2BA83-7263-4B08-9A09-3CA05DAA31F4}
+		Qt5Version = $(DefaultQtVersion)
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

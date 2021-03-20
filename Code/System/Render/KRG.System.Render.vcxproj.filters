@@ -66,7 +66,7 @@
     <ClCompile Include="RenderDevice\Platform\TextureLoader_Win32.cpp">
       <Filter>RenderDevice\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="RenderDevice\RenderDeviceSettings.cpp">
+    <ClCompile Include="RenderSettings.cpp">
       <Filter>RenderDevice</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\stb\krg_stb.cpp">
@@ -121,7 +121,7 @@
     <ClInclude Include="DebugRenderer\Shaders\DebugShaders.h">
       <Filter>DebugRenderer\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDevice\RenderDeviceSettings.h">
+    <ClInclude Include="RenderSettings.h">
       <Filter>RenderDevice</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\stb\stb_image.h">

@@ -15,7 +15,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    namespace Engine
+    namespace EngineCore
     {
         EngineModule::EngineModule( SettingsRegistry& settingsRegistry )
             : m_settingsRegistry( settingsRegistry )
@@ -46,7 +46,7 @@ namespace KRG
             m_taskSystem.Initialize();
             m_resourceSystem.Initialize( m_pResourceProvider );
             m_inputSystem.Initialize();
-            m_imguiSystem.Initialize();
+            m_imguiSystem.Initialize( context.GetApplicationName() + ".imgui.ini" );
             m_imguiRenderer.Initialize( m_pRenderDevice );
 
             m_mapLoader.SetTypeRegistry( &m_typeRegistry );

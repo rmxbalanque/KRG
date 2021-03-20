@@ -1,41 +1,35 @@
 #ifdef _WIN32
 #pragma once
 
-#include "../EngineApplication.h"
 #include <windows.h>
+#include "Win32/Application_Win32.h"
+#include "../Engine.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    class EngineApplication_Win32 final : public EngineApplication
+    class EngineApplication : public Win32Application
     {
 
     public:
 
-        EngineApplication_Win32( HINSTANCE hInstance, char const* applicationName, int iconResourceID );
-        ~EngineApplication_Win32();
-
-        virtual bool StartDependencies() override final;
-        virtual bool Initialize() override final;
-        virtual int Run( int32 argc, char** argv ) override final;
-
-        LRESULT WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+        EngineApplication( HINSTANCE hInstance );
 
     private:
 
-        virtual bool FatalError( KRG::String const& error ) override;
+        virtual bool ReadSettings( int32 argc, char** argv ) override;
+        virtual bool Initialize();
+        virtual bool Shutdown();
 
-        void TryCreateWindow( HINSTANCE hInstance, char const* windowName, int iconResourceID );
+        virtual LRESULT WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 
         bool EnsureResourceServerIsRunning();
+        virtual bool ApplicationLoop() override;
 
     private:
 
-        WNDCLASSEX                      m_windowClass;
-        HWND                            m_windowHandle = nullptr;
-        RECT                            m_windowRect = { 0, 0, 640, 480 };
-        MSG                             m_message;
+        Engine                          m_engine;
     };
 }
 

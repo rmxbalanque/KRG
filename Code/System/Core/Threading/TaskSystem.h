@@ -56,7 +56,7 @@ namespace KRG
     private:
 
         enki::TaskScheduler     m_taskScheduler;
-        uint32                     m_numWorkers = 0;
+        uint32                  m_numWorkers = 0;
         bool                    m_initialized = false;
     };
 }

@@ -67,6 +67,7 @@
     <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
     <ClInclude Include="ThirdParty\sqlite\SqliteHelpers.h" />
+    <ClInclude Include="Thirdparty\subprocess\subprocess.h" />
     <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h" />
     <ClInclude Include="TypeSystem\Serialization\NativeTypeWriter.h" />
     <ClInclude Include="TypeSystem\Serialization\ToolTypeReader.h" />
@@ -101,6 +102,10 @@
     <ProjectReference Include="..\..\System\TypeSystem\KRG.System.TypeSystem.vcxproj">
       <Project>{ec1a0a10-5c84-4971-a883-c13e7f76c327}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Thirdparty\subprocess\LICENSE" />
+    <None Include="Thirdparty\subprocess\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

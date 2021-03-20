@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
+#include "System/Core/Types/String.h"
 #include "System/Imgui/ThirdParty/imgui/imgui.h"
 
 //-------------------------------------------------------------------------
@@ -19,7 +20,7 @@ namespace KRG::ImGuiX
 
     protected:
 
-        bool Initialize();
+        bool Initialize( String const& settingsIniFilename );
         void Shutdown();
 
         // Platform Specific
@@ -40,6 +41,7 @@ namespace KRG::ImGuiX
 
     private:
 
+        String                  m_iniFilename;
         ImGuiMouseCursor        m_lastMouseCursorState = ImGuiMouseCursor_COUNT;
     };
 }

@@ -26,7 +26,7 @@
 
 namespace KRG
 {
-    namespace Engine
+    namespace EngineCore
     {
         class KRG_ENGINE_CORE_API EngineModule : public IModule
         {

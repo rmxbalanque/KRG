@@ -46,6 +46,7 @@
     <ClInclude Include="TypeSystem\Serialization\ToolTypeReader.h" />
     <ClInclude Include="TypeSystem\Serialization\ToolTypeWriter.h" />
     <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
+    <ClInclude Include="Thirdparty\subprocess\subprocess.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp">
@@ -60,5 +61,9 @@
     <ClCompile Include="TypeSystem\Serialization\ToolTypeReader.cpp" />
     <ClCompile Include="TypeSystem\Serialization\ToolTypeWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Thirdparty\subprocess\LICENSE" />
+    <None Include="Thirdparty\subprocess\README.md" />
   </ItemGroup>
 </Project>

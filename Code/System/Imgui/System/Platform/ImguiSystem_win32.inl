@@ -16,7 +16,7 @@ namespace KRG::ImGuiX
 
         LRESULT ImguiWndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 
-        bool Initialize();
+        bool Initialize( String const& iniFilename );
         using ImguiSystemBase::Shutdown;
 
     private:

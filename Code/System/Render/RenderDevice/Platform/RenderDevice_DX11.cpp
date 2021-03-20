@@ -2,7 +2,7 @@
 #include "RenderTypes_DX11.h"
 #include "TextureLoader_Win32.h"
 #include "System/Render/RenderDevice/RenderDefaultResources.h"
-#include "System/Render/RenderDevice/RenderDeviceSettings.h"
+#include "System/Render/RenderSettings.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
@@ -149,7 +149,7 @@ namespace KRG
                     m_pSwapChain = nullptr;
                 }
 
-                KRG_LOG_ERROR( "RenderingSystem", "Device Creation Failed" );
+                KRG_LOG_ERROR( "Rendering", "Device Creation Failed" );
                 return false;
             }
 
@@ -197,7 +197,7 @@ namespace KRG
             ID3D11Texture2D* pBackBuffer;
             if ( FAILED( m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*) &pBackBuffer ) ) )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Failed to get back buffer texture resource" );
+                KRG_LOG_ERROR( "Rendering", "Failed to get back buffer texture resource" );
                 return false;
             }
 
@@ -211,7 +211,7 @@ namespace KRG
             pBackBuffer->Release();
             if ( FAILED( result ) )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Failed to create render target" );
+                KRG_LOG_ERROR( "Rendering", "Failed to create render target" );
                 return false;
             }
 
@@ -249,7 +249,7 @@ namespace KRG
             ID3D11Texture2D* pDepthStencil = nullptr;
             if ( FAILED( m_pDevice->CreateTexture2D( &descDepth, nullptr, &pDepthStencil ) ) )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Depth stencil creation failed" );
+                KRG_LOG_ERROR( "Rendering", "Depth stencil creation failed" );
                 return false;
             }
 
@@ -265,7 +265,7 @@ namespace KRG
 
             if ( FAILED( result ) )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Depth stencil resource view creation failed" );
+                KRG_LOG_ERROR( "Rendering", "Depth stencil resource view creation failed" );
                 return false;
             }
 
@@ -288,19 +288,19 @@ namespace KRG
             // Create the three depth testing modes
             if ( !CreateDepthStencilState( m_pDevice, true, true, &RenderContext::s_pDepthTestingOn ) )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Depth stencil state creation failed" );
+                KRG_LOG_ERROR( "Rendering", "Depth stencil state creation failed" );
                 return false;
             }
 
             if ( !CreateDepthStencilState( m_pDevice, false, false, &RenderContext::s_pDepthTestingOff ) )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Depth stencil state creation failed" );
+                KRG_LOG_ERROR( "Rendering", "Depth stencil state creation failed" );
                 return false;
             }
 
             if ( !CreateDepthStencilState( m_pDevice, true, false, &RenderContext::s_pDepthTestingReadOnly ) )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Depth stencil state creation failed" );
+                KRG_LOG_ERROR( "Rendering", "Depth stencil state creation failed" );
                 return false;
             }
 
@@ -360,13 +360,13 @@ namespace KRG
             // Create new render targets
             if ( FAILED( m_pSwapChain->ResizeBuffers( 2, m_resolution.m_x, m_resolution.m_y, DXGI_FORMAT_UNKNOWN, 0 ) ) )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Failed to resize swap chain buffers" );
+                KRG_LOG_ERROR( "Rendering", "Failed to resize swap chain buffers" );
                 KRG_HALT();
             }
 
             if ( !CreateRenderTargets() || !CreateDepthStencilView() )
             {
-                KRG_LOG_ERROR( "RenderingSystem", "Failed to create render targets/depth stencil view" );
+                KRG_LOG_ERROR( "Rendering", "Failed to create render targets/depth stencil view" );
                 KRG_HALT();
             }
 

@@ -1,207 +1,311 @@
 #include "ResourceServerApplication.h"
-#include "ResourceServer/ResourceServer.h"
-#include "Views/ResourceServer_MainView.h"
-#include "Tools/UI/Widgets/IconWidgets.h"
-#include "Tools/UI/Widgets/LinkButtonWidget.h"
+#include "Resources/Resource.h"
+#include "System/Core/Logging/Log.h"
+#include "System/Core/Time/Timers.h"
 
-#include <QMainWindow>
-#include <QAction>
-#include <QIcon>
-#include <QToolBar>
-#include <QPushButton>
-#include <QProcess>
+#include "ResourceServer/CompilationWorker.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    namespace Resource
+    constexpr static int32 const g_shellIconCallbackMessageID = WM_USER + 1;
+
+    //-------------------------------------------------------------------------
+
+    ResourceServerApplication::ResourceServerApplication( HINSTANCE pInstance )
+        : Win32Application( pInstance, "Kruger Resource Server", IDI_RESOURCESERVER_ICON )
+        , m_resourceServerUI( &m_resourceServer )
+    {}
+
+    LRESULT ResourceServerApplication::WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
     {
-        void ResourceServerMainWindow::closeEvent( QCloseEvent* pEvent )
+        if ( !IsInitialized() )
         {
-            Window::closeEvent( pEvent );
-            HideWindow();
-            pEvent->ignore();
+            return DefWindowProc( hWnd, message, wParam, lParam );
         }
 
         //-------------------------------------------------------------------------
 
-        ResourceServerApplication::ResourceServerApplication( int argc, char* argv[] )
-            : Tools::Application( argc, argv )
-            , m_instanceLock( "ResourceServer" )
+        if ( message == RegisterWindowMessage( "TaskbarCreated" ) )
         {
-            m_applicationName = "Kruger Resource Server";
-            m_applicationIconPath = ":/KRG/ResourceServer.png";
-            m_applicationVersion = "0.0";
-
-            // Tray Icon
-            //-------------------------------------------------------------------------
-
-            m_pQuitAction = new QAction( "&Quit", this );
-            connect( m_pQuitAction, &QAction::triggered, qApp, &QCoreApplication::quit );
-
-            m_pTrayIconMenu = new QMenu();
-            m_pTrayIconMenu->addAction( m_pQuitAction );
-
-            m_pTrayIcon = new QSystemTrayIcon( this );
-            m_pTrayIcon->setIcon( m_idleIcon );
-            m_pTrayIcon->setToolTip( m_applicationName );
-            m_pTrayIcon->setContextMenu( m_pTrayIconMenu );
-
-            connect( m_pServer, SIGNAL( BusyStateChanged() ), this, SLOT( OnServerBusyStateChanged() ) );
-            connect( m_pTrayIcon, SIGNAL( activated( QSystemTrayIcon::ActivationReason ) ), this, SLOT( OnTrayIconActivated( QSystemTrayIcon::ActivationReason ) ) );
-            connect( qApp, &QCoreApplication::aboutToQuit, m_pTrayIcon, &QSystemTrayIcon::hide );
-            m_pTrayIcon->show();
+            if ( !Shell_NotifyIcon( NIM_ADD, &m_systemTrayIconData ) )
+            {
+                FatalError( "Failed to recreate system tray icon after explorer crash!" );
+                RequestExit();
+                return -1;
+            }
         }
 
-        bool ResourceServerApplication::Initialize()
+        //-------------------------------------------------------------------------
+
+        switch ( message )
         {
-            // Try get mutex lock as only a single instance of the resource server is allowed
-            if ( !m_instanceLock.TryLock() )
+            case WM_SIZE:
             {
-                return FatalError( QString( "Only a single instance of the resource server is allowed!" ) );
-            }
-
-            // Create resource server
-            //-------------------------------------------------------------------------
-
-            m_pServer = KRG::New<ResourceServer>();
-            if ( !m_pServer->Initialize() )
-            {
-                return FatalError( QString( "Failed to initialize server: " ) + m_pServer->GetErrorMessage().c_str() );
-            }
-
-            // Create network server thread
-            //-------------------------------------------------------------------------
-
-            m_pServerThread = KRG::New<QThread>();
-            m_pServer->moveToThread( m_pServerThread );
-
-            connect( m_pServerThread, SIGNAL( started() ), m_pServer, SLOT( OnThreadStarted() ) );
-            connect( m_pServerThread, SIGNAL( finished() ), m_pServer, SLOT( OnThreadStopped() ) );
-
-            m_pServerThread->start();
-
-            // Create UI
-            //-------------------------------------------------------------------------
-
-            CreateMainContent();
-            CreateStatusBarContent();
-
-            return true;
-        }
-
-        void ResourceServerApplication::Shutdown()
-        {
-            if ( m_pServerThread != nullptr )
-            {
-                m_pServerThread->quit();
-                m_pServerThread->wait();
-                KRG::Delete( m_pServerThread );
-            }
-
-            //-------------------------------------------------------------------------
-
-            m_pServer->Shutdown();
-            KRG::Delete( m_pServer );
-        }
-
-        void ResourceServerApplication::OnTrayIconActivated( QSystemTrayIcon::ActivationReason reason )
-        {
-            switch ( reason )
-            {
-                case QSystemTrayIcon::DoubleClick:
+                KRG::uint32 width = LOWORD( lParam );
+                KRG::uint32 height = HIWORD( lParam );
+                if ( width > 0 && height > 0 )
                 {
-                    if ( !m_pWindow->isVisible() )
-                    {
-                        m_pWindow->ShowWindow();
-                        m_pWindow->activateWindow();
-                    }
-                    else // Restore the window
-                    {
-                        m_pWindow->setWindowState( m_pWindow->windowState() & ~Qt::WindowMinimized | Qt::WindowActive );
-                    }
+                    Int2 const newWindowDimensions( width, height );
+                    m_pRenderDevice->ResizeRenderTargets( newWindowDimensions );
+                    m_viewport = Math::Viewport( Int2( 0, 0 ), newWindowDimensions );
                 }
-                break;
+            }
+            break;
+
+            //-------------------------------------------------------------------------
+
+            case g_shellIconCallbackMessageID:
+            {
+                switch ( LOWORD( lParam ) )
+                {
+                    case WM_LBUTTONDBLCLK:
+                    {
+                        ShowApplicationWindow();
+                    }
+                    break;
+
+                    case WM_RBUTTONDOWN:
+                    {
+                        if ( !ShowSystemTrayMenu() )
+                        {
+                            return -1;
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+
+            //-------------------------------------------------------------------------
+
+            case WM_COMMAND:
+            {
+                switch ( LOWORD( wParam ) )
+                {
+                    case ID_REQUEST_EXIT:
+                    {
+                        RequestExit();
+                    }
+                    break;
+                }
+            }
+            break;
+
+            //-------------------------------------------------------------------------
+
+            case WM_CLOSE:
+            {
+                HideApplicationWindow();
+                return 0;
+            }
+            break;
+
+            case WM_QUIT:
+            {
+                RequestExit();
+            }
+            break;
+
+            case WM_DESTROY:
+            {
+                PostQuitMessage( 0 );
+            }
+            break;
+        }
+
+        // ImGui specific message processing
+        //-------------------------------------------------------------------------
+
+        auto const imguiResult = m_imguiSystem.ImguiWndProcess( hWnd, message, wParam, lParam );
+        if ( imguiResult != 0 )
+        {
+            return imguiResult;
+        }
+
+        // Default
+        //-------------------------------------------------------------------------
+
+        return DefWindowProc( hWnd, message, wParam, lParam );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ResourceServerApplication::ShowApplicationWindow()
+    {
+        ShowWindow( m_pWindow, SW_SHOW );
+        SetForegroundWindow( m_pWindow );
+        m_applicationWindowHidden = false;
+    }
+
+    void ResourceServerApplication::HideApplicationWindow()
+    {
+        ShowWindow( m_pWindow, SW_HIDE );
+        m_applicationWindowHidden = true;
+    }
+
+    bool ResourceServerApplication::CreateSystemTrayIcon( int32 iconID )
+    {
+        m_systemTrayIconData.cbSize = sizeof( NOTIFYICONDATA );
+        m_systemTrayIconData.hWnd = m_pWindow;
+        m_systemTrayIconData.uID = IDI_TRAYICON_IDLE;
+        m_systemTrayIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+        m_systemTrayIconData.hIcon = LoadIcon( m_pInstance, (LPCTSTR) MAKEINTRESOURCE( iconID ) );
+        m_systemTrayIconData.uCallbackMessage = g_shellIconCallbackMessageID;
+        strcpy( m_systemTrayIconData.szTip, "Kruger Resource Server" );
+
+        if ( !Shell_NotifyIcon( NIM_ADD, &m_systemTrayIconData ) )
+        {
+            return false;
+        }
+
+        m_currentIconID = iconID;
+        return true;
+    }
+
+    bool ResourceServerApplication::ShowSystemTrayMenu()
+    {
+        HMENU hMenu, hSubMenu;
+
+        // Get mouse cursor position x and y as lParam has the Message itself
+        POINT lpClickPoint;
+        GetCursorPos( &lpClickPoint );
+
+        // Load menu resource
+        hMenu = LoadMenu( m_pInstance, MAKEINTRESOURCE( IDR_SYSTRAY_MENU ) );
+        if ( !hMenu )
+        {
+            return false;
+        }
+
+        hSubMenu = GetSubMenu( hMenu, 0 );
+        if ( !hSubMenu )
+        {
+            DestroyMenu( hMenu );
+            return false;
+        }
+
+        // Display menu
+        SetForegroundWindow( m_pWindow );
+        TrackPopupMenu( hSubMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_BOTTOMALIGN, lpClickPoint.x, lpClickPoint.y, 0, m_pWindow, NULL );
+        SendMessage( m_pWindow, WM_NULL, 0, 0 );
+
+        // Kill off objects we're done with
+        DestroyMenu( hMenu );
+
+        return true;
+    }
+
+    void ResourceServerApplication::DestroySystemTrayIcon()
+    {
+        Shell_NotifyIcon( NIM_DELETE, &m_systemTrayIconData );
+    }
+
+    void ResourceServerApplication::RefreshSystemTrayIcon( int32 iconID )
+    {
+        if ( iconID != m_currentIconID )
+        {
+            DestroySystemTrayIcon();
+            CreateSystemTrayIcon( iconID );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ResourceServerApplication::Initialize()
+    {
+        m_pRenderDevice = KRG::New<Render::RenderDevice>();
+        if ( !m_pRenderDevice->Initialize() )
+        {
+            KRG::Delete( m_pRenderDevice );
+            return FatalError( "Failed to create render device!" );
+        }
+
+        Int2 const windowDimensions( ( m_windowRect.right - m_windowRect.left ), ( m_windowRect.bottom - m_windowRect.top ) );
+        m_pRenderDevice->ResizeRenderTargets( windowDimensions );
+        m_viewport = Math::Viewport( Int2( 0, 0 ), windowDimensions );
+
+        //-------------------------------------------------------------------------
+
+        if ( !m_resourceServer.Initialize() )
+        {
+            return FatalError( "Resource server failed to initialize!" );
+        }
+
+        //-------------------------------------------------------------------------
+
+        m_imguiSystem.Initialize( m_applicationNameNoWhitespace + ".imgui.ini" );
+        m_imguiRenderer.Initialize( m_pRenderDevice );
+
+        //-------------------------------------------------------------------------
+
+        CreateSystemTrayIcon( IDI_TRAYICON_IDLE );
+
+        return true;
+    }
+
+    bool ResourceServerApplication::Shutdown()
+    {
+        if ( IsInitialized() )
+        {
+            m_imguiRenderer.Shutdown();
+            m_imguiSystem.Shutdown();
+        }
+
+        //-------------------------------------------------------------------------
+
+        m_resourceServer.Shutdown();
+
+        if ( m_pRenderDevice != nullptr )
+        {
+            m_pRenderDevice->Shutdown();
+            KRG::Delete( m_pRenderDevice );
+        }
+
+        //-------------------------------------------------------------------------
+
+        DestroySystemTrayIcon();
+
+        return true;
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ResourceServerApplication::ApplicationLoop()
+    {
+        Milliseconds deltaTime = 0;
+        {
+            ScopedSystemTimer frameTimer( deltaTime );
+
+            // Update resource server
+            //-------------------------------------------------------------------------
+
+            m_resourceServer.Update();
+
+            if ( !m_resourceServer.IsBusy() )
+            {
+                Threading::Sleep( 1 );
+            }
+
+            // Draw UI
+            //-------------------------------------------------------------------------
+
+            if ( !m_applicationWindowHidden )
+            {
+                m_imguiSystem.StartFrame( m_updateContext.GetDeltaTime() );
+              
+                m_resourceServerUI.Draw();
+
+                m_imguiSystem.EndFrame();
+                m_imguiRenderer.Render( m_viewport );
+                m_pRenderDevice->PresentFrame();
             }
         }
 
-        void ResourceServerApplication::OnServerBusyStateChanged()
-        {
-            if ( m_pServer->IsBusy() )
-            {
-                m_pTrayIcon->setIcon( m_busyIcon );
-            }
-            else
-            {
-                m_pTrayIcon->setIcon( m_idleIcon );
-            }
-        }
+        m_updateContext.UpdateDeltaTime( deltaTime );
+        EngineClock::Update( deltaTime );
 
-        void ResourceServerApplication::CreateMainContent()
-        {
-            auto pMainContent = m_pWindow->GetMainContentWidget();
-            auto pMainLayout = new QVBoxLayout( pMainContent );
-            pMainLayout->setContentsMargins( 0, 0, 0, 0 );
-            pMainLayout->addWidget( new MainViewWidget( *m_pServer ) );
-        }
-
-        void ResourceServerApplication::CreateStatusBarContent()
-        {
-            auto pStatusBarWidget = new QWidget;
-            auto pStatusBarLayout = new QHBoxLayout( pStatusBarWidget );
-            pStatusBarLayout->setAlignment( Qt::AlignCenter );
-            pStatusBarLayout->setSpacing( 4 );
-            pStatusBarLayout->setContentsMargins( 8, 0, 0, 2 );
-
-            // Data Folder
-            //-------------------------------------------------------------------------
-
-            pStatusBarLayout->addWidget( new KIconLabel( MaterialDesign::Folder_Open ) );
-            pStatusBarLayout->addWidget( new QLabel( "Source Data: " ) );
-
-            auto pDataDirectoryButton = new KLinkButton( m_pServer->GetSourceDataDir().c_str() );
-            pDataDirectoryButton->setIconSize( QSize( 24, 24 ) );
-
-            auto openInExplorer = [this] ()
-            {
-                QProcess* pProcess = new QProcess( this );
-                QStringList args( m_pServer->GetSourceDataDir().c_str() );
-                pProcess->start( "explorer.exe", args );
-            };
-
-            connect( pDataDirectoryButton, &QPushButton::clicked, this, openInExplorer );
-            pStatusBarLayout->addWidget( pDataDirectoryButton );
-
-            //-------------------------------------------------------------------------
-
-            pStatusBarLayout->addStretch( 1 );
-
-            // Server Address Widget
-            //-------------------------------------------------------------------------
-
-            pStatusBarLayout->addWidget( new KIconLabel( MaterialDesign::Lan ) );
-
-            auto pNetworkAddressLabel = new QLabel( "Address: " );
-            pStatusBarLayout->addWidget( pNetworkAddressLabel );
-
-            QLabel* serverAddressLabel = new QLabel();
-            serverAddressLabel->setText( m_pServer->GetNetworkAddress().c_str() );
-            pStatusBarLayout->addWidget( serverAddressLabel );
-
-            //-------------------------------------------------------------------------
-
-            auto pStatusBar = m_pWindow->GetStatusBar();
-            pStatusBar->addWidget( pStatusBarWidget, 1 );
-            pStatusBar->setVisible( true );
-        }
-
-        void ResourceServerApplication::OnServerStopped()
-        {}
-
-        Tools::Window* ResourceServerApplication::CreateMainWindow( QString const& windowName, QString const& windowIconPath, QString const& windowTitle )
-        {
-            return new ResourceServerMainWindow( windowName, windowIconPath, windowTitle );
-        }
+        return true;
     }
 }

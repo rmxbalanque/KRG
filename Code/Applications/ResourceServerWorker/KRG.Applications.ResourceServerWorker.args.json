@@ -101,6 +101,10 @@
           "Command": "-compile data://animation/stand_crowd_ambient4.anim"
         },
         {
+          "Id": "aff58edf-520e-486d-80a0-188bf56ffe85",
+          "Command": "-compile data://packs/br/textures/polygonbattleroyale_vehicles_01_damaged.txtr"
+        },
+        {
           "Id": "fe3f7226-4f1e-44fa-8a8b-974dc399976c",
           "Command": "-compile data://gltf/gltf_test.anim"
         },

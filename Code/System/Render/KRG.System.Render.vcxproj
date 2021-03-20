@@ -20,7 +20,7 @@
     <ClInclude Include="Fonts\FontData_Roboto.h" />
     <ClInclude Include="Fonts\FontDecompressor.h" />
     <ClInclude Include="IRenderer.h" />
-    <ClInclude Include="RenderDevice\RenderDeviceSettings.h" />
+    <ClInclude Include="RenderSettings.h" />
     <ClInclude Include="RendererRegistry.h" />
     <ClInclude Include="RenderDevice\Platform\RenderContext_DX11.h" />
     <ClInclude Include="RenderDevice\Platform\RenderDevice_DX11.h" />
@@ -62,7 +62,7 @@
     <ClCompile Include="RenderDevice\Platform\RenderDevice_DX11.cpp" />
     <ClCompile Include="RenderDevice\Platform\TextureLoader_Win32.cpp" />
     <ClCompile Include="RenderDevice\RenderDefaultResources.cpp" />
-    <ClCompile Include="RenderDevice\RenderDeviceSettings.cpp" />
+    <ClCompile Include="RenderSettings.cpp" />
     <ClCompile Include="RenderShader.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="RenderVertexFormats.cpp" />

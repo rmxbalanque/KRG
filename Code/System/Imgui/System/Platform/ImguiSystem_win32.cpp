@@ -237,11 +237,11 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    bool ImguiSystem::Initialize()
+    bool ImguiSystem::Initialize( String const& iniFilename )
     {
         KRG_ASSERT( g_mainWindowHandle == nullptr );
         g_mainWindowHandle = m_mainwindowHandle = GetActiveWindow();
-        return ImguiSystemBase::Initialize();
+        return ImguiSystemBase::Initialize( iniFilename );
     }
 
     void ImguiSystem::InitializePlatform()

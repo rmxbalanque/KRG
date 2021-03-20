@@ -1,5 +1,5 @@
 #include "ResourceServerApplication.h"
-#include "Applications/Shared/ApplicationGlobalState.h"
+#include <tchar.h>
 
 #if LIVEPP_ENABLED
 #include "LPP_API.h"
@@ -7,23 +7,32 @@
 
 //-------------------------------------------------------------------------
 
-int main(int argc, char *argv[])
+int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow )
 {
-    KRG::ApplicationGlobalState State;
+    HANDLE pSingletonMutex = CreateMutex( NULL, TRUE, "Kruger Resource Server" );
+    if ( GetLastError() == ERROR_ALREADY_EXISTS )
+    {
+        MessageBox( GetActiveWindow(), "Only allowed a single instance of the Kruger Resource Server", "Fatal Error Occurred!", MB_OK | MB_ICONERROR );
+        return -1;
+    }
 
     //-------------------------------------------------------------------------
     // Live++ Support
     //-------------------------------------------------------------------------
 
     #if LIVEPP_ENABLED
-    //HMODULE livePP = lpp::lppLoadAndRegister( L"../../External/LivePP", "Quickstart" );
-    //lpp::lppEnableAllCallingModulesSync( livePP );
+    HMODULE livePP = lpp::lppLoadAndRegister( L"../../External/LivePP", "Quickstart" );
+    lpp::lppEnableAllCallingModulesSync( livePP );
     #endif
 
     //-------------------------------------------------------------------------
-    // Resource Server
+
+    KRG::ResourceServerApplication engineApplication( hInstance );
+    int const result = engineApplication.Run( __argc, __argv );
+
     //-------------------------------------------------------------------------
 
-    KRG::Resource::ResourceServerApplication app( argc, argv );
-    return app.Run();
+    ReleaseMutex( pSingletonMutex );
+    CloseHandle( pSingletonMutex );
+    return result;
 }

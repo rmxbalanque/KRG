@@ -1,5 +1,4 @@
 #ifdef _WIN32
-#include "Resource.h"
 #include "EngineApplication_Win32.h"
 #include <tchar.h>
 #include <windows.h>
@@ -23,7 +22,7 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 
     //-------------------------------------------------------------------------
 
-    KRG::EngineApplication_Win32 engineApplication( hInstance, "Kruger Engine", IDI_ICON1 );
+    KRG::EngineApplication engineApplication( hInstance );
     return engineApplication.Run( __argc, __argv );
 }
 

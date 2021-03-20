@@ -1,8 +1,9 @@
 #ifdef _WIN32
+#include "Resource.h"
 #include "EngineApplication_win32.h"
 #include "iniparser/krg_ini.h"
+#include "Applications/Shared/cmdParser/krg_cmdparser.h"
 #include "System/Input/InputSystem.h"
-#include "System/Render/RenderDevice/RenderDeviceSettings.h"
 #include "System/Core/Settings/ConfigSettings.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Platform/Platform_Win32.h"
@@ -19,109 +20,51 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    EngineApplication_Win32* g_applicationInstance = nullptr;
+    EngineApplication::EngineApplication( HINSTANCE hInstance )
+        : Win32Application( hInstance, "Kruger Engine", IDI_ENGINE_ICON )
+        , m_engine( TFunction<bool( KRG::String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
+    {}
 
-    //-------------------------------------------------------------------------
-
-    static RECT ReadWindowRectDimensionsFromIni()
+    bool EngineApplication::ReadSettings( int32 argc, char** argv )
     {
-        RECT outRect = { 0, 0, 640, 480 };
+        // Get command line settings
+        //-------------------------------------------------------------------------
 
-        KRG::IniFile userIni( "User.ini" );
-        if ( !userIni.IsValid() )
         {
-            return outRect;
+            cli::Parser cmdParser( argc, argv );
+            cmdParser.set_optional<std::string>( "map", "map", " ", "The startup map." );
+
+            if ( !cmdParser.run() )
+            {
+                return FatalError( "Invalid command line arguments!" );
+            }
+
+            m_engine.m_startupMap = cmdParser.get<std::string>( "map" ).c_str();
         }
 
-        KRG::int32 v = 0;
-        if ( userIni.TryGetInt( "WindowSettings:Left", v ) )
+        // Read configuration settings from ini
+        //-------------------------------------------------------------------------
+
         {
-            outRect.left = v;
+            FileSystemPath const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
+            if ( !m_engine.m_settingsRegistry.LoadFromFile( iniPath ) )
+            {
+                return FatalError( "Failed to read required settings from INI file" );
+            }
         }
 
-        if ( userIni.TryGetInt( "WindowSettings:Right", v ) )
-        {
-            outRect.right = v;
-        }
-
-        if ( userIni.TryGetInt( "WindowSettings:Top", v ) )
-        {
-            outRect.top = v;
-        }
-
-        if ( userIni.TryGetInt( "WindowSettings:Bottom", v ) )
-        {
-            outRect.bottom = v;
-        }
-
-        return outRect;
+        return true;
     }
 
-    static void WriteWindowRectDimensionsToIni( RECT windowRect )
-    {
-        KRG::IniFile userIni;
-        if ( userIni.IsValid() )
-        {
-            userIni.CreateSection( "WindowSettings" );
-            userIni.SetInt( "WindowSettings:Left", ( KRG::int32 ) windowRect.left );
-            userIni.SetInt( "WindowSettings:Right", ( KRG::int32 ) windowRect.right );
-            userIni.SetInt( "WindowSettings:Top", ( KRG::int32 ) windowRect.top );
-            userIni.SetInt( "WindowSettings:Bottom", ( KRG::int32 ) windowRect.bottom );
-            userIni.SaveToFile( KRG::FileSystemPath( "User.ini" ) );
-        }
-    }
-
-    static LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
-    {
-        return g_applicationInstance->WndProcess( hWnd, message, wParam, lParam );
-    }
-
-    //-------------------------------------------------------------------------
-    // ENGINE
-    //-------------------------------------------------------------------------
-
-    EngineApplication_Win32::EngineApplication_Win32( HINSTANCE hInstance, char const* applicationName, int iconResourceID )
-        : EngineApplication()
-    {
-        KRG_ASSERT( g_applicationInstance == nullptr );
-        g_applicationInstance = this;
-
-        KRG::Memory::MemsetZero( &m_message, sizeof( m_message ) );
-        TryCreateWindow( hInstance, applicationName, iconResourceID );
-    }
-
-    EngineApplication_Win32::~EngineApplication_Win32()
-    {
-        ::DestroyWindow( m_windowHandle );
-        ::UnregisterClass( m_windowClass.lpszClassName, m_windowClass.hInstance );
-    }
-
-    bool EngineApplication_Win32::StartDependencies()
+    bool EngineApplication::Initialize()
     {
         if ( !EnsureResourceServerIsRunning() )
         {
             return FatalError( "Couldn't start resource server!" );
         }
 
-        return true;
-    }
-
-    bool EngineApplication_Win32::Initialize()
-    {
-        // Update window position
-        auto pWindow = GetActiveWindow();
-        RECT windowRect = { 0, 0, Render::Settings::g_resolutionX, Render::Settings::g_resolutionY };
-        AdjustWindowRectEx( &windowRect, WS_OVERLAPPEDWINDOW, FALSE, 0 );
-        SetWindowPos( pWindow, 0, 0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE );
-
-        //-------------------------------------------------------------------------
-
-        if ( !StartDependencies() )
-        {
-            return FatalError( "Failed to start engine dependencies" );
-        }
-
-        if ( !EngineApplication::Initialize() )
+        Int2 const windowDimensions( ( m_windowRect.right - m_windowRect.left ), ( m_windowRect.bottom - m_windowRect.top ) );
+        if ( !m_engine.Initialize( m_applicationNameNoWhitespace, windowDimensions ) )
         {
             return FatalError( "Failed to initialize engine" );
         }
@@ -129,86 +72,26 @@ namespace KRG
         return true;
     }
 
-    int EngineApplication_Win32::Run( int32 argc, char** argv )
+    bool EngineApplication::Shutdown()
     {
-        if ( m_windowHandle == nullptr )
-        {
-            return -1;
-        }
-
-        // Read Settings
-        //-------------------------------------------------------------------------
-
-        if ( !ReadSettings( argc, argv ) )
-        {
-            return FatalError( "Failed to load engine settings" );
-        }
-
-        // Initialization
-        //-------------------------------------------------------------------------
-
-        if ( !Initialize() )
-        {
-            Shutdown();
-            return -1;
-        }
-
-        LoadStartupMap();
-
-        // Application loop
-        //-------------------------------------------------------------------------
-
-        bool updateResult = true;
-        while ( updateResult )
-        {
-            if ( PeekMessage( &m_message, NULL, 0, 0, PM_REMOVE ) == TRUE )
-            {
-                TranslateMessage( &m_message );
-                DispatchMessage( &m_message );
-
-                // Handle quit messages
-                if ( m_message.message == WM_QUIT )
-                {
-                    RequestExit();
-                }
-            }
-            else // Run the application update
-            {
-                updateResult = Update();
-            }
-
-            GetWindowRect( m_windowHandle, &m_windowRect );
-        }
-
-        // Shutdown engine
-        //-------------------------------------------------------------------------
-
-        WriteWindowRectDimensionsToIni( m_windowRect );
-
-        auto shutdownResult = Shutdown();
-        KRG::Log::SaveToFile( "EngineLog.txt" );
-        if ( !shutdownResult )
-        {
-            return -1;
-        }
-
-        //-------------------------------------------------------------------------
-
-        WriteSettings();
-
-        //-------------------------------------------------------------------------
-
-        return (int) m_message.wParam;
+        return m_engine.Shutdown();
     }
 
-    bool EngineApplication_Win32::EnsureResourceServerIsRunning()
+    bool EngineApplication::ApplicationLoop()
+    {
+        return m_engine.Update();
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool EngineApplication::EnsureResourceServerIsRunning()
     {
         bool shouldStartResourceServer = false;
 
         // If the resource server is not running then start it
         auto resourceServerProcessID = Platform::Win32::GetProcessID( Settings::g_resourceServerExecutablePath );
         shouldStartResourceServer = ( resourceServerProcessID == 0 );
-        
+
         // Ensure we are running the correct build of the resource server
         if ( !shouldStartResourceServer )
         {
@@ -241,78 +124,11 @@ namespace KRG
         return true;
     }
 
-    bool EngineApplication_Win32::FatalError( String const& error )
-    {
-        MessageBox( GetActiveWindow(), error.c_str(), "Fatal Error Occurred!", MB_OK | MB_ICONERROR );
-        return false;
-    }
-
     //-------------------------------------------------------------------------
 
-    void EngineApplication_Win32::TryCreateWindow( HINSTANCE hInstance, char const* windowName, int iconResourceID )
+    LRESULT EngineApplication::WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
     {
-        RECT desiredWindowRect = ReadWindowRectDimensionsFromIni();
-
-        //-------------------------------------------------------------------------
-
-        m_windowClass.cbSize = sizeof( WNDCLASSEX );
-        m_windowClass.style = CS_HREDRAW | CS_VREDRAW;
-        m_windowClass.lpfnWndProc = wndProc;
-        m_windowClass.cbClsExtra = 0;
-        m_windowClass.cbWndExtra = 0;
-        m_windowClass.hInstance = hInstance;
-        m_windowClass.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE( iconResourceID ) );
-        m_windowClass.hCursor = nullptr;
-        m_windowClass.hbrBackground = (HBRUSH) ( COLOR_WINDOW + 1 );
-        m_windowClass.lpszMenuName = 0;
-        m_windowClass.lpszClassName = windowName;
-        m_windowClass.hIconSm = 0;
-        RegisterClassEx( &m_windowClass );
-
-        //-------------------------------------------------------------------------
-
-        auto const style = WS_OVERLAPPEDWINDOW;
-
-        // calculate the actual window size
-        RECT windowRect = { desiredWindowRect.left, desiredWindowRect.top, desiredWindowRect.right, desiredWindowRect.bottom };
-        AdjustWindowRectEx( &windowRect, style, FALSE, 0 );
-
-        long const leftOffset = desiredWindowRect.left - windowRect.left;
-        long const topOffset = desiredWindowRect.top - windowRect.top;
-
-        windowRect.left += leftOffset;
-        windowRect.right += leftOffset;
-        windowRect.top += topOffset;
-        windowRect.bottom += topOffset;
-
-        //-------------------------------------------------------------------------
-
-        // Create the window from the class defined above
-        m_windowHandle = CreateWindow( m_windowClass.lpszClassName,
-                                       m_windowClass.lpszClassName,
-                                       style,
-                                       windowRect.left,
-                                       windowRect.top,
-                                       windowRect.right - windowRect.left,
-                                       windowRect.bottom - windowRect.top,
-                                       NULL,
-                                       NULL,
-                                       hInstance,
-                                       NULL );
-
-        // If window creation was successful
-        if ( m_windowHandle != nullptr )
-        {
-            ShowWindow( m_windowHandle, SW_SHOW );
-            UpdateWindow( m_windowHandle );
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
-    LRESULT EngineApplication_Win32::WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
-    {
-        if ( !m_initialized )
+        if ( !IsInitialized() )
         {
             return DefWindowProc( hWnd, message, wParam, lParam );
         }
@@ -327,7 +143,7 @@ namespace KRG
                 KRG::uint32 height = HIWORD( lParam );
                 if ( width > 0 && height > 0 )
                 {
-                    ResizeMainWindow( Int2( width, height ) );
+                    m_engine.OnWindowResize( Int2( width, height ) );
                 }
             }
             break;
@@ -336,25 +152,17 @@ namespace KRG
 
             case WM_SETFOCUS:
             {
-                m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_engine.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
             case WM_KILLFOCUS:
             {
-                m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_engine.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
             //-------------------------------------------------------------------------
-
-            // Needed to restore focus to the engine within the editor
-            case WM_MBUTTONDOWN:
-            case WM_RBUTTONDOWN:
-            case WM_LBUTTONDOWN:
-            {
-                SetFocus( hWnd );
-            }
 
             // Forward input messages to the input system
             case WM_INPUT:
@@ -365,7 +173,7 @@ namespace KRG
             case WM_CHAR:
             case WM_MOUSEMOVE:
             {
-                m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_engine.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
@@ -388,7 +196,7 @@ namespace KRG
         // ImGui specific message processing
         //-------------------------------------------------------------------------
 
-        auto const imguiResult = m_pImguiSystem->ImguiWndProcess( hWnd, message, wParam, lParam );
+        auto const imguiResult = m_engine.m_pImguiSystem->ImguiWndProcess( hWnd, message, wParam, lParam );
         if ( imguiResult != 0 )
         {
             return imguiResult;

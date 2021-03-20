@@ -2,6 +2,7 @@
 
 #include "ResourceRecord.h"
 #include "ResourceLoader.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -53,10 +54,10 @@ namespace KRG
 
             struct RequestContext
             {
-                eastl::function<void( ResourceRequest* )> m_createRawRequestRequestFunction;
-                eastl::function<void( ResourceRequest* )> m_cancelRawRequestRequestFunction;
-                eastl::function<void( ResourceRequesterID const&, ResourcePtr& )> m_loadResourceFunction;
-                eastl::function<void( ResourceRequesterID const&, ResourcePtr& )> m_unloadResourceFunction;
+                TFunction<void( ResourceRequest* )> m_createRawRequestRequestFunction;
+                TFunction<void( ResourceRequest* )> m_cancelRawRequestRequestFunction;
+                TFunction<void( ResourceRequesterID const&, ResourcePtr& )> m_loadResourceFunction;
+                TFunction<void( ResourceRequesterID const&, ResourcePtr& )> m_unloadResourceFunction;
             };
 
         public:

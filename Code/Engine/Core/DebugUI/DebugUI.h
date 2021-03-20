@@ -2,6 +2,7 @@
 
 #include "../_Module/API.h"
 #include "System/Core/Types/UUID.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -25,7 +26,7 @@ namespace KRG
         {
         public:
 
-            DebugMenuCallback( String const& name, String const& category, eastl::function<void( UpdateContext const& )>&& drawFunction )
+            DebugMenuCallback( String const& name, String const& category, TFunction<void( UpdateContext const& )>&& drawFunction )
                 : m_name( name )
                 , m_category( category )
                 , m_drawFunction( drawFunction )
@@ -41,7 +42,7 @@ namespace KRG
 
             String                                              m_name;
             String                                              m_category;
-            eastl::function<void( UpdateContext const& )>       m_drawFunction;
+            TFunction<void( UpdateContext const& )>             m_drawFunction;
         };
 
         //-------------------------------------------------------------------------

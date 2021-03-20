@@ -22,11 +22,13 @@ namespace KRG
 {
     class KRG_ENGINE_CORE_API ModuleContext
     {
-        friend class EngineApplication;
+        friend class Engine;
 
     public:
 
         ModuleContext() = default;
+
+        inline String const& GetApplicationName() const { return m_applicationName; }
 
         // Core Engine Systems
         //-------------------------------------------------------------------------
@@ -89,6 +91,7 @@ namespace KRG
 
     private:
 
+        String                              m_applicationName;
         SettingsRegistry*                   m_pSettingsRegistry = nullptr;
         TaskSystem*                         m_pTaskSystem = nullptr;
         TypeSystem::TypeRegistry*           m_pTypeRegistry = nullptr;

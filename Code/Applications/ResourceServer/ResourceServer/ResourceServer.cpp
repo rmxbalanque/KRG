@@ -103,11 +103,38 @@ namespace KRG
                 m_fileSystemWatcher.RegisterChangeListener( this );
             }
 
+            // Create Workers
+            //-------------------------------------------------------------------------
+
+            m_taskSystem.Initialize();
+
+            for ( auto i = 0u; i < m_maxSimultaneousCompilationTasks; i++ )
+            {
+                m_workers.emplace_back( KRG::New<CompilationWorker>( &m_taskSystem, m_workerFullPath ) );
+            }
+
             return true;
         }
 
         void ResourceServer::Shutdown()
         {
+            // Destroy workers
+            //-------------------------------------------------------------------------
+
+            m_taskSystem.WaitForAll();
+
+            for ( auto& pWorker : m_workers )
+            {
+                KRG::Delete( pWorker );
+            }
+            
+            m_workers.clear();
+
+            m_taskSystem.Shutdown();
+
+            // Unregister File Watcher
+            //-------------------------------------------------------------------------
+
             if( m_fileSystemWatcher.IsWatching() )
             {
                 m_fileSystemWatcher.StopWatching();
@@ -115,6 +142,8 @@ namespace KRG
             }
 
             // Delete requests
+            //-------------------------------------------------------------------------
+
             for( auto& pRequest : m_pendingRequests )
             {
                 KRG::Delete( pRequest );
@@ -130,33 +159,8 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void ResourceServer::OnThreadStarted()
+        void ResourceServer::Update()
         {
-            Memory::InitializeThreadHeap();
-
-            // Create compilation workers
-            //-------------------------------------------------------------------------
-            // Need to do it here since they need to be created in the same thread as the execute loop
-
-            m_workers.resize( m_maxSimultaneousCompilationTasks );
-            for ( auto i = 0u; i < m_maxSimultaneousCompilationTasks; i++ )
-            {
-                m_workers[i] = KRG::New<CompilationWorker>( m_workerFullPath );
-            }
-
-            // Create and start loop timer
-            //-------------------------------------------------------------------------
-
-            m_pLoopTimer = new QTimer( this );
-            connect( m_pLoopTimer, SIGNAL( timeout() ), this, SLOT( Execute() ) );
-            m_pLoopTimer->start( 5 );
-        }
-
-        void ResourceServer::Execute()
-        {
-            bool shouldNotifyActiveListChanged = false;
-            bool shouldNotifyCompletedListChanged = false;
-
             // Update network server
             //-------------------------------------------------------------------------
 
@@ -185,16 +189,7 @@ namespace KRG
                     if ( message.GetMessageID() == (int32) NetworkMessageID::RequestResource )
                     {
                         NetworkResourceRequest networkRequest = message.GetData<NetworkResourceRequest>();
-                        auto pCompilationRequest = ProcessResourceRequest( networkRequest.m_path, clientID );
-
-                        if( pCompilationRequest->IsPending() )
-                        {
-                            shouldNotifyActiveListChanged = true;
-                        }
-                        else if( pCompilationRequest->IsComplete() )
-                        {
-                            shouldNotifyCompletedListChanged = true;
-                        }
+                        ProcessResourceRequest( networkRequest.m_path, clientID );
                     }
                 };
 
@@ -217,31 +212,30 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Check status of active requests
-            for ( int32 i = ( int32) m_activeRequests.size() - 1; i >= 0; i-- )
+            for ( auto pWorker : m_workers )
             {
-                auto const pActiveRequest = m_activeRequests[i];
-                if ( pActiveRequest->IsComplete() )
+                if ( pWorker->IsComplete() )
                 {
+                    auto const pCompletedRequest = pWorker->AcceptResult();
+
                     // Update database
                     //-------------------------------------------------------------------------
 
-                    if ( pActiveRequest->HasSucceeded() )
+                    if ( pCompletedRequest->HasSucceeded() )
                     {
-                        WriteCompiledResourceRecord( pActiveRequest );
+                        WriteCompiledResourceRecord( pCompletedRequest );
                     }
 
                     // Send network response
                     //-------------------------------------------------------------------------
 
-                    NotifyClientOnCompletedRequest( pActiveRequest );
+                    NotifyClientOnCompletedRequest( pCompletedRequest );
 
                     // Remove from active list
                     //-------------------------------------------------------------------------
 
-                    m_completedRequests.emplace_back( pActiveRequest );
-                    m_activeRequests.erase_first_unsorted( pActiveRequest );
-                    shouldNotifyCompletedListChanged = true;
-                    shouldNotifyActiveListChanged = true;
+                    m_completedRequests.emplace_back( pCompletedRequest );
+                    m_activeRequests.erase_first_unsorted( pCompletedRequest );
                 }
             }
 
@@ -251,14 +245,13 @@ namespace KRG
                 auto pRequestToStart = m_pendingRequests[0];
                 m_activeRequests.emplace_back( pRequestToStart );
                 m_pendingRequests.erase( m_pendingRequests.begin() );
-                shouldNotifyActiveListChanged = true;
 
                 bool taskStarted = false;
-                for ( auto pWorker : m_workers )
+                for ( auto& pWorker : m_workers )
                 {
-                    if ( !pWorker->IsBusy() )
+                    if ( pWorker->IsIdle() )
                     {
-                        pWorker->StartCompileTask( pRequestToStart );
+                        pWorker->Compile( pRequestToStart );
                         taskStarted = true;
                         break;
                     }
@@ -273,7 +266,6 @@ namespace KRG
             if ( m_cleanupRequested )
             {
                 CleanupCompletedRequests();
-                shouldNotifyCompletedListChanged = true;
                 m_cleanupRequested = false;
             }
 
@@ -284,39 +276,6 @@ namespace KRG
             {
                 m_fileSystemWatcher.Update();
             }
-
-            // Emit UI updates
-            //-------------------------------------------------------------------------
-
-            if( shouldNotifyCompletedListChanged )
-            {
-                emit CompletedRequestsUpdated( ( TVector<CompilationRequest const*> const* )& m_completedRequests );
-            }
-
-            if ( shouldNotifyActiveListChanged )
-            {
-                emit ActiveRequestsUpdated( ( TVector<CompilationRequest const*> const* )& m_pendingRequests, ( TVector<CompilationRequest const*> const* )& m_activeRequests );
-            }
-
-            if( shouldNotifyCompletedListChanged || shouldNotifyActiveListChanged )
-            {
-                emit BusyStateChanged();
-            }
-        }
-
-        void ResourceServer::OnThreadStopped()
-        {
-            // Destroy timer
-            m_pLoopTimer->stop();
-            delete m_pLoopTimer;
-
-            // Shutdown workers
-            for ( auto& pWorker : m_workers )
-            {
-                KRG::Delete( pWorker );
-            }
-
-            Memory::ShutdownThreadHeap();
         }
 
         void ResourceServer::OnFileModified( FileSystemPath const& filePath )

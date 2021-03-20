@@ -25,7 +25,7 @@ namespace KRG
         {
             TypeSystem::RegisterCoreEntityTypes( typeRegistry );
 
-            KRG::Engine::EngineModule::RegisterTypes( typeRegistry );
+            KRG::EngineCore::EngineModule::RegisterTypes( typeRegistry );
             KRG::Render::EngineModule::RegisterTypes( typeRegistry );
             KRG::Animation::EngineModule::RegisterTypes( typeRegistry );
             KRG::Resource::ToolsModule::RegisterTypes( typeRegistry );
@@ -65,7 +65,7 @@ namespace KRG
             KRG::Resource::ToolsModule::UnregisterTypes( typeRegistry );
             KRG::Animation::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Render::EngineModule::UnregisterTypes( typeRegistry );
-            KRG::Engine::EngineModule::UnregisterTypes( typeRegistry );
+            KRG::EngineCore::EngineModule::UnregisterTypes( typeRegistry );
 
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMaterialDatabase" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMesh" ) );

@@ -12,7 +12,7 @@ namespace KRG
         struct CompilerInfo
         {
             String                              m_name;
-            int32                                 m_version;
+            int32                               m_version;
             TVector<ResourceTypeID>             m_outputTypes;
             TVector<ResourceTypeID>             m_virtualTypes;
             FileSystemPath                      m_sourceModule;
