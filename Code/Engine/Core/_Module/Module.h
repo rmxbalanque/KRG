@@ -7,7 +7,7 @@
 #include "Engine/Core/DebugUI/DebugViews/SystemDebugViewController.h"
 #include "Engine/Core/DebugUI/DebugViews/ResourceDebugViewController.h"
 #include "Engine/Core/Camera/CameraDebugViewController.h"
-#include "Engine/Core/DebugUI/DebugUISystem.h"
+#include "Engine/Core/DebugUI/DebugUI.h"
 #include "System/Imgui/Renderer/ImguiRenderer.h"
 #include "System/Imgui/ImguiX.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
@@ -54,7 +54,6 @@ namespace KRG
             inline CameraWorldSystem* GetCameraSystem() { return &m_cameraSystem; }
 
             #if KRG_DEVELOPMENT_TOOLS
-            inline Debug::DebugUISystem* GetDebugUISystem() { return &m_debugUISystem; }
             inline Debug::DrawingSystem* GetDebugDrawingSystem() { return &m_debugDrawingSystem; }
             #endif
 
@@ -88,7 +87,6 @@ namespace KRG
 
             // Debug
             #if KRG_DEVELOPMENT_TOOLS
-            Debug::DebugUISystem                            m_debugUISystem;
             Debug::DrawingSystem                            m_debugDrawingSystem;
             #endif
 

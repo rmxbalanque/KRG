@@ -1,71 +1,108 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Core/Types/UUID.h"
-#include "System/Core/Types/Event.h"
+#include "DebugView.h"
+#include "System/Imgui/DevelopmentUI.h"
+#include "System/Core/Update/UpdateContext.h"
+#include "System/Core/Settings/Setting.h"
+#include "System/Core/Types/Containers.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
-    class UpdateContext;
+    namespace Math { class Viewport; }
 
     //-------------------------------------------------------------------------
 
     namespace Debug
     {
-        //-------------------------------------------------------------------------
-        // Debug Menu Drawing Callback
-        //-------------------------------------------------------------------------
-        // The draw function will be called once the debug UI menu is shown and the appropriate category menu has been opened
-        // The name is not displayed, but is used for sorting the various callbacks in the menu (e.g. if we have multiple callback within the render category)
-        // Categories are treated as paths and so are separated using '/' (e.g. "Input/Controller Utils")
-
-        class DebugMenuCallback
+        class KRG_ENGINE_CORE_API DebugUI final : public ImGuiX::DevelopmentUI
         {
-        public:
-
-            DebugMenuCallback( String const& name, String const& category, TFunction<void( UpdateContext const& )>&& drawFunction )
-                : m_name( name )
-                , m_category( category )
-                , m_drawFunction( drawFunction )
-            {
-                KRG_ASSERT( !m_name.empty() && !m_category.empty() && m_drawFunction != nullptr );
-            }
-
-            inline String const& GetName() const { return m_name; }
-            inline String const& GetCategory() const { return m_category; }
-            inline void Execute( UpdateContext const& ctx ) const { m_drawFunction( ctx ); }
 
         private:
 
-            String                                              m_name;
-            String                                              m_category;
-            TFunction<void( UpdateContext const& )>             m_drawFunction;
-        };
+            struct Menu
+            {
+                using MenuPath = TInlineVector<String, 5>;
 
-        //-------------------------------------------------------------------------
-        // Debug View
-        //-------------------------------------------------------------------------
-        // This is responsible for registering debug menu callbacks and for drawing any open debug windows
+                static MenuPath CreatePathFromString( String const& pathString );
 
-        class KRG_ENGINE_CORE_API DebugView
-        {
-            friend class DebugUISystem;
+            public:
+
+                Menu( String const& title ) : m_title( title ) { KRG_ASSERT( !m_title.empty() ); }
+
+                inline bool IsEmpty() const { return m_childMenus.empty() && m_callbacks.empty(); }
+
+                void AddCallback( DebugMenuCallback const* pCallback );
+                void RemoveCallback( DebugMenuCallback const* pCallback );
+                void RemoveEmptyChildMenus();
+                void DrawMenu( UpdateContext const& context );
+
+            private:
+
+                Menu& FindOrAddSubMenu( MenuPath const& path );
+                bool TryFindMenuCallback( DebugMenuCallback const* pCallback );
+                bool TryFindAndRemoveMenuCallback( DebugMenuCallback const* pCallback );
+
+            public:
+
+                String                                      m_title;
+                TVector<Menu>                               m_childMenus;
+                TVector<DebugMenuCallback const*>           m_callbacks;
+            };
+
+            struct ModalPopupMessage
+            {
+                String                                      m_ID;
+                String                                      m_channel;
+                String                                      m_message;
+                Log::Severity                               m_severity;
+                bool                                        m_isOpen = true;
+            };
 
         public:
 
-            virtual ~DebugView() {}
+            DebugUI() = default;
+            ~DebugUI();
+
+            virtual void Initialize( SettingsRegistry const& settingsRegistry ) override final;
+            virtual void Shutdown() override final;
+            virtual void Update( UpdateContext const& context, TInlineVector<Math::Viewport, 2> const& activeViewports ) override final;
+
+            void RegisterDebugView( DebugView* pDebugView );
+            void UnregisterDebugView( DebugView* pDebugView );
+
+            inline bool HasModalPopupOpen() const { return !m_modalPopups.empty(); }
+
+        private:
+
+            void RegisterMenuCallbacks( TVector<DebugMenuCallback> const& callbacks );
+            void UnregisterMenuCallbacks( TVector<DebugMenuCallback> const& callbacks );
+
+            void RegisterDebugSettings();
+            void UnregisterDebugSettings();
+
+            void DrawPopups( UpdateContext const& context );
+            void DrawOverlayMenu( UpdateContext const& context );
+            void DrawDebugWindows( UpdateContext const& context );
+            void DrawOverlayStatusBar( UpdateContext const& context );
+
+            void DrawSettingUI( Setting* pSettingBase );
+
+            void DrawOrientationGuide( UpdateContext const& context, Math::Viewport const& viewport );
 
         protected:
 
-            inline TVector<DebugMenuCallback> const& GetMenuCallbacks() const { return m_menuCallbacks; }
-            virtual void DrawWindows( UpdateContext const& context ) = 0;
-
-        protected:
-
-            TVector<DebugMenuCallback>  m_menuCallbacks;
+            SettingsRegistry const*             m_pSettingsRegistry = nullptr;
+            TVector<DebugMenuCallback>          m_debugSettingMenuCallbacks;
+            TVector<DebugView*>                 m_viewControllers;
+            TVector<ModalPopupMessage>          m_modalPopups;
+            Seconds                             m_avgTimeDelta = 0.0f;
+            Menu                                m_mainMenu = Menu("Main Menu");
+            bool                                m_debugOverlayEnabled = false;
         };
     }
 }

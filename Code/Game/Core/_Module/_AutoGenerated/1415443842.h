@@ -48,7 +48,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( TVector<float> );
-            propertyInfo.m_flags.SetFlags( 2 );
+            propertyInfo.m_flags.Set( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 
@@ -193,7 +193,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U8;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_U8 );
             propertyInfo.m_size = sizeof( KRG::uint8 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -205,7 +205,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_uint16;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_uint16 );
             propertyInfo.m_size = sizeof( KRG::uint16 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -217,7 +217,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U32;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_U32 );
             propertyInfo.m_size = sizeof( KRG::uint32 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -229,7 +229,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U64;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_U64 );
             propertyInfo.m_size = sizeof( KRG::uint64 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -241,7 +241,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_UUID;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_UUID );
             propertyInfo.m_size = sizeof( KRG::UUID );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -253,7 +253,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_eulerAngles;
             propertyInfo.m_offset = offsetof( KRG::TestStruct, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -268,7 +268,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::AnotherTestStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::AnotherTestStruct> );
-            propertyInfo.m_flags.SetFlags( 2 );
+            propertyInfo.m_flags.Set( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 
@@ -462,7 +462,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_eulerAngles;
             propertyInfo.m_offset = offsetof( KRG::TestComponent::InternalStruct, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -474,7 +474,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent::InternalStruct, m_resourceID );
             propertyInfo.m_size = sizeof( KRG::ResourceID );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 
@@ -651,7 +651,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_bool;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_bool );
             propertyInfo.m_size = sizeof( bool );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -663,7 +663,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U8;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U8 );
             propertyInfo.m_size = sizeof( KRG::uint8 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -675,7 +675,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_uint16;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_uint16 );
             propertyInfo.m_size = sizeof( KRG::uint16 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -687,7 +687,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U32 );
             propertyInfo.m_size = sizeof( KRG::uint32 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -699,7 +699,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U64 );
             propertyInfo.m_size = sizeof( KRG::uint64 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -711,7 +711,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S8;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S8 );
             propertyInfo.m_size = sizeof( KRG::int8 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -723,7 +723,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S16;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S16 );
             propertyInfo.m_size = sizeof( KRG::int16 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -735,7 +735,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S32 );
             propertyInfo.m_size = sizeof( KRG::int32 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -747,7 +747,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S64 );
             propertyInfo.m_size = sizeof( KRG::int64 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -759,7 +759,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_F32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_F32 );
             propertyInfo.m_size = sizeof( float );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -771,7 +771,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_F64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_F64 );
             propertyInfo.m_size = sizeof( double );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -783,7 +783,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Color;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Color );
             propertyInfo.m_size = sizeof( KRG::Color );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -795,7 +795,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_UUID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_UUID );
             propertyInfo.m_size = sizeof( KRG::UUID );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -807,7 +807,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_String;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_String );
             propertyInfo.m_size = sizeof( KRG::String );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -819,7 +819,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_StringID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_StringID );
             propertyInfo.m_size = sizeof( KRG::StringID );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -831,7 +831,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_DataPath;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_DataPath );
             propertyInfo.m_size = sizeof( KRG::DataPath );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -843,7 +843,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Float2;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float2 );
             propertyInfo.m_size = sizeof( KRG::Float2 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -855,7 +855,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Float3;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float3 );
             propertyInfo.m_size = sizeof( KRG::Float3 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -867,7 +867,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Float4;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float4 );
             propertyInfo.m_size = sizeof( KRG::Float4 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -879,7 +879,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Quaternion;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Quaternion );
             propertyInfo.m_size = sizeof( KRG::Quaternion );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -891,7 +891,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Matrix;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Matrix );
             propertyInfo.m_size = sizeof( KRG::Matrix );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -903,7 +903,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_AffineTransform;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_AffineTransform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -915,7 +915,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_internalEnum;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_internalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalEnum );
-            propertyInfo.m_flags.SetFlags( 4 );
+            propertyInfo.m_flags.Set( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -927,7 +927,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_testIinternalEnum;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_testIinternalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::Test::InternalEnum );
-            propertyInfo.m_flags.SetFlags( 4 );
+            propertyInfo.m_flags.Set( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -939,7 +939,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_eulerAngles;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -951,7 +951,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_resourceID );
             propertyInfo.m_size = sizeof( KRG::ResourceID );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -963,7 +963,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_struct;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_struct );
             propertyInfo.m_size = sizeof( KRG::TestStruct );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -978,7 +978,7 @@ namespace KRG
             propertyInfo.m_arraySize = 4;
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( float ) * 4;
-            propertyInfo.m_flags.SetFlags( 1 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -993,7 +993,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( TVector<float> );
-            propertyInfo.m_flags.SetFlags( 2 );
+            propertyInfo.m_flags.Set( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -1008,7 +1008,7 @@ namespace KRG
             propertyInfo.m_arraySize = 4;
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::StringID );
             propertyInfo.m_size = sizeof( KRG::StringID ) * 4;
-            propertyInfo.m_flags.SetFlags( 1 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -1023,7 +1023,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArrayOfStructs.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::TestStruct> );
-            propertyInfo.m_flags.SetFlags( 2 );
+            propertyInfo.m_flags.Set( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -1038,7 +1038,7 @@ namespace KRG
             propertyInfo.m_arraySize = 2;
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::InternalStruct );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalStruct ) * 2;
-            propertyInfo.m_flags.SetFlags( 1 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -1053,7 +1053,7 @@ namespace KRG
             propertyInfo.m_arraySize = 6;
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::Test::InternalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::Test::InternalEnum ) * 6;
-            propertyInfo.m_flags.SetFlags( 5 );
+            propertyInfo.m_flags.Set( 5 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -1065,7 +1065,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_genericFlags;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_genericFlags );
             propertyInfo.m_size = sizeof( KRG::BitFlags );
-            propertyInfo.m_flags.SetFlags( 8 );
+            propertyInfo.m_flags.Set( 8 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -1077,7 +1077,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_specificFlags;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_specificFlags );
             propertyInfo.m_size = sizeof( KRG::TBitFlags<KRG::SomeFlags> );
-            propertyInfo.m_flags.SetFlags( 8 );
+            propertyInfo.m_flags.Set( 8 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 

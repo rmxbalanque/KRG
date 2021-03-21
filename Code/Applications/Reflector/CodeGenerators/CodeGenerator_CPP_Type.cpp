@@ -571,7 +571,7 @@ namespace KRG
                     file << "            propertyInfo.m_size = sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
                 }
 
-                file << "            propertyInfo.m_flags.SetFlags( " << prop.m_flags << " );\n";
+                file << "            propertyInfo.m_flags.Set( " << prop.m_flags << " );\n";
                 file << "            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );\n";
             };
 

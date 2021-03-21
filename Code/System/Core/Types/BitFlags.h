@@ -26,18 +26,18 @@ namespace KRG
         inline BitFlags() = default;
         inline explicit BitFlags( uint32 flags ) : m_flags( flags ) {}
 
-        KRG_FORCE_INLINE uint32 GetFlags() const { return m_flags; }
+        //-------------------------------------------------------------------------
+
+        KRG_FORCE_INLINE uint32 Get() const { return m_flags; }
+        KRG_FORCE_INLINE void Set( uint32 flags ) { m_flags = flags; }
+        inline operator uint32() const { return m_flags; }
+
+        //-------------------------------------------------------------------------
 
         KRG_FORCE_INLINE bool IsFlagSet( uint8 flag ) const
         {
             KRG_ASSERT( flag < MaxFlags );
             return ( m_flags & GetFlagMask( flag ) ) > 0;
-        }
-
-        KRG_FORCE_INLINE bool IsFlagCleared( uint8 flag ) const
-        {
-            KRG_ASSERT( flag < MaxFlags );
-            return ( m_flags & GetFlagMask( flag ) ) == 0;
         }
 
         KRG_FORCE_INLINE void SetFlag( uint8 flag )
@@ -52,25 +52,17 @@ namespace KRG
             value ? SetFlag( flag ) : ClearFlag( flag );
         }
 
-        KRG_FORCE_INLINE void SetFlags( uint32 flags )
-        {
-            m_flags = flags;
-        }
-
         KRG_FORCE_INLINE void SetAllFlags()
         {
             m_flags = 0xFFFFFFFF;
         }
 
-        KRG_FORCE_INLINE void FlipFlag( uint8 flag )
-        {
-            KRG_ASSERT( flag >= 0 && (uint32) flag < MaxFlags );
-            m_flags ^= GetFlagMask( flag );
-        }
+        //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE void FlipAllFlags()
+        KRG_FORCE_INLINE bool IsFlagCleared( uint8 flag ) const
         {
-            m_flags = ~m_flags;
+            KRG_ASSERT( flag < MaxFlags );
+            return ( m_flags & GetFlagMask( flag ) ) == 0;
         }
 
         KRG_FORCE_INLINE void ClearFlag( uint8 flag )
@@ -86,21 +78,32 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        KRG_FORCE_INLINE void FlipFlag( uint8 flag )
+        {
+            KRG_ASSERT( flag >= 0 && flag < MaxFlags );
+            m_flags ^= GetFlagMask( flag );
+        }
+
+        KRG_FORCE_INLINE void FlipAllFlags()
+        {
+            m_flags = ~m_flags;
+        }
+
+        //-------------------------------------------------------------------------
+
         KRG_FORCE_INLINE BitFlags& operator| ( uint8 flag )
         {
-            KRG_ASSERT( (uint32) flag < MaxFlags );
+            KRG_ASSERT( flag < MaxFlags );
             m_flags |= GetFlagMask( flag );
             return *this;
         }
 
         KRG_FORCE_INLINE BitFlags& operator& ( uint8 flag )
         {
-            KRG_ASSERT( (uint32) flag < MaxFlags );
+            KRG_ASSERT( flag < MaxFlags );
             m_flags &= GetFlagMask( flag );
             return *this;
         }
-
-        inline operator uint32() const { return m_flags; }
 
     protected:
 
@@ -133,7 +136,23 @@ namespace KRG
         KRG_FORCE_INLINE void SetFlag( T flag, bool value ) { BitFlags::SetFlag( (uint8) flag, value ); }
         KRG_FORCE_INLINE void FlipFlag( T flag ) { BitFlags::FlipFlag( (uint8) flag ); }
         KRG_FORCE_INLINE void ClearFlag( T flag ) { BitFlags::ClearFlag( (uint8) flag ); }
-        
+
+        //-------------------------------------------------------------------------
+
+        template<typename... Args>
+        inline void SetMultipleFlags( Args&&... args )
+        {
+            ( ( m_flags |= 1u << (uint8) std::forward<Args>( args ) ), ... );
+        }
+
+        template<typename... Args>
+        inline bool AreAnyFlagsSet( Args&&... args ) const
+        {
+            uint32 mask = 0;
+            ( ( mask |= 1u << (uint8) std::forward<Args>( args ) ), ... );
+            return ( m_flags & mask ) != 0;
+        }
+
         //-------------------------------------------------------------------------
 
         KRG_FORCE_INLINE TBitFlags& operator| ( T flag )

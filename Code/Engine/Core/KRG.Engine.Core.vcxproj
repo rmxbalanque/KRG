@@ -63,8 +63,8 @@
     <ClInclude Include="Camera\CameraComponent.h" />
     <ClInclude Include="Camera\CameraDebugViewController.h" />
     <ClInclude Include="Camera\CameraWorldSystem.h" />
+    <ClInclude Include="DebugUI\DebugView.h" />
     <ClInclude Include="DebugUI\DebugUI.h" />
-    <ClInclude Include="DebugUI\DebugUISystem.h" />
     <ClInclude Include="DebugUI\DebugViews\EntityDebugViewController.h" />
     <ClInclude Include="DebugUI\DebugViews\InputDebugViewController.h" />
     <ClInclude Include="DebugUI\DebugViews\SystemDebugViewController.h" />
@@ -78,7 +78,7 @@
     <ClCompile Include="Camera\CameraComponent.cpp" />
     <ClCompile Include="Camera\CameraDebugViewController.cpp" />
     <ClCompile Include="Camera\CameraWorldSystem.cpp" />
-    <ClCompile Include="DebugUI\DebugUISystem.cpp" />
+    <ClCompile Include="DebugUI\DebugUI.cpp" />
     <ClCompile Include="DebugUI\DebugViews\EntityDebugViewController.cpp" />
     <ClCompile Include="DebugUI\DebugViews\InputDebugViewController.cpp" />
     <ClCompile Include="DebugUI\DebugViews\SystemDebugViewController.cpp" />

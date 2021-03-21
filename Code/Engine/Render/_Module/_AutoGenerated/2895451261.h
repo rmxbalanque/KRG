@@ -66,7 +66,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_transform;
             propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -78,7 +78,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pMesh;
             propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_pMesh );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Render::StaticMesh> );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -93,7 +93,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_materials.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
             propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
-            propertyInfo.m_flags.SetFlags( 2 );
+            propertyInfo.m_flags.Set( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -105,7 +105,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_mobility;
             propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_mobility );
             propertyInfo.m_size = sizeof( KRG::Render::Mobility );
-            propertyInfo.m_flags.SetFlags( 4 );
+            propertyInfo.m_flags.Set( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 

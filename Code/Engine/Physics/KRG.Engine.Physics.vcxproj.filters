@@ -76,5 +76,6 @@
     <ClInclude Include="PhysicsQueryFilter.h" />
     <ClInclude Include="PhysicsSimulationFilter.h" />
     <ClInclude Include="PhysicsMaterial.h" />
+    <ClInclude Include="PhysicsLayers.h" />
   </ItemGroup>
 </Project>

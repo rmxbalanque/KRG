@@ -24,11 +24,12 @@ namespace KRG::TypeSystem
         KRG_ASSERT( typeDesc.IsValid() && typeInfo.m_ID == typeDesc.m_typeID );
 
         void* pTypeInstance = typeInfo.m_pTypeHelper->CreateType();
+        KRG_ASSERT( pTypeInstance != nullptr );
 
         // Set property value
         for ( auto const& propertyValue : typeDesc.m_propertyValues )
         {
-            KRG_ASSERT( pTypeInstance != nullptr && propertyValue.IsValid() );
+            KRG_ASSERT( propertyValue.IsValid() );
 
             TypeSystem::ResolvedPropertyInfo const resolvedPropertyInfo = typeRegistry.ResolvePropertyPath( &typeInfo, propertyValue.m_path );
             if ( !resolvedPropertyInfo.IsValid() )

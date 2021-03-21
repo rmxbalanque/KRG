@@ -1,4 +1,4 @@
-#include "DebugUISystem.h"
+#include "DebugUI.h"
 #include "System/Imgui/ImguiX.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/DebugSettings.h"
@@ -12,7 +12,7 @@
 
 namespace KRG::Debug
 {
-    DebugUISystem::Menu::MenuPath DebugUISystem::Menu::CreatePathFromString( String const& pathString )
+    DebugUI::Menu::MenuPath DebugUI::Menu::CreatePathFromString( String const& pathString )
     {
         KRG_ASSERT( !pathString.empty() );
         size_t const categoryNameLength = pathString.length();
@@ -34,7 +34,7 @@ namespace KRG::Debug
         return path;
     }
 
-    void DebugUISystem::Menu::AddCallback( DebugMenuCallback const* pCallback )
+    void DebugUI::Menu::AddCallback( DebugMenuCallback const* pCallback )
     {
         KRG_ASSERT( !TryFindMenuCallback( pCallback ) );
 
@@ -54,13 +54,13 @@ namespace KRG::Debug
         eastl::sort( subMenu.m_callbacks.begin(), subMenu.m_callbacks.end(), callbackSortPredicate );
     }
 
-    void DebugUISystem::Menu::RemoveCallback( DebugMenuCallback const* pCallback )
+    void DebugUI::Menu::RemoveCallback( DebugMenuCallback const* pCallback )
     {
         bool const result = TryFindAndRemoveMenuCallback( pCallback );
         KRG_ASSERT( result );
     }
 
-    DebugUISystem::Menu& DebugUISystem::Menu::FindOrAddSubMenu( MenuPath const& path )
+    DebugUI::Menu& DebugUI::Menu::FindOrAddSubMenu( MenuPath const& path )
     {
         KRG_ASSERT( !path.empty() );
 
@@ -119,7 +119,7 @@ namespace KRG::Debug
         return *this;
     }
 
-    bool DebugUISystem::Menu::TryFindMenuCallback( DebugMenuCallback const* pCallback )
+    bool DebugUI::Menu::TryFindMenuCallback( DebugMenuCallback const* pCallback )
     {
         auto iter = VectorFind( m_callbacks, pCallback );
         if ( iter != m_callbacks.end() )
@@ -140,7 +140,7 @@ namespace KRG::Debug
         return false;
     }
 
-    bool DebugUISystem::Menu::TryFindAndRemoveMenuCallback( DebugMenuCallback const* pCallback )
+    bool DebugUI::Menu::TryFindAndRemoveMenuCallback( DebugMenuCallback const* pCallback )
     {
         auto iter = VectorFind( m_callbacks, pCallback );
         if ( iter != m_callbacks.end() )
@@ -163,7 +163,7 @@ namespace KRG::Debug
         return false;
     }
 
-    void DebugUISystem::Menu::RemoveEmptyChildMenus()
+    void DebugUI::Menu::RemoveEmptyChildMenus()
     {
         for ( auto iter = m_childMenus.begin(); iter != m_childMenus.end(); )
         {
@@ -180,7 +180,7 @@ namespace KRG::Debug
         }
     }
 
-    void DebugUISystem::Menu::DrawMenu( UpdateContext const& context )
+    void DebugUI::Menu::DrawMenu( UpdateContext const& context )
     {
         for ( auto& childMenu : m_childMenus )
         {
@@ -203,7 +203,7 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    DebugUISystem::~DebugUISystem()
+    DebugUI::~DebugUI()
     {
         KRG_ASSERT( m_viewControllers.empty() );
         KRG_ASSERT( m_mainMenu.IsEmpty() );
@@ -211,13 +211,13 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUISystem::Initialize( SettingsRegistry const& settingsRegistry )
+    void DebugUI::Initialize( SettingsRegistry const& settingsRegistry )
     {
         m_pSettingsRegistry = &settingsRegistry;
         RegisterDebugSettings();
     }
 
-    void DebugUISystem::Shutdown()
+    void DebugUI::Shutdown()
     {
         UnregisterDebugSettings();
         m_pSettingsRegistry = nullptr;
@@ -225,14 +225,14 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUISystem::RegisterDebugView( DebugView* pDebugView )
+    void DebugUI::RegisterDebugView( DebugView* pDebugView )
     {
         KRG_ASSERT( pDebugView != nullptr );
         m_viewControllers.push_back( pDebugView );
         RegisterMenuCallbacks( pDebugView->GetMenuCallbacks() );
     }
 
-    void DebugUISystem::UnregisterDebugView( DebugView* pDebugView )
+    void DebugUI::UnregisterDebugView( DebugView* pDebugView )
     {
         KRG_ASSERT( pDebugView != nullptr );
         auto iter = VectorFind( m_viewControllers, pDebugView );
@@ -243,7 +243,7 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUISystem::RegisterMenuCallbacks( TVector<DebugMenuCallback> const& callbacks )
+    void DebugUI::RegisterMenuCallbacks( TVector<DebugMenuCallback> const& callbacks )
     {
         for ( auto& callback : callbacks )
         {
@@ -251,7 +251,7 @@ namespace KRG::Debug
         }
     }
 
-    void DebugUISystem::UnregisterMenuCallbacks( TVector<DebugMenuCallback> const& callbacks )
+    void DebugUI::UnregisterMenuCallbacks( TVector<DebugMenuCallback> const& callbacks )
     {
         for ( auto& callback : callbacks )
         {
@@ -261,7 +261,7 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUISystem::RegisterDebugSettings()
+    void DebugUI::RegisterDebugSettings()
     {
         // Create menu callbacks for all settings
         //-------------------------------------------------------------------------
@@ -286,7 +286,7 @@ namespace KRG::Debug
         RegisterMenuCallbacks( m_debugSettingMenuCallbacks );
     }
 
-    void DebugUISystem::UnregisterDebugSettings()
+    void DebugUI::UnregisterDebugSettings()
     {
         UnregisterMenuCallbacks( m_debugSettingMenuCallbacks );
         m_debugSettingMenuCallbacks.clear();
@@ -294,7 +294,7 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUISystem::Update( UpdateContext const& context, TInlineVector<Math::Viewport, 2> activeViewports )
+    void DebugUI::Update( UpdateContext const& context, TInlineVector<Math::Viewport, 2> const& activeViewports )
     {
         if ( activeViewports.empty() )
         {
@@ -385,7 +385,7 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUISystem::DrawPopups( UpdateContext const& context )
+    void DebugUI::DrawPopups( UpdateContext const& context )
     {
         // Get any new warnings/errors and create pop-ups for them
         //-------------------------------------------------------------------------
@@ -468,7 +468,7 @@ namespace KRG::Debug
         }
     }
 
-    void DebugUISystem::DrawOverlayMenu( UpdateContext const& context )
+    void DebugUI::DrawOverlayMenu( UpdateContext const& context )
     {
         if ( ImGui::BeginMainMenuBar() )
         {
@@ -487,7 +487,7 @@ namespace KRG::Debug
         }
     }
 
-    void DebugUISystem::DrawDebugWindows( UpdateContext const& context )
+    void DebugUI::DrawDebugWindows( UpdateContext const& context )
     {
         for ( auto pView : m_viewControllers )
         {
@@ -495,7 +495,7 @@ namespace KRG::Debug
         }
     }
 
-    void DebugUISystem::DrawOverlayStatusBar( UpdateContext const& context )
+    void DebugUI::DrawOverlayStatusBar( UpdateContext const& context )
     {
         bool showAlways = true;
         uint32 flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
@@ -531,7 +531,7 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUISystem::DrawSettingUI( Setting* pSettingBase )
+    void DebugUI::DrawSettingUI( Setting* pSettingBase )
     {
         KRG_ASSERT( pSettingBase != nullptr );
 
@@ -596,7 +596,7 @@ namespace KRG::Debug
         }
     }
 
-    void DebugUISystem::DrawOrientationGuide( UpdateContext const& context, Math::Viewport const& viewport )
+    void DebugUI::DrawOrientationGuide( UpdateContext const& context, Math::Viewport const& viewport )
     {
         ImGuiIO& io = ImGui::GetIO();
         static bool alwaysOpen = true;

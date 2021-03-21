@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/DebugUI/DebugUI.h"
+#include "Engine/Core/DebugUI/DebugView.h"
 #include "System/Input/InputDevices/InputDevice_Controller.h"
 
 //-------------------------------------------------------------------------

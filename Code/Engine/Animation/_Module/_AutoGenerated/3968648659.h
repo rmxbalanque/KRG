@@ -45,7 +45,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pAnimation;
             propertyInfo.m_offset = offsetof( KRG::Animation::SimpleAnimationComponent, m_pAnimation );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::AnimationData> );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 

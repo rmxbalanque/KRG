@@ -32,14 +32,18 @@ namespace KRG
 
         {
             cli::Parser cmdParser( argc, argv );
-            cmdParser.set_optional<std::string>( "map", "map", " ", "The startup map." );
+            cmdParser.set_optional<std::string>( "map", "map", "", "The startup map." );
 
             if ( !cmdParser.run() )
             {
                 return FatalError( "Invalid command line arguments!" );
             }
 
-            m_engine.m_startupMap = cmdParser.get<std::string>( "map" ).c_str();
+            std::string const map = cmdParser.get<std::string>( "map" );
+            if ( !map.empty() )
+            {
+                m_engine.m_startupMap = map.c_str();
+            }
         }
 
         // Read configuration settings from ini

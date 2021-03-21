@@ -115,14 +115,34 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    #if KRG_DEVELOPMENT_TOOLS
+    void Engine::InitializeDevelopmentUI()
+    {
+        m_debugUI.Initialize( m_settingsRegistry );
+        m_pDevelopmentUI = &m_debugUI;
+    }
+
+    void Engine::ShutdownDevelopmentUI()
+    {
+        m_debugUI.Shutdown();
+    }
+    #endif
+
+    //-------------------------------------------------------------------------
+
     bool Engine::Initialize( String const& applicationName, Int2 const& windowDimensions )
     {
         KRG_LOG_MESSAGE( "System", "Engine Application Startup" );
 
+        m_moduleContext.m_applicationName = applicationName;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        InitializeDevelopmentUI();
+        m_moduleContext.m_pDebugUI = &m_debugUI;
+        #endif
+
         // Initialize Core
         //-------------------------------------------------------------------------
-
-        m_moduleContext.m_applicationName = applicationName;
 
         if ( !m_module_engine_core.Initialize( m_moduleContext ) )
         {
@@ -141,7 +161,6 @@ namespace KRG
         m_pCameraSystem = m_module_engine_core.GetCameraSystem();
 
         #if KRG_DEVELOPMENT_TOOLS
-        m_pDebugUISystem = m_module_engine_core.GetDebugUISystem();
         m_pDebugDrawingSystem = m_module_engine_core.GetDebugDrawingSystem();
         #endif
 
@@ -161,10 +180,6 @@ namespace KRG
         m_moduleContext.m_pRenderDevice = m_pRenderDevice;
         m_moduleContext.m_pRendererRegistry = m_pRendererRegistry;
         m_moduleContext.m_pEntityWorld = m_pEntityWorld;
-
-        #if KRG_DEVELOPMENT_TOOLS
-        m_moduleContext.m_pDebugUISystem = m_pDebugUISystem;
-        #endif
 
         if ( !InitializeModules() )
         {
@@ -263,10 +278,6 @@ namespace KRG
 
         ShutdownModules();
 
-        #if KRG_DEVELOPMENT_TOOLS
-        m_moduleContext.m_pDebugUISystem = nullptr;
-        #endif
-
         m_moduleContext.m_pSettingsRegistry = nullptr;
         m_moduleContext.m_pTaskSystem = nullptr;
         m_moduleContext.m_pTypeRegistry = nullptr;
@@ -285,6 +296,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         m_module_engine_core.Shutdown( m_moduleContext );
+
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_moduleContext.m_pDebugUI = nullptr;
+        ShutdownDevelopmentUI();
+        #endif
 
         return true;
     }
@@ -339,7 +357,7 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
-                m_pDebugUISystem->Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_pDevelopmentUI->Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
                 #endif
 
                 m_pEntityWorld->Update( m_updateContext );
@@ -395,7 +413,7 @@ namespace KRG
                 m_pEntityWorld->Update( m_updateContext );
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDebugUISystem->Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_pDevelopmentUI->Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
                 m_pImguiSystem->EndFrame();
                 #endif
 
@@ -409,7 +427,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Ensure we dont get crazy time delta's when we hit breakpoints
-        #if !KRG_CONFIGURATION_FINAL
+        #if !KRG_DEVELOPMENT_TOOLS
         if ( deltaTime.ToSeconds() > 1.0f )
         {
             deltaTime = m_updateContext.GetDeltaTime(); // Keep last frame delta

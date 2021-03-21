@@ -17,6 +17,9 @@ namespace KRG
     class Engine
     {
         friend class EngineApplication;
+        friend class EditorApplication;
+
+        //-------------------------------------------------------------------------
 
         class EngineUpdateContext : public UpdateContext
         {
@@ -33,7 +36,7 @@ namespace KRG
 
         void OnWindowResize( Int2 const& windowDimensions );
 
-    private:
+    protected:
 
         bool InitializeModules();
         void LoadModuleResources( Resource::ResourceSystem& resourceSystem );
@@ -41,7 +44,12 @@ namespace KRG
         void UnloadModuleResources( Resource::ResourceSystem& resourceSystem );
         void ShutdownModules();
 
-    private:
+        #if KRG_DEVELOPMENT_TOOLS
+        virtual void InitializeDevelopmentUI();
+        virtual void ShutdownDevelopmentUI();
+        #endif
+
+    protected:
 
         TFunction<bool( KRG::String const& error )>     m_fatalErrorHandler;
         SettingsRegistry                                m_settingsRegistry;
@@ -82,7 +90,8 @@ namespace KRG
         CameraWorldSystem*                              m_pCameraSystem = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DebugUISystem*                           m_pDebugUISystem = nullptr;
+        Debug::DebugUI                                  m_debugUI;
+        ImGuiX::DevelopmentUI*                          m_pDevelopmentUI = nullptr;
         Debug::DrawingSystem*                           m_pDebugDrawingSystem = nullptr;
         #endif
 

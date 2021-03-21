@@ -3,7 +3,7 @@
 
 #include <windows.h>
 #include "Win32/Application_Win32.h"
-#include "../Engine.h"
+#include "Applications/EngineShared/Engine.h"
 
 //-------------------------------------------------------------------------
 

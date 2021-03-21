@@ -42,7 +42,7 @@
     <ClCompile Include="DebugUI\DebugViews\SystemDebugViewController.cpp">
       <Filter>DebugUI\DebugViews</Filter>
     </ClCompile>
-    <ClCompile Include="DebugUI\DebugUISystem.cpp">
+    <ClCompile Include="DebugUI\DebugUI.cpp">
       <Filter>DebugUI</Filter>
     </ClCompile>
     <ClCompile Include="Camera\CameraWorldSystem.cpp">
@@ -78,10 +78,10 @@
     <ClInclude Include="DebugUI\DebugViews\SystemDebugViewController.h">
       <Filter>DebugUI\DebugViews</Filter>
     </ClInclude>
-    <ClInclude Include="DebugUI\DebugUI.h">
+    <ClInclude Include="DebugUI\DebugView.h">
       <Filter>DebugUI</Filter>
     </ClInclude>
-    <ClInclude Include="DebugUI\DebugUISystem.h">
+    <ClInclude Include="DebugUI\DebugUI.h">
       <Filter>DebugUI</Filter>
     </ClInclude>
     <ClInclude Include="Camera\CameraWorldSystem.h">

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
-#include "Engine/Core/DebugUI/DebugUISystem.h"
+#include "Engine/Core/DebugUI/DebugUI.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
@@ -83,10 +83,10 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        inline Debug::DebugUISystem* GetDebugUISystem() { return m_pDebugUISystem; }
-        inline Debug::DebugUISystem const* GetDebugUISystem() const { return m_pDebugUISystem; }
-        inline void RegisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUISystem->RegisterDebugView( pDebugView ); }
-        inline void UnregisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUISystem->UnregisterDebugView( pDebugView ); }
+        inline Debug::DebugUI* GetDebugUI() { return m_pDebugUI; }
+        inline Debug::DebugUI const* GetDebugUI() const { return m_pDebugUI; }
+        inline void RegisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUI->RegisterDebugView( pDebugView ); }
+        inline void UnregisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUI->UnregisterDebugView( pDebugView ); }
         #endif
 
     private:
@@ -102,7 +102,7 @@ namespace KRG
         Render::RendererRegistry*           m_pRendererRegistry = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DebugUISystem*               m_pDebugUISystem = nullptr;
+        Debug::DebugUI*                     m_pDebugUI = nullptr;
         #endif
     };
 }

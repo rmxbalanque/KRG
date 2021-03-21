@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMeshComponent& type )
     {
-        archive( cereal::base_class<KRG::Physics::PhysicsComponent>( &type ), KRG_NVP( m_actorType ), KRG_NVP( m_transform ), KRG_NVP( m_shapeType ), KRG_NVP( m_physicsMaterialOverrideIDs ), KRG_NVP( m_pPhysicsMesh ) );
+        archive( cereal::base_class<KRG::Physics::PhysicsComponent>( &type ), KRG_NVP( m_actorType ), KRG_NVP( m_layers ), KRG_NVP( m_transform ), KRG_NVP( m_shapeType ), KRG_NVP( m_physicsMaterialOverrideIDs ), KRG_NVP( m_pPhysicsMesh ) );
     }
 
     //-------------------------------------------------------------------------
@@ -45,7 +45,19 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_actorType;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_actorType );
             propertyInfo.m_size = sizeof( KRG::Physics::ActorType );
-            propertyInfo.m_flags.SetFlags( 4 );
+            propertyInfo.m_flags.Set( 4 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_layers" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TBitFlags" );
+            propertyInfo.m_parentTypeID = 3338692939;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Physics::Layers" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_layers;
+            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_layers );
+            propertyInfo.m_size = sizeof( KRG::TBitFlags<KRG::Physics::Layers> );
+            propertyInfo.m_flags.Set( 8 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -57,7 +69,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_transform;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -69,7 +81,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_shapeType;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_shapeType );
             propertyInfo.m_size = sizeof( KRG::Physics::ShapeType );
-            propertyInfo.m_flags.SetFlags( 4 );
+            propertyInfo.m_flags.Set( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -84,7 +96,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_physicsMaterialOverrideIDs.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::StringID );
             propertyInfo.m_size = sizeof( TVector<KRG::StringID> );
-            propertyInfo.m_flags.SetFlags( 2 );
+            propertyInfo.m_flags.Set( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -96,7 +108,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pPhysicsMesh;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_pPhysicsMesh );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Physics::PhysicsMesh> );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 

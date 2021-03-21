@@ -303,7 +303,8 @@ namespace KRG::Physics
         // Set component <-> physics shape links
         //-------------------------------------------------------------------------
 
-        pPhysicsShape->setQueryFilterData( PxFilterData( 0xFFFFFFFF, 0, 0, 0 ) );
+        pPhysicsShape->setSimulationFilterData( PxFilterData( pComponent->m_layers.Get(), 0, 0, 0 ) );
+        pPhysicsShape->setQueryFilterData( PxFilterData( pComponent->m_layers.Get(), 0, 0, 0 ) );
 
         pPhysicsShape->userData = const_cast<PhysicsComponent*>( pComponent );
         pComponent->m_pPhysicsShape = pPhysicsShape;

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DevelopmentUI.h" />
     <ClInclude Include="ImguiX.h" />
     <ClInclude Include="System\ImguiTheme.h" />
     <ClInclude Include="Renderer\ImguiRenderer.h" />
@@ -35,6 +36,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DevelopmentUI.cpp" />
     <ClCompile Include="System\ImguiTheme.cpp" />
     <ClCompile Include="Renderer\ImguiRenderer.cpp" />
     <ClCompile Include="System\ImguiSystem.cpp" />

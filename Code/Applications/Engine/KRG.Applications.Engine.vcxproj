@@ -35,6 +35,7 @@
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared">
     <Import Project="..\Shared\KRG.Applications.Shared.vcxitems" Label="Shared" />
+    <Import Project="..\EngineShared\KRG.Applications.EngineShared.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -69,16 +70,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Editor\Editor.cpp" />
-    <ClCompile Include="RenderingSystem.cpp" />
     <ClCompile Include="Win32\EngineApplication_Win32.cpp" />
-    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Win32\Main_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Editor\Editor.h" />
-    <ClInclude Include="Engine.h" />
-    <ClInclude Include="RenderingSystem.h" />
     <ClInclude Include="Win32\EngineApplication_Win32.h" />
     <ClInclude Include="Win32\Resource.h" />
   </ItemGroup>

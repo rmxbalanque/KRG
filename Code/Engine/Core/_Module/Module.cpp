@@ -52,7 +52,6 @@ namespace KRG
             m_mapLoader.SetTypeRegistry( &m_typeRegistry );
 
             #if KRG_DEVELOPMENT_TOOLS
-            m_debugUISystem.Initialize( m_settingsRegistry );
             m_cameraDebugViewController.Initialize( &m_cameraSystem );
             m_entityDebugViewController.Initialize( &m_entityWorld );
             m_resourceDebugViewController.Initialize( &m_resourceSystem );
@@ -70,7 +69,6 @@ namespace KRG
             m_systemRegistry.RegisterSystem( &m_entityWorld );
 
             #if KRG_DEVELOPMENT_TOOLS
-            m_systemRegistry.RegisterSystem( &m_debugUISystem );
             m_systemRegistry.RegisterSystem( &m_debugDrawingSystem );
             #endif
 
@@ -78,11 +76,11 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             #if KRG_DEVELOPMENT_TOOLS
-            m_debugUISystem.RegisterDebugView( &m_systemDebugViewController );
-            m_debugUISystem.RegisterDebugView( &m_resourceDebugViewController );
-            m_debugUISystem.RegisterDebugView( &m_entityDebugViewController );
-            m_debugUISystem.RegisterDebugView( &m_inputDebugViewController );
-            m_debugUISystem.RegisterDebugView( &m_cameraDebugViewController );
+            context.RegisterDebugView( &m_systemDebugViewController );
+            context.RegisterDebugView( &m_resourceDebugViewController );
+            context.RegisterDebugView( &m_entityDebugViewController );
+            context.RegisterDebugView( &m_inputDebugViewController );
+            context.RegisterDebugView( &m_cameraDebugViewController );
             #endif
 
             // Register Misc
@@ -114,11 +112,11 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_debugUISystem.UnregisterDebugView( &m_cameraDebugViewController );
-                m_debugUISystem.UnregisterDebugView( &m_inputDebugViewController );
-                m_debugUISystem.UnregisterDebugView( &m_entityDebugViewController );
-                m_debugUISystem.UnregisterDebugView( &m_resourceDebugViewController );
-                m_debugUISystem.UnregisterDebugView( &m_systemDebugViewController );
+                context.UnregisterDebugView( &m_cameraDebugViewController );
+                context.UnregisterDebugView( &m_inputDebugViewController );
+                context.UnregisterDebugView( &m_entityDebugViewController );
+                context.UnregisterDebugView( &m_resourceDebugViewController );
+                context.UnregisterDebugView( &m_systemDebugViewController );
                 #endif
 
                 // Unregister systems
@@ -126,7 +124,6 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_systemRegistry.UnregisterSystem( &m_debugDrawingSystem );
-                m_systemRegistry.UnregisterSystem( &m_debugUISystem );
                 #endif
 
                 m_systemRegistry.UnregisterSystem( &m_entityWorld );
@@ -144,7 +141,6 @@ namespace KRG
                 m_resourceDebugViewController.Shutdown();
                 m_entityDebugViewController.Shutdown();
                 m_cameraDebugViewController.Shutdown();
-                m_debugUISystem.Shutdown();
                 #endif
 
                 m_imguiRenderer.Shutdown();

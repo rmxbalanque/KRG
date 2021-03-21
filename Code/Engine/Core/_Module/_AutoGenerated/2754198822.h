@@ -66,7 +66,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_transform;
             propertyInfo.m_offset = offsetof( KRG::CameraComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -78,7 +78,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_FOV;
             propertyInfo.m_offset = offsetof( KRG::CameraComponent, m_FOV );
             propertyInfo.m_size = sizeof( KRG::Degrees );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -90,7 +90,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_depth;
             propertyInfo.m_offset = offsetof( KRG::CameraComponent, m_depth );
             propertyInfo.m_size = sizeof( float );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -102,7 +102,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_projectionType;
             propertyInfo.m_offset = offsetof( KRG::CameraComponent, m_projectionType );
             propertyInfo.m_size = sizeof( KRG::CameraComponent::ProjectionType );
-            propertyInfo.m_flags.SetFlags( 4 );
+            propertyInfo.m_flags.Set( 4 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -114,7 +114,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_viewportTopLeft;
             propertyInfo.m_offset = offsetof( KRG::CameraComponent, m_viewportTopLeft );
             propertyInfo.m_size = sizeof( KRG::Float2 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_viewportBottomRight;
             propertyInfo.m_offset = offsetof( KRG::CameraComponent, m_viewportBottomRight );
             propertyInfo.m_size = sizeof( KRG::Float2 );
-            propertyInfo.m_flags.SetFlags( 0 );
+            propertyInfo.m_flags.Set( 0 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 

@@ -3,6 +3,7 @@
 #include "../_Module/API.h"
 #include "Engine/Physics/PhysX.h"
 #include "Engine/Physics/PhysicsMaterial.h"
+#include "Engine/Physics/PhysicsLayers.h"
 #include "System/Entity/EntitySpatialComponent.h"
 
 //-------------------------------------------------------------------------
@@ -94,6 +95,9 @@ namespace KRG::Physics
 
         // How is this shape to be used
         EXPOSE ShapeType                            m_shapeType = ShapeType::SimulationAndQuery;
+
+        // What layers does this shape belong to?
+        EXPOSE TBitFlags<Layers>                    m_layers;
 
     private:
 

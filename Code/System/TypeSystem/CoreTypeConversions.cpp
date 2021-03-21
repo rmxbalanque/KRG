@@ -68,7 +68,7 @@ namespace KRG::TypeSystem::Conversion
         if ( str.find_first_of( "0x" ) == 0 || str.find_first_of( "0X" ) == 0 )
         {
             uint32 value = std::strtoul( str.c_str(), nullptr, 16 );
-            outFlags.SetFlags( value );
+            outFlags.Set( value );
             return true;
         }
 
@@ -475,7 +475,7 @@ namespace KRG::TypeSystem::Conversion
 
                 case CoreTypes::BitFlags:
                 {
-                    reinterpret_cast<BitFlags*>( pValue )->SetFlags( std::strtol( str.c_str(), nullptr, 0 ) );
+                    reinterpret_cast<BitFlags*>( pValue )->Set( std::strtol( str.c_str(), nullptr, 0 ) );
                 }
                 break;
 
@@ -801,7 +801,7 @@ namespace KRG::TypeSystem::Conversion
 
                 case CoreTypes::BitFlags:
                 {
-                    strValue = eastl::to_string( reinterpret_cast<BitFlags const*>( pValue )->GetFlags() );
+                    strValue = eastl::to_string( reinterpret_cast<BitFlags const*>( pValue )->Get() );
                 }
                 break;
 

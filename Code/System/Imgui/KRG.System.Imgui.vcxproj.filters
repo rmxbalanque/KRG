@@ -64,6 +64,7 @@
     <ClInclude Include="ImguiX.h" />
     <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="System\ImguiTheme.h" />
+    <ClInclude Include="DevelopmentUI.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\imgui.natvis">
@@ -96,6 +97,7 @@
     <ClCompile Include="System\ImguiFont.cpp" />
     <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
     <ClCompile Include="System\ImguiTheme.cpp" />
+    <ClCompile Include="DevelopmentUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ThirdParty\imgui\LICENSE.txt">

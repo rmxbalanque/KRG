@@ -30,7 +30,7 @@ namespace KRG
     public:
 
         inline bool HasActiveCameras() const;
-        inline void SetViewDimensions( Int2 newNindowDimensions );
+        inline void SetViewDimensions( Int2 newWindowDimensions );
         inline TInlineVector<Math::Viewport, 2> const& GetActiveViewports() const { return m_activeViewports; }
 
         void Update();

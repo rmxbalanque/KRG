@@ -32,7 +32,7 @@ namespace KRG::Resource
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
         ImGui::Begin( "DockSpace", nullptr, windowFlags );
         {
-            ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
+            ImGuiDockNodeFlags const dockSpaceFlags = ImGuiDockNodeFlags_None;
             ImGuiID const dockspaceID = ImGui::GetID( "ResourceServerDockSpace" );
             ImGui::DockSpace( dockspaceID, ImVec2( 0.0f, 0.0f ), dockSpaceFlags );
         }
