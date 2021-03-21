@@ -20,8 +20,6 @@ namespace KRG
 
         friend class Entity;
 
-        static UpdatePriorityList const PriorityList;
-
     public:
 
         virtual ~IEntitySystem() {}
@@ -32,7 +30,7 @@ namespace KRG
     protected:
 
         // Get the required update stages and priorities for this component
-        virtual UpdatePriorityList const& GetRequiredUpdatePriorities() { return IEntitySystem::PriorityList; };
+        virtual UpdatePriorityList const& GetRequiredUpdatePriorities() = 0;
 
         // Component registration
         virtual void RegisterComponent( EntityComponent* pComponent ) = 0;
@@ -45,9 +43,8 @@ namespace KRG
 
 //-------------------------------------------------------------------------
 
-#define KRG_REGISTER_ENTITY_SYSTEM( Type )\
+#define KRG_REGISTER_ENTITY_SYSTEM( Type, ... )\
         KRG_REGISTER_TYPE;\
-        static UpdatePriorityList const PriorityList;\
-        virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { return Type::PriorityList; };\
+        virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { static UpdatePriorityList const priorityList = UpdatePriorityList( __VA_ARGS__ ); return priorityList; };\
         virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return Type::StaticTypeInfo; }\
         virtual char const* GetName() const override { return #Type; }

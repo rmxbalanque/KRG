@@ -8,10 +8,6 @@
 
 namespace KRG::Navmesh
 {
-    UpdatePriorityList const NavmeshWorldSystem::PriorityList;
-
-    //-------------------------------------------------------------------------
-
     void NavmeshWorldSystem::ShutdownEntitySystem()
     {
         KRG_ASSERT( m_registeredNavmeshes.empty() );

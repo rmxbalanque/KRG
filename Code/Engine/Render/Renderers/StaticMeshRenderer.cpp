@@ -23,10 +23,6 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        UpdatePriorityList const StaticMeshRenderer::PriorityList = UpdatePriorityList().EnableUpdateStage( UpdateStage::FrameEnd );
-
-        //-------------------------------------------------------------------------
-
         bool StaticMeshRenderer::Initialize(  RenderDevice* pRenderDevice )
         {
             KRG_ASSERT( m_pRenderDevice == nullptr && pRenderDevice != nullptr );

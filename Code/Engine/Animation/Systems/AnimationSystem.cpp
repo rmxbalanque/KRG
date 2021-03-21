@@ -12,10 +12,6 @@ namespace KRG
 {
     namespace Animation
     {
-        UpdatePriorityList const AnimationSystem::PriorityList = UpdatePriorityList().EnableUpdateStage( UpdateStage::FrameStart );
-
-        //-------------------------------------------------------------------------
-
         AnimationSystem::~AnimationSystem()
         {
             KRG_ASSERT( m_pAnimComponent == nullptr && m_meshComponents.empty() );

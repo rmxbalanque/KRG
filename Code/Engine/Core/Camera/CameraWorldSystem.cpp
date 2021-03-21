@@ -5,10 +5,6 @@
 
 namespace KRG
 {
-    UpdatePriorityList const CameraWorldSystem::PriorityList = UpdatePriorityList();
-
-    //-------------------------------------------------------------------------
-
     CameraWorldSystem::RegisteredCamera::RegisteredCamera( UUID entityID, CameraComponent* pComponent )
         : m_entityID( entityID )
         , m_pComponent( pComponent )

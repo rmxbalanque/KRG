@@ -14,8 +14,6 @@ namespace KRG
         static TRange<float> const g_moveSpeedLimits( 0.5f, 100 );
     }
 
-    UpdatePriorityList const DefaultPlayerController::PriorityList = UpdatePriorityList().EnableUpdateStage( UpdateStage::FrameStart );
-
     //-------------------------------------------------------------------------
 
     DefaultPlayerController::DefaultPlayerController()

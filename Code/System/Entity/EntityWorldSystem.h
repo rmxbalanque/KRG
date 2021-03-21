@@ -23,8 +23,6 @@ namespace KRG
     {
         friend class EntityWorld;
 
-        static UpdatePriorityList const PriorityList;
-
     public:
 
         virtual uint32 GetEntitySystemID() const = 0;
@@ -53,11 +51,11 @@ namespace KRG
 
 //-------------------------------------------------------------------------
 
-#define KRG_ENTITY_WORLD_SYSTEM( Type )\
+#define KRG_ENTITY_WORLD_SYSTEM( Type, ... )\
     constexpr static uint32 const EntitySystemID = Hash::FNV1a::GetHash32( #Type );\
     virtual uint32 GetEntitySystemID() const override final { return Type::EntitySystemID; }\
     static UpdatePriorityList const PriorityList;\
-    virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { return Type::PriorityList; };
+    virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { static UpdatePriorityList const priorityList = UpdatePriorityList( __VA_ARGS__ ); return priorityList; };\
 
 //-------------------------------------------------------------------------
 // Entity registry

@@ -8,7 +8,7 @@ namespace KRG
 {
     class GameTestSystem : public IEntitySystem
     {
-        KRG_REGISTER_ENTITY_SYSTEM( GameTestSystem );
+        KRG_REGISTER_ENTITY_SYSTEM( GameTestSystem, RequiresUpdate( UpdateStage::FrameStart ) );
 
     public:
 

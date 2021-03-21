@@ -254,7 +254,7 @@ namespace KRG
         int8 const updateStageIdx = (int8) context.GetUpdateStage();
         for( auto pSystem : m_systemUpdateLists[updateStageIdx] )
         {
-            KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) updateStageIdx ) );
+            KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) updateStageIdx ) );
             pSystem->Update( context );
         }
     }
@@ -516,7 +516,7 @@ namespace KRG
 
             for ( auto& pSystem : m_systems )
             {
-                if ( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) i ) )
+                if ( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) i ) )
                 {
                     m_systemUpdateLists[i].push_back( pSystem );
                 }

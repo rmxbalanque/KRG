@@ -4,5 +4,4 @@
 
 namespace KRG
 {
-        UpdatePriorityList const GameTestSystem::PriorityList = UpdatePriorityList().EnableUpdateStage( UpdateStage::FrameStart );
 }

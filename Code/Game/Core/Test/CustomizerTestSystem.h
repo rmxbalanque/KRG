@@ -14,7 +14,7 @@ namespace KRG
 
     class CustomizerTestSystem : public IEntitySystem
     {
-        KRG_REGISTER_ENTITY_SYSTEM( CustomizerTestSystem );
+        KRG_REGISTER_ENTITY_SYSTEM( CustomizerTestSystem, RequiresUpdate( UpdateStage::FrameStart ) );
 
         struct CustomizedCharacter
         {

@@ -13,7 +13,7 @@ namespace KRG
 
     class DefaultPlayerController : public IEntitySystem
     {
-        KRG_REGISTER_ENTITY_SYSTEM( DefaultPlayerController );
+        KRG_REGISTER_ENTITY_SYSTEM( DefaultPlayerController, RequiresUpdate( UpdateStage::FrameStart ) );
 
     public:
 

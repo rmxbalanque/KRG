@@ -168,7 +168,7 @@ namespace KRG
         for ( auto pSystem : m_systemUpdateLists[updateStageIdx] )
         {
             KRG_PROFILE_SCOPE_SCENE( "Update World Systems" );
-            KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) updateStageIdx ) );
+            KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) updateStageIdx ) );
             pSystem->UpdateEntitySystem( context );
         }
     }
@@ -200,7 +200,7 @@ namespace KRG
 
         for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
         {
-            if ( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) i ) )
+            if ( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) i ) )
             {
                 m_systemUpdateLists[i].push_back( pSystem );
             }
@@ -230,7 +230,7 @@ namespace KRG
 
         for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
         {
-            if ( pSystem->GetRequiredUpdatePriorities().IsUpdateStageEnabled( (UpdateStage) i ) )
+            if ( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) i ) )
             {
                 auto updateIter = VectorFind( m_systemUpdateLists[i], pSystem );
                 KRG_ASSERT( updateIter != m_systemUpdateLists[i].end() );

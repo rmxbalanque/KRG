@@ -24,7 +24,7 @@ namespace KRG
 
         public:
 
-            KRG_ENTITY_WORLD_SYSTEM( StaticMeshRenderer );
+            KRG_ENTITY_WORLD_SYSTEM( StaticMeshRenderer, RequiresUpdate( UpdateStage::FrameEnd ) );
             KRG_RENDERER_ID( StaticMeshRenderer, Render::RendererPriorityLevel::Game );
 
         private:

@@ -15,10 +15,6 @@
 
 namespace KRG
 {
-    UpdatePriorityList const CustomizerTestSystem::PriorityList = UpdatePriorityList().EnableUpdateStage( UpdateStage::FrameStart );
-
-    //-------------------------------------------------------------------------
-
     CustomizerTestSystem::~CustomizerTestSystem()
     {
         KRG_ASSERT( m_pComponent == nullptr );

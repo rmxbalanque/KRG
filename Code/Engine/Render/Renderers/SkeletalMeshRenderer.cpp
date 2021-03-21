@@ -26,10 +26,6 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        UpdatePriorityList const SkeletalMeshRenderer::PriorityList = UpdatePriorityList().EnableUpdateStage( UpdateStage::FrameEnd );
-
-        //-------------------------------------------------------------------------
-
         bool SkeletalMeshRenderer::Initialize( RenderDevice* pRenderDevice )
         {
             KRG_ASSERT( m_pRenderDevice == nullptr && pRenderDevice != nullptr );

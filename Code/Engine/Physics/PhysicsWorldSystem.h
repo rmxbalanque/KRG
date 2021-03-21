@@ -35,7 +35,7 @@ namespace KRG::Physics
 
     public:
 
-        KRG_ENTITY_WORLD_SYSTEM( PhysicsWorldSystem );
+        KRG_ENTITY_WORLD_SYSTEM( PhysicsWorldSystem, RequiresUpdate( UpdateStage::PostPhysics ) );
 
     public:
 

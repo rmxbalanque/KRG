@@ -20,7 +20,7 @@ namespace KRG
         {
         public:
 
-            KRG_ENTITY_WORLD_SYSTEM( SkeletalMeshRenderer );
+            KRG_ENTITY_WORLD_SYSTEM( SkeletalMeshRenderer, RequiresUpdate( UpdateStage::FrameEnd ) );
             KRG_RENDERER_ID( SkeletalMeshRenderer, RendererPriorityLevel::Game );
 
         private:

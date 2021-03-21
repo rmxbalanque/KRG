@@ -14,10 +14,6 @@ using namespace physx;
 
 namespace KRG::Physics
 {
-    UpdatePriorityList const PhysicsWorldSystem::PriorityList = UpdatePriorityList().EnableUpdateStage( UpdateStage::PostPhysics );
-
-    //-------------------------------------------------------------------------
-
     PhysicsWorldSystem::PhysicsWorldSystem( PhysicsSystem& physicsSystem )
         : m_physicsSystem( physicsSystem )
     {}
