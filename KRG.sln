@@ -94,6 +94,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Editor", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.EngineShared", "Code\Applications\EngineShared\KRG.Applications.EngineShared.vcxitems", "{E1B87641-1DBA-429E-9F6B-22534D933097}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Engine.Camera", "Code\Engine\Camera\KRG.Engine.Camera.vcxproj", "{A41B2648-BEFF-4A90-8B5A-4B1E2B3FB702}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{15e4867a-f174-4f2a-a7c1-99cc6376d8d2}*SharedItemsImports = 4
@@ -294,6 +296,12 @@ Global
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.ActiveCfg = Release|x64
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.Build.0 = Release|x64
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x86.ActiveCfg = Release|x64
+		{A41B2648-BEFF-4A90-8B5A-4B1E2B3FB702}.Debug|x64.ActiveCfg = Debug|x64
+		{A41B2648-BEFF-4A90-8B5A-4B1E2B3FB702}.Debug|x64.Build.0 = Debug|x64
+		{A41B2648-BEFF-4A90-8B5A-4B1E2B3FB702}.Debug|x86.ActiveCfg = Debug|x64
+		{A41B2648-BEFF-4A90-8B5A-4B1E2B3FB702}.Release|x64.ActiveCfg = Release|x64
+		{A41B2648-BEFF-4A90-8B5A-4B1E2B3FB702}.Release|x64.Build.0 = Release|x64
+		{A41B2648-BEFF-4A90-8B5A-4B1E2B3FB702}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -332,6 +340,7 @@ Global
 		{CDA27ACA-1A2F-4DAC-8A7F-EE13A597F0BC} = {3C9C040D-006B-4742-8BE6-B9B74339F1D9}
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{E1B87641-1DBA-429E-9F6B-22534D933097} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
+		{A41B2648-BEFF-4A90-8B5A-4B1E2B3FB702} = {3C9C040D-006B-4742-8BE6-B9B74339F1D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		Qt5Version = $(DefaultQtVersion)

@@ -6,8 +6,8 @@
 #include "System/TypeSystem/TypeRegistry.h"
 
 #include "D:\Kruger\Code\Game\Core\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
 #include "D:\Kruger\Code\Compilers\Render\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Entity\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
@@ -16,6 +16,7 @@
 #include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
 #include "D:\Kruger\Code\Compilers\Physics\_Module\Module.h"
+#include "D:\Kruger\Code\Compilers\Entity\_Module\Module.h"
 
 namespace KRG
 {
@@ -35,6 +36,7 @@ namespace KRG
             KRG::Physics::ResourceCompilerModule::RegisterTypes( typeRegistry );
             KRG::EntityModel::ResourceCompilerModule::RegisterTypes( typeRegistry );
             KRG::Render::ResourceCompilerModule::RegisterTypes( typeRegistry );
+            KRG::Camera::EngineModule::RegisterTypes( typeRegistry );
             KRG::Game::GameModule::RegisterTypes( typeRegistry );
 
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor"), ResourceTypeID( "MAP" ) );
@@ -56,6 +58,7 @@ namespace KRG
         inline void UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
         {
             KRG::Game::GameModule::UnregisterTypes( typeRegistry );
+            KRG::Camera::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Render::ResourceCompilerModule::UnregisterTypes( typeRegistry );
             KRG::EntityModel::ResourceCompilerModule::UnregisterTypes( typeRegistry );
             KRG::Physics::ResourceCompilerModule::UnregisterTypes( typeRegistry );

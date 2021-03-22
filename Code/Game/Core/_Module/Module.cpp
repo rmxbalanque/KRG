@@ -2,7 +2,7 @@
 #include "Engine/Core/Modules/EngineModuleContext.h"
 #include "System/Entity/EntityWorld.h"
 #include "Game/Core/PlayerController/DefaultPlayerController.h"
-#include "Engine/Core/Camera/CameraComponent.h"
+#include "Engine/Camera/Components/CameraComponent.h"
 
 //-------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ namespace KRG
         {
             auto OnCreatePersistentEntities = [] ( EntityModel::EntityMap* pPersistentMap )
             {
-                auto pCameraComponent = KRG::New<CameraComponent>( StringID( "Camera Component" ) );
+                auto pCameraComponent = KRG::New<Camera::CameraComponent>( StringID( "Camera Component" ) );
                 
                 pCameraComponent->SetLocalTransform( Transform( Quaternion::Identity, Vector( 0, -1.5f, 1.0f ) ) );
 

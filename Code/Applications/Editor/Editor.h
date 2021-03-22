@@ -9,11 +9,15 @@ namespace KRG
 {
     class Editor : public Engine
     {
+        friend class EditorApplication;
+
     public:
 
         using Engine::Engine;
 
     private:
+
+        virtual void OnWindowResize( Int2 const& windowDimensions ) override final;
 
         #if KRG_DEVELOPMENT_TOOLS
         virtual void InitializeDevelopmentUI() override final;

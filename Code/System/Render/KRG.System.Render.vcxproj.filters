@@ -36,10 +36,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DebugRenderer\DebugRenderer.cpp">
+    <ClCompile Include="Renderers\DebugRenderer\DebugRenderer.cpp">
       <Filter>DebugRenderer</Filter>
     </ClCompile>
-    <ClCompile Include="DebugRenderer\DebugRenderStates.cpp">
+    <ClCompile Include="Renderers\DebugRenderer\DebugRenderStates.cpp">
       <Filter>DebugRenderer</Filter>
     </ClCompile>
     <ClCompile Include="Fonts\FontData_FontAwesome4.cpp">
@@ -69,18 +69,19 @@
     <ClCompile Include="ThirdParty\stb\krg_stb.cpp">
       <Filter>ThirdParty\stb</Filter>
     </ClCompile>
-    <ClCompile Include="RendererRegistry.cpp" />
+    <ClCompile Include="Renderers\RendererRegistry.cpp" />
     <ClCompile Include="RenderShader.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="RenderVertexFormats.cpp" />
     <ClCompile Include="Fonts\FontData_ProggyClean.cpp" />
     <ClCompile Include="Fonts\FontData_Segoe.cpp" />
+    <ClCompile Include="RenderViewportSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DebugRenderer\DebugRenderer.h">
+    <ClInclude Include="Renderers\DebugRenderer\DebugRenderer.h">
       <Filter>DebugRenderer</Filter>
     </ClInclude>
-    <ClInclude Include="DebugRenderer\DebugRenderStates.h">
+    <ClInclude Include="Renderers\DebugRenderer\DebugRenderStates.h">
       <Filter>DebugRenderer</Filter>
     </ClInclude>
     <ClInclude Include="Fonts\FontData_FontAwesome4.h">
@@ -113,7 +114,7 @@
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="DebugRenderer\Shaders\DebugShaders.h">
+    <ClInclude Include="Renderers\DebugRenderer\Shaders\DebugShaders.h">
       <Filter>DebugRenderer\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="RenderSettings.h">
@@ -131,8 +132,8 @@
     <ClInclude Include="ThirdParty\stb\stb_truetype.h">
       <Filter>ThirdParty\stb</Filter>
     </ClInclude>
-    <ClInclude Include="IRenderer.h" />
-    <ClInclude Include="RendererRegistry.h" />
+    <ClInclude Include="Renderers\IRenderer.h" />
+    <ClInclude Include="Renderers\RendererRegistry.h" />
     <ClInclude Include="RenderBuffer.h" />
     <ClInclude Include="RenderPipelineState.h" />
     <ClInclude Include="RenderResourceHandle.h" />
@@ -142,36 +143,37 @@
     <ClInclude Include="RenderVertexFormats.h" />
     <ClInclude Include="Fonts\FontData_ProggyClean.h" />
     <ClInclude Include="Fonts\FontData_Segoe.h" />
+    <ClInclude Include="RenderViewportSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\PS_DebugRendererPoints.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererPoints.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\VS_DebugRendererPoints.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererPoints.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\GS_DebugRendererLines.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererLines.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\PS_DebugRendererLines.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererLines.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\VS_DebugRendererLines.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererLines.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\PS_DebugRendererText.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererText.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\VS_DebugRendererText.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererText.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\PS_DebugRendererTriangles.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererTriangles.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="DebugRenderer\Shaders\HLSL\VS_DebugRendererTriangles.hlsl">
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererTriangles.hlsl">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </FxCompile>
   </ItemGroup>
@@ -179,7 +181,7 @@
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
       <Filter>DebugRenderer\Debug\HLSL</Filter>
     </None>
-    <None Include="DebugRenderer\Shaders\HLSL\DebugShaderCommon.hlsli">
+    <None Include="Renderers\DebugRenderer\Shaders\HLSL\DebugShaderCommon.hlsli">
       <Filter>DebugRenderer\Shaders\HLSL</Filter>
     </None>
   </ItemGroup>

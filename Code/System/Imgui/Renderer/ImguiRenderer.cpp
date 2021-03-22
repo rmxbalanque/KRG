@@ -260,7 +260,7 @@ namespace KRG
             // Transfer buffer data
             //-------------------------------------------------------------------------
 
-            auto renderContext = m_pRenderDevice->GetImmediateContext();
+            auto const& renderContext = m_pRenderDevice->GetImmediateContext();
 
             // Copy vertices into our vertex and index buffers and record the command lists
             auto pVertexMemory = renderContext.MapBuffer( m_vertexBuffer );

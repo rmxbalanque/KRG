@@ -5,7 +5,7 @@
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Render/RendererRegistry.h"
+#include "System/Render/Renderers/RendererRegistry.h"
 #include "System/Entity/EntityWorld.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/TypeSystem/TypeRegistry.h"

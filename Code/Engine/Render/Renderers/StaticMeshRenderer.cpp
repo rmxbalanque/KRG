@@ -280,7 +280,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void SubmitMeshDrawCall( RenderContext& renderContext, StaticMesh const* pMesh, TVector<TResourcePtr<Material>> const& materials )
+        void SubmitMeshDrawCall( RenderContext const& renderContext, StaticMesh const* pMesh, TVector<TResourcePtr<Material>> const& materials )
         {
             renderContext.SetVertexBuffer( pMesh->GetVertexBuffer() );
             renderContext.SetIndexBuffer( pMesh->GetIndexBuffer() );
@@ -309,14 +309,13 @@ namespace KRG
         {
             KRG_PROFILE_FUNCTION_RENDER();
 
-            AABB const cullingBox = viewport.GetCullingVolume().GetAABB();
             //m_staticComponentBVH.FindOverlaps( cullingBox, m_visibleStaticComponents );
 
             //-------------------------------------------------------------------------
 
             Matrix const viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
 
-            auto renderContext = m_pRenderDevice->GetImmediateContext();
+            auto const& renderContext = m_pRenderDevice->GetImmediateContext();
 
             // Set primary render state and clear the render buffer
             renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
@@ -347,7 +346,6 @@ namespace KRG
 
             m_visibleDynamicComponents.clear();
 
-            AABB const cullingBox = viewport.GetCullingVolume().GetAABB();
             for( auto pComponent : m_dynamicComponents )
             {
                 //if( cullingBox.Overlaps( pComponent->GetWorldBounds() ) )
@@ -360,7 +358,7 @@ namespace KRG
 
             Matrix const viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
 
-            auto renderContext = m_pRenderDevice->GetImmediateContext();
+            auto const& renderContext = m_pRenderDevice->GetImmediateContext();
 
             // Set primary render state and clear the render buffer
             renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );

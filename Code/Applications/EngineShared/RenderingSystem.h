@@ -1,5 +1,6 @@
 #pragma once
-#include "System/Render/RendererRegistry.h"
+
+#include "System/Render/Renderers/RendererRegistry.h"
 #include "System/Core/Math/Viewport.h"
 
 //-------------------------------------------------------------------------
@@ -10,11 +11,13 @@
 namespace KRG
 {
     class UpdateContext;
+    namespace ImGuiX { class ImguiRenderer; }
 
     //-------------------------------------------------------------------------
 
     namespace Render
     {
+        class ViewportSystem;
         class SkeletalMeshRenderer;
         class StaticMeshRenderer;
 
@@ -25,16 +28,21 @@ namespace KRG
 
         public:
 
-            void Initialize( Render::RendererRegistry* pRegistry );
+            void Initialize( ViewportSystem* pViewportSystem, RendererRegistry* pRegistry );
             void Shutdown();
 
-            void Update( UpdateContext const& ctx, TInlineVector<Math::Viewport, 2> activeViewports );
+            void Update( UpdateContext const& ctx );
 
         private:
 
+            ViewportSystem*                                 m_pViewportSystem = nullptr;
             StaticMeshRenderer*                             m_pStaticMeshRenderer = nullptr;
             SkeletalMeshRenderer*                           m_pSkeletalMeshRenderer = nullptr;
             TVector<IRenderer*>                             m_customRenderers;
+
+            #if KRG_DEVELOPMENT_TOOLS
+            ImGuiX::ImguiRenderer*                          m_pImguiRenderer = nullptr;
+            #endif
         };
     }
 }

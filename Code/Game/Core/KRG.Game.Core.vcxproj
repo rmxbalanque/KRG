@@ -81,6 +81,9 @@
     <ProjectReference Include="..\..\Engine\Animation\KRG.Engine.Animation.vcxproj">
       <Project>{6e63a255-0e1a-4d43-b225-376b5a6c757e}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Engine\Camera\KRG.Engine.Camera.vcxproj">
+      <Project>{a41b2648-beff-4a90-8b5a-4b1e2b3fb702}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Engine\Core\KRG.Engine.Core.vcxproj">
       <Project>{2cfadbdc-ee40-4484-94d0-62a90206209e}</Project>
     </ProjectReference>

@@ -2,6 +2,7 @@
 
 #include "System/Core/Update/UpdateStage.h"
 #include "System/Core/Update/UpdateContext.h"
+#include "System/Render/RenderViewportSystem.h"
 #include "System/Imgui/ThirdParty/imgui/imgui_internal.h"
 
 //-------------------------------------------------------------------------
@@ -18,9 +19,9 @@ namespace KRG
 
     }
 
-    void EditorUI::Update( UpdateContext const& context, TInlineVector<Math::Viewport, 2> const& activeViewports )
+    void EditorUI::Update( UpdateContext const& context, Render::ViewportSystem& viewportSystem )
     {
-        if ( activeViewports.empty() )
+        if ( !viewportSystem.HasActiveViewports() )
         {
             return;
         }
@@ -47,7 +48,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        auto pCameraSystem = context.GetSystem<CameraWorldSystem>()
+        viewportSystem.ResizePrimaryViewport( m_viewportRect );
     }
 
     void EditorUI::DrawDockSpace()
@@ -65,6 +66,7 @@ namespace KRG
         ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
 
+        ImGui::SetNextWindowBgAlpha( 0.0f );
         ImGui::Begin( "DockSpace", nullptr, windowFlags );
         {
             ImGuiDockNodeFlags const dockSpaceFlags =  ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_PassthruCentralNode;

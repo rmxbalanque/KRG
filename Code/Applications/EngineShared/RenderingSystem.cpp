@@ -1,8 +1,11 @@
 #include "RenderingSystem.h"
 #include "Engine/Render/Renderers/StaticMeshRenderer.h"
 #include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
+#include "System/Imgui/Renderer/ImguiRenderer.h"
+#include "System/Render/RenderViewportSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "System/Core/Math/ViewVolume.h"
 
 //-------------------------------------------------------------------------
 
@@ -10,9 +13,13 @@ namespace KRG
 {
     namespace Render
     {
-        void RenderingSystem::Initialize( Render::RendererRegistry* pRegistry )
+        void RenderingSystem::Initialize( ViewportSystem* pViewportSystem, RendererRegistry* pRegistry )
         {
-            KRG_ASSERT( pRegistry != nullptr );
+            KRG_ASSERT( pViewportSystem != nullptr && pRegistry != nullptr );
+
+            m_pViewportSystem = pViewportSystem;
+
+            //-------------------------------------------------------------------------
 
             for ( auto pRenderer : pRegistry->GetRegisteredRenderers() )
             {
@@ -20,16 +27,30 @@ namespace KRG
                 {
                     KRG_ASSERT( m_pSkeletalMeshRenderer == nullptr );
                     m_pSkeletalMeshRenderer = static_cast<SkeletalMeshRenderer*>( pRenderer );
+                    continue;
                 }
-                else if ( pRenderer->GetRendererID() == StaticMeshRenderer::RendererID )
+                
+                if ( pRenderer->GetRendererID() == StaticMeshRenderer::RendererID )
                 {
                     KRG_ASSERT( m_pStaticMeshRenderer == nullptr );
                     m_pStaticMeshRenderer = static_cast<StaticMeshRenderer*>( pRenderer );
+                    continue;
                 }
-                else
+
+                //-------------------------------------------------------------------------
+
+                #if KRG_DEVELOPMENT_TOOLS
+                if ( pRenderer->GetRendererID() == ImGuiX::ImguiRenderer::RendererID )
                 {
-                    m_customRenderers.push_back( pRenderer );
+                    KRG_ASSERT( m_pImguiRenderer == nullptr );
+                    m_pImguiRenderer = static_cast<ImGuiX::ImguiRenderer*>( pRenderer );
+                    continue;
                 }
+                #endif
+
+                //-------------------------------------------------------------------------
+
+                m_customRenderers.push_back( pRenderer );
             }
 
             // Sort custom renderers
@@ -49,14 +70,26 @@ namespace KRG
         {
             m_pStaticMeshRenderer = nullptr;
             m_pSkeletalMeshRenderer = nullptr;
+
+            #if KRG_DEVELOPMENT_TOOLS
+            m_pImguiRenderer = nullptr;
+            #endif
+
+            m_pViewportSystem = nullptr;
         }
 
-        void RenderingSystem::Update( UpdateContext const& ctx, TInlineVector<Math::Viewport, 2> activeViewports )
+        void RenderingSystem::Update( UpdateContext const& ctx )
         {
-            UpdateStage const updateStage = ctx.GetUpdateStage();
-            KRG_ASSERT( updateStage != UpdateStage::FrameStart );
+            KRG_ASSERT( m_pViewportSystem != nullptr );
+            if ( !m_pViewportSystem->HasActiveViewports() )
+            {
+                return;
+            }
 
             //-------------------------------------------------------------------------
+
+            UpdateStage const updateStage = ctx.GetUpdateStage();
+            KRG_ASSERT( updateStage != UpdateStage::FrameStart );
 
             switch ( updateStage )
             {
@@ -64,7 +97,7 @@ namespace KRG
                 {
                     KRG_PROFILE_SCOPE_RENDER( "Rendering Pre-Physics" );
 
-                    for ( auto const& viewport : activeViewports )
+                    for ( auto const& viewport : m_pViewportSystem->GetActiveViewports() )
                     {
                         if ( m_pStaticMeshRenderer != nullptr )
                         {
@@ -74,11 +107,16 @@ namespace KRG
                 }
                 break;
 
+                //-------------------------------------------------------------------------
+
                 case UpdateStage::FrameEnd:
                 {
                     KRG_PROFILE_SCOPE_RENDER( "Rendering Post-Physics" );
 
-                    for ( auto const& viewport : activeViewports )
+                    // Render into active viewports
+                    //-------------------------------------------------------------------------
+
+                    for ( auto const& viewport : m_pViewportSystem->GetActiveViewports() )
                     {
                         if ( m_pStaticMeshRenderer != nullptr )
                         {
@@ -90,11 +128,22 @@ namespace KRG
                             m_pSkeletalMeshRenderer->Render( viewport );
                         }
 
-                        for ( auto const& pDebugRenderer : m_customRenderers )
+                        for ( auto const& pCustomRenderer : m_customRenderers )
                         {
-                            pDebugRenderer->Render( viewport );
+                            pCustomRenderer->Render( viewport );
                         }
                     }
+
+                    // Draw development tools viewport
+                    //-------------------------------------------------------------------------
+
+                    #if KRG_DEVELOPMENT_TOOLS
+                    if ( m_pImguiRenderer != nullptr )
+                    {
+                        auto const& devToolsViewport = m_pViewportSystem->GetDevelopmentToolsViewport();
+                        m_pImguiRenderer->Render( devToolsViewport );
+                    }
+                    #endif
                 }
                 break;
             }

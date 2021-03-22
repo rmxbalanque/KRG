@@ -1,5 +1,5 @@
 #include "DefaultPlayerController.h"
-#include "Engine/Core/Camera/CameraComponent.h"
+#include "Engine/Camera/Components/CameraComponent.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 
@@ -36,7 +36,7 @@ namespace KRG
             }
         }
 
-        if ( auto pCameraComponent = ComponentCast<CameraComponent>( pComponent ) )
+        if ( auto pCameraComponent = ComponentCast<Camera::CameraComponent>( pComponent ) )
         {
             m_pCameraComponent = pCameraComponent;
         }
@@ -52,7 +52,7 @@ namespace KRG
             }
         }
 
-        if ( auto pCameraComponent = ComponentCast<CameraComponent>( pComponent ) )
+        if ( auto pCameraComponent = ComponentCast<Camera::CameraComponent>( pComponent ) )
         {
             if ( m_pCameraComponent == pCameraComponent )
             {

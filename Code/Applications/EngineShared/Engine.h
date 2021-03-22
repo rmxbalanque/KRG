@@ -34,7 +34,7 @@ namespace KRG
         bool Shutdown();
         bool Update();
 
-        void OnWindowResize( Int2 const& windowDimensions );
+        virtual void OnWindowResize( Int2 const& windowDimensions );
 
     protected:
 
@@ -62,6 +62,7 @@ namespace KRG
         EngineCore::EngineModule                        m_module_engine_core;
         Physics::EngineModule                           m_module_engine_physics;
         Render::EngineModule                            m_module_engine_render;
+        Camera::EngineModule                            m_module_engine_camera;
         Animation::EngineModule                         m_module_engine_animation;
         Navmesh::EngineModule                           m_module_engine_navmesh;
         Game::GameModule                                m_module_game_core;
@@ -80,6 +81,7 @@ namespace KRG
         TypeSystem::TypeRegistry*                       m_pTypeRegistry = nullptr;
         Resource::ResourceSystem*                       m_pResourceSystem = nullptr;
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
+        Render::ViewportSystem*                         m_pRenderViewportSystem = nullptr;
         Render::RendererRegistry*                       m_pRendererRegistry = nullptr;
         Render::RenderingSystem                         m_renderingSystem;
         EntityWorld*                                    m_pEntityWorld = nullptr;
@@ -87,7 +89,6 @@ namespace KRG
         Input::InputSystem*                             m_pInputSystem = nullptr;
         Navmesh::NavmeshSystem*                         m_pNavmeshSystem = nullptr;
         Physics::PhysicsSystem*                         m_pPhysicsSystem = nullptr;
-        CameraWorldSystem*                              m_pCameraSystem = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
         Debug::DebugUI                                  m_debugUI;

@@ -40,10 +40,8 @@ namespace KRG
             // View Volume
             //-------------------------------------------------------------------------
 
-            void SetViewVolume( Math::ViewVolume const& viewVolume, Math::ViewVolume const& cullingVolume );
-            inline void SetViewVolume( Math::ViewVolume const& viewVolume ) { SetViewVolume( viewVolume, viewVolume ); }
+            void SetViewVolume( Math::ViewVolume const& viewVolume );
             inline Math::ViewVolume const& GetViewVolume() const { return m_viewVolume; }
-            inline Math::ViewVolume const& GetCullingVolume() const { return m_cullingVolume; }
 
             inline Vector const& GetViewOrigin() const { return m_viewVolume.GetWorldMatrix().GetTranslation(); }
             inline Vector GetViewForwardDirection() const { return m_viewVolume.GetForwardVector(); }
@@ -67,7 +65,6 @@ namespace KRG
         private:
 
             Math::ViewVolume                m_viewVolume;
-            Math::ViewVolume                m_cullingVolume;
             Float2                          m_topLeftPosition = Float2( 0.0f );
             Float2                          m_size = Float2( 0.0f );
         };

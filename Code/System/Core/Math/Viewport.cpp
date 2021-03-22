@@ -12,7 +12,6 @@ namespace KRG
 
         Viewport::Viewport( Int2 const& topLeft, Int2 const& dimensions, Math::ViewVolume const& viewVolume )
             : m_viewVolume( viewVolume )
-            , m_cullingVolume( viewVolume )
             , m_topLeftPosition( topLeft )
             , m_size( dimensions )
         {
@@ -26,16 +25,14 @@ namespace KRG
             KRG_ASSERT( IsValid() );
         }
 
-        void Viewport::SetViewVolume( Math::ViewVolume const& viewVolume, Math::ViewVolume const& cullingVolume )
+        void Viewport::SetViewVolume( Math::ViewVolume const& viewVolume )
         {
             m_viewVolume = viewVolume;
-            m_cullingVolume = cullingVolume;
 
             // Update the aspect ratio based on the viewport desc we are using
             if ( m_viewVolume.IsPerspective() )
             {
                 m_viewVolume.SetViewDimensions( m_size );
-                m_cullingVolume.SetViewDimensions( m_size );
             }
         }
 

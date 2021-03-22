@@ -4,7 +4,7 @@
 #include "ResourceServer.h"
 #include "ResourceServerUI.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Render/RendererRegistry.h"
+#include "System/Render/Renderers/RendererRegistry.h"
 #include "System/Imgui/System/ImguiSystem.h"
 #include "System/Imgui/Renderer/ImguiRenderer.h"
 #include "System/Core/Types/String.h"

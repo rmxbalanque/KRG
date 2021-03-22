@@ -5,7 +5,7 @@
 #include "System/Render/RenderDevice/RenderDevice.h"
 #include "Engine/Render/Renderers/StaticMeshRenderer.h"
 #include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
-#include "System/Render/DebugRenderer/DebugRenderer.h"
+#include "System/Render/Renderers/DebugRenderer/DebugRenderer.h"
 #include "Engine/Render/ResourceLoaders/MeshLoader.h"
 #include "Engine/Render/ResourceLoaders/ShaderLoader.h"
 #include "Engine/Render/ResourceLoaders/TextureLoader.h"

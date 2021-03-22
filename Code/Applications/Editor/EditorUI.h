@@ -14,7 +14,7 @@ namespace KRG
 
         virtual void Initialize( SettingsRegistry const& settingsRegistry ) override final;
         virtual void Shutdown() override final;
-        virtual void Update( UpdateContext const& context, TInlineVector<Math::Viewport, 2> const& activeViewports ) override final;
+        virtual void Update( UpdateContext const& context, Render::ViewportSystem& viewportSystem ) override final;
 
     private:
 

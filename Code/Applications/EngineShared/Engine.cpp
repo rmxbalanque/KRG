@@ -33,6 +33,11 @@ namespace KRG
             return m_fatalErrorHandler( "Failed to initialize module" );
         }
 
+        if ( !m_module_engine_camera.Initialize( m_moduleContext ) )
+        {
+            return m_fatalErrorHandler( "Failed to initialize module" );
+        }
+
         if ( !m_module_engine_animation.Initialize( m_moduleContext ) )
         {
             return m_fatalErrorHandler( "Failed to initialize module" );
@@ -103,6 +108,7 @@ namespace KRG
 
         m_module_engine_navmesh.Shutdown( m_moduleContext );
         m_module_engine_animation.Shutdown( m_moduleContext );
+        m_module_engine_camera.Shutdown( m_moduleContext );
         m_module_engine_render.Shutdown( m_moduleContext );
         m_module_engine_physics.Shutdown( m_moduleContext );
 
@@ -137,7 +143,6 @@ namespace KRG
         m_moduleContext.m_applicationName = applicationName;
 
         #if KRG_DEVELOPMENT_TOOLS
-        InitializeDevelopmentUI();
         m_moduleContext.m_pDebugUI = &m_debugUI;
         #endif
 
@@ -157,8 +162,8 @@ namespace KRG
         m_pRenderDevice = m_module_engine_core.GetRenderDevice();
         m_pRendererRegistry = m_module_engine_core.GetRendererRegistry();
         m_pImguiSystem = m_module_engine_core.GetImguiSystem();
+        m_pRenderViewportSystem = m_module_engine_core.GetRenderViewportSystem();
         m_pEntityWorld = m_module_engine_core.GetEntityWorld();
-        m_pCameraSystem = m_module_engine_core.GetCameraSystem();
 
         #if KRG_DEVELOPMENT_TOOLS
         m_pDebugDrawingSystem = m_module_engine_core.GetDebugDrawingSystem();
@@ -215,11 +220,15 @@ namespace KRG
 
         m_initialized = true;
         m_pRenderDevice->ResizeRenderTargets( windowDimensions );
-        m_pCameraSystem->SetViewDimensions( windowDimensions );
-        m_renderingSystem.Initialize( m_pRendererRegistry );
-
-        m_pEntityWorld->RegisterWorldSystem( m_pCameraSystem );
+        m_renderingSystem.Initialize( m_pRenderViewportSystem, m_pRendererRegistry );
         m_pEntityWorld->Initialize( *m_pSystemRegistry );
+
+        // HACK
+        m_pRenderViewportSystem->ResizePrimaryViewport( Math::Rectangle( Float2::Zero, Float2( windowDimensions ) ) );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        InitializeDevelopmentUI();
+        #endif
 
         // Load startup map
         //-------------------------------------------------------------------------
@@ -244,6 +253,10 @@ namespace KRG
 
         if ( m_initialized )
         {
+            #if KRG_DEVELOPMENT_TOOLS
+            ShutdownDevelopmentUI();
+            #endif
+
             // Wait for resource/object systems to complete all resource unloading
             m_pEntityWorld->Shutdown();
 
@@ -252,7 +265,6 @@ namespace KRG
                 m_pResourceSystem->Update();
             }
 
-            m_pEntityWorld->UnregisterWorldSystem( m_pCameraSystem );
             m_renderingSystem.Shutdown();
             m_initialized = false;
         }
@@ -297,11 +309,21 @@ namespace KRG
 
         m_module_engine_core.Shutdown( m_moduleContext );
 
+        m_pTaskSystem = nullptr;
+        m_pTypeRegistry = nullptr;
+        m_pSystemRegistry = nullptr;
+        m_pInputSystem = nullptr;
+        m_pResourceSystem = nullptr;
+        m_pRenderDevice = nullptr;
+        m_pRendererRegistry = nullptr;
+        m_pImguiSystem = nullptr;
+        m_pRenderViewportSystem = nullptr;
+        m_pEntityWorld = nullptr;
+
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
         m_moduleContext.m_pDebugUI = nullptr;
-        ShutdownDevelopmentUI();
         #endif
 
         return true;
@@ -313,7 +335,7 @@ namespace KRG
     {
         KRG_ASSERT( m_initialized );
         m_pRenderDevice->ResizeRenderTargets( windowDimensions );
-        m_pCameraSystem->SetViewDimensions( windowDimensions );
+        m_pRenderViewportSystem->ResizePrimaryViewport( Math::Rectangle( Float2(0, 0), Float2( windowDimensions ) ) );
     }
 
     bool Engine::Update()
@@ -357,7 +379,7 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
-                m_pDevelopmentUI->Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_pDevelopmentUI->Update( m_updateContext, *m_pRenderViewportSystem );
                 #endif
 
                 m_pEntityWorld->Update( m_updateContext );
@@ -372,8 +394,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 m_pEntityWorld->Update( m_updateContext );
-                m_pCameraSystem->Update(); // Camera entities should have been updated as part of the pre-physics step, so update the viewports
-                m_renderingSystem.Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_renderingSystem.Update( m_updateContext );
             }
 
             // Physics
@@ -386,7 +407,7 @@ namespace KRG
 
                 m_pPhysicsSystem->Update( m_updateContext );
                 m_pEntityWorld->Update( m_updateContext );
-                m_renderingSystem.Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_renderingSystem.Update( m_updateContext );
             }
 
             // Post-Physics
@@ -399,7 +420,7 @@ namespace KRG
                 
                 m_pNavmeshSystem->Update( m_updateContext );
                 m_pEntityWorld->Update( m_updateContext );
-                m_renderingSystem.Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_renderingSystem.Update( m_updateContext );
             }
 
             // Frame End
@@ -413,11 +434,11 @@ namespace KRG
                 m_pEntityWorld->Update( m_updateContext );
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDevelopmentUI->Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_pDevelopmentUI->Update( m_updateContext, *m_pRenderViewportSystem );
                 m_pImguiSystem->EndFrame();
                 #endif
 
-                m_renderingSystem.Update( m_updateContext, m_pCameraSystem->GetActiveViewports() );
+                m_renderingSystem.Update( m_updateContext );
                 m_pInputSystem->ClearFrameState();
                 m_pRenderDevice->PresentFrame();
             }

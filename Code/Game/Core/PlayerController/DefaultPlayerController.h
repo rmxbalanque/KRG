@@ -7,7 +7,7 @@
 namespace KRG
 {
     class SpatialEntityComponent;
-    class CameraComponent;
+    namespace Camera { class CameraComponent; }
 
     //-------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ namespace KRG
     private:
 
         SpatialEntityComponent*     m_pRootComponent = nullptr;
-        CameraComponent*            m_pCameraComponent = nullptr;
+        Camera::CameraComponent*    m_pCameraComponent = nullptr;
         float                       m_currentMoveSpeed = 0;
     };
 }

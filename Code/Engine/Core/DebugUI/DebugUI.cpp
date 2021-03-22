@@ -3,6 +3,7 @@
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
+#include "System/Render/RenderViewportSystem.h"
 #include "System/Core/Math/Viewport.h"
 
 #if KRG_DEVELOPMENT_TOOLS
@@ -294,9 +295,9 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUI::Update( UpdateContext const& context, TInlineVector<Math::Viewport, 2> const& activeViewports )
+    void DebugUI::Update( UpdateContext const& context, Render::ViewportSystem& viewportSystem )
     {
-        if ( activeViewports.empty() )
+        if ( !viewportSystem.HasActiveViewports() )
         {
             return;
         }
@@ -337,7 +338,7 @@ namespace KRG::Debug
                 {
                     DrawOverlayMenu( context );
                     DrawOverlayStatusBar( context );
-                    DrawOrientationGuide( context, activeViewports.front() );
+                    DrawOrientationGuide( context, viewportSystem.GetActiveViewports().front() );
                 }
 
                 // The debug windows should be always be drawn if enabled

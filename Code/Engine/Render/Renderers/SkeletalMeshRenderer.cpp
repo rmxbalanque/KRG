@@ -269,7 +269,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto renderContext = m_pRenderDevice->GetImmediateContext();
+            auto const& renderContext = m_pRenderDevice->GetImmediateContext();
 
             // Set primary render state and clear the render buffer
             renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
