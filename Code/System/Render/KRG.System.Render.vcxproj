@@ -35,7 +35,7 @@
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="RenderVertexFormats.h" />
-    <ClInclude Include="RenderViewportSystem.h" />
+    <ClInclude Include="RenderViewportManager.h" />
     <ClInclude Include="ThirdParty\stb\stb_image.h" />
     <ClInclude Include="ThirdParty\stb\stb_rect_pack.h" />
     <ClInclude Include="ThirdParty\stb\stb_textedit.h" />
@@ -67,7 +67,7 @@
     <ClCompile Include="RenderShader.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="RenderVertexFormats.cpp" />
-    <ClCompile Include="RenderViewportSystem.cpp" />
+    <ClCompile Include="RenderViewportManager.cpp" />
     <ClCompile Include="ThirdParty\stb\krg_stb.cpp" />
   </ItemGroup>
   <ItemGroup>

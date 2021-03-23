@@ -11,7 +11,7 @@
 #include "System/Imgui/ImguiX.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
 #include "System/Render/Renderers/RendererRegistry.h"
-#include "System/Render/RenderViewportSystem.h"
+#include "System/Render/RenderViewportManager.h"
 #include "System/Entity/ResourceLoaders/EntityMapLoader.h"
 #include "System/Entity/EntityWorld.h"
 #include "System/Input/InputSystem.h"
@@ -48,7 +48,7 @@ namespace KRG
 
             inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
             inline Render::RendererRegistry* GetRendererRegistry() { return &m_rendererRegistry; }
-            inline Render::ViewportSystem* GetRenderViewportSystem() { return &m_viewportSystem; }
+            inline Render::ViewportManager* GetViewportManager() { return &m_viewportManager; }
             inline ImGuiX::ImguiSystem* GetImguiSystem() { return &m_imguiSystem; }
 
             inline EntityWorld* GetEntityWorld() { return &m_entityWorld; }
@@ -72,7 +72,7 @@ namespace KRG
             // Rendering
             Render::RenderDevice*                           m_pRenderDevice = nullptr;
             Render::RendererRegistry                        m_rendererRegistry;
-            Render::ViewportSystem                          m_viewportSystem;
+            Render::ViewportManager                         m_viewportManager;
             
             // ImGui
             ImGuiX::ImguiSystem                             m_imguiSystem;

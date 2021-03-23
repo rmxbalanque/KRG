@@ -10,7 +10,7 @@ namespace KRG
 {
     class SettingsRegistry;
     class UpdateContext;
-    namespace Render { class ViewportSystem; }
+    namespace Render { class ViewportManager; }
 }
 
 //-------------------------------------------------------------------------
@@ -28,7 +28,7 @@ namespace KRG::ImGuiX
 
         virtual void Initialize( SettingsRegistry const& settingsRegistry ) = 0;
         virtual void Shutdown() = 0;
-        virtual void Update( UpdateContext const& context, Render::ViewportSystem& viewportSystem ) = 0;
+        virtual void Update( UpdateContext const& context, Render::ViewportManager& viewportSystem ) = 0;
     };
 }
 #endif

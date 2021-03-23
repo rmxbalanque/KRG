@@ -2,7 +2,7 @@
 
 #include "System/Core/Update/UpdateStage.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/Render/RenderViewportSystem.h"
+#include "System/Render/RenderViewportManager.h"
 #include "System/Imgui/ThirdParty/imgui/imgui_internal.h"
 
 //-------------------------------------------------------------------------
@@ -19,15 +19,8 @@ namespace KRG
 
     }
 
-    void EditorUI::Update( UpdateContext const& context, Render::ViewportSystem& viewportSystem )
+    void EditorUI::Update( UpdateContext const& context, Render::ViewportManager& viewportSystem )
     {
-        if ( !viewportSystem.HasActiveViewports() )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
         UpdateStage const updateStage = context.GetUpdateStage();
 
         switch ( updateStage )

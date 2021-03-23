@@ -1,7 +1,7 @@
 #include "CameraWorldSystem.h"
 #include "Components/CameraComponent.h"
 #include "System/Entity/Entity.h"
-#include "System/Render/RenderViewportSystem.h"
+#include "System/Render/RenderViewportManager.h"
 #include "System/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
@@ -52,20 +52,19 @@ namespace KRG::Camera
 
     void CameraWorldSystem::UpdateEntitySystem( UpdateContext const& ctx )
     {
-        auto pViewportSystem = ctx.GetSystem<Render::ViewportSystem>();
-        if ( pViewportSystem == nullptr || !pViewportSystem->HasActiveViewports() )
+        if ( !HasActiveCameras() )
         {
             return;
         }
 
+        auto pViewportManager = ctx.GetSystem<Render::ViewportManager>();
+        KRG_ASSERT( pViewportManager != nullptr );
+
         //-------------------------------------------------------------------------
 
-        Math::Viewport& primaryViewport = pViewportSystem->GetActiveViewports()[0];
-
-        for ( auto& registeredCamera : m_cameras )
-        {
-            Math::ViewVolume const& cameraViewVolume = registeredCamera.m_pComponent->CalculateViewVolume( primaryViewport.GetSize() );
-            primaryViewport.SetViewVolume( cameraViewVolume );
-        }
+        // For now we only support one camera and one viewport
+        Math::Viewport& primaryViewport = pViewportManager->GetActiveViewports()[0];
+        Math::ViewVolume const& cameraViewVolume = m_cameras[0].m_pComponent->CalculateViewVolume( primaryViewport.GetSize() );
+        primaryViewport.SetViewVolume( cameraViewVolume );
     }
 }

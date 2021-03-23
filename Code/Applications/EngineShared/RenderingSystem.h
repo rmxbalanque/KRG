@@ -17,7 +17,8 @@ namespace KRG
 
     namespace Render
     {
-        class ViewportSystem;
+        class RenderDevice;
+        class ViewportManager;
         class SkeletalMeshRenderer;
         class StaticMeshRenderer;
 
@@ -28,14 +29,16 @@ namespace KRG
 
         public:
 
-            void Initialize( ViewportSystem* pViewportSystem, RendererRegistry* pRegistry );
+            void Initialize( RenderDevice* pRenderDevice, ViewportManager* pViewportManager, RendererRegistry* pRegistry );
             void Shutdown();
 
             void Update( UpdateContext const& ctx );
 
         private:
 
-            ViewportSystem*                                 m_pViewportSystem = nullptr;
+            RenderDevice*                                   m_pRenderDevice = nullptr;
+
+            ViewportManager*                                m_pViewportManager = nullptr;
             StaticMeshRenderer*                             m_pStaticMeshRenderer = nullptr;
             SkeletalMeshRenderer*                           m_pSkeletalMeshRenderer = nullptr;
             TVector<IRenderer*>                             m_customRenderers;

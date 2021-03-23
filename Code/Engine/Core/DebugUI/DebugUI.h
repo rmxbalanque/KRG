@@ -70,7 +70,7 @@ namespace KRG
 
             virtual void Initialize( SettingsRegistry const& settingsRegistry ) override final;
             virtual void Shutdown() override final;
-            virtual void Update( UpdateContext const& context, Render::ViewportSystem& viewportSystem ) override final;
+            virtual void Update( UpdateContext const& context, Render::ViewportManager& viewportSystem ) override final;
 
             void RegisterDebugView( DebugView* pDebugView );
             void UnregisterDebugView( DebugView* pDebugView );

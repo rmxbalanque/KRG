@@ -2,6 +2,7 @@
 
 #include "../_Module/API.h"
 #include "ViewVolume.h"
+#include "Rectangle.h"
 
 //-------------------------------------------------------------------------
 
@@ -28,7 +29,8 @@ namespace KRG
 
             inline bool IsValid() const { return ( m_size.m_x > 0 && m_size.m_y > 0 ) && ( m_topLeftPosition.m_x >= 0 && m_topLeftPosition.m_y >= 0 ); }
 
-            void Resize( Int2 const& dimensions, Int2 const& topLeftPosition = Int2::Zero );
+            void Resize( Int2 const& topLeftPosition, Int2 const& dimensions );
+            void Resize( Math::Rectangle const& rect );
 
             // Get the viewport position and dimensions - All in screen space
             //-------------------------------------------------------------------------

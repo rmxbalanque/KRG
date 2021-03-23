@@ -147,7 +147,7 @@ namespace KRG
                 KRG::uint32 height = HIWORD( lParam );
                 if ( width > 0 && height > 0 )
                 {
-                    m_engine.OnWindowResize( Int2( width, height ) );
+                    m_engine.UpdateMainWindowSize( Int2( width, height ) );
                 }
             }
             break;

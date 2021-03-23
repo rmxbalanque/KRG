@@ -34,9 +34,9 @@ namespace KRG
         bool Shutdown();
         bool Update();
 
-        virtual void OnWindowResize( Int2 const& windowDimensions );
-
     protected:
+
+        void UpdateMainWindowSize( Int2 const& windowDimensions );
 
         bool InitializeModules();
         void LoadModuleResources( Resource::ResourceSystem& resourceSystem );
@@ -81,7 +81,7 @@ namespace KRG
         TypeSystem::TypeRegistry*                       m_pTypeRegistry = nullptr;
         Resource::ResourceSystem*                       m_pResourceSystem = nullptr;
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
-        Render::ViewportSystem*                         m_pRenderViewportSystem = nullptr;
+        Render::ViewportManager*                        m_pViewportManager = nullptr;
         Render::RendererRegistry*                       m_pRendererRegistry = nullptr;
         Render::RenderingSystem                         m_renderingSystem;
         EntityWorld*                                    m_pEntityWorld = nullptr;

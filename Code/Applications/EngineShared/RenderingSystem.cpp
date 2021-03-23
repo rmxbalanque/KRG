@@ -2,7 +2,8 @@
 #include "Engine/Render/Renderers/StaticMeshRenderer.h"
 #include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
 #include "System/Imgui/Renderer/ImguiRenderer.h"
-#include "System/Render/RenderViewportSystem.h"
+#include "System/Render/RenderViewportManager.h"
+#include "System/Render/RenderDevice/RenderDevice.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Math/ViewVolume.h"
@@ -13,11 +14,13 @@ namespace KRG
 {
     namespace Render
     {
-        void RenderingSystem::Initialize( ViewportSystem* pViewportSystem, RendererRegistry* pRegistry )
+        void RenderingSystem::Initialize( RenderDevice* pRenderDevice, ViewportManager* pViewportManager, RendererRegistry* pRegistry )
         {
-            KRG_ASSERT( pViewportSystem != nullptr && pRegistry != nullptr );
+            KRG_ASSERT( m_pRenderDevice == nullptr && m_pViewportManager == nullptr );
+            KRG_ASSERT( pRenderDevice != nullptr && pViewportManager != nullptr && pRegistry != nullptr );
 
-            m_pViewportSystem = pViewportSystem;
+            m_pRenderDevice = pRenderDevice;
+            m_pViewportManager = pViewportManager;
 
             //-------------------------------------------------------------------------
 
@@ -75,16 +78,13 @@ namespace KRG
             m_pImguiRenderer = nullptr;
             #endif
 
-            m_pViewportSystem = nullptr;
+            m_pViewportManager = nullptr;
+            m_pRenderDevice = nullptr;
         }
 
         void RenderingSystem::Update( UpdateContext const& ctx )
         {
-            KRG_ASSERT( m_pViewportSystem != nullptr );
-            if ( !m_pViewportSystem->HasActiveViewports() )
-            {
-                return;
-            }
+            KRG_ASSERT( m_pRenderDevice != nullptr && m_pViewportManager != nullptr );
 
             //-------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ namespace KRG
                 {
                     KRG_PROFILE_SCOPE_RENDER( "Rendering Pre-Physics" );
 
-                    for ( auto const& viewport : m_pViewportSystem->GetActiveViewports() )
+                    for ( auto const& viewport : m_pViewportManager->GetActiveViewports() )
                     {
                         if ( m_pStaticMeshRenderer != nullptr )
                         {
@@ -116,7 +116,7 @@ namespace KRG
                     // Render into active viewports
                     //-------------------------------------------------------------------------
 
-                    for ( auto const& viewport : m_pViewportSystem->GetActiveViewports() )
+                    for ( auto const& viewport : m_pViewportManager->GetActiveViewports() )
                     {
                         if ( m_pStaticMeshRenderer != nullptr )
                         {
@@ -140,10 +140,15 @@ namespace KRG
                     #if KRG_DEVELOPMENT_TOOLS
                     if ( m_pImguiRenderer != nullptr )
                     {
-                        auto const& devToolsViewport = m_pViewportSystem->GetDevelopmentToolsViewport();
+                        auto const& devToolsViewport = m_pViewportManager->GetDevelopmentToolsViewport();
                         m_pImguiRenderer->Render( devToolsViewport );
                     }
                     #endif
+
+                    // Present frame
+                    //-------------------------------------------------------------------------
+
+                    m_pRenderDevice->PresentFrame();
                 }
                 break;
             }

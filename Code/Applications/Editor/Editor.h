@@ -17,8 +17,6 @@ namespace KRG
 
     private:
 
-        virtual void OnWindowResize( Int2 const& windowDimensions ) override final;
-
         #if KRG_DEVELOPMENT_TOOLS
         virtual void InitializeDevelopmentUI() override final;
         virtual void ShutdownDevelopmentUI() override final;

@@ -3,7 +3,7 @@
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
-#include "System/Render/RenderViewportSystem.h"
+#include "System/Render/RenderViewportManager.h"
 #include "System/Core/Math/Viewport.h"
 
 #if KRG_DEVELOPMENT_TOOLS
@@ -295,15 +295,8 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugUI::Update( UpdateContext const& context, Render::ViewportSystem& viewportSystem )
+    void DebugUI::Update( UpdateContext const& context, Render::ViewportManager& viewportSystem )
     {
-        if ( !viewportSystem.HasActiveViewports() )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
         UpdateStage const updateStage = context.GetUpdateStage();
 
         switch ( updateStage )

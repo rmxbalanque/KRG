@@ -18,10 +18,17 @@ namespace KRG
             KRG_ASSERT( IsValid() );
         }
 
-        void Viewport::Resize( Int2 const& dimensions, Int2 const& topLeftPosition )
+        void Viewport::Resize( Int2 const& topLeftPosition, Int2 const& dimensions )
         {
             m_size = Float2( dimensions );
             m_topLeftPosition = Float2( topLeftPosition );
+            KRG_ASSERT( IsValid() );
+        }
+
+        void Viewport::Resize( Math::Rectangle const& rect )
+        {
+            m_size = rect.GetSize();
+            m_topLeftPosition = rect.GetTopLeft();
             KRG_ASSERT( IsValid() );
         }
 

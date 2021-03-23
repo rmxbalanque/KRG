@@ -3,6 +3,10 @@
   "Id": "d6bdd49c-ef46-4637-844a-4ffdd6a25dc5",
   "Items": [
     {
+      "Id": "0b30f2c0-5f74-425d-bb35-b1fa69fa072a",
+      "Command": "-map data://maps/br_full.map"
+    },
+    {
       "Id": "bd305b50-aeae-4223-9cae-09a6653029cd",
       "Command": "-map data://maps/physicstestmap.map"
     }
