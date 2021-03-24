@@ -142,14 +142,14 @@ namespace KRG
         template<typename... Args>
         inline void SetMultipleFlags( Args&&... args )
         {
-            ( ( m_flags |= 1u << (uint8) std::forward<Args>( args ) ), ... );
+            ( ( m_flags |= 1u << (uint8) args ), ... );
         }
 
         template<typename... Args>
         inline bool AreAnyFlagsSet( Args&&... args ) const
         {
             uint32 mask = 0;
-            ( ( mask |= 1u << (uint8) std::forward<Args>( args ) ), ... );
+            ( ( mask |= 1u << (uint8) args ), ... );
             return ( m_flags & mask ) != 0;
         }
 

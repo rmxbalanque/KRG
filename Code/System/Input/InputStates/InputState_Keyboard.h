@@ -163,9 +163,14 @@ namespace KRG
             KRG_FORCE_INLINE void Press( KeyboardButton buttonID ) { ButtonStates::Press( (uint32) buttonID ); }
             KRG_FORCE_INLINE void Release( KeyboardButton buttonID ) { ButtonStates::Release( (uint32) buttonID ); }
 
-            inline void ResetFrameState()
+            inline void ResetFrameState( ResetType resetType )
             {
                 m_charKeyPressed = 0;
+
+                if ( resetType == ResetType::Full )
+                {
+                    ClearButtonState();
+                }
             }
 
         private:

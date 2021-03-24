@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "Engine/Core/DebugUI/DebugUI.h"
+#include "Engine/Core/DebugTools/DebugTools.h"
 
 //-------------------------------------------------------------------------
 

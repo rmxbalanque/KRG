@@ -12,10 +12,10 @@ namespace KRG
             m_keyboardState.Update();
         }
 
-        void KeyboardMouseInputDevice::ClearFrameState()
+        void KeyboardMouseInputDevice::ClearFrameState( ResetType resetType )
         {
-            m_mouseState.ResetFrameState();
-            m_keyboardState.ResetFrameState();
+            m_mouseState.ResetFrameState( resetType);
+            m_keyboardState.ResetFrameState( resetType );
         }
     }
 }

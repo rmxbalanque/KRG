@@ -28,6 +28,10 @@ namespace KRG
             void ClearFrameState();
             void ForwardInputMessageToInputDevices( GenericMessage const& inputMessage );
 
+            #if KRG_DEVELOPMENT_TOOLS
+            void SetEnabled( bool enabled );
+            #endif
+
             // Keyboard & Mouse
             //-------------------------------------------------------------------------
 
@@ -67,6 +71,10 @@ namespace KRG
         private:
 
             TVector<InputDevice*>   m_inputDevices;
+
+            #if KRG_DEVELOPMENT_TOOLS
+            bool                    m_disableInput = false;
+            #endif
         };
     }
 }

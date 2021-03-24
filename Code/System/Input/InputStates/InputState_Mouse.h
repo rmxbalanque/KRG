@@ -52,18 +52,23 @@ namespace KRG
             KRG_FORCE_INLINE void Press( MouseButton buttonID ) { ButtonStates::Press( (uint32) buttonID ); }
             KRG_FORCE_INLINE void Release( MouseButton buttonID ) { ButtonStates::Release( (uint32) buttonID ); }
 
-            inline void ResetFrameState()
+            inline void ResetFrameState( ResetType resetType )
             {
                 m_movementDelta = Int2::Zero;
                 m_verticalWheelDelta = m_horizontalWheelDelta = 0;
+
+                if ( resetType == ResetType::Full )
+                {
+                    ClearButtonState();
+                }
             }
 
         private:
 
             Int2                                    m_movementDelta;
             Int2                                    m_position;
-            int16                                     m_verticalWheelDelta = 0;
-            int16                                     m_horizontalWheelDelta = 0;
+            int16                                   m_verticalWheelDelta = 0;
+            int16                                   m_horizontalWheelDelta = 0;
         };
     }
 }

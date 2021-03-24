@@ -1,6 +1,6 @@
 #include "ResourceDebugViewController.h"
 #include "System/Resource/ResourceSystem.h"
-#include "System/Imgui/ImguiX.h"
+#include "System/DevTools/ImguiX.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------

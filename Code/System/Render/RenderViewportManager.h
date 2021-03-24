@@ -37,6 +37,7 @@ namespace KRG::Render
         // Engine Viewports
         //-------------------------------------------------------------------------
 
+        inline Math::Viewport const& GetPrimaryViewport() const { return m_viewports[0]; }
         void ResizePrimaryViewport( Math::Rectangle const& viewportDimensions );
 
         inline TInlineVector<Math::Viewport, 2>& GetActiveViewports() { return m_viewports; }

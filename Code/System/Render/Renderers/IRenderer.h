@@ -14,16 +14,13 @@ namespace KRG
 
     namespace Render
     {
-
-        //-------------------------------------------------------------------------
-
         // This is a basic set of priority values to help order any registered renderers
         enum RendererPriorityLevel
         {
             Game = 0, 
             GameUI = 100,
             Debug = 200,
-            DebugUI = 300
+            DevelopmentTools = 300
         };
 
         //-------------------------------------------------------------------------

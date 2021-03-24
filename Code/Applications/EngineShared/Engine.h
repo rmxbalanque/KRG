@@ -45,8 +45,8 @@ namespace KRG
         void ShutdownModules();
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void InitializeDevelopmentUI();
-        virtual void ShutdownDevelopmentUI();
+        virtual void InitializeDevelopmentTools();
+        virtual void ShutdownDevelopmentTools();
         #endif
 
     protected:
@@ -91,8 +91,8 @@ namespace KRG
         Physics::PhysicsSystem*                         m_pPhysicsSystem = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DebugUI                                  m_debugUI;
-        ImGuiX::DevelopmentUI*                          m_pDevelopmentUI = nullptr;
+        Debug::DebugTools                                  m_debugTools;
+        ImGuiX::DevelopmentTools*                          m_pDevelopmentTools = nullptr;
         Debug::DrawingSystem*                           m_pDebugDrawingSystem = nullptr;
         #endif
 

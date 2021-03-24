@@ -60,8 +60,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DebugUI\DebugView.h" />
-    <ClInclude Include="DebugUI\DebugUI.h" />
+    <ClInclude Include="DebugTools\DebugView.h" />
+    <ClInclude Include="DebugTools\DebugTools.h" />
     <ClInclude Include="DebugViews\EntityDebugViewController.h" />
     <ClInclude Include="DebugViews\InputDebugViewController.h" />
     <ClInclude Include="DebugViews\SystemDebugViewController.h" />
@@ -72,7 +72,7 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DebugUI\DebugUI.cpp" />
+    <ClCompile Include="DebugTools\DebugTools.cpp" />
     <ClCompile Include="DebugViews\EntityDebugViewController.cpp" />
     <ClCompile Include="DebugViews\InputDebugViewController.cpp" />
     <ClCompile Include="DebugViews\SystemDebugViewController.cpp" />
@@ -85,11 +85,11 @@
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\System\DevTools\KRG.System.DevTools.vcxproj">
+      <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
       <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\Imgui\KRG.System.Imgui.vcxproj">
-      <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Input\KRG.System.Input.vcxproj">
       <Project>{42511c8d-2df8-4bf2-a87e-80707563573d}</Project>

@@ -27,6 +27,12 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        enum class ResetType
+        {
+            Partial,    // Regular frame to frame reset
+            Full        // Special full reset of all input state
+        };
+
         class InputDevice
         {
 
@@ -45,7 +51,7 @@ namespace KRG
             virtual void UpdateState() = 0;
 
             // Called at the end of the frame to reset any tracked device state
-            virtual void ClearFrameState() {};
+            virtual void ClearFrameState( ResetType resetType = ResetType::Partial ) {};
         };
     }
 }

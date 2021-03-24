@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Applications/EngineShared/Engine.h"
-#include "EditorUI.h"
+#include "EditorTools.h"
 
 //-------------------------------------------------------------------------
 
@@ -18,12 +18,12 @@ namespace KRG
     private:
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void InitializeDevelopmentUI() override final;
-        virtual void ShutdownDevelopmentUI() override final;
+        virtual void InitializeDevelopmentTools() override final;
+        virtual void ShutdownDevelopmentTools() override final;
         #endif
 
     private:
 
-        EditorUI    m_editorUI;
+        EditorTools    m_editorTools;
     };
 }

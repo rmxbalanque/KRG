@@ -28,7 +28,7 @@ namespace KRG
             virtual void Shutdown() override final;
 
             virtual void UpdateState() override final;
-            virtual void ClearFrameState() override final;
+            virtual void ClearFrameState( ResetType resetType = ResetType::Partial ) override final;
             virtual void ProcessMessage( GenericMessage const& message ) override final;
 
         private:

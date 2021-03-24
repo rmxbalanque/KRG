@@ -27,10 +27,10 @@ namespace KRG::Physics
     //-------------------------------------------------------------------------
 
     template<typename... Args>
-    inline uint32 CreateLayerMask( Args&&... args )
+    constexpr uint32 CreateLayerMask( Args&&... args )
     {
         uint32 layerMask = 0;
-        ( ( layerMask |= 1u << (uint8) std::forward<Args>( args ) ), ... );
+        ( ( layerMask |= 1u << (uint8) args ), ... );
         return layerMask;
     }
 }

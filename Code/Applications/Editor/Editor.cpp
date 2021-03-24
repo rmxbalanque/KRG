@@ -5,15 +5,15 @@
 namespace KRG
 {
     #if KRG_DEVELOPMENT_TOOLS
-    void Editor::InitializeDevelopmentUI()
+    void Editor::InitializeDevelopmentTools()
     {
-        m_editorUI.Initialize( m_settingsRegistry );
-        m_pDevelopmentUI = &m_editorUI;
+        m_editorTools.Initialize( m_settingsRegistry );
+        m_pDevelopmentTools = &m_editorTools;
     }
 
-    void Editor::ShutdownDevelopmentUI()
+    void Editor::ShutdownDevelopmentTools()
     {
-        m_editorUI.Shutdown();
+        m_editorTools.Shutdown();
     }
     #endif
 }

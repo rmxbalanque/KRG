@@ -122,15 +122,15 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void Engine::InitializeDevelopmentUI()
+    void Engine::InitializeDevelopmentTools()
     {
-        m_debugUI.Initialize( m_settingsRegistry );
-        m_pDevelopmentUI = &m_debugUI;
+        m_debugTools.Initialize( m_settingsRegistry );
+        m_pDevelopmentTools = &m_debugTools;
     }
 
-    void Engine::ShutdownDevelopmentUI()
+    void Engine::ShutdownDevelopmentTools()
     {
-        m_debugUI.Shutdown();
+        m_debugTools.Shutdown();
     }
     #endif
 
@@ -143,7 +143,7 @@ namespace KRG
         m_moduleContext.m_applicationName = applicationName;
 
         #if KRG_DEVELOPMENT_TOOLS
-        m_moduleContext.m_pDebugUI = &m_debugUI;
+        m_moduleContext.m_pDebugUI = &m_debugTools;
         #endif
 
         //-------------------------------------------------------------------------
@@ -229,7 +229,7 @@ namespace KRG
         m_pViewportManager->UpdateMainWindowSize( Float2( windowDimensions ) );
 
         #if KRG_DEVELOPMENT_TOOLS
-        InitializeDevelopmentUI();
+        InitializeDevelopmentTools();
         #endif
 
         // Load startup map
@@ -257,7 +257,7 @@ namespace KRG
         if ( m_initialized )
         {
             #if KRG_DEVELOPMENT_TOOLS
-            ShutdownDevelopmentUI();
+            ShutdownDevelopmentTools();
             #endif
 
             // Wait for resource/object systems to complete all resource unloading
@@ -385,7 +385,7 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
-                m_pDevelopmentUI->Update( m_updateContext, *m_pViewportManager );
+                m_pDevelopmentTools->Update( m_updateContext, *m_pViewportManager );
                 #endif
 
                 m_pEntityWorld->Update( m_updateContext );
@@ -440,7 +440,7 @@ namespace KRG
                 m_pEntityWorld->Update( m_updateContext );
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDevelopmentUI->Update( m_updateContext, *m_pViewportManager );
+                m_pDevelopmentTools->Update( m_updateContext, *m_pViewportManager );
                 m_pImguiSystem->EndFrame();
                 #endif
 

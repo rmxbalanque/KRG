@@ -41,6 +41,15 @@ namespace KRG
 
         void InputSystem::Update()
         {
+            #if KRG_DEVELOPMENT_TOOLS
+            if ( m_disableInput )
+            {
+                return;
+            }
+            #endif
+
+            //-------------------------------------------------------------------------
+
             for ( auto pInputDevice : m_inputDevices )
             {
                 pInputDevice->UpdateState();
@@ -57,11 +66,35 @@ namespace KRG
 
         void InputSystem::ForwardInputMessageToInputDevices( GenericMessage const& inputMessage )
         {
+            #if KRG_DEVELOPMENT_TOOLS
+            if ( m_disableInput )
+            {
+                return;
+            }
+            #endif
+
+            //-------------------------------------------------------------------------
+
             for ( auto pInputDevice : m_inputDevices )
             {
                 pInputDevice->ProcessMessage( inputMessage );
             }
         }
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void InputSystem::SetEnabled( bool enabled )
+        {
+            m_disableInput = !enabled;
+
+            if ( m_disableInput )
+            {
+                for ( auto pInputDevice : m_inputDevices )
+                {
+                    pInputDevice->ClearFrameState( ResetType::Full );
+                }
+            }
+        }
+        #endif
 
         //-------------------------------------------------------------------------
 

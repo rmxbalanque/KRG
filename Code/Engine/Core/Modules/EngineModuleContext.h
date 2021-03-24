@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
-#include "Engine/Core/DebugUI/DebugUI.h"
+#include "Engine/Core/DebugTools/DebugTools.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
@@ -83,8 +83,8 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        inline Debug::DebugUI* GetDebugUI() { return m_pDebugUI; }
-        inline Debug::DebugUI const* GetDebugUI() const { return m_pDebugUI; }
+        inline Debug::DebugTools* GetDebugUI() { return m_pDebugUI; }
+        inline Debug::DebugTools const* GetDebugUI() const { return m_pDebugUI; }
         inline void RegisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUI->RegisterDebugView( pDebugView ); }
         inline void UnregisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUI->UnregisterDebugView( pDebugView ); }
         #endif
@@ -102,7 +102,7 @@ namespace KRG
         Render::RendererRegistry*           m_pRendererRegistry = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DebugUI*                     m_pDebugUI = nullptr;
+        Debug::DebugTools*                     m_pDebugUI = nullptr;
         #endif
     };
 }

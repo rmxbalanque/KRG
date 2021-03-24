@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/DebugUI/DebugView.h"
+#include "Engine/Core/DebugTools/DebugView.h"
 
 //-------------------------------------------------------------------------
 
