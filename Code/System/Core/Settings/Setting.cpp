@@ -5,8 +5,8 @@
 
 namespace KRG
 {
-    Setting* Setting::Head = nullptr;
-    Setting* Setting::Tail = nullptr;
+    Setting* Setting::s_pHead = nullptr;
+    Setting* Setting::s_pTail = nullptr;
 
     //-------------------------------------------------------------------------
 
@@ -47,15 +47,15 @@ namespace KRG
         m_nameHash = Hash::GetHash32( fullNameBuffer );
 
         // Add to global list
-        if ( Head != nullptr )
+        if ( s_pHead != nullptr )
         {
-            Tail->m_pNext = this;
-            Tail = this;
+            s_pTail->m_pNext = this;
+            s_pTail = this;
         }
         else
         {
-            Head = this;
-            Tail = this;
+            s_pHead = this;
+            s_pTail = this;
         }
     }
 
@@ -65,19 +65,19 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // If we are the head of the list, just change the head to our next sibling
-        if ( Head == this )
+        if ( s_pHead == this )
         {
-            Head = m_pNext;
+            s_pHead = m_pNext;
 
             // If we are also the tail, then empty the list
-            if ( Tail == this )
+            if ( s_pTail == this )
             {
-                Tail = nullptr;
+                s_pTail = nullptr;
             }
         }
         else // Find our previous sibling
         {
-            auto pPrevious = Head;
+            auto pPrevious = s_pHead;
             while ( pPrevious != nullptr )
             {
                 if ( pPrevious->m_pNext == this )
@@ -94,9 +94,9 @@ namespace KRG
             pPrevious->m_pNext = m_pNext;
 
             // Update the tail of the list if needed
-            if ( Tail == this )
+            if ( s_pTail == this )
             {
-                Tail = pPrevious;
+                s_pTail = pPrevious;
             }
         }
     }

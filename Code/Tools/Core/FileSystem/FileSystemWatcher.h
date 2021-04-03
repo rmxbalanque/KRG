@@ -12,75 +12,72 @@
 //-------------------------------------------------------------------------
 
 #if _WIN32
-namespace KRG
+namespace KRG::FileSystem
 {
-    namespace FileSystem
+    class KRG_TOOLS_CORE_API IFileSystemChangeListener
     {
-        class IFileSystemChangeListener
+    public:
+
+        virtual void OnFileCreated( FileSystem::Path const& path ) {};
+        virtual void OnFileDeleted( FileSystem::Path const& path ) {};
+        virtual void OnFileRenamed( FileSystem::Path const& oldPath, FileSystem::Path const& newPath ) {};
+
+        virtual void OnFileModified( FileSystem::Path const& path ) {};
+
+        virtual void OnDirectoryCreated( FileSystem::Path const& path ) {};
+        virtual void OnDirectoryDeleted( FileSystem::Path const& path ) {};
+        virtual void OnDirectoryRenamed( FileSystem::Path const& oldPath, FileSystem::Path const& newPath ) {};
+    };
+
+    //-------------------------------------------------------------------------
+
+    class KRG_TOOLS_CORE_API FileSystemWatcher
+    {
+        static constexpr uint32 const ResultBufferSize = 16384; // 1000 results
+        static constexpr float const FileModificationBatchTimeout = 250; // How long to wait between the start of the first modification event and notifying the event listeners
+
+        struct FileModificationEvent
         {
-        public:
+            FileModificationEvent( FileSystem::Path const& path ) : m_path( path ) { KRG_ASSERT( path.IsValid() && path.IsFilePath() ); }
 
-            virtual void OnFileCreated( FileSystemPath const& path ) {};
-            virtual void OnFileDeleted( FileSystemPath const& path ) {};
-            virtual void OnFileRenamed( FileSystemPath const& oldPath, FileSystemPath const& newPath ) {};
-
-            virtual void OnFileModified( FileSystemPath const& path ) {};
-
-            virtual void OnDirectoryCreated( FileSystemPath const& path ) {};
-            virtual void OnDirectoryDeleted( FileSystemPath const& path ) {};
-            virtual void OnDirectoryRenamed( FileSystemPath const& oldPath, FileSystemPath const& newPath ) {};
+            FileSystem::Path      m_path;
+            Milliseconds        m_startTime = SystemClock::GetTimeInMilliseconds();
         };
 
-        //-------------------------------------------------------------------------
+    public:
 
-        class KRG_TOOLS_CORE_API FileSystemWatcher
-        {
-            static constexpr uint32 const ResultBufferSize = 16384; // 1000 results
-            static constexpr float const FileModificationBatchTimeout = 250; // How long to wait between the start of the first modification event and notifying the event listeners
+        ~FileSystemWatcher();
 
-            struct FileModificationEvent
-            {
-                FileModificationEvent( FileSystemPath const& path ) : m_path( path ) { KRG_ASSERT( path.IsValid() && path.IsFilePath() ); }
+        void RegisterChangeListener( IFileSystemChangeListener* pListener );
+        void UnregisterChangeListener( IFileSystemChangeListener* pListener );
 
-                FileSystemPath      m_path;
-                Milliseconds        m_startTime = SystemClock::GetTimeInMilliseconds();
-            };
+        bool StartWatching( FileSystem::Path const& directoryToWatch );
+        bool IsWatching() const { return m_pDirectoryHandle != nullptr; }
+        void StopWatching();
 
-        public:
+        void Update();
 
-            ~FileSystemWatcher();
+    private:
 
-            void RegisterChangeListener( IFileSystemChangeListener* pListener );
-            void UnregisterChangeListener( IFileSystemChangeListener* pListener );
+        void ProcessResults();
+        void ProcessPendingModificationEvents();
 
-            bool StartWatching( FileSystemPath const& directoryToWatch );
-            bool IsWatching() const { return m_pDirectoryHandle != nullptr; }
-            void StopWatching();
+    private:
 
-            void Update();
+        FileSystem::Path                                m_directoryToWatch;
+        void*                                           m_pDirectoryHandle = nullptr;
 
-        private:
+        // Listeners
+        TInlineVector<IFileSystemChangeListener*, 5>    m_changeListeners;
 
-            void ProcessResults();
-            void ProcessPendingModificationEvents();
+        // Request Data
+        OVERLAPPED                                      m_overlappedEvent = { 0 };
+        Byte                                            m_resultBuffer[ResultBufferSize] = { 0 };
+        DWORD                                           m_numBytesReturned = 0;
+        bool                                            m_requestPending = false;
 
-        private:
-
-            FileSystemPath                                  m_directoryToWatch;
-            void*                                           m_pDirectoryHandle = nullptr;
-
-            // Listeners
-            TInlineVector<IFileSystemChangeListener*, 5>    m_changeListeners;
-
-            // Request Data
-            OVERLAPPED                                      m_overlappedEvent = { 0 };
-            Byte                                            m_resultBuffer[ResultBufferSize] = { 0 };
-            DWORD                                           m_numBytesReturned = 0;
-            bool                                            m_requestPending = false;
-
-            // File Modification buffers
-            TVector<FileModificationEvent>                  m_pendingFileModificationEvents;
-        };
-    }
+        // File Modification buffers
+        TVector<FileModificationEvent>                  m_pendingFileModificationEvents;
+    };
 }
 #endif

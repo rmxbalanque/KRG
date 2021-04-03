@@ -38,7 +38,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, String const& nameOfMeshToCompile )
+        TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile )
         {
             KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
 
@@ -71,7 +71,7 @@ namespace KRG
             return pRawMesh;
         }
 
-        TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, int32 maxBoneInfluences )
+        TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences )
         {
             KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
 
@@ -104,7 +104,7 @@ namespace KRG
             return pRawMesh;
         }
 
-        TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, String const& skeletonRootBoneName )
+        TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName )
         {
             KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
 
@@ -137,7 +137,7 @@ namespace KRG
             return pRawSkeleton;
         }
 
-        TUniquePtr<RawAssets::RawAnimation> ReadAnimation( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName )
+        TUniquePtr<RawAssets::RawAnimation> ReadAnimation( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName )
         {
             KRG_ASSERT( ctx.IsValid() && sourceFilePath.IsValid() && rawSkeleton.IsValid() );
 

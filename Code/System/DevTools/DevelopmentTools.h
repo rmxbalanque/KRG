@@ -27,7 +27,7 @@ namespace KRG::ImGuiX
 
         virtual ~DevelopmentTools() = default;
 
-        virtual void Initialize( SettingsRegistry const& settingsRegistry ) = 0;
+        virtual void Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry ) = 0;
         virtual void Shutdown() = 0;
 
         // The development tools will be updated at the start and the end of the frame, before and after all the world updates so it will be safe to modify entity state.

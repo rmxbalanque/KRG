@@ -24,8 +24,8 @@ namespace KRG::Resource
 
     private:
 
-        FileSystemPath                                        m_sourceDataPath;
-        FileSystemPath                                        m_compiledDataPath;
+        FileSystem::Path                                        m_sourceDataPath;
+        FileSystem::Path                                        m_compiledDataPath;
         TypeSystem::TypeRegistry                              m_typeRegistry;
 
         Animation::ResourceCompilerModule                     m_animationModule;

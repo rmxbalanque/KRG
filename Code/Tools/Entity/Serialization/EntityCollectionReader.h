@@ -6,7 +6,7 @@
 
 namespace KRG
 {
-    class FileSystemPath;
+    namespace FileSystem { class Path; }
     namespace TypeSystem { class TypeRegistry; }
 
     //-------------------------------------------------------------------------
@@ -19,10 +19,9 @@ namespace KRG
 
         class KRG_TOOLS_ENTITY_API EntityCollectionReader
         {
-
         public:
 
-            static bool ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& filePath, EntityCollectionDescriptor& outCollection );
+            static bool ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& filePath, EntityCollectionDescriptor& outCollection );
         };
     }
 }

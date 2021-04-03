@@ -26,8 +26,8 @@ namespace KRG
     {
         friend SettingsRegistry;
 
-        static Setting* Head;
-        static Setting* Tail;
+        static Setting* s_pHead;
+        static Setting* s_pTail;
 
     public:
 
@@ -62,7 +62,7 @@ namespace KRG
         Setting*            m_pNext = nullptr;
         char const          m_name[100] = { 0 };
         char const          m_category[156] = { 0 };
-        uint32                 m_nameHash = 0; // The hash of the combined category and name strings
+        uint32              m_nameHash = 0; // The hash of the combined category and name strings
         Type                m_type;
     };
 }

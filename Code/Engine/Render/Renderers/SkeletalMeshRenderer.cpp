@@ -1,6 +1,5 @@
 #include "SkeletalMeshRenderer.h"
 #include "Engine/Render/Components/SkeletalMeshComponent.h"
-#include "Engine/Render/Debug/MeshDebugDrawing.h"
 #include "Engine/Render/Shaders/EngineShaders.h"
 #include "System/Entity/Entity.h"
 #include "System/Core/Math/Viewport.h"
@@ -240,12 +239,12 @@ namespace KRG
 
                     if ( Settings::g_showSkeletalMeshBones )
                     {
-                        DrawBones( drawCtx, pMeshComponent->GetMesh(), pMeshComponent->GetBoneTransforms(), pMeshComponent->GetWorldTransform() );
+                        pMeshComponent->DrawPose( drawCtx );
                     }
 
                     if ( Settings::g_showSkeletalMeshBindPoses )
                     {
-                        DrawBindPose( drawCtx, pMeshComponent->GetMesh(), pMeshComponent->GetWorldTransform() );
+                        pMeshComponent->GetMesh()->DrawBindPose( drawCtx, pMeshComponent->GetWorldTransform() );
                     }
                 }
             }
@@ -317,7 +316,7 @@ namespace KRG
                     // Draw sub-meshes
                     //-------------------------------------------------------------------------
 
-                    TVector<TResourcePtr<Material>> const& materials = pComponent->GetMaterials();
+                    TVector<Material const*> const& materials = pComponent->GetMaterials();
 
                     auto const numSubMeshes = pMesh->GetNumSections();
                     for ( auto i = 0u; i < numSubMeshes; i++ )

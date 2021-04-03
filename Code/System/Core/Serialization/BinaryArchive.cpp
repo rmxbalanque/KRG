@@ -8,7 +8,7 @@ namespace KRG
 {
     namespace Serialization
     {
-        BinaryFileArchive::BinaryFileArchive( Mode mode, FileSystemPath const& filePath )
+        BinaryFileArchive::BinaryFileArchive( Mode mode, FileSystem::Path const& filePath )
             : m_filePath( filePath )
             , m_mode( mode )
         {

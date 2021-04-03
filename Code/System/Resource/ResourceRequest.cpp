@@ -261,6 +261,7 @@ namespace KRG
                     KRG_LOG_ERROR( "Resource", "Failed to load resource file (%s)", m_pResourceRecord->GetResourceID().c_str() );
                     m_stage = ResourceRequest::Stage::Complete;
                     m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
+                    return;
                 }
             }
 
@@ -277,6 +278,7 @@ namespace KRG
                 #endif
 
                 // Load the resource
+                KRG_ASSERT( !m_rawResourceData.empty() );
                 if ( !m_pResourceLoader->Load( GetResourceID(), m_rawResourceData, m_pResourceRecord ) )
                 {
                     KRG_LOG_ERROR( "Resource", "Failed to load compiled resource data (%s)", m_pResourceRecord->GetResourceID().c_str() );

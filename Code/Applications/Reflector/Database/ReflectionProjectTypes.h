@@ -19,7 +19,7 @@ namespace KRG
 
             struct HeaderDesc
             {
-                inline static HeaderID GetHeaderID( FileSystemPath const& headerFilePath )
+                inline static HeaderID GetHeaderID( FileSystem::Path const& headerFilePath )
                 {
                     String lowercasePath = headerFilePath;
                     lowercasePath.make_lower();
@@ -31,15 +31,15 @@ namespace KRG
                 HeaderID                        m_ID;
                 ProjectID                       m_projectID;
                 String                          m_filePath;
-                uint64                             m_timestamp = 0;
-                uint64                             m_checksum = 0;
+                uint64                          m_timestamp = 0;
+                uint64                          m_checksum = 0;
             };
 
             //-------------------------------------------------------------------------
 
             struct ProjectDesc
             {
-                inline static ProjectID GetProjectID( FileSystemPath const& projectFilePath )
+                inline static ProjectID GetProjectID( FileSystem::Path const& projectFilePath )
                 {
                     String lowercasePath = projectFilePath;
                     lowercasePath.make_lower();
@@ -66,12 +66,12 @@ namespace KRG
 
                 ProjectID                       m_ID;
                 String                          m_name;
-                FileSystemPath                  m_path;
+                FileSystem::Path                m_path;
                 String                          m_exportMacro;
                 HeaderID                        m_moduleHeaderID;
-                uint32                             m_dependencyCount = 0;
+                uint32                          m_dependencyCount = 0;
                 TVector<HeaderDesc>             m_headerFiles;
-                TVector<uint32>                    m_dirtyHeaders;
+                TVector<uint32>                 m_dirtyHeaders;
                 TVector<ProjectID>              m_dependencies;
                 mutable String                  m_moduleClassName;
                 bool                            m_includeInAutogenerateModuleRegistrationList = true;
@@ -81,7 +81,7 @@ namespace KRG
 
             struct SolutionDesc
             {
-                FileSystemPath                  m_path;
+                FileSystem::Path                m_path;
                 TVector<ProjectDesc>            m_projects;
             };
         }

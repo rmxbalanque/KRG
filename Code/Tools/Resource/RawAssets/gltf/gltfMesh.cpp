@@ -272,7 +272,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            static TUniquePtr<RawMesh> ReadStaticMesh( FileSystemPath const& sourceFilePath, String const& nameOfMeshToCompile )
+            static TUniquePtr<RawMesh> ReadStaticMesh( FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile )
             {
                 KRG_ASSERT( sourceFilePath.IsValid() );
 
@@ -333,7 +333,7 @@ namespace KRG
                 return pMesh;
             }
 
-            static TUniquePtr<RawMesh> ReadSkeletalMesh( FileSystemPath const& sourceFilePath, int32 maxBoneInfluences = 4 )
+            static TUniquePtr<RawMesh> ReadSkeletalMesh( FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences = 4 )
             {
                 KRG_ASSERT( sourceFilePath.IsValid() );
 
@@ -412,12 +412,12 @@ namespace KRG
 
     namespace gltf
     {
-        TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( FileSystemPath const& sourceFilePath, String const& nameOfMeshToCompile )
+        TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile )
         {
             return RawAssets::gltfMeshFileReader::ReadStaticMesh( sourceFilePath, nameOfMeshToCompile );
         }
 
-        TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( FileSystemPath const& sourceFilePath, int32 maxBoneInfluences )
+        TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences )
         {
             return RawAssets::gltfMeshFileReader::ReadSkeletalMesh( sourceFilePath, maxBoneInfluences );
         }

@@ -38,7 +38,7 @@ namespace KRG
             }
 
             DataPath const& skeletonDataPath = resourceDescriptor.m_pSkeleton.GetResourceID().GetDataPath();
-            FileSystemPath skeletonDescriptorFilePath;
+            FileSystem::Path skeletonDescriptorFilePath;
             if ( !ctx.ConvertDataPathToFilePath( skeletonDataPath, skeletonDescriptorFilePath ) )
             {
                 return Error( "Invalid skeleton data path: %s", skeletonDataPath.c_str() );
@@ -55,7 +55,7 @@ namespace KRG
                 return Error( "Failed to read skeleton resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
             }
 
-            FileSystemPath skeletonFilePath;
+            FileSystem::Path skeletonFilePath;
             if ( !ctx.ConvertDataPathToFilePath( skeletonResourceDescriptor.m_skeletonDataPath, skeletonFilePath ) )
             {
                 return Error( "Invalid skeleton FBX data path: %s", skeletonResourceDescriptor.m_skeletonDataPath.ToString().c_str() );
@@ -71,7 +71,7 @@ namespace KRG
             // Read animation data
             //-------------------------------------------------------------------------
 
-            FileSystemPath animationFilePath;
+            FileSystem::Path animationFilePath;
             if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_animationDataPath, animationFilePath ) )
             {
                 return Error( "Invalid animation data path: %s", resourceDescriptor.m_animationDataPath.c_str() );

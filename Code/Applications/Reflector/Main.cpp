@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    KRG::FileSystemPath slnPath = cmdParser.get<std::string>( "s" ).c_str();
+    KRG::FileSystem::Path slnPath = cmdParser.get<std::string>( "s" ).c_str();
     bool const shouldClean = cmdParser.get<bool>( "clean" );
     bool const shouldRebuild = cmdParser.get<bool>( "rebuild" );
 

@@ -29,12 +29,12 @@ namespace KRG
         // e.g. the game level, a cell in a open world game, etc.
         //
         // Maps manage lifetime, loading and activation of entities
+        // 
+        // Note: All map operations are threadsafe using a standard mutex
         //-------------------------------------------------------------------------
 
         class KRG_SYSTEM_ENTITY_API EntityMap : EntityCollection
         {
-            friend EntityWorld;
-
             enum class Status
             {
                 LoadFailed = -1,
@@ -60,6 +60,8 @@ namespace KRG
 
         public:
 
+            EntityMap(); // Default constructor creates a transient map
+            EntityMap( ResourceID mapResourceID );
             EntityMap( EntityMap const& map );
             EntityMap( EntityMap&& map );
             ~EntityMap();
@@ -74,8 +76,20 @@ namespace KRG
             inline UUID GetMapID() const { return GetID(); }
             inline bool IsTransientMap() const { return m_isTransientMap; }
 
-            // Map Status
+            // Loading and Activation
             //-------------------------------------------------------------------------
+
+            void Load( LoadingContext const& loadingContext );
+            void Unload( LoadingContext const& loadingContext );
+
+            void Activate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            void Deactivate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+
+            // Map State
+            //-------------------------------------------------------------------------
+
+            // Updates map loading and entity state, returns true if all loading/state changes are complete, false otherwise
+            bool UpdateState( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
 
             bool IsLoading() const { return m_status == Status::MapLoading || m_status == Status::EntitiesLoading; }
             inline bool IsLoaded() const { return m_status == Status::Loaded; }
@@ -100,20 +114,6 @@ namespace KRG
 
         private:
 
-            EntityMap(); // Default constructor creates a transient map
-            EntityMap( ResourceID mapResourceID );
-
-            // Loading and Activation
-            //-------------------------------------------------------------------------
-
-            void Load( LoadingContext const& loadingContext );
-            void Unload( LoadingContext const& loadingContext );
-
-            void Activate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-            void Deactivate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-
-            //-------------------------------------------------------------------------
-
             void OnEntityStateUpdated( Entity* pEntity );
 
             //-------------------------------------------------------------------------
@@ -124,11 +124,9 @@ namespace KRG
             void ProcessEntityAdditionAndRemoval( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
             bool ProcessEntityLoadingAndActivation( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
 
-            // Updates map loading and entity state, returns true if all loading/state changes are complete, false otherwise
-            bool UpdateState( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-
         private:
 
+            Threading::RecursiveMutex                   m_mutex;
             TResourcePtr<EntityMapDescriptor>           m_pMapDesc;
             TVector<Entity*>                            m_entitiesToLoad;
             TInlineVector<Entity*, 5>                   m_entitiesToAdd;
@@ -136,7 +134,6 @@ namespace KRG
             TVector<ReloadRequest>                      m_reloadRequests;
             Status                                      m_status = Status::Unloaded;
             EventBindingID                              m_entityUpdateEventBindingID;
-            Threading::Mutex                            m_entityStateUpdateMutex;
             bool                                        m_isUnloadRequested = false;
             bool                                        m_isCollectionInstantiated = false;
             bool const                                  m_isTransientMap = false; // If this is set, then this is a transient map i.e.created and managed at runtime and not loaded from disk

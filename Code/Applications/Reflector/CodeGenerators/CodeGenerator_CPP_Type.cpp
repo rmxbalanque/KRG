@@ -548,31 +548,31 @@ namespace KRG
                 else
                 {
                     file << "            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->" << prop.m_name << ";\n";
-                }
 
-                file << "            propertyInfo.m_offset = offsetof( " << type.m_namespace << type.m_name << ", " << prop.m_name << " );\n";
+                    file << "            propertyInfo.m_offset = offsetof( " << type.m_namespace << type.m_name << ", " << prop.m_name << " );\n";
 
-                if ( prop.IsDynamicArrayProperty() )
-                {
-                    file << "            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->" << prop.m_name << ".data();\n";
-                    file << "            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->" << prop.m_name << ".size();\n";
-                    file << "            propertyInfo.m_arrayElementSize = (int32) sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
-                    file << "            propertyInfo.m_size = sizeof( TVector<" << prop.m_typeName << templateSpecializationString << "> );\n";
-                }
-                else if ( prop.IsStaticArrayProperty() )
-                {
-                    file << "            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->" << prop.m_name << ";\n";
-                    file << "            propertyInfo.m_arraySize = " << prop.GetArraySize() << ";\n";
-                    file << "            propertyInfo.m_arrayElementSize = (int32) sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
-                    file << "            propertyInfo.m_size = sizeof( " << prop.m_typeName << templateSpecializationString << " ) * " << prop.GetArraySize() << ";\n";
-                }
-                else
-                {
-                    file << "            propertyInfo.m_size = sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
-                }
+                    if ( prop.IsDynamicArrayProperty() )
+                    {
+                        file << "            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->" << prop.m_name << ".data();\n";
+                        file << "            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->" << prop.m_name << ".size();\n";
+                        file << "            propertyInfo.m_arrayElementSize = (int32) sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
+                        file << "            propertyInfo.m_size = sizeof( TVector<" << prop.m_typeName << templateSpecializationString << "> );\n";
+                    }
+                    else if ( prop.IsStaticArrayProperty() )
+                    {
+                        file << "            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->" << prop.m_name << ";\n";
+                        file << "            propertyInfo.m_arraySize = " << prop.GetArraySize() << ";\n";
+                        file << "            propertyInfo.m_arrayElementSize = (int32) sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
+                        file << "            propertyInfo.m_size = sizeof( " << prop.m_typeName << templateSpecializationString << " ) * " << prop.GetArraySize() << ";\n";
+                    }
+                    else
+                    {
+                        file << "            propertyInfo.m_size = sizeof( " << prop.m_typeName << templateSpecializationString << " );\n";
+                    }
 
-                file << "            propertyInfo.m_flags.Set( " << prop.m_flags << " );\n";
-                file << "            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );\n";
+                    file << "            propertyInfo.m_flags.Set( " << prop.m_flags << " );\n";
+                    file << "            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );\n";
+                }
             };
 
             //-------------------------------------------------------------------------

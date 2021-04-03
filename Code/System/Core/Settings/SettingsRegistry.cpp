@@ -11,7 +11,7 @@ namespace KRG
 {
     SettingsRegistry::SettingsRegistry()
     {
-        Setting* pSetting = Setting::Head;
+        Setting* pSetting = Setting::s_pHead;
         while ( pSetting != nullptr )
         {
             THashMap<uint32, Setting*>* pSettingsList = nullptr;
@@ -48,7 +48,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    bool SettingsRegistry::LoadFromFile( FileSystemPath const& iniFilePath )
+    bool SettingsRegistry::LoadFromFile( FileSystem::Path const& iniFilePath )
     {
         IniFile iniParser( iniFilePath );
         if ( !iniParser.IsValid() )
@@ -135,7 +135,7 @@ namespace KRG
         return allRequiredSettingsRead;
     }
 
-    void SettingsRegistry::SaveToFile( FileSystemPath const& iniFilePath )
+    void SettingsRegistry::SaveToFile( FileSystem::Path const& iniFilePath )
     {
         KRG_UNIMPLEMENTED_FUNCTION();
     }

@@ -5,41 +5,24 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace RawAssets { class RawMesh; }
+    struct StaticMeshResourceDescriptor : public MeshResourceDescriptor
+    {
+        KRG_REGISTER_TYPE;
+    };
 
     //-------------------------------------------------------------------------
 
-    namespace Render
+    class StaticMeshCompiler : public MeshCompiler
     {
-        class MeshGeometry;
+        static const int32 VERSION = 2;
 
-        //-------------------------------------------------------------------------
+    public:
 
-        struct StaticMeshResourceDescriptor : public Resource::ResourceDescriptor
-        {
-            KRG_REGISTER_TYPE;
-
-            // The path to the mesh source file
-            EXPOSE DataPath         m_meshDataPath;
-
-            // Optional value that specifies the specific sub-mesh to compile, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
-            EXPOSE String           m_meshName;
-        };
-
-        //-------------------------------------------------------------------------
-
-        class StaticMeshCompiler : public MeshCompiler
-        {
-            static const int32 VERSION = 2;
-
-        public:
-
-            StaticMeshCompiler();
-            virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
-        };
-    }
+        StaticMeshCompiler();
+        virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
+    };
 }
 
 #endif

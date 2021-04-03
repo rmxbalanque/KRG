@@ -38,7 +38,7 @@ namespace KRG
             // Load settings
             //-------------------------------------------------------------------------
 
-            FileSystemPath const iniPath = m_workingDir + "KRG.ini";
+            FileSystem::Path const iniPath = m_workingDir + "KRG.ini";
             if( !m_settingsRegistry.LoadFromFile( iniPath ) )
             {
                 m_errorMessage = "Failed to load settings from INI file";
@@ -48,7 +48,7 @@ namespace KRG
             m_sourceDataDir = m_workingDir + Settings::g_sourceDataPath;
             m_compiledDataDir = m_workingDir + Settings::g_compiledDataPath;
             m_compiledResourceDatabasePath = m_workingDir + Settings::g_compiledResourceDatabasePath;
-            m_resourceCompilerFullPath = FileSystemPath( m_workingDir + Settings::g_resourceCompilerExecutablePath ).GetFullPath().c_str();
+            m_resourceCompilerFullPath = FileSystem::Path( m_workingDir + Settings::g_resourceCompilerExecutablePath ).GetFullPath().c_str();
 
             // Generate any additional required settings from read data
             m_networkAddress = String().sprintf( "localhost:%d", (int32) Settings::g_resourceServerPort );
@@ -65,10 +65,10 @@ namespace KRG
             // Read all compiler modules
             //-------------------------------------------------------------------------
 
-            TVector<FileSystemPath> compilerModules;
-            FileSystem::GetDirectoryContents( m_workingDir, compilerModules, "KRG.ResourceCompilers.*.dll" );
+            TVector<FileSystem::Path> compilerModulePaths;
+            FileSystem::GetDirectoryContents( m_workingDir, ".*KRG\\.ResourceCompilers\\..*\\.dll", compilerModulePaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::DontExpand );
 
-            for ( auto compilerModule : compilerModules )
+            for ( auto const& compilerModule : compilerModulePaths )
             {
                 HINSTANCE moduleDLL = LoadLibraryA( compilerModule.GetFullPath().c_str() );
                 if ( moduleDLL != nullptr )
@@ -279,7 +279,7 @@ namespace KRG
             }
         }
 
-        void ResourceServer::OnFileModified( FileSystemPath const& filePath )
+        void ResourceServer::OnFileModified( FileSystem::Path const& filePath )
         {
             KRG_ASSERT( filePath.IsValid() && filePath.IsFilePath() );
 
@@ -575,7 +575,7 @@ namespace KRG
             pRequest->m_upToDateCheckTimeFinished = SystemClock::GetTime();
         }
 
-        bool ResourceServer::TryReadCompileDependencies( FileSystemPath const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog ) const
+        bool ResourceServer::TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog ) const
         {
             KRG_ASSERT( resourceFilePath.IsValid() );
 
@@ -625,7 +625,7 @@ namespace KRG
             int32 const compilerVersion = GetCompilerVersion( resourceID.GetResourceTypeID() );
             KRG_ASSERT( compilerVersion >= 0 );
 
-            FileSystemPath const sourceFilePath = DataPath::ToFileSystemPath( m_sourceDataDir, resourceID.GetDataPath() );
+            FileSystem::Path const sourceFilePath = DataPath::ToFileSystemPath( m_sourceDataDir, resourceID.GetDataPath() );
             uint64 const fileTimestamp = FileSystem::GetFileModifiedTime( sourceFilePath );
             uint64 sourceTimestampHash = 0;
 

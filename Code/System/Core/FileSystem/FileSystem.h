@@ -5,33 +5,60 @@
 #include "FileSystemPath.h"
 
 //-------------------------------------------------------------------------
+// Directory functions
+//-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::FileSystem
 {
-    namespace FileSystem
+    KRG_SYSTEM_CORE_API bool CreateDir( Path const& path );
+    KRG_SYSTEM_CORE_API bool EraseDir( Path const& path );
+    KRG_SYSTEM_CORE_API bool EnsurePathExists( Path const& path );
+
+    //-------------------------------------------------------------------------
+
+    // What should we return
+    enum class DirectoryReaderOutput
     {
-        enum class FileType
-        {
-            Binary,
-            ASCII,
-        };
+        All,
+        OnlyFiles,
+        OnlyDirectories
+    };
 
-        //-------------------------------------------------------------------------
+    // Should we expand sub-directories when reading contents?
+    enum class DirectoryReaderMode
+    {
+        Expand,
+        DontExpand,
+    };
 
-        // Directory functions
-        KRG_SYSTEM_CORE_API bool CreateDir( FileSystemPath const& path );
-        KRG_SYSTEM_CORE_API bool EraseDir( FileSystemPath const& path );
-        KRG_SYSTEM_CORE_API void GetDirectoryContents( FileSystemPath const& directoryPath, TVector<FileSystemPath>& contents, const char* pFileFilter = "*" );
-        KRG_SYSTEM_CORE_API bool EnsurePathExists( FileSystemPath const& path );
+    // Get the contents of a specified directory
+    // The extension filter is a list of extensions including the period and MUST have a null sentinal value as the last element e.g. extensionfilter = { ".txt", ".exe", 0 }
+    KRG_SYSTEM_CORE_API bool GetDirectoryContents( Path const& directoryPath, TVector<Path>& contents, DirectoryReaderOutput output = DirectoryReaderOutput::All, DirectoryReaderMode mode = DirectoryReaderMode::Expand, char const* const extensionfilter[] = {} );
 
-        // File functions
-        KRG_SYSTEM_CORE_API bool IsFileReadOnly( FileSystemPath const& filePath );
-        KRG_SYSTEM_CORE_API bool FileExists( FileSystemPath const& filePath );
-        KRG_SYSTEM_CORE_API uint64 GetFileModifiedTime( FileSystemPath const& filePath );
-        KRG_SYSTEM_CORE_API bool LoadFile( FileSystemPath const& filePath, TVector<Byte>& fileData );
-        KRG_SYSTEM_CORE_API bool EraseFile( FileSystemPath const& filePath );
+    // Get the contents of a specified directory
+    // All paths will be matched against the supplied regex expression
+    // WARNING!!! THIS IS VERY SLOW
+    KRG_SYSTEM_CORE_API bool GetDirectoryContents( Path const& directoryPath, char const* const pRegexExpression, TVector<Path>& contents, DirectoryReaderOutput output = DirectoryReaderOutput::All, DirectoryReaderMode mode = DirectoryReaderMode::Expand );
+}
 
-        // Misc
-        KRG_SYSTEM_CORE_API FileSystemPath GetCurrentProcessPath();
-    }
+//-------------------------------------------------------------------------
+// File functions
+//-------------------------------------------------------------------------
+
+namespace KRG::FileSystem
+{
+    KRG_SYSTEM_CORE_API bool IsFileReadOnly( Path const& filePath );
+    KRG_SYSTEM_CORE_API bool FileExists( Path const& filePath );
+    KRG_SYSTEM_CORE_API uint64 GetFileModifiedTime( Path const& filePath );
+    KRG_SYSTEM_CORE_API bool LoadFile( Path const& filePath, TVector<Byte>& fileData );
+    KRG_SYSTEM_CORE_API bool EraseFile( Path const& filePath );
+}
+
+//-------------------------------------------------------------------------
+// Miscellaneous functions
+//-------------------------------------------------------------------------
+
+namespace KRG::FileSystem
+{
+    KRG_SYSTEM_CORE_API Path GetCurrentProcessPath();
 }

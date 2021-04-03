@@ -132,7 +132,7 @@ namespace KRG
             }
         }
 
-        bool EntityCollectionWriter::WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& outFilePath, EntityCollectionDescriptor const& collection )
+        bool EntityCollectionWriter::WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& outFilePath, EntityCollectionDescriptor const& collection )
         {
             KRG_ASSERT( outFilePath.IsValid() );
 

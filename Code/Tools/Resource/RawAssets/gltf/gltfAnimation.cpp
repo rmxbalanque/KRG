@@ -26,7 +26,7 @@ namespace KRG
 
         public:
 
-            static TUniquePtr<KRG::RawAssets::RawAnimation> ReadAnimation( FileSystemPath const& sourceFilePath, RawSkeleton const& rawSkeleton, String const& animationName )
+            static TUniquePtr<KRG::RawAssets::RawAnimation> ReadAnimation( FileSystem::Path const& sourceFilePath, RawSkeleton const& rawSkeleton, String const& animationName )
             {
                 KRG_ASSERT( sourceFilePath.IsValid() && rawSkeleton.IsValid() );
 
@@ -208,7 +208,7 @@ namespace KRG
 
     namespace gltf
     {
-        TUniquePtr<KRG::RawAssets::RawAnimation> ReadAnimation( FileSystemPath const& animationFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& takeName )
+        TUniquePtr<KRG::RawAssets::RawAnimation> ReadAnimation( FileSystem::Path const& animationFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& takeName )
         {
             return RawAssets::gltfAnimationFileReader::ReadAnimation( animationFilePath, rawSkeleton, takeName );
         }

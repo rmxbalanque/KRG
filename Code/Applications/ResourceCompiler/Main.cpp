@@ -75,7 +75,7 @@ int main( int argc, char* argv[] )
     // Read INI settings
     //-------------------------------------------------------------------------
 
-    FileSystemPath const iniPath = FileSystem::GetCurrentProcessPath() + "KRG.ini";
+    FileSystem::Path const iniPath = FileSystem::GetCurrentProcessPath() + "KRG.ini";
 
     SettingsRegistry settingsRegistry;
     if ( !settingsRegistry.LoadFromFile( iniPath ) )

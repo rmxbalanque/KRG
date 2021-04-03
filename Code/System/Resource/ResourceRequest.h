@@ -2,7 +2,7 @@
 
 #include "ResourceRecord.h"
 #include "ResourceLoader.h"
-#include "System/Core/Types/Event.h"
+#include "System/Core/Types/Function.h"
 
 //-------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ namespace KRG
             ResourceRequesterID                     m_requesterID;
             ResourceRecord*                         m_pResourceRecord = nullptr;
             ResourceLoader*                         m_pResourceLoader = nullptr;
-            FileSystemPath                          m_rawResourcePath;
+            FileSystem::Path                          m_rawResourcePath;
             TVector<Byte>                           m_rawResourceData;
             InstallDependencyList                   m_installDependencies;
             Type                                    m_type = Type::Invalid;

@@ -214,7 +214,7 @@ namespace KRG
             // Load shader file
             //-------------------------------------------------------------------------
 
-            FileSystemPath shaderFilePath;
+            FileSystem::Path shaderFilePath;
             if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_shaderDataPath, shaderFilePath ) )
             {
                 return Error( "Invalid texture data path: %s", resourceDescriptor.m_shaderDataPath.c_str() );

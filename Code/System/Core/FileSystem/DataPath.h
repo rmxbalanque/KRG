@@ -6,7 +6,7 @@
 #include "System/Core/Types/String.h"
 
 //-------------------------------------------------------------------------
-// Path relative to the currently set source data folder
+// Path relative to the currently set source data directory
 //-------------------------------------------------------------------------
 // Note: data paths are ALWAYS lowercase
 //-------------------------------------------------------------------------
@@ -38,8 +38,8 @@ namespace KRG
         static bool IsValidDataPath( char const* pPath );
         static bool IsValidDataPath( String const& path ) { return IsValidDataPath( path.c_str() ); }
 
-        static DataPath FromFileSystemPath( FileSystemPath const& sourceDataPath, FileSystemPath const& filePath );
-        static FileSystemPath ToFileSystemPath( FileSystemPath const& sourceDataPath, DataPath const& dataPath );
+        static DataPath FromFileSystemPath( FileSystem::Path const& sourceDataPath, FileSystem::Path const& filePath );
+        static FileSystem::Path ToFileSystemPath( FileSystem::Path const& sourceDataPath, DataPath const& dataPath );
 
     public:
 
@@ -61,7 +61,7 @@ namespace KRG
         // Conversion
         inline String const& ToString() const { return m_path; }
         inline char const* c_str() const { return m_path.c_str(); }
-        inline FileSystemPath ToFileSystemPath( FileSystemPath const& sourceDataPath ) const { return ToFileSystemPath( sourceDataPath, *this ); }
+        inline FileSystem::Path ToFileSystemPath( FileSystem::Path const& sourceDataPath ) const { return ToFileSystemPath( sourceDataPath, *this ); }
 
         // Comparison
         inline bool operator==( DataPath const& rhs ) const { return m_ID == rhs.m_ID; }

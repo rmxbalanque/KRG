@@ -17,7 +17,7 @@ namespace KRG::Resource
 
     ResourceCompilerManager::ResourceCompilerManager()
     {
-        FileSystemPath const workingDirectoryPath = FileSystem::GetCurrentProcessPath();
+        FileSystem::Path const workingDirectoryPath = FileSystem::GetCurrentProcessPath();
         m_sourceDataPath = workingDirectoryPath + Settings::g_sourceDataPath;
         m_compiledDataPath = workingDirectoryPath + Settings::g_compiledDataPath;
 

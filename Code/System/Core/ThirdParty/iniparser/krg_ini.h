@@ -14,12 +14,12 @@ namespace KRG
     public:
 
         IniFile();
-        IniFile( FileSystemPath const& filePath );
+        IniFile( FileSystem::Path const& filePath );
         ~IniFile();
 
         inline bool IsValid() const { return m_pDictionary != nullptr; }
 
-        void SaveToFile( FileSystemPath const& filePath ) const;
+        void SaveToFile( FileSystem::Path const& filePath ) const;
 
         bool HasEntry( char const* key ) const;
 

@@ -6,7 +6,7 @@
 
 namespace KRG
 {
-    class FileSystemPath;
+    namespace FileSystem { class Path; }
     namespace TypeSystem { class TypeRegistry; }
 
     //-------------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace KRG
         {
         public:
 
-            static bool WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& outFilePath, EntityCollectionDescriptor const& collection );
+            static bool WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& outFilePath, EntityCollectionDescriptor const& collection );
         };
     }
 }

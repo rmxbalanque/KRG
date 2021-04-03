@@ -6,7 +6,7 @@
 
 namespace KRG::Resource
 {
-    CompileContext::CompileContext( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& sourceDataPath, FileSystemPath const& compiledDataPath, ResourceID const& resourceToCompile )
+    CompileContext::CompileContext( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath, FileSystem::Path const& compiledDataPath, ResourceID const& resourceToCompile )
         : m_typeRegistry( typeRegistry )
         , m_sourceDataPath( sourceDataPath )
         , m_compiledDataPath( compiledDataPath )
@@ -16,8 +16,8 @@ namespace KRG::Resource
 
         // Resolve paths
         DataPath const& resourceToCompileDataPath = resourceToCompile.GetDataPath();
-        const_cast<FileSystemPath&>( m_inputFilePath ) = DataPath::ToFileSystemPath( m_sourceDataPath, resourceToCompileDataPath );
-        const_cast<FileSystemPath&>( m_outputFilePath ) = DataPath::ToFileSystemPath( m_compiledDataPath, resourceToCompileDataPath );
+        const_cast<FileSystem::Path&>( m_inputFilePath ) = DataPath::ToFileSystemPath( m_sourceDataPath, resourceToCompileDataPath );
+        const_cast<FileSystem::Path&>( m_outputFilePath ) = DataPath::ToFileSystemPath( m_compiledDataPath, resourceToCompileDataPath );
     }
 
     bool CompileContext::IsValid() const

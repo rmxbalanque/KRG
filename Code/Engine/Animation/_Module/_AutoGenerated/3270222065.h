@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::AnimatedMeshComponent& type )
     {
-        archive( cereal::base_class<KRG::Render::SkeletalMeshComponent>( &type ), KRG_NVP( m_pMesh ), KRG_NVP( m_transform ), KRG_NVP( m_materials ), KRG_NVP( m_pSkeleton ) );
+        archive( cereal::base_class<KRG::Render::SkeletalMeshComponent>( &type ), KRG_NVP( m_pMesh ), KRG_NVP( m_materialOverrides ), KRG_NVP( m_transform ), KRG_NVP( m_pSkeleton ) );
     }
 
     //-------------------------------------------------------------------------
@@ -50,6 +50,21 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
+            propertyInfo.m_ID = StringID( "m_materialOverrides" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
+            propertyInfo.m_parentTypeID = 3423270098;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Render::Material" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_materialOverrides;
+            propertyInfo.m_offset = offsetof( KRG::Animation::AnimatedMeshComponent, m_materialOverrides );
+            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_materialOverrides.data();
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_materialOverrides.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
+            propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
+            propertyInfo.m_flags.Set( 2 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+
+            //-------------------------------------------------------------------------
+
             propertyInfo.m_ID = StringID( "m_transform" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Transform" );
             propertyInfo.m_parentTypeID = 3423270098;
@@ -58,21 +73,6 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimatedMeshComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_materials" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
-            propertyInfo.m_parentTypeID = 3423270098;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Render::Material" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_materials;
-            propertyInfo.m_offset = offsetof( KRG::Animation::AnimatedMeshComponent, m_materials );
-            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_materials.data();
-            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_materials.size();
-            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
-            propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
-            propertyInfo.m_flags.Set( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -155,7 +155,7 @@ namespace KRG
                         pResourceSystem->LoadResource( pActualType->m_pMesh, requesterID );
                     }
 
-                    for ( auto& resourcePtr : pActualType->m_materials )
+                    for ( auto& resourcePtr : pActualType->m_materialOverrides )
                     {
                         if ( resourcePtr.IsValid() )
                         {
@@ -180,7 +180,7 @@ namespace KRG
                         pResourceSystem->UnloadResource( pActualType->m_pMesh, requesterID );
                     }
 
-                    for ( auto& resourcePtr : pActualType->m_materials )
+                    for ( auto& resourcePtr : pActualType->m_materialOverrides )
                     {
                         if ( resourcePtr.IsValid() )
                         {
@@ -209,7 +209,7 @@ namespace KRG
                         return LoadingStatus::Loading;
                     }
 
-                    for ( auto const& resourcePtr : pActualType->m_materials )
+                    for ( auto const& resourcePtr : pActualType->m_materialOverrides )
                     {
                         if ( !resourcePtr.IsValid() || resourcePtr.HasLoadingFailed() )
                         {
@@ -244,7 +244,7 @@ namespace KRG
                         return LoadingStatus::Unloading;
                     }
 
-                    for ( auto const& resourcePtr : pActualType->m_materials )
+                    for ( auto const& resourcePtr : pActualType->m_materialOverrides )
                     {
                         KRG_ASSERT( !resourcePtr.IsLoading() );
                         if ( !resourcePtr.IsUnloaded() )
@@ -265,14 +265,14 @@ namespace KRG
                 virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pType );
-                    if ( arrayID == 2630520838 )
+                    if ( arrayID == 2164280863 )
                     {
-                        if ( ( arrayIdx + 1 ) >= pActualType->m_materials.size() )
+                        if ( ( arrayIdx + 1 ) >= pActualType->m_materialOverrides.size() )
                         {
-                            pActualType->m_materials.resize( arrayIdx + 1 );
+                            pActualType->m_materialOverrides.resize( arrayIdx + 1 );
                         }
 
-                        return (Byte*) &pActualType->m_materials[arrayIdx];
+                        return (Byte*) &pActualType->m_materialOverrides[arrayIdx];
                     }
 
                     // We should never get here since we are asking for a ptr to an invalid property
@@ -288,7 +288,7 @@ namespace KRG
                         return KRG::Render::SkeletalMesh::GetStaticResourceTypeID();
                     }
 
-                    if ( propertyID == 2630520838 )
+                    if ( propertyID == 2164280863 )
                     {
                         return KRG::Render::Material::GetStaticResourceTypeID();
                     }

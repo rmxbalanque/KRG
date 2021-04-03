@@ -6,46 +6,32 @@ namespace KRG {  }
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace RawAssets { class RawMesh; }
+    class SkeletalMesh;
 
     //-------------------------------------------------------------------------
 
-    namespace Render
+    struct SkeletalMeshResourceDescriptor : public MeshResourceDescriptor
     {
-        class MeshGeometry;
-        class SkeletalMesh;
+        KRG_REGISTER_TYPE;
+    };
 
-        //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-        struct SkeletalMeshResourceDescriptor : public Resource::ResourceDescriptor
-        {
-            KRG_REGISTER_TYPE;
+    class SkeletalMeshCompiler : public MeshCompiler
+    {
+        static const int32 VERSION = 2;
 
-            // The path to the mesh source file
-            EXPOSE DataPath         m_meshDataPath;
+    public:
 
-            // Optional value that specifies the specific sub-mesh to compile, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
-            EXPOSE String           m_meshName;
-        };
+        SkeletalMeshCompiler();
+        virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
 
-        //-------------------------------------------------------------------------
+    private:
 
-        class SkeletalMeshCompiler : public MeshCompiler
-        {
-            static const int32 VERSION = 2;
-
-        public:
-
-            SkeletalMeshCompiler();
-            virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
-
-        private:
-
-            void TransferSkeletalMeshData( RawAssets::RawMesh const& rawMesh, SkeletalMesh& mesh ) const;
-        };
-    }
+        void TransferSkeletalMeshData( RawAssets::RawMesh const& rawMesh, SkeletalMesh& mesh ) const;
+    };
 }
 
 #endif

@@ -307,6 +307,7 @@
     <ClInclude Include="ThirdParty\xxhash\xxhash.h" />
     <ClInclude Include="Threading\Threading.h" />
     <ClInclude Include="Core\IntegralTypes.h" />
+    <ClInclude Include="Types\Function.h" />
     <ClInclude Include="Types\Pool.h" />
     <ClInclude Include="Time\Time.h" />
     <ClInclude Include="Types\Percentage.h" />

@@ -35,7 +35,7 @@ namespace KRG
 
             for ( auto const& libraryDataPath : resourceDescriptor.m_materialLibraries )
             {
-                FileSystemPath libraryFilePath;
+                FileSystem::Path libraryFilePath;
                 if ( !ctx.ConvertDataPathToFilePath( libraryDataPath, libraryFilePath ) )
                 {
                     return Error( "Failed to convert data path to filepath: %s", libraryDataPath.c_str() );

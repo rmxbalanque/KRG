@@ -20,7 +20,7 @@ namespace KRG
 
         public:
 
-            static TUniquePtr<KRG::RawAssets::RawSkeleton> ReadSkeleton( FileSystemPath const& sourceFilePath, String const& skeletonRootBoneName )
+            static TUniquePtr<KRG::RawAssets::RawSkeleton> ReadSkeleton( FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName )
             {
                 KRG_ASSERT( sourceFilePath.IsValid() );
 
@@ -121,7 +121,7 @@ namespace KRG
 
     namespace gltf
     {
-        TUniquePtr<KRG::RawAssets::RawSkeleton> ReadSkeleton( FileSystemPath const& sourceFilePath, String const& skeletonRootBoneName )
+        TUniquePtr<KRG::RawAssets::RawSkeleton> ReadSkeleton( FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName )
         {
             return RawAssets::gltfSkeletonFileReader::ReadSkeleton( sourceFilePath, skeletonRootBoneName );
         }

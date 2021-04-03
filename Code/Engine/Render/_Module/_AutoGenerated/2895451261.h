@@ -42,7 +42,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_RENDER_API void serialize( Archive& archive, KRG::Render::StaticMeshComponent& type )
     {
-        archive( cereal::base_class<KRG::SpatialEntityComponent>( &type ), KRG_NVP( m_transform ), KRG_NVP( m_pMesh ), KRG_NVP( m_materials ), KRG_NVP( m_mobility ) );
+        archive( cereal::base_class<KRG::Render::MeshComponent>( &type ), KRG_NVP( m_materialOverrides ), KRG_NVP( m_transform ), KRG_NVP( m_pMesh ), KRG_NVP( m_mobility ) );
     }
 
     //-------------------------------------------------------------------------
@@ -56,6 +56,21 @@ namespace KRG
             KRG::Render::StaticMeshComponent const* pActualDefaultTypeInstance = ( KRG::Render::StaticMeshComponent const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_materialOverrides" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
+            propertyInfo.m_parentTypeID = 819047598;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Render::Material" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_materialOverrides;
+            propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_materialOverrides );
+            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_materialOverrides.data();
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_materialOverrides.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
+            propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
+            propertyInfo.m_flags.Set( 2 );
+            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
@@ -79,21 +94,6 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_pMesh );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Render::StaticMesh> );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_materials" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
-            propertyInfo.m_parentTypeID = 819047598;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Render::Material" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_materials;
-            propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_materials );
-            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_materials.data();
-            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_materials.size();
-            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
-            propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
-            propertyInfo.m_flags.Set( 2 );
             m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
@@ -140,7 +140,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::SpatialEntityComponent::StaticTypeInfo;
+                    pParentType = KRG::Render::MeshComponent::StaticTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -171,17 +171,17 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Render::StaticMeshComponent*>( pType );
 
-                    if ( pActualType->m_pMesh.IsValid() )
-                    {
-                        pResourceSystem->LoadResource( pActualType->m_pMesh, requesterID );
-                    }
-
-                    for ( auto& resourcePtr : pActualType->m_materials )
+                    for ( auto& resourcePtr : pActualType->m_materialOverrides )
                     {
                         if ( resourcePtr.IsValid() )
                         {
                             pResourceSystem->LoadResource( resourcePtr, requesterID );
                         }
+                    }
+
+                    if ( pActualType->m_pMesh.IsValid() )
+                    {
+                        pResourceSystem->LoadResource( pActualType->m_pMesh, requesterID );
                     }
 
                 }
@@ -191,17 +191,17 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Render::StaticMeshComponent*>( pType );
 
-                    if ( pActualType->m_pMesh.IsValid() )
-                    {
-                        pResourceSystem->UnloadResource( pActualType->m_pMesh, requesterID );
-                    }
-
-                    for ( auto& resourcePtr : pActualType->m_materials )
+                    for ( auto& resourcePtr : pActualType->m_materialOverrides )
                     {
                         if ( resourcePtr.IsValid() )
                         {
                             pResourceSystem->UnloadResource( resourcePtr, requesterID );
                         }
+                    }
+
+                    if ( pActualType->m_pMesh.IsValid() )
+                    {
+                        pResourceSystem->UnloadResource( pActualType->m_pMesh, requesterID );
                     }
 
                 }
@@ -211,16 +211,7 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Render::StaticMeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    if ( !pActualType->m_pMesh.IsValid() || pActualType->m_pMesh.HasLoadingFailed() )
-                    {
-                        status = LoadingStatus::Failed;
-                    }
-                    else if ( pActualType->m_pMesh.IsUnloaded() || pActualType->m_pMesh.IsLoading() )
-                    {
-                        return LoadingStatus::Loading;
-                    }
-
-                    for ( auto const& resourcePtr : pActualType->m_materials )
+                    for ( auto const& resourcePtr : pActualType->m_materialOverrides )
                     {
                         if ( !resourcePtr.IsValid() || resourcePtr.HasLoadingFailed() )
                         {
@@ -232,6 +223,15 @@ namespace KRG
                         }
                     }
 
+                    if ( !pActualType->m_pMesh.IsValid() || pActualType->m_pMesh.HasLoadingFailed() )
+                    {
+                        status = LoadingStatus::Failed;
+                    }
+                    else if ( pActualType->m_pMesh.IsUnloaded() || pActualType->m_pMesh.IsLoading() )
+                    {
+                        return LoadingStatus::Loading;
+                    }
+
                     return status;
                 }
 
@@ -240,13 +240,7 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Render::StaticMeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
-                    KRG_ASSERT( !pActualType->m_pMesh.IsLoading() );
-                    if ( !pActualType->m_pMesh.IsUnloaded() )
-                    {
-                        return LoadingStatus::Unloading;
-                    }
-
-                    for ( auto const& resourcePtr : pActualType->m_materials )
+                    for ( auto const& resourcePtr : pActualType->m_materialOverrides )
                     {
                         KRG_ASSERT( !resourcePtr.IsLoading() );
                         if ( !resourcePtr.IsUnloaded() )
@@ -255,20 +249,26 @@ namespace KRG
                         }
                     }
 
+                    KRG_ASSERT( !pActualType->m_pMesh.IsLoading() );
+                    if ( !pActualType->m_pMesh.IsUnloaded() )
+                    {
+                        return LoadingStatus::Unloading;
+                    }
+
                     return LoadingStatus::Unloaded;
                 }
 
                 virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Render::StaticMeshComponent*>( pType );
-                    if ( arrayID == 2630520838 )
+                    if ( arrayID == 2164280863 )
                     {
-                        if ( ( arrayIdx + 1 ) >= pActualType->m_materials.size() )
+                        if ( ( arrayIdx + 1 ) >= pActualType->m_materialOverrides.size() )
                         {
-                            pActualType->m_materials.resize( arrayIdx + 1 );
+                            pActualType->m_materialOverrides.resize( arrayIdx + 1 );
                         }
 
-                        return (Byte*) &pActualType->m_materials[arrayIdx];
+                        return (Byte*) &pActualType->m_materialOverrides[arrayIdx];
                     }
 
                     // We should never get here since we are asking for a ptr to an invalid property
@@ -279,14 +279,14 @@ namespace KRG
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Render::StaticMeshComponent*>( pType );
+                    if ( propertyID == 2164280863 )
+                    {
+                        return KRG::Render::Material::GetStaticResourceTypeID();
+                    }
+
                     if ( propertyID == 1674268345 )
                     {
                         return KRG::Render::StaticMesh::GetStaticResourceTypeID();
-                    }
-
-                    if ( propertyID == 2630520838 )
-                    {
-                        return KRG::Render::Material::GetStaticResourceTypeID();
                     }
 
                     // We should never get here since we are asking for a resource type of an invalid property

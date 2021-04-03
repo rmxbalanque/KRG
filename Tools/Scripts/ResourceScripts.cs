@@ -10,8 +10,19 @@ namespace Scripts
 {
     class ResourceDescriptorProperty
     {
+
+    }
+
+    class ResourceDescriptorStringProperty : ResourceDescriptorProperty
+    {
         public string Path { get; set; }
         public string Value { get; set; }
+    }
+
+    class ResourceDescriptorArrayProperty : ResourceDescriptorProperty
+    {
+        public string Path { get; set; }
+        public List<string> Value { get; set; }
     }
 
     class ResourceDescriptor
@@ -27,8 +38,21 @@ namespace Scripts
 
             foreach ( var prop in value.properties )
             {
-                writer.WritePropertyName( prop.Path );
-                writer.WriteValue( prop.Value );
+                if (prop is ResourceDescriptorStringProperty stringProp)
+                {
+                    writer.WritePropertyName(stringProp.Path);
+                    writer.WriteValue(stringProp.Value);
+                }
+                else if (prop is ResourceDescriptorArrayProperty arrayProp)
+                {
+                    writer.WritePropertyName(arrayProp.Path);
+                    writer.WriteStartArray();
+                    foreach( var s in arrayProp.Value )
+                    {
+                        writer.WriteValue(s);
+                    }
+                    writer.WriteEndArray();
+                }
             }
 
             writer.WriteEndObject();
@@ -43,200 +67,276 @@ namespace Scripts
     public class ResourceScripts
     {
         #region Generation
-        static void CreateSkeletalMeshResourceFile( JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile )
+        static string GetDefaultMaterialsForMesh(FileInfo meshFileInfo)
         {
-            var filename = Path.GetFileNameWithoutExtension( sourceFile.FullName );
-            string dataPath = sourceFile.FullName.Replace( dataDir.FullName, "data:/" ).Replace( "\\", "/" );
+            var dirName = meshFileInfo.Directory.FullName.ToLower();
+
+            if (dirName.Contains("br") )
+            {
+                string meshName = meshFileInfo.Name.ToLower();
+                if (meshName.Contains("road"))
+                {
+                    return "data://Packs/BR/Materials/PolygonBattleRoyale_Road_01.mtrl";
+                }
+                else if (meshName.Contains("bridge"))
+                {
+                    return "data://Packs/BR/Materials/PolygonBattleRoyale_Road_01.mtrl";
+                }
+                else if (meshName.Contains("plane"))
+                {
+                    return "data://Packs/BR/Materials/PolygonBattleRoyale_Plane_01.mtrl";
+                }
+                else if (meshName.Contains("destroyed"))
+                {
+                    return "data://Packs/BR/Materials/PolygonBattleRoyale_Vehicles_01_Damaged.mtrl";
+                }
+                else if (meshName.Contains("vehicle") || meshName.Contains("veh"))
+                {
+                    return "data://Packs/BR/Materials/PolygonBattleRoyale_Vehicles_01.mtrl";
+                }
+
+                return "data://Packs/BR/Materials/PolygonBattleRoyale_Texture_01_A.mtrl";
+            }
+            else if (dirName.Contains("city"))
+            {
+                return "data://Packs/City/Materials/PolygonCity_Texture_01_A.mtrl";
+            }
+            else if (dirName.Contains("gang"))
+            {
+                string meshName = meshFileInfo.Name.ToLower();
+                if (meshName.Contains("vehicle") || meshName.Contains("veh"))
+                {
+                    return "data://Packs/City/Materials/PolygonGangWarfare_Vehicle_01.mtrl";
+                }
+
+                return "data://Packs/City/Materials/PolygonGangWarfare_Texture_01_A.mtrl";
+            }
+            else if (dirName.Contains("heist"))
+            {
+                return "data://Packs/Heist/Materials/T_PolygonHeist_01_A.mtrl";
+            }
+
+            return string.Empty;
+        }
+
+        static void CreateSkeletalMeshResourceFile(JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile)
+        {
+            var filename = Path.GetFileNameWithoutExtension(sourceFile.FullName);
+            string dataPath = sourceFile.FullName.Replace(dataDir.FullName, "data:/").Replace("\\", "/");
 
             ResourceDescriptor desc = new ResourceDescriptor()
             {
                 properties = new List<ResourceDescriptorProperty>()
                 {
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "TypeID", Value = "KRG::Render::SkeletalMeshResourceDescriptor"
                     },
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "m_resourceTypeID", Value = "SMSH"
                     },
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "m_meshDataPath", Value = dataPath
+                    },
+                    new ResourceDescriptorArrayProperty()
+                    {
+                        Path = "m_materials",
+                        Value = new List<string>
+                        {
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile )
+                        }
                     }
                 }
             };
 
-            string fileContents = JValue.Parse( JsonConvert.SerializeObject( desc, settings ) ).ToString( Formatting.Indented );
+            string fileContents = JValue.Parse(JsonConvert.SerializeObject(desc, settings)).ToString(Formatting.Indented);
             var outFile = sourceFile.Directory.FullName + "\\" + filename + ".smsh";
-            File.WriteAllText( outFile, fileContents );
+            File.WriteAllText(outFile, fileContents);
         }
 
-        static void CreateStaticMeshResourceFile( JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile )
+        static void CreateStaticMeshResourceFile(JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile)
         {
-            var filename = Path.GetFileNameWithoutExtension( sourceFile.FullName );
-            string dataPath = sourceFile.FullName.Replace( dataDir.FullName, "data:/" ).Replace( "\\", "/" );
+            var filename = Path.GetFileNameWithoutExtension(sourceFile.FullName);
+            string dataPath = sourceFile.FullName.Replace(dataDir.FullName, "data:/").Replace("\\", "/");
 
             ResourceDescriptor desc = new ResourceDescriptor()
             {
                 properties = new List<ResourceDescriptorProperty>()
                 {
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "TypeID", Value = "KRG::Render::StaticMeshResourceDescriptor"
                     },
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "m_resourceTypeID", Value = "MSH"
                     },
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
+                    {
+                        Path = "m_meshDataPath", Value = dataPath
+                    },
+                    new ResourceDescriptorArrayProperty()
+                    {
+                        Path = "m_materials",
+                        Value = new List<string>
+                        {
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile ),
+                        }
+                    }
+                }
+            };
+
+            string fileContents = JValue.Parse(JsonConvert.SerializeObject(desc, settings)).ToString(Formatting.Indented);
+            var outFile = sourceFile.Directory.FullName + "\\" + filename + ".msh";
+            File.WriteAllText(outFile, fileContents);
+        }
+
+        static void CreatePhysicsResourceFile(JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile)
+        {
+            var filename = Path.GetFileNameWithoutExtension(sourceFile.FullName);
+            string dataPath = sourceFile.FullName.Replace(dataDir.FullName, "data:/").Replace("\\", "/");
+
+            ResourceDescriptor desc = new ResourceDescriptor()
+            {
+                properties = new List<ResourceDescriptorProperty>()
+                {
+                    new ResourceDescriptorStringProperty()
+                    {
+                        Path = "TypeID", Value = "KRG::Physics::PhysicsMeshResourceDescriptor"
+                    },
+                    new ResourceDescriptorStringProperty()
+                    {
+                        Path = "m_resourceTypeID", Value = "PMSH"
+                    },
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "m_meshDataPath", Value = dataPath
                     }
                 }
             };
 
-            string fileContents = JValue.Parse( JsonConvert.SerializeObject( desc, settings ) ).ToString( Formatting.Indented );
-            var outFile = sourceFile.Directory.FullName + "\\" + filename + ".msh";
-            File.WriteAllText( outFile, fileContents );
-        }
-
-        static void CreatePhysicsResourceFile( JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile )
-        {
-            var filename = Path.GetFileNameWithoutExtension( sourceFile.FullName );
-            string dataPath = sourceFile.FullName.Replace( dataDir.FullName, "data:/" ).Replace( "\\", "/" );
-
-            ResourceDescriptor desc = new ResourceDescriptor()
-            {
-                properties = new List<ResourceDescriptorProperty>()
-                {
-                    new ResourceDescriptorProperty()
-                    {
-                        Path = "TypeID", Value = "KRG::Physics::PhysicsMeshResourceDescriptor"
-                    },
-                    new ResourceDescriptorProperty()
-                    {
-                        Path = "m_resourceTypeID", Value = "PMSH"
-                    },
-                    new ResourceDescriptorProperty()
-                    {
-                        Path = "m_geometryDataPath", Value = dataPath
-                    }
-                }
-            };
-
-            string fileContents = JValue.Parse( JsonConvert.SerializeObject( desc, settings ) ).ToString( Formatting.Indented );
+            string fileContents = JValue.Parse(JsonConvert.SerializeObject(desc, settings)).ToString(Formatting.Indented);
             var outFile = sourceFile.Directory.FullName + "\\" + filename + ".pmsh";
-            File.WriteAllText( outFile, fileContents );
+            File.WriteAllText(outFile, fileContents);
         }
 
-        static void CreateTextureResourceFile( JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile )
+        static void CreateTextureResourceFile(JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile)
         {
-            var filename = Path.GetFileNameWithoutExtension( sourceFile.FullName );
-            string dataPath = sourceFile.FullName.Replace( dataDir.FullName, "data:/" ).Replace( "\\", "/" );
+            var filename = Path.GetFileNameWithoutExtension(sourceFile.FullName);
+            string dataPath = sourceFile.FullName.Replace(dataDir.FullName, "data:/").Replace("\\", "/");
 
             ResourceDescriptor desc = new ResourceDescriptor()
             {
                 properties = new List<ResourceDescriptorProperty>()
                 {
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "TypeID", Value = "KRG::Render::TextureResourceDescriptor"
                     },
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "m_resourceTypeID", Value = "TXTR"
                     },
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "m_textureDataPath", Value = dataPath
                     }
                 }
             };
 
-            string fileContents = JValue.Parse( JsonConvert.SerializeObject( desc, settings ) ).ToString( Formatting.Indented );
+            string fileContents = JValue.Parse(JsonConvert.SerializeObject(desc, settings)).ToString(Formatting.Indented);
             var outFile = sourceFile.Directory.FullName + "\\" + filename + ".txtr";
-            File.WriteAllText( outFile, fileContents );
+            File.WriteAllText(outFile, fileContents);
         }
 
-        static void CreateMaterialResourceFile( JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile )
+        static void CreateMaterialResourceFile(JsonSerializerSettings settings, DirectoryInfo dataDir, FileInfo sourceFile)
         {
-            var filename = Path.GetFileNameWithoutExtension( sourceFile.FullName );
-            string dataPath = sourceFile.FullName.Replace( dataDir.FullName, "data:/" ).Replace( "\\", "/" ).Replace(".TGA", ".txtr").Replace( ".tga", ".txtr" ).Replace( ".PNG", ".txtr" ).Replace( ".png", ".txtr" );
+            var filename = Path.GetFileNameWithoutExtension(sourceFile.FullName);
+            string dataPath = sourceFile.FullName.Replace(dataDir.FullName, "data:/").Replace("\\", "/").Replace(".TGA", ".txtr").Replace(".tga", ".txtr").Replace(".PNG", ".txtr").Replace(".png", ".txtr");
 
             ResourceDescriptor desc = new ResourceDescriptor()
             {
                 properties = new List<ResourceDescriptorProperty>()
                 {
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "TypeID", Value = "KRG::Render::MaterialResourceDescriptor"
                     },
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "m_resourceTypeID", Value = "MTRL"
                     },
-                    new ResourceDescriptorProperty()
+                    new ResourceDescriptorStringProperty()
                     {
                         Path = "m_diffuseTexture", Value = dataPath
                     }
                 }
             };
 
-            string fileContents = JValue.Parse( JsonConvert.SerializeObject( desc, settings ) ).ToString( Formatting.Indented );
+            string fileContents = JValue.Parse(JsonConvert.SerializeObject(desc, settings)).ToString(Formatting.Indented);
             var outFile = sourceFile.Directory.FullName + "\\..\\" + filename + ".mtrl";
-            File.WriteAllText( outFile, fileContents );
+            File.WriteAllText(outFile, fileContents);
         }
 
-        public static void GenerateResources( DirectoryInfo dataDir, DirectoryInfo directory )
+        public static void GenerateResources(DirectoryInfo dataDir, DirectoryInfo directory)
         {
             var settings = new JsonSerializerSettings();
             settings.Formatting = Formatting.None;
             settings.NullValueHandling = NullValueHandling.Ignore;
-            settings.Converters.Add( new ResourceDescriptorConverter() );
+            settings.Converters.Add(new ResourceDescriptorConverter());
 
-            var files = directory.GetFilesByExtensions( ".fbx", ".FBX", ".TGA", ".png", ".PNG", ".tga" );
+            var files = directory.GetFilesByExtensions(".fbx", ".FBX", ".TGA", ".png", ".PNG", ".tga");
 
-            foreach ( var file in files )
+            foreach (var file in files)
             {
-                if( file.Extension.ToLower() == ".fbx" )
+                if (file.Extension.ToLower() == ".fbx")
                 {
-                    //if( file.Name.ToLower().StartsWith( "sk_" ) )
-                    //{
-                    //    CreateSkeletalMeshResourceFile( settings, dataDir, file );
-                    //}
+                    if (file.Name.ToLower().StartsWith("sk_"))
+                    {
+                        CreateSkeletalMeshResourceFile(settings, dataDir, file);
+                    }
 
-                    //if ( file.Name.ToLower().StartsWith( "sm_" ) )
-                    //{
-                    //    CreateStaticMeshResourceFile( settings, dataDir, file );
-                    //    CreatePhysicsResourceFile( settings, dataDir, file );
-                    //}
+                    if (file.Name.ToLower().StartsWith("sm_"))
+                    {
+                        CreateStaticMeshResourceFile(settings, dataDir, file);
+                        CreatePhysicsResourceFile(settings, dataDir, file);
+                    }
                 }
-                else if ( file.Extension.ToLower() == ".tga" || file.Extension.ToLower() == ".png" )
+                else if (file.Extension.ToLower() == ".tga" || file.Extension.ToLower() == ".png")
                 {
                     //CreateTextureResourceFile( settings, dataDir, file );
-                    CreateMaterialResourceFile( settings, dataDir, file );
+                    //CreateMaterialResourceFile(settings, dataDir, file);
                 }
             }
         }
         #endregion
 
         #region Conversion
-        public static void RemoveRootArraysFromResourceDescriptors( DirectoryInfo directory )
+        public static void RemoveRootArraysFromResourceDescriptors(DirectoryInfo directory)
         {
-            var files = directory.GetFilesByExtensions( ".mtrl", ".txtr", ".skms", ".stms", ".pmsh", ".anim", ".skel" );
-            foreach ( var file in files )
+            var files = directory.GetFilesByExtensions(".mtrl", ".txtr", ".skms", ".stms", ".pmsh", ".anim", ".skel");
+            foreach (var file in files)
             {
                 try
                 {
-                    JArray arr = JArray.Parse( File.ReadAllText( file.FullName ) );
-                    if( arr.Count == 1 )
+                    JArray arr = JArray.Parse(File.ReadAllText(file.FullName));
+                    if (arr.Count == 1)
                     {
                         string jsonString = arr.Children<JObject>().First().ToString();
-                        File.WriteAllText( file.FullName, jsonString );
+                        File.WriteAllText(file.FullName, jsonString);
                     }
                 }
-                catch( Exception )
+                catch (Exception)
                 {
 
                 }

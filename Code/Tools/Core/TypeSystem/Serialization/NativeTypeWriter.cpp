@@ -26,7 +26,7 @@ namespace KRG::TypeSystem
         m_numTypesSerialized = 0;
     }
 
-    bool NativeTypeWriter::WriteToFile( FileSystemPath const& outPath )
+    bool NativeTypeWriter::WriteToFile( FileSystem::Path const& outPath )
     {
         KRG_ASSERT( outPath.IsFilePath() );
 

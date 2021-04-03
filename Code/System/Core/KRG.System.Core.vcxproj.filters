@@ -1282,6 +1282,7 @@
       <Filter>Types</Filter>
     </ClInclude>
     <ClInclude Include="Time\TimeStamp.h" />
+    <ClInclude Include="Types\Function.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EA.props">

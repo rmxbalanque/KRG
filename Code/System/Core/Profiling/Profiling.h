@@ -7,7 +7,7 @@
 
 namespace KRG
 {
-    class FileSystemPath;
+    namespace FileSystem { class Path; }
 
     //-------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ namespace KRG
 
         // Capture management
         KRG_SYSTEM_CORE_API void StartCapture();
-        KRG_SYSTEM_CORE_API void StopCapture( FileSystemPath const& captureSavePath );
+        KRG_SYSTEM_CORE_API void StopCapture( FileSystem::Path const& captureSavePath );
     }
 }
 

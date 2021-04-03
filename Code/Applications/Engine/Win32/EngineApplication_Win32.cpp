@@ -50,7 +50,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         {
-            FileSystemPath const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
+            FileSystem::Path const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
             if ( !m_engine.m_settingsRegistry.LoadFromFile( iniPath ) )
             {
                 return FatalError( "Failed to read required settings from INI file" );
@@ -102,10 +102,10 @@ namespace KRG
             String const resourceServerPath = Platform::Win32::GetProcessPath( resourceServerProcessID );
             if ( !resourceServerPath.empty() )
             {
-                FileSystemPath const resourceServerProcessPath = FileSystemPath( resourceServerPath ).GetParentDirectory();
-                FileSystemPath const applicationFolderPath = FileSystemPath( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
+                FileSystem::Path const resourceServerProcessPath = FileSystem::Path( resourceServerPath ).GetParentDirectory();
+                FileSystem::Path const applicationDirectoryPath = FileSystem::Path( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
 
-                if ( resourceServerProcessPath != applicationFolderPath )
+                if ( resourceServerProcessPath != applicationDirectoryPath )
                 {
                     Platform::Win32::KillProcess( resourceServerProcessID );
                     shouldStartResourceServer = true;
@@ -120,8 +120,8 @@ namespace KRG
         // Try to start the resource server
         if ( shouldStartResourceServer )
         {
-            FileSystemPath const applicationFolderPath = FileSystemPath( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
-            FileSystemPath const resourceServerExecutableFullPath = applicationFolderPath + Settings::g_resourceServerExecutablePath;
+            FileSystem::Path const applicationDirectoryPath = FileSystem::Path( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
+            FileSystem::Path const resourceServerExecutableFullPath = applicationDirectoryPath + Settings::g_resourceServerExecutablePath;
             return Platform::Win32::StartProcess( resourceServerExecutableFullPath.c_str() ) != 0;
         }
 

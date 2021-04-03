@@ -4,7 +4,7 @@
 #include "../_Module/API.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
 #include "System/Core/Memory/Pointers.h"
-#include "System/Core/Types/Event.h"
+#include "System/Core/Types/Function.h"
 
 //-------------------------------------------------------------------------
 
@@ -28,11 +28,11 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, String const& nameOfMeshToCompile = String() );
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, int32 maxBoneInfluences = 4 );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile = String() );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences = 4 );
 
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, String const& skeletonRootBoneName = String() );
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawAnimation> ReadAnimation( ReaderContext const& ctx, FileSystemPath const& sourceFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName = String() );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName = String() );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawAnimation> ReadAnimation( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName = String() );
     }
 }
 

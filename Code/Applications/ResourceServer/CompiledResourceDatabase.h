@@ -14,10 +14,10 @@ namespace KRG
         {
             inline bool IsValid() const { return m_resourceID.IsValid(); }
 
-            ResourceID      m_resourceID;
-            int32             m_compilerVersion = -1;         // The compiler version used for the last compilation
-            uint64             m_fileTimestamp = 0;            // The timestamp of the resource file
-            uint64             m_sourceTimestampHash = 0;      // The timestamp hash of any source assets used in the compilation
+            ResourceID          m_resourceID;
+            int32               m_compilerVersion = -1;         // The compiler version used for the last compilation
+            uint64              m_fileTimestamp = 0;            // The timestamp of the resource file
+            uint64              m_sourceTimestampHash = 0;      // The timestamp hash of any source assets used in the compilation
         };
 
         //-------------------------------------------------------------------------
@@ -26,9 +26,9 @@ namespace KRG
         {
         public:
 
-            bool TryConnect( FileSystemPath const& databasePath );
+            bool TryConnect( FileSystem::Path const& databasePath );
 
-            bool CleanDatabase( FileSystemPath const& databasePath );
+            bool CleanDatabase( FileSystem::Path const& databasePath );
 
             // Database functions
             CompiledResourceRecord GetRecord( ResourceID resourceID ) const;

@@ -8,7 +8,7 @@ namespace KRG
 {
     namespace Fbx
     {
-        FbxSceneContext::FbxSceneContext( FileSystemPath const& filePath )
+        FbxSceneContext::FbxSceneContext( FileSystem::Path const& filePath )
         {
             if ( !filePath.Exists() )
             {

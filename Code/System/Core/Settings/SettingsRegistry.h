@@ -14,7 +14,7 @@
 
 namespace KRG
 {
-    class FileSystemPath;
+    namespace FileSystem { class Path; }
 
     //-------------------------------------------------------------------------
 
@@ -29,8 +29,8 @@ namespace KRG
 
         SettingsRegistry();
 
-        bool LoadFromFile( FileSystemPath const& iniFilePath );
-        void SaveToFile( FileSystemPath const& iniFilePath );
+        bool LoadFromFile( FileSystem::Path const& iniFilePath );
+        void SaveToFile( FileSystem::Path const& iniFilePath );
 
         // Configuration Settings
         THashMap<uint32, Setting*> const& GetAllConfigSettings() const { return m_configSettings; }

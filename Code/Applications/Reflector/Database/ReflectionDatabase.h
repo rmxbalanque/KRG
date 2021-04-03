@@ -20,9 +20,9 @@ namespace KRG
             public:
 
                 // Database functions
-                bool ReadDatabase( FileSystemPath const& databasePath );
-                bool WriteDatabase( FileSystemPath const& databasePath );
-                bool CleanDatabase( FileSystemPath const& databasePath );
+                bool ReadDatabase( FileSystem::Path const& databasePath );
+                bool WriteDatabase( FileSystem::Path const& databasePath );
+                bool CleanDatabase( FileSystem::Path const& databasePath );
 
                 // Module functions
                 TVector<ProjectDesc> const& GetAllRegisteredProjects() const { return m_projectDescs; }

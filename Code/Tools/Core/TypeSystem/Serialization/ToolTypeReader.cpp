@@ -23,7 +23,7 @@ namespace KRG::TypeSystem
         Reset();
     }
 
-    bool ToolTypeReader::ReadFromFile( FileSystemPath const& filePath )
+    bool ToolTypeReader::ReadFromFile( FileSystem::Path const& filePath )
     {
         KRG_ASSERT( filePath.IsFilePath() );
         Reset();

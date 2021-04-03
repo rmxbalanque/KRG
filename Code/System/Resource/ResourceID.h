@@ -8,7 +8,7 @@
 // Unique ID for a resource - Used for resource look up and dependencies
 //-------------------------------------------------------------------------
 // Resource ID's are the same as data paths except we extract the resource type from the extension
-// e.g. data://folder/someResource.mesh ->  ResourceTypeID = 'mesh'
+// e.g. data://directory/someResource.mesh ->  ResourceTypeID = 'mesh'
 //-------------------------------------------------------------------------
 
 namespace KRG

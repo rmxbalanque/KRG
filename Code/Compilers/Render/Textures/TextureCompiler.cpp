@@ -27,7 +27,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            FileSystemPath textureFilePath;
+            FileSystem::Path textureFilePath;
             if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_textureDataPath, textureFilePath ) )
             {
                 return Error( "Invalid texture data path: %s", resourceDescriptor.m_textureDataPath.c_str() );

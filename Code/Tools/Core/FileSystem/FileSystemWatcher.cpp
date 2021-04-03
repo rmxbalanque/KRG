@@ -27,7 +27,7 @@ namespace KRG
             m_changeListeners.erase_first_unsorted( pListener );
         }
 
-        bool FileSystemWatcher::StartWatching( FileSystemPath const& directoryToWatch )
+        bool FileSystemWatcher::StartWatching( FileSystem::Path const& directoryToWatch )
         {
             KRG_ASSERT( !IsWatching() );
             KRG_ASSERT( directoryToWatch.IsValid() && directoryToWatch.IsDirectoryPath() );
@@ -87,7 +87,7 @@ namespace KRG
 
             CloseHandle( m_overlappedEvent.hEvent );
             CloseHandle( m_pDirectoryHandle );
-            m_directoryToWatch = FileSystemPath();
+            m_directoryToWatch = FileSystem::Path();
             m_overlappedEvent.hEvent = nullptr;
             m_pDirectoryHandle = nullptr;
         }
@@ -142,14 +142,14 @@ namespace KRG
 
         namespace
         {
-            static FileSystemPath GetFileSystemPath( FileSystemPath const& dirPath, FILE_NOTIFY_INFORMATION* pNotifyInformation )
+            static FileSystem::Path GetFileSystemPath( FileSystem::Path const& dirPath, FILE_NOTIFY_INFORMATION* pNotifyInformation )
             {
                 KRG_ASSERT( pNotifyInformation != nullptr );
 
                 char strBuffer[256] = { 0 };
                 wcstombs( strBuffer, pNotifyInformation->FileName, pNotifyInformation->FileNameLength );
 
-                FileSystemPath filePath = dirPath;
+                FileSystem::Path filePath = dirPath;
                 filePath.Append( strBuffer );
                 return filePath;
             }
@@ -157,7 +157,7 @@ namespace KRG
 
         void FileSystemWatcher::ProcessResults()
         {
-            FileSystemPath path, secondPath;
+            FileSystem::Path path, secondPath;
 
             FILE_NOTIFY_INFORMATION* pNotify = nullptr;
             size_t offset = 0;
@@ -215,7 +215,7 @@ namespace KRG
                         path = GetFileSystemPath( m_directoryToWatch, pNotify );
                         if ( path.IsFilePath() )
                         {
-                            auto predicate = [] ( FileModificationEvent const& event, FileSystemPath const& path )
+                            auto predicate = [] ( FileModificationEvent const& event, FileSystem::Path const& path )
                             {
                                 return event.m_path == path;
                             };

@@ -43,7 +43,7 @@ namespace KRG
         }
 
         void GetDiagnostics( CXTranslationUnit& TU, TVector<String>& diagnostics );
-        FileSystemPath GetHeaderPathForCursor( CXCursor cr );
+        FileSystem::Path GetHeaderPathForCursor( CXCursor cr );
 
         //-------------------------------------------------------------------------
         // QualTypes

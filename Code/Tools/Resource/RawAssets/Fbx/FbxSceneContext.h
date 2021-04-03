@@ -36,7 +36,7 @@ namespace KRG
 
         public:
 
-            FbxSceneContext( FileSystemPath const& filePath );
+            FbxSceneContext( FileSystem::Path const& filePath );
             ~FbxSceneContext();
 
             inline bool IsValid() const { return m_pManager != nullptr && m_pScene != nullptr && m_error.empty(); }

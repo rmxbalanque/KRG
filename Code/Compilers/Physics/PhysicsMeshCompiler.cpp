@@ -62,7 +62,7 @@ namespace KRG
             // Read mesh data
             //-------------------------------------------------------------------------
 
-            FileSystemPath meshFilePath;
+            FileSystem::Path meshFilePath;
             if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_meshDataPath, meshFilePath ) )
             {
                 return Error( "Invalid source data path: %s", resourceDescriptor.m_meshDataPath.c_str() );

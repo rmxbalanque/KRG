@@ -33,7 +33,7 @@ namespace KRG::TypeSystem
         void Reset();
 
         // Write currently serialized data to disk and reset serialized data
-        bool WriteToFile( FileSystemPath const& outPath );
+        bool WriteToFile( FileSystem::Path const& outPath );
 
         //-------------------------------------------------------------------------
 

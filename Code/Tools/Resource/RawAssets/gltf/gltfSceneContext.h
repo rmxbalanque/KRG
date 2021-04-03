@@ -26,7 +26,7 @@ namespace KRG
         {
         public:
 
-            gltfSceneContext( FileSystemPath const& filePath );
+            gltfSceneContext( FileSystem::Path const& filePath );
             ~gltfSceneContext();
 
             inline bool IsValid() const { return m_pSceneData != nullptr; }

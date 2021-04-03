@@ -12,7 +12,7 @@ namespace KRG
 {
     namespace gltf
     {
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawAnimation> ReadAnimation( FileSystemPath const& animationFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName = String() );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawAnimation> ReadAnimation( FileSystem::Path const& animationFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName = String() );
     }
 }
 #endif

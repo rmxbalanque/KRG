@@ -7,7 +7,7 @@ namespace KRG
 {
     namespace FileSystem
     {
-        InputFileStream::InputFileStream( FileSystemPath const& filePath )
+        InputFileStream::InputFileStream( Path const& filePath )
         {
             KRG_ASSERT( filePath.IsFilePath() );
             if ( !filePath.Exists() )
@@ -24,7 +24,7 @@ namespace KRG
             }
         }
 
-        OutputFileStream::OutputFileStream( FileSystemPath const& filePath )
+        OutputFileStream::OutputFileStream( Path const& filePath )
         {
             KRG_ASSERT( filePath.IsFilePath() );
             FileSystem::EnsurePathExists( filePath );

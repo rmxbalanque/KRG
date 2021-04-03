@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Function.h"
 #include "UUID.h"
 #include "System/Core/Logging/Log.h"
-#include <EASTL/functional.h>
 
 //-------------------------------------------------------------------------
 // Generic Events
@@ -30,10 +30,6 @@
 
 namespace KRG
 {
-    template<typename T> using TFunction = eastl::function<T>;
-
-    //-------------------------------------------------------------------------
-
     class EventBindingID
     {
         template<typename R, typename... Args> friend class TSingleUserEventInternal;
@@ -114,7 +110,7 @@ namespace KRG
     private:
 
         UUID                                m_bindingID;
-        eastl::function<R( Args... )>       m_function = nullptr;
+        TFunction<R( Args... )>             m_function = nullptr;
     };
 
     //-------------------------------------------------------------------------

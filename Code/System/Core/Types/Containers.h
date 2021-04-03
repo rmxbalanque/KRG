@@ -16,6 +16,7 @@
 #include <EASTL/bitvector.h>
 #include <EASTL/sort.h>
 #include <EASTL/fixed_vector.h>
+#include "EASTL/allocator.h"
 
 //-------------------------------------------------------------------------
 

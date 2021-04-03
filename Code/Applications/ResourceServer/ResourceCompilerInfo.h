@@ -15,7 +15,7 @@ namespace KRG
             int32                               m_version;
             TVector<ResourceTypeID>             m_outputTypes;
             TVector<ResourceTypeID>             m_virtualTypes;
-            FileSystemPath                      m_sourceModule;
+            FileSystem::Path                    m_sourceModule;
         };
     }
 }

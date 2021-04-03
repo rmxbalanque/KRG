@@ -12,7 +12,7 @@ namespace KRG
 
     static size_t FindExtensionStartIdx( String const& path )
     {
-        size_t const pathDelimiterIdx = path.find_last_of( FileSystemPath::PathDelimiter );
+        size_t const pathDelimiterIdx = path.find_last_of( FileSystem::Path::PathDelimiter );
 
         size_t idx = path.rfind( '.' );
         size_t prevIdx = idx;
@@ -53,7 +53,7 @@ namespace KRG
         return true;
     }
 
-    DataPath DataPath::FromFileSystemPath( FileSystemPath const& sourceDataPath, FileSystemPath const& filePath )
+    DataPath DataPath::FromFileSystemPath( FileSystem::Path const& sourceDataPath, FileSystem::Path const& filePath )
     {
         KRG_ASSERT( sourceDataPath.IsValid() && sourceDataPath.IsDirectoryPath() && filePath.IsValid() && filePath.IsFilePath() );
 
@@ -63,22 +63,22 @@ namespace KRG
         {
             String tempPath = DataPath::PathPrefix;
             tempPath.append( filePath.GetString().substr( sourceDataPath.Length() ) );
-            eastl::replace( tempPath.begin(), tempPath.end(), FileSystemPath::PathDelimiter, DataPath::PathDelimiter );
+            eastl::replace( tempPath.begin(), tempPath.end(), FileSystem::Path::PathDelimiter, DataPath::PathDelimiter );
             path = DataPath( tempPath );
         }
 
         return path;
     }
 
-    FileSystemPath DataPath::ToFileSystemPath( FileSystemPath const& sourceDataPath, DataPath const& dataPath )
+    FileSystem::Path DataPath::ToFileSystemPath( FileSystem::Path const& sourceDataPath, DataPath const& dataPath )
     {
         KRG_ASSERT( sourceDataPath.IsValid() && sourceDataPath.IsDirectoryPath() && dataPath.IsValid() );
 
         // Replace slashes and remove prefix
         String tempPath = dataPath.m_path;
-        eastl::replace( tempPath.begin(), tempPath.end(), DataPath::PathDelimiter, FileSystemPath::PathDelimiter );
+        eastl::replace( tempPath.begin(), tempPath.end(), DataPath::PathDelimiter, FileSystem::Path::PathDelimiter );
         tempPath = dataPath.m_path.substr( 7 );
-        return FileSystemPath( sourceDataPath + tempPath );
+        return FileSystem::Path( sourceDataPath + tempPath );
     }
 
     //-------------------------------------------------------------------------

@@ -82,10 +82,6 @@ namespace KRG
             propertyInfo.m_parentTypeID = 158821696;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = nullptr;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsComponent, m_transform );
-            propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
@@ -94,10 +90,6 @@ namespace KRG
             propertyInfo.m_parentTypeID = 158821696;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = nullptr;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsComponent, m_actorType );
-            propertyInfo.m_size = sizeof( KRG::Physics::ActorType );
-            propertyInfo.m_flags.Set( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
@@ -106,10 +98,6 @@ namespace KRG
             propertyInfo.m_parentTypeID = 158821696;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = nullptr;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsComponent, m_shapeType );
-            propertyInfo.m_size = sizeof( KRG::Physics::ShapeType );
-            propertyInfo.m_flags.Set( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
 
             //-------------------------------------------------------------------------
 
@@ -118,10 +106,6 @@ namespace KRG
             propertyInfo.m_parentTypeID = 158821696;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Physics::Layers" );
             propertyInfo.m_pDefaultValue = nullptr;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsComponent, m_layers );
-            propertyInfo.m_size = sizeof( KRG::TBitFlags<KRG::Physics::Layers> );
-            propertyInfo.m_flags.Set( 8 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
         }
 
         //-------------------------------------------------------------------------

@@ -221,7 +221,7 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugTools::Initialize( SettingsRegistry const& settingsRegistry )
+    void DebugTools::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
     {
         m_pSettingsRegistry = &settingsRegistry;
         RegisterDebugSettings();

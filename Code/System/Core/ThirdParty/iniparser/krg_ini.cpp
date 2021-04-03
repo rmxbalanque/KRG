@@ -5,7 +5,7 @@
 
 namespace KRG
 {
-    IniFile::IniFile( FileSystemPath const& filePath )
+    IniFile::IniFile( FileSystem::Path const& filePath )
     {
         KRG_ASSERT( filePath.IsValid() );
         m_pDictionary = iniparser_load( filePath.c_str() );
@@ -30,7 +30,7 @@ namespace KRG
         return iniparser_find_entry( m_pDictionary, key ) > 0;
     }
 
-    void IniFile::SaveToFile( FileSystemPath const& filePath ) const
+    void IniFile::SaveToFile( FileSystem::Path const& filePath ) const
     {
         KRG_ASSERT( IsValid() );
 

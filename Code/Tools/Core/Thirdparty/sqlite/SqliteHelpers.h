@@ -31,7 +31,7 @@ namespace KRG
 
         protected:
 
-            bool Connect( FileSystemPath const& databasePath, bool readOnlyAccess = false, bool useMutex = false );
+            bool Connect( FileSystem::Path const& databasePath, bool readOnlyAccess = false, bool useMutex = false );
             bool Disconnect();
 
             bool IsValidSQLiteResult( int result, char const* pErrorMessage = nullptr ) const;

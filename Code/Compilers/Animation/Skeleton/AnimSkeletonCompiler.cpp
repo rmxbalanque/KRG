@@ -30,7 +30,7 @@ namespace KRG
             // Read Skeleton Data
             //-------------------------------------------------------------------------
             
-            FileSystemPath skeletonFilePath;
+            FileSystem::Path skeletonFilePath;
             if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_skeletonDataPath, skeletonFilePath ) )
             {
                 return Error( "Invalid skeleton data path: %s", resourceDescriptor.m_skeletonDataPath.c_str() );

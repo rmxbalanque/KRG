@@ -12,6 +12,7 @@ namespace KRG
     Engine::Engine( TFunction<bool( KRG::String const& error )>&& errorHandler )
         : m_fatalErrorHandler( errorHandler )
         , m_module_engine_core( m_settingsRegistry )
+        , m_pDevelopmentTools( &m_debugTools )
     {}
 
     //-------------------------------------------------------------------------
@@ -121,21 +122,6 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    #if KRG_DEVELOPMENT_TOOLS
-    void Engine::InitializeDevelopmentTools()
-    {
-        m_debugTools.Initialize( m_settingsRegistry );
-        m_pDevelopmentTools = &m_debugTools;
-    }
-
-    void Engine::ShutdownDevelopmentTools()
-    {
-        m_debugTools.Shutdown();
-    }
-    #endif
-
-    //-------------------------------------------------------------------------
-
     bool Engine::Initialize( String const& applicationName, Int2 const& windowDimensions )
     {
         KRG_LOG_MESSAGE( "System", "Engine Application Startup" );
@@ -180,6 +166,8 @@ namespace KRG
         // Modules
         //-------------------------------------------------------------------------
 
+        m_moduleInitStageReached = true;
+
         m_moduleContext.m_pSettingsRegistry = &m_settingsRegistry;
         m_moduleContext.m_pTaskSystem = m_pTaskSystem;
         m_moduleContext.m_pTypeRegistry = m_pTypeRegistry;
@@ -207,6 +195,8 @@ namespace KRG
         // Load engine resources
         //-------------------------------------------------------------------------
 
+        m_moduleResourcesInitStageReached = true;
+
         LoadModuleResources( *m_pResourceSystem );
 
         while ( m_pResourceSystem->IsBusy() )
@@ -223,13 +213,15 @@ namespace KRG
         // Final initialization
         //-------------------------------------------------------------------------
 
-        m_initialized = true;
+        m_finalInitStageReached = true;
+
         m_renderingSystem.Initialize( m_pRenderDevice, m_pViewportManager, m_pRendererRegistry );
         m_pEntityWorld->Initialize( *m_pSystemRegistry );
         m_pViewportManager->UpdateMainWindowSize( Float2( windowDimensions ) );
 
         #if KRG_DEVELOPMENT_TOOLS
-        InitializeDevelopmentTools();
+        KRG_ASSERT( m_pDevelopmentTools != nullptr );
+        m_pDevelopmentTools->Initialize( m_updateContext, m_settingsRegistry );
         #endif
 
         // Load startup map
@@ -241,6 +233,7 @@ namespace KRG
             m_pEntityWorld->LoadMap( sceneResourceID );
         }
 
+        m_initialized = true;
         return true;
     }
 
@@ -248,16 +241,20 @@ namespace KRG
     {
         KRG_LOG_MESSAGE( "System", "Engine Application Shutdown Started" );
 
-        m_pTaskSystem->WaitForAll();
+        if ( m_pTaskSystem != nullptr )
+        {
+            m_pTaskSystem->WaitForAll();
+        }
 
         //-------------------------------------------------------------------------
         // Shutdown World and runtime state
         //-------------------------------------------------------------------------
 
-        if ( m_initialized )
+        if ( m_finalInitStageReached )
         {
             #if KRG_DEVELOPMENT_TOOLS
-            ShutdownDevelopmentTools();
+            KRG_ASSERT( m_pDevelopmentTools != nullptr );
+            m_pDevelopmentTools->Shutdown();
             #endif
 
             // Wait for resource/object systems to complete all resource unloading
@@ -269,46 +266,61 @@ namespace KRG
             }
 
             m_renderingSystem.Shutdown();
-            m_initialized = false;
+            m_finalInitStageReached = false;
         }
 
         //-------------------------------------------------------------------------
         // Unload engine resources
         //-------------------------------------------------------------------------
 
-        UnloadModuleResources( *m_pResourceSystem );
-
-        while ( m_pResourceSystem->IsBusy() )
+        if( m_moduleResourcesInitStageReached )
         {
-            m_pResourceSystem->Update();
+            if ( m_pResourceSystem != nullptr )
+            {
+                UnloadModuleResources( *m_pResourceSystem );
+
+                while ( m_pResourceSystem->IsBusy() )
+                {
+                    m_pResourceSystem->Update();
+                }
+            }
+
+            m_moduleResourcesInitStageReached = false;
         }
 
         //-------------------------------------------------------------------------
         // Shutdown modules
         //-------------------------------------------------------------------------
 
-        #if KRG_DEVELOPMENT_TOOLS
-        m_updateContext.m_pDebugDrawingSystem = nullptr;
-        #endif
+        if ( m_moduleInitStageReached )
+        {
+            #if KRG_DEVELOPMENT_TOOLS
+            m_updateContext.m_pDebugDrawingSystem = nullptr;
+            #endif
 
-        m_updateContext.m_pSystemRegistry = nullptr;
+            m_updateContext.m_pSystemRegistry = nullptr;
 
-        ShutdownModules();
+            ShutdownModules();
 
-        m_moduleContext.m_pSettingsRegistry = nullptr;
-        m_moduleContext.m_pTaskSystem = nullptr;
-        m_moduleContext.m_pTypeRegistry = nullptr;
-        m_moduleContext.m_pResourceSystem = nullptr;
-        m_moduleContext.m_pSystemRegistry = nullptr;
-        m_moduleContext.m_pRenderDevice = nullptr;
-        m_moduleContext.m_pRendererRegistry = nullptr;
-        m_moduleContext.m_pEntityWorld = nullptr;
+            m_moduleContext.m_pSettingsRegistry = nullptr;
+            m_moduleContext.m_pTaskSystem = nullptr;
+            m_moduleContext.m_pTypeRegistry = nullptr;
+            m_moduleContext.m_pResourceSystem = nullptr;
+            m_moduleContext.m_pSystemRegistry = nullptr;
+            m_moduleContext.m_pRenderDevice = nullptr;
+            m_moduleContext.m_pRendererRegistry = nullptr;
+            m_moduleContext.m_pEntityWorld = nullptr;
+        }
 
         //-------------------------------------------------------------------------
         // Unregister types
         //-------------------------------------------------------------------------
 
-        AutoGenerated::UnregisterTypes( *m_pTypeRegistry );
+        if ( m_moduleInitStageReached )
+        {
+            AutoGenerated::UnregisterTypes( *m_pTypeRegistry );
+            m_moduleInitStageReached = false;
+        }
 
         //-------------------------------------------------------------------------
         // Shutdown Core
@@ -333,6 +345,7 @@ namespace KRG
         m_moduleContext.m_pDebugUI = nullptr;
         #endif
 
+        m_initialized = false;
         return true;
     }
 

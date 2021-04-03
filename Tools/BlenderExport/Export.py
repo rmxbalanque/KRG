@@ -122,17 +122,6 @@ try:
             meshComponent.TypeData[ "m_pMesh" ] = meshDataPath
             meshComponent.TypeData[ "m_transform"] = transformString
 
-            if "road" in mesh.name.lower():
-                meshComponent.TypeData["m_materials/0"] = "data://Packs/BR/Materials/PolygonBattleRoyale_Road_01.mtrl"
-            elif "bridge" in mesh.name.lower():
-                meshComponent.TypeData["m_materials/0"] = "data://Packs/BR/Materials/PolygonBattleRoyale_Road_01.mtrl"
-            elif "destroyed" in mesh.name.lower():
-                meshComponent.TypeData["m_materials/0"] = "data://Packs/BR/Materials/PolygonBattleRoyale_Vehicles_01_Damaged.mtrl"
-            elif "vehicle" in mesh.name.lower():
-                meshComponent.TypeData["m_materials/0"] = "data://Packs/BR/Materials/PolygonBattleRoyale_Vehicles_01.mtrl"
-            else:
-                meshComponent.TypeData["m_materials/0"] = "data://Packs/BR/Materials/PolygonBattleRoyale_Texture_01_A.mtrl"
-
             entity.Components.append( meshComponent )
 
             # Create physics component

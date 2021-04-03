@@ -83,6 +83,7 @@ namespace KRG::ImGuiX
 
          ImGuiStyle& style = ImGui::GetStyle();
 
+         style.FramePadding = ImVec2( 4, 2 );
          style.WindowRounding = 0.0f;
          style.ChildRounding = 0.0f;
          style.FrameRounding = 0.0f;

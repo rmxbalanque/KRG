@@ -11,7 +11,7 @@ namespace KRG
 {
     namespace gltf
     {
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( FileSystemPath const& sourceFilePath, String const& skeletonRootBoneName );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName );
     }
 }
 #endif

@@ -39,8 +39,8 @@ namespace KRG::Resource
 
         inline String const& GetErrorMessage() const { return m_errorMessage; }
         inline String const& GetNetworkAddress() const { return m_networkAddress; }
-        inline FileSystemPath const& GetSourceDataDir() const { return m_sourceDataDir; }
-        inline FileSystemPath const& GetCompiledDataDir() const { return m_compiledDataDir; }
+        inline FileSystem::Path const& GetSourceDataDir() const { return m_sourceDataDir; }
+        inline FileSystem::Path const& GetCompiledDataDir() const { return m_compiledDataDir; }
 
         // Compilers
         inline TVector<CompilerInfo> const& GetRegisteredCompilers() const { return m_compilers; }
@@ -71,13 +71,13 @@ namespace KRG::Resource
 
         // Up-to-date system
         void PerformResourceUpToDateCheck( CompilationRequest* pRequest, TVector<DataPath> const& compileDependencies ) const;
-        bool TryReadCompileDependencies( FileSystemPath const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog = nullptr ) const;
+        bool TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog = nullptr ) const;
         bool IsResourceUpToDate( ResourceID const& resourceID ) const;
         void WriteCompiledResourceRecord( CompilationRequest* pRequest );
         bool IsCompileableResourceType( ResourceTypeID ID ) const;
 
         // File system listener
-        virtual void OnFileModified( FileSystemPath const& filePath ) override final;
+        virtual void OnFileModified( FileSystem::Path const& filePath ) override final;
 
     private:
 
@@ -88,10 +88,10 @@ namespace KRG::Resource
 
         // Settings
         SettingsRegistry                        m_settingsRegistry;
-        FileSystemPath                          m_workingDir;
-        FileSystemPath                          m_sourceDataDir;
-        FileSystemPath                          m_compiledDataDir;
-        FileSystemPath                          m_compiledResourceDatabasePath;
+        FileSystem::Path                          m_workingDir;
+        FileSystem::Path                          m_sourceDataDir;
+        FileSystem::Path                          m_compiledDataDir;
+        FileSystem::Path                          m_compiledResourceDatabasePath;
         String                                  m_networkAddress;
         String                                  m_resourceCompilerFullPath;
         uint32                                  m_maxSimultaneousCompilationTasks = 16;

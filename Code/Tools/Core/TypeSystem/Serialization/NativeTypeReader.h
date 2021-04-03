@@ -30,7 +30,7 @@ namespace KRG::TypeSystem
         NativeTypeReader( TypeRegistry const& typeRegistry );
         ~NativeTypeReader();
 
-        bool ReadFromFile( FileSystemPath const& filePath );
+        bool ReadFromFile( FileSystem::Path const& filePath );
 
         inline int32 GetNumSerializedTypes() const { return m_numSerializedTypes; }
 

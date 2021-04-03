@@ -46,7 +46,7 @@ namespace KRG
         // Output
         //-------------------------------------------------------------------------
 
-        KRG_SYSTEM_CORE_API void SaveToFile( FileSystemPath const& logFilePath );
+        KRG_SYSTEM_CORE_API void SaveToFile( FileSystem::Path const& logFilePath );
 
         // Warnings and errors
         //-------------------------------------------------------------------------

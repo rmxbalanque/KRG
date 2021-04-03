@@ -25,7 +25,7 @@ namespace KRG
         {
         public:
 
-            static TUniquePtr<RawMesh> ReadStaticMesh( FileSystemPath const& sourceFilePath, String const& nameOfMeshToCompile )
+            static TUniquePtr<RawMesh> ReadStaticMesh( FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile )
             {
                 KRG_ASSERT( sourceFilePath.IsValid() );
 
@@ -47,7 +47,7 @@ namespace KRG
                 return pMesh;
             }
 
-            static TUniquePtr<RawMesh> ReadSkeletalMesh( FileSystemPath const& sourceFilePath, int32 maxBoneInfluences = 4 )
+            static TUniquePtr<RawMesh> ReadSkeletalMesh( FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences = 4 )
             {
                 KRG_ASSERT( sourceFilePath.IsValid() );
 
@@ -571,12 +571,12 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    TUniquePtr<RawAssets::RawMesh> Fbx::ReadStaticMesh( FileSystemPath const& sourceFilePath, String const& nameOfMeshToCompile )
+    TUniquePtr<RawAssets::RawMesh> Fbx::ReadStaticMesh( FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile )
     {
         return RawAssets::FbxMeshFileReader::ReadStaticMesh( sourceFilePath, nameOfMeshToCompile );
     }
 
-    TUniquePtr<RawAssets::RawMesh> Fbx::ReadSkeletalMesh( FileSystemPath const& sourceFilePath, int32 maxBoneInfluences )
+    TUniquePtr<RawAssets::RawMesh> Fbx::ReadSkeletalMesh( FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences )
     {
         return RawAssets::FbxMeshFileReader::ReadSkeletalMesh( sourceFilePath, maxBoneInfluences );
     }

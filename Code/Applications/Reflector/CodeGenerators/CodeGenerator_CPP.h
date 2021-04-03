@@ -31,7 +31,7 @@ namespace KRG
             void GenerateModuleCodeFile( ProjectDesc const& prj, TVector<TypeDescriptor> const& typesInModule );
 
             // Utils
-            static bool SaveStreamToFile( FileSystemPath const& filePath, std::stringstream& stream );
+            static bool SaveStreamToFile( FileSystem::Path const& filePath, std::stringstream& stream );
             bool LogError( char const* pErrorFormat, ... ) const;
 
         private:

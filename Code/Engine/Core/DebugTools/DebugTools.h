@@ -68,7 +68,7 @@ namespace KRG
             DebugTools() = default;
             ~DebugTools();
 
-            virtual void Initialize( SettingsRegistry const& settingsRegistry ) override final;
+            virtual void Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry ) override final;
             virtual void Shutdown() override final;
             virtual void Update( UpdateContext const& context, Render::ViewportManager& viewportSystem ) override final;
 

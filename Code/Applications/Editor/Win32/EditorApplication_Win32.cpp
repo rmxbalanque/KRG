@@ -8,6 +8,8 @@
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Platform/Platform_Win32.h"
 #include "System/Core/Time/Timers.h"
+#include "Applications/Editor/Render/MeshEditor/MeshEditor.h"
+#include "Applications/Editor/Animation/AnimationEditor/AnimationEditor.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,7 +24,7 @@ namespace KRG
 
     EditorApplication::EditorApplication( HINSTANCE hInstance )
         : Win32Application( hInstance, "Kruger Editor", IDI_EDITOR_ICON )
-        , m_editor( TFunction<bool( KRG::String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
+        , m_editorHost( TFunction<bool( KRG::String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
     {}
 
     bool EditorApplication::ReadSettings( int32 argc, char** argv )
@@ -31,18 +33,26 @@ namespace KRG
         //-------------------------------------------------------------------------
         {
             cli::Parser cmdParser( argc, argv );
-            // TODO: REMOVE THIS - editor startup map needs to be handled differently
+
             cmdParser.set_optional<std::string>( "map", "map", "", "The startup map." );
+            cmdParser.set_optional<std::string>( "mode", "mode", "", "What mode should we start the editor in?" );
 
             if ( !cmdParser.run() )
             {
                 return FatalError( "Invalid command line arguments!" );
             }
 
+            // TODO: REMOVE THIS - editor startup map needs to be handled differently
             std::string const map = cmdParser.get<std::string>( "map" );
             if ( !map.empty() )
             {
-                m_editor.m_startupMap = map.c_str();
+                m_editorHost.m_startupMap = map.c_str();
+            }
+
+            std::string const mode = cmdParser.get<std::string>( "mode" );
+            if ( !mode.empty() )
+            {
+                m_editorModeID = mode.c_str();
             }
         }
 
@@ -50,8 +60,8 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         {
-            FileSystemPath const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
-            if ( !m_editor.m_settingsRegistry.LoadFromFile( iniPath ) )
+            FileSystem::Path const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
+            if ( !m_editorHost.m_settingsRegistry.LoadFromFile( iniPath ) )
             {
                 return FatalError( "Failed to read required settings from INI file" );
             }
@@ -67,8 +77,24 @@ namespace KRG
             return FatalError( "Couldn't start resource server!" );
         }
 
+        // Select editor mode
+        //-------------------------------------------------------------------------
+
+        auto pEditorMode = EditorRegistry::TryCreateEditor( m_editorModeID.empty() ? StringID::InvalidID : StringID( m_editorModeID ) );
+        if ( pEditorMode == nullptr )
+        {
+            return FatalError( String().sprintf( "Couldn't find editor mode: %s" , m_editorModeID.c_str() ) );
+        }
+
+        m_editorHost.SetActiveEditor( pEditorMode );
+
+        SetWindowTitle( pEditorMode->GetName() );
+
+        // Initialize editor
+        //-------------------------------------------------------------------------
+
         Int2 const windowDimensions( ( m_windowRect.right - m_windowRect.left ), ( m_windowRect.bottom - m_windowRect.top ) );
-        if ( !m_editor.Initialize( m_applicationNameNoWhitespace, windowDimensions ) )
+        if ( !m_editorHost.Initialize( StringUtils::StripWhitespace( pEditorMode->GetName() ), windowDimensions ) )
         {
             return FatalError( "Failed to initialize engine" );
         }
@@ -78,12 +104,12 @@ namespace KRG
 
     bool EditorApplication::Shutdown()
     {
-        return m_editor.Shutdown();
+        return m_editorHost.Shutdown();
     }
 
     bool EditorApplication::ApplicationLoop()
     {
-        return m_editor.Update();
+        return m_editorHost.Update();
     }
 
     //-------------------------------------------------------------------------
@@ -102,10 +128,10 @@ namespace KRG
             String const resourceServerPath = Platform::Win32::GetProcessPath( resourceServerProcessID );
             if ( !resourceServerPath.empty() )
             {
-                FileSystemPath const resourceServerProcessPath = FileSystemPath( resourceServerPath ).GetParentDirectory();
-                FileSystemPath const applicationFolderPath = FileSystemPath( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
+                FileSystem::Path const resourceServerProcessPath = FileSystem::Path( resourceServerPath ).GetParentDirectory();
+                FileSystem::Path const applicationDirectoryPath = FileSystem::Path( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
 
-                if ( resourceServerProcessPath != applicationFolderPath )
+                if ( resourceServerProcessPath != applicationDirectoryPath )
                 {
                     Platform::Win32::KillProcess( resourceServerProcessID );
                     shouldStartResourceServer = true;
@@ -120,8 +146,8 @@ namespace KRG
         // Try to start the resource server
         if ( shouldStartResourceServer )
         {
-            FileSystemPath const applicationFolderPath = FileSystemPath( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
-            FileSystemPath const resourceServerExecutableFullPath = applicationFolderPath + Settings::g_resourceServerExecutablePath;
+            FileSystem::Path const applicationDirectoryPath = FileSystem::Path( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
+            FileSystem::Path const resourceServerExecutableFullPath = applicationDirectoryPath + Settings::g_resourceServerExecutablePath;
             return Platform::Win32::StartProcess( resourceServerExecutableFullPath.c_str() ) != 0;
         }
 
@@ -147,7 +173,7 @@ namespace KRG
                 KRG::uint32 height = HIWORD( lParam );
                 if ( width > 0 && height > 0 )
                 {
-                    m_editor.UpdateMainWindowSize( Int2( width, height ) );
+                    m_editorHost.UpdateMainWindowSize( Int2( width, height ) );
                 }
             }
             break;
@@ -156,13 +182,13 @@ namespace KRG
 
             case WM_SETFOCUS:
             {
-                m_editor.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_editorHost.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
             case WM_KILLFOCUS:
             {
-                m_editor.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_editorHost.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
@@ -177,7 +203,7 @@ namespace KRG
             case WM_CHAR:
             case WM_MOUSEMOVE:
             {
-                m_editor.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
+                m_editorHost.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
             }
             break;
 
@@ -202,7 +228,7 @@ namespace KRG
         // ImGui specific message processing
         //-------------------------------------------------------------------------
 
-        auto const imguiResult = m_editor.m_pImguiSystem->ProcessInput( { hWnd, message, wParam, lParam } );
+        auto const imguiResult = m_editorHost.m_pImguiSystem->ProcessInput( { hWnd, message, wParam, lParam } );
         if ( imguiResult != 0 )
         {
             return imguiResult;

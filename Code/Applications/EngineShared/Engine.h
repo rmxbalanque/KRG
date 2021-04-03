@@ -44,11 +44,6 @@ namespace KRG
         void UnloadModuleResources( Resource::ResourceSystem& resourceSystem );
         void ShutdownModules();
 
-        #if KRG_DEVELOPMENT_TOOLS
-        virtual void InitializeDevelopmentTools();
-        virtual void ShutdownDevelopmentTools();
-        #endif
-
     protected:
 
         TFunction<bool( KRG::String const& error )>     m_fatalErrorHandler;
@@ -91,8 +86,8 @@ namespace KRG
         Physics::PhysicsSystem*                         m_pPhysicsSystem = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DebugTools                                  m_debugTools;
-        ImGuiX::DevelopmentTools*                          m_pDevelopmentTools = nullptr;
+        Debug::DebugTools                               m_debugTools;
+        ImGuiX::DevelopmentTools*                       m_pDevelopmentTools = nullptr;
         Debug::DrawingSystem*                           m_pDebugDrawingSystem = nullptr;
         #endif
 
@@ -100,7 +95,11 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         DataPath                                        m_startupMap;
+        bool                                            m_moduleInitStageReached = false;
+        bool                                            m_moduleResourcesInitStageReached = false;
+        bool                                            m_finalInitStageReached = false;
         bool                                            m_initialized = false;
+
         bool                                            m_exitRequested = false;
     };
 }

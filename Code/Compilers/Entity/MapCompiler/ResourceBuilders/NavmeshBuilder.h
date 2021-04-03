@@ -25,7 +25,7 @@ namespace KRG::Navmesh
 
     public:
 
-        bool Build( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, FileSystemPath const& navmeshResourcePath );
+        bool Build( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, FileSystem::Path const& navmeshResourcePath );
 
     private:
 

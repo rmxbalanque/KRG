@@ -33,17 +33,17 @@ namespace KRG
 
                 Reflector();
 
-                bool ParseSolution( FileSystemPath const& slnPath );
+                bool ParseSolution( FileSystem::Path const& slnPath );
                 bool Clean();
                 bool Build();
 
             private:
 
                 bool LogError( char const* pErrorFormat, ... ) const;
-                bool ParseProject( FileSystemPath const& prjPath );
+                bool ParseProject( FileSystem::Path const& prjPath );
 
-                HeaderProcessResult ProcessHeaderFile( FileSystemPath const& filePath, String& exportMacro );
-                uint64 CalculateHeaderChecksum( FileSystemPath const& engineIncludePath, FileSystemPath const& filePath );
+                HeaderProcessResult ProcessHeaderFile( FileSystem::Path const& filePath, String& exportMacro );
+                uint64 CalculateHeaderChecksum( FileSystem::Path const& engineIncludePath, FileSystem::Path const& filePath );
 
                 bool UpToDateCheck();
                 bool ParseRegisteredHeaders();

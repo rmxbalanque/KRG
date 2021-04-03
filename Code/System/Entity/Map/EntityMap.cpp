@@ -82,12 +82,18 @@ namespace KRG::EntityModel
         // Ensure that the entity to add, is not already part of a collection and that it's deactivated
         KRG_ASSERT( pEntity != nullptr && !pEntity->IsInCollection() && !pEntity->HasRequestedComponentLoad() );
         KRG_ASSERT( !VectorContains( m_entitiesToAdd, pEntity ) );
+
+        // Lock the map
+        Threading::RecursiveScopeLock lock( m_mutex );
         m_entitiesToAdd.emplace_back( pEntity );
     }
 
     Entity* EntityMap::RemoveEntity( UUID entityID )
     {
         Entity* pEntityToRemove = nullptr;
+
+        // Lock the map
+        Threading::RecursiveScopeLock lock( m_mutex );
 
         // Queue removal
         if ( m_isCollectionInstantiated )
@@ -117,6 +123,8 @@ namespace KRG::EntityModel
         KRG_ASSERT( Threading::IsMainThread() && loadingContext.IsValid() );
         KRG_ASSERT( m_status == Status::Unloaded );
 
+        Threading::RecursiveScopeLock lock( m_mutex );
+
         if ( m_isTransientMap )
         {
             m_ID = UUID::GenerateID();
@@ -133,6 +141,7 @@ namespace KRG::EntityModel
     void EntityMap::Unload( LoadingContext const& loadingContext )
     {
         KRG_ASSERT( m_status != Status::Unloaded );
+        Threading::RecursiveScopeLock lock( m_mutex );
         m_isUnloadRequested = true;
     }
 
@@ -179,6 +188,8 @@ namespace KRG::EntityModel
         };
 
         //-------------------------------------------------------------------------
+
+        Threading::RecursiveScopeLock lock( m_mutex );
 
         EntityActivationTask activationTask( loadingContext, activationContext, m_entities );
         loadingContext.m_pTaskSystem->ScheduleTask( &activationTask );
@@ -230,6 +241,8 @@ namespace KRG::EntityModel
 
         //-------------------------------------------------------------------------
 
+        Threading::RecursiveScopeLock lock( m_mutex );
+
         EntityDeactivationTask deactivationTask( loadingContext, activationContext, m_entities );
         loadingContext.m_pTaskSystem->ScheduleTask( &deactivationTask );
         loadingContext.m_pTaskSystem->WaitForTask( &deactivationTask );
@@ -244,7 +257,7 @@ namespace KRG::EntityModel
         if ( pEntity->GetCollectionID() == m_ID )
         {
             KRG_ASSERT( FindEntity( pEntity->GetID() ) );
-            Threading::ScopeLock lock( m_entityStateUpdateMutex );
+            Threading::RecursiveScopeLock lock( m_mutex );
             m_entitiesToLoad.emplace_back( pEntity );
         }
     }
@@ -538,6 +551,10 @@ namespace KRG::EntityModel
     {
         KRG_PROFILE_SCOPE_SCENE( "Map Loading" );
         KRG_ASSERT( Threading::IsMainThread() && loadingContext.IsValid() );
+
+        //-------------------------------------------------------------------------
+
+        Threading::RecursiveScopeLock lock( m_mutex );
 
         //-------------------------------------------------------------------------
 

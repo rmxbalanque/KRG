@@ -28,7 +28,7 @@ namespace KRG::TypeSystem
         ToolTypeReader( TypeSystem::TypeRegistry const& typeRegistry );
         ~ToolTypeReader();
 
-        bool ReadFromFile( FileSystemPath const& filePath );
+        bool ReadFromFile( FileSystem::Path const& filePath );
 
         void DeserializeType( ToolTypeInstance& outType ) const;
 

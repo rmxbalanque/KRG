@@ -353,7 +353,7 @@ namespace KRG
         // Serializer
         //-------------------------------------------------------------------------
 
-        bool EntityCollectionReader::ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& filePath, EntityCollectionDescriptor& outCollection )
+        bool EntityCollectionReader::ReadCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& filePath, EntityCollectionDescriptor& outCollection )
         {
             KRG_ASSERT( filePath.IsValid() );
 

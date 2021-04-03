@@ -55,7 +55,7 @@ namespace KRG
             userIni.SetInt( "WindowSettings:Right", (KRG::int32) windowRect.right );
             userIni.SetInt( "WindowSettings:Top", (KRG::int32) windowRect.top );
             userIni.SetInt( "WindowSettings:Bottom", (KRG::int32) windowRect.bottom );
-            userIni.SaveToFile( KRG::FileSystemPath( pSettingsFile ) );
+            userIni.SaveToFile( KRG::FileSystem::Path( pSettingsFile ) );
         }
     }
 
@@ -167,6 +167,11 @@ namespace KRG
             UpdateWindow( m_pWindow );
             GetClientRect( m_pWindow, &m_windowRect );
         }
+    }
+
+    void Win32Application::SetWindowTitle( char const* pNewTitle )
+    {
+        SetWindowText( m_pWindow, pNewTitle );
     }
 
     int Win32Application::Run( int32 argc, char** argv )

@@ -27,7 +27,7 @@ namespace KRG
         void OpenProfiler()
         {
             #if _WIN32
-            FileSystemPath const profilerPath = FileSystemPath( Platform::Win32::GetCurrentModulePath() ) + "..\\..\\..\\..\\External\\Optick\\Optick.exe";
+            FileSystem::Path const profilerPath = FileSystem::Path( Platform::Win32::GetCurrentModulePath() ) + "..\\..\\..\\..\\External\\Optick\\Optick.exe";
             ShellExecute( 0, 0, profilerPath.c_str(), 0, 0, SW_SHOW );
             #endif
         }
@@ -37,7 +37,7 @@ namespace KRG
             OPTICK_START_CAPTURE();
         }
 
-        void StopCapture( FileSystemPath const& captureSavePath )
+        void StopCapture( FileSystem::Path const& captureSavePath )
         {
             OPTICK_STOP_CAPTURE();
             OPTICK_SAVE_CAPTURE( captureSavePath.c_str() );

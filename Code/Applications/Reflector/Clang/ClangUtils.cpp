@@ -16,16 +16,16 @@ namespace KRG
             }
         }
 
-        FileSystemPath GetHeaderPathForCursor( CXCursor cr )
+        FileSystem::Path GetHeaderPathForCursor( CXCursor cr )
         {
             CXFile pFile;
             CXSourceRange const cursorRange = clang_getCursorExtent( cr );
             clang_getExpansionLocation( clang_getRangeStart( cursorRange ), &pFile, nullptr, nullptr, nullptr );
 
-            FileSystemPath HeaderFilePath;
+            FileSystem::Path HeaderFilePath;
             if ( pFile != nullptr )
             {
-                HeaderFilePath = FileSystemPath( ClangUtils::GetString( clang_getFileName( pFile ) ) );
+                HeaderFilePath = FileSystem::Path( ClangUtils::GetString( clang_getFileName( pFile ) ) );
             }
 
             return HeaderFilePath;

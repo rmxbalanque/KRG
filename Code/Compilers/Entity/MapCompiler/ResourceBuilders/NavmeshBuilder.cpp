@@ -45,7 +45,7 @@ namespace KRG::Navmesh
 
     //-------------------------------------------------------------------------
 
-    bool NavmeshBuilder::Build( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, FileSystemPath const& navmeshResourcePath )
+    bool NavmeshBuilder::Build( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, FileSystem::Path const& navmeshResourcePath )
     {
         THashMap<DataPath, TVector<Transform>> collisionPrimitives;
         if ( !CollectCollisionPrimitives( ctx, entityCollectionDesc, collisionPrimitives ) )
@@ -123,25 +123,25 @@ namespace KRG::Navmesh
             // Load descriptor
             //-------------------------------------------------------------------------
 
-            FileSystemPath descFilePath;
+            FileSystem::Path descFilePath;
             if ( !ctx.ConvertDataPathToFilePath( primitiveDesc.first, descFilePath ) )
             {
-                return Error( "Invalid source data path: %s", primitiveDesc.first.c_str() );
+                return Error( "Invalid source data path (%s) for physics mesh descriptor", primitiveDesc.first.c_str() );
             }
 
             Physics::PhysicsMeshResourceDescriptor resourceDescriptor;
             if ( !ctx.TryReadResourceDescriptorFromFile( descFilePath, resourceDescriptor ) )
             {
-                return Error( "Failed to read resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
+                return Error( "Failed to read physics mesh resource descriptor from file: %s", descFilePath.c_str() );
             }
 
             // Load mesh
             //-------------------------------------------------------------------------
 
-            FileSystemPath meshFilePath;
+            FileSystem::Path meshFilePath;
             if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_meshDataPath, meshFilePath ) )
             {
-                return Error( "Invalid source data path: %s", resourceDescriptor.m_meshDataPath.c_str() );
+                return Error( "Invalid source data path (%) in physics mesh descriptor: %s", resourceDescriptor.m_meshDataPath.c_str(), descFilePath.c_str() );
             }
 
             RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };

@@ -292,7 +292,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            bool ReflectionDatabase::ReadDatabase( FileSystemPath const& databasePath )
+            bool ReflectionDatabase::ReadDatabase( FileSystem::Path const& databasePath )
             {
                 if ( !Connect( databasePath, false ) )
                 {
@@ -440,7 +440,7 @@ namespace KRG
                 return Disconnect();
             }
 
-            bool ReflectionDatabase::WriteDatabase( FileSystemPath const& databasePath )
+            bool ReflectionDatabase::WriteDatabase( FileSystem::Path const& databasePath )
             {
                 char* pErrorMessage = nullptr;
                 char statement[s_defaultStatementBufferSize] = { 0 };
@@ -540,7 +540,7 @@ namespace KRG
                 return Disconnect();
             }
 
-            bool ReflectionDatabase::CleanDatabase( FileSystemPath const& databasePath )
+            bool ReflectionDatabase::CleanDatabase( FileSystem::Path const& databasePath )
             {
                 KRG_ASSERT( databasePath.IsFilePath() );
 

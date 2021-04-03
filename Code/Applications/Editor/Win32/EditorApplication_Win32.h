@@ -1,14 +1,40 @@
-#ifdef _WIN32
 #pragma once
 
-#include <windows.h>
+#ifdef _WIN32
 #include "Win32/Application_Win32.h"
-#include "../Editor.h"
+#include "Applications/Editor/Editor.h"
+#include "Engine.h"
+#include <windows.h>
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
+    class EditorHost : public Engine
+    {
+        friend class EditorApplication;
+
+    public:
+
+        using Engine::Engine;
+
+        // Deletes active editor
+        virtual ~EditorHost()
+        {
+            KRG_ASSERT( m_pDevelopmentTools != &m_debugTools );
+            KRG::Delete( m_pDevelopmentTools );
+        }
+
+        // Takes ownership of the active editor
+        inline void SetActiveEditor( Editor* pActiveEditor )
+        {
+            KRG_ASSERT( pActiveEditor != nullptr );
+            m_pDevelopmentTools = pActiveEditor;
+        }
+    };
+
+    //-------------------------------------------------------------------------
+
     class EditorApplication : public Win32Application
     {
 
@@ -29,8 +55,8 @@ namespace KRG
 
     private:
 
-        Editor                          m_editor;
+        EditorHost                      m_editorHost;
+        String                          m_editorModeID;
     };
 }
-
 #endif

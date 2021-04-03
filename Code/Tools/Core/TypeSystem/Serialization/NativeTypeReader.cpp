@@ -105,7 +105,7 @@ namespace KRG::TypeSystem
         Reset();
     }
 
-    bool NativeTypeReader::ReadFromFile( FileSystemPath const& filePath )
+    bool NativeTypeReader::ReadFromFile( FileSystem::Path const& filePath )
     {
         KRG_ASSERT( filePath.IsFilePath() );
         Reset();
@@ -197,17 +197,17 @@ namespace KRG::TypeSystem
         {
             PropertyInfo const& propInfo = propInfoPair.second;
 
-            // Try get serialized value
-            const char* pPropertyName = propInfo.m_ID.ToString();
-            if ( !currentJsonValue.HasMember( pPropertyName ) )
-            {
-                continue;
-            }
-
-            // Read value
+            // Read Arrays
             auto pPropertyDataAddress = propInfo.GetPropertyAddress( pTypeData );
             if ( propInfo.IsArrayProperty() )
             {
+                // Try get serialized value
+                const char* pPropertyName = propInfo.m_ID.ToString();
+                if ( !currentJsonValue.HasMember( pPropertyName ) )
+                {
+                    continue;
+                }
+
                 KRG_ASSERT( currentJsonValue[pPropertyName].IsArray() );
                 auto jsonArrayValue = currentJsonValue[pPropertyName].GetArray();
 
@@ -237,7 +237,7 @@ namespace KRG::TypeSystem
                         pArrayElementAddress += elementByteSize;
                     }
                 }
-                else
+                else // Dynamic array
                 {
                     // Do the traversal backwards to only allocate once
                     for ( int32 i = (int32) ( numArrayElements - 1 ); i >= 0; i-- )
@@ -247,8 +247,15 @@ namespace KRG::TypeSystem
                     }
                 }
             }
-            else // Complex Type
+            else // Non-array type
             {
+                // Try get serialized value
+                const char* pPropertyName = propInfo.m_ID.ToString();
+                if ( !currentJsonValue.HasMember( pPropertyName ) )
+                {
+                    continue;
+                }
+
                 DeserializeProperty( currentJsonValue[pPropertyName], propInfo, pPropertyDataAddress );
             }
         }

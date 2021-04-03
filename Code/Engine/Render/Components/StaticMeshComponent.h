@@ -1,101 +1,76 @@
 #pragma once
 
-#include "Engine/Render/_Module/API.h"
+#include "MeshComponent.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
-#include "Engine/Render/Material/RenderMaterial.h"
-#include "System/Entity/EntitySpatialComponent.h"
-#include "System/Resource/ResourcePtr.h"
 #include "System/Core/Types/Event.h"
-#include "System/Core/Types/Containers.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace Render
+    enum class Mobility
     {
-        enum class Mobility
-        {
-            KRG_REGISTER_ENUM
+        KRG_REGISTER_ENUM
 
-            Static = 0,
-            Dynamic = 1
-        };
+        Static = 0,
+        Dynamic = 1
+    };
 
+    //-------------------------------------------------------------------------
+
+    class KRG_ENGINE_RENDER_API StaticMeshComponent final : public MeshComponent
+    {
+        KRG_REGISTER_ENTITY_COMPONENT;
+
+    public:
+
+        using MeshComponent::MeshComponent;
+
+        // Mesh Data
         //-------------------------------------------------------------------------
 
-        class KRG_ENGINE_RENDER_API StaticMeshComponent : public SpatialEntityComponent
+        inline void SetMesh( ResourceID meshResourceID )
         {
-            KRG_REGISTER_ENTITY_COMPONENT;
+            KRG_ASSERT( IsUnloaded() );
+            KRG_ASSERT( meshResourceID.IsValid() );
+            m_pMesh = meshResourceID;
+        }
 
-        public:
+        inline StaticMesh const* GetMesh() const
+        {
+            KRG_ASSERT( m_pMesh != nullptr && m_pMesh->IsValid() );
+            return m_pMesh.GetPtr();
+        }
 
-            inline StaticMeshComponent() = default;
-            inline StaticMeshComponent( StringID name ) : SpatialEntityComponent( UUID::GenerateID(), name ) {}
+        // Mobility
+        //-------------------------------------------------------------------------
 
-            // Mesh Data
-            //-------------------------------------------------------------------------
+        inline TSingleUserEvent<void, StaticMeshComponent*> OnMobilityChanged() { return m_mobilityChangedEvent; }
+        inline Mobility GetMobility() const { return m_mobility; }
 
-            inline void SetMesh( ResourceID meshResourceID )
+        inline void ChangeMobility( Mobility newMobility )
+        {
+            if ( newMobility != m_mobility )
             {
-                KRG_ASSERT( IsUnloaded() );
-                KRG_ASSERT( meshResourceID.IsValid() );
-                m_pMesh = meshResourceID;
-            }
-
-            inline void SetMaterial( int32 materialIdx, ResourceID materialResourceID )
-            {
-                KRG_ASSERT( IsUnloaded() );
-                KRG_ASSERT( materialResourceID.IsValid() );
-
-                if ( materialIdx >= m_materials.size() )
+                m_mobility = newMobility;
+                if ( m_mobilityChangedEvent.HasBoundUser() )
                 {
-                    m_materials.resize( materialIdx + 1 );
-                    m_materials[materialIdx] = materialResourceID;
+                    m_mobilityChangedEvent.Execute( this );
                 }
             }
+        }
 
-            inline StaticMesh const* GetMesh() const
-            {
-                KRG_ASSERT( m_pMesh != nullptr && m_pMesh->IsValid() );
-                return m_pMesh.GetPtr();
-            }
+        virtual TVector<TResourcePtr<Material>> const& GetDefaultMaterials() const override;
 
-            inline TVector<TResourcePtr<Material>> const& GetMaterials() const 
-            { 
-                KRG_ASSERT( m_pMesh != nullptr && m_pMesh->IsValid() );
-                return m_materials; 
-            }
+    protected:
 
-            // Mobility
-            //-------------------------------------------------------------------------
+        virtual void Initialize() override final;
+        virtual void OnWorldTransformUpdated() override final;
 
-            inline TSingleUserEvent<void, StaticMeshComponent*> OnMobilityChanged() { return m_mobilityChangedEvent; }
-            inline Mobility GetMobility() const { return m_mobility; }
+    private:
 
-            inline void ChangeMobility( Mobility newMobility ) 
-            { 
-                if( newMobility != m_mobility )
-                {
-                    m_mobility = newMobility;
-                    if ( m_mobilityChangedEvent.HasBoundUser() )
-                    {
-                        m_mobilityChangedEvent.Execute( this );
-                    }
-                }
-            }
-
-        protected:
-
-            virtual void Initialize() override final;
-            virtual void OnWorldTransformUpdated() override final;
-
-        private:
-
-            EXPOSE TResourcePtr<StaticMesh>                                 m_pMesh;
-            EXPOSE TVector<TResourcePtr<Material>>                          m_materials;
-            EXPOSE Mobility                                                 m_mobility = Mobility::Static;
-            TSingleUserEventInternal<void,StaticMeshComponent*>             m_mobilityChangedEvent;
-        };
-    }
+        EXPOSE TResourcePtr<StaticMesh>                                 m_pMesh;
+        EXPOSE Mobility                                                 m_mobility = Mobility::Static;
+        TSingleUserEventInternal<void, StaticMeshComponent*>            m_mobilityChangedEvent;
+    };
 }

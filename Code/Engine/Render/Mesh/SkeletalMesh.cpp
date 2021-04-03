@@ -1,4 +1,5 @@
 #include "SkeletalMesh.h"
+#include "System/Core/Debug/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,4 +23,29 @@ namespace KRG::Render
 
         return InvalidIndex;
     }
+
+    //-------------------------------------------------------------------------
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void SkeletalMesh::DrawBindPose( Debug::DrawingContext& drawingContext, Transform const& worldTransform ) const
+    {
+        auto const numBones = GetNumBones();
+
+        Transform boneWorldTransform = m_bindPose[0] * worldTransform;
+        drawingContext.DrawBox( boneWorldTransform, Float3( 0.005f ), Colors::Orange );
+        drawingContext.DrawAxis( boneWorldTransform, 0.05f );
+
+        for ( auto i = 1; i < numBones; i++ )
+        {
+            boneWorldTransform = m_bindPose[i] * worldTransform;
+
+            auto const parentBoneIdx = GetBoneParentIndex( i );
+            Transform const parentBoneWorldTransform = m_bindPose[parentBoneIdx] * worldTransform;
+
+            drawingContext.DrawLine( parentBoneWorldTransform.GetTranslation(), boneWorldTransform.GetTranslation(), Colors::Orange );
+            drawingContext.DrawBox( boneWorldTransform, Float3( 0.005f ), Colors::Orange );
+            drawingContext.DrawAxis( boneWorldTransform, 0.05f );
+        }
+    }
+    #endif
 }

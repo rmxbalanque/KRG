@@ -64,7 +64,10 @@ namespace KRG::EntityModel
             navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
 
             Navmesh::NavmeshBuilder navmeshBuilder;
-            navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshResourcePath );
+            if ( !navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshResourcePath ) )
+            {
+                return Resource::CompilationResult::Failure;
+            }
         }
 
         //-------------------------------------------------------------------------

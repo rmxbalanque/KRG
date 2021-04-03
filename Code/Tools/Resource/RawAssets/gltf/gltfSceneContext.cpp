@@ -29,7 +29,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        gltfSceneContext::gltfSceneContext( FileSystemPath const& filePath )
+        gltfSceneContext::gltfSceneContext( FileSystem::Path const& filePath )
         {
             cgltf_options options = { cgltf_file_type_invalid, 0 };
 

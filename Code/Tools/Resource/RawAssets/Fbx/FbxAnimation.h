@@ -12,7 +12,7 @@ namespace KRG
 {
     namespace Fbx
     {
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawAnimation> ReadAnimation( FileSystemPath const& animationFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName );
+        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawAnimation> ReadAnimation( FileSystem::Path const& animationFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName );
     }
 }
 #endif

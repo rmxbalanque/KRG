@@ -52,7 +52,7 @@ namespace KRG
         {
         public:
 
-            BinaryFileArchive( Mode mode, FileSystemPath const& filePath );
+            BinaryFileArchive( Mode mode, FileSystem::Path const& filePath );
             ~BinaryFileArchive();
 
             inline Mode GetMode() const { return m_mode; }
@@ -81,7 +81,7 @@ namespace KRG
 
         private:
 
-            FileSystemPath                                  m_filePath;
+            FileSystem::Path                                m_filePath;
             Mode                                            m_mode;
             void*                                           m_pStream = nullptr;
             void*                                           m_pArchive = nullptr;

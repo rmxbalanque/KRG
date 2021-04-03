@@ -2,34 +2,50 @@
 #pragma once
 
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
+#include "Engine/Render/Material/RenderMaterial.h"
 #include "System/Resource/ResourcePtr.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::RawAssets { class RawMesh; }
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Render
 {
-    namespace RawAssets { class RawMesh; }
+    class Mesh;
 
     //-------------------------------------------------------------------------
 
-    namespace Render
+    struct MeshResourceDescriptor : public Resource::ResourceDescriptor
     {
-        class MeshGeometry;
+        KRG_REGISTER_TYPE;
 
-        //-------------------------------------------------------------------------
+        // The path to the mesh source file
+        EXPOSE DataPath                             m_meshDataPath;
 
-        class MeshCompiler : public Resource::Compiler
-        {
-        protected:
+        // Default materials - TODO: extract from FBX
+        EXPOSE TVector<TResourcePtr<Material>>      m_materials;
 
-            using Resource::Compiler::Compiler;
+        // Optional value that specifies the specific sub-mesh to compile, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
+        EXPOSE String                               m_meshName;
+    };
 
-        protected:
+    //-------------------------------------------------------------------------
 
-            void TransferMeshGeometry( RawAssets::RawMesh const& rawMesh, MeshGeometry& mesh ) const;
-            void OptimizeMeshGeometry( MeshGeometry& mesh ) const;
-        };
-    }
+    class MeshCompiler : public Resource::Compiler
+    {
+    protected:
+
+        using Resource::Compiler::Compiler;
+
+    protected:
+
+        void TransferMeshGeometry( RawAssets::RawMesh const& rawMesh, Mesh& mesh ) const;
+        void OptimizeMeshGeometry( Mesh& mesh ) const;
+        void SetMeshDefaultMaterials( MeshResourceDescriptor const& descriptor, Mesh& mesh ) const;
+        void SetMeshInstallDependencies( Mesh const& mesh, Resource::ResourceHeader& hdr ) const;
+    };
 }
 
 #endif

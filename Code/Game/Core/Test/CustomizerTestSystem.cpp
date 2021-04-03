@@ -101,18 +101,18 @@ namespace KRG
 
         auto pCharacterMeshComponent = KRG::New<Animation::AnimatedMeshComponent>( StringID( "Character" ) );
         pCharacterMeshComponent->SetMesh( m_pComponent->m_meshIDs[meshIdx] );
-        pCharacterMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[materialIdx] );
+        pCharacterMeshComponent->SetMaterialOverride( 0, m_pComponent->m_materialIDs[materialIdx] );
         pCharacterMeshComponent->SetSkeleton( m_pComponent->m_skeletonID );
         pCharacterMeshComponent->SetLocalTransform( characterTransform );
 
         auto pArmorMeshComponent = KRG::New<Animation::AnimatedMeshComponent>( StringID( "Armor" ) );
         pArmorMeshComponent->SetMesh( m_pComponent->m_armorMeshIDs[armorMeshIdx] );
-        pArmorMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[armorMaterialIdx] );
+        pArmorMeshComponent->SetMaterialOverride( 0, m_pComponent->m_materialIDs[armorMaterialIdx] );
         pArmorMeshComponent->SetSkeleton( m_pComponent->m_skeletonID );
 
         auto pHairMeshComponent = KRG::New<Render::StaticMeshComponent>( StringID( "Hair" ) );
         pHairMeshComponent->SetMesh( m_pComponent->m_hairMeshIDs[hairIdx] );
-        pHairMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[hairMaterialIdx] );
+        pHairMeshComponent->SetMaterialOverride( 0, m_pComponent->m_materialIDs[hairMaterialIdx] );
         pHairMeshComponent->SetAttachmentSocketID( StringID( "head" ) );
         pHairMeshComponent->ChangeMobility( Render::Mobility::Dynamic );
 
@@ -171,18 +171,18 @@ namespace KRG
 
         auto pCharacterMeshComponent = KRG::New<Animation::AnimatedMeshComponent>( StringID( "Character" ) );
         pCharacterMeshComponent->SetMesh( m_pComponent->m_meshIDs[meshIdx] );
-        pCharacterMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[materialIdx] );
+        pCharacterMeshComponent->SetMaterialOverride( 0, m_pComponent->m_materialIDs[materialIdx] );
         pCharacterMeshComponent->SetSkeleton( m_pComponent->m_skeletonID );
         pCharacterMeshComponent->SetLocalTransform( characterTransform );
 
         auto pArmorMeshComponent = KRG::New<Animation::AnimatedMeshComponent>( StringID( "Armor" ) );
         pArmorMeshComponent->SetMesh( m_pComponent->m_armorMeshIDs[armorMeshIdx] );
-        pArmorMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[armorMaterialIdx] );
+        pArmorMeshComponent->SetMaterialOverride( 0, m_pComponent->m_materialIDs[armorMaterialIdx] );
         pArmorMeshComponent->SetSkeleton( m_pComponent->m_skeletonID );
 
         auto pHairMeshComponent = KRG::New<Render::StaticMeshComponent>( StringID( "Hair" ) );
         pHairMeshComponent->SetMesh( m_pComponent->m_hairMeshIDs[hairIdx] );
-        pHairMeshComponent->SetMaterial( 0, m_pComponent->m_materialIDs[hairMaterialIdx] );
+        pHairMeshComponent->SetMaterialOverride( 0, m_pComponent->m_materialIDs[hairMaterialIdx] );
         pHairMeshComponent->SetAttachmentSocketID( StringID( "head" ) );
         pHairMeshComponent->ChangeMobility( Render::Mobility::Dynamic );
 

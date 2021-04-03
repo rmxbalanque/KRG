@@ -97,7 +97,7 @@ namespace KRG
                 void PopNamespace();
 
                 bool IsValidModuleName( String const& moduleClassName );
-                bool SetModuleClassName( FileSystemPath const& headerFilePath, String const& moduleClassName );
+                bool SetModuleClassName( FileSystem::Path const& headerFilePath, String const& moduleClassName );
                 inline StringID GenerateTypeID( String const& fullyQualifiedTypeName ) const { return StringID( fullyQualifiedTypeName ); }
 
                 String const& GetCurrentNamespace() const { return m_currentNamespace; }

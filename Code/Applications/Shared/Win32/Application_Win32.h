@@ -30,6 +30,7 @@ namespace KRG
 
         // Win32 window functions
         void TryCreateWindow( int iconResourceID );
+        void SetWindowTitle( char const* pNewTitle );
 
         // This function allows the application to read all commandline settings and load all ini settings. Will be called before initialize.
         virtual bool ReadSettings( int32 argc, char** argv ) { return true; };

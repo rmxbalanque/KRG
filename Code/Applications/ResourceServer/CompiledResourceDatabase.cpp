@@ -8,7 +8,7 @@ namespace KRG
 {
     namespace Resource
     {
-        bool CompiledResourceDatabase::TryConnect( FileSystemPath const& databasePath )
+        bool CompiledResourceDatabase::TryConnect( FileSystem::Path const& databasePath )
         {
             KRG_ASSERT( databasePath.IsFilePath() );
 
@@ -25,7 +25,7 @@ namespace KRG
             return true;
         }
 
-        bool CompiledResourceDatabase::CleanDatabase( FileSystemPath const& databasePath )
+        bool CompiledResourceDatabase::CleanDatabase( FileSystem::Path const& databasePath )
         {
             KRG_ASSERT( databasePath.IsFilePath() );
 

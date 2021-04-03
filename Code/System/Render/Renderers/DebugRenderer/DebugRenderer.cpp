@@ -1,6 +1,6 @@
 #include "DebugRenderer.h"
 #include "System/Core/Profiling/Profiling.h"
-#include "System/Core/Types/Event.h"
+#include "System/Core/Types/Function.h"
 
 //-------------------------------------------------------------------------
 

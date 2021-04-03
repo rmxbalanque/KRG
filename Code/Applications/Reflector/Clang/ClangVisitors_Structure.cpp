@@ -288,7 +288,7 @@ namespace KRG
                 return CXChildVisit_Continue;
             }
 
-            CXChildVisitResult VisitStructure( ClangParserContext* pContext, CXCursor& cr, FileSystemPath const& headerFilePath, HeaderID const headerID )
+            CXChildVisitResult VisitStructure( ClangParserContext* pContext, CXCursor& cr, FileSystem::Path const& headerFilePath, HeaderID const headerID )
             {
                 auto cursorName = ClangUtils::GetCursorDisplayName( cr );
 

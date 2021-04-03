@@ -64,7 +64,7 @@
         },
         {
           "Id": "03843274-3771-46ea-a996-944555a55ce2",
-          "Command": "-compile data://br/sm_env_bridge_01.stms"
+          "Command": "-compile data://packs/br/vehicles/sm_veh_car_destroyed_01.msh"
         },
         {
           "Id": "adb3dbe5-e664-47f2-8752-beb1ab3f97a5",
@@ -72,7 +72,7 @@
         },
         {
           "Id": "1c9b4980-e0f4-4f99-af9d-f39468135e65",
-          "Command": "-compile data://br/sm_prop_crate_01.stms"
+          "Command": "-compile data://packs/br/environment/sm_prop_crate_01.msh"
         },
         {
           "Id": "0596872a-7c9e-4365-9d11-0c1b100ecf83",
@@ -96,6 +96,14 @@
       "Id": "c375fed6-8f52-4aa2-9ce9-12b2e4723ce7",
       "Command": "Animation",
       "Items": [
+        {
+          "Id": "1b9a7757-1b63-47d2-b601-4880455a4cd6",
+          "Command": "-compile data://geometry/FloorMesh.msh"
+        },
+        {
+          "Id": "273c7e2b-414d-4efb-a8ee-0ede981b6247",
+          "Command": "-compile data://packs/br/characters/SK_Chr_SportyFemale_02.smsh"
+        },
         {
           "Id": "b8487d62-a70c-4723-b2b6-a6c915b7556a",
           "Command": "-compile data://animation/stand_crowd_ambient4.anim"

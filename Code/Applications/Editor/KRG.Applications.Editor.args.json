@@ -3,6 +3,14 @@
   "Id": "d6bdd49c-ef46-4637-844a-4ffdd6a25dc5",
   "Items": [
     {
+      "Id": "62dddc95-4de0-42e8-9027-c987b921a39c",
+      "Command": "-mode AnimationEditor"
+    },
+    {
+      "Id": "ab95a3f7-d8cc-4fcf-9ea0-e1ebd780f416",
+      "Command": "-mode MeshEditor"
+    },
+    {
       "Id": "0b30f2c0-5f74-425d-bb35-b1fa69fa072a",
       "Command": "-map data://maps/br_full.map"
     },

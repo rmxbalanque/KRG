@@ -42,7 +42,7 @@ namespace KRG
 
         inline Color( uint32 c ) : m_color( c ) {}
 
-        inline Color( uint8 r, uint8 g, uint8 b, uint8 a )
+        inline Color( uint8 r, uint8 g, uint8 b, uint8 a = 255 )
         {
             m_byteColor.m_r = r;
             m_byteColor.m_g = g;

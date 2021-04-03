@@ -280,7 +280,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void SubmitMeshDrawCall( RenderContext const& renderContext, StaticMesh const* pMesh, TVector<TResourcePtr<Material>> const& materials )
+        void SubmitMeshDrawCall( RenderContext const& renderContext, StaticMesh const* pMesh, TVector<Material const*> const& materials )
         {
             renderContext.SetVertexBuffer( pMesh->GetVertexBuffer() );
             renderContext.SetIndexBuffer( pMesh->GetIndexBuffer() );

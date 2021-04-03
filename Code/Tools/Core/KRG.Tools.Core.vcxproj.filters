@@ -27,9 +27,6 @@
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="FileSystem\FileSystemWatcher.h">
-      <Filter>FileSystem</Filter>
-    </ClInclude>
     <ClInclude Include="ThirdParty\cgltf\cgltf.h">
       <Filter>ThirdParty\cgltf</Filter>
     </ClInclude>
@@ -47,11 +44,9 @@
     <ClInclude Include="TypeSystem\Serialization\ToolTypeWriter.h" />
     <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
     <ClInclude Include="Thirdparty\subprocess\subprocess.h" />
+    <ClInclude Include="FileSystem\FileSystemWatcher.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FileSystem\FileSystemWatcher.cpp">
-      <Filter>FileSystem</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
       <Filter>ThirdParty\sqlite</Filter>
     </ClCompile>
@@ -61,6 +56,7 @@
     <ClCompile Include="TypeSystem\Serialization\ToolTypeReader.cpp" />
     <ClCompile Include="TypeSystem\Serialization\ToolTypeWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
+    <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Thirdparty\subprocess\LICENSE" />

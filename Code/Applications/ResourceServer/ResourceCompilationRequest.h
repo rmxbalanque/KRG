@@ -47,8 +47,8 @@ namespace KRG::Resource
         // Request Info
         inline char const* GetLog() const { return m_log.c_str(); }
         inline char const* GetCompilerArgs() const { return m_compilerArgs.c_str(); }
-        inline FileSystemPath const& GetSourceFilePath() const { return m_sourceFile; }
-        inline FileSystemPath const& GetDestinationFilePath() const { return m_destinationFile; }
+        inline FileSystem::Path const& GetSourceFilePath() const { return m_sourceFile; }
+        inline FileSystem::Path const& GetDestinationFilePath() const { return m_destinationFile; }
 
         inline TimeStamp const& GetTimeRequested() const { return m_timeRequested; }
 
@@ -74,8 +74,8 @@ namespace KRG::Resource
         int32                               m_compilerVersion = -1;
         uint64                              m_fileTimestamp = 0;
         uint64                              m_sourceTimestampHash = 0;
-        FileSystemPath                      m_sourceFile;
-        FileSystemPath                      m_destinationFile;
+        FileSystem::Path                      m_sourceFile;
+        FileSystem::Path                      m_destinationFile;
         String                              m_compilerArgs;
 
         TimeStamp                           m_timeRequested;

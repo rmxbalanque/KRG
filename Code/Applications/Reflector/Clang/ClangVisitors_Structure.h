@@ -10,7 +10,7 @@ namespace KRG
     {
         namespace Reflection
         {
-            CXChildVisitResult VisitStructure( ClangParserContext* pContext, CXCursor& cr, FileSystemPath const& headerFilePath, HeaderID const headerID );
+            CXChildVisitResult VisitStructure( ClangParserContext* pContext, CXCursor& cr, FileSystem::Path const& headerFilePath, HeaderID const headerID );
         }
     }
 }

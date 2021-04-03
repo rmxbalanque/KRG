@@ -28,11 +28,11 @@ namespace KRG::Resource
 
     struct KRG_TOOLS_RESOURCE_API CompileContext
     {
-        CompileContext( TypeSystem::TypeRegistry const& typeRegistry, FileSystemPath const& sourceDataPath, FileSystemPath const& compiledDataPath, ResourceID const& resourceToCompile );
+        CompileContext( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath, FileSystem::Path const& compiledDataPath, ResourceID const& resourceToCompile );
 
         bool IsValid() const;
 
-        inline bool ConvertDataPathToFilePath( DataPath const& resourcePath, FileSystemPath& filePath ) const
+        inline bool ConvertDataPathToFilePath( DataPath const& resourcePath, FileSystem::Path& filePath ) const
         {
             if ( resourcePath.IsValid() )
             {
@@ -47,7 +47,7 @@ namespace KRG::Resource
         }
 
         template<typename T>
-        inline bool TryReadResourceDescriptorFromFile( FileSystemPath const& descriptorPath, T& outData ) const
+        inline bool TryReadResourceDescriptorFromFile( FileSystem::Path const& descriptorPath, T& outData ) const
         {
             static_assert( std::is_base_of<ResourceDescriptor, T>::value, "T must be a child of ResourceDescriptor" );
             KRG_ASSERT( IsValid() );
@@ -74,12 +74,12 @@ namespace KRG::Resource
 
         TypeSystem::TypeRegistry const&                 m_typeRegistry;
         Platform::Target const                          m_platform = Platform::Target::PC;
-        FileSystemPath const                            m_sourceDataPath;
-        FileSystemPath const                            m_compiledDataPath;
+        FileSystem::Path const                            m_sourceDataPath;
+        FileSystem::Path const                            m_compiledDataPath;
 
         ResourceID const                                m_resourceID;
-        FileSystemPath const                            m_inputFilePath;
-        FileSystemPath const                            m_outputFilePath;
+        FileSystem::Path const                            m_inputFilePath;
+        FileSystem::Path const                            m_outputFilePath;
     };
 
     //-------------------------------------------------------------------------

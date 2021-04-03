@@ -14,7 +14,7 @@ namespace KRG
         {
         public:
 
-            InputFileStream( FileSystemPath const& filePath );
+            InputFileStream( Path const& filePath );
             inline bool IsValid() const { return m_filestream.is_open(); }
             inline std::ifstream& GetStream() { return m_filestream; }
 
@@ -45,7 +45,7 @@ namespace KRG
         {
         public:
 
-            OutputFileStream( FileSystemPath const& filePath );
+            OutputFileStream( Path const& filePath );
             inline std::ofstream& GetStream() { return m_filestream; }
             inline bool IsValid() const { return m_filestream.is_open(); }
 
