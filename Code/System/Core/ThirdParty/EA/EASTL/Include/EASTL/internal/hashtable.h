@@ -48,12 +48,10 @@ EA_DISABLE_ALL_VC_WARNINGS()
 	#include <stddef.h>
 EA_RESTORE_ALL_VC_WARNINGS()
 
-#ifdef _MSC_VER
-	#pragma warning(push)
-	#pragma warning(disable: 4512)  // 'class' : assignment operator could not be generated.
-	#pragma warning(disable: 4530)  // C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
-	#pragma warning(disable: 4571)  // catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught.
-#endif
+// 4512 - 'class' : assignment operator could not be generated.
+// 4530 - C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+// 4571 - catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught.
+EA_DISABLE_VC_WARNING(4512 4530 4571);
 
 
 namespace eastl
@@ -2703,8 +2701,8 @@ namespace eastl
 	inline typename hashtable<K, V, A, EK, Eq, H1, H2, H, RP, bC, bM, bU>::insert_return_type
 	hashtable<K, V, A, EK, Eq, H1, H2, H, RP, bC, bM, bU>::try_emplace(const key_type& key, Args&&... args)
 	{
-		return DoInsertValue(has_unique_keys_type(), piecewise_construct, forward_as_tuple(key),
-		                     forward_as_tuple(forward<Args>(args)...));
+		return DoInsertValue(has_unique_keys_type(), piecewise_construct, eastl::forward_as_tuple(key),
+		                     eastl::forward_as_tuple(eastl::forward<Args>(args)...));
 	}
 
 	template <typename K, typename V, typename A, typename EK, typename Eq,
@@ -2714,8 +2712,8 @@ namespace eastl
 	inline typename hashtable<K, V, A, EK, Eq, H1, H2, H, RP, bC, bM, bU>::insert_return_type
 	hashtable<K, V, A, EK, Eq, H1, H2, H, RP, bC, bM, bU>::try_emplace(key_type&& key, Args&&... args)
 	{
-		return DoInsertValue(has_unique_keys_type(), piecewise_construct, forward_as_tuple(eastl::move(key)),
-		                     forward_as_tuple(forward<Args>(args)...));
+		return DoInsertValue(has_unique_keys_type(), piecewise_construct, eastl::forward_as_tuple(eastl::move(key)),
+		                     eastl::forward_as_tuple(eastl::forward<Args>(args)...));
 	}
 
 	template <typename K, typename V, typename A, typename EK, typename Eq,
@@ -2726,7 +2724,7 @@ namespace eastl
 	{
 		insert_return_type result = DoInsertValue(
 		    has_unique_keys_type(),
-		    value_type(piecewise_construct, forward_as_tuple(key), forward_as_tuple(forward<Args>(args)...)));
+		    value_type(piecewise_construct, eastl::forward_as_tuple(key), eastl::forward_as_tuple(eastl::forward<Args>(args)...)));
 
 		return DoGetResultIterator(has_unique_keys_type(), result);
 	}
@@ -2738,8 +2736,8 @@ namespace eastl
 	hashtable<K, V, A, EK, Eq, H1, H2, H, RP, bC, bM, bU>::try_emplace(const_iterator, key_type&& key, Args&&... args)
 	{
 		insert_return_type result =
-		    DoInsertValue(has_unique_keys_type(), value_type(piecewise_construct, forward_as_tuple(eastl::move(key)),
-		                                                     forward_as_tuple(forward<Args>(args)...)));
+		    DoInsertValue(has_unique_keys_type(), value_type(piecewise_construct, eastl::forward_as_tuple(eastl::move(key)),
+		                                                     eastl::forward_as_tuple(eastl::forward<Args>(args)...)));
 
 		return DoGetResultIterator(has_unique_keys_type(), result);
 	}
@@ -2814,7 +2812,7 @@ namespace eastl
 	{
 		// We ignore the first argument (hint iterator). It's not likely to be useful for hashtable containers.
 		insert_return_type result = DoInsertValue(has_unique_keys_type(), value);
-		return result.first; // Note by Paul Pedriana while perusing this code: This code will fail to compile when bU is false (i.e. for multiset, multimap).
+		return DoGetResultIterator(has_unique_keys_type(), result);
 	}
 
 
@@ -2852,7 +2850,7 @@ namespace eastl
 		auto iter = find(k);
 		if(iter == end())
 		{
-			return insert(value_type(piecewise_construct, forward_as_tuple(k), forward_as_tuple(eastl::forward<M>(obj))));
+			return insert(value_type(piecewise_construct, eastl::forward_as_tuple(k), eastl::forward_as_tuple(eastl::forward<M>(obj))));
 		}
 		else
 		{
@@ -2870,7 +2868,7 @@ namespace eastl
 		auto iter = find(k);
 		if(iter == end())
 		{
-			return insert(value_type(piecewise_construct, forward_as_tuple(eastl::move(k)), forward_as_tuple(eastl::forward<M>(obj))));
+			return insert(value_type(piecewise_construct, eastl::forward_as_tuple(eastl::move(k)), eastl::forward_as_tuple(eastl::forward<M>(obj))));
 		}
 		else
 		{
@@ -3218,18 +3216,7 @@ namespace eastl
 } // namespace eastl
 
 
-#ifdef _MSC_VER
-	#pragma warning(pop)
-#endif
+EA_RESTORE_VC_WARNING();
 
 
 #endif // Header include guard
-
-
-
-
-
-
-
-
-

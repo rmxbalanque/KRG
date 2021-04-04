@@ -2,8 +2,7 @@
 #include "Compilers/Physics/PhysicsMeshCompiler.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Resource/RawAssets/RawMesh.h"
-#include "Tools/Entity/ToolEntityCollectionConverter.h"
-#include "Tools/Entity/ToolEntityCollection.h"
+#include "Tools/Entity/EntityCollectionModel.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/NavmeshData.h"
@@ -87,8 +86,8 @@ namespace KRG::Navmesh
 
     bool NavmeshBuilder::CollectCollisionPrimitives( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, THashMap<DataPath, TVector<Transform>>& collisionPrimitives )
     {
-        EntityModel::ToolEntityCollection toolEntityCollection( ctx.m_typeRegistry );
-        if ( !EntityModel::ToolEntityCollectionConverter::ConvertToToolsFormat( ctx.m_typeRegistry, entityCollectionDesc, toolEntityCollection ) )
+        EntityModel::EntityCollectionModel entityCollectionModel( ctx.m_typeRegistry );
+        if ( !EntityModel::EntityCollectionModel::FromDescriptor( entityCollectionDesc, entityCollectionModel ) )
         {
             return false;
         }
@@ -96,7 +95,7 @@ namespace KRG::Navmesh
         // Collect all collision geometry
         //-------------------------------------------------------------------------
 
-        auto foundPhysicsComponents = toolEntityCollection.GetAllComponentsOfType( Physics::PhysicsMeshComponent::GetStaticTypeID() );
+        auto foundPhysicsComponents = entityCollectionModel.GetAllComponentsOfType( Physics::PhysicsMeshComponent::GetStaticTypeID() );
         for ( auto pPhysicsComponent : foundPhysicsComponents )
         {
             // TODO: see if there is a smart way to avoid using strings for property access

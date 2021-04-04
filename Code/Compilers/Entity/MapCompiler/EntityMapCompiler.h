@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Tools/Entity/ToolEntityCollection.h"
+#include "Tools/Entity/EntityCollectionModel.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
 
 //-------------------------------------------------------------------------

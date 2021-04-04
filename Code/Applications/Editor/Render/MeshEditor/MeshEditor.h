@@ -1,34 +1,36 @@
 #pragma once
+
 #include "Applications/Editor/Editor.h"
+#include "MeshEditor_Model.h"
+#include "MeshEditor_DataBrowserTool.h"
+#include "MeshEditor_MeshInfoTool.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render
+namespace KRG::Render::MeshEditor
 {
-    class MeshEditor final : public Editor
+    class MainEditor final : public Editor
     {
+    public:
+
+        ~MainEditor();
+
+    private:
+
         virtual char const* GetName() const override final { return "Kruger Mesh Editor"; }
+
+        virtual void SetUserFlags( uint64 flags ) override;
+        virtual uint64 GetUserFlags() const override;
 
         virtual void Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry ) override;
         virtual void Shutdown() override;
 
-        virtual void DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
         virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
-
-        void DrawMeshBrowserWindow();
-        void DrawMeshInfoWindow();
-        void DrawDataFileInfoWindow();
 
     private:
 
-        DataDirectoryModel                  m_dataDirectoryModel;
-
-        bool                                m_showDataBrowser = false;
-        bool                                m_showMeshInfoWindow = false;
-        bool                                m_showSkeletalMeshInfoWindow = false;
-
-        bool                                m_showStaticMeshes = true;
-        bool                                m_showSkeletalMeshes = true;
-        bool                                m_showRawFiles = true;
+        Model                               m_model;
+        DataBrowser*                        m_pDataBrowser = nullptr;
+        MeshInfo*                           m_pMeshInfo = nullptr;
     };
 }

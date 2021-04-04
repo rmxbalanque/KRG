@@ -24,48 +24,61 @@ namespace KRG
 
     EditorApplication::EditorApplication( HINSTANCE hInstance )
         : Win32Application( hInstance, "Kruger Editor", IDI_EDITOR_ICON )
-        , m_editorHost( TFunction<bool( KRG::String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
+        , m_editorHost( TFunction<bool( String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
     {}
 
     bool EditorApplication::ReadSettings( int32 argc, char** argv )
     {
         // Get command line settings
         //-------------------------------------------------------------------------
+
+        cli::Parser cmdParser( argc, argv );
+
+        cmdParser.set_optional<std::string>( "map", "map", "", "The startup map." );
+        cmdParser.set_optional<std::string>( "mode", "mode", "", "What mode should we start the editor in?" );
+
+        if ( !cmdParser.run() )
         {
-            cli::Parser cmdParser( argc, argv );
+            return FatalError( "Invalid command line arguments!" );
+        }
 
-            cmdParser.set_optional<std::string>( "map", "map", "", "The startup map." );
-            cmdParser.set_optional<std::string>( "mode", "mode", "", "What mode should we start the editor in?" );
+        // TODO: REMOVE THIS - editor startup map needs to be handled differently
+        std::string const map = cmdParser.get<std::string>( "map" );
+        if ( !map.empty() )
+        {
+            m_editorHost.m_startupMap = map.c_str();
+        }
 
-            if ( !cmdParser.run() )
-            {
-                return FatalError( "Invalid command line arguments!" );
-            }
-
-            // TODO: REMOVE THIS - editor startup map needs to be handled differently
-            std::string const map = cmdParser.get<std::string>( "map" );
-            if ( !map.empty() )
-            {
-                m_editorHost.m_startupMap = map.c_str();
-            }
-
-            std::string const mode = cmdParser.get<std::string>( "mode" );
-            if ( !mode.empty() )
-            {
-                m_editorModeID = mode.c_str();
-            }
+        StringID editorModeID;
+        std::string const mode = cmdParser.get<std::string>( "mode" );
+        if ( !mode.empty() )
+        {
+            editorModeID = StringID( mode.c_str() );
         }
 
         // Read configuration settings from ini
         //-------------------------------------------------------------------------
 
+        FileSystem::Path const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
+        if ( !m_editorHost.m_settingsRegistry.LoadFromFile( iniPath ) )
         {
-            FileSystem::Path const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
-            if ( !m_editorHost.m_settingsRegistry.LoadFromFile( iniPath ) )
-            {
-                return FatalError( "Failed to read required settings from INI file" );
-            }
+            return FatalError( "Failed to read required settings from INI file" );
         }
+
+        // Create editor
+        //-------------------------------------------------------------------------
+
+        auto pEditor = EditorRegistry::TryCreateEditor( editorModeID );
+        if ( pEditor == nullptr )
+        {
+            return FatalError( String().sprintf( "Couldn't find editor mode: %s", editorModeID.c_str() ) );
+        }
+
+        m_editorHost.SetActiveEditor( pEditor );
+
+        // Update application name so that we create the correct ini files
+        const_cast<String&>( m_applicationName ) = pEditor->GetName();
+        const_cast<String&>( m_applicationNameNoWhitespace ) = StringUtils::StripWhitespace( pEditor->GetName() );
 
         return true;
     }
@@ -77,33 +90,23 @@ namespace KRG
             return FatalError( "Couldn't start resource server!" );
         }
 
-        // Select editor mode
-        //-------------------------------------------------------------------------
-
-        auto pEditorMode = EditorRegistry::TryCreateEditor( m_editorModeID.empty() ? StringID::InvalidID : StringID( m_editorModeID ) );
-        if ( pEditorMode == nullptr )
-        {
-            return FatalError( String().sprintf( "Couldn't find editor mode: %s" , m_editorModeID.c_str() ) );
-        }
-
-        m_editorHost.SetActiveEditor( pEditorMode );
-
-        SetWindowTitle( pEditorMode->GetName() );
-
         // Initialize editor
         //-------------------------------------------------------------------------
 
         Int2 const windowDimensions( ( m_windowRect.right - m_windowRect.left ), ( m_windowRect.bottom - m_windowRect.top ) );
-        if ( !m_editorHost.Initialize( StringUtils::StripWhitespace( pEditorMode->GetName() ), windowDimensions ) )
+        if ( !m_editorHost.Initialize( m_applicationNameNoWhitespace, windowDimensions ) )
         {
             return FatalError( "Failed to initialize engine" );
         }
+
+        m_editorHost.SetUserFlags( m_userFlags );
 
         return true;
     }
 
     bool EditorApplication::Shutdown()
     {
+        m_userFlags = m_editorHost.GetUserFlags();
         return m_editorHost.Shutdown();
     }
 
@@ -169,8 +172,8 @@ namespace KRG
         {
             case WM_SIZE:
             {
-                KRG::uint32 width = LOWORD( lParam );
-                KRG::uint32 height = HIWORD( lParam );
+                uint32 width = LOWORD( lParam );
+                uint32 height = HIWORD( lParam );
                 if ( width > 0 && height > 0 )
                 {
                     m_editorHost.UpdateMainWindowSize( Int2( width, height ) );

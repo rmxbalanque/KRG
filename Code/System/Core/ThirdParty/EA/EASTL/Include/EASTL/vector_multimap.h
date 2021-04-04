@@ -304,7 +304,9 @@ namespace eastl
 	inline vector_multimap<K, T, C, A, RAC>::vector_multimap()
 		: base_type(), mValueCompare(C())
 	{
+	#if EASTL_NAME_ENABLED
 		get_allocator().set_name(EASTL_VECTOR_MULTIMAP_DEFAULT_NAME);
+	#endif
 	}
 
 
@@ -761,7 +763,7 @@ namespace eastl
 	inline bool operator==(const vector_multimap<K, T, C, A, RAC>& a, 
 						   const vector_multimap<K, T, C, A, RAC>& b) 
 	{
-		return (a.size() == b.size()) && equal(b.begin(), b.end(), a.begin());
+		return (a.size() == b.size()) && eastl::equal(b.begin(), b.end(), a.begin());
 	}
 
 
@@ -769,7 +771,7 @@ namespace eastl
 	inline bool operator<(const vector_multimap<K, T, C, A, RAC>& a,
 						  const vector_multimap<K, T, C, A, RAC>& b)
 	{
-		return lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), a.value_comp());
+		return eastl::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), a.value_comp());
 	}
 
 

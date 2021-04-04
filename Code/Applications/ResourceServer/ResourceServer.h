@@ -87,11 +87,10 @@ namespace KRG::Resource
         TVector<ClientRecord>                   m_knownClients;
 
         // Settings
-        SettingsRegistry                        m_settingsRegistry;
-        FileSystem::Path                          m_workingDir;
-        FileSystem::Path                          m_sourceDataDir;
-        FileSystem::Path                          m_compiledDataDir;
-        FileSystem::Path                          m_compiledResourceDatabasePath;
+        FileSystem::Path                        m_workingDir;
+        FileSystem::Path                        m_sourceDataDir;
+        FileSystem::Path                        m_compiledDataDir;
+        FileSystem::Path                        m_compiledResourceDatabasePath;
         String                                  m_networkAddress;
         String                                  m_resourceCompilerFullPath;
         uint32                                  m_maxSimultaneousCompilationTasks = 16;

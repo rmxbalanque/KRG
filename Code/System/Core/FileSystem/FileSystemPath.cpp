@@ -73,15 +73,15 @@ namespace KRG::FileSystem
         }
     }
 
-    Path::Path( String const& path )
-        : m_fullpath( GetFullPathString( path.c_str() ) )
-        , m_hashCode( Hash::GetHash32( m_fullpath ) )
-    {
-        if ( !IsValidPath( m_fullpath ) )
-        {
-            m_fullpath.clear();
-        }
-    }
+     Path::Path( String const& path )
+         : m_fullpath( GetFullPathString( path.c_str() ) )
+         , m_hashCode( Hash::GetHash32( m_fullpath ) )
+     {
+         if ( !IsValidPath( m_fullpath ) )
+         {
+             m_fullpath.clear();
+         }
+     }
 
     Path::Path( char const* pPath )
         : m_fullpath( GetFullPathString( pPath ) )
@@ -91,6 +91,27 @@ namespace KRG::FileSystem
         {
             m_fullpath.clear();
         }
+    }
+
+    Path& Path::operator=( Path& rhs )
+    {
+        m_fullpath = rhs.m_fullpath;
+        m_hashCode = rhs.m_hashCode;
+        return *this;
+    }
+
+    Path& Path::operator=( Path const& rhs )
+    {
+        m_fullpath = rhs.m_fullpath;
+        m_hashCode = rhs.m_hashCode;
+        return *this;
+    }
+
+    Path& Path::operator=( Path&& rhs )
+    {
+        m_fullpath.swap( rhs.m_fullpath );
+        m_hashCode = rhs.m_hashCode;
+        return *this;
     }
 
     //-------------------------------------------------------------------------
@@ -197,6 +218,8 @@ namespace KRG::FileSystem
 
     bool Path::IsDirectoryPath() const
     {
+        KRG_ASSERT( IsValid() );
+
         if ( m_fullpath[m_fullpath.length() - 1] == PathDelimiter )
         {
             return true;
@@ -229,7 +252,7 @@ namespace KRG::FileSystem
         // If we found a parent, create the substring for it
         if ( lastDelimiterIdx != String::npos )
         {
-            parentPath = Path( m_fullpath.substr( 0, lastDelimiterIdx + 1 ) );
+            parentPath = Path( m_fullpath.substr( 0, lastDelimiterIdx + 1 ) );;
         }
 
         return parentPath;

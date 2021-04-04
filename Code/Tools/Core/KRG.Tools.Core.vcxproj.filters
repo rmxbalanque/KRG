@@ -37,26 +37,30 @@
       <Filter>ThirdParty\sqlite</Filter>
     </ClInclude>
     <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
-    <ClInclude Include="TypeSystem\ToolTypeInstance.h" />
+    <ClInclude Include="TypeSystem\TypeInstanceModel.h" />
     <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h" />
     <ClInclude Include="TypeSystem\Serialization\NativeTypeWriter.h" />
-    <ClInclude Include="TypeSystem\Serialization\ToolTypeReader.h" />
-    <ClInclude Include="TypeSystem\Serialization\ToolTypeWriter.h" />
+    <ClInclude Include="TypeSystem\Serialization\TypeInstanceModelReader.h" />
+    <ClInclude Include="TypeSystem\Serialization\TypeInstanceModelWriter.h" />
     <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
     <ClInclude Include="Thirdparty\subprocess\subprocess.h" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
+    <ClInclude Include="TypeSystem\PropertyGrid\PropertyGrid.h" />
+    <ClInclude Include="TypeSystem\PropertyGrid\PropertyEditors.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
       <Filter>ThirdParty\sqlite</Filter>
     </ClCompile>
-    <ClCompile Include="TypeSystem\ToolTypeInstance.cpp" />
+    <ClCompile Include="TypeSystem\TypeInstanceModel.cpp" />
     <ClCompile Include="TypeSystem\Serialization\NativeTypeReader.cpp" />
     <ClCompile Include="TypeSystem\Serialization\NativeTypeWriter.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\ToolTypeReader.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\ToolTypeWriter.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\TypeInstanceModelReader.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\TypeInstanceModelWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
+    <ClCompile Include="TypeSystem\PropertyGrid\PropertyGrid.cpp" />
+    <ClCompile Include="TypeSystem\PropertyGrid\PropertyEditors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Thirdparty\subprocess\LICENSE" />

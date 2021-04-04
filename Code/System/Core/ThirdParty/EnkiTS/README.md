@@ -38,8 +38,9 @@ Building enkiTS is simple, just add the files in enkiTS/src to your build system
 For cmake, on Windows / Mac OS X / Linux with cmake installed, open a prompt in the enkiTS directory and:
 
 1. `mkdir build`
-2. `cmake ..`
-3. either run `make` or open `enkiTS.sln`
+1. `cd build`
+1. `cmake ..`
+1. either run `make all` or for Visual Studio open `enkiTS.sln`
 
 ## Project Features
 
@@ -50,8 +51,10 @@ For cmake, on Windows / Mac OS X / Linux with cmake installed, open a prompt in 
 1. *Can pin tasks to a given thread* - enkiTS can schedule a task which will only be run on the specified thread.
 1. *Can set task priorities* - Up to 5 task priorities can be configured via define ENKITS_TASK_PRIORITIES_NUM (defaults to 3). Higher priority tasks are run before lower priority ones.
 1. *Can register external threads to use with enkiTS* - Can configure enkiTS with numExternalTaskThreads which can be registered to use with the enkiTS API.
-1. **NEW** *Custom allocator API* - can configure enkiTS with custom allocators, see [example/CustomAllocator.cpp](example/CustomAllocator.cpp) and [example/CustomAllocator_c.c](example/CustomAllocator_c.c).
- 
+1. *Custom allocator API* - can configure enkiTS with custom allocators, see [example/CustomAllocator.cpp](example/CustomAllocator.cpp) and [example/CustomAllocator_c.c](example/CustomAllocator_c.c).
+1. **NEW** *Dependencies* - can set dependendencies between tasks see [example/Dependencies.cpp](example/Dependencies.cpp) and [example/Dependencies_c.c](example/Dependencies_c.c).
+1. **NEW** *Completion Actions* - can perform an action on task completion. This avoids the expensive action of adding the task to the scheduler, and can be used to safely delete a completed task. See [example/CompletionAction.cpp](example/CompletionAction.cpp) and [example/CompletionAction_c.c](example/CompletionAction_c.c)
+
 ## Usage
 
 C++ usage:
@@ -64,7 +67,7 @@ enki::TaskScheduler g_TS;
 
 // define a task set, can ignore range if we only do one thing
 struct ParallelTaskSet : enki::ITaskSet {
-    virtual void    ExecuteRange(  enki::TaskSetPartition range, uint32_t threadnum ) {
+    void ExecuteRange(  enki::TaskSetPartition range_, uint32_t threadnum_ ) override {
         // do something here, can issue tasks with g_TS
     }
 };
@@ -91,7 +94,7 @@ enki::TaskScheduler g_TS;
 int main(int argc, const char * argv[]) {
    g_TS.Initialize();
 
-   enki::TaskSet task( 1, []( enki::TaskSetPartition range, uint32_t threadnum  ) {
+   enki::TaskSet task( 1, []( enki::TaskSetPartition range_, uint32_t threadnum_  ) {
          // do something here
       }  );
 
@@ -114,7 +117,7 @@ struct ExampleTask : enki::ITaskSet
 {
     ExampleTask( ) { m_SetSize = size_; }
 
-    virtual void ExecuteRange( enki::TaskSetPartition range, uint32_t threadnum ) {
+    void ExecuteRange(  enki::TaskSetPartition range_, uint32_t threadnum_ ) override {
         // See full example in Priorities.cpp
     }
 };
@@ -158,7 +161,7 @@ enki::TaskScheduler g_TS;
 
 // define a task set, can ignore range if we only do one thing
 struct PinnedTask : enki::IPinnedTask {
-    virtual void    Execute() {
+    void Execute() override {
       // do something here, can issue tasks with g_TS
     }
 };
@@ -179,6 +182,42 @@ int main(int argc, const char * argv[]) {
 }
 ```
 
+Dependency usage in C++:
+- full example in [example/Dependencies.cpp](example/Dependencies.cpp)
+- C example in [example/Dependencies_c.c](example/Dependencies_c.c)
+```C
+#include "TaskScheduler.h"
+
+enki::TaskScheduler g_TS;
+
+// define a task set, can ignore range if we only do one thing
+struct TaskA : enki::ITaskSet {
+    void ExecuteRange(  enki::TaskSetPartition range_, uint32_t threadnum_ ) override {
+        // do something here, can issue tasks with g_TS
+    }
+};
+
+struct TaskB : enki::ITaskSet {
+    enki::Dependency m_Dependency;
+    void ExecuteRange(  enki::TaskSetPartition range_, uint32_t threadnum_ ) override {
+        // do something here, can issue tasks with g_TS
+    }
+};
+
+int main(int argc, const char * argv[]) {
+    g_TS.Initialize();
+    
+    // set dependencies once (can set more than one if needed).
+    TaskA taskA;
+    TaskB taskB;
+    taskB.SetDependency( taskB.m_Dependency, &taskA );
+
+    g_TS.AddTaskSetToPipe( &taskA ); // add first task
+    g_TS.WaitforTask( &taskB );      // wait for last
+    return 0;
+}
+```
+
 External thread usage in C++:
 - full example in [example/ExternalTaskThread.cpp](example/ExternalTaskThread.cpp)
 - C example in [example/ExternalTaskThread_c.c](example/ExternalTaskThread_c.c)
@@ -188,8 +227,7 @@ External thread usage in C++:
 enki::TaskScheduler g_TS;
 struct ParallelTaskSet : ITaskSet
 {
-    virtual void ExecuteRange( TaskSetPartition range, uint32_t threadnum )
-    {
+    void ExecuteRange(  enki::TaskSetPartition range_, uint32_t threadnum_ ) override {
         // Do something
     }
 };
@@ -229,7 +267,7 @@ C usage:
 
 enkiTaskScheduler*	g_pTS;
 
-void ParalleTaskSetFunc( uint32_t start_, uint32_t end, uint32_t threadnum_, void* pArgs_ ) {
+void ParalleTaskSetFunc( uint32_t start_, uint32_t end_, uint32_t threadnum_, void* pArgs_ ) {
    /* Do something here, can issue tasks with g_pTS */
 }
 
@@ -241,13 +279,13 @@ int main(int argc, const char * argv[]) {
    // create a task, can re-use this to get allocation occurring on startup
    pTask = enkiCreateTaskSet( g_pTS, ParalleTaskSetFunc );
 
-   enkiAddTaskSetToPipe( g_pTS, pTask, NULL, 1); // NULL args, setsize of 1
+   enkiAddTaskSetToPipe( g_pTS, pTask); // defaults are NULL args, setsize of 1
 
    // wait for task set (running tasks if they exist)
    // since we've just added it and it has no range we'll likely run it.
    enkiWaitForTaskSet( g_pTS, pTask );
    
-   enkiDeleteTaskSet( pTask );
+   enkiDeleteTaskSet( g_pTS, pTask );
    
    enkiDeleteTaskScheduler( g_pTS );
    
@@ -287,7 +325,7 @@ Aras Pranckevičius' code for his series on [Daily Path Tracer experiments with 
 
 ## License (zlib)
 
-Copyright (c) 2013-2019 Doug Binks
+Copyright (c) 2013-2020 Doug Binks
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages

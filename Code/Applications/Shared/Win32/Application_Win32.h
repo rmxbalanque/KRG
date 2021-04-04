@@ -4,6 +4,7 @@
 #include "System/Core/Core/IntegralTypes.h"
 #include "System/Core/Types/String.h"
 #include "ApplicationGlobalState.h"
+#include "System/Core/Math/Math.h"
 #include <windows.h>
 
 //-------------------------------------------------------------------------
@@ -14,7 +15,7 @@ namespace KRG
     {
     public:
 
-        Win32Application( HINSTANCE hInstance, char const* applicationName, int iconResourceID );
+        Win32Application( HINSTANCE hInstance, char const* applicationName, int32 iconResourceID );
         virtual ~Win32Application();
 
         int Run( int32 argc, char** argv );
@@ -28,15 +29,15 @@ namespace KRG
         inline void RequestExit() { m_exitRequested = true; }
         bool FatalError( String const& error );
 
-        // Win32 window functions
-        void TryCreateWindow( int iconResourceID );
-        void SetWindowTitle( char const* pNewTitle );
+        // Window creation
+        bool TryCreateWindow();
 
         // This function allows the application to read all commandline settings and load all ini settings. Will be called before initialize.
-        virtual bool ReadSettings( int32 argc, char** argv ) { return true; };
-        
-        // This function allows the application to save any settings it needs
-        virtual void WriteSettings() {};
+        virtual bool ReadSettings( int32 argc, char** argv ) = 0;
+
+        // These function allows the application to read/write any layout/positioning specific settings it needs
+        virtual void ReadLayoutSettings();
+        virtual void WriteLayoutSettings();
 
         // Initialize/Shutdown
         virtual bool Initialize() = 0;
@@ -49,12 +50,16 @@ namespace KRG
 
         String const                    m_applicationName;
         String const                    m_applicationNameNoWhitespace;
+        int32                           m_applicationIconResourceID = -1;
         ApplicationGlobalState          m_applicationGlobalState;
         WNDCLASSEX                      m_windowClass;
         HINSTANCE                       m_pInstance = nullptr;
         HWND                            m_pWindow = nullptr;
         RECT                            m_windowRect = { 0, 0, 640, 480 };
         MSG                             m_message;
+
+        // Custom flags that user applications can set to specify what modes were enabled or what windows were open (saved in the layout.ini)
+        uint64                          m_userFlags = 0; 
 
     private:
 

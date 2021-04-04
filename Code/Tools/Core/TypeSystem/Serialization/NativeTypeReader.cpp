@@ -178,6 +178,8 @@ namespace KRG::TypeSystem
         }
     }
 
+    //-------------------------------------------------------------------------
+
     void NativeTypeReader::DeserializeType( rapidjson::Value const& currentJsonValue, TypeID typeID, void* pTypeData ) const
     {
         KRG_ASSERT( !IsCoreType( typeID ) );

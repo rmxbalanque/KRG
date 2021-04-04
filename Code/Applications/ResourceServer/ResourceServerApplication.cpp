@@ -2,6 +2,7 @@
 #include "Resources/Resource.h"
 #include "System/Core/Logging/Log.h"
 #include "System/Core/Time/Timers.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -191,6 +192,20 @@ namespace KRG
 
         // Kill off objects we're done with
         DestroyMenu( hMenu );
+
+        return true;
+    }
+
+    bool ResourceServerApplication::ReadSettings( int32 argc, char** argv )
+    {
+        // Read configuration settings from ini
+        //-------------------------------------------------------------------------
+
+        FileSystem::Path const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
+        if ( !m_settingsRegistry.LoadFromFile( iniPath ) )
+        {
+            return FatalError( "Failed to read required settings from INI file" );
+        }
 
         return true;
     }

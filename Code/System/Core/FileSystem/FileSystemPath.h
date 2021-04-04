@@ -28,10 +28,16 @@ namespace KRG::FileSystem
 
     public:
 
-        Path() {}
+        Path() = default;
+        Path( Path&& path ) { *this = std::move( path ); }
+        Path( Path const& path ) { *this = path; }
         Path( String&& path );
         Path( String const& path );
         Path( char const* pPath );
+
+        Path& operator=( Path& rhs );
+        Path& operator=( Path const& rhs );
+        Path& operator=( Path&& rhs );
 
         inline bool IsValid() const { return !m_fullpath.empty(); }
         inline size_t Length() const { return m_fullpath.length(); }
@@ -74,7 +80,7 @@ namespace KRG::FileSystem
         inline bool IsFilenameEqual( String const& pString ) const { KRG_ASSERT( !pString.empty() ); return IsFilenameEqual( pString.c_str() ); }
 
         // This will return true for all paths not ending in the delimiter and with an extension
-        inline bool IsFilePath() const { return m_fullpath[m_fullpath.length() - 1] != PathDelimiter; }
+        inline bool IsFilePath() const { KRG_ASSERT( IsValid() ); return m_fullpath[m_fullpath.length() - 1] != PathDelimiter; }
 
         // Extensions
         //-------------------------------------------------------------------------

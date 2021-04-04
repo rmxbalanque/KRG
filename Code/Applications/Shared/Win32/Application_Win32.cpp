@@ -7,60 +7,6 @@
 
 namespace KRG
 {
-    inline static RECT ReadWindowRectDimensionsFromIni( char const* pSettingsFile )
-    {
-        KRG_ASSERT( pSettingsFile != nullptr );
-
-        RECT outRect = { 0, 0, 640, 480 };
-
-        KRG::IniFile userIni( pSettingsFile );
-        if ( !userIni.IsValid() )
-        {
-            return outRect;
-        }
-
-        KRG::int32 v = 0;
-        if ( userIni.TryGetInt( "WindowSettings:Left", v ) )
-        {
-            outRect.left = v;
-        }
-
-        if ( userIni.TryGetInt( "WindowSettings:Right", v ) )
-        {
-            outRect.right = v;
-        }
-
-        if ( userIni.TryGetInt( "WindowSettings:Top", v ) )
-        {
-            outRect.top = v;
-        }
-
-        if ( userIni.TryGetInt( "WindowSettings:Bottom", v ) )
-        {
-            outRect.bottom = v;
-        }
-
-        return outRect;
-    }
-
-    inline static void WriteWindowRectDimensionsToIni( char const* pSettingsFile, RECT windowRect )
-    {
-        KRG_ASSERT( pSettingsFile != nullptr );
-
-        KRG::IniFile userIni;
-        if ( userIni.IsValid() )
-        {
-            userIni.CreateSection( "WindowSettings" );
-            userIni.SetInt( "WindowSettings:Left", (KRG::int32) windowRect.left );
-            userIni.SetInt( "WindowSettings:Right", (KRG::int32) windowRect.right );
-            userIni.SetInt( "WindowSettings:Top", (KRG::int32) windowRect.top );
-            userIni.SetInt( "WindowSettings:Bottom", (KRG::int32) windowRect.bottom );
-            userIni.SaveToFile( KRG::FileSystem::Path( pSettingsFile ) );
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
     namespace
     {
         static Win32Application* g_pApplicationInstance = nullptr;
@@ -78,13 +24,13 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    Win32Application::Win32Application( HINSTANCE hInstance, char const* applicationName, int iconResourceID )
+    Win32Application::Win32Application( HINSTANCE hInstance, char const* applicationName, int32 iconResourceID )
         : m_pInstance( hInstance )
         , m_applicationName( applicationName )
         , m_applicationNameNoWhitespace( StringUtils::StripWhitespace( applicationName ) )
+        , m_applicationIconResourceID( iconResourceID )
     {
-        KRG::Memory::MemsetZero( &m_message, sizeof( m_message ) );
-        TryCreateWindow( iconResourceID );
+        Memory::MemsetZero( &m_message, sizeof( m_message ) );
 
         //-------------------------------------------------------------------------
 
@@ -108,11 +54,81 @@ namespace KRG
         return false;
     }
 
-    void Win32Application::TryCreateWindow( int iconResourceID )
-    {
-        String const WindowSettingsIni = m_applicationNameNoWhitespace + ".windows.ini";
-        RECT const desiredWindowRect = ReadWindowRectDimensionsFromIni( WindowSettingsIni.c_str() );
+    //-------------------------------------------------------------------------
 
+    void Win32Application::ReadLayoutSettings()
+    {
+        FileSystem::Path const layoutIniFilePath = FileSystem::Path( m_applicationNameNoWhitespace + ".layout.ini" );
+        IniFile layoutIni( layoutIniFilePath );
+        if ( !layoutIni.IsValid() )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        int32 v = 0;
+        if ( layoutIni.TryGetInt( "WindowSettings:Left", v ) )
+        {
+            m_windowRect.left = v;
+        }
+
+        if ( layoutIni.TryGetInt( "WindowSettings:Right", v ) )
+        {
+            m_windowRect.right = v;
+        }
+
+        if ( layoutIni.TryGetInt( "WindowSettings:Top", v ) )
+        {
+            m_windowRect.top = v;
+        }
+
+        if ( layoutIni.TryGetInt( "WindowSettings:Bottom", v ) )
+        {
+            m_windowRect.bottom = v;
+        }
+
+        //-------------------------------------------------------------------------
+
+        uint32 flags = 0;
+
+        layoutIni.TryGetUInt( "Layout:UserFlags0", flags );
+        m_userFlags = flags;
+
+        layoutIni.TryGetUInt( "Layout:UserFlags1", flags );
+        m_userFlags |= uint64( flags ) << 32;
+    }
+
+    void Win32Application::WriteLayoutSettings()
+    {
+        IniFile layoutIni;
+        if ( layoutIni.IsValid() )
+        {
+            // Save window rect
+            layoutIni.CreateSection( "WindowSettings" );
+            layoutIni.SetInt( "WindowSettings:Left", (int32) m_windowRect.left );
+            layoutIni.SetInt( "WindowSettings:Right", (int32) m_windowRect.right );
+            layoutIni.SetInt( "WindowSettings:Top", (int32) m_windowRect.top );
+            layoutIni.SetInt( "WindowSettings:Bottom", (int32) m_windowRect.bottom );
+
+            // Save user flags
+            layoutIni.CreateSection( "Layout" );
+            layoutIni.SetInt( "Layout:UserFlags0", (uint32) m_userFlags );
+            layoutIni.SetInt( "Layout:UserFlags1", (uint32) ( m_userFlags >> 32 ) );
+
+            FileSystem::Path const layoutIniFilePath = FileSystem::Path( m_applicationNameNoWhitespace + ".layout.ini" );
+            layoutIni.SaveToFile( layoutIniFilePath );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool Win32Application::TryCreateWindow()
+    {
+        KRG_ASSERT( ( m_windowRect.right - m_windowRect.left ) > 0 );
+        KRG_ASSERT( ( m_windowRect.bottom - m_windowRect.top ) > 0 );
+
+        // Create the window
         //-------------------------------------------------------------------------
 
         m_windowClass.cbSize = sizeof( WNDCLASSEX );
@@ -121,7 +137,7 @@ namespace KRG
         m_windowClass.cbClsExtra = 0;
         m_windowClass.cbWndExtra = 0;
         m_windowClass.hInstance = m_pInstance;
-        m_windowClass.hIcon = LoadIcon( m_pInstance, MAKEINTRESOURCE( iconResourceID ) );
+        m_windowClass.hIcon = LoadIcon( m_pInstance, MAKEINTRESOURCE( m_applicationIconResourceID ) );
         m_windowClass.hCursor = nullptr;
         m_windowClass.hbrBackground = (HBRUSH) ( COLOR_WINDOW + 1 );
         m_windowClass.lpszMenuName = 0;
@@ -129,28 +145,9 @@ namespace KRG
         m_windowClass.hIconSm = 0;
         RegisterClassEx( &m_windowClass );
 
-        //-------------------------------------------------------------------------
-
-        auto const style = WS_OVERLAPPEDWINDOW;
-
-        // Calculate the actual window size
-        m_windowRect = { desiredWindowRect.left, desiredWindowRect.top, desiredWindowRect.right, desiredWindowRect.bottom };
-        AdjustWindowRectEx( &m_windowRect, style, FALSE, 0 );
-
-        long const leftOffset = desiredWindowRect.left - m_windowRect.left;
-        long const topOffset = desiredWindowRect.top - m_windowRect.top;
-
-        m_windowRect.left += leftOffset;
-        m_windowRect.right += leftOffset;
-        m_windowRect.top += topOffset;
-        m_windowRect.bottom += topOffset;
-
-        //-------------------------------------------------------------------------
-
-        // Create the window from the class defined above
         m_pWindow = CreateWindow( m_windowClass.lpszClassName,
                                   m_windowClass.lpszClassName,
-                                  style,
+                                  WS_OVERLAPPEDWINDOW,
                                   m_windowRect.left,
                                   m_windowRect.top,
                                   m_windowRect.right - m_windowRect.left,
@@ -160,33 +157,39 @@ namespace KRG
                                   m_pInstance,
                                   NULL );
 
-        // If window creation was successful
-        if ( m_pWindow != nullptr )
+        if ( m_pWindow == nullptr )
         {
-            ShowWindow( m_pWindow, SW_SHOW );
-            UpdateWindow( m_pWindow );
-            GetClientRect( m_pWindow, &m_windowRect );
+            return false;
         }
+
+        //-------------------------------------------------------------------------
+
+        ShowWindow( m_pWindow, SW_SHOW );
+        UpdateWindow( m_pWindow );
+        GetClientRect( m_pWindow, &m_windowRect );
+        return true;
     }
 
-    void Win32Application::SetWindowTitle( char const* pNewTitle )
-    {
-        SetWindowText( m_pWindow, pNewTitle );
-    }
+    //-------------------------------------------------------------------------
 
     int Win32Application::Run( int32 argc, char** argv )
     {
-        if ( m_pWindow == nullptr )
-        {
-            return -1;
-        }
-
         // Read Settings
         //-------------------------------------------------------------------------
 
         if ( !ReadSettings( argc, argv ) )
         {
             return FatalError( "Application failed to read settings correctly!" );
+        }
+
+        ReadLayoutSettings();
+
+        // Window
+        //-------------------------------------------------------------------------
+
+        if ( !TryCreateWindow() )
+        {
+            return FatalError( "Application failed to create window!" );
         }
 
         // Initialization
@@ -226,16 +229,13 @@ namespace KRG
         bool const shutdownResult = Shutdown();
         m_initialized = false;
 
-        String const LogName = m_applicationNameNoWhitespace + "Log.txt";
-        Log::SaveToFile( LogName );
+        FileSystem::Path const LogFilePath( m_applicationNameNoWhitespace + "Log.txt" );
+        Log::SaveToFile( LogFilePath );
 
         // Write Settings
         //-------------------------------------------------------------------------
 
-        String const WindowSettingsIni = m_applicationNameNoWhitespace + ".windows.ini";
-        WriteWindowRectDimensionsToIni( WindowSettingsIni.c_str(), m_windowRect );
-
-        WriteSettings();
+        WriteLayoutSettings();
 
         //-------------------------------------------------------------------------
 

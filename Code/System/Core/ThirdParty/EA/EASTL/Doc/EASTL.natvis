@@ -78,12 +78,47 @@
 	</Expand>
 </Type>
 
+  
+<Type Name="eastl::basic_string&lt;wchar_t,*&gt;">
+	<DisplayString Condition="!!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)">{mPair.mFirst.heap.mpBegin,su}</DisplayString>
+	<DisplayString Condition="!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)">{mPair.mFirst.sso.mData,su}</DisplayString>
+	<Expand>
+		<Item Name="[length]"   Condition="!!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)">mPair.mFirst.heap.mnSize</Item>
+		<Item Name="[capacity]" Condition="!!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)">(mPair.mFirst.heap.mnCapacity &amp; ~kHeapMask)</Item>
+		<Item Name="[value]"    Condition="!!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)">mPair.mFirst.heap.mpBegin,su</Item>
+
+		<Item Name="[length]"   Condition="!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)">mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize</Item>
+		<Item Name="[capacity]" Condition="!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)">SSOLayout::SSO_CAPACITY</Item>
+		<Item Name="[value]"    Condition="!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)">mPair.mFirst.sso.mData,su</Item>
+
+		<Item Name="[uses heap]">!!(mPair.mFirst.sso.mRemainingSizeField.mnRemainingSize &amp; kSSOMask)</Item>
+	</Expand>
+</Type>
+
 <Type Name="eastl::pair&lt;*&gt;">
 	<DisplayString>({first}, {second})</DisplayString>
     <Expand>
         <Item Name="first">first</Item>
         <Item Name="second">second</Item>
     </Expand>
+</Type>
+
+<Type Name="eastl::span&lt;*&gt;">
+	<DisplayString Condition="mnSize == 0">[{mnSize}] {{}}</DisplayString>
+	<DisplayString Condition="mnSize == 1">[{mnSize}] {{ {*mpData} }}</DisplayString>
+	<DisplayString Condition="mnSize == 2">[{mnSize}] {{ {*mpData}, {*(mpData+1)} }}</DisplayString>
+	<DisplayString Condition="mnSize == 3">[{mnSize}] {{ {*mpData}, {*(mpData+1)}, {*(mpData+2)} }}</DisplayString>
+	<DisplayString Condition="mnSize == 4">[{mnSize}] {{ {*mpData}, {*(mpData+1)}, {*(mpData+2)}, {*(mpData+3)} }}</DisplayString>
+	<DisplayString Condition="mnSize == 5">[{mnSize}] {{ {*mpData}, {*(mpData+1)}, {*(mpData+2)}, {*(mpData+3)}, {*(mpData+4)} }}</DisplayString>
+	<DisplayString Condition="mnSize == 6">[{mnSize}] {{ {*mpData}, {*(mpData+1)}, {*(mpData+2)}, {*(mpData+3)}, {*(mpData+4)}, {*(mpData+5)} }}</DisplayString>
+	<DisplayString Condition="mnSize &gt; 6">[{mnSize}] {{ {*mpData}, {*(mpData+1)}, {*(mpData+2)}, {*(mpData+3)}, {*(mpData+4)}, {*(mpData+5)}, ... }}</DisplayString>
+	<Expand>
+		<Item Name="[size]">mnSize</Item>
+		<ArrayItems>
+			<Size>mnSize</Size>
+			<ValuePointer>mpData</ValuePointer>
+		</ArrayItems>
+	</Expand>
 </Type>
 
 <Type Name="eastl::VectorBase&lt;*&gt;">
@@ -151,24 +186,24 @@
 </Type>
 
 <Type Name="eastl::ListBase&lt;*&gt;">
-	<DisplayString Condition="mNode.mpNext == &amp;mNode">
+	<DisplayString Condition="mNodeAllocator.mFirst.mpNext == &amp;mNodeAllocator.mFirst">
 		[0] {{}}
 	</DisplayString>
-    <DisplayString Condition="mNode.mpNext != &amp;mNode &amp;&amp; mNode.mpNext-&gt;mpNext == &amp;mNode">
-		[1] {{ {((eastl::ListNode&lt;$T1&gt;*)mNode.mpNext)-&gt;mValue} }}
+    <DisplayString Condition="mNodeAllocator.mFirst.mpNext != &amp;mNodeAllocator.mFirst &amp;&amp; mNodeAllocator.mFirst.mpNext-&gt;mpNext == &amp;mNodeAllocator.mFirst">
+		[1] {{ {((eastl::ListNode&lt;$T1&gt;*)mNodeAllocator.mFirst.mpNext)-&gt;mValue} }}
 	</DisplayString>
-	<DisplayString Condition="mNode.mpNext != &amp;mNode &amp;&amp; mNode.mpNext-&gt;mpNext != &amp;mNode &amp;&amp; mNode.mpNext-&gt;mpNext-&gt;mpNext == &amp;mNode">
+	<DisplayString Condition="mNodeAllocator.mFirst.mpNext != &amp;mNodeAllocator.mFirst &amp;&amp; mNodeAllocator.mFirst.mpNext-&gt;mpNext != &amp;mNodeAllocator.mFirst &amp;&amp; mNodeAllocator.mFirst.mpNext-&gt;mpNext-&gt;mpNext == &amp;mNodeAllocator.mFirst">
 		[2] 
 		{{ 
-			{((eastl::ListNode&lt;$T1&gt;*)mNode.mpNext)-&gt;mValue}, 
-			{((eastl::ListNode&lt;$T1&gt;*)mNode.mpNext-&gt;mpNext)-&gt;mValue} 
+			{((eastl::ListNode&lt;$T1&gt;*)mNodeAllocator.mFirst.mpNext)-&gt;mValue}, 
+			{((eastl::ListNode&lt;$T1&gt;*)mNodeAllocator.mFirst.mpNext-&gt;mpNext)-&gt;mValue} 
 		}}
 	</DisplayString>
-	<DisplayString Condition="mNode.mpNext != &amp;mNode &amp;&amp; mNode.mpNext-&gt;mpNext != &amp;mNode &amp;&amp; mNode.mpNext-&gt;mpNext-&gt;mpNext != &amp;mNode">
+	<DisplayString Condition="mNodeAllocator.mFirst.mpNext != &amp;mNodeAllocator.mFirst &amp;&amp; mNodeAllocator.mFirst.mpNext-&gt;mpNext != &amp;mNodeAllocator.mFirst &amp;&amp; mNodeAllocator.mFirst.mpNext-&gt;mpNext-&gt;mpNext != &amp;mNodeAllocator.mFirst">
 		[?] 
 		{{ 
-			{((eastl::ListNode&lt;$T1&gt;*)mNode.mpNext)-&gt;mValue}, 
-			{((eastl::ListNode&lt;$T1&gt;*)mNode.mpNext-&gt;mpNext)-&gt;mValue}, 
+			{((eastl::ListNode&lt;$T1&gt;*)mNodeAllocator.mFirst.mpNext)-&gt;mValue}, 
+			{((eastl::ListNode&lt;$T1&gt;*)mNodeAllocator.mFirst.mpNext-&gt;mpNext)-&gt;mValue}, 
 			...
 		}}
 	</DisplayString>
@@ -177,7 +212,7 @@
 		  <DisplayString>Content of lists will repeat indefinitely. Keep that in mind!</DisplayString> 
 		</Synthetic>  
         <LinkedListItems>
-            <HeadPointer>mNode.mpNext</HeadPointer>
+            <HeadPointer>mNodeAllocator.mFirst.mpNext</HeadPointer>
             <NextPointer>mpNext</NextPointer>
             <ValueNode>((eastl::ListNode&lt;$T1&gt;*)this)-&gt;mValue</ValueNode>
         </LinkedListItems>
@@ -506,6 +541,21 @@
 
 <Type Name="eastl::reference_wrapper&lt;*&gt;">
 	<DisplayString>{*val}</DisplayString>
+</Type>
+
+<!--
+	This implementation isn't ideal because it can't switch between showing inline value vs values stored in a heap allocation.
+	We are hitting the limit of natvis scripting that we can't workaround unless we change the implementation of eastl::any.
+-->
+<Type Name="eastl::any">
+	<DisplayString Condition="m_handler == nullptr">empty</DisplayString>
+	<DisplayString Condition="m_handler != nullptr">{m_storage.external_storage}</DisplayString>
+</Type>
+
+
+
+<Type Name="eastl::atomic_flag">
+	<DisplayString>{mFlag.mAtomic}</DisplayString>
 </Type>
 
 

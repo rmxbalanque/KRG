@@ -31,6 +31,7 @@ namespace KRG
 
     private:
 
+        virtual bool ReadSettings( int32 argc, char** argv ) override;
         virtual bool Initialize() override;
         virtual bool Shutdown() override;
         virtual bool ApplicationLoop() override;
@@ -55,6 +56,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        SettingsRegistry                        m_settingsRegistry;
         InternalUpdateContext                   m_updateContext;
 
         // Rendering

@@ -37,7 +37,7 @@ namespace KRG
 
     protected:
 
-        bool m_isOptional = true;   // Is this config setting optional, i.e. can we define a default value?
+        bool                                        m_isOptional = true;   // Is this config setting optional, i.e. can we define a default value?
     };
 
     //-------------------------------------------------------------------------
@@ -65,8 +65,8 @@ namespace KRG
 
     private:
 
-        bool                                    m_value = false;
-        TMultiUserEventInternal<bool>           m_onValueChangedEvent;
+        bool                                        m_value = false;
+        TMultiUserEventInternal<bool>               m_onValueChangedEvent;
     };
 
     //-------------------------------------------------------------------------
@@ -100,9 +100,9 @@ namespace KRG
 
     private:
 
-        int32                                     m_value = false;
-        int32                                     m_min = INT_MIN;
-        int32                                     m_max = INT_MAX;
+        int32                                       m_value = false;
+        int32                                       m_min = INT_MIN;
+        int32                                       m_max = INT_MAX;
         TMultiUserEventInternal<int32, int32>       m_onValueChangedEvent;
     };
 

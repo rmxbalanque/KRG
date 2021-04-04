@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-compile data://packs/br/vehicles/sm_veh_car_destroyed_01.msh</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://packs/br/vehicles/sm_veh_car_destroyed_01.msh</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-compile data://physics/PhysicsMaterials.pmdb</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://physics/PhysicsMaterials.pmdb</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>-compile data://Physics/DefaultPhysicsMaterial.pmat</LocalDebuggerCommandArguments>

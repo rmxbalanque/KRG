@@ -1,6 +1,6 @@
 #include "EntityMapCompiler.h"
 #include "ResourceBuilders/NavmeshBuilder.h"
-#include "Tools/Entity/Serialization/EntityCollectionReader.h"
+#include "Tools/Entity/Serialization/EntityCollectionModelReader.h"
 #include "System/Entity/Map/EntityMapDescriptor.h"
 #include "Engine/Navmesh/Components/NavmeshComponent.h"
 #include "System/Core/Serialization/BinaryArchive.h"
@@ -26,7 +26,7 @@ namespace KRG::EntityModel
         // Read collection
         //-------------------------------------------------------------------------
 
-        if ( !EntityCollectionReader::ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionDescriptor ) )
+        if ( !EntityCollectionModelReader::ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionDescriptor ) )
         {
             return Resource::CompilationResult::Failure;
         }
@@ -60,7 +60,7 @@ namespace KRG::EntityModel
             navmeshComponents[0]->m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourceDataPath.ToString() ) );
 
             // Generate navmesh
-            auto navmeshResourcePath = ctx.m_outputFilePath;
+            FileSystem::Path navmeshResourcePath = ctx.m_outputFilePath;
             navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
 
             Navmesh::NavmeshBuilder navmeshBuilder;

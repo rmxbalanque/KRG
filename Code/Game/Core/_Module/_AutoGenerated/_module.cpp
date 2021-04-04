@@ -15,12 +15,12 @@
 void KRG::Game::GameModule::RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
     TypeSystem::TypeHelpers::TTypeHelper<KRG::DefaultPlayerController>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::AnotherTestStruct>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::TestStruct>::RegisterType( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_SomeFlags::RegisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubStruct>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestStruct>::RegisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_TestFlags::RegisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent::InternalStruct>::RegisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_TestComponent_InternalEnum::RegisterEnum( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_TestComponent_Test_InternalEnum::RegisterEnum( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_TestComponent_InternalTest_InternalEnum::RegisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::GameTestSystem>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::CustomizerTestComponent>::RegisterType( typeRegistry );
@@ -33,12 +33,12 @@ void KRG::Game::GameModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegis
     TypeSystem::TypeHelpers::TTypeHelper<KRG::CustomizerTestComponent>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::GameTestSystem>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent>::UnregisterType( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_TestComponent_Test_InternalEnum::UnregisterEnum( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_TestComponent_InternalTest_InternalEnum::UnregisterEnum( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_TestComponent_InternalEnum::UnregisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent::InternalStruct>::UnregisterType( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_SomeFlags::UnregisterEnum( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::TestStruct>::UnregisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::AnotherTestStruct>::UnregisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_TestFlags::UnregisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestStruct>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubStruct>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::DefaultPlayerController>::UnregisterType( typeRegistry );
 }
 

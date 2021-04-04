@@ -1,6 +1,7 @@
 #include "ResourceServerUI.h"
 #include "ResourceServer.h"
 #include "System/DevTools/ImguiX.h"
+#include "System/Core/Types/Color.h"
 #include <shellapi.h>
 
 //-------------------------------------------------------------------------
@@ -42,10 +43,10 @@ namespace KRG::Resource
         // Draw windows
         //-------------------------------------------------------------------------
 
+        DrawServerInfo();
         DrawPendingRequests();
         DrawCompletedRequests();
         DrawWorkerStatus();
-        DrawRegisteredCompilers();
     }
 
     void ResourceServerUI::DrawPendingRequests()
@@ -101,6 +102,7 @@ namespace KRG::Resource
 
             ImGuiX::ScopedFont const BigScopedFont( ImGuiX::Font::Small );
 
+            ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_accentColorDark );
             if ( ImGui::BeginTable( "Completed Requests Table", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX, ImVec2( 0, TableHeight ) ) )
             {
                 ImGui::TableSetupColumn( "##Status", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 10 );
@@ -186,6 +188,7 @@ namespace KRG::Resource
 
                 ImGui::EndTable();
             }
+            ImGui::PopStyleColor();
 
             ImGui::Separator();
 
@@ -286,10 +289,18 @@ namespace KRG::Resource
         ImGui::End();
     }
 
-    void ResourceServerUI::DrawRegisteredCompilers()
+    void ResourceServerUI::DrawServerInfo()
     {
-        if ( ImGui::Begin( "Registered Compilers" ) )
+        if ( ImGui::Begin( "Server Info" ) )
         {
+            ImGui::Text( "Source Data Path: %s", m_pResourceServer->GetSourceDataDir().c_str() );
+            ImGui::Text( "Compiled Data Path: %s", m_pResourceServer->GetCompiledDataDir().c_str() );
+            ImGui::Text( "IP Address: %s", m_pResourceServer->GetNetworkAddress().c_str() );
+
+            ImGui::NewLine();
+
+            //-------------------------------------------------------------------------
+
             if ( ImGui::BeginTable( "Registered Compilers Table", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
             {
                 ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 150 );
@@ -320,7 +331,7 @@ namespace KRG::Resource
                     char str[32] = { 0 };
 
                     ImGui::TableSetColumnIndex( 3 );
-                    for( auto const& type : compilerInfo.m_outputTypes )
+                    for ( auto const& type : compilerInfo.m_outputTypes )
                     {
                         type.GetString( str );
                         ImGui::Text( str );

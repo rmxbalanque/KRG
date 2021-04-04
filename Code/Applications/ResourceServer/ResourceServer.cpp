@@ -35,15 +35,8 @@ namespace KRG
         {
             m_workingDir = FileSystem::GetCurrentProcessPath();
 
-            // Load settings
+            // Get settings
             //-------------------------------------------------------------------------
-
-            FileSystem::Path const iniPath = m_workingDir + "KRG.ini";
-            if( !m_settingsRegistry.LoadFromFile( iniPath ) )
-            {
-                m_errorMessage = "Failed to load settings from INI file";
-                return false;
-            }
 
             m_sourceDataDir = m_workingDir + Settings::g_sourceDataPath;
             m_compiledDataDir = m_workingDir + Settings::g_compiledDataPath;

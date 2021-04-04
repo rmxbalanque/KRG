@@ -1,16 +1,16 @@
 #include "MeshEditor.h"
-
+#include "System/DevTools/ThirdParty/imgui/imgui_internal.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render
+namespace KRG::Render::MeshEditor
 {
     class MeshEditorFactory : public EditorFactory
     {
     public:
 
         virtual StringID GetID() const override  { return StringID( "MeshEditor" ); }
-        virtual Editor* CreateEditor() const override { return KRG::New<MeshEditor>(); }
+        virtual Editor* CreateEditor() const override { return KRG::New<MainEditor>(); }
     };
 
     static const MeshEditorFactory g_meshEditorFactory;
@@ -18,52 +18,59 @@ namespace KRG::Render
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render
+namespace KRG::Render::MeshEditor
 {
-    void MeshEditor::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
+    MainEditor::~MainEditor()
     {
-        Editor::Initialize( context, settingsRegistry );
-        static char const* const allowedExtensions[] = { ".msh", ".smsh", ".fbx", ".gltf", 0 };
-        m_dataDirectoryModel.Initialize( allowedExtensions );
+        KRG_ASSERT( m_pDataBrowser == nullptr );
+        KRG_ASSERT( m_pMeshInfo == nullptr );
     }
 
-    void MeshEditor::Shutdown()
+    void MainEditor::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
     {
-        m_dataDirectoryModel.Shutdown();
+        Editor::Initialize( context, settingsRegistry );
+        m_model.Initialize( context );
+
+        m_pDataBrowser = CreateTool<DataBrowser>( m_model );
+        m_pMeshInfo = CreateTool<MeshInfo>( m_model );
+    }
+
+    void MainEditor::Shutdown()
+    {
+        DestroyTool( m_pMeshInfo );
+        DestroyTool( m_pDataBrowser );
+
+        m_model.Shutdown();
         Editor::Shutdown();
     }
 
-    void MeshEditor::DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void MainEditor::SetUserFlags( uint64 flags )
     {
-        ImGui::TextColored( (Float4) Colors::LimeGreen, KRG_ICON_CUBES );
+        m_pDataBrowser->SetOpen( flags & ( 1 << 0 ) );
+        m_pDataBrowser->SetOpen( flags & ( 1 << 0 ) );
 
-        if ( ImGui::BeginMenu( "Windows" ) )
-        {
-            ImGui::Checkbox( "Mesh Browser", &m_showDataBrowser );
-            ImGui::Checkbox( "Mesh Info", &m_showMeshInfoWindow );
-            ImGui::Checkbox( "Skeletal Mesh Info", &m_showSkeletalMeshInfoWindow );
-
-            ImGui::EndMenu();
-        }
+        m_pMeshInfo->SetOpen( flags & ( 1 << 1 ) );
     }
 
-    void MeshEditor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    uint64 MainEditor::GetUserFlags() const
     {
-        m_dataDirectoryModel.Update( context );
+        uint64 flags = 0;
 
-        //-------------------------------------------------------------------------
-
-        if ( m_showDataBrowser )
+        if ( m_pDataBrowser->IsOpen() )
         {
-            DrawMeshBrowserWindow();
-            DrawDataFileInfoWindow();
+            flags |= ( 1 << 0 );
         }
 
-        //-------------------------------------------------------------------------
-
-        if ( m_showMeshInfoWindow )
+        if ( m_pMeshInfo->IsOpen() )
         {
-            DrawMeshInfoWindow();
+            flags |= ( 1 << 1 );
         }
+
+        return flags;
+    }
+
+    void MainEditor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    {
+        m_model.Update( context );
     }
 }

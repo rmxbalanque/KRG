@@ -355,6 +355,12 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
+                case CoreTypes::Vector:
+                {
+                    StringToFloatArray( str, ",", 4, &reinterpret_cast<Vector*>( pValue )->m_x );
+                }
+                break;
+
                 case CoreTypes::Quaternion:
                 {
                     StringToFloatArray( str, ",", 4, &reinterpret_cast<Quaternion*>( pValue )->m_x );
@@ -674,6 +680,12 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::Float4:
                 {
                     FloatArrayToString( &reinterpret_cast<Float4 const*>( pValue )->m_x, ",", 4, strValue );
+                }
+                break;
+
+                case CoreTypes::Vector:
+                {
+                    FloatArrayToString( &reinterpret_cast<Vector const*>( pValue )->m_x, ",", 4, strValue );
                 }
                 break;
 
@@ -999,6 +1011,12 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
+                case CoreTypes::Vector:
+                {
+                    archive << *reinterpret_cast<Vector const*>( pValue );
+                }
+                break;
+
                 case CoreTypes::Quaternion:
                 {
                     archive << *reinterpret_cast<Quaternion const*>( pValue );
@@ -1266,6 +1284,12 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::Float4:
                 {
                     archive >> *reinterpret_cast<Float4*>( pValue );
+                }
+                break;
+
+                case CoreTypes::Vector:
+                {
+                    archive >> *reinterpret_cast<Vector*>( pValue );
                 }
                 break;
 
@@ -1585,6 +1609,14 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::Float4:
                 {
                     Float4 value;
+                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
+                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                }
+                break;
+
+                case CoreTypes::Vector:
+                {
+                    Vector value;
                     ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
                     ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }

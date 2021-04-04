@@ -9,45 +9,6 @@
 
 namespace KRG
 {
-    SettingsRegistry::SettingsRegistry()
-    {
-        Setting* pSetting = Setting::s_pHead;
-        while ( pSetting != nullptr )
-        {
-            THashMap<uint32, Setting*>* pSettingsList = nullptr;
-
-            #if KRG_DEVELOPMENT_TOOLS
-            if ( pSetting->GetTypeID() == DebugSetting::StaticTypeID )
-            {
-                pSettingsList = &m_debugSettings;
-            }
-            else if ( pSetting->GetTypeID() == ConfigSetting::StaticTypeID )
-            {
-                pSettingsList = &m_configSettings;
-            }
-            else
-            {
-                KRG_HALT();
-            }
-            #else
-            KRG_ASSERT( pSetting->GetTypeID() == ConfigSetting::StaticTypeID );
-            pSettingsList = &m_configSettings;
-            #endif
-
-            KRG_ASSERT( pSettingsList != nullptr );
-
-            //-------------------------------------------------------------------------
-
-            // Add to global list
-            pSettingsList->insert( TPair<uint32, Setting*>( pSetting->m_nameHash, pSetting ) );
-
-            // Move onto next setting
-            pSetting = pSetting->m_pNext;
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
     bool SettingsRegistry::LoadFromFile( FileSystem::Path const& iniFilePath )
     {
         IniFile iniParser( iniFilePath );
@@ -56,6 +17,11 @@ namespace KRG
             KRG_LOG_FATAL_ERROR( "System", "Failed to load settings from INI file: %s", iniFilePath.c_str() );
             return false;
         }
+
+        //-------------------------------------------------------------------------
+
+        m_settingsFilePath = iniFilePath;
+        GenerateSettingsCaches();
 
         //-------------------------------------------------------------------------
         // Only try to load configuration settings
@@ -138,5 +104,57 @@ namespace KRG
     void SettingsRegistry::SaveToFile( FileSystem::Path const& iniFilePath )
     {
         KRG_UNIMPLEMENTED_FUNCTION();
+    }
+
+    void SettingsRegistry::ReloadSettings()
+    {
+        KRG_ASSERT( m_settingsFilePath.ExistsAndIsFile() );
+        LoadFromFile( m_settingsFilePath );
+    }
+
+    void SettingsRegistry::GenerateSettingsCaches()
+    {
+        m_configSettings.clear();
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_debugSettings.clear();
+        #endif
+
+        //-------------------------------------------------------------------------
+
+        Setting* pSetting = Setting::s_pHead;
+        while ( pSetting != nullptr )
+        {
+            THashMap<uint32, Setting*>* pSettingsList = nullptr;
+
+            #if KRG_DEVELOPMENT_TOOLS
+            if ( pSetting->GetTypeID() == DebugSetting::StaticTypeID )
+            {
+                pSettingsList = &m_debugSettings;
+            }
+            else if ( pSetting->GetTypeID() == ConfigSetting::StaticTypeID )
+            {
+                pSettingsList = &m_configSettings;
+            }
+            else
+            {
+                KRG_HALT();
+            }
+            #else
+            KRG_ASSERT( pSetting->GetTypeID() == ConfigSetting::StaticTypeID );
+            pSettingsList = &m_configSettings;
+            #endif
+
+            KRG_ASSERT( pSettingsList != nullptr );
+
+            //-------------------------------------------------------------------------
+
+            // Add to global list - settings are expected to be unique!
+            KRG_ASSERT( pSettingsList->find( pSetting->m_nameHash ) == pSettingsList->end() );
+            pSettingsList->insert( TPair<uint32, Setting*>( pSetting->m_nameHash, pSetting ) );
+
+            // Move onto next setting
+            pSetting = pSetting->m_pNext;
+        }
     }
 }

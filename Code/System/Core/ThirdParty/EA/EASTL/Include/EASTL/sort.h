@@ -43,6 +43,7 @@
 
 
 #include <EASTL/internal/config.h>
+#include <EASTL/internal/move_help.h>
 #include <EASTL/iterator.h>
 #include <EASTL/memory.h>
 #include <EASTL/algorithm.h>
@@ -215,41 +216,40 @@ namespace eastl
 	}
 
 
-
+	//////////////////////////////////////////////////////////////////////////////
 	/// insertion_sort
 	///
-	/// Since insertion_sort requires that the data be addressed with a BidirectionalIterator and 
-	/// not the more flexible RandomAccessIterator, we implement the sort by doing a for loop within
-	/// a for loop. If we were to specialize this for a RandomAccessIterator, we could replace the
-	/// inner for loop with a call to upper_bound, which would be faster.
+	/// insertion_sort is an O(n^2) stable sorting algorithm that starts at the
+	/// (k + 1) element and assumes the first (k) elements are sorted.
+	/// Then copy_backwards from (k + 1) to the begining any elements where the
+	/// (k + 1) element is less than [0, k] elements. The position of k when
+	/// (k + 1) element is not less than k is the sorted position of the (k + 1) element.
 	///
+	/// Example With Intermediate Steps:
+	/// (k + 1) == 2 : [3, 2, 1] -> [3, 3, 1] -> [2, 3, 1]
+	/// (k + 1) == 1 : [2, 3, 1] -> [2, 3, 3] -> [2, 2, 3] -> [1, 2, 3]
+	///              : [1, 2, 3]
 	template <typename BidirectionalIterator, typename StrictWeakOrdering>
 	void insertion_sort(BidirectionalIterator first, BidirectionalIterator last, StrictWeakOrdering compare)
 	{
 		typedef typename eastl::iterator_traits<BidirectionalIterator>::value_type value_type;
 
-		if(first != last) // if the range is non-empty...
+		if (first != last)
 		{
-			BidirectionalIterator iCurrent, iNext, iSorted = first;
+			BidirectionalIterator i = first;
 
-			for(++iSorted; iSorted != last; ++iSorted)
+			for (++i; i != last; ++i)
 			{
-				value_type temp(eastl::forward<value_type>(*iSorted));
+				value_type insertValue(eastl::move(*i));
+				BidirectionalIterator insertPosition = i;
 
-				iNext = iCurrent = iSorted;
-
-				// Note: The following loop has a problem: it can decrement iCurrent to before 'first'.
-				// It doesn't dereference the iterator, but std STL disallows that operation. This isn't 
-				// a problem for EASTL containers and ranges, as they support a single decrement of first,
-				// but std STL iterators may have a problem with it. Dinkumware STL, for example, will assert.
-				// To do: Fix this loop to not decrement like so.
-				for(--iCurrent; (iNext != first) && compare(temp, *iCurrent); --iNext, --iCurrent)
+				for (BidirectionalIterator movePosition = i; movePosition != first && compare(insertValue, *(--movePosition)); --insertPosition)
 				{
-					EASTL_VALIDATE_COMPARE(!compare(*iCurrent, temp)); // Validate that the compare function is sane.
-					*iNext = eastl::forward<value_type>(*iCurrent);
+					EASTL_VALIDATE_COMPARE(!compare(*movePosition, insertValue));
+					*insertPosition = eastl::move(*movePosition);
 				}
 
-				*iNext = eastl::forward<value_type>(temp);
+				*insertPosition = eastl::move(insertValue);
 			}
 		}
 	} // insertion_sort
@@ -258,103 +258,11 @@ namespace eastl
 	template <typename BidirectionalIterator>
 	void insertion_sort(BidirectionalIterator first, BidirectionalIterator last)
 	{
-		typedef typename eastl::iterator_traits<BidirectionalIterator>::value_type value_type;
+		typedef eastl::less<typename eastl::iterator_traits<BidirectionalIterator>::value_type> Less;
 
-		if(first != last)
-		{
-			BidirectionalIterator iCurrent, iNext, iSorted = first;
+		insertion_sort<BidirectionalIterator>(first, last, Less());
 
-			for(++iSorted; iSorted != last; ++iSorted)
-			{
-				value_type temp(eastl::forward<value_type>(*iSorted));
-
-				iNext = iCurrent = iSorted;
-
-				// Note: The following loop has a problem: it can decrement iCurrent to before 'first'.
-				// It doesn't dereference the iterator, but std STL disallows that operation. This isn't 
-				// a problem for EASTL containers and ranges, as they support a single decrement of first,
-				// but std STL iterators may have a problem with it. Dinkumware STL, for example, will assert.
-				// To do: Fix this loop to not decrement like so.
-				for(--iCurrent; (iNext != first) && (temp < *iCurrent); --iNext, --iCurrent)
-				{
-					EASTL_VALIDATE_COMPARE(!(*iCurrent < temp)); // Validate that the compare function is sane.
-					*iNext = eastl::forward<value_type>(*iCurrent);
-				}
-
-				*iNext = eastl::forward<value_type>(temp);
-			}
-		}
 	} // insertion_sort
-
-
-	#if 0 /*
-	// STLPort-like variation of insertion_sort. Doesn't seem to run quite as fast for small runs.
-	//
-	template <typename RandomAccessIterator, typename Compare>
-	void insertion_sort(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
-	{
-		if(first != last)
-		{
-			for(RandomAccessIterator i = first + 1; i != last; ++i)
-			{
-				const typename eastl::iterator_traits<RandomAccessIterator>::value_type value(*i);
-
-				if(compare(value, *first))
-				{
-					EASTL_VALIDATE_COMPARE(!compare(*first, value)); // Validate that the compare function is sane.
-					eastl::copy_backward(first, i, i + 1);
-					*first = value;
-				}
-				else
-				{
-					RandomAccessIterator end(i), prev(i);
-
-					for(--prev; compare(value, *prev); --end, --prev)
-					{
-						EASTL_VALIDATE_COMPARE(!compare(*prev, value)); // Validate that the compare function is sane.
-						*end = *prev;
-					}
-
-					*end = value;
-				}
-			}
-		}
-	}
-
-
-	// STLPort-like variation of insertion_sort. Doesn't seem to run quite as fast for small runs.
-	//
-	template <typename RandomAccessIterator>
-	void insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
-	{
-		if(first != last)
-		{
-			for(RandomAccessIterator i = first + 1; i != last; ++i)
-			{
-				const typename eastl::iterator_traits<RandomAccessIterator>::value_type value(*i);
-
-				if(value < *first)
-				{
-					EASTL_VALIDATE_COMPARE(!(*first < value)); // Validate that the compare function is sane.
-					eastl::copy_backward(first, i, i + 1);
-					*first = value;
-				}
-				else
-				{
-					RandomAccessIterator end(i), prev(i);
-
-					for(--prev; value < *prev; --end, --prev)
-					{
-						EASTL_VALIDATE_COMPARE(!(*prev < value)); // Validate that the compare function is sane.
-						*end = *prev;
-					}
-
-					*end = value;
-				}
-			}
-		}
-	} */
-	#endif
 
 
 	/// shell_sort
@@ -531,7 +439,7 @@ namespace eastl
 
 			if (lastSortedEnd < 1)
 			{
-				lastSortedEnd = is_sorted_until<RandomAccessIterator, StrictWeakOrdering>(first, last, compare) - first;
+				lastSortedEnd = eastl::is_sorted_until<RandomAccessIterator, StrictWeakOrdering>(first, last, compare) - first;
 			}
 
 			// Sort the region unless lastSortedEnd indicates it is already sorted.
@@ -709,7 +617,55 @@ namespace eastl
 		return begin;
 	}
 
+	/// stable_partition
+	///
+	/// Performs the same function as @p partition() with the additional
+	/// guarantee that the relative ordering of elements in each group is
+	/// preserved.
+	template <typename ForwardIterator, typename Predicate>
+	ForwardIterator stable_partition(ForwardIterator first, ForwardIterator last, Predicate pred)
+	{
+		first = eastl::find_if_not(first, last, pred);
 
+		if (first == last)
+			return first;
+
+		typedef typename iterator_traits<ForwardIterator>::value_type value_type;
+
+		const auto requested_size = eastl::distance(first, last);
+
+		auto allocator = *get_default_allocator(0);
+		value_type* const buffer =
+		    (value_type*)allocate_memory(allocator, requested_size * sizeof(value_type), EASTL_ALIGN_OF(value_type), 0);
+		eastl::uninitialized_fill(buffer, buffer + requested_size, value_type());
+
+		ForwardIterator result1 = first;
+		value_type* result2 = buffer;
+
+		*result2 = eastl::move(*first);
+		++result2;
+		++first;
+		for (; first != last; ++first)
+		{
+			if (pred(*first))
+			{
+				*result1 = eastl::move(*first);
+				++result1;
+			}
+			else
+			{
+				*result2 = eastl::move(*first);
+				++result2;
+			}
+		}
+
+		eastl::copy(buffer, result2, result1);
+
+		eastl::destruct(buffer, buffer + requested_size);
+		EASTLFree(allocator, buffer, requested_size * sizeof(value_type));
+		
+		return result1;
+	}
 
 	/////////////////////////////////////////////////////////////////////
 	// quick_sort
@@ -1222,7 +1178,7 @@ namespace eastl
 				{
 					for(;; ++curr)
 					{
-						if(curr == (size - 1)) // If we are at the end of the data... this run is done.
+						if(curr >= (size - 1)) // If we are at the end of the data... this run is done.
 							break;
 
 						if(compare(*(first + curr), *(first + curr - 1))) // If this item is not in order... this run is done.
@@ -1233,7 +1189,7 @@ namespace eastl
 				{
 					for(;; ++curr)
 					{
-						if(curr == (size - 1))  // If we are at the end of the data... this run is done.
+						if(curr >= (size - 1))  // If we are at the end of the data... this run is done.
 							break;
 
 						if(!compare(*(first + curr), *(first + curr - 1)))  // If this item is not in order... this run is done.

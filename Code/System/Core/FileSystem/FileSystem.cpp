@@ -9,7 +9,10 @@ namespace KRG::FileSystem
     bool CreateDir( Path const& path )
     {
         KRG_ASSERT( path.IsDirectoryPath() );
-        return std::filesystem::create_directory( path.c_str() );
+
+        std::error_code ec;
+        std::filesystem::create_directories( path.c_str(), ec );
+        return ec.value() == 0;
     }
 
     bool EraseDir( Path const& path )
@@ -242,7 +245,14 @@ namespace KRG::FileSystem
     {
         if ( !path.Exists() )
         {
-            return path.IsDirectoryPath() ? CreateDir( path ) : CreateDir( path.GetParentDirectory() );
+            if ( path.IsDirectoryPath() )
+            {
+                return CreateDir( path );
+            }
+            else
+            {
+                return CreateDir( path.GetParentDirectory() );
+            }
         }
 
         return true;

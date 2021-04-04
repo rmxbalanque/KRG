@@ -22,7 +22,7 @@ namespace KRG::Resource
         void DrawPendingRequests();
         void DrawCompletedRequests();
         void DrawWorkerStatus();
-        void DrawRegisteredCompilers();
+        void DrawServerInfo();
 
     private:
 

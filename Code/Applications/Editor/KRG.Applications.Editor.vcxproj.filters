@@ -33,10 +33,9 @@
     <ClCompile Include="Animation\AnimationEditor\AnimationEditor.cpp" />
     <ClCompile Include="Render\MeshEditor\MeshEditor.cpp" />
     <ClCompile Include="Editor.cpp" />
-    <ClCompile Include="Common\DataDirectoryModel.cpp" />
-    <ClCompile Include="Render\MeshEditor\MeshEditor_DataBrowserWindow.cpp" />
-    <ClCompile Include="Render\MeshEditor\MeshEditor_InfoWindow.cpp" />
-    <ClCompile Include="Render\MeshEditor\MeshEditor_DataFileInfoWindow.cpp" />
+    <ClCompile Include="Render\MeshEditor\MeshEditor_DataBrowserTool.cpp" />
+    <ClCompile Include="Render\MeshEditor\MeshEditor_MeshInfoTool.cpp" />
+    <ClCompile Include="EditorSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Win32\EditorApplication_Win32.h">
@@ -48,7 +47,11 @@
     <ClInclude Include="Animation\AnimationEditor\AnimationEditor.h" />
     <ClInclude Include="Render\MeshEditor\MeshEditor.h" />
     <ClInclude Include="Editor.h" />
-    <ClInclude Include="Common\DataDirectoryModel.h" />
+    <ClInclude Include="Render\MeshEditor\MeshEditor_DataBrowserTool.h" />
+    <ClInclude Include="EditorTool.h" />
+    <ClInclude Include="Render\MeshEditor\MeshEditor_MeshInfoTool.h" />
+    <ClInclude Include="Render\MeshEditor\MeshEditor_Model.h" />
+    <ClInclude Include="EditorSettings.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc">

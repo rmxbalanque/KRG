@@ -68,13 +68,13 @@ namespace enki
     class  TaskScheduler;
     class  TaskPipe;
     class  PinnedTaskList;
+    class  Dependency;
     struct ThreadArgs;
     struct ThreadDataStore;
     struct SubTaskSet;
     struct semaphoreid_t;
 
     uint32_t GetNumHardwareThreads();
-
 
     enum TaskPriority
     {
@@ -95,22 +95,41 @@ namespace enki
     };
 
     // ICompletable is a base class used to check for completion.
-    // Do not use this class directly, instead derive from ITaskSet or IPinnedTask.
+    // Can be used with dependencies to wait for their completion.
+    // Derive from ITaskSet or IPinnedTask for running parallel tasks.
     class ICompletable
     {
     public:
-        ICompletable() : m_Priority(TASK_PRIORITY_HIGH), m_RunningCount(0), m_WaitingForTaskCount(0) {}
-        bool                   GetIsComplete() const {
+        bool    GetIsComplete() const {
             return 0 == m_RunningCount.load( std::memory_order_acquire );
         }
 
-        virtual                ~ICompletable() {}
+        virtual ~ICompletable();
 
-        TaskPriority            m_Priority;
+        // Dependency helpers, see Dependencies.cpp
+        void SetDependency( Dependency& dependency_, const ICompletable* pDependencyTask_ );
+        template<typename D, typename T, int SIZE> void SetDependenciesArr( D& dependencyArray_ , const T(&taskArray_)[SIZE] );
+        template<typename D, typename T>           void SetDependenciesArr( D& dependencyArray_, std::initializer_list<T*> taskpList_ );
+        template<typename D, typename T, int SIZE> void SetDependenciesArr( D(&dependencyArray_)[SIZE], const T(&taskArray_)[SIZE] );
+        template<typename D, typename T, int SIZE> void SetDependenciesArr( D(&dependencyArray_)[SIZE], std::initializer_list<T*> taskpList_ );
+        template<typename D, typename T, int SIZE> void SetDependenciesVec( D& dependencyVec_, const T(&taskArray_)[SIZE] );
+        template<typename D, typename T>           void SetDependenciesVec( D& dependencyVec_, std::initializer_list<T*> taskpList_ );
+
+        TaskPriority                   m_Priority            = TASK_PRIORITY_HIGH;
+    protected:
+        // Deriving from an ICompletable and overriding OnDependenciesComplete is advanced use.
+        // If you do override OnDependenciesComplete() call:
+        // ICompletable::OnDependenciesComplete( pTaskScheduler_, threadNum_ );
+        // in your implementation.
+        virtual void                   OnDependenciesComplete( TaskScheduler* pTaskScheduler_, uint32_t threadNum_ );
     private:
         friend class                   TaskScheduler;
-        std::atomic<int32_t>           m_RunningCount;
-        mutable std::atomic<int32_t>   m_WaitingForTaskCount;
+        friend class                   Dependency;
+        std::atomic<int32_t>           m_RunningCount               = {0};
+        std::atomic<int32_t>           m_DependenciesCompletedCount = {0};
+        int32_t                        m_DependenciesCount          = 0;
+        mutable std::atomic<int32_t>   m_WaitingForTaskCount        = {0};
+        mutable Dependency*            m_pDependents                = NULL;
     };
 
     // Subclass ITaskSet to create tasks.
@@ -118,16 +137,9 @@ namespace enki
     class ITaskSet : public ICompletable
     {
     public:
-        ITaskSet()
-            : m_SetSize(1)
-            , m_MinRange(1)
-            , m_RangeToRun(1)
-        {}
-
+        ITaskSet() = default;
         ITaskSet( uint32_t setSize_ )
             : m_SetSize( setSize_ )
-            , m_MinRange(1)
-            , m_RangeToRun(1)
         {}
 
         ITaskSet( uint32_t setSize_, uint32_t minRange_ )
@@ -145,7 +157,7 @@ namespace enki
         virtual void ExecuteRange( TaskSetPartition range_, uint32_t threadnum_  ) = 0;
 
         // Set Size - usually the number of data items to be processed, see ExecuteRange. Defaults to 1
-        uint32_t     m_SetSize;
+        uint32_t     m_SetSize  = 1;
 
         // Min Range - Minimum size of of TaskSetPartition range when splitting a task set into partitions.
         // Designed for reducing scheduling overhead by preventing set being
@@ -156,28 +168,29 @@ namespace enki
         // NOTE: The last partition will be smaller than m_MinRange if m_SetSize is not a multiple
         // of m_MinRange.
         // Also known as grain size in literature.
-        uint32_t     m_MinRange;
+        uint32_t     m_MinRange  = 1;
 
     private:
         friend class TaskScheduler;
-        uint32_t     m_RangeToRun;
+        void         OnDependenciesComplete( TaskScheduler* pTaskScheduler_, uint32_t threadNum_ ) override final;
+        uint32_t     m_RangeToRun = 1;
     };
 
     // Subclass IPinnedTask to create tasks which can be run on a given thread only.
     class IPinnedTask : public ICompletable
     {
     public:
-        IPinnedTask()                      : threadNum(0), pNext(NULL) {}  // default is to run a task on main thread
-        IPinnedTask( uint32_t threadNum_ ) : threadNum(threadNum_), pNext(NULL) {}  // default is to run a task on main thread
-
+        IPinnedTask() = default;
+        IPinnedTask( uint32_t threadNum_ ) : threadNum(threadNum_) {}  // default is to run a task on main thread
 
         // IPinnedTask needs to be non abstract for intrusive list functionality.
         // Should never be called as should be overridden.
         virtual void Execute() { assert(false); }
 
-
-        uint32_t                  threadNum; // thread to run this pinned task on
-        std::atomic<IPinnedTask*> pNext;        // Do not use. For intrusive list only.
+        uint32_t                  threadNum = 0; // thread to run this pinned task on
+        std::atomic<IPinnedTask*> pNext = {NULL};
+    private:
+        void         OnDependenciesComplete( TaskScheduler* pTaskScheduler_, uint32_t threadNum_ ) override final;
     };
 
     // A utility task set for creating tasks based on std::func.
@@ -196,6 +209,26 @@ namespace enki
         }
 
         TaskSetFunction m_Function;
+    };
+
+    class Dependency
+    {
+    public:
+                        Dependency() = default; 
+                        Dependency( const Dependency& ) = delete;
+        ENKITS_API      Dependency( Dependency&& ) noexcept;	
+        ENKITS_API      Dependency(    const ICompletable* pDependencyTask_, ICompletable* pTaskToRunOnCompletion_ );
+        ENKITS_API      ~Dependency();
+
+        ENKITS_API void SetDependency( const ICompletable* pDependencyTask_, ICompletable* pTaskToRunOnCompletion_ );
+        ENKITS_API void ClearDependency();
+              ICompletable* GetTaskToRunOnCompletion() { return pTaskToRunOnCompletion; }
+        const ICompletable* GetDependencyTask()        { return pDependencyTask; }
+    private:
+        friend class TaskScheduler; friend class ICompletable;
+        ICompletable*       pTaskToRunOnCompletion = NULL;
+        const ICompletable* pDependencyTask        = NULL;
+        Dependency*         pNext                  = NULL;
     };
 
     // TaskScheduler implements several callbacks intended for profilers
@@ -233,7 +266,9 @@ namespace enki
 
         // numExternalTaskThreads - Advanced use. Number of external threads which need to use TaskScheduler API.
         // See TaskScheduler::RegisterExternalTaskThread() for usage.
-        // Defaults to 0, the thread used to initialize the TaskScheduler. 
+        // Defaults to 0. The thread used to initialize the TaskScheduler can also use the TaskScheduler API.
+        // Thus there are (numTaskThreadsToCreate + numExternalTaskThreads + 1) able to use the API, with this
+        // defaulting to the number of harware threads available to the system.
         uint32_t          numExternalTaskThreads = 0;
 
         ProfilerCallbacks profilerCallbacks = {};
@@ -336,6 +371,7 @@ namespace enki
         // -------------  End DEPRECATED Functions  -------------
 
     private:
+        friend class ICompletable; friend class ITaskSet; friend class IPinnedTask;
         static void TaskingThreadFunction( const ThreadArgs& args_ );
         bool        HaveTasks( uint32_t threadNum_ );
         void        WaitForNewTasks( uint32_t threadNum_ );
@@ -348,11 +384,18 @@ namespace enki
         void        SplitAndAddTask( uint32_t threadNum_, SubTaskSet subTask_, uint32_t rangeToSplit_ );
         void        WakeThreadsForNewTasks();
         void        WakeThreadsForTaskCompletion();
+        bool        WakeSuspendedThreadsWithPinnedTasks();
+        void        InitDependencies( ICompletable* pCompletable_  );
+        ENKITS_API void TaskComplete( ICompletable* pTask_, bool bWakeThreads_, uint32_t threadNum_ );
+        ENKITS_API void AddTaskSetToPipeInt( ITaskSet* pTaskSet_, uint32_t threadNum_ );
+        ENKITS_API void AddPinnedTaskInt( IPinnedTask* pTask_ );
 
         template< typename T > T*   NewArray( size_t num_, const char* file_, int line_  );
         template< typename T > void DeleteArray( T* p_, size_t num_, const char* file_, int line_ );
         template<class T, class... Args> T* New( const char* file_, int line_,  Args&&... args_ );
         template< typename T > void Delete( T* p_, const char* file_, int line_ );
+        template< typename T > T*   Alloc( const char* file_, int line_ );
+        template< typename T > void Free( T* p_, const char* file_, int line_ );
         semaphoreid_t* SemaphoreNew();
         void SemaphoreDelete( semaphoreid_t* pSemaphore_ );
 
@@ -384,5 +427,92 @@ namespace enki
     inline uint32_t GetNumHardwareThreads()
     {
         return std::thread::hardware_concurrency();
+    }
+
+    inline void ICompletable::OnDependenciesComplete( TaskScheduler* pTaskScheduler_, uint32_t threadNum_ )
+    {
+        m_RunningCount.fetch_sub( 1, std::memory_order_release );
+        pTaskScheduler_->TaskComplete( this, true, threadNum_ );
+    }
+
+    inline void ITaskSet::OnDependenciesComplete( TaskScheduler* pTaskScheduler_, uint32_t threadNum_ )
+    {
+        pTaskScheduler_->AddTaskSetToPipeInt( this, threadNum_ );
+    }
+
+    inline void IPinnedTask::OnDependenciesComplete( TaskScheduler* pTaskScheduler_, uint32_t threadNum_ )
+    {
+        (void)threadNum_;
+        pTaskScheduler_->AddPinnedTaskInt( this );
+    }
+
+    inline ICompletable::~ICompletable()
+    {
+        Dependency* pDependency = m_pDependents;
+        while( pDependency )
+        {
+            Dependency* pNext = pDependency->pNext;
+            pDependency->pDependencyTask = NULL;
+            pDependency->pNext = NULL;
+            pDependency = pNext;
+        }
+    }
+
+    inline void ICompletable::SetDependency( Dependency& dependency_, const ICompletable* pDependencyTask_ )
+    {
+        assert( pDependencyTask_ != this );
+        dependency_.SetDependency( pDependencyTask_, this );
+    }
+
+    template<typename D, typename T, int SIZE>
+    void ICompletable::SetDependenciesArr( D& dependencyArray_ , const T(&taskArray_)[SIZE] ) {
+        static_assert( std::tuple_size<D>::value >= SIZE, "Size of dependency array too small" );
+        for( int i = 0; i < SIZE; ++i )
+        {
+            dependencyArray_[i].SetDependency( &taskArray_[i], this );
+        }
+    }
+    template<typename D, typename T>
+    void ICompletable::SetDependenciesArr( D& dependencyArray_, std::initializer_list<T*> taskpList_ ) {
+        assert( std::tuple_size<D>::value >= taskpList_.size() );
+        int i = 0;
+        for( auto pTask : taskpList_ )
+        {
+            dependencyArray_[i++].SetDependency( pTask, this );
+        }
+    }
+    template<typename D, typename T, int SIZE>
+    void ICompletable::SetDependenciesArr( D(&dependencyArray_)[SIZE], const T(&taskArray_)[SIZE] ) {
+        for( int i = 0; i < SIZE; ++i )
+        {
+            dependencyArray_[i].SetDependency( &taskArray_[i], this );
+        }
+    }
+    template<typename D, typename T, int SIZE>
+    void ICompletable::SetDependenciesArr( D(&dependencyArray_)[SIZE], std::initializer_list<T*> taskpList_ ) {
+        assert( SIZE >= taskpList_.size() );
+        int i = 0;
+        for( auto pTask : taskpList_ )
+        {
+            dependencyArray_[i++].SetDependency( pTask, this );
+        }
+    }
+    template<typename D, typename T, int SIZE>
+    void ICompletable::SetDependenciesVec( D& dependencyVec_, const T(&taskArray_)[SIZE] ) {
+        dependencyVec_.resize( SIZE );
+        for( int i = 0; i < SIZE; ++i )
+        {
+            dependencyVec_[i].SetDependency( &taskArray_[i], this );
+        }
+    }
+
+    template<typename D, typename T>
+    void ICompletable::SetDependenciesVec( D& dependencyVec_, std::initializer_list<T*> taskpList_ ) {
+        dependencyVec_.resize( taskpList_.size() );
+        int i = 0;
+        for( auto pTask : taskpList_ )
+        {
+            dependencyVec_[i++].SetDependency( pTask, this );
+        }
     }
 }

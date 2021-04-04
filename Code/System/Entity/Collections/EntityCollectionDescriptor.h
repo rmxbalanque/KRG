@@ -116,7 +116,7 @@ namespace KRG::EntityModel
     protected:
 
         TVector<EntityDescriptor>                                   m_entityDescriptors;
-        THashMap<UUID, int32>                                         m_entityLookupMap;
+        THashMap<UUID, int32>                                       m_entityLookupMap;
         TVector<SpatialAttachmentInfo>                              m_entitySpatialAttachmentInfo;
     };
 }

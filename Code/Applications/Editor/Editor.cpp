@@ -10,6 +10,22 @@
 
 namespace KRG
 {
+    Editor::~Editor()
+    {
+        KRG_ASSERT( m_editorTools.empty() );
+    }
+
+    void Editor::DestroyTool( EditorTool* pTool )
+    {
+        KRG_ASSERT( pTool != nullptr );
+
+        auto itr = eastl::find( m_editorTools.begin(), m_editorTools.end(), pTool );
+        KRG_ASSERT( itr != m_editorTools.end() );
+
+        KRG::Delete( *itr );
+        m_editorTools.erase( itr );
+    }
+
     void Editor::Update( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
@@ -21,12 +37,28 @@ namespace KRG
                 DrawEditorMainMenu( context, viewportManager );
                 DrawEditorDockSpaceAndViewport( context, viewportManager );
                 FrameStartUpdate( context, viewportManager );
+
+                for ( auto pTool : m_editorTools )
+                {
+                    if ( pTool->IsOpen() )
+                    {
+                        pTool->FrameStartUpdate( context, viewportManager );
+                    }
+                }
             }
             break;
 
             case UpdateStage::FrameEnd:
             {
                 FrameEndUpdate( context, viewportManager );
+
+                for ( auto pTool : m_editorTools )
+                {
+                    if ( pTool->IsOpen() )
+                    {
+                        pTool->FrameEndUpdate( context, viewportManager );
+                    }
+                }
             }
             break;
         }
@@ -39,15 +71,40 @@ namespace KRG
         pInputSystem->SetEnabled( m_mouseWithinEditorViewport );
     }
 
+    void Editor::DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    {
+        ImGui::TextColored( (Float4) Colors::LimeGreen, KRG_ICON_COG );
+    }
+
     void Editor::DrawEditorMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
         if ( ImGui::BeginMainMenuBar() )
         {
             //-------------------------------------------------------------------------
-            // Draw Menu Items
+            // Draw Custom Menu
             //-------------------------------------------------------------------------
 
             DrawMainMenu( context, viewportManager );
+
+            //-------------------------------------------------------------------------
+            // Draw Tools Menu
+            //-------------------------------------------------------------------------
+
+            if ( ImGui::BeginMenu( "Tools" ) )
+            {
+                bool windowState = false;
+
+                for ( auto pTool : m_editorTools )
+                {
+                    windowState = pTool->IsOpen();
+                    if ( ImGui::Checkbox( pTool->GetName(), &windowState ) )
+                    {
+                        pTool->SetOpen( windowState );
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
 
             //-------------------------------------------------------------------------
             // Draw Performance Stats

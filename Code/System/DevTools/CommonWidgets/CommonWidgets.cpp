@@ -154,7 +154,7 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        ImGuiStyle const& style = GImGui->Style;
+        ImGuiStyle const& style = ImGui::GetStyle();
         ImGuiID const id = pWindow->GetID( pLabel );
 
         ImVec2 const pos = pWindow->DC.CursorPos;
@@ -171,7 +171,7 @@ namespace KRG::ImGuiX
 
         pWindow->DrawList->PathClear();
 
-        float const time = (float) GImGui->Time;
+        float const time = (float) ImGui::GetTime();
         float const start = Math::Abs( Math::Sin( time * 1.8f ) * ( numSegments - 5 ) );
         float const min = Math::Pi * 2.0f * ( start ) / numSegments;
         float const max = Math::Pi * 2.0f * ( numSegments - 3 ) / numSegments;
