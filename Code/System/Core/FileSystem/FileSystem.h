@@ -32,8 +32,8 @@ namespace KRG::FileSystem
     };
 
     // Get the contents of a specified directory
-    // The extension filter is a list of extensions including the period and MUST have a null sentinal value as the last element e.g. extensionfilter = { ".txt", ".exe", 0 }
-    KRG_SYSTEM_CORE_API bool GetDirectoryContents( Path const& directoryPath, TVector<Path>& contents, DirectoryReaderOutput output = DirectoryReaderOutput::All, DirectoryReaderMode mode = DirectoryReaderMode::Expand, char const* const extensionfilter[] = {} );
+    // The extension filter is a list of extensions including the period e.g. extensionfilter = { ".txt", ".exe" }
+    KRG_SYSTEM_CORE_API bool GetDirectoryContents( Path const& directoryPath, TVector<Path>& contents, DirectoryReaderOutput output = DirectoryReaderOutput::All, DirectoryReaderMode mode = DirectoryReaderMode::Expand, TVector<String> const& extensionFilters = TVector<String>() );
 
     // Get the contents of a specified directory
     // All paths will be matched against the supplied regex expression

@@ -1,6 +1,7 @@
 #include "MeshEditor_DataBrowserTool.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelReader.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelWriter.h"
+#include "Tools/Core/FileSystem/FileSystemHelpers.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
@@ -8,6 +9,42 @@
 #include "System/Core/Update/UpdateContext.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Logging/Log.h"
+#include "Compilers/Render/Mesh/StaticMeshCompiler.h"
+#include "Compilers/Render/Mesh/SkeletalMeshCompiler.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Render::MeshEditor
+{
+    MeshResourceDescriptorCreator::MeshResourceDescriptorCreator( EditorModel* pModel )
+        : ResourceDescriptorCreator( pModel )
+    {
+        m_decriptorTypes.push_back( { "Static Mesh", StaticMesh::GetStaticResourceTypeID() } );
+        m_decriptorTypes.push_back( { "Skeletal Mesh", SkeletalMesh::GetStaticResourceTypeID() } );
+    }
+
+    void MeshResourceDescriptorCreator::CreateNewDescriptor( FileSystem::Path const& rawFile ) const
+    {
+        int32 const selectedTypeIdx = GetSelectedTypeIndex();
+        KRG_ASSERT( selectedTypeIdx < m_decriptorTypes.size() );
+
+        TypeSystem::NativeTypeWriter typeWriter( m_pModel->GetTypeRegistry() );
+        if ( selectedTypeIdx == 0 )
+        {
+            StaticMeshResourceDescriptor desc;
+            desc.m_meshDataPath = DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), rawFile );
+            typeWriter << desc;
+        }
+        else
+        {
+            SkeletalMeshResourceDescriptor desc;
+            desc.m_meshDataPath = DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), rawFile );
+            typeWriter << desc;
+        }
+      
+        typeWriter.WriteToFile( CreateDescriptorFilePath( rawFile ) );
+    }
+}
 
 //-------------------------------------------------------------------------
 
@@ -23,6 +60,7 @@ namespace KRG::Render::MeshEditor
     {
         ImGui::TableNextRow();
 
+        // Filename
         //-------------------------------------------------------------------------
 
         ImGui::TableNextColumn();
@@ -37,11 +75,41 @@ namespace KRG::Render::MeshEditor
         ImGui::TreeNodeEx( file.GetName().c_str(), treeNodeflags );
 
         // Handle clicks on the tree node
-        if ( ImGui::IsItemFocused() || ImGui::IsItemClicked() )
+        if ( ImGui::IsItemFocused() || ImGui::IsItemClicked( ImGuiMouseButton_Left ) || ImGui::IsItemClicked( ImGuiMouseButton_Right ) )
         {
+            ImGui::SetItemDefaultFocus();
             model.SetSelection( file.GetPath() );
         }
 
+        // Context menu
+        //-------------------------------------------------------------------------
+
+        ImGui::PushID( &file );
+        if ( ImGui::BeginPopupContextItem( "FileContextMenu" ) )
+        {
+            model.SetSelection( file.GetPath() );
+
+            if ( ImGui::Selectable( "Open In Explorer" ) )
+            {
+                FileSystem::OpenFileInExplorer( file.GetPath() );
+            }
+
+            if ( ImGui::Selectable( "Copy File Path" ) )
+            {
+                ImGui::SetClipboardText( file.GetPath().c_str() );
+            }
+
+            if ( ImGui::Selectable( "Copy Data Path" ) )
+            {
+                DataPath dataPath = DataPath::FromFileSystemPath( model.GetSourceDataDirectoryPath(), file.GetPath() );
+                ImGui::SetClipboardText( dataPath.c_str() );
+            }
+
+            ImGui::EndPopup();
+        }
+        ImGui::PopID();
+
+        // File Type
         //-------------------------------------------------------------------------
 
         ImGui::TableNextColumn();
@@ -132,6 +200,7 @@ namespace KRG::Render::MeshEditor
     DataBrowser::DataBrowser( EditorModel* pModel )
         : TEditorTool<Model>( pModel )
         , m_propertyGrid( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
+        , m_descriptorCreator( pModel )
     {
         UpdateVisibility();
     }
@@ -337,7 +406,7 @@ namespace KRG::Render::MeshEditor
 
     bool DataBrowser::IsInspectedFileARawFile() const
     {
-        auto const extension = m_inspectedPath.GetExtension();
+        auto const extension = m_inspectedPath.GetExtensionAsString();
         if ( extension == "gltf" || extension == "fbx" )
         {
             return true;
@@ -367,6 +436,8 @@ namespace KRG::Render::MeshEditor
         typeWriter.SerializeType( m_typeInstance );
         return typeWriter.WriteToFile( m_inspectedPath );
     }
+
+    //-------------------------------------------------------------------------
 
     void DataBrowser::DrawInfoPanel( UpdateContext const& context )
     {
@@ -441,6 +512,9 @@ namespace KRG::Render::MeshEditor
 
         if ( m_validAssetInfo )
         {
+            // Asset Info
+            //-------------------------------------------------------------------------
+
             ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
             ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 4 ) );
             if ( ImGui::BeginTable( "Mesh Info", 2, 0 ) )
@@ -474,11 +548,24 @@ namespace KRG::Render::MeshEditor
             }
             ImGui::PopStyleVar();
 
+            // Create new descriptor
             //-------------------------------------------------------------------------
 
             if ( ImGui::Button( "Create New Descriptor", ImVec2( -1, 0 ) ) )
             {
+                ImGui::OpenPopup( "Create New Descriptor##Modal" );
+            }
 
+            if ( ImGui::BeginPopupModal( "Create New Descriptor##Modal", NULL, ImGuiWindowFlags_AlwaysAutoResize ) )
+            {
+                if ( m_descriptorCreator.ShowCreatorDialog( m_inspectedPath ) )
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+
+                //-------------------------------------------------------------------------
+
+                ImGui::EndPopup();
             }
         }
     }

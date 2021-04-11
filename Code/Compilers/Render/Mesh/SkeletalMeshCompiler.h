@@ -1,7 +1,7 @@
-namespace KRG {  }
 #ifdef _WIN32
 #pragma once
 
+#include "Compilers/Render/_Module/API.h"
 #include "MeshCompiler.h"
 
 //-------------------------------------------------------------------------
@@ -12,7 +12,7 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    struct SkeletalMeshResourceDescriptor : public MeshResourceDescriptor
+    struct KRG_RESOURCECOMPILERS_RENDER_API SkeletalMeshResourceDescriptor : public MeshResourceDescriptor
     {
         KRG_REGISTER_TYPE;
     };

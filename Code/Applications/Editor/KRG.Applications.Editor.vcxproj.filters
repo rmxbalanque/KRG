@@ -36,9 +36,10 @@
     <ClCompile Include="Render\MeshEditor\MeshEditor_MeshInfoTool.cpp" />
     <ClCompile Include="EditorModel.cpp" />
     <ClCompile Include="Render\MeshEditor\MeshEditor_Model.cpp" />
-    <ClCompile Include="Widgets\PropertyGrid\PropertyEditors.cpp" />
-    <ClCompile Include="Widgets\PropertyGrid\PropertyGrid.cpp" />
-    <ClCompile Include="Widgets\DataFilePicker.cpp" />
+    <ClCompile Include="Common\PropertyGrid\PropertyEditors.cpp" />
+    <ClCompile Include="Common\PropertyGrid\PropertyGrid.cpp" />
+    <ClCompile Include="Common\DataFilePicker.cpp" />
+    <ClCompile Include="Common\ResourceDescriptorCreator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Win32\EditorApplication_Win32.h">
@@ -54,9 +55,10 @@
     <ClInclude Include="Render\MeshEditor\MeshEditor_MeshInfoTool.h" />
     <ClInclude Include="Render\MeshEditor\MeshEditor_Model.h" />
     <ClInclude Include="EditorModel.h" />
-    <ClInclude Include="Widgets\PropertyGrid\PropertyEditors.h" />
-    <ClInclude Include="Widgets\PropertyGrid\PropertyGrid.h" />
-    <ClInclude Include="Widgets\DataFilePicker.h" />
+    <ClInclude Include="Common\PropertyGrid\PropertyEditors.h" />
+    <ClInclude Include="Common\PropertyGrid\PropertyGrid.h" />
+    <ClInclude Include="Common\DataFilePicker.h" />
+    <ClInclude Include="Common\ResourceDescriptorCreator.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc">

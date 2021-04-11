@@ -57,6 +57,7 @@ namespace KRG
         String GetExtension() const;
         void ReplaceExtension( const char* pExtension );
         inline void ReplaceExtension( String const& extension ) { ReplaceExtension( extension.c_str() ); }
+        template<size_t S> void ReplaceExtension( InlineString<S> const& extension ) { ReplaceExtension( extension.c_str() ); }
 
         // Conversion
         inline String const& ToString() const { return m_path; }

@@ -29,7 +29,7 @@ namespace KRG
         DataFileModel( FileSystem::Path const& path )
             : m_name( path.GetFileName() )
             , m_path( path )
-            , m_resourceTypeID( path.GetExtension().data() )
+            , m_resourceTypeID( path.GetExtension() )
         {
             KRG_ASSERT( path.IsValid() );
         }
@@ -163,12 +163,13 @@ namespace KRG
 
         DataBrowserModel( FileSystem::Path const& dataDirectoryPath );
 
-        void Initialize( char const* const filter[] = {} );
+        void Initialize( TVector<String> const& fileRestrictions = TVector<String>() );
         void Shutdown();
         void Update( UpdateContext const& context );
 
         inline TVector<FileSystem::Path> const& GetAllPaths() const { return m_foundPaths; }
 
+        inline FileSystem::Path const& GetSourceDataDirectoryPath() const{ return m_dataDirectoryPath; }
         inline DataDirectoryModel& GetRootDirectory() { return m_rootDirectory; }
         inline DataDirectoryModel const& GetRootDirectory() const { return m_rootDirectory; }
 
@@ -194,7 +195,7 @@ namespace KRG
         virtual void OnDirectoryDeleted( FileSystem::Path const& path ) override { Refresh(); }
         virtual void OnDirectoryRenamed( FileSystem::Path const& oldPath, FileSystem::Path const& newPath ) override { Refresh(); }
 
-        void Refresh() {}
+        void Refresh();
 
         DataDirectoryModel& FindOrCreateDirectoryForFile( FileSystem::Path const& path );
 
@@ -203,6 +204,7 @@ namespace KRG
         FileSystem::Path                            m_dataDirectoryPath;
         int32                                       m_dataDirectoryPathDepth;
         FileSystem::FileSystemWatcher               m_fileSystemWatcher;
+        TVector<String>                             m_fileRestrictions;
 
         TVector<FileSystem::Path>                   m_foundPaths;
         DataDirectoryModel                          m_rootDirectory;

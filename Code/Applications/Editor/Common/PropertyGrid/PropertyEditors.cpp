@@ -1,5 +1,5 @@
 #include "PropertyEditors.h"
-#include "Applications/Editor/Widgets/DataFilePicker.h"
+#include "Applications/Editor/Common/DataFilePicker.h"
 #include "Tools/Core/TypeSystem/TypeInstanceModel.h"
 #include "System/DevTools/ImguiX.h"
 #include "System/DevTools/CommonWidgets/NumericEditors.h"
@@ -13,199 +13,172 @@ namespace KRG::TypeSystem::PG
 
     //-------------------------------------------------------------------------
 
-    bool CreateEditorBool( Context& ctx, PropertyInstanceModel& propertyModel )
+    struct [[nodiscard]] ScopedChangeNotifier
     {
-        bool propertyUpdated = false;
+        ScopedChangeNotifier( Context& ctx, PropertyInstanceModel& propertyModel )
+            : m_ctx( ctx )
+            , m_propertyModel( propertyModel )
+        {
+            m_ctx.m_preChangeDelegate( m_propertyModel );
+        }
 
-        bool v = propertyModel.GetValue<bool>();
+        ~ScopedChangeNotifier()
+        {
+            m_ctx.m_postChangeDelegate( m_propertyModel );
+        }
 
+        Context&                    m_ctx;
+        PropertyInstanceModel&      m_propertyModel;
+    };
+
+    //-------------------------------------------------------------------------
+
+    void CreateEditorBool( Context& ctx, PropertyInstanceModel& propertyModel )
+    {
+        auto v = propertyModel.GetValue<bool>();
         ImGui::PushID( &propertyModel );
         if ( ImGui::Checkbox( g_emptyLabel, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorInt8( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorInt8( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         auto v = propertyModel.GetValue<int8>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S8, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorInt16( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorInt16( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         auto v = propertyModel.GetValue<int16>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S16, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorInt32( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorInt32( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         auto v = propertyModel.GetValue<int32>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S32, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorInt64( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorInt64( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         auto v = propertyModel.GetValue<int64>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S64, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorUInt8( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorUInt8( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         auto v = propertyModel.GetValue<uint8>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U8, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorUInt16( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorUInt16( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         auto v = propertyModel.GetValue<uint16>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U16, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorUInt32( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorUInt32( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         auto v = propertyModel.GetValue<uint32>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U32, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorUInt64( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorUInt64( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         auto v = propertyModel.GetValue<uint64>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U64, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
     //-------------------------------------------------------------------------
 
-    bool CreateEditorFloat( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorFloat( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float v = propertyModel.GetValue<float>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputFloat( g_emptyLabel, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorDouble( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorDouble( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         double v = propertyModel.GetValue<double>();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputDouble( g_emptyLabel, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( v );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorColor( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorColor( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         Color c = propertyModel.GetValue<Color>();
         ImVec4 v = c.ToFloat4();
 
@@ -213,96 +186,68 @@ namespace KRG::TypeSystem::PG
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::ColorEdit4( g_emptyLabel, &v.x ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( Color( v ) );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
     //-------------------------------------------------------------------------
 
-    bool CreateEditorMicroseconds( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorMicroseconds( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float v = propertyModel.GetValue<Microseconds>().ToFloat();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputFloat( g_emptyLabel, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( Microseconds( v ) );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        //-------------------------------------------------------------------------
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorMilliseconds( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorMilliseconds( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float v = propertyModel.GetValue<Milliseconds>().ToFloat();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputFloat( g_emptyLabel, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( Milliseconds( v ) );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        //-------------------------------------------------------------------------
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorSeconds( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorSeconds( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float v = propertyModel.GetValue<Seconds>().ToFloat();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputFloat( g_emptyLabel, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( Seconds( v ) );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        //-------------------------------------------------------------------------
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorPercentage( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorPercentage( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float v = propertyModel.GetValue<Percentage>().ToFloat();
         ImGui::PushID( &propertyModel );
         ImGui::SetNextItemWidth( -1 );
         if ( ImGui::InputFloat( g_emptyLabel, &v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( Percentage( v ) );
-            propertyUpdated = true;
         }
         ImGui::PopID();
-
-        //-------------------------------------------------------------------------
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorDegrees( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorDegrees( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
         float const buttonAreaWidth = 21;
@@ -319,28 +264,22 @@ namespace KRG::TypeSystem::PG
             ImGui::SetNextItemWidth( textAreaWidth );
             if ( ImGui::InputFloat( g_emptyLabel, &v ) )
             {
+                ScopedChangeNotifier notifier( ctx, propertyModel );
                 propertyModel.SetValue( Degrees( v ) );
-                propertyUpdated = true;
             }
 
             ImGui::SameLine( 0, itemSpacing );
             if ( ImGui::Button( KRG_ICON_COMPRESS "##Clamp" ) )
             {
+                ScopedChangeNotifier notifier( ctx, propertyModel );
                 propertyModel.SetValue( Degrees( v ).GetClampedToSmallest() );
-                propertyUpdated = true;
             }
         }
         ImGui::PopID();
-
-        //-------------------------------------------------------------------------
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorRadians( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorRadians( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
         float const buttonAreaWidth = 21;
@@ -357,101 +296,74 @@ namespace KRG::TypeSystem::PG
             ImGui::SetNextItemWidth( textAreaWidth );
             if ( ImGui::InputFloat( g_emptyLabel, &v ) )
             {
+                ScopedChangeNotifier notifier( ctx, propertyModel );
                 propertyModel.SetValue( Radians( Degrees( v ) ) );
-                propertyUpdated = true;
             }
 
             ImGui::SameLine( 0, itemSpacing );
             if ( ImGui::Button( KRG_ICON_COMPRESS "##Clamp" ) )
             {
+                ScopedChangeNotifier notifier( ctx, propertyModel );
                 propertyModel.SetValue( Radians( Degrees( v ) ).GetClampedToSmallest() );
-                propertyUpdated = true;
             }
         }
         ImGui::PopID();
-
-        //-------------------------------------------------------------------------
-
-        return propertyUpdated;
     }
 
     //-------------------------------------------------------------------------
 
-    bool CreateEditorFloat2( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorFloat2( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         Float2 v = propertyModel.GetValue<Float2>();
         if ( ImGuiX::InputFloat2( v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( Float2( v ) );
-            propertyUpdated = true;
         }
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorFloat3( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorFloat3( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         Float3 v = propertyModel.GetValue<Float3>();
         if ( ImGuiX::InputFloat3( v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( Float3( v ) );
-            propertyUpdated = true;
         }
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorFloat4( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorFloat4( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         Float4 v = propertyModel.GetValue<Float4>();
         if ( ImGuiX::InputFloat4( v ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             propertyModel.SetValue( Float4( v ) );
-            propertyUpdated = true;
         }
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorVector( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorVector( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         Float4 v = propertyModel.GetValue<Vector>();
         if ( ImGuiX::InputFloat4( v ) )
         {
             propertyModel.SetValue( Vector( v ) );
-            propertyUpdated = true;
         }
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorEulerAngles( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorEulerAngles( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         Float3 degrees = propertyModel.GetValue<EulerAngles>().GetAsDegrees();
         if ( ImGuiX::InputFloat3( degrees ) )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             EulerAngles const newRotation( Degrees( degrees.m_x ).GetClampedToSmallest(), Degrees( degrees.m_y ).GetClampedToSmallest(), Degrees( degrees.m_z ).GetClampedToSmallest() );
             propertyModel.SetValue( newRotation );
-            propertyUpdated = true;
         }
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorQuaternion( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorQuaternion( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
         float const buttonWidth = 20;
@@ -489,9 +401,9 @@ namespace KRG::TypeSystem::PG
                 // Set new rotation
                 if ( ImGui::Button( "Apply", ImVec2( 143, 0 ) ) )
                 {
+                    ScopedChangeNotifier notifier( ctx, propertyModel );
                     EulerAngles const newRotation( Degrees( degrees.m_x ).GetClampedToSmallest(), Degrees( degrees.m_y ).GetClampedToSmallest(), Degrees( degrees.m_z ).GetClampedToSmallest() );
                     propertyModel.SetValue( Quaternion( newRotation ) );
-                    propertyUpdated = true;
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -506,11 +418,9 @@ namespace KRG::TypeSystem::PG
             }
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorTransform( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorTransform( Context& ctx, PropertyInstanceModel& propertyModel )
     {
         union TransformData
         {
@@ -588,20 +498,17 @@ namespace KRG::TypeSystem::PG
 
         if ( transformUpdated )
         {
+            ScopedChangeNotifier notifier( ctx, propertyModel );
             String valueString;
             Conversion::FloatArrayToString( transformData.m_floats, 9, valueString );
             propertyModel.SetStringValue( valueString );
         }
-
-        return transformUpdated;
     }
 
     //-------------------------------------------------------------------------
 
-    bool CreateEditorString( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorString( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         char buffer[256];
         KRG_ASSERT( propertyModel.GetStringValue().length() < 256 );
         strcpy( buffer, propertyModel.GetStringValue().c_str() );
@@ -611,19 +518,15 @@ namespace KRG::TypeSystem::PG
             ImGui::SetNextItemWidth( -1 );
             if ( ImGui::InputText( g_emptyLabel, buffer, 256 ) )
             {
+                ScopedChangeNotifier notifier( ctx, propertyModel );
                 propertyModel.SetValue<String>( buffer );
-                propertyUpdated = true;
             }
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorStringID( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorStringID( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const childWindowWidth = 86;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
@@ -654,20 +557,16 @@ namespace KRG::TypeSystem::PG
             ImGui::SameLine( 0, itemSpacing );
             if ( ImGui::InputText( g_emptyLabel, buffer, 256 ) )
             {
+                ScopedChangeNotifier notifier( ctx, propertyModel );
                 StringID const newID( buffer );
                 propertyModel.SetValue( newID );
-                propertyUpdated = true;
             }
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorUUID( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorUUID( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
         float const buttonAreaWidth = 21;
@@ -681,21 +580,17 @@ namespace KRG::TypeSystem::PG
             ImGui::SameLine( 0, itemSpacing );
             if ( ImGui::Button( KRG_ICON_REFRESH "##Generate" ) )
             {
+                ScopedChangeNotifier notifier( ctx, propertyModel );
                 propertyModel.SetValue( UUID::GenerateID() );
-                propertyUpdated = true;
             }
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
     //-------------------------------------------------------------------------
 
-    bool CreateEditorDataPath( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorDataPath( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float const fullCellPaddingWidth = ( ImGui::GetStyle().CellPadding.x * 2 );
         float const availableWidth = ImGui::GetContentRegionAvail().x + fullCellPaddingWidth;
         float const buttonWidth = 21;
@@ -719,20 +614,16 @@ namespace KRG::TypeSystem::PG
                 DataPath pickedDataPath;
                 if ( DataFilePicker::PickFile( ctx.m_sourceDataPath, pickedDataPath ) )
                 {
+                    ScopedChangeNotifier notifier( ctx, propertyModel );
                     propertyModel.SetValue<DataPath>( pickedDataPath );
-                    propertyUpdated = true;
                 }
             }
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorResourceTypeID( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorResourceTypeID( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         ImGui::PushID( &propertyModel );
         {
             float const cellContentWidth = ImGui::GetContentRegionAvail().x;
@@ -757,7 +648,7 @@ namespace KRG::TypeSystem::PG
             ImGui::SameLine( 0, itemSpacing  );
             if ( ImGui::BeginCombo( g_emptyLabel, propertyModel.GetStringValue().c_str() ) )
             {
-                auto AddComboItem = [&propertyUpdated, &propertyModel] ( ResourceTypeID ID )
+                auto AddComboItem = [&ctx, &propertyModel] ( ResourceTypeID ID )
                 {
                     char resourceTypeStr[5];
                     ID.GetString( resourceTypeStr );
@@ -765,8 +656,8 @@ namespace KRG::TypeSystem::PG
                     bool const isSelected = ( propertyModel.GetStringValue() == resourceTypeStr );
                     if ( ImGui::Selectable( resourceTypeStr, isSelected ) )
                     {
+                        ScopedChangeNotifier notifier( ctx, propertyModel );
                         propertyModel.SetValue( ID );
-                        propertyUpdated = true;
                     }
 
                     // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -792,14 +683,10 @@ namespace KRG::TypeSystem::PG
             }
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorResourceID( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorResourceID( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
         float const buttonAreaWidth = 21;
@@ -845,20 +732,16 @@ namespace KRG::TypeSystem::PG
                 DataPath pickedDataPath;
                 if ( DataFilePicker::PickResourceFile( ctx.m_sourceDataPath, allowedResourceTypes, pickedDataPath ) )
                 {
+                    ScopedChangeNotifier notifier( ctx, propertyModel );
                     propertyModel.SetValue<ResourceID>( ResourceID( pickedDataPath ) );
-                    propertyUpdated = true;
                 }
             }
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorResourcePtr( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorResourcePtr( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
         float const buttonAreaWidth = 21;
@@ -895,22 +778,18 @@ namespace KRG::TypeSystem::PG
                 DataPath pickedDataPath;
                 if ( DataFilePicker::PickResourceFile( ctx.m_sourceDataPath, resourceTypeID, pickedDataPath ) )
                 {
+                    ScopedChangeNotifier notifier( ctx, propertyModel );
                     propertyModel.SetValue<Resource::ResourcePtr>( Resource::ResourcePtr( pickedDataPath ) );
-                    propertyUpdated = true;
                 }
             }
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
     //-------------------------------------------------------------------------
 
-    bool CreateEditorEnum( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorEnum( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
-
         ImGui::SetNextItemWidth( -1 );
         ImGui::PushID( &propertyModel );
         if ( ImGui::BeginCombo( g_emptyLabel, propertyModel.GetStringValue().c_str() ) )
@@ -922,8 +801,8 @@ namespace KRG::TypeSystem::PG
                 bool const isSelected = propertyModel.GetStringValue() == enumLabels[i];
                 if ( ImGui::Selectable( enumLabels[i], isSelected ) )
                 {
+                    ScopedChangeNotifier notifier( ctx, propertyModel );
                     propertyModel.SetStringValue( enumLabels[i] );
-                    propertyUpdated = true;
                 }
 
                 // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -936,15 +815,12 @@ namespace KRG::TypeSystem::PG
             ImGui::EndCombo();
         }
         ImGui::PopID();
-
-        return propertyUpdated;
     }
 
     //------------------------------------------------------------------------- 
 
-    bool CreateEditorGenericFlags( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorGenericFlags( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
         BitFlags flags = propertyModel.GetValue<BitFlags>();
 
         bool v[32];
@@ -971,9 +847,9 @@ namespace KRG::TypeSystem::PG
                     ImGui::PushID( &v[flagIdx] );
                     if ( ImGui::Checkbox( g_emptyLabel, &v[flagIdx] ) )
                     {
+                        ScopedChangeNotifier notifier( ctx, propertyModel );
                         flags.SetFlag( flagIdx, v[flagIdx] );
                         propertyModel.SetValue( flags );
-                        propertyUpdated = true;
                     }
                     ImGui::PopID();
                 }
@@ -984,15 +860,10 @@ namespace KRG::TypeSystem::PG
 
             ImGui::EndTable();
         }
-
-        //-------------------------------------------------------------------------
-
-        return propertyUpdated;
     }
 
-    bool CreateEditorSpecificFlags( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreateEditorSpecificFlags( Context& ctx, PropertyInstanceModel& propertyModel )
     {
-        bool propertyUpdated = false;
         BitFlags flags = propertyModel.GetValue<BitFlags>();
 
         bool v[32];
@@ -1033,9 +904,9 @@ namespace KRG::TypeSystem::PG
                 KRG_ASSERT( flagValue >= 0 && flagValue <= 31 );
                 if ( ImGui::Checkbox( constant.first.c_str(), &v[flagValue] ) )
                 {
+                    ScopedChangeNotifier notifier( ctx, propertyModel );
                     flags.SetFlag( (uint8) flagValue, v[flagValue] );
                     propertyModel.SetValue( flags );
-                    propertyUpdated = true;
                 }
             }
 
@@ -1043,10 +914,6 @@ namespace KRG::TypeSystem::PG
         }
 
         ImGui::PopID();
-
-        //-------------------------------------------------------------------------
-
-        return propertyUpdated;
     }
 }
 
@@ -1054,13 +921,13 @@ namespace KRG::TypeSystem::PG
 
 namespace KRG::TypeSystem::PG
 {
-    bool CreatePropertyEditor( Context& ctx, PropertyInstanceModel& propertyModel )
+    void CreatePropertyEditor( Context& ctx, PropertyInstanceModel& propertyModel )
     {
         KRG_ASSERT( !propertyModel.IsStructure() && !propertyModel.IsArray() );
 
         if ( propertyModel.IsEnum() )
         {
-            return CreateEditorEnum( ctx, propertyModel );
+            CreateEditorEnum( ctx, propertyModel );
         }
         else
         {
@@ -1070,214 +937,209 @@ namespace KRG::TypeSystem::PG
             {
                 case CoreTypes::Bool:
                 {
-                    return CreateEditorBool( ctx, propertyModel );
+                    CreateEditorBool( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Int8:
                 {
-                    return CreateEditorInt8( ctx, propertyModel );
+                    CreateEditorInt8( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Int16:
                 {
-                    return CreateEditorInt16( ctx, propertyModel );
+                    CreateEditorInt16( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Int32:
                 {
-                    return CreateEditorInt32( ctx, propertyModel );
+                    CreateEditorInt32( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Int64:
                 {
-                    return CreateEditorInt64( ctx, propertyModel );
+                    CreateEditorInt64( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Uint8:
                 {
-                    return CreateEditorUInt8( ctx, propertyModel );
+                    CreateEditorUInt8( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Uint16:
                 {
-                    return CreateEditorUInt16( ctx, propertyModel );
+                    CreateEditorUInt16( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Uint32:
                 {
-                    return CreateEditorUInt32( ctx, propertyModel );
+                    CreateEditorUInt32( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Uint64:
                 {
-                    return CreateEditorUInt64( ctx, propertyModel );
+                    CreateEditorUInt64( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Float:
                 {
-                    return CreateEditorFloat( ctx, propertyModel );
+                    CreateEditorFloat( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Double:
                 {
-                    return CreateEditorDouble( ctx, propertyModel );
+                    CreateEditorDouble( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::UUID:
                 {
-                    return CreateEditorUUID( ctx, propertyModel );
+                    CreateEditorUUID( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::StringID:
                 {
-                    return CreateEditorStringID( ctx, propertyModel );
+                    CreateEditorStringID( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::String:
                 {
-                    return CreateEditorString( ctx, propertyModel );
+                    CreateEditorString( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Color:
                 {
-                    return CreateEditorColor( ctx, propertyModel );
+                    CreateEditorColor( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Float2:
                 {
-                    return CreateEditorFloat2( ctx, propertyModel );
+                    CreateEditorFloat2( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Float3:
                 {
-                    return CreateEditorFloat3( ctx, propertyModel );
+                    CreateEditorFloat3( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Float4:
                 {
-                    return CreateEditorFloat4( ctx, propertyModel );
+                    CreateEditorFloat4( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Vector:
                 {
-                    return CreateEditorVector( ctx, propertyModel );
+                    CreateEditorVector( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Quaternion:
                 {
-                    return CreateEditorQuaternion( ctx, propertyModel );
+                    CreateEditorQuaternion( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Matrix:
                 case CoreTypes::Transform:
                 {
-                    return CreateEditorTransform( ctx, propertyModel );
+                    CreateEditorTransform( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Microseconds:
                 {
-                    return CreateEditorMicroseconds( ctx, propertyModel );
+                    CreateEditorMicroseconds( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Milliseconds:
                 {
-                    return CreateEditorMilliseconds( ctx, propertyModel );
+                    CreateEditorMilliseconds( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Seconds:
                 {
-                    return CreateEditorSeconds( ctx, propertyModel );
+                    CreateEditorSeconds( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Percentage:
                 {
-                    return CreateEditorPercentage( ctx, propertyModel );
+                    CreateEditorPercentage( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Degrees:
                 {
-                    return CreateEditorDegrees( ctx, propertyModel );
+                    CreateEditorDegrees( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::Radians:
                 {
-                    return CreateEditorRadians( ctx, propertyModel );
+                    CreateEditorRadians( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::EulerAngles:
                 {
-                    return CreateEditorEulerAngles( ctx, propertyModel );
+                    CreateEditorEulerAngles( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::DataPath:
                 {
-                    return CreateEditorDataPath( ctx, propertyModel );
+                    CreateEditorDataPath( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::ResourceID:
                 {
-                    return CreateEditorResourceID( ctx, propertyModel );
+                    CreateEditorResourceID( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::ResourceTypeID:
                 {
-                    return CreateEditorResourceTypeID( ctx, propertyModel );
+                    CreateEditorResourceTypeID( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::TResourcePtr:
                 {
-                    return CreateEditorResourcePtr( ctx, propertyModel );
+                    CreateEditorResourcePtr( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::BitFlags:
                 {
-                    return CreateEditorGenericFlags( ctx, propertyModel );
+                    CreateEditorGenericFlags( ctx, propertyModel );
                 }
                 break;
 
                 case CoreTypes::TBitFlags:
                 {
-                    return CreateEditorSpecificFlags( ctx, propertyModel );
+                    CreateEditorSpecificFlags( ctx, propertyModel );
                 }
                 break;
             }
         }
-
-        //-------------------------------------------------------------------------
-
-        KRG_UNREACHABLE_CODE();
-        return false;
     }
 }

@@ -79,6 +79,8 @@ namespace KRG::FileSystem
         bool IsFilenameEqual( char const* pString ) const;
         inline bool IsFilenameEqual( String const& pString ) const { KRG_ASSERT( !pString.empty() ); return IsFilenameEqual( pString.c_str() ); }
 
+        String GetFileNameWithoutExtension() const;
+
         // This will return true for all paths not ending in the delimiter and with an extension
         inline bool IsFilePath() const { KRG_ASSERT( IsValid() ); return m_fullpath[m_fullpath.length() - 1] != PathDelimiter; }
 
@@ -86,11 +88,16 @@ namespace KRG::FileSystem
         //-------------------------------------------------------------------------
 
         bool HasExtension() const;
+
         bool MatchesExtension( char const* inExtension ) const;
         inline bool MatchesExtension( String const& inExtension ) const { return MatchesExtension( inExtension.c_str() ); }
-        StringView GetExtension() const;
+
+        char const* GetExtension() const;
+        inline InlineString<6> GetExtensionAsString() const { return InlineString<6>( GetExtension() ); }
+
         void ReplaceExtension( const char* pExtension );
         inline void ReplaceExtension( String const& extension ) { ReplaceExtension( extension.c_str() ); }
+        template<size_t S> void ReplaceExtension( InlineString<S> const& extension ) { ReplaceExtension( extension.c_str() ); }
 
         // Directories
         //-------------------------------------------------------------------------

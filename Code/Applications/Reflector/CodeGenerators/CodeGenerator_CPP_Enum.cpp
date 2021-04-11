@@ -31,7 +31,7 @@ namespace KRG
 
             file << "\n";
             file << "//-------------------------------------------------------------------------\n";
-            file << "// Enum Helper: " << type.m_namespace << type.m_name << "\n";
+            file << "// Enum Helper: " << type.m_namespace.c_str() << type.m_name.c_str() << "\n";
             file << "//-------------------------------------------------------------------------\n\n";
             file << "namespace KRG\n";
             file << "{\n";
@@ -40,7 +40,7 @@ namespace KRG
             file << "        namespace EnumHelpers\n";
             file << "        {\n";
 
-            file << "            class " << enumHelperName << "\n";
+            file << "            class " << enumHelperName.c_str() << "\n";
             file << "            {\n";
             file << "            public:\n\n";
             file << "                static void " << s_typeRegistrationFunctionPrototype << ";\n";
@@ -57,7 +57,7 @@ namespace KRG
            
             file << "\n";
             file << "//-------------------------------------------------------------------------\n";
-            file << "// Enum Helper: " << type.m_namespace << type.m_name << "\n";
+            file << "// Enum Helper: " << type.m_namespace.c_str() << type.m_name.c_str() << "\n";
             file << "//-------------------------------------------------------------------------\n\n";
             file << "namespace KRG\n";
             file << "{\n";
@@ -69,15 +69,15 @@ namespace KRG
             // Registration function
             //-------------------------------------------------------------------------
 
-            file << "            void " << enumHelperName << "::" << s_typeRegistrationFunctionPrototype << "\n";
+            file << "            void " << enumHelperName.c_str() << "::" << s_typeRegistrationFunctionPrototype << "\n";
             file << "            {\n";
             file << "                TypeSystem::TypeInfo typeInfo;\n";
-            file << "                typeInfo.m_ID = TypeSystem::TypeID( \"" << type.m_namespace << type.m_name << "\" );\n";
-            file << "                typeInfo.m_size = sizeof( " << type.m_namespace << type.m_name << " );\n";
-            file << "                typeInfo.m_alignment = alignof( " << type.m_namespace << type.m_name << " );\n";
+            file << "                typeInfo.m_ID = TypeSystem::TypeID( \"" << type.m_namespace.c_str() << type.m_name.c_str() << "\" );\n";
+            file << "                typeInfo.m_size = sizeof( " << type.m_namespace.c_str() << type.m_name.c_str() << " );\n";
+            file << "                typeInfo.m_alignment = alignof( " << type.m_namespace.c_str() << type.m_name.c_str() << " );\n";
             file << "                typeRegistry.RegisterType( typeInfo );\n\n";
             file << "                TypeSystem::EnumInfo enumInfo;\n";
-            file << "                enumInfo.m_ID = TypeSystem::TypeID( \"" << type.m_namespace << type.m_name << "\" );\n";
+            file << "                enumInfo.m_ID = TypeSystem::TypeID( \"" << type.m_namespace.c_str() << type.m_name.c_str() << "\" );\n";
 
             switch ( type.m_underlyingType )
             {
@@ -112,7 +112,7 @@ namespace KRG
 
             for ( auto const& c : type.m_constants )
             {
-                file << "                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( \"" << c.second.m_label << "\" ), " << c.second.m_value << " ) );\n";
+                file << "                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( \"" << c.second.m_label.c_str() << "\" ), " << c.second.m_value << " ) );\n";
             }
 
             file << "\n";
@@ -122,9 +122,9 @@ namespace KRG
             // Unregistration function
             //-------------------------------------------------------------------------
 
-            file << "            void " << enumHelperName << "::" << s_typeUnregistrationFunctionPrototype << "\n";
+            file << "            void " << enumHelperName.c_str() << "::" << s_typeUnregistrationFunctionPrototype << "\n";
             file << "            {\n";
-            file << "                auto const ID = TypeSystem::TypeID( \"" << type.m_namespace << type.m_name << "\" );\n";
+            file << "                auto const ID = TypeSystem::TypeID( \"" << type.m_namespace.c_str() << type.m_name.c_str() << "\" );\n";
             file << "                typeRegistry.UnregisterType( ID );\n";
             file << "                typeRegistry.UnregisterEnum( ID );\n";
             file << "            }\n";
@@ -148,13 +148,13 @@ namespace KRG
             {
                 KRG_ASSERT( type.IsEnum() );
 
-                file << "    TypeSystem::EnumHelpers::" << GenerateEnumHelperName( type ) << "::RegisterEnum( typeRegistry );\n";
+                file << "    TypeSystem::EnumHelpers::" << GenerateEnumHelperName( type ).c_str() << "::RegisterEnum( typeRegistry );\n";
             }
 
             void GenerateUnregistrationFunctionCall( std::stringstream& file, TypeDescriptor const& type )
             {
                 KRG_ASSERT( type.IsEnum() );
-                file << "    TypeSystem::EnumHelpers::" << GenerateEnumHelperName( type ) << "::UnregisterEnum( typeRegistry );\n";
+                file << "    TypeSystem::EnumHelpers::" << GenerateEnumHelperName( type ).c_str() << "::UnregisterEnum( typeRegistry );\n";
             }
         }
     }

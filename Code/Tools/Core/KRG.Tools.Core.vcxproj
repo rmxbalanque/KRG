@@ -62,6 +62,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FileSystem\FileSystemHelpers.h" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
     <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
@@ -78,6 +79,7 @@
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FileSystem\FileSystemHelpers.cpp" />
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp" />
     <ClCompile Include="TypeSystem\Serialization\NativeTypeReader.cpp" />

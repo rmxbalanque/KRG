@@ -9,7 +9,7 @@ namespace KRG::Render::MeshEditor
         EditorModel::Initialize( context );
 
         m_pDataBrowserModel = KRG::New<DataBrowserModel>( m_sourceDataDirectory );
-        static char const* const allowedExtensions[] = { ".msh", ".smsh", ".fbx", ".gltf", 0 };
+        TVector<String> allowedExtensions = { ".msh", ".smsh", ".fbx", ".gltf" };
         m_pDataBrowserModel->Initialize( allowedExtensions );
     }
 

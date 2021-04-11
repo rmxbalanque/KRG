@@ -46,6 +46,7 @@
     <ClInclude Include="Thirdparty\subprocess\subprocess.h" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
     <ClInclude Include="Thirdparty\pfd\portable-file-dialogs.h" />
+    <ClInclude Include="FileSystem\FileSystemHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
@@ -58,6 +59,7 @@
     <ClCompile Include="TypeSystem\Serialization\TypeInstanceModelWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
+    <ClCompile Include="FileSystem\FileSystemHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Thirdparty\subprocess\LICENSE" />

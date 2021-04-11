@@ -3,8 +3,7 @@
 #include "System/Core/_Module/API.h"
 #include "Containers.h"
 #include <EASTL/string.h>
-#include <EASTL/fixed_substring.h>
-#include <iostream>
+#include <EASTL/fixed_string.h>
 #include <cstdio>
 
 //-------------------------------------------------------------------------
@@ -12,14 +11,7 @@
 namespace KRG
 {
     using String = eastl::basic_string<char>;
-    using StringView = eastl::basic_string_view<char>;
-    using StringReference = eastl::fixed_substring<char>;
-
-    inline std::ostream& operator<<( std::ostream& stream, String const& string )
-    {
-        stream << string.c_str();
-        return stream;
-    }
+    template<eastl_size_t S> using InlineString = eastl::fixed_string<char, S, true>;
 
     //-------------------------------------------------------------------------
     // Additional utility functions for string class

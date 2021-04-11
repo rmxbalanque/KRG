@@ -11,23 +11,12 @@ namespace KRG
     {
         KRG_ASSERT( m_dataDirectoryPath.ExistsAndIsDirectory() );
         m_dataDirectoryPathDepth = m_dataDirectoryPath.GetPathDepth();
-        m_rootDirectory.SetExpanded( true );
     }
 
-    void DataBrowserModel::Initialize( char const* const filter[] )
+    void DataBrowserModel::Initialize( TVector<String> const& fileRestrictions )
     {
-        FileSystem::GetDirectoryContents( m_dataDirectoryPath, m_foundPaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::Expand, filter );
-
-        //-------------------------------------------------------------------------
-
-        for ( auto const& path : m_foundPaths )
-        {
-            auto& directory = FindOrCreateDirectoryForFile( path );
-            directory.m_files.emplace_back( DataFileModel( path ) );
-        }
-
-        //-------------------------------------------------------------------------
-        
+        m_fileRestrictions = fileRestrictions;
+        Refresh();
         m_fileSystemWatcher.StartWatching( m_dataDirectoryPath );
     }
 
@@ -40,6 +29,27 @@ namespace KRG
     void DataBrowserModel::Update( UpdateContext const& context )
     {
         m_fileSystemWatcher.Update();
+    }
+
+    void DataBrowserModel::Refresh()
+    {
+        // OPTIMIZE THIS!
+
+        //-------------------------------------------------------------------------
+
+        m_rootDirectory.m_directories.clear();
+        m_rootDirectory.m_files.clear();
+        m_rootDirectory.SetExpanded( true );
+
+        FileSystem::GetDirectoryContents( m_dataDirectoryPath, m_foundPaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::Expand, m_fileRestrictions );
+
+        //-------------------------------------------------------------------------
+
+        for ( auto const& path : m_foundPaths )
+        {
+            auto& directory = FindOrCreateDirectoryForFile( path );
+            directory.m_files.emplace_back( DataFileModel( path ) );
+        }
     }
 
     //-------------------------------------------------------------------------

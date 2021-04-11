@@ -55,7 +55,7 @@ namespace KRG::FileSystem
 
     //-------------------------------------------------------------------------
 
-    bool GetDirectoryContents( Path const& directoryPath, TVector<Path>& contents, DirectoryReaderOutput output, DirectoryReaderMode mode, char const* const extensionfilter[] )
+    bool GetDirectoryContents( Path const& directoryPath, TVector<Path>& contents, DirectoryReaderOutput output, DirectoryReaderMode mode, TVector<String> const& extensionFilter )
     {
         KRG_ASSERT( directoryPath.IsDirectoryPath() );
 
@@ -66,20 +66,7 @@ namespace KRG::FileSystem
             return false;
         }
 
-        // Count how many filters we have
-        //-------------------------------------------------------------------------
-
-        uint32 numExtensionFilters = 0;
-        if ( output != DirectoryReaderOutput::OnlyDirectories )
-        {
-            if ( extensionfilter != nullptr )
-            {
-                while ( extensionfilter[numExtensionFilters] != 0 )
-                {
-                    numExtensionFilters++;
-                }
-            }
-        }
+        uint32 const numExtensionFilters = (uint32) extensionFilter.size();
 
         // Path processing
         //-------------------------------------------------------------------------
@@ -108,7 +95,7 @@ namespace KRG::FileSystem
                     auto const extension = path.extension();
                     for ( auto i = 0u; i < numExtensionFilters; i++ )
                     {
-                        if ( extension == extensionfilter[i] )
+                        if ( extension == extensionFilter[i].c_str() )
                         {
                             shouldAddFile = true;
                             break;

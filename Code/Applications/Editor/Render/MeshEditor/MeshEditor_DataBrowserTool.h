@@ -1,7 +1,8 @@
 #pragma once
 #include "MeshEditor_Model.h"
 #include "Applications/Editor/EditorTool.h"
-#include "Applications/Editor/Widgets/PropertyGrid/PropertyGrid.h"
+#include "Applications/Editor/Common/PropertyGrid/PropertyGrid.h"
+#include "Applications/Editor/Common/ResourceDescriptorCreator.h"
 #include "Tools/Core/TypeSystem/TypeInstanceModel.h"
 #include "Tools/Resource/RawAssets/RawAssetInfo.h"
 
@@ -9,6 +10,20 @@
 
 namespace KRG::Render::MeshEditor
 {
+    class MeshResourceDescriptorCreator final : public ResourceDescriptorCreator
+    {
+
+    public:
+
+        MeshResourceDescriptorCreator( EditorModel* pModel );
+
+    protected:
+
+        virtual void CreateNewDescriptor( FileSystem::Path const& rawFile ) const override;
+    };
+
+    //-------------------------------------------------------------------------
+
     class DataBrowser final : public TEditorTool<Model>
     {
     public:
@@ -45,6 +60,7 @@ namespace KRG::Render::MeshEditor
         bool                                m_showRawFiles = false;
 
         // Info
+        MeshResourceDescriptorCreator       m_descriptorCreator;
         FileSystem::Path                    m_inspectedPath;
         TypeSystem::PropertyGrid            m_propertyGrid;
         TypeSystem::TypeInstanceModel       m_typeInstance;

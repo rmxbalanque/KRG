@@ -1,8 +1,8 @@
 #include "ResourceServerUI.h"
 #include "ResourceServer.h"
+#include "Tools/Core/FileSystem/FileSystemHelpers.h"
 #include "System/DevTools/ImguiX.h"
 #include "System/Core/Types/Color.h"
-#include <shellapi.h>
 
 //-------------------------------------------------------------------------
 
@@ -229,9 +229,7 @@ namespace KRG::Resource
                 {
                     if ( hasSelectedItem )
                     {
-                        String path( "/select," );
-                        path += m_pSelectedCompletedRequest->GetSourceFilePath();
-                        ShellExecute( 0, NULL, "explorer.exe", path.c_str(), NULL, SW_SHOWNORMAL );
+                        FileSystem::OpenFileInExplorer( m_pSelectedCompletedRequest->GetSourceFilePath() );
                     }
                 }
 
@@ -240,9 +238,7 @@ namespace KRG::Resource
                 {
                     if ( hasSelectedItem )
                     {
-                        String path( "/select," );
-                        path += m_pSelectedCompletedRequest->GetDestinationFilePath();
-                        ShellExecute( 0, NULL, "explorer.exe", path.c_str(), NULL, SW_SHOWNORMAL );
+                        FileSystem::OpenFileInExplorer( m_pSelectedCompletedRequest->GetDestinationFilePath() );
                     }
                 }
 

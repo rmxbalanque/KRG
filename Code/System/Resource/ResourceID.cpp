@@ -8,7 +8,8 @@ namespace KRG
     {
         KRG_ASSERT( pStr != nullptr );
 
-        if ( strlen( pStr ) == 0 )
+        size_t const length = strlen( pStr );
+        if ( length == 0 )
         {
             return false;
         }
@@ -18,18 +19,18 @@ namespace KRG
         {
             return false;
         }
-        
-        StringView stringView( pStr );
 
         // Check that we have a resource ID extension
-        size_t const resourceExtensionStartIdx = stringView.find_last_of( '.' );
-        if ( resourceExtensionStartIdx == String::npos )
+        char const* pFoundExtensionStart = strrchr( pStr, '.' );
+        if ( pFoundExtensionStart == nullptr )
         {
             return false;
         }
 
+        size_t const lastCharIdx = length - 1;
+        size_t const resourceExtensionStartIdx = pFoundExtensionStart - pStr;
+
         // Only fourCC extensions allowed
-        size_t const lastCharIdx = stringView.length() - 1;
         if( lastCharIdx - resourceExtensionStartIdx > 4 )
         {
             return false;

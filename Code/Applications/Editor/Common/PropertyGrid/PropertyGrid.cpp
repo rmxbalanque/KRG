@@ -28,6 +28,17 @@ namespace KRG::TypeSystem
         m_isDirty = false;
     }
 
+    void PropertyGrid::PreChange( PropertyInstanceModel& propertyModel )
+    {
+        // TODO: add undo/redo support
+    }
+
+    void PropertyGrid::PostChange( PropertyInstanceModel& propertyModel )
+    { 
+        // TODO: add undo/redo support
+        m_isDirty = true;
+    }
+
     //-------------------------------------------------------------------------
 
     void PropertyGrid::DrawGrid()
@@ -117,8 +128,7 @@ namespace KRG::TypeSystem
                 ImGui::PushID( pPropertyModel );
                 if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
                 {
-                    pPropertyModel->ResetToDefaultValue();
-                    m_isDirty = true;
+                    ResetToDefaultValue( pPropertyModel );
                 }
                 ImGui::PopID();
             }
@@ -208,9 +218,12 @@ namespace KRG::TypeSystem
         // Editor
         //-------------------------------------------------------------------------
 
+        auto PreChangeDelegate = TFunction<void( PropertyInstanceModel& )>( [this] ( PropertyInstanceModel& propertyModel ) { PreChange( propertyModel ); } );
+        auto PostChangeDelegate = TFunction<void( PropertyInstanceModel& )>( [this] ( PropertyInstanceModel& propertyModel ) { PostChange( propertyModel ); } );
+
         ImGui::TableNextColumn();
-        PG::Context ctx( m_typeRegistry, m_sourceDataPath );
-        m_isDirty |= PG::CreatePropertyEditor( ctx, *pPropertyModel );
+        PG::Context ctx( m_typeRegistry, m_sourceDataPath,  PreChangeDelegate, PostChangeDelegate );
+        PG::CreatePropertyEditor( ctx, *pPropertyModel );
 
         // Controls
         //-------------------------------------------------------------------------
@@ -228,8 +241,9 @@ namespace KRG::TypeSystem
             ImGui::PushID( pPropertyModel );
             if ( ImGuiX::ButtonColored( Colors::LightGreen.ToFloat4(), KRG_ICON_PLUS ) )
             {
+                PreChange( *pPropertyModel );
                 pPropertyModel->AddArrayElement();
-                m_isDirty = true;
+                PostChange( *pPropertyModel );
             }
             ImGui::PopID();
         }
@@ -242,8 +256,9 @@ namespace KRG::TypeSystem
                 ImGui::PushID( pPropertyModel );
                 if ( ImGuiX::ButtonColored( Colors::PaleVioletRed.ToFloat4(), KRG_ICON_MINUS ) )
                 {
+                    PreChange( *pPropertyModel );
                     pParentPropertyModel->RemoveArrayElement( pPropertyModel->GetArrayElementIndex() );
-                    m_isDirty = true;
+                    PostChange( *pPropertyModel );
                 }
                 ImGui::PopID();
             }
@@ -254,8 +269,7 @@ namespace KRG::TypeSystem
                     ImGui::PushID( pPropertyModel );
                     if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
                     {
-                        pPropertyModel->ResetToDefaultValue();
-                        m_isDirty = true;
+                        ResetToDefaultValue( pPropertyModel );
                     }
                     ImGui::PopID();
                 }
@@ -272,11 +286,17 @@ namespace KRG::TypeSystem
                 ImGui::PushID( pPropertyModel );
                 if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
                 {
-                    pPropertyModel->ResetToDefaultValue();
-                    m_isDirty = true;
+                    ResetToDefaultValue( pPropertyModel );
                 }
                 ImGui::PopID();
             }
         }
+    }
+
+    void PropertyGrid::ResetToDefaultValue( PropertyInstanceModel* pPropertyModel )
+    {
+        PreChange( *pPropertyModel );
+        pPropertyModel->ResetToDefaultValue();
+        PostChange( *pPropertyModel );
     }
 }

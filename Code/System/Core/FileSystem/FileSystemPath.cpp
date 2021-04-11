@@ -298,7 +298,7 @@ namespace KRG::FileSystem
         return _stricmp( inExtension, &m_fullpath.at( extensionIdx ) ) == 0;
     }
 
-    StringView Path::GetExtension() const
+    char const* Path::GetExtension() const
     {
         KRG_ASSERT( IsValid() && IsFilePath() );
         size_t const extIdx = FindExtensionStartIdx( m_fullpath );
@@ -322,5 +322,22 @@ namespace KRG::FileSystem
 
         idx++;
         return &m_fullpath[idx];
+    }
+
+    String Path::GetFileNameWithoutExtension() const
+    {
+        KRG_ASSERT( IsValid() && IsFilePath() );
+        auto filenameStartIdx = m_fullpath.find_last_of( PathDelimiter );
+        KRG_ASSERT( filenameStartIdx != String::npos );
+        filenameStartIdx++;
+
+        //-------------------------------------------------------------------------
+
+        size_t extStartIdx = FindExtensionStartIdx( m_fullpath );
+        KRG_ASSERT( extStartIdx != String::npos );
+
+        //-------------------------------------------------------------------------
+
+        return m_fullpath.substr( filenameStartIdx, extStartIdx - filenameStartIdx - 1 );
     }
 }

@@ -1,13 +1,14 @@
 #ifdef _WIN32
 #pragma once
 
+#include "Compilers/Render/_Module/API.h"
 #include "MeshCompiler.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Render
 {
-    struct StaticMeshResourceDescriptor : public MeshResourceDescriptor
+    struct KRG_RESOURCECOMPILERS_RENDER_API StaticMeshResourceDescriptor : public MeshResourceDescriptor
     {
         KRG_REGISTER_TYPE;
     };

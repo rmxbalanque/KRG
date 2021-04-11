@@ -62,11 +62,12 @@ namespace KRG
             outStr[idx] = 0;
         }
 
-        inline String ToString() const
+        inline InlineString<5> ToString() const
         {
-            char str[5];
-            GetString( str );
-            return String( str );
+            InlineString<5> str;
+            str.resize( 5 );
+            GetString( str.data() );
+            return str;
         }
 
     public:
