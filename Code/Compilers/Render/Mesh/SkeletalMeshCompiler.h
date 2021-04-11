@@ -21,7 +21,7 @@ namespace KRG::Render
 
     class SkeletalMeshCompiler : public MeshCompiler
     {
-        static const int32 VERSION = 2;
+        static const int32 VERSION = 3;
 
     public:
 

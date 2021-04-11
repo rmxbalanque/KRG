@@ -9,20 +9,22 @@ namespace KRG::TypeSystem
     PropertyGrid::PropertyGrid( TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath )
         : m_typeRegistry( typeRegistry )
         , m_sourceDataPath( sourceDataPath )
-    {
-        m_pTypeInstanceModel = KRG::New<TypeInstanceModel>( m_typeRegistry, m_typeRegistry.GetTypeInfo( TypeID( "KRG::TestComponent" ) ) );
-    }
-
-    PropertyGrid::~PropertyGrid()
-    {
-        KRG::Delete( m_pTypeInstanceModel );
-    }
+    {}
 
     //-------------------------------------------------------------------------
 
     void PropertyGrid::SetTypeToEdit( TypeInstanceModel* pTypeInstance )
     {
-        //m_pTypeInstance = pTypeInstance;
+        if ( pTypeInstance != nullptr )
+        {
+            KRG_ASSERT( pTypeInstance->IsValid() );
+            m_pTypeInstanceModel = pTypeInstance;
+        }
+        else
+        {
+            m_pTypeInstanceModel = nullptr;
+        }
+
         m_isDirty = false;
     }
 
@@ -51,7 +53,7 @@ namespace KRG::TypeSystem
             for ( auto& propertyModel : m_pTypeInstanceModel->GetProperties() )
             {
                 ImGui::TableNextRow();
-                DrawPropertyRow( propertyModel );
+                DrawPropertyRow( &propertyModel, m_pTypeInstanceModel->GetAsPropertyInstance() );
             }
             
             ImGui::EndTable();
@@ -59,25 +61,25 @@ namespace KRG::TypeSystem
         ImGui::PopStyleVar();
     }
 
-    void PropertyGrid::DrawPropertyRow( PropertyInstanceModel* pPropertyModel )
+    void PropertyGrid::DrawPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
     {
         KRG_ASSERT( pPropertyModel != nullptr );
 
         if ( pPropertyModel->IsArray() )
         {
-            DrawArrayPropertyRow( pPropertyModel );
+            DrawArrayPropertyRow( pPropertyModel, pParentPropertyModel );
         }
         else if ( pPropertyModel->IsStructure() )
         {
-            DrawStructPropertyRow( pPropertyModel );
+            DrawStructPropertyRow( pPropertyModel, pParentPropertyModel );
         }
         else // Core Types
         {
-            DrawCoreTypePropertyRow( pPropertyModel );
+            DrawCoreTypePropertyRow( pPropertyModel, pParentPropertyModel );
         }
     }
 
-    void PropertyGrid::DrawArrayPropertyRow( PropertyInstanceModel* pPropertyModel )
+    void PropertyGrid::DrawArrayPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
     {
         KRG_ASSERT( pPropertyModel != nullptr );
         KRG_ASSERT( pPropertyModel->IsArray() );
@@ -113,7 +115,7 @@ namespace KRG::TypeSystem
             if ( !pPropertyModel->IsDefaultValue() )
             {
                 ImGui::PushID( pPropertyModel );
-                if ( ImGuiX::ButtonColored( KRG_ICON_UNDO, Colors::LightGray ) )
+                if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
                 {
                     pPropertyModel->ResetToDefaultValue();
                     m_isDirty = true;
@@ -130,7 +132,7 @@ namespace KRG::TypeSystem
         //-------------------------------------------------------------------------
 
         ImGui::TableNextColumn();
-        DrawRowControls( pPropertyModel );
+        DrawRowControls( pPropertyModel, pParentPropertyModel );
 
         // Array Elements
         //-------------------------------------------------------------------------
@@ -141,14 +143,14 @@ namespace KRG::TypeSystem
             for ( auto& childPropertyModel : pPropertyModel->GetProperties() )
             {
                 ImGui::TableNextRow();
-                DrawPropertyRow( childPropertyModel );
+                DrawPropertyRow( &childPropertyModel, pPropertyModel );
             }
 
             ImGui::TreePop();
         }
     }
 
-    void PropertyGrid::DrawStructPropertyRow( PropertyInstanceModel* pPropertyModel )
+    void PropertyGrid::DrawStructPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
     {
         KRG_ASSERT( pPropertyModel != nullptr );
         KRG_ASSERT( pPropertyModel->IsStructure() );
@@ -174,7 +176,7 @@ namespace KRG::TypeSystem
         //-------------------------------------------------------------------------
 
         ImGui::TableNextColumn();
-        DrawRowControls( pPropertyModel );
+        DrawRowControls( pPropertyModel, pParentPropertyModel );
 
         // Child Properties
         //-------------------------------------------------------------------------
@@ -185,14 +187,14 @@ namespace KRG::TypeSystem
             for ( auto& childPropertyModel : pPropertyModel->GetProperties() )
             {
                 ImGui::TableNextRow();
-                DrawPropertyRow( childPropertyModel );
+                DrawPropertyRow( &childPropertyModel, pPropertyModel );
             }
 
             ImGui::TreePop();
         }
     }
 
-    void PropertyGrid::DrawCoreTypePropertyRow( PropertyInstanceModel* pPropertyModel )
+    void PropertyGrid::DrawCoreTypePropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
     {
         KRG_ASSERT( pPropertyModel != nullptr );
         KRG_ASSERT( !pPropertyModel->IsStructure() && !pPropertyModel->IsArray() );
@@ -208,23 +210,23 @@ namespace KRG::TypeSystem
 
         ImGui::TableNextColumn();
         PG::Context ctx( m_typeRegistry, m_sourceDataPath );
-        m_isDirty = PG::CreatePropertyEditor( ctx, *pPropertyModel );
+        m_isDirty |= PG::CreatePropertyEditor( ctx, *pPropertyModel );
 
         // Controls
         //-------------------------------------------------------------------------
 
         ImGui::TableNextColumn();
-        DrawRowControls( pPropertyModel );
+        DrawRowControls( pPropertyModel, pParentPropertyModel );
     }
 
-    void PropertyGrid::DrawRowControls( PropertyInstanceModel* pPropertyModel )
+    void PropertyGrid::DrawRowControls( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
     {
         KRG_ASSERT( pPropertyModel != nullptr );
 
         if ( pPropertyModel->IsDynamicArray() )
         {
             ImGui::PushID( pPropertyModel );
-            if ( ImGuiX::ButtonColored( KRG_ICON_PLUS, Colors::LightGreen ) )
+            if ( ImGuiX::ButtonColored( Colors::LightGreen.ToFloat4(), KRG_ICON_PLUS ) )
             {
                 pPropertyModel->AddArrayElement();
                 m_isDirty = true;
@@ -233,11 +235,12 @@ namespace KRG::TypeSystem
         }
         else if( pPropertyModel->IsArrayElement() )
         {
-            auto pParentPropertyModel = pPropertyModel->GetParentProperty();
+            KRG_ASSERT( pParentPropertyModel != nullptr && pParentPropertyModel->IsArray() );
+
             if ( pParentPropertyModel->IsDynamicArray() )
             {
                 ImGui::PushID( pPropertyModel );
-                if ( ImGuiX::ButtonColored( KRG_ICON_MINUS, Colors::PaleVioletRed ) )
+                if ( ImGuiX::ButtonColored( Colors::PaleVioletRed.ToFloat4(), KRG_ICON_MINUS ) )
                 {
                     pParentPropertyModel->RemoveArrayElement( pPropertyModel->GetArrayElementIndex() );
                     m_isDirty = true;
@@ -249,7 +252,7 @@ namespace KRG::TypeSystem
                 if ( !pPropertyModel->IsDefaultValue() )
                 {
                     ImGui::PushID( pPropertyModel );
-                    if ( ImGuiX::ButtonColored( KRG_ICON_UNDO, Colors::LightGray ) )
+                    if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
                     {
                         pPropertyModel->ResetToDefaultValue();
                         m_isDirty = true;
@@ -267,7 +270,7 @@ namespace KRG::TypeSystem
             if ( !pPropertyModel->IsDefaultValue() )
             {
                 ImGui::PushID( pPropertyModel );
-                if ( ImGuiX::ButtonColored( KRG_ICON_UNDO, Colors::LightGray ) )
+                if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
                 {
                     pPropertyModel->ResetToDefaultValue();
                     m_isDirty = true;

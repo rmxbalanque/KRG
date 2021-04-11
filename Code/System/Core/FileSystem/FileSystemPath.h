@@ -88,7 +88,7 @@ namespace KRG::FileSystem
         bool HasExtension() const;
         bool MatchesExtension( char const* inExtension ) const;
         inline bool MatchesExtension( String const& inExtension ) const { return MatchesExtension( inExtension.c_str() ); }
-        String GetExtension() const;
+        StringView GetExtension() const;
         void ReplaceExtension( const char* pExtension );
         inline void ReplaceExtension( String const& extension ) { ReplaceExtension( extension.c_str() ); }
 

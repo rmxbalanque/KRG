@@ -5,6 +5,7 @@
 #include "System/Core/Types/StringID.h"
 #include "System/DevTools/DevelopmentTools.h"
 #include "System/DevTools/ImguiX.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
@@ -19,6 +20,15 @@ namespace KRG
     class Editor : public ImGuiX::DevelopmentTools
     {
         template<typename ModelType> friend class TEditor;
+
+        struct ModalPopupMessage
+        {
+            String                                      m_ID;
+            String                                      m_channel;
+            String                                      m_message;
+            Log::Severity                               m_severity;
+            bool                                        m_isOpen = true;
+        };
 
     public:
 
@@ -65,6 +75,7 @@ namespace KRG
 
         virtual void Update( UpdateContext const& context, Render::ViewportManager& viewportManager ) override final;
 
+        void DrawPopups( UpdateContext const& context );
         void DrawEditorMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager );
         void DrawEditorDockSpaceAndViewport( UpdateContext const& context, Render::ViewportManager& viewportManager );
 
@@ -75,6 +86,7 @@ namespace KRG
         ImGuiID                             m_mainDockspaceID;
         bool                                m_mouseWithinEditorViewport = false;
         EditorModel*                        m_pModel = nullptr;
+        TVector<ModalPopupMessage>          m_modalPopups;
         TVector<EditorTool*>                m_editorTools;
     };
 

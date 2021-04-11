@@ -5,19 +5,20 @@
 
 namespace KRG
 {
-    DataPath DataFilePicker::PickFile( FileSystem::Path const & sourceDataPath )
+    bool DataFilePicker::PickFile( FileSystem::Path const & sourceDataPath, DataPath& outPath )
     {
         auto const selectedFiles = pfd::open_file( "Choose Data File", sourceDataPath.c_str(), { "All Files", "*" }, pfd::opt::none ).result();
         if ( selectedFiles.empty() )
         {
-            return DataPath();
+            return false;
         }
 
         FileSystem::Path const SelectedPath( selectedFiles[0].c_str() );
-        return DataPath::FromFileSystemPath( sourceDataPath, SelectedPath );
+        outPath = DataPath::FromFileSystemPath( sourceDataPath, SelectedPath );
+        return true;
     }
 
-    DataPath DataFilePicker::PickResourceFile( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypes )
+    bool DataFilePicker::PickResourceFile( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypes, DataPath& outPath )
     {
         KRG_ASSERT( allowedResourceTypes.IsValid() );
 
@@ -31,14 +32,15 @@ namespace KRG
         auto const selectedFiles = pfd::open_file( "Choose Resource File", sourceDataPath.c_str(), { buffer, buffer }, pfd::opt::none ).result();
         if ( selectedFiles.empty() )
         {
-            return DataPath();
+            return false;
         }
 
         FileSystem::Path const SelectedPath( selectedFiles[0].c_str() );
-        return DataPath::FromFileSystemPath( sourceDataPath, SelectedPath );
+        outPath = DataPath::FromFileSystemPath( sourceDataPath, SelectedPath );
+        return true;
     }
 
-    KRG::DataPath DataFilePicker::PickResourceFile( FileSystem::Path const& sourceDataPath, TVector<ResourceTypeID> const& allowedResourceTypes )
+    bool DataFilePicker::PickResourceFile( FileSystem::Path const& sourceDataPath, TVector<ResourceTypeID> const& allowedResourceTypes, DataPath& outPath )
     {
         KRG_ASSERT( !allowedResourceTypes.empty() );
 
@@ -65,10 +67,11 @@ namespace KRG
         auto const selectedFiles = pfd::open_file( "Choose Resource File", sourceDataPath.c_str(), fileFilters, pfd::opt::none ).result();
         if ( selectedFiles.empty() )
         {
-            return DataPath();
+            return false;
         }
 
         FileSystem::Path const SelectedPath( selectedFiles[0].c_str() );
-        return DataPath::FromFileSystemPath( sourceDataPath, SelectedPath );
+        outPath = DataPath::FromFileSystemPath( sourceDataPath, SelectedPath );
+        return true;
     }
 }

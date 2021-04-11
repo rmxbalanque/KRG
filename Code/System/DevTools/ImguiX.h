@@ -5,6 +5,7 @@
 #include "System/ImguiTheme.h"
 #include "ThirdParty/imgui/imgui.h"
 #include "System/Core/Types/Color.h"
+#include "System/Core/Types/String.h"
 
 //-------------------------------------------------------------------------
 // ImGui Extensions
@@ -34,9 +35,18 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    inline bool ButtonColored( char const* label, Color const& foregroundColor, ImVec2 const& size = ImVec2( 0, 0 ) )
+    inline void SelectableText( String const& value, float width = 0 )
     {
-        ImGui::PushStyleColor( ImGuiCol_Text, foregroundColor.ToFloat4() );
+        if ( width != 0 )
+        {
+            ImGui::SetNextItemWidth( width );
+        }
+        ImGui::InputText( "##", const_cast<char*>( value.c_str() ), value.length(), ImGuiInputTextFlags_ReadOnly );
+    }
+
+    inline bool ButtonColored( ImVec4 const& foregroundColor, char const* label, ImVec2 const& size = ImVec2( 0, 0 ) )
+    {
+        ImGui::PushStyleColor( ImGuiCol_Text, foregroundColor );
         bool const result = ImGui::Button( label, size );
         ImGui::PopStyleColor();
 

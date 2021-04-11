@@ -37,11 +37,12 @@ namespace KRG::Render
 
         struct KRG_ENGINE_RENDER_API GeometrySection
         {
-            KRG_SERIALIZE_MEMBERS( m_startIndex, m_numIndices );
+            KRG_SERIALIZE_MEMBERS( m_ID, m_startIndex, m_numIndices );
 
             GeometrySection() = default;
-            GeometrySection( uint32 startIndex, uint32 numIndices );
+            GeometrySection( StringID ID, uint32 startIndex, uint32 numIndices );
 
+            StringID                        m_ID;
             uint32                          m_startIndex = 0;
             uint32                          m_numIndices = 0;
         };

@@ -168,7 +168,7 @@ namespace KRG::TypeSystem
     {
         KRG_ASSERT( m_deserializedTypeIdx < m_numSerializedTypes );
 
-        rapidjson::Value const& jsonObject = ( m_numSerializedTypes > 1 ) ? m_document[m_deserializedTypeIdx++] : m_document;
+        rapidjson::Value const& jsonObject = ( m_document.IsArray() ) ? m_document[m_deserializedTypeIdx++] : m_document;
 
         //-------------------------------------------------------------------------
 
@@ -182,11 +182,12 @@ namespace KRG::TypeSystem
                 return true;
             }
         }
+        else
+        {
+            KRG_LOG_ERROR( "TypeSystem", "Failed to deserialize type since the json file is malformed" );
+        }
 
         outType = TypeInstanceModel();
         return false;
     }
-
-    
-
 }

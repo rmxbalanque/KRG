@@ -1,16 +1,25 @@
 #include "MeshEditor_DataBrowserTool.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelReader.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelWriter.h"
+#include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/TypeSystem/TypeRegistry.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Render::MeshEditor
 {
-    static void DisplayFile( DataBrowserModel& model, DataFileModel& file )
+    static Color const g_staticMeshColor = Colors::GreenYellow;
+    static Color const g_skeletalMeshColor = Colors::HotPink;
+    static Color const g_rawFileColor = Colors::LightGray;
+
+    //-------------------------------------------------------------------------
+
+    static void DisplayBrowserFile( DataBrowserModel& model, DataFileModel& file )
     {
         ImGui::TableNextRow();
 
@@ -28,7 +37,7 @@ namespace KRG::Render::MeshEditor
         ImGui::TreeNodeEx( file.GetName().c_str(), treeNodeflags );
 
         // Handle clicks on the tree node
-        if ( ImGui::IsItemClicked() )
+        if ( ImGui::IsItemFocused() || ImGui::IsItemClicked() )
         {
             model.SetSelection( file.GetPath() );
         }
@@ -39,19 +48,19 @@ namespace KRG::Render::MeshEditor
 
         if ( file.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
         {
-            ImGui::TextColored( Colors::GreenYellow.ToFloat4(), "Static Mesh" );
+            ImGui::TextColored( g_staticMeshColor.ToFloat4(), "Static Mesh" );
         }
         else if ( file.GetResourceTypeID() == SkeletalMesh::GetStaticResourceTypeID() )
         {
-            ImGui::TextColored( Colors::HotPink.ToFloat4(), "Skeletal Mesh" );
+            ImGui::TextColored( g_skeletalMeshColor.ToFloat4(), "Skeletal Mesh" );
         }
         else
         {
-            ImGui::TextColored( Colors::LightGray.ToFloat4(), "Raw" );
+            ImGui::TextColored( g_rawFileColor.ToFloat4(), "Raw" );
         }
     };
 
-    static void DisplayDirectory( DataBrowserModel& model, DataDirectoryModel& dir )
+    static void DisplayBrowserDirectory( DataBrowserModel& model, DataDirectoryModel& dir )
     {
         ImGui::TableNextRow();
 
@@ -68,7 +77,7 @@ namespace KRG::Render::MeshEditor
         }
 
         dir.SetExpanded( ImGui::TreeNodeEx( dir.GetName().c_str(), treeNodeflags ) );
-        if ( ImGui::IsItemClicked() )
+        if ( ImGui::IsItemFocused() || ImGui::IsItemClicked() )
         {
             model.SetSelection( dir.GetPath() );
         }
@@ -84,7 +93,7 @@ namespace KRG::Render::MeshEditor
             {
                 if ( subDir.IsVisible() )
                 {
-                    DisplayDirectory( model, subDir );
+                    DisplayBrowserDirectory( model, subDir );
                 }
             }
 
@@ -92,20 +101,20 @@ namespace KRG::Render::MeshEditor
             {
                 if ( file.IsVisible() )
                 {
-                    DisplayFile( model, file );
+                    DisplayBrowserFile( model, file );
                 }
             }
             ImGui::TreePop();
         }
     }
 
-    static void DisplayDataDirectory( DataBrowserModel& model )
+    static void DisplayBrowserDataDirectory( DataBrowserModel& model )
     {
         for ( auto& subDir : model.GetRootDirectory().GetDirectories() )
         {
             if ( subDir.IsVisible() )
             {
-                DisplayDirectory( model, subDir );
+                DisplayBrowserDirectory( model, subDir );
             }
         }
 
@@ -113,7 +122,7 @@ namespace KRG::Render::MeshEditor
         {
             if ( file.IsVisible() )
             {
-                DisplayFile( model, file );
+                DisplayBrowserFile( model, file );
             }
         }
     }
@@ -125,6 +134,56 @@ namespace KRG::Render::MeshEditor
         , m_propertyGrid( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
     {
         UpdateVisibility();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void DataBrowser::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    {
+        if ( !IsOpen() )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( m_model.GetDataBrowser().GetSelection() != m_inspectedPath )
+        {
+            m_inspectedPath = m_model.GetDataBrowser().GetSelection();
+            if ( m_inspectedPath.IsValid() && m_inspectedPath.IsFilePath() )
+            {
+                if ( IsInspectedFileARawFile() )
+                {
+                    if ( RawAssets::ReadFileInfo( m_inspectedPath, m_assetInfo ) )
+                    {
+                        m_validAssetInfo = true;
+                    }
+                    else
+                    {
+                        m_validAssetInfo = false;
+                        KRG_LOG_ERROR( "DataBrowser", "Failed to read raw resource file: %s", m_inspectedPath.c_str() );
+                    }
+                }
+                else // Resource File
+                { 
+                    if ( OpenInspectedResourceFile( context ) )
+                    {
+                        m_propertyGrid.SetTypeToEdit( &m_typeInstance );
+                    }
+                    else
+                    {
+                        m_propertyGrid.SetTypeToEdit( nullptr );
+                        KRG_LOG_ERROR( "DataBrowser", "Failed to deserialize resource file: %s", m_inspectedPath.c_str() );
+                    }
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::ShowDemoWindow();
+        DrawBrowser( context );
+        DrawInfoPanel( context );
     }
 
     //-------------------------------------------------------------------------
@@ -185,25 +244,9 @@ namespace KRG::Render::MeshEditor
         m_model.GetDataBrowser().UpdateFileVisibility( VisibilityFunc );
     }
 
-    //-------------------------------------------------------------------------
-
-    void DataBrowser::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
-    {
-        if ( !IsOpen() )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        ImGui::ShowDemoWindow();
-        DrawBrowser( context );
-        DrawInfoPanel( context );
-    }
-
     void DataBrowser::DrawBrowser( UpdateContext const& context )
     {
-        if ( ImGui::Begin( "Data Browser", nullptr, ImGuiWindowFlags_AlwaysVerticalScrollbar ) )
+        if ( ImGui::Begin( "Data Browser", nullptr ) )
         {
             // Text Filter
             //-------------------------------------------------------------------------
@@ -223,7 +266,7 @@ namespace KRG::Render::MeshEditor
             }
 
             ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 20 );
-            if ( ImGui::Button( KRG_ICON_TRASH "##Clear Filter" ) )
+            if ( ImGui::Button( KRG_ICON_ERASER "##Clear Filter" ) )
             {
                 m_filterBuffer[0] = 0;
                 UpdateVisibility();
@@ -268,57 +311,175 @@ namespace KRG::Render::MeshEditor
             // Browser
             //-------------------------------------------------------------------------
 
-            auto const& rootDir = m_model.GetDataBrowser().GetRootDirectory();
-
-            static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-
-            ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_accentColorDark );
-            ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_accentColorDark );
-            if ( ImGui::BeginTable( "Data Browser", 2, flags ) )
+            ImGui::BeginChild( "BrowserWindow", ImVec2( 0, 0 ), false, ImGuiWindowFlags_AlwaysVerticalScrollbar );
             {
-                ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_NoHide );
-                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed, 100 );
-                ImGui::TableHeadersRow();
-                DisplayDataDirectory( m_model.GetDataBrowser() );
-                ImGui::EndTable();
+                auto const& rootDir = m_model.GetDataBrowser().GetRootDirectory();
+
+                ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_accentColorDark );
+                ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_accentColorDark );
+                static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+                if ( ImGui::BeginTable( "Data Browser", 2, flags, ImVec2( ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x / 2, 0 ) ) )
+                {
+                    ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_NoHide );
+                    ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed, 100 );
+                    ImGui::TableHeadersRow();
+                    DisplayBrowserDataDirectory( m_model.GetDataBrowser() );
+                    ImGui::EndTable();
+                }
+                ImGui::PopStyleColor( 2 );
             }
-            ImGui::PopStyleColor( 2 );
+            ImGui::EndChild();
         }
         ImGui::End();
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool DataBrowser::IsInspectedFileARawFile() const
+    {
+        auto const extension = m_inspectedPath.GetExtension();
+        if ( extension == "gltf" || extension == "fbx" )
+        {
+            return true;
+        }
+        
+        return false;
+    }
+
+    bool DataBrowser::OpenInspectedResourceFile( UpdateContext const& context )
+    {
+        KRG_ASSERT( m_inspectedPath.ExistsAndIsFile() );
+
+        TypeSystem::TypeInstanceModelReader typeReader( *context.GetSystem<TypeSystem::TypeRegistry>() );
+        if ( typeReader.ReadFromFile( m_inspectedPath ) )
+        {
+            return typeReader.DeserializeType( m_typeInstance );
+        }
+
+        return false;
+    }
+
+    bool DataBrowser::SaveInspectedResourceFile( UpdateContext const& context )
+    {
+        KRG_ASSERT( m_inspectedPath.ExistsAndIsFile() && m_typeInstance.IsValid() );
+
+        TypeSystem::TypeInstanceModelWriter typeWriter( *context.GetSystem<TypeSystem::TypeRegistry>() );
+        typeWriter.SerializeType( m_typeInstance );
+        return typeWriter.WriteToFile( m_inspectedPath );
     }
 
     void DataBrowser::DrawInfoPanel( UpdateContext const& context )
     {
         if ( ImGui::Begin( "Data File Info" ) )
         {
-            if ( m_model.GetDataBrowser().GetSelection() != m_inspectedFile )
+            if ( !m_inspectedPath.IsValid() )
             {
-                m_inspectedFile = m_model.GetDataBrowser().GetSelection();
-                if ( m_inspectedFile.IsValid() && m_inspectedFile.IsFilePath() )
+                // Do Nothing
+            }
+            else if ( m_inspectedPath.IsDirectoryPath() )
+            {
+                ImGui::Text( "Directory: %s", m_inspectedPath.c_str() );
+            }
+            else // File
+            {
+                if ( IsInspectedFileARawFile() )
                 {
-                    TypeSystem::TypeInstanceModelReader typeReader( *context.GetSystem<TypeSystem::TypeRegistry>() );
-                    if ( typeReader.ReadFromFile( m_inspectedFile ) )
-                    {
-                        if ( typeReader.DeserializeType( m_typeInstance ) )
-                        {
-                            m_propertyGrid.SetTypeToEdit( &m_typeInstance );
-                        }
-                        else
-                        {
-                            m_propertyGrid.SetTypeToEdit( nullptr );
-                        }
-                    }
-                    else
-                    {
-                        ImGui::Text( "ERROR" );
-                    }
+                    DrawRawFileInfo( context );
+                }
+                else if( m_typeInstance.IsValid() )
+                {
+                    DrawResourceFileInfo( context );
+                }
+                else
+                {
+                    // Do Nothing
                 }
             }
+        }
+        ImGui::End();
+    }
+
+    void DataBrowser::DrawResourceFileInfo( UpdateContext const& context )
+    {
+        KRG_ASSERT( m_typeInstance.IsValid() && m_inspectedPath.IsFilePath() );
+
+        //-------------------------------------------------------------------------
+
+        float const cellContentWidth = ImGui::GetContentRegionAvail().x;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const buttonAreaWidth = 80;
+        float const textAreaWidth = cellContentWidth - buttonAreaWidth - itemSpacing;
+        float const buttonStartPosX = textAreaWidth + itemSpacing;
+
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text( m_inspectedPath.GetFileName().c_str() );
+        float const actualTextWidth = ImGui::GetItemRectSize().x;
+
+        ImGui::SameLine( 0, textAreaWidth - actualTextWidth + itemSpacing );
+        if ( m_propertyGrid.IsDirty() )
+        {
+            if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_FLOPPY_O " Save", ImVec2( buttonAreaWidth, 0 ) ) )
+            {
+                SaveInspectedResourceFile( context );
+                m_propertyGrid.ClearDirty();
+            }
+        }
+        else
+        {
+            ImGuiX::ButtonColored( ImGuiX::Theme::s_textColorDisabled, KRG_ICON_FLOPPY_O " Save", ImVec2( buttonAreaWidth, 0 ) );
+        }
+
+        //-------------------------------------------------------------------------
+
+        m_propertyGrid.DrawGrid();
+    }
+
+    void DataBrowser::DrawRawFileInfo( UpdateContext const& context )
+    {
+        ImGui::Text( "Raw File: %s", m_inspectedPath.c_str() );
+        ImGui::Separator();
+
+        if ( m_validAssetInfo )
+        {
+            ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
+            ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 4 ) );
+            if ( ImGui::BeginTable( "Mesh Info", 2, 0 ) )
+            {
+                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed, 80 );
+                ImGui::TableSetupColumn( "Mesh Name", ImGuiTableColumnFlags_NoHide );
+
+                for ( auto const& mesh : m_assetInfo.m_meshes )
+                {
+                    ImGui::TableNextRow();
+
+                    ImGui::TableNextColumn();
+                    ImGui::AlignTextToFramePadding();
+                    if ( mesh.m_isSkinned )
+                    {
+                        ImGui::TextColored( g_skeletalMeshColor.ToFloat4(), "Skeletal Mesh:" );
+
+                    }
+                    else // Static
+                    {
+                        ImGui::TextColored( g_staticMeshColor.ToFloat4(), "Static Mesh:" );
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableNextColumn();
+                    ImGuiX::SelectableText( mesh.m_name, -1 );
+                }
+
+                ImGui::EndTable();
+            }
+            ImGui::PopStyleVar();
 
             //-------------------------------------------------------------------------
 
-            m_propertyGrid.DrawGrid();
+            if ( ImGui::Button( "Create New Descriptor", ImVec2( -1, 0 ) ) )
+            {
+
+            }
         }
-        ImGui::End();
     }
 }

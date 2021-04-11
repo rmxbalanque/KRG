@@ -29,7 +29,7 @@ namespace KRG
         DataFileModel( FileSystem::Path const& path )
             : m_name( path.GetFileName() )
             , m_path( path )
-            , m_resourceTypeID( path.GetExtension() )
+            , m_resourceTypeID( path.GetExtension().data() )
         {
             KRG_ASSERT( path.IsValid() );
         }

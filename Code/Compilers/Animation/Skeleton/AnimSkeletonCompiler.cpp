@@ -65,7 +65,7 @@ namespace KRG
             Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
             if ( archive.IsValid() )
             {
-                archive << Resource::ResourceHeader( VERSION, resourceDescriptor.m_resourceTypeID ) << skeleton;
+                archive << Resource::ResourceHeader( VERSION, Skeleton::GetStaticResourceTypeID() ) << skeleton;
                 return CompilationSucceeded( ctx );
             }
             else

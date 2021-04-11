@@ -86,21 +86,21 @@ namespace KRG
     DataPath::DataPath( String&& path )
         : m_path( path )
     {
-        KRG_ASSERT( IsValidDataPath( m_path ) );
+        KRG_ASSERT( m_path.empty() || IsValidDataPath( m_path ) );
         OnPathMemberChanged();
     }
 
     DataPath::DataPath( String const& path )
         : m_path( path )
     {
-        KRG_ASSERT( IsValidDataPath( m_path ) );
+        KRG_ASSERT( m_path.empty() || IsValidDataPath( m_path ) );
         OnPathMemberChanged();
     }
 
     DataPath::DataPath( char const* pPath )
         : m_path( pPath )
     {
-        KRG_ASSERT( IsValidDataPath( m_path ) );
+        KRG_ASSERT( m_path.empty() || IsValidDataPath( m_path ) );
         OnPathMemberChanged();
     }
 

@@ -31,7 +31,7 @@ namespace KRG::TypeSystem
             , m_typeID( typeID )
             , m_templatedArgumentTypeID( templatedArgumentTypeID )
         {
-            KRG_ASSERT( path.IsValid() && !value.empty() );
+            KRG_ASSERT( path.IsValid() );
         }
 
         inline bool IsOnlyRelevantForTools() const { return !m_typeID.IsValid(); }
@@ -64,16 +64,17 @@ namespace KRG::TypeSystem
 
         // Default and property only constructors, type constructors are private
         PropertyInstanceModel() = default;
-        PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInstanceModel* pParentProperty, PropertyInfo const& propertyInfo );
-        PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInstanceModel* pParentProperty, PropertyInfo const& propertyInfo, String const& stringValue );
+        PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo );
+        PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo, String const& stringValue );
 
-        virtual ~PropertyInstanceModel();
+        virtual ~PropertyInstanceModel() {}
 
         // Info
         //-------------------------------------------------------------------------
 
         virtual bool IsValid() const { return m_pTypeRegistry != nullptr && m_propertyInfo.IsValid(); }
         inline StringID const& GetID() const { return m_propertyInfo.m_ID; }
+        inline char const* GetName() const { return m_propertyInfo.m_ID.c_str(); }
         inline char const* GetFriendlyName() const { return m_friendlyName.c_str(); }
         inline char const* GetFriendlyTypeName() const { return m_friendlyTypeName.c_str(); }
 
@@ -94,12 +95,10 @@ namespace KRG::TypeSystem
         // Property Access
         //-------------------------------------------------------------------------
 
-        inline PropertyInstanceModel* GetParentProperty() const { return m_pParentProperty; }
-
         inline bool HasProperties() const { return !m_childProperties.empty(); }
         inline int32 GetNumProperties() const { return (int32) m_childProperties.size(); }
-        inline TVector<PropertyInstanceModel*>& GetProperties() { return m_childProperties; }
-        inline TVector<PropertyInstanceModel*> const& GetProperties() const { return m_childProperties; }
+        inline TVector<PropertyInstanceModel>& GetProperties() { return m_childProperties; }
+        inline TVector<PropertyInstanceModel> const& GetProperties() const { return m_childProperties; }
 
         PropertyInstanceModel* GetProperty( PropertyPath const& path, bool allowDynamicArrayElementCreation = false );
         inline PropertyInstanceModel const* GetProperty( PropertyPath const& path ) const { return const_cast<PropertyInstanceModel*>( this )->GetProperty( path ); }
@@ -116,6 +115,21 @@ namespace KRG::TypeSystem
         TVector<char const*> GetEnumValues() const;
         int64 GetIntForEnumStringValue( char const* pString ) const;
         char const* GetStringValueForEnumValue( int64 value ) const;
+
+        // Structures
+        //-------------------------------------------------------------------------
+
+        inline TypeID GetStructureTypeID() const
+        {
+            KRG_ASSERT( IsStructure() );
+            return m_pTypeInfo->m_ID;
+        }
+
+        inline char const* GetStructureTypeName() const
+        {
+            KRG_ASSERT( IsStructure() );
+            return m_pTypeInfo->GetTypeName();
+        }
 
         // Resource values
         //-------------------------------------------------------------------------
@@ -157,13 +171,13 @@ namespace KRG::TypeSystem
         inline PropertyInstanceModel& GetArrayElement( int32 elementIdx )
         {
             KRG_ASSERT( IsArray() );
-            return *m_childProperties[elementIdx];
+            return m_childProperties[elementIdx];
         }
 
         inline PropertyInstanceModel const& GetArrayElement( int32 elementIdx ) const
         {
             KRG_ASSERT( IsArray() );
-            return *m_childProperties[elementIdx];
+            return m_childProperties[elementIdx];
         }
 
         void SetNumArrayElements( int32 numElements );
@@ -234,7 +248,6 @@ namespace KRG::TypeSystem
     protected:
 
         TypeRegistry const*                                 m_pTypeRegistry = nullptr;
-        PropertyInstanceModel*                              m_pParentProperty = nullptr;
         PropertyInfo                                        m_propertyInfo; // Only valid for actual properties
         TypeInfo const*                                     m_pTypeInfo = nullptr;  // If this is a struct/class instance, we stored the type info here
         int32                                               m_arrayElementIdx = InvalidIndex; // Only set if this is an element in an array
@@ -242,7 +255,7 @@ namespace KRG::TypeSystem
         String                                              m_friendlyTypeName;
         String                                              m_value;
         String                                              m_defaultValue;
-        TVector<PropertyInstanceModel*>                     m_childProperties;
+        TVector<PropertyInstanceModel>                      m_childProperties;
     };
 
     //-------------------------------------------------------------------------
@@ -251,6 +264,7 @@ namespace KRG::TypeSystem
 
     class KRG_TOOLS_CORE_API TypeInstanceModel final : private PropertyInstanceModel
     {
+
     public:
 
         TypeInstanceModel() = default;
@@ -262,6 +276,14 @@ namespace KRG::TypeSystem
 
         // Create a simplified descriptor of this type instance for easy serialization
         TypeInstanceDescriptor GetDescriptor() const;
+
+        // Get as a property instance - needed in some tooling to track hierarchy
+        PropertyInstanceModel const* GetAsPropertyInstance() const { return static_cast<PropertyInstanceModel const*>( this ); }
+
+        // Get as a property instance - needed in some tooling to track hierarchy
+        PropertyInstanceModel* GetAsPropertyInstance() { return static_cast<PropertyInstanceModel*>( this ); }
+
+        //-------------------------------------------------------------------------
 
         using PropertyInstanceModel::GetTypeInfo;
         using PropertyInstanceModel::GetProperty;

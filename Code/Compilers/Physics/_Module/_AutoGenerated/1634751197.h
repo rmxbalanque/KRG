@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_RESOURCECOMPILERS_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMeshResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_meshName ), KRG_NVP( m_isConvexMesh ) );
+        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_meshName ), KRG_NVP( m_isConvexMesh ) );
     }
 
     //-------------------------------------------------------------------------
@@ -35,19 +35,6 @@ namespace KRG
             KRG::Physics::PhysicsMeshResourceDescriptor const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsMeshResourceDescriptor const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_resourceTypeID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceTypeID" );
-            propertyInfo.m_parentTypeID = 1428198006;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshResourceDescriptor, m_resourceTypeID );
-            propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.Set( 0 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 

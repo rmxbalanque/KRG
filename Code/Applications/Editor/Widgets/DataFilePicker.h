@@ -9,12 +9,12 @@ namespace KRG
     struct DataFilePicker
     {
         // Pick any file in the data folder
-        static DataPath PickFile( FileSystem::Path const& sourceDataPath );
+        static bool PickFile( FileSystem::Path const& sourceDataPath, DataPath& outPath );
 
         // Pick only resources of the specific type from the data folder
-        static DataPath PickResourceFile( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceType );
+        static bool PickResourceFile( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceType, DataPath& outPath );
 
         // Pick only registered resources from the data folder
-        static DataPath PickResourceFile( FileSystem::Path const& sourceDataPath, TVector<ResourceTypeID> const& allowedResourceTypes );
+        static bool PickResourceFile( FileSystem::Path const& sourceDataPath, TVector<ResourceTypeID> const& allowedResourceTypes, DataPath& outPath );
     };
 }

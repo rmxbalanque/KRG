@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_RESOURCECOMPILERS_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_materialLibraries ) );
+        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_materialLibraries ) );
     }
 
     //-------------------------------------------------------------------------
@@ -35,19 +35,6 @@ namespace KRG
             KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_resourceTypeID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceTypeID" );
-            propertyInfo.m_parentTypeID = 1416584488;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
-            propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor, m_resourceTypeID );
-            propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.Set( 0 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 

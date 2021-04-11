@@ -14,21 +14,21 @@ namespace KRG::TypeSystem
     public:
 
         PropertyGrid( TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath );
-        ~PropertyGrid();
 
         inline bool IsDirty() const { return m_isDirty; }
+        void ClearDirty() { m_isDirty = false; }
 
         void SetTypeToEdit( TypeInstanceModel* pTypeInstanceModel = nullptr );
         void DrawGrid();
 
     private:
 
-        void DrawPropertyRow( PropertyInstanceModel* pPropertyModel );
-        void DrawArrayPropertyRow( PropertyInstanceModel* pPropertyModel );
-        void DrawStructPropertyRow( PropertyInstanceModel* pPropertyModel );
-        void DrawCoreTypePropertyRow( PropertyInstanceModel* pPropertyModel );
+        void DrawPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel );
+        void DrawArrayPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel );
+        void DrawStructPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel );
+        void DrawCoreTypePropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel );
 
-        void DrawRowControls( PropertyInstanceModel* pPropertyModel );
+        void DrawRowControls( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel );
 
     private:
 

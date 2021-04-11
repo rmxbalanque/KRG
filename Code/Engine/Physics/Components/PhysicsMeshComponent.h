@@ -21,6 +21,7 @@ namespace KRG::Physics
     
     private:
 
+        virtual void Initialize() override;
         virtual bool HasValidPhysicsSetup() const override final;
         virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const override final;
 

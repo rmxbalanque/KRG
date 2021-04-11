@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_RESOURCECOMPILERS_RENDER_API void serialize( Archive& archive, KRG::Render::MeshResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_materials ), KRG_NVP( m_meshName ) );
+        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_materials ), KRG_NVP( m_meshName ) );
     }
 
     //-------------------------------------------------------------------------
@@ -35,19 +35,6 @@ namespace KRG
             KRG::Render::MeshResourceDescriptor const* pActualDefaultTypeInstance = ( KRG::Render::MeshResourceDescriptor const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_resourceTypeID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceTypeID" );
-            propertyInfo.m_parentTypeID = 2202398079;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
-            propertyInfo.m_offset = offsetof( KRG::Render::MeshResourceDescriptor, m_resourceTypeID );
-            propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.Set( 0 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 

@@ -15,12 +15,7 @@ namespace KRG
         struct KRG_TOOLS_RESOURCE_API ResourceDescriptor
         {
             KRG_REGISTER_TYPE;
-
             static void ReadCompileDependencies( String const& descriptorFileContents, TVector<DataPath>& outDependencies );
-
-        public:
-
-            EXPOSE ResourceTypeID               m_resourceTypeID;
         };
     }
 }

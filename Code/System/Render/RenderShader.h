@@ -2,6 +2,7 @@
 
 #include "RenderBuffer.h"
 #include "System/Resource/IResource.h"
+#include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
 
@@ -63,7 +64,7 @@ namespace KRG
         protected:
 
             ResourceHandle                      m_shaderHandle;
-            TVector<uint8>                         m_byteCode;
+            TVector<uint8>                      m_byteCode;
             TVector<RenderBuffer>               m_cbuffers;
             TVector<ResourceBinding>            m_resourceBindings;
             PipelineStage                       m_pipelineStage;

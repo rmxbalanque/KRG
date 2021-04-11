@@ -148,10 +148,6 @@ namespace Scripts
                     },
                     new ResourceDescriptorStringProperty()
                     {
-                        Path = "m_resourceTypeID", Value = "SMSH"
-                    },
-                    new ResourceDescriptorStringProperty()
-                    {
                         Path = "m_meshDataPath", Value = dataPath
                     },
                     new ResourceDescriptorArrayProperty()
@@ -183,10 +179,6 @@ namespace Scripts
                     new ResourceDescriptorStringProperty()
                     {
                         Path = "TypeID", Value = "KRG::Render::StaticMeshResourceDescriptor"
-                    },
-                    new ResourceDescriptorStringProperty()
-                    {
-                        Path = "m_resourceTypeID", Value = "MSH"
                     },
                     new ResourceDescriptorStringProperty()
                     {
@@ -230,10 +222,6 @@ namespace Scripts
                     },
                     new ResourceDescriptorStringProperty()
                     {
-                        Path = "m_resourceTypeID", Value = "PMSH"
-                    },
-                    new ResourceDescriptorStringProperty()
-                    {
                         Path = "m_meshDataPath", Value = dataPath
                     }
                 }
@@ -256,10 +244,6 @@ namespace Scripts
                     new ResourceDescriptorStringProperty()
                     {
                         Path = "TypeID", Value = "KRG::Render::TextureResourceDescriptor"
-                    },
-                    new ResourceDescriptorStringProperty()
-                    {
-                        Path = "m_resourceTypeID", Value = "TXTR"
                     },
                     new ResourceDescriptorStringProperty()
                     {
@@ -288,17 +272,16 @@ namespace Scripts
                     },
                     new ResourceDescriptorStringProperty()
                     {
-                        Path = "m_resourceTypeID", Value = "MTRL"
-                    },
-                    new ResourceDescriptorStringProperty()
-                    {
                         Path = "m_diffuseTexture", Value = dataPath
                     }
                 }
             };
 
             string fileContents = JValue.Parse(JsonConvert.SerializeObject(desc, settings)).ToString(Formatting.Indented);
-            var outFile = sourceFile.Directory.FullName + "\\..\\Materials\\" + filename + ".mtrl";
+            var outFile = sourceFile.Directory.FullName + "\\" + filename + ".mtrl";
+            var outputFile = new FileInfo( outFile.Replace("Textures", "Materials") );
+
+            Directory.CreateDirectory( outputFile.Directory.FullName );
             File.WriteAllText(outFile, fileContents);
         }
 
@@ -317,13 +300,13 @@ namespace Scripts
                 {
                     if (file.Name.ToLower().StartsWith("sk_"))
                     {
-                        //CreateSkeletalMeshResourceFile(settings, dataDir, file);
+                        CreateSkeletalMeshResourceFile(settings, dataDir, file);
                     }
 
                     if (file.Name.ToLower().StartsWith("sm_"))
                     {
-                        //CreateStaticMeshResourceFile(settings, dataDir, file);
-                        //CreatePhysicsResourceFile(settings, dataDir, file);
+                        CreateStaticMeshResourceFile(settings, dataDir, file);
+                        CreatePhysicsResourceFile(settings, dataDir, file);
                     }
                 }
                 else if (file.Extension.ToLower() == ".tga" || file.Extension.ToLower() == ".png")

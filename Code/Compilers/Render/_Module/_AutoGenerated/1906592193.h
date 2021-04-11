@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_RESOURCECOMPILERS_RENDER_API void serialize( Archive& archive, KRG::Render::StaticMeshResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Render::MeshResourceDescriptor>( &type ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_materials ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_meshName ) );
+        archive( cereal::base_class<KRG::Render::MeshResourceDescriptor>( &type ), KRG_NVP( m_meshDataPath ), KRG_NVP( m_materials ), KRG_NVP( m_meshName ) );
     }
 
     //-------------------------------------------------------------------------
@@ -62,19 +62,6 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
             propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
             propertyInfo.m_flags.Set( 2 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_resourceTypeID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceTypeID" );
-            propertyInfo.m_parentTypeID = 1441604552;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
-            propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshResourceDescriptor, m_resourceTypeID );
-            propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.Set( 0 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 

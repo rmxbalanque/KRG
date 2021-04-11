@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_RESOURCECOMPILERS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::SkeletonResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_skeletonDataPath ), KRG_NVP( m_skeletonRootBoneName ) );
+        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_skeletonDataPath ), KRG_NVP( m_skeletonRootBoneName ) );
     }
 
     //-------------------------------------------------------------------------
@@ -35,19 +35,6 @@ namespace KRG
             KRG::Animation::SkeletonResourceDescriptor const* pActualDefaultTypeInstance = ( KRG::Animation::SkeletonResourceDescriptor const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_resourceTypeID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceTypeID" );
-            propertyInfo.m_parentTypeID = 1130933343;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
-            propertyInfo.m_offset = offsetof( KRG::Animation::SkeletonResourceDescriptor, m_resourceTypeID );
-            propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.Set( 0 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 

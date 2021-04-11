@@ -1,178 +1,210 @@
 #ifdef _WIN32
 
 #include "RawAssetReader.h"
+#include "RawAssetInfo.h"
 #include "RawAnimation.h"
 #include "RawMesh.h"
 #include "Fbx/FbxSkeleton.h"
 #include "Fbx/FbxAnimation.h"
 #include "Fbx/FbxMesh.h"
+#include "Fbx/FbxInfo.h"
 #include "gltf/gltfMesh.h"
 #include "gltf/gltfSkeleton.h"
 #include "gltf/gltfAnimation.h"
+#include "gltf/gltfInfo.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::RawAssets
 {
-    namespace RawAssets
+    static bool ValidateRawAsset( ReaderContext const& ctx, RawAssets::RawAsset const* pRawAsset )
     {
-        static bool ValidateRawAsset( ReaderContext const& ctx, RawAssets::RawAsset const* pRawAsset )
+        if ( pRawAsset )
         {
-            if ( pRawAsset )
+            for ( auto const& warning : pRawAsset->GetWarnings() )
             {
-                for ( auto const& warning : pRawAsset->GetWarnings() )
-                {
-                    ctx.m_warningDelegate( warning.c_str() );
-                }
-
-                for ( auto const& error : pRawAsset->GetErrors() )
-                {
-                    ctx.m_errorDelegate( error.c_str() );
-                }
-
-                return !pRawAsset->HasErrors() && pRawAsset->IsValid();
+                ctx.m_warningDelegate( warning.c_str() );
             }
 
-            return false;
+            for ( auto const& error : pRawAsset->GetErrors() )
+            {
+                ctx.m_errorDelegate( error.c_str() );
+            }
+
+            return !pRawAsset->HasErrors() && pRawAsset->IsValid();
+        }
+
+        return false;
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ReadFileInfo( FileSystem::Path const& sourceFilePath, RawAssetInfo& outInfo )
+    {
+        KRG_ASSERT( sourceFilePath.IsValid() );
+
+        outInfo.Reset();
+
+        //-------------------------------------------------------------------------
+
+        auto const extension = sourceFilePath.GetExtension();
+        if ( extension == "fbx" )
+        {
+            return Fbx::ReadFileInfo( sourceFilePath, outInfo );
+        }
+        else if ( extension == "gltf" || extension == "glb" )
+        {
+            return gltf::ReadFileInfo( sourceFilePath, outInfo );
+        }
+        else
+        {
+            KRG_LOG_ERROR( "Raw Assets", "Unsupported extension: %s", sourceFilePath.c_str() );
+        }
+
+        return false;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile )
+    {
+        KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
+
+        TUniquePtr<RawAssets::RawMesh> pRawMesh = nullptr;
+
+        auto const extension = sourceFilePath.GetExtension();
+        if ( extension == "fbx" )
+        {
+            pRawMesh = Fbx::ReadStaticMesh( sourceFilePath, nameOfMeshToCompile );
+        }
+        else if ( extension == "gltf" || extension == "glb" )
+        {
+            pRawMesh = gltf::ReadStaticMesh( sourceFilePath, nameOfMeshToCompile );
+        }
+        else
+        {
+            char buffer[512];
+            Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
+            ctx.m_errorDelegate( buffer );
         }
 
         //-------------------------------------------------------------------------
 
-        TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile )
+        if ( !ValidateRawAsset( ctx, pRawMesh.get() ) )
         {
-            KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
-
-            TUniquePtr<RawAssets::RawMesh> pRawMesh = nullptr;
-
-            if ( sourceFilePath.GetExtension() == "fbx" )
-            {
-                pRawMesh = Fbx::ReadStaticMesh( sourceFilePath, nameOfMeshToCompile );
-            }
-            else if ( sourceFilePath.GetExtension() == "gltf" || sourceFilePath.GetExtension() == "glb" )
-            {
-                pRawMesh = gltf::ReadStaticMesh( sourceFilePath, nameOfMeshToCompile );
-            }
-            else
-            {
-                char buffer[512];
-                Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
-                ctx.m_errorDelegate( buffer );
-            }
-
-            //-------------------------------------------------------------------------
-
-            if ( !ValidateRawAsset( ctx, pRawMesh.get() ) )
-            {
-                pRawMesh = nullptr;
-            }
-
-            //-------------------------------------------------------------------------
-
-            return pRawMesh;
+            pRawMesh = nullptr;
         }
 
-        TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences )
+        //-------------------------------------------------------------------------
+
+        return pRawMesh;
+    }
+
+    TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences )
+    {
+        KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
+
+        TUniquePtr<RawAssets::RawMesh> pRawMesh = nullptr;
+
+        auto const extension = sourceFilePath.GetExtension();
+        if ( extension == "fbx" )
         {
-            KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
-
-            TUniquePtr<RawAssets::RawMesh> pRawMesh = nullptr;
-
-            if ( sourceFilePath.GetExtension() == "fbx" )
-            {
-                pRawMesh = Fbx::ReadSkeletalMesh( sourceFilePath, maxBoneInfluences );
-            }
-            else if ( sourceFilePath.GetExtension() == "gltf" || sourceFilePath.GetExtension() == "glb" )
-            {
-                pRawMesh = gltf::ReadSkeletalMesh( sourceFilePath, maxBoneInfluences );
-            }
-            else
-            {
-                char buffer[512];
-                Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
-                ctx.m_errorDelegate( buffer );
-            }
-
-            //-------------------------------------------------------------------------
-
-            if ( !ValidateRawAsset( ctx, pRawMesh.get() ) )
-            {
-                pRawMesh = nullptr;
-            }
-
-            //-------------------------------------------------------------------------
-
-            return pRawMesh;
+            pRawMesh = Fbx::ReadSkeletalMesh( sourceFilePath, maxBoneInfluences );
+        }
+        else if ( extension == "gltf" || extension == "glb" )
+        {
+            pRawMesh = gltf::ReadSkeletalMesh( sourceFilePath, maxBoneInfluences );
+        }
+        else
+        {
+            char buffer[512];
+            Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
+            ctx.m_errorDelegate( buffer );
         }
 
-        TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName )
+        //-------------------------------------------------------------------------
+
+        if ( !ValidateRawAsset( ctx, pRawMesh.get() ) )
         {
-            KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
-
-            TUniquePtr<RawAssets::RawSkeleton> pRawSkeleton = nullptr;
-
-            if ( sourceFilePath.GetExtension() == "fbx" )
-            {
-                pRawSkeleton = Fbx::ReadSkeleton( sourceFilePath, skeletonRootBoneName );
-            }
-            else if ( sourceFilePath.GetExtension() == "gltf" || sourceFilePath.GetExtension() == "glb" )
-            {
-                pRawSkeleton = gltf::ReadSkeleton( sourceFilePath, skeletonRootBoneName );
-            }
-            else
-            {
-                char buffer[512];
-                Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
-                ctx.m_errorDelegate( buffer );
-            }
-
-            //-------------------------------------------------------------------------
-
-            if ( !ValidateRawAsset( ctx, pRawSkeleton.get() ) )
-            {
-                pRawSkeleton = nullptr;
-            }
-
-            //-------------------------------------------------------------------------
-
-            return pRawSkeleton;
+            pRawMesh = nullptr;
         }
 
-        TUniquePtr<RawAssets::RawAnimation> ReadAnimation( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName )
+        //-------------------------------------------------------------------------
+
+        return pRawMesh;
+    }
+
+    TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName )
+    {
+        KRG_ASSERT( sourceFilePath.IsValid() && ctx.IsValid() );
+
+        TUniquePtr<RawAssets::RawSkeleton> pRawSkeleton = nullptr;
+
+        auto const extension = sourceFilePath.GetExtension();
+        if ( extension == "fbx" )
         {
-            KRG_ASSERT( ctx.IsValid() && sourceFilePath.IsValid() && rawSkeleton.IsValid() );
-
-            TUniquePtr<RawAssets::RawAnimation> pRawAnimation = nullptr;
-
-            if( sourceFilePath.GetExtension() == "fbx" )
-            {
-                pRawAnimation = Fbx::ReadAnimation( sourceFilePath, rawSkeleton, animationName );
-            }
-            else if ( sourceFilePath.GetExtension() == "gltf" || sourceFilePath.GetExtension() == "glb" )
-            {
-                pRawAnimation = gltf::ReadAnimation( sourceFilePath, rawSkeleton, animationName );
-            }
-            else
-            {
-                char buffer[512];
-                Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
-                ctx.m_errorDelegate( buffer );
-            }
-
-            //-------------------------------------------------------------------------
-
-            pRawAnimation->Finalize();
-
-            //-------------------------------------------------------------------------
-
-            if ( !ValidateRawAsset( ctx, pRawAnimation.get() ) )
-            {
-                pRawAnimation = nullptr;
-            }
-
-            //-------------------------------------------------------------------------
-
-            return pRawAnimation;
+            pRawSkeleton = Fbx::ReadSkeleton( sourceFilePath, skeletonRootBoneName );
         }
+        else if ( extension == "gltf" || extension == "glb" )
+        {
+            pRawSkeleton = gltf::ReadSkeleton( sourceFilePath, skeletonRootBoneName );
+        }
+        else
+        {
+            char buffer[512];
+            Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
+            ctx.m_errorDelegate( buffer );
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( !ValidateRawAsset( ctx, pRawSkeleton.get() ) )
+        {
+            pRawSkeleton = nullptr;
+        }
+
+        //-------------------------------------------------------------------------
+
+        return pRawSkeleton;
+    }
+
+    TUniquePtr<RawAssets::RawAnimation> ReadAnimation( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, RawAssets::RawSkeleton const& rawSkeleton, String const& animationName )
+    {
+        KRG_ASSERT( ctx.IsValid() && sourceFilePath.IsValid() && rawSkeleton.IsValid() );
+
+        TUniquePtr<RawAssets::RawAnimation> pRawAnimation = nullptr;
+
+        auto const extension = sourceFilePath.GetExtension();
+        if ( extension == "fbx" )
+        {
+            pRawAnimation = Fbx::ReadAnimation( sourceFilePath, rawSkeleton, animationName );
+        }
+        else if ( extension == "gltf" || extension == "glb" )
+        {
+            pRawAnimation = gltf::ReadAnimation( sourceFilePath, rawSkeleton, animationName );
+        }
+        else
+        {
+            char buffer[512];
+            Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
+            ctx.m_errorDelegate( buffer );
+        }
+
+        //-------------------------------------------------------------------------
+
+        pRawAnimation->Finalize();
+
+        //-------------------------------------------------------------------------
+
+        if ( !ValidateRawAsset( ctx, pRawAnimation.get() ) )
+        {
+            pRawAnimation = nullptr;
+        }
+
+        //-------------------------------------------------------------------------
+
+        return pRawAnimation;
     }
 }
 

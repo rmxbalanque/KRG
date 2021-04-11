@@ -13,6 +13,27 @@
 #include "D:\Kruger\Code\Compilers\Render\Shaders\ShaderCompiler.h"
 
 //-------------------------------------------------------------------------
+// Enum Helper: KRG::Render::ShaderType
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    namespace TypeSystem
+    {
+        namespace EnumHelpers
+        {
+            class EnumHelper_KRG_Render_ShaderType
+            {
+            public:
+
+                static void RegisterEnum( TypeSystem::TypeRegistry& typeRegistry );
+                static void UnregisterEnum( TypeSystem::TypeRegistry& typeRegistry );
+            };
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
 // TypeHelper: KRG::Render::ShaderResourceDescriptor
 //-------------------------------------------------------------------------
 
@@ -21,7 +42,7 @@ namespace KRG
     template<class Archive>
     KRG_RESOURCECOMPILERS_RENDER_API void serialize( Archive& archive, KRG::Render::ShaderResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_shaderDataPath ) );
+        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_shaderType ), KRG_NVP( m_shaderDataPath ) );
     }
 
     //-------------------------------------------------------------------------
@@ -38,14 +59,14 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_resourceTypeID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceTypeID" );
+            propertyInfo.m_ID = StringID( "m_shaderType" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::ShaderType" );
             propertyInfo.m_parentTypeID = 1656199231;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
-            propertyInfo.m_offset = offsetof( KRG::Render::ShaderResourceDescriptor, m_resourceTypeID );
-            propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_shaderType;
+            propertyInfo.m_offset = offsetof( KRG::Render::ShaderResourceDescriptor, m_shaderType );
+            propertyInfo.m_size = sizeof( KRG::Render::ShaderType );
+            propertyInfo.m_flags.Set( 4 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 

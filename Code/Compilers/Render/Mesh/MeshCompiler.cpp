@@ -35,7 +35,7 @@ namespace KRG::Render
         for ( auto const& geometrySection : rawMesh.GetGeometrySections() )
         {
             // Add sub-mesh record
-            mesh.m_sections.push_back( Mesh::GeometrySection( numIndices, (uint32) geometrySection.m_indices.size() ) );
+            mesh.m_sections.push_back( Mesh::GeometrySection( StringID( geometrySection.m_name ), numIndices, (uint32) geometrySection.m_indices.size() ) );
 
             for ( auto idx : geometrySection.m_indices )
             {

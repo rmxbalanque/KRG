@@ -102,7 +102,7 @@ namespace KRG
             Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
             if ( archive.IsValid() )
             {
-                Resource::ResourceHeader hdr( VERSION, resourceDescriptor.m_resourceTypeID );
+                Resource::ResourceHeader hdr( VERSION, AnimationData::GetStaticResourceTypeID() );
                 hdr.AddInstallDependency( resourceDescriptor.m_pSkeleton.GetResourceID() );
                 archive << hdr << animData;
 

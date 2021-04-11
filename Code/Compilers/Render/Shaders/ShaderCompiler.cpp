@@ -1,6 +1,5 @@
 #ifdef _WIN32
 #include "ShaderCompiler.h"
-#include "System/Render/RenderShader.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
@@ -191,12 +190,12 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             String compileTarget;
-            if ( resourceDescriptor.m_resourceTypeID == VertexShader::GetStaticResourceTypeID() )
+            if ( resourceDescriptor.m_shaderType == ShaderType::Vertex )
             {
                 compileTarget = "vs_5_0";
                 pShader = KRG::New<VertexShader>();
             }
-            else if ( resourceDescriptor.m_resourceTypeID == PixelShader::GetStaticResourceTypeID() )
+            else if ( resourceDescriptor.m_shaderType == ShaderType::Pixel )
             {
                 compileTarget = "ps_5_0";
                 pShader = KRG::New<PixelShader>();
@@ -288,13 +287,14 @@ namespace KRG
             Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
             if ( archive.IsValid() )
             {
-                Resource::ResourceHeader hdr( VERSION, resourceDescriptor.m_resourceTypeID );
                 if ( pShader->GetPipelineStage() == PipelineStage::Pixel )
                 {
+                    Resource::ResourceHeader hdr( VERSION, PixelShader::GetStaticResourceTypeID() );
                     archive << hdr << *static_cast<PixelShader*>( pShader );
                 }
                 if ( pShader->GetPipelineStage() == PipelineStage::Vertex )
                 {
+                    Resource::ResourceHeader hdr( VERSION, PixelShader::GetStaticResourceTypeID() );
                     archive << hdr << *static_cast<VertexShader*>( pShader );
                 }
 

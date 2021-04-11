@@ -37,7 +37,7 @@ namespace KRG
                 return Error( "Incomplete or invalid material descriptor" );
             }
 
-            Resource::ResourceHeader hdr( VERSION, resourceDescriptor.m_resourceTypeID );
+            Resource::ResourceHeader hdr( VERSION, Material::GetStaticResourceTypeID() );
             Material material;
             material.m_pDiffuseTexture = resourceDescriptor.m_diffuseTexture;
             hdr.m_installDependencies.push_back( material.m_pDiffuseTexture.GetResourceID() );

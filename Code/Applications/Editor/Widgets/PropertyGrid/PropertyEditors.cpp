@@ -701,17 +701,27 @@ namespace KRG::TypeSystem::PG
         float const buttonWidth = 21;
         float const textWidth = availableWidth - buttonWidth - fullCellPaddingWidth - 4;
 
+        //-------------------------------------------------------------------------
+
+        DataPath const dataPath = propertyModel.GetValue<DataPath>();
+        String dataPathStr = dataPath.ToString();
+
+        //-------------------------------------------------------------------------
+
         ImGui::PushID( &propertyModel );
         {
             ImGui::SetNextItemWidth( textWidth );
-            ImGui::InputText( g_emptyLabel, const_cast<char*>( propertyModel.GetStringValue().c_str() ), propertyModel.GetStringValue().length(), ImGuiInputTextFlags_ReadOnly );
+            ImGui::InputText( g_emptyLabel, dataPathStr.data(), dataPathStr.length(), ImGuiInputTextFlags_ReadOnly );
 
             ImGui::SameLine( availableWidth - buttonWidth );
             if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
             {
-                DataPath const pickedDataPath = DataFilePicker::PickFile( ctx.m_sourceDataPath );
-                propertyModel.SetValue<DataPath>( pickedDataPath );
-                propertyUpdated = true;
+                DataPath pickedDataPath;
+                if ( DataFilePicker::PickFile( ctx.m_sourceDataPath, pickedDataPath ) )
+                {
+                    propertyModel.SetValue<DataPath>( pickedDataPath );
+                    propertyUpdated = true;
+                }
             }
         }
         ImGui::PopID();
@@ -832,9 +842,12 @@ namespace KRG::TypeSystem::PG
                     allowedResourceTypes.emplace_back( registeredResourceType.second );
                 }
 
-                DataPath const pickedDataPath = DataFilePicker::PickResourceFile( ctx.m_sourceDataPath, allowedResourceTypes );
-                propertyModel.SetValue<ResourceID>( pickedDataPath.IsValid() ? ResourceID( pickedDataPath ) : ResourceID() );
-                propertyUpdated = true;
+                DataPath pickedDataPath;
+                if ( DataFilePicker::PickResourceFile( ctx.m_sourceDataPath, allowedResourceTypes, pickedDataPath ) )
+                {
+                    propertyModel.SetValue<ResourceID>( ResourceID( pickedDataPath ) );
+                    propertyUpdated = true;
+                }
             }
         }
         ImGui::PopID();
@@ -879,9 +892,12 @@ namespace KRG::TypeSystem::PG
             ImGui::SameLine( 0, itemSpacing );
             if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
             {
-                DataPath const pickedDataPath = DataFilePicker::PickResourceFile( ctx.m_sourceDataPath, resourceTypeID );
-                propertyModel.SetValue<Resource::ResourcePtr>( pickedDataPath.IsValid() ? Resource::ResourcePtr( pickedDataPath ) : Resource::ResourcePtr() );
-                propertyUpdated = true;
+                DataPath pickedDataPath;
+                if ( DataFilePicker::PickResourceFile( ctx.m_sourceDataPath, resourceTypeID, pickedDataPath ) )
+                {
+                    propertyModel.SetValue<Resource::ResourcePtr>( Resource::ResourcePtr( pickedDataPath ) );
+                    propertyUpdated = true;
+                }
             }
         }
         ImGui::PopID();

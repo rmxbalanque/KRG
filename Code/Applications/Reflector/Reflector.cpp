@@ -93,7 +93,7 @@ namespace KRG
 
             bool Reflector::ParseSolution( FileSystem::Path const& slnPath )
             {
-                if ( !slnPath.IsValid() || slnPath.IsDirectoryPath() || slnPath.GetExtension() != "sln" || !slnPath.Exists() )
+                if ( !slnPath.IsValid() || slnPath.IsDirectoryPath() || !( slnPath.GetExtension() == "sln" ) || !slnPath.Exists() )
                 {
                     return LogError( "Invalid solution file name: %s", slnPath.c_str() );
                 }

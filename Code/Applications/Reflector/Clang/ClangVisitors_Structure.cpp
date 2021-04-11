@@ -13,11 +13,8 @@ namespace KRG
     {
         namespace Reflection
         {
-            struct FieldName
+            struct FieldTypeInfo
             {
-                String              m_name;
-                TVector<FieldName>  m_templateArgs;
-
                 inline void GetFlattenedTemplateArgs( String& flattenedArgs ) const
                 {
                     if ( !m_templateArgs.empty() )
@@ -49,30 +46,40 @@ namespace KRG
 
                     return true;
                 }
+
+                String                          m_name;
+                TVector<FieldTypeInfo>          m_templateArgs;
+                bool                            m_isConstantArray = false;
             };
 
-            static void GetFieldTypeName( ClangParserContext* pContext, TypeDescriptor* pType, CXType type, FieldName& name )
+            static void GetFieldTypeInfo( ClangParserContext* pContext, TypeDescriptor* pType, CXType type, FieldTypeInfo& info )
             {
-                auto const pFieldQualType = ClangUtils::GetQualType( type );
+                clang::QualType const fieldQualType = ClangUtils::GetQualType( type );
+
 
                 // Get typename
-                if ( !ClangUtils::GetQualifiedNameForType( pFieldQualType, name.m_name ) )
+                if ( !ClangUtils::GetQualifiedNameForType( fieldQualType, info.m_name ) )
                 {
                     String typeSpelling = ClangUtils::GetString( clang_getTypeSpelling( type ) );
-                    return pContext->LogError( "Failed to qualify typename for member: %s in class: %s and of type: %s", name.m_name.c_str(), pType->m_name.c_str(), typeSpelling.c_str() );
+                    return pContext->LogError( "Failed to qualify typename for member: %s in class: %s and of type: %s", info.m_name.c_str(), pType->m_name.c_str(), typeSpelling.c_str() );
                 }
 
-                if ( name.AllowsTemplateArguments() )
+                // Is this a constant array
+                info.m_isConstantArray = ( type.kind == CXType_ConstantArray );
+
+                // Get info for template types
+                if ( info.AllowsTemplateArguments() )
                 {
                     auto const numTemplateArguments = clang_Type_getNumTemplateArguments( type );
                     if ( numTemplateArguments > 0 )
                     {
                         // We only support one template arg for now
-                        auto const argType = clang_Type_getTemplateArgumentAsType( type, 0 );
+                        CXType const argType = clang_Type_getTemplateArgumentAsType( type, 0 );
 
-                        FieldName argName;
-                        GetFieldTypeName( pContext, pType, argType, argName );
-                        name.m_templateArgs.push_back( argName );
+                        FieldTypeInfo templateFieldInfo;
+                        templateFieldInfo.m_isConstantArray = ( argType.kind == CXType_ConstantArray );
+                        GetFieldTypeInfo( pContext, pType, argType, templateFieldInfo );
+                        info.m_templateArgs.push_back( templateFieldInfo );
                     }
                 }
             }
@@ -171,10 +178,10 @@ namespace KRG
                             // Get field typename
                             //-------------------------------------------------------------------------
 
-                            FieldName fieldName;
-                            GetFieldTypeName( pContext, pClass, type, fieldName );
-                            KRG_ASSERT( !fieldName.m_name.empty() );
-                            auto fieldTypeID = StringID( fieldName.m_name );
+                            FieldTypeInfo fieldTypeInfo;
+                            GetFieldTypeInfo( pContext, pClass, type, fieldTypeInfo );
+                            KRG_ASSERT( !fieldTypeInfo.m_name.empty() );
+                            auto fieldTypeID = StringID( fieldTypeInfo.m_name );
 
                             // Additional processing for special types
                             //-------------------------------------------------------------------------
@@ -185,27 +192,33 @@ namespace KRG
                                 propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsDynamicArray );
 
                                 // We need to remove the TVector type from the property info as we allow for templated types to be contained within arrays
-                                auto const& newName = fieldName.m_templateArgs.front();
-                                fieldName = newName;
-                                fieldTypeID = StringID( fieldName.m_name );
+                                FieldTypeInfo const& templateTypeInfo = fieldTypeInfo.m_templateArgs.front();
+                                fieldTypeInfo = templateTypeInfo;
+                                fieldTypeID = StringID( fieldTypeInfo.m_name );
+
+                                if ( fieldTypeInfo.m_isConstantArray )
+                                {
+                                    pContext->LogError( "We dont support arrays of arrays. Property: %s in class: %s", propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
+                                    return CXChildVisit_Break;
+                                }
                             }
                             else if ( fieldTypeID == GetCoreTypeID( CoreTypes::String ) )
                             {
                                 // We need to clear the template args since we have a type alias and clang is detected the template args for eastl::basic_string
-                                fieldName.m_templateArgs.clear();
+                                fieldTypeInfo.m_templateArgs.clear();
                             }
 
                             //-------------------------------------------------------------------------
 
                             // Set property typename and validate
                             // If it is a templated type, we only support one level of specialization for exposed properties, so flatten the type
-                            propertyDesc.m_typeName = fieldName.m_name;
+                            propertyDesc.m_typeName = fieldTypeInfo.m_name;
                             propertyDesc.m_typeID = fieldTypeID;
 
-                            if ( !fieldName.m_templateArgs.empty() )
+                            if ( !fieldTypeInfo.m_templateArgs.empty() )
                             {
                                 String flattenedArgs;
-                                fieldName.GetFlattenedTemplateArgs( flattenedArgs );
+                                fieldTypeInfo.GetFlattenedTemplateArgs( flattenedArgs );
                                 propertyDesc.m_templateArgTypeName = flattenedArgs;
                             }
 
@@ -244,6 +257,13 @@ namespace KRG
                                         pContext->LogError( "Unsupported type encountered: %s for bitflags property: %s in class: %s", propertyDesc.m_typeName.c_str(), propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
                                         return CXChildVisit_Break;
                                     }
+                                }
+
+                                // Arrays
+                                if ( propertyDesc.m_typeID == CoreTypes::TVector )
+                                {
+                                    pContext->LogError( "We dont support arrays of arrays. Property: %s in class: %s", propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
+                                    return CXChildVisit_Break;
                                 }
                             }
                             else // Non-Core Types

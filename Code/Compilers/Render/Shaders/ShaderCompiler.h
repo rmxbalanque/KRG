@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
+#include "System/Render/RenderShader.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,11 +10,23 @@ namespace KRG
 {
     namespace Render
     {
+        enum class ShaderType : uint8
+        {
+            KRG_REGISTER_ENUM
+
+            Vertex = 0,
+            Geometry,
+            Pixel,
+            Hull,
+            Compute,
+        };
+
         struct ShaderResourceDescriptor : public Resource::ResourceDescriptor
         {
             KRG_REGISTER_TYPE;
 
-            EXPOSE DataPath m_shaderDataPath;
+            EXPOSE ShaderType           m_shaderType = ShaderType::Vertex;
+            EXPOSE DataPath             m_shaderDataPath;
         };
 
         //-------------------------------------------------------------------------

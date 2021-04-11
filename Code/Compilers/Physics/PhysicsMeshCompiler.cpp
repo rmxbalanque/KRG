@@ -126,7 +126,7 @@ namespace KRG
             Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
             if ( archive.IsValid() )
             {
-                Resource::ResourceHeader hdr( VERSION, resourceDescriptor.m_resourceTypeID );
+                Resource::ResourceHeader hdr( VERSION, PhysicsMesh::GetStaticResourceTypeID() );
                 archive << hdr << physicsMesh;
 
                 // Serialize the mesh data separately

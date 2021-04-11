@@ -3,6 +3,7 @@
 #include "Applications/Editor/EditorTool.h"
 #include "Applications/Editor/Widgets/PropertyGrid/PropertyGrid.h"
 #include "Tools/Core/TypeSystem/TypeInstanceModel.h"
+#include "Tools/Resource/RawAssets/RawAssetInfo.h"
 
 //-------------------------------------------------------------------------
 
@@ -19,9 +20,21 @@ namespace KRG::Render::MeshEditor
 
     private:
 
-        void DrawBrowser( UpdateContext const& context );
-        void DrawInfoPanel( UpdateContext const& context );
+        // Data browser
         void UpdateVisibility();
+        void DrawBrowser( UpdateContext const& context );
+
+        // Info Panel
+        //-------------------------------------------------------------------------
+
+        bool IsInspectedFileARawFile() const;
+
+        bool OpenInspectedResourceFile( UpdateContext const& context );
+        bool SaveInspectedResourceFile( UpdateContext const& context );
+
+        void DrawInfoPanel( UpdateContext const& context );
+        void DrawResourceFileInfo( UpdateContext const& context );
+        void DrawRawFileInfo( UpdateContext const& context );
 
     private:
 
@@ -32,8 +45,10 @@ namespace KRG::Render::MeshEditor
         bool                                m_showRawFiles = false;
 
         // Info
-        FileSystem::Path                    m_inspectedFile;
+        FileSystem::Path                    m_inspectedPath;
         TypeSystem::PropertyGrid            m_propertyGrid;
         TypeSystem::TypeInstanceModel       m_typeInstance;
+        RawAssets::RawAssetInfo             m_assetInfo;
+        bool                                m_validAssetInfo;
     };
 }

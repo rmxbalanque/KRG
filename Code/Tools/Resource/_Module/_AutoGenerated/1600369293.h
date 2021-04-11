@@ -21,7 +21,6 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_RESOURCE_API void serialize( Archive& archive, KRG::Resource::ResourceDescriptor& type )
     {
-        archive( KRG_NVP( m_resourceTypeID ) );
     }
 
     //-------------------------------------------------------------------------
@@ -35,19 +34,6 @@ namespace KRG
             KRG::Resource::ResourceDescriptor const* pActualDefaultTypeInstance = ( KRG::Resource::ResourceDescriptor const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_resourceTypeID" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceTypeID" );
-            propertyInfo.m_parentTypeID = 2754054732;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
-            propertyInfo.m_offset = offsetof( KRG::Resource::ResourceDescriptor, m_resourceTypeID );
-            propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.Set( 0 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------
@@ -78,7 +64,6 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Resource::ResourceDescriptor> >( DefaultTypeInstancePtr );
                     KRG::Resource::ResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 

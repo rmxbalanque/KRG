@@ -61,7 +61,7 @@ namespace KRG::Render
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            Resource::ResourceHeader hdr( VERSION, resourceDescriptor.m_resourceTypeID );
+            Resource::ResourceHeader hdr( VERSION, SkeletalMesh::GetStaticResourceTypeID() );
 
             SetMeshInstallDependencies( skeletalMesh, hdr );
 

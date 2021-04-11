@@ -11,6 +11,7 @@
 namespace KRG::TypeSystem
 {
     class TypeInstanceModel;
+    class PropertyInstanceModel;
     class TypeRegistry;
 
     //-------------------------------------------------------------------------
@@ -41,10 +42,17 @@ namespace KRG::TypeSystem
 
     private:
 
-        TypeRegistry const&                                         m_typeRegistry;
-        String                                                      m_scratchBuffer = String( 256, '0' );
-        Serialization::RapidJsonStringBuffer                        m_stringBuffer;
-        rapidjson::Writer<Serialization::RapidJsonStringBuffer>     m_writer = rapidjson::Writer<Serialization::RapidJsonStringBuffer>( m_stringBuffer );
-        int32                                                       m_numTypesSerialized = 0;
+        void SerializeStructure( PropertyInstanceModel const& propertyModel );
+        void SerializeProperty( PropertyInstanceModel const& propertyModel );
+        void SerializeArray( PropertyInstanceModel const& propertyModel );
+        void SerializeCoreType( PropertyInstanceModel const& propertyModel );
+
+    private:
+
+        TypeRegistry const&                                             m_typeRegistry;
+        String                                                          m_scratchBuffer = String( 256, '0' );
+        Serialization::RapidJsonStringBuffer                            m_stringBuffer;
+        rapidjson::PrettyWriter<Serialization::RapidJsonStringBuffer>   m_writer = rapidjson::PrettyWriter<Serialization::RapidJsonStringBuffer>( m_stringBuffer );
+        int32                                                           m_numTypesSerialized = 0;
     };
 }

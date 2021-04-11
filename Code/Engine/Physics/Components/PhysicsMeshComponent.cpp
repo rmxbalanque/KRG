@@ -6,6 +6,13 @@ namespace KRG::Physics
 {
     bool PhysicsMeshComponent::HasValidPhysicsSetup() const
     {
+        if ( !m_pPhysicsMesh.IsValid() )
+        {
+            return false;
+        }
+
+        KRG_ASSERT( m_pPhysicsMesh.IsLoaded() );
+
         if ( !m_pPhysicsMesh->IsValid() )
         {
             KRG_LOG_ERROR( "Physics", "Invalid collision mesh on Physics Mesh Component: %s (%s)", GetName().c_str(), GetID().ToString().c_str() );
@@ -31,5 +38,12 @@ namespace KRG::Physics
         }
 
         return materials;
+    }
+
+    void PhysicsMeshComponent::Initialize()
+    {
+        PhysicsComponent::Initialize();
+
+        KRG_ASSERT( !m_pPhysicsMesh.IsValid() || m_pPhysicsMesh.IsLoaded() );
     }
 }

@@ -298,12 +298,12 @@ namespace KRG::FileSystem
         return _stricmp( inExtension, &m_fullpath.at( extensionIdx ) ) == 0;
     }
 
-    String Path::GetExtension() const
+    StringView Path::GetExtension() const
     {
         KRG_ASSERT( IsValid() && IsFilePath() );
         size_t const extIdx = FindExtensionStartIdx( m_fullpath );
         KRG_ASSERT( extIdx != String::npos );
-        return m_fullpath.substr( extIdx, m_fullpath.length() - extIdx );
+        return &m_fullpath[extIdx];
     }
 
     void Path::ReplaceExtension( const char* pExtension )

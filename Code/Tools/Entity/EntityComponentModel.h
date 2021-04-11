@@ -90,7 +90,7 @@ namespace KRG::EntityModel
         inline TypeSystem::PropertyInstanceModel* GetProperty( TypeSystem::PropertyPath const& path, bool allowDynamicArrayElementCreation = false ) { return m_typeInstance.GetProperty( path, allowDynamicArrayElementCreation ); }
         inline TypeSystem::PropertyInstanceModel const* GetProperty( StringID propertyID ) const { return m_typeInstance.GetProperty( propertyID ); }
         inline TypeSystem::PropertyInstanceModel const* GetProperty( TypeSystem::PropertyPath const& path ) const { return m_typeInstance.GetProperty( path ); }
-        TVector<TypeSystem::PropertyInstanceModel*> const& GetProperties() const { return m_typeInstance.GetProperties(); }
+        TVector<TypeSystem::PropertyInstanceModel> const& GetProperties() const { return m_typeInstance.GetProperties(); }
 
         // Child components
         //-------------------------------------------------------------------------
