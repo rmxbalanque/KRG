@@ -35,10 +35,11 @@ namespace KRG::TypeSystem
     {
         PropertyInfo const* pProperty = nullptr;
 
-        auto propertyIter = m_properties.find( propertyID );
-        if ( propertyIter != m_properties.end() )
+        auto propertyIter = m_propertyMap.find( propertyID );
+        if ( propertyIter != m_propertyMap.end() )
         {
-            pProperty = &propertyIter->second;
+            int32 const propertyIdx = propertyIter->second;
+            pProperty = &m_properties[propertyIdx];
         }
 
         return pProperty;

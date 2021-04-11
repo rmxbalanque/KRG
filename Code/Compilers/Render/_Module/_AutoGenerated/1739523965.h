@@ -46,7 +46,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::SkeletalMeshResourceDescriptor, m_meshDataPath );
             propertyInfo.m_size = sizeof( KRG::DataPath );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -61,7 +62,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
             propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
             propertyInfo.m_flags.Set( 2 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -73,7 +75,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::SkeletalMeshResourceDescriptor, m_resourceTypeID );
             propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -85,7 +88,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::SkeletalMeshResourceDescriptor, m_meshName );
             propertyInfo.m_size = sizeof( KRG::String );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------

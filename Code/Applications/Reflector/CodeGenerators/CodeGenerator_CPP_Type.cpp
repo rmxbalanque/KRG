@@ -571,7 +571,8 @@ namespace KRG
                     }
 
                     file << "            propertyInfo.m_flags.Set( " << prop.m_flags << " );\n";
-                    file << "            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );\n";
+                    file << "            m_properties.emplace_back( propertyInfo );\n";
+                    file << "            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );\n";
                 }
             };
 

@@ -31,7 +31,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        inline void GetString( char outStr[4] ) const
+        inline void GetString( char outStr[5] ) const
         {
             int32 idx = 0;
 

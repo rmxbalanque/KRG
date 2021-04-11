@@ -3,6 +3,7 @@
 #include "Tools/Core/_Module/API.h"
 #include "System/TypeSystem/PropertyPath.h"
 #include "System/TypeSystem/PropertyInfo.h"
+#include "System/TypeSystem/EnumInfo.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/CoreTypeIDs.h"
 #include "System/TypeSystem/CoreTypeConversions.h"
@@ -48,7 +49,7 @@ namespace KRG::TypeSystem
     struct TypeInstanceDescriptor
     {
         TypeID                                          m_typeID;
-        TVector<PropertyInstanceDescriptor>         m_properties;
+        TVector<PropertyInstanceDescriptor>             m_properties;
     };
 
     //-------------------------------------------------------------------------
@@ -63,8 +64,10 @@ namespace KRG::TypeSystem
 
         // Default and property only constructors, type constructors are private
         PropertyInstanceModel() = default;
-        PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo );
-        PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo, String const& stringValue );
+        PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInstanceModel* pParentProperty, PropertyInfo const& propertyInfo );
+        PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInstanceModel* pParentProperty, PropertyInfo const& propertyInfo, String const& stringValue );
+
+        virtual ~PropertyInstanceModel();
 
         // Info
         //-------------------------------------------------------------------------
@@ -72,6 +75,7 @@ namespace KRG::TypeSystem
         virtual bool IsValid() const { return m_pTypeRegistry != nullptr && m_propertyInfo.IsValid(); }
         inline StringID const& GetID() const { return m_propertyInfo.m_ID; }
         inline char const* GetFriendlyName() const { return m_friendlyName.c_str(); }
+        inline char const* GetFriendlyTypeName() const { return m_friendlyTypeName.c_str(); }
 
         // Type Info
         //-------------------------------------------------------------------------
@@ -90,10 +94,12 @@ namespace KRG::TypeSystem
         // Property Access
         //-------------------------------------------------------------------------
 
+        inline PropertyInstanceModel* GetParentProperty() const { return m_pParentProperty; }
+
         inline bool HasProperties() const { return !m_childProperties.empty(); }
         inline int32 GetNumProperties() const { return (int32) m_childProperties.size(); }
-        inline TVector<PropertyInstanceModel>& GetProperties() { return m_childProperties; }
-        inline TVector<PropertyInstanceModel> const& GetProperties() const { return m_childProperties; }
+        inline TVector<PropertyInstanceModel*>& GetProperties() { return m_childProperties; }
+        inline TVector<PropertyInstanceModel*> const& GetProperties() const { return m_childProperties; }
 
         PropertyInstanceModel* GetProperty( PropertyPath const& path, bool allowDynamicArrayElementCreation = false );
         inline PropertyInstanceModel const* GetProperty( PropertyPath const& path ) const { return const_cast<PropertyInstanceModel*>( this )->GetProperty( path ); }
@@ -104,9 +110,12 @@ namespace KRG::TypeSystem
         // Enums
         //-------------------------------------------------------------------------
 
+        EnumInfo const* GetEnumInfo() const;
+        int64 GetEnumValue() const { return GetIntForEnumStringValue( m_value.c_str() ); }
+        int32 GetNumEnumValues() const;
         TVector<char const*> GetEnumValues() const;
-        int64 GetIntForEnumStringValue( char const* pString );
-        char const* GetStringValueForEnumValue( int64 value );
+        int64 GetIntForEnumStringValue( char const* pString ) const;
+        char const* GetStringValueForEnumValue( int64 value ) const;
 
         // Resource values
         //-------------------------------------------------------------------------
@@ -148,13 +157,13 @@ namespace KRG::TypeSystem
         inline PropertyInstanceModel& GetArrayElement( int32 elementIdx )
         {
             KRG_ASSERT( IsArray() );
-            return m_childProperties[elementIdx];
+            return *m_childProperties[elementIdx];
         }
 
         inline PropertyInstanceModel const& GetArrayElement( int32 elementIdx ) const
         {
             KRG_ASSERT( IsArray() );
-            return m_childProperties[elementIdx];
+            return *m_childProperties[elementIdx];
         }
 
         void SetNumArrayElements( int32 numElements );
@@ -225,13 +234,15 @@ namespace KRG::TypeSystem
     protected:
 
         TypeRegistry const*                                 m_pTypeRegistry = nullptr;
+        PropertyInstanceModel*                              m_pParentProperty = nullptr;
         PropertyInfo                                        m_propertyInfo; // Only valid for actual properties
         TypeInfo const*                                     m_pTypeInfo = nullptr;  // If this is a struct/class instance, we stored the type info here
         int32                                               m_arrayElementIdx = InvalidIndex; // Only set if this is an element in an array
         String                                              m_friendlyName;
+        String                                              m_friendlyTypeName;
         String                                              m_value;
         String                                              m_defaultValue;
-        TVector<PropertyInstanceModel>                       m_childProperties;
+        TVector<PropertyInstanceModel*>                     m_childProperties;
     };
 
     //-------------------------------------------------------------------------

@@ -195,10 +195,8 @@ namespace KRG::TypeSystem
 
         //-------------------------------------------------------------------------
 
-        for ( auto const& propInfoPair : pTypeInfo->m_properties )
+        for ( auto const& propInfo : pTypeInfo->m_properties )
         {
-            PropertyInfo const& propInfo = propInfoPair.second;
-
             // Read Arrays
             auto pPropertyDataAddress = propInfo.GetPropertyAddress( pTypeData );
             if ( propInfo.IsArrayProperty() )

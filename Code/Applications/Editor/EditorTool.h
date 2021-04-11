@@ -1,4 +1,6 @@
 #pragma once
+
+#include "EditorModel.h"
 #include "System/DevTools/ImguiX.h"
 
 //-------------------------------------------------------------------------
@@ -14,9 +16,12 @@ namespace KRG
     // Editor Tool
     //-------------------------------------------------------------------------
     // Base class for an editor tool (a window or logical set of windows), helps to manage common window state
+    // DO NOT DERIVED FROM THIS CLASS - derive from 'TEditorTool' instead
 
     class EditorTool
     {
+        template<typename ModelType> friend class TEditorTool;
+
     public:
 
         virtual ~EditorTool() {}
@@ -34,8 +39,31 @@ namespace KRG
         void Open() { m_isOpen = true; }
         void Close() { m_isOpen = false; }
 
+    private:
+
+        EditorTool() = default;
+
     protected:
 
         bool m_isOpen = false;
+    };
+
+    //-------------------------------------------------------------------------
+
+    template<typename ModelType>
+    class TEditorTool : public EditorTool
+    {
+    public:
+
+        TEditorTool( EditorModel* pModel )
+            : EditorTool()
+            , m_model( static_cast<ModelType&>( *pModel ) )
+        {
+            KRG_ASSERT( pModel != nullptr );
+        }
+
+    protected:
+
+        ModelType&  m_model;
     };
 }

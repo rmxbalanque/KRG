@@ -1,5 +1,4 @@
 #include "TypeInstanceModel.h"
-#include "System/TypeSystem/EnumInfo.h"
 #include "System/TypeSystem/CoreTypeConversions.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
@@ -72,18 +71,34 @@ namespace KRG::TypeSystem
     // PROPERTY INSTANCE
     //-------------------------------------------------------------------------
 
-    PropertyInstanceModel::PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo )
+    PropertyInstanceModel::PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInstanceModel* pParentProperty, PropertyInfo const& propertyInfo )
         : m_propertyInfo( propertyInfo )
         , m_pTypeRegistry( &typeRegistry )
+        , m_pParentProperty( pParentProperty )
     {
         KRG_ASSERT( propertyInfo.IsValid() );
+        KRG_ASSERT( m_pParentProperty != nullptr );
 
+        // Friendly names
         //-------------------------------------------------------------------------
 
         m_friendlyName = m_propertyInfo.m_ID.c_str();
-        m_friendlyName = StringUtils::RemoveAllOccurrencesInPlace( StringUtils::RemoveAllOccurrencesInPlace( m_friendlyName, "m_p" ), "m_" );
+        if ( m_propertyInfo.m_typeID == CoreTypes::TResourcePtr )
+        {
+            m_friendlyName = StringUtils::RemoveAllOccurrencesInPlace( StringUtils::RemoveAllOccurrencesInPlace( m_friendlyName, "m_p" ), "m_" );
+        }
+        else
+        {
+            m_friendlyName = StringUtils::RemoveAllOccurrencesInPlace( m_friendlyName, "m_" );
+        }
         m_friendlyName[0] = (char) toupper( m_friendlyName[0] );
 
+        //-------------------------------------------------------------------------
+
+        m_friendlyTypeName = propertyInfo.m_typeID.GetAsStringID().c_str();
+        StringUtils::RemoveAllOccurrencesInPlace( m_friendlyTypeName, "KRG::" );
+
+        // Properties
         //-------------------------------------------------------------------------
 
         if ( IsArray() )
@@ -112,14 +127,14 @@ namespace KRG::TypeSystem
                 // Create property instances
                 for ( auto const& childPropertyInfo : m_pTypeInfo->m_properties )
                 {
-                    m_childProperties.emplace_back( PropertyInstanceModel( typeRegistry, childPropertyInfo.second ) );
+                    m_childProperties.emplace_back( KRG::New<PropertyInstanceModel>( typeRegistry, this, childPropertyInfo ) );
                 }
             }
         }
     }
 
-    PropertyInstanceModel::PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo, String const& stringValue )
-        : PropertyInstanceModel( typeRegistry, propertyInfo )
+    PropertyInstanceModel::PropertyInstanceModel( TypeRegistry const& typeRegistry, PropertyInstanceModel* pParentProperty, PropertyInfo const& propertyInfo, String const& stringValue )
+        : PropertyInstanceModel( typeRegistry, pParentProperty, propertyInfo )
     {
         KRG_ASSERT( ( IsCoreType() || IsEnum() ) && !stringValue.empty() );
         m_value = stringValue;
@@ -135,8 +150,18 @@ namespace KRG::TypeSystem
         // Create property instances
         for ( auto const& childPropertyInfo : m_pTypeInfo->m_properties )
         {
-            m_childProperties.emplace_back( PropertyInstanceModel( typeRegistry, childPropertyInfo.second ) );
+            m_childProperties.emplace_back( KRG::New<PropertyInstanceModel>( typeRegistry, this, childPropertyInfo ) );
         }
+    }
+
+    PropertyInstanceModel::~PropertyInstanceModel()
+    {
+        for ( auto& pChildProperty : m_childProperties )
+        {
+            KRG::Delete( pChildProperty );
+        }
+
+        m_childProperties.clear();
     }
 
     //-------------------------------------------------------------------------
@@ -166,11 +191,11 @@ namespace KRG::TypeSystem
         //-------------------------------------------------------------------------
 
         auto const& pathElement = path.FirstElement();
-        for ( auto& childProperty : m_childProperties )
+        for ( auto& pChildProperty : m_childProperties )
         {
-            if ( childProperty.GetID() == pathElement.m_propertyID )
+            if ( pChildProperty->GetID() == pathElement.m_propertyID )
             {
-                pFoundPropertyInstance = &childProperty;
+                pFoundPropertyInstance = pChildProperty;
                 break;
             }
         }
@@ -244,11 +269,11 @@ namespace KRG::TypeSystem
     {
         KRG_ASSERT( !m_propertyInfo.IsArrayProperty() );
 
-        for ( auto& childProperty : m_childProperties )
+        for ( auto& pChildProperty : m_childProperties )
         {
-            if ( childProperty.GetID() == propertyID )
+            if ( pChildProperty->GetID() == propertyID )
             {
-                return &childProperty;
+                return pChildProperty;
             }
         }
 
@@ -256,6 +281,26 @@ namespace KRG::TypeSystem
     }
 
     //-------------------------------------------------------------------------
+
+    EnumInfo const* PropertyInstanceModel::GetEnumInfo() const
+    {
+        KRG_ASSERT( IsEnum() );
+
+        auto const pEnumInfo = m_pTypeRegistry->GetEnumInfo( GetTypeID() );
+        KRG_ASSERT( pEnumInfo != nullptr );
+
+        return pEnumInfo;
+    }
+
+    int32 PropertyInstanceModel::GetNumEnumValues() const
+    {
+        KRG_ASSERT( IsEnum() );
+
+        auto const pEnumInfo = m_pTypeRegistry->GetEnumInfo( GetTypeID() );
+        KRG_ASSERT( pEnumInfo != nullptr );
+        return (int32) pEnumInfo->m_constants.size();
+
+    }
 
     TVector<char const*> PropertyInstanceModel::GetEnumValues() const
     {
@@ -273,7 +318,7 @@ namespace KRG::TypeSystem
         return outValues;
     }
 
-    int64 PropertyInstanceModel::GetIntForEnumStringValue( char const* pString )
+    int64 PropertyInstanceModel::GetIntForEnumStringValue( char const* pString ) const
     {
         KRG_ASSERT( IsEnum() );
 
@@ -282,7 +327,7 @@ namespace KRG::TypeSystem
         return pEnumInfo->GetConstantValue( StringID( pString ) );
     }
 
-    char const* PropertyInstanceModel::GetStringValueForEnumValue( int64 value )
+    char const* PropertyInstanceModel::GetStringValueForEnumValue( int64 value ) const
     {
         KRG_ASSERT( IsEnum() );
 
@@ -335,7 +380,7 @@ namespace KRG::TypeSystem
         arrayElementInfo.m_flags.ClearFlag( PropertyInfo::Flags::IsArray );
         arrayElementInfo.m_flags.ClearFlag( PropertyInfo::Flags::IsDynamicArray );
         arrayElementInfo.m_ID = StringID( String().sprintf( "m_%d", newArrayElementIdx ) );
-
+        
         //-------------------------------------------------------------------------
 
         // If this is one of the defaults elements, set the correct default values
@@ -345,7 +390,7 @@ namespace KRG::TypeSystem
             {
                 String arrayElementDefaultStringValue;
                 Conversion::ConvertNativeTypeToString( *m_pTypeRegistry, m_propertyInfo, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ), arrayElementDefaultStringValue );
-                pAddedArrayElement = &m_childProperties.emplace_back( PropertyInstanceModel( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
+                pAddedArrayElement = m_childProperties.emplace_back( KRG::New<PropertyInstanceModel>( *m_pTypeRegistry, this, arrayElementInfo, arrayElementDefaultStringValue ) );
             }
             else if ( m_propertyInfo.IsEnumProperty() )
             {
@@ -353,16 +398,16 @@ namespace KRG::TypeSystem
                 KRG_ASSERT( pEnumInfo != nullptr );
 
                 String arrayElementDefaultStringValue = GetEnumStringValue( pEnumInfo, m_propertyInfo.GetArrayDefaultElementPtr( newArrayElementIdx ) );
-                pAddedArrayElement = &m_childProperties.emplace_back( PropertyInstanceModel( *m_pTypeRegistry, arrayElementInfo, arrayElementDefaultStringValue ) );
+                pAddedArrayElement = m_childProperties.emplace_back( KRG::New<PropertyInstanceModel>( *m_pTypeRegistry, this, arrayElementInfo, arrayElementDefaultStringValue ) );
             }
             else
             {
-                pAddedArrayElement = &m_childProperties.emplace_back( PropertyInstanceModel( *m_pTypeRegistry, arrayElementInfo ) );
+                pAddedArrayElement = m_childProperties.emplace_back( KRG::New<PropertyInstanceModel>( *m_pTypeRegistry, this, arrayElementInfo ) );
             }
         }
         else
         {
-            pAddedArrayElement = &m_childProperties.emplace_back( PropertyInstanceModel( *m_pTypeRegistry, arrayElementInfo ) );
+            pAddedArrayElement = m_childProperties.emplace_back( KRG::New<PropertyInstanceModel>( *m_pTypeRegistry, this, arrayElementInfo ) );
         }
 
         //-------------------------------------------------------------------------
@@ -413,13 +458,16 @@ namespace KRG::TypeSystem
         KRG_ASSERT( IsValid() );
         KRG_ASSERT( IsDynamicArray() );
         KRG_ASSERT( elementIdx >= 0 && elementIdx < m_childProperties.size() );
+
+        KRG::Delete( m_childProperties[elementIdx] );
         m_childProperties.erase( m_childProperties.begin() + elementIdx );
 
         // Fix up array element IDs and indices
         for ( int32 i = elementIdx; i < (int32) m_childProperties.size(); i++ )
         {
-            m_childProperties[i].m_propertyInfo.m_ID = StringID( String().sprintf( "m_%d", i ) );
-            m_childProperties[i].m_arrayElementIdx = i;
+            m_childProperties[i]->m_propertyInfo.m_ID = StringID( String().sprintf( "m_%d", i ) );
+            m_childProperties[i]->m_friendlyName = String().sprintf( "%d", i );
+            m_childProperties[i]->m_arrayElementIdx = i;
         }
     }
 
@@ -467,7 +515,7 @@ namespace KRG::TypeSystem
                 {
                     String defaultElementValue;
                     Conversion::ConvertNativeTypeToString( *m_pTypeRegistry, m_propertyInfo, m_propertyInfo.GetArrayDefaultElementPtr( i ), defaultElementValue );
-                    if ( m_childProperties[i].GetStringValue() != defaultElementValue )
+                    if ( m_childProperties[i]->GetStringValue() != defaultElementValue )
                     {
                         return false;
                     }
@@ -478,7 +526,7 @@ namespace KRG::TypeSystem
                     KRG_ASSERT( pEnumInfo != nullptr );
 
                     String defaultElementValue = GetEnumStringValue( pEnumInfo, m_propertyInfo.GetArrayDefaultElementPtr( i ) );
-                    if ( m_childProperties[i].GetStringValue() != defaultElementValue )
+                    if ( m_childProperties[i]->GetStringValue() != defaultElementValue )
                     {
                         return false;
                     }
@@ -488,9 +536,9 @@ namespace KRG::TypeSystem
 
         //-------------------------------------------------------------------------
 
-        for ( auto const& childProperty : m_childProperties )
+        for ( auto const& pChildProperty : m_childProperties )
         {
-            if ( !childProperty.IsDefaultValue() )
+            if ( !pChildProperty->IsDefaultValue() )
             {
                 return false;
             }
@@ -516,9 +564,9 @@ namespace KRG::TypeSystem
 
         //-------------------------------------------------------------------------
 
-        for ( auto& childProperty : m_childProperties )
+        for ( auto& pChildProperty : m_childProperties )
         {
-            childProperty.ResetToDefaultValue();
+            pChildProperty->ResetToDefaultValue();
         }
     }
 
@@ -528,9 +576,9 @@ namespace KRG::TypeSystem
 
     namespace
     {
-        static void FlattenProperties( PropertyInstanceModel const& propertyInstance, PropertyPath const& currentPath, TVector<PropertyInstanceDescriptor>& outProperties )
+        static void FlattenProperties( PropertyInstanceModel const* pPropertyInstance, PropertyPath const& currentPath, TVector<PropertyInstanceDescriptor>& outProperties )
         {
-            if ( propertyInstance.IsDefaultValue() )
+            if ( pPropertyInstance->IsDefaultValue() )
             {
                 return;
             }
@@ -538,35 +586,35 @@ namespace KRG::TypeSystem
             //-------------------------------------------------------------------------
 
             PropertyPath propertyPath = currentPath;
-            if ( propertyInstance.IsArrayElement() )
+            if ( pPropertyInstance->IsArrayElement() )
             {
-                propertyPath.ReplaceLastElement( propertyPath.GetLastElement().m_propertyID, propertyInstance.GetArrayElementIndex() );
+                propertyPath.ReplaceLastElement( propertyPath.GetLastElement().m_propertyID, pPropertyInstance->GetArrayElementIndex() );
             }
             else
             {
-                propertyPath += propertyInstance.GetID();
+                propertyPath += pPropertyInstance->GetID();
             }
 
             //-------------------------------------------------------------------------
 
-            if ( propertyInstance.IsArray() )
+            if ( pPropertyInstance->IsArray() )
             {
                 // Flatten array elements
-                for ( auto const& childProperty : propertyInstance.GetProperties() )
+                for ( auto const& pChildProperty : pPropertyInstance->GetProperties() )
                 {
-                    FlattenProperties( childProperty, propertyPath, outProperties );
+                    FlattenProperties( pChildProperty, propertyPath, outProperties );
                 }
             }
-            else if ( propertyInstance.IsStructure() )
+            else if ( pPropertyInstance->IsStructure() )
             {
-                for ( auto const& childProperty : propertyInstance.GetProperties() )
+                for ( auto const& childProperty : pPropertyInstance->GetProperties() )
                 {
                     FlattenProperties( childProperty, propertyPath, outProperties );
                 }
             }
             else // Core Types/Enums
             {
-                outProperties.push_back( PropertyInstanceDescriptor( propertyPath, propertyInstance.GetStringValue(), propertyInstance.GetTypeID(), propertyInstance.GetTemplatedArgumentTypeID() ) );
+                outProperties.push_back( PropertyInstanceDescriptor( propertyPath, pPropertyInstance->GetStringValue(), pPropertyInstance->GetTypeID(), pPropertyInstance->GetTemplatedArgumentTypeID() ) );
             }
         }
     }
@@ -600,9 +648,9 @@ namespace KRG::TypeSystem
 
         // Get all properties that have a non-default value set
         PropertyPath path;
-        for ( auto const& propertyInstance : m_childProperties )
+        for ( auto const& pPropertyInstance : m_childProperties )
         {
-            FlattenProperties( propertyInstance, path, descriptor.m_properties );
+            FlattenProperties( pPropertyInstance, path, descriptor.m_properties );
         }
 
         return descriptor;

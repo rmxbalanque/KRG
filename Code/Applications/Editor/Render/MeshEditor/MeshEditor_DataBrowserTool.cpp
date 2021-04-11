@@ -2,7 +2,7 @@
 #include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelReader.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
-#include "System/DevTools/CommonWidgets/CommonWidgets.h"
+#include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
@@ -120,9 +120,9 @@ namespace KRG::Render::MeshEditor
 
     //-------------------------------------------------------------------------
 
-    DataBrowser::DataBrowser( Model& model )
-        : m_model( model )
-        , m_propertyGrid( model.GetTypeRegistry() )
+    DataBrowser::DataBrowser( EditorModel* pModel )
+        : TEditorTool<Model>( pModel )
+        , m_propertyGrid( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
     {
         UpdateVisibility();
     }
@@ -131,7 +131,7 @@ namespace KRG::Render::MeshEditor
 
     void DataBrowser::UpdateVisibility()
     {
-        auto func = [this] ( DataFileModel const& file )
+        auto VisibilityFunc = [this] ( DataFileModel const& file )
         {
             bool isVisible = false;
 
@@ -182,7 +182,7 @@ namespace KRG::Render::MeshEditor
 
         //-------------------------------------------------------------------------
 
-        m_model.GetDataBrowser().UpdateFileVisibility( func );
+        m_model.GetDataBrowser().UpdateFileVisibility( VisibilityFunc );
     }
 
     //-------------------------------------------------------------------------

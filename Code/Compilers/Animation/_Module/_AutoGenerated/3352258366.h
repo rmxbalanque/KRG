@@ -46,7 +46,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationResourceDescriptor, m_resourceTypeID );
             propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -58,7 +59,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationResourceDescriptor, m_animationDataPath );
             propertyInfo.m_size = sizeof( KRG::DataPath );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -70,7 +72,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationResourceDescriptor, m_pSkeleton );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::Skeleton> );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -82,7 +85,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationResourceDescriptor, m_animationName );
             propertyInfo.m_size = sizeof( KRG::String );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------

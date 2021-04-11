@@ -115,6 +115,20 @@ namespace Scripts
             {
                 return "data://Packs/Heist/Materials/T_PolygonHeist_01_A.mtrl";
             }
+            else if (dirName.Contains("military"))
+            {
+                string meshName = meshFileInfo.Name.ToLower();
+                if (meshName.Contains("sm_wep"))
+                {
+                    return "data://Packs/Military/Materials/PolygonMilitary_Weapons_01.mtrl";
+                }
+                else if ( meshName.Contains("sm_veh"))
+                {
+                    return "data://Packs/Military/Materials/Land_Vehicle_Master_01.mtrl";
+                }
+
+                return "data://Packs/Military/Materials/PolygonMilitary_Texture_01_A.mtrl";
+            }
 
             return string.Empty;
         }
@@ -284,7 +298,7 @@ namespace Scripts
             };
 
             string fileContents = JValue.Parse(JsonConvert.SerializeObject(desc, settings)).ToString(Formatting.Indented);
-            var outFile = sourceFile.Directory.FullName + "\\..\\" + filename + ".mtrl";
+            var outFile = sourceFile.Directory.FullName + "\\..\\Materials\\" + filename + ".mtrl";
             File.WriteAllText(outFile, fileContents);
         }
 
@@ -303,19 +317,19 @@ namespace Scripts
                 {
                     if (file.Name.ToLower().StartsWith("sk_"))
                     {
-                        CreateSkeletalMeshResourceFile(settings, dataDir, file);
+                        //CreateSkeletalMeshResourceFile(settings, dataDir, file);
                     }
 
                     if (file.Name.ToLower().StartsWith("sm_"))
                     {
-                        CreateStaticMeshResourceFile(settings, dataDir, file);
-                        CreatePhysicsResourceFile(settings, dataDir, file);
+                        //CreateStaticMeshResourceFile(settings, dataDir, file);
+                        //CreatePhysicsResourceFile(settings, dataDir, file);
                     }
                 }
                 else if (file.Extension.ToLower() == ".tga" || file.Extension.ToLower() == ".png")
                 {
-                    //CreateTextureResourceFile( settings, dataDir, file );
-                    //CreateMaterialResourceFile(settings, dataDir, file);
+                    CreateTextureResourceFile( settings, dataDir, file );
+                    CreateMaterialResourceFile(settings, dataDir, file);
                 }
             }
         }

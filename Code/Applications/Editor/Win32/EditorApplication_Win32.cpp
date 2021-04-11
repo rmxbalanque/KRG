@@ -9,7 +9,6 @@
 #include "System/Core/Platform/Platform_Win32.h"
 #include "System/Core/Time/Timers.h"
 #include "Applications/Editor/Render/MeshEditor/MeshEditor.h"
-#include "Applications/Editor/Animation/AnimationEditor/AnimationEditor.h"
 
 //-------------------------------------------------------------------------
 

@@ -64,8 +64,6 @@ namespace KRG
 
     EulerAngles Matrix::ToEulerAngles() const
     {
-        KRG_ASSERT( IsOrthonormal() );
-
         EulerAngles result;
 
         result.m_x = Math::ATan2( m_values[1][2], m_values[2][2] );

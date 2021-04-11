@@ -66,6 +66,7 @@
     <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
+    <ClInclude Include="Thirdparty\pfd\portable-file-dialogs.h" />
     <ClInclude Include="ThirdParty\sqlite\SqliteHelpers.h" />
     <ClInclude Include="Thirdparty\subprocess\subprocess.h" />
     <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h" />
@@ -74,8 +75,6 @@
     <ClInclude Include="TypeSystem\Serialization\TypeInstanceModelWriter.h" />
     <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
     <ClInclude Include="TypeSystem\TypeInstanceModel.h" />
-    <ClInclude Include="TypeSystem\PropertyGrid\PropertyGrid.h" />
-    <ClInclude Include="TypeSystem\PropertyGrid\PropertyEditors.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
@@ -87,8 +86,6 @@
     <ClCompile Include="TypeSystem\Serialization\TypeInstanceModelWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
     <ClCompile Include="TypeSystem\TypeInstanceModel.cpp" />
-    <ClCompile Include="TypeSystem\PropertyGrid\PropertyGrid.cpp" />
-    <ClCompile Include="TypeSystem\PropertyGrid\PropertyEditors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Scripts\Prebuild\KRG.Scripts.Prebuild.vcxproj">
@@ -96,9 +93,6 @@
     </ProjectReference>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\DevTools\KRG.System.DevTools.vcxproj">
-      <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
       <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>

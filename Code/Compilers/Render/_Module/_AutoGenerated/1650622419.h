@@ -46,7 +46,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::MaterialResourceDescriptor, m_resourceTypeID );
             propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -58,7 +59,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::MaterialResourceDescriptor, m_diffuseTexture );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Render::Texture> );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------

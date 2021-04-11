@@ -70,7 +70,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
             propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
             propertyInfo.m_flags.Set( 2 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -82,7 +83,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -94,7 +96,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_pMesh );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Render::StaticMesh> );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -106,7 +109,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Render::StaticMeshComponent, m_mobility );
             propertyInfo.m_size = sizeof( KRG::Render::Mobility );
             propertyInfo.m_flags.Set( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------

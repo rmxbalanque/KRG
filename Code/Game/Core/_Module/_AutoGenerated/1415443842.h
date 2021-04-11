@@ -49,7 +49,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( TVector<float> );
             propertyInfo.m_flags.Set( 2 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------
@@ -194,7 +195,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_uint8 );
             propertyInfo.m_size = sizeof( KRG::uint8 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -206,7 +208,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_uint16 );
             propertyInfo.m_size = sizeof( KRG::uint16 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -218,7 +221,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_uint32 );
             propertyInfo.m_size = sizeof( KRG::uint32 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -230,7 +234,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_U64 );
             propertyInfo.m_size = sizeof( KRG::uint64 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -242,7 +247,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_UUID );
             propertyInfo.m_size = sizeof( KRG::UUID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -254,7 +260,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -269,7 +276,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ExternalTestSubStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::ExternalTestSubStruct> );
             propertyInfo.m_flags.Set( 2 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------
@@ -463,7 +471,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent::InternalStruct, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -475,7 +484,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent::InternalStruct, m_resourceID );
             propertyInfo.m_size = sizeof( KRG::ResourceID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------
@@ -652,7 +662,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_bool );
             propertyInfo.m_size = sizeof( bool );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -664,7 +675,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U8 );
             propertyInfo.m_size = sizeof( KRG::uint8 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -676,7 +688,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U16 );
             propertyInfo.m_size = sizeof( KRG::uint16 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -688,7 +701,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U32 );
             propertyInfo.m_size = sizeof( KRG::uint32 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -700,7 +714,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U64 );
             propertyInfo.m_size = sizeof( KRG::uint64 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -712,7 +727,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S8 );
             propertyInfo.m_size = sizeof( KRG::int8 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -724,7 +740,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S16 );
             propertyInfo.m_size = sizeof( KRG::int16 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -736,7 +753,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S32 );
             propertyInfo.m_size = sizeof( KRG::int32 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -748,7 +766,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S64 );
             propertyInfo.m_size = sizeof( KRG::int64 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -760,7 +779,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_F32 );
             propertyInfo.m_size = sizeof( float );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -772,7 +792,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_F64 );
             propertyInfo.m_size = sizeof( double );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -784,7 +805,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_UUID );
             propertyInfo.m_size = sizeof( KRG::UUID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -796,7 +818,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_StringID );
             propertyInfo.m_size = sizeof( KRG::StringID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -808,7 +831,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_String );
             propertyInfo.m_size = sizeof( KRG::String );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -820,7 +844,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Color );
             propertyInfo.m_size = sizeof( KRG::Color );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -832,7 +857,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float2 );
             propertyInfo.m_size = sizeof( KRG::Float2 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -844,7 +870,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float3 );
             propertyInfo.m_size = sizeof( KRG::Float3 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -856,7 +883,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float4 );
             propertyInfo.m_size = sizeof( KRG::Float4 );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -868,7 +896,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_vector );
             propertyInfo.m_size = sizeof( KRG::Vector );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -880,7 +909,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_quaternion );
             propertyInfo.m_size = sizeof( KRG::Quaternion );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -892,7 +922,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_matrix );
             propertyInfo.m_size = sizeof( KRG::Matrix );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -904,7 +935,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_affineTransform );
             propertyInfo.m_size = sizeof( KRG::Transform );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -916,7 +948,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_us );
             propertyInfo.m_size = sizeof( KRG::Microseconds );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -928,7 +961,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_ms );
             propertyInfo.m_size = sizeof( KRG::Milliseconds );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -940,7 +974,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_s );
             propertyInfo.m_size = sizeof( KRG::Seconds );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -952,7 +987,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_percentage );
             propertyInfo.m_size = sizeof( KRG::Percentage );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -964,7 +1000,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_degrees );
             propertyInfo.m_size = sizeof( KRG::Degrees );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -976,7 +1013,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_radians );
             propertyInfo.m_size = sizeof( KRG::Radians );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -988,7 +1026,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1000,7 +1039,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_dataPath );
             propertyInfo.m_size = sizeof( KRG::DataPath );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1012,7 +1052,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_genericFlags );
             propertyInfo.m_size = sizeof( KRG::BitFlags );
             propertyInfo.m_flags.Set( 8 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1024,7 +1065,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_specificFlags );
             propertyInfo.m_size = sizeof( KRG::TBitFlags<KRG::TestFlags> );
             propertyInfo.m_flags.Set( 8 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1036,7 +1078,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_resourceTypeID );
             propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1048,7 +1091,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_resourceID );
             propertyInfo.m_size = sizeof( KRG::ResourceID );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1060,7 +1104,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_specificResourcePtr );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Render::SkeletalMesh> );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1072,7 +1117,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_internalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalEnum );
             propertyInfo.m_flags.Set( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1084,7 +1130,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_testInternalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalTest::InternalEnum );
             propertyInfo.m_flags.Set( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1096,7 +1143,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_struct0 );
             propertyInfo.m_size = sizeof( KRG::ExternalTestStruct );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1108,7 +1156,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_struct1 );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalStruct );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1123,7 +1172,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( float ) * 4;
             propertyInfo.m_flags.Set( 1 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1138,7 +1188,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::StringID );
             propertyInfo.m_size = sizeof( KRG::StringID ) * 4;
             propertyInfo.m_flags.Set( 1 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1153,7 +1204,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::InternalStruct );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalStruct ) * 2;
             propertyInfo.m_flags.Set( 1 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1168,7 +1220,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::InternalTest::InternalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalTest::InternalEnum ) * 6;
             propertyInfo.m_flags.Set( 5 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1183,7 +1236,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( TVector<float> );
             propertyInfo.m_flags.Set( 2 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -1198,7 +1252,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ExternalTestStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::ExternalTestStruct> );
             propertyInfo.m_flags.Set( 2 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------

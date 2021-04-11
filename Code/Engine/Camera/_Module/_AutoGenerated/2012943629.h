@@ -67,7 +67,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Camera::CameraComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -79,7 +80,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Camera::CameraComponent, m_FOV );
             propertyInfo.m_size = sizeof( KRG::Degrees );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -91,7 +93,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Camera::CameraComponent, m_depth );
             propertyInfo.m_size = sizeof( float );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -103,7 +106,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Camera::CameraComponent, m_projectionType );
             propertyInfo.m_size = sizeof( KRG::Camera::CameraComponent::ProjectionType );
             propertyInfo.m_flags.Set( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------

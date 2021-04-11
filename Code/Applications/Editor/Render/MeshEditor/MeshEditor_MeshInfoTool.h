@@ -6,17 +6,13 @@
 
 namespace KRG::Render::MeshEditor
 {
-    class MeshInfo : public EditorTool
+    class MeshInfo : public TEditorTool<Model>
     {
     public:
 
-        MeshInfo( Model& model ) : m_model( model ) {}
+        MeshInfo( EditorModel* pModel ) : TEditorTool<Model>( pModel ) {}
 
         virtual char const * const GetName() { return "Mesh Info"; }
         virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
-
-    private:
-
-        Model&                              m_model;
     };
 }

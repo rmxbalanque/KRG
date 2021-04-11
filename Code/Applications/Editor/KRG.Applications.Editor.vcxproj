@@ -70,24 +70,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Animation\AnimationEditor\AnimationEditor.cpp" />
     <ClCompile Include="Editor.cpp" />
-    <ClCompile Include="EditorSettings.cpp" />
+    <ClCompile Include="EditorModel.cpp" />
     <ClCompile Include="Render\MeshEditor\MeshEditor_DataBrowserTool.cpp" />
     <ClCompile Include="Render\MeshEditor\MeshEditor.cpp" />
     <ClCompile Include="Render\MeshEditor\MeshEditor_MeshInfoTool.cpp" />
+    <ClCompile Include="Render\MeshEditor\MeshEditor_Model.cpp" />
+    <ClCompile Include="Widgets\DataFilePicker.cpp" />
+    <ClCompile Include="Widgets\PropertyGrid\PropertyEditors.cpp" />
+    <ClCompile Include="Widgets\PropertyGrid\PropertyGrid.cpp" />
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
     <ClCompile Include="Win32\Main_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animation\AnimationEditor\AnimationEditor.h" />
     <ClInclude Include="Editor.h" />
-    <ClInclude Include="EditorSettings.h" />
+    <ClInclude Include="EditorModel.h" />
     <ClInclude Include="EditorTool.h" />
     <ClInclude Include="Render\MeshEditor\MeshEditor.h" />
     <ClInclude Include="Render\MeshEditor\MeshEditor_DataBrowserTool.h" />
     <ClInclude Include="Render\MeshEditor\MeshEditor_MeshInfoTool.h" />
     <ClInclude Include="Render\MeshEditor\MeshEditor_Model.h" />
+    <ClInclude Include="Widgets\DataFilePicker.h" />
+    <ClInclude Include="Widgets\PropertyGrid\PropertyEditors.h" />
+    <ClInclude Include="Widgets\PropertyGrid\PropertyGrid.h" />
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
     <ClInclude Include="Win32\resource.h" />
   </ItemGroup>

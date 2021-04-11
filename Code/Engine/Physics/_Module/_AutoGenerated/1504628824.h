@@ -46,7 +46,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_actorType );
             propertyInfo.m_size = sizeof( KRG::Physics::ActorType );
             propertyInfo.m_flags.Set( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -58,7 +59,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_layers );
             propertyInfo.m_size = sizeof( KRG::TBitFlags<KRG::Physics::Layers> );
             propertyInfo.m_flags.Set( 8 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -70,7 +72,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -82,7 +85,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_shapeType );
             propertyInfo.m_size = sizeof( KRG::Physics::ShapeType );
             propertyInfo.m_flags.Set( 4 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -97,7 +101,8 @@ namespace KRG
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::StringID );
             propertyInfo.m_size = sizeof( TVector<KRG::StringID> );
             propertyInfo.m_flags.Set( 2 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -109,7 +114,8 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsMeshComponent, m_pPhysicsMesh );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Physics::PhysicsMesh> );
             propertyInfo.m_flags.Set( 0 );
-            m_properties.insert( TPair<StringID, PropertyInfo>( propertyInfo.m_ID, propertyInfo ) );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------

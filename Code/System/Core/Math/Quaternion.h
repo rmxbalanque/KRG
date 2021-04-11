@@ -43,6 +43,7 @@ namespace KRG
         KRG_FORCE_INLINE operator __m128&( ) { return m_data; }
         KRG_FORCE_INLINE operator __m128 const&() const { return m_data; }
 
+        inline Float4 ToFloat4() const { return Float4( m_x, m_y, m_z, m_w ); }
         inline Vector const& ToVector() const { return reinterpret_cast<Vector const&>( *this ); }
         inline AxisAngle ToAxisAngle() const;
         EulerAngles ToEulerAngles() const;

@@ -28,20 +28,18 @@ namespace KRG::Render::MeshEditor
 
     void MainEditor::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
     {
-        Editor::Initialize( context, settingsRegistry );
-        m_model.Initialize( context );
-
-        m_pDataBrowser = CreateTool<DataBrowser>( m_model );
-        m_pMeshInfo = CreateTool<MeshInfo>( m_model );
+        TEditor<Model>::Initialize( context, settingsRegistry );
+     
+        m_pDataBrowser = CreateTool<DataBrowser>( &GetModel() );
+        m_pMeshInfo = CreateTool<MeshInfo>( &GetModel() );
     }
 
-    void MainEditor::Shutdown()
+    void MainEditor::Shutdown( UpdateContext const& context )
     {
         DestroyTool( m_pMeshInfo );
         DestroyTool( m_pDataBrowser );
 
-        m_model.Shutdown();
-        Editor::Shutdown();
+        TEditor<Model>::Shutdown( context );
     }
 
     void MainEditor::SetUserFlags( uint64 flags )
@@ -67,10 +65,5 @@ namespace KRG::Render::MeshEditor
         }
 
         return flags;
-    }
-
-    void MainEditor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
-    {
-        m_model.Update( context );
     }
 }

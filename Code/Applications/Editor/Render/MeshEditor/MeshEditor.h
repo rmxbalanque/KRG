@@ -9,7 +9,7 @@
 
 namespace KRG::Render::MeshEditor
 {
-    class MainEditor final : public Editor
+    class MainEditor final : public TEditor<Model>
     {
     public:
 
@@ -23,13 +23,10 @@ namespace KRG::Render::MeshEditor
         virtual uint64 GetUserFlags() const override;
 
         virtual void Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry ) override;
-        virtual void Shutdown() override;
-
-        virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+        virtual void Shutdown( UpdateContext const& context ) override;
 
     private:
 
-        Model                               m_model;
         DataBrowser*                        m_pDataBrowser = nullptr;
         MeshInfo*                           m_pMeshInfo = nullptr;
     };

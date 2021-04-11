@@ -1,18 +1,18 @@
 #pragma once
 #include "MeshEditor_Model.h"
 #include "Applications/Editor/EditorTool.h"
+#include "Applications/Editor/Widgets/PropertyGrid/PropertyGrid.h"
 #include "Tools/Core/TypeSystem/TypeInstanceModel.h"
-#include "Tools/Core/TypeSystem/PropertyGrid/PropertyGrid.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Render::MeshEditor
 {
-    class DataBrowser final : public EditorTool
+    class DataBrowser final : public TEditorTool<Model>
     {
     public:
 
-        DataBrowser( Model& model );
+        DataBrowser( EditorModel* pModel );
 
         virtual char const * const GetName() { return "Data Browser"; }
         virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
@@ -24,8 +24,6 @@ namespace KRG::Render::MeshEditor
         void UpdateVisibility();
 
     private:
-
-        Model&                              m_model;
 
         // Browser
         char                                m_filterBuffer[256];

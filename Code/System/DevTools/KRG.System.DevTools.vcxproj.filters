@@ -65,11 +65,13 @@
     <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="System\ImguiTheme.h" />
     <ClInclude Include="DevelopmentTools.h" />
-    <ClInclude Include="CommonWidgets\CommonWidgets.h" />
+    <ClInclude Include="CommonWidgets\InterfaceHelpers.h" />
     <ClInclude Include="CommonWidgets\Gizmo\Gizmo.h" />
     <ClInclude Include="CommonWidgets\Gizmo\RotationGizmo.h" />
     <ClInclude Include="CommonWidgets\Gizmo\ScaleGizmo.h" />
     <ClInclude Include="CommonWidgets\Gizmo\TranslationGizmo.h" />
+    <ClInclude Include="CommonWidgets\Gizmo\OrientationGuide.h" />
+    <ClInclude Include="CommonWidgets\NumericEditors.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\imgui.natvis">
@@ -103,11 +105,13 @@
     <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
     <ClCompile Include="System\ImguiTheme.cpp" />
     <ClCompile Include="DevelopmentTools.cpp" />
-    <ClCompile Include="CommonWidgets\CommonWidgets.cpp" />
+    <ClCompile Include="CommonWidgets\InterfaceHelpers.cpp" />
     <ClCompile Include="CommonWidgets\Gizmo\Gizmo.cpp" />
     <ClCompile Include="CommonWidgets\Gizmo\RotationGizmo.cpp" />
     <ClCompile Include="CommonWidgets\Gizmo\ScaleGizmo.cpp" />
     <ClCompile Include="CommonWidgets\Gizmo\TranslationGizmo.cpp" />
+    <ClCompile Include="CommonWidgets\Gizmo\OrientationGuide.cpp" />
+    <ClCompile Include="CommonWidgets\NumericEditors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ThirdParty\imgui\LICENSE.txt">

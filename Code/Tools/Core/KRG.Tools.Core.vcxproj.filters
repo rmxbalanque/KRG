@@ -45,8 +45,7 @@
     <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
     <ClInclude Include="Thirdparty\subprocess\subprocess.h" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
-    <ClInclude Include="TypeSystem\PropertyGrid\PropertyGrid.h" />
-    <ClInclude Include="TypeSystem\PropertyGrid\PropertyEditors.h" />
+    <ClInclude Include="Thirdparty\pfd\portable-file-dialogs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
@@ -59,8 +58,6 @@
     <ClCompile Include="TypeSystem\Serialization\TypeInstanceModelWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
-    <ClCompile Include="TypeSystem\PropertyGrid\PropertyGrid.cpp" />
-    <ClCompile Include="TypeSystem\PropertyGrid\PropertyEditors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Thirdparty\subprocess\LICENSE" />

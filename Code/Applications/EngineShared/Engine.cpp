@@ -268,7 +268,7 @@ namespace KRG
         {
             #if KRG_DEVELOPMENT_TOOLS
             KRG_ASSERT( m_pDevelopmentTools != nullptr );
-            m_pDevelopmentTools->Shutdown();
+            m_pDevelopmentTools->Shutdown( m_updateContext );
             #endif
 
             // Wait for resource/object systems to complete all resource unloading

@@ -1,6 +1,6 @@
 #include "Editor.h"
 #include "System/DevTools/ThirdParty/imgui/imgui_internal.h"
-#include "System/DevTools/CommonWidgets/CommonWidgets.h"
+#include "System/DevTools/CommonWidgets/Gizmo/OrientationGuide.h"
 #include "System/Render/RenderViewportManager.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Update/UpdateStage.h"
@@ -13,6 +13,7 @@ namespace KRG
     Editor::~Editor()
     {
         KRG_ASSERT( m_editorTools.empty() );
+        KRG::Delete( m_pModel );
     }
 
     void Editor::DestroyTool( EditorTool* pTool )
@@ -26,6 +27,18 @@ namespace KRG
         m_editorTools.erase( itr );
     }
 
+    void Editor::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
+    {
+        KRG_ASSERT( m_pModel != nullptr );
+        m_pModel->Initialize( context );
+    }
+
+    void Editor::Shutdown( UpdateContext const& context )
+    {
+        KRG_ASSERT( m_pModel != nullptr );
+        m_pModel->Shutdown( context );
+    }
+
     void Editor::Update( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
@@ -34,6 +47,8 @@ namespace KRG
         {
             case UpdateStage::FrameStart:
             {
+                m_pModel->Update( context );
+
                 DrawEditorMainMenu( context, viewportManager );
                 DrawEditorDockSpaceAndViewport( context, viewportManager );
                 FrameStartUpdate( context, viewportManager );
@@ -50,6 +65,8 @@ namespace KRG
 
             case UpdateStage::FrameEnd:
             {
+                m_pModel->Update( context );
+
                 FrameEndUpdate( context, viewportManager );
 
                 for ( auto pTool : m_editorTools )
@@ -70,6 +87,8 @@ namespace KRG
         KRG_ASSERT( pInputSystem != nullptr );
         pInputSystem->SetEnabled( m_mouseWithinEditorViewport );
     }
+
+    //-------------------------------------------------------------------------
 
     void Editor::DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {

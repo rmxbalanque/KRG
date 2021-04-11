@@ -49,7 +49,8 @@ namespace KRG::TypeSystem
         int32                                   m_alignment = -1;
         ITypeHelper*                            m_pTypeHelper = nullptr;
         TVector<TypeInfo const*>                m_parentTypes;
-        THashMap<StringID, PropertyInfo>        m_properties;
+        TVector<PropertyInfo>                   m_properties;
+        THashMap<StringID, int32>               m_propertyMap;
         TBitFlags<ETypeInfoMetaData>            m_metadata;
     };
 }

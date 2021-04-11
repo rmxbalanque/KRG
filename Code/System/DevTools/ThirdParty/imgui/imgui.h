@@ -1303,7 +1303,7 @@ enum ImGuiDataType_
     ImGuiDataType_S8,       // signed char / char (with sensible compilers)
     ImGuiDataType_U8,       // unsigned char
     ImGuiDataType_S16,      // short
-    ImGuiDataType_uint16,      // unsigned short
+    ImGuiDataType_U16,      // unsigned short
     ImGuiDataType_S32,      // int
     ImGuiDataType_U32,      // unsigned int
     ImGuiDataType_S64,      // long long / __int64

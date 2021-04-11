@@ -16,17 +16,16 @@
 
 namespace KRG::TypeSystem::Conversion
 {
-    inline static void StringToFloatArray( String const& str, char const* delim, int32 const numFloats, float* pFloats )
+    void StringToFloatArray( String const& str, int32 const numFloats, float* pFloats )
     {
         char substr[128] = { 0 };
         int32 resIdx = 0;
-        auto delimLength = strlen( delim );
 
         bool complete = false;
         size_t startIdx = 0;
         while ( resIdx < numFloats && !complete )
         {
-            size_t endIdx = str.find_first_of( delim, startIdx );
+            size_t endIdx = str.find_first_of( ',', startIdx );
             if ( endIdx == String::npos )
             {
                 endIdx = str.length();
@@ -39,11 +38,11 @@ namespace KRG::TypeSystem::Conversion
             substr[sizeToCopy] = '\0';
 
             pFloats[resIdx++] = std::strtof( substr, nullptr );
-            startIdx = endIdx + delimLength;
+            startIdx = endIdx + 1;
         }
     }
 
-    inline static void FloatArrayToString( float const* pFloats, char const* delim, int32 const numFloats, String& strValue )
+    void FloatArrayToString( float const* pFloats, int32 const numFloats, String& strValue )
     {
         strValue.clear();
 
@@ -53,7 +52,7 @@ namespace KRG::TypeSystem::Conversion
 
             if ( i != ( numFloats - 1 ) )
             {
-                strValue += delim;
+                strValue += ',';
             }
         }
     }
@@ -61,6 +60,11 @@ namespace KRG::TypeSystem::Conversion
     inline static bool ConvertStringToBitFlags( EnumInfo const& enumInfo, String const& str, BitFlags& outFlags )
     {
         outFlags.ClearAllFlags();
+
+        if ( str.empty() )
+        {
+            return true;
+        }
 
         // Handle hex format explicitly
         //-------------------------------------------------------------------------
@@ -332,45 +336,45 @@ namespace KRG::TypeSystem::Conversion
 
                 case CoreTypes::Color :
                 {
-                    uint32 const colorType = std::strtoul( str.c_str(), nullptr, 0 );
+                    uint32 const colorType = std::strtoul( str.c_str(), nullptr, 16 );
                     *reinterpret_cast<Color*>( pValue ) = Color( colorType );
                 }
                 break;
 
                 case CoreTypes::Float2 :
                 {
-                    StringToFloatArray( str, ",", 2, &reinterpret_cast<Float2*>( pValue )->m_x );
+                    StringToFloatArray( str, 2, &reinterpret_cast<Float2*>( pValue )->m_x );
                 }
                 break;
 
                 case CoreTypes::Float3:
                 {
-                    StringToFloatArray( str, ",", 3, &reinterpret_cast<Float3*>( pValue )->m_x );
+                    StringToFloatArray( str, 3, &reinterpret_cast<Float3*>( pValue )->m_x );
                 }
                 break;
 
                 case CoreTypes::Float4:
                 {
-                    StringToFloatArray( str, ",", 4, &reinterpret_cast<Float4*>( pValue )->m_x );
+                    StringToFloatArray( str, 4, &reinterpret_cast<Float4*>( pValue )->m_x );
                 }
                 break;
 
                 case CoreTypes::Vector:
                 {
-                    StringToFloatArray( str, ",", 4, &reinterpret_cast<Vector*>( pValue )->m_x );
+                    StringToFloatArray( str, 4, &reinterpret_cast<Vector*>( pValue )->m_x );
                 }
                 break;
 
                 case CoreTypes::Quaternion:
                 {
-                    StringToFloatArray( str, ",", 4, &reinterpret_cast<Quaternion*>( pValue )->m_x );
+                    StringToFloatArray( str, 4, &reinterpret_cast<Quaternion*>( pValue )->m_x );
                 }
                 break;
 
                 case CoreTypes::Matrix:
                 {
                     float floatData[9];
-                    StringToFloatArray( str, ",", 9, floatData );
+                    StringToFloatArray( str, 9, floatData );
 
                     EulerAngles const rotation( floatData[0], floatData[1], floatData[2] );
                     Vector const translation = Vector( floatData[3], floatData[4], floatData[5] );
@@ -382,20 +386,19 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::Transform:
                 {
                     float floatData[9];
-                    StringToFloatArray( str, ",", 9, floatData );
+                    StringToFloatArray( str, 9, floatData );
 
-                    EulerAngles const rotationEulerAngles( floatData[0], floatData[1], floatData[2] );
-                    Quaternion const rotation( rotationEulerAngles );
+                    EulerAngles const rotation( floatData[0], floatData[1], floatData[2] );
                     Vector const translation( floatData[3], floatData[4], floatData[5], 1.0f );
                     Vector const scale( floatData[6], floatData[7], floatData[8], 1.0f );
-                    *reinterpret_cast<Transform*>( pValue ) = Transform( rotation, translation, scale );
+                    *reinterpret_cast<Transform*>( pValue ) = Transform( Quaternion( rotation ), translation, scale );
                 }
                 break;
 
                 case CoreTypes::EulerAngles:
                 {
                     Float3 angles;
-                    StringToFloatArray( str, ",", 3, &angles.m_x );
+                    StringToFloatArray( str, 3, &angles.m_x );
                     *reinterpret_cast<EulerAngles*>( pValue ) = EulerAngles( angles.m_x, angles.m_y, angles.m_z );
                 }
                 break;
@@ -667,31 +670,31 @@ namespace KRG::TypeSystem::Conversion
 
                 case CoreTypes::Float2:
                 {
-                    FloatArrayToString( &reinterpret_cast<Float2 const*>( pValue )->m_x, ",", 2, strValue );
+                    FloatArrayToString( &reinterpret_cast<Float2 const*>( pValue )->m_x, 2, strValue );
                 }
                 break;
 
                 case CoreTypes::Float3:
                 {
-                    FloatArrayToString( &reinterpret_cast<Float3 const*>( pValue )->m_x, ",", 3, strValue );
+                    FloatArrayToString( &reinterpret_cast<Float3 const*>( pValue )->m_x, 3, strValue );
                 }
                 break;
 
                 case CoreTypes::Float4:
                 {
-                    FloatArrayToString( &reinterpret_cast<Float4 const*>( pValue )->m_x, ",", 4, strValue );
+                    FloatArrayToString( &reinterpret_cast<Float4 const*>( pValue )->m_x, 4, strValue );
                 }
                 break;
 
                 case CoreTypes::Vector:
                 {
-                    FloatArrayToString( &reinterpret_cast<Vector const*>( pValue )->m_x, ",", 4, strValue );
+                    FloatArrayToString( &reinterpret_cast<Vector const*>( pValue )->m_x, 4, strValue );
                 }
                 break;
 
                 case CoreTypes::Quaternion:
                 {
-                    FloatArrayToString( &reinterpret_cast<Quaternion const*>( pValue )->m_x, ",", 4, strValue );
+                    FloatArrayToString( &reinterpret_cast<Quaternion const*>( pValue )->m_x, 4, strValue );
                 }
                 break;
 
@@ -709,7 +712,7 @@ namespace KRG::TypeSystem::Conversion
                         (Float3&) floatData[3] = value.GetTranslation().ToFloat3();
                         (Float3&) floatData[6] = value.GetScale().ToFloat3();
 
-                        FloatArrayToString( floatData, ",", 9, strValue );
+                        FloatArrayToString( floatData, 9, strValue );
                     }
                     else
                     {
@@ -739,14 +742,14 @@ namespace KRG::TypeSystem::Conversion
 
                     //-------------------------------------------------------------------------
 
-                    FloatArrayToString( floatData, ",", 9, strValue );
+                    FloatArrayToString( floatData, 9, strValue );
                 }
                 break;
 
                 case CoreTypes::EulerAngles:
                 {
                     Float3 const angles = reinterpret_cast<EulerAngles const*>( pValue )->GetAsDegrees();
-                    FloatArrayToString( &angles.m_x, ",", 3, strValue );
+                    FloatArrayToString( &angles.m_x, 3, strValue );
                 }
                 break;
 

@@ -81,10 +81,8 @@ namespace KRG::TypeSystem
 
         //-------------------------------------------------------------------------
 
-        for ( auto const& entry : pTypeInfo->m_properties )
+        for ( auto const& propInfo : pTypeInfo->m_properties )
         {
-            PropertyInfo const& propInfo = entry.second;
-
             // Write Key
             const char* pPropertyName = propInfo.m_ID.ToString();
             KRG_ASSERT( pPropertyName != nullptr );

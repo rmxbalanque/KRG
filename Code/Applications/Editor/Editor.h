@@ -11,12 +11,14 @@
 namespace KRG
 {
     //-------------------------------------------------------------------------
-    // Editor Mode
+    // Base Editor Mode
     //-------------------------------------------------------------------------
     // Defines the set of tools created and available when instantiating the editor.
+    // DO NOT DERIVED FROM THIS CLASS - derive from 'TEditor' instead
 
     class Editor : public ImGuiX::DevelopmentTools
     {
+        template<typename ModelType> friend class TEditor;
 
     public:
 
@@ -31,8 +33,8 @@ namespace KRG
     protected:
 
         // Init/shutdown
-        virtual void Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry ) override {}
-        virtual void Shutdown() override {}
+        virtual void Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry ) override;
+        virtual void Shutdown( UpdateContext const& context ) override;
 
         // Menus and Toolbars
         virtual void DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager );
@@ -40,7 +42,7 @@ namespace KRG
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) {};
 
         // Main UI
-        virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) = 0;
+        virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) {};
         virtual void FrameEndUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) {}
 
         // Tools
@@ -72,7 +74,26 @@ namespace KRG
 
         ImGuiID                             m_mainDockspaceID;
         bool                                m_mouseWithinEditorViewport = false;
+        EditorModel*                        m_pModel = nullptr;
         TVector<EditorTool*>                m_editorTools;
+    };
+
+    //-------------------------------------------------------------------------
+
+    template<typename ModelType>
+    class TEditor : public Editor
+    {
+        static_assert( std::is_base_of<EditorModel, ModelType>::value, "ModelType must derive from editor model" );
+
+    public:
+
+        TEditor()
+        {
+            m_pModel = KRG::New<ModelType>();
+        }
+
+        inline ModelType& GetModel() { return *static_cast<ModelType*>( m_pModel ); }
+        inline ModelType const& GetModel() const { return *static_cast<ModelType const*>( m_pModel ); }
     };
 
     //-------------------------------------------------------------------------

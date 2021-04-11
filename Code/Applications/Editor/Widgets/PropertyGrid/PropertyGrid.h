@@ -8,11 +8,12 @@
 
 namespace KRG::TypeSystem
 {
-    class KRG_TOOLS_CORE_API PropertyGrid
+    class PropertyGrid
     {
+
     public:
-        
-        PropertyGrid( TypeRegistry const& typeRegistry );
+
+        PropertyGrid( TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath );
         ~PropertyGrid();
 
         inline bool IsDirty() const { return m_isDirty; }
@@ -22,7 +23,17 @@ namespace KRG::TypeSystem
 
     private:
 
+        void DrawPropertyRow( PropertyInstanceModel* pPropertyModel );
+        void DrawArrayPropertyRow( PropertyInstanceModel* pPropertyModel );
+        void DrawStructPropertyRow( PropertyInstanceModel* pPropertyModel );
+        void DrawCoreTypePropertyRow( PropertyInstanceModel* pPropertyModel );
+
+        void DrawRowControls( PropertyInstanceModel* pPropertyModel );
+
+    private:
+
         TypeRegistry const&                 m_typeRegistry;
+        FileSystem::Path const              m_sourceDataPath;
         TypeInstanceModel*                  m_pTypeInstanceModel = nullptr;
         bool                                m_isDirty;
     };

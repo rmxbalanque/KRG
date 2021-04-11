@@ -58,4 +58,12 @@ namespace KRG::TypeSystem::Conversion
     {
         return IsValidStringValueForType( typeRegistry, propertyInfo.m_typeID, propertyInfo.m_templateArgumentTypeID, strValue );
     }
+
+    //-------------------------------------------------------------------------
+
+    // Convert a comma separated string of floats into an array of floats
+    KRG_SYSTEM_TYPESYSTEM_API void StringToFloatArray( String const& str, int32 const numFloats, float* pFloats );
+
+    // Convert an array of floats into a comma separated string of floats
+    KRG_SYSTEM_TYPESYSTEM_API void FloatArrayToString( float const* pFloats, int32 const numFloats, String& strValue );
 }
