@@ -20,6 +20,8 @@ namespace KRG
 
     public:
 
+        virtual ~EditorModel();
+
         virtual void Initialize( UpdateContext const& context );
         virtual void Shutdown( UpdateContext const& context );
         virtual void Update( UpdateContext const& context );

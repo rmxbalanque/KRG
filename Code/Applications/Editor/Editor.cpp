@@ -16,9 +16,11 @@ namespace KRG
         KRG::Delete( m_pModel );
     }
 
-    void Editor::DestroyTool( EditorTool* pTool )
+    void Editor::DestroyTool( UpdateContext const& context, EditorTool* pTool )
     {
         KRG_ASSERT( pTool != nullptr );
+
+        pTool->Shutdown( context );
 
         auto itr = eastl::find( m_editorTools.begin(), m_editorTools.end(), pTool );
         KRG_ASSERT( itr != m_editorTools.end() );

@@ -12,6 +12,8 @@ namespace KRG::Resource
 {
     class KRG_SYSTEM_RESOURCE_API IResource
     {
+        friend class ResourceLoader;
+
     public:
 
         static ResourceTypeID GetStaticResourceTypeID() { return ResourceTypeID(); }
@@ -25,12 +27,18 @@ namespace KRG::Resource
         virtual bool IsVirtualResourceType() const = 0;
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual char const* GetName() const { return "Resource Name"; }
+        ResourceID const& GetResourceID() const { return m_resourceID; }
         #endif
 
     protected:
 
         IResource() {}
+
+    private:
+
+        #if KRG_DEVELOPMENT_TOOLS
+        ResourceID      m_resourceID;
+        #endif
     };
 }
 

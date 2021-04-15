@@ -117,7 +117,7 @@ namespace KRG
         EXPOSE Degrees                                          m_degrees;
         EXPOSE Radians                                          m_radians;
         EXPOSE EulerAngles                                      m_eulerAngles = EulerAngles( 15, 25, 23 );
-        EXPOSE DataPath                                         m_dataPath = "data://Default.txt";
+        EXPOSE DataPath                                         m_dataPath = DataPath( "data://Default.txt" );
         EXPOSE BitFlags                                         m_genericFlags;
         EXPOSE TBitFlags<TestFlags>                             m_specificFlags;
         EXPOSE ResourceTypeID                                   m_resourceTypeID;

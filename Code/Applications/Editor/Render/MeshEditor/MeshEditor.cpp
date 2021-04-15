@@ -30,14 +30,14 @@ namespace KRG::Render::MeshEditor
     {
         TEditor<Model>::Initialize( context, settingsRegistry );
      
-        m_pDataBrowser = CreateTool<DataBrowser>( &GetModel() );
-        m_pMeshInfo = CreateTool<MeshInfo>( &GetModel() );
+        m_pDataBrowser = CreateTool<DataBrowser>( context, &GetModel() );
+        m_pMeshInfo = CreateTool<MeshInfo>( context, &GetModel() );
     }
 
     void MainEditor::Shutdown( UpdateContext const& context )
     {
-        DestroyTool( m_pMeshInfo );
-        DestroyTool( m_pDataBrowser );
+        DestroyTool( context, m_pMeshInfo );
+        DestroyTool( context, m_pDataBrowser );
 
         TEditor<Model>::Shutdown( context );
     }

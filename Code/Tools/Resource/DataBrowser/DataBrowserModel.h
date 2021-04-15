@@ -34,6 +34,8 @@ namespace KRG
             KRG_ASSERT( path.IsValid() );
         }
 
+        inline bool IsValid() const { return m_path.IsValid(); }
+
         inline String const& GetName() const { return m_name; }
         inline FileSystem::Path const& GetPath() const { return m_path; }
         inline ResourceTypeID const& GetResourceTypeID() const { return m_resourceTypeID; }

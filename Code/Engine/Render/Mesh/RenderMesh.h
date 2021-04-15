@@ -65,6 +65,7 @@ namespace KRG::Render
 
         // Indices
         inline TVector<uint32> const& GetIndices() const { return m_indices; }
+        inline int32 const GetNumIndices() const { return (int32) m_indices.size(); }
         inline RenderBuffer const& GetIndexBuffer() const { return m_indexBuffer; }
 
         // Mesh Sections

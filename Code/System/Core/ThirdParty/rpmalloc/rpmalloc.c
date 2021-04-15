@@ -143,7 +143,10 @@
 #  if defined(_MSC_VER) && !defined(_DEBUG)
 #    define _DEBUG
 #  endif
-#  include <assert.h>
+//#  include <assert.h>
+#  include "System/Core/Core/Defines.h"
+#  undef  assert
+#  define assert KRG_ASSERT
 #else
 #  undef  assert
 #  define assert(x) do {} while(0)
@@ -2007,9 +2010,9 @@ rpmalloc_finalize(void) {
 
 #if ENABLE_STATISTICS
 	//If you hit these asserts you probably have memory leaks or double frees in your code
-	assert(!atomic_load32(&_mapped_pages));
-	assert(!atomic_load32(&_reserved_spans));
-	assert(!atomic_load32(&_mapped_pages_os));
+    assert( !atomic_load32( &_mapped_pages ) );
+    assert( !atomic_load32( &_reserved_spans ) );
+    assert( !atomic_load32( &_mapped_pages_os ) );
 #endif
 
 	_rpmalloc_initialized = 0;

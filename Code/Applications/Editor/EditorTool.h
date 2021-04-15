@@ -26,6 +26,9 @@ namespace KRG
 
         virtual ~EditorTool() {}
 
+        virtual void Initialize( UpdateContext const& context ) {};
+        virtual void Shutdown( UpdateContext const& context ) {};
+
         virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) {}
         virtual void FrameEndUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) {}
 

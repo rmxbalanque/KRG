@@ -10,6 +10,11 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    EditorModel::~EditorModel()
+    {
+        KRG_ASSERT( m_pTypeRegistry == nullptr && m_pDataBrowserModel == nullptr );
+    }
+
     void EditorModel::Initialize( UpdateContext const& context )
     {
         m_sourceDataDirectory = FileSystem::Path( g_sourceDataPath );

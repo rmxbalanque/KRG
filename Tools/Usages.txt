@@ -1,0 +1,2 @@
+FontCompressor.exe <inputfile> <symbolname> >> font.cpp
+SimpleEmbed.exe  -i <input file path> -o <output resource name> {-ns <namespace>} {-dll <dll api macro>}

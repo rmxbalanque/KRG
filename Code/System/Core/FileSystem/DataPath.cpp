@@ -83,13 +83,6 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    DataPath::DataPath( String&& path )
-        : m_path( path )
-    {
-        KRG_ASSERT( m_path.empty() || IsValidDataPath( m_path ) );
-        OnPathMemberChanged();
-    }
-
     DataPath::DataPath( String const& path )
         : m_path( path )
     {
@@ -103,6 +96,40 @@ namespace KRG
         KRG_ASSERT( m_path.empty() || IsValidDataPath( m_path ) );
         OnPathMemberChanged();
     }
+
+    DataPath::DataPath( String&& path )
+    {
+        m_path.swap( path );
+        KRG_ASSERT( m_path.empty() || IsValidDataPath( m_path ) );
+        OnPathMemberChanged();
+    }
+
+    DataPath::DataPath( DataPath const& path )
+        : m_path( path.m_path )
+        , m_ID( path.m_ID )
+    {}
+
+    DataPath::DataPath( DataPath&& path )
+        : m_ID( path.m_ID )
+    {
+        m_path.swap( path.m_path );
+    }
+
+    DataPath& DataPath::operator=( DataPath const& path )
+    {
+        m_path = path.m_path;
+        m_ID = path.m_ID;
+        return *this;
+    }
+
+    DataPath& DataPath::operator=( DataPath&& path )
+    {
+        m_path.swap( path.m_path );
+        m_ID = path.m_ID;
+        return *this;
+    }
+
+    //-------------------------------------------------------------------------
 
     void DataPath::OnPathMemberChanged()
     {

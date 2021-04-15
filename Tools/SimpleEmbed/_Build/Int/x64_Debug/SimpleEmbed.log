@@ -1,0 +1,4 @@
+﻿  main.cpp
+D:\Kruger\Tools\SimpleEmbed\main.cpp(169,1): error C2220: the following warning is treated as an error
+D:\Kruger\Tools\SimpleEmbed\main.cpp(169,1): warning C4005: '_DEBUG': macro redefinition
+D:\Kruger\Tools\SimpleEmbed\main.cpp : message : see previous definition of '_DEBUG'

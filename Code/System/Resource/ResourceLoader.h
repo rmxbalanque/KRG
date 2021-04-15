@@ -47,8 +47,8 @@ namespace KRG
             void Unload( ResourceID const& resourceID, ResourceRecord* pResourceRecord ) const;
 
             // This function is called once all the install dependencies have been loaded, it allows us to update any internal resource ptrs the resource might hold
-            virtual bool Install( ResourceID const& resourceID, ResourceRecord* pResourceRecord, InstallDependencyList const& installDependencies ) const { return true; }
-
+            virtual bool Install( ResourceID const& resourceID, ResourceRecord* pResourceRecord, InstallDependencyList const& installDependencies ) const;
+            
             // This function is called as a first step when we are about to unload a resource, it allows us to clean up anything that might require an install dependency to be available
             virtual void Uninstall( ResourceID const& resourceID, ResourceRecord* pResourceRecord ) const {}
 

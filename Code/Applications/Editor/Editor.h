@@ -56,18 +56,20 @@ namespace KRG
         virtual void FrameEndUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) {}
 
         // Tools
-        template<typename T, typename ... ConstructorParams> T* CreateTool( ConstructorParams&&... params )
+        template<typename T, typename ... ConstructorParams> T* CreateTool( UpdateContext const& context, ConstructorParams&&... params )
         {
             static_assert( std::is_base_of<EditorTool, T>::value, "Editor tools need to derive from EditorTool" );
             auto pTool = KRG::New<T>( std::forward<ConstructorParams>( params )... );
             m_editorTools.emplace_back( pTool );
+
+            pTool->Initialize( context );
             return pTool;
         }
 
         template<typename T>
-        void DestroyTool( T*& pTool )
+        void DestroyTool( UpdateContext const& context, T*& pTool )
         {
-            DestroyTool( static_cast<EditorTool*>( pTool ) );
+            DestroyTool( context, static_cast<EditorTool*>( pTool ) );
             pTool = nullptr;
         }
 
@@ -79,7 +81,7 @@ namespace KRG
         void DrawEditorMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager );
         void DrawEditorDockSpaceAndViewport( UpdateContext const& context, Render::ViewportManager& viewportManager );
 
-        void DestroyTool( EditorTool* pTool );
+        void DestroyTool( UpdateContext const& context, EditorTool* pTool );
 
     private:
 
@@ -102,6 +104,11 @@ namespace KRG
         TEditor()
         {
             m_pModel = KRG::New<ModelType>();
+        }
+
+        virtual ~TEditor()
+        {
+            KRG::Delete( m_pModel );
         }
 
         inline ModelType& GetModel() { return *static_cast<ModelType*>( m_pModel ); }

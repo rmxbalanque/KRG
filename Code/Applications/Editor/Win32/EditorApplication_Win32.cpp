@@ -45,7 +45,7 @@ namespace KRG
         std::string const map = cmdParser.get<std::string>( "map" );
         if ( !map.empty() )
         {
-            m_editorHost.m_startupMap = map.c_str();
+            m_editorHost.m_startupMap = DataPath( map.c_str() );
         }
 
         StringID editorModeID;

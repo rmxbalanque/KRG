@@ -44,9 +44,15 @@ namespace KRG
     public:
 
         DataPath() = default;
-        DataPath( String&& path );
-        DataPath( String const& path );
-        DataPath( char const* pPath );
+        DataPath( DataPath&& path );
+        DataPath( DataPath const& path );
+        explicit DataPath( String const& path );
+        explicit DataPath( char const* pPath );
+        explicit DataPath( String&& path );
+
+        // Assignment
+        DataPath& operator=( DataPath&& path );
+        DataPath& operator=( DataPath const& path );
 
         // Accessors
         inline bool IsValid() const { return !m_path.empty() && IsValidDataPath( m_path ); }

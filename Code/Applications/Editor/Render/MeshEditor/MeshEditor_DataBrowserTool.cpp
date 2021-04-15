@@ -56,8 +56,12 @@ namespace KRG::Render::MeshEditor
 
     //-------------------------------------------------------------------------
 
-    static void DisplayBrowserFile( DataBrowserModel& model, DataFileModel& file )
+    static void DisplayBrowserFile( Model& model, DataFileModel& file )
     {
+        auto& dataBrowser = model.GetDataBrowser();
+
+        //-------------------------------------------------------------------------
+
         ImGui::TableNextRow();
 
         // Filename
@@ -67,18 +71,39 @@ namespace KRG::Render::MeshEditor
 
         // Set node flags
         uint32 treeNodeflags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
-        if ( model.GetSelection() == file.GetPath() )
+        if ( dataBrowser.GetSelection() == file.GetPath() )
         {
             treeNodeflags |= ImGuiTreeNodeFlags_Selected;
         }
 
+        auto const dataPathForFile = DataPath::FromFileSystemPath( dataBrowser.GetSourceDataDirectoryPath(), file.GetPath() );
+        bool const isBeingPreviewed = dataPathForFile == model.GetPreviewedMeshPath();
+
+        ImGui::PushStyleColor( ImGuiCol_Text, isBeingPreviewed ? Colors::LimeGreen.ToFloat4() : ImGuiX::Theme::s_textColor );
         ImGui::TreeNodeEx( file.GetName().c_str(), treeNodeflags );
+        ImGui::PopStyleColor();
 
         // Handle clicks on the tree node
         if ( ImGui::IsItemFocused() || ImGui::IsItemClicked( ImGuiMouseButton_Left ) || ImGui::IsItemClicked( ImGuiMouseButton_Right ) )
         {
             ImGui::SetItemDefaultFocus();
-            model.SetSelection( file.GetPath() );
+            dataBrowser.SetSelection( file.GetPath() );
+        }
+
+        // Set mesh to preview
+        if ( ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked( 0 ) )
+        {
+            if ( file.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() || file.GetResourceTypeID() == SkeletalMesh::GetStaticResourceTypeID() )
+            {
+                if ( isBeingPreviewed )
+                {
+                    model.ClearPreviewedMeshPath();
+                }
+                else
+                {
+                    model.SetPreviewedMeshPath( dataPathForFile );
+                }
+            }
         }
 
         // Context menu
@@ -87,7 +112,7 @@ namespace KRG::Render::MeshEditor
         ImGui::PushID( &file );
         if ( ImGui::BeginPopupContextItem( "FileContextMenu" ) )
         {
-            model.SetSelection( file.GetPath() );
+            dataBrowser.SetSelection( file.GetPath() );
 
             if ( ImGui::Selectable( "Open In Explorer" ) )
             {
@@ -101,8 +126,7 @@ namespace KRG::Render::MeshEditor
 
             if ( ImGui::Selectable( "Copy Data Path" ) )
             {
-                DataPath dataPath = DataPath::FromFileSystemPath( model.GetSourceDataDirectoryPath(), file.GetPath() );
-                ImGui::SetClipboardText( dataPath.c_str() );
+                ImGui::SetClipboardText( dataPathForFile.c_str() );
             }
 
             ImGui::EndPopup();
@@ -128,8 +152,12 @@ namespace KRG::Render::MeshEditor
         }
     };
 
-    static void DisplayBrowserDirectory( DataBrowserModel& model, DataDirectoryModel& dir )
+    static void DisplayBrowserDirectory( Model& model, DataDirectoryModel& dir )
     {
+        auto& dataBrowser = model.GetDataBrowser();
+
+        //-------------------------------------------------------------------------
+
         ImGui::TableNextRow();
 
         //-------------------------------------------------------------------------
@@ -139,7 +167,7 @@ namespace KRG::Render::MeshEditor
 
         // Set node flags
         uint32 treeNodeflags = ImGuiTreeNodeFlags_SpanFullWidth;
-        if ( model.GetSelection() == dir.GetPath() )
+        if ( dataBrowser.GetSelection() == dir.GetPath() )
         {
             treeNodeflags |= ImGuiTreeNodeFlags_Selected;
         }
@@ -147,7 +175,7 @@ namespace KRG::Render::MeshEditor
         dir.SetExpanded( ImGui::TreeNodeEx( dir.GetName().c_str(), treeNodeflags ) );
         if ( ImGui::IsItemFocused() || ImGui::IsItemClicked() )
         {
-            model.SetSelection( dir.GetPath() );
+            dataBrowser.SetSelection( dir.GetPath() );
         }
 
         ImGui::TableNextColumn();
@@ -176,9 +204,11 @@ namespace KRG::Render::MeshEditor
         }
     }
 
-    static void DisplayBrowserDataDirectory( DataBrowserModel& model )
+    static void DisplayBrowserDataDirectory( Model& model )
     {
-        for ( auto& subDir : model.GetRootDirectory().GetDirectories() )
+        auto& dataBrowser = model.GetDataBrowser();
+
+        for ( auto& subDir : dataBrowser.GetRootDirectory().GetDirectories() )
         {
             if ( subDir.IsVisible() )
             {
@@ -186,7 +216,7 @@ namespace KRG::Render::MeshEditor
             }
         }
 
-        for ( auto& file : model.GetRootDirectory().GetFiles() )
+        for ( auto& file : dataBrowser.GetRootDirectory().GetFiles() )
         {
             if ( file.IsVisible() )
             {
@@ -382,8 +412,6 @@ namespace KRG::Render::MeshEditor
 
             ImGui::BeginChild( "BrowserWindow", ImVec2( 0, 0 ), false, ImGuiWindowFlags_AlwaysVerticalScrollbar );
             {
-                auto const& rootDir = m_model.GetDataBrowser().GetRootDirectory();
-
                 ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_accentColorDark );
                 ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_accentColorDark );
                 static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
@@ -392,7 +420,7 @@ namespace KRG::Render::MeshEditor
                     ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_NoHide );
                     ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed, 100 );
                     ImGui::TableHeadersRow();
-                    DisplayBrowserDataDirectory( m_model.GetDataBrowser() );
+                    DisplayBrowserDataDirectory( m_model );
                     ImGui::EndTable();
                 }
                 ImGui::PopStyleColor( 2 );

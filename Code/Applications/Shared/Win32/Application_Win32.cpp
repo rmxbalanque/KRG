@@ -36,6 +36,10 @@ namespace KRG
 
         KRG_ASSERT( g_pApplicationInstance == nullptr );
         g_pApplicationInstance = this;
+
+        #define _DEBUG
+        _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_WNDW | _CRTDBG_MODE_DEBUG );
+        #undef _DEBUG
     }
 
     Win32Application::~Win32Application()
