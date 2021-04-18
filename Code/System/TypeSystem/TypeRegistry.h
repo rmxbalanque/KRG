@@ -64,6 +64,7 @@ namespace KRG
             inline THashMap<TypeID, ResourceTypeID> const& GetRegisteredResourceTypes() const { return m_registeredResourceTypes; }
             void RegisterResourceTypeID( TypeID typeID, ResourceTypeID resourceTypeID );
             void UnregisterResourceTypeID( TypeID typeID );
+            bool IsRegisteredResourceType( ResourceTypeID resourceTypeID ) const;
             ResourceTypeID GetResourceTypeIDForType( TypeID typeID ) const;
 
         private:

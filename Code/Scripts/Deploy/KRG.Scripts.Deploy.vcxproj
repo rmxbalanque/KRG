@@ -56,7 +56,7 @@
     <NMakeOutput>
     </NMakeOutput>
     <NMakeCleanCommandLine>nmake clean -f Deploy.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_DIR=$(SolutionDir) PLATFORM=$(Platform) CONFIG=$(Configuration) OUT_DIR=$(OutDir)</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>WIN32;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

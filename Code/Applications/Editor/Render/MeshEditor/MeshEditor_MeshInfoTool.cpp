@@ -77,13 +77,88 @@ namespace KRG::Render::MeshEditor
 
         if ( ImGui::Begin( "Mesh Info" ) )
         {
-            if ( IsPreviewingStaticMesh() )
+            if ( m_currentlyPreviewedMesh.IsValid() )
             {
-                DrawStaticMeshInfo( context );
-            }
-            else if ( IsPreviewingSkeletalMesh() )
-            {
-                DrawSkeletalMeshInfo( context );
+                constexpr static ImGuiTableFlags const flags = ImGuiTableFlags_Borders;
+
+                ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
+                if ( ImGui::BeginTable( "MeshInfoTable", 2, flags ) )
+                {
+                    ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
+                    ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableNextRow();
+
+                    ImGui::TableNextColumn();
+                    ImGui::Text( "Data Path:" );
+
+                    ImGui::TableNextColumn();
+                    ImGui::Text( m_currentlyPreviewedMesh.c_str() );
+
+                    //-------------------------------------------------------------------------
+
+                    // Loading indicator
+                    if ( IsLoadingMesh() )
+                    {
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "Loading:" );
+
+                        ImGui::TableNextColumn();
+                        ImGuiX::DrawSpinner( "Loading" );
+                    }
+                    else // Draw basic mesh info
+                    {
+                        Mesh const* pMesh = IsPreviewingStaticMesh() ? static_cast<Mesh const*>( m_pStaticMesh.GetPtr() ) : static_cast<Mesh const*>( m_pSkeletalMesh.GetPtr() );
+
+                        ImGui::TableNextRow();
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "Num Vertices:" );
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "%d", pMesh->GetNumVertices() );
+
+                        ImGui::TableNextRow();
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "Num Indices:" );
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "%d", pMesh->GetNumIndices() );
+
+                        ImGui::TableNextRow();
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "Geometry Sections:" );
+
+                        ImGui::TableNextColumn();
+                        for ( auto const& section : pMesh->GetSections() )
+                        {
+                            ImGui::Text( section.m_ID.c_str() );
+                        }
+
+                        if ( IsPreviewingSkeletalMesh() )
+                        {
+                            ImGui::TableNextColumn();
+                            ImGui::Text( "Num Bones:" );
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text( "%d", m_pSkeletalMesh->GetNumBones() );
+                        }
+                    }
+
+                    ImGui::EndTable();
+                }
+                ImGui::PopStyleVar();
+
+                //-------------------------------------------------------------------------
+
+                if ( IsPreviewingSkeletalMesh() && !IsLoadingMesh() )
+                {
+                    DrawSkeletalMeshInfo( context );
+                }
             }
             else
             {
@@ -93,40 +168,18 @@ namespace KRG::Render::MeshEditor
         ImGui::End();
     }
 
-    void MeshInfo::DrawStaticMeshInfo( UpdateContext const& context )
-    {
-        KRG_ASSERT( IsPreviewingStaticMesh() );
-
-        ImGui::Text( m_currentlyPreviewedMesh.c_str() );
-
-        if ( m_pStaticMesh.IsLoaded() )
-        {
-            ImGui::Text( "Num Vertices: %d", m_pStaticMesh->GetNumVertices() );
-            ImGui::Text( "Num Indices: %d", m_pStaticMesh->GetNumIndices() );
-            ImGui::Text( "Num Geometry Sections: %d", m_pStaticMesh->GetNumSections() );
-        }
-        else
-        {
-            ImGuiX::DrawSpinner( "Loading" );
-        }
-    }
-
     void MeshInfo::DrawSkeletalMeshInfo( UpdateContext const& context )
     {
-        KRG_ASSERT( IsPreviewingSkeletalMesh() );
-
-        ImGui::Text( m_currentlyPreviewedMesh.c_str() );
-
-        if ( m_pSkeletalMesh.IsLoaded() )
+        ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 2 ) );
+        ImGui::BeginChild( "SkeletonView", ImVec2( 0, 0 ), true, ImGuiWindowFlags_AlwaysVerticalScrollbar );
         {
-            ImGui::Text( "Num Vertices: %d", m_pSkeletalMesh->GetNumVertices() );
-            ImGui::Text( "Num Indices: %d", m_pSkeletalMesh->GetNumIndices() );
-            ImGui::Text( "Num Sections: %d", m_pSkeletalMesh->GetNumSections() );
-            ImGui::Text( "Num Bones: %d", m_pSkeletalMesh->GetNumBones() );
+            for ( auto i = 0; i < m_pSkeletalMesh->GetNumBones(); i++ )
+            {
+                ImGui::Text( m_pSkeletalMesh->GetBoneID( i ).c_str() );
+            }
         }
-        else
-        {
-            ImGuiX::DrawSpinner( "Loading" );
-        }
+        ImGui::EndChild();
+        ImGui::PopStyleVar( 2 );
     }
 }

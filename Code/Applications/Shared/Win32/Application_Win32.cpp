@@ -36,10 +36,6 @@ namespace KRG
 
         KRG_ASSERT( g_pApplicationInstance == nullptr );
         g_pApplicationInstance = this;
-
-        #define _DEBUG
-        _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_WNDW | _CRTDBG_MODE_DEBUG );
-        #undef _DEBUG
     }
 
     Win32Application::~Win32Application()
@@ -91,6 +87,9 @@ namespace KRG
         {
             m_windowRect.bottom = v;
         }
+
+        KRG_ASSERT( ( m_windowRect.right - m_windowRect.left ) > 0 );
+        KRG_ASSERT( ( m_windowRect.bottom - m_windowRect.top ) > 0 );
 
         //-------------------------------------------------------------------------
 
@@ -149,13 +148,16 @@ namespace KRG
         m_windowClass.hIconSm = 0;
         RegisterClassEx( &m_windowClass );
 
+        long const windowDesiredWidth = Math::Max( m_windowRect.right - m_windowRect.left, 100l );
+        long const windowDesiredHeight = Math::Max( m_windowRect.bottom - m_windowRect.top, 40l );
+
         m_pWindow = CreateWindow( m_windowClass.lpszClassName,
                                   m_windowClass.lpszClassName,
                                   WS_OVERLAPPEDWINDOW,
                                   m_windowRect.left,
                                   m_windowRect.top,
-                                  m_windowRect.right - m_windowRect.left,
-                                  m_windowRect.bottom - m_windowRect.top,
+                                  windowDesiredWidth,
+                                  windowDesiredHeight,
                                   NULL,
                                   NULL,
                                   m_pInstance,

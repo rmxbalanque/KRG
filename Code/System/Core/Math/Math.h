@@ -80,7 +80,7 @@ namespace KRG
         template<typename T>
         KRG_FORCE_INLINE T Clamp( T value, T lowerBound, T upperBound )
         {
-            KRG_ASSERT( lowerBound < upperBound );
+            KRG_ASSERT( lowerBound <= upperBound );
             return Min( Max( value, lowerBound ), upperBound );
         }
 

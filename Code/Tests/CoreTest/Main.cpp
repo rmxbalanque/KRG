@@ -34,21 +34,7 @@ int main( int argc, char *argv[] )
 
         //-------------------------------------------------------------------------
 
-        Test* s = KRG::New<Test>();
-
-        FileSystem::Path path( "D:\\Kruger\\Data\\Packs\\BR\\Characters\\SK_Chr_70sFemale_01.smsh" );
-
-        TypeSystem::TypeInstanceModel typeInstance;
-        TypeSystem::TypeInstanceModelReader typeReader( typeRegistry );
-        if ( typeReader.ReadFromFile( path ) )
-        {
-            typeReader.DeserializeType( typeInstance );
-        }
-
-        DataPath const dp( String( "data://test.txt" ) );
-        s->SetPreviewedMeshPath( dp );
-
-        KRG::Delete( s );
+        TSingleUserEventInternal<void( int )> e;
 
         //-------------------------------------------------------------------------
 

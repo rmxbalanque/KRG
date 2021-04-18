@@ -6,7 +6,7 @@
 #if _WIN32
 namespace KRG::FileSystem
 {
-    void OpenFileInExplorer( FileSystem::Path const& path )
+    void OpenInExplorer( FileSystem::Path const& path )
     {
         InlineString<255> cmdLine( "/select," );
         cmdLine += path.c_str();

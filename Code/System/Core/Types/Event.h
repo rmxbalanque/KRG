@@ -13,14 +13,16 @@
 // Use the TSingleUserEvent/TMultiUserEvent type to allows users to register for the event
 // Use the TSingleUserEventImpl/TMultiUserEventImpl type internally to allow the event to be fired.
 //
+// NOTE: you need to return the events by value!
+// 
 // e.g.
 //
 // class Foo
 // {
 // public:
 // 
-//     inline TSingleUserEvent<void(int,int)>& OnEvent() { return m_onEventA; }
-//     inline TMultiUserEvent<int,int>& OnEvent() { return m_onEventB; }
+//     inline TSingleUserEvent<void(int,int)> OnEvent() { return m_onEventA; }
+//     inline TMultiUserEvent<int,int> OnEvent() { return m_onEventB; }
 // 
 // private:
 // 
@@ -55,14 +57,17 @@ namespace KRG
     //-------------------------------------------------------------------------
     // Single User Event
     //-------------------------------------------------------------------------
-
-    template<typename R, typename... Args>
+    
+    template<typename>
     class TSingleUserEvent;
 
     template<typename R, typename... Args>
-    class TSingleUserEventInternal
+    class TSingleUserEvent<R( Args... )>;
+
+    template<typename R, typename... Args>
+    class TSingleUserEventInternal<R( Args... )>
     {
-        friend TSingleUserEvent<R, Args...>;
+        friend TSingleUserEvent;
 
     public:
 
@@ -116,12 +121,12 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     template<typename R, typename... Args>
-    class TSingleUserEvent
+    class TSingleUserEvent<R( Args... )>
     {
     public:
 
-        TSingleUserEvent( TSingleUserEventInternal<R, Args...>& event ) : m_pEvent( &event ) {}
-        TSingleUserEvent( TSingleUserEventInternal<R, Args...>* event ) : m_pEvent( event ) {}
+        TSingleUserEvent( TSingleUserEventInternal<R( Args... )>& event ) : m_pEvent( &event ) {}
+        TSingleUserEvent( TSingleUserEventInternal<R( Args... )>* event ) : m_pEvent( event ) {}
 
         [[nodiscard]] inline EventBindingID Bind( eastl::function<R( Args... )>&& function )
         {
@@ -135,7 +140,7 @@ namespace KRG
 
     private:
 
-        TSingleUserEventInternal<R, Args...>* m_pEvent = nullptr;
+        TSingleUserEventInternal<R( Args... )>* m_pEvent = nullptr;
     };
 
     //-------------------------------------------------------------------------

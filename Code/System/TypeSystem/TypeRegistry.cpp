@@ -175,6 +175,19 @@ namespace KRG
             m_registeredResourceTypes.erase( iter );
         }
 
+        bool TypeRegistry::IsRegisteredResourceType( ResourceTypeID resourceTypeID ) const
+        {
+            for ( auto const& pair : m_registeredResourceTypes )
+            {
+                if ( pair.second == resourceTypeID )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         ResourceTypeID TypeRegistry::GetResourceTypeIDForType( TypeID typeID ) const
         {
             ResourceTypeID resourceTypeID;

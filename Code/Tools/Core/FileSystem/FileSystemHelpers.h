@@ -8,6 +8,6 @@
 #if _WIN32
 namespace KRG::FileSystem
 {
-    KRG_TOOLS_CORE_API void OpenFileInExplorer( FileSystem::Path const& path );
+    KRG_TOOLS_CORE_API void OpenInExplorer( FileSystem::Path const& path );
 }
 #endif

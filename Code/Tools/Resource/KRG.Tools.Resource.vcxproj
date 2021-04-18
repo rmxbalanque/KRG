@@ -14,7 +14,6 @@
     <ClInclude Include="Compilers\ResourceCompiler.h" />
     <ClInclude Include="Compilers\ResourceDescriptor.h" />
     <ClInclude Include="Compilers\ResourceCompilerModule.h" />
-    <ClInclude Include="DataBrowser\DataBrowserModel.h" />
     <ClInclude Include="RawAssets\Fbx\FbxAnimation.h" />
     <ClInclude Include="RawAssets\Fbx\FbxInfo.h" />
     <ClInclude Include="RawAssets\Fbx\FbxMesh.h" />
@@ -38,7 +37,6 @@
     <ClCompile Include="Compilers\ResourceCompiler.cpp" />
     <ClCompile Include="Compilers\ResourceDescriptor.cpp" />
     <ClCompile Include="Compilers\ResourceCompilerModule.cpp" />
-    <ClCompile Include="DataBrowser\DataBrowserModel.cpp" />
     <ClCompile Include="RawAssets\Fbx\FbxAnimation.cpp" />
     <ClCompile Include="RawAssets\Fbx\FbxInfo.cpp" />
     <ClCompile Include="RawAssets\Fbx\FbxMesh.cpp" />

@@ -45,7 +45,7 @@ namespace KRG::Render
         // Mobility
         //-------------------------------------------------------------------------
 
-        inline TSingleUserEvent<void, StaticMeshComponent*> OnMobilityChanged() { return m_mobilityChangedEvent; }
+        inline TSingleUserEvent<void( StaticMeshComponent* )> OnMobilityChanged() { return m_mobilityChangedEvent; }
         inline Mobility GetMobility() const { return m_mobility; }
 
         inline void ChangeMobility( Mobility newMobility )
@@ -71,6 +71,6 @@ namespace KRG::Render
 
         EXPOSE TResourcePtr<StaticMesh>                                 m_pMesh;
         EXPOSE Mobility                                                 m_mobility = Mobility::Static;
-        TSingleUserEventInternal<void, StaticMeshComponent*>            m_mobilityChangedEvent;
+        TSingleUserEventInternal<void( StaticMeshComponent* )>          m_mobilityChangedEvent;
     };
 }

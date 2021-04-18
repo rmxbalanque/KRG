@@ -11,6 +11,7 @@
 #include "System/Core/Logging/Log.h"
 #include "Compilers/Render/Mesh/StaticMeshCompiler.h"
 #include "Compilers/Render/Mesh/SkeletalMeshCompiler.h"
+#include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 
@@ -56,172 +57,26 @@ namespace KRG::Render::MeshEditor
 
     //-------------------------------------------------------------------------
 
-    static void DisplayBrowserFile( Model& model, DataFileModel& file )
+    void DataBrowser::MeshBrowserTreeItem::DrawControls()
     {
-        auto& dataBrowser = model.GetDataBrowser();
+        if ( IsDirectory() )
+        {
+            return;
+        }
 
         //-------------------------------------------------------------------------
 
-        ImGui::TableNextRow();
-
-        // Filename
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextColumn();
-
-        // Set node flags
-        uint32 treeNodeflags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
-        if ( dataBrowser.GetSelection() == file.GetPath() )
-        {
-            treeNodeflags |= ImGuiTreeNodeFlags_Selected;
-        }
-
-        auto const dataPathForFile = DataPath::FromFileSystemPath( dataBrowser.GetSourceDataDirectoryPath(), file.GetPath() );
-        bool const isBeingPreviewed = dataPathForFile == model.GetPreviewedMeshPath();
-
-        ImGui::PushStyleColor( ImGuiCol_Text, isBeingPreviewed ? Colors::LimeGreen.ToFloat4() : ImGuiX::Theme::s_textColor );
-        ImGui::TreeNodeEx( file.GetName().c_str(), treeNodeflags );
-        ImGui::PopStyleColor();
-
-        // Handle clicks on the tree node
-        if ( ImGui::IsItemFocused() || ImGui::IsItemClicked( ImGuiMouseButton_Left ) || ImGui::IsItemClicked( ImGuiMouseButton_Right ) )
-        {
-            ImGui::SetItemDefaultFocus();
-            dataBrowser.SetSelection( file.GetPath() );
-        }
-
-        // Set mesh to preview
-        if ( ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked( 0 ) )
-        {
-            if ( file.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() || file.GetResourceTypeID() == SkeletalMesh::GetStaticResourceTypeID() )
-            {
-                if ( isBeingPreviewed )
-                {
-                    model.ClearPreviewedMeshPath();
-                }
-                else
-                {
-                    model.SetPreviewedMeshPath( dataPathForFile );
-                }
-            }
-        }
-
-        // Context menu
-        //-------------------------------------------------------------------------
-
-        ImGui::PushID( &file );
-        if ( ImGui::BeginPopupContextItem( "FileContextMenu" ) )
-        {
-            dataBrowser.SetSelection( file.GetPath() );
-
-            if ( ImGui::Selectable( "Open In Explorer" ) )
-            {
-                FileSystem::OpenFileInExplorer( file.GetPath() );
-            }
-
-            if ( ImGui::Selectable( "Copy File Path" ) )
-            {
-                ImGui::SetClipboardText( file.GetPath().c_str() );
-            }
-
-            if ( ImGui::Selectable( "Copy Data Path" ) )
-            {
-                ImGui::SetClipboardText( dataPathForFile.c_str() );
-            }
-
-            ImGui::EndPopup();
-        }
-        ImGui::PopID();
-
-        // File Type
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextColumn();
-
-        if ( file.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
-        {
-            ImGui::TextColored( g_staticMeshColor.ToFloat4(), "Static Mesh" );
-        }
-        else if ( file.GetResourceTypeID() == SkeletalMesh::GetStaticResourceTypeID() )
-        {
-            ImGui::TextColored( g_skeletalMeshColor.ToFloat4(), "Skeletal Mesh" );
-        }
-        else
+        if ( IsRawFile() )
         {
             ImGui::TextColored( g_rawFileColor.ToFloat4(), "Raw" );
         }
-    };
-
-    static void DisplayBrowserDirectory( Model& model, DataDirectoryModel& dir )
-    {
-        auto& dataBrowser = model.GetDataBrowser();
-
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextRow();
-
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextColumn();
-        ImGui::SetNextItemOpen( dir.IsExpanded() );
-
-        // Set node flags
-        uint32 treeNodeflags = ImGuiTreeNodeFlags_SpanFullWidth;
-        if ( dataBrowser.GetSelection() == dir.GetPath() )
+        else if ( GetResourceTypeID() == SkeletalMesh::GetStaticResourceTypeID() )
         {
-            treeNodeflags |= ImGuiTreeNodeFlags_Selected;
+            ImGui::TextColored( g_skeletalMeshColor.ToFloat4(), "Skeletal Mesh" );
         }
-
-        dir.SetExpanded( ImGui::TreeNodeEx( dir.GetName().c_str(), treeNodeflags ) );
-        if ( ImGui::IsItemFocused() || ImGui::IsItemClicked() )
+        else if ( GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
         {
-            dataBrowser.SetSelection( dir.GetPath() );
-        }
-
-        ImGui::TableNextColumn();
-        ImGui::Text( "-" );
-
-        //-------------------------------------------------------------------------
-
-        if ( dir.IsExpanded() )
-        {
-            for ( auto& subDir : dir.GetDirectories() )
-            {
-                if ( subDir.IsVisible() )
-                {
-                    DisplayBrowserDirectory( model, subDir );
-                }
-            }
-
-            for ( auto& file : dir.GetFiles() )
-            {
-                if ( file.IsVisible() )
-                {
-                    DisplayBrowserFile( model, file );
-                }
-            }
-            ImGui::TreePop();
-        }
-    }
-
-    static void DisplayBrowserDataDirectory( Model& model )
-    {
-        auto& dataBrowser = model.GetDataBrowser();
-
-        for ( auto& subDir : dataBrowser.GetRootDirectory().GetDirectories() )
-        {
-            if ( subDir.IsVisible() )
-            {
-                DisplayBrowserDirectory( model, subDir );
-            }
-        }
-
-        for ( auto& file : dataBrowser.GetRootDirectory().GetFiles() )
-        {
-            if ( file.IsVisible() )
-            {
-                DisplayBrowserFile( model, file );
-            }
+            ImGui::TextColored( g_staticMeshColor.ToFloat4(), "Static Mesh" );
         }
     }
 
@@ -231,8 +86,16 @@ namespace KRG::Render::MeshEditor
         : TEditorTool<Model>( pModel )
         , m_propertyGrid( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
         , m_descriptorCreator( pModel )
+        , m_dataBrowserTreeView( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory(), { ".msh", ".smsh", ".fbx", ".gltf" } )
     {
+        m_onDoubleClickEventID = m_dataBrowserTreeView.OnActiveItemChanged().Bind( [this] ( TreeViewItem* pItem ) { OnBrowserActiveItemChanged( pItem ); } );
+        m_dataBrowserTreeView.RebuildBrowserTree();
         UpdateVisibility();
+    }
+
+    DataBrowser::~DataBrowser()
+    {
+        m_dataBrowserTreeView.OnActiveItemChanged().Unbind( m_onDoubleClickEventID );
     }
 
     //-------------------------------------------------------------------------
@@ -246,25 +109,35 @@ namespace KRG::Render::MeshEditor
 
         //-------------------------------------------------------------------------
 
-        if ( m_model.GetDataBrowser().GetSelection() != m_inspectedPath )
+        m_dataBrowserTreeView.Update( context );
+
+        //-------------------------------------------------------------------------
+
+        DrawBrowser( context );
+
+        //-------------------------------------------------------------------------
+
+        auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<MeshBrowserTreeItem>();
+        if ( pSelectedItem != nullptr && pSelectedItem->IsFile() )
         {
-            m_inspectedPath = m_model.GetDataBrowser().GetSelection();
-            if ( m_inspectedPath.IsValid() && m_inspectedPath.IsFilePath() )
+            if ( pSelectedItem->GetPath() != m_inspectedFile )
             {
-                if ( IsInspectedFileARawFile() )
+                m_inspectedFile = pSelectedItem->GetPath();
+
+                if ( pSelectedItem->IsRawFile() )
                 {
-                    if ( RawAssets::ReadFileInfo( m_inspectedPath, m_assetInfo ) )
+                    if ( RawAssets::ReadFileInfo( m_inspectedFile, m_assetInfo ) )
                     {
                         m_validAssetInfo = true;
                     }
                     else
                     {
                         m_validAssetInfo = false;
-                        KRG_LOG_ERROR( "DataBrowser", "Failed to read raw resource file: %s", m_inspectedPath.c_str() );
+                        KRG_LOG_ERROR( "DataBrowser", "Failed to read raw resource file: %s", m_inspectedFile.c_str() );
                     }
                 }
                 else // Resource File
-                { 
+                {
                     if ( OpenInspectedResourceFile( context ) )
                     {
                         m_propertyGrid.SetTypeToEdit( &m_typeInstance );
@@ -272,41 +145,50 @@ namespace KRG::Render::MeshEditor
                     else
                     {
                         m_propertyGrid.SetTypeToEdit( nullptr );
-                        KRG_LOG_ERROR( "DataBrowser", "Failed to deserialize resource file: %s", m_inspectedPath.c_str() );
+                        KRG_LOG_ERROR( "DataBrowser", "Failed to deserialize resource file: %s", m_inspectedFile.c_str() );
                     }
                 }
             }
         }
+        else // Clear inspected file
+        {
+            m_inspectedFile = FileSystem::Path();
+            m_assetInfo.Reset();
+        }
 
         //-------------------------------------------------------------------------
 
-        ImGui::ShowDemoWindow();
-        DrawBrowser( context );
         DrawInfoPanel( context );
     }
 
     //-------------------------------------------------------------------------
+    // Browser
+    //-------------------------------------------------------------------------
 
     void DataBrowser::UpdateVisibility()
     {
-        auto VisibilityFunc = [this] ( DataFileModel const& file )
+        auto VisibilityFunc = [this] ( TreeViewItem const* pItem )
         {
-            bool isVisible = false;
+            bool isVisible = true;
 
             // Type filter
             //-------------------------------------------------------------------------
 
-            if ( file.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
+            auto pDataFileItem = static_cast<DataBrowserTreeItem const*>( pItem );
+            if ( pDataFileItem->IsFile() )
             {
-                isVisible = m_showStaticMeshes;
-            }
-            else if ( file.GetResourceTypeID() == SkeletalMesh::GetStaticResourceTypeID() )
-            {
-                isVisible = m_showSkeletalMeshes;
-            }
-            else
-            {
-                isVisible = m_showRawFiles;
+                if ( pDataFileItem->GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
+                {
+                    isVisible = m_showStaticMeshes;
+                }
+                else if ( pDataFileItem->GetResourceTypeID() == SkeletalMesh::GetStaticResourceTypeID() )
+                {
+                    isVisible = m_showSkeletalMeshes;
+                }
+                else
+                {
+                    isVisible = m_showRawFiles;
+                }
             }
 
             // Text filter
@@ -314,8 +196,8 @@ namespace KRG::Render::MeshEditor
 
             if ( isVisible && m_filterBuffer[0] != 0 )
             {
-                String lowerName = file.GetName();
-                lowerName.make_lower();
+                String lowercaseLabel = pItem->GetLabel();
+                lowercaseLabel.make_lower();
 
                 char tempBuffer[256];
                 strcpy( tempBuffer, m_filterBuffer );
@@ -323,7 +205,7 @@ namespace KRG::Render::MeshEditor
                 char* token = strtok( tempBuffer, " " );
                 while ( token )
                 {
-                    if ( lowerName.find( token ) == String::npos )
+                    if ( lowercaseLabel.find( token ) == String::npos )
                     {
                         isVisible = false;
                         break;
@@ -340,11 +222,13 @@ namespace KRG::Render::MeshEditor
 
         //-------------------------------------------------------------------------
 
-        m_model.GetDataBrowser().UpdateFileVisibility( VisibilityFunc );
+        m_dataBrowserTreeView.UpdateItemVisibility( VisibilityFunc );
     }
 
     void DataBrowser::DrawBrowser( UpdateContext const& context )
     {
+        KRG_PROFILE_FUNCTION();
+
         if ( ImGui::Begin( "Data Browser", nullptr ) )
         {
             // Text Filter
@@ -394,13 +278,13 @@ namespace KRG::Render::MeshEditor
             ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 42 );
             if ( ImGui::Button( KRG_ICON_PLUS "##Expand All" ) )
             {
-                m_model.GetDataBrowser().ForEachDirectory( [] ( DataDirectoryModel& dir ) { dir.SetExpanded( true ); } );
+                m_dataBrowserTreeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( true ); } );
             }
 
             ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 20 );
             if ( ImGui::Button( KRG_ICON_MINUS "##Collapse ALL" ) )
             {
-                m_model.GetDataBrowser().ForEachDirectory( [] ( DataDirectoryModel& dir ) { dir.SetExpanded( false ); } );
+                m_dataBrowserTreeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( false ); } );
             }
 
             //-------------------------------------------------------------------------
@@ -410,45 +294,40 @@ namespace KRG::Render::MeshEditor
             // Browser
             //-------------------------------------------------------------------------
 
-            ImGui::BeginChild( "BrowserWindow", ImVec2( 0, 0 ), false, ImGuiWindowFlags_AlwaysVerticalScrollbar );
-            {
-                ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_accentColorDark );
-                ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_accentColorDark );
-                static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-                if ( ImGui::BeginTable( "Data Browser", 2, flags, ImVec2( ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x / 2, 0 ) ) )
-                {
-                    ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_NoHide );
-                    ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed, 100 );
-                    ImGui::TableHeadersRow();
-                    DisplayBrowserDataDirectory( m_model );
-                    ImGui::EndTable();
-                }
-                ImGui::PopStyleColor( 2 );
-            }
-            ImGui::EndChild();
+            m_dataBrowserTreeView.Draw();
         }
         ImGui::End();
     }
 
     //-------------------------------------------------------------------------
 
-    bool DataBrowser::IsInspectedFileARawFile() const
+    void DataBrowser::OnBrowserActiveItemChanged( TreeViewItem* pItem )
     {
-        auto const extension = m_inspectedPath.GetExtensionAsString();
-        if ( extension == "gltf" || extension == "fbx" )
+        if ( pItem == nullptr )
         {
-            return true;
+            m_model.ClearPreviewedMeshPath();
+            return;
         }
-        
-        return false;
+
+        //-------------------------------------------------------------------------
+
+        auto pDataItem = static_cast<MeshBrowserTreeItem*>( pItem );
+        if ( pDataItem->IsFile() && pDataItem->IsResourceFile() )
+        {
+            m_model.SetPreviewedMeshPath( pDataItem->GetDataPath() );
+        }
+        else
+        {
+            m_model.ClearPreviewedMeshPath();
+        }
     }
 
     bool DataBrowser::OpenInspectedResourceFile( UpdateContext const& context )
     {
-        KRG_ASSERT( m_inspectedPath.ExistsAndIsFile() );
+        KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() );
 
         TypeSystem::TypeInstanceModelReader typeReader( *context.GetSystem<TypeSystem::TypeRegistry>() );
-        if ( typeReader.ReadFromFile( m_inspectedPath ) )
+        if ( typeReader.ReadFromFile( m_inspectedFile ) )
         {
             return typeReader.DeserializeType( m_typeInstance );
         }
@@ -458,34 +337,30 @@ namespace KRG::Render::MeshEditor
 
     bool DataBrowser::SaveInspectedResourceFile( UpdateContext const& context )
     {
-        KRG_ASSERT( m_inspectedPath.ExistsAndIsFile() && m_typeInstance.IsValid() );
+        KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() && m_typeInstance.IsValid() );
 
         TypeSystem::TypeInstanceModelWriter typeWriter( *context.GetSystem<TypeSystem::TypeRegistry>() );
         typeWriter.SerializeType( m_typeInstance );
-        return typeWriter.WriteToFile( m_inspectedPath );
+        return typeWriter.WriteToFile( m_inspectedFile );
     }
 
+    //-------------------------------------------------------------------------
+    // Info Panel
     //-------------------------------------------------------------------------
 
     void DataBrowser::DrawInfoPanel( UpdateContext const& context )
     {
         if ( ImGui::Begin( "Data File Info" ) )
         {
-            if ( !m_inspectedPath.IsValid() )
+            if ( m_inspectedFile.IsValid() )
             {
-                // Do Nothing
-            }
-            else if ( m_inspectedPath.IsDirectoryPath() )
-            {
-                ImGui::Text( "Directory: %s", m_inspectedPath.c_str() );
-            }
-            else // File
-            {
-                if ( IsInspectedFileARawFile() )
+                auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<MeshBrowserTreeItem>();
+                KRG_ASSERT( pSelectedItem != nullptr && pSelectedItem->IsFile() );
+                if ( pSelectedItem->IsRawFile() )
                 {
                     DrawRawFileInfo( context );
                 }
-                else if( m_typeInstance.IsValid() )
+                else if ( m_typeInstance.IsValid() )
                 {
                     DrawResourceFileInfo( context );
                 }
@@ -500,7 +375,7 @@ namespace KRG::Render::MeshEditor
 
     void DataBrowser::DrawResourceFileInfo( UpdateContext const& context )
     {
-        KRG_ASSERT( m_typeInstance.IsValid() && m_inspectedPath.IsFilePath() );
+        KRG_ASSERT( m_typeInstance.IsValid() && m_inspectedFile.IsFilePath() );
 
         //-------------------------------------------------------------------------
 
@@ -511,7 +386,7 @@ namespace KRG::Render::MeshEditor
         float const buttonStartPosX = textAreaWidth + itemSpacing;
 
         ImGui::AlignTextToFramePadding();
-        ImGui::Text( m_inspectedPath.GetFileName().c_str() );
+        ImGui::Text( m_inspectedFile.GetFileName().c_str() );
         float const actualTextWidth = ImGui::GetItemRectSize().x;
 
         ImGui::SameLine( 0, textAreaWidth - actualTextWidth + itemSpacing );
@@ -535,7 +410,9 @@ namespace KRG::Render::MeshEditor
 
     void DataBrowser::DrawRawFileInfo( UpdateContext const& context )
     {
-        ImGui::Text( "Raw File: %s", m_inspectedPath.c_str() );
+        KRG_ASSERT( m_inspectedFile.IsFilePath() );
+
+        ImGui::Text( "Raw File: %s", m_inspectedFile.c_str() );
         ImGui::Separator();
 
         if ( m_validAssetInfo )
@@ -586,7 +463,7 @@ namespace KRG::Render::MeshEditor
 
             if ( ImGui::BeginPopupModal( "Create New Descriptor##Modal", NULL, ImGuiWindowFlags_AlwaysAutoResize ) )
             {
-                if ( m_descriptorCreator.ShowCreatorDialog( m_inspectedPath ) )
+                if ( m_descriptorCreator.ShowCreatorDialog( m_inspectedFile ) )
                 {
                     ImGui::CloseCurrentPopup();
                 }

@@ -229,7 +229,7 @@ namespace KRG::Resource
                 {
                     if ( hasSelectedItem )
                     {
-                        FileSystem::OpenFileInExplorer( m_pSelectedCompletedRequest->GetSourceFilePath() );
+                        FileSystem::OpenInExplorer( m_pSelectedCompletedRequest->GetSourceFilePath() );
                     }
                 }
 
@@ -238,7 +238,7 @@ namespace KRG::Resource
                 {
                     if ( hasSelectedItem )
                     {
-                        FileSystem::OpenFileInExplorer( m_pSelectedCompletedRequest->GetDestinationFilePath() );
+                        FileSystem::OpenInExplorer( m_pSelectedCompletedRequest->GetDestinationFilePath() );
                     }
                 }
 

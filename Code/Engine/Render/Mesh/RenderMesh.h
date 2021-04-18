@@ -69,6 +69,7 @@ namespace KRG::Render
         inline RenderBuffer const& GetIndexBuffer() const { return m_indexBuffer; }
 
         // Mesh Sections
+        inline TVector<GeometrySection> const& GetSections() const { return m_sections; }
         inline uint32 GetNumSections() const { return (uint32) m_sections.size(); }
         inline GeometrySection GetSection( uint32 i ) const { KRG_ASSERT( i < GetNumSections() ); return m_sections[i]; }
 

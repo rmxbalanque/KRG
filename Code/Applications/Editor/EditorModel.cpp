@@ -12,7 +12,7 @@ namespace KRG
 
     EditorModel::~EditorModel()
     {
-        KRG_ASSERT( m_pTypeRegistry == nullptr && m_pDataBrowserModel == nullptr );
+        KRG_ASSERT( m_pTypeRegistry == nullptr );
     }
 
     void EditorModel::Initialize( UpdateContext const& context )
@@ -32,14 +32,5 @@ namespace KRG
         m_pTypeRegistry = nullptr;
         m_compiledDataDirectory = FileSystem::Path();
         m_sourceDataDirectory = FileSystem::Path();
-    }
-
-    void EditorModel::Update( UpdateContext const& context )
-    {
-        // Optional
-        if ( m_pDataBrowserModel != nullptr )
-        {
-            m_pDataBrowserModel->Update( context );
-        }
     }
 }

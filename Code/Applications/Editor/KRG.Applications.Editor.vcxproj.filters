@@ -40,6 +40,9 @@
     <ClCompile Include="Common\PropertyGrid\PropertyGrid.cpp" />
     <ClCompile Include="Common\DataFilePicker.cpp" />
     <ClCompile Include="Common\ResourceDescriptorCreator.cpp" />
+    <ClCompile Include="Common\ListView.cpp" />
+    <ClCompile Include="Common\TreeView.cpp" />
+    <ClCompile Include="Common\DataBrowser\DataBrowserTreeView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Win32\EditorApplication_Win32.h">
@@ -59,6 +62,9 @@
     <ClInclude Include="Common\PropertyGrid\PropertyGrid.h" />
     <ClInclude Include="Common\DataFilePicker.h" />
     <ClInclude Include="Common\ResourceDescriptorCreator.h" />
+    <ClInclude Include="Common\ListView.h" />
+    <ClInclude Include="Common\TreeView.h" />
+    <ClInclude Include="Common\DataBrowser\DataBrowserTreeView.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc">

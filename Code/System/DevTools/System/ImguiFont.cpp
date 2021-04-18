@@ -13,12 +13,26 @@ namespace KRG::ImGuiX
     ScopedFont::ScopedFont( Font font )
     {
         KRG_ASSERT( font != Font::NumFonts && SystemFonts::s_fonts[(uint8) font] != nullptr );
-        ::ImGui::PushFont( SystemFonts::s_fonts[(uint8) font] );
+        ImGui::PushFont( SystemFonts::s_fonts[(uint8) font] );
+    }
+
+    ScopedFont::ScopedFont( Font font, ImVec4 const& color )
+    {
+        KRG_ASSERT( font != Font::NumFonts && SystemFonts::s_fonts[(uint8) font] != nullptr );
+        ImGui::PushFont( SystemFonts::s_fonts[(uint8) font] );
+
+        ImGui::PushStyleColor( ImGuiCol_Text, color );
+        m_colorApplied = true;
     }
 
     ScopedFont::~ScopedFont()
     {
-        ::ImGui::PopFont();
+        if ( m_colorApplied )
+        {
+            ImGui::PopStyleColor();
+        }
+
+        ImGui::PopFont();
     }
 }
 #endif

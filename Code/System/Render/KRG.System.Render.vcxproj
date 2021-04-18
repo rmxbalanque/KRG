@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Fonts\FontData_SegoeBold.h" />
     <ClInclude Include="Renderers\DebugRenderer\DebugRenderer.h" />
     <ClInclude Include="Renderers\DebugRenderer\DebugRenderStates.h" />
     <ClInclude Include="Fonts\FontData_Segoe.h" />
@@ -51,6 +52,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Fonts\FontData_SegoeBold.cpp" />
     <ClCompile Include="Renderers\DebugRenderer\DebugRenderer.cpp" />
     <ClCompile Include="Renderers\DebugRenderer\DebugRenderStates.cpp" />
     <ClCompile Include="Fonts\FontData_Segoe.cpp" />

@@ -32,6 +32,12 @@
 #define EASTL_EASTDC_VSNPRINTF 0
 #define EASTL_EXCEPTIONS_ENABLED 0
 
+#if KRG_DEBUG
+#define EASTL_DEBUG 1
+#endif
+
+#define EASTL_ASSERT KRG_ASSERT
+
 //-------------------------------------------------------------------------
 
 inline int Vsnprintf8( char8_t*  pDestination, size_t n, const char8_t*  pFormat, va_list arguments )

@@ -3,7 +3,6 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
-#include "Tools/Resource/DataBrowser/DataBrowserModel.h"
 
 //-------------------------------------------------------------------------
 
@@ -24,13 +23,12 @@ namespace KRG
 
         virtual void Initialize( UpdateContext const& context );
         virtual void Shutdown( UpdateContext const& context );
-        virtual void Update( UpdateContext const& context );
+        virtual void Update( UpdateContext const& context ) {}
 
         inline FileSystem::Path const& GetSourceDataDirectory() const { return m_sourceDataDirectory; }
         inline FileSystem::Path const& GetCompiledDataDirectory() const { return m_compiledDataDirectory; }
 
         inline TypeSystem::TypeRegistry const& GetTypeRegistry() const { return *m_pTypeRegistry; }
-        inline DataBrowserModel& GetDataBrowser() { return *m_pDataBrowserModel; }
 
     protected:
 
@@ -39,8 +37,5 @@ namespace KRG
 
         // Core editor systems
         TypeSystem::TypeRegistry const*     m_pTypeRegistry = nullptr;
-
-        // Optional: Can be created in the initialize of derived models if required
-        DataBrowserModel*                   m_pDataBrowserModel = nullptr;
     };
 }

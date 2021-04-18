@@ -80,7 +80,7 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     template< typename T, typename ... ConstructorParams >
-    KRG_FORCE_INLINE T* New( ConstructorParams&&... params )
+    KRG_FORCE_INLINE [[nodiscard]] T* New( ConstructorParams&&... params )
     {
         void* pMemory = Alloc( sizeof( T ), alignof( T ) );
         KRG_ASSERT( pMemory != nullptr );

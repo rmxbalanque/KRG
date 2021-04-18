@@ -4,6 +4,7 @@
 #include "System/DevTools/ThirdParty/imgui/misc/freetype/imgui_freetype.h"
 #include "System/Render/Fonts/FontDecompressor.h"
 #include "System/Render/Fonts/FontData_Segoe.h"
+#include "System/Render/Fonts/FontData_SegoeBold.h"
 #include "System/Render/Fonts/FontData_FontAwesome4.h"
 
 //-------------------------------------------------------------------------
@@ -91,6 +92,10 @@ namespace KRG::ImGuiX
         Fonts::Segoe::GetFontCompressedData( fontCompressedData );
         Fonts::GetDecompressedFontData( fontCompressedData.data(), fontData );
 
+        TVector<Byte> fontBoldCompressedData, foldBoldData;
+        Fonts::SegoeBold::GetFontCompressedData( fontBoldCompressedData );
+        Fonts::GetDecompressedFontData( fontBoldCompressedData.data(), foldBoldData );
+
         TVector<Byte> iconFontCompressedData, iconFontData;
         ImWchar const icons_ranges[] = { KRG_ICON_MIN_FA, KRG_ICON_MAX_FA, 0 };
         Fonts::FontAwesome4::GetFontCompressedData( iconFontCompressedData );
@@ -124,6 +129,14 @@ namespace KRG::ImGuiX
         iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
         io.Fonts->AddFontFromMemoryTTF( iconFontData.data(), (int32) iconFontData.size(), 14.0f, &iconFontConfig, icons_ranges );
 
+        fontConfig.GlyphExtraSpacing = ImVec2( 1, 0 );
+        fontConfig.GlyphOffset = ImVec2( 0, -1 );
+        ImFont* pSmallBoldFont = io.Fonts->AddFontFromMemoryTTF( foldBoldData.data(), (int32) foldBoldData.size(), 14, &fontConfig );
+        SystemFonts::s_fonts[(uint8) Font::SmallBold] = pSmallBoldFont;
+
+        iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
+        io.Fonts->AddFontFromMemoryTTF( iconFontData.data(), (int32) iconFontData.size(), 14.0f, &iconFontConfig, icons_ranges );
+
         // Medium Font
         //-------------------------------------------------------------------------
 
@@ -131,6 +144,14 @@ namespace KRG::ImGuiX
         fontConfig.GlyphOffset = ImVec2( 0, -1 );
         ImFont* pMediumFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (int32) fontData.size(), 16, &fontConfig );
         SystemFonts::s_fonts[(uint8) Font::Medium] = pMediumFont;
+
+        iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
+        io.Fonts->AddFontFromMemoryTTF( iconFontData.data(), (int32) iconFontData.size(), 14.0f, &iconFontConfig, icons_ranges );
+
+        fontConfig.GlyphExtraSpacing = ImVec2( 0, 0 );
+        fontConfig.GlyphOffset = ImVec2( 0, -1 );
+        ImFont* pMediumBoldFont = io.Fonts->AddFontFromMemoryTTF( foldBoldData.data(), (int32) foldBoldData.size(), 16, &fontConfig );
+        SystemFonts::s_fonts[(uint8) Font::MediumBold] = pMediumBoldFont;
 
         iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
         io.Fonts->AddFontFromMemoryTTF( iconFontData.data(), (int32) iconFontData.size(), 14.0f, &iconFontConfig, icons_ranges );

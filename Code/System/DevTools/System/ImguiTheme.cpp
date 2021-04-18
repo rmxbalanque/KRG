@@ -85,6 +85,7 @@ namespace KRG::ImGuiX
 
          style.FramePadding = ImVec2( 4, 2 );
          style.WindowRounding = 0.0f;
+         style.IndentSpacing = 8.0f;
          style.ChildRounding = 0.0f;
          style.FrameRounding = 0.0f;
          style.GrabRounding = 0.0f;

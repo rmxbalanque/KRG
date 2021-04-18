@@ -25,8 +25,9 @@ namespace KRG::Render::MeshEditor
 
         inline bool IsPreviewingStaticMesh() const { return m_pStaticMesh.IsValid(); }
         inline bool IsPreviewingSkeletalMesh() const { return m_pSkeletalMesh.IsValid(); }
+        inline bool IsLoadingMesh() const { return !m_pStaticMesh.IsLoaded() && !m_pSkeletalMesh.IsLoaded(); }
 
-        void DrawStaticMeshInfo( UpdateContext const& context );
+        void DrawMeshInfo( UpdateContext const& context );
         void DrawSkeletalMeshInfo( UpdateContext const& context );
 
     private:

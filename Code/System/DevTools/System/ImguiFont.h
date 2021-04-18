@@ -5,6 +5,7 @@
 //-------------------------------------------------------------------------
 
 struct ImFont;
+struct ImVec4;
 
 //-------------------------------------------------------------------------
 
@@ -14,7 +15,9 @@ namespace KRG::ImGuiX
     enum class Font : uint8
     {
         Small = 0,
+        SmallBold,
         Medium,
+        MediumBold,
         Large,
         ExtraLarge,
 
@@ -33,12 +36,17 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    class KRG_SYSTEM_DEVTOOLS_API ScopedFont
+    class KRG_SYSTEM_DEVTOOLS_API [[nodiscard]] ScopedFont
     {
     public:
 
         ScopedFont( Font font );
+        ScopedFont( Font font, ImVec4 const& color );
         ~ScopedFont();
+
+    private:
+
+        bool m_colorApplied = false;
     };
 }
 #endif

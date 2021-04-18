@@ -55,7 +55,7 @@ namespace KRG
 
     DataPath DataPath::FromFileSystemPath( FileSystem::Path const& sourceDataPath, FileSystem::Path const& filePath )
     {
-        KRG_ASSERT( sourceDataPath.IsValid() && sourceDataPath.IsDirectoryPath() && filePath.IsValid() && filePath.IsFilePath() );
+        KRG_ASSERT( sourceDataPath.IsValid() && sourceDataPath.IsDirectoryPath() && filePath.IsValid() );
 
         DataPath path;
 

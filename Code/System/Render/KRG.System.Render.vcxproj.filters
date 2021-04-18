@@ -76,6 +76,7 @@
     <ClCompile Include="Fonts\FontData_ProggyClean.cpp" />
     <ClCompile Include="Fonts\FontData_Segoe.cpp" />
     <ClCompile Include="RenderViewportManager.cpp" />
+    <ClCompile Include="Fonts\FontData_SegoeBold.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderers\DebugRenderer\DebugRenderer.h">
@@ -144,6 +145,7 @@
     <ClInclude Include="Fonts\FontData_ProggyClean.h" />
     <ClInclude Include="Fonts\FontData_Segoe.h" />
     <ClInclude Include="RenderViewportManager.h" />
+    <ClInclude Include="Fonts\FontData_SegoeBold.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">

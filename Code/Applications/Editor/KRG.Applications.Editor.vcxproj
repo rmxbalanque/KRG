@@ -63,14 +63,17 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common\ListView.cpp" />
+    <ClCompile Include="Common\TreeView.cpp" />
     <ClCompile Include="Common\ResourceDescriptorCreator.cpp" />
+    <ClCompile Include="Common\DataBrowser\DataBrowserTreeView.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="EditorModel.cpp" />
     <ClCompile Include="Render\MeshEditor\MeshEditor_DataBrowserTool.cpp" />
@@ -84,7 +87,10 @@
     <ClCompile Include="Win32\Main_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\ListView.h" />
+    <ClInclude Include="Common\TreeView.h" />
     <ClInclude Include="Common\ResourceDescriptorCreator.h" />
+    <ClInclude Include="Common\DataBrowser\DataBrowserTreeView.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorModel.h" />
     <ClInclude Include="EditorTool.h" />
