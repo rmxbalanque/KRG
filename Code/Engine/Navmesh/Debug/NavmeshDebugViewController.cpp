@@ -1,4 +1,5 @@
 #include "NavmeshDebugViewController.h"
+#include "Engine/Navmesh/NavmeshSystem.h"
 #include "System/DevTools/ImguiX.h"
 
 #include <bfxSystem.h>
@@ -74,6 +75,22 @@ namespace KRG::Navmesh
         {
             CreateCheckboxForFlag( "Draw Obstacles", bfx::BFX_DRAW_OBSTACLES );
             CreateCheckboxForFlag( "Draw Obstacle Flags", bfx::BFX_DRAW_OBSTACLE_FLAGS );
+
+            ImGui::EndMenu();
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::Separator();
+
+        if ( ImGui::BeginMenu( "Drawing Options" ) )
+        {
+            auto pNavmeshSystem = context.GetSystem<NavmeshSystem>();
+            bool isDepthTestEnabled = pNavmeshSystem->m_debugRenderer.IsDepthTestEnabled();
+            if ( ImGui::Checkbox( "Enable Depth Test", &isDepthTestEnabled ) )
+            {
+                pNavmeshSystem->m_debugRenderer.SetDepthTestState( isDepthTestEnabled );
+            }
 
             ImGui::EndMenu();
         }

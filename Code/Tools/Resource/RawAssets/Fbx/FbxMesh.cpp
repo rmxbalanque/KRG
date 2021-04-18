@@ -156,13 +156,10 @@ namespace KRG
                     controlPointVertexMapping.clear();
                     controlPointVertexMapping.resize( pMesh->GetControlPointsCount() );
 
-                    // Update UV count
-                    int32 const numUVChannelsForMeshSection = pMesh->GetElementUVCount();
-                    rawMesh.m_numUVChannels = Math::Max( rawMesh.m_numUVChannels, numUVChannelsForMeshSection );
-
                     // Create new geometry section
                     RawMesh::GeometrySection& meshData = rawMesh.m_geometrySections.emplace_back( RawMesh::GeometrySection() );
                     meshData.m_name = (char const*) pMesh->GetNode()->GetNameWithNameSpacePrefix();
+                    meshData.m_numUVChannels = pMesh->GetElementUVCount();
 
                     if ( !ReadMeshData( sceneCtx, pMesh, meshData, controlPointVertexMapping ) )
                     {

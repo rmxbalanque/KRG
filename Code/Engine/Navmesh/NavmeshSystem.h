@@ -11,7 +11,8 @@ namespace KRG::Navmesh
 {
     class KRG_ENGINE_NAVMESH_API NavmeshSystem : public ISystem
     {
-       
+        friend class NavmeshDebugViewController;
+
     public:
 
         KRG_SYSTEM_ID( NavmeshSystem );

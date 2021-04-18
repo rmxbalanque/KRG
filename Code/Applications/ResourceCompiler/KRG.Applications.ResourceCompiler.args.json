@@ -51,6 +51,10 @@
       "Command": "Render",
       "Items": [
         {
+          "Id": "3631014b-0e9e-491d-ad5f-5389417f7ce5",
+          "Command": "-compile data://packs/br/vehicles/sm_veh_plane_destroyed_01.msh"
+        },
+        {
           "Id": "43330e5f-5d0e-4711-8040-48b47946f12c",
           "Command": "-compile data://packs/br/characters/sk_chr_sportsbrafemale_01.smsh"
         },

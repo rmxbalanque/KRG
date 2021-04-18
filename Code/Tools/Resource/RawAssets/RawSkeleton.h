@@ -21,10 +21,10 @@ namespace KRG
 
             public:
 
-                StringID        m_name;
-                Transform       m_localTransform = Transform::Identity;
-                Transform       m_globalTransform = Transform::Identity;
-                int32             m_parentBoneIdx = InvalidIndex;
+                StringID            m_name;
+                Transform           m_localTransform = Transform::Identity;
+                Transform           m_globalTransform = Transform::Identity;
+                int32               m_parentBoneIdx = InvalidIndex;
             };
 
         public:

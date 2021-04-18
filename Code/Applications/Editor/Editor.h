@@ -60,9 +60,10 @@ namespace KRG
         {
             static_assert( std::is_base_of<EditorTool, T>::value, "Editor tools need to derive from EditorTool" );
             auto pTool = KRG::New<T>( std::forward<ConstructorParams>( params )... );
-            m_editorTools.emplace_back( pTool );
+            
+            EditorTool* pAddedTool = m_editorTools.emplace_back( pTool );
+            pAddedTool->Initialize( context );
 
-            pTool->Initialize( context );
             return pTool;
         }
 

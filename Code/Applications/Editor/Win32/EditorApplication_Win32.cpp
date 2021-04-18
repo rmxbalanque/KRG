@@ -24,7 +24,10 @@ namespace KRG
     EditorApplication::EditorApplication( HINSTANCE hInstance )
         : Win32Application( hInstance, "Kruger Editor", IDI_EDITOR_ICON )
         , m_editorHost( TFunction<bool( String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
-    {}
+    {
+        // This is hard-coded since this is always the default map for the editor. There is no need for this to change.
+        m_editorHost.m_startupMap = DataPath( "data://Editor/EditorMap.map" );
+    }
 
     bool EditorApplication::ReadSettings( int32 argc, char** argv )
     {
@@ -33,19 +36,11 @@ namespace KRG
 
         cli::Parser cmdParser( argc, argv );
 
-        cmdParser.set_optional<std::string>( "map", "map", "", "The startup map." );
         cmdParser.set_optional<std::string>( "mode", "mode", "", "What mode should we start the editor in?" );
 
         if ( !cmdParser.run() )
         {
             return FatalError( "Invalid command line arguments!" );
-        }
-
-        // TODO: REMOVE THIS - editor startup map needs to be handled differently
-        std::string const map = cmdParser.get<std::string>( "map" );
-        if ( !map.empty() )
-        {
-            m_editorHost.m_startupMap = DataPath( map.c_str() );
         }
 
         StringID editorModeID;

@@ -37,8 +37,8 @@ namespace KRG
                 TInlineVector<Float2, 3>            m_texCoords;
 
                 // Optional skinning data
-                TVector<int32>                        m_boneIndices;
-                TVector<float>                        m_boneWeights;
+                TVector<int32>                      m_boneIndices;
+                TVector<float>                      m_boneWeights;
             };
 
             //-------------------------------------------------------------------------
@@ -48,12 +48,14 @@ namespace KRG
                 GeometrySection() = default;
 
                 inline uint32 GetNumTriangles() const { return (uint32) m_indices.size() / 3; }
+                inline int32 GetNumUVChannels() const { return m_numUVChannels; }
 
             public:
 
                 String                              m_name;
                 TVector<VertexData>                 m_vertices;
-                TVector<uint32>                        m_indices;
+                TVector<uint32>                     m_indices;
+                int32                               m_numUVChannels = 0;
 
                 bool                                m_clockwiseWinding = false;
             };
@@ -65,8 +67,6 @@ namespace KRG
 
             inline int32 GetNumGeometrySections() const { return (int32) m_geometrySections.size(); }
             inline TVector<GeometrySection> const& GetGeometrySections() const { return m_geometrySections; }
-
-            inline int32 GetNumUVChannels() const { return m_numUVChannels; }
 
             inline bool IsSkeletalMesh() const { return m_isSkeletalMesh; }
             inline RawSkeleton const& GetSkeleton() const { KRG_ASSERT( IsSkeletalMesh() ); return m_skeleton; }
@@ -80,8 +80,7 @@ namespace KRG
             TVector<String>                     m_errors;
 
             RawSkeleton                         m_skeleton;
-            int32                                 m_maxNumberOfBoneInfluences = 0;
-            int32                                 m_numUVChannels = 0;
+            int32                               m_maxNumberOfBoneInfluences = 0;
             bool                                m_isSkeletalMesh = false;
         };
     }

@@ -20,7 +20,7 @@ namespace KRG::Navmesh
         for ( auto i = 0u; i < numLines; i++ )
         {
             bfx::LineSegment const& line = pLines[i];
-            ctx.DrawLine( FromBfx( line.m_v0 ), FromBfx( line.m_v1 ), FromBfx( color ) );
+            ctx.DrawLine( FromBfx( line.m_v0 ), FromBfx( line.m_v1 ), FromBfx( color ), 1.0f, m_depthTestEnabled ? Debug::Drawing::DepthTestState::On : Debug::Drawing::DepthTestState::Off );
         }
     }
 
@@ -30,7 +30,7 @@ namespace KRG::Navmesh
         for ( auto i = 0u; i < numTris; i++ )
         {
             bfx::Triangle const& tri = pTris[i];
-            ctx.DrawTriangle( FromBfx( tri.m_v0 ), FromBfx( tri.m_v1 ), FromBfx( tri.m_v2 ), FromBfx( color ) );
+            ctx.DrawTriangle( FromBfx( tri.m_v0 ), FromBfx( tri.m_v1 ), FromBfx( tri.m_v2 ), FromBfx( color ), m_depthTestEnabled ? Debug::Drawing::DepthTestState::On : Debug::Drawing::DepthTestState::Off );
         }
     }
 

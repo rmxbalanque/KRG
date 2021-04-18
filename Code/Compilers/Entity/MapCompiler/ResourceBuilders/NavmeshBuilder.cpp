@@ -214,7 +214,7 @@ namespace KRG::Navmesh
         //-------------------------------------------------------------------------
 
         bfx::CustomAllocator* pAllocator = bfx::CreateDLMallocAllocator();
-        bfx::SystemCreate( bfx::SystemParams( 1.0f, bfx::Z_UP ), pAllocator );
+        bfx::SystemCreate( bfx::SystemParams( 2.0f, bfx::Z_UP ), pAllocator );
         bfx::RegisterBuilderSystem();
         bfx::SystemStart();
 
@@ -247,6 +247,9 @@ namespace KRG::Navmesh
         surfaceInput.m_numFaces = (uint32) m_buildFaces.size();
         surfaceInput.m_pParams = m_buildParams.data();
         surfaceInput.m_numParams = (uint32) m_buildParams.size();
+
+        surfaceInput.m_globalParams.m_enableMulticoreBuild = true;
+        surfaceInput.m_globalParams.m_maxNumCores = Threading::GetProcessorInfo().m_numPhysicalCores;
 
         //-------------------------------------------------------------------------
 

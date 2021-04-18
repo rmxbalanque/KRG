@@ -106,10 +106,10 @@ namespace Scripts
                 string meshName = meshFileInfo.Name.ToLower();
                 if (meshName.Contains("vehicle") || meshName.Contains("veh"))
                 {
-                    return "data://Packs/City/Materials/PolygonGangWarfare_Vehicle_01.mtrl";
+                    return "data://Packs/Gang/Materials/PolygonGangWarfare_Vehicle_01.mtrl";
                 }
 
-                return "data://Packs/City/Materials/PolygonGangWarfare_Texture_01_A.mtrl";
+                return "data://Packs/Gang/Materials/PolygonGangWarfare_Texture_01_A.mtrl";
             }
             else if (dirName.Contains("heist"))
             {
@@ -279,7 +279,8 @@ namespace Scripts
 
             string fileContents = JValue.Parse(JsonConvert.SerializeObject(desc, settings)).ToString(Formatting.Indented);
             var outFile = sourceFile.Directory.FullName + "\\" + filename + ".mtrl";
-            var outputFile = new FileInfo( outFile.Replace("Textures", "Materials") );
+            outFile = outFile.Replace("Textures", "Materials");
+            var outputFile = new FileInfo(outFile);
 
             Directory.CreateDirectory( outputFile.Directory.FullName );
             File.WriteAllText(outFile, fileContents);

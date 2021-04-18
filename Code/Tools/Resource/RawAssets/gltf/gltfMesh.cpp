@@ -85,6 +85,8 @@ namespace KRG
                         }
                     }
 
+                    geometrySection.m_numUVChannels = numTexcoordAttributes;
+
                     //-------------------------------------------------------------------------
 
                     for ( auto a = 0; a < primitive.attributes_count; a++ )

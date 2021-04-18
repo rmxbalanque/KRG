@@ -91,6 +91,9 @@ namespace KRG::Navmesh
         void SetDebugDrawingSystem( Debug::DrawingSystem* pDebugDrawingSystem );
         void Reset();
 
+        inline bool IsDepthTestEnabled() const { return m_depthTestEnabled; }
+        inline void SetDepthTestState( bool isEnabled ) { m_depthTestEnabled = isEnabled; }
+
     private:
 
         virtual void DrawLineList( bfx::LineSegment const* pLines, uint32 numLines, bfx::Color const& color ) override;
@@ -102,6 +105,7 @@ namespace KRG::Navmesh
 
         Debug::DrawingSystem*                       m_pDebugDrawingSystem = nullptr;
         Float2                                      m_statsPos = Float2::Zero;
+        bool                                        m_depthTestEnabled = true;
     };
     #endif
 }

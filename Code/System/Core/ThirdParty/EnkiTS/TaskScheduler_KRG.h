@@ -15,3 +15,8 @@
 //-------------------------------------------------------------------------
 
 #define ENKITS_TASK_PRIORITIES_NUM 5
+
+//-------------------------------------------------------------------------
+
+#include "System/Core/Core/Defines.h"
+#define ENKI_ASSERT KRG_ASSERT

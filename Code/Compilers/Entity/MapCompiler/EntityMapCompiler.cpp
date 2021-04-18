@@ -5,6 +5,7 @@
 #include "Engine/Navmesh/Components/NavmeshComponent.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"
+#include "System/Core/Time/Timers.h"
 
 //-------------------------------------------------------------------------
 
@@ -26,10 +27,15 @@ namespace KRG::EntityModel
         // Read collection
         //-------------------------------------------------------------------------
 
-        if ( !EntityCollectionModelReader::ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionDescriptor ) )
+        Milliseconds elapsedTime = 0.0f;
         {
-            return Resource::CompilationResult::Failure;
+            ScopedSystemTimer timer( elapsedTime );
+            if ( !EntityCollectionModelReader::ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionDescriptor ) )
+            {
+                return Resource::CompilationResult::Failure;
+            }
         }
+        Message( "Entity map read in: %.2fms", elapsedTime.ToFloat() );
 
         //-------------------------------------------------------------------------
         // Additional Resources
@@ -40,34 +46,39 @@ namespace KRG::EntityModel
         // If we have a navmesh component 
         if ( !navmeshComponents.empty() )
         {
-            // Log warning about invalid data
-            if ( navmeshComponents.size() > 1 )
             {
-                Warning( "More than one navmesh component detected!" );
+                ScopedSystemTimer timer( elapsedTime );
+
+                // Log warning about invalid data
+                if ( navmeshComponents.size() > 1 )
+                {
+                    Warning( "More than one navmesh component detected!" );
+                }
+
+                // Remove any values for the navmesh resource property
+                // TODO: see if there is a smart way to avoid using strings for property access
+                TypeSystem::PropertyPath const navmeshResourcePropertyPath( "m_pNavmeshData" );
+                for ( auto i = navmeshComponents.size(); i > 0; i-- )
+                {
+                    navmeshComponents[0]->RemovePropertyValue( navmeshResourcePropertyPath );
+                }
+
+                // Set navmesh resource ptr
+                DataPath navmeshResourceDataPath = ctx.m_resourceID.GetDataPath();
+                navmeshResourceDataPath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
+                navmeshComponents[0]->m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourceDataPath.ToString() ) );
+
+                // Generate navmesh
+                FileSystem::Path navmeshResourcePath = ctx.m_outputFilePath;
+                navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
+
+                Navmesh::NavmeshBuilder navmeshBuilder;
+                if ( !navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshResourcePath ) )
+                {
+                    return Resource::CompilationResult::Failure;
+                }
             }
-
-            // Remove any values for the navmesh resource property
-            // TODO: see if there is a smart way to avoid using strings for property access
-            TypeSystem::PropertyPath const navmeshResourcePropertyPath( "m_pNavmeshData" );
-            for ( auto i = navmeshComponents.size(); i > 0; i-- )
-            {
-                navmeshComponents[0]->RemovePropertyValue( navmeshResourcePropertyPath );
-            }
-
-            // Set navmesh resource ptr
-            DataPath navmeshResourceDataPath = ctx.m_resourceID.GetDataPath();
-            navmeshResourceDataPath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
-            navmeshComponents[0]->m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourceDataPath.ToString() ) );
-
-            // Generate navmesh
-            FileSystem::Path navmeshResourcePath = ctx.m_outputFilePath;
-            navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
-
-            Navmesh::NavmeshBuilder navmeshBuilder;
-            if ( !navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshResourcePath ) )
-            {
-                return Resource::CompilationResult::Failure;
-            }
+            Message( "Navmesh built in: %.2fms", elapsedTime.ToFloat() );
         }
 
         //-------------------------------------------------------------------------

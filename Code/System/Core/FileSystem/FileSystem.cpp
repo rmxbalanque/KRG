@@ -24,6 +24,23 @@ namespace KRG::FileSystem
         return ec.value() == 0;
     }
 
+    bool EnsurePathExists( Path const& path )
+    {
+        if ( !path.Exists() )
+        {
+            if ( path.IsDirectoryPath() )
+            {
+                return CreateDir( path );
+            }
+            else
+            {
+                return CreateDir( path.GetParentDirectory() );
+            }
+        }
+
+        return true;
+    }
+
     void GetDirectoryContents( Path const& directoryPath, TVector<Path>& contents, const char* pFileFilter )
     {
         KRG_ASSERT( directoryPath.IsDirectoryPath() );
@@ -228,34 +245,20 @@ namespace KRG::FileSystem
 
 namespace KRG::FileSystem
 {
-    bool EnsurePathExists( Path const& path )
-    {
-        if ( !path.Exists() )
-        {
-            if ( path.IsDirectoryPath() )
-            {
-                return CreateDir( path );
-            }
-            else
-            {
-                return CreateDir( path.GetParentDirectory() );
-            }
-        }
-
-        return true;
-    }
-
     bool FileExists( Path const& filePath )
     {
-        return std::filesystem::exists( filePath.c_str() );
+        std::error_code ec;
+        return std::filesystem::exists( filePath.c_str(), ec );
     }
 
     bool IsFileReadOnly( Path const& filePath )
     {
+        std::error_code ec;
         std::filesystem::path const path( filePath.c_str() );
-        KRG_ASSERT( std::filesystem::exists( path ) );
+        KRG_ASSERT( std::filesystem::exists( path, ec ) );
 
-        std::filesystem::perms const permissions = std::filesystem::status( path ).permissions();
+        std::filesystem::perms const permissions = std::filesystem::status( path, ec ).permissions();
+        KRG_ASSERT( ec.value() == 0 );
         std::filesystem::perms const allWrite = std::filesystem::perms::owner_write | std::filesystem::perms::group_write | std::filesystem::perms::others_write;
         bool const isReadOnly = ( permissions & allWrite ) == std::filesystem::perms::none;
         return isReadOnly;
@@ -263,13 +266,15 @@ namespace KRG::FileSystem
 
     bool EraseFile( Path const& filePath )
     {
-        return std::filesystem::remove( filePath.c_str() );
+        std::error_code ec;
+        return std::filesystem::remove( filePath.c_str(), ec );
     }
 
     uint64 GetFileModifiedTime( Path const& filePath )
     {
-        KRG_ASSERT( std::filesystem::exists( filePath.c_str() ) );
-        auto const timepoint = std::filesystem::last_write_time( filePath.c_str() );
+        std::error_code ec;
+        auto const timepoint = std::filesystem::last_write_time( filePath.c_str(), ec );
+        KRG_ASSERT( ec.value() == 0 );
         return timepoint.time_since_epoch().count();
     }
 }

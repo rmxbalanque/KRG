@@ -3,10 +3,6 @@
   "Id": "8778c386-a74a-4545-8297-ce68639d4ade",
   "Items": [
     {
-      "Id": "081de1ad-6d03-4d54-806d-aeba7cfecd87",
-      "Command": "-map data://maps/serializationtest.map"
-    },
-    {
       "Id": "f3400ea7-207f-4026-842b-3f8d4b1f6f6a",
       "Command": "-map data://maps/br_full.map"
     },

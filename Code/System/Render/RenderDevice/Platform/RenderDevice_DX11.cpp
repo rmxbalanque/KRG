@@ -334,7 +334,7 @@ namespace KRG
         {
             KRG_PROFILE_FUNCTION_RENDER();
 
-            static Float4 const backgroundColor = Colors::LightGray.ToFloat4();
+            static Float4 const backgroundColor = Color( 96, 96, 96 ).ToFloat4();
 
             KRG_ASSERT( IsInitialized() );
 

@@ -9,14 +9,6 @@
     {
       "Id": "ab95a3f7-d8cc-4fcf-9ea0-e1ebd780f416",
       "Command": "-mode MeshEditor"
-    },
-    {
-      "Id": "0b30f2c0-5f74-425d-bb35-b1fa69fa072a",
-      "Command": "-map data://maps/br_full.map"
-    },
-    {
-      "Id": "bd305b50-aeae-4223-9cae-09a6653029cd",
-      "Command": "-map data://maps/physicstestmap.map"
     }
   ]
 }

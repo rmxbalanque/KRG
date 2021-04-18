@@ -507,13 +507,21 @@ namespace KRG
             {
                 KRG_ASSERT( compileDep.IsValid() );
 
-                pRequest->m_sourceTimestampHash += FileSystem::GetFileModifiedTime( DataPath::ToFileSystemPath( m_sourceDataDir, compileDep ) );
-
                 ResourceTypeID const extension( compileDep.GetExtension() );
-                if ( IsCompileableResourceType( extension ) )
+                if ( IsCompileableResourceType( extension ) && !IsResourceUpToDate( ResourceID( compileDep ) ) )
                 {
-                    areCompileDependenciesAreUpToDate &= IsResourceUpToDate( ResourceID( compileDep ) );
+                    areCompileDependenciesAreUpToDate = false;
+                    break;
                 }
+
+                auto const compileDependencyPath = DataPath::ToFileSystemPath( m_sourceDataDir, compileDep );
+                if ( !compileDependencyPath.ExistsAndIsFile() )
+                {
+                    areCompileDependenciesAreUpToDate = false;
+                    break;
+                }
+
+                pRequest->m_sourceTimestampHash += FileSystem::GetFileModifiedTime( compileDependencyPath );
             }
 
             // Check source file for changes
@@ -612,70 +620,74 @@ namespace KRG
 
         bool ResourceServer::IsResourceUpToDate( ResourceID const& resourceID ) const
         {
-            // Read all up to date information
+            // Check that the target file exists
+            //-------------------------------------------------------------------------
+
+            if ( !FileSystem::FileExists( DataPath::ToFileSystemPath( m_compiledDataDir, resourceID.GetDataPath() ) ) )
+            {
+                return false;
+            }
+
+            // Check compile dependencies
             //-------------------------------------------------------------------------
 
             int32 const compilerVersion = GetCompilerVersion( resourceID.GetResourceTypeID() );
             KRG_ASSERT( compilerVersion >= 0 );
 
             FileSystem::Path const sourceFilePath = DataPath::ToFileSystemPath( m_sourceDataDir, resourceID.GetDataPath() );
+            if ( !sourceFilePath.ExistsAndIsFile() )
+            {
+                return false;
+            }
+
             uint64 const fileTimestamp = FileSystem::GetFileModifiedTime( sourceFilePath );
             uint64 sourceTimestampHash = 0;
 
-            bool areCompileDependenciesAreUpToDate = true;
             TVector<DataPath> compileDependencies;
-            TryReadCompileDependencies( sourceFilePath, compileDependencies );
+            if ( !TryReadCompileDependencies( sourceFilePath, compileDependencies ) )
+            {
+                return false;
+            }
+
             for ( auto const& compileDep : compileDependencies )
             {
                 sourceTimestampHash += FileSystem::GetFileModifiedTime( DataPath::ToFileSystemPath( m_sourceDataDir, compileDep ) );
 
                 ResourceTypeID const extension( compileDep.GetExtension() );
-                if ( IsCompileableResourceType( extension ) )
+                if ( IsCompileableResourceType( extension ) && IsResourceUpToDate( ResourceID( compileDep ) ) )
                 {
-                    areCompileDependenciesAreUpToDate &= IsResourceUpToDate( ResourceID( compileDep ) );
+                    return false;
                 }
             }
 
             // Check source file for changes
             //-------------------------------------------------------------------------
 
-            // Check compile dependency state
-            bool isResourceUpToDate = areCompileDependenciesAreUpToDate;
-
             // Check against previous compilation result
-            if ( isResourceUpToDate )
+            auto existingRecord = m_compiledResourceDatabase.GetRecord( resourceID );
+            if ( existingRecord.IsValid() )
             {
-                auto existingRecord = m_compiledResourceDatabase.GetRecord( resourceID );
-                if ( existingRecord.IsValid() )
+                if ( compilerVersion != existingRecord.m_compilerVersion )
                 {
-                    if ( compilerVersion != existingRecord.m_compilerVersion )
-                    {
-                        isResourceUpToDate = false;
-                    }
-
-                    if ( fileTimestamp != existingRecord.m_fileTimestamp )
-                    {
-                        isResourceUpToDate = false;
-                    }
-
-                    if ( sourceTimestampHash != existingRecord.m_sourceTimestampHash )
-                    {
-                        isResourceUpToDate = false;
-                    }
+                    return false;
                 }
-                else
+
+                if ( fileTimestamp != existingRecord.m_fileTimestamp )
                 {
-                    isResourceUpToDate = false;
+                    return false;
+                }
+
+                if ( sourceTimestampHash != existingRecord.m_sourceTimestampHash )
+                {
+                    return false;
                 }
             }
-
-            // Check that the target file exists
-            if ( isResourceUpToDate && !FileSystem::FileExists( DataPath::ToFileSystemPath( m_compiledDataDir, resourceID.GetDataPath() ) ) )
+            else
             {
-                isResourceUpToDate = false;
+                return false;
             }
 
-            return isResourceUpToDate;
+            return true;
         }
 
         void ResourceServer::WriteCompiledResourceRecord( CompilationRequest* pRequest )

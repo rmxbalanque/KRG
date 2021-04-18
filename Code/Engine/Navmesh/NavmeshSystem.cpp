@@ -11,7 +11,7 @@ namespace KRG::Navmesh
     {
         KRG_ASSERT( pDebugDrawingSystem != nullptr );
 
-        bfx::SystemCreate( bfx::SystemParams( 1.0f, bfx::Z_UP ), &m_allocator );
+        bfx::SystemCreate( bfx::SystemParams( 2.0f, bfx::Z_UP ), &m_allocator );
         bfx::RegisterPlannerSystem();
         bfx::SystemStart();
 

@@ -72,7 +72,7 @@ namespace KRG::Render
                     pVertex->m_position = vert.m_position;
                     pVertex->m_normal = vert.m_normal;
                     pVertex->m_UV0 = vert.m_texCoords[0];
-                    pVertex->m_UV1 = ( rawMesh.GetNumUVChannels() > 1 ) ? vert.m_texCoords[1] : vert.m_texCoords[0];
+                    pVertex->m_UV1 = ( geometrySection.GetNumUVChannels() > 1 ) ? vert.m_texCoords[1] : vert.m_texCoords[0];
 
                     auto const numInfluences = vert.m_boneIndices.size();
                     KRG_ASSERT( numInfluences <= 4 && vert.m_boneIndices.size() == vert.m_boneWeights.size() );
@@ -112,7 +112,7 @@ namespace KRG::Render
                     pVertex->m_position = vert.m_position;
                     pVertex->m_normal = vert.m_normal;
                     pVertex->m_UV0 = vert.m_texCoords[0];
-                    pVertex->m_UV1 = ( rawMesh.GetNumUVChannels() > 1 ) ? vert.m_texCoords[1] : vert.m_texCoords[0];
+                    pVertex->m_UV1 = ( geometrySection.GetNumUVChannels() > 1 ) ? vert.m_texCoords[1] : vert.m_texCoords[0];
 
                     pVertexMemory++;
 
