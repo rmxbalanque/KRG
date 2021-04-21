@@ -73,14 +73,14 @@ namespace KRG
     // Global Memory Management Functions
     //-------------------------------------------------------------------------
 
-    KRG_SYSTEM_CORE_API void* Alloc( size_t size, size_t alignment = KRG_DEFAULT_ALIGNMENT );
-    KRG_SYSTEM_CORE_API void* Realloc( void* pMemory, size_t newSize, size_t originalAlignment = KRG_DEFAULT_ALIGNMENT );
+    [[nodiscard]] KRG_SYSTEM_CORE_API void* Alloc( size_t size, size_t alignment = KRG_DEFAULT_ALIGNMENT );
+    [[nodiscard]] KRG_SYSTEM_CORE_API void* Realloc( void* pMemory, size_t newSize, size_t originalAlignment = KRG_DEFAULT_ALIGNMENT );
     KRG_SYSTEM_CORE_API void Free( void*& pMemory );
 
     //-------------------------------------------------------------------------
 
     template< typename T, typename ... ConstructorParams >
-    KRG_FORCE_INLINE [[nodiscard]] T* New( ConstructorParams&&... params )
+    [[nodiscard]] KRG_FORCE_INLINE T* New( ConstructorParams&&... params )
     {
         void* pMemory = Alloc( sizeof( T ), alignof( T ) );
         KRG_ASSERT( pMemory != nullptr );
@@ -106,7 +106,7 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     template< typename T, typename ... ConstructorParams >
-    KRG_FORCE_INLINE T* NewArray( size_t const numElements )
+    [[nodiscard]] KRG_FORCE_INLINE T* NewArray( size_t const numElements )
     {
         size_t const requiredAlignment = std::max( alignof( T ), size_t( 16 ) );
         size_t const requiredExtraMemory = std::max( requiredAlignment, size_t( 4 ) );
@@ -130,7 +130,7 @@ namespace KRG
     }
 
     template< typename T >
-    KRG_FORCE_INLINE T* NewArray( size_t const numElements, T const& value )
+    [[nodiscard]] KRG_FORCE_INLINE T* NewArray( size_t const numElements, T const& value )
     {
         size_t const requiredAlignment = std::max( alignof( T ), size_t( 16 ) );
         size_t const requiredExtraMemory = std::max( requiredAlignment, size_t( 4 ) );

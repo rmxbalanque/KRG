@@ -71,7 +71,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Win32\EngineApplication_Win32.cpp" />
-    <ClCompile Include="Win32\Main_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Win32\EngineApplication_Win32.h" />

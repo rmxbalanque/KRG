@@ -12,14 +12,14 @@
 namespace KRG
 {
     //-------------------------------------------------------------------------
-    // Base Editor Mode
+    // Editor Toolkit Base
     //-------------------------------------------------------------------------
     // Defines the set of tools created and available when instantiating the editor.
     // DO NOT DERIVED FROM THIS CLASS - derive from 'TEditor' instead
 
-    class Editor : public ImGuiX::DevelopmentTools
+    class EditorToolkit : public ImGuiX::DevelopmentTools
     {
-        template<typename ModelType> friend class TEditor;
+        template<typename ModelType> friend class TEditorToolkit;
 
         struct ModalPopupMessage
         {
@@ -32,7 +32,7 @@ namespace KRG
 
     public:
 
-        virtual ~Editor();
+        virtual ~EditorToolkit();
 
         virtual char const* GetName() const = 0;
 
@@ -96,18 +96,18 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     template<typename ModelType>
-    class TEditor : public Editor
+    class TEditorToolkit : public EditorToolkit
     {
         static_assert( std::is_base_of<EditorModel, ModelType>::value, "ModelType must derive from editor model" );
 
     public:
 
-        TEditor()
+        TEditorToolkit()
         {
             m_pModel = KRG::New<ModelType>();
         }
 
-        virtual ~TEditor()
+        virtual ~TEditorToolkit()
         {
             KRG::Delete( m_pModel );
         }
@@ -121,25 +121,25 @@ namespace KRG
     //-------------------------------------------------------------------------
     // Registers an edit mode factory method with a specific ID
 
-    class EditorFactory
+    class EditorToolkitFactory
     {
-        friend class EditorRegistry;
+        friend class EditorToolkitRegistry;
 
         // Static linked list to iterate over all editor factories
-        static EditorFactory*   s_pHead;
-        static EditorFactory*   s_pTail;
+        static EditorToolkitFactory*   s_pHead;
+        static EditorToolkitFactory*   s_pTail;
 
     public:
 
-        EditorFactory();
+        EditorToolkitFactory();
 
         // Main interface - every mode needs to declare a static factory
         virtual StringID GetID() const = 0;
-        virtual Editor* CreateEditor() const = 0;
+        virtual EditorToolkit* CreateEditor() const = 0;
 
     private:
 
-        EditorFactory*          m_pNext = nullptr;
+        EditorToolkitFactory*          m_pNext = nullptr;
     };
 
     //-------------------------------------------------------------------------
@@ -147,10 +147,10 @@ namespace KRG
     //-------------------------------------------------------------------------
     // Keeps track of all registered editor modes
 
-    class EditorRegistry
+    class EditorToolkitRegistry
     {
     public:
 
-        static Editor* TryCreateEditor( StringID const& editorModeID );
+        static EditorToolkit* TryCreateEditor( StringID const& editorModeID );
     };
 }

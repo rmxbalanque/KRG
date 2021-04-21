@@ -9,6 +9,6 @@
     <RemoteDebuggerCommandArguments>-compile data://Physics/DefaultPhysicsMaterial.pmat</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup>
-    <ShowAllFiles>true</ShowAllFiles>
+    <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
 </Project>

@@ -109,7 +109,6 @@
     <ClCompile Include="CodeGenerators\CodeGenerator_CPP_Type.cpp" />
     <ClCompile Include="Database\ReflectionDatabase.cpp" />
     <ClCompile Include="Database\ReflectionDataTypes.cpp" />
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="CodeGenerators\CodeGenerator_CPP_Enum.cpp" />
     <ClCompile Include="ReflectorSettingsAndUtils.cpp" />
     <ClCompile Include="Reflector.cpp" />

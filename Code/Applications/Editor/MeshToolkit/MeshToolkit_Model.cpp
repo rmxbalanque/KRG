@@ -1,7 +1,7 @@
-#include "MeshEditor_Model.h"
+#include "MeshToolkit_Model.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
 }

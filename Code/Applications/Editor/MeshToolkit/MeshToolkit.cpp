@@ -1,16 +1,16 @@
-#include "MeshEditor.h"
+#include "MeshToolkit.h"
 #include "System/DevTools/ThirdParty/imgui/imgui_internal.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
-    class MeshEditorFactory : public EditorFactory
+    class MeshEditorFactory : public EditorToolkitFactory
     {
     public:
 
         virtual StringID GetID() const override  { return StringID( "MeshEditor" ); }
-        virtual Editor* CreateEditor() const override { return KRG::New<MainEditor>(); }
+        virtual EditorToolkit* CreateEditor() const override { return KRG::New<MainEditor>(); }
     };
 
     static const MeshEditorFactory g_meshEditorFactory;
@@ -18,7 +18,7 @@ namespace KRG::Render::MeshEditor
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
     MainEditor::~MainEditor()
     {
@@ -28,7 +28,7 @@ namespace KRG::Render::MeshEditor
 
     void MainEditor::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
     {
-        TEditor<Model>::Initialize( context, settingsRegistry );
+        TEditorToolkit<Model>::Initialize( context, settingsRegistry );
      
         m_pDataBrowser = CreateTool<DataBrowser>( context, &GetModel() );
         m_pMeshInfo = CreateTool<MeshInfo>( context, &GetModel() );
@@ -39,7 +39,7 @@ namespace KRG::Render::MeshEditor
         DestroyTool( context, m_pMeshInfo );
         DestroyTool( context, m_pDataBrowser );
 
-        TEditor<Model>::Shutdown( context );
+        TEditorToolkit<Model>::Shutdown( context );
     }
 
     void MainEditor::SetUserFlags( uint64 flags )

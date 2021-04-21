@@ -13,7 +13,7 @@ namespace KRG { class UpdateContext; }
 namespace KRG
 {
     //-------------------------------------------------------------------------
-    // Editor Tool
+    // Editor Tool Base
     //-------------------------------------------------------------------------
     // Base class for an editor tool (a window or logical set of windows), helps to manage common window state
     // DO NOT DERIVED FROM THIS CLASS - derive from 'TEditorTool' instead

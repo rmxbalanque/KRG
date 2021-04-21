@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Applications/Editor/Editor.h"
-#include "MeshEditor_Model.h"
-#include "MeshEditor_DataBrowserTool.h"
-#include "MeshEditor_MeshInfoTool.h"
+#include "Applications/Editor/EditorToolkit.h"
+#include "MeshToolkit_Model.h"
+#include "MeshToolkit_DataBrowserTool.h"
+#include "MeshToolkit_MeshInfoTool.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
-    class MainEditor final : public TEditor<Model>
+    class MainEditor final : public TEditorToolkit<Model>
     {
     public:
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "MeshEditor_Model.h"
+#include "MeshToolkit_Model.h"
 #include "Applications/Editor/Common/DataBrowser/DataBrowserTreeView.h"
 #include "Applications/Editor/EditorTool.h"
 #include "Applications/Editor/Common/PropertyGrid/PropertyGrid.h"
@@ -9,7 +9,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
     class MeshResourceDescriptorCreator final : public ResourceDescriptorCreator
     {

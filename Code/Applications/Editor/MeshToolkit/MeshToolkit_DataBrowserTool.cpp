@@ -1,4 +1,4 @@
-#include "MeshEditor_DataBrowserTool.h"
+#include "MeshToolkit_DataBrowserTool.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelReader.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelWriter.h"
 #include "Tools/Core/FileSystem/FileSystemHelpers.h"
@@ -15,7 +15,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
     MeshResourceDescriptorCreator::MeshResourceDescriptorCreator( EditorModel* pModel )
         : ResourceDescriptorCreator( pModel )
@@ -49,7 +49,7 @@ namespace KRG::Render::MeshEditor
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
     static Color const g_staticMeshColor = Colors::GreenYellow;
     static Color const g_skeletalMeshColor = Colors::HotPink;

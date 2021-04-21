@@ -8,7 +8,12 @@
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Platform/Platform_Win32.h"
 #include "System/Core/Time/Timers.h"
-#include "Applications/Editor/Render/MeshEditor/MeshEditor.h"
+#include <tchar.h>
+#include <windows.h>
+
+#if LIVEPP_ENABLED
+#include "LPP_API.h"
+#endif
 
 //-------------------------------------------------------------------------
 
@@ -62,7 +67,7 @@ namespace KRG
         // Create editor
         //-------------------------------------------------------------------------
 
-        auto pEditor = EditorRegistry::TryCreateEditor( editorModeID );
+        auto pEditor = EditorToolkitRegistry::TryCreateEditor( editorModeID );
         if ( pEditor == nullptr )
         {
             return FatalError( String().sprintf( "Couldn't find editor mode: %s", editorModeID.c_str() ) );
@@ -236,6 +241,25 @@ namespace KRG
 
         return DefWindowProc( hWnd, message, wParam, lParam );
     }
+}
+
+//-------------------------------------------------------------------------
+
+int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow )
+{
+    //-------------------------------------------------------------------------
+    // Live++ Support
+    //-------------------------------------------------------------------------
+
+    #if LIVEPP_ENABLED
+    HMODULE livePP = lpp::lppLoadAndRegister( L"../../External/LivePP", "Quickstart" );
+    lpp::lppEnableAllCallingModulesSync( livePP );
+    #endif
+
+    //-------------------------------------------------------------------------
+
+    KRG::EditorApplication editorApplication( hInstance );
+    return editorApplication.Run( __argc, __argv );
 }
 
 #endif

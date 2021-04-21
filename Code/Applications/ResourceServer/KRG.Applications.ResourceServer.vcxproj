@@ -71,7 +71,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="ResourceServer.cpp" />
     <ClCompile Include="ResourceServerApplication.cpp" />
     <ClCompile Include="ResourceServerUI.cpp" />

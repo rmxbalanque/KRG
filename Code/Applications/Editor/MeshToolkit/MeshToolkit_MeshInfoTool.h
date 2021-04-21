@@ -1,5 +1,5 @@
 #pragma once
-#include "MeshEditor_Model.h"
+#include "MeshToolkit_Model.h"
 #include "Applications/Editor/EditorTool.h"
 #include "Engine/Render/Components/StaticMeshComponent.h"
 #include "Engine/Render/Components/SkeletalMeshComponent.h"
@@ -7,7 +7,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
     struct BoneInfo;
 

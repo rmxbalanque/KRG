@@ -48,7 +48,6 @@
     <ClCompile Include="Database\ReflectionDataTypes.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="ReflectorSettingsAndUtils.cpp" />
     <ClCompile Include="Reflector.cpp" />
   </ItemGroup>

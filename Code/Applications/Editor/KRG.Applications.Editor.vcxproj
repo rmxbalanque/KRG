@@ -70,39 +70,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Common\ListView.cpp" />
     <ClCompile Include="Common\TreeView.cpp" />
     <ClCompile Include="Common\ResourceDescriptorCreator.cpp" />
     <ClCompile Include="Common\DataBrowser\DataBrowserTreeView.cpp" />
-    <ClCompile Include="Editor.cpp" />
+    <ClCompile Include="EditorToolkit.cpp" />
     <ClCompile Include="EditorModel.cpp" />
-    <ClCompile Include="Render\MeshEditor\MeshEditor_DataBrowserTool.cpp" />
-    <ClCompile Include="Render\MeshEditor\MeshEditor.cpp" />
-    <ClCompile Include="Render\MeshEditor\MeshEditor_MeshInfoTool.cpp" />
-    <ClCompile Include="Render\MeshEditor\MeshEditor_Model.cpp" />
     <ClCompile Include="Common\DataFilePicker.cpp" />
     <ClCompile Include="Common\PropertyGrid\PropertyEditors.cpp" />
     <ClCompile Include="Common\PropertyGrid\PropertyGrid.cpp" />
+    <ClCompile Include="MeshToolkit\MeshToolkit.cpp" />
+    <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowserTool.cpp" />
+    <ClCompile Include="MeshToolkit\MeshToolkit_MeshInfoTool.cpp" />
+    <ClCompile Include="MeshToolkit\MeshToolkit_Model.cpp" />
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
-    <ClCompile Include="Win32\Main_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\ListView.h" />
     <ClInclude Include="Common\TreeView.h" />
     <ClInclude Include="Common\ResourceDescriptorCreator.h" />
     <ClInclude Include="Common\DataBrowser\DataBrowserTreeView.h" />
-    <ClInclude Include="Editor.h" />
+    <ClInclude Include="EditorToolkit.h" />
     <ClInclude Include="EditorModel.h" />
     <ClInclude Include="EditorTool.h" />
-    <ClInclude Include="Render\MeshEditor\MeshEditor.h" />
-    <ClInclude Include="Render\MeshEditor\MeshEditor_DataBrowserTool.h" />
-    <ClInclude Include="Render\MeshEditor\MeshEditor_MeshInfoTool.h" />
-    <ClInclude Include="Render\MeshEditor\MeshEditor_Model.h" />
     <ClInclude Include="Common\DataFilePicker.h" />
     <ClInclude Include="Common\PropertyGrid\PropertyEditors.h" />
     <ClInclude Include="Common\PropertyGrid\PropertyGrid.h" />
+    <ClInclude Include="MeshToolkit\MeshToolkit.h" />
+    <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowserTool.h" />
+    <ClInclude Include="MeshToolkit\MeshToolkit_MeshInfoTool.h" />
+    <ClInclude Include="MeshToolkit\MeshToolkit_Model.h" />
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
-    <ClInclude Include="Win32\resource.h" />
+    <ClInclude Include="Win32\Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc" />

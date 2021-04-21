@@ -1,4 +1,4 @@
-#include "Editor.h"
+#include "EditorToolkit.h"
 #include "System/DevTools/ThirdParty/imgui/imgui_internal.h"
 #include "System/DevTools/CommonWidgets/Gizmo/OrientationGuide.h"
 #include "System/Render/RenderViewportManager.h"
@@ -10,13 +10,13 @@
 
 namespace KRG
 {
-    Editor::~Editor()
+    EditorToolkit::~EditorToolkit()
     {
         KRG_ASSERT( m_editorTools.empty() );
         KRG::Delete( m_pModel );
     }
 
-    void Editor::DestroyTool( UpdateContext const& context, EditorTool* pTool )
+    void EditorToolkit::DestroyTool( UpdateContext const& context, EditorTool* pTool )
     {
         KRG_ASSERT( pTool != nullptr );
 
@@ -29,19 +29,19 @@ namespace KRG
         m_editorTools.erase( itr );
     }
 
-    void Editor::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
+    void EditorToolkit::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
     {
         KRG_ASSERT( m_pModel != nullptr );
         m_pModel->Initialize( context );
     }
 
-    void Editor::Shutdown( UpdateContext const& context )
+    void EditorToolkit::Shutdown( UpdateContext const& context )
     {
         KRG_ASSERT( m_pModel != nullptr );
         m_pModel->Shutdown( context );
     }
 
-    void Editor::Update( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void EditorToolkit::Update( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
 
@@ -94,12 +94,12 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Editor::DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void EditorToolkit::DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
         ImGui::TextColored( (Float4) Colors::LimeGreen, KRG_ICON_COG );
     }
 
-    void Editor::DrawEditorMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void EditorToolkit::DrawEditorMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
         if ( ImGui::BeginMainMenuBar() )
         {
@@ -144,7 +144,7 @@ namespace KRG
         }
     }
 
-    void Editor::DrawEditorDockSpaceAndViewport( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void EditorToolkit::DrawEditorDockSpaceAndViewport( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
         ImGuiID dockspaceID = ImGui::GetID( "EditorDockSpace" );
 
@@ -227,7 +227,7 @@ namespace KRG
         ImGui::End();
     }
 
-    void Editor::DrawPopups( UpdateContext const& context )
+    void EditorToolkit::DrawPopups( UpdateContext const& context )
     {
         // Get any new warnings/errors and create pop-ups for them
         //-------------------------------------------------------------------------
@@ -315,12 +315,12 @@ namespace KRG
 
 namespace KRG
 {
-    EditorFactory* EditorFactory::s_pHead = nullptr;
-    EditorFactory* EditorFactory::s_pTail = nullptr;
+    EditorToolkitFactory* EditorToolkitFactory::s_pHead = nullptr;
+    EditorToolkitFactory* EditorToolkitFactory::s_pTail = nullptr;
 
     //-------------------------------------------------------------------------
 
-    EditorFactory::EditorFactory()
+    EditorToolkitFactory::EditorToolkitFactory()
     {
         // Add to global list
         if ( s_pHead != nullptr )
@@ -335,17 +335,17 @@ namespace KRG
         }
     }
 
-    Editor* EditorRegistry::TryCreateEditor( StringID const& editorModeID )
+    EditorToolkit* EditorToolkitRegistry::TryCreateEditor( StringID const& editorModeID )
     {
         // No ID, create the first registered editor
         if ( !editorModeID.IsValid() )
         {
-            KRG_ASSERT( EditorFactory::s_pHead != nullptr );
-            return EditorFactory::s_pHead->CreateEditor();
+            KRG_ASSERT( EditorToolkitFactory::s_pHead != nullptr );
+            return EditorToolkitFactory::s_pHead->CreateEditor();
         }
 
         // Else search through registered editor modes
-        EditorFactory* pEditorModeFactory = EditorFactory::s_pHead;
+        EditorToolkitFactory* pEditorModeFactory = EditorToolkitFactory::s_pHead;
         while ( pEditorModeFactory != nullptr )
         {
             if ( pEditorModeFactory->GetID() == editorModeID )

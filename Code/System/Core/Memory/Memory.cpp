@@ -20,15 +20,25 @@ namespace KRG
     namespace Memory
     {
         static bool g_isMemorySystemInitialized = false;
+        static rpmalloc_config_t g_rpmallocConfig;
 
         //-------------------------------------------------------------------------
+
+        static void CustomAssert( char const* pMessage )
+        {
+            KRG_HALT();
+        }
 
         void Initialize()
         {
             KRG_ASSERT( !g_isMemorySystemInitialized );
 
+            // Init config
+            memset( &g_rpmallocConfig, 0, sizeof( rpmalloc_config_t ) );
+            g_rpmallocConfig.error_callback = &CustomAssert;
+
             #if KRG_USE_CUSTOM_ALLOCATOR
-            rpmalloc_initialize();
+            rpmalloc_initialize_config( &g_rpmallocConfig );
             #endif
 
             g_isMemorySystemInitialized = true;
@@ -57,7 +67,7 @@ namespace KRG
         void ShutdownThreadHeap()
         {
             #if KRG_USE_CUSTOM_ALLOCATOR
-            rpmalloc_thread_finalize();
+            rpmalloc_thread_finalize( 1 );
             #endif
         }
 

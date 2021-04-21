@@ -1,11 +1,11 @@
-#include "MeshEditor_MeshInfoTool.h"
+#include "MeshToolkit_MeshInfoTool.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshEditor
+namespace KRG::Render::MeshToolkit
 {
     MeshInfo::~MeshInfo()
     {
