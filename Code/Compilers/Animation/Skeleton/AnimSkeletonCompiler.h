@@ -1,6 +1,7 @@
 #if _WIN32
 #pragma once
 
+#include "Compilers/Animation/_Module/API.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
 
 //-------------------------------------------------------------------------
@@ -9,7 +10,7 @@ namespace KRG
 {
     namespace Animation
     {
-        struct SkeletonResourceDescriptor : public Resource::ResourceDescriptor
+        struct KRG_RESOURCECOMPILERS_ANIMATION_API SkeletonResourceDescriptor : public Resource::ResourceDescriptor
         {
             KRG_REGISTER_TYPE;
 

@@ -63,7 +63,7 @@
     <ClCompile Include="Components\AnimatedMeshComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Components\SimpleAnimationComponent.cpp">
+    <ClCompile Include="Components\AnimationPlayerComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="Components\AnimationComponent.cpp">
@@ -73,7 +73,7 @@
       <Filter>Operations</Filter>
     </ClCompile>
     <ClCompile Include="AnimationBoneMask.cpp" />
-    <ClCompile Include="AnimationData.cpp" />
+    <ClCompile Include="AnimationClip.cpp" />
     <ClCompile Include="AnimationFrameTime.cpp" />
     <ClCompile Include="AnimationPose.cpp" />
     <ClCompile Include="AnimationSkeleton.cpp" />
@@ -120,7 +120,7 @@
     <ClInclude Include="Components\AnimatedMeshComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Components\SimpleAnimationComponent.h">
+    <ClInclude Include="Components\AnimationPlayerComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\AnimationComponent.h">
@@ -130,7 +130,7 @@
       <Filter>Operations</Filter>
     </ClInclude>
     <ClInclude Include="AnimationBoneMask.h" />
-    <ClInclude Include="AnimationData.h" />
+    <ClInclude Include="AnimationClip.h" />
     <ClInclude Include="AnimationEvent.h" />
     <ClInclude Include="AnimationFrameTime.h" />
     <ClInclude Include="AnimationPose.h" />

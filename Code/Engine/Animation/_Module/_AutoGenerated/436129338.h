@@ -4,24 +4,45 @@
 // This is an auto-generated file - DO NOT edit
 //-------------------------------------------------------------------------
 
-// HeaderID: 3968648659
+// HeaderID: 436129338
 
 #include "../API.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Engine\Animation\Components\SimpleAnimationComponent.h"
+#include "D:\Kruger\Code\Engine\Animation\Components\AnimationPlayerComponent.h"
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Animation::SimpleAnimationComponent
+// Enum Helper: KRG::Animation::AnimationPlayerComponent::PlayMode
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    namespace TypeSystem
+    {
+        namespace EnumHelpers
+        {
+            class EnumHelper_KRG_Animation_AnimationPlayerComponent_PlayMode
+            {
+            public:
+
+                static void RegisterEnum( TypeSystem::TypeRegistry& typeRegistry );
+                static void UnregisterEnum( TypeSystem::TypeRegistry& typeRegistry );
+            };
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
+// TypeHelper: KRG::Animation::AnimationPlayerComponent
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::SimpleAnimationComponent& type )
+    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::AnimationPlayerComponent& type )
     {
-        archive( cereal::base_class<KRG::Animation::AnimationComponent>( &type ), KRG_NVP( m_pAnimation ) );
+        archive( cereal::base_class<KRG::Animation::AnimationComponent>( &type ), KRG_NVP( m_pAnimation ), KRG_NVP( m_playMode ) );
     }
 
     //-------------------------------------------------------------------------
@@ -29,10 +50,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::SimpleAnimationComponent> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationPlayerComponent> >( void const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Animation::SimpleAnimationComponent const* pActualDefaultTypeInstance = ( KRG::Animation::SimpleAnimationComponent const* ) pDefaultTypeInstance;
+            KRG::Animation::AnimationPlayerComponent const* pActualDefaultTypeInstance = ( KRG::Animation::AnimationPlayerComponent const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
 
@@ -40,12 +61,25 @@ namespace KRG
 
             propertyInfo.m_ID = StringID( "m_pAnimation" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
-            propertyInfo.m_parentTypeID = 3150771824;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Animation::AnimationData" );
+            propertyInfo.m_parentTypeID = 3997956009;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Animation::AnimationClip" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pAnimation;
-            propertyInfo.m_offset = offsetof( KRG::Animation::SimpleAnimationComponent, m_pAnimation );
-            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::AnimationData> );
+            propertyInfo.m_offset = offsetof( KRG::Animation::AnimationPlayerComponent, m_pAnimation );
+            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::AnimationClip> );
             propertyInfo.m_flags.Set( 0 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_playMode" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationPlayerComponent::PlayMode" );
+            propertyInfo.m_parentTypeID = 3997956009;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_playMode;
+            propertyInfo.m_offset = offsetof( KRG::Animation::AnimationPlayerComponent, m_playMode );
+            propertyInfo.m_size = sizeof( KRG::Animation::AnimationPlayerComponent::PlayMode );
+            propertyInfo.m_flags.Set( 4 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -55,9 +89,9 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::SimpleAnimationComponent> : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::AnimationPlayerComponent> : public ITypeHelper
             {
-                static TTypeHelper<KRG::Animation::SimpleAnimationComponent> StaticTypeHelper;
+                static TTypeHelper<KRG::Animation::AnimationPlayerComponent> StaticTypeHelper;
 
                 static void const* DefaultTypeInstancePtr;
 
@@ -66,13 +100,13 @@ namespace KRG
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::SimpleAnimationComponent ), alignof( KRG::Animation::SimpleAnimationComponent ) );
-                    new ( pDefaultTypeInstance ) KRG::Animation::SimpleAnimationComponent;
+                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::AnimationPlayerComponent ), alignof( KRG::Animation::AnimationPlayerComponent ) );
+                    new ( pDefaultTypeInstance ) KRG::Animation::AnimationPlayerComponent;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::SimpleAnimationComponent" );
-                    typeInfo.m_size = sizeof( KRG::Animation::SimpleAnimationComponent );
-                    typeInfo.m_alignment = alignof( KRG::Animation::SimpleAnimationComponent );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::AnimationPlayerComponent" );
+                    typeInfo.m_size = sizeof( KRG::Animation::AnimationPlayerComponent );
+                    typeInfo.m_alignment = alignof( KRG::Animation::AnimationPlayerComponent );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::EntityComponent );
 
@@ -88,29 +122,29 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::SimpleAnimationComponent> >( DefaultTypeInstancePtr );
-                    KRG::Animation::SimpleAnimationComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationPlayerComponent> >( DefaultTypeInstancePtr );
+                    KRG::Animation::AnimationPlayerComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Animation::SimpleAnimationComponent" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Animation::AnimationPlayerComponent" );
                     typeRegistry.UnregisterType( ID );
 
                     void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Animation::SimpleAnimationComponent*>( pDefaultTypeInstance )->~SimpleAnimationComponent();
+                    reinterpret_cast<KRG::Animation::AnimationPlayerComponent*>( pDefaultTypeInstance )->~AnimationPlayerComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
                 virtual void* CreateType() const override final
                 {
-                    return KRG::New<KRG::Animation::SimpleAnimationComponent>();
+                    return KRG::New<KRG::Animation::AnimationPlayerComponent>();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::SimpleAnimationComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::AnimationPlayerComponent*>( pType );
 
                     if ( pActualType->m_pAnimation.IsValid() )
                     {
@@ -122,7 +156,7 @@ namespace KRG
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::SimpleAnimationComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::AnimationPlayerComponent*>( pType );
 
                     if ( pActualType->m_pAnimation.IsValid() )
                     {
@@ -133,7 +167,7 @@ namespace KRG
 
                 virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::SimpleAnimationComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::AnimationPlayerComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     if ( !pActualType->m_pAnimation.IsValid() || pActualType->m_pAnimation.HasLoadingFailed() )
@@ -150,7 +184,7 @@ namespace KRG
 
                 virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::SimpleAnimationComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::AnimationPlayerComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     KRG_ASSERT( !pActualType->m_pAnimation.IsLoading() );
@@ -164,7 +198,7 @@ namespace KRG
 
                 virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::SimpleAnimationComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::AnimationPlayerComponent*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
@@ -172,10 +206,10 @@ namespace KRG
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::SimpleAnimationComponent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::AnimationPlayerComponent*>( pType );
                     if ( propertyID == 1571632376 )
                     {
-                        return KRG::Animation::AnimationData::GetStaticResourceTypeID();
+                        return KRG::Animation::AnimationClip::GetStaticResourceTypeID();
                     }
 
                     // We should never get here since we are asking for a resource type of an invalid property

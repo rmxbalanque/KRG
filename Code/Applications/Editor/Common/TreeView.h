@@ -199,6 +199,9 @@ namespace KRG
         // Fires whenever the active item changes, parameter is the new active item (can be null)
         inline TSingleUserEvent<void( TreeViewItem* )> OnActiveItemChanged() { return m_onActiveItemChanged; }
 
+        // Fires whenever an item is double clicked, parameter is the item that was double clicked (cant be null)
+        inline TSingleUserEvent<void( TreeViewItem* )> OnItemDoubleClicked() { return m_onItemDoubleClicked; }
+
         // Bulk Item Operations
         //-------------------------------------------------------------------------
 
@@ -255,6 +258,7 @@ namespace KRG
 
         TSingleUserEventInternal<void()>                        m_onSelectionChanged;
         TSingleUserEventInternal<void( TreeViewItem* )>         m_onActiveItemChanged;
+        TSingleUserEventInternal<void( TreeViewItem* )>         m_onItemDoubleClicked;
 
         // The active item is an item that is activated (and deactivated) via a double click
         TreeViewItem*                                           m_pActiveItem = nullptr;

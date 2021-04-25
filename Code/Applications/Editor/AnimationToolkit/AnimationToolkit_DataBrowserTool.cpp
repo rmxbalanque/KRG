@@ -1,30 +1,29 @@
-#include "MeshToolkit_DataBrowserTool.h"
+#include "AnimationToolkit_DataBrowserTool.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelReader.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelWriter.h"
 #include "Tools/Core/FileSystem/FileSystemHelpers.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
-#include "Engine/Render/Mesh/StaticMesh.h"
-#include "Engine/Render/Mesh/SkeletalMesh.h"
+#include "Engine/Animation/AnimationClip.h"
 #include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Logging/Log.h"
-#include "Compilers/Render/Mesh/StaticMeshCompiler.h"
-#include "Compilers/Render/Mesh/SkeletalMeshCompiler.h"
+#include "Compilers/Animation/Animation/AnimationCompiler.h"
+#include "Compilers/Animation/Skeleton/AnimSkeletonCompiler.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshTools
+namespace KRG::Animation::AnimationTools
 {
-    MeshResourceDescriptorCreator::MeshResourceDescriptorCreator( EditorModel* pModel )
+    AnimationResourceDescriptorCreator::AnimationResourceDescriptorCreator( EditorModel* pModel )
         : ResourceDescriptorCreator( pModel )
     {
-        m_decriptorTypes.push_back( { "Static Mesh", StaticMesh::GetStaticResourceTypeID() } );
-        m_decriptorTypes.push_back( { "Skeletal Mesh", SkeletalMesh::GetStaticResourceTypeID() } );
+        m_decriptorTypes.push_back( { "Animation", AnimationClip::GetStaticResourceTypeID() } );
+        m_decriptorTypes.push_back( { "Skeleton", Skeleton::GetStaticResourceTypeID() } );
     }
 
-    void MeshResourceDescriptorCreator::CreateNewDescriptor( FileSystem::Path const& rawFile ) const
+    void AnimationResourceDescriptorCreator::CreateNewDescriptor( FileSystem::Path const& rawFile ) const
     {
         int32 const selectedTypeIdx = GetSelectedTypeIndex();
         KRG_ASSERT( selectedTypeIdx < m_decriptorTypes.size() );
@@ -32,14 +31,14 @@ namespace KRG::Render::MeshTools
         TypeSystem::NativeTypeWriter typeWriter( m_pModel->GetTypeRegistry() );
         if ( selectedTypeIdx == 0 )
         {
-            StaticMeshResourceDescriptor desc;
-            desc.m_meshDataPath = DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), rawFile );
+            SkeletonResourceDescriptor desc;
+            desc.m_skeletonDataPath = DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), rawFile );
             typeWriter << desc;
         }
         else
         {
-            SkeletalMeshResourceDescriptor desc;
-            desc.m_meshDataPath = DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), rawFile );
+            AnimationResourceDescriptor desc;
+            desc.m_animationDataPath = DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), rawFile );
             typeWriter << desc;
         }
       
@@ -49,15 +48,15 @@ namespace KRG::Render::MeshTools
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshTools
+namespace KRG::Animation::AnimationTools
 {
-    static Color const g_staticMeshColor = Colors::GreenYellow;
-    static Color const g_skeletalMeshColor = Colors::HotPink;
     static Color const g_rawFileColor = Colors::LightGray;
+    static Color const g_skeletonColor = Colors::HotPink;
+    static Color const g_animationColor = Colors::GreenYellow;
 
     //-------------------------------------------------------------------------
 
-    void DataBrowser::MeshBrowserTreeItem::DrawControls()
+    void DataBrowser::AnimationBrowserTreeItem::DrawControls()
     {
         if ( IsDirectory() )
         {
@@ -70,13 +69,13 @@ namespace KRG::Render::MeshTools
         {
             ImGui::TextColored( g_rawFileColor.ToFloat4(), "Raw" );
         }
-        else if ( IsResourceOfType<SkeletalMesh>() )
+        else if ( IsResourceOfType<Skeleton>() )
         {
-            ImGui::TextColored( g_skeletalMeshColor.ToFloat4(), "Skeletal Mesh" );
+            ImGui::TextColored( g_skeletonColor.ToFloat4(), "Skeleton" );
         }
-        else if ( IsResourceOfType<StaticMesh>() )
+        else if ( IsResourceOfType<AnimationClip>() )
         {
-            ImGui::TextColored( g_staticMeshColor.ToFloat4(), "Static Mesh" );
+            ImGui::TextColored( g_animationColor.ToFloat4(), "Animation" );
         }
     }
 
@@ -86,7 +85,7 @@ namespace KRG::Render::MeshTools
         : TEditorTool<Model>( pModel )
         , m_propertyGrid( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
         , m_descriptorCreator( pModel )
-        , m_dataBrowserTreeView( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory(), { ".msh", ".smsh", ".fbx", ".gltf" } )
+        , m_dataBrowserTreeView( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory(), { ".skel", ".anim", ".fbx", ".gltf" } )
     {
         m_onDoubleClickEventID = m_dataBrowserTreeView.OnItemDoubleClicked().Bind( [this] ( TreeViewItem* pItem ) { OnBrowserItemDoubleClicked( pItem ); } );
         m_dataBrowserTreeView.RebuildBrowserTree();
@@ -117,7 +116,7 @@ namespace KRG::Render::MeshTools
 
         //-------------------------------------------------------------------------
 
-        auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<MeshBrowserTreeItem>();
+        auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<AnimationBrowserTreeItem>();
         if ( pSelectedItem != nullptr && pSelectedItem->IsFile() )
         {
             if ( pSelectedItem->GetPath() != m_inspectedFile )
@@ -177,17 +176,13 @@ namespace KRG::Render::MeshTools
             auto pDataFileItem = static_cast<DataBrowserTreeItem const*>( pItem );
             if ( pDataFileItem->IsFile() )
             {
-                if ( pDataFileItem->IsResourceOfType<StaticMesh>() )
+                if ( pDataFileItem->IsRawFile() )
                 {
-                    isVisible = m_showStaticMeshes;
-                }
-                else if ( pDataFileItem->IsResourceOfType<SkeletalMesh>() )
-                {
-                    isVisible = m_showSkeletalMeshes;
+                    isVisible = m_showRawFiles;
                 }
                 else
                 {
-                    isVisible = m_showRawFiles;
+                    isVisible = true;
                 }
             }
 
@@ -246,16 +241,6 @@ namespace KRG::Render::MeshTools
                 }
 
                 UpdateVisibility();
-
-                auto const SetExpansion = []( TreeViewItem* pItem )
-                {
-                    if ( pItem->IsVisible() )
-                    {
-                        pItem->SetExpanded( true );
-                    }
-                };
-
-                m_dataBrowserTreeView.ForEachItem( SetExpansion );
             }
 
             ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 20 );
@@ -268,18 +253,6 @@ namespace KRG::Render::MeshTools
             // Type Filter + Controls
             //-------------------------------------------------------------------------
 
-            if ( ImGui::Checkbox( "Static Meshes", &m_showStaticMeshes ) )
-            {
-                UpdateVisibility();
-            }
-
-            ImGui::SameLine();
-            if ( ImGui::Checkbox( "Skeletal Meshes", &m_showSkeletalMeshes ) )
-            {
-                UpdateVisibility();
-            }
-
-            ImGui::SameLine();
             if ( ImGui::Checkbox( "Raw Files", &m_showRawFiles ) )
             {
                 UpdateVisibility();
@@ -319,8 +292,11 @@ namespace KRG::Render::MeshTools
             return;
         }
 
-        ResourceID const resourceID( pDataFileItem->GetDataPath() );
-        m_model.LoadResource( resourceID );
+        if ( pDataFileItem->IsResourceOfType<AnimationClip>() )
+        {
+            ResourceID const resourceID( pDataFileItem->GetDataPath() );
+            m_model.LoadResource( resourceID );
+        }
     }
 
     bool DataBrowser::OpenInspectedResourceFile( UpdateContext const& context )
@@ -355,7 +331,7 @@ namespace KRG::Render::MeshTools
         {
             if ( m_inspectedFile.IsValid() )
             {
-                auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<MeshBrowserTreeItem>();
+                auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<AnimationBrowserTreeItem>();
                 KRG_ASSERT( pSelectedItem != nullptr && pSelectedItem->IsFile() );
                 if ( pSelectedItem->IsRawFile() )
                 {
@@ -423,10 +399,10 @@ namespace KRG::Render::MeshTools
 
             ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
             ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 4 ) );
-            if ( ImGui::BeginTable( "Mesh Info", 2, 0 ) )
+            if ( ImGui::BeginTable( "Animation Info", 2, 0 ) )
             {
-                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed, 80 );
-                ImGui::TableSetupColumn( "Mesh Name", ImGuiTableColumnFlags_NoHide );
+                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed, 120 );
+                ImGui::TableSetupColumn( "Animation Name", ImGuiTableColumnFlags_NoHide );
 
                 for ( auto const& mesh : m_assetInfo.m_meshes )
                 {
@@ -436,12 +412,12 @@ namespace KRG::Render::MeshTools
                     ImGui::AlignTextToFramePadding();
                     if ( mesh.m_isSkinned )
                     {
-                        ImGui::TextColored( g_skeletalMeshColor.ToFloat4(), "Skeletal Mesh:" );
+                        ImGui::TextColored( g_skeletonColor.ToFloat4(), "Skeletal Animation:" );
 
                     }
                     else // Static
                     {
-                        ImGui::TextColored( g_staticMeshColor.ToFloat4(), "Static Mesh:" );
+                        ImGui::TextColored( g_animationColor.ToFloat4(), "Static Animation:" );
                     }
 
                     //-------------------------------------------------------------------------

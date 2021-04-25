@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math.h"
-#include "System/Core\Serialization\Serialization.h"
+#include "System/Core/Serialization/Serialization.h"
+#include "System/Core/Types/Percentage.h"
 
 //-------------------------------------------------------------------------
 
@@ -56,28 +57,28 @@ namespace KRG
         }
 
         // Does the range [min, max] contain the specified range
-        inline bool IsInsideInclusive( TRange<T> const& rhs ) const
+        inline bool ContainsInclusive( TRange<T> const& rhs ) const
         {
-            KRG_ASSERT( IsSetAndValid() && RHS.IsSetAndValid() );
+            KRG_ASSERT( IsSetAndValid() && rhs.IsSetAndValid() );
             return m_min <= rhs.m_min && m_max >= rhs.m_max;
         }
 
-        /// Does the range [min, max] contain the specified value
-        inline bool IsInsideInclusive( T const& v ) const
+        // Does the range [min, max] contain the specified value
+        inline bool ContainsInclusive( T const& v ) const
         {
             KRG_ASSERT( IsSetAndValid() );
             return v >= m_min && v <= m_max;
         }
 
-        //Does the range (min, max) contain the specified range
-        inline bool IsInsideExclusive( TRange<T> const& rhs ) const
+        // Does the range (min, max) contain the specified range
+        inline bool ContainsExclusive( TRange<T> const& rhs ) const
         {
-            KRG_ASSERT( IsSetAndValid() && RHS.IsSetAndValid() );
+            KRG_ASSERT( IsSetAndValid() && rhs.IsSetAndValid() );
             return m_min < rhs.m_min && m_max > rhs.m_max;
         }
 
         // Does the range (min, max) contain the specified value
-        inline bool IsInsideExclusive( T const& v ) const
+        inline bool ContainsExclusive( T const& v ) const
         {
             KRG_ASSERT( IsSetAndValid() );
             return v > m_min && v < m_max;
@@ -91,35 +92,36 @@ namespace KRG
         }
 
         // Get the percentage through this range that specified value lies at. This is not clamped and returns a value between [-FLT_MAX, FLT_MAX]
-        inline float GetPercentageThrough( T const& v ) const
+        inline Percentage GetPercentageThrough( T const& v ) const
         {
             KRG_ASSERT( IsSetAndValid() );
             T const length = GetLength();
-            auto percentageThrough = 0.0f;
+            Percentage percentageThrough = 0.0f;
             if ( length != 0 )
             {
-                percentageThrough = ( v - m_min ) / length;
+                percentageThrough = Percentage( ( v - m_min ) / length );
             }
             return percentageThrough;
         }
 
         // Get the percentage through this range that specified value lies at. This is clamped between [0, 1]
-        inline float GetPercentageThroughClamped( T const& v ) const
+        inline Percentage GetPercentageThroughClamped( T const& v ) const
         {
             KRG_ASSERT( IsSetAndValid() );
             T const length = GetLength();
-            return ( length != 0 ) ? ( Clamp( v ) - m_min ) / length : 0;
+            Percentage const percentageThrough( ( length != 0 ) ? ( Clamp( v ) - m_min ) / length : 0 );
+            return percentageThrough;
         }
 
         // Get the value in this range at the specified percentage through. Unclamped so returns [-FLT_MAX, FLT_MAX]
-        inline T GetValueForPercentageThrough( float const percentageThrough ) const
+        inline T GetValueForPercentageThrough( Percentage const percentageThrough ) const
         {
             KRG_ASSERT( percentageThrough >= 0.0f && percentageThrough <= 1.0f );
             return ( GetLength() * percentageThrough ) + m_min;
         }
 
         // Get the value in this range at the specified percentage through. Clamped to [min, max]
-        inline T GetValueForPercentageThroughClamped( float const percentageThrough ) const
+        inline T GetValueForPercentageThroughClamped( Percentage const percentageThrough ) const
         {
             KRG_ASSERT( IsSetAndValid() );
             auto const clampedPercentage = Math::Clamp( percentageThrough, 0.0f, 1.0f );

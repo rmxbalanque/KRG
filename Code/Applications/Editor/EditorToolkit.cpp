@@ -348,7 +348,7 @@ namespace KRG
         EditorToolkitFactory* pEditorModeFactory = EditorToolkitFactory::s_pHead;
         while ( pEditorModeFactory != nullptr )
         {
-            if ( pEditorModeFactory->GetID() == editorModeID )
+            if ( StringID( pEditorModeFactory->GetID() ) == editorModeID )
             {
                 return pEditorModeFactory->CreateEditor();
             }

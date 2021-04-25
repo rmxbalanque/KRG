@@ -237,6 +237,7 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 
     //-------------------------------------------------------------------------
 
+    KRG::ApplicationGlobalState globalState;
     KRG::EngineApplication engineApplication( hInstance );
     return engineApplication.Run( __argc, __argv );
 }

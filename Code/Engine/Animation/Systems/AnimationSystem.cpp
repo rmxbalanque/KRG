@@ -51,7 +51,7 @@ namespace KRG
         {
             KRG_PROFILE_FUNCTION_ANIMATION();
 
-            if ( m_pAnimComponent == nullptr || m_meshComponents.empty() )
+            if ( m_pAnimComponent == nullptr )
             {
                 return;
             }
@@ -63,8 +63,8 @@ namespace KRG
             auto const* pPose = m_pAnimComponent->GetPose();
             KRG_ASSERT( pPose->HasGlobalTransforms() );
 
-            /*auto drawingCtx = ctx.GetDrawingContext();
-            DrawPose( drawingCtx, pPose, m_meshComponents[0]->GetWorldTransform() );*/
+            auto drawingCtx = ctx.GetDrawingContext();
+            DrawPose( drawingCtx, pPose, Transform::Identity  /*m_meshComponents[0]->GetWorldTransform()*/ );
 
             //-------------------------------------------------------------------------
 

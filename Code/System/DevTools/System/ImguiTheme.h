@@ -23,6 +23,8 @@ namespace KRG::ImGuiX
         static ImVec4 const s_textColorDisabled;
         static ImVec4 const s_borderColor;
 
+        constexpr static float const s_toolTipDelay = 0.4f;
+
     private:
 
         static void ApplyTheme();

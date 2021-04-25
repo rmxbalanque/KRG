@@ -20,7 +20,7 @@ namespace KRG
 
         Percentage() = default;
 
-        inline explicit Percentage( float percentage )
+        inline Percentage( float percentage )
             : m_value( percentage )
         {}
 

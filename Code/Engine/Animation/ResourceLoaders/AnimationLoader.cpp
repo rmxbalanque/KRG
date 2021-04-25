@@ -1,5 +1,5 @@
 #include "AnimationLoader.h"
-#include "Engine/Animation/AnimationData.h"
+#include "Engine/Animation/AnimationClip.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
 //-------------------------------------------------------------------------
@@ -10,14 +10,14 @@ namespace KRG
     {
         AnimationLoader::AnimationLoader()
         {
-            m_loadableTypes.push_back( AnimationData::GetStaticResourceTypeID() );
+            m_loadableTypes.push_back( AnimationClip::GetStaticResourceTypeID() );
         }
 
         bool AnimationLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
         {
             KRG_ASSERT( archive.IsValid() );
 
-            AnimationData* pAnimData = KRG::New<AnimationData>();
+            AnimationClip* pAnimData = KRG::New<AnimationClip>();
             archive >> *pAnimData;
             pResourceRecord->SetResourceData( pAnimData );
 
@@ -26,7 +26,7 @@ namespace KRG
 
         bool AnimationLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
         {
-            auto pAnimData = pResourceRecord->GetResourceData<AnimationData>();
+            auto pAnimData = pResourceRecord->GetResourceData<AnimationClip>();
             KRG_ASSERT( pAnimData->m_pSkeleton.GetResourceID().IsValid() );
 
             pAnimData->m_pSkeleton = GetInstallDependency( installDependencies, pAnimData->m_pSkeleton.GetResourceID() );

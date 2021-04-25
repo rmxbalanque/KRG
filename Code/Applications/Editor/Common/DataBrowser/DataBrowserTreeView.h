@@ -30,15 +30,26 @@ namespace KRG
         virtual bool CanBeSetActive() const override { return IsFile(); }
 
         // File Info
+        //-------------------------------------------------------------------------
+
         inline bool IsFile() const { return m_type == Type::File; }
         inline bool IsDirectory() const { return m_type == Type::Directory; }
         inline FileSystem::Path const& GetPath() const { return m_path; }
         inline DataPath const& GetDataPath() const { return m_dataPath; }
 
         // Resource Info
+        //-------------------------------------------------------------------------
+
         inline bool IsRawFile() const { KRG_ASSERT( IsFile() ); return !m_resourceTypeID.IsValid(); }
         inline bool IsResourceFile() const { KRG_ASSERT( IsFile() ); return m_resourceTypeID.IsValid(); }
         inline ResourceTypeID const& GetResourceTypeID() const { KRG_ASSERT( IsFile() ); return m_resourceTypeID; }
+
+        template<typename T>
+        inline bool IsResourceOfType() const
+        {
+            static_assert( std::is_base_of<Resource::IResource, T>::value, "T must derive from IResource" );
+            return m_resourceTypeID == T::GetStaticResourceTypeID(); 
+        }
 
     protected:
 

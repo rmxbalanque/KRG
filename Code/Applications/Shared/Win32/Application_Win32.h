@@ -51,7 +51,6 @@ namespace KRG
         String const                    m_applicationName;
         String const                    m_applicationNameNoWhitespace;
         int32                           m_applicationIconResourceID = -1;
-        ApplicationGlobalState          m_applicationGlobalState;
         WNDCLASSEX                      m_windowClass;
         HINSTANCE                       m_pInstance = nullptr;
         HWND                            m_pWindow = nullptr;

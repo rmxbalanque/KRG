@@ -74,7 +74,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        class KRG_ENGINE_ANIMATION_API AnimationData : public Resource::IResource
+        class KRG_ENGINE_ANIMATION_API AnimationClip : public Resource::IResource
         {
             KRG_REGISTER_RESOURCE( 'ANIM' );
             KRG_SERIALIZE_MEMBERS( m_pSkeleton, m_duration, m_numFrames, m_compressedPoseData, m_trackCompressionSettings, m_isAdditive );
@@ -90,7 +90,7 @@ namespace KRG
 
         public:
 
-            AnimationData() = default;
+            AnimationClip() = default;
 
             virtual bool IsValid() const final { return m_pSkeleton != nullptr && m_pSkeleton.IsLoaded() && m_numFrames > 0; }
             inline Skeleton const* GetSkeleton() const { return m_pSkeleton.GetPtr(); }
@@ -102,7 +102,7 @@ namespace KRG
             inline bool IsSingleFrameAnimation() const { return m_numFrames == 1; }
             inline bool IsAdditive() const { return m_isAdditive; }
             inline float GetFPS() const { return ((float) m_numFrames ) / m_duration; }
-            inline uint32 GetNumberOfFrames() const { return m_numFrames; }
+            inline uint32 GetNumFrames() const { return m_numFrames; }
             inline Seconds GetDuration() const { return m_duration; }
             inline Seconds GetTime( uint32 frame ) const { return Seconds( GetPercentageThrough( frame ).ToFloat() * m_duration ); }
             inline Percentage GetPercentageThrough( uint32 frame ) const { return Percentage( ( (float) frame ) / m_numFrames ); }
@@ -144,13 +144,13 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        inline Quaternion AnimationData::DecodeRotation( uint16 const* pData )
+        inline Quaternion AnimationClip::DecodeRotation( uint16 const* pData )
         {
             Quantization::EncodedQuaternion const encodedQuat( pData[0], pData[1], pData[2] );
             return encodedQuat.ToQuaternion();
         }
 
-        inline Vector AnimationData::DecodeTranslation( uint16 const* pData, TrackCompressionSettings const& settings )
+        inline Vector AnimationClip::DecodeTranslation( uint16 const* pData, TrackCompressionSettings const& settings )
         {
             float const m_x = Quantization::DecodeFloat( pData[0], settings.m_translationRangeX.m_rangeStart, settings.m_translationRangeX.m_rangeLength );
             float const m_y = Quantization::DecodeFloat( pData[1], settings.m_translationRangeY.m_rangeStart, settings.m_translationRangeY.m_rangeLength );
@@ -158,7 +158,7 @@ namespace KRG
             return Vector( m_x, m_y, m_z );
         }
 
-        inline Vector AnimationData::DecodeScale( uint16 const* pData, TrackCompressionSettings const& settings )
+        inline Vector AnimationClip::DecodeScale( uint16 const* pData, TrackCompressionSettings const& settings )
         {
             float const m_x = Quantization::DecodeFloat( pData[0], settings.m_scaleRangeX.m_rangeStart, settings.m_scaleRangeX.m_rangeLength );
             float const m_y = Quantization::DecodeFloat( pData[1], settings.m_scaleRangeY.m_rangeStart, settings.m_scaleRangeY.m_rangeLength );
@@ -166,7 +166,7 @@ namespace KRG
             return Vector( m_x, m_y, m_z );
         }
 
-        inline Transform AnimationData::GetDisplacementDelta( TRange<Percentage> const& timeRange ) const
+        inline Transform AnimationClip::GetDisplacementDelta( TRange<Percentage> const& timeRange ) const
         {
             Transform const startTransform = GetDisplacementTransform( timeRange.m_min );
             Transform const endTransform = GetDisplacementTransform( timeRange.m_max );
@@ -176,7 +176,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // This is in the header so it will be inlined - Do not move to the CPP file
-        inline uint16 const* AnimationData::ReadCompressedTrackTransform( uint16 const* pTrackData, TrackCompressionSettings const& trackSettings, FrameTime const& frameTime, Transform& outTransform ) const
+        inline uint16 const* AnimationClip::ReadCompressedTrackTransform( uint16 const* pTrackData, TrackCompressionSettings const& trackSettings, FrameTime const& frameTime, Transform& outTransform ) const
         {
             KRG_ASSERT( pTrackData != nullptr );
 
@@ -239,7 +239,7 @@ namespace KRG
             // Read scale
             //-------------------------------------------------------------------------
 
-             // Scales are 48bits (3 x uint16)
+            // Scales are 48bits (3 x uint16)
             static constexpr uint32 const scaleStride = 3;
 
             if ( trackSettings.IsScaleTrackStatic() )
@@ -274,7 +274,7 @@ namespace KRG
         }
 
         // This is in the header so it will be inlined - Do not move to the CPP file
-        inline uint16 const* AnimationData::ReadCompressedTrackKeyFrame( uint16 const* pTrackData, TrackCompressionSettings const& trackSettings, uint32 frameIdx, Transform& outTransform ) const
+        inline uint16 const* AnimationClip::ReadCompressedTrackKeyFrame( uint16 const* pTrackData, TrackCompressionSettings const& trackSettings, uint32 frameIdx, Transform& outTransform ) const
         {
             KRG_ASSERT( pTrackData != nullptr );
             KRG_ASSERT( frameIdx < m_numFrames );
@@ -324,8 +324,8 @@ namespace KRG
             // Read scale
             //-------------------------------------------------------------------------
 
-            // Scales are 16bits (1 x uint16)
-            static constexpr uint32 const scaleStride = 1;
+             // Scales are 48bits (3 x uint16)
+            static constexpr uint32 const scaleStride = 3;
 
             if ( trackSettings.IsScaleTrackStatic() )
             {

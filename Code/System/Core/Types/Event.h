@@ -32,9 +32,17 @@
 
 namespace KRG
 {
+    template<typename>
+    class TSingleUserEvent;
+
+    template<typename>
+    class TSingleUserEventInternal;
+
+    //-------------------------------------------------------------------------
+
     class EventBindingID
     {
-        template<typename R, typename... Args> friend class TSingleUserEventInternal;
+        template<typename> friend class TSingleUserEventInternal;
         template<typename... Args> friend class TMultiUserEventInternal;
 
     public:
@@ -57,9 +65,6 @@ namespace KRG
     //-------------------------------------------------------------------------
     // Single User Event
     //-------------------------------------------------------------------------
-    
-    template<typename>
-    class TSingleUserEvent;
 
     template<typename R, typename... Args>
     class TSingleUserEvent<R( Args... )>;
@@ -67,7 +72,7 @@ namespace KRG
     template<typename R, typename... Args>
     class TSingleUserEventInternal<R( Args... )>
     {
-        friend TSingleUserEvent;
+        friend TSingleUserEvent<R( Args... )>;
 
     public:
 

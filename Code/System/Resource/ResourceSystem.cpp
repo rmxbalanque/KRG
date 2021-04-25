@@ -342,15 +342,25 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
+                bool isRequestComplete = false;
+
                 ResourceRequest* pRequest = m_activeRequests[i];
                 if ( pRequest->IsActive() )
                 {
-                    if ( pRequest->Update( context ) )
-                    {
-                        // We need to process and remove completed requests at the next update stage since unload task may have queued unload requests which refer to the request's allocated memory
-                        m_completedRequests.emplace_back( pRequest );
-                        m_activeRequests.erase_unsorted( m_activeRequests.begin() + i );
-                    }
+                    isRequestComplete = pRequest->Update( context );
+                }
+                else 
+                {
+                    isRequestComplete = true;
+                }
+
+                //-------------------------------------------------------------------------
+
+                if ( isRequestComplete )
+                {
+                    // We need to process and remove completed requests at the next update stage since unload task may have queued unload requests which refer to the request's allocated memory
+                    m_completedRequests.emplace_back( pRequest );
+                    m_activeRequests.erase_unsorted( m_activeRequests.begin() + i );
                 }
             }
         }

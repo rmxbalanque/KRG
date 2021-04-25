@@ -151,6 +151,21 @@ namespace KRG
 
         inline TVector<IEntitySystem*> const& GetSystems() const { return m_systems; }
 
+        template<typename T>
+        T* GetSystem()
+        {
+            static_assert( std::is_base_of<IEntitySystem, T>::value, "T has to derive from IEntitySystem" );
+            for ( auto pSystem : m_systems )
+            {
+                if ( pSystem->GetTypeInfo()->m_ID == T::GetStaticTypeID() )
+                {
+                    return static_cast<T*>( pSystem );
+                }
+            }
+
+            return nullptr;
+        }
+
         template<typename T> 
         inline void CreateSystem() 
         {

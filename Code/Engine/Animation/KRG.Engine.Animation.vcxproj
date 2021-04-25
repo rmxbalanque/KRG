@@ -12,13 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationBoneMask.h" />
-    <ClInclude Include="AnimationData.h" />
+    <ClInclude Include="AnimationClip.h" />
     <ClInclude Include="AnimationEvent.h" />
     <ClInclude Include="AnimationFrameTime.h" />
     <ClInclude Include="AnimationPose.h" />
     <ClInclude Include="AnimationSkeleton.h" />
     <ClInclude Include="Components\AnimatedMeshComponent.h" />
-    <ClInclude Include="Components\SimpleAnimationComponent.h" />
+    <ClInclude Include="Components\AnimationPlayerComponent.h" />
     <ClInclude Include="Components\AnimationComponent.h" />
     <ClInclude Include="Debug\AnimDebugDrawing.h" />
     <ClInclude Include="Events\AnimSampledEvents.h" />
@@ -38,12 +38,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationBoneMask.cpp" />
-    <ClCompile Include="AnimationData.cpp" />
+    <ClCompile Include="AnimationClip.cpp" />
     <ClCompile Include="AnimationFrameTime.cpp" />
     <ClCompile Include="AnimationPose.cpp" />
     <ClCompile Include="AnimationSkeleton.cpp" />
     <ClCompile Include="Components\AnimatedMeshComponent.cpp" />
-    <ClCompile Include="Components\SimpleAnimationComponent.cpp" />
+    <ClCompile Include="Components\AnimationPlayerComponent.cpp" />
     <ClCompile Include="Components\AnimationComponent.cpp" />
     <ClCompile Include="Debug\AnimDebugDrawing.cpp" />
     <ClCompile Include="Events\AnimSampledEvents.cpp" />

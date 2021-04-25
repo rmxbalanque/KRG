@@ -5,270 +5,208 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshToolkit
+namespace KRG::Render::MeshTools
 {
     MeshInfo::~MeshInfo()
     {
         KRG_ASSERT( m_pSkeletonTreeRoot == nullptr );
     }
 
-    void MeshInfo::Initialize( UpdateContext const& context )
-    {
-        TEditorTool<Model>::Initialize( context );
-
-        // Create preview entity
-        //-------------------------------------------------------------------------
-        // We dont own the entity as soon as we add it to the map
-
-        auto pWorld = context.GetSystem<EntityWorld>();
-        auto pPersistentMap = pWorld->GetPersistentMap();
-        
-        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
-        pPersistentMap->AddEntity( m_pPreviewEntity );
-    }
-
     void MeshInfo::Shutdown( UpdateContext const& context )
     {
-        // We dont own the entity or the components, the entity world will destroy them correctly
-        m_pPreviewEntity = nullptr;
-        m_pStaticMeshComponent = nullptr;
-        m_pSkeletalMeshComponent = nullptr;
-
-        //-------------------------------------------------------------------------
-
-        UnloadAnyLoadedResources( context );
-        TEditorTool<Model>::Shutdown( context );
-    }
-
-    void MeshInfo::UnloadAnyLoadedResources( UpdateContext const& context )
-    {
-        // Destroy any created preview components
-        //-------------------------------------------------------------------------
-
-        if ( m_pStaticMeshComponent != nullptr )
-        {
-            m_pPreviewEntity->DestroyComponent( m_pStaticMeshComponent->GetID() );
-            m_pStaticMeshComponent = nullptr;
-        }
-
-        if ( m_pSkeletalMeshComponent != nullptr )
-        {
-            m_pPreviewEntity->DestroyComponent( m_pSkeletalMeshComponent->GetID() );
-            m_pSkeletalMeshComponent = nullptr;
-        }
-
-        // Unload any loaded resources
-        //-------------------------------------------------------------------------
-
-        auto pResourceSystem = context.GetSystem<Resource::ResourceSystem>();
-
-        if ( m_pStaticMesh.IsValid() )
-        {
-            pResourceSystem->UnloadResource( m_pStaticMesh );
-            m_pStaticMesh = nullptr;
-        }
-
-        if ( m_pSkeletalMesh.IsValid() )
-        {
-            pResourceSystem->UnloadResource( m_pSkeletalMesh );
-            m_pSkeletalMesh = nullptr;
-        }
-
-        // Destroy skeleton tree
-        //-------------------------------------------------------------------------
-
         DestroySkeletonTree();
-        m_isLoadingMesh = false;
+        TEditorTool<Model>::Shutdown( context );
     }
 
     //-------------------------------------------------------------------------
 
     void MeshInfo::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
-        // Update preview mesh requests
+        // Manage skeleton tree state
         //-------------------------------------------------------------------------
 
-        DataPath const& previewedMesh = m_model.GetPreviewedMeshPath();
-        if ( previewedMesh.IsValid() && previewedMesh != m_currentlyPreviewedMesh )
+        if ( m_skeletonTreeResource != m_model.GetActiveResource() )
         {
-            // Unload any previously loaded meshes
-            //-------------------------------------------------------------------------
-
-            if ( m_currentlyPreviewedMesh.IsValid() )
-            {
-                UnloadAnyLoadedResources( context );
-            }
-
-            m_currentlyPreviewedMesh = previewedMesh;
-
-            // Load mesh
-            //-------------------------------------------------------------------------
-
-            auto pResourceSystem = context.GetSystem<Resource::ResourceSystem>();
-            ResourceID const resourceID( previewedMesh );
-            if ( resourceID.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
-            {
-                m_pStaticMesh = resourceID;
-                pResourceSystem->LoadResource( m_pStaticMesh );
-            }
-            else
-            {
-                m_pSkeletalMesh = resourceID;
-                pResourceSystem->LoadResource( m_pSkeletalMesh );
-            }
-
-            m_isLoadingMesh = true;
-        }
-        else
-        {
-            // Clear previewed mesh and unload any loaded meshes
-            if ( !previewedMesh.IsValid() && m_currentlyPreviewedMesh.IsValid() )
-            {
-                m_currentlyPreviewedMesh = DataPath();
-                UnloadAnyLoadedResources( context );
-            }
+            DestroySkeletonTree();
         }
 
-        // Handle loading
-        //-------------------------------------------------------------------------
-
-        if ( m_isLoadingMesh )
+        if ( m_model.HasActiveResource() && !m_model.IsActiveResourceLoading() )
         {
-            if ( !IsLoadingMesh() )
+            if ( !m_model.GetActiveResourcePtr().HasLoadingFailed() )
             {
-                UpdatePreviewEntity();
-
-                if ( IsPreviewingSkeletalMesh() )
+                if ( m_model.IsPreviewingSkeletalMesh() )
                 {
                     CreateSkeletonTree();
                 }
-
-                m_isLoadingMesh = false;
             }
         }
 
-        // Draw Info
+        // Draw Window
         //-------------------------------------------------------------------------
 
-        DrawMeshInfoWindow( context );
-    }
+        // Prevent anything docking into this window, and remove the tab-bar
+        ImGuiWindowClass windowClass;
+        windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingSplitOther | ImGuiDockNodeFlags_NoTabBar;
+        ImGui::SetNextWindowClass( &windowClass );
 
-    void MeshInfo::UpdatePreviewEntity()
-    {
-        KRG_ASSERT( m_pPreviewEntity != nullptr );
-        KRG_ASSERT( m_pSkeletalMeshComponent == nullptr && m_pStaticMeshComponent == nullptr );
+        // Create timeline window
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
+        int32 const windowFlags = ImGuiWindowFlags_NoTitleBar;
+        if ( ImGui::Begin( "Mesh Info", nullptr, windowFlags ) )
+        {
+            auto const& openResources = m_model.GetLoadedResources();
 
-        if ( IsPreviewingStaticMesh() )
-        {
-            m_pStaticMeshComponent = KRG::New<StaticMeshComponent>( StringID( "Static Mesh Component" ) );
-            m_pStaticMeshComponent->SetMesh( m_pStaticMesh.GetResourceID() );
-            m_pPreviewEntity->AddComponent( m_pStaticMeshComponent );
-        }
-        else // Skeletal Mesh
-        {
-            m_pSkeletalMeshComponent = KRG::New<SkeletalMeshComponent>( StringID( "Skeletal Mesh Component" ) );
-            m_pSkeletalMeshComponent->SetMesh( m_pSkeletalMesh.GetResourceID() );
-            m_pPreviewEntity->AddComponent( m_pSkeletalMeshComponent );
-        }
-    }
-
-    void MeshInfo::DrawMeshInfoWindow( UpdateContext const& context )
-    {
-        if ( ImGui::Begin( "Mesh Info" ) )
-        {
-            if ( !m_currentlyPreviewedMesh.IsValid() )
+            if ( openResources.empty() )
             {
-                ImGui::Text( "No Mesh Previewed" );
+                ImGui::Text( "No previewed items" );
             }
-            else if ( m_isLoadingMesh )
+            else // Draw tab bar and timeline hosts
             {
-                ImGui::Text( "Loading:" );
-                ImGui::SameLine();
-                ImGuiX::DrawSpinner( "Loading" );
-            }
-            else // Draw mesh info
-            {
-                ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
-                if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
+                TInlineVector<ResourceID, 4> resourcesToClose;
+                int32 const tabBarFlags = ImGuiTabBarFlags_FittingPolicyResizeDown | ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton;
+                if ( ImGui::BeginTabBar( "OpenResourcesTabBar", tabBarFlags ) )
                 {
-                    ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
-                    ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableNextRow();
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text( "Data Path:" );
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text( m_currentlyPreviewedMesh.c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    // Loading indicator
-                    if ( IsLoadingMesh() )
+                    for ( auto& resourcePtr : openResources )
                     {
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "Loading:" );
-
-                        ImGui::TableNextColumn();
-                        ImGuiX::DrawSpinner( "Loading" );
-                    }
-                    else // Draw basic mesh info
-                    {
-                        Mesh const* pMesh = IsPreviewingStaticMesh() ? static_cast<Mesh const*>( m_pStaticMesh.GetPtr() ) : static_cast<Mesh const*>( m_pSkeletalMesh.GetPtr() );
-
-                        ImGui::TableNextRow();
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "Num Vertices:" );
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "%d", pMesh->GetNumVertices() );
-
-                        ImGui::TableNextRow();
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "Num Indices:" );
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "%d", pMesh->GetNumIndices() );
-
-                        ImGui::TableNextRow();
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "Geometry Sections:" );
-
-                        ImGui::TableNextColumn();
-                        for ( auto const& section : pMesh->GetSections() )
+                        bool isOpened = true;
+                        if ( ImGui::BeginTabItem( resourcePtr.GetResourceID().c_str(), &isOpened, ImGuiTabItemFlags_None ) )
                         {
-                            ImGui::Text( section.m_ID.c_str() );
+                            m_model.SetActiveResource( resourcePtr.GetResourceID() );
+
+                            DrawMeshInfo( context );
+
+                            ImGui::EndTabItem();
                         }
 
-                        if ( IsPreviewingSkeletalMesh() )
+                        if ( !isOpened )
                         {
-                            ImGui::TableNextColumn();
-                            ImGui::Text( "Num Bones:" );
-
-                            ImGui::TableNextColumn();
-                            ImGui::Text( "%d", m_pSkeletalMesh->GetNumBones() );
+                            resourcesToClose.emplace_back( resourcePtr.GetResourceID() );
                         }
                     }
-
-                    ImGui::EndTable();
+                    ImGui::EndTabBar();
                 }
-                ImGui::PopStyleVar();
 
-                //-------------------------------------------------------------------------
-
-                if ( IsPreviewingSkeletalMesh())
+                for ( auto const& resourceID : resourcesToClose )
                 {
-                    DrawSkeletalMeshInfo( context );
+                    m_model.UnloadResource( resourceID );
                 }
             }
         }
         ImGui::End();
+        ImGui::PopStyleVar();
+    }
+
+    void MeshInfo::DrawMeshInfo( UpdateContext const& context )
+    {
+        if ( !m_model.HasActiveResource() )
+        {
+            ImGui::Text( "No Mesh Previewed" );
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( m_model.IsActiveResourceLoading() )
+        {
+            ImGui::Text( "Loading:" );
+            ImGui::SameLine();
+            ImGuiX::DrawSpinner( "Loading" );
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        auto const& activeResourcePtr = m_model.GetActiveResourcePtr();
+        if ( activeResourcePtr.HasLoadingFailed() )
+        {
+            ImGui::Text( "Loading Failed: %s", m_model.GetActiveResource().c_str() );
+            return;
+        }
+
+        // Draw mesh info
+        //-------------------------------------------------------------------------
+
+        Mesh const* pMesh = nullptr;
+
+        if ( m_model.IsPreviewingStaticMesh() )
+        {
+            TResourcePtr<StaticMesh> const pStaticMesh( activeResourcePtr );
+            pMesh = pStaticMesh.GetPtr();
+        }
+        else
+        {
+            TResourcePtr<SkeletalMesh> const pSkeletalMesh( activeResourcePtr );
+            pMesh = pSkeletalMesh.GetPtr();
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
+        if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
+        {
+            ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
+            ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "Data Path:" );
+
+            ImGui::TableNextColumn();
+            ImGui::Text( m_model.GetActiveResource().c_str() );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "Num Vertices:" );
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "%d", pMesh->GetNumVertices() );
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "Num Indices:" );
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "%d", pMesh->GetNumIndices() );
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "Geometry Sections:" );
+
+            ImGui::TableNextColumn();
+            for ( auto const& section : pMesh->GetSections() )
+            {
+                ImGui::Text( section.m_ID.c_str() );
+            }
+
+            if ( m_model.IsPreviewingSkeletalMesh() )
+            {
+                auto const pSkeletalMesh = static_cast<SkeletalMesh const*>( pMesh );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Num Bones:" );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "%d", pSkeletalMesh->GetNumBones() );
+            }
+
+            ImGui::EndTable();
+        }
+        ImGui::PopStyleVar();
+
+        //-------------------------------------------------------------------------
+
+        if ( m_model.IsPreviewingSkeletalMesh() && m_pSkeletonTreeRoot != nullptr )
+        {
+            DrawSkeletalMeshInfo( context );
+        }
     }
 
     // Skeletal Mesh Info
@@ -296,12 +234,15 @@ namespace KRG::Render::MeshToolkit
 
     void MeshInfo::CreateSkeletonTree()
     {
-        KRG_ASSERT( IsPreviewingSkeletalMesh() );
+        KRG_ASSERT( m_model.IsPreviewingSkeletalMesh() );
+        TResourcePtr<SkeletalMesh> const pSkeletalMesh( m_model.GetActiveResourcePtr() );
+
+        //-------------------------------------------------------------------------
 
         TVector<BoneInfo*> boneInfos;
 
         // Create all infos
-        int32 const numBones = m_pSkeletalMesh->GetNumBones();
+        int32 const numBones = pSkeletalMesh->GetNumBones();
         for ( auto i = 0; i < numBones; i++ )
         {
             auto& pBoneInfo = boneInfos.emplace_back( KRG::New<BoneInfo>() );
@@ -311,7 +252,7 @@ namespace KRG::Render::MeshToolkit
         // Create hierarchy
         for ( auto i = 1; i < numBones; i++ )
         {
-            int32 const parentBoneIdx = m_pSkeletalMesh->GetBoneParentIndex( i );
+            int32 const parentBoneIdx = pSkeletalMesh->GetBoneParentIndex( i );
             KRG_ASSERT( parentBoneIdx != InvalidIndex );
             boneInfos[parentBoneIdx]->m_children.emplace_back( boneInfos[i] );
         }
@@ -331,9 +272,14 @@ namespace KRG::Render::MeshToolkit
 
     ImRect MeshInfo::RenderSkeletonTree( BoneInfo* pBone ) const
     {
+        KRG_ASSERT( m_model.IsPreviewingSkeletalMesh() );
+        TResourcePtr<SkeletalMesh> const pSkeletalMesh( m_model.GetActiveResourcePtr() );
+
+        //-------------------------------------------------------------------------
+
         ImGui::SetNextItemOpen( pBone->m_isExpanded );
         int32 const treeNodeFlags = pBone->m_children.empty() ? ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet : ImGuiTreeNodeFlags_None;
-        pBone->m_isExpanded = ImGui::TreeNodeEx( m_pSkeletalMesh->GetBoneID( pBone->m_boneIdx ).c_str(), treeNodeFlags );
+        pBone->m_isExpanded = ImGui::TreeNodeEx( pSkeletalMesh->GetBoneID( pBone->m_boneIdx ).c_str(), treeNodeFlags );
         ImRect const nodeRect = ImRect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax() );
 
         if ( pBone->m_isExpanded )

@@ -101,6 +101,10 @@
       "Command": "Animation",
       "Items": [
         {
+          "Id": "d3ae49e4-9c78-429f-87f7-82d1dff90397",
+          "Command": "-compile data://animation/stand_crowd_ambient0.anim"
+        },
+        {
           "Id": "1b9a7757-1b63-47d2-b601-4880455a4cd6",
           "Command": "-compile data://geometry/FloorMesh.msh"
         },

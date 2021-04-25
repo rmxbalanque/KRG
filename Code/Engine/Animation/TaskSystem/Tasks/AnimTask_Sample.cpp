@@ -8,7 +8,7 @@ namespace KRG
     {
         namespace Tasks
         {
-            Sample::Sample( int32 sourceID, AnimationData const* pAnimSequence, Percentage time )
+            Sample::Sample( int32 sourceID, AnimationClip const* pAnimSequence, Percentage time )
                 : Task( sourceID )
                 , m_pAnimation( pAnimSequence )
                 , m_time( time )

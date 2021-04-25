@@ -2,7 +2,7 @@
 #include "CustomizerTestComponent.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "Engine/Render/Components/SkeletalMeshComponent.h"
-#include "Engine/Animation/Components/SimpleAnimationComponent.h"
+#include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Engine/Render/Components/StaticMeshComponent.h"
 #include "Engine/Animation/Systems/AnimationSystem.h"
 #include "System/Entity/Entity.h"
@@ -118,7 +118,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        auto pAnimationComponent = KRG::New<Animation::SimpleAnimationComponent>( StringID( "Animation" ) );
+        auto pAnimationComponent = KRG::New<Animation::AnimationPlayerComponent>( StringID( "Animation" ) );
         pAnimationComponent->SetAnimation( m_pComponent->m_animationIDs[animIdx]);
 
         //-------------------------------------------------------------------------

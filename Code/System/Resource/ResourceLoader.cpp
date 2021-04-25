@@ -47,10 +47,7 @@ namespace KRG
 
         bool ResourceLoader::Install( ResourceID const& resourceID, ResourceRecord* pResourceRecord, InstallDependencyList const& installDependencies ) const
         {
-            #if KRG_DEVELOPMENT_TOOLS
             pResourceRecord->m_pResource->m_resourceID = resourceID;
-            #endif
-
             return true;
         }
 

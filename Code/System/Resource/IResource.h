@@ -26,9 +26,7 @@ namespace KRG::Resource
         virtual ResourceTypeID GetResourceType() const = 0;
         virtual bool IsVirtualResourceType() const = 0;
 
-        #if KRG_DEVELOPMENT_TOOLS
-        ResourceID const& GetResourceID() const { return m_resourceID; }
-        #endif
+        inline ResourceID const& GetResourceID() const { return m_resourceID; }
 
     protected:
 
@@ -36,9 +34,7 @@ namespace KRG::Resource
 
     private:
 
-        #if KRG_DEVELOPMENT_TOOLS
         ResourceID      m_resourceID;
-        #endif
     };
 }
 

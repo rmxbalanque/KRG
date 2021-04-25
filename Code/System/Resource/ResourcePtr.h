@@ -12,7 +12,7 @@ namespace KRG
         // Generic Resource Ptr
         //-------------------------------------------------------------------------
         // There is no direct access to runtime resources through generic resource ptr
-        // You should never use generic resource ptrs, these are only used by the resource manager and resource loader base
+        // You should generally try to avoid using generic resource ptrs
 
         class ResourcePtr
         {

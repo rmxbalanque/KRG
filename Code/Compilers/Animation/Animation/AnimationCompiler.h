@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #pragma once
 
+#include "Compilers/Animation/_Module/API.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
 #include "Engine/Animation/AnimationSkeleton.h"
 #include "System/Resource/ResourcePtr.h"
@@ -16,11 +17,11 @@ namespace KRG
 
     namespace Animation
     {
-        class AnimationData;
+        class AnimationClip;
 
         //-------------------------------------------------------------------------
 
-        struct AnimationResourceDescriptor : public Resource::ResourceDescriptor
+        struct KRG_RESOURCECOMPILERS_ANIMATION_API AnimationResourceDescriptor : public Resource::ResourceDescriptor
         {
             KRG_REGISTER_TYPE;
 
@@ -43,7 +44,7 @@ namespace KRG
 
             virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const final;
 
-            void TransferAndCompressAnimationData( RawAssets::RawAnimation const& rawAnimData, AnimationData& animData ) const;
+            void TransferAndCompressAnimationData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const;
         };
     }
 }

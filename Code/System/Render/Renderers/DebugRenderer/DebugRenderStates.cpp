@@ -796,7 +796,7 @@ namespace KRG
                 {
                     outGlyphIndices.push_back( '\n' );
                 }
-                else if ( glyphRange.IsInsideInclusive( ch ) )
+                else if ( glyphRange.ContainsInclusive( ch ) )
                 {
                     outGlyphIndices.push_back( ch - glyphRange.m_min );
                 }
@@ -827,7 +827,7 @@ namespace KRG
                 {
                     outGlyphIndices.push_back( '\n' );
                 }
-                else if ( glyphRange.IsInsideInclusive( pStr[i] ) )
+                else if ( glyphRange.ContainsInclusive( pStr[i] ) )
                 {
                     outGlyphIndices.push_back( pStr[i] - glyphRange.m_min );
                 }
@@ -865,7 +865,7 @@ namespace KRG
                 }
                 else // Regular characters increment x offset
                 {
-                    if ( glyphRange.IsInsideInclusive( pText[i] ) )
+                    if ( glyphRange.ContainsInclusive( pText[i] ) )
                     {
                         auto const glyphIdx = pText[i] - glyphRange.m_min;
                         auto const& glyph = fontInfo.m_glyphs[glyphIdx];

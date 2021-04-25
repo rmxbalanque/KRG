@@ -258,6 +258,7 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 
     //-------------------------------------------------------------------------
 
+    KRG::ApplicationGlobalState globalState;
     KRG::EditorApplication editorApplication( hInstance );
     return editorApplication.Run( __argc, __argv );
 }

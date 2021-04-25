@@ -3,7 +3,7 @@
 #include "Compilers/Animation/Skeleton/AnimSkeletonCompiler.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Resource/RawAssets/RawAnimation.h"
-#include "Engine/Animation/AnimationData.h"
+#include "Engine/Animation/AnimationClip.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
@@ -17,7 +17,7 @@ namespace KRG
         AnimationCompiler::AnimationCompiler()
             : Resource::Compiler( "AnimationCompiler", VERSION )
         {
-            m_outputTypes.push_back( AnimationData::GetStaticResourceTypeID() );
+            m_outputTypes.push_back( AnimationClip::GetStaticResourceTypeID() );
         }
 
         Resource::CompilationResult AnimationCompiler::Compile( Resource::CompileContext const& ctx ) const
@@ -91,7 +91,7 @@ namespace KRG
             // Reflect FBX data into runtime format
             //-------------------------------------------------------------------------
 
-            AnimationData animData;
+            AnimationClip animData;
             animData.m_pSkeleton = resourceDescriptor.m_pSkeleton;
             TransferAndCompressAnimationData( *pRawAnimation, animData );
 
@@ -102,7 +102,7 @@ namespace KRG
             Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
             if ( archive.IsValid() )
             {
-                Resource::ResourceHeader hdr( VERSION, AnimationData::GetStaticResourceTypeID() );
+                Resource::ResourceHeader hdr( VERSION, AnimationClip::GetStaticResourceTypeID() );
                 hdr.AddInstallDependency( resourceDescriptor.m_pSkeleton.GetResourceID() );
                 archive << hdr << animData;
 
@@ -123,7 +123,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void AnimationCompiler::TransferAndCompressAnimationData( RawAssets::RawAnimation const& rawAnimData, AnimationData& animData ) const
+        void AnimationCompiler::TransferAndCompressAnimationData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const
         {
             auto const& rawTrackData = rawAnimData.GetTrackData();
             int32 const numBones = rawAnimData.GetNumBones();
@@ -131,8 +131,8 @@ namespace KRG
             // Transfer basic anim data
             //-------------------------------------------------------------------------
 
-            animData.m_numFrames = rawAnimData.GetNumFrames();
-            animData.m_duration = ( animData.IsSingleFrameAnimation() ) ? 0.0f : rawAnimData.GetDuration();
+            animClip.m_numFrames = rawAnimData.GetNumFrames();
+            animClip.m_duration = ( animClip.IsSingleFrameAnimation() ) ? 0.0f : rawAnimData.GetDuration();
 
             // Compress raw data
             //-------------------------------------------------------------------------
@@ -144,21 +144,21 @@ namespace KRG
                 TrackCompressionSettings trackSettings;
 
                 // Record offset into data for this track
-                trackSettings.m_trackStartIndex = (uint32) animData.m_compressedPoseData.size();
+                trackSettings.m_trackStartIndex = (uint32) animClip.m_compressedPoseData.size();
 
                 //-------------------------------------------------------------------------
                 // Rotation
                 //-------------------------------------------------------------------------
 
-                for ( uint32 frameIdx = 0; frameIdx < animData.m_numFrames; frameIdx++ )
+                for ( uint32 frameIdx = 0; frameIdx < animClip.m_numFrames; frameIdx++ )
                 {
                     Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[frameIdx];
                     Quaternion const rotation = rawBoneTransform.GetRotation();
 
                     Quantization::EncodedQuaternion const encodedQuat( rotation );
-                    animData.m_compressedPoseData.push_back( encodedQuat.GetData0() );
-                    animData.m_compressedPoseData.push_back( encodedQuat.GetData1() );
-                    animData.m_compressedPoseData.push_back( encodedQuat.GetData2() );
+                    animClip.m_compressedPoseData.push_back( encodedQuat.GetData0() );
+                    animClip.m_compressedPoseData.push_back( encodedQuat.GetData1() );
+                    animClip.m_compressedPoseData.push_back( encodedQuat.GetData2() );
                 }
 
                 //-------------------------------------------------------------------------
@@ -203,13 +203,13 @@ namespace KRG
                     uint16 const m_y = Quantization::EncodeFloat( translation.m_y, trackSettings.m_translationRangeY.m_rangeStart, trackSettings.m_translationRangeY.m_rangeLength );
                     uint16 const m_z = Quantization::EncodeFloat( translation.m_z, trackSettings.m_translationRangeZ.m_rangeStart, trackSettings.m_translationRangeZ.m_rangeLength );
 
-                    animData.m_compressedPoseData.push_back( m_x );
-                    animData.m_compressedPoseData.push_back( m_y );
-                    animData.m_compressedPoseData.push_back( m_z );
+                    animClip.m_compressedPoseData.push_back( m_x );
+                    animClip.m_compressedPoseData.push_back( m_y );
+                    animClip.m_compressedPoseData.push_back( m_z );
                 }
                 else // Store all frames
                 {
-                    for ( uint32 frameIdx = 0; frameIdx < animData.m_numFrames; frameIdx++ )
+                    for ( uint32 frameIdx = 0; frameIdx < animClip.m_numFrames; frameIdx++ )
                     {
                         Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[frameIdx];
                         Vector const& translation = rawBoneTransform.GetTranslation();
@@ -218,9 +218,9 @@ namespace KRG
                         uint16 const m_y = Quantization::EncodeFloat( translation.m_y, trackSettings.m_translationRangeY.m_rangeStart, trackSettings.m_translationRangeY.m_rangeLength );
                         uint16 const m_z = Quantization::EncodeFloat( translation.m_z, trackSettings.m_translationRangeZ.m_rangeStart, trackSettings.m_translationRangeZ.m_rangeLength );
 
-                        animData.m_compressedPoseData.push_back( m_x );
-                        animData.m_compressedPoseData.push_back( m_y );
-                        animData.m_compressedPoseData.push_back( m_z );
+                        animClip.m_compressedPoseData.push_back( m_x );
+                        animClip.m_compressedPoseData.push_back( m_y );
+                        animClip.m_compressedPoseData.push_back( m_z );
                     }
                 }
 
@@ -266,13 +266,13 @@ namespace KRG
                     uint16 const m_y = Quantization::EncodeFloat( scale.m_y, trackSettings.m_scaleRangeY.m_rangeStart, trackSettings.m_scaleRangeY.m_rangeLength );
                     uint16 const m_z = Quantization::EncodeFloat( scale.m_z, trackSettings.m_scaleRangeZ.m_rangeStart, trackSettings.m_scaleRangeZ.m_rangeLength );
 
-                    animData.m_compressedPoseData.push_back( m_x );
-                    animData.m_compressedPoseData.push_back( m_y );
-                    animData.m_compressedPoseData.push_back( m_z );
+                    animClip.m_compressedPoseData.push_back( m_x );
+                    animClip.m_compressedPoseData.push_back( m_y );
+                    animClip.m_compressedPoseData.push_back( m_z );
                 }
                 else // Store all frames
                 {
-                    for ( uint32 frameIdx = 0; frameIdx < animData.m_numFrames; frameIdx++ )
+                    for ( uint32 frameIdx = 0; frameIdx < animClip.m_numFrames; frameIdx++ )
                     {
                         Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[frameIdx];
                         Vector const& scale = rawBoneTransform.GetScale();
@@ -281,15 +281,15 @@ namespace KRG
                         uint16 const m_y = Quantization::EncodeFloat( scale.m_y, trackSettings.m_scaleRangeY.m_rangeStart, trackSettings.m_scaleRangeY.m_rangeLength );
                         uint16 const m_z = Quantization::EncodeFloat( scale.m_z, trackSettings.m_scaleRangeZ.m_rangeStart, trackSettings.m_scaleRangeZ.m_rangeLength );
 
-                        animData.m_compressedPoseData.push_back( m_x );
-                        animData.m_compressedPoseData.push_back( m_y );
-                        animData.m_compressedPoseData.push_back( m_z );
+                        animClip.m_compressedPoseData.push_back( m_x );
+                        animClip.m_compressedPoseData.push_back( m_y );
+                        animClip.m_compressedPoseData.push_back( m_z );
                     }
                 }
 
                 //-------------------------------------------------------------------------
 
-                animData.m_trackCompressionSettings.emplace_back( trackSettings );
+                animClip.m_trackCompressionSettings.emplace_back( trackSettings );
             }
         }
     }

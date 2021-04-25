@@ -70,6 +70,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationToolkit\AnimationToolkit.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationToolkit_AnimationEditorTool.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationToolkit_DataBrowserTool.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationToolkit_Model.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationToolkit_SkeletonTreeTool.cpp" />
+    <ClCompile Include="Common\Timeline\TimelineEditor.cpp" />
     <ClCompile Include="Common\TreeView.cpp" />
     <ClCompile Include="Common\ResourceDescriptorCreator.cpp" />
     <ClCompile Include="Common\DataBrowser\DataBrowserTreeView.cpp" />
@@ -85,6 +91,12 @@
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationToolkit\AnimationToolkit.h" />
+    <ClInclude Include="AnimationToolkit\AnimationToolkit_AnimationEditorTool.h" />
+    <ClInclude Include="AnimationToolkit\AnimationToolkit_DataBrowserTool.h" />
+    <ClInclude Include="AnimationToolkit\AnimationToolkit_Model.h" />
+    <ClInclude Include="AnimationToolkit\AnimationToolkit_SkeletonTreeTool.h" />
+    <ClInclude Include="Common\Timeline\TimelineEditor.h" />
     <ClInclude Include="Common\TreeView.h" />
     <ClInclude Include="Common\ResourceDescriptorCreator.h" />
     <ClInclude Include="Common\DataBrowser\DataBrowserTreeView.h" />

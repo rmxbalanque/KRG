@@ -1,23 +1,24 @@
 #pragma once
 
 #include "Applications/Editor/EditorToolkit.h"
-#include "MeshToolkit_Model.h"
-#include "MeshToolkit_DataBrowserTool.h"
-#include "MeshToolkit_MeshInfoTool.h"
+#include "AnimationToolkit_Model.h"
+#include "AnimationToolkit_DataBrowserTool.h"
+#include "AnimationToolkit_AnimationEditorTool.h"
+#include "AnimationToolkit_SkeletonTreeTool.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render::MeshTools
+namespace KRG::Animation::AnimationTools
 {
-    class MeshToolkit final : public TEditorToolkit<Model>
+    class AnimationToolkit final : public TEditorToolkit<Model>
     {
     public:
 
-        ~MeshToolkit();
+        ~AnimationToolkit();
 
     private:
 
-        virtual char const* GetName() const override final { return "Kruger Mesh Toolkit"; }
+        virtual char const* GetName() const override final { return "Kruger Animation Toolkit"; }
 
         virtual void SetUserFlags( uint64 flags ) override;
         virtual uint64 GetUserFlags() const override;
@@ -28,6 +29,7 @@ namespace KRG::Render::MeshTools
     private:
 
         DataBrowser*                        m_pDataBrowser = nullptr;
-        MeshInfo*                           m_pMeshInfo = nullptr;
+        AnimationEditor*                  m_pAnimationTimeline = nullptr;
+        SkeletonTree*                       m_pSkeletonTree = nullptr;
     };
 }

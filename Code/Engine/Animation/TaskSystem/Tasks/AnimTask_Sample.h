@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../AnimTask.h"
-#include "Engine/Animation/AnimationData.h"
+#include "Engine/Animation/AnimationClip.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ namespace KRG
 
             public:
 
-                Sample( int32 sourceNodeIdx, AnimationData const* pAnimation, Percentage time );
+                Sample( int32 sourceNodeIdx, AnimationClip const* pAnimation, Percentage time );
                 virtual void Execute( TaskPoseStack& poseStack ) const override;
 
                 #if KRG_DEVELOPMENT_TOOLS
@@ -27,7 +27,7 @@ namespace KRG
 
             private:
 
-                AnimationData const*    m_pAnimation;
+                AnimationClip const*    m_pAnimation;
                 Percentage           m_time;
             };
         }

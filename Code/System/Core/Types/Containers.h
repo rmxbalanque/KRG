@@ -90,6 +90,13 @@ namespace KRG
         return eastl::find( vector.begin(), vector.end(), value, eastl::forward<Predicate>( predicate ) ) != vector.end();
     }
 
+    // Usage: VectorContains( vector, [] ( T const& typeRef ) { ... } );
+    template<typename T, typename V, typename Predicate>
+    inline bool VectorContains( TVector<T>& vector, Predicate predicate )
+    {
+        return eastl::find_if( vector.begin(), vector.end(), value, eastl::forward<Predicate>( predicate ) ) != vector.end();
+    }
+
     template<typename T>
     inline int32 VectorFindIndex( TVector<T> const& vector, T const& value )
     {
@@ -104,10 +111,26 @@ namespace KRG
         }
     }
 
+    // Usage: VectorFindIndex( vector, value, [] ( T const& typeRef, V const& valueRef ) { ... } );
     template<typename T, typename V, typename Predicate>
     inline int32 VectorFindIndex( TVector<T> const& vector, V const& value, Predicate predicate )
     {
         auto iter = eastl::find( vector.begin(), vector.end(), value, predicate );
+        if ( iter == vector.end() )
+        {
+            return InvalidIndex;
+        }
+        else
+        {
+            return (int32) ( iter - vector.begin() );
+        }
+    }
+
+    // Usage: VectorContains( vector, [] ( T const& typeRef ) { ... } );
+    template<typename T, typename V, typename Predicate>
+    inline int32 VectorFindIndex( TVector<T> const& vector, Predicate predicate )
+    {
+        auto iter = eastl::find_if( vector.begin(), vector.end(), value, predicate );
         if ( iter == vector.end() )
         {
             return InvalidIndex;

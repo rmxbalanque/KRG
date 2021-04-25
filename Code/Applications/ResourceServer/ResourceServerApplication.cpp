@@ -354,7 +354,8 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
     #endif
 
     //-------------------------------------------------------------------------
-
+    
+    KRG::ApplicationGlobalState globalState;
     KRG::ResourceServerApplication engineApplication( hInstance );
     int const result = engineApplication.Run( __argc, __argv );
 

@@ -134,7 +134,7 @@ namespace KRG
         EditorToolkitFactory();
 
         // Main interface - every mode needs to declare a static factory
-        virtual StringID GetID() const = 0;
+        virtual const char* GetID() const = 0;
         virtual EditorToolkit* CreateEditor() const = 0;
 
     private:

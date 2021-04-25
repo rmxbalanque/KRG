@@ -1,4 +1,4 @@
-#include "AnimationData.h"
+#include "AnimationClip.h"
 #include "AnimationPose.h"
 
 //-------------------------------------------------------------------------
@@ -7,7 +7,7 @@ namespace KRG
 {
     namespace Animation
     {
-        FrameTime AnimationData::GetFrameTime( Percentage percentageThrough ) const
+        FrameTime AnimationClip::GetFrameTime( Percentage percentageThrough ) const
         {
             FrameTime frameTime;
 
@@ -27,7 +27,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void AnimationData::GetPose( FrameTime const& frameTime, Pose* pOutPose ) const
+        void AnimationClip::GetPose( FrameTime const& frameTime, Pose* pOutPose ) const
         {
             KRG_ASSERT( IsValid() );
             KRG_ASSERT( pOutPose != nullptr && pOutPose->GetSkeleton() == m_pSkeleton.GetPtr() );
@@ -61,7 +61,7 @@ namespace KRG
             }
         }
 
-        Transform AnimationData::GetDisplacementTransform( FrameTime const& frameTime ) const
+        Transform AnimationClip::GetDisplacementTransform( FrameTime const& frameTime ) const
         {
             KRG_ASSERT( IsValid() );
             KRG_ASSERT( frameTime.GetFrameIndex() < m_numFrames );
@@ -89,7 +89,7 @@ namespace KRG
             return displacementTransform;
         }
 
-        Transform AnimationData::GetLocalSpaceTransform( int32 boneIdx, FrameTime const& frameTime ) const
+        Transform AnimationClip::GetLocalSpaceTransform( int32 boneIdx, FrameTime const& frameTime ) const
         {
             KRG_ASSERT( IsValid() && m_pSkeleton->IsValidBoneIndex( boneIdx ) );
 
@@ -116,7 +116,7 @@ namespace KRG
             return boneLocalTransform;
         }
 
-        Transform AnimationData::GetGlobalSpaceTransform( int32 boneIdx, FrameTime const& frameTime ) const
+        Transform AnimationClip::GetGlobalSpaceTransform( int32 boneIdx, FrameTime const& frameTime ) const
         {
             KRG_ASSERT( IsValid() && m_pSkeleton->IsValidBoneIndex( boneIdx ) );
 

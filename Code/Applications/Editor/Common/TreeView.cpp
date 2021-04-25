@@ -78,6 +78,17 @@ namespace KRG
 
     void TreeView::OnItemDoubleClickedInternal( TreeViewItem* pItem )
     {
+        // Double click
+        //-------------------------------------------------------------------------
+
+        if ( m_onItemDoubleClicked.HasBoundUser() )
+        {
+            m_onItemDoubleClicked.Execute( pItem );
+        }
+
+        // Activation
+        //-------------------------------------------------------------------------
+
         if( !pItem->CanBeSetActive() )
         {
             return;

@@ -4,6 +4,7 @@
 #include "System/ImguiFont.h"
 #include "System/ImguiTheme.h"
 #include "ThirdParty/imgui/imgui.h"
+#include "ThirdParty/imgui/imgui_internal.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Types/String.h"
 
@@ -34,6 +35,29 @@ namespace KRG::ImGuiX
     }
 
     //-------------------------------------------------------------------------
+
+    inline void ItemTooltip( const char* fmt, ... )
+    {
+        if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > Theme::s_toolTipDelay )
+        {
+            va_list args;
+            va_start( args, fmt );
+            ImGui::SetTooltipV( fmt, args );
+            va_end( args );
+        }
+    }
+
+    inline void ItemTooltipDelayed( float tooltipDelay, const char* fmt, ... )
+    {
+        KRG_ASSERT( tooltipDelay > 0 );
+        if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > tooltipDelay )
+        {
+            va_list args;
+            va_start( args, fmt );
+            ImGui::SetTooltipV( fmt, args );
+            va_end( args );
+        }
+    }
 
     inline void SelectableText( String const& value, float width = 0 )
     {
