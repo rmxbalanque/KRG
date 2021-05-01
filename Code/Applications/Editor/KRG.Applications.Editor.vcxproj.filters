@@ -39,10 +39,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EditorToolkit.cpp">
+    <ClCompile Include="Editor\EditorToolkit.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
-    <ClCompile Include="EditorModel.cpp">
+    <ClCompile Include="Editor\EditorModel.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
     <ClCompile Include="Win32\EditorApplication_Win32.cpp">
@@ -69,30 +69,27 @@
     <ClCompile Include="MeshToolkit\MeshToolkit.cpp">
       <Filter>Editor\Render\MeshToolkit</Filter>
     </ClCompile>
-    <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowserTool.cpp">
+    <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowser.cpp">
       <Filter>Editor\Render\MeshToolkit</Filter>
     </ClCompile>
-    <ClCompile Include="MeshToolkit\MeshToolkit_MeshInfoTool.cpp">
+    <ClCompile Include="Common\DocumentWell.cpp">
       <Filter>Editor\Render\MeshToolkit</Filter>
     </ClCompile>
-    <ClCompile Include="MeshToolkit\MeshToolkit_Model.cpp">
-      <Filter>Editor\Render\MeshToolkit</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimationToolkit\AnimationToolkit.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_AnimationEditorTool.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_DataBrowserTool.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_Model.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_SkeletonTreeTool.cpp" />
     <ClCompile Include="Common\Timeline\TimelineEditor.cpp" />
+    <ClCompile Include="MeshToolkit\FileTypes\MeshResourceFiles.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationToolkit_DataBrowser.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationToolkit.cpp" />
+    <ClCompile Include="AnimationToolkit\FileTypes\SkeletonResourceFile.cpp" />
+    <ClCompile Include="AnimationToolkit\FileTypes\AnimationResourceFile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EditorToolkit.h">
+    <ClInclude Include="Editor\EditorToolkit.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="EditorModel.h">
+    <ClInclude Include="Editor\EditorModel.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="EditorTool.h">
+    <ClInclude Include="Editor\EditorTool.h">
       <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="Win32\EditorApplication_Win32.h">
@@ -122,21 +119,19 @@
     <ClInclude Include="MeshToolkit\MeshToolkit.h">
       <Filter>Editor\Render\MeshToolkit</Filter>
     </ClInclude>
-    <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowserTool.h">
+    <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowser.h">
       <Filter>Editor\Render\MeshToolkit</Filter>
     </ClInclude>
-    <ClInclude Include="MeshToolkit\MeshToolkit_MeshInfoTool.h">
+    <ClInclude Include="Common\DocumentWell.h">
       <Filter>Editor\Render\MeshToolkit</Filter>
     </ClInclude>
-    <ClInclude Include="MeshToolkit\MeshToolkit_Model.h">
-      <Filter>Editor\Render\MeshToolkit</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationToolkit\AnimationToolkit.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_AnimationEditorTool.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_DataBrowserTool.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_Model.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_SkeletonTreeTool.h" />
     <ClInclude Include="Common\Timeline\TimelineEditor.h" />
+    <ClInclude Include="Editor\EditorFile.h" />
+    <ClInclude Include="MeshToolkit\FileTypes\MeshResourceFiles.h" />
+    <ClInclude Include="AnimationToolkit\AnimationToolkit_DataBrowser.h" />
+    <ClInclude Include="AnimationToolkit\AnimationToolkit.h" />
+    <ClInclude Include="AnimationToolkit\FileTypes\SkeletonResourceFile.h" />
+    <ClInclude Include="AnimationToolkit\FileTypes\AnimationResourceFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc">

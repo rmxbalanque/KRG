@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EditorFile.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
@@ -33,30 +34,25 @@ namespace KRG
         inline FileSystem::Path const& GetCompiledDataDirectory() const { return m_compiledDataDirectory; }
         inline TypeSystem::TypeRegistry const& GetTypeRegistry() const { return *m_pTypeRegistry; }
 
-        // Resource Management
+        // File Management
         //-------------------------------------------------------------------------
-        // The active resource is the resource that has "focus" and is currently being previewed or edited.
 
-        void LoadResource( ResourceID const& resourceID );
-        void UnloadResource( ResourceID const& resourceID );
-        bool IsLoadedResource( ResourceID const& resourceID ) const;
-        inline TVector<Resource::ResourcePtr> const& GetLoadedResources() const { return m_loadedResources; }
-        inline Resource::ResourcePtr const& GetLoadedResource( ResourceID const& resourceID ) const;
+        template<typename T>
+        void OpenResourceFile( ResourceID const& resourceID )
+        {
+            static_assert( std::is_base_of<EditorFile, T>::value, "T must derived from TResourceFile" );
+            auto pNewFile = KRG::New<T>( m_sourceDataDirectory, m_pResourceSystem, resourceID );
+            KRG_ASSERT( !VectorContains( m_openFiles, pNewFile, [] ( EditorFile*& pExistingFile, EditorFile* pNewFile ) { return pExistingFile->GetFilePath() == pNewFile->GetFilePath(); } ) );
+            m_openFiles.emplace_back( pNewFile );
+        }
 
-        inline bool HasActiveResource() const { return m_activeResource.IsValid(); }
-        inline ResourceID const& GetActiveResource() const { return m_activeResource; }
-        Resource::ResourcePtr const& GetActiveResourcePtr() const;
-        inline bool IsActiveResourceLoading() const { return GetActiveResourcePtr().IsLoading(); }
-        void SetActiveResource( ResourceID const& resourceID );
-        void ClearActiveResource();
+        void CloseFile( EditorFile* pFile );
+        inline TVector<EditorFile*> const& GetOpenFiles() const { return m_openFiles; }
+        inline bool IsFileOpen( FileSystem::Path const& path ) const;
 
-    protected:
-
-        // Called whenever we set a new acive resource
-        virtual void OnSetActiveResource( ResourceID const& resourceID ) {}
-
-        // Called just before we clear the active resource
-        virtual void OnClearActiveResource() {}
+        // The active file is the file that has "focus" and is currently being previewed or edited.
+        void SetActiveFile( EditorFile* pFile );
+        void ClearActiveFile();
 
     protected:
 
@@ -66,9 +62,10 @@ namespace KRG
         // Core editor systems
         TypeSystem::TypeRegistry const*     m_pTypeRegistry = nullptr;
         Resource::ResourceSystem*           m_pResourceSystem = nullptr;
+        EntityWorld*                        m_pPreviewWorld = nullptr;
 
-        // Resource management
-        TVector<Resource::ResourcePtr>      m_loadedResources;
-        ResourceID                          m_activeResource;
+        // File Management
+        TVector<EditorFile*>                m_openFiles;
+        EditorFile*                         m_pActiveFile = nullptr;
     };
 }

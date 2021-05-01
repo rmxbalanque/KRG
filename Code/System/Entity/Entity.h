@@ -285,7 +285,7 @@ namespace KRG
     protected:
 
         UUID                                            m_ID;                                   // The unique ID of this entity
-        UUID                                            m_collectionID;                         // The ID of the collection that this entity is part of
+        UUID                                            m_collectionID;                         // The ID of the collection/map that this entity is part of
         StringID                                        m_name;
         Status                                          m_status = Status::Unloaded;
         bool                                            m_isRegisteredForUpdates = false;       // Is this entity registered for frame updates

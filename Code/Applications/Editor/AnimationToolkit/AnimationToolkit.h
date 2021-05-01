@@ -1,16 +1,14 @@
 #pragma once
 
-#include "Applications/Editor/EditorToolkit.h"
-#include "AnimationToolkit_Model.h"
-#include "AnimationToolkit_DataBrowserTool.h"
-#include "AnimationToolkit_AnimationEditorTool.h"
-#include "AnimationToolkit_SkeletonTreeTool.h"
+#include "AnimationToolkit_DataBrowser.h"
+#include "Applications/Editor/Editor/EditorToolkit.h"
+#include "Applications/Editor/Common/DocumentWell.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::AnimationTools
 {
-    class AnimationToolkit final : public TEditorToolkit<Model>
+    class AnimationToolkit final : public TEditorToolkit<EditorModel>
     {
     public:
 
@@ -29,7 +27,6 @@ namespace KRG::Animation::AnimationTools
     private:
 
         DataBrowser*                        m_pDataBrowser = nullptr;
-        AnimationEditor*                  m_pAnimationTimeline = nullptr;
-        SkeletonTree*                       m_pSkeletonTree = nullptr;
+        DocumentWell*                       m_pDocumentWell = nullptr;
     };
 }

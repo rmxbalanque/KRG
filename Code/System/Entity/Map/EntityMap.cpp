@@ -103,7 +103,7 @@ namespace KRG::EntityModel
 
             pEntityToRemove = FindEntity( entityID );
             KRG_ASSERT( pEntityToRemove != nullptr );
-            m_entitiesToRemove.emplace_back( pEntityToRemove );
+            m_entitiesToRemove.emplace_back( RemovalRequest( pEntityToRemove, false ) );
         }
         else // Cancel add request if the collection doesnt exists yet
         {
@@ -114,6 +114,33 @@ namespace KRG::EntityModel
         }
 
         return pEntityToRemove;
+    }
+
+    void EntityMap::DestroyEntity( UUID entityID )
+    {
+        Entity* pEntityToDestroy = nullptr;
+
+        // Lock the map
+        Threading::RecursiveScopeLock lock( m_mutex );
+
+        // Queue removal
+        if ( m_isCollectionInstantiated )
+        {
+            // Note! We explicitly dont support the case where you add and destroy an entity on the same frame. Try to avoid doing stupid things!
+            KRG_ASSERT( !VectorContains( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } ) );
+
+            pEntityToDestroy = FindEntity( entityID );
+            KRG_ASSERT( pEntityToDestroy != nullptr );
+            m_entitiesToRemove.emplace_back( RemovalRequest( pEntityToDestroy, true ) );
+        }
+        else // Cancel add request if the collection doesnt exists yet
+        {
+            int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
+            KRG_ASSERT( entityIdx != InvalidIndex );
+            pEntityToDestroy = m_entitiesToAdd[entityIdx];
+            m_entitiesToAdd.erase_unsorted( m_entitiesToAdd.begin() + entityIdx );
+            KRG::Delete( pEntityToDestroy );
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -434,25 +461,36 @@ namespace KRG::EntityModel
         //-------------------------------------------------------------------------
 
         // Unload and deactivate entities and remove them from the collection
-        for ( auto pEntityToRemove : m_entitiesToRemove )
+        for ( int32 i = (int32) m_entitiesToRemove.size() - 1; i >= 0; i-- )
         {
+            auto& removalRequest = m_entitiesToRemove[i];
+            auto pEntityToRemove = removalRequest.m_pEntity;
+
             // Deactivate if activated
             if ( pEntityToRemove->IsActivated() )
             {
                 pEntityToRemove->Deactivate( loadingContext, activationContext );
+                continue;
             }
             else // Remove from loading list as we might still be loaded this entity
             {
                 m_entitiesToLoad.erase_first_unsorted( pEntityToRemove );
                 m_reloadRequests.erase_first_unsorted( pEntityToRemove );
+
+                // Unload components and remove from collection
+                pEntityToRemove->UnloadComponents( loadingContext );
+                EntityCollection::RemoveEntity( pEntityToRemove->m_ID );
+
+                // Destroy the entity if this is a destruction request
+                if ( removalRequest.m_shouldDestroy )
+                {
+                    KRG::Delete( pEntityToRemove );
+                }
+
+                // Remove the request from the list
+                m_entitiesToRemove.erase_unsorted( m_entitiesToRemove.begin() + i );
             }
-
-            // Unload components and remove from collection
-            pEntityToRemove->UnloadComponents( loadingContext );
-            EntityCollection::RemoveEntity( pEntityToRemove->m_ID );
         }
-
-        m_entitiesToRemove.clear();
     }
 
     bool EntityMap::ProcessEntityLoadingAndActivation( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )

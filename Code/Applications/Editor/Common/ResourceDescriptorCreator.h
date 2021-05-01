@@ -1,5 +1,5 @@
 #pragma once
-#include "Applications/Editor/EditorModel.h"
+#include "Applications/Editor/Editor/EditorModel.h"
 #include "Tools/Core/TypeSystem/Serialization/NativeTypeWriter.h"
 #include "System/TypeSystem/TypeID.h"
 #include "System/Core/FileSystem/FileSystemPath.h"

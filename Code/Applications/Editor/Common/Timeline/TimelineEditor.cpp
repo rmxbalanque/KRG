@@ -8,39 +8,114 @@ namespace KRG
 {
     namespace
     {
-        static ImColor const g_headerBackgroundColor( 0xFF3D3837 );
-        static ImColor const g_headerLineColor( 0xFF606060 );
-        static ImColor const g_headerLabelColor( 0xFFBBBBBB );
+        static float g_headerHeight = 24;
+        static float g_trackHeaderWidth = 200;
 
-        static float g_timelineHeaderHeight = 24;
-        static float g_timelineControlsWidth = 200;
+        static ImColor const g_headerBackgroundColor( 0xFF3D3837 );
+        static ImColor const g_headerLabelColor( 0xFFBBBBBB );
+        static ImColor const g_timelineLargeLineColor( 0xFF606060 );
+        static ImColor const g_timelineMediumLineColor( 0xFF606060 );
+        static ImColor const g_timelineSmallLineColor( 0xFF333333 );
+        static ImColor const g_timelineRangeEndLineColor( 0x990000FF );
+
         static float g_timelineMinimumWidthForLargeInterval = 100;
         static float g_timelineLabelLeftPadding = 4.0f;
         static float g_timelineLargeLineOffset = 4;
         static float g_timelineMediumLineOffset = 10;
         static float g_timelineSmallLineOffset = 16;
 
+        //-------------------------------------------------------------------------
+
+        static ImVec4 const g_playheadDefaultColor = ImColor( 0xFF808080 );
+        static ImVec4 const g_playheadHoveredColor = Float4( g_playheadDefaultColor ) * 1.20f;
+        static ImVec4 const g_playheadShadowColor = ImColor( 0x1A000000 );
+        static ImVec4 const g_playheadBorderColor = Float4( g_playheadDefaultColor ) * 1.25f;
+        static ImU32 const g_playheadMarkerLineColor( 0x99AAFFAA );
+
+        float const g_playHeadVerticalPadding = 4.0f;
+        float const g_playheadHalfWidth = 6.0f;
+
+        //-------------------------------------------------------------------------
+
         static float g_horizontalScrollbarHeight = 16;
         static float g_verticalScrollbarHeight = 16;
 
         //-------------------------------------------------------------------------
 
-        static ImVec4 const g_playheadDefaultColor = ImColor::HSV( 0.33f, 0.0f, 0.50f );
-        static ImVec4 const g_playheadHoveredColor = Float4( g_playheadDefaultColor ) * 1.20f;
-        static ImVec4 const g_playheadShadowColor( 0.0f, 0.0f, 0.0f, 0.1f );
-        static ImVec4 const g_playheadBorderColor = Float4( g_playheadDefaultColor ) * 1.25f;
-        static ImU32 const g_playheadMarkerLineColor( 0x99999999 );
-        static ImU32 const g_timeRangeEndMarkerLineColor( 0x990000FF );
-
-        float const g_playHeadVerticalPadding = 4.0f;
-        float const g_playheadHalfWidth = 6.0f;
+        static float g_trackHeight = 30;
+        static ImColor const g_trackSeparatorColor( 0xFF808080 );
+        static float const g_itemMarginY = 2;
+        static float const g_itemHandleWidth = 4;
     }
+
+    //-------------------------------------------------------------------------
+
+    Track::~Track()
+    {
+        for ( auto pItem : m_items )
+        {
+            KRG::Delete( pItem );
+        }
+
+        m_items.clear();
+    }
+
+    void Track::DrawHeader()
+    {
+        ImGui::SameLine( 10 );
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text( "Track" );
+    }
+
+    //-------------------------------------------------------------------------
 
     TimelineEditor::TimelineEditor( TRange<int32> const& inTimeRange )
         : m_timeRange( inTimeRange )
         , m_viewRange( inTimeRange )
     {
         KRG_ASSERT( inTimeRange.IsSetAndValid() );
+
+        // HACK
+        //-------------------------------------------------------------------------
+
+        auto pTrack = m_tracks.emplace_back( KRG::New<Track>() );
+
+        auto pItem = pTrack->m_items.emplace_back( KRG::New<Item>() );
+        pItem->m_timeRange = TRange<float>( 0, 9 );
+
+        pItem = pTrack->m_items.emplace_back( KRG::New<Item>() );
+        pItem->m_timeRange = TRange<float>( 80, 95 );
+
+        pItem = pTrack->m_items.emplace_back( KRG::New<Item>() );
+        pItem->m_timeRange = TRange<float>( 15 );
+
+        pTrack = m_tracks.emplace_back( KRG::New<Track>() );
+
+        pItem = pTrack->m_items.emplace_back( KRG::New<Item>() );
+        pItem->m_timeRange = TRange<float>( 35, 75 );
+
+        pItem = pTrack->m_items.emplace_back( KRG::New<Item>() );
+        pItem->m_timeRange = TRange<float>( 1, 15 );
+
+        pItem = pTrack->m_items.emplace_back( KRG::New<Item>() );
+        pItem->m_timeRange = TRange<float>( 103 );
+
+        pTrack = m_tracks.emplace_back( KRG::New<Track>() );
+
+        pItem = pTrack->m_items.emplace_back( KRG::New<Item>() );
+        pItem->m_timeRange = TRange<float>( 1, 50 );
+
+        pItem = pTrack->m_items.emplace_back( KRG::New<Item>() );
+        pItem->m_timeRange = TRange<float>( 65, 95 );
+    }
+
+    TimelineEditor::~TimelineEditor()
+    {
+        for ( auto pTrack : m_tracks )
+        {
+            KRG::Delete( pTrack );
+        }
+        m_tracks.clear();
     }
 
     void TimelineEditor::SetPlayState( PlayState newPlayState )
@@ -64,6 +139,82 @@ namespace KRG
         }
 
         OnPlayStateChanged();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void TimelineEditor::UpdateItemEditing()
+    {
+        KRG_ASSERT( m_itemEditMode != ItemEditMode::None );
+        KRG_ASSERT( m_pEditedItem != nullptr && m_pTrackForEditedItem != nullptr );
+
+        if ( ImGui::IsMouseDragging( ImGuiMouseButton_Left ) )
+        {
+            // Calculate valid range for modifications
+            //-------------------------------------------------------------------------
+
+            auto const floatViewRange = GetViewRangeAsFloatRange();
+            TRange<float> clampRange = GetViewRangeAsFloatRange();
+            for ( auto const pOtherItem : m_pTrackForEditedItem->m_items )
+            {
+                if ( pOtherItem == m_pEditedItem )
+                {
+                    continue;
+                }
+
+                if ( pOtherItem->m_timeRange.m_max < m_editedItemOriginalRange.m_min && pOtherItem->m_timeRange.m_max > clampRange.m_min )
+                {
+                    clampRange.m_min = pOtherItem->m_timeRange.m_max;
+                }
+
+                if ( pOtherItem->m_timeRange.m_min > m_editedItemOriginalRange.m_max && pOtherItem->m_timeRange.m_min < clampRange.m_max )
+                {
+                    clampRange.m_max = pOtherItem->m_timeRange.m_min;
+                }
+            }
+
+            // Prevent immediate events ending up on top of other events or outside the range
+            if ( m_pEditedItem->IsImmediateItem() )
+            {
+                clampRange.m_max -= 1;
+            }
+
+            // Apply mouse delta to item
+            //-------------------------------------------------------------------------
+
+            float const pixelOffset = ImGui::GetMouseDragDelta().x;
+            float const timeOffset = pixelOffset / m_pixelsPerFrame;
+
+            if ( m_itemEditMode == ItemEditMode::Move )
+            {
+                // Moving left
+                if ( timeOffset < 0 )
+                {
+                    m_pEditedItem->m_timeRange.m_min = Math::Max( clampRange.m_min, m_editedItemOriginalRange.m_min + timeOffset );
+                    m_pEditedItem->m_timeRange.m_max = m_pEditedItem->m_timeRange.m_min + m_editedItemOriginalRange.GetLength();
+                }
+                else // Moving to the right
+                {
+                    m_pEditedItem->m_timeRange.m_max = Math::Min( clampRange.m_max, m_editedItemOriginalRange.m_max + timeOffset );
+                    m_pEditedItem->m_timeRange.m_min = m_pEditedItem->m_timeRange.m_max - m_editedItemOriginalRange.GetLength();
+                }
+            }
+            else if ( m_itemEditMode == ItemEditMode::ResizeLeft )
+            {
+                m_pEditedItem->m_timeRange.m_min = Math::Min( m_editedItemOriginalRange.m_max - 1, m_editedItemOriginalRange.m_min + timeOffset );
+                m_pEditedItem->m_timeRange.m_min = Math::Max( clampRange.m_min, m_pEditedItem->m_timeRange.m_min );
+            }
+            else if ( m_itemEditMode == ItemEditMode::ResizeRight )
+            {
+                m_pEditedItem->m_timeRange.m_max = Math::Max( m_editedItemOriginalRange.m_min + 1, m_editedItemOriginalRange.m_max + timeOffset );
+                m_pEditedItem->m_timeRange.m_max = Math::Min( clampRange.m_max, m_pEditedItem->m_timeRange.m_max );
+            }
+        }
+        else if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
+        {
+            m_itemEditMode = ItemEditMode::None;
+            m_pEditedItem = nullptr;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -149,7 +300,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, buttonSeperation );
-        ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_PLUS "##AddTrack", buttonSize );
+        ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_PLUS "##AddTrack" );
         ImGuiX::ItemTooltip( "Add Track" );
     }
 
@@ -181,23 +332,42 @@ namespace KRG
 
         for ( int32 i = 0; i <= visibleRangeLength; i += numFramesForSmallInterval )
         {
+            float const lineOffsetX = startPosX + int32( i * m_pixelsPerFrame );
+            if ( lineOffsetX < startPosX || lineOffsetX > endPosX )
+            {
+                continue;
+            }
+
+            //-------------------------------------------------------------------------
+
             bool const isLargeLine = ( ( i % numFramesForLargeInterval ) == 0 ) || ( i == m_viewRange.GetLength() || i == 0 );
             bool const isMediumLine = ( i % NumFramesForMediumInterval ) == 0;
 
-            // Draw line
-            float const lineOffsetX = startPosX + int32( i * m_pixelsPerFrame );
-            float const lineOffsetY = isLargeLine ? g_timelineLargeLineOffset : ( isMediumLine ? g_timelineMediumLineOffset : g_timelineSmallLineOffset );
-            if ( lineOffsetX >= startPosX && lineOffsetX <= endPosX )
-            {
-                pDrawList->AddLine( ImVec2( lineOffsetX, startPosY + lineOffsetY ), ImVec2( lineOffsetX, endPosY ), g_headerLineColor, 1 );
-            }
+            //-------------------------------------------------------------------------
 
-            // Draw text for the base indices
-            if ( isLargeLine && lineOffsetX >= startPosX )
+            if ( isLargeLine )
             {
+                bool const isRangeEndLine = ( i == m_timeRange.m_max );
+                float lineOffsetY = g_timelineLargeLineOffset;
+                ImColor lineColor = isRangeEndLine ? g_timelineRangeEndLineColor :  g_timelineLargeLineColor;
+
+                pDrawList->AddLine( ImVec2( lineOffsetX, startPosY + lineOffsetY ), ImVec2( lineOffsetX, endPosY ), lineColor, 1 );
+
+                // Draw text label
                 InlineString<256> label;
                 label.sprintf( "%d", m_viewRange.m_min + i );
                 pDrawList->AddText( ImVec2( lineOffsetX + g_timelineLabelLeftPadding, startPosY ), g_headerLabelColor, label.c_str() );
+            }
+            else if( isMediumLine )
+            {
+                float const lineOffsetY = g_timelineMediumLineOffset;
+                pDrawList->AddLine( ImVec2( lineOffsetX, startPosY + lineOffsetY ), ImVec2( lineOffsetX, endPosY ), g_timelineMediumLineColor, 1 );
+            }
+            else // Small lines
+            {
+                float const lineOffsetY = g_timelineSmallLineOffset;
+                pDrawList->AddLine( ImVec2( lineOffsetX, startPosY + lineOffsetY ), ImVec2( lineOffsetX, startPosY + g_headerHeight ), g_timelineLargeLineColor, 1 );
+                pDrawList->AddLine( ImVec2( lineOffsetX, startPosY + g_headerHeight ), ImVec2( lineOffsetX, endPosY ), g_timelineSmallLineColor, 1 );
             }
         }
     }
@@ -207,12 +377,12 @@ namespace KRG
         ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
         float playheadPosX = playheadRect.GetTL().x;
-        float playheadPosY = playheadRect.GetTL().y + g_timelineHeaderHeight;
+        float playheadPosY = playheadRect.GetTL().y + g_headerHeight;
 
         //-------------------------------------------------------------------------
 
         float const playheadStartOffsetX = ConvertFramesToPixels( m_playheadTime - m_viewRange.m_min );
-        float const playheadHeight = g_timelineHeaderHeight - ( g_playHeadVerticalPadding * 2 );
+        float const playheadHeight = g_headerHeight - ( g_playHeadVerticalPadding * 2 );
         ImVec2 const playheadPosition( playheadPosX + playheadStartOffsetX, playheadPosY - g_playHeadVerticalPadding );
 
         ImGui::SetCursorPos( playheadPosition - ImVec2{ g_playheadHalfWidth, playheadHeight } - ImGui::GetWindowPos() );
@@ -227,7 +397,7 @@ namespace KRG
         // If the mouse is clicked over the header, start dragging operation
         if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
         {
-            if ( playheadRect.Contains( mousePos ) && mousePos.y < ( playheadRect.Min.y + g_timelineHeaderHeight ) )
+            if ( playheadRect.Contains( mousePos ) && mousePos.y < ( playheadRect.Min.y + g_headerHeight ) )
             {
                 m_isDraggingPlayhead = true;
             }
@@ -296,16 +466,155 @@ namespace KRG
         // Draw marker lines
         //-------------------------------------------------------------------------
 
-        if ( m_viewRange.ContainsInclusive( m_timeRange.m_max ) )
-        {
-            float const pixelOffset = ( m_timeRange.m_max - m_viewRange.m_min ) * m_pixelsPerFrame;
-            ImVec2 const endRangeLineStart( playheadRect.GetTL().x + pixelOffset, playheadRect.GetTL().y + g_timelineHeaderHeight );
-            ImVec2 const endRangeLineEnd( endRangeLineStart.x, playheadRect.GetBR().y );
-            pDrawList->AddLine( endRangeLineStart, endRangeLineEnd, g_timeRangeEndMarkerLineColor );
-        }
-
         pDrawList->AddLine( playheadPosition, ImVec2( playheadPosition.x, playheadRect.GetBR().y ), g_playheadMarkerLineColor );
     }
+
+    //-------------------------------------------------------------------------
+
+    void TimelineEditor::DrawTrackItemArea( Track const* pTrack, ImRect const& eventAreaRect )
+    {
+        KRG_ASSERT( pTrack != nullptr );
+
+        auto const floatViewRange = GetViewRangeAsFloatRange();
+
+        //-------------------------------------------------------------------------
+
+        ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+        ImGui::PushClipRect( eventAreaRect.GetTL(), eventAreaRect.GetBR(), false );
+
+        for ( auto const pItem : pTrack->m_items )
+        {
+            if ( !floatViewRange.Overlaps( pItem->m_timeRange ) )
+            {
+                continue;
+            }
+
+            //-------------------------------------------------------------------------
+
+            float itemEndTime = pItem->m_timeRange.m_max;
+            if ( pItem->IsImmediateItem() )
+            {
+                itemEndTime += 1;
+            }
+
+            float const itemStartX = eventAreaRect.GetTL().x + ( pItem->m_timeRange.m_min - m_viewRange.m_min ) * m_pixelsPerFrame;
+            float const itemEndX = eventAreaRect.GetTL().x + ( itemEndTime - m_viewRange.m_min ) * m_pixelsPerFrame;
+            float const itemStartY = eventAreaRect.GetTL().y + g_itemMarginY;
+            float const itemEndY = eventAreaRect.GetBR().y - g_itemMarginY;
+
+            ImVec2 const itemStart( itemStartX, itemStartY );
+            ImVec2 const itemEnd( itemEndX, itemEndY );
+
+            // Handle mouse
+            //-------------------------------------------------------------------------
+
+            ImVec2 const mousePos = ImGui::GetMousePos();
+            bool const isHovered = ImRect( itemStart, itemEnd ).Contains( mousePos );
+            bool const isHoveredOverLeftHandle = ( !pItem->IsImmediateItem() && isHovered ) ? ImRect( itemStart, ImVec2( itemStart.x + g_itemHandleWidth, itemEnd.y ) ).Contains( mousePos ) : false;
+            bool const isHoveredOverRightHandle = ( !pItem->IsImmediateItem() && isHovered && !isHoveredOverLeftHandle ) ? ImRect( ImVec2( itemEnd.x - g_itemHandleWidth, itemStart.y ), itemEnd ).Contains( mousePos ) : false;
+
+            if ( isHoveredOverLeftHandle || isHoveredOverRightHandle )
+            {
+                ImGui::SetMouseCursor( ImGuiMouseCursor_ResizeEW );
+            }
+
+            if ( isHovered && ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
+            {
+                if ( isHoveredOverLeftHandle )
+                {
+                    m_itemEditMode = ItemEditMode::ResizeLeft;
+                }
+                else if ( isHoveredOverRightHandle )
+                {
+                    m_itemEditMode = ItemEditMode::ResizeRight;
+                }
+                else // Regular move
+                {
+                    m_itemEditMode = ItemEditMode::Move;
+                }
+
+                m_pTrackForEditedItem = pTrack;
+                m_pEditedItem = pItem;
+                m_editedItemOriginalRange = pItem->m_timeRange;
+            }
+
+            // Draw item
+            //-------------------------------------------------------------------------
+
+            ImVec4 itemColor = pItem->GetColor().ToFloat4();
+            if ( pItem == m_pEditedItem )
+            {
+                itemColor = (Float4) itemColor * 1.5f;
+            }
+            else if ( isHovered )
+            {
+                itemColor = (Float4) itemColor * 1.25f;
+            }
+
+            pDrawList->AddRectFilled( itemStart, itemEnd, ImColor( itemColor ), pItem->IsImmediateItem() ? 0.0f : 4.0f );
+
+            pDrawList->AddText( itemStart + ImVec2( 5, 1 ), 0xFF000000, pItem->GetLabel() );
+            pDrawList->AddText( itemStart + ImVec2( 4, 0 ), ImColor( ImGuiX::Theme::s_textColor ), pItem->GetLabel() );
+        }
+
+        ImGui::PopClipRect();
+    }
+
+    void TimelineEditor::DrawTracks( ImRect const& trackAreaRect )
+    {
+        ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+
+        //-------------------------------------------------------------------------
+
+        // TODO: Draw vertical scrollbar
+
+        //-------------------------------------------------------------------------
+
+        float trackStartY = trackAreaRect.GetTL().y;
+        int32 const numTracks = (int32) m_tracks.size();
+        for ( int32 i = 0; i < numTracks; i++ )
+        {
+            auto pTrack = m_tracks[i];
+
+            float const trackEndY = trackStartY + g_trackHeight;
+
+            // Terminate loop as soon as a track is no longer visible
+            if ( trackStartY > trackAreaRect.GetBR().y )
+            {
+                break;
+            }
+
+            // Draw track header
+            //-------------------------------------------------------------------------
+
+            ImGui::PushID( pTrack );
+
+            int32 const headerFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar;
+            ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 0, 1 ) );
+            ImGui::BeginChild( "Track Header", ImVec2( g_trackHeaderWidth, g_trackHeight ), false, headerFlags );
+            {
+                pTrack->DrawHeader();
+            }
+            ImGui::EndChild();
+            ImGui::PopStyleVar();
+
+            // Draw items
+            //-------------------------------------------------------------------------
+
+            ImRect const itemAreaRect( ImVec2( trackAreaRect.GetTL().x + g_trackHeaderWidth, trackStartY ), ImVec2( trackAreaRect.GetBR().x, trackEndY ) );
+            DrawTrackItemArea( pTrack, itemAreaRect );
+
+            // Draw track separator
+            //-------------------------------------------------------------------------
+
+            pDrawList->AddLine( ImVec2( trackAreaRect.GetTL().x, trackEndY ), ImVec2( trackAreaRect.GetBR().x, trackEndY ), g_trackSeparatorColor );
+            trackStartY = trackEndY + 1;
+
+            ImGui::PopID();
+        }
+    }
+
+    //-------------------------------------------------------------------------
 
     void TimelineEditor::Draw()
     {
@@ -328,11 +637,20 @@ namespace KRG
         }
 
         //-------------------------------------------------------------------------
+        // Manage item edit state
+        //-------------------------------------------------------------------------
+
+        if ( m_itemEditMode != ItemEditMode::None )
+        {
+            UpdateItemEditing();
+        }
+
+        //-------------------------------------------------------------------------
         // Adjust view
         //-------------------------------------------------------------------------
 
         // Adjust visible range based on the canvas size
-        int32 const maxVisibleFrames = Math::FloorToInt( ( canvasSize.x - g_timelineControlsWidth - g_playheadHalfWidth ) / m_pixelsPerFrame );
+        int32 const maxVisibleFrames = Math::FloorToInt( ( canvasSize.x - g_trackHeaderWidth - g_playheadHalfWidth ) / m_pixelsPerFrame );
         if ( m_viewRange.GetLength() > maxVisibleFrames )
         {
             m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
@@ -391,35 +709,35 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ImDrawList* pDrawList = ImGui::GetWindowDrawList();
-        pDrawList->AddRectFilled( canvasPos, ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + g_timelineHeaderHeight ), g_headerBackgroundColor, 0 );
+        pDrawList->AddRectFilled( canvasPos, ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + g_headerHeight ), g_headerBackgroundColor, 0 );
 
-        ImRect const timelineControlsRect( canvasPos, ImVec2( canvasPos.x + g_timelineControlsWidth, canvasPos.y + g_timelineHeaderHeight ) );
+        ImRect const timelineControlsRect( canvasPos, ImVec2( canvasPos.x + g_trackHeaderWidth, canvasPos.y + g_headerHeight ) );
 
         ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4) g_headerBackgroundColor );
         DrawTimelineControls( timelineControlsRect );
         ImGui::PopStyleColor();
 
-        ImRect const timelineRect( ImVec2( canvasPos.x + g_timelineControlsWidth, canvasPos.y ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + g_timelineHeaderHeight ) );
+        ImRect const timelineRect( ImVec2( canvasPos.x + g_trackHeaderWidth, canvasPos.y ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + canvasSize.y - horizontalScrollBarHeight ) );
         DrawTimeline( timelineRect );
 
         //-------------------------------------------------------------------------
         // Tracks
         //-------------------------------------------------------------------------
 
-        ImRect const trackAreaRect( ImVec2( canvasPos.x + g_timelineControlsWidth, canvasPos.y + g_timelineHeaderHeight ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + canvasSize.y - horizontalScrollBarHeight ) );
+        ImRect const trackAreaRect( ImVec2( canvasPos.x, canvasPos.y + g_headerHeight ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + canvasSize.y - horizontalScrollBarHeight ) );
+        DrawTracks( trackAreaRect );
 
         //-------------------------------------------------------------------------
         // Playhead
         //-------------------------------------------------------------------------
 
-        ImRect const playheadRect( ImVec2( canvasPos.x + g_timelineControlsWidth, canvasPos.y ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + canvasSize.y - horizontalScrollBarHeight ) );
-        DrawPlayhead( playheadRect );
+        DrawPlayhead( timelineRect );
 
         //-------------------------------------------------------------------------
         // Horizontal Scrollbar
         //-------------------------------------------------------------------------
 
-        ImRect const horizontalScrollBarRect( ImVec2( canvasPos.x + g_timelineControlsWidth, canvasPos.y + canvasSize.y - horizontalScrollBarHeight ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + canvasSize.y ) );
+        ImRect const horizontalScrollBarRect( ImVec2( canvasPos.x + g_trackHeaderWidth, canvasPos.y + canvasSize.y - horizontalScrollBarHeight ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + canvasSize.y ) );
         float const currentViewSize = m_viewRange.GetLength() * m_pixelsPerFrame;
         float const totalContentSizeNeeded = m_timeRange.GetLength() * m_pixelsPerFrame;
         float scrollbarPosition = m_viewRange.m_min * m_pixelsPerFrame;

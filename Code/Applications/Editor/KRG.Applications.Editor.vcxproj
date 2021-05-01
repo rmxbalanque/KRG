@@ -71,45 +71,44 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnimationToolkit\AnimationToolkit.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_AnimationEditorTool.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_DataBrowserTool.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_Model.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_SkeletonTreeTool.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationToolkit_DataBrowser.cpp" />
+    <ClCompile Include="AnimationToolkit\FileTypes\SkeletonResourceFile.cpp" />
+    <ClCompile Include="AnimationToolkit\FileTypes\AnimationResourceFile.cpp" />
     <ClCompile Include="Common\Timeline\TimelineEditor.cpp" />
     <ClCompile Include="Common\TreeView.cpp" />
     <ClCompile Include="Common\ResourceDescriptorCreator.cpp" />
     <ClCompile Include="Common\DataBrowser\DataBrowserTreeView.cpp" />
-    <ClCompile Include="EditorToolkit.cpp" />
-    <ClCompile Include="EditorModel.cpp" />
+    <ClCompile Include="Editor\EditorToolkit.cpp" />
+    <ClCompile Include="Editor\EditorModel.cpp" />
     <ClCompile Include="Common\DataFilePicker.cpp" />
     <ClCompile Include="Common\PropertyGrid\PropertyEditors.cpp" />
     <ClCompile Include="Common\PropertyGrid\PropertyGrid.cpp" />
+    <ClCompile Include="MeshToolkit\FileTypes\MeshResourceFiles.cpp" />
     <ClCompile Include="MeshToolkit\MeshToolkit.cpp" />
-    <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowserTool.cpp" />
-    <ClCompile Include="MeshToolkit\MeshToolkit_MeshInfoTool.cpp" />
-    <ClCompile Include="MeshToolkit\MeshToolkit_Model.cpp" />
+    <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowser.cpp" />
+    <ClCompile Include="Common\DocumentWell.cpp" />
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationToolkit\AnimationToolkit.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_AnimationEditorTool.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_DataBrowserTool.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_Model.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_SkeletonTreeTool.h" />
+    <ClInclude Include="AnimationToolkit\AnimationToolkit_DataBrowser.h" />
+    <ClInclude Include="AnimationToolkit\FileTypes\SkeletonResourceFile.h" />
+    <ClInclude Include="AnimationToolkit\FileTypes\AnimationResourceFile.h" />
     <ClInclude Include="Common\Timeline\TimelineEditor.h" />
     <ClInclude Include="Common\TreeView.h" />
     <ClInclude Include="Common\ResourceDescriptorCreator.h" />
     <ClInclude Include="Common\DataBrowser\DataBrowserTreeView.h" />
-    <ClInclude Include="EditorToolkit.h" />
-    <ClInclude Include="EditorModel.h" />
-    <ClInclude Include="EditorTool.h" />
+    <ClInclude Include="Editor\EditorToolkit.h" />
+    <ClInclude Include="Editor\EditorModel.h" />
+    <ClInclude Include="Editor\EditorTool.h" />
     <ClInclude Include="Common\DataFilePicker.h" />
     <ClInclude Include="Common\PropertyGrid\PropertyEditors.h" />
     <ClInclude Include="Common\PropertyGrid\PropertyGrid.h" />
+    <ClInclude Include="MeshToolkit\FileTypes\MeshResourceFiles.h" />
     <ClInclude Include="MeshToolkit\MeshToolkit.h" />
-    <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowserTool.h" />
-    <ClInclude Include="MeshToolkit\MeshToolkit_MeshInfoTool.h" />
-    <ClInclude Include="MeshToolkit\MeshToolkit_Model.h" />
+    <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowser.h" />
+    <ClInclude Include="Common\DocumentWell.h" />
+    <ClInclude Include="Editor\EditorFile.h" />
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
     <ClInclude Include="Win32\Resource.h" />
   </ItemGroup>

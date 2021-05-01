@@ -23,29 +23,29 @@ namespace KRG::Render::MeshTools
     MeshToolkit::~MeshToolkit()
     {
         KRG_ASSERT( m_pDataBrowser == nullptr );
-        KRG_ASSERT( m_pMeshInfo == nullptr );
+        KRG_ASSERT( m_pDocumentWell == nullptr );
     }
 
     void MeshToolkit::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
     {
-        TEditorToolkit<Model>::Initialize( context, settingsRegistry );
+        TEditorToolkit<EditorModel>::Initialize( context, settingsRegistry );
      
         m_pDataBrowser = CreateTool<DataBrowser>( context, &GetModel() );
-        m_pMeshInfo = CreateTool<MeshInfo>( context, &GetModel() );
+        m_pDocumentWell = CreateTool<DocumentWell>( context, &GetModel() );
     }
 
     void MeshToolkit::Shutdown( UpdateContext const& context )
     {
-        DestroyTool( context, m_pMeshInfo );
+        DestroyTool( context, m_pDocumentWell );
         DestroyTool( context, m_pDataBrowser );
 
-        TEditorToolkit<Model>::Shutdown( context );
+        TEditorToolkit<EditorModel>::Shutdown( context );
     }
 
     void MeshToolkit::SetUserFlags( uint64 flags )
     {
         m_pDataBrowser->SetOpen( flags & ( 1 << 0 ) );
-        m_pMeshInfo->SetOpen( flags & ( 1 << 1 ) );
+        m_pDocumentWell->SetOpen( flags & ( 1 << 1 ) );
     }
 
     uint64 MeshToolkit::GetUserFlags() const
@@ -57,7 +57,7 @@ namespace KRG::Render::MeshTools
             flags |= ( 1 << 0 );
         }
 
-        if ( m_pMeshInfo->IsOpen() )
+        if ( m_pDocumentWell->IsOpen() )
         {
             flags |= ( 1 << 1 );
         }

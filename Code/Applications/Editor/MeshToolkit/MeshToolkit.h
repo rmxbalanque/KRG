@@ -1,15 +1,14 @@
 #pragma once
 
-#include "Applications/Editor/EditorToolkit.h"
-#include "MeshToolkit_Model.h"
-#include "MeshToolkit_DataBrowserTool.h"
-#include "MeshToolkit_MeshInfoTool.h"
+#include "MeshToolkit_DataBrowser.h"
+#include "Applications/Editor/Editor/EditorToolkit.h"
+#include "Applications/Editor/Common/DocumentWell.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Render::MeshTools
 {
-    class MeshToolkit final : public TEditorToolkit<Model>
+    class MeshToolkit final : public TEditorToolkit<EditorModel>
     {
     public:
 
@@ -28,6 +27,6 @@ namespace KRG::Render::MeshTools
     private:
 
         DataBrowser*                        m_pDataBrowser = nullptr;
-        MeshInfo*                           m_pMeshInfo = nullptr;
+        DocumentWell*                       m_pDocumentWell = nullptr;
     };
 }

@@ -45,6 +45,14 @@ namespace KRG
                 Activated,
             };
 
+            struct RemovalRequest
+            {
+                RemovalRequest( Entity* pEntity, bool shouldDestroy ) : m_pEntity( pEntity ), m_shouldDestroy( shouldDestroy ) {}
+
+                Entity*     m_pEntity = nullptr;
+                bool        m_shouldDestroy = false;
+            };
+
             struct ReloadRequest
             {
                 ReloadRequest( Entity* pEntity ) : m_pEntity( pEntity ) {}
@@ -109,8 +117,12 @@ namespace KRG
             void AddEntity( Entity* pEntity );
 
             // Unload and remove an entity from the map - Transfer ownership of the entity to the calling code
-            // Will take 1 frame to be fully removed, as the removal occurs during the loading update
+            // May take multiple frame to be fully destroyed, as the removal occurs during the loading update
             Entity* RemoveEntity( UUID entityID );
+
+            // Unload, remove and destroy entity in this map
+            // May take multiple frame to be fully destroyed, as the removal occurs during the loading update
+            void DestroyEntity( UUID entityID );
 
         private:
 
@@ -130,7 +142,7 @@ namespace KRG
             TResourcePtr<EntityMapDescriptor>           m_pMapDesc;
             TVector<Entity*>                            m_entitiesToLoad;
             TInlineVector<Entity*, 5>                   m_entitiesToAdd;
-            TInlineVector<Entity*, 5>                   m_entitiesToRemove;
+            TInlineVector<RemovalRequest, 5>            m_entitiesToRemove;
             TVector<ReloadRequest>                      m_reloadRequests;
             Status                                      m_status = Status::Unloaded;
             EventBindingID                              m_entityUpdateEventBindingID;

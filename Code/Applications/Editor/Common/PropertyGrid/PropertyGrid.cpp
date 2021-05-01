@@ -17,15 +17,18 @@ namespace KRG::TypeSystem
     {
         if ( pTypeInstance != nullptr )
         {
-            KRG_ASSERT( pTypeInstance->IsValid() );
-            m_pTypeInstanceModel = pTypeInstance;
+            if ( pTypeInstance != m_pTypeInstanceModel )
+            {
+                KRG_ASSERT( pTypeInstance->IsValid() );
+                m_pTypeInstanceModel = pTypeInstance;
+                m_isDirty = false;
+            }
         }
-        else
+        else // Clear edited type
         {
             m_pTypeInstanceModel = nullptr;
+            m_isDirty = false;
         }
-
-        m_isDirty = false;
     }
 
     void PropertyGrid::PreChange( PropertyInstanceModel& propertyModel )

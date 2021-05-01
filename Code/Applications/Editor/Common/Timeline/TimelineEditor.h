@@ -4,6 +4,7 @@
 #include "System/Core/Math/Range.h"
 #include "System/DevTools/ThirdParty/imgui/imgui.h"
 #include "System/DevTools/ThirdParty/imgui/imgui_internal.h"
+#include "System/Core/Types/Color.h"
 
 //-------------------------------------------------------------------------
 // Timeline Widget
@@ -13,18 +14,48 @@ namespace KRG
 {
     class Item
     {
+        friend class TimelineEditor;
+
     public:
 
-        inline float GetLength() const { return m_endTime - m_startTime; }
+        Item() = default;
+        virtual ~Item() = default;
 
-        float               m_startTime;
-        float               m_endTime;
+        inline bool IsImmediateItem() const { return m_timeRange.m_min == m_timeRange.m_max; }
+        inline bool IsDurationItem() const { return m_timeRange.m_min != m_timeRange.m_max; }
+        inline float GetLength() const { return m_timeRange.GetLength(); }
+
+        virtual char const* GetLabel() const { return "Event"; }
+        virtual Color GetColor() const { return Color( 0xFF801080 ); }
+
+    private:
+
+        Item( Item const& ) = delete;
+        Item& operator=( Item& ) = delete;
+
+    public:
+
+        TRange<float>       m_timeRange;
     };
 
     //-------------------------------------------------------------------------
 
     class Track
     {
+        friend class TimelineEditor;
+
+    public:
+
+        Track() = default;
+        virtual ~Track();
+
+        virtual void DrawHeader();
+
+    private:
+
+        Track( Track const& ) = delete;
+        Track& operator=( Track& ) = delete;
+
     public:
 
         TVector<Item*>      m_items;
@@ -50,11 +81,18 @@ namespace KRG
             Paused
         };
 
+        enum class ItemEditMode : uint8
+        {
+            None,
+            Move,
+            ResizeLeft,
+            ResizeRight
+        };
+
     public:
 
         TimelineEditor( TRange<int32> const& inTimeRange );
-
-        virtual ~TimelineEditor() = default;
+        virtual ~TimelineEditor();
 
         inline bool IsPlaying() const { return m_playState == PlayState::Playing; }
         inline bool IsPaused() const { return m_playState == PlayState::Paused; }
@@ -87,16 +125,33 @@ namespace KRG
 
     private:
 
-        void DrawTimelineControls( ImRect const& controlsRect );
-        void DrawTimeline( ImRect const& timelineRect );
-        void DrawPlayhead( ImRect const& timelineRect );
-
         inline float ConvertPixelsToFrames( float inPixels ) const { return inPixels / m_pixelsPerFrame; }
         inline float ConvertFramesToPixels( float inTime ) const { return inTime * m_pixelsPerFrame; }
         inline void SetViewToStart() { m_viewUpdateMode = ViewUpdateMode::GoToStart; }
         inline void SetViewToEnd() { m_viewUpdateMode = ViewUpdateMode::GoToEnd; }
 
         void SetPlayState( PlayState newPlayState );
+
+        //-------------------------------------------------------------------------
+
+        // Provided rect overs only the area within with the controls can be drawn
+        void DrawTimelineControls( ImRect const& controlsRect );
+
+        // Provided rect covers only the area for the timeline display, excludes track header region
+        void DrawTimeline( ImRect const& timelineRect );
+
+        // Provided rect covers only the area for the timeline display, excludes track header region
+        void DrawPlayhead( ImRect const& playheadRect );
+
+        // Provided rect defines the space for a single track to draw its items
+        void DrawTrackItemArea( Track const* pTrack, ImRect const& itemAreaRect );
+
+        // Provided rect defines the area available to draw multiple tracks (incl. headers and items)
+        void DrawTracks( ImRect const& trackAreaRect );
+
+        //-------------------------------------------------------------------------
+
+        void UpdateItemEditing();
 
     protected:
 
@@ -116,5 +171,10 @@ namespace KRG
         bool                m_isLoopingEnabled = false;
         bool                m_isFrameSnappingEnabled = true;
         bool                m_isDraggingPlayhead = false;
+
+        ItemEditMode        m_itemEditMode = ItemEditMode::None;
+        Track const*        m_pTrackForEditedItem = nullptr;
+        Item*               m_pEditedItem = nullptr;
+        TRange<float>       m_editedItemOriginalRange;
     };
 }
