@@ -4,7 +4,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* SpatialEntityComponent::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* SpatialEntityComponent::s_pTypeInfo = nullptr;
 
     //-------------------------------------------------------------------------
 

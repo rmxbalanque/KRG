@@ -183,7 +183,6 @@ namespace KRG
             {
                 m_pSelectedItem = pItem;
                 OnSelectedChangedInternal();
-                
 
                 ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( ImGui::GetStyle().ItemSpacing.x, ImGui::GetStyle().ItemSpacing.x ) ); // Undo the table item spacing changes
                 pItem->DrawContextMenu();

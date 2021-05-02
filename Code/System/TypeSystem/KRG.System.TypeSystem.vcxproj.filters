@@ -20,6 +20,7 @@
     <ClInclude Include="CoreTypeConversions.h" />
     <ClInclude Include="PropertyPath.h" />
     <ClInclude Include="TypeDescriptors.h" />
+    <ClInclude Include="Serialization\ImmutableTypeCollection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreTypeIDs.cpp" />
@@ -29,5 +30,6 @@
     <ClCompile Include="CoreTypeConversions.cpp" />
     <ClCompile Include="PropertyPath.cpp" />
     <ClCompile Include="TypeDescriptors.cpp" />
+    <ClCompile Include="Serialization\ImmutableTypeCollection.cpp" />
   </ItemGroup>
 </Project>

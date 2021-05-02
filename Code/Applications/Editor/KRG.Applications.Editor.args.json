@@ -3,10 +3,6 @@
   "Id": "d6bdd49c-ef46-4637-844a-4ffdd6a25dc5",
   "Items": [
     {
-      "Id": "6a2e84b9-038b-452f-a07e-9596ee77c772",
-      "Command": "-compile data://animation/stand_crowd_ambient0.anim"
-    },
-    {
       "Id": "62dddc95-4de0-42e8-9027-c987b921a39c",
       "Command": "-mode AnimationToolkit"
     },

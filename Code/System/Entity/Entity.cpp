@@ -6,7 +6,7 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* Entity::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* Entity::s_pTypeInfo = nullptr;
 
     TMultiUserEventInternal<Entity*> Entity::EntityStateUpdatedEvent;
 

@@ -10,12 +10,12 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Render::MeshComponent::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Render::MeshComponent::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Render::MeshComponent>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Render::MeshComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Render::MeshComponent> TTypeHelper<KRG::Render::MeshComponent>::StaticTypeHelper;
         }
@@ -23,18 +23,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::Render::MeshComponent::GetTypeInfo() const
     {
-        return KRG::Render::MeshComponent::StaticTypeInfo;
+        return KRG::Render::MeshComponent::s_pTypeInfo;
     }
 
     void KRG::Render::MeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Render::MeshComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Render::MeshComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::Render::MeshComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Render::MeshComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Render::MeshComponent::s_pTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -42,7 +42,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::Render::MeshComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::Render::MeshComponent::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

@@ -10,12 +10,12 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Render::StaticMeshResourceDescriptor::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Render::StaticMeshResourceDescriptor::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Render::StaticMeshResourceDescriptor>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Render::StaticMeshResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Render::StaticMeshResourceDescriptor> TTypeHelper<KRG::Render::StaticMeshResourceDescriptor>::StaticTypeHelper;
         }

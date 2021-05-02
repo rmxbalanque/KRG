@@ -10,12 +10,12 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Navmesh::NavmeshComponent::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Navmesh::NavmeshComponent::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Navmesh::NavmeshComponent>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Navmesh::NavmeshComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Navmesh::NavmeshComponent> TTypeHelper<KRG::Navmesh::NavmeshComponent>::StaticTypeHelper;
         }
@@ -23,18 +23,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::Navmesh::NavmeshComponent::GetTypeInfo() const
     {
-        return KRG::Navmesh::NavmeshComponent::StaticTypeInfo;
+        return KRG::Navmesh::NavmeshComponent::s_pTypeInfo;
     }
 
     void KRG::Navmesh::NavmeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Navmesh::NavmeshComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Navmesh::NavmeshComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::Navmesh::NavmeshComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Navmesh::NavmeshComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Navmesh::NavmeshComponent::s_pTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -42,7 +42,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::Navmesh::NavmeshComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::Navmesh::NavmeshComponent::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

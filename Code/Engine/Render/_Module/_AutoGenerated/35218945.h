@@ -84,17 +84,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_RENDER_API TTypeHelper<KRG::Render::SkeletalMeshComponent> : public ITypeHelper
+            class KRG_ENGINE_RENDER_API TTypeHelper<KRG::Render::SkeletalMeshComponent> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Render::SkeletalMeshComponent> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Render::SkeletalMeshComponent ), alignof( KRG::Render::SkeletalMeshComponent ) );
                     new ( pDefaultTypeInstance ) KRG::Render::SkeletalMeshComponent;
 
@@ -110,15 +112,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Render::MeshComponent::StaticTypeInfo;
+                    pParentType = KRG::Render::MeshComponent::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::SkeletalMeshComponent> >( DefaultTypeInstancePtr );
-                    KRG::Render::SkeletalMeshComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::SkeletalMeshComponent> >( s_pDefaultTypeInstancePtr );
+                    KRG::Render::SkeletalMeshComponent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -126,7 +128,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Render::SkeletalMeshComponent" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Render::SkeletalMeshComponent*>( pDefaultTypeInstance )->~SkeletalMeshComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -134,6 +136,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::Render::SkeletalMeshComponent>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::Render::SkeletalMeshComponent();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

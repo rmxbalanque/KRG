@@ -1,40 +1,83 @@
 #include "AnimationLoader.h"
 #include "Engine/Animation/AnimationClip.h"
+#include "Engine/Animation/AnimationSyncTrack.h"
 #include "System/Core/Serialization/BinaryArchive.h"
+#include "System/TypeSystem/Serialization/ImmutableTypeCollection.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Animation
 {
-    namespace Animation
+    AnimationLoader::AnimationLoader()
     {
-        AnimationLoader::AnimationLoader()
+        m_loadableTypes.push_back( AnimationClip::GetStaticResourceTypeID() );
+    }
+
+    void AnimationLoader::SetTypeRegistry( TypeSystem::TypeRegistry const* pTypeRegistry )
+    {
+        KRG_ASSERT( pTypeRegistry != nullptr );
+        m_pTypeRegistry = pTypeRegistry;
+    }
+
+    bool AnimationLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
+    {
+        KRG_ASSERT( archive.IsValid() && m_pTypeRegistry != nullptr );
+
+        auto pAnimation = KRG::New<AnimationClip>();
+        archive >> *pAnimation;
+        pResourceRecord->SetResourceData( pAnimation );
+
+        // Read sync events
+        //-------------------------------------------------------------------------
+
+        TInlineVector<SyncTrack::EventMarker, 10> syncEventMarkers;
+        archive >> syncEventMarkers;
+        pAnimation->m_syncTrack = SyncTrack( syncEventMarkers, 0 );
+
+        // Read events
+        //-------------------------------------------------------------------------
+
+        TypeSystem::ImmutableTypeCollectionHeader collectionHeader;
+        archive >> collectionHeader;
+
+        if ( collectionHeader.m_totalRequiredSize > 0 )
         {
-            m_loadableTypes.push_back( AnimationClip::GetStaticResourceTypeID() );
+            TVector<TypeSystem::ImmutableTypeDescriptor> eventTypeDescriptors;
+            archive >> eventTypeDescriptors;
+
+            pAnimation->m_pEventsRawMemory = KRG::Alloc( collectionHeader.m_totalRequiredSize, collectionHeader.m_requiredAlignment );
+            TypeSystem::CreateImmutableTypeCollection( *m_pTypeRegistry, (Byte*) pAnimation->m_pEventsRawMemory, eventTypeDescriptors, pAnimation->m_events );
         }
 
-        bool AnimationLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
+        return true;
+    }
+
+    void AnimationLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const
+    {
+        auto pAnimation = pResourceRecord->GetResourceData<AnimationClip>();
+        if ( pAnimation != nullptr )
         {
-            KRG_ASSERT( archive.IsValid() );
-
-            AnimationClip* pAnimData = KRG::New<AnimationClip>();
-            archive >> *pAnimData;
-            pResourceRecord->SetResourceData( pAnimData );
-
-            return true;
+            // Release allocated events collection
+            if ( pAnimation->m_pEventsRawMemory != nullptr )
+            {
+                TypeSystem::DestroyImmutableTypeCollection( pAnimation->m_events );
+                KRG::Free( pAnimation->m_pEventsRawMemory );
+            }
         }
 
-        bool AnimationLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
-        {
-            auto pAnimData = pResourceRecord->GetResourceData<AnimationClip>();
-            KRG_ASSERT( pAnimData->m_pSkeleton.GetResourceID().IsValid() );
+        ResourceLoader::UnloadInternal( resID, pResourceRecord );
+    }
 
-            pAnimData->m_pSkeleton = GetInstallDependency( installDependencies, pAnimData->m_pSkeleton.GetResourceID() );
-            KRG_ASSERT( pAnimData->IsValid() );
+    bool AnimationLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
+    {
+        auto pAnimData = pResourceRecord->GetResourceData<AnimationClip>();
+        KRG_ASSERT( pAnimData->m_pSkeleton.GetResourceID().IsValid() );
 
-            ResourceLoader::Install( resID, pResourceRecord, installDependencies );
+        pAnimData->m_pSkeleton = GetInstallDependency( installDependencies, pAnimData->m_pSkeleton.GetResourceID() );
+        KRG_ASSERT( pAnimData->IsValid() );
 
-            return true;
-        }
+        ResourceLoader::Install( resID, pResourceRecord, installDependencies );
+
+        return true;
     }
 }

@@ -12,6 +12,8 @@ namespace KRG::TypeSystem
     struct TypeInfo;
 
     //-------------------------------------------------------------------------
+    // Basic descriptor of a KRG reflected property
+    //-------------------------------------------------------------------------
 
     struct KRG_SYSTEM_TYPESYSTEM_API PropertyDescriptor
     {
@@ -64,6 +66,8 @@ namespace KRG::TypeSystem
     };
 
     //-------------------------------------------------------------------------
+    // Basic Descriptor of a KRG reflected type
+    //-------------------------------------------------------------------------
 
     struct KRG_SYSTEM_TYPESYSTEM_API TypeDescriptor
     {
@@ -83,6 +87,8 @@ namespace KRG::TypeSystem
     };
 
     //-------------------------------------------------------------------------
+    // Type Creator
+    //-------------------------------------------------------------------------
 
     class KRG_SYSTEM_TYPESYSTEM_API TypeCreator
     {
@@ -94,12 +100,34 @@ namespace KRG::TypeSystem
             auto pTypeInfo = typeRegistry.GetTypeInfo( typeDesc.m_typeID );
             KRG_ASSERT( pTypeInfo != nullptr );
             KRG_ASSERT( pTypeInfo->IsDerivedFrom<T>() );
-            auto pTypeInstance = CreateFromDescriptor( typeRegistry, *pTypeInfo, typeDesc );
+
+            // Create new instance
+            void* pTypeInstance = pTypeInfo->m_pTypeHelper->CreateType();
+            KRG_ASSERT( pTypeInstance != nullptr );
+
+            // Set properties
+            SetPropertyValues( typeRegistry, *pTypeInfo, typeDesc, pTypeInstance );
             return reinterpret_cast<T*>( pTypeInstance );
+        }
+
+        template<typename T>
+        inline static T* CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeDescriptor const& typeDesc, void* pAllocatedMemoryForInstance )
+        {
+            auto pTypeInfo = typeRegistry.GetTypeInfo( typeDesc.m_typeID );
+            KRG_ASSERT( pTypeInfo != nullptr );
+            KRG_ASSERT( pTypeInfo->IsDerivedFrom<T>() );
+
+            // Create new instance
+            KRG_ASSERT( pAllocatedMemoryForInstance != nullptr );
+            pTypeInfo->m_pTypeHelper->CreateTypeInPlace( pAllocatedMemoryForInstance );
+
+            // Set properties
+            SetPropertyValues( typeRegistry, *pTypeInfo, typeDesc, pAllocatedMemoryForInstance );
+            return reinterpret_cast<T*>( pAllocatedMemoryForInstance );
         }
 
     private:
 
-        static void* CreateFromDescriptor( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, TypeDescriptor const& typeDesc );
+        static void* SetPropertyValues( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, TypeDescriptor const& typeDesc, void* pTypeInstance );
     };
 }

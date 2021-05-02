@@ -10,12 +10,12 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor> TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::StaticTypeHelper;
         }

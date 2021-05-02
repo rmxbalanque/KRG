@@ -45,9 +45,14 @@ namespace KRG
             // Returns the resolved property info for a given path as well as the resolved byte offset from the parent type
             ResolvedPropertyInfo ResolvePropertyPath( TypeInfo const* pTypeInfo, PropertyPath const& pathID ) const;
 
+            // Does a given type derived a given parent type
             bool IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const;
 
+            // Return all types matching specified type metadata
             TVector<TypeInfo const*> GetAllTypesWithMatchingMetadata( TBitFlags<ETypeInfoMetaData> metadataFlags ) const;
+
+            // Return all types that derived from a specified type
+            TVector<TypeInfo const*> GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults = false ) const;
 
             //-------------------------------------------------------------------------
             // Enums

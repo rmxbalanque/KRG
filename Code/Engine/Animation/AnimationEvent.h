@@ -1,49 +1,59 @@
 #pragma once
 
-#include "System/Core/Types/Percentage.h"
+#include "_Module/API.h"
 #include "System/Core/Time/Time.h"
+#include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
+// Animation Event
+//-------------------------------------------------------------------------
+// Base class for all animation events
 
-namespace KRG
+namespace KRG::Animation
 {
-    namespace Animation
+    class KRG_ENGINE_ANIMATION_API Event
     {
-        class Event
+        KRG_REGISTER_TYPE;
+        KRG_SERIALIZE_MEMBERS( m_startTime, m_duration );
+
+    public:
+
+        enum class AllowedTypes
         {
-        public:
-
-            enum class Type
-            {
-                Invalid = 0,
-                SyncEvent,
-                MarkupEvent,
-            };
-
-            union Data
-            {
-                void* m_pData;
-                uint32   m_syncID;
-            };
-
-        public:
-
-            inline Seconds GetStartTime() const { return m_startTime; }
-            inline Seconds GetDuration() const { return m_duration; }
-            Type GetType() const { return m_type; }
-
-            inline bool IsSyncEvent() const { return m_type == Type::SyncEvent; }
-            inline uint32 GetSyncID() const { KRG_ASSERT( IsSyncEvent() ); return m_data.m_syncID; }
-
-            inline bool IsMarkupEvent() const { return m_type == Type::MarkupEvent; }
-            inline void* GetMarkupData() const { KRG_ASSERT( IsMarkupEvent() ); return m_data.m_pData; }
-
-        private:
-
-            Data            m_data;
-            Seconds         m_startTime;
-            Seconds         m_duration;
-            Type            m_type;
+            Immediate,
+            Duration,
+            Both
         };
-    }
+
+    public:
+
+        Event() = default;
+        virtual ~Event() = default;
+
+        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return s_pTypeInfo; }
+
+        inline Seconds GetStartTime() const { return m_startTime; }
+        inline Seconds GetDuration() const { return m_duration; }
+        inline bool IsImmediateEvent() const { return m_duration == 0; }
+        inline bool IsDurationEvent() const { return m_duration > 0; }
+
+        // Optional: Allow the track to return a specific sync event ID
+        virtual StringID GetSyncEventID() const { return StringID(); }
+
+        // Event properties
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        virtual char const* GetEventTypeName() const = 0;
+        virtual InlineString<100> GetDisplayText() const = 0;
+        virtual bool AllowMultipleTracks() const { return false; }
+        virtual int32 GetMaxEventsAllowedPerTrack() const { return -1; }
+        virtual AllowedTypes GetAllowedTypes() const { return AllowedTypes::Duration; }
+        #endif
+
+    protected:
+
+        EXPOSE Seconds         m_startTime = 0.0f;
+        EXPOSE Seconds         m_duration = 0.0f;
+    };
 }

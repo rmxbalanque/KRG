@@ -10,12 +10,12 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::CustomizerTestSystem::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::CustomizerTestSystem::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::CustomizerTestSystem>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::CustomizerTestSystem>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::CustomizerTestSystem> TTypeHelper<KRG::CustomizerTestSystem>::StaticTypeHelper;
         }

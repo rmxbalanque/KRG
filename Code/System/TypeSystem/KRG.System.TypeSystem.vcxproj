@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreTypeIDs.h" />
+    <ClInclude Include="Serialization\ImmutableTypeCollection.h" />
     <ClInclude Include="TypeDescriptors.h" />
     <ClInclude Include="EnumInfo.h" />
     <ClInclude Include="ITypeHelper.h" />
@@ -34,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreTypeIDs.cpp" />
+    <ClCompile Include="Serialization\ImmutableTypeCollection.cpp" />
     <ClCompile Include="TypeDescriptors.cpp" />
     <ClCompile Include="PropertyInfo.cpp" />
     <ClCompile Include="PropertyPath.cpp" />

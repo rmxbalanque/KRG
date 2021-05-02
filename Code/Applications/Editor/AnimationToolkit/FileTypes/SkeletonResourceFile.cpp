@@ -1,6 +1,7 @@
 #include "SkeletonResourceFile.h"
 #include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Entity/EntityWorld.h"
+#include "System/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -31,6 +32,9 @@ namespace KRG::Animation::AnimationTools
         }
 
         //-------------------------------------------------------------------------
+
+        auto drawingCtx = context.GetDrawingContext();
+        drawingCtx.Draw( *m_pResource.GetPtr(), Transform::Identity );
 
         ImGui::Text( "Skeleton" );
     }

@@ -4,58 +4,85 @@
 #include "System/Resource/IResource.h"
 #include "System/Core/Types/StringID.h"
 #include "System/Core/Math/Transform.h"
+#include "System/Core/Types/BitFlags.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Debug { class DrawingContext; }
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Animation
 {
-    namespace Animation
+    // Per-bone flags to provide extra information
+    enum class BoneFlags
     {
-        class KRG_ENGINE_ANIMATION_API Skeleton : public Resource::IResource
-        {
-            KRG_REGISTER_RESOURCE( 'SKEL' );
-            KRG_SERIALIZE_MEMBERS( m_boneIDs, m_referencePose, m_parentMap );
-            friend class SkeletonCompiler;
+        None,
+    };
 
-        public:
+    //-------------------------------------------------------------------------
 
-            virtual bool IsValid() const final;
+    class KRG_ENGINE_ANIMATION_API Skeleton : public Resource::IResource
+    {
+        KRG_REGISTER_RESOURCE( 'SKEL' );
+        KRG_SERIALIZE_MEMBERS( m_boneIDs, m_localReferencePose, m_parentIndices, m_boneFlags );
 
-            inline int32 GetNumBones() const { return (int32) m_boneIDs.size(); }
-            inline bool IsValidBoneIndex( int32 idx ) const { return idx >= 0 && idx < m_boneIDs.size(); }
-            inline int32 GetBoneIndex( StringID const& ID ) const { return VectorFindIndex( m_boneIDs, ID ); }
-            inline StringID GetBoneID( int32 idx ) const;
-            inline TVector<int32> const& GetParentIndices() const { return m_parentMap; }
-            inline int32 GetParentIndex( int32 idx ) const;
-            TVector<Transform> const& GetReferencePose() const { return m_referencePose; }
+        friend class SkeletonCompiler;
+        friend class SkeletonLoader;
 
-            inline Transform GetBoneTransform( int32 idx ) const;
-            Transform GetBoneGlobalTransform( int32 idx ) const;
-        private:
+    public:
 
-            TVector<StringID>           m_boneIDs;
-            TVector<int32>                m_parentMap;
-            TVector<Transform>          m_referencePose;
-        };
+        virtual bool IsValid() const final;
+        inline int32 GetNumBones() const { return (int32) m_boneIDs.size(); }
 
+        // Bone info
         //-------------------------------------------------------------------------
 
-        inline StringID Skeleton::GetBoneID( int32 idx ) const
+        inline bool IsValidBoneIndex( int32 idx ) const { return idx >= 0 && idx < m_boneIDs.size(); }
+
+        inline int32 GetBoneIndex( StringID const& ID ) const { return VectorFindIndex( m_boneIDs, ID ); }
+
+        inline StringID GetBoneID( int32 idx ) const
         {
             KRG_ASSERT( idx >= 0 && idx < m_boneIDs.size() );
             return m_boneIDs[idx];
         }
 
-        inline int32 Skeleton::GetParentIndex( int32 idx ) const
+        inline TVector<int32> const& GetParentIndices() const { return m_parentIndices; }
+
+        inline int32 GetParentIndex( int32 idx ) const
         {
-            KRG_ASSERT( idx >= 0 && idx < m_parentMap.size() );
-            return m_parentMap[idx]; 
+            KRG_ASSERT( idx >= 0 && idx < m_parentIndices.size() );
+            return m_parentIndices[idx];
         }
 
-        inline Transform Skeleton::GetBoneTransform( int32 idx ) const
+        // Pose info
+        //-------------------------------------------------------------------------
+
+        TVector<Transform> const& GetLocalReferencePose() const { return m_localReferencePose; }
+        TVector<Transform> const& GetGlobalReferencePose() const { return m_globalReferencePose; }
+
+        inline Transform GetBoneTransform( int32 idx ) const
         {
-            KRG_ASSERT( idx >= 0 && idx < m_referencePose.size() );
-            return m_referencePose[idx];
+            KRG_ASSERT( idx >= 0 && idx < m_localReferencePose.size() );
+            return m_localReferencePose[idx];
         }
-    }
+
+        Transform GetBoneGlobalTransform( int32 idx ) const;
+
+        // Debug
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void DrawDebug( Debug::DrawingContext& ctx, Transform const& worldTransform ) const;
+        #endif
+
+    private:
+
+        TVector<StringID>                   m_boneIDs;
+        TVector<int32>                      m_parentIndices;
+        TVector<Transform>                  m_localReferencePose;
+        TVector<Transform>                  m_globalReferencePose;
+        TVector<TBitFlags<BoneFlags>>       m_boneFlags;
+    };
 }

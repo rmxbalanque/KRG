@@ -73,6 +73,6 @@ namespace KRG::EntityModel
         StringID                                                    m_attachmentSocketID;
         TInlineVector<EntitySystemDescriptor,5>                     m_systems;
         TVector<EntityComponentDescriptor>                          m_components; // Ordered list of components: spatial components are first, followed by regular components
-        int32                                                         m_numSpatialComponents = 0;
+        int32                                                       m_numSpatialComponents = 0;
     };
 }

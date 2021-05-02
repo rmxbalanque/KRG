@@ -4,7 +4,6 @@
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Resource/RawAssets/RawAnimation.h"
 #include "Engine/Animation/AnimationClip.h"
-#include "Engine/Animation/AnimationPose.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
@@ -22,8 +21,14 @@ namespace KRG
 
         Resource::CompilationResult AnimationCompiler::Compile( Resource::CompileContext const& ctx ) const
         {
+            auto ReadEventData = [] ( TypeSystem::NativeTypeReader& typeReader )
+            {
+                return true;
+            };
+
             AnimationResourceDescriptor resourceDescriptor;
-            if ( !ctx.TryReadResourceDescriptor( resourceDescriptor ) )
+            TFunction<bool( TypeSystem::NativeTypeReader& )> extraDataReader( ReadEventData );
+            if ( !ctx.TryReadResourceDescriptor( resourceDescriptor, extraDataReader ) )
             {
                 return Error( "Failed to read resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
             }
@@ -88,12 +93,18 @@ namespace KRG
                 return Error( "Failed to read animation from source file" );
             }
 
-            // Reflect FBX data into runtime format
+            // Reflect raw animation data into runtime format
             //-------------------------------------------------------------------------
 
             AnimationClip animData;
             animData.m_pSkeleton = resourceDescriptor.m_pSkeleton;
             TransferAndCompressAnimationData( *pRawAnimation, animData );
+
+            // Handle events
+            //-------------------------------------------------------------------------
+
+            AnimationEventData eventData;
+            CreateEventsData( ctx, eventData );
 
             // Serialize animation data
             //-------------------------------------------------------------------------
@@ -105,6 +116,11 @@ namespace KRG
                 Resource::ResourceHeader hdr( VERSION, AnimationClip::GetStaticResourceTypeID() );
                 hdr.AddInstallDependency( resourceDescriptor.m_pSkeleton.GetResourceID() );
                 archive << hdr << animData;
+
+                // Event Data
+                archive << eventData.m_syncEventMarkers;
+                archive << eventData.m_collectionHeader;
+                archive << eventData.m_eventTypeDescriptors;
 
                 if( pRawAnimation->HasWarnings() )
                 {
@@ -291,6 +307,37 @@ namespace KRG
 
                 animClip.m_trackCompressionSettings.emplace_back( trackSettings );
             }
+        }
+
+        void AnimationCompiler::CreateEventsData( Resource::CompileContext const& ctx, AnimationEventData& outEventData ) const
+        {
+            /*TInlineVector<SyncTrack::EventMarker, 10> syncEventMarkers;
+            syncEventMarkers.emplace_back( SyncTrack::EventMarker( StringID( "One" ), 0.0f ) );
+            syncEventMarkers.emplace_back( SyncTrack::EventMarker( StringID( "Two" ), 0.5f ) );
+
+            auto pFootStepTypeInfo = Events::FootstepEvent::s_pTypeInfo;
+            auto pIDTypeInfo = Events::IDEvent::s_pTypeInfo;
+
+            TVector<TypeSystem::ImmutableTypeDescriptor> eventTypeDescriptors;
+
+            auto pPropertyInfo = pFootStepTypeInfo->GetPropertyInfo( StringID( "m_phase" ) );
+
+
+            auto& typeDesc0 = eventTypeDescriptors.emplace_back( TypeSystem::ImmutableTypeDescriptor() );
+            typeDesc0.m_typeID = pFootStepTypeInfo->m_ID;
+            typeDesc0.m_byteSize = pFootStepTypeInfo->m_size;
+            typeDesc0.m_bytePadding = 0;
+            typeDesc0.m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, TypeSystem::PropertyPath( "m_phase" ), *pPropertyInfo, "LeftFootDown" ) );
+
+            auto& typeDesc1 = eventTypeDescriptors.emplace_back( TypeSystem::ImmutableTypeDescriptor() );
+            typeDesc1.m_typeID = pFootStepTypeInfo->m_ID;
+            typeDesc1.m_byteSize = pFootStepTypeInfo->m_size;
+            typeDesc1.m_bytePadding = 0;
+            typeDesc1.m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, TypeSystem::PropertyPath( "m_phase" ), *pPropertyInfo, "RightFootDown" ) );
+
+            TypeSystem::ImmutableTypeCollectionHeader collectionHeader;
+            collectionHeader.m_totalRequiredSize = pFootStepTypeInfo->m_size * 2;
+            collectionHeader.m_requiredAlignment = pFootStepTypeInfo->m_alignment;*/
         }
     }
 }

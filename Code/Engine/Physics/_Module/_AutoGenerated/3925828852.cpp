@@ -10,12 +10,12 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Physics::PhysicsCapsuleComponent::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Physics::PhysicsCapsuleComponent::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Physics::PhysicsCapsuleComponent>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Physics::PhysicsCapsuleComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Physics::PhysicsCapsuleComponent> TTypeHelper<KRG::Physics::PhysicsCapsuleComponent>::StaticTypeHelper;
         }
@@ -23,18 +23,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::Physics::PhysicsCapsuleComponent::GetTypeInfo() const
     {
-        return KRG::Physics::PhysicsCapsuleComponent::StaticTypeInfo;
+        return KRG::Physics::PhysicsCapsuleComponent::s_pTypeInfo;
     }
 
     void KRG::Physics::PhysicsCapsuleComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Physics::PhysicsCapsuleComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Physics::PhysicsCapsuleComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::Physics::PhysicsCapsuleComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Physics::PhysicsCapsuleComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Physics::PhysicsCapsuleComponent::s_pTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -42,7 +42,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::Physics::PhysicsCapsuleComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::Physics::PhysicsCapsuleComponent::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

@@ -55,17 +55,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_RESOURCECOMPILERS_RENDER_API TTypeHelper<KRG::Render::MaterialResourceDescriptor> : public ITypeHelper
+            class KRG_RESOURCECOMPILERS_RENDER_API TTypeHelper<KRG::Render::MaterialResourceDescriptor> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Render::MaterialResourceDescriptor> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Render::MaterialResourceDescriptor ), alignof( KRG::Render::MaterialResourceDescriptor ) );
                     new ( pDefaultTypeInstance ) KRG::Render::MaterialResourceDescriptor;
 
@@ -80,15 +82,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Resource::ResourceDescriptor::StaticTypeInfo;
+                    pParentType = KRG::Resource::ResourceDescriptor::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::MaterialResourceDescriptor> >( DefaultTypeInstancePtr );
-                    KRG::Render::MaterialResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::MaterialResourceDescriptor> >( s_pDefaultTypeInstancePtr );
+                    KRG::Render::MaterialResourceDescriptor::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -96,7 +98,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Render::MaterialResourceDescriptor" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Render::MaterialResourceDescriptor*>( pDefaultTypeInstance )->~MaterialResourceDescriptor();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -104,6 +106,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::Render::MaterialResourceDescriptor>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::Render::MaterialResourceDescriptor();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

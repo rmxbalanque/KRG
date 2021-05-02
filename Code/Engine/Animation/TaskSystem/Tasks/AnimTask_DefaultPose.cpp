@@ -19,11 +19,11 @@ namespace KRG
 
                 if ( m_type == PoseType::Zero )
                 {
-                    pPose->SetZeroPose();
+                    pPose->Reset( Pose::InitialState::ZeroPose );
                 }
                 else
                 {
-                    pPose->SetReferencePose();
+                    pPose->Reset( Pose::InitialState::ReferencePose );
                 }
 
                 #if KRG_DEVELOPMENT_TOOLS

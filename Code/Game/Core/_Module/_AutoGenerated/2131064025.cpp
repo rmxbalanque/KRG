@@ -10,12 +10,12 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::CustomizerTestComponent::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::CustomizerTestComponent::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::CustomizerTestComponent>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::CustomizerTestComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::CustomizerTestComponent> TTypeHelper<KRG::CustomizerTestComponent>::StaticTypeHelper;
         }
@@ -23,18 +23,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::CustomizerTestComponent::GetTypeInfo() const
     {
-        return KRG::CustomizerTestComponent::StaticTypeInfo;
+        return KRG::CustomizerTestComponent::s_pTypeInfo;
     }
 
     void KRG::CustomizerTestComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::CustomizerTestComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::CustomizerTestComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::CustomizerTestComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::CustomizerTestComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::CustomizerTestComponent::s_pTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -42,7 +42,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::CustomizerTestComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::CustomizerTestComponent::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

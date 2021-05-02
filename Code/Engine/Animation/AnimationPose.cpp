@@ -1,105 +1,193 @@
 #include "AnimationPose.h"
+#include "System/Core/Debug/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Animation
 {
-    namespace Animation
+    Pose::Pose( Skeleton const* pSkeleton, InitialState initialState )
+        : m_pSkeleton( pSkeleton )
+        , m_localTransforms( pSkeleton->GetNumBones() )
     {
-        Pose::Pose( Skeleton const* pSkeleton, Init opt )
-            : m_pSkeleton( pSkeleton )
-            , m_localTransforms( pSkeleton->GetNumBones() )
-            , m_isAdditive( false )
+        KRG_ASSERT( pSkeleton != nullptr );
+        Reset( initialState );
+    }
+
+    Pose::Pose( Pose&& rhs )
+    {
+        KRG_ASSERT( rhs.m_pSkeleton != nullptr );
+        operator=( eastl::move( rhs ) );
+    }
+
+    Pose& Pose::operator=( Pose&& rhs )
+    {
+        m_pSkeleton = rhs.m_pSkeleton;
+        m_localTransforms.swap( rhs.m_localTransforms );
+        m_globalTransforms.swap( rhs.m_globalTransforms );
+        m_state = rhs.m_state;
+
+        return *this;
+    }
+
+    void Pose::CopyFrom( Pose const& rhs )
+    {
+        m_pSkeleton = rhs.m_pSkeleton;
+        m_localTransforms = rhs.m_localTransforms;
+        m_globalTransforms = rhs.m_globalTransforms;
+        m_state = rhs.m_state;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void Pose::Reset( InitialState initialState, bool calcGlobalPose )
+    {
+        switch ( initialState )
         {
-            KRG_ASSERT( pSkeleton != nullptr );
-            if ( opt == Init::ReferencePose )
+            case InitialState::ReferencePose:
             {
-                SetReferencePose();
+                SetToReferencePose( calcGlobalPose );
             }
-        }
+            break;
 
-        void Pose::CopyFrom( Pose const* pRHS )
-        {
-            m_pSkeleton = pRHS->m_pSkeleton;
-            m_localTransforms = pRHS->m_localTransforms;
-            m_globalTransforms.clear();
-            m_isAdditive = pRHS->m_isAdditive;
-        }
-
-        void Pose::SetReferencePose()
-        {
-            auto const& referencePose = m_pSkeleton->GetReferencePose();
-            m_localTransforms = referencePose;
-            m_globalTransforms.clear();
-            m_isAdditive = false;
-        }
-
-        void Pose::SetZeroPose()
-        {
-            auto const& referencePose = m_pSkeleton->GetReferencePose();
-            auto const numBones = m_pSkeleton->GetNumBones();
-            m_localTransforms.resize( numBones, Transform::Identity );
-            m_globalTransforms.clear();
-            m_isAdditive = false;
-        }
-
-        void Pose::CalculateGlobalTransforms()
-        {
-            auto const numBones = m_pSkeleton->GetNumBones();
-            m_globalTransforms.resize( numBones );
-
-            m_globalTransforms[0] = m_localTransforms[0];
-            for ( auto boneIdx = 1; boneIdx < numBones; boneIdx++ )
+            case InitialState::ZeroPose:
             {
-                auto const parentIdx = m_pSkeleton->GetParentIndex( boneIdx );
-                auto const parentTransform = m_globalTransforms[parentIdx];
-                m_globalTransforms[boneIdx] = m_localTransforms[boneIdx] * parentTransform;
+                SetToZeroPose( calcGlobalPose );
             }
-        }
+            break;
 
-        Transform Pose::GetGlobalTransform( int32 boneIdx ) const
-        {
-            KRG_ASSERT( boneIdx < m_pSkeleton->GetNumBones() );
-
-            Transform boneGlobalTransform;
-            if ( !m_globalTransforms.empty() )
+            default:
             {
-                boneGlobalTransform = m_globalTransforms[boneIdx];
+                // Leave memory intact, just change state
+                m_state = State::Unset;
             }
-            else
-            {
-                auto boneParents = KRG_STACK_ARRAY_ALLOC( int32, m_pSkeleton->GetNumBones() );
-                int32 nextEntry = 0;
-
-                // Get parent list
-                int32 parentIdx = m_pSkeleton->GetParentIndex( boneIdx );
-                while ( parentIdx != InvalidIndex )
-                {
-                    boneParents[nextEntry++] = parentIdx;
-                    parentIdx = m_pSkeleton->GetParentIndex( parentIdx );
-                }
-
-                // If we have parents
-                boneGlobalTransform = m_localTransforms[boneIdx];
-                if ( nextEntry > 0 )
-                {
-                    // Calculate global transform of parent
-                    int32 arrayIdx = nextEntry - 1;
-                    parentIdx = boneParents[arrayIdx--];
-                    auto parentGlobalTransform = m_localTransforms[parentIdx];
-                    for ( arrayIdx; arrayIdx >= 0; arrayIdx-- )
-                    {
-                        int32 const nextIdx = boneParents[arrayIdx];
-                        auto const nextTransform = m_localTransforms[nextIdx];
-                        parentGlobalTransform = nextTransform * parentGlobalTransform;
-                    }
-
-                    // Calculate global transform of bone
-                    boneGlobalTransform = boneGlobalTransform * parentGlobalTransform;
-                }
-            }
-
-            return boneGlobalTransform;
+            break;
         }
     }
+
+    void Pose::SetToReferencePose( bool setGlobalPose )
+    {
+        m_localTransforms = m_pSkeleton->GetLocalReferencePose();
+
+        if ( setGlobalPose )
+        {
+            m_localTransforms = m_pSkeleton->GetGlobalReferencePose();
+        }
+        else
+        {
+            m_globalTransforms.clear();
+        }
+
+        m_state = State::ReferencePose;
+    }
+
+    void Pose::SetToZeroPose( bool setGlobalPose )
+    {
+        auto const numBones = m_pSkeleton->GetNumBones();
+        m_localTransforms.resize( numBones, Transform::Identity );
+
+        if ( setGlobalPose )
+        {
+            m_globalTransforms = m_localTransforms;
+        }
+        else
+        {
+            m_globalTransforms.clear();
+        }
+
+        m_state = State::ZeroPose;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void Pose::CalculateGlobalTransforms()
+    {
+        int32 const numBones = m_pSkeleton->GetNumBones();
+        m_globalTransforms.resize( numBones );
+
+        m_globalTransforms[0] = m_localTransforms[0];
+        for ( auto boneIdx = 1; boneIdx < numBones; boneIdx++ )
+        {
+            int32 const parentIdx = m_pSkeleton->GetParentIndex( boneIdx );
+            m_globalTransforms[boneIdx] = m_localTransforms[boneIdx] * m_globalTransforms[parentIdx];
+        }
+    }
+
+    Transform Pose::GetGlobalTransform( int32 boneIdx ) const
+    {
+        KRG_ASSERT( boneIdx < m_pSkeleton->GetNumBones() );
+
+        Transform boneGlobalTransform;
+        if ( !m_globalTransforms.empty() )
+        {
+            boneGlobalTransform = m_globalTransforms[boneIdx];
+        }
+        else
+        {
+            auto boneParents = KRG_STACK_ARRAY_ALLOC( int32, m_pSkeleton->GetNumBones() );
+            int32 nextEntry = 0;
+
+            // Get parent list
+            int32 parentIdx = m_pSkeleton->GetParentIndex( boneIdx );
+            while ( parentIdx != InvalidIndex )
+            {
+                boneParents[nextEntry++] = parentIdx;
+                parentIdx = m_pSkeleton->GetParentIndex( parentIdx );
+            }
+
+            // If we have parents
+            boneGlobalTransform = m_localTransforms[boneIdx];
+            if ( nextEntry > 0 )
+            {
+                // Calculate global transform of parent
+                int32 arrayIdx = nextEntry - 1;
+                parentIdx = boneParents[arrayIdx--];
+                auto parentGlobalTransform = m_localTransforms[parentIdx];
+                for ( arrayIdx; arrayIdx >= 0; arrayIdx-- )
+                {
+                    int32 const nextIdx = boneParents[arrayIdx];
+                    auto const nextTransform = m_localTransforms[nextIdx];
+                    parentGlobalTransform = nextTransform * parentGlobalTransform;
+                }
+
+                // Calculate global transform of bone
+                boneGlobalTransform = boneGlobalTransform * parentGlobalTransform;
+            }
+        }
+
+        return boneGlobalTransform;
+    }
+
+    //-------------------------------------------------------------------------
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void Pose::DrawDebug( Debug::DrawingContext& ctx, Transform const& worldTransform ) const
+    {
+        auto const& parentIndices = m_pSkeleton->GetParentIndices();
+
+        //-------------------------------------------------------------------------
+
+        auto const numBones = m_localTransforms.size();
+        if ( numBones > 0 )
+        {
+            Transform globalTransforms[256];
+            globalTransforms[0] = m_localTransforms[0] * worldTransform;
+            for ( auto i = 1; i < numBones; i++ )
+            {
+                auto const& parentIdx = parentIndices[i];
+                auto const& parentTransform = globalTransforms[parentIdx];
+                globalTransforms[i] = m_localTransforms[i] * parentTransform;
+            }
+
+            for ( auto boneIdx = 1; boneIdx < numBones; boneIdx++ )
+            {
+                auto const& parentIdx = parentIndices[boneIdx];
+                auto const& parentTransform = globalTransforms[parentIdx];
+                auto const& boneTransform = globalTransforms[boneIdx];
+
+                ctx.DrawLine( boneTransform.GetTranslation().ToFloat3(), parentTransform.GetTranslation().ToFloat3(), Colors::HotPink, 2.0f );
+                ctx.DrawAxis( boneTransform, 0.03f, 3.0f );
+            }
+        }
+    }
+    #endif
 }

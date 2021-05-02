@@ -1,71 +1,15 @@
 #include "AnimationResourceFile.h"
-#include "Applications/Editor/Common/Timeline/TimelineEditor.h"
+#include "Applications/Editor/AnimationToolkit/AnimationEventEditor.h"
 #include "Applications/Editor/Editor/EditorModel.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
+#include "Engine/Animation/Systems/AnimationSystem.h"
 #include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Entity/EntityWorld.h"
-#include "Engine/Animation/Systems/AnimationSystem.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::AnimationTools
 {
-    class AnimationTrackEditor final : public TimelineEditor
-    {
-    public:
-
-        AnimationTrackEditor( AnimationClip const* pAnimation )
-            : TimelineEditor( TRange<int32>( 0, pAnimation->GetNumFrames() ) )
-            , m_animationID( pAnimation->GetResourceID() )
-            , m_pAnimation( pAnimation )
-        {}
-
-        inline ResourceID const& GetAnimationID() const { return m_animationID; }
-
-        void Update( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent )
-        {
-            KRG_ASSERT( pPreviewAnimationComponent != nullptr );
-
-            // Handle play state changes
-            //-------------------------------------------------------------------------
-
-            if ( IsPlaying() && pPreviewAnimationComponent->IsPosed() )
-            {
-                pPreviewAnimationComponent->SetPlayMode( IsLoopingEnabled() ? AnimationPlayerComponent::PlayMode::Loop : AnimationPlayerComponent::PlayMode::PlayOnce );
-                pPreviewAnimationComponent->SetAnimTime( GetPlayheadPositionAsPercentage() );
-            }
-            else if ( IsPaused() && !pPreviewAnimationComponent->IsPosed() )
-            {
-                pPreviewAnimationComponent->SetPlayMode( AnimationPlayerComponent::PlayMode::Posed );
-            }
-
-            // Draw track editor and manage playhead data
-            //-------------------------------------------------------------------------
-
-            // If we are playing, then update the playhead position
-            if ( IsPlaying() )
-            {
-                SetPlayheadPositionAsPercentage( pPreviewAnimationComponent->GetAnimTime() );
-            }
-
-            Draw();
-
-            // Is we are paused, then update the animation component pose
-            if ( IsPaused() )
-            {
-                pPreviewAnimationComponent->SetAnimTime( GetPlayheadPositionAsPercentage() );
-            }
-        }
-
-    private:
-
-        // This is separate since the animation ptr can be invalidated externally
-        ResourceID                              m_animationID;
-        AnimationClip const*                    m_pAnimation = nullptr;
-    };
-
-    //-------------------------------------------------------------------------
-
     AnimationResourceFile::~AnimationResourceFile()
     {
         if ( m_pTrackEditor != nullptr )
@@ -145,7 +89,8 @@ namespace KRG::Animation::AnimationTools
     {
         if ( m_pTrackEditor == nullptr )
         {
-            m_pTrackEditor = KRG::New<AnimationTrackEditor>( m_pResource.GetPtr() );
+            auto pTypeRegistry = context.GetSystem<TypeSystem::TypeRegistry>();
+            m_pTrackEditor = KRG::New<AnimationEventEditor>( *pTypeRegistry, m_pResource.GetPtr() );
         }
 
         //-------------------------------------------------------------------------

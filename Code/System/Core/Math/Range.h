@@ -32,7 +32,7 @@ namespace KRG
         }
 
         // Reset the range to an invalid value
-        inline void Reset() { this = TRange(); }
+        inline void Reset() { *this = TRange<T>(); }
 
         // Is the range initialized
         inline bool IsSet() const { return m_min != FLT_MAX; }

@@ -41,17 +41,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_TOOLS_RESOURCE_API TTypeHelper<KRG::Resource::ResourceDescriptor> : public ITypeHelper
+            class KRG_TOOLS_RESOURCE_API TTypeHelper<KRG::Resource::ResourceDescriptor> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Resource::ResourceDescriptor> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Resource::ResourceDescriptor ), alignof( KRG::Resource::ResourceDescriptor ) );
                     new ( pDefaultTypeInstance ) KRG::Resource::ResourceDescriptor;
 
@@ -64,7 +66,7 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Resource::ResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Resource::ResourceDescriptor::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -72,7 +74,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Resource::ResourceDescriptor" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Resource::ResourceDescriptor*>( pDefaultTypeInstance )->~ResourceDescriptor();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -80,6 +82,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::Resource::ResourceDescriptor>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::Resource::ResourceDescriptor();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

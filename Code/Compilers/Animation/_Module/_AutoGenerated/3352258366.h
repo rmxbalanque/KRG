@@ -81,17 +81,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_RESOURCECOMPILERS_ANIMATION_API TTypeHelper<KRG::Animation::AnimationResourceDescriptor> : public ITypeHelper
+            class KRG_RESOURCECOMPILERS_ANIMATION_API TTypeHelper<KRG::Animation::AnimationResourceDescriptor> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Animation::AnimationResourceDescriptor> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::AnimationResourceDescriptor ), alignof( KRG::Animation::AnimationResourceDescriptor ) );
                     new ( pDefaultTypeInstance ) KRG::Animation::AnimationResourceDescriptor;
 
@@ -106,15 +108,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Resource::ResourceDescriptor::StaticTypeInfo;
+                    pParentType = KRG::Resource::ResourceDescriptor::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationResourceDescriptor> >( DefaultTypeInstancePtr );
-                    KRG::Animation::AnimationResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationResourceDescriptor> >( s_pDefaultTypeInstancePtr );
+                    KRG::Animation::AnimationResourceDescriptor::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -122,7 +124,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Animation::AnimationResourceDescriptor" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Animation::AnimationResourceDescriptor*>( pDefaultTypeInstance )->~AnimationResourceDescriptor();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -130,6 +132,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::Animation::AnimationResourceDescriptor>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::Animation::AnimationResourceDescriptor();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

@@ -124,6 +124,39 @@ namespace KRG
             return matchingTypes;
         }
 
+        TVector<TypeInfo const*> TypeRegistry::GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults ) const
+        {
+            TVector<TypeInfo const*> matchingTypes;
+
+            if ( includeParentTypeInResults )
+            {
+                for ( auto const& typeInfoPair : m_registeredTypes )
+                {
+                    if ( typeInfoPair.second->IsDerivedFrom( parentTypeID ) )
+                    {
+                        matchingTypes.emplace_back( typeInfoPair.second );
+                    }
+                }
+            }
+            else // Exclude parent
+            {
+                for ( auto const& typeInfoPair : m_registeredTypes )
+                {
+                    if ( typeInfoPair.first == parentTypeID )
+                    {
+                        continue;
+                    }
+
+                    if ( typeInfoPair.second->IsDerivedFrom( parentTypeID ) )
+                    {
+                        matchingTypes.emplace_back( typeInfoPair.second );
+                    }
+                }
+            }
+
+            return matchingTypes;
+        }
+
         //-------------------------------------------------------------------------
 
         EnumInfo const* TypeRegistry::RegisterEnum( EnumInfo const& type )

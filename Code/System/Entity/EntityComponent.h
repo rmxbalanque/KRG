@@ -76,7 +76,7 @@ namespace KRG
         inline UUID GetID() const { return m_ID; }
         inline StringID GetName() const { return m_name; }
         inline TypeSystem::TypeID GetTypeID() const { return GetTypeInfo()->m_ID; }
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return EntityComponent::StaticTypeInfo; }
+        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return EntityComponent::s_pTypeInfo; }
 
         // Status
         inline bool HasLoadingFailed() const { return m_status == Status::LoadingFailed; }
@@ -134,7 +134,7 @@ namespace KRG
             KRG_ASSERT( pFromTypeInfo != nullptr );
 
             // Check up-cast
-            if ( pFromTypeInfo->IsDerivedFrom( To::StaticTypeInfo->m_ID ) )
+            if ( pFromTypeInfo->IsDerivedFrom( To::s_pTypeInfo->m_ID ) )
             {
                 pCastComponent = static_cast<To const*>( pFromComponent );
             }

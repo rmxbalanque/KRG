@@ -64,7 +64,7 @@ namespace KRG
             KRG_ASSERT( pPose->HasGlobalTransforms() );
 
             auto drawingCtx = ctx.GetDrawingContext();
-            DrawPose( drawingCtx, pPose, Transform::Identity  /*m_meshComponents[0]->GetWorldTransform()*/ );
+            drawingCtx.Draw( *pPose, Transform::Identity /*m_meshComponents[0]->GetWorldTransform()*/ );
 
             //-------------------------------------------------------------------------
 

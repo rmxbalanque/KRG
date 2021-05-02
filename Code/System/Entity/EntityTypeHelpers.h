@@ -22,6 +22,12 @@ namespace KRG
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override
+                {
+                    static Entity entity;
+                    return &entity;
+                }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     TypeSystem::TypeInfo typeInfo;
@@ -32,7 +38,7 @@ namespace KRG
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::Entity );
 
                     // Register Type
-                    Entity::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    Entity::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -44,6 +50,11 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::Entity>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    new (pAllocatedMemory) KRG::Entity();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
@@ -84,6 +95,11 @@ namespace KRG
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override
+                {
+                    return nullptr;
+                }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     TypeSystem::TypeInfo typeInfo;
@@ -94,7 +110,7 @@ namespace KRG
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::EntityComponent );
 
                     // Register Type
-                    EntityComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    EntityComponent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -107,6 +123,11 @@ namespace KRG
                 {
                     KRG_HALT(); // Error! Trying to instantiate an abstract entity component!
                     return nullptr;
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_HALT();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
@@ -147,6 +168,11 @@ namespace KRG
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override
+                {
+                    return nullptr;
+                }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     TypeSystem::TypeInfo typeInfo;
@@ -159,14 +185,14 @@ namespace KRG
                     // Parent Types 
                     //-------------------------------------------------------------------------
 
-                    TypeSystem::TypeInfo const* pParentType = KRG::EntityComponent::StaticTypeInfo;
+                    TypeSystem::TypeInfo const* pParentType = KRG::EntityComponent::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register Type
                     //-------------------------------------------------------------------------
 
-                    SpatialEntityComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    SpatialEntityComponent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -179,6 +205,11 @@ namespace KRG
                 {
                     KRG_HALT(); // Error! Trying to instantiate an abstract entity component!
                     return nullptr;
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_HALT();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
@@ -219,6 +250,11 @@ namespace KRG
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override
+                {
+                    return nullptr;
+                }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     TypeSystem::TypeInfo typeInfo;
@@ -229,7 +265,7 @@ namespace KRG
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::EntitySystem );
 
                     // Register Type
-                    IEntitySystem::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    IEntitySystem::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -242,6 +278,11 @@ namespace KRG
                 {
                     KRG_HALT(); // Error! Trying to instantiate an abstract entity system!
                     return nullptr;
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_HALT();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

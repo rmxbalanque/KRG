@@ -120,17 +120,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_PHYSICS_API TTypeHelper<KRG::Physics::PhysicsSphereComponent> : public ITypeHelper
+            class KRG_ENGINE_PHYSICS_API TTypeHelper<KRG::Physics::PhysicsSphereComponent> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Physics::PhysicsSphereComponent> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Physics::PhysicsSphereComponent ), alignof( KRG::Physics::PhysicsSphereComponent ) );
                     new ( pDefaultTypeInstance ) KRG::Physics::PhysicsSphereComponent;
 
@@ -146,15 +148,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Physics::PhysicsComponent::StaticTypeInfo;
+                    pParentType = KRG::Physics::PhysicsComponent::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsSphereComponent> >( DefaultTypeInstancePtr );
-                    KRG::Physics::PhysicsSphereComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsSphereComponent> >( s_pDefaultTypeInstancePtr );
+                    KRG::Physics::PhysicsSphereComponent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -162,7 +164,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Physics::PhysicsSphereComponent" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Physics::PhysicsSphereComponent*>( pDefaultTypeInstance )->~PhysicsSphereComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -170,6 +172,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::Physics::PhysicsSphereComponent>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::Physics::PhysicsSphereComponent();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

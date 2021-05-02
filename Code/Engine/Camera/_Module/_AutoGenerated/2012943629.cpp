@@ -47,12 +47,12 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Camera::CameraComponent::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Camera::CameraComponent::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Camera::CameraComponent>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Camera::CameraComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Camera::CameraComponent> TTypeHelper<KRG::Camera::CameraComponent>::StaticTypeHelper;
         }
@@ -60,18 +60,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::Camera::CameraComponent::GetTypeInfo() const
     {
-        return KRG::Camera::CameraComponent::StaticTypeInfo;
+        return KRG::Camera::CameraComponent::s_pTypeInfo;
     }
 
     void KRG::Camera::CameraComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Camera::CameraComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Camera::CameraComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::Camera::CameraComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Camera::CameraComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Camera::CameraComponent::s_pTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -79,7 +79,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::Camera::CameraComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::Camera::CameraComponent::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

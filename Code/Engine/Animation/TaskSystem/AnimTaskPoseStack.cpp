@@ -27,7 +27,7 @@ namespace KRG
             m_firstFreeDebugBuffer = 0;
             for ( auto i = 0; i < g_numDebugBuffers; i++ )
             {
-                m_debugBuffers.emplace_back( Pose( pSkeleton, Pose::Init::None) );
+                m_debugBuffers.emplace_back( Pose( pSkeleton, Pose::InitialState::None ) );
             }
             m_isPoseDebuggingEnabled = true;
             #endif
@@ -91,7 +91,7 @@ namespace KRG
             {
                 for ( auto i = 0; i < g_numDebugBuffers; i++ )
                 {
-                    m_debugBuffers.emplace_back( Pose( m_pSkeleton, Pose::Init::None ) );
+                    m_debugBuffers.emplace_back( Pose( m_pSkeleton, Pose::InitialState::None ) );
                 }
             }
 

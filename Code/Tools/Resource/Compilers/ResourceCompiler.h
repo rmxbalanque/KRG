@@ -12,6 +12,7 @@
 #include "System/Resource/ResourceHeader.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Logging/Log.h"
+#include "System/Core/Types/Function.h"
 
 //-------------------------------------------------------------------------
 
@@ -46,6 +47,7 @@ namespace KRG::Resource
             }
         }
 
+        // This function will just read a resource descriptor from a file
         template<typename T>
         inline bool TryReadResourceDescriptorFromFile( FileSystem::Path const& descriptorPath, T& outData ) const
         {
@@ -59,7 +61,6 @@ namespace KRG::Resource
                 return false;
             }
 
-            T outMetadata;
             nativeTypeReader >> outData;
             return true;
         }
@@ -68,6 +69,30 @@ namespace KRG::Resource
         inline bool TryReadResourceDescriptor( T& outData ) const
         {
             return TryReadResourceDescriptorFromFile( m_inputFilePath, outData );
+        }
+
+        // This function will read a resource descriptor as well as any additionally authored data in the file
+        template<typename T>
+        inline bool TryReadResourceDescriptorFromFile( FileSystem::Path const& descriptorPath, T& outData, TFunction<bool( TypeSystem::NativeTypeReader& )>& readExtraDataFunction ) const
+        {
+            static_assert( std::is_base_of<ResourceDescriptor, T>::value, "T must be a child of ResourceDescriptor" );
+            KRG_ASSERT( IsValid() );
+
+            TypeSystem::NativeTypeReader nativeTypeReader( m_typeRegistry );
+            if ( !nativeTypeReader.ReadFromFile( descriptorPath ) )
+            {
+                KRG_LOG_ERROR( "ResourceCompiler", "Failed to read resource descriptor file: %s", descriptorPath.c_str() );
+                return false;
+            }
+
+            nativeTypeReader >> outData;
+            return readExtraDataFunction( nativeTypeReader );
+        }
+
+        template<typename T>
+        inline bool TryReadResourceDescriptor( T& outData, TFunction<bool( TypeSystem::NativeTypeReader& )>& readExtraDataFunction ) const
+        {
+            return TryReadResourceDescriptorFromFile( m_inputFilePath, outData, readExtraDataFunction );
         }
 
     public:

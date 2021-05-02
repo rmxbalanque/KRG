@@ -54,8 +54,8 @@ namespace KRG
             {
                 auto const& boneData = pRawSkeleton->GetBoneData( fbxBoneIdx );
                 skeleton.m_boneIDs.push_back( boneData.m_name );
-                skeleton.m_parentMap.push_back( boneData.m_parentBoneIdx );
-                skeleton.m_referencePose.push_back( Transform( boneData.m_localTransform.GetRotation(), boneData.m_localTransform.GetTranslation() ) );
+                skeleton.m_parentIndices.push_back( boneData.m_parentBoneIdx );
+                skeleton.m_localReferencePose.push_back( Transform( boneData.m_localTransform.GetRotation(), boneData.m_localTransform.GetTranslation() ) );
             }
 
             // Serialize skeleton

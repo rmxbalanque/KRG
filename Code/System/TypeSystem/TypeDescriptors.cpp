@@ -19,12 +19,9 @@ namespace KRG::TypeSystem
 
     //-------------------------------------------------------------------------
 
-    void* TypeCreator::CreateFromDescriptor( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, TypeDescriptor const& typeDesc )
+    void* TypeCreator::SetPropertyValues( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, TypeDescriptor const& typeDesc, void* pTypeInstance )
     {
         KRG_ASSERT( typeDesc.IsValid() && typeInfo.m_ID == typeDesc.m_typeID );
-
-        void* pTypeInstance = typeInfo.m_pTypeHelper->CreateType();
-        KRG_ASSERT( pTypeInstance != nullptr );
 
         // Set property value
         for ( auto const& propertyValue : typeDesc.m_propertyValues )

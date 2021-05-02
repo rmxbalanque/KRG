@@ -170,11 +170,11 @@ namespace KRG
         inline void CreateSystem() 
         {
             static_assert( std::is_base_of<KRG::IEntitySystem, T>::value, "Invalid system type detected" );
-            KRG_ASSERT( !VectorContains( m_systems, T::StaticTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
+            KRG_ASSERT( !VectorContains( m_systems, T::s_pTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
 
             if ( IsUnloaded() )
             {
-                CreateSystemImmediate( T::StaticTypeInfo );
+                CreateSystemImmediate( T::s_pTypeInfo );
             }
             else
             {
@@ -182,7 +182,7 @@ namespace KRG
 
                 auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
                 action.m_type = EntityInternalStateAction::Type::CreateSystem;
-                action.m_ptr = T::StaticTypeInfo;
+                action.m_ptr = T::s_pTypeInfo;
 
                 // Send notification that the internal state changed
                 EntityStateUpdatedEvent.Execute( this );
@@ -193,11 +193,11 @@ namespace KRG
         inline void DestroySystem()
         {
             static_assert( std::is_base_of<KRG::IEntitySystem, T>::value, "Invalid system type detected" );
-            KRG_ASSERT( VectorContains( m_systems, T::StaticTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
+            KRG_ASSERT( VectorContains( m_systems, T::s_pTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
 
             if ( IsUnloaded() )
             {
-                DestroySystemImmediate( T::StaticTypeInfo );
+                DestroySystemImmediate( T::s_pTypeInfo );
             }
             else
             {
@@ -205,7 +205,7 @@ namespace KRG
 
                 auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
                 action.m_type = EntityInternalStateAction::Type::DestroySystem;
-                action.m_ptr = T::StaticTypeInfo;
+                action.m_ptr = T::s_pTypeInfo;
 
                 // Send notification that the internal state changed
                 EntityStateUpdatedEvent.Execute( this );

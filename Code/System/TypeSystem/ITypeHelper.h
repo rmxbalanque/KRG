@@ -20,6 +20,8 @@ namespace KRG
         public:
 
             virtual void* CreateType() const = 0;
+            virtual void CreateTypeInPlace( void* pAllocatedMemory ) const = 0;
+            virtual void const* GetDefaultTypeInstancePtr() const = 0;
 
             virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& userID, void* pType ) const = 0;
             virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& userID, void* pType ) const = 0;

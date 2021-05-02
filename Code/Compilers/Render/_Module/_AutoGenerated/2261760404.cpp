@@ -50,12 +50,12 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Render::ShaderResourceDescriptor::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Render::ShaderResourceDescriptor::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Render::ShaderResourceDescriptor>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Render::ShaderResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Render::ShaderResourceDescriptor> TTypeHelper<KRG::Render::ShaderResourceDescriptor>::StaticTypeHelper;
         }

@@ -81,6 +81,8 @@
     <ClCompile Include="AnimationToolkit\AnimationToolkit.cpp" />
     <ClCompile Include="AnimationToolkit\FileTypes\SkeletonResourceFile.cpp" />
     <ClCompile Include="AnimationToolkit\FileTypes\AnimationResourceFile.cpp" />
+    <ClCompile Include="Common\Timeline\TimelineTrack.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationEventEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\EditorToolkit.h">
@@ -132,6 +134,8 @@
     <ClInclude Include="AnimationToolkit\AnimationToolkit.h" />
     <ClInclude Include="AnimationToolkit\FileTypes\SkeletonResourceFile.h" />
     <ClInclude Include="AnimationToolkit\FileTypes\AnimationResourceFile.h" />
+    <ClInclude Include="Common\Timeline\TimelineTrack.h" />
+    <ClInclude Include="AnimationToolkit\AnimationEventEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc">

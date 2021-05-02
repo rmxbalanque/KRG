@@ -89,17 +89,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_RESOURCECOMPILERS_RENDER_API TTypeHelper<KRG::Render::ShaderResourceDescriptor> : public ITypeHelper
+            class KRG_RESOURCECOMPILERS_RENDER_API TTypeHelper<KRG::Render::ShaderResourceDescriptor> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Render::ShaderResourceDescriptor> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Render::ShaderResourceDescriptor ), alignof( KRG::Render::ShaderResourceDescriptor ) );
                     new ( pDefaultTypeInstance ) KRG::Render::ShaderResourceDescriptor;
 
@@ -114,15 +116,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Resource::ResourceDescriptor::StaticTypeInfo;
+                    pParentType = KRG::Resource::ResourceDescriptor::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::ShaderResourceDescriptor> >( DefaultTypeInstancePtr );
-                    KRG::Render::ShaderResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::ShaderResourceDescriptor> >( s_pDefaultTypeInstancePtr );
+                    KRG::Render::ShaderResourceDescriptor::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -130,7 +132,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Render::ShaderResourceDescriptor" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Render::ShaderResourceDescriptor*>( pDefaultTypeInstance )->~ShaderResourceDescriptor();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -138,6 +140,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::Render::ShaderResourceDescriptor>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::Render::ShaderResourceDescriptor();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

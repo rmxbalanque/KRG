@@ -113,13 +113,15 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_PHYSICS_API TTypeHelper<KRG::Physics::PhysicsComponent> : public ITypeHelper
+            class KRG_ENGINE_PHYSICS_API TTypeHelper<KRG::Physics::PhysicsComponent> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Physics::PhysicsComponent> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
+
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
@@ -135,15 +137,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::SpatialEntityComponent::StaticTypeInfo;
+                    pParentType = KRG::SpatialEntityComponent::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsComponent> >( DefaultTypeInstancePtr );
-                    KRG::Physics::PhysicsComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsComponent> >( s_pDefaultTypeInstancePtr );
+                    KRG::Physics::PhysicsComponent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -157,6 +159,11 @@ namespace KRG
                 {
                     KRG_HALT(); // Error! Trying to instantiate an abstract type!
                     return nullptr;
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_HALT(); // Error! Trying to instantiate an abstract type!
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

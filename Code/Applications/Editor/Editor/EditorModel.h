@@ -41,9 +41,21 @@ namespace KRG
         void OpenResourceFile( ResourceID const& resourceID )
         {
             static_assert( std::is_base_of<EditorFile, T>::value, "T must derived from TResourceFile" );
-            auto pNewFile = KRG::New<T>( m_sourceDataDirectory, m_pResourceSystem, resourceID );
-            KRG_ASSERT( !VectorContains( m_openFiles, pNewFile, [] ( EditorFile*& pExistingFile, EditorFile* pNewFile ) { return pExistingFile->GetFilePath() == pNewFile->GetFilePath(); } ) );
-            m_openFiles.emplace_back( pNewFile );
+
+            KRG_ASSERT( resourceID.IsValid() );
+            FileSystem::Path const path = resourceID.GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
+
+            //-------------------------------------------------------------------------
+
+            auto foundFileIter = eastl::find( m_openFiles.begin(), m_openFiles.end(), path, [] ( EditorFile*& pExistingFile, FileSystem::Path const& path ) { return pExistingFile->GetFilePath() == path; } );
+            if ( foundFileIter == m_openFiles.end() )
+            {
+                m_openFiles.emplace_back( KRG::New<T>( m_sourceDataDirectory, m_pResourceSystem, resourceID ) );
+            }
+            else // Switch active file
+            {
+                // Do nothing...
+            }
         }
 
         void CloseFile( EditorFile* pFile );
@@ -51,6 +63,7 @@ namespace KRG
         inline bool IsFileOpen( FileSystem::Path const& path ) const;
 
         // The active file is the file that has "focus" and is currently being previewed or edited.
+        inline bool IsActiveFile( EditorFile* pFile ) const { return m_pActiveFile == pFile; }
         void SetActiveFile( EditorFile* pFile );
         void ClearActiveFile();
 

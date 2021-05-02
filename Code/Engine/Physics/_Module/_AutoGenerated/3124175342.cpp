@@ -49,12 +49,12 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Physics::PhysicsMaterialSettings::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Physics::PhysicsMaterialSettings::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Physics::PhysicsMaterialSettings> TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::StaticTypeHelper;
         }

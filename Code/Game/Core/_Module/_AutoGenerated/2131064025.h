@@ -135,17 +135,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_GAME_CORE_API TTypeHelper<KRG::CustomizerTestComponent> : public ITypeHelper
+            class KRG_GAME_CORE_API TTypeHelper<KRG::CustomizerTestComponent> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::CustomizerTestComponent> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::CustomizerTestComponent ), alignof( KRG::CustomizerTestComponent ) );
                     new ( pDefaultTypeInstance ) KRG::CustomizerTestComponent;
 
@@ -161,15 +163,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::EntityComponent::StaticTypeInfo;
+                    pParentType = KRG::EntityComponent::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::CustomizerTestComponent> >( DefaultTypeInstancePtr );
-                    KRG::CustomizerTestComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::CustomizerTestComponent> >( s_pDefaultTypeInstancePtr );
+                    KRG::CustomizerTestComponent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -177,7 +179,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::CustomizerTestComponent" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::CustomizerTestComponent*>( pDefaultTypeInstance )->~CustomizerTestComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -185,6 +187,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::CustomizerTestComponent>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::CustomizerTestComponent();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

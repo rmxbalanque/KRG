@@ -31,7 +31,7 @@ namespace KRG
 
     public:
 
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return SpatialEntityComponent::StaticTypeInfo; }
+        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return SpatialEntityComponent::s_pTypeInfo; }
 
         // Spatial data
         //-------------------------------------------------------------------------

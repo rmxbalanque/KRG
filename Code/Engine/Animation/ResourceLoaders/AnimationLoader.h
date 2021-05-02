@@ -5,20 +5,27 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::TypeSystem { class TypeRegistry; }
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Animation
 {
-    namespace Animation
+    class AnimationLoader final : public Resource::ResourceLoader
     {
-        class AnimationLoader : public Resource::ResourceLoader
-        {
-        public:
+    public:
 
-            AnimationLoader();
+        AnimationLoader();
+        void SetTypeRegistry( TypeSystem::TypeRegistry const* pTypeRegistry );
 
-        private:
+    private:
 
-            virtual bool LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const final;
-            virtual bool Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const final;
-        };
-    }
+        virtual bool LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const override;
+        virtual void UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const override;
+        virtual bool Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const override;
+
+    private:
+
+        TypeSystem::TypeRegistry const* m_pTypeRegistry = nullptr;
+    };
 }

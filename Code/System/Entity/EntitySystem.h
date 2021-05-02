@@ -24,7 +24,7 @@ namespace KRG
 
         virtual ~IEntitySystem() {}
 
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return IEntitySystem::StaticTypeInfo; }
+        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return IEntitySystem::s_pTypeInfo; }
         virtual char const* GetName() const = 0;
 
     protected:
@@ -46,5 +46,5 @@ namespace KRG
 #define KRG_REGISTER_ENTITY_SYSTEM( Type, ... )\
         KRG_REGISTER_TYPE;\
         virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { static UpdatePriorityList const priorityList = UpdatePriorityList( __VA_ARGS__ ); return priorityList; };\
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return Type::StaticTypeInfo; }\
+        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return Type::s_pTypeInfo; }\
         virtual char const* GetName() const override { return #Type; }

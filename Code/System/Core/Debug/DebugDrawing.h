@@ -22,7 +22,9 @@ namespace KRG
 
         // We have helper functions to allow you to draw custom types in the same manner as the basic primitive: 
         // i.e. drawingContext.Draw( MyType const& type )
-        // To support this, you need to implement a 'void DrawDebug( DrawingContext& ctx ) const' function in your type.
+        // To support this, you need to implement one of the following functions in your type:
+        // 1) 'void DrawDebug( Debug::DrawingContext& ctx ) const'
+        // 2) 'void DrawDebug( Debug::DrawingContext& ctx, Transform const& worldTransform ) const'
 
         // Note: We use float4 for colors here since KRG::color will implicitly convert to a float4. We use float4s for color in the rendering code,
         // so this allows you to save on constantly paying the conversion cost when drawing lots of primitives
@@ -43,6 +45,12 @@ namespace KRG
             inline void Draw( T const& type )
             {
                 type.DrawDebug( *this );
+            }
+
+            template<typename T>
+            inline void Draw( T const& type, Transform const& worldTransform )
+            {
+                type.DrawDebug( *this, worldTransform );
             }
 
             //-------------------------------------------------------------------------

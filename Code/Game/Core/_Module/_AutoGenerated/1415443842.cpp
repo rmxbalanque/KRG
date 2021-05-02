@@ -10,12 +10,12 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::ExternalTestSubStruct::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::ExternalTestSubStruct::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::ExternalTestSubStruct>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::ExternalTestSubStruct>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::ExternalTestSubStruct> TTypeHelper<KRG::ExternalTestSubStruct>::StaticTypeHelper;
         }
@@ -28,12 +28,12 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::ExternalTestStruct::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::ExternalTestStruct::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::ExternalTestStruct>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::ExternalTestStruct>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::ExternalTestStruct> TTypeHelper<KRG::ExternalTestStruct>::StaticTypeHelper;
         }
@@ -87,12 +87,12 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::TestComponent::InternalStruct::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::TestComponent::InternalStruct::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::TestComponent::InternalStruct>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::TestComponent::InternalStruct>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::TestComponent::InternalStruct> TTypeHelper<KRG::TestComponent::InternalStruct>::StaticTypeHelper;
         }
@@ -179,12 +179,12 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::TestComponent::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::TestComponent::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::TestComponent>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::TestComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::TestComponent> TTypeHelper<KRG::TestComponent>::StaticTypeHelper;
         }
@@ -192,18 +192,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::TestComponent::GetTypeInfo() const
     {
-        return KRG::TestComponent::StaticTypeInfo;
+        return KRG::TestComponent::s_pTypeInfo;
     }
 
     void KRG::TestComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::TestComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::TestComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::TestComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::TestComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::TestComponent::s_pTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -211,7 +211,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::TestComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::TestComponent::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

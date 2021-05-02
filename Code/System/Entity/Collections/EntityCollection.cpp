@@ -13,7 +13,7 @@ namespace KRG::EntityModel
     {
         KRG_ASSERT( entityDesc.IsValid() );
 
-        auto pEntityTypeInfo = Entity::StaticTypeInfo;
+        auto pEntityTypeInfo = Entity::s_pTypeInfo;
         KRG_ASSERT( pEntityTypeInfo != nullptr );
 
         // Create new entity

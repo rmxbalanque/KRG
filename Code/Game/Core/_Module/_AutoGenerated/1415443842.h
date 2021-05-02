@@ -58,17 +58,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_GAME_CORE_API TTypeHelper<KRG::ExternalTestSubStruct> : public ITypeHelper
+            class KRG_GAME_CORE_API TTypeHelper<KRG::ExternalTestSubStruct> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::ExternalTestSubStruct> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::ExternalTestSubStruct ), alignof( KRG::ExternalTestSubStruct ) );
                     new ( pDefaultTypeInstance ) KRG::ExternalTestSubStruct;
 
@@ -81,8 +83,8 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubStruct> >( DefaultTypeInstancePtr );
-                    KRG::ExternalTestSubStruct::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubStruct> >( s_pDefaultTypeInstancePtr );
+                    KRG::ExternalTestSubStruct::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -90,7 +92,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::ExternalTestSubStruct" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::ExternalTestSubStruct*>( pDefaultTypeInstance )->~ExternalTestSubStruct();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -98,6 +100,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::ExternalTestSubStruct>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::ExternalTestSubStruct();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
@@ -285,17 +293,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_GAME_CORE_API TTypeHelper<KRG::ExternalTestStruct> : public ITypeHelper
+            class KRG_GAME_CORE_API TTypeHelper<KRG::ExternalTestStruct> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::ExternalTestStruct> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::ExternalTestStruct ), alignof( KRG::ExternalTestStruct ) );
                     new ( pDefaultTypeInstance ) KRG::ExternalTestStruct;
 
@@ -308,8 +318,8 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestStruct> >( DefaultTypeInstancePtr );
-                    KRG::ExternalTestStruct::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestStruct> >( s_pDefaultTypeInstancePtr );
+                    KRG::ExternalTestStruct::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -317,7 +327,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::ExternalTestStruct" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::ExternalTestStruct*>( pDefaultTypeInstance )->~ExternalTestStruct();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -327,6 +337,12 @@ namespace KRG
                     return KRG::New<KRG::ExternalTestStruct>();
                 }
 
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::ExternalTestStruct();
+                }
+
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
@@ -334,7 +350,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_dynamicArray )
                     {
-                        KRG::ExternalTestSubStruct::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );
+                        KRG::ExternalTestSubStruct::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );
                     }
 
                 }
@@ -346,7 +362,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_dynamicArray )
                     {
-                        KRG::ExternalTestSubStruct::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );
+                        KRG::ExternalTestSubStruct::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );
                     }
 
                 }
@@ -358,7 +374,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_dynamicArray )
                     {
-                        status = KRG::ExternalTestSubStruct::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );
+                        status = KRG::ExternalTestSubStruct::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );
                         if ( status == LoadingStatus::Loading )
                         {
                             return LoadingStatus::Loading;
@@ -375,7 +391,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_dynamicArray )
                     {
-                        status = KRG::ExternalTestSubStruct::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );
+                        status = KRG::ExternalTestSubStruct::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );
                         if ( status != LoadingStatus::Unloaded )
                         {
                             return LoadingStatus::Unloading;
@@ -493,17 +509,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_GAME_CORE_API TTypeHelper<KRG::TestComponent::InternalStruct> : public ITypeHelper
+            class KRG_GAME_CORE_API TTypeHelper<KRG::TestComponent::InternalStruct> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::TestComponent::InternalStruct> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::TestComponent::InternalStruct ), alignof( KRG::TestComponent::InternalStruct ) );
                     new ( pDefaultTypeInstance ) KRG::TestComponent::InternalStruct;
 
@@ -516,8 +534,8 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent::InternalStruct> >( DefaultTypeInstancePtr );
-                    KRG::TestComponent::InternalStruct::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent::InternalStruct> >( s_pDefaultTypeInstancePtr );
+                    KRG::TestComponent::InternalStruct::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -525,7 +543,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::TestComponent::InternalStruct" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::TestComponent::InternalStruct*>( pDefaultTypeInstance )->~InternalStruct();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -533,6 +551,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::TestComponent::InternalStruct>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::TestComponent::InternalStruct();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
@@ -1261,17 +1285,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_GAME_CORE_API TTypeHelper<KRG::TestComponent> : public ITypeHelper
+            class KRG_GAME_CORE_API TTypeHelper<KRG::TestComponent> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::TestComponent> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::TestComponent ), alignof( KRG::TestComponent ) );
                     new ( pDefaultTypeInstance ) KRG::TestComponent;
 
@@ -1287,15 +1313,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::EntityComponent::StaticTypeInfo;
+                    pParentType = KRG::EntityComponent::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent> >( DefaultTypeInstancePtr );
-                    KRG::TestComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent> >( s_pDefaultTypeInstancePtr );
+                    KRG::TestComponent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -1303,7 +1329,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::TestComponent" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::TestComponent*>( pDefaultTypeInstance )->~TestComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -1311,6 +1337,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::TestComponent>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::TestComponent();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
@@ -1323,17 +1355,17 @@ namespace KRG
                         pResourceSystem->LoadResource( pActualType->m_specificResourcePtr, requesterID );
                     }
 
-                    KRG::ExternalTestStruct::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_struct0 );
+                    KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_struct0 );
 
-                    KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_struct1 );
+                    KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_struct1 );
 
-                    KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_staticArrayOfStructs[0] );
+                    KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_staticArrayOfStructs[0] );
 
-                    KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_staticArrayOfStructs[1] );
+                    KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->m_staticArrayOfStructs[1] );
 
                     for ( auto& propertyValue : pActualType->m_dynamicArrayOfStructs )
                     {
-                        KRG::ExternalTestStruct::StaticTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );
+                        KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );
                     }
 
                 }
@@ -1348,17 +1380,17 @@ namespace KRG
                         pResourceSystem->UnloadResource( pActualType->m_specificResourcePtr, requesterID );
                     }
 
-                    KRG::ExternalTestStruct::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_struct0 );
+                    KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_struct0 );
 
-                    KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_struct1 );
+                    KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_struct1 );
 
-                    KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_staticArrayOfStructs[0] );
+                    KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_staticArrayOfStructs[0] );
 
-                    KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_staticArrayOfStructs[1] );
+                    KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->m_staticArrayOfStructs[1] );
 
                     for ( auto& propertyValue : pActualType->m_dynamicArrayOfStructs )
                     {
-                        KRG::ExternalTestStruct::StaticTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );
+                        KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );
                     }
 
                 }
@@ -1377,25 +1409,25 @@ namespace KRG
                         return LoadingStatus::Loading;
                     }
 
-                    status = KRG::ExternalTestStruct::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_struct0 );
+                    status = KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_struct0 );
                     if ( status == LoadingStatus::Loading )
                     {
                         return LoadingStatus::Loading;
                     }
 
-                    status = KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_struct1 );
+                    status = KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_struct1 );
                     if ( status == LoadingStatus::Loading )
                     {
                         return LoadingStatus::Loading;
                     }
 
-                    status = KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_staticArrayOfStructs[0] ); 
+                    status = KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_staticArrayOfStructs[0] ); 
                     if ( status == LoadingStatus::Loading )
                     {
                         return LoadingStatus::Loading;
                     }
 
-                    status = KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_staticArrayOfStructs[1] ); 
+                    status = KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &pActualType->m_staticArrayOfStructs[1] ); 
                     if ( status == LoadingStatus::Loading )
                     {
                         return LoadingStatus::Loading;
@@ -1403,7 +1435,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_dynamicArrayOfStructs )
                     {
-                        status = KRG::ExternalTestStruct::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );
+                        status = KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );
                         if ( status == LoadingStatus::Loading )
                         {
                             return LoadingStatus::Loading;
@@ -1424,25 +1456,25 @@ namespace KRG
                         return LoadingStatus::Unloading;
                     }
 
-                    status = KRG::ExternalTestStruct::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_struct0 );
+                    status = KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_struct0 );
                     if ( status != LoadingStatus::Unloaded )
                     {
                         return LoadingStatus::Unloading;
                     }
 
-                    status = KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_struct1 );
+                    status = KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_struct1 );
                     if ( status != LoadingStatus::Unloaded )
                     {
                         return LoadingStatus::Unloading;
                     }
 
-                    status = KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_staticArrayOfStructs[0] ); 
+                    status = KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_staticArrayOfStructs[0] ); 
                     if ( status != LoadingStatus::Unloaded )
                     {
                         return LoadingStatus::Unloading;
                     }
 
-                    status = KRG::TestComponent::InternalStruct::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_staticArrayOfStructs[1] ); 
+                    status = KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &pActualType->m_staticArrayOfStructs[1] ); 
                     if ( status != LoadingStatus::Unloaded )
                     {
                         return LoadingStatus::Unloading;
@@ -1450,7 +1482,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_dynamicArrayOfStructs )
                     {
-                        status = KRG::ExternalTestStruct::StaticTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );
+                        status = KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );
                         if ( status != LoadingStatus::Unloaded )
                         {
                             return LoadingStatus::Unloading;

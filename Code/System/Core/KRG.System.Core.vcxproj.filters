@@ -1730,6 +1730,7 @@
     <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\weak_ptr.h">
       <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
     </ClInclude>
+    <ClInclude Include="Math\PhysicsMath.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EA.props">

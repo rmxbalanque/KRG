@@ -26,8 +26,8 @@ namespace KRG
                 enumInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::AnimationPlayerComponent::PlayMode" );
                 enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int32;
                 enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "PlayOnce" ), 0 ) );
-                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Pose" ), 2 ) );
                 enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Loop" ), 1 ) );
+                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "Posed" ), 2 ) );
 
                 typeRegistry.RegisterEnum( enumInfo );
             }
@@ -48,12 +48,12 @@ namespace KRG
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* KRG::Animation::AnimationPlayerComponent::StaticTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* KRG::Animation::AnimationPlayerComponent::s_pTypeInfo = nullptr;
     namespace TypeSystem
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::AnimationPlayerComponent>::DefaultTypeInstancePtr = nullptr;
+            void const* TTypeHelper<KRG::Animation::AnimationPlayerComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::AnimationPlayerComponent> TTypeHelper<KRG::Animation::AnimationPlayerComponent>::StaticTypeHelper;
         }
@@ -61,18 +61,18 @@ namespace KRG
 
     TypeSystem::TypeInfo const* KRG::Animation::AnimationPlayerComponent::GetTypeInfo() const
     {
-        return KRG::Animation::AnimationPlayerComponent::StaticTypeInfo;
+        return KRG::Animation::AnimationPlayerComponent::s_pTypeInfo;
     }
 
     void KRG::Animation::AnimationPlayerComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Animation::AnimationPlayerComponent::StaticTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Animation::AnimationPlayerComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Loading;
     }
 
     void KRG::Animation::AnimationPlayerComponent::Unload( EntityModel::LoadingContext const& context, UUID requesterID )
     {
-        KRG::Animation::AnimationPlayerComponent::StaticTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
+        KRG::Animation::AnimationPlayerComponent::s_pTypeInfo->m_pTypeHelper->UnloadResources( context.m_pResourceSystem, requesterID, this );
         m_status = Status::Unloaded;
     }
 
@@ -80,7 +80,7 @@ namespace KRG
     {
         if( m_status == Status::Loading )
         {
-            auto const resourceLoadingStatus = KRG::Animation::AnimationPlayerComponent::StaticTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
+            auto const resourceLoadingStatus = KRG::Animation::AnimationPlayerComponent::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( this );
             if ( resourceLoadingStatus == LoadingStatus::Loading )
             {
                 return; // Something is still loading so early-out

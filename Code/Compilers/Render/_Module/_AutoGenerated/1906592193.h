@@ -84,17 +84,19 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_RESOURCECOMPILERS_RENDER_API TTypeHelper<KRG::Render::StaticMeshResourceDescriptor> : public ITypeHelper
+            class KRG_RESOURCECOMPILERS_RENDER_API TTypeHelper<KRG::Render::StaticMeshResourceDescriptor> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Render::StaticMeshResourceDescriptor> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
 
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Render::StaticMeshResourceDescriptor ), alignof( KRG::Render::StaticMeshResourceDescriptor ) );
                     new ( pDefaultTypeInstance ) KRG::Render::StaticMeshResourceDescriptor;
 
@@ -109,15 +111,15 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Render::MeshResourceDescriptor::StaticTypeInfo;
+                    pParentType = KRG::Render::MeshResourceDescriptor::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::StaticMeshResourceDescriptor> >( DefaultTypeInstancePtr );
-                    KRG::Render::StaticMeshResourceDescriptor::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Render::StaticMeshResourceDescriptor> >( s_pDefaultTypeInstancePtr );
+                    KRG::Render::StaticMeshResourceDescriptor::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -125,7 +127,7 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Render::StaticMeshResourceDescriptor" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( DefaultTypeInstancePtr );
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Render::StaticMeshResourceDescriptor*>( pDefaultTypeInstance )->~StaticMeshResourceDescriptor();
                     KRG::Free( pDefaultTypeInstance );
                 }
@@ -133,6 +135,12 @@ namespace KRG
                 virtual void* CreateType() const override final
                 {
                     return KRG::New<KRG::Render::StaticMeshResourceDescriptor>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::Render::StaticMeshResourceDescriptor();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final

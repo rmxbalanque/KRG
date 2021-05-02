@@ -39,13 +39,15 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::AnimationComponent> : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::AnimationComponent> final : public ITypeHelper
             {
                 static TTypeHelper<KRG::Animation::AnimationComponent> StaticTypeHelper;
 
-                static void const* DefaultTypeInstancePtr;
+                static void const* s_pDefaultTypeInstancePtr;
 
             public:
+
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
@@ -61,14 +63,14 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::EntityComponent::StaticTypeInfo;
+                    pParentType = KRG::EntityComponent::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Animation::AnimationComponent::StaticTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::AnimationComponent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
@@ -82,6 +84,11 @@ namespace KRG
                 {
                     KRG_HALT(); // Error! Trying to instantiate an abstract type!
                     return nullptr;
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_HALT(); // Error! Trying to instantiate an abstract type!
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
