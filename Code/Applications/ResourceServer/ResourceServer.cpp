@@ -1,708 +1,637 @@
 #include "ResourceServer.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
-#include "Tools/Resource/Compilers/ResourceCompilerModule.h"
 #include "System/Resource/ResourceProviders/ResourceNetworkMessages.h"
+#include "System/Core/ThirdParty/iniparser/krg_ini.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "System/Core/Settings/ConfigSettings.h"
-
 #include "System/Core/ThirdParty/cereal/archives/json.hpp"
 
 #include <sstream>
 
 //-------------------------------------------------------------------------
-namespace KRG
+
+namespace KRG::Resource
 {
-    namespace Resource
+    ResourceServer::ResourceServer()
     {
-        namespace Settings
+        m_activeRequests.reserve( 100 );
+        m_maxSimultaneousCompilationTasks = Threading::GetProcessorInfo().m_numPhysicalCores;
+    }
+
+    bool ResourceServer::Initialize( Settings const& settings )
+    {
+        KRG_ASSERT( m_pSettings == nullptr );
+        m_pSettings = &settings;
+
+        // Connect to compiled resource database
+        //-------------------------------------------------------------------------
+
+        if ( !m_compiledResourceDatabase.TryConnect( settings.m_compiledResourceDatabasePath ) )
         {
-            static ConfigSettingString  g_sourceDataPath( "SourceDataPath", "Paths" );
-            static ConfigSettingString  g_compiledDataPath( "CompiledDataPath", "Paths" );
-            static ConfigSettingString  g_resourceCompilerExecutablePath( "ResourceCompilerExecutablePath", "Resource" );
-            static ConfigSettingString  g_compiledResourceDatabasePath( "CompiledDataDatabaseName", "Resource" );
-            static ConfigSettingInt     g_resourceServerPort( "ResourceServerPort", "Resource" );
+            m_errorMessage = String().sprintf( "Database connection error: %s", m_compiledResourceDatabase.GetError().c_str() );
+            return false;
+        }
+
+        // Register compilers
+        //-------------------------------------------------------------------------
+
+        m_animationModule.RegisterCompilers( m_compilerRegistry );
+        m_renderModule.RegisterCompilers( m_compilerRegistry );
+        m_physicsModule.RegisterCompilers( m_compilerRegistry );
+        m_entityModule.RegisterCompilers( m_compilerRegistry );
+
+        // Open network connection
+        //-------------------------------------------------------------------------
+
+        if ( !m_networkServer.Start( settings.m_resourceServerPort ) )
+        {
+            return false;
         }
 
         //-------------------------------------------------------------------------
 
-        ResourceServer::ResourceServer()
+        if ( m_fileSystemWatcher.StartWatching( m_pSettings->m_sourceDataPath ) )
         {
-            m_activeRequests.reserve( 100 );
-            m_maxSimultaneousCompilationTasks = Threading::GetProcessorInfo().m_numPhysicalCores;
+            m_fileSystemWatcher.RegisterChangeListener( this );
         }
 
-        bool ResourceServer::Initialize()
+        // Create Workers
+        //-------------------------------------------------------------------------
+
+        m_taskSystem.Initialize();
+
+        for ( auto i = 0u; i < m_maxSimultaneousCompilationTasks; i++ )
         {
-            m_workingDir = FileSystem::GetCurrentProcessPath();
-
-            // Get settings
-            //-------------------------------------------------------------------------
-
-            m_sourceDataDir = m_workingDir + Settings::g_sourceDataPath;
-            m_compiledDataDir = m_workingDir + Settings::g_compiledDataPath;
-            m_compiledResourceDatabasePath = m_workingDir + Settings::g_compiledResourceDatabasePath;
-            m_resourceCompilerFullPath = FileSystem::Path( m_workingDir + Settings::g_resourceCompilerExecutablePath ).GetFullPath().c_str();
-
-            // Generate any additional required settings from read data
-            m_networkAddress = String().sprintf( "localhost:%d", (int32) Settings::g_resourceServerPort );
-
-            // Connect to compiled resource database
-            //-------------------------------------------------------------------------
-
-            if ( !m_compiledResourceDatabase.TryConnect( m_compiledResourceDatabasePath ) )
-            {
-                m_errorMessage = String().sprintf( "Database connection error: %s", m_compiledResourceDatabase.GetError().c_str() );
-                return false;
-            }
-
-            // Read all compiler modules
-            //-------------------------------------------------------------------------
-
-            TVector<FileSystem::Path> compilerModulePaths;
-            FileSystem::GetDirectoryContents( m_workingDir, ".*KRG\\.ResourceCompilers\\..*\\.dll", compilerModulePaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::DontExpand );
-
-            for ( auto const& compilerModule : compilerModulePaths )
-            {
-                HINSTANCE moduleDLL = LoadLibraryA( compilerModule.GetFullPath().c_str() );
-                if ( moduleDLL != nullptr )
-                {
-                    GetResourceCompilerModuleFuncPtr pModuleFactoryFunc = ( GetResourceCompilerModuleFuncPtr) GetProcAddress( moduleDLL, "CreateModule" );
-                    if ( pModuleFactoryFunc != nullptr )
-                    {
-                        ResourceCompilerModule* pResourceModule = pModuleFactoryFunc();
-                        KRG_ASSERT( pResourceModule != nullptr );
-                        for ( auto compiler : pResourceModule->GetRegisteredCompilers() )
-                        {
-                            m_compilers.push_back( { compiler->GetName(), compiler->GetVersion(), compiler->GetOutputTypes(), compiler->GetVirtualTypes(), compilerModule } );
-                        }
-
-                        KRG::Delete( pResourceModule );
-                    }
-                    FreeLibrary( moduleDLL );
-                }
-            }
-
-            // Open network connection
-            //-------------------------------------------------------------------------
-
-            if ( !m_networkServer.Start( Settings::g_resourceServerPort ) )
-            {
-                return false;
-            }
-
-            //-------------------------------------------------------------------------
-
-            if( m_fileSystemWatcher.StartWatching( m_sourceDataDir ) )
-            {
-                m_fileSystemWatcher.RegisterChangeListener( this );
-            }
-
-            // Create Workers
-            //-------------------------------------------------------------------------
-
-            m_taskSystem.Initialize();
-
-            for ( auto i = 0u; i < m_maxSimultaneousCompilationTasks; i++ )
-            {
-                m_workers.emplace_back( KRG::New<ResourceServerWorker>( &m_taskSystem, m_resourceCompilerFullPath ) );
-            }
-
-            return true;
+            m_workers.emplace_back( KRG::New<ResourceServerWorker>( &m_taskSystem, m_pSettings->m_resourceCompilerExecutablePath.c_str() ) );
         }
 
-        void ResourceServer::Shutdown()
+        return true;
+    }
+
+    void ResourceServer::Shutdown()
+    {
+        // Destroy workers
+        //-------------------------------------------------------------------------
+
+        m_taskSystem.WaitForAll();
+
+        for ( auto& pWorker : m_workers )
         {
-            // Destroy workers
-            //-------------------------------------------------------------------------
-
-            m_taskSystem.WaitForAll();
-
-            for ( auto& pWorker : m_workers )
-            {
-                KRG::Delete( pWorker );
-            }
-            
-            m_workers.clear();
-
-            m_taskSystem.Shutdown();
-
-            // Unregister File Watcher
-            //-------------------------------------------------------------------------
-
-            if( m_fileSystemWatcher.IsWatching() )
-            {
-                m_fileSystemWatcher.StopWatching();
-                m_fileSystemWatcher.UnregisterChangeListener( this );
-            }
-
-            // Delete requests
-            //-------------------------------------------------------------------------
-
-            for( auto& pRequest : m_pendingRequests )
-            {
-                KRG::Delete( pRequest );
-            }
-
-            for ( auto& pRequest : m_activeRequests )
-            {
-                KRG::Delete( pRequest );
-            }
-
-            CleanupCompletedRequests();
+            KRG::Delete( pWorker );
         }
+
+        m_workers.clear();
+
+        m_taskSystem.Shutdown();
+
+        // Unregister File Watcher
+        //-------------------------------------------------------------------------
+
+        if ( m_fileSystemWatcher.IsWatching() )
+        {
+            m_fileSystemWatcher.StopWatching();
+            m_fileSystemWatcher.UnregisterChangeListener( this );
+        }
+
+        // Delete requests
+        //-------------------------------------------------------------------------
+
+        for ( auto& pRequest : m_pendingRequests )
+        {
+            KRG::Delete( pRequest );
+        }
+
+        for ( auto& pRequest : m_activeRequests )
+        {
+            KRG::Delete( pRequest );
+        }
+
+        CleanupCompletedRequests();
+
+        // Unregister compilers
+        //-------------------------------------------------------------------------
+
+        m_animationModule.UnregisterCompilers( m_compilerRegistry );
+        m_renderModule.UnregisterCompilers( m_compilerRegistry );
+        m_physicsModule.UnregisterCompilers( m_compilerRegistry );
+        m_entityModule.UnregisterCompilers( m_compilerRegistry );
 
         //-------------------------------------------------------------------------
 
-        void ResourceServer::Update()
+        m_pSettings = nullptr;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ResourceServer::Update()
+    {
+        // Update network server
+        //-------------------------------------------------------------------------
+
+        if ( m_networkServer.IsRunning() )
         {
-            // Update network server
-            //-------------------------------------------------------------------------
-
-            if ( m_networkServer.IsRunning() )
+            Network::IPC::Message message;
+            if ( m_networkServer.WaitForMessage( message, 0 ) )
             {
-                Network::IPC::Message message;
-                if ( m_networkServer.WaitForMessage( message, 0 ) )
-                {
-                    // Track connected clients
-                    //-------------------------------------------------------------------------
-
-                    uint64 const clientID = message.GetClientID().m_ID;
-                    auto foundClientIter = VectorFind( m_knownClients, clientID, [] ( ClientRecord const& record, uint64 clientID ) { return record.m_clientID == clientID; } );
-                    if ( foundClientIter != m_knownClients.end() )
-                    {
-                        foundClientIter->m_lastUpdateTime = SystemClock::GetTimeInSeconds();
-                    }
-                    else // Add new client record
-                    {
-                        m_knownClients.emplace_back( ClientRecord( clientID ) );
-                    }
-
-                    // Process messages
-                    //-------------------------------------------------------------------------
-
-                    if ( message.GetMessageID() == (int32) NetworkMessageID::RequestResource )
-                    {
-                        NetworkResourceRequest networkRequest = message.GetData<NetworkResourceRequest>();
-                        ProcessResourceRequest( networkRequest.m_path, clientID );
-                    }
-                };
-
-                // Clean up connected clients list
+                // Track connected clients
                 //-------------------------------------------------------------------------
 
-                static Seconds const keepAliveTime( 10 );
-                Seconds const currentTime = SystemClock::GetTimeInSeconds();
-                for ( int32 i = (int32) m_knownClients.size() - 1; i >= 0; i-- )
+                uint64 const clientID = message.GetClientID().m_ID;
+                auto foundClientIter = VectorFind( m_knownClients, clientID, [] ( ClientRecord const& record, uint64 clientID ) { return record.m_clientID == clientID; } );
+                if ( foundClientIter != m_knownClients.end() )
                 {
-                    Seconds const timeSinceLastUpdate = currentTime - m_knownClients[i].m_lastUpdateTime;
-                    if( timeSinceLastUpdate > keepAliveTime )
-                    {
-                        m_knownClients.erase_unsorted( m_knownClients.begin() + i );
-                    }
+                    foundClientIter->m_lastUpdateTime = SystemClock::GetTimeInSeconds();
                 }
-            }
-
-            // Update requests
-            //-------------------------------------------------------------------------
-
-            // Check status of active requests
-            for ( auto pWorker : m_workers )
-            {
-                if ( pWorker->IsComplete() )
+                else // Add new client record
                 {
-                    auto const pCompletedRequest = pWorker->AcceptResult();
-
-                    // Update database
-                    //-------------------------------------------------------------------------
-
-                    if ( pCompletedRequest->HasSucceeded() )
-                    {
-                        WriteCompiledResourceRecord( pCompletedRequest );
-                    }
-
-                    // Send network response
-                    //-------------------------------------------------------------------------
-
-                    NotifyClientOnCompletedRequest( pCompletedRequest );
-
-                    // Remove from active list
-                    //-------------------------------------------------------------------------
-
-                    m_completedRequests.emplace_back( pCompletedRequest );
-                    m_activeRequests.erase_first_unsorted( pCompletedRequest );
-                }
-            }
-
-            // Kick off new requests
-            while ( m_pendingRequests.size() > 0 && m_activeRequests.size() < m_maxSimultaneousCompilationTasks )
-            {
-                auto pRequestToStart = m_pendingRequests[0];
-                m_activeRequests.emplace_back( pRequestToStart );
-                m_pendingRequests.erase( m_pendingRequests.begin() );
-
-                bool taskStarted = false;
-                for ( auto& pWorker : m_workers )
-                {
-                    if ( pWorker->IsIdle() )
-                    {
-                        pWorker->Compile( pRequestToStart );
-                        taskStarted = true;
-                        break;
-                    }
+                    m_knownClients.emplace_back( ClientRecord( clientID ) );
                 }
 
-                KRG_ASSERT( taskStarted );
-            }
+                // Process messages
+                //-------------------------------------------------------------------------
 
-            // Process cleanup request
+                if ( message.GetMessageID() == (int32) NetworkMessageID::RequestResource )
+                {
+                    NetworkResourceRequest networkRequest = message.GetData<NetworkResourceRequest>();
+                    ProcessResourceRequest( networkRequest.m_path, clientID );
+                }
+            };
+
+            // Clean up connected clients list
             //-------------------------------------------------------------------------
 
-            if ( m_cleanupRequested )
+            static Seconds const keepAliveTime( 10 );
+            Seconds const currentTime = SystemClock::GetTimeInSeconds();
+            for ( int32 i = (int32) m_knownClients.size() - 1; i >= 0; i-- )
             {
-                CleanupCompletedRequests();
-                m_cleanupRequested = false;
-            }
-
-            // Update File System Watcher
-            //-------------------------------------------------------------------------
-
-            if ( m_fileSystemWatcher.IsWatching() )
-            {
-                m_fileSystemWatcher.Update();
+                Seconds const timeSinceLastUpdate = currentTime - m_knownClients[i].m_lastUpdateTime;
+                if ( timeSinceLastUpdate > keepAliveTime )
+                {
+                    m_knownClients.erase_unsorted( m_knownClients.begin() + i );
+                }
             }
         }
 
-        void ResourceServer::OnFileModified( FileSystem::Path const& filePath )
-        {
-            KRG_ASSERT( filePath.IsValid() && filePath.IsFilePath() );
-
-            DataPath dataPath = DataPath::FromFileSystemPath( m_sourceDataDir, filePath );
-            if ( !dataPath.IsValid() )
-            {
-                return;
-            }
-
-            ResourceID resourceID( dataPath );
-            if ( !resourceID.IsValid() )
-            {
-                return;
-            }
-
-            // Check compiled resources database for a record for this file
-            auto compiledResourceRecord = m_compiledResourceDatabase.GetRecord( resourceID );
-            if ( !compiledResourceRecord.IsValid() )
-            {
-                return;
-            }
-
-            // If we have a record, then schedule a recompile task
-            ProcessResourceRequest( resourceID );
-        }
-
-        void ResourceServer::CleanupCompletedRequests()
-        {
-            for ( int32 i = (int32) m_completedRequests.size() - 1; i >= 0; i-- )
-            {
-                KRG_ASSERT( !VectorContains( m_activeRequests, m_completedRequests[i] ) && !VectorContains( m_pendingRequests, m_completedRequests[i] ) );
-                KRG::Delete( m_completedRequests[i] );
-                m_completedRequests.erase_unsorted( m_completedRequests.begin() + i );
-            }
-        }
-
+        // Update requests
         //-------------------------------------------------------------------------
 
-        bool ResourceServer::HasCompilerForType( ResourceTypeID typeID ) const
+        // Check status of active requests
+        for ( auto pWorker : m_workers )
         {
-            for ( auto const& compiler : m_compilers )
+            if ( pWorker->IsComplete() )
             {
-                if( VectorContains( compiler.m_outputTypes, typeID ) )
+                auto const pCompletedRequest = pWorker->AcceptResult();
+
+                // Update database
+                //-------------------------------------------------------------------------
+
+                if ( pCompletedRequest->HasSucceeded() )
                 {
-                    return true;
+                    WriteCompiledResourceRecord( pCompletedRequest );
                 }
+
+                // Send network response
+                //-------------------------------------------------------------------------
+
+                NotifyClientOnCompletedRequest( pCompletedRequest );
+
+                // Remove from active list
+                //-------------------------------------------------------------------------
+
+                m_completedRequests.emplace_back( pCompletedRequest );
+                m_activeRequests.erase_first_unsorted( pCompletedRequest );
             }
-            return false;
         }
 
-        bool ResourceServer::IsVirtualResource( ResourceTypeID typeID ) const
+        // Kick off new requests
+        while ( m_pendingRequests.size() > 0 && m_activeRequests.size() < m_maxSimultaneousCompilationTasks )
         {
-            for ( auto const& compiler : m_compilers )
-            {
-                if ( VectorContains( compiler.m_virtualTypes, typeID ) )
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+            auto pRequestToStart = m_pendingRequests[0];
+            m_activeRequests.emplace_back( pRequestToStart );
+            m_pendingRequests.erase( m_pendingRequests.begin() );
 
-        int32 ResourceServer::GetCompilerVersion( ResourceTypeID typeID ) const
-        {
-            for ( auto const& compiler : m_compilers )
+            bool taskStarted = false;
+            for ( auto& pWorker : m_workers )
             {
-                if ( VectorContains( compiler.m_outputTypes, typeID ) )
+                if ( pWorker->IsIdle() )
                 {
-                    return compiler.m_version;
+                    pWorker->Compile( pRequestToStart );
+                    taskStarted = true;
+                    break;
                 }
             }
 
-            return -1;
+            KRG_ASSERT( taskStarted );
         }
 
+        // Process cleanup request
         //-------------------------------------------------------------------------
 
-        CompilationRequest const* ResourceServer::ProcessResourceRequest( ResourceID const& resourceID, uint64 clientID )
+        if ( m_cleanupRequested )
         {
-            KRG_ASSERT( m_compiledResourceDatabase.IsConnected() );
+            CleanupCompletedRequests();
+            m_cleanupRequested = false;
+        }
 
-            CompilationRequest* pRequest = KRG::New<CompilationRequest>();
+        // Update File System Watcher
+        //-------------------------------------------------------------------------
 
-            if ( resourceID.IsValid() )
+        if ( m_fileSystemWatcher.IsWatching() )
+        {
+            m_fileSystemWatcher.Update();
+        }
+    }
+
+    void ResourceServer::OnFileModified( FileSystem::Path const& filePath )
+    {
+        KRG_ASSERT( filePath.IsValid() && filePath.IsFilePath() );
+
+        DataPath dataPath = DataPath::FromFileSystemPath( m_pSettings->m_sourceDataPath, filePath );
+        if ( !dataPath.IsValid() )
+        {
+            return;
+        }
+
+        ResourceID resourceID( dataPath );
+        if ( !resourceID.IsValid() )
+        {
+            return;
+        }
+
+        // Check compiled resources database for a record for this file
+        auto compiledResourceRecord = m_compiledResourceDatabase.GetRecord( resourceID );
+        if ( !compiledResourceRecord.IsValid() )
+        {
+            return;
+        }
+
+        // If we have a record, then schedule a recompile task
+        ProcessResourceRequest( resourceID );
+    }
+
+    void ResourceServer::CleanupCompletedRequests()
+    {
+        for ( int32 i = (int32) m_completedRequests.size() - 1; i >= 0; i-- )
+        {
+            KRG_ASSERT( !VectorContains( m_activeRequests, m_completedRequests[i] ) && !VectorContains( m_pendingRequests, m_completedRequests[i] ) );
+            KRG::Delete( m_completedRequests[i] );
+            m_completedRequests.erase_unsorted( m_completedRequests.begin() + i );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    CompilationRequest const* ResourceServer::ProcessResourceRequest( ResourceID const& resourceID, uint64 clientID )
+    {
+        KRG_ASSERT( m_compiledResourceDatabase.IsConnected() );
+
+        CompilationRequest* pRequest = KRG::New<CompilationRequest>();
+
+        if ( resourceID.IsValid() )
+        {
+            pRequest->m_clientID = clientID;
+            pRequest->m_isHotReloadRequest = ( clientID == 0 );
+            pRequest->m_resourceID = resourceID;
+            pRequest->m_sourceFile = DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, pRequest->m_resourceID.GetDataPath() );
+            pRequest->m_destinationFile = DataPath::ToFileSystemPath( m_pSettings->m_compiledDataPath, pRequest->m_resourceID.GetDataPath() );
+            pRequest->m_compilerArgs = pRequest->m_resourceID.GetDataPath().c_str();
+
+            // Resource type validity check
+            ResourceTypeID const resourceTypeID = pRequest->m_resourceID.GetResourceTypeID();
+            if ( m_compilerRegistry.IsVirtualType( resourceTypeID ) )
             {
-                pRequest->m_clientID = clientID;
-                pRequest->m_isHotReloadRequest = ( clientID == 0 );
-                pRequest->m_resourceID = resourceID;
-                pRequest->m_sourceFile = DataPath::ToFileSystemPath( m_sourceDataDir, pRequest->m_resourceID.GetDataPath() );
-                pRequest->m_destinationFile = DataPath::ToFileSystemPath( m_compiledDataDir, pRequest->m_resourceID.GetDataPath() );
-                pRequest->m_compilerArgs = pRequest->m_resourceID.GetDataPath().c_str();
-
-                // Resource type validity check
-                ResourceTypeID const resourceTypeID = pRequest->m_resourceID.GetResourceTypeID();
-                if ( IsVirtualResource( resourceTypeID ) )
+                pRequest->m_log = String().sprintf( "Virtual Resource - Nothing to do!", pRequest->m_sourceFile.GetFullPath().c_str() );
+                pRequest->m_status = CompilationRequest::Status::Succeeded;
+            }
+            else
+            {
+                if ( !m_compilerRegistry.HasCompilerForType( resourceTypeID ) )
                 {
-                    pRequest->m_log = String().sprintf( "Virtual Resource - Nothing to do!", pRequest->m_sourceFile.GetFullPath().c_str() );
-                    pRequest->m_status = CompilationRequest::Status::Succeeded;
+                    pRequest->m_log = String().sprintf( "Error: No compiler found for resource type ( %s )!", pRequest->m_resourceID.ToString().c_str() );
+                    pRequest->m_status = CompilationRequest::Status::Failed;
                 }
-                else
+
+                // File Validity check
+                if ( pRequest->m_status != CompilationRequest::Status::Failed )
                 {
-                    if ( !HasCompilerForType( resourceTypeID ) )
+                    if ( !FileSystem::FileExists( pRequest->m_sourceFile ) )
                     {
-                        pRequest->m_log = String().sprintf( "Error: No compiler found for resource type ( %s )!", pRequest->m_resourceID.ToString().c_str() );
+                        pRequest->m_log = String().sprintf( "Error: Source file ( %s ) doesnt exist!", pRequest->m_sourceFile.GetFullPath().c_str() );
                         pRequest->m_status = CompilationRequest::Status::Failed;
                     }
+                }
 
-                    // File Validity check
-                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                {
+                    if ( !FileSystem::EnsurePathExists( pRequest->m_destinationFile ) )
                     {
-                        if ( !FileSystem::FileExists( pRequest->m_sourceFile ) )
-                        {
-                            pRequest->m_log = String().sprintf( "Error: Source file ( %s ) doesnt exist!", pRequest->m_sourceFile.GetFullPath().c_str() );
-                            pRequest->m_status = CompilationRequest::Status::Failed;
-                        }
-                    }
-
-                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
-                    {
-                        if ( !FileSystem::EnsurePathExists( pRequest->m_destinationFile ) )
-                        {
-                            pRequest->m_log = String().sprintf( "Error: Destination path ( %s ) doesnt exist!", pRequest->m_destinationFile.GetParentDirectory().c_str() );
-                            pRequest->m_status = CompilationRequest::Status::Failed;
-                        }
-                    }
-
-                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
-                    {
-                        if ( FileSystem::FileExists( pRequest->m_destinationFile ) && FileSystem::IsFileReadOnly( pRequest->m_destinationFile ) )
-                        {
-                            pRequest->m_log = String().sprintf( "Error: Destination file ( %s ) is read-only!", pRequest->m_destinationFile.GetFullPath().c_str() );
-                            pRequest->m_status = CompilationRequest::Status::Failed;
-                        }
-                    }
-
-                    TVector<DataPath> compileDependencies;
-
-                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
-                    {
-                        // Try to read all the resource compile dependencies for non-map resources
-                        if ( pRequest->GetResourceID().GetResourceTypeID() != ResourceTypeID( "MAP" ) )
-                        {
-                            if ( !TryReadCompileDependencies( pRequest->m_sourceFile, compileDependencies, &pRequest->m_log ) )
-                            {
-                                pRequest->m_log += "Error: failed to read compile dependencies!";
-                                pRequest->m_status = CompilationRequest::Status::Failed;
-                            }
-                        }
-                    }
-
-                    // Run Up-to-date check
-                    if ( pRequest->m_status != CompilationRequest::Status::Failed )
-                    {
-                        PerformResourceUpToDateCheck( pRequest, compileDependencies );
+                        pRequest->m_log = String().sprintf( "Error: Destination path ( %s ) doesnt exist!", pRequest->m_destinationFile.GetParentDirectory().c_str() );
+                        pRequest->m_status = CompilationRequest::Status::Failed;
                     }
                 }
-            }
-            else // Invalid resource ID
-            {
-                pRequest->m_log = String( "Error: Invalid resource ID (" ) + resourceID.c_str() + ") !";
-                pRequest->m_status = CompilationRequest::Status::Failed;
-            }
 
-            // Enqueue new request
-            //-------------------------------------------------------------------------
+                if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                {
+                    if ( FileSystem::FileExists( pRequest->m_destinationFile ) && FileSystem::IsFileReadOnly( pRequest->m_destinationFile ) )
+                    {
+                        pRequest->m_log = String().sprintf( "Error: Destination file ( %s ) is read-only!", pRequest->m_destinationFile.GetFullPath().c_str() );
+                        pRequest->m_status = CompilationRequest::Status::Failed;
+                    }
+                }
 
-            if ( pRequest->IsPending() )
-            {
-                m_pendingRequests.emplace_back( pRequest );
-            }
-            else // Failed or Up-to-date
-            {
-                m_completedRequests.emplace_back( pRequest );
-                KRG_ASSERT( pRequest->IsComplete() );
-                NotifyClientOnCompletedRequest( pRequest );
-            }
+                TVector<DataPath> compileDependencies;
 
-            return pRequest;
+                if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                {
+                    // Try to read all the resource compile dependencies for non-map resources
+                    if ( pRequest->GetResourceID().GetResourceTypeID() != ResourceTypeID( "MAP" ) )
+                    {
+                        if ( !TryReadCompileDependencies( pRequest->m_sourceFile, compileDependencies, &pRequest->m_log ) )
+                        {
+                            pRequest->m_log += "Error: failed to read compile dependencies!";
+                            pRequest->m_status = CompilationRequest::Status::Failed;
+                        }
+                    }
+                }
+
+                // Run Up-to-date check
+                if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                {
+                    PerformResourceUpToDateCheck( pRequest, compileDependencies );
+                }
+            }
+        }
+        else // Invalid resource ID
+        {
+            pRequest->m_log = String( "Error: Invalid resource ID (" ) + resourceID.c_str() + ") !";
+            pRequest->m_status = CompilationRequest::Status::Failed;
         }
 
-        void ResourceServer::NotifyClientOnCompletedRequest( CompilationRequest* pRequest )
+        // Enqueue new request
+        //-------------------------------------------------------------------------
+
+        if ( pRequest->IsPending() )
         {
-            NetworkResourceResponse response;
-            response.m_resourceID = pRequest->GetResourceID();
-            if ( pRequest->HasSucceeded() )
-            {
-                response.m_filePath = pRequest->GetDestinationFilePath();
-            }
+            m_pendingRequests.emplace_back( pRequest );
+        }
+        else // Failed or Up-to-date
+        {
+            m_completedRequests.emplace_back( pRequest );
+            KRG_ASSERT( pRequest->IsComplete() );
+            NotifyClientOnCompletedRequest( pRequest );
+        }
 
-            //-------------------------------------------------------------------------
+        return pRequest;
+    }
 
-            // Notify all clients
-            if( pRequest->IsInternalRequest() )
-            {
-                // Only notify all clients is the request succeeded
-                if( pRequest->HasSucceeded() )
-                {
-                    for ( auto const& clientRecord : m_knownClients )
-                    {
-                        Network::IPC::Message message;
-                        message.SetData( (int32) NetworkMessageID::ResourceUpdated, response );
-                        m_networkServer.SendMessageToClient( clientRecord.m_clientID, message );
-                    }
-                }
-            }
-            else // Notify single client
-            {
-                Network::IPC::Message message;
-                message.SetData( (int32) NetworkMessageID::ResourceRequestComplete, response );
-                m_networkServer.SendMessageToClient( pRequest->GetClientID(), message );
-            }
+    void ResourceServer::NotifyClientOnCompletedRequest( CompilationRequest* pRequest )
+    {
+        NetworkResourceResponse response;
+        response.m_resourceID = pRequest->GetResourceID();
+        if ( pRequest->HasSucceeded() )
+        {
+            response.m_filePath = pRequest->GetDestinationFilePath();
         }
 
         //-------------------------------------------------------------------------
 
-        void ResourceServer::PerformResourceUpToDateCheck( CompilationRequest* pRequest, TVector<DataPath> const& compileDependencies ) const
+        // Notify all clients
+        if ( pRequest->IsInternalRequest() )
         {
-            KRG_ASSERT( pRequest != nullptr && pRequest->IsPending() );
-
-            pRequest->m_upToDateCheckTimeStarted = SystemClock::GetTime();
-
-            // Read all up to date information
-            //-------------------------------------------------------------------------
-
-            pRequest->m_compilerVersion = GetCompilerVersion( pRequest->m_resourceID.GetResourceTypeID() );
-            KRG_ASSERT( pRequest->m_compilerVersion >= 0 );
-
-            pRequest->m_fileTimestamp = FileSystem::GetFileModifiedTime( pRequest->m_sourceFile );
-
-            bool areCompileDependenciesAreUpToDate = true;
-            for ( auto const& compileDep : compileDependencies )
+            // Only notify all clients is the request succeeded
+            if ( pRequest->HasSucceeded() )
             {
-                KRG_ASSERT( compileDep.IsValid() );
-
-                ResourceTypeID const extension( compileDep.GetExtension() );
-                if ( IsCompileableResourceType( extension ) && !IsResourceUpToDate( ResourceID( compileDep ) ) )
+                for ( auto const& clientRecord : m_knownClients )
                 {
-                    areCompileDependenciesAreUpToDate = false;
-                    break;
+                    Network::IPC::Message message;
+                    message.SetData( (int32) NetworkMessageID::ResourceUpdated, response );
+                    m_networkServer.SendMessageToClient( clientRecord.m_clientID, message );
                 }
+            }
+        }
+        else // Notify single client
+        {
+            Network::IPC::Message message;
+            message.SetData( (int32) NetworkMessageID::ResourceRequestComplete, response );
+            m_networkServer.SendMessageToClient( pRequest->GetClientID(), message );
+        }
+    }
 
-                auto const compileDependencyPath = DataPath::ToFileSystemPath( m_sourceDataDir, compileDep );
-                if ( !compileDependencyPath.ExistsAndIsFile() )
-                {
-                    areCompileDependenciesAreUpToDate = false;
-                    break;
-                }
+    //-------------------------------------------------------------------------
 
-                pRequest->m_sourceTimestampHash += FileSystem::GetFileModifiedTime( compileDependencyPath );
+    void ResourceServer::PerformResourceUpToDateCheck( CompilationRequest* pRequest, TVector<DataPath> const& compileDependencies ) const
+    {
+        KRG_ASSERT( pRequest != nullptr && pRequest->IsPending() );
+
+        pRequest->m_upToDateCheckTimeStarted = SystemClock::GetTime();
+
+        // Read all up to date information
+        //-------------------------------------------------------------------------
+
+        pRequest->m_compilerVersion = m_compilerRegistry.GetVersionForType( pRequest->m_resourceID.GetResourceTypeID() );
+        KRG_ASSERT( pRequest->m_compilerVersion >= 0 );
+
+        pRequest->m_fileTimestamp = FileSystem::GetFileModifiedTime( pRequest->m_sourceFile );
+
+        bool areCompileDependenciesAreUpToDate = true;
+        for ( auto const& compileDep : compileDependencies )
+        {
+            KRG_ASSERT( compileDep.IsValid() );
+
+            ResourceTypeID const extension( compileDep.GetExtension() );
+            if ( IsCompileableResourceType( extension ) && !IsResourceUpToDate( ResourceID( compileDep ) ) )
+            {
+                areCompileDependenciesAreUpToDate = false;
+                break;
             }
 
-            // Check source file for changes
-            //-------------------------------------------------------------------------
-
-            // Check compile dependency state
-            bool isResourceUpToDate = areCompileDependenciesAreUpToDate;
-
-            // Check against previous compilation result
-            if ( isResourceUpToDate )
+            auto const compileDependencyPath = DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, compileDep );
+            if ( !compileDependencyPath.ExistsAndIsFile() )
             {
-                auto existingRecord = m_compiledResourceDatabase.GetRecord( pRequest->m_resourceID );
-                if ( existingRecord.IsValid() )
+                areCompileDependenciesAreUpToDate = false;
+                break;
+            }
+
+            pRequest->m_sourceTimestampHash += FileSystem::GetFileModifiedTime( compileDependencyPath );
+        }
+
+        // Check source file for changes
+        //-------------------------------------------------------------------------
+
+        // Check compile dependency state
+        bool isResourceUpToDate = areCompileDependenciesAreUpToDate;
+
+        // Check against previous compilation result
+        if ( isResourceUpToDate )
+        {
+            auto existingRecord = m_compiledResourceDatabase.GetRecord( pRequest->m_resourceID );
+            if ( existingRecord.IsValid() )
+            {
+                if ( pRequest->m_compilerVersion != existingRecord.m_compilerVersion )
                 {
-                    if ( pRequest->m_compilerVersion != existingRecord.m_compilerVersion )
-                    {
-                        isResourceUpToDate = false;
-                    }
-
-                    if ( pRequest->m_fileTimestamp != existingRecord.m_fileTimestamp )
-                    {
-                        isResourceUpToDate = false;
-                    }
-
-                    if ( pRequest->m_sourceTimestampHash != existingRecord.m_sourceTimestampHash )
-                    {
-                        isResourceUpToDate = false;
-                    }
+                    isResourceUpToDate = false;
                 }
-                else
+
+                if ( pRequest->m_fileTimestamp != existingRecord.m_fileTimestamp )
+                {
+                    isResourceUpToDate = false;
+                }
+
+                if ( pRequest->m_sourceTimestampHash != existingRecord.m_sourceTimestampHash )
                 {
                     isResourceUpToDate = false;
                 }
             }
-
-            // Check that the target file exists
-            if ( isResourceUpToDate && !FileSystem::FileExists( pRequest->m_destinationFile ) )
+            else
             {
                 isResourceUpToDate = false;
             }
-
-            //-------------------------------------------------------------------------
-
-            if ( isResourceUpToDate )
-            {
-                pRequest->m_log = String().sprintf( "Resource up to date!", pRequest->m_sourceFile.GetFullPath().c_str() );
-                pRequest->m_status = CompilationRequest::Status::Succeeded;
-            }
-
-            //-------------------------------------------------------------------------
-
-            pRequest->m_upToDateCheckTimeFinished = SystemClock::GetTime();
         }
 
-        bool ResourceServer::TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog ) const
+        // Check that the target file exists
+        if ( isResourceUpToDate && !FileSystem::FileExists( pRequest->m_destinationFile ) )
         {
-            KRG_ASSERT( resourceFilePath.IsValid() );
-
-            // Read JSON descriptor file - we do this by hand since we dont want to create a type registry in the resource server
-            if ( resourceFilePath.Exists() )
-            {
-                FILE* fp = fopen( resourceFilePath, "r" );
-                if ( fp == nullptr )
-                {
-                    return false;
-                }
-
-                fseek( fp, 0, SEEK_END );
-                size_t filesize = (size_t) ftell( fp );
-                fseek( fp, 0, SEEK_SET );
-
-                String fileContents;
-                fileContents.resize( filesize );
-                size_t const readLength = fread( fileContents.data(), 1, filesize, fp );
-                fclose( fp );
-
-                ResourceDescriptor::ReadCompileDependencies( fileContents, outDependencies );
-            }
-            else
-            {
-                return false;
-            }
-
-            //-------------------------------------------------------------------------
-
-            for ( auto const& dep : outDependencies )
-            {
-                if ( !dep.IsValid() )
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            isResourceUpToDate = false;
         }
 
-        bool ResourceServer::IsResourceUpToDate( ResourceID const& resourceID ) const
+        //-------------------------------------------------------------------------
+
+        if ( isResourceUpToDate )
         {
-            // Check that the target file exists
-            //-------------------------------------------------------------------------
-
-            if ( !FileSystem::FileExists( DataPath::ToFileSystemPath( m_compiledDataDir, resourceID.GetDataPath() ) ) )
-            {
-                return false;
-            }
-
-            // Check compile dependencies
-            //-------------------------------------------------------------------------
-
-            int32 const compilerVersion = GetCompilerVersion( resourceID.GetResourceTypeID() );
-            KRG_ASSERT( compilerVersion >= 0 );
-
-            FileSystem::Path const sourceFilePath = DataPath::ToFileSystemPath( m_sourceDataDir, resourceID.GetDataPath() );
-            if ( !sourceFilePath.ExistsAndIsFile() )
-            {
-                return false;
-            }
-
-            uint64 const fileTimestamp = FileSystem::GetFileModifiedTime( sourceFilePath );
-            uint64 sourceTimestampHash = 0;
-
-            TVector<DataPath> compileDependencies;
-            if ( !TryReadCompileDependencies( sourceFilePath, compileDependencies ) )
-            {
-                return false;
-            }
-
-            for ( auto const& compileDep : compileDependencies )
-            {
-                sourceTimestampHash += FileSystem::GetFileModifiedTime( DataPath::ToFileSystemPath( m_sourceDataDir, compileDep ) );
-
-                ResourceTypeID const extension( compileDep.GetExtension() );
-                if ( IsCompileableResourceType( extension ) && IsResourceUpToDate( ResourceID( compileDep ) ) )
-                {
-                    return false;
-                }
-            }
-
-            // Check source file for changes
-            //-------------------------------------------------------------------------
-
-            // Check against previous compilation result
-            auto existingRecord = m_compiledResourceDatabase.GetRecord( resourceID );
-            if ( existingRecord.IsValid() )
-            {
-                if ( compilerVersion != existingRecord.m_compilerVersion )
-                {
-                    return false;
-                }
-
-                if ( fileTimestamp != existingRecord.m_fileTimestamp )
-                {
-                    return false;
-                }
-
-                if ( sourceTimestampHash != existingRecord.m_sourceTimestampHash )
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-
-            return true;
+            pRequest->m_log = String().sprintf( "Resource up to date!", pRequest->m_sourceFile.GetFullPath().c_str() );
+            pRequest->m_status = CompilationRequest::Status::Succeeded;
         }
 
-        void ResourceServer::WriteCompiledResourceRecord( CompilationRequest* pRequest )
+        //-------------------------------------------------------------------------
+
+        pRequest->m_upToDateCheckTimeFinished = SystemClock::GetTime();
+    }
+
+    bool ResourceServer::TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog ) const
+    {
+        KRG_ASSERT( resourceFilePath.IsValid() );
+
+        // Read JSON descriptor file - we do this by hand since we dont want to create a type registry in the resource server
+        if ( resourceFilePath.Exists() )
         {
-            CompiledResourceRecord record;
-            record.m_resourceID = pRequest->m_resourceID;
-            record.m_compilerVersion = pRequest->m_compilerVersion;
-            record.m_fileTimestamp = pRequest->m_fileTimestamp;
-            record.m_sourceTimestampHash = pRequest->m_sourceTimestampHash;
-            m_compiledResourceDatabase.WriteRecord( record );
+            FILE* fp = fopen( resourceFilePath, "r" );
+            if ( fp == nullptr )
+            {
+                return false;
+            }
+
+            fseek( fp, 0, SEEK_END );
+            size_t filesize = (size_t) ftell( fp );
+            fseek( fp, 0, SEEK_SET );
+
+            String fileContents;
+            fileContents.resize( filesize );
+            size_t const readLength = fread( fileContents.data(), 1, filesize, fp );
+            fclose( fp );
+
+            ResourceDescriptor::ReadCompileDependencies( fileContents, outDependencies );
+        }
+        else
+        {
+            return false;
         }
 
-        bool ResourceServer::IsCompileableResourceType( ResourceTypeID ID ) const
+        //-------------------------------------------------------------------------
+
+        for ( auto const& dep : outDependencies )
         {
-            return ( ID.IsValid() && HasCompilerForType( ID ) );
+            if ( !dep.IsValid() )
+            {
+                return false;
+            }
         }
+
+        return true;
+    }
+
+    bool ResourceServer::IsResourceUpToDate( ResourceID const& resourceID ) const
+    {
+        // Check that the target file exists
+        //-------------------------------------------------------------------------
+
+        if ( !FileSystem::FileExists( DataPath::ToFileSystemPath( m_pSettings->m_compiledDataPath, resourceID.GetDataPath() ) ) )
+        {
+            return false;
+        }
+
+        // Check compile dependencies
+        //-------------------------------------------------------------------------
+
+        int32 const compilerVersion = m_compilerRegistry.GetVersionForType( resourceID.GetResourceTypeID() );
+        KRG_ASSERT( compilerVersion >= 0 );
+
+        FileSystem::Path const sourceFilePath = DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, resourceID.GetDataPath() );
+        if ( !sourceFilePath.ExistsAndIsFile() )
+        {
+            return false;
+        }
+
+        uint64 const fileTimestamp = FileSystem::GetFileModifiedTime( sourceFilePath );
+        uint64 sourceTimestampHash = 0;
+
+        TVector<DataPath> compileDependencies;
+        if ( !TryReadCompileDependencies( sourceFilePath, compileDependencies ) )
+        {
+            return false;
+        }
+
+        for ( auto const& compileDep : compileDependencies )
+        {
+            sourceTimestampHash += FileSystem::GetFileModifiedTime( DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, compileDep ) );
+
+            ResourceTypeID const extension( compileDep.GetExtension() );
+            if ( IsCompileableResourceType( extension ) && IsResourceUpToDate( ResourceID( compileDep ) ) )
+            {
+                return false;
+            }
+        }
+
+        // Check source file for changes
+        //-------------------------------------------------------------------------
+
+        // Check against previous compilation result
+        auto existingRecord = m_compiledResourceDatabase.GetRecord( resourceID );
+        if ( existingRecord.IsValid() )
+        {
+            if ( compilerVersion != existingRecord.m_compilerVersion )
+            {
+                return false;
+            }
+
+            if ( fileTimestamp != existingRecord.m_fileTimestamp )
+            {
+                return false;
+            }
+
+            if ( sourceTimestampHash != existingRecord.m_sourceTimestampHash )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    void ResourceServer::WriteCompiledResourceRecord( CompilationRequest* pRequest )
+    {
+        CompiledResourceRecord record;
+        record.m_resourceID = pRequest->m_resourceID;
+        record.m_compilerVersion = pRequest->m_compilerVersion;
+        record.m_fileTimestamp = pRequest->m_fileTimestamp;
+        record.m_sourceTimestampHash = pRequest->m_sourceTimestampHash;
+        m_compiledResourceDatabase.WriteRecord( record );
+    }
+
+    bool ResourceServer::IsCompileableResourceType( ResourceTypeID ID ) const
+    {
+        return ( ID.IsValid() && m_compilerRegistry.HasCompilerForType( ID ) );
     }
 }

@@ -590,6 +590,12 @@ namespace KRG
         inline bool operator>=( Radians const& rhs ) const;
         inline bool operator<=( Radians const& rhs ) const;
 
+        inline bool operator==( Degrees const& rhs ) const  { return m_value == rhs.m_value; }
+        inline bool operator!=( Degrees const& rhs ) const  { return m_value != rhs.m_value; }
+
+        inline bool operator==( Radians const& rhs ) const;
+        inline bool operator!=( Radians const& rhs ) const;
+
         //-------------------------------------------------------------------------
 
         // Clamps between -360 and 360
@@ -732,6 +738,12 @@ namespace KRG
         inline bool operator>=( Degrees const& rhs ) const;
         inline bool operator<=( Degrees const& rhs ) const;
 
+        inline bool operator==( Radians const& rhs ) const { return m_value == rhs.m_value; }
+        inline bool operator!=( Radians const& rhs ) const { return m_value != rhs.m_value; }
+
+        inline bool operator==( Degrees const& rhs ) const;
+        inline bool operator!=( Degrees const& rhs ) const;
+
         //-------------------------------------------------------------------------
 
         // Clamps between -2Pi to 2Pi
@@ -845,6 +857,9 @@ namespace KRG
     inline bool Degrees::operator>=( Radians const& rhs ) const { return m_value >= rhs.ToDegrees().m_value; }
     inline bool Degrees::operator<=( Radians const& rhs ) const { return m_value <= rhs.ToDegrees().m_value; }
 
+    inline bool Degrees::operator==( Radians const& rhs ) const { return Math::IsNearEqual( m_value, rhs.ToDegrees().m_value ); }
+    inline bool Degrees::operator!=( Radians const& rhs ) const { return !Math::IsNearEqual( m_value, rhs.ToDegrees().m_value ); }
+
     //-------------------------------------------------------------------------
 
     inline Radians::Radians( Degrees const& degrees )
@@ -855,6 +870,9 @@ namespace KRG
     inline bool Radians::operator<( Degrees const& rhs ) const { return m_value < rhs.ToRadians().m_value; }
     inline bool Radians::operator>=( Degrees const& rhs ) const { return m_value >= rhs.ToRadians().m_value; }
     inline bool Radians::operator<=( Degrees const& rhs ) const { return m_value <= rhs.ToRadians().m_value; }
+
+    inline bool Radians::operator==( Degrees const& rhs ) const { return Math::IsNearEqual( m_value, rhs.ToRadians().m_value ); }
+    inline bool Radians::operator!=( Degrees const& rhs ) const { return !Math::IsNearEqual( m_value, rhs.ToRadians().m_value ); }
 
     //-------------------------------------------------------------------------
     // Euler Angles - Order of rotation in KRG is XYZ

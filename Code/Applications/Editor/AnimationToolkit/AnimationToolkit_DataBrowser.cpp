@@ -1,12 +1,11 @@
 #include "AnimationToolkit_DataBrowser.h"
 #include "FileTypes/SkeletonResourceFile.h"
 #include "FileTypes/AnimationResourceFile.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelReader.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelWriter.h"
-#include "Tools/Core/FileSystem/FileSystemHelpers.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
-#include "Compilers/Animation/Animation/AnimationCompiler.h"
-#include "Compilers/Animation/Skeleton/AnimSkeletonCompiler.h"
+#include "Tools/Animation/ResourceCompilers/AnimationCompiler.h"
+#include "Tools/Animation/ResourceCompilers/SkeletonCompiler.h"
+#include "Tools/Core/FileSystem/FileSystemHelpers.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 #include "Engine/Animation/AnimationClip.h"
 #include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
@@ -30,7 +29,7 @@ namespace KRG::Animation::AnimationTools
         int32 const selectedTypeIdx = GetSelectedTypeIndex();
         KRG_ASSERT( selectedTypeIdx < m_decriptorTypes.size() );
 
-        TypeSystem::NativeTypeWriter typeWriter( m_pModel->GetTypeRegistry() );
+        TypeSystem::Serialization::TypeWriter typeWriter( m_pModel->GetTypeRegistry() );
         if ( selectedTypeIdx == 0 )
         {
             SkeletonResourceDescriptor desc;
@@ -310,10 +309,10 @@ namespace KRG::Animation::AnimationTools
     {
         KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() );
 
-        TypeSystem::TypeInstanceModelReader typeReader( *context.GetSystem<TypeSystem::TypeRegistry>() );
+        TypeSystem::Serialization::TypeReader typeReader( *context.GetSystem<TypeSystem::TypeRegistry>() );
         if ( typeReader.ReadFromFile( m_inspectedFile ) )
         {
-            return typeReader.DeserializeType( m_typeInstance );
+            return typeReader.ReadType( m_typeInstance );
         }
 
         return false;
@@ -323,8 +322,8 @@ namespace KRG::Animation::AnimationTools
     {
         KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() && m_typeInstance.IsValid() );
 
-        TypeSystem::TypeInstanceModelWriter typeWriter( *context.GetSystem<TypeSystem::TypeRegistry>() );
-        typeWriter.SerializeType( m_typeInstance );
+        TypeSystem::Serialization::TypeWriter typeWriter( *context.GetSystem<TypeSystem::TypeRegistry>() );
+        typeWriter << m_typeInstance;
         return typeWriter.WriteToFile( m_inspectedFile );
     }
 

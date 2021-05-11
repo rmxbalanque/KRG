@@ -514,40 +514,40 @@ namespace KRG::Debug
 
     //-------------------------------------------------------------------------
 
-    void DebugTools::DrawSettingUI( Setting* pSettingBase )
+    void DebugTools::DrawSettingUI( DebugSetting* pDebugSetting )
     {
-        KRG_ASSERT( pSettingBase != nullptr );
+        KRG_ASSERT( pDebugSetting != nullptr );
 
         //-------------------------------------------------------------------------
 
-        switch ( pSettingBase->GetType() )
+        switch ( pDebugSetting->GetType() )
         {
-            case Setting::Type::Bool:
+            case DebugSetting::Type::Bool:
             {
-                auto pSetting = static_cast<DebugSettingBool*>( pSettingBase );
+                auto pSetting = static_cast<DebugSettingBool*>( pDebugSetting );
                 bool value = *pSetting;
-                if ( ImGui::Checkbox( pSettingBase->GetName(), &value ) )
+                if ( ImGui::Checkbox( pDebugSetting->GetName(), &value ) )
                 {
                     *pSetting = value;
                 }
             }
             break;
 
-            case Setting::Type::Int:
+            case DebugSetting::Type::Int:
             {
-                auto pSetting = static_cast<DebugSettingInt*>( pSettingBase );
+                auto pSetting = static_cast<DebugSettingInt*>( pDebugSetting );
                 int32 value = *pSetting;
 
                 if ( pSetting->HasLimits() )
                 {
-                    if ( ImGui::SliderInt( pSettingBase->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
+                    if ( ImGui::SliderInt( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
                     {
                         *pSetting = value;
                     }
                 }
                 else
                 {
-                    if ( ImGui::InputInt( pSettingBase->GetName(), &value ) )
+                    if ( ImGui::InputInt( pDebugSetting->GetName(), &value ) )
                     {
                         *pSetting = value;
                     }
@@ -555,21 +555,21 @@ namespace KRG::Debug
             }
             break;
 
-            case Setting::Type::Float:
+            case DebugSetting::Type::Float:
             {
-                auto pSetting = static_cast<DebugSettingFloat*>( pSettingBase );
+                auto pSetting = static_cast<DebugSettingFloat*>( pDebugSetting );
                 float value = *pSetting;
 
                 if ( pSetting->HasLimits() )
                 {
-                    if ( ImGui::SliderFloat( pSettingBase->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
+                    if ( ImGui::SliderFloat( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
                     {
                         *pSetting = value;
                     }
                 }
                 else
                 {
-                    if ( ImGui::InputFloat( pSettingBase->GetName(), &value, 0.1f, 1.0f ) )
+                    if ( ImGui::InputFloat( pDebugSetting->GetName(), &value, 0.1f, 1.0f ) )
                     {
                         *pSetting = value;
                     }

@@ -24,16 +24,10 @@
     <ClCompile Include="ResourceCompiler.cpp">
       <Filter>ResourceCompiler</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceCompilerManager.cpp">
-      <Filter>ResourceCompiler</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\Resource.h">
       <Filter>ResourceCompiler\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceCompilerManager.h">
-      <Filter>ResourceCompiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

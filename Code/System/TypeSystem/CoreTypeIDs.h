@@ -26,6 +26,7 @@ namespace KRG::TypeSystem
         Double,
         UUID,
         StringID,
+        TypeID,
         String,
         Color,
         Float2,
@@ -129,6 +130,7 @@ namespace KRG::TypeSystem
     template<> inline bool IsCoreType<double>() { return true; }
     template<> inline bool IsCoreType<UUID>() { return true; }
     template<> inline bool IsCoreType<StringID>() { return true; }
+    template<> inline bool IsCoreType<TypeID>() { return true; }
     template<> inline bool IsCoreType<String>() { return true; }
     template<> inline bool IsCoreType<Color>() { return true; }
     template<> inline bool IsCoreType<Float2>() { return true; }
@@ -172,6 +174,7 @@ namespace KRG::TypeSystem
     template<> inline TypeID GetCoreTypeID<double>() { return GetCoreTypeID( CoreTypes::Double ); }
     template<> inline TypeID GetCoreTypeID<UUID>() { return GetCoreTypeID( CoreTypes::UUID ); }
     template<> inline TypeID GetCoreTypeID<StringID>() { return GetCoreTypeID( CoreTypes::StringID ); }
+    template<> inline TypeID GetCoreTypeID<TypeID>() { return GetCoreTypeID( CoreTypes::TypeID ); }
     template<> inline TypeID GetCoreTypeID<String>() { return GetCoreTypeID( CoreTypes::String ); }
     template<> inline TypeID GetCoreTypeID<Color>() { return GetCoreTypeID( CoreTypes::Color ); }
     template<> inline TypeID GetCoreTypeID<Float2>() { return GetCoreTypeID( CoreTypes::Float2 ); }

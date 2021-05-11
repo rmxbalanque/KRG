@@ -1,6 +1,5 @@
 #include "EntityCollectionModelReader.h"
-#include "Tools/Core/Thirdparty/KRG_RapidJson.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeSerializationCommon.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
 #include "System/Entity/Entity.h"
 #include "System/Entity/Collections/EntityCollectionDescriptor.h"
 #include "System/TypeSystem/CoreTypeConversions.h"
@@ -68,15 +67,15 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                auto const resolvedPropertyInfo = ctx.m_typeRegistry.ResolvePropertyPath( pTypeInfo, outPropertyDesc.m_path );
-                if ( !resolvedPropertyInfo.IsValid() )
+                auto const pPropertyInfo = ctx.m_typeRegistry.ResolvePropertyPath( pTypeInfo, outPropertyDesc.m_path );
+                if ( pPropertyInfo == nullptr )
                 {
                     return false;
                 }
 
-                if ( TypeSystem::IsCoreType( resolvedPropertyInfo.m_pPropertyInfo->m_typeID ) || resolvedPropertyInfo.m_pPropertyInfo->IsEnumProperty() || resolvedPropertyInfo.m_pPropertyInfo->IsBitFlagsProperty() )
+                if ( TypeSystem::IsCoreType( pPropertyInfo->m_typeID ) || pPropertyInfo->IsEnumProperty() || pPropertyInfo->IsBitFlagsProperty() )
                 {
-                    TypeSystem::Conversion::ConvertStringToBinary( ctx.m_typeRegistry, *resolvedPropertyInfo.m_pPropertyInfo, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue );
+                    TypeSystem::Conversion::ConvertStringToBinary( ctx.m_typeRegistry, *pPropertyInfo, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue );
                 }
 
                 return true;
@@ -87,36 +86,41 @@ namespace KRG
                 // Read name and ID
                 //-------------------------------------------------------------------------
 
-                if ( !( componentObject.HasMember( "ID" ) && componentObject["ID"].IsString() && UUID::IsValidUUIDString( componentObject["ID"].GetString() ) ) )
+                auto IDIter = componentObject.FindMember( "ID" );
+                if ( IDIter == componentObject.MemberEnd() || !IDIter->value.IsString() || !UUID::IsValidUUIDString( IDIter->value.GetString() ) )
                 {
                     return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
                 }
 
-                outComponentDesc.m_ID = UUID( componentObject["ID"].GetString() );
+                outComponentDesc.m_ID = UUID( IDIter->value.GetString() );
 
-                if ( !( componentObject.HasMember( "Name" ) && componentObject["Name"].IsString() && strlen( componentObject["Name"].GetString() ) > 0 ) )
+                auto nameIter = componentObject.FindMember( "Name" );
+                if ( nameIter == componentObject.MemberEnd() || !nameIter->value.IsString() || nameIter->value.GetStringLength() == 0 )
                 {
                     return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
                 }
 
-                outComponentDesc.m_name = StringID( componentObject["Name"].GetString() );
+                outComponentDesc.m_name = StringID( nameIter->value.GetString() );
 
                 // Validate type ID
                 //-------------------------------------------------------------------------
 
-                if ( !( componentObject.HasMember( "TypeData" ) && componentObject["TypeData"].IsObject() ) )
+                auto typeDataIter = componentObject.FindMember( "TypeData" );
+                if ( typeDataIter == componentObject.MemberEnd() || !typeDataIter->value.IsObject() )
                 {
-                    return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
+                    return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and Type Data values set", ctx.m_parsingContextID.ToString().c_str() );
                 }
 
-                rapidjson::Value const& componentTypeDataObject = componentObject["TypeData"];
-                if ( !componentTypeDataObject.HasMember( Serialization::TypeSerialization::Key_TypeID ) )
+                rapidjson::Value const& componentTypeDataObject = typeDataIter->value;
+
+                auto typeIDIter = componentTypeDataObject.FindMember( TypeSystem::Serialization::Constants::s_typeID );
+                if ( typeIDIter == componentTypeDataObject.MemberEnd() || !typeIDIter->value.IsString() )
                 {
-                    Error( "Invalid type data found for component: '%s' on entity %s!", componentObject["Name"].GetString(), ctx.m_parsingContextID.ToString().c_str() );
+                    Error( "Invalid type data found for component: '%s' on entity %s!", nameIter->value.GetString(), ctx.m_parsingContextID.ToString().c_str() );
                     return false;
                 }
 
-                outComponentDesc.m_typeID = StringID( componentTypeDataObject[Serialization::TypeSerialization::Key_TypeID].GetString() );
+                outComponentDesc.m_typeID = StringID( typeIDIter->value.GetString() );
 
                 // Spatial component info
                 //-------------------------------------------------------------------------
@@ -131,14 +135,16 @@ namespace KRG
 
                 if ( outComponentDesc.m_isSpatialComponent )
                 {
-                    if ( componentObject.HasMember( "SpatialParent" ) )
+                    auto spatialParentIter = componentObject.FindMember( "SpatialParent" );
+                    if ( spatialParentIter != componentObject.MemberEnd() && spatialParentIter->value.IsString() )
                     {
-                        outComponentDesc.m_spatialParentID = UUID( componentObject["SpatialParent"].GetString() );
+                        outComponentDesc.m_spatialParentID = UUID( spatialParentIter->value.GetString() );
                     }
 
-                    if ( componentObject.HasMember( "AttachmentSocketID" ) )
+                    auto attachmentSocketIter = componentObject.FindMember( "AttachmentSocketID" );
+                    if ( attachmentSocketIter != componentObject.MemberEnd() && attachmentSocketIter->value.IsString() )
                     {
-                        outComponentDesc.m_attachmentSocketID = StringID( componentObject["AttachmentSocketID"].GetString() );
+                        outComponentDesc.m_attachmentSocketID = StringID( attachmentSocketIter->value.GetString() );
                     }
                 }
 
@@ -146,27 +152,27 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 // Reserve memory for all property (+1 extra slot) and create an empty desc
-                outComponentDesc.m_propertyValues.reserve( componentTypeDataObject.Size() );
-                outComponentDesc.m_propertyValues.push_back( TypeSystem::PropertyDescriptor() );
+                outComponentDesc.m_properties.reserve( componentTypeDataObject.Size() );
+                outComponentDesc.m_properties.push_back( TypeSystem::PropertyDescriptor() );
 
                 // Read all properties
                 for ( auto itr = componentTypeDataObject.MemberBegin(); itr != componentTypeDataObject.MemberEnd(); ++itr )
                 {
                     // Skip Type ID
-                    if ( strcmp( itr->name.GetString(), Serialization::TypeSerialization::Key_TypeID ) == 0 )
+                    if ( strcmp( itr->name.GetString(), TypeSystem::Serialization::Constants::s_typeID ) == 0 )
                     {
                         continue;
                     }
 
                     // If we successfully read the property value add a new property value
-                    if ( ReadAndConvertPropertyValue( ctx, pTypeInfo, itr, outComponentDesc.m_propertyValues.back() ) )
+                    if ( ReadAndConvertPropertyValue( ctx, pTypeInfo, itr, outComponentDesc.m_properties.back() ) )
                     {
-                        outComponentDesc.m_propertyValues.push_back( TypeSystem::PropertyDescriptor() );
+                        outComponentDesc.m_properties.push_back( TypeSystem::PropertyDescriptor() );
                     }
                 }
 
                 // Remove last entry as it will always be empty
-                outComponentDesc.m_propertyValues.pop_back();
+                outComponentDesc.m_properties.pop_back();
 
                 //-------------------------------------------------------------------------
 
@@ -186,12 +192,18 @@ namespace KRG
 
             static bool ReadSystemData( ParsingContext& ctx, rapidjson::Value const& systemObject, EntitySystemDescriptor& outSystemDesc )
             {
-                if ( !systemObject.HasMember( Serialization::TypeSerialization::Key_TypeID ) || !systemObject[Serialization::TypeSerialization::Key_TypeID].IsString() || strlen( systemObject[Serialization::TypeSerialization::Key_TypeID].GetString() ) == 0 )
+                auto typeIDIter = systemObject.FindMember( TypeSystem::Serialization::Constants::s_typeID );
+                if ( typeIDIter == systemObject.MemberEnd() || !typeIDIter->value.IsString() )
                 {
                     return Error( "Invalid entity system format (systems must have a TypeID string value set) on entity %s", ctx.m_parsingContextID.ToString().c_str() );
                 }
 
-                outSystemDesc.m_typeID = StringID( systemObject[Serialization::TypeSerialization::Key_TypeID].GetString() );
+                if ( typeIDIter->value.GetStringLength() == 0 )
+                {
+                    return Error( "Invalid entity system format (systems must have a TypeID string value set) on entity %s", ctx.m_parsingContextID.ToString().c_str() );
+                }
+
+                outSystemDesc.m_typeID = StringID( typeIDIter->value.GetString() );
                 return true;
             }
 
@@ -199,27 +211,38 @@ namespace KRG
 
             static bool ReadEntityData( ParsingContext& ctx, rapidjson::Value const& entityObject, EntityDescriptor& outEntityDesc )
             {
-                bool const validID = entityObject.HasMember( "ID" ) && entityObject["ID"].IsString() && UUID::IsValidUUIDString( entityObject["ID"].GetString() );
-                bool const validName = entityObject.HasMember( "Name" ) && entityObject["Name"].IsString() && strlen( entityObject["Name"].GetString() ) > 0;
-                if ( !validID || !validName )
-                {
-                    Error( "Invalid entity format: entities must have value ID and Name string values set" );
-                    return false;
-                }
-
+                // Read name and ID
                 //-------------------------------------------------------------------------
 
-                outEntityDesc.m_ID = UUID( entityObject["ID"].GetString() );
-                outEntityDesc.m_name = StringID( entityObject["Name"].GetString() );
-
-                if ( entityObject.HasMember( "SpatialParent" ) )
+                auto IDIter = entityObject.FindMember( "ID" );
+                if ( IDIter == entityObject.MemberEnd() || !IDIter->value.IsString() || !UUID::IsValidUUIDString( IDIter->value.GetString() ) )
                 {
-                    outEntityDesc.m_spatialParentID = UUID( entityObject["SpatialParent"].GetString() );
+                    return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
                 }
 
-                if ( entityObject.HasMember( "AttachmentSocketID" ) )
+                outEntityDesc.m_ID = UUID( IDIter->value.GetString() );
+
+                auto nameIter = entityObject.FindMember( "Name" );
+                if ( nameIter == entityObject.MemberEnd() || !nameIter->value.IsString() || nameIter->value.GetStringLength() == 0 )
                 {
-                    outEntityDesc.m_attachmentSocketID = StringID( entityObject["AttachmentSocketID"].GetString() );
+                    return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
+                }
+
+                outEntityDesc.m_name = StringID( nameIter->value.GetString() );
+
+                // Read spatial info
+                //-------------------------------------------------------------------------
+
+                auto spatialParentIter = entityObject.FindMember( "SpatialParent" );
+                if ( spatialParentIter != entityObject.MemberEnd() && spatialParentIter->value.IsString() )
+                {
+                    outEntityDesc.m_spatialParentID = UUID( spatialParentIter->value.GetString() );
+                }
+
+                auto attachmentSocketIter = entityObject.FindMember( "AttachmentSocketID" );
+                if ( attachmentSocketIter != entityObject.MemberEnd() && attachmentSocketIter->value.IsString() )
+                {
+                    outEntityDesc.m_attachmentSocketID = StringID( attachmentSocketIter->value.GetString() );
                 }
 
                 // Set parsing ctx ID
@@ -231,24 +254,19 @@ namespace KRG
                 // Read components
                 //-------------------------------------------------------------------------
 
-                if ( entityObject.HasMember( "Components" ) )
+                auto componentsArrayIter = entityObject.FindMember( "Components" );
+                if ( componentsArrayIter != entityObject.MemberEnd() && componentsArrayIter->value.IsArray() )
                 {
-                    rapidjson::Value const& componentsArrayValue = entityObject["Components"];
-                    if ( !componentsArrayValue.IsArray() )
-                    {
-                        return Error( "Invalid format: 'Components' value must be an array" );
-                    }
-
                     // Read component data
                     //-------------------------------------------------------------------------
 
-                    int32 const numComponents = (int32) componentsArrayValue.Size();
+                    int32 const numComponents = (int32) componentsArrayIter->value.Size();
                     KRG_ASSERT( outEntityDesc.m_components.empty() && outEntityDesc.m_numSpatialComponents == 0 );
                     outEntityDesc.m_components.resize( numComponents );
 
                     for ( int32 i = 0; i < numComponents; i++ )
                     {
-                        if ( !ReadComponent( ctx, componentsArrayValue[i], outEntityDesc.m_components[i] ) )
+                        if ( !ReadComponent( ctx, componentsArrayIter->value[i], outEntityDesc.m_components[i] ) )
                         {
                             return false;
                         }
@@ -287,22 +305,16 @@ namespace KRG
                 // Read systems
                 //-------------------------------------------------------------------------
 
-                if ( entityObject.HasMember( "Systems" ) )
+                auto systemsArrayIter = entityObject.FindMember( "Systems" );
+                if ( systemsArrayIter != entityObject.MemberEnd() && systemsArrayIter->value.IsArray() )
                 {
                     KRG_ASSERT( outEntityDesc.m_systems.empty() );
 
-                    rapidjson::Value const& systemsArrayValue = entityObject["Systems"];
-                    if ( !systemsArrayValue.IsArray() )
-                    {
-                        Error( "Invalid entity format: systems values must be an array" );
-                        return false;
-                    }
+                    outEntityDesc.m_systems.resize( systemsArrayIter->value.Size() );
 
-                    outEntityDesc.m_systems.resize( systemsArrayValue.Size() );
-
-                    for ( rapidjson::SizeType i = 0; i < systemsArrayValue.Size(); i++ )
+                    for ( rapidjson::SizeType i = 0; i < systemsArrayIter->value.Size(); i++ )
                     {
-                        if ( !ReadSystemData( ctx, systemsArrayValue[i], outEntityDesc.m_systems[i] ) )
+                        if ( !ReadSystemData( ctx, systemsArrayIter->value[i], outEntityDesc.m_systems[i] ) )
                         {
                             return false;
                         }

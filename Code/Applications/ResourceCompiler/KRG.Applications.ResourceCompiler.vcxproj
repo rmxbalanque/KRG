@@ -60,7 +60,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <DelayLoadDLLs>KRG.ResourceCompilers.Animation.dll;KRG.ResourceCompilers.Physics.dll;KRG.ResourceCompilers.Render.dll;KRG.ResourceCompilers.Entity.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -76,16 +77,15 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <DelayLoadDLLs>KRG.ResourceCompilers.Animation.dll;KRG.ResourceCompilers.Physics.dll;KRG.ResourceCompilers.Render.dll;KRG.ResourceCompilers.Entity.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ResourceCompiler.cpp" />
-    <ClCompile Include="ResourceCompilerManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\Resource.h" />
-    <ClInclude Include="ResourceCompilerManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Resource.rc" />
@@ -94,18 +94,6 @@
     <Image Include="Resources\ResourceCompiler.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Compilers\Animation\KRG.ResourceCompilers.Animation.vcxproj">
-      <Project>{b80fc004-f4cc-4959-9653-2e99dbc62d36}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Compilers\Entity\KRG.ResourceCompilers.Entity.vcxproj">
-      <Project>{0a9dcc49-6e2b-4904-a22a-4327da7d7542}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Compilers\Physics\KRG.ResourceCompilers.Physics.vcxproj">
-      <Project>{b19fcb02-fcb5-4e2e-af84-cc9af0fbec55}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Compilers\Render\KRG.ResourceCompilers.Render.vcxproj">
-      <Project>{a15b3800-5260-4f44-a0f5-612deb60b64e}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Engine\Animation\KRG.Engine.Animation.vcxproj">
       <Project>{6e63a255-0e1a-4d43-b225-376b5a6c757e}</Project>
     </ProjectReference>
@@ -127,6 +115,9 @@
     <ProjectReference Include="..\..\Game\Core\KRG.Game.Core.vcxproj">
       <Project>{20c5d09a-3da8-4cea-9269-65dc6e6cd460}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Scripts\Prebuild\KRG.Scripts.Prebuild.vcxproj">
+      <Project>{f3d9d4ba-4d04-402b-b8d8-9a4a9400bfb6}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
     </ProjectReference>
@@ -139,8 +130,20 @@
     <ProjectReference Include="..\..\System\TypeSystem\KRG.System.TypeSystem.vcxproj">
       <Project>{ec1a0a10-5c84-4971-a883-c13e7f76c327}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Animation\KRG.Tools.Animation.vcxproj">
+      <Project>{2e18002f-b3ce-4082-b32e-172ecffccd5a}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Tools\Core\KRG.Tools.Core.vcxproj">
       <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Entity\KRG.Tools.Entity.vcxproj">
+      <Project>{8f3df129-8be4-47b8-a96c-ac58b15ed3ba}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Physics\KRG.Tools.Physics.vcxproj">
+      <Project>{2740c360-55dc-489c-bfd4-e700df47b0b5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Render\KRG.Tools.Render.vcxproj">
+      <Project>{7eaebc2d-f4cb-410d-92c2-bf0481044533}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\Resource\KRG.Tools.Resource.vcxproj">
       <Project>{8c38c3bb-6980-4188-964b-984c11b26819}</Project>

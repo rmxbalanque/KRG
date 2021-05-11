@@ -40,7 +40,7 @@ namespace KRG
         fclose( pFile );
     }
 
-    bool IniFile::TryGetBool( char const* key, bool& outValue )
+    bool IniFile::TryGetBool( char const* key, bool& outValue ) const
     {
         KRG_ASSERT( IsValid() );
 
@@ -53,7 +53,7 @@ namespace KRG
         return false;
     }
 
-    bool IniFile::TryGetInt( char const* key, int32& outValue )
+    bool IniFile::TryGetInt( char const* key, int32& outValue ) const
     {
         KRG_ASSERT( IsValid() );
 
@@ -66,7 +66,7 @@ namespace KRG
         return false;
     }
 
-    bool IniFile::TryGetUInt( char const* key, uint32& outValue )
+    bool IniFile::TryGetUInt( char const* key, uint32& outValue ) const
     {
         KRG_ASSERT( IsValid() );
 
@@ -79,7 +79,7 @@ namespace KRG
         return false;
     }
 
-    bool IniFile::TryGetString( char const* key, String& outValue )
+    bool IniFile::TryGetString( char const* key, String& outValue ) const
     {
         KRG_ASSERT( IsValid() );
 
@@ -92,7 +92,7 @@ namespace KRG
         return false;
     }
 
-    bool IniFile::TryGetFloat( char const* key, float& outValue )
+    bool IniFile::TryGetFloat( char const* key, float& outValue ) const
     {
         KRG_ASSERT( IsValid() );
 

@@ -6,12 +6,12 @@
 #include "System/TypeSystem/TypeRegistry.h"
 
 #include "D:\Kruger\Code\Game\Core\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
 
 namespace KRG
 {
@@ -24,9 +24,9 @@ namespace KRG
             KRG::EngineCore::EngineModule::RegisterTypes( typeRegistry );
             KRG::Render::EngineModule::RegisterTypes( typeRegistry );
             KRG::Animation::EngineModule::RegisterTypes( typeRegistry );
+            KRG::Camera::EngineModule::RegisterTypes( typeRegistry );
             KRG::Navmesh::EngineModule::RegisterTypes( typeRegistry );
             KRG::Physics::EngineModule::RegisterTypes( typeRegistry );
-            KRG::Camera::EngineModule::RegisterTypes( typeRegistry );
             KRG::Game::GameModule::RegisterTypes( typeRegistry );
 
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor"), ResourceTypeID( "MAP" ) );
@@ -48,9 +48,9 @@ namespace KRG
         inline void UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
         {
             KRG::Game::GameModule::UnregisterTypes( typeRegistry );
-            KRG::Camera::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Physics::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Navmesh::EngineModule::UnregisterTypes( typeRegistry );
+            KRG::Camera::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Animation::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Render::EngineModule::UnregisterTypes( typeRegistry );
             KRG::EngineCore::EngineModule::UnregisterTypes( typeRegistry );

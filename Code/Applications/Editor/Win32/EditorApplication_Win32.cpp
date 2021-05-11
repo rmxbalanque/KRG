@@ -4,7 +4,6 @@
 #include "iniparser/krg_ini.h"
 #include "Applications/Shared/cmdParser/krg_cmdparser.h"
 #include "System/Input/InputSystem.h"
-#include "System/Core/Settings/ConfigSettings.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Platform/Platform_Win32.h"
 #include "System/Core/Time/Timers.h"
@@ -19,13 +18,6 @@
 
 namespace KRG
 {
-    namespace Settings
-    {
-        static ConfigSettingString     g_resourceServerExecutablePath( "ResourceServerExecutablePath", "Resource", "" );
-    }
-
-    //-------------------------------------------------------------------------
-
     EditorApplication::EditorApplication( HINSTANCE hInstance )
         : Win32Application( hInstance, "Kruger Editor", IDI_EDITOR_ICON )
         , m_editorHost( TFunction<bool( String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
@@ -121,7 +113,8 @@ namespace KRG
         bool shouldStartResourceServer = false;
 
         // If the resource server is not running then start it
-        auto resourceServerProcessID = Platform::Win32::GetProcessID( Settings::g_resourceServerExecutablePath );
+        String const resourceServerExecutableName = m_editorHost.m_resourceSettings.m_resourceServerExecutablePath.GetFileName();
+        auto resourceServerProcessID = Platform::Win32::GetProcessID( m_editorHost.m_resourceSettings.m_resourceServerExecutablePath );
         shouldStartResourceServer = ( resourceServerProcessID == 0 );
 
         // Ensure we are running the correct build of the resource server
@@ -149,8 +142,7 @@ namespace KRG
         if ( shouldStartResourceServer )
         {
             FileSystem::Path const applicationDirectoryPath = FileSystem::Path( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
-            FileSystem::Path const resourceServerExecutableFullPath = applicationDirectoryPath + Settings::g_resourceServerExecutablePath;
-            return Platform::Win32::StartProcess( resourceServerExecutableFullPath.c_str() ) != 0;
+            return Platform::Win32::StartProcess( m_editorHost.m_resourceSettings.m_resourceServerExecutablePath.c_str() ) != 0;
         }
 
         return true;

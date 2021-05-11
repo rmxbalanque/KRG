@@ -8,6 +8,7 @@ namespace KRG
     class EntityWorld;
     class Entity;
     class UpdateContext;
+    class EditorModel;
 }
 
 namespace KRG::Render { class ViewportManager; }
@@ -81,9 +82,10 @@ namespace KRG
 
     public:
 
-        TResourceFile( FileSystem::Path const& sourceDataDirectory, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID )
+        TResourceFile( EditorModel* pModel, FileSystem::Path const& sourceDataDirectory, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID )
             : m_pResourceSystem( pResourceSystem )
             , m_pResource( resourceID )
+            , m_pModel( pModel )
         {
             KRG_ASSERT( m_pResourceSystem != nullptr && resourceID.IsValid() );
             KRG_ASSERT( resourceID.GetResourceTypeID() == T::GetStaticResourceTypeID() );
@@ -108,6 +110,7 @@ namespace KRG
 
     protected:
 
+        EditorModel*                        m_pModel = nullptr;
         Resource::ResourceSystem*           m_pResourceSystem = nullptr;
         TResourcePtr<T>                     m_pResource;
     };

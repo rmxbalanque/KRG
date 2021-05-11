@@ -24,7 +24,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            static bool WriteComponent( rapidjson::PrettyWriter<Serialization::RapidJsonStringBuffer>& writer, TypeSystem::TypeRegistry const& typeRegistry, EntityComponentDescriptor const& componentDesc )
+            static bool WriteComponent( RapidJsonWriter& writer, TypeSystem::TypeRegistry const& typeRegistry, EntityComponentDescriptor const& componentDesc )
             {
                 writer.StartObject();
 
@@ -54,7 +54,7 @@ namespace KRG
                 writer.Key( "TypeID" );
                 writer.String( componentDesc.m_typeID.GetAsStringID().c_str() );
 
-                for ( auto const& propertyDesc : componentDesc.m_propertyValues )
+                for ( auto const& propertyDesc : componentDesc.m_properties )
                 {
                     writer.Key( propertyDesc.m_path.ToString().c_str() );
                     writer.String( propertyDesc.m_stringValue.c_str() );
@@ -68,7 +68,7 @@ namespace KRG
                 return true;
             }
 
-            static bool WriteSystem( rapidjson::PrettyWriter<Serialization::RapidJsonStringBuffer>& writer, TypeSystem::TypeRegistry const& typeRegistry, EntitySystemDescriptor const& systemDesc )
+            static bool WriteSystem( RapidJsonWriter& writer, TypeSystem::TypeRegistry const& typeRegistry, EntitySystemDescriptor const& systemDesc )
             {
                 writer.StartObject();
                 writer.Key( "TypeID" );
@@ -77,7 +77,7 @@ namespace KRG
                 return true;
             }
 
-            static bool WriteEntity( rapidjson::PrettyWriter<Serialization::RapidJsonStringBuffer>& writer, TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc )
+            static bool WriteEntity( RapidJsonWriter& writer, TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc )
             {
                 writer.StartObject();
 
@@ -136,8 +136,8 @@ namespace KRG
         {
             KRG_ASSERT( outFilePath.IsValid() );
 
-            Serialization::RapidJsonStringBuffer stringBuffer;
-            rapidjson::PrettyWriter<Serialization::RapidJsonStringBuffer> writer( stringBuffer );
+            RapidJsonStringBuffer stringBuffer;
+            RapidJsonWriter writer( stringBuffer );
 
             // Write collection to document
             //-------------------------------------------------------------------------

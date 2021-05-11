@@ -51,6 +51,10 @@
       "Command": "Render",
       "Items": [
         {
+          "Id": "a8324731-2651-43be-a906-57c40f51d767",
+          "Command": "-compile data://packs/br/environment/sm_prop_wirespool_01.msh"
+        },
+        {
           "Id": "3631014b-0e9e-491d-ad5f-5389417f7ce5",
           "Command": "-compile data://packs/br/vehicles/sm_veh_plane_destroyed_01.msh"
         },
@@ -100,6 +104,10 @@
       "Id": "c375fed6-8f52-4aa2-9ce9-12b2e4723ce7",
       "Command": "Animation",
       "Items": [
+        {
+          "Id": "2844e286-615b-4be6-974a-78cb875650fd",
+          "Command": "-compile data://animation/stand_crowd_ambient1.anim"
+        },
         {
           "Id": "d3ae49e4-9c78-429f-87f7-82d1dff90397",
           "Command": "-compile data://animation/stand_crowd_ambient0.anim"

@@ -184,7 +184,6 @@ namespace KRG::Animation
         TVector<TrackCompressionSettings>       m_trackCompressionSettings;
         TVector<Transform>                      m_rootMotionTrack;
         TVector<Event*>                         m_events;
-        void*                                   m_pEventsRawMemory = nullptr;
         SyncTrack                               m_syncTrack;
         bool                                    m_isAdditive = false;
     };

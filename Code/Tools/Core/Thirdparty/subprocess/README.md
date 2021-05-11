@@ -172,7 +172,33 @@ parent process environment then its up to you as the user to query the original
 parent variables you want to pass to the child, and specify them in the spawned
 process' `environment`.
 
+### Spawning a Process With No Window
+
+If the `options` argument of `subprocess_create` contains
+`subprocess_option_no_window` then, if the platform supports it, the process
+will be launched with no visible window.
+
+```c
+const char *command_line[] = {"echo", "\"Hello, world!\"", NULL};
+struct subprocess_s subprocess;
+int result = subprocess_create(command_line, subprocess_option_no_window, &subprocess);
+if (0 != result) {
+  // an error occurred!
+}
+```
+
+This option is _only required_ on Windows platforms at present if the behaviour
+is seeked for.
+
 ## FAQs
+
+### Why does my process not inherit the environment of the parent when `environment` is `NULL`?
+
+`subprocess_create` is subtly different from Windows' `CreateProcessA` in that
+when the `environment` is set to `NULL`, it'll launch the process with an
+empty environment. Users should use the `subprocess_option_inherit_environment`
+option to inherit the parent's environment. This is done to ensure that the
+safest defaults are used for launching processes.
 
 ### Why does my spawned subprocess does not have internet process?
 

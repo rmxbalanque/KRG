@@ -1,18 +1,18 @@
 #include "MeshToolkit_DataBrowser.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelReader.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeInstanceModelWriter.h"
+#include "FileTypes/MeshResourceFiles.h"
 #include "Tools/Core/FileSystem/FileSystemHelpers.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
+#include "Tools/Render/ResourceCompilers/Mesh/StaticMeshCompiler.h"
+#include "Tools/Render/ResourceCompilers/Mesh/SkeletalMeshCompiler.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Logging/Log.h"
-#include "Compilers/Render/Mesh/StaticMeshCompiler.h"
-#include "Compilers/Render/Mesh/SkeletalMeshCompiler.h"
 #include "System/Core/Profiling/Profiling.h"
-#include "FileTypes/MeshResourceFiles.h"
 
 //-------------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ namespace KRG::Render::MeshTools
         int32 const selectedTypeIdx = GetSelectedTypeIndex();
         KRG_ASSERT( selectedTypeIdx < m_decriptorTypes.size() );
 
-        TypeSystem::NativeTypeWriter typeWriter( m_pModel->GetTypeRegistry() );
+        TypeSystem::Serialization::TypeWriter typeWriter( m_pModel->GetTypeRegistry() );
         if ( selectedTypeIdx == 0 )
         {
             StaticMeshResourceDescriptor desc;
@@ -336,10 +336,10 @@ namespace KRG::Render::MeshTools
     {
         KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() );
 
-        TypeSystem::TypeInstanceModelReader typeReader( *context.GetSystem<TypeSystem::TypeRegistry>() );
+        TypeSystem::Serialization::TypeReader typeReader( *context.GetSystem<TypeSystem::TypeRegistry>() );
         if ( typeReader.ReadFromFile( m_inspectedFile ) )
         {
-            return typeReader.DeserializeType( m_typeInstance );
+            return typeReader.ReadType( m_typeInstance );
         }
 
         return false;
@@ -349,8 +349,8 @@ namespace KRG::Render::MeshTools
     {
         KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() && m_typeInstance.IsValid() );
 
-        TypeSystem::TypeInstanceModelWriter typeWriter( *context.GetSystem<TypeSystem::TypeRegistry>() );
-        typeWriter.SerializeType( m_typeInstance );
+        TypeSystem::Serialization::TypeWriter typeWriter( *context.GetSystem<TypeSystem::TypeRegistry>() );
+        typeWriter << m_typeInstance;
         return typeWriter.WriteToFile( m_inspectedFile );
     }
 

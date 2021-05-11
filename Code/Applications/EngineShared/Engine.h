@@ -2,6 +2,9 @@
 
 #include "RenderingSystem.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
+#include "Engine/Physics/PhysicsSettings.h"
+#include "System/Render/RenderSettings.h"
+#include "System/Resource/ResourceSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Core/Update/UpdateContext.h"
 
@@ -32,6 +35,7 @@ namespace KRG
     public:
 
         Engine( TFunction<bool( KRG::String const& error )>&& errorHandler );
+        virtual ~Engine();
 
         bool Initialize( String const& applicationName, Int2 const& windowDimensions );
         bool Shutdown();
@@ -53,7 +57,14 @@ namespace KRG
     protected:
 
         TFunction<bool( KRG::String const& error )>     m_fatalErrorHandler;
+
+        // Settings
+        //-------------------------------------------------------------------------
+
         SettingsRegistry                                m_settingsRegistry;
+        Resource::Settings                              m_resourceSettings;
+        Render::Settings                                m_renderSettings;
+        Physics::Settings                               m_physicsSettings;
 
         // Modules
         //-------------------------------------------------------------------------

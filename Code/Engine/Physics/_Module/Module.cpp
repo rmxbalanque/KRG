@@ -1,19 +1,12 @@
 #include "Module.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
 #include "Engine/Physics/PhysicsMaterialDatabase.h"
-#include "System/Core/Settings/ConfigSettings.h"
+#include "Engine/Physics/PhysicsSettings.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Physics
 {
-    namespace Settings
-    {
-        static ConfigSettingString const g_physicalMaterialDataPath( "PhysicalMaterialDatabasePath", "Physics", "" );
-    }
-
-    //-------------------------------------------------------------------------
-
     bool EngineModule::Initialize( ModuleContext& context )
     {
         m_physicsSystem.Initialize();
@@ -42,15 +35,11 @@ namespace KRG::Physics
 
         //-------------------------------------------------------------------------
 
-        if ( !DataPath::IsValidDataPath( Settings::g_physicalMaterialDataPath ) )
-        {
-            KRG_LOG_ERROR( "Physics", "Invalid physics material database path set: %s", m_pPhysicMaterialDB.GetResourceID().c_str() );
-            return false;
-        }
-        else
-        {
-            m_pPhysicMaterialDB = ResourceID( Settings::g_physicalMaterialDataPath );
-        }
+        auto pSettings = context.GetSettingsRegistry()->GetSettings<Settings>();
+        KRG_ASSERT( pSettings != nullptr );
+        m_pPhysicMaterialDB = ResourceID( pSettings->m_physicalMaterialDataPath );
+
+        //-------------------------------------------------------------------------
 
         return true;
     }

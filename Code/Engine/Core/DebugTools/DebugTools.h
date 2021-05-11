@@ -4,7 +4,7 @@
 #include "DebugView.h"
 #include "System/DevTools/DevelopmentTools.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/Core/Settings/Setting.h"
+#include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Logging/Log.h"
 
@@ -90,7 +90,7 @@ namespace KRG
             void DrawDebugWindows( UpdateContext const& context );
             void DrawOverlayStatusBar( UpdateContext const& context );
 
-            void DrawSettingUI( Setting* pSettingBase );
+            void DrawSettingUI( DebugSetting* pDebugSetting );
 
         protected:
 

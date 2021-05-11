@@ -23,7 +23,7 @@ namespace KRG
         {
             for ( auto pSystem : m_registeredSystems )
             {
-                if ( pSystem->GetSystemID() == T::SystemID )
+                if ( pSystem->GetSystemID() == T::s_systemID )
                 {
                     return static_cast<T*>( pSystem );
                 }

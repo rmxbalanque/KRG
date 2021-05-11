@@ -5,6 +5,7 @@
 #include "ResourceServerUI.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
 #include "System/Render/Renderers/RendererRegistry.h"
+#include "System/Resource/ResourceSettings.h"
 #include "System/DevTools/System/ImguiSystem.h"
 #include "System/DevTools/Renderer/ImguiRenderer.h"
 #include "System/Core/Types/String.h"
@@ -67,6 +68,7 @@ namespace KRG
         ImGuiX::ImguiRenderer                   m_imguiRenderer;
         Math::Viewport                          m_viewport;
 
+        Resource::Settings                      m_settings;
         Resource::ResourceServer                m_resourceServer;
         Resource::ResourceServerUI              m_resourceServerUI;
     };

@@ -1,14 +1,8 @@
-#ifdef _WIN32
-
-//-------------------------------------------------------------------------
-// Compilers are only run on windows machines
-//-------------------------------------------------------------------------
-
 #pragma once
 
 #include "../_Module/API.h"
 #include "ResourceDescriptor.h"
-#include "Tools/Core/TypeSystem/Serialization/NativeTypeReader.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 #include "System/Resource/ResourceHeader.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Logging/Log.h"
@@ -20,9 +14,9 @@ namespace KRG::Resource
 {
     enum class CompilationResult
     {
-        Success,
-        SuccessWithWarnings,
-        Failure,
+        Failure = -1,
+        Success = 0,
+        SuccessWithWarnings = 1,
     };
 
     //-------------------------------------------------------------------------
@@ -54,14 +48,14 @@ namespace KRG::Resource
             static_assert( std::is_base_of<ResourceDescriptor, T>::value, "T must be a child of ResourceDescriptor" );
             KRG_ASSERT( IsValid() );
 
-            TypeSystem::NativeTypeReader nativeTypeReader( m_typeRegistry );
-            if ( !nativeTypeReader.ReadFromFile( descriptorPath ) )
+            TypeSystem::Serialization::TypeReader typeReader( m_typeRegistry );
+            if ( !typeReader.ReadFromFile( descriptorPath ) )
             {
                 KRG_LOG_ERROR( "ResourceCompiler", "Failed to read resource descriptor file: %s", descriptorPath.c_str() );
                 return false;
             }
 
-            nativeTypeReader >> outData;
+            typeReader >> outData;
             return true;
         }
 
@@ -71,40 +65,16 @@ namespace KRG::Resource
             return TryReadResourceDescriptorFromFile( m_inputFilePath, outData );
         }
 
-        // This function will read a resource descriptor as well as any additionally authored data in the file
-        template<typename T>
-        inline bool TryReadResourceDescriptorFromFile( FileSystem::Path const& descriptorPath, T& outData, TFunction<bool( TypeSystem::NativeTypeReader& )>& readExtraDataFunction ) const
-        {
-            static_assert( std::is_base_of<ResourceDescriptor, T>::value, "T must be a child of ResourceDescriptor" );
-            KRG_ASSERT( IsValid() );
-
-            TypeSystem::NativeTypeReader nativeTypeReader( m_typeRegistry );
-            if ( !nativeTypeReader.ReadFromFile( descriptorPath ) )
-            {
-                KRG_LOG_ERROR( "ResourceCompiler", "Failed to read resource descriptor file: %s", descriptorPath.c_str() );
-                return false;
-            }
-
-            nativeTypeReader >> outData;
-            return readExtraDataFunction( nativeTypeReader );
-        }
-
-        template<typename T>
-        inline bool TryReadResourceDescriptor( T& outData, TFunction<bool( TypeSystem::NativeTypeReader& )>& readExtraDataFunction ) const
-        {
-            return TryReadResourceDescriptorFromFile( m_inputFilePath, outData, readExtraDataFunction );
-        }
-
     public:
 
         TypeSystem::TypeRegistry const&                 m_typeRegistry;
         Platform::Target const                          m_platform = Platform::Target::PC;
-        FileSystem::Path const                            m_sourceDataPath;
-        FileSystem::Path const                            m_compiledDataPath;
+        FileSystem::Path const                          m_sourceDataPath;
+        FileSystem::Path const                          m_compiledDataPath;
 
         ResourceID const                                m_resourceID;
-        FileSystem::Path const                            m_inputFilePath;
-        FileSystem::Path const                            m_outputFilePath;
+        FileSystem::Path const                          m_inputFilePath;
+        FileSystem::Path const                          m_outputFilePath;
     };
 
     //-------------------------------------------------------------------------
@@ -141,11 +111,9 @@ namespace KRG::Resource
 
     protected:
 
-        int32                         m_version;
-        String                      m_name;
-        TVector<ResourceTypeID>     m_outputTypes;
-        TVector<ResourceTypeID>     m_virtualTypes;
+        int32                                           m_version;
+        String                                          m_name;
+        TVector<ResourceTypeID>                         m_outputTypes;
+        TVector<ResourceTypeID>                         m_virtualTypes;
     };
 }
-
-#endif

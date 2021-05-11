@@ -66,6 +66,7 @@
   <ItemGroup>
     <ClInclude Include="Components\PhysicsMeshComponent.h" />
     <ClInclude Include="Debug\PhysicsDebugViewController.h" />
+    <ClInclude Include="PhysicsSettings.h" />
     <ClInclude Include="PhysicsMaterial.h" />
     <ClInclude Include="PhysicsSimulationFilter.h" />
     <ClInclude Include="Debug\PhysxDebugRenderer.h" />
@@ -89,6 +90,7 @@
   <ItemGroup>
     <ClCompile Include="Components\PhysicsMeshComponent.cpp" />
     <ClCompile Include="Debug\PhysicsDebugViewController.cpp" />
+    <ClCompile Include="PhysicsSettings.cpp" />
     <ClCompile Include="PhysicsMaterial.cpp" />
     <ClCompile Include="PhysicsSimulationFilter.cpp" />
     <ClCompile Include="Debug\PhysxDebugRenderer.cpp" />

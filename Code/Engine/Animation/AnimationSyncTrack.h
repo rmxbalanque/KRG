@@ -100,13 +100,15 @@ namespace KRG::Animation
 
             EventMarker() = default;
 
-            EventMarker( StringID ID, Percentage const startTime )
-                : m_ID( ID )
-                , m_startTime( startTime )
+            EventMarker( Percentage const startTime, StringID ID )
+                : m_startTime( startTime )
+                , m_ID( ID )
             {}
 
-            StringID                        m_ID;
+            inline bool operator< ( EventMarker const& rhs ) const { return m_startTime < rhs.m_startTime; }
+
             Percentage                      m_startTime = 0.0f;
+            StringID                        m_ID;
         };
 
     private:

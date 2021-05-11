@@ -5,18 +5,18 @@
 #include "System/Entity/EntityTypeHelpers.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
-#include "D:\Kruger\Code\Game\Core\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Render\_Module\Module.h"
+#include "D:\Kruger\Code\Tools\Render\_Module\Module.h"
+#include "D:\Kruger\Code\Tools\Entity\_Module\Module.h"
+#include "D:\Kruger\Code\Tools\Physics\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
-#include "D:\Kruger\Code\Tools\Resource\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Animation\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Physics\_Module\Module.h"
-#include "D:\Kruger\Code\Compilers\Entity\_Module\Module.h"
+#include "D:\Kruger\Code\Game\Core\_Module\Module.h"
+#include "D:\Kruger\Code\Tools\Resource\_Module\Module.h"
+#include "D:\Kruger\Code\Tools\Animation\_Module\Module.h"
 
 namespace KRG
 {
@@ -29,15 +29,15 @@ namespace KRG
             KRG::EngineCore::EngineModule::RegisterTypes( typeRegistry );
             KRG::Render::EngineModule::RegisterTypes( typeRegistry );
             KRG::Animation::EngineModule::RegisterTypes( typeRegistry );
-            KRG::Resource::ToolsModule::RegisterTypes( typeRegistry );
-            KRG::Animation::ResourceCompilerModule::RegisterTypes( typeRegistry );
+            KRG::Camera::EngineModule::RegisterTypes( typeRegistry );
             KRG::Navmesh::EngineModule::RegisterTypes( typeRegistry );
             KRG::Physics::EngineModule::RegisterTypes( typeRegistry );
-            KRG::Physics::ResourceCompilerModule::RegisterTypes( typeRegistry );
-            KRG::EntityModel::ResourceCompilerModule::RegisterTypes( typeRegistry );
-            KRG::Render::ResourceCompilerModule::RegisterTypes( typeRegistry );
-            KRG::Camera::EngineModule::RegisterTypes( typeRegistry );
             KRG::Game::GameModule::RegisterTypes( typeRegistry );
+            KRG::Resource::ToolsModule::RegisterTypes( typeRegistry );
+            KRG::Animation::ToolsModule::RegisterTypes( typeRegistry );
+            KRG::Physics::ToolsModule::RegisterTypes( typeRegistry );
+            KRG::EntityModel::ToolsModule::RegisterTypes( typeRegistry );
+            KRG::Render::ToolsModule::RegisterTypes( typeRegistry );
 
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor"), ResourceTypeID( "MAP" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::Shader"), ResourceTypeID( "SHDR" ) );
@@ -57,15 +57,15 @@ namespace KRG
 
         inline void UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
         {
+            KRG::Render::ToolsModule::UnregisterTypes( typeRegistry );
+            KRG::EntityModel::ToolsModule::UnregisterTypes( typeRegistry );
+            KRG::Physics::ToolsModule::UnregisterTypes( typeRegistry );
+            KRG::Animation::ToolsModule::UnregisterTypes( typeRegistry );
+            KRG::Resource::ToolsModule::UnregisterTypes( typeRegistry );
             KRG::Game::GameModule::UnregisterTypes( typeRegistry );
-            KRG::Camera::EngineModule::UnregisterTypes( typeRegistry );
-            KRG::Render::ResourceCompilerModule::UnregisterTypes( typeRegistry );
-            KRG::EntityModel::ResourceCompilerModule::UnregisterTypes( typeRegistry );
-            KRG::Physics::ResourceCompilerModule::UnregisterTypes( typeRegistry );
             KRG::Physics::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Navmesh::EngineModule::UnregisterTypes( typeRegistry );
-            KRG::Animation::ResourceCompilerModule::UnregisterTypes( typeRegistry );
-            KRG::Resource::ToolsModule::UnregisterTypes( typeRegistry );
+            KRG::Camera::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Animation::EngineModule::UnregisterTypes( typeRegistry );
             KRG::Render::EngineModule::UnregisterTypes( typeRegistry );
             KRG::EngineCore::EngineModule::UnregisterTypes( typeRegistry );

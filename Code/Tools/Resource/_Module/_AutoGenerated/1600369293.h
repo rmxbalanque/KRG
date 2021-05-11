@@ -120,12 +120,27 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Resource::ResourceDescriptor*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Resource::ResourceDescriptor const*>( pTypeInstance );
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
                 }
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
@@ -134,6 +149,12 @@ namespace KRG
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
+                }
+
+                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Resource::ResourceDescriptor const*>( GetDefaultTypeInstancePtr() );
+                    return false;
                 }
 
             };

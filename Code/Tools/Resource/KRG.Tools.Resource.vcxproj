@@ -12,8 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Compilers\ResourceCompiler.h" />
+    <ClInclude Include="Compilers\ResourceCompilerRegistry.h" />
     <ClInclude Include="Compilers\ResourceDescriptor.h" />
-    <ClInclude Include="Compilers\ResourceCompilerModule.h" />
     <ClInclude Include="RawAssets\Fbx\FbxAnimation.h" />
     <ClInclude Include="RawAssets\Fbx\FbxInfo.h" />
     <ClInclude Include="RawAssets\Fbx\FbxMesh.h" />
@@ -35,8 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Compilers\ResourceCompiler.cpp" />
+    <ClCompile Include="Compilers\ResourceCompilerRegistry.cpp" />
     <ClCompile Include="Compilers\ResourceDescriptor.cpp" />
-    <ClCompile Include="Compilers\ResourceCompilerModule.cpp" />
     <ClCompile Include="RawAssets\Fbx\FbxAnimation.cpp" />
     <ClCompile Include="RawAssets\Fbx\FbxInfo.cpp" />
     <ClCompile Include="RawAssets\Fbx\FbxMesh.cpp" />

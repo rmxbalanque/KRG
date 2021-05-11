@@ -210,12 +210,27 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsSphereComponent*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsSphereComponent const*>( pTypeInstance );
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
                 }
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
@@ -224,6 +239,42 @@ namespace KRG
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
+                }
+
+                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Physics::PhysicsSphereComponent const*>( GetDefaultTypeInstancePtr() );
+                    if ( propertyID == 403392667 )
+                    {
+                        return *reinterpret_cast<KRG::Physics::ActorType const*>( pValueInstance ) == pDefaultType->m_actorType;
+                    }
+
+                    if ( propertyID == 1456246424 )
+                    {
+                        return *reinterpret_cast<KRG::TBitFlags<KRG::Physics::Layers> const*>( pValueInstance ) == pDefaultType->m_layers;
+                    }
+
+                    if ( propertyID == 2436416701 )
+                    {
+                        return *reinterpret_cast<KRG::Transform const*>( pValueInstance ) == pDefaultType->m_transform;
+                    }
+
+                    if ( propertyID == 3877779688 )
+                    {
+                        return *reinterpret_cast<KRG::Physics::ShapeType const*>( pValueInstance ) == pDefaultType->m_shapeType;
+                    }
+
+                    if ( propertyID == 1626624371 )
+                    {
+                        return *reinterpret_cast<KRG::StringID const*>( pValueInstance ) == pDefaultType->m_physicsMaterialID;
+                    }
+
+                    if ( propertyID == 3693263099 )
+                    {
+                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_radius;
+                    }
+
+                    return false;
                 }
 
             };

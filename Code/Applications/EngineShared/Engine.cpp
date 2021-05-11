@@ -15,7 +15,18 @@ namespace KRG
         : m_fatalErrorHandler( errorHandler )
         , m_module_engine_core( m_settingsRegistry )
         , m_pDevelopmentTools( &m_debugTools )
-    {}
+    {
+        m_settingsRegistry.RegisterSettings( &m_resourceSettings );
+        m_settingsRegistry.RegisterSettings( &m_renderSettings );
+        m_settingsRegistry.RegisterSettings( &m_physicsSettings );
+    }
+
+    Engine::~Engine()
+    {
+        m_settingsRegistry.UnregisterSettings( &m_resourceSettings );
+        m_settingsRegistry.UnregisterSettings( &m_renderSettings );
+        m_settingsRegistry.UnregisterSettings( &m_physicsSettings );
+    }
 
     //-------------------------------------------------------------------------
 

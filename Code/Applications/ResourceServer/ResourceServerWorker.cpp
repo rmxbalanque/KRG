@@ -37,7 +37,7 @@ namespace KRG::Resource
 
         m_pRequest->m_compilationTimeStarted = SystemClock::GetTime();
 
-        int32 result = subprocess_create( processCommandLineArgs, subprocess_option_combined_stdout_stderr | subprocess_option_inherit_environment, &m_subProcess );
+        int32 result = subprocess_create( processCommandLineArgs, subprocess_option_combined_stdout_stderr | subprocess_option_inherit_environment | subprocess_option_no_window, &m_subProcess );
         if ( result != 0 )
         {
             m_pRequest->m_status = CompilationRequest::Status::Failed;

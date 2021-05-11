@@ -86,6 +86,7 @@ namespace KRG::FileSystem
 
         // Extensions
         //-------------------------------------------------------------------------
+        // Extensions dont include the "."
 
         bool HasExtension() const;
 

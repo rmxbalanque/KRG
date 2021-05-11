@@ -1,10 +1,16 @@
 #pragma once
-#include "ResourceCompilerInfo.h"
+
 #include "ResourceServerWorker.h"
 #include "ResourceCompilationRequest.h"
 #include "CompiledResourceDatabase.h"
 #include "Tools/Core/FileSystem/FileSystemWatcher.h"
+#include "Tools/Resource/Compilers/ResourceCompilerRegistry.h"
+#include "Tools/Animation/_Module/Module.h"
+#include "Tools/Render/_Module/Module.h"
+#include "Tools/Physics/_Module/Module.h"
+#include "Tools/Entity/_Module/Module.h"
 #include "System/Network/IPC/IPCMessageServer.h"
+#include "System/Resource/ResourceSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Core/Threading/TaskSystem.h"
 
@@ -31,19 +37,20 @@ namespace KRG::Resource
 
         ResourceServer();
 
-        bool Initialize();
+        bool Initialize( Settings const& settings );
         void Shutdown();
         void Update();
 
         inline bool IsBusy() const { return m_pendingRequests.size() + m_activeRequests.size() > 0; }
 
         inline String const& GetErrorMessage() const { return m_errorMessage; }
-        inline String const& GetNetworkAddress() const { return m_networkAddress; }
-        inline FileSystem::Path const& GetSourceDataDir() const { return m_sourceDataDir; }
-        inline FileSystem::Path const& GetCompiledDataDir() const { return m_compiledDataDir; }
+        inline String const& GetNetworkAddress() const { return m_pSettings->m_resourceServerNetworkAddress; }
+        inline uint32 GetNetworkPort() const { return m_pSettings->m_resourceServerPort; }
+        inline FileSystem::Path const& GetSourceDataDir() const { return m_pSettings->m_sourceDataPath; }
+        inline FileSystem::Path const& GetCompiledDataDir() const { return m_pSettings->m_compiledDataPath; }
 
         // Compilers
-        inline TVector<CompilerInfo> const& GetRegisteredCompilers() const { return m_compilers; }
+        inline CompilerRegistry const* GetCompilerRegistry() const { return &m_compilerRegistry; }
 
         // Requests
         TVector<CompilationRequest const*> const& GetActiveRequests() const { return ( TVector<CompilationRequest const*>& ) m_activeRequests; }
@@ -59,11 +66,6 @@ namespace KRG::Resource
     private:
 
         void CleanupCompletedRequests();
-
-        // Compiler Info
-        bool HasCompilerForType( ResourceTypeID typeID ) const;
-        bool IsVirtualResource( ResourceTypeID typeID ) const;
-        int32 GetCompilerVersion( ResourceTypeID typeID ) const;
 
         // Request Actions
         CompilationRequest const* ProcessResourceRequest( ResourceID const& resourceID, uint64 clientID = 0 );
@@ -87,16 +89,15 @@ namespace KRG::Resource
         TVector<ClientRecord>                   m_knownClients;
 
         // Settings
-        FileSystem::Path                        m_workingDir;
-        FileSystem::Path                        m_sourceDataDir;
-        FileSystem::Path                        m_compiledDataDir;
-        FileSystem::Path                        m_compiledResourceDatabasePath;
-        String                                  m_networkAddress;
-        String                                  m_resourceCompilerFullPath;
+        Settings const*                         m_pSettings = nullptr;
         uint32                                  m_maxSimultaneousCompilationTasks = 16;
 
-        // Compiler list
-        TVector<CompilerInfo>                   m_compilers;
+        // Compilers
+        Animation::ToolsModule                  m_animationModule;
+        Render::ToolsModule                     m_renderModule;
+        Physics::ToolsModule                    m_physicsModule;
+        EntityModel::ToolsModule                m_entityModule;
+        CompilerRegistry                        m_compilerRegistry;
 
         // Compilation Requests
         CompiledResourceDatabase                m_compiledResourceDatabase;

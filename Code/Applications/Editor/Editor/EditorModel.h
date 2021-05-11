@@ -50,7 +50,7 @@ namespace KRG
             auto foundFileIter = eastl::find( m_openFiles.begin(), m_openFiles.end(), path, [] ( EditorFile*& pExistingFile, FileSystem::Path const& path ) { return pExistingFile->GetFilePath() == path; } );
             if ( foundFileIter == m_openFiles.end() )
             {
-                m_openFiles.emplace_back( KRG::New<T>( m_sourceDataDirectory, m_pResourceSystem, resourceID ) );
+                m_openFiles.emplace_back( KRG::New<T>( this, m_sourceDataDirectory, m_pResourceSystem, resourceID ) );
             }
             else // Switch active file
             {

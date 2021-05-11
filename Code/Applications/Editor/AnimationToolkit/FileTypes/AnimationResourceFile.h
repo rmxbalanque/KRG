@@ -7,15 +7,12 @@
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation { class AnimationPlayerComponent; }
+namespace KRG::Animation::Tools { class EventEditor; }
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::AnimationTools
 {
-    class AnimationEventEditor;
-
-    //-------------------------------------------------------------------------
-
     class AnimationResourceFile : public TResourceFile<AnimationClip>
     {
     public:
@@ -36,6 +33,6 @@ namespace KRG::Animation::AnimationTools
 
         Entity*                         m_pPreviewEntity = nullptr;
         AnimationPlayerComponent*       m_pAnimationComponent = nullptr;
-        AnimationEventEditor*           m_pTrackEditor = nullptr;
+        Tools::EventEditor*             m_pTrackEditor = nullptr;
     };
 }

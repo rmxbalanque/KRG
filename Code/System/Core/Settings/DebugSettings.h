@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Setting.h"
 #include "System/Core/Math/Math.h"
 
 //-------------------------------------------------------------------------
@@ -19,24 +18,45 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
-    class KRG_SYSTEM_CORE_API DebugSetting : public Setting
+    class SettingsRegistry;
+
+    //-------------------------------------------------------------------------
+
+    class KRG_SYSTEM_CORE_API DebugSetting
     {
-        constexpr static char const CategorySeperatorToken = '/';
+        friend SettingsRegistry;
+
+        constexpr static char const s_categorySeperatorToken = '/';
+        static DebugSetting* s_pHead;
+        static DebugSetting* s_pTail;
 
     public:
 
-        static uint32 const StaticTypeID = 'DBG';
+        enum class Type
+        {
+            Bool,
+            Int,
+            Float,
+            String
+        };
 
-    protected:
-
-        DebugSetting( char const* pName, char const* pCategory, Type type );
-        DebugSetting( char const* pName, char const* pCategory, char const* pDescription, Type type );
-
+        inline Type GetType() const { return m_type; }
+        inline char const* GetName() const { return m_name; }
+        inline char const* GetCategory() const { return m_category; }
         inline char const* GetDescription() const { return m_description; }
-        virtual int32 GetTypeID() const override final { return DebugSetting::StaticTypeID; }
 
     protected:
 
+        DebugSetting( char const* pName, char const* pCategory, char const* pDescription, Type type );
+        virtual ~DebugSetting();
+
+    protected:
+
+        DebugSetting*       m_pNext = nullptr;
+        char const          m_name[100] = { 0 };
+        char const          m_category[156] = { 0 };
+        uint32              m_nameHash = 0; // The hash of the combined category and name strings
+        Type                m_type;
         char const          m_description[256] = { 0 };
     };
 

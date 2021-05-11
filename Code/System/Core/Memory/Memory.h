@@ -39,13 +39,13 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void KRG_FORCE_INLINE MemsetZero( void* ptr, size_t size )
+        KRG_FORCE_INLINE void MemsetZero( void* ptr, size_t size )
         {
             memset( ptr, 0, size );
         }
 
         template <typename T>
-        void KRG_FORCE_INLINE MemsetZero( T* ptr )
+        KRG_FORCE_INLINE void MemsetZero( T* ptr )
         {
             memset( ptr, 0, sizeof( T ) );
         }
@@ -61,6 +61,16 @@ namespace KRG
         inline bool IsAligned( T const* p )
         {
             return ( reinterpret_cast<uintptr_t>( p ) % alignof( T ) ) == 0;
+        }
+
+        KRG_FORCE_INLINE size_t CalculatePaddingForAlignment( uintptr_t addressOffset, size_t requiredAlignment )
+        {
+            return ( requiredAlignment - ( addressOffset % requiredAlignment ) ) % requiredAlignment;
+        }
+
+        KRG_FORCE_INLINE size_t CalculatePaddingForAlignment( void* address, size_t requiredAlignment )
+        {
+            return CalculatePaddingForAlignment( reinterpret_cast<uintptr_t>( address ), requiredAlignment );
         }
 
         //-------------------------------------------------------------------------

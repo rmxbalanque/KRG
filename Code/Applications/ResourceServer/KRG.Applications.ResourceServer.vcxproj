@@ -94,7 +94,6 @@
     <ClInclude Include="ResourceCompilationRequest.h" />
     <ClInclude Include="ResourceServerWorker.h" />
     <ClInclude Include="CompiledResourceDatabase.h" />
-    <ClInclude Include="ResourceCompilerInfo.h" />
     <ClInclude Include="ResourceServer.h" />
     <ClInclude Include="Resources\Resource.h" />
   </ItemGroup>
@@ -117,8 +116,20 @@
     <ProjectReference Include="..\..\System\TypeSystem\KRG.System.TypeSystem.vcxproj">
       <Project>{ec1a0a10-5c84-4971-a883-c13e7f76c327}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Animation\KRG.Tools.Animation.vcxproj">
+      <Project>{2e18002f-b3ce-4082-b32e-172ecffccd5a}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Tools\Core\KRG.Tools.Core.vcxproj">
       <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Entity\KRG.Tools.Entity.vcxproj">
+      <Project>{8f3df129-8be4-47b8-a96c-ac58b15ed3ba}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Physics\KRG.Tools.Physics.vcxproj">
+      <Project>{2740c360-55dc-489c-bfd4-e700df47b0b5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Render\KRG.Tools.Render.vcxproj">
+      <Project>{7eaebc2d-f4cb-410d-92c2-bf0481044533}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\Resource\KRG.Tools.Resource.vcxproj">
       <Project>{8c38c3bb-6980-4188-964b-984c11b26819}</Project>

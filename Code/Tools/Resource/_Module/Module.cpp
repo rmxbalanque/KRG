@@ -2,9 +2,6 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Resource
 {
-    namespace Resource
-    {
-    }
 }

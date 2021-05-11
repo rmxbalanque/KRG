@@ -3,6 +3,10 @@
 #include "System/TypeSystem/TypeDescriptors.h"
 
 //-------------------------------------------------------------------------
+// Serialized Entity Descriptors
+//-------------------------------------------------------------------------
+// A custom format for serialized entities
+// Very similar to the type descriptor format in the type-system
 
 namespace KRG::EntityModel
 {
@@ -27,9 +31,12 @@ namespace KRG::EntityModel
         StringID                                                    m_name;
         bool                                                        m_isSpatialComponent = false;
     };
+}
 
-    //-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
+namespace KRG::EntityModel
+{
     struct KRG_SYSTEM_ENTITY_API EntitySystemDescriptor
     {
         KRG_SERIALIZE_MEMBERS( m_typeID );
@@ -42,9 +49,12 @@ namespace KRG::EntityModel
 
         TypeSystem::TypeID                                          m_typeID;
     };
+}
 
-    //-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
+namespace KRG::EntityModel
+{
     struct KRG_SYSTEM_ENTITY_API EntityDescriptor
     {
         KRG_SERIALIZE_MEMBERS( m_ID, m_spatialParentID, m_name, m_attachmentSocketID, m_systems, m_components, m_numSpatialComponents );

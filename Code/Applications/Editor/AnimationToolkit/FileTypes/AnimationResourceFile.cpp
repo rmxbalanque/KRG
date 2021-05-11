@@ -1,10 +1,12 @@
 #include "AnimationResourceFile.h"
-#include "Applications/Editor/AnimationToolkit/AnimationEventEditor.h"
 #include "Applications/Editor/Editor/EditorModel.h"
+#include "Tools/Animation/Events/AnimationEventEditor.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Engine/Animation/Systems/AnimationSystem.h"
 #include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
 #include "System/Entity/EntityWorld.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
+#include "Tools/Animation/ResourceCompilers/AnimationCompiler.h"
 
 //-------------------------------------------------------------------------
 
@@ -83,14 +85,19 @@ namespace KRG::Animation::AnimationTools
 
         ImGui::SameLine( 0, 15 );
         ImGui::TextColored( Colors::LightPink.ToFloat4(), "Time: %.2fs / %.2fs", 0, m_pResource->GetDuration() );
+
+        ImGui::SameLine( 0, 15 );
+        if ( ImGui::Button( "Save" ) )
+        {
+            m_pTrackEditor->SaveToFile();
+        }
     }
 
     void AnimationResourceFile::DrawAnimationTimeline( UpdateContext const& context )
     {
         if ( m_pTrackEditor == nullptr )
         {
-            auto pTypeRegistry = context.GetSystem<TypeSystem::TypeRegistry>();
-            m_pTrackEditor = KRG::New<AnimationEventEditor>( *pTypeRegistry, m_pResource.GetPtr() );
+            m_pTrackEditor = KRG::New<Tools::EventEditor>( m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
         }
 
         //-------------------------------------------------------------------------

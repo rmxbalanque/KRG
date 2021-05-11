@@ -225,7 +225,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pType );
                     if ( arrayID == 1813730029 )
@@ -283,12 +283,153 @@ namespace KRG
                     return nullptr;
                 }
 
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent const*>( pTypeInstance );
+                    if ( arrayID == 1813730029 )
+                    {
+                        return pActualType->m_meshIDs.size();
+                    }
+
+                    if ( arrayID == 2453801430 )
+                    {
+                        return pActualType->m_armorMeshIDs.size();
+                    }
+
+                    if ( arrayID == 1010763108 )
+                    {
+                        return pActualType->m_hairMeshIDs.size();
+                    }
+
+                    if ( arrayID == 363942725 )
+                    {
+                        return pActualType->m_materialIDs.size();
+                    }
+
+                    if ( arrayID == 1835784676 )
+                    {
+                        return pActualType->m_animationIDs.size();
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    if ( arrayID == 1813730029 )
+                    {
+                        return sizeof( KRG::ResourceID );
+                    }
+
+                    if ( arrayID == 2453801430 )
+                    {
+                        return sizeof( KRG::ResourceID );
+                    }
+
+                    if ( arrayID == 1010763108 )
+                    {
+                        return sizeof( KRG::ResourceID );
+                    }
+
+                    if ( arrayID == 363942725 )
+                    {
+                        return sizeof( KRG::ResourceID );
+                    }
+
+                    if ( arrayID == 1835784676 )
+                    {
+                        return sizeof( KRG::ResourceID );
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
+                }
+
+                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::CustomizerTestComponent const*>( GetDefaultTypeInstancePtr() );
+                    if ( propertyID == 1813730029 )
+                    {
+                        if ( arrayIdx < pDefaultType->m_meshIDs.size() )
+                        {
+                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_meshIDs[arrayIdx];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+
+                    if ( propertyID == 2453801430 )
+                    {
+                        if ( arrayIdx < pDefaultType->m_armorMeshIDs.size() )
+                        {
+                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_armorMeshIDs[arrayIdx];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+
+                    if ( propertyID == 1010763108 )
+                    {
+                        if ( arrayIdx < pDefaultType->m_hairMeshIDs.size() )
+                        {
+                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_hairMeshIDs[arrayIdx];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+
+                    if ( propertyID == 363942725 )
+                    {
+                        if ( arrayIdx < pDefaultType->m_materialIDs.size() )
+                        {
+                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_materialIDs[arrayIdx];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+
+                    if ( propertyID == 1835784676 )
+                    {
+                        if ( arrayIdx < pDefaultType->m_animationIDs.size() )
+                        {
+                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_animationIDs[arrayIdx];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+
+                    if ( propertyID == 1274071866 )
+                    {
+                        return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_skeletonID;
+                    }
+
+                    return false;
                 }
 
             };

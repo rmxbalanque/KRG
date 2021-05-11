@@ -42,8 +42,8 @@ namespace KRG
 
             public:
 
-                StringID    m_propertyID;
-                int32         m_arrayElementIdx;
+                StringID        m_propertyID;
+                int32           m_arrayElementIdx;
             };
 
         public:

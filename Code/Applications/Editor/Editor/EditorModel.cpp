@@ -1,16 +1,12 @@
 #include "EditorModel.h"
-#include "System/Core/Settings/ConfigSettings.h"
 #include "System/Entity/EntityWorld.h"
+#include "System/Resource/ResourceSettings.h"
+#include "System/Core/Settings/SettingsRegistry.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    static ConfigSettingString const g_sourceDataPath( "SourceDataPath", "Paths" );
-    static ConfigSettingString const g_compiledDataPath( "CompiledDataPath", "Paths" );
-
-    //-------------------------------------------------------------------------
-
     EditorModel::~EditorModel()
     {
         KRG_ASSERT( m_pTypeRegistry == nullptr );
@@ -21,12 +17,6 @@ namespace KRG
 
     void EditorModel::Initialize( UpdateContext const& context )
     {
-        m_sourceDataDirectory = FileSystem::Path( g_sourceDataPath );
-        KRG_ASSERT( m_sourceDataDirectory.ExistsAndIsDirectory() );
-        
-        m_compiledDataDirectory = FileSystem::Path( g_compiledDataPath );
-        KRG_ASSERT( m_compiledDataDirectory.ExistsAndIsDirectory() );
-
         m_pTypeRegistry = context.GetSystem<TypeSystem::TypeRegistry>();
         KRG_ASSERT( m_pTypeRegistry != nullptr );
 
@@ -35,6 +25,15 @@ namespace KRG
 
         m_pPreviewWorld = context.GetSystem<EntityWorld>();
         KRG_ASSERT( m_pPreviewWorld != nullptr );
+
+        auto pSystemRegistry = context.GetSystem<SettingsRegistry>();
+        KRG_ASSERT( pSystemRegistry != nullptr );
+
+        auto pResourceSettings = pSystemRegistry->GetSettings<Resource::Settings>();
+        KRG_ASSERT( pResourceSettings != nullptr );
+
+        m_sourceDataDirectory = pResourceSettings->m_sourceDataPath;
+        m_compiledDataDirectory = pResourceSettings->m_compiledDataPath;
     }
 
     void EditorModel::Shutdown( UpdateContext const& context )

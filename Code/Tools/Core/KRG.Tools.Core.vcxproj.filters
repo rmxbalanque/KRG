@@ -2,25 +2,34 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="_Module">
-      <UniqueIdentifier>{18575632-0b5d-4208-a871-36f700252268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FileSystem">
-      <UniqueIdentifier>{5bddb624-29ff-4cc2-9b8e-32ba9af65121}</UniqueIdentifier>
+      <UniqueIdentifier>{272d5f3b-cdb2-4d01-9d99-dcec8233c1e0}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\cgltf">
-      <UniqueIdentifier>{1c8fa59c-2ed6-4aa2-801f-c90ec0959454}</UniqueIdentifier>
+      <UniqueIdentifier>{81e94e79-f1f7-44d9-a04f-7a78ca561701}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{6c51d38f-2d81-4b11-9a3c-bcb7467a1d2b}</UniqueIdentifier>
+      <UniqueIdentifier>{f5dde476-fd67-4bd8-a151-5b7459a48e27}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\sqlite">
-      <UniqueIdentifier>{5b195675-55c5-4dc8-ae38-adfa50ee00b8}</UniqueIdentifier>
+      <UniqueIdentifier>{9edfa23a-f572-4b4c-8e0c-734dc43aac10}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Serialization">
-      <UniqueIdentifier>{a3a35dc2-7d75-4b65-ab28-bd151e2eabb0}</UniqueIdentifier>
+    <Filter Include="FileSystem">
+      <UniqueIdentifier>{0a0ad641-a011-4182-b55c-d98aae87f166}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty">
+      <UniqueIdentifier>{b320cfab-234b-4458-8509-b259cefd6264}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\pfd">
+      <UniqueIdentifier>{6e291da8-bd02-4a76-80c6-504271668133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\subprocess">
+      <UniqueIdentifier>{becdabc8-d120-48a2-aec3-2f6f7fdd9041}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TypeSystem\Serialization">
+      <UniqueIdentifier>{7f2f4dbf-0bd2-4a8b-9801-ae18a3f4bf65}</UniqueIdentifier>
     </Filter>
     <Filter Include="TypeSystem">
-      <UniqueIdentifier>{4189892f-6a6b-4ea2-a59d-750d1fbc4947}</UniqueIdentifier>
+      <UniqueIdentifier>{5698e165-20ef-48fc-ac12-e31814f94d7e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,33 +45,64 @@
     <ClInclude Include="ThirdParty\sqlite\SqliteHelpers.h">
       <Filter>ThirdParty\sqlite</Filter>
     </ClInclude>
-    <ClInclude Include="Thirdparty\KRG_RapidJson.h" />
-    <ClInclude Include="TypeSystem\TypeInstanceModel.h" />
-    <ClInclude Include="TypeSystem\Serialization\NativeTypeReader.h" />
-    <ClInclude Include="TypeSystem\Serialization\NativeTypeWriter.h" />
-    <ClInclude Include="TypeSystem\Serialization\TypeInstanceModelReader.h" />
-    <ClInclude Include="TypeSystem\Serialization\TypeInstanceModelWriter.h" />
-    <ClInclude Include="TypeSystem\Serialization\TypeSerializationCommon.h" />
-    <ClInclude Include="Thirdparty\subprocess\subprocess.h" />
-    <ClInclude Include="FileSystem\FileSystemWatcher.h" />
-    <ClInclude Include="Thirdparty\pfd\portable-file-dialogs.h" />
-    <ClInclude Include="FileSystem\FileSystemHelpers.h" />
+    <ClInclude Include="FileSystem\FileSystemHelpers.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\FileSystemWatcher.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Thirdparty\KRG_RapidJson.h">
+      <Filter>Thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="Thirdparty\pfd\portable-file-dialogs.h">
+      <Filter>Thirdparty\pfd</Filter>
+    </ClInclude>
+    <ClInclude Include="Thirdparty\subprocess\subprocess.h">
+      <Filter>Thirdparty\subprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeSystem\Serialization\TypeReader.h">
+      <Filter>TypeSystem\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeSystem\Serialization\TypeWriter.h">
+      <Filter>TypeSystem\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeSystem\TypeInstanceModel.h">
+      <Filter>TypeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeSystem\Serialization\TypeSerialization.h" />
+    <ClInclude Include="Widgets\Timeline\TimelineEditor.h" />
+    <ClInclude Include="Widgets\Timeline\TimelineTrack.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
       <Filter>ThirdParty\sqlite</Filter>
     </ClCompile>
-    <ClCompile Include="TypeSystem\TypeInstanceModel.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\NativeTypeReader.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\NativeTypeWriter.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\TypeInstanceModelReader.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\TypeInstanceModelWriter.cpp" />
-    <ClCompile Include="TypeSystem\Serialization\TypeSerializationCommon.cpp" />
-    <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
-    <ClCompile Include="FileSystem\FileSystemHelpers.cpp" />
+    <ClCompile Include="FileSystem\FileSystemHelpers.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem\FileSystemWatcher.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeSystem\Serialization\TypeReader.cpp">
+      <Filter>TypeSystem\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeSystem\Serialization\TypeWriter.cpp">
+      <Filter>TypeSystem\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeSystem\TypeInstanceModel.cpp">
+      <Filter>TypeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeSystem\Serialization\TypeSerialization.cpp" />
+    <ClCompile Include="Thirdparty\KRG_RapidJson.cpp" />
+    <ClCompile Include="Widgets\Timeline\TimelineEditor.cpp" />
+    <ClCompile Include="Widgets\Timeline\TimelineTrack.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Thirdparty\subprocess\LICENSE" />
-    <None Include="Thirdparty\subprocess\README.md" />
+    <None Include="Thirdparty\subprocess\LICENSE">
+      <Filter>Thirdparty\subprocess</Filter>
+    </None>
+    <None Include="Thirdparty\subprocess\README.md">
+      <Filter>Thirdparty\subprocess</Filter>
+    </None>
   </ItemGroup>
 </Project>

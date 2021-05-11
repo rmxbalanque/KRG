@@ -1,5 +1,6 @@
 #include "ResourceServerApplication.h"
 #include "Resources/Resource.h"
+#include "System/Render/RenderSettings.h"
 #include "System/Core/Logging/Log.h"
 #include "System/Core/Time/Timers.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -206,6 +207,8 @@ namespace KRG
         // Read configuration settings from ini
         //-------------------------------------------------------------------------
 
+        m_settingsRegistry.RegisterSettings( &m_settings );
+
         FileSystem::Path const iniPath = FileSystem::GetCurrentProcessPath().Append( "KRG.ini" );
         if ( !m_settingsRegistry.LoadFromFile( iniPath ) )
         {
@@ -234,7 +237,7 @@ namespace KRG
     bool ResourceServerApplication::Initialize()
     {
         m_pRenderDevice = KRG::New<Render::RenderDevice>();
-        if ( !m_pRenderDevice->Initialize() )
+        if ( !m_pRenderDevice->Initialize( Render::Settings() ) )
         {
             KRG::Delete( m_pRenderDevice );
             return FatalError( "Failed to create render device!" );
@@ -246,7 +249,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        if ( !m_resourceServer.Initialize() )
+        if ( !m_resourceServer.Initialize( m_settings ) )
         {
             return FatalError( "Resource server failed to initialize!" );
         }

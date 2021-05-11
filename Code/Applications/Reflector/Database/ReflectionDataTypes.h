@@ -37,6 +37,7 @@ namespace KRG
                     , m_arraySize( -1 )
                 {}
 
+                inline bool IsStructureProperty() const { return m_flags.IsFlagSet( PropertyInfo::Flags::IsStructure ); }
                 inline bool IsEnumProperty() const { return m_flags.IsFlagSet( PropertyInfo::Flags::IsEnum ); }
                 inline bool IsBitFlagsProperty() const { return m_flags.IsFlagSet( PropertyInfo::Flags::IsBitFlags ); }
                 inline bool IsArrayProperty() const { return m_flags.IsFlagSet( PropertyInfo::Flags::IsArray ) || m_flags.IsFlagSet( PropertyInfo::Flags::IsDynamicArray ); }

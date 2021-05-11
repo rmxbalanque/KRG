@@ -12,11 +12,19 @@
 
 namespace KRG
 {
+    struct KRG_GAME_CORE_API ExternalTestSubSubStruct
+    {
+        KRG_REGISTER_TYPE;
+
+        EXPOSE TVector<float>                               m_dynamicArray = { 1.0f, 2.0f, 3.0f };
+    };
+
     struct KRG_GAME_CORE_API ExternalTestSubStruct
     {
         KRG_REGISTER_TYPE;
 
-        EXPOSE TVector<float>                               m_dynamicArray = { 0.3f, 5.0f, 7.0f };
+        EXPOSE TVector<float>                               m_floats = { 0.3f, 5.0f, 7.0f };
+        EXPOSE TVector<ExternalTestSubSubStruct>            m_dynamicArray = { ExternalTestSubSubStruct(), ExternalTestSubSubStruct() };
     };
 
     struct KRG_GAME_CORE_API ExternalTestStruct

@@ -53,9 +53,6 @@
     <ClInclude Include="CompiledResourceDatabase.h">
       <Filter>ResourceServer</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceCompilerInfo.h">
-      <Filter>ResourceServer</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceServer.h">
       <Filter>ResourceServer</Filter>
     </ClInclude>

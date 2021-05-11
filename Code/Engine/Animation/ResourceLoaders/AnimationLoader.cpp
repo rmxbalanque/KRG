@@ -1,8 +1,8 @@
 #include "AnimationLoader.h"
 #include "Engine/Animation/AnimationClip.h"
 #include "Engine/Animation/AnimationSyncTrack.h"
+#include "System/TypeSystem/TypeDescriptors.h"
 #include "System/Core/Serialization/BinaryArchive.h"
-#include "System/TypeSystem/Serialization/ImmutableTypeCollection.h"
 
 //-------------------------------------------------------------------------
 
@@ -37,17 +37,11 @@ namespace KRG::Animation
         // Read events
         //-------------------------------------------------------------------------
 
-        TypeSystem::ImmutableTypeCollectionHeader collectionHeader;
-        archive >> collectionHeader;
+        TypeSystem::TypeDescriptorCollection collectionDesc;
+        archive >> collectionDesc;
 
-        if ( collectionHeader.m_totalRequiredSize > 0 )
-        {
-            TVector<TypeSystem::ImmutableTypeDescriptor> eventTypeDescriptors;
-            archive >> eventTypeDescriptors;
-
-            pAnimation->m_pEventsRawMemory = KRG::Alloc( collectionHeader.m_totalRequiredSize, collectionHeader.m_requiredAlignment );
-            TypeSystem::CreateImmutableTypeCollection( *m_pTypeRegistry, (Byte*) pAnimation->m_pEventsRawMemory, eventTypeDescriptors, pAnimation->m_events );
-        }
+        collectionDesc.CalculateCollectionRequirements( *m_pTypeRegistry );
+        TypeSystem::TypeDescriptorCollection::InstantiateStaticCollection( *m_pTypeRegistry, collectionDesc, pAnimation->m_events );
 
         return true;
     }
@@ -58,10 +52,9 @@ namespace KRG::Animation
         if ( pAnimation != nullptr )
         {
             // Release allocated events collection
-            if ( pAnimation->m_pEventsRawMemory != nullptr )
+            if ( !pAnimation->m_events.empty() )
             {
-                TypeSystem::DestroyImmutableTypeCollection( pAnimation->m_events );
-                KRG::Free( pAnimation->m_pEventsRawMemory );
+                TypeSystem::TypeDescriptorCollection::DestroyStaticCollection( pAnimation->m_events );
             }
         }
 

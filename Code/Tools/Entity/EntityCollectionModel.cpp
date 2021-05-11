@@ -294,7 +294,7 @@ namespace KRG::EntityModel
             auto const toolTypeDescriptor = pComponent->GetTypeInstance().GetDescriptor();
             for ( auto const& prop : toolTypeDescriptor.m_properties )
             {
-                componentDesc.m_propertyValues.emplace_back( TypeSystem::PropertyDescriptor( typeRegistry, prop.m_path, prop.m_typeID, prop.m_templatedArgumentTypeID, prop.m_value ) );
+                componentDesc.m_properties.emplace_back( TypeSystem::PropertyDescriptor( typeRegistry, prop.m_path, prop.m_typeID, prop.m_templatedArgumentTypeID, prop.m_stringValue ) );
             }
 
             // Add component to entity

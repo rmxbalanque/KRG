@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #include "ResourceCompiler.h"
 #include "System/Core/FileSystem/FileSystem.h"
 
@@ -75,5 +74,3 @@ namespace KRG::Resource
         return Error( "Failed to compile resource: '%s'", (char const*) ctx.m_outputFilePath );
     }
 }
-
-#endif

@@ -15,6 +15,7 @@
 void KRG::Game::GameModule::RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
     TypeSystem::TypeHelpers::TTypeHelper<KRG::DefaultPlayerController>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubSubStruct>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubStruct>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestStruct>::RegisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_TestFlags::RegisterEnum( typeRegistry );
@@ -39,6 +40,7 @@ void KRG::Game::GameModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegis
     TypeSystem::EnumHelpers::EnumHelper_KRG_TestFlags::UnregisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestStruct>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubStruct>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubSubStruct>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::DefaultPlayerController>::UnregisterType( typeRegistry );
 }
 

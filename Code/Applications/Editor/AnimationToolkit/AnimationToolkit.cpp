@@ -52,12 +52,12 @@ namespace KRG::Animation::AnimationTools
     {
         uint64 flags = 0;
 
-        if ( m_pDataBrowser->IsOpen() )
+        if ( m_pDataBrowser != nullptr && m_pDataBrowser->IsOpen() )
         {
             flags |= ( 1 << 0 );
         }
 
-        if ( m_pDocumentWell->IsOpen() )
+        if ( m_pDocumentWell != nullptr && m_pDocumentWell->IsOpen() )
         {
             flags |= ( 1 << 1 );
         }

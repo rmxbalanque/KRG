@@ -281,6 +281,10 @@ namespace KRG
                                 {
                                     propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsEnum );
                                 }
+                                else
+                                {
+                                    propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsStructure );
+                                }
 
                                 // Check if this field is a entity type
                                 if ( pPropertyTypeDesc->IsEntity() || pPropertyTypeDesc->IsEntityComponent() || pPropertyTypeDesc->IsEntitySystem() )

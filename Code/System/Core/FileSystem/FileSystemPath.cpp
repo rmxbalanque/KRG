@@ -191,7 +191,8 @@ namespace KRG::FileSystem
 
     bool Path::Exists() const
     {
-        return std::filesystem::exists( m_fullpath.c_str() );
+        std::error_code ec;
+        return std::filesystem::exists( m_fullpath.c_str(), ec );
     }
 
     bool Path::ExistsAndIsDirectory() const
@@ -201,7 +202,8 @@ namespace KRG::FileSystem
             return false;
         }
 
-        return std::filesystem::is_directory( m_fullpath.c_str() );
+        std::error_code ec;
+        return std::filesystem::is_directory( m_fullpath.c_str(), ec );
     }
 
     bool Path::ExistsAndIsFile() const
@@ -211,7 +213,8 @@ namespace KRG::FileSystem
             return false;
         }
 
-        return std::filesystem::is_regular_file( m_fullpath.c_str() );
+        std::error_code ec;
+        return std::filesystem::is_regular_file( m_fullpath.c_str(), ec );
     }
 
     //-------------------------------------------------------------------------

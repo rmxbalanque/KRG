@@ -273,12 +273,6 @@
     <ClCompile Include="Systems\SystemRegistry.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
-    <ClCompile Include="Settings\Setting.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\ConfigSettings.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
     <ClCompile Include="Settings\DebugSettings.cpp">
       <Filter>Settings</Filter>
     </ClCompile>
@@ -381,6 +375,7 @@
     <ClCompile Include="ThirdParty\EA\EASTL\Source\thread_support.cpp">
       <Filter>ThirdParty\EA\EASTL\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Serialization\JsonArchive.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Viewport.h">
@@ -514,12 +509,6 @@
     </ClInclude>
     <ClInclude Include="Systems\SystemRegistry.h">
       <Filter>Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\Setting.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\ConfigSettings.h">
-      <Filter>Settings</Filter>
     </ClInclude>
     <ClInclude Include="Settings\DebugSettings.h">
       <Filter>Settings</Filter>
@@ -1731,6 +1720,8 @@
       <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
     </ClInclude>
     <ClInclude Include="Math\PhysicsMath.h" />
+    <ClInclude Include="Settings\ISettings.h" />
+    <ClInclude Include="Serialization\JsonArchive.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EA.props">

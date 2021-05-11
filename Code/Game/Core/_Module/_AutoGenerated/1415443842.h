@@ -13,6 +13,207 @@
 #include "D:\Kruger\Code\Game\Core\TestComponent.h"
 
 //-------------------------------------------------------------------------
+// TypeHelper: KRG::ExternalTestSubSubStruct
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    template<class Archive>
+    KRG_GAME_CORE_API void serialize( Archive& archive, KRG::ExternalTestSubSubStruct& type )
+    {
+        archive( KRG_NVP( m_dynamicArray ) );
+    }
+
+    //-------------------------------------------------------------------------
+
+    namespace TypeSystem
+    {
+        template<>
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubSubStruct> >( void const* pDefaultTypeInstance )
+        {
+            KRG_ASSERT( pDefaultTypeInstance != nullptr );
+            KRG::ExternalTestSubSubStruct const* pActualDefaultTypeInstance = ( KRG::ExternalTestSubSubStruct const* ) pDefaultTypeInstance;
+
+            PropertyInfo propertyInfo;
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_dynamicArray" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
+            propertyInfo.m_parentTypeID = 2649621769;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicArray;
+            propertyInfo.m_offset = offsetof( KRG::ExternalTestSubSubStruct, m_dynamicArray );
+            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_dynamicArray.data();
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( float );
+            propertyInfo.m_size = sizeof( TVector<float> );
+            propertyInfo.m_flags.Set( 2 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+        }
+
+        //-------------------------------------------------------------------------
+
+        namespace TypeHelpers
+        {
+            template<>
+            class KRG_GAME_CORE_API TTypeHelper<KRG::ExternalTestSubSubStruct> final : public ITypeHelper
+            {
+                static TTypeHelper<KRG::ExternalTestSubSubStruct> StaticTypeHelper;
+
+                static void const* s_pDefaultTypeInstancePtr;
+
+            public:
+
+                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+
+                static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
+                {
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::ExternalTestSubSubStruct ), alignof( KRG::ExternalTestSubSubStruct ) );
+                    new ( pDefaultTypeInstance ) KRG::ExternalTestSubSubStruct;
+
+                    TypeSystem::TypeInfo typeInfo;
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::ExternalTestSubSubStruct" );
+                    typeInfo.m_size = sizeof( KRG::ExternalTestSubSubStruct );
+                    typeInfo.m_alignment = alignof( KRG::ExternalTestSubSubStruct );
+                    typeInfo.m_pTypeHelper = &StaticTypeHelper; 
+
+                    // Register properties and type
+                    //-------------------------------------------------------------------------
+
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubSubStruct> >( s_pDefaultTypeInstancePtr );
+                    KRG::ExternalTestSubSubStruct::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                }
+
+                static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
+                {
+                    auto const ID = TypeSystem::TypeID( "KRG::ExternalTestSubSubStruct" );
+                    typeRegistry.UnregisterType( ID );
+
+                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pDefaultTypeInstance )->~ExternalTestSubSubStruct();
+                    KRG::Free( pDefaultTypeInstance );
+                }
+
+                virtual void* CreateType() const override final
+                {
+                    return KRG::New<KRG::ExternalTestSubSubStruct>();
+                }
+
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                {
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::ExternalTestSubSubStruct();
+                }
+
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                {
+                    KRG_ASSERT( pResourceSystem != nullptr );
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
+
+                }
+
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                {
+                    KRG_ASSERT( pResourceSystem != nullptr );
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
+
+                }
+
+                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
+                    LoadingStatus status = LoadingStatus::Loaded;
+
+                    return status;
+                }
+
+                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
+                    LoadingStatus status = LoadingStatus::Unloading;
+
+                    return LoadingStatus::Unloaded;
+                }
+
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
+                    if ( arrayID == 1528863423 )
+                    {
+                        if ( ( arrayIdx + 1 ) >= pActualType->m_dynamicArray.size() )
+                        {
+                            pActualType->m_dynamicArray.resize( arrayIdx + 1 );
+                        }
+
+                        return (Byte*) &pActualType->m_dynamicArray[arrayIdx];
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pTypeInstance );
+                    if ( arrayID == 1528863423 )
+                    {
+                        return pActualType->m_dynamicArray.size();
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    if ( arrayID == 1528863423 )
+                    {
+                        return sizeof( float );
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
+                    // We should never get here since we are asking for a resource type of an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return ResourceTypeID();
+                }
+
+                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( GetDefaultTypeInstancePtr() );
+                    if ( propertyID == 1528863423 )
+                    {
+                        if ( arrayIdx < pDefaultType->m_dynamicArray.size() )
+                        {
+                            return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_dynamicArray[arrayIdx];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+
+                    return false;
+                }
+
+            };
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
 // TypeHelper: KRG::ExternalTestSubStruct
 //-------------------------------------------------------------------------
 
@@ -21,7 +222,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::ExternalTestSubStruct& type )
     {
-        archive( KRG_NVP( m_dynamicArray ) );
+        archive( KRG_NVP( m_floats ), KRG_NVP( m_dynamicArray ) );
     }
 
     //-------------------------------------------------------------------------
@@ -38,17 +239,33 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_dynamicArray" );
+            propertyInfo.m_ID = StringID( "m_floats" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
+            propertyInfo.m_parentTypeID = 916469573;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_floats;
+            propertyInfo.m_offset = offsetof( KRG::ExternalTestSubStruct, m_floats );
+            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_floats.data();
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_floats.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( float );
+            propertyInfo.m_size = sizeof( TVector<float> );
+            propertyInfo.m_flags.Set( 2 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_dynamicArray" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ExternalTestSubSubStruct" );
             propertyInfo.m_parentTypeID = 916469573;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dynamicArray;
             propertyInfo.m_offset = offsetof( KRG::ExternalTestSubStruct, m_dynamicArray );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_dynamicArray.data();
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
-            propertyInfo.m_arrayElementSize = (int32) sizeof( float );
-            propertyInfo.m_size = sizeof( TVector<float> );
-            propertyInfo.m_flags.Set( 2 );
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ExternalTestSubSubStruct );
+            propertyInfo.m_size = sizeof( TVector<KRG::ExternalTestSubSubStruct> );
+            propertyInfo.m_flags.Set( 18 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -113,6 +330,11 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
 
+                    for ( auto& propertyValue : pActualType->m_dynamicArray )
+                    {
+                        KRG::ExternalTestSubSubStruct::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );
+                    }
+
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
@@ -120,12 +342,26 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
 
+                    for ( auto& propertyValue : pActualType->m_dynamicArray )
+                    {
+                        KRG::ExternalTestSubSubStruct::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );
+                    }
+
                 }
 
                 virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
+
+                    for ( auto& propertyValue : pActualType->m_dynamicArray )
+                    {
+                        status = KRG::ExternalTestSubSubStruct::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );
+                        if ( status == LoadingStatus::Loading )
+                        {
+                            return LoadingStatus::Loading;
+                        }
+                    }
 
                     return status;
                 }
@@ -135,12 +371,31 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
+                    for ( auto& propertyValue : pActualType->m_dynamicArray )
+                    {
+                        status = KRG::ExternalTestSubSubStruct::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );
+                        if ( status != LoadingStatus::Unloaded )
+                        {
+                            return LoadingStatus::Unloading;
+                        }
+                    }
+
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
+                    if ( arrayID == 2448071977 )
+                    {
+                        if ( ( arrayIdx + 1 ) >= pActualType->m_floats.size() )
+                        {
+                            pActualType->m_floats.resize( arrayIdx + 1 );
+                        }
+
+                        return (Byte*) &pActualType->m_floats[arrayIdx];
+                    }
+
                     if ( arrayID == 1528863423 )
                     {
                         if ( ( arrayIdx + 1 ) >= pActualType->m_dynamicArray.size() )
@@ -156,12 +411,66 @@ namespace KRG
                     return nullptr;
                 }
 
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pTypeInstance );
+                    if ( arrayID == 2448071977 )
+                    {
+                        return pActualType->m_floats.size();
+                    }
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        return pActualType->m_dynamicArray.size();
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    if ( arrayID == 2448071977 )
+                    {
+                        return sizeof( float );
+                    }
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        return sizeof( KRG::ExternalTestSubSubStruct );
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
+                }
+
+                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( GetDefaultTypeInstancePtr() );
+                    if ( propertyID == 2448071977 )
+                    {
+                        if ( arrayIdx < pDefaultType->m_floats.size() )
+                        {
+                            return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_floats[arrayIdx];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+
+                    return false;
                 }
 
             };
@@ -283,7 +592,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ExternalTestSubStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::ExternalTestSubStruct> );
-            propertyInfo.m_flags.Set( 2 );
+            propertyInfo.m_flags.Set( 18 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -401,7 +710,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
                     if ( arrayID == 1528863423 )
@@ -419,12 +728,73 @@ namespace KRG
                     return nullptr;
                 }
 
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestStruct const*>( pTypeInstance );
+                    if ( arrayID == 1528863423 )
+                    {
+                        return pActualType->m_dynamicArray.size();
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    if ( arrayID == 1528863423 )
+                    {
+                        return sizeof( KRG::ExternalTestSubStruct );
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
+                }
+
+                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestStruct const*>( GetDefaultTypeInstancePtr() );
+                    if ( propertyID == 1639544406 )
+                    {
+                        return *reinterpret_cast<KRG::uint8 const*>( pValueInstance ) == pDefaultType->m_uint8;
+                    }
+
+                    if ( propertyID == 2692276328 )
+                    {
+                        return *reinterpret_cast<KRG::uint16 const*>( pValueInstance ) == pDefaultType->m_uint16;
+                    }
+
+                    if ( propertyID == 705045617 )
+                    {
+                        return *reinterpret_cast<KRG::uint32 const*>( pValueInstance ) == pDefaultType->m_uint32;
+                    }
+
+                    if ( propertyID == 1099158272 )
+                    {
+                        return *reinterpret_cast<KRG::uint64 const*>( pValueInstance ) == pDefaultType->m_U64;
+                    }
+
+                    if ( propertyID == 1271504002 )
+                    {
+                        return *reinterpret_cast<KRG::UUID const*>( pValueInstance ) == pDefaultType->m_UUID;
+                    }
+
+                    if ( propertyID == 1455094642 )
+                    {
+                        return *reinterpret_cast<KRG::EulerAngles const*>( pValueInstance ) == pDefaultType->m_eulerAngles;
+                    }
+
+                    return false;
                 }
 
             };
@@ -589,12 +959,27 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pTypeInstance );
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
                 }
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
@@ -603,6 +988,22 @@ namespace KRG
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
+                }
+
+                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( GetDefaultTypeInstancePtr() );
+                    if ( propertyID == 1455094642 )
+                    {
+                        return *reinterpret_cast<KRG::EulerAngles const*>( pValueInstance ) == pDefaultType->m_eulerAngles;
+                    }
+
+                    if ( propertyID == 159853016 )
+                    {
+                        return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_resourceID;
+                    }
+
+                    return false;
                 }
 
             };
@@ -1166,7 +1567,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_struct0;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_struct0 );
             propertyInfo.m_size = sizeof( KRG::ExternalTestStruct );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 16 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1179,7 +1580,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_struct1;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_struct1 );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalStruct );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 16 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1227,7 +1628,7 @@ namespace KRG
             propertyInfo.m_arraySize = 2;
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::InternalStruct );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalStruct ) * 2;
-            propertyInfo.m_flags.Set( 1 );
+            propertyInfo.m_flags.Set( 17 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1275,7 +1676,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArrayOfStructs.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ExternalTestStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::ExternalTestStruct> );
-            propertyInfo.m_flags.Set( 2 );
+            propertyInfo.m_flags.Set( 18 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -1492,9 +1893,29 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
+                    if ( arrayID == 2004964571 )
+                    {
+                        return (Byte*) &pActualType->m_staticArray[arrayIdx];
+                    }
+
+                    if ( arrayID == 2137117432 )
+                    {
+                        return (Byte*) &pActualType->m_staticArrayOfStringIDs[arrayIdx];
+                    }
+
+                    if ( arrayID == 3178258553 )
+                    {
+                        return (Byte*) &pActualType->m_staticArrayOfStructs[arrayIdx];
+                    }
+
+                    if ( arrayID == 1833056808 )
+                    {
+                        return (Byte*) &pActualType->m_staticArrayOfEnums[arrayIdx];
+                    }
+
                     if ( arrayID == 1528863423 )
                     {
                         if ( ( arrayIdx + 1 ) >= pActualType->m_dynamicArray.size() )
@@ -1520,6 +1941,81 @@ namespace KRG
                     return nullptr;
                 }
 
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::TestComponent const*>( pTypeInstance );
+                    if ( arrayID == 2004964571 )
+                    {
+                        return 4;
+                    }
+
+                    if ( arrayID == 2137117432 )
+                    {
+                        return 4;
+                    }
+
+                    if ( arrayID == 3178258553 )
+                    {
+                        return 2;
+                    }
+
+                    if ( arrayID == 1833056808 )
+                    {
+                        return 6;
+                    }
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        return pActualType->m_dynamicArray.size();
+                    }
+
+                    if ( arrayID == 3640519683 )
+                    {
+                        return pActualType->m_dynamicArrayOfStructs.size();
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    if ( arrayID == 2004964571 )
+                    {
+                        return sizeof( float );
+                    }
+
+                    if ( arrayID == 2137117432 )
+                    {
+                        return sizeof( KRG::StringID );
+                    }
+
+                    if ( arrayID == 3178258553 )
+                    {
+                        return sizeof( KRG::TestComponent::InternalStruct );
+                    }
+
+                    if ( arrayID == 1833056808 )
+                    {
+                        return sizeof( KRG::TestComponent::InternalTest::InternalEnum );
+                    }
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        return sizeof( float );
+                    }
+
+                    if ( arrayID == 3640519683 )
+                    {
+                        return sizeof( KRG::ExternalTestStruct );
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
@@ -1531,6 +2027,225 @@ namespace KRG
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
+                }
+
+                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::TestComponent const*>( GetDefaultTypeInstancePtr() );
+                    if ( propertyID == 1949576814 )
+                    {
+                        return *reinterpret_cast<bool const*>( pValueInstance ) == pDefaultType->m_bool;
+                    }
+
+                    if ( propertyID == 2477887483 )
+                    {
+                        return *reinterpret_cast<KRG::uint8 const*>( pValueInstance ) == pDefaultType->m_U8;
+                    }
+
+                    if ( propertyID == 1290600528 )
+                    {
+                        return *reinterpret_cast<KRG::uint16 const*>( pValueInstance ) == pDefaultType->m_U16;
+                    }
+
+                    if ( propertyID == 349389720 )
+                    {
+                        return *reinterpret_cast<KRG::uint32 const*>( pValueInstance ) == pDefaultType->m_U32;
+                    }
+
+                    if ( propertyID == 1099158272 )
+                    {
+                        return *reinterpret_cast<KRG::uint64 const*>( pValueInstance ) == pDefaultType->m_U64;
+                    }
+
+                    if ( propertyID == 3492112075 )
+                    {
+                        return *reinterpret_cast<KRG::int8 const*>( pValueInstance ) == pDefaultType->m_S8;
+                    }
+
+                    if ( propertyID == 2238197494 )
+                    {
+                        return *reinterpret_cast<KRG::int16 const*>( pValueInstance ) == pDefaultType->m_S16;
+                    }
+
+                    if ( propertyID == 590949444 )
+                    {
+                        return *reinterpret_cast<KRG::int32 const*>( pValueInstance ) == pDefaultType->m_S32;
+                    }
+
+                    if ( propertyID == 1658055241 )
+                    {
+                        return *reinterpret_cast<KRG::int64 const*>( pValueInstance ) == pDefaultType->m_S64;
+                    }
+
+                    if ( propertyID == 2779447547 )
+                    {
+                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_F32;
+                    }
+
+                    if ( propertyID == 82971377 )
+                    {
+                        return *reinterpret_cast<double const*>( pValueInstance ) == pDefaultType->m_F64;
+                    }
+
+                    if ( propertyID == 1271504002 )
+                    {
+                        return *reinterpret_cast<KRG::UUID const*>( pValueInstance ) == pDefaultType->m_UUID;
+                    }
+
+                    if ( propertyID == 2799478371 )
+                    {
+                        return *reinterpret_cast<KRG::StringID const*>( pValueInstance ) == pDefaultType->m_StringID;
+                    }
+
+                    if ( propertyID == 1137073394 )
+                    {
+                        return *reinterpret_cast<KRG::String const*>( pValueInstance ) == pDefaultType->m_String;
+                    }
+
+                    if ( propertyID == 3492891095 )
+                    {
+                        return *reinterpret_cast<KRG::Color const*>( pValueInstance ) == pDefaultType->m_Color;
+                    }
+
+                    if ( propertyID == 2909786051 )
+                    {
+                        return *reinterpret_cast<KRG::Float2 const*>( pValueInstance ) == pDefaultType->m_Float2;
+                    }
+
+                    if ( propertyID == 705098768 )
+                    {
+                        return *reinterpret_cast<KRG::Float3 const*>( pValueInstance ) == pDefaultType->m_Float3;
+                    }
+
+                    if ( propertyID == 3165776718 )
+                    {
+                        return *reinterpret_cast<KRG::Float4 const*>( pValueInstance ) == pDefaultType->m_Float4;
+                    }
+
+                    if ( propertyID == 938393238 )
+                    {
+                        return *reinterpret_cast<KRG::Vector const*>( pValueInstance ) == pDefaultType->m_vector;
+                    }
+
+                    if ( propertyID == 3789540716 )
+                    {
+                        return *reinterpret_cast<KRG::Quaternion const*>( pValueInstance ) == pDefaultType->m_quaternion;
+                    }
+
+                    if ( propertyID == 2322373324 )
+                    {
+                        return *reinterpret_cast<KRG::Matrix const*>( pValueInstance ) == pDefaultType->m_matrix;
+                    }
+
+                    if ( propertyID == 3833515037 )
+                    {
+                        return *reinterpret_cast<KRG::Transform const*>( pValueInstance ) == pDefaultType->m_affineTransform;
+                    }
+
+                    if ( propertyID == 2633518375 )
+                    {
+                        return *reinterpret_cast<KRG::Microseconds const*>( pValueInstance ) == pDefaultType->m_us;
+                    }
+
+                    if ( propertyID == 3313859714 )
+                    {
+                        return *reinterpret_cast<KRG::Milliseconds const*>( pValueInstance ) == pDefaultType->m_ms;
+                    }
+
+                    if ( propertyID == 1868635034 )
+                    {
+                        return *reinterpret_cast<KRG::Seconds const*>( pValueInstance ) == pDefaultType->m_s;
+                    }
+
+                    if ( propertyID == 1669746482 )
+                    {
+                        return *reinterpret_cast<KRG::Percentage const*>( pValueInstance ) == pDefaultType->m_percentage;
+                    }
+
+                    if ( propertyID == 4027095241 )
+                    {
+                        return *reinterpret_cast<KRG::Degrees const*>( pValueInstance ) == pDefaultType->m_degrees;
+                    }
+
+                    if ( propertyID == 1083696271 )
+                    {
+                        return *reinterpret_cast<KRG::Radians const*>( pValueInstance ) == pDefaultType->m_radians;
+                    }
+
+                    if ( propertyID == 1455094642 )
+                    {
+                        return *reinterpret_cast<KRG::EulerAngles const*>( pValueInstance ) == pDefaultType->m_eulerAngles;
+                    }
+
+                    if ( propertyID == 780656067 )
+                    {
+                        return *reinterpret_cast<KRG::DataPath const*>( pValueInstance ) == pDefaultType->m_dataPath;
+                    }
+
+                    if ( propertyID == 1147727897 )
+                    {
+                        return *reinterpret_cast<KRG::BitFlags const*>( pValueInstance ) == pDefaultType->m_genericFlags;
+                    }
+
+                    if ( propertyID == 887644177 )
+                    {
+                        return *reinterpret_cast<KRG::TBitFlags<KRG::TestFlags> const*>( pValueInstance ) == pDefaultType->m_specificFlags;
+                    }
+
+                    if ( propertyID == 3111215471 )
+                    {
+                        return *reinterpret_cast<KRG::ResourceTypeID const*>( pValueInstance ) == pDefaultType->m_resourceTypeID;
+                    }
+
+                    if ( propertyID == 159853016 )
+                    {
+                        return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_resourceID;
+                    }
+
+                    if ( propertyID == 3104453760 )
+                    {
+                        return *reinterpret_cast<KRG::TResourcePtr<KRG::Render::SkeletalMesh> const*>( pValueInstance ) == pDefaultType->m_specificResourcePtr;
+                    }
+
+                    if ( propertyID == 3763518750 )
+                    {
+                        return *reinterpret_cast<KRG::TestComponent::InternalEnum const*>( pValueInstance ) == pDefaultType->m_internalEnum;
+                    }
+
+                    if ( propertyID == 4189160738 )
+                    {
+                        return *reinterpret_cast<KRG::TestComponent::InternalTest::InternalEnum const*>( pValueInstance ) == pDefaultType->m_testInternalEnum;
+                    }
+
+                    if ( propertyID == 2004964571 )
+                    {
+                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_staticArray[arrayIdx];
+                    }
+
+                    if ( propertyID == 2137117432 )
+                    {
+                        return *reinterpret_cast<KRG::StringID const*>( pValueInstance ) == pDefaultType->m_staticArrayOfStringIDs[arrayIdx];
+                    }
+
+                    if ( propertyID == 1833056808 )
+                    {
+                        return *reinterpret_cast<KRG::TestComponent::InternalTest::InternalEnum const*>( pValueInstance ) == pDefaultType->m_staticArrayOfEnums[arrayIdx];
+                    }
+
+                    if ( propertyID == 1528863423 )
+                    {
+                        if ( arrayIdx < pDefaultType->m_dynamicArray.size() )
+                        {
+                            return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_dynamicArray[arrayIdx];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+
+                    return false;
                 }
 
             };

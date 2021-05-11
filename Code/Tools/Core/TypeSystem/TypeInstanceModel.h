@@ -3,6 +3,7 @@
 #include "Tools/Core/_Module/API.h"
 #include "System/TypeSystem/PropertyPath.h"
 #include "System/TypeSystem/PropertyInfo.h"
+#include "System/TypeSystem/TypeDescriptors.h"
 #include "System/TypeSystem/EnumInfo.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/CoreTypeIDs.h"
@@ -17,40 +18,6 @@
 namespace KRG::TypeSystem
 {
     class TypeRegistry;
-
-    //-------------------------------------------------------------------------
-    // Simplified representation of a tool type instance
-    //-------------------------------------------------------------------------
-    // Often used to directly serialize/deserialize a type instance
-
-    struct PropertyInstanceDescriptor
-    {
-        PropertyInstanceDescriptor( PropertyPath const& path, String const& value, TypeID typeID = TypeID(), TypeID templatedArgumentTypeID = TypeID() )
-            : m_path( path )
-            , m_value( value )
-            , m_typeID( typeID )
-            , m_templatedArgumentTypeID( templatedArgumentTypeID )
-        {
-            KRG_ASSERT( path.IsValid() );
-        }
-
-        inline bool IsOnlyRelevantForTools() const { return !m_typeID.IsValid(); }
-
-    public:
-
-        PropertyPath                                    m_path;
-        String                                          m_value;
-        TypeID                                          m_typeID; // Not serialized - but needed for certain conversions
-        TypeID                                          m_templatedArgumentTypeID; // Not serialized - but needed for certain conversions
-    };
-
-    //-------------------------------------------------------------------------
-
-    struct TypeInstanceDescriptor
-    {
-        TypeID                                          m_typeID;
-        TVector<PropertyInstanceDescriptor>             m_properties;
-    };
 
     //-------------------------------------------------------------------------
     // Tool Property Instance
@@ -269,13 +236,13 @@ namespace KRG::TypeSystem
 
         TypeInstanceModel() = default;
         TypeInstanceModel( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo );
-        TypeInstanceModel( TypeRegistry const& typeRegistry, TypeInstanceDescriptor const& typeDescriptor );
+        TypeInstanceModel( TypeRegistry const& typeRegistry, TypeDescriptor const& typeDescriptor );
 
         virtual bool IsValid() const final { return m_pTypeInfo != nullptr && m_pTypeInfo->m_ID.IsValid(); }
         inline TypeID const& GetTypeID() const { return m_pTypeInfo->m_ID; }
 
-        // Create a simplified descriptor of this type instance for easy serialization
-        TypeInstanceDescriptor GetDescriptor() const;
+        // Create a type descriptor of this instance for easy serialization
+        TypeDescriptor GetDescriptor() const;
 
         // Get as a property instance - needed in some tooling to track hierarchy
         PropertyInstanceModel const* GetAsPropertyInstance() const { return static_cast<PropertyInstanceModel const*>( this ); }
@@ -284,6 +251,8 @@ namespace KRG::TypeSystem
         PropertyInstanceModel* GetAsPropertyInstance() { return static_cast<PropertyInstanceModel*>( this ); }
 
         //-------------------------------------------------------------------------
+
+        using PropertyInstanceModel::GetFriendlyTypeName;
 
         using PropertyInstanceModel::GetTypeInfo;
         using PropertyInstanceModel::GetProperty;

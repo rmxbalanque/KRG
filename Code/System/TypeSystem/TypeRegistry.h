@@ -42,8 +42,8 @@ namespace KRG
             // Returns the size of a given type
             size_t GetTypeByteSize( TypeID typeID ) const;
 
-            // Returns the resolved property info for a given path as well as the resolved byte offset from the parent type
-            ResolvedPropertyInfo ResolvePropertyPath( TypeInfo const* pTypeInfo, PropertyPath const& pathID ) const;
+            // Returns the resolved property info for a given path
+            PropertyInfo const* ResolvePropertyPath( TypeInfo const* pTypeInfo, PropertyPath const& pathID ) const;
 
             // Does a given type derived a given parent type
             bool IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const;

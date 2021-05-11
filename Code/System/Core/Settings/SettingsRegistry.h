@@ -1,7 +1,8 @@
 #pragma once
 
+#include "ISettings.h"
 #include "System/Core/Types/Containers.h"
-#include "System/Core/Settings/Setting.h"
+#include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Systems/ISystem.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
 
@@ -9,8 +10,8 @@
 // Global Settings Registry
 //-------------------------------------------------------------------------
 // This is the registry for both configuration and debug settings.
-// Settings are statically defined as needed (see ConfigSettings.h / DebugSettings.h)
-// Settings can be accessed from this registry if absolutely needed but this should be avoided
+// Configuration settings are explicitly defined via an interface and registered
+// Debugs settings are statically defined as needed (see DebugSettings.h)
 //-------------------------------------------------------------------------
 
 namespace KRG
@@ -24,35 +25,61 @@ namespace KRG
 
     public:
 
+        SettingsRegistry();
+
         bool LoadFromFile( FileSystem::Path const& iniFilePath );
         void SaveToFile( FileSystem::Path const& iniFilePath );
-
-        // Reload (needed to both handle reloading of settings as well as DLL loading which might create new settings )
         void ReloadSettings();
 
-        // Configuration Settings
-        THashMap<uint32, Setting*> const& GetAllConfigSettings() const { return m_configSettings; }
+        // Registered Settings
+        //-------------------------------------------------------------------------
+
+        void RegisterSettings( ISettings* pSettings );
+        void UnregisterSettings( ISettings* pSettings );
+
+        template<typename T>
+        T const* GetSettings() const
+        {
+            static_assert( std::is_base_of<ISettings, T>::value, "T must derive from ISettings" );
+
+            T const* pFoundSettings = nullptr;
+            for ( auto const& pSettings : m_settings )
+            {
+                if ( pSettings->GetSettingsID() == T::s_settingsID )
+                {
+                    pFoundSettings = static_cast<T const*>( pSettings );
+                    break;
+                }
+            }
+
+            return pFoundSettings;
+        }
 
         // Debug Settings
+        //-------------------------------------------------------------------------
+
         #if KRG_DEVELOPMENT_TOOLS
-        THashMap<uint32, Setting*> const& GetAllDebugSettings() const { return m_debugSettings; }
+        THashMap<uint32, DebugSetting*> const& GetAllDebugSettings() const { return m_debugSettings; }
+        DebugSetting const* TryGetDebugSetting( char const* pCategoryName, char const* pSettingName ) const;
         #endif
 
     private:
 
-        void GenerateSettingsCaches();
+        #if KRG_DEVELOPMENT_TOOLS
+        void GenerateDebugSettingsMap();
+        #endif
 
     private:
 
         // The ini used to populate the values
-        FileSystem::Path                m_settingsFilePath;
+        FileSystem::Path                        m_settingsFilePath;
 
-        // A cache of all settings
-        THashMap<uint32, Setting*>      m_configSettings;
+        // The list of registered settings objects
+        TVector<ISettings*>                     m_settings;
 
         // A cache of all debug settings
         #if KRG_DEVELOPMENT_TOOLS
-        THashMap<uint32, Setting*>      m_debugSettings;
+        THashMap<uint32, DebugSetting*>         m_debugSettings;
         #endif
     };
 }

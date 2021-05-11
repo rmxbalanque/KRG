@@ -29,6 +29,7 @@
     <ClInclude Include="ResourceSystem.h" />
     <ClInclude Include="ResourceTypeID.h" />
     <ClInclude Include="ResourceRequesterID.h" />
+    <ClInclude Include="ResourceSettings.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceProviders\NetworkResourceProvider.cpp">
@@ -41,5 +42,6 @@
     <ClCompile Include="ResourceRequest.cpp" />
     <ClCompile Include="ResourceSystem.cpp" />
     <ClCompile Include="ResourceTypeID.cpp" />
+    <ClCompile Include="ResourceSettings.cpp" />
   </ItemGroup>
 </Project>

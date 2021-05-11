@@ -20,8 +20,8 @@
     <ClInclude Include="Debug\DebugDrawingSystem.h" />
     <ClInclude Include="Math\PhysicsMath.h" />
     <ClInclude Include="Math\Viewport.h" />
-    <ClInclude Include="Settings\Setting.h" />
-    <ClInclude Include="Settings\ConfigSettings.h" />
+    <ClInclude Include="Serialization\JsonArchive.h" />
+    <ClInclude Include="Settings\ISettings.h" />
     <ClInclude Include="Debug\DebugDrawingCommands.h" />
     <ClInclude Include="Debug\DebugDrawing.h" />
     <ClInclude Include="Settings\DebugSettings.h" />
@@ -468,10 +468,9 @@
     <ClCompile Include="Algorithm\Encoding.cpp" />
     <ClCompile Include="Debug\DebugDrawingSystem.cpp" />
     <ClCompile Include="Math\Viewport.cpp" />
-    <ClCompile Include="Settings\Setting.cpp" />
-    <ClCompile Include="Settings\ConfigSettings.cpp" />
     <ClCompile Include="Debug\DebugDrawingCommands.cpp" />
     <ClCompile Include="Debug\DebugDrawing.cpp" />
+    <ClCompile Include="Serialization\JsonArchive.cpp" />
     <ClCompile Include="Settings\DebugSettings.cpp" />
     <ClCompile Include="FileSystem\DataPath.cpp" />
     <ClCompile Include="FileSystem\FileSystemPath.cpp" />

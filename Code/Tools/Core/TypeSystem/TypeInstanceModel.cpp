@@ -145,6 +145,9 @@ namespace KRG::TypeSystem
         KRG_ASSERT( pTypeInfo != nullptr );
         m_pTypeInfo = pTypeInfo;
 
+        m_friendlyTypeName = m_pTypeInfo->m_ID.GetAsStringID().c_str();
+        StringUtils::RemoveAllOccurrencesInPlace( m_friendlyTypeName, "KRG::" );
+
         // Create property instances
         for ( auto const& childPropertyInfo : m_pTypeInfo->m_properties )
         {
@@ -563,7 +566,7 @@ namespace KRG::TypeSystem
 
     namespace
     {
-        static void FlattenProperties( PropertyInstanceModel const& propertyInstance, PropertyPath const& currentPath, TVector<PropertyInstanceDescriptor>& outProperties )
+        static void FlattenProperties( PropertyInstanceModel const& propertyInstance, PropertyPath const& currentPath, TInlineVector<PropertyDescriptor, 6>& outProperties )
         {
             if ( propertyInstance.IsDefaultValue() )
             {
@@ -601,7 +604,7 @@ namespace KRG::TypeSystem
             }
             else // Core Types/Enums
             {
-                outProperties.push_back( PropertyInstanceDescriptor( propertyPath, propertyInstance.GetStringValue(), propertyInstance.GetTypeID(), propertyInstance.GetTemplatedArgumentTypeID() ) );
+                outProperties.push_back( PropertyDescriptor( propertyPath, propertyInstance.GetStringValue(), propertyInstance.GetTypeID(), propertyInstance.GetTemplatedArgumentTypeID() ) );
             }
         }
     }
@@ -612,7 +615,7 @@ namespace KRG::TypeSystem
         : PropertyInstanceModel( typeRegistry, pTypeInfo )
     {}
 
-    TypeInstanceModel::TypeInstanceModel( TypeRegistry const& typeRegistry, TypeInstanceDescriptor const& typeDescriptor )
+    TypeInstanceModel::TypeInstanceModel( TypeRegistry const& typeRegistry, TypeDescriptor const& typeDescriptor )
         : TypeInstanceModel( typeRegistry, typeRegistry.GetTypeInfo( typeDescriptor.m_typeID ) )
     {
         // Set property values
@@ -621,16 +624,16 @@ namespace KRG::TypeSystem
             auto pProperty = GetProperty( serializedProperty.m_path, true );
             if ( pProperty )
             {
-                pProperty->SetStringValue( serializedProperty.m_value );
+                pProperty->SetStringValue( serializedProperty.m_stringValue );
             }
         }
     }
 
     //-------------------------------------------------------------------------
 
-    TypeInstanceDescriptor TypeInstanceModel::GetDescriptor() const
+    TypeDescriptor TypeInstanceModel::GetDescriptor() const
     {
-        TypeInstanceDescriptor descriptor;
+        TypeDescriptor descriptor;
         descriptor.m_typeID = m_pTypeInfo->m_ID;
 
         // Get all properties that have a non-default value set

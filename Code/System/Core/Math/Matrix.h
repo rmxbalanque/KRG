@@ -147,12 +147,15 @@ namespace KRG
         inline Matrix operator*( Quaternion const& rhs ) const { return operator*( Matrix( rhs ) ); }
         inline Matrix operator*=( Quaternion const& rhs ) { return operator*=( Matrix( rhs ) ); }
 
+        // Naive equality operator
+        inline bool operator==( Matrix const& rhs ) const { return memcmp( this, &rhs, sizeof( Matrix ) ) == 0; }
+
     private:
 
         union
         {
-            Vector  m_rows[4];
-            float     m_values[4][4];
+            Vector      m_rows[4];
+            float       m_values[4][4];
         };
     };
 

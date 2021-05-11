@@ -46,13 +46,10 @@ namespace KRG
             }
         }
 
-        ResolvedPropertyInfo TypeRegistry::ResolvePropertyPath( TypeInfo const* pTypeInfo, PropertyPath const& pathID ) const
+        PropertyInfo const* TypeRegistry::ResolvePropertyPath( TypeInfo const* pTypeInfo, PropertyPath const& pathID ) const
         {
-            ResolvedPropertyInfo resolvedPropertyInfo;
-
             TypeInfo const* pParentTypeInfo = pTypeInfo;
             PropertyInfo const* pFoundPropertyInfo = nullptr;
-            int32 propertyOffset = 0;
 
             // Resolve property path
             size_t const numPathElements = pathID.GetNumElements();
@@ -64,9 +61,6 @@ namespace KRG
                 {
                     break;
                 }
-
-                // Increment the offset to take into account the parent types' offsets
-                propertyOffset += pFoundPropertyInfo->m_offset;
 
                 if ( i != lastElementIdx )
                 {
@@ -88,14 +82,7 @@ namespace KRG
                 }
             }
 
-            // Fill out the resulting property info
-            if ( pFoundPropertyInfo != nullptr )
-            {
-                resolvedPropertyInfo.m_pPropertyInfo = pFoundPropertyInfo;
-                resolvedPropertyInfo.m_offset = propertyOffset;
-            }
-
-            return resolvedPropertyInfo;
+            return pFoundPropertyInfo;
         }
 
         bool TypeRegistry::IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const

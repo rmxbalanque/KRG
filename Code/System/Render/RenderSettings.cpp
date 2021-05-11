@@ -1,17 +1,28 @@
 #include "RenderSettings.h"
+#include "iniparser/krg_ini.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace Render
+    bool Settings::ReadSettings( IniFile const& ini )
     {
-        namespace Settings
+        m_resolution.m_x = ini.GetIntOrDefault( "Render:ResolutionX", 1280 );
+        m_resolution.m_y = ini.GetIntOrDefault( "Render:ResolutionX", 720 );
+        m_refreshRate = ini.GetFloatOrDefault( "Render:ResolutionX", 60 );
+        m_isFullscreen = ini.GetBoolOrDefault( "Render:Fullscreen", false );
+
+        //-------------------------------------------------------------------------
+
+        if ( m_resolution.m_x < 0 || m_resolution.m_y < 0 || m_refreshRate < 0 )
         {
-            ConfigSettingInt     g_resolutionX( "ResolutionX", "Render", 1280, 640, 10000 );
-            ConfigSettingInt     g_resolutionY( "ResolutionY", "Render", 720, 320, 10000 );
-            ConfigSettingInt     g_refreshRate( "RefreshRate", "Render", 60, 59, 240 );
-            ConfigSettingBool    g_fullscreen( "Fullscreen", "Render", false );
+            KRG_LOG_ERROR( "Render", "Invalid render settings read from ini file." );
+            return false;
         }
+
+        //-------------------------------------------------------------------------
+
+        return true;
     }
 }

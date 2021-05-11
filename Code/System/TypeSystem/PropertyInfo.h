@@ -18,6 +18,7 @@ namespace KRG
                 IsDynamicArray,
                 IsEnum,
                 IsBitFlags,
+                IsStructure,
             };
 
         public:
@@ -26,9 +27,10 @@ namespace KRG
 
             inline bool IsValid() const { return m_ID.IsValid(); }
 
-            // Array queries
+            // General queries
             //-------------------------------------------------------------------------
 
+            inline bool IsStructureProperty() const { return m_flags.IsFlagSet( Flags::IsStructure ); }
             inline bool IsEnumProperty() const { return m_flags.IsFlagSet( Flags::IsEnum ); }
             inline bool IsBitFlagsProperty() const { return m_flags.IsFlagSet( Flags::IsBitFlags ); }
             inline bool IsArrayProperty() const { return m_flags.IsFlagSet( Flags::IsArray ) || m_flags.IsFlagSet( Flags::IsDynamicArray ); }
@@ -99,51 +101,6 @@ namespace KRG
             void const*                 m_pDefaultValue = nullptr;              // A ptr to the default value of the property
             void const*                 m_pDefaultArrayData = nullptr;          // A ptr to the contained data within the default value array
             TBitFlags<Flags>            m_flags;                                // Info about property type
-        };
-
-        //-------------------------------------------------------------------------
-        // Property info relative to a specific type
-        //-------------------------------------------------------------------------
-        // This is the property info for a given property in a type, it provide specific addressing functions relative to the initial type provided
-
-        struct ResolvedPropertyInfo
-        {
-            inline bool IsValid() const { return m_pPropertyInfo != nullptr; }
-
-            // Addressing functions
-            //-------------------------------------------------------------------------
-            // Warning: These are only valid is the type address the type from where the resolution started
-
-            template<typename T>
-            inline T* GetPropertyAddress( void* pTypeAddress ) const
-            {
-                KRG_ASSERT( IsValid() );
-                return reinterpret_cast<T*>( ( reinterpret_cast<Byte*>( pTypeAddress ) + m_offset ) );
-            }
-
-            template<typename T>
-            inline T const* GetPropertyAddress( void const* pTypeAddress ) const
-            {
-                KRG_ASSERT( IsValid() );
-                return reinterpret_cast<T const*>( ( reinterpret_cast<Byte const*>( pTypeAddress ) + m_offset ) );
-            }
-
-            inline void* GetPropertyAddress( void* pTypeAddress ) const
-            {
-                KRG_ASSERT( IsValid() );
-                return reinterpret_cast<Byte*>( pTypeAddress ) + m_offset;
-            }
-
-            inline void const* GetPropertyAddress( void const* pTypeAddress ) const
-            {
-                KRG_ASSERT( IsValid() );
-                return reinterpret_cast<Byte const*>( pTypeAddress ) + m_offset;
-            }
-
-        public:
-
-            PropertyInfo const*         m_pPropertyInfo = nullptr;  // The found property info
-            int32                       m_offset = -1;              // Byte offset from parent type
         };
     }
 }

@@ -16,10 +16,14 @@ namespace KRG::Animation
         KRG_REGISTER_TYPE;
         KRG_SERIALIZE_MEMBERS( m_startTime, m_duration );
 
+        friend struct EventManipulator;
+
     public:
 
         enum class AllowedTypes
         {
+            KRG_REGISTER_ENUM
+
             Immediate,
             Duration,
             Both
@@ -44,8 +48,8 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual char const* GetEventTypeName() const = 0;
         virtual InlineString<100> GetDisplayText() const = 0;
+        virtual char const* GetEventTypeName() const = 0;
         virtual bool AllowMultipleTracks() const { return false; }
         virtual int32 GetMaxEventsAllowedPerTrack() const { return -1; }
         virtual AllowedTypes GetAllowedTypes() const { return AllowedTypes::Duration; }

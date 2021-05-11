@@ -5,13 +5,10 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Resource
 {
-    namespace Resource
+    class KRG_TOOLS_RESOURCE_API ToolsModule
     {
-        class KRG_TOOLS_RESOURCE_API ToolsModule
-        {
-            KRG_REGISTER_MODULE;
-        };
-    }
+        KRG_REGISTER_MODULE;
+    };
 }

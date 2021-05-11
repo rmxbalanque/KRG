@@ -300,7 +300,7 @@ namespace KRG::Resource
         {
             ImGui::Text( "Source Data Path: %s", m_pResourceServer->GetSourceDataDir().c_str() );
             ImGui::Text( "Compiled Data Path: %s", m_pResourceServer->GetCompiledDataDir().c_str() );
-            ImGui::Text( "IP Address: %s", m_pResourceServer->GetNetworkAddress().c_str() );
+            ImGui::Text( "IP Address: %s:%d", m_pResourceServer->GetNetworkAddress().c_str(), m_pResourceServer->GetNetworkPort() );
 
             ImGui::NewLine();
 
@@ -310,41 +310,39 @@ namespace KRG::Resource
             {
                 ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 150 );
                 ImGui::TableSetupColumn( "Ver", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 15 );
-                ImGui::TableSetupColumn( "Module", ImGuiTableColumnFlags_WidthStretch );
-                ImGui::TableSetupColumn( "Output Types", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 80 );
-                ImGui::TableSetupColumn( "Virtual Types", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 0 );
+                ImGui::TableSetupColumn( "Output Types", ImGuiTableColumnFlags_WidthStretch );
+                ImGui::TableSetupColumn( "Virtual Types", ImGuiTableColumnFlags_WidthStretch );
 
                 //-------------------------------------------------------------------------
 
                 ImGui::TableHeadersRow();
 
-                for ( auto const& compilerInfo : m_pResourceServer->GetRegisteredCompilers() )
+                auto const pCompilerRegistry = m_pResourceServer->GetCompilerRegistry();
+
+                for ( auto const& pCompiler : pCompilerRegistry->GetRegisteredCompilers() )
                 {
                     ImGui::TableNextRow();
 
                     ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( compilerInfo.m_name.c_str() );
+                    ImGui::Text( pCompiler->GetName().c_str() );
 
                     ImGui::TableSetColumnIndex( 1 );
-                    ImGui::Text( "%d", compilerInfo.m_version );
-
-                    ImGui::TableSetColumnIndex( 2 );
-                    ImGui::Text( compilerInfo.m_sourceModule.c_str() );
+                    ImGui::Text( "%d", pCompiler->GetVersion() );
 
                     //-------------------------------------------------------------------------
 
                     char str[32] = { 0 };
 
-                    ImGui::TableSetColumnIndex( 3 );
-                    for ( auto const& type : compilerInfo.m_outputTypes )
+                    ImGui::TableSetColumnIndex( 2 );
+                    for ( auto const& type : pCompiler->GetOutputTypes() )
                     {
                         type.GetString( str );
                         ImGui::Text( str );
                         ImGui::SameLine();
                     }
 
-                    ImGui::TableSetColumnIndex( 4 );
-                    for ( auto const& type : compilerInfo.m_virtualTypes )
+                    ImGui::TableSetColumnIndex( 3 );
+                    for ( auto const& type : pCompiler->GetVirtualTypes() )
                     {
                         type.GetString( str );
                         ImGui::Text( str );

@@ -25,76 +25,73 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::EngineCore
 {
-    namespace EngineCore
+    class KRG_ENGINE_CORE_API EngineModule : public IModule
     {
-        class KRG_ENGINE_CORE_API EngineModule : public IModule
-        {
-            KRG_REGISTER_MODULE;
+        KRG_REGISTER_MODULE;
 
-        public:
+    public:
 
-            EngineModule( SettingsRegistry& settingsRegistry );
+        EngineModule( SettingsRegistry& settingsRegistry );
 
-            virtual bool Initialize( ModuleContext& context ) final;
-            virtual void Shutdown( ModuleContext& context ) final;
+        virtual bool Initialize( ModuleContext& context ) final;
+        virtual void Shutdown( ModuleContext& context ) final;
 
-            inline SystemRegistry* GetSystemRegistry() { return &m_systemRegistry; }
-            inline TaskSystem* GetTaskSystem() { return &m_taskSystem; }
-            inline TypeSystem::TypeRegistry* GetTypeRegistry() { return &m_typeRegistry; }
-            inline Input::InputSystem* GetInputSystem() { return &m_inputSystem; }
-            inline Resource::ResourceSystem* GetResourceSystem() { return &m_resourceSystem; }
+        inline SystemRegistry* GetSystemRegistry() { return &m_systemRegistry; }
+        inline TaskSystem* GetTaskSystem() { return &m_taskSystem; }
+        inline TypeSystem::TypeRegistry* GetTypeRegistry() { return &m_typeRegistry; }
+        inline Input::InputSystem* GetInputSystem() { return &m_inputSystem; }
+        inline Resource::ResourceSystem* GetResourceSystem() { return &m_resourceSystem; }
 
-            inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
-            inline Render::RendererRegistry* GetRendererRegistry() { return &m_rendererRegistry; }
-            inline Render::ViewportManager* GetViewportManager() { return &m_viewportManager; }
-            inline ImGuiX::ImguiSystem* GetImguiSystem() { return &m_imguiSystem; }
+        inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
+        inline Render::RendererRegistry* GetRendererRegistry() { return &m_rendererRegistry; }
+        inline Render::ViewportManager* GetViewportManager() { return &m_viewportManager; }
+        inline ImGuiX::ImguiSystem* GetImguiSystem() { return &m_imguiSystem; }
 
-            inline EntityWorld* GetEntityWorld() { return &m_entityWorld; }
+        inline EntityWorld* GetEntityWorld() { return &m_entityWorld; }
 
-            #if KRG_DEVELOPMENT_TOOLS
-            inline Debug::DrawingSystem* GetDebugDrawingSystem() { return &m_debugDrawingSystem; }
-            #endif
+        #if KRG_DEVELOPMENT_TOOLS
+        inline Debug::DrawingSystem* GetDebugDrawingSystem() { return &m_debugDrawingSystem; }
+        #endif
 
-        private:
+    private:
 
-            // System
-            SettingsRegistry&                               m_settingsRegistry;
-            TaskSystem                                      m_taskSystem;
-            TypeSystem::TypeRegistry                        m_typeRegistry;
-            SystemRegistry                                  m_systemRegistry;
-            Input::InputSystem                              m_inputSystem;
+        // System
+        SettingsRegistry&                               m_settingsRegistry;
+        TaskSystem                                      m_taskSystem;
+        TypeSystem::TypeRegistry                        m_typeRegistry;
+        SystemRegistry                                  m_systemRegistry;
+        Input::InputSystem                              m_inputSystem;
 
-            // Resource
-            Resource::ResourceProvider*                     m_pResourceProvider = nullptr;
-            Resource::ResourceSystem                        m_resourceSystem;
-            // Rendering
-            Render::RenderDevice*                           m_pRenderDevice = nullptr;
-            Render::RendererRegistry                        m_rendererRegistry;
-            Render::ViewportManager                         m_viewportManager;
-            
-            // ImGui
-            ImGuiX::ImguiSystem                             m_imguiSystem;
-            ImGuiX::ImguiRenderer                           m_imguiRenderer;
+        // Resource
+        Resource::ResourceProvider*                     m_pResourceProvider = nullptr;
+        Resource::ResourceSystem                        m_resourceSystem;
+        // Rendering
+        Render::RenderDevice*                           m_pRenderDevice = nullptr;
+        Render::RendererRegistry                        m_rendererRegistry;
+        Render::ViewportManager                         m_viewportManager;
 
-            // Entity
-            EntityWorld                                     m_entityWorld;
-            EntityModel::EntityMapLoader                    m_mapLoader;
+        // ImGui
+        ImGuiX::ImguiSystem                             m_imguiSystem;
+        ImGuiX::ImguiRenderer                           m_imguiRenderer;
 
-            // Debug
-            #if KRG_DEVELOPMENT_TOOLS
-            Debug::DrawingSystem                            m_debugDrawingSystem;
-            #endif
+        // Entity
+        EntityWorld                                     m_entityWorld;
+        EntityModel::EntityMapLoader                    m_mapLoader;
 
-            //-------------------------------------------------------------------------
+        // Debug
+        #if KRG_DEVELOPMENT_TOOLS
+        Debug::DrawingSystem                            m_debugDrawingSystem;
+        #endif
 
-            #if KRG_DEVELOPMENT_TOOLS
-            Debug::SystemDebugViewController                m_systemDebugViewController;
-            EntityDebugViewController                       m_entityDebugViewController;
-            Input::InputDebugViewController                 m_inputDebugViewController;
-            Resource::ResourceDebugViewController           m_resourceDebugViewController;
-            #endif
-        };
-    }
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        Debug::SystemDebugViewController                m_systemDebugViewController;
+        EntityDebugViewController                       m_entityDebugViewController;
+        Input::InputDebugViewController                 m_inputDebugViewController;
+        Resource::ResourceDebugViewController           m_resourceDebugViewController;
+        #endif
+    };
 }

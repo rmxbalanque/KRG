@@ -22,7 +22,7 @@ namespace KRG::EntityModel
     EntityComponentModel::EntityComponentModel( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeInfo const* pTypeInfo, EntityComponentDescriptor const& componentDesc )
         : EntityComponentModel( TypeSystem::TypeInstanceModel( typeRegistry, pTypeInfo ), componentDesc.m_ID, componentDesc.m_name )
     {
-        for ( auto const& propertyDesc : componentDesc.m_propertyValues )
+        for ( auto const& propertyDesc : componentDesc.m_properties )
         {
             auto pPropertyInstance = GetProperty( propertyDesc.m_path, true );
             if ( pPropertyInstance != nullptr )

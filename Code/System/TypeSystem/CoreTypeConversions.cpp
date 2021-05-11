@@ -328,6 +328,12 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
+                case CoreTypes::TypeID:
+                {
+                    *reinterpret_cast<TypeID*>( pValue ) = TypeID( str.c_str() );
+                }
+                break;
+
                 case CoreTypes::UUID :
                 {
                     *reinterpret_cast<UUID*>( pValue ) = UUID( str );
@@ -521,9 +527,6 @@ namespace KRG::TypeSystem::Conversion
             EnumInfo const* pEnumInfo = typeRegistry.GetEnumInfo( typeID );
             KRG_ASSERT( pEnumInfo != nullptr );
 
-            StringID const enumID( strValue );
-            int64 const enumValue = pEnumInfo->GetConstantValue( enumID );
-
             // We only support up to 32 bit enum types...
             switch ( pEnumInfo->m_underlyingType )
             {
@@ -650,6 +653,14 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::StringID:
                 {
                     char const* pStr = reinterpret_cast<StringID const*>( pValue )->ToString();
+                    KRG_ASSERT( pStr != nullptr );
+                    strValue = pStr;
+                }
+                break;
+
+                case CoreTypes::TypeID:
+                {
+                    char const* pStr = reinterpret_cast<TypeID const*>( pValue )->GetAsStringID().c_str();
                     KRG_ASSERT( pStr != nullptr );
                     strValue = pStr;
                 }
@@ -984,6 +995,12 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
+                case CoreTypes::TypeID:
+                {
+                    archive << reinterpret_cast<TypeID const*>( pValue )->GetAsStringID();
+                }
+                break;
+
                 case CoreTypes::UUID:
                 {
                     archive << *reinterpret_cast<UUID const*>( pValue );
@@ -1257,6 +1274,14 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::StringID:
                 {
                     archive >> *reinterpret_cast<StringID*>( pValue );
+                }
+                break;
+
+                case CoreTypes::TypeID:
+                {
+                    StringID ID;
+                    archive >> ID;
+                    *reinterpret_cast<TypeID*>( pValue ) = TypeID( ID );
                 }
                 break;
 
@@ -1572,6 +1597,14 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::StringID:
                 {
                     StringID value;
+                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
+                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                }
+                break;
+
+                case CoreTypes::TypeID:
+                {
+                    TypeID value;
                     ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
                     ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }

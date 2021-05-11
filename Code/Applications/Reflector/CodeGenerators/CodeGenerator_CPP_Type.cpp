@@ -15,6 +15,7 @@ namespace KRG
 
         static void GenerateFactoryMethod( std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                virtual void* CreateType() const override final\n";
             file << "                {\n";
             if ( !type.IsAbstract() )
             {
@@ -30,6 +31,7 @@ namespace KRG
 
         static void GenerateInPlaceFactoryMethod( std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final\n";
             file << "                {\n";
             if ( !type.IsAbstract() )
             {
@@ -43,8 +45,9 @@ namespace KRG
             file << "                }\n\n";
         }
 
-        static void GenerateDynamicArrayAccessorMethod( std::stringstream& file, TypeDescriptor const& type )
+        static void GenerateArrayAccessorMethod( std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final\n";
             file << "                {\n";
             file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n";
 
@@ -61,6 +64,13 @@ namespace KRG
                     file << "                        return (Byte*) &pActualType->" << propertyDesc.m_name.c_str() << "[arrayIdx];\n";
                     file << "                    }\n\n";
                 }
+                else if ( propertyDesc.IsStaticArrayProperty() )
+                {
+                    file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
+                    file << "                    {\n";
+                    file << "                        return (Byte*) &pActualType->" << propertyDesc.m_name.c_str() << "[arrayIdx];\n";
+                    file << "                    }\n\n";
+                }
             }
 
             file << "                    // We should never get here since we are asking for a ptr to an invalid property\n";
@@ -69,8 +79,118 @@ namespace KRG
             file << "                }\n\n";
         }
 
+        static void GenerateArraySizeMethod( std::stringstream& file, TypeDescriptor const& type )
+        {
+            file << "                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final\n";
+            file << "                {\n";
+            file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << " const*>( pTypeInstance );\n";
+
+            for ( auto& propertyDesc : type.m_properties )
+            {
+                if ( propertyDesc.IsDynamicArrayProperty() )
+                {
+                    file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
+                    file << "                    {\n";
+                    file << "                        return pActualType->" << propertyDesc.m_name.c_str() << ".size();\n";
+                    file << "                    }\n\n";
+                }
+                else if( propertyDesc.IsStaticArrayProperty() )
+                {
+                    file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
+                    file << "                    {\n";
+                    file << "                        return " << propertyDesc.GetArraySize() << ";\n";
+                    file << "                    }\n\n";
+                }
+            }
+
+            file << "                    // We should never get here since we are asking for a ptr to an invalid property\n";
+            file << "                    KRG_UNREACHABLE_CODE();\n";
+            file << "                    return 0;\n";
+            file << "                }\n\n";
+        }
+
+        static void GenerateArrayElementSizeMethod( std::stringstream& file, TypeDescriptor const& type )
+        {
+            file << "                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final\n";
+            file << "                {\n";
+
+            for ( auto& propertyDesc : type.m_properties )
+            {
+                String const templateSpecializationString = propertyDesc.m_templateArgTypeName.empty() ? String() : "<" + propertyDesc.m_templateArgTypeName + ">";
+
+                if ( propertyDesc.IsArrayProperty() )
+                {
+                    file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
+                    file << "                    {\n";
+                    file << "                        return sizeof( " << propertyDesc.m_typeName.c_str() << templateSpecializationString.c_str() << " );\n";
+                    file << "                    }\n\n";
+                }
+            }
+
+            file << "                    // We should never get here since we are asking for a ptr to an invalid property\n";
+            file << "                    KRG_UNREACHABLE_CODE();\n";
+            file << "                    return 0;\n";
+            file << "                }\n\n";
+        }
+
+        static void GenerateCheckDefaultValueMethod( std::stringstream& file, TypeDescriptor const& type )
+        {
+            file << "                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final\n";
+            file << "                {\n";
+            file << "                    auto pDefaultType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << " const*>( GetDefaultTypeInstancePtr() );\n";
+
+            for ( auto& propertyDesc : type.m_properties )
+            {
+                if ( propertyDesc.IsStructureProperty() )
+                {
+                    continue;
+                }
+
+                //-------------------------------------------------------------------------
+
+                InlineString<255> propertyTypeName = propertyDesc.m_typeName.c_str();
+                if ( !propertyDesc.m_templateArgTypeName.empty() )
+                {
+                    propertyTypeName += "<";
+                    propertyTypeName += propertyDesc.m_templateArgTypeName.c_str();
+                    propertyTypeName += ">";
+                }
+
+                //-------------------------------------------------------------------------
+
+                file << "                    if ( propertyID == " << propertyDesc.m_propertyID << " )\n";
+                file << "                    {\n";
+
+                if ( propertyDesc.IsDynamicArrayProperty() )
+                {
+                    file << "                        if ( arrayIdx < pDefaultType->" << propertyDesc.m_name.c_str() << ".size() )\n";
+                    file << "                        {\n";
+                    file << "                            return *reinterpret_cast<" << propertyTypeName.c_str() << " const*>( pValueInstance ) == pDefaultType->" << propertyDesc.m_name.c_str() << "[arrayIdx];\n";
+                    file << "                        }\n";
+                    file << "                        else\n";
+                    file << "                        {\n";
+                    file << "                            return false;\n";
+                    file << "                        }\n\n";
+                }
+                else if ( propertyDesc.IsStaticArrayProperty() )
+                {
+                    file << "                        return *reinterpret_cast<" << propertyTypeName.c_str() << " const*>( pValueInstance ) == pDefaultType->" << propertyDesc.m_name.c_str() << "[arrayIdx];\n";
+                }
+                else
+                {
+                    file << "                        return *reinterpret_cast<" << propertyTypeName.c_str() << " const*>( pValueInstance ) == pDefaultType->" << propertyDesc.m_name.c_str() << ";\n";
+                }
+
+                file << "                    }\n\n";
+            }
+
+            file << "                    return false;\n";
+            file << "                }\n\n";
+        }
+
         static void GenerateExpectedResourceTypeMethod( std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final\n";
             file << "                {\n";
             file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n";
 
@@ -134,6 +254,7 @@ namespace KRG
 
         static void GenerateLoadResourcesMethod( ReflectionDatabase const& database, std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final\n";
             file << "                {\n";
             file << "                    KRG_ASSERT( pResourceSystem != nullptr );\n";
             file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n\n";
@@ -204,6 +325,7 @@ namespace KRG
 
         static void GenerateUnloadResourcesMethod( ReflectionDatabase const& database, std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final\n";
             file << "                {\n";
             file << "                    KRG_ASSERT( pResourceSystem != nullptr );\n";
             file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n\n";
@@ -274,6 +396,7 @@ namespace KRG
 
         static void GenerateResourceLoadingStatusMethod( ReflectionDatabase const& database, std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final\n";
             file << "                {\n";
             file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n";
             file << "                    LoadingStatus status = LoadingStatus::Loaded;\n\n";
@@ -369,6 +492,7 @@ namespace KRG
 
         static void GenerateResourceUnloadingStatusMethod( ReflectionDatabase const& database, std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final\n";
             file << "                {\n";
             file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n";
             file << "                    LoadingStatus status = LoadingStatus::Unloading;\n\n";
@@ -618,6 +742,7 @@ namespace KRG
 
         static void GenerateTypeRegistrationMethod( std::stringstream& file, TypeDescriptor const& type, TVector<TypeDescriptor> const& parentDescs )
         {
+            file << "                static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )\n";
             file << "                {\n";
 
             // Create default type instance
@@ -682,6 +807,7 @@ namespace KRG
 
         static void GenerateTypeUnregistrationMethod( std::stringstream& file, TypeDescriptor const& type )
         {
+            file << "                static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )\n";
             file << "                {\n";
 
             // Unregister type
@@ -737,35 +863,19 @@ namespace KRG
 
             file << "                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }\n\n";
 
-            file << "                static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )\n";
             GenerateTypeRegistrationMethod( file, type, parentDescs );
-
-            file << "                static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )\n";
             GenerateTypeUnregistrationMethod( file, type );
-
-            file << "                virtual void* CreateType() const override final\n";
             GenerateFactoryMethod( file, type );
-
-            file << "                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final\n";
             GenerateInPlaceFactoryMethod( file, type );
-
-            file << "                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final\n";
             GenerateLoadResourcesMethod( database, file, type );
-
-            file << "                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final\n";
             GenerateUnloadResourcesMethod( database, file, type );
-
-            file << "                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final\n";
             GenerateResourceLoadingStatusMethod( database, file, type );
-
-            file << "                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final\n";
             GenerateResourceUnloadingStatusMethod( database, file, type );
-
-            file << "                virtual Byte* GetDynamicArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final\n";
-            GenerateDynamicArrayAccessorMethod( file, type );
-
-            file << "                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final\n";
+            GenerateArrayAccessorMethod( file, type );
+            GenerateArraySizeMethod( file, type );
+            GenerateArrayElementSizeMethod( file, type );
             GenerateExpectedResourceTypeMethod( file, type );
+            GenerateCheckDefaultValueMethod( file, type );
 
             file << "            };\n";
             file << "        }\n";

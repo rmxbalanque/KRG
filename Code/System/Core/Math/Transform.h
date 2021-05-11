@@ -113,6 +113,19 @@ namespace KRG
         inline Transform operator*( Transform const& rhs ) const;
         inline Transform& operator*=( Transform const& rhs );
 
+        // Operators
+        //-------------------------------------------------------------------------
+
+        inline bool operator==( Transform const& rhs ) const
+        {
+            return m_translation == rhs.m_translation && m_scale == rhs.m_translation && m_rotation == rhs.m_rotation;
+        }
+
+        inline bool operator!=( Transform const& rhs ) const
+        {
+            return m_translation != rhs.m_translation || m_scale != rhs.m_translation || m_rotation != rhs.m_rotation;
+        }
+
     private:
 
         Quaternion  m_rotation = Quaternion( 0, 0, 0, 1 );

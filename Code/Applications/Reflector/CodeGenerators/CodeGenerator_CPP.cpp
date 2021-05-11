@@ -92,7 +92,7 @@ namespace KRG
                 // Ignore tools modules for engine headers
                 if ( headerType == TypeRegistrationHeaderType::Engine )
                 {
-                    if ( Reflection::Utils::IsResourceCompilerModule( modules[i].m_moduleClassName ) || Reflection::Utils::IsToolsModule( modules[i].m_moduleClassName ) )
+                    if ( Reflection::Utils::IsToolsModule( modules[i].m_moduleClassName ) )
                     {
                         modules.erase_unsorted( modules.begin() + i );
                         i--;
