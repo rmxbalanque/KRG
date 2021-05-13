@@ -21,11 +21,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Navmesh::NavmeshComponent::GetTypeInfo() const
-    {
-        return KRG::Navmesh::NavmeshComponent::s_pTypeInfo;
-    }
-
     void KRG::Navmesh::NavmeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Navmesh::NavmeshComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

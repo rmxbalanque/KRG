@@ -11,16 +11,15 @@
 
 namespace KRG::Animation
 {
-    class KRG_ENGINE_ANIMATION_API Event
+    class KRG_ENGINE_ANIMATION_API Event : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
-        KRG_SERIALIZE_MEMBERS( m_startTime, m_duration );
+        KRG_REGISTER_TYPE( Event );
 
         friend struct EventManipulator;
 
     public:
 
-        enum class AllowedTypes
+        enum class EventType
         {
             KRG_REGISTER_ENUM
 
@@ -33,8 +32,6 @@ namespace KRG::Animation
 
         Event() = default;
         virtual ~Event() = default;
-
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return s_pTypeInfo; }
 
         inline Seconds GetStartTime() const { return m_startTime; }
         inline Seconds GetDuration() const { return m_duration; }
@@ -49,10 +46,10 @@ namespace KRG::Animation
 
         #if KRG_DEVELOPMENT_TOOLS
         virtual InlineString<100> GetDisplayText() const = 0;
-        virtual char const* GetEventTypeName() const = 0;
+        virtual char const* GetEventName() const = 0;
         virtual bool AllowMultipleTracks() const { return false; }
         virtual int32 GetMaxEventsAllowedPerTrack() const { return -1; }
-        virtual AllowedTypes GetAllowedTypes() const { return AllowedTypes::Duration; }
+        virtual EventType GetEventType() const { return EventType::Duration; }
         #endif
 
     protected:

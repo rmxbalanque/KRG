@@ -15,7 +15,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::AnimationTools
+namespace KRG::Animation::Tools
 {
     AnimationResourceDescriptorCreator::AnimationResourceDescriptorCreator( EditorModel* pModel )
         : ResourceDescriptorCreator( pModel )
@@ -49,7 +49,7 @@ namespace KRG::Animation::AnimationTools
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::AnimationTools
+namespace KRG::Animation::Tools
 {
     static Color const g_rawFileColor = Colors::LightGray;
     static Color const g_skeletonColor = Colors::HotPink;
@@ -84,7 +84,7 @@ namespace KRG::Animation::AnimationTools
 
     DataBrowser::DataBrowser( EditorModel* pModel )
         : TEditorTool<EditorModel>( pModel )
-        , m_propertyGrid( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
+        , m_propertyGrid( pModel )
         , m_descriptorCreator( pModel )
         , m_dataBrowserTreeView( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory(), { ".skel", ".anim", ".fbx", ".gltf" } )
     {
@@ -138,15 +138,15 @@ namespace KRG::Animation::AnimationTools
                 }
                 else // Resource File
                 {
-                    if ( OpenInspectedResourceFile( context ) )
+                    /*if ( OpenInspectedResourceFile( context ) )
                     {
-                        m_propertyGrid.SetTypeToEdit( &m_typeInstance );
+                        m_propertyGrid.SetTypeToEdit( &m_pResourceDescriptor );
                     }
                     else
                     {
                         m_propertyGrid.SetTypeToEdit( nullptr );
                         KRG_LOG_ERROR( "DataBrowser", "Failed to deserialize resource file: %s", m_inspectedFile.c_str() );
-                    }
+                    }*/
                 }
             }
         }
@@ -309,10 +309,15 @@ namespace KRG::Animation::AnimationTools
     {
         KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() );
 
-        TypeSystem::Serialization::TypeReader typeReader( *context.GetSystem<TypeSystem::TypeRegistry>() );
+        TypeSystem::Serialization::TypeReader typeReader( m_model.GetTypeRegistry() );
         if ( typeReader.ReadFromFile( m_inspectedFile ) )
         {
-            return typeReader.ReadType( m_typeInstance );
+            TypeSystem::TypeDescriptor typeDesc;
+            if ( typeReader.ReadType( typeDesc ) )
+            {
+                m_pResourceDescriptor = TypeSystem::TypeCreator::CreateTypeFromDescriptor<Resource::ResourceDescriptor>( m_model.GetTypeRegistry(), typeDesc );
+                return true;
+            }
         }
 
         return false;
@@ -320,10 +325,10 @@ namespace KRG::Animation::AnimationTools
 
     bool DataBrowser::SaveInspectedResourceFile( UpdateContext const& context )
     {
-        KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() && m_typeInstance.IsValid() );
+        KRG_ASSERT( m_inspectedFile.ExistsAndIsFile() && m_pResourceDescriptor != nullptr );
 
-        TypeSystem::Serialization::TypeWriter typeWriter( *context.GetSystem<TypeSystem::TypeRegistry>() );
-        typeWriter << m_typeInstance;
+        TypeSystem::Serialization::TypeWriter typeWriter( m_model.GetTypeRegistry() );
+        //typeWriter << m_typeInstance;
         return typeWriter.WriteToFile( m_inspectedFile );
     }
 
@@ -343,14 +348,14 @@ namespace KRG::Animation::AnimationTools
                 {
                     DrawRawFileInfo( context );
                 }
-                else if ( m_typeInstance.IsValid() )
-                {
-                    DrawResourceFileInfo( context );
-                }
-                else
-                {
-                    // Do Nothing
-                }
+                //else if ( m_typeInstance.IsValid() )
+                //{
+                //    DrawResourceFileInfo( context );
+                //}
+                //else
+                //{
+                //    // Do Nothing
+                //}
             }
         }
         ImGui::End();
@@ -358,37 +363,37 @@ namespace KRG::Animation::AnimationTools
 
     void DataBrowser::DrawResourceFileInfo( UpdateContext const& context )
     {
-        KRG_ASSERT( m_typeInstance.IsValid() && m_inspectedFile.IsFilePath() );
+        //KRG_ASSERT( m_typeInstance.IsValid() && m_inspectedFile.IsFilePath() );
 
-        //-------------------------------------------------------------------------
+        ////-------------------------------------------------------------------------
 
-        float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
-        float const buttonAreaWidth = 80;
-        float const textAreaWidth = cellContentWidth - buttonAreaWidth - itemSpacing;
-        float const buttonStartPosX = textAreaWidth + itemSpacing;
+        //float const cellContentWidth = ImGui::GetContentRegionAvail().x;
+        //float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        //float const buttonAreaWidth = 80;
+        //float const textAreaWidth = cellContentWidth - buttonAreaWidth - itemSpacing;
+        //float const buttonStartPosX = textAreaWidth + itemSpacing;
 
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text( m_inspectedFile.GetFileName().c_str() );
-        float const actualTextWidth = ImGui::GetItemRectSize().x;
+        //ImGui::AlignTextToFramePadding();
+        //ImGui::Text( m_inspectedFile.GetFileName().c_str() );
+        //float const actualTextWidth = ImGui::GetItemRectSize().x;
 
-        ImGui::SameLine( 0, textAreaWidth - actualTextWidth + itemSpacing );
-        if ( m_propertyGrid.IsDirty() )
-        {
-            if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_FLOPPY_O " Save", ImVec2( buttonAreaWidth, 0 ) ) )
-            {
-                SaveInspectedResourceFile( context );
-                m_propertyGrid.ClearDirty();
-            }
-        }
-        else
-        {
-            ImGuiX::ButtonColored( ImGuiX::Theme::s_textColorDisabled, KRG_ICON_FLOPPY_O " Save", ImVec2( buttonAreaWidth, 0 ) );
-        }
+        //ImGui::SameLine( 0, textAreaWidth - actualTextWidth + itemSpacing );
+        //if ( m_propertyGrid.IsDirty() )
+        //{
+        //    if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_FLOPPY_O " Save", ImVec2( buttonAreaWidth, 0 ) ) )
+        //    {
+        //        SaveInspectedResourceFile( context );
+        //        m_propertyGrid.ClearDirty();
+        //    }
+        //}
+        //else
+        //{
+        //    ImGuiX::ButtonColored( ImGuiX::Theme::s_textColorDisabled, KRG_ICON_FLOPPY_O " Save", ImVec2( buttonAreaWidth, 0 ) );
+        //}
 
-        //-------------------------------------------------------------------------
+        ////-------------------------------------------------------------------------
 
-        m_propertyGrid.DrawGrid();
+        //m_propertyGrid.DrawGrid();
     }
 
     void DataBrowser::DrawRawFileInfo( UpdateContext const& context )

@@ -11,7 +11,7 @@ namespace KRG
     {
         struct KRG_TOOLS_PHYSICS_API PhysicsMaterialDatabaseResourceDescriptor : public Resource::ResourceDescriptor
         {
-            KRG_REGISTER_TYPE;
+            KRG_REGISTER_TYPE( PhysicsMaterialDatabaseResourceDescriptor );
 
             EXPOSE TVector<DataPath>         m_materialLibraries;
         };

@@ -1,4 +1,3 @@
-#if _WIN32
 #pragma once
 
 #include "ReflectionDataTypes.h"
@@ -9,73 +8,68 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::TypeSystem::Reflection
 {
-    namespace TypeSystem
+    class ReflectionDatabase : public SQLite::SQLiteDatabase
     {
-        namespace Reflection
-        {
-            class ReflectionDatabase : public SQLite::SQLiteDatabase
-            {
-            public:
+    public:
 
-                // Database functions
-                bool ReadDatabase( FileSystem::Path const& databasePath );
-                bool WriteDatabase( FileSystem::Path const& databasePath );
-                bool CleanDatabase( FileSystem::Path const& databasePath );
+        ReflectionDatabase();
 
-                // Module functions
-                TVector<ProjectDesc> const& GetAllRegisteredProjects() const { return m_projectDescs; }
-                bool IsProjectRegistered( ProjectID projectID ) const;
-                ProjectDesc const* GetProjectDesc( ProjectID projectID ) const;
-                void UpdateProjectList( TVector<ProjectDesc> const& registeredProjects );
+        // Database functions
+        bool ReadDatabase( FileSystem::Path const& databasePath );
+        bool WriteDatabase( FileSystem::Path const& databasePath );
+        bool CleanDatabase( FileSystem::Path const& databasePath );
 
-                bool IsHeaderRegistered( HeaderID headerID ) const;
-                HeaderDesc const* GetHeaderDesc( HeaderID headerID ) const;
-                void UpdateHeaderRecord( HeaderDesc const& header );
+        // Module functions
+        TVector<ProjectDesc> const& GetAllRegisteredProjects() const { return m_projectDescs; }
+        bool IsProjectRegistered( ProjectID projectID ) const;
+        ProjectDesc const* GetProjectDesc( ProjectID projectID ) const;
+        void UpdateProjectList( TVector<ProjectDesc> const& registeredProjects );
 
-                // Type functions
-                TypeDescriptor const* GetType( TypeID typeID ) const;
-                TVector<TypeDescriptor> const& GetAllTypes() const { return m_typeDescs; }
-                bool IsTypeRegistered( TypeID typeID ) const;
-                bool IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const;
-                void GetAllTypesForHeader( HeaderID headerID, TVector<TypeDescriptor>& types ) const;
-                void GetAllTypesForProject( ProjectID projectID, TVector<TypeDescriptor>& types ) const;
-                void RegisterType( TypeDescriptor const* pType );
+        bool IsHeaderRegistered( HeaderID headerID ) const;
+        HeaderDesc const* GetHeaderDesc( HeaderID headerID ) const;
+        void UpdateHeaderRecord( HeaderDesc const& header );
 
-                // Property functions
-                PropertyDescriptor const* GetPropertyTypeDescriptor( TypeID typeID, PropertyPath const& pathID ) const;
+        // Type functions
+        TypeDescriptor const* GetType( TypeID typeID ) const;
+        TVector<TypeDescriptor> const& GetAllTypes() const { return m_typeDescs; }
+        bool IsTypeRegistered( TypeID typeID ) const;
+        bool IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const;
+        void GetAllTypesForHeader( HeaderID headerID, TVector<TypeDescriptor>& types ) const;
+        void GetAllTypesForProject( ProjectID projectID, TVector<TypeDescriptor>& types ) const;
+        void RegisterType( TypeDescriptor const* pType );
 
-                // Resource functions
-                bool IsResourceRegistered( ResourceTypeID typeID ) const;
-                void RegisterResource( ResourceDesc const* pDesc );
-                TVector<ResourceDesc> const& GetAllRegisteredResourceTypes() const { return m_resourceDescs; }
+        // Property functions
+        PropertyDescriptor const* GetPropertyTypeDescriptor( TypeID typeID, PropertyPath const& pathID ) const;
 
-                // Cleaning
-                void DeleteTypesForHeader( HeaderID headerID );
-                void DeleteObseleteHeadersAndTypes( TVector<HeaderID> const& registeredHeaders );
-                void DeleteObseleteProjects( TVector<ProjectDesc> const& registeredProjects );
+        // Resource functions
+        bool IsResourceRegistered( ResourceTypeID typeID ) const;
+        void RegisterResource( ResourceDesc const* pDesc );
+        TVector<ResourceDesc> const& GetAllRegisteredResourceTypes() const { return m_resourceDescs; }
 
-            private:
+        // Cleaning
+        void DeleteTypesForHeader( HeaderID headerID );
+        void DeleteObseleteHeadersAndTypes( TVector<HeaderID> const& registeredHeaders );
+        void DeleteObseleteProjects( TVector<ProjectDesc> const& registeredProjects );
 
-                bool CreateTables();
-                bool DropTables();
+    private:
 
-                bool ReadAdditionalTypeData( TypeDescriptor& type );
-                bool ReadAdditionalEnumData( TypeDescriptor& type );
+        bool CreateTables();
+        bool DropTables();
 
-                bool WriteAdditionalTypeData( TypeDescriptor const& type );
-                bool WriteAdditionalEnumData( TypeDescriptor const& type );
+        bool ReadAdditionalTypeData( TypeDescriptor& type );
+        bool ReadAdditionalEnumData( TypeDescriptor& type );
 
-            private:
+        bool WriteAdditionalTypeData( TypeDescriptor const& type );
+        bool WriteAdditionalEnumData( TypeDescriptor const& type );
 
-                TVector<TypeDescriptor>             m_typeDescs;
-                TVector<HeaderDesc>                 m_headerDescs;
-                TVector<ProjectDesc>                m_projectDescs;
-                TVector<ResourceDesc>               m_resourceDescs;
-            };
-        }
-    }
+    private:
+
+        TypeDescriptor                      m_registeredTypeInterfaceDesc;
+        TVector<TypeDescriptor>             m_typeDescs;
+        TVector<HeaderDesc>                 m_headerDescs;
+        TVector<ProjectDesc>                m_projectDescs;
+        TVector<ResourceDesc>               m_resourceDescs;
+    };
 }
-
-#endif

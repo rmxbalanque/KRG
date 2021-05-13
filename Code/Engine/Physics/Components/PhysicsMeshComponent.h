@@ -15,7 +15,7 @@ namespace KRG::Physics
 
     class KRG_ENGINE_PHYSICS_API PhysicsMeshComponent final : public PhysicsComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT;
+        KRG_REGISTER_ENTITY_COMPONENT( PhysicsMeshComponent );
 
         friend class PhysicsWorldSystem;
     

@@ -205,29 +205,6 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent*>( pType );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return nullptr;
-                }
-
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent const*>( pTypeInstance );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent*>( pType );
@@ -236,30 +213,141 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Camera::CameraComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent*>( pType );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent const*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::Camera::CameraComponent::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Camera::CameraComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Camera::CameraComponent const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2436416701 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 909272407 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3837709195 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3100542315 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::Camera::CameraComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Camera::CameraComponent const*>( pOtherTypeInstance );
+
                     if ( propertyID == 2436416701 )
                     {
-                        return *reinterpret_cast<KRG::Transform const*>( pValueInstance ) == pDefaultType->m_transform;
+                        return pType->m_transform == pOtherType->m_transform;
                     }
 
                     if ( propertyID == 909272407 )
                     {
-                        return *reinterpret_cast<KRG::Degrees const*>( pValueInstance ) == pDefaultType->m_FOV;
+                        return pType->m_FOV == pOtherType->m_FOV;
                     }
 
                     if ( propertyID == 3837709195 )
                     {
-                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_depth;
+                        return pType->m_depth == pOtherType->m_depth;
                     }
 
                     if ( propertyID == 3100542315 )
                     {
-                        return *reinterpret_cast<KRG::Camera::CameraComponent::ProjectionType const*>( pValueInstance ) == pDefaultType->m_projectionType;
+                        return pType->m_projectionType == pOtherType->m_projectionType;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Camera::CameraComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Camera::CameraComponent*>( pTypeInstance );
+
+                    if ( propertyID == 2436416701 )
+                    {
+                        pActualType->m_transform = pDefaultType->m_transform;
+                        return;
+                    }
+
+                    if ( propertyID == 909272407 )
+                    {
+                        pActualType->m_FOV = pDefaultType->m_FOV;
+                        return;
+                    }
+
+                    if ( propertyID == 3837709195 )
+                    {
+                        pActualType->m_depth = pDefaultType->m_depth;
+                        return;
+                    }
+
+                    if ( propertyID == 3100542315 )
+                    {
+                        pActualType->m_projectionType = pDefaultType->m_projectionType;
+                        return;
+                    }
+
                 }
 
             };

@@ -59,11 +59,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Animation::AnimationPlayerComponent::GetTypeInfo() const
-    {
-        return KRG::Animation::AnimationPlayerComponent::s_pTypeInfo;
-    }
-
     void KRG::Animation::AnimationPlayerComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Animation::AnimationPlayerComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

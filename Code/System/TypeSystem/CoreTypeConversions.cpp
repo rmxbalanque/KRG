@@ -499,13 +499,13 @@ namespace KRG::TypeSystem::Conversion
                     EnumInfo const* pEnumInfo = typeRegistry.GetEnumInfo( templateArgumentTypeID );
                     if ( pEnumInfo == nullptr )
                     {
-                        KRG_LOG_WARNING( "TypeSystem", "Unknown enum class (%s) for TBitFlags", templateArgumentTypeID.GetAsStringID().c_str() );
+                        KRG_LOG_WARNING( "TypeSystem", "Unknown enum class (%s) for TBitFlags", templateArgumentTypeID.ToStringID().c_str() );
                         return;
                     }
 
                     if ( !ConvertStringToBitFlags( *pEnumInfo, str, *reinterpret_cast<BitFlags*>( pValue ) ) )
                     {
-                        KRG_LOG_WARNING( "TypeSystem", "Failed to convert string (%s) into valid TBitFlags<%s>", str.c_str(), templateArgumentTypeID.GetAsStringID().c_str() );
+                        KRG_LOG_WARNING( "TypeSystem", "Failed to convert string (%s) into valid TBitFlags<%s>", str.c_str(), templateArgumentTypeID.ToStringID().c_str() );
                     }
                 }
                 break;
@@ -660,7 +660,7 @@ namespace KRG::TypeSystem::Conversion
 
                 case CoreTypes::TypeID:
                 {
-                    char const* pStr = reinterpret_cast<TypeID const*>( pValue )->GetAsStringID().c_str();
+                    char const* pStr = reinterpret_cast<TypeID const*>( pValue )->ToStringID().c_str();
                     KRG_ASSERT( pStr != nullptr );
                     strValue = pStr;
                 }
@@ -836,13 +836,13 @@ namespace KRG::TypeSystem::Conversion
                     EnumInfo const* pEnumInfo = typeRegistry.GetEnumInfo( templateArgumentTypeID );
                     if ( pEnumInfo == nullptr )
                     {
-                        KRG_LOG_WARNING( "TypeSystem", "Unknown enum class (%s) for TBitFlags", templateArgumentTypeID.GetAsStringID().c_str() );
+                        KRG_LOG_WARNING( "TypeSystem", "Unknown enum class (%s) for TBitFlags", templateArgumentTypeID.ToStringID().c_str() );
                         return;
                     }
 
                     if ( !ConvertBitFlagsToString( *pEnumInfo, *reinterpret_cast<BitFlags const*>( pValue ), strValue ) )
                     {
-                        KRG_LOG_WARNING( "TypeSystem", "Failed to convert string (%s) into valid TBitFlags<%s>", strValue.c_str(), templateArgumentTypeID.GetAsStringID().c_str() );
+                        KRG_LOG_WARNING( "TypeSystem", "Failed to convert string (%s) into valid TBitFlags<%s>", strValue.c_str(), templateArgumentTypeID.ToStringID().c_str() );
                     }
                 }
                 break;
@@ -997,7 +997,7 @@ namespace KRG::TypeSystem::Conversion
 
                 case CoreTypes::TypeID:
                 {
-                    archive << reinterpret_cast<TypeID const*>( pValue )->GetAsStringID();
+                    archive << reinterpret_cast<TypeID const*>( pValue )->ToStringID();
                 }
                 break;
 
@@ -1424,7 +1424,6 @@ namespace KRG::TypeSystem::Conversion
 
     void ConvertStringToBinary( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, String const& strValue, TVector<Byte>& byteArray )
     {
-        KRG_ASSERT( !strValue.empty() );
         byteArray.clear();
 
         //-------------------------------------------------------------------------

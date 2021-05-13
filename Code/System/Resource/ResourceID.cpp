@@ -45,9 +45,9 @@ namespace KRG
     {
         if ( m_dataPath.IsValid() )
         {
-            String const& pathString = m_dataPath.ToString();
+            String const& pathString = m_dataPath.GetString();
             size_t const lastCharIdx = pathString.length() - 1;
-            size_t const delimIdx = m_dataPath.ToString().find_last_of( '.' );
+            size_t const delimIdx = m_dataPath.GetString().find_last_of( '.' );
             if ( delimIdx != String::npos && lastCharIdx - delimIdx <= 4 )
             {
                 char buffer[5] = { 0, 0, 0, 0, 0 };

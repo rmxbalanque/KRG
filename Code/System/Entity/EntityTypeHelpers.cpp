@@ -4,6 +4,11 @@
 
 namespace KRG
 {
+    TypeSystem::TypeInfo const* Entity::s_pTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* IEntitySystem::s_pTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* EntityComponent::s_pTypeInfo = nullptr;
+    TypeSystem::TypeInfo const* SpatialEntityComponent::s_pTypeInfo = nullptr;
+
     namespace TypeSystem
     {
         namespace TypeHelpers

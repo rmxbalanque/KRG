@@ -11,7 +11,7 @@ namespace KRG
     {
         struct TextureResourceDescriptor : public Resource::ResourceDescriptor
         {
-            KRG_REGISTER_TYPE;
+            KRG_REGISTER_TYPE( TextureResourceDescriptor );
 
             EXPOSE DataPath m_textureDataPath;
         };

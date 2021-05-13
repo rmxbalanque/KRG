@@ -93,7 +93,7 @@ namespace KRG::TypeSystem
 
         //-------------------------------------------------------------------------
 
-        m_friendlyTypeName = propertyInfo.m_typeID.GetAsStringID().c_str();
+        m_friendlyTypeName = propertyInfo.m_typeID.c_str();
         StringUtils::RemoveAllOccurrencesInPlace( m_friendlyTypeName, "KRG::" );
 
         // Properties
@@ -145,7 +145,7 @@ namespace KRG::TypeSystem
         KRG_ASSERT( pTypeInfo != nullptr );
         m_pTypeInfo = pTypeInfo;
 
-        m_friendlyTypeName = m_pTypeInfo->m_ID.GetAsStringID().c_str();
+        m_friendlyTypeName = m_pTypeInfo->m_ID.c_str();
         StringUtils::RemoveAllOccurrencesInPlace( m_friendlyTypeName, "KRG::" );
 
         // Create property instances

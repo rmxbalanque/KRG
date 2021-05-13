@@ -12,15 +12,15 @@
 
 void KRG::Animation::ToolsModule::RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::SkeletonResourceDescriptor>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Tools::EventTrackInfo>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationResourceDescriptor>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::SkeletonResourceDescriptor>::RegisterType( typeRegistry );
 }
 
 void KRG::Animation::ToolsModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::SkeletonResourceDescriptor>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationResourceDescriptor>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Tools::EventTrackInfo>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::SkeletonResourceDescriptor>::UnregisterType( typeRegistry );
 }
 

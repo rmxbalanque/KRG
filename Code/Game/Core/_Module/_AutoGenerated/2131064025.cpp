@@ -21,11 +21,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::CustomizerTestComponent::GetTypeInfo() const
-    {
-        return KRG::CustomizerTestComponent::s_pTypeInfo;
-    }
-
     void KRG::CustomizerTestComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::CustomizerTestComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

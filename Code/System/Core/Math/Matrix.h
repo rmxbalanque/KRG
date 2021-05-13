@@ -148,7 +148,21 @@ namespace KRG
         inline Matrix operator*=( Quaternion const& rhs ) { return operator*=( Matrix( rhs ) ); }
 
         // Naive equality operator
-        inline bool operator==( Matrix const& rhs ) const { return memcmp( this, &rhs, sizeof( Matrix ) ) == 0; }
+        inline bool operator==( Matrix const& rhs ) const 
+        {
+            for ( auto i = 0; i < 4; i++ )
+            {
+                for ( auto j = 0; j < 4; j++ )
+                {
+                    if ( m_values[i][j] != rhs.m_values[i][j] )
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
 
     private:
 

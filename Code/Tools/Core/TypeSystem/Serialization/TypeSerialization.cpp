@@ -59,7 +59,7 @@ namespace KRG::TypeSystem::Serialization
             auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
             if ( pTypeInfo == nullptr )
             {
-                KRG_LOG_ERROR( "TypeSystem", "Unknown type encountered: %s", typeID.GetAsStringID().c_str() );
+                KRG_LOG_ERROR( "TypeSystem", "Unknown type encountered: %s", typeID.c_str() );
                 return false;
             }
 
@@ -145,7 +145,7 @@ namespace KRG::TypeSystem::Serialization
 
             // Every type has to have a type ID
             writer.Key( Constants::s_typeID );
-            writer.String( typeDesc.m_typeID.GetAsStringID().c_str() );
+            writer.String( typeDesc.m_typeID.c_str() );
 
             // Write all property values
             for ( auto const& propertyValue : typeDesc.m_properties )
@@ -167,7 +167,7 @@ namespace KRG::TypeSystem::Serialization
 
     struct NativeTypeDescriber
     {
-        static void DescribeType( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeID typeID, void const* pTypeData, PropertyPath& path )
+        static void DescribeType( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeID typeID, void const* pTypeInstance, PropertyPath& path )
         {
             KRG_ASSERT( !IsCoreType( typeID ) );
             auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
@@ -180,43 +180,43 @@ namespace KRG::TypeSystem::Serialization
                 if ( propInfo.IsArrayProperty() )
                 {
                     size_t const elementByteSize = propInfo.m_arrayElementSize;
-                    size_t const numArrayElements = propInfo.IsStaticArrayProperty() ? propInfo.m_arraySize : pTypeInfo->m_pTypeHelper->GetArraySize( pTypeData, propInfo.m_ID );
-                    Byte const* pElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( const_cast<void*>( pTypeData ), propInfo.m_ID, 0 );
+                    size_t const numArrayElements = propInfo.IsStaticArrayProperty() ? propInfo.m_arraySize : pTypeInfo->m_pTypeHelper->GetArraySize( pTypeInstance, propInfo.m_ID );
+                    Byte const* pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( const_cast<void*>( pTypeInstance ), propInfo.m_ID, 0 );
 
                     // Write array elements
                     for ( auto i = 0; i < numArrayElements; i++ )
                     {
                         path.Append( propInfo.m_ID, i );
-                        DescribeProperty( typeRegistry, typeDesc, pTypeInfo, propInfo, pElementAddress, path, false );
-                        pElementAddress += elementByteSize;
+                        DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, pArrayElementAddress, path, i );
+                        pArrayElementAddress += elementByteSize;
                         path.RemoveLastElement();
                     }
                 }
                 else
                 {
                     path.Append( propInfo.m_ID );
-                    auto pPropertyDataAddress = propInfo.GetPropertyAddress( pTypeData );
-                    DescribeProperty( typeRegistry, typeDesc, pTypeInfo, propInfo, pPropertyDataAddress, path );
+                    auto pPropertyInstance = propInfo.GetPropertyAddress( pTypeInstance );
+                    DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, pPropertyInstance, path );
                     path.RemoveLastElement();
                 }
             }
         }
 
-        static void DescribeProperty( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeInfo const* pParentTypeInfo, PropertyInfo const& propertyInfo, void const* pTypeData, PropertyPath& path, bool excludeDefaults = true )
+        static void DescribeProperty( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeInfo const* pParentTypeInfo, void const* pParentInstance, PropertyInfo const& propertyInfo, void const* pPropertyInstance, PropertyPath& path, int32 arrayElementIdx = InvalidIndex )
         {
             if ( IsCoreType( propertyInfo.m_typeID ) || propertyInfo.IsEnumProperty() )
             {
                 // Only describe non-default properties
-                if ( !excludeDefaults || !pParentTypeInfo->m_pTypeHelper->IsDefaultValue( pTypeData, propertyInfo.m_ID ) )
+                if ( !pParentTypeInfo->m_pTypeHelper->IsPropertyValueSetToDefault( pParentInstance, propertyInfo.m_ID, arrayElementIdx ) )
                 {
                     PropertyDescriptor& propertyDesc = typeDesc.m_properties.emplace_back( PropertyDescriptor() );
                     propertyDesc.m_path = path;
-                    Conversion::ConvertNativeTypeToBinary( typeRegistry, propertyInfo, pTypeData, propertyDesc.m_byteValue );
+                    Conversion::ConvertNativeTypeToBinary( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_byteValue );
                 }
             }
             else
             {
-                DescribeType( typeRegistry, typeDesc, propertyInfo.m_typeID, pTypeData, path );
+                DescribeType( typeRegistry, typeDesc, propertyInfo.m_typeID, pPropertyInstance, path );
             }
         }
     };
@@ -450,7 +450,7 @@ namespace KRG::TypeSystem::Serialization
             auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
             if ( pTypeInfo == nullptr )
             {
-                KRG_LOG_ERROR( "TypeSystem", "Unknown type encountered: %s", typeID.GetAsStringID().c_str() );
+                KRG_LOG_ERROR( "TypeSystem", "Unknown type encountered: %s", typeID.c_str() );
                 return false;
             }
 
@@ -462,7 +462,7 @@ namespace KRG::TypeSystem::Serialization
             // If you hit this the type in the JSON file and the type you are trying to deserialize do not match
             if ( typeID != actualTypeID )
             {
-                KRG_LOG_ERROR( "TypeSystem", "Type mismatch, expected %s, encountered %s", typeID.GetAsStringID().c_str(), actualTypeID.GetAsStringID().c_str() );
+                KRG_LOG_ERROR( "TypeSystem", "Type mismatch, expected %s, encountered %s", typeID.c_str(), actualTypeID.c_str() );
                 return false;
             }
 
@@ -548,7 +548,7 @@ namespace KRG::TypeSystem::Serialization
         {
             if ( IsCoreType( propertyInfo.m_typeID ) || propertyInfo.IsEnumProperty() )
             {
-                String const typeName = propertyInfo.m_typeID.GetAsStringID().ToString();
+                String const typeName = propertyInfo.m_typeID.c_str();
                 return ReadCoreType( typeRegistry, propertyInfo, currentJsonValue, pTypeData );
             }
             else // Complex Type
@@ -589,7 +589,7 @@ namespace KRG::TypeSystem::Serialization
 
             // Every type has to have a type ID
             writer.Key( Constants::s_typeID );
-            writer.String( typeID.GetAsStringID().ToString() );
+            writer.String( typeID.c_str() );
 
             //-------------------------------------------------------------------------
 

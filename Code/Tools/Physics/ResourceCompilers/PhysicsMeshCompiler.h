@@ -15,7 +15,7 @@ namespace KRG
     {
         struct KRG_TOOLS_PHYSICS_API PhysicsMeshResourceDescriptor : public Resource::ResourceDescriptor
         {
-            KRG_REGISTER_TYPE;
+            KRG_REGISTER_TYPE( PhysicsMeshResourceDescriptor );
 
             EXPOSE DataPath         m_meshDataPath;
 

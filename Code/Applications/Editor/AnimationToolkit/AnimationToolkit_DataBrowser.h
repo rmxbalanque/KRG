@@ -5,10 +5,11 @@
 #include "Applications/Editor/Editor/EditorTool.h"
 #include "Tools/Core/TypeSystem/TypeInstanceModel.h"
 #include "Tools/Resource/RawAssets/RawAssetInfo.h"
+#include "Tools/Resource/Compilers/ResourceDescriptor.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::AnimationTools
+namespace KRG::Animation::Tools
 {
     class AnimationResourceDescriptorCreator final : public ResourceDescriptorCreator
     {
@@ -77,7 +78,7 @@ namespace KRG::Animation::AnimationTools
         // Info
         AnimationResourceDescriptorCreator                  m_descriptorCreator;
         TypeSystem::PropertyGrid                            m_propertyGrid;
-        TypeSystem::TypeInstanceModel                       m_typeInstance;
+        Resource::ResourceDescriptor*                       m_pResourceDescriptor = nullptr;
         RawAssets::RawAssetInfo                             m_assetInfo;
         bool                                                m_validAssetInfo;
     };

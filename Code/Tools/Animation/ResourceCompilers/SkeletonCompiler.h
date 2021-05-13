@@ -11,7 +11,7 @@ namespace KRG
     {
         struct KRG_TOOLS_ANIMATION_API SkeletonResourceDescriptor : public Resource::ResourceDescriptor
         {
-            KRG_REGISTER_TYPE;
+            KRG_REGISTER_TYPE( SkeletonResourceDescriptor );
 
             EXPOSE DataPath         m_skeletonDataPath;
 

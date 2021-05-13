@@ -2,11 +2,11 @@
 
 #include "AnimationToolkit_DataBrowser.h"
 #include "Applications/Editor/Editor/EditorToolkit.h"
-#include "Applications/Editor/Common/DocumentWell.h"
+#include "Applications/Editor/Common/TabWell.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::AnimationTools
+namespace KRG::Animation::Tools
 {
     class AnimationToolkit final : public TEditorToolkit<EditorModel>
     {
@@ -27,6 +27,6 @@ namespace KRG::Animation::AnimationTools
     private:
 
         DataBrowser*                        m_pDataBrowser = nullptr;
-        DocumentWell*                       m_pDocumentWell = nullptr;
+        TabWell*                            m_pTabWell = nullptr;
     };
 }

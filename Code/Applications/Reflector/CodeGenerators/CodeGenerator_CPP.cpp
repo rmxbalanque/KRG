@@ -78,6 +78,7 @@ namespace KRG
             typeRegistrationStr << "// This is an auto-generated file - DO NOT edit\n";
             typeRegistrationStr << "//-------------------------------------------------------------------------\n\n";
             typeRegistrationStr << "#include \"System/Entity/EntityTypeHelpers.h\"\n";
+            typeRegistrationStr << "#include \"System/TypeSystem/TypeHelpers.h\"\n";
             typeRegistrationStr << "#include \"System/TypeSystem/TypeRegistry.h\"\n\n";
 
             // Get all modules from database
@@ -153,6 +154,7 @@ namespace KRG
             typeRegistrationStr << "        inline void RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )\n";
             typeRegistrationStr << "        {\n";
 
+            typeRegistrationStr << "            TypeSystem::RegisterCoreTypeSystemTypes( typeRegistry );\n";
             typeRegistrationStr << "            TypeSystem::RegisterCoreEntityTypes( typeRegistry );\n\n";
 
             for ( auto& module : modules )
@@ -164,7 +166,7 @@ namespace KRG
 
             for ( auto& registeredResourceType : registeredResourceTypes )
             {
-                typeRegistrationStr << "            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( \"" << registeredResourceType.m_typeID.GetAsStringID().ToString() << "\"), ResourceTypeID( \"" << registeredResourceType.m_resourceTypeID.ToString().c_str() << "\" ) );\n";
+                typeRegistrationStr << "            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( \"" << registeredResourceType.m_typeID.c_str() << "\"), ResourceTypeID( \"" << registeredResourceType.m_resourceTypeID.ToString().c_str() << "\" ) );\n";
             }
 
             typeRegistrationStr << "        }\n\n";
@@ -184,10 +186,11 @@ namespace KRG
 
             for ( auto iter = registeredResourceTypes.rbegin(); iter != registeredResourceTypes.rend(); ++iter )
             {
-                typeRegistrationStr << "            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( \"" << iter->m_typeID.GetAsStringID().ToString() << "\" ) );\n";
+                typeRegistrationStr << "            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( \"" << iter->m_typeID.c_str() << "\" ) );\n";
             }
 
             typeRegistrationStr << "\n            TypeSystem::UnregisterCoreEntityTypes( typeRegistry );\n";
+            typeRegistrationStr << "            TypeSystem::UnregisterCoreTypeSystemTypes( typeRegistry );\n";
 
             typeRegistrationStr << "        }\n";
             typeRegistrationStr << "    }\n";
@@ -429,13 +432,13 @@ namespace KRG
                         else // Generate type info
                         {
                             parentDescs.clear();
-                            for ( auto const& parentID : type.m_parents )
+                            for ( TypeID const& parentID : type.m_parents )
                             {
                                 auto pTypeDesc = m_pDatabase->GetType( parentID );
                                 if ( pTypeDesc == nullptr )
                                 {
                                     String const fullTypeName = type.m_namespace + type.m_name;
-                                    return LogError( "Unknown base class: %s encountered for type: %s", parentID.GetAsStringID().ToString(), fullTypeName.c_str() );
+                                    return LogError( "Unknown base class: %s encountered for type: %s", parentID.c_str(), fullTypeName.c_str() );
                                 }
                                 parentDescs.push_back( *pTypeDesc );
                             }

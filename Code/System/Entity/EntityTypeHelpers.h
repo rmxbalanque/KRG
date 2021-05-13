@@ -16,7 +16,7 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_SYSTEM_ENTITY_API TTypeHelper<Entity> : public ITypeHelper
+            class KRG_SYSTEM_ENTITY_API TTypeHelper<Entity> final : public ITypeHelper
             {
                 static TTypeHelper<Entity> StaticTypeHelper;
 
@@ -47,66 +47,69 @@ namespace KRG
                     typeRegistry.UnregisterType( ID );
                 }
 
-                virtual void* CreateType() const override final
+                virtual void* CreateType() const override
                 {
                     return KRG::New<KRG::Entity>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override
                 {
                     new (pAllocatedMemory) KRG::Entity();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override
                 {}
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& userID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& userID, void* pType ) const override
                 {}
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override
                 {
                     return LoadingStatus::Loaded;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override
                 {
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override { KRG_UNREACHABLE_CODE(); }
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override { KRG_UNREACHABLE_CODE(); }
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override { KRG_UNREACHABLE_CODE(); }
+
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
-                {
-                    return false;
-                }
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override { return false; }
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override { return false; }
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override {}
             };
 
             //-------------------------------------------------------------------------
 
             template<>
-            class KRG_SYSTEM_ENTITY_API TTypeHelper<EntityComponent> : public ITypeHelper
+            class KRG_SYSTEM_ENTITY_API TTypeHelper<EntityComponent> final : public ITypeHelper
             {
                 static TTypeHelper<EntityComponent> StaticTypeHelper;
 
@@ -136,67 +139,70 @@ namespace KRG
                     typeRegistry.UnregisterType( ID );
                 }
 
-                virtual void* CreateType() const override final
+                virtual void* CreateType() const override
                 {
                     KRG_HALT(); // Error! Trying to instantiate an abstract entity component!
                     return nullptr;
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override
                 {
                     KRG_HALT();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override
                 {}
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override
                 {}
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override
                 {
                     return LoadingStatus::Loaded;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override
                 {
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override { KRG_UNREACHABLE_CODE(); }
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override { KRG_UNREACHABLE_CODE(); }
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override { KRG_UNREACHABLE_CODE(); }
+
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
-                {
-                    return false;
-                }
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override { return false; }
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override { return false; }
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override {}
             };
 
             //-------------------------------------------------------------------------
 
             template<>
-            class KRG_SYSTEM_ENTITY_API TTypeHelper<SpatialEntityComponent> : public ITypeHelper
+            class KRG_SYSTEM_ENTITY_API TTypeHelper<SpatialEntityComponent> final : public ITypeHelper
             {
                 static TTypeHelper<SpatialEntityComponent> StaticTypeHelper;
 
@@ -235,67 +241,70 @@ namespace KRG
                     typeRegistry.UnregisterType( ID );
                 }
 
-                virtual void* CreateType() const override final
+                virtual void* CreateType() const override
                 {
                     KRG_HALT(); // Error! Trying to instantiate an abstract entity component!
                     return nullptr;
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override
                 {
                     KRG_HALT();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override
                 {}
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override
                 {}
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override
                 {
                     return LoadingStatus::Loaded;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override
                 {
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override { KRG_UNREACHABLE_CODE(); }
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override { KRG_UNREACHABLE_CODE(); }
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override { KRG_UNREACHABLE_CODE(); }
+
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
-                {
-                    return false;
-                }
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override { return false; }
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override { return false; }
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override {}
             };
 
             //-------------------------------------------------------------------------
 
             template<>
-            class KRG_SYSTEM_ENTITY_API TTypeHelper<IEntitySystem> : public ITypeHelper
+            class KRG_SYSTEM_ENTITY_API TTypeHelper<IEntitySystem> final : public ITypeHelper
             {
                 static TTypeHelper<IEntitySystem> StaticTypeHelper;
 
@@ -325,61 +334,64 @@ namespace KRG
                     typeRegistry.UnregisterType( ID );
                 }
 
-                virtual void* CreateType() const override final
+                virtual void* CreateType() const override
                 {
                     KRG_HALT(); // Error! Trying to instantiate an abstract entity system!
                     return nullptr;
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override
                 {
                     KRG_HALT();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override
                 {}
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override
                 {}
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override
                 {
                     return LoadingStatus::Loaded;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override
                 {
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override { KRG_UNREACHABLE_CODE(); }
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override { KRG_UNREACHABLE_CODE(); }
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override { KRG_UNREACHABLE_CODE(); }
+
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override
                 {
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
-                {
-                    return false;
-                }
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override { return false; }
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override { return false; }
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override {}
             };
         }
 

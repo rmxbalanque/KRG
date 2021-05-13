@@ -12,7 +12,7 @@ namespace KRG
         KRG_ASSERT( m_pTypeRegistry == nullptr );
         KRG_ASSERT( m_pPreviewWorld == nullptr );
         KRG_ASSERT( m_pResourceSystem == nullptr );
-        KRG_ASSERT( m_openFiles.empty() );
+        KRG_ASSERT( m_openTabs.empty() );
     }
 
     void EditorModel::Initialize( UpdateContext const& context )
@@ -42,12 +42,12 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        for ( auto& pOpenFile : m_openFiles )
+        for ( auto& pOpenFile : m_openTabs )
         {
             KRG::Delete( pOpenFile );
         }
 
-        m_openFiles.clear();
+        m_openTabs.clear();
 
         //-------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ namespace KRG
 
     bool EditorModel::IsFileOpen( FileSystem::Path const& path ) const
     {
-        for ( auto pFile : m_openFiles )
+        for ( auto pFile : m_openTabs )
         {
             if ( pFile->GetFilePath() == path )
             {
@@ -71,52 +71,52 @@ namespace KRG
         return false;
     }
 
-    void EditorModel::CloseFile( EditorFile* pFile )
+    void EditorModel::CloseFile( EditorFileTab* pFile )
     {
         KRG_ASSERT( pFile != nullptr );
 
-        if ( m_pActiveFile == pFile )
+        if ( m_pActiveTab == pFile )
         {
             ClearActiveFile();
         }
 
         //-------------------------------------------------------------------------
 
-        auto foundFileIter = eastl::find( m_openFiles.begin(), m_openFiles.end(), pFile );
-        KRG_ASSERT( foundFileIter != m_openFiles.end() );
+        auto foundFileIter = eastl::find( m_openTabs.begin(), m_openTabs.end(), pFile );
+        KRG_ASSERT( foundFileIter != m_openTabs.end() );
         KRG::Delete( *foundFileIter );
-        m_openFiles.erase( foundFileIter );
+        m_openTabs.erase( foundFileIter );
     }
 
     //-------------------------------------------------------------------------
 
-    void EditorModel::SetActiveFile( EditorFile* pFile )
+    void EditorModel::SetActiveFile( EditorFileTab* pFile )
     {
         KRG_ASSERT( pFile != nullptr );
-        KRG_ASSERT( VectorContains( m_openFiles, pFile ) );
+        KRG_ASSERT( VectorContains( m_openTabs, pFile ) );
 
-        if ( m_pActiveFile == pFile )
+        if ( m_pActiveTab == pFile )
         {
             return;
         }
 
         //-------------------------------------------------------------------------
 
-        if ( m_pActiveFile != nullptr )
+        if ( m_pActiveTab != nullptr )
         {
             ClearActiveFile();
         }
 
         pFile->SetActive( m_pPreviewWorld );
-        m_pActiveFile = pFile;
+        m_pActiveTab = pFile;
     }
 
     void EditorModel::ClearActiveFile()
     {
-        if ( m_pActiveFile != nullptr )
+        if ( m_pActiveTab != nullptr )
         {
-            m_pActiveFile->SetInactive( m_pPreviewWorld );
-            m_pActiveFile = nullptr;
+            m_pActiveTab->SetInactive( m_pPreviewWorld );
+            m_pActiveTab = nullptr;
         }
     }
 }

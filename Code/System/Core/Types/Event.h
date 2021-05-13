@@ -49,7 +49,7 @@ namespace KRG
 
         EventBindingID() = default;
         inline bool IsValid() const { return m_ID.IsValid(); }
-        inline String ToString() const { return eastl::move( m_ID.ToString() ); }
+        inline UUIDString ToString() const { return eastl::move( m_ID.ToString() ); }
 
     private:
 

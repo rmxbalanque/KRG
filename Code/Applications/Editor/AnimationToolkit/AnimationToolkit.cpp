@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::AnimationTools
+namespace KRG::Animation::Tools
 {
     class AnimationEditorFactory : public EditorToolkitFactory
     {
@@ -18,12 +18,12 @@ namespace KRG::Animation::AnimationTools
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::AnimationTools
+namespace KRG::Animation::Tools
 {
     AnimationToolkit::~AnimationToolkit()
     {
         KRG_ASSERT( m_pDataBrowser == nullptr );
-        KRG_ASSERT( m_pDocumentWell == nullptr );
+        KRG_ASSERT( m_pTabWell == nullptr );
     }
 
     void AnimationToolkit::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
@@ -31,12 +31,12 @@ namespace KRG::Animation::AnimationTools
         TEditorToolkit<EditorModel>::Initialize( context, settingsRegistry );
      
         m_pDataBrowser = CreateTool<DataBrowser>( context, &GetModel() );
-        m_pDocumentWell = CreateTool<DocumentWell>( context, &GetModel() );
+        m_pTabWell = CreateTool<TabWell>( context, &GetModel() );
     }
 
     void AnimationToolkit::Shutdown( UpdateContext const& context )
     {
-        DestroyTool( context, m_pDocumentWell );
+        DestroyTool( context, m_pTabWell );
         DestroyTool( context, m_pDataBrowser );
 
         TEditorToolkit<EditorModel>::Shutdown( context );
@@ -45,7 +45,7 @@ namespace KRG::Animation::AnimationTools
     void AnimationToolkit::SetUserFlags( uint64 flags )
     {
         m_pDataBrowser->SetOpen( flags & ( 1 << 0 ) );
-        m_pDocumentWell->SetOpen( flags & ( 1 << 1 ) );
+        m_pTabWell->SetOpen( flags & ( 1 << 1 ) );
     }
 
     uint64 AnimationToolkit::GetUserFlags() const
@@ -57,7 +57,7 @@ namespace KRG::Animation::AnimationTools
             flags |= ( 1 << 0 );
         }
 
-        if ( m_pDocumentWell != nullptr && m_pDocumentWell->IsOpen() )
+        if ( m_pTabWell != nullptr && m_pTabWell->IsOpen() )
         {
             flags |= ( 1 << 1 );
         }

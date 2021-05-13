@@ -8,8 +8,7 @@ namespace KRG::Animation::Events
 {
     class KRG_ENGINE_ANIMATION_API FootstepEvent final : public Event
     {
-        KRG_REGISTER_TYPE;
-        KRG_SERIALIZE_MEMBERS( KRG_SERIALIZE_BASE( Event ), m_ID );
+        KRG_REGISTER_TYPE( FootstepEvent );
 
     public:
 
@@ -25,13 +24,12 @@ namespace KRG::Animation::Events
 
     public:
 
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return FootstepEvent::s_pTypeInfo; }
         virtual StringID GetSyncEventID() const override;
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual char const* GetEventTypeName() const override { return "Footstep"; }
+        virtual char const* GetEventName() const override { return "Footstep"; }
         virtual InlineString<100> GetDisplayText() const override;
-        virtual AllowedTypes GetAllowedTypes() const override { return AllowedTypes::Duration; }
+        virtual EventType GetEventType() const override { return EventType::Duration; }
         #endif
 
     private:

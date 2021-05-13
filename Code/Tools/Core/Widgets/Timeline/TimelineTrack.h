@@ -75,7 +75,7 @@ namespace KRG::Timeline
         //-------------------------------------------------------------------------
 
         virtual bool HasContextMenu() const { return false; }
-        virtual void DrawContextMenu( float playheadPosition ) {}
+        virtual void DrawContextMenu( TVector<Track*>& tracks, float playheadPosition ) {}
 
         //-------------------------------------------------------------------------
 

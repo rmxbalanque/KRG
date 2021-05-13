@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Applications/Editor/Editor/EditorFile.h"
+#include "Applications/Editor/Editor/EditorFileTab.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "System/DevTools/ImguiX.h"
@@ -9,11 +9,11 @@
 
 namespace KRG::Render::MeshTools
 {
-    class StaticMeshResourceFile : public TResourceFile<StaticMesh>
+    class StaticMeshResourceFile : public TResourceFileTab<StaticMesh>
     {
     public:
 
-        using TResourceFile::TResourceFile;
+        using TResourceFileTab::TResourceFileTab;
     
         virtual void SetActive( EntityWorld* pPreviewWorld ) override;
         virtual void SetInactive( EntityWorld* pPreviewWorld ) override;
@@ -28,11 +28,11 @@ namespace KRG::Render::MeshTools
 
     struct BoneInfo;
 
-    class SkeletalMeshResourceFile : public TResourceFile<SkeletalMesh>
+    class SkeletalMeshResourceFile : public TResourceFileTab<SkeletalMesh>
     {
     public:
 
-        using TResourceFile::TResourceFile;
+        using TResourceFileTab::TResourceFileTab;
         virtual ~SkeletalMeshResourceFile();
 
         virtual void SetActive( EntityWorld* pPreviewWorld ) override;

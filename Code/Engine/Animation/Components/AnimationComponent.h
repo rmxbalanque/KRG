@@ -20,7 +20,7 @@ namespace KRG
 
         class KRG_ENGINE_ANIMATION_API AnimationComponent : public EntityComponent
         {
-            KRG_REGISTER_ENTITY_COMPONENT;
+            KRG_REGISTER_ENTITY_COMPONENT( AnimationComponent );
 
         public:
 

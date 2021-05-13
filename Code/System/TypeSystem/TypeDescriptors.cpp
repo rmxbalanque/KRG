@@ -106,7 +106,7 @@ namespace KRG::TypeSystem
             auto resolvedPath = ResolvePropertyPath( typeRegistry, &typeInfo, (Byte*) pTypeInstance, propertyValue.m_path );
             if ( !resolvedPath.IsValid() )
             {
-                KRG_LOG_ERROR( "TypeSystem", "Tried to set the value for an invalid property (%s) for type (%s)", propertyValue.m_path.ToString().c_str(), typeInfo.m_ID.GetAsStringID().c_str() );
+                KRG_LOG_ERROR( "TypeSystem", "Tried to set the value for an invalid property (%s) for type (%s)", propertyValue.m_path.ToString().c_str(), typeInfo.m_ID.ToStringID().c_str() );
                 continue;
             }
 

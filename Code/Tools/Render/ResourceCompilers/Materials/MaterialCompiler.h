@@ -13,7 +13,7 @@ namespace KRG
     {
         struct MaterialResourceDescriptor : public Resource::ResourceDescriptor
         {
-            KRG_REGISTER_TYPE;
+            KRG_REGISTER_TYPE( MaterialResourceDescriptor );
 
             bool IsValid();
 

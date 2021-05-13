@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Tools::EventTrackInfo& type )
     {
-        archive( KRG_NVP( m_type ), KRG_NVP( m_isSyncTrack ), KRG_NVP( m_eventTypeID ) );
+        archive( cereal::base_class<KRG::IRegisteredType>( &type ), KRG_NVP( m_eventType ), KRG_NVP( m_isSyncTrack ), KRG_NVP( m_eventTypeID ) );
     }
 
     //-------------------------------------------------------------------------
@@ -38,13 +38,13 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_type" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Event::AllowedTypes" );
+            propertyInfo.m_ID = StringID( "m_eventType" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Event::EventType" );
             propertyInfo.m_parentTypeID = 1785260176;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_type;
-            propertyInfo.m_offset = offsetof( KRG::Animation::Tools::EventTrackInfo, m_type );
-            propertyInfo.m_size = sizeof( KRG::Animation::Event::AllowedTypes );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_eventType;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Tools::EventTrackInfo, m_eventType );
+            propertyInfo.m_size = sizeof( KRG::Animation::Event::EventType );
             propertyInfo.m_flags.Set( 4 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
@@ -102,6 +102,15 @@ namespace KRG
                     typeInfo.m_size = sizeof( KRG::Animation::Tools::EventTrackInfo );
                     typeInfo.m_alignment = alignof( KRG::Animation::Tools::EventTrackInfo );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
+
+                    // Parent Types 
+                    //-------------------------------------------------------------------------
+
+                    TypeSystem::TypeInfo const* pParentType = nullptr;
+
+                    pParentType = KRG::IRegisteredType::s_pTypeInfo;
+                    KRG_ASSERT( pParentType != nullptr );
+                    typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
@@ -161,29 +170,6 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo*>( pType );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return nullptr;
-                }
-
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo const*>( pTypeInstance );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo*>( pType );
@@ -192,25 +178,125 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo const*>( GetDefaultTypeInstancePtr() );
-                    if ( propertyID == 533580642 )
+                    auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo*>( pType );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo const*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::Animation::Tools::EventTrackInfo::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2339630235 ) )
                     {
-                        return *reinterpret_cast<KRG::Animation::Event::AllowedTypes const*>( pValueInstance ) == pDefaultType->m_type;
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2992962708 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3788823540 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo const*>( pOtherTypeInstance );
+
+                    if ( propertyID == 2339630235 )
+                    {
+                        return pType->m_eventType == pOtherType->m_eventType;
                     }
 
                     if ( propertyID == 2992962708 )
                     {
-                        return *reinterpret_cast<bool const*>( pValueInstance ) == pDefaultType->m_isSyncTrack;
+                        return pType->m_isSyncTrack == pOtherType->m_isSyncTrack;
                     }
 
                     if ( propertyID == 3788823540 )
                     {
-                        return *reinterpret_cast<KRG::TypeSystem::TypeID const*>( pValueInstance ) == pDefaultType->m_eventTypeID;
+                        return pType->m_eventTypeID == pOtherType->m_eventTypeID;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Tools::EventTrackInfo*>( pTypeInstance );
+
+                    if ( propertyID == 2339630235 )
+                    {
+                        pActualType->m_eventType = pDefaultType->m_eventType;
+                        return;
+                    }
+
+                    if ( propertyID == 2992962708 )
+                    {
+                        pActualType->m_isSyncTrack = pDefaultType->m_isSyncTrack;
+                        return;
+                    }
+
+                    if ( propertyID == 3788823540 )
+                    {
+                        pActualType->m_eventTypeID = pDefaultType->m_eventTypeID;
+                        return;
+                    }
+
                 }
 
             };

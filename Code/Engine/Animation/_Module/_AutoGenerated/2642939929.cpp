@@ -21,11 +21,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Animation::AnimationComponent::GetTypeInfo() const
-    {
-        return KRG::Animation::AnimationComponent::s_pTypeInfo;
-    }
-
     void KRG::Animation::AnimationComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         m_status = Status::Loaded;

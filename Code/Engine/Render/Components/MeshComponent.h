@@ -10,7 +10,7 @@ namespace KRG::Render
 {
     class KRG_ENGINE_RENDER_API MeshComponent : public SpatialEntityComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT;
+        KRG_REGISTER_ENTITY_COMPONENT( MeshComponent );
 
     public:
 

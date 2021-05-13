@@ -49,7 +49,7 @@ namespace KRG
 
         void AnimationPlayerComponent::Initialize()
         {
-            EntityComponent::Initialize();
+            AnimationComponent::Initialize();
             KRG_ASSERT( m_pAnimation != nullptr && m_pAnimation.IsLoaded() );
             m_pPose = KRG::New<Pose>( m_pAnimation->GetSkeleton() );
         }
@@ -57,7 +57,8 @@ namespace KRG
         void AnimationPlayerComponent::Shutdown()
         {
             KRG::Delete( m_pPose );
-            EntityComponent::Shutdown();
+            m_previousAnimTime = -1.0f;
+            AnimationComponent::Shutdown();
         }
 
         //-------------------------------------------------------------------------

@@ -1,53 +1,37 @@
 #include "PropertyGrid.h"
-#include "PropertyEditors.h"
 #include "System/TypeSystem/TypeRegistry.h"
+#include "Applications/Editor/Editor/EditorModel.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::TypeSystem
 {
-    PropertyGrid::PropertyGrid( TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath )
-        : m_typeRegistry( typeRegistry )
-        , m_sourceDataPath( sourceDataPath )
-    {}
-
-    //-------------------------------------------------------------------------
-
-    void PropertyGrid::SetTypeToEdit( TypeInstanceModel* pTypeInstance )
+    PropertyGrid::PropertyGrid( EditorModel* pModel )
+        : m_pModel( pModel )
+        , m_context( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
     {
-        if ( pTypeInstance != nullptr )
-        {
-            if ( pTypeInstance != m_pTypeInstanceModel )
-            {
-                KRG_ASSERT( pTypeInstance->IsValid() );
-                m_pTypeInstanceModel = pTypeInstance;
-                m_isDirty = false;
-            }
-        }
-        else // Clear edited type
-        {
-            m_pTypeInstanceModel = nullptr;
-            m_isDirty = false;
-        }
+        KRG_ASSERT( pModel );
+
+        m_context.m_preChangeDelegate = TFunction<void()>( [this] () { PreChange(); } );
+        m_context.m_postChangeDelegate = TFunction<void()>( [this] () { PostChange(); } );
     }
 
-    void PropertyGrid::PreChange( PropertyInstanceModel& propertyModel )
+    void PropertyGrid::PreChange()
     {
-        // TODO: add undo/redo support
+        // TODO: undo/redo support
     }
 
-    void PropertyGrid::PostChange( PropertyInstanceModel& propertyModel )
-    { 
-        // TODO: add undo/redo support
+    void PropertyGrid::PostChange()
+    {
+        // TODO: undo/redo support
         m_isDirty = true;
     }
 
-    //-------------------------------------------------------------------------
-
     void PropertyGrid::DrawGrid()
     {
-        if ( m_pTypeInstanceModel == nullptr )
+        if ( m_pTypeInstance == nullptr )
         {
+            ImGui::Text( "Nothing To Edit" );
             return;
         }
 
@@ -64,39 +48,160 @@ namespace KRG::TypeSystem
 
             //-------------------------------------------------------------------------
 
-            for ( auto& propertyModel : m_pTypeInstanceModel->GetProperties() )
+            for ( auto const& propertyInfo : m_pTypeInfo->m_properties )
             {
                 ImGui::TableNextRow();
-                DrawPropertyRow( &propertyModel, m_pTypeInstanceModel->GetAsPropertyInstance() );
+                DrawPropertyRow( *m_pTypeInfo, m_pTypeInstance, propertyInfo, m_pTypeInstance + propertyInfo.m_offset );
             }
-            
+
             ImGui::EndTable();
         }
         ImGui::PopStyleVar();
     }
 
-    void PropertyGrid::DrawPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
+    void PropertyGrid::DrawPropertyRow( TypeInfo const& typeInfo, Byte* pTypeInstance, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
     {
-        KRG_ASSERT( pPropertyModel != nullptr );
-
-        if ( pPropertyModel->IsArray() )
+        if ( propertyInfo.IsArrayProperty() )
         {
-            DrawArrayPropertyRow( pPropertyModel, pParentPropertyModel );
+            DrawArrayPropertyRow( typeInfo, pTypeInstance, propertyInfo, pPropertyInstance );
         }
-        else if ( pPropertyModel->IsStructure() )
+        else
         {
-            DrawStructPropertyRow( pPropertyModel, pParentPropertyModel );
-        }
-        else // Core Types
-        {
-            DrawCoreTypePropertyRow( pPropertyModel, pParentPropertyModel );
+            DrawValuePropertyRow( typeInfo, pTypeInstance, propertyInfo, pPropertyInstance );
         }
     }
 
-    void PropertyGrid::DrawArrayPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
+    void PropertyGrid::DrawValuePropertyRow( TypeInfo const& typeInfo, Byte* pTypeInstance, PropertyInfo const& propertyInfo, Byte* pPropertyInstance, int32 arrayIdx )
     {
-        KRG_ASSERT( pPropertyModel != nullptr );
-        KRG_ASSERT( pPropertyModel->IsArray() );
+        //-------------------------------------------------------------------------
+        // Name
+        //-------------------------------------------------------------------------
+
+        ImGui::TableNextColumn();
+
+        InlineString<255> propertyName;
+        if ( arrayIdx != InvalidIndex )
+        {
+            propertyName.sprintf( "%d", arrayIdx );
+        }
+        else
+        {
+            propertyName = propertyInfo.m_ID.c_str();
+        }
+
+        bool showContents = false;
+
+        if ( propertyInfo.IsStructureProperty() )
+        {
+            if ( ImGui::TreeNodeEx( propertyName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth ) )
+            {
+                showContents = true;
+            }
+        }
+        else
+        {
+            ImGui::Text( propertyName.c_str() );
+        }
+
+        //-------------------------------------------------------------------------
+
+        auto pActualPropertyInstance = propertyInfo.IsArrayProperty() ? typeInfo.m_pTypeHelper->GetArrayElementDataPtr( pTypeInstance, propertyInfo.m_ID, arrayIdx ) : pPropertyInstance;
+
+        //-------------------------------------------------------------------------
+        // Editor
+        //-------------------------------------------------------------------------
+
+        ImGui::TableNextColumn();
+        
+        if ( propertyInfo.IsStructureProperty() )
+        {
+            ImGui::TextColored( Colors::Gray.ToFloat4(), propertyInfo.m_typeID.c_str() );
+        }
+        else // Create property editor
+        {
+            PG::CreatePropertyEditor( m_context, propertyInfo, pActualPropertyInstance );
+        }
+
+        //-------------------------------------------------------------------------
+        // Controls
+        //-------------------------------------------------------------------------
+
+        enum class Command { None, ResetToDefault, RemoveElement };
+        Command command = Command::None;
+
+        ImGui::TableNextColumn();
+
+        ImGui::PushID( pActualPropertyInstance );
+        if ( propertyInfo.IsDynamicArrayProperty() )
+        {
+            KRG_ASSERT( arrayIdx != InvalidIndex );
+            auto const pArrayElementInstance = typeInfo.m_pTypeHelper->GetArrayElementDataPtr( pTypeInstance, propertyInfo.m_ID, arrayIdx );
+            if ( ImGuiX::ButtonColored( Colors::PaleVioletRed.ToFloat4(), KRG_ICON_MINUS ) )
+            {
+                command = Command::RemoveElement;
+            }
+        }
+        else if ( !typeInfo.m_pTypeHelper->IsPropertyValueSetToDefault( pTypeInstance, propertyInfo.m_ID, arrayIdx ) )
+        {
+            if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
+            {
+                command = Command::ResetToDefault;
+            }
+        }
+        ImGui::PopID();
+
+        //-------------------------------------------------------------------------
+        // Child Properties
+        //-------------------------------------------------------------------------
+        // Only relevant for structure properties
+
+        if ( showContents )
+        {
+            KRG_ASSERT( propertyInfo.IsStructureProperty() );
+
+            TypeInfo const* pChildTypeInfo = m_pModel->GetTypeRegistry().GetTypeInfo( propertyInfo.m_typeID );
+            KRG_ASSERT( pChildTypeInfo != nullptr );
+            Byte* pChildTypeInstance = pActualPropertyInstance;
+
+            for ( auto const& childPropertyInfo : pChildTypeInfo->m_properties )
+            {
+                ImGui::TableNextRow();
+                DrawPropertyRow( *pChildTypeInfo, pChildTypeInstance, childPropertyInfo, pChildTypeInstance + childPropertyInfo.m_offset );
+            }
+
+            ImGui::TreePop();
+        }
+
+        //-------------------------------------------------------------------------
+        // Handle control requests
+        //-------------------------------------------------------------------------
+        // This needs to be done after we have finished drawing the UI
+
+        switch ( command ) 
+        {
+            case Command::RemoveElement:
+            {
+                PreChange();
+                typeInfo.m_pTypeHelper->RemoveArrayElement( pTypeInstance, propertyInfo.m_ID, arrayIdx );
+                PostChange();
+            }
+            break;
+
+            case Command::ResetToDefault:
+            {
+                PreChange();
+                typeInfo.m_pTypeHelper->ResetToDefault( pTypeInstance, propertyInfo.m_ID );
+                PostChange();
+            }
+            break;
+        }
+    }
+
+    void PropertyGrid::DrawArrayPropertyRow( TypeInfo const& typeInfo, Byte* pTypeInstance, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
+    {
+        KRG_ASSERT( propertyInfo.IsArrayProperty() );
+
+        ImGui::PushID( pPropertyInstance );
 
         // Name
         //-------------------------------------------------------------------------
@@ -104,7 +209,7 @@ namespace KRG::TypeSystem
         ImGui::TableNextColumn();
 
         bool showContents = false;
-        if ( ImGui::TreeNodeEx( pPropertyModel->GetID().c_str(), ImGuiTreeNodeFlags_None ) )
+        if ( ImGui::TreeNodeEx( propertyInfo.m_ID.c_str(), ImGuiTreeNodeFlags_None ) )
         {
             showContents = true;
         }
@@ -112,8 +217,10 @@ namespace KRG::TypeSystem
         // Editor
         //-------------------------------------------------------------------------
 
+        size_t const arraySize = typeInfo.m_pTypeHelper->GetArraySize( pTypeInstance, propertyInfo.m_ID );
+
         ImGui::TableNextColumn();
-        if ( pPropertyModel->IsDynamicArray() )
+        if ( propertyInfo.IsDynamicArrayProperty() )
         {
             float const cellContentWidth = ImGui::GetContentRegionAvail().x;
             float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
@@ -122,184 +229,54 @@ namespace KRG::TypeSystem
             float const buttonStartPosX = textAreaWidth + itemSpacing;
 
             ImGui::AlignTextToFramePadding();
-            ImGui::TextColored( Colors::Gray.ToFloat4(), "%d Elements - %s", pPropertyModel->GetNumArrayElements(), pPropertyModel->GetFriendlyTypeName() );
+            ImGui::TextColored( Colors::Gray.ToFloat4(), "%d Elements - %s", arraySize, propertyInfo.m_typeID.c_str() );
             float const actualTextWidth = ImGui::GetItemRectSize().x;
 
             ImGui::SameLine( 0, textAreaWidth - actualTextWidth + itemSpacing );
-            if ( !pPropertyModel->IsDefaultValue() )
+            if ( !typeInfo.m_pTypeHelper->IsPropertyValueSetToDefault( pTypeInstance, propertyInfo.m_ID ) )
             {
-                ImGui::PushID( pPropertyModel );
                 if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
                 {
-                    ResetToDefaultValue( pPropertyModel );
+                    PreChange();
+                    typeInfo.m_pTypeHelper->ResetToDefault( pTypeInstance, propertyInfo.m_ID );
+                    PostChange();
                 }
-                ImGui::PopID();
             }
         }
         else
         {
-            ImGui::TextColored( Colors::Gray.ToFloat4(), "%d Elements - %s", pPropertyModel->GetNumArrayElements(), pPropertyModel->GetFriendlyTypeName() );
+            ImGui::AlignTextToFramePadding();
+            ImGui::TextColored( Colors::Gray.ToFloat4(), "%d Elements - %s", arraySize, propertyInfo.m_typeID.c_str() );
         }
 
         // Extra Controls
         //-------------------------------------------------------------------------
 
         ImGui::TableNextColumn();
-        DrawRowControls( pPropertyModel, pParentPropertyModel );
+        if ( propertyInfo.IsDynamicArrayProperty() )
+        {
+            if ( ImGuiX::ButtonColored( Colors::LightGreen.ToFloat4(), KRG_ICON_PLUS ) )
+            {
+                PreChange();
+                typeInfo.m_pTypeHelper->AddArrayElement( pTypeInstance, propertyInfo.m_ID );
+                PostChange();
+            }
+        }
 
         // Array Elements
         //-------------------------------------------------------------------------
 
         if ( showContents )
         {
-            // Draw child elements
-            for ( auto& childPropertyModel : pPropertyModel->GetProperties() )
+            // We need to ask for the array size each iteration since we may destroy a row as part of drawing it
+            for ( auto i = 0u; i < typeInfo.m_pTypeHelper->GetArraySize( pTypeInstance, propertyInfo.m_ID ); i++ )
             {
-                ImGui::TableNextRow();
-                DrawPropertyRow( &childPropertyModel, pPropertyModel );
+                DrawValuePropertyRow( typeInfo, pTypeInstance, propertyInfo, pPropertyInstance, i );
             }
 
             ImGui::TreePop();
         }
-    }
 
-    void PropertyGrid::DrawStructPropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
-    {
-        KRG_ASSERT( pPropertyModel != nullptr );
-        KRG_ASSERT( pPropertyModel->IsStructure() );
-
-        // Name
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextColumn();
-
-        bool showContents = false;
-        if ( ImGui::TreeNodeEx( pPropertyModel->GetFriendlyName(), ImGuiTreeNodeFlags_SpanFullWidth ) )
-        {
-            showContents = true;
-        }
-
-        // Editor
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextColumn();
-        ImGui::TextColored( Colors::Gray.ToFloat4(), pPropertyModel->GetFriendlyTypeName() );
-
-        // Controls
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextColumn();
-        DrawRowControls( pPropertyModel, pParentPropertyModel );
-
-        // Child Properties
-        //-------------------------------------------------------------------------
-
-        if ( showContents )
-        {
-            // Draw child elements
-            for ( auto& childPropertyModel : pPropertyModel->GetProperties() )
-            {
-                ImGui::TableNextRow();
-                DrawPropertyRow( &childPropertyModel, pPropertyModel );
-            }
-
-            ImGui::TreePop();
-        }
-    }
-
-    void PropertyGrid::DrawCoreTypePropertyRow( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
-    {
-        KRG_ASSERT( pPropertyModel != nullptr );
-        KRG_ASSERT( !pPropertyModel->IsStructure() && !pPropertyModel->IsArray() );
-
-        // Name
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextColumn();
-        ImGui::Text( pPropertyModel->GetFriendlyName() );
-
-        // Editor
-        //-------------------------------------------------------------------------
-
-        auto PreChangeDelegate = TFunction<void( PropertyInstanceModel& )>( [this] ( PropertyInstanceModel& propertyModel ) { PreChange( propertyModel ); } );
-        auto PostChangeDelegate = TFunction<void( PropertyInstanceModel& )>( [this] ( PropertyInstanceModel& propertyModel ) { PostChange( propertyModel ); } );
-
-        ImGui::TableNextColumn();
-        PG::Context ctx( m_typeRegistry, m_sourceDataPath,  PreChangeDelegate, PostChangeDelegate );
-        PG::CreatePropertyEditor( ctx, *pPropertyModel );
-
-        // Controls
-        //-------------------------------------------------------------------------
-
-        ImGui::TableNextColumn();
-        DrawRowControls( pPropertyModel, pParentPropertyModel );
-    }
-
-    void PropertyGrid::DrawRowControls( PropertyInstanceModel* pPropertyModel, PropertyInstanceModel* pParentPropertyModel )
-    {
-        KRG_ASSERT( pPropertyModel != nullptr );
-
-        if ( pPropertyModel->IsDynamicArray() )
-        {
-            ImGui::PushID( pPropertyModel );
-            if ( ImGuiX::ButtonColored( Colors::LightGreen.ToFloat4(), KRG_ICON_PLUS ) )
-            {
-                PreChange( *pPropertyModel );
-                pPropertyModel->AddArrayElement();
-                PostChange( *pPropertyModel );
-            }
-            ImGui::PopID();
-        }
-        else if( pPropertyModel->IsArrayElement() )
-        {
-            KRG_ASSERT( pParentPropertyModel != nullptr && pParentPropertyModel->IsArray() );
-
-            if ( pParentPropertyModel->IsDynamicArray() )
-            {
-                ImGui::PushID( pPropertyModel );
-                if ( ImGuiX::ButtonColored( Colors::PaleVioletRed.ToFloat4(), KRG_ICON_MINUS ) )
-                {
-                    PreChange( *pPropertyModel );
-                    pParentPropertyModel->RemoveArrayElement( pPropertyModel->GetArrayElementIndex() );
-                    PostChange( *pPropertyModel );
-                }
-                ImGui::PopID();
-            }
-            else // Static array element (only allow reset value)
-            {
-                if ( !pPropertyModel->IsDefaultValue() )
-                {
-                    ImGui::PushID( pPropertyModel );
-                    if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
-                    {
-                        ResetToDefaultValue( pPropertyModel );
-                    }
-                    ImGui::PopID();
-                }
-            }
-        }
-        else if ( pPropertyModel->IsStructure() )
-        {
-            // Do Nothing
-        }
-        else // Regular type
-        {
-            if ( !pPropertyModel->IsDefaultValue() )
-            {
-                ImGui::PushID( pPropertyModel );
-                if ( ImGuiX::ButtonColored( Colors::LightGray.ToFloat4(), KRG_ICON_UNDO ) )
-                {
-                    ResetToDefaultValue( pPropertyModel );
-                }
-                ImGui::PopID();
-            }
-        }
-    }
-
-    void PropertyGrid::ResetToDefaultValue( PropertyInstanceModel* pPropertyModel )
-    {
-        PreChange( *pPropertyModel );
-        pPropertyModel->ResetToDefaultValue();
-        PostChange( *pPropertyModel );
+        ImGui::PopID();
     }
 }

@@ -21,11 +21,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Animation::AnimatedMeshComponent::GetTypeInfo() const
-    {
-        return KRG::Animation::AnimatedMeshComponent::s_pTypeInfo;
-    }
-
     void KRG::Animation::AnimatedMeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Animation::AnimatedMeshComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

@@ -43,7 +43,7 @@ namespace KRG::Physics
 
     class KRG_ENGINE_PHYSICS_API PhysicsComponent : public SpatialEntityComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT;
+        KRG_REGISTER_ENTITY_COMPONENT( PhysicsComponent );
 
         friend class PhysicsWorldSystem;
 

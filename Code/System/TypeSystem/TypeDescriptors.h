@@ -22,7 +22,7 @@ namespace KRG::TypeSystem
         PropertyDescriptor( TypeRegistry const& typeRegistry, PropertyPath const& path, PropertyInfo const& propertyInfo, String const& stringValue )
             : m_path( path )
         {
-            KRG_ASSERT( m_path.IsValid() && !stringValue.empty() );
+            KRG_ASSERT( m_path.IsValid() );
             Conversion::ConvertStringToBinary( typeRegistry, propertyInfo, stringValue, m_byteValue );
 
             #if KRG_DEVELOPMENT_TOOLS

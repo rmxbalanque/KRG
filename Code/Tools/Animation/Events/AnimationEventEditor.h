@@ -57,12 +57,12 @@ namespace KRG::Animation::Tools
         virtual void CreateItem( float itemStartTime ) override;
         virtual void DrawHeader( ImRect const& headerRect ) override;
         virtual bool HasContextMenu() const override { return true; }
-        virtual void DrawContextMenu( float playheadPosition ) override;
-
+        virtual void DrawContextMenu( TVector<Track*>& tracks, float playheadPosition ) override;
 
     private:
 
         EventTrackInfo                              m_trackInfo;
+        float                                       m_animFrameRate = 0.0f;
     };
 }
 
@@ -79,11 +79,12 @@ namespace KRG::Animation::Tools
         inline ResourceID const& GetAnimationID() const { return m_animationID; }
 
         void Update( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent );
-        void SaveToFile();
 
     private:
 
-        virtual void DrawAddTracksMenu() override;
+        virtual bool DrawAddTracksMenu() override;
+        virtual void Save() override;
+
         bool LoadFromFile();
 
     private:

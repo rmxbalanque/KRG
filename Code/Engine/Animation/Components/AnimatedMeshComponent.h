@@ -16,7 +16,7 @@ namespace KRG
 
         class KRG_ENGINE_ANIMATION_API AnimatedMeshComponent : public Render::SkeletalMeshComponent
         {
-            KRG_REGISTER_ENTITY_COMPONENT;
+            KRG_REGISTER_ENTITY_COMPONENT( AnimatedMeshComponent );
 
         public:
 

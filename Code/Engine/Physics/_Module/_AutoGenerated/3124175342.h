@@ -42,7 +42,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_PHYSICS_API void serialize( Archive& archive, KRG::Physics::PhysicsMaterialSettings& type )
     {
-        archive( KRG_NVP( m_ID ), KRG_NVP( m_staticFriction ), KRG_NVP( m_dynamicFriction ), KRG_NVP( m_restitution ), KRG_NVP( m_frictionCombineMode ), KRG_NVP( m_restitutionCombineMode ) );
+        archive( cereal::base_class<KRG::IRegisteredType>( &type ), KRG_NVP( m_ID ), KRG_NVP( m_staticFriction ), KRG_NVP( m_dynamicFriction ), KRG_NVP( m_restitution ), KRG_NVP( m_frictionCombineMode ), KRG_NVP( m_restitutionCombineMode ) );
     }
 
     //-------------------------------------------------------------------------
@@ -163,6 +163,15 @@ namespace KRG
                     typeInfo.m_alignment = alignof( KRG::Physics::PhysicsMaterialSettings );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
+                    // Parent Types 
+                    //-------------------------------------------------------------------------
+
+                    TypeSystem::TypeInfo const* pParentType = nullptr;
+
+                    pParentType = KRG::IRegisteredType::s_pTypeInfo;
+                    KRG_ASSERT( pParentType != nullptr );
+                    typeInfo.m_parentTypes.push_back( pParentType );
+
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
@@ -221,29 +230,6 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pType );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return nullptr;
-                }
-
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings const*>( pTypeInstance );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pType );
@@ -252,40 +238,173 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pType );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings const*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::Physics::PhysicsMaterialSettings::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 4230898639 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3791681129 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2513867306 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2226414746 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3844339017 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1096257185 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings const*>( pOtherTypeInstance );
+
                     if ( propertyID == 4230898639 )
                     {
-                        return *reinterpret_cast<KRG::StringID const*>( pValueInstance ) == pDefaultType->m_ID;
+                        return pType->m_ID == pOtherType->m_ID;
                     }
 
                     if ( propertyID == 3791681129 )
                     {
-                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_staticFriction;
+                        return pType->m_staticFriction == pOtherType->m_staticFriction;
                     }
 
                     if ( propertyID == 2513867306 )
                     {
-                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_dynamicFriction;
+                        return pType->m_dynamicFriction == pOtherType->m_dynamicFriction;
                     }
 
                     if ( propertyID == 2226414746 )
                     {
-                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_restitution;
+                        return pType->m_restitution == pOtherType->m_restitution;
                     }
 
                     if ( propertyID == 3844339017 )
                     {
-                        return *reinterpret_cast<KRG::Physics::PhysicsCombineMode const*>( pValueInstance ) == pDefaultType->m_frictionCombineMode;
+                        return pType->m_frictionCombineMode == pOtherType->m_frictionCombineMode;
                     }
 
                     if ( propertyID == 1096257185 )
                     {
-                        return *reinterpret_cast<KRG::Physics::PhysicsCombineMode const*>( pValueInstance ) == pDefaultType->m_restitutionCombineMode;
+                        return pType->m_restitutionCombineMode == pOtherType->m_restitutionCombineMode;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMaterialSettings*>( pTypeInstance );
+
+                    if ( propertyID == 4230898639 )
+                    {
+                        pActualType->m_ID = pDefaultType->m_ID;
+                        return;
+                    }
+
+                    if ( propertyID == 3791681129 )
+                    {
+                        pActualType->m_staticFriction = pDefaultType->m_staticFriction;
+                        return;
+                    }
+
+                    if ( propertyID == 2513867306 )
+                    {
+                        pActualType->m_dynamicFriction = pDefaultType->m_dynamicFriction;
+                        return;
+                    }
+
+                    if ( propertyID == 2226414746 )
+                    {
+                        pActualType->m_restitution = pDefaultType->m_restitution;
+                        return;
+                    }
+
+                    if ( propertyID == 3844339017 )
+                    {
+                        pActualType->m_frictionCombineMode = pDefaultType->m_frictionCombineMode;
+                        return;
+                    }
+
+                    if ( propertyID == 1096257185 )
+                    {
+                        pActualType->m_restitutionCombineMode = pDefaultType->m_restitutionCombineMode;
+                        return;
+                    }
+
                 }
 
             };

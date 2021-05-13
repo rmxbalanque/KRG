@@ -22,7 +22,7 @@ namespace KRG::Animation
 
     struct KRG_TOOLS_ANIMATION_API AnimationResourceDescriptor : public Resource::ResourceDescriptor
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( AnimationResourceDescriptor );
 
         EXPOSE DataPath                    m_animationDataPath;
         EXPOSE TResourcePtr<Skeleton>      m_pSkeleton = nullptr;

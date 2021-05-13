@@ -13,7 +13,7 @@ namespace KRG::Render
 
     struct KRG_TOOLS_RENDER_API SkeletalMeshResourceDescriptor : public MeshResourceDescriptor
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( SkeletalMeshResourceDescriptor );
     };
 
     //-------------------------------------------------------------------------

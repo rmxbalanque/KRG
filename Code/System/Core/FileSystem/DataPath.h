@@ -66,7 +66,7 @@ namespace KRG
         template<size_t S> void ReplaceExtension( InlineString<S> const& extension ) { ReplaceExtension( extension.c_str() ); }
 
         // Conversion
-        inline String const& ToString() const { return m_path; }
+        inline String const& GetString() const { return m_path; }
         inline char const* c_str() const { return m_path.c_str(); }
         inline FileSystem::Path ToFileSystemPath( FileSystem::Path const& sourceDataPath ) const { return ToFileSystemPath( sourceDataPath, *this ); }
 

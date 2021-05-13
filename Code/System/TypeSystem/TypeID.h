@@ -22,10 +22,11 @@ namespace KRG
             TypeID( StringID ID ) : m_ID( ID ) {}
             TypeID( uint32 ID ) : m_ID( ID ) {}
 
-            inline bool IsValid() const { return m_ID.IsValid(); }
+            KRG_FORCE_INLINE bool IsValid() const { return m_ID.IsValid(); }
 
-            inline operator uint32() const { return m_ID.GetID(); }
-            inline StringID GetAsStringID() const { return m_ID; }
+            KRG_FORCE_INLINE operator uint32() const { return m_ID.GetID(); }
+            KRG_FORCE_INLINE StringID ToStringID() const { return m_ID; }
+            KRG_FORCE_INLINE char const* c_str() const { return m_ID.c_str(); }
 
         private:
 

@@ -18,29 +18,29 @@
 
 void KRG::Animation::EngineModule::RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Event_AllowedTypes::RegisterEnum( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Event>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent>::RegisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_AnimationPlayerComponent_PlayMode::RegisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationComponent>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationPlayerComponent>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Event>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Events::IDEvent>::RegisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Events_FootstepEvent_Phase::RegisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Events::FootstepEvent>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationSystem>::RegisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Event_EventType::RegisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent>::RegisterType( typeRegistry );
 }
 
 void KRG::Animation::EngineModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent>::UnregisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Event_EventType::UnregisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationSystem>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Events::FootstepEvent>::UnregisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Events_FootstepEvent_Phase::UnregisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Events::IDEvent>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Event>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationPlayerComponent>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationComponent>::UnregisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_AnimationPlayerComponent_PlayMode::UnregisterEnum( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent>::UnregisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Event>::UnregisterType( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Event_AllowedTypes::UnregisterEnum( typeRegistry );
 }
 

@@ -157,29 +157,6 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor*>( pType );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return nullptr;
-                }
-
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor const*>( pTypeInstance );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor*>( pType );
@@ -188,20 +165,109 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor*>( pType );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor const*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::Animation::SkeletonResourceDescriptor::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 764560898 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 4050318144 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor const*>( pOtherTypeInstance );
+
                     if ( propertyID == 764560898 )
                     {
-                        return *reinterpret_cast<KRG::DataPath const*>( pValueInstance ) == pDefaultType->m_skeletonDataPath;
+                        return pType->m_skeletonDataPath == pOtherType->m_skeletonDataPath;
                     }
 
                     if ( propertyID == 4050318144 )
                     {
-                        return *reinterpret_cast<KRG::String const*>( pValueInstance ) == pDefaultType->m_skeletonRootBoneName;
+                        return pType->m_skeletonRootBoneName == pOtherType->m_skeletonRootBoneName;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::SkeletonResourceDescriptor*>( pTypeInstance );
+
+                    if ( propertyID == 764560898 )
+                    {
+                        pActualType->m_skeletonDataPath = pDefaultType->m_skeletonDataPath;
+                        return;
+                    }
+
+                    if ( propertyID == 4050318144 )
+                    {
+                        pActualType->m_skeletonRootBoneName = pDefaultType->m_skeletonRootBoneName;
+                        return;
+                    }
+
                 }
 
             };

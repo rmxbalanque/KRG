@@ -191,29 +191,6 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent*>( pType );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return nullptr;
-                }
-
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent const*>( pTypeInstance );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent*>( pType );
@@ -222,25 +199,125 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Events::FootstepEvent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent*>( pType );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent const*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::Animation::Events::FootstepEvent::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::Events::FootstepEvent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Events::FootstepEvent const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 642514472 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 4243392298 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 560515946 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::Animation::Events::FootstepEvent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Events::FootstepEvent const*>( pOtherTypeInstance );
+
                     if ( propertyID == 642514472 )
                     {
-                        return *reinterpret_cast<KRG::Seconds const*>( pValueInstance ) == pDefaultType->m_startTime;
+                        return pType->m_startTime == pOtherType->m_startTime;
                     }
 
                     if ( propertyID == 4243392298 )
                     {
-                        return *reinterpret_cast<KRG::Seconds const*>( pValueInstance ) == pDefaultType->m_duration;
+                        return pType->m_duration == pOtherType->m_duration;
                     }
 
                     if ( propertyID == 560515946 )
                     {
-                        return *reinterpret_cast<KRG::Animation::Events::FootstepEvent::Phase const*>( pValueInstance ) == pDefaultType->m_phase;
+                        return pType->m_phase == pOtherType->m_phase;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::Events::FootstepEvent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Events::FootstepEvent*>( pTypeInstance );
+
+                    if ( propertyID == 642514472 )
+                    {
+                        pActualType->m_startTime = pDefaultType->m_startTime;
+                        return;
+                    }
+
+                    if ( propertyID == 4243392298 )
+                    {
+                        pActualType->m_duration = pDefaultType->m_duration;
+                        return;
+                    }
+
+                    if ( propertyID == 560515946 )
+                    {
+                        pActualType->m_phase = pDefaultType->m_phase;
+                        return;
+                    }
+
                 }
 
             };

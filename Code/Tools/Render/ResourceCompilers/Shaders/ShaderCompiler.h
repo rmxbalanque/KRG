@@ -23,7 +23,7 @@ namespace KRG
 
         struct ShaderResourceDescriptor : public Resource::ResourceDescriptor
         {
-            KRG_REGISTER_TYPE;
+            KRG_REGISTER_TYPE( ShaderResourceDescriptor );
 
             EXPOSE ShaderType           m_shaderType = ShaderType::Vertex;
             EXPOSE DataPath             m_shaderDataPath;

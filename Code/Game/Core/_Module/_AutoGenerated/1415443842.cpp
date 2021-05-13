@@ -208,11 +208,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::TestComponent::GetTypeInfo() const
-    {
-        return KRG::TestComponent::s_pTypeInfo;
-    }
-
     void KRG::TestComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::TestComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

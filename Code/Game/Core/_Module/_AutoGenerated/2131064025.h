@@ -225,9 +225,18 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pType );
+                    // We should never get here since we are asking for a resource type of an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return ResourceTypeID();
+                }
+
                 virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pType );
+
                     if ( arrayID == 1813730029 )
                     {
                         if ( ( arrayIdx + 1 ) >= pActualType->m_meshIDs.size() )
@@ -286,6 +295,7 @@ namespace KRG
                 virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent const*>( pTypeInstance );
+
                     if ( arrayID == 1813730029 )
                     {
                         return pActualType->m_meshIDs.size();
@@ -316,7 +326,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
                 {
                     if ( arrayID == 1813730029 )
                     {
@@ -348,88 +358,368 @@ namespace KRG
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pType );
-                    // We should never get here since we are asking for a resource type of an invalid property
+                    auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pTypeInstance );
+
+                    if ( arrayID == 1813730029 )
+                    {
+                        pActualType->m_meshIDs.clear();
+                        return;
+                    }
+
+                    if ( arrayID == 2453801430 )
+                    {
+                        pActualType->m_armorMeshIDs.clear();
+                        return;
+                    }
+
+                    if ( arrayID == 1010763108 )
+                    {
+                        pActualType->m_hairMeshIDs.clear();
+                        return;
+                    }
+
+                    if ( arrayID == 363942725 )
+                    {
+                        pActualType->m_materialIDs.clear();
+                        return;
+                    }
+
+                    if ( arrayID == 1835784676 )
+                    {
+                        pActualType->m_animationIDs.clear();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
-                    return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::CustomizerTestComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pTypeInstance );
+
+                    if ( arrayID == 1813730029 )
+                    {
+                        pActualType->m_meshIDs.emplace_back();
+                        return;
+                    }
+
+                    if ( arrayID == 2453801430 )
+                    {
+                        pActualType->m_armorMeshIDs.emplace_back();
+                        return;
+                    }
+
+                    if ( arrayID == 1010763108 )
+                    {
+                        pActualType->m_hairMeshIDs.emplace_back();
+                        return;
+                    }
+
+                    if ( arrayID == 363942725 )
+                    {
+                        pActualType->m_materialIDs.emplace_back();
+                        return;
+                    }
+
+                    if ( arrayID == 1835784676 )
+                    {
+                        pActualType->m_animationIDs.emplace_back();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pTypeInstance );
+
+                    if ( arrayID == 1813730029 )
+                    {
+                        pActualType->m_meshIDs.erase( pActualType->m_meshIDs.begin() + arrayIdx );
+                        return;
+                    }
+
+                    if ( arrayID == 2453801430 )
+                    {
+                        pActualType->m_armorMeshIDs.erase( pActualType->m_armorMeshIDs.begin() + arrayIdx );
+                        return;
+                    }
+
+                    if ( arrayID == 1010763108 )
+                    {
+                        pActualType->m_hairMeshIDs.erase( pActualType->m_hairMeshIDs.begin() + arrayIdx );
+                        return;
+                    }
+
+                    if ( arrayID == 363942725 )
+                    {
+                        pActualType->m_materialIDs.erase( pActualType->m_materialIDs.begin() + arrayIdx );
+                        return;
+                    }
+
+                    if ( arrayID == 1835784676 )
+                    {
+                        pActualType->m_animationIDs.erase( pActualType->m_animationIDs.begin() + arrayIdx );
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::CustomizerTestComponent::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::CustomizerTestComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::CustomizerTestComponent const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1813730029 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2453801430 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1010763108 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 363942725 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1835784676 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1274071866 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::CustomizerTestComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::CustomizerTestComponent const*>( pOtherTypeInstance );
+
                     if ( propertyID == 1813730029 )
                     {
-                        if ( arrayIdx < pDefaultType->m_meshIDs.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_meshIDs[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_meshIDs.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_meshIDs[arrayIdx] == pOtherType->m_meshIDs[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_meshIDs.size() != pOtherType->m_meshIDs.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_meshIDs.size(); i++ )
+                            {
+                                if( pType->m_meshIDs[i] != pOtherType->m_meshIDs[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     if ( propertyID == 2453801430 )
                     {
-                        if ( arrayIdx < pDefaultType->m_armorMeshIDs.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_armorMeshIDs[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_armorMeshIDs.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_armorMeshIDs[arrayIdx] == pOtherType->m_armorMeshIDs[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_armorMeshIDs.size() != pOtherType->m_armorMeshIDs.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_armorMeshIDs.size(); i++ )
+                            {
+                                if( pType->m_armorMeshIDs[i] != pOtherType->m_armorMeshIDs[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     if ( propertyID == 1010763108 )
                     {
-                        if ( arrayIdx < pDefaultType->m_hairMeshIDs.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_hairMeshIDs[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_hairMeshIDs.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_hairMeshIDs[arrayIdx] == pOtherType->m_hairMeshIDs[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_hairMeshIDs.size() != pOtherType->m_hairMeshIDs.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_hairMeshIDs.size(); i++ )
+                            {
+                                if( pType->m_hairMeshIDs[i] != pOtherType->m_hairMeshIDs[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     if ( propertyID == 363942725 )
                     {
-                        if ( arrayIdx < pDefaultType->m_materialIDs.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_materialIDs[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_materialIDs.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_materialIDs[arrayIdx] == pOtherType->m_materialIDs[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_materialIDs.size() != pOtherType->m_materialIDs.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_materialIDs.size(); i++ )
+                            {
+                                if( pType->m_materialIDs[i] != pOtherType->m_materialIDs[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     if ( propertyID == 1835784676 )
                     {
-                        if ( arrayIdx < pDefaultType->m_animationIDs.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_animationIDs[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_animationIDs.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_animationIDs[arrayIdx] == pOtherType->m_animationIDs[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_animationIDs.size() != pOtherType->m_animationIDs.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_animationIDs.size(); i++ )
+                            {
+                                if( pType->m_animationIDs[i] != pOtherType->m_animationIDs[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     if ( propertyID == 1274071866 )
                     {
-                        return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_skeletonID;
+                        return pType->m_skeletonID == pOtherType->m_skeletonID;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::CustomizerTestComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::CustomizerTestComponent*>( pTypeInstance );
+
+                    if ( propertyID == 1813730029 )
+                    {
+                        pActualType->m_meshIDs = pDefaultType->m_meshIDs;
+                        return;
+                    }
+
+                    if ( propertyID == 2453801430 )
+                    {
+                        pActualType->m_armorMeshIDs = pDefaultType->m_armorMeshIDs;
+                        return;
+                    }
+
+                    if ( propertyID == 1010763108 )
+                    {
+                        pActualType->m_hairMeshIDs = pDefaultType->m_hairMeshIDs;
+                        return;
+                    }
+
+                    if ( propertyID == 363942725 )
+                    {
+                        pActualType->m_materialIDs = pDefaultType->m_materialIDs;
+                        return;
+                    }
+
+                    if ( propertyID == 1835784676 )
+                    {
+                        pActualType->m_animationIDs = pDefaultType->m_animationIDs;
+                        return;
+                    }
+
+                    if ( propertyID == 1274071866 )
+                    {
+                        pActualType->m_skeletonID = pDefaultType->m_skeletonID;
+                        return;
+                    }
+
                 }
 
             };

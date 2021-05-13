@@ -58,11 +58,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Camera::CameraComponent::GetTypeInfo() const
-    {
-        return KRG::Camera::CameraComponent::s_pTypeInfo;
-    }
-
     void KRG::Camera::CameraComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Camera::CameraComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

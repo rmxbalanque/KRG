@@ -5,7 +5,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::AnimationTools
+namespace KRG::Animation::Tools
 {
     void SkeletonResourceFile::SetActive( EntityWorld* pPreviewWorld )
     {

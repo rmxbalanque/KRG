@@ -51,7 +51,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        inline String const& ToString() const { return m_dataPath.ToString(); }
+        inline String const& ToString() const { return m_dataPath.GetString(); }
         inline char const* c_str() const { return m_dataPath.c_str(); }
 
         //-------------------------------------------------------------------------

@@ -38,6 +38,7 @@ namespace KRG::ImGuiX
 
     inline void ItemTooltip( const char* fmt, ... )
     {
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
         if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > Theme::s_toolTipDelay )
         {
             va_list args;
@@ -45,6 +46,7 @@ namespace KRG::ImGuiX
             ImGui::SetTooltipV( fmt, args );
             va_end( args );
         }
+        ImGui::PopStyleVar();
     }
 
     inline void ItemTooltipDelayed( float tooltipDelay, const char* fmt, ... )
@@ -75,6 +77,25 @@ namespace KRG::ImGuiX
         ImGui::PopStyleColor();
 
         return result;
+    }
+
+    inline void VerticalSeparator( ImVec2 const& size = ImVec2( -1, -1 ), ImColor const& color = 0 )
+    {
+        ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+        auto const canvasPos = ImGui::GetCursorScreenPos();
+        auto const availableRegion = ImGui::GetContentRegionAvail();
+
+        ImVec2 const seperatorSize( size.x <= 0 ? 1 : size.x, size.y <= 0 ? availableRegion.y : size.y );
+        ImGui::Dummy( seperatorSize );
+
+        //-------------------------------------------------------------------------
+
+        ImColor const separatorColor = ( (int) color == 0 ) ? ImGuiX::Theme::s_backgroundColorLight : color;
+
+        float const startPosX = canvasPos.x + ( seperatorSize.x / 2 );
+        float const startPosY = canvasPos.y + 1;
+        float const endPosY = startPosY + seperatorSize.y - 2;
+        pDrawList->AddLine( ImVec2( startPosX, startPosY ), ImVec2( startPosX, endPosY ), separatorColor, 1 );
     }
 }
 #endif

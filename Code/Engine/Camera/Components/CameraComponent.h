@@ -12,7 +12,7 @@ namespace KRG::Camera
 {
     class KRG_ENGINE_CAMERA_API CameraComponent : public SpatialEntityComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT;
+        KRG_REGISTER_ENTITY_COMPONENT( CameraComponent );
 
     public:
 

@@ -14,17 +14,17 @@ namespace KRG
 namespace KRG::Render { class ViewportManager; }
 
 //-------------------------------------------------------------------------
-// Base File View
+// File Tab Base
 //-------------------------------------------------------------------------
 // This is a base class to draw a open file editor and set up the preview
 
 namespace KRG
 {
-    class EditorFile
+    class EditorFileTab
     {
     public:
 
-        virtual ~EditorFile() = default;
+        virtual ~EditorFileTab() = default;
 
         // Get a shorter, display friendly name for this file
         inline char const* GetDisplayName() const { return m_displayName.c_str(); }
@@ -42,16 +42,15 @@ namespace KRG
         virtual void DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager ) = 0;
 
         // Has any modifications been made to this file?
-        inline bool IsDirty() const { return m_isDirty; }
+        virtual bool IsDirty() const { return false; }
 
         // Optional: Save functionality for files that support it
         inline bool Save()
         {
             bool result = true;
-            if ( m_isDirty )
+            if ( IsDirty() )
             {
                 result = OnSave();
-                m_isDirty = false;
             }
             return result;
         }
@@ -64,25 +63,24 @@ namespace KRG
 
         String                              m_displayName;
         FileSystem::Path                    m_filePath;
-        bool                                m_isDirty = false;
     };
 }
 
 //-------------------------------------------------------------------------
-// Resource File View
+// File tab for an open resource
 //-------------------------------------------------------------------------
 // Helper to manage loading and unloading of resources
 
 namespace KRG
 {
     template<typename T>
-    class TResourceFile : public EditorFile
+    class TResourceFileTab : public EditorFileTab
     {
         static_assert( std::is_base_of<Resource::IResource, T>::value, "T must derived from IResource" );
 
     public:
 
-        TResourceFile( EditorModel* pModel, FileSystem::Path const& sourceDataDirectory, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID )
+        TResourceFileTab( EditorModel* pModel, FileSystem::Path const& sourceDataDirectory, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID )
             : m_pResourceSystem( pResourceSystem )
             , m_pResource( resourceID )
             , m_pModel( pModel )
@@ -94,7 +92,7 @@ namespace KRG
             m_displayName = m_filePath.GetFileNameWithoutExtension();
         }
 
-        virtual ~TResourceFile()
+        virtual ~TResourceFileTab()
         {
             m_pResourceSystem->UnloadResource( m_pResource );
         }
@@ -105,8 +103,8 @@ namespace KRG
 
     private:
 
-        TResourceFile& operator=( TResourceFile const& ) = delete;
-        TResourceFile( TResourceFile const& ) = delete;
+        TResourceFileTab& operator=( TResourceFileTab const& ) = delete;
+        TResourceFileTab( TResourceFileTab const& ) = delete;
 
     protected:
 

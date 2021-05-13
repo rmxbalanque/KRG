@@ -49,9 +49,9 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class KRG_SYSTEM_ENTITY_API EntityComponent
+    class KRG_SYSTEM_ENTITY_API EntityComponent : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( EntityComponent );
 
         friend Entity;
         friend EntityModel::EntityCollection;
@@ -75,8 +75,6 @@ namespace KRG
 
         inline UUID GetID() const { return m_ID; }
         inline StringID GetName() const { return m_name; }
-        inline TypeSystem::TypeID GetTypeID() const { return GetTypeInfo()->m_ID; }
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return EntityComponent::s_pTypeInfo; }
 
         // Status
         inline bool HasLoadingFailed() const { return m_status == Status::LoadingFailed; }
@@ -153,10 +151,8 @@ namespace KRG
 
 //-------------------------------------------------------------------------
 
-#define KRG_REGISTER_ENTITY_COMPONENT \
-        KRG_REGISTER_TYPE;\
-        public:\
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override;\
+#define KRG_REGISTER_ENTITY_COMPONENT( TypeName ) \
+        KRG_REGISTER_TYPE( TypeName );\
         protected:\
         virtual void Load( EntityModel::LoadingContext const& context, UUID requesterID ) override;\
         virtual void Unload( EntityModel::LoadingContext const& context, UUID requesterID ) override;\

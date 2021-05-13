@@ -50,9 +50,9 @@ namespace KRG::Physics
     //-------------------------------------------------------------------------
     // Serialized physical material settings
 
-    struct KRG_ENGINE_PHYSICS_API PhysicsMaterialSettings
+    struct KRG_ENGINE_PHYSICS_API PhysicsMaterialSettings : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( PhysicsMaterialSettings );
         KRG_SERIALIZE_MEMBERS( m_ID, m_dynamicFriction, m_staticFriction, m_restitution, m_frictionCombineMode, m_restitutionCombineMode );
 
         bool IsValid() const;

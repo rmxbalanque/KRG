@@ -10,7 +10,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::AnimationTools
+namespace KRG::Animation::Tools
 {
     AnimationResourceFile::~AnimationResourceFile()
     {
@@ -63,45 +63,61 @@ namespace KRG::Animation::AnimationTools
             return;
         }
 
-        //-------------------------------------------------------------------------
-
-        DrawAnimationInfo( context );
-        DrawAnimationTimeline( context );
-    }
-
-    void AnimationResourceFile::DrawAnimationInfo( UpdateContext const& context )
-    {
-        ImGui::AlignTextToFramePadding();
-
-        //-------------------------------------------------------------------------
-
-        ImGui::TextColored( Colors::LightPink.ToFloat4(), "Average Velocity: %.2fm/s", 4.0f );
-
-        ImGui::SameLine( 0, 15 );
-        ImGui::TextColored( Colors::LightPink.ToFloat4(), "Distance Covered: %.2fm", 10 );
-
-        ImGui::SameLine( 0, 15 );
-        ImGui::TextColored( Colors::LightPink.ToFloat4(), "Frame: %.2f / %d", 0, m_pResource->GetNumFrames() );
-
-        ImGui::SameLine( 0, 15 );
-        ImGui::TextColored( Colors::LightPink.ToFloat4(), "Time: %.2fs / %.2fs", 0, m_pResource->GetDuration() );
-
-        ImGui::SameLine( 0, 15 );
-        if ( ImGui::Button( "Save" ) )
-        {
-            m_pTrackEditor->SaveToFile();
-        }
-    }
-
-    void AnimationResourceFile::DrawAnimationTimeline( UpdateContext const& context )
-    {
         if ( m_pTrackEditor == nullptr )
         {
             m_pTrackEditor = KRG::New<Tools::EventEditor>( m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
         }
 
+        // Anim Info
         //-------------------------------------------------------------------------
 
-        m_pTrackEditor->Update( context, m_pAnimationComponent );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 0 ) );
+        ImGui::BeginChild( "AnimInfo", ImVec2( 0, 18 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding );
+        {
+            ImGui::AlignTextToFramePadding();
+            ImGui::TextColored( Colors::LightPink.ToFloat4(), "Average Velocity: %.2fm/s", 4.0f );
+
+            ImGui::SameLine( 0, 15 );
+            ImGui::TextColored( Colors::LightPink.ToFloat4(), "Distance Covered: %.2fm", 10 );
+
+            ImGui::SameLine( 0, 15 );
+            ImGui::TextColored( Colors::LightPink.ToFloat4(), "Frame: %.2f / %d", 0, m_pResource->GetNumFrames() );
+
+            ImGui::SameLine( 0, 15 );
+            ImGui::TextColored( Colors::LightPink.ToFloat4(), "Time: %.2fs / %.2fs", 0, m_pResource->GetDuration() );
+        }
+        ImGui::EndChild();
+        ImGui::PopStyleVar();
+
+        // Track editor and property grid
+        //-------------------------------------------------------------------------
+
+        ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 0, 0 ) );
+        if ( ImGui::BeginTable( "BlahTable", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders ) )
+        {
+            ImGui::TableSetupColumn( "TrackEditor", ImGuiTableColumnFlags_NoHide );
+            ImGui::TableSetupColumn( "PropertyGrid", ImGuiTableColumnFlags_NoHide );
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::BeginChild( "TE", ImVec2( 0, 0 ), false );
+            {
+                m_pTrackEditor->Update( context, m_pAnimationComponent );
+            }
+            ImGui::EndChild();
+
+            ImGui::TableNextColumn();
+            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 0 ) );
+            ImGui::BeginChild( "PG", ImVec2( 0, 0 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding );
+            {
+                m_propertyGrid.DrawGrid();
+            }
+            ImGui::EndChild();
+            ImGui::PopStyleVar();
+
+            ImGui::EndTable();
+        }
+        ImGui::PopStyleVar();
     }
 }

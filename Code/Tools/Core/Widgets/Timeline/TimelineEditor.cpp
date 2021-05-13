@@ -132,10 +132,13 @@ namespace KRG::Timeline
         bool const isMouseRightButtonReleased = ImGui::IsMouseReleased( ImGuiMouseButton_Right );
         if ( isMouseRightButtonReleased )
         {
-            m_contextMenuState.m_pItem = m_mouseState.m_pHoveredItem;
-            m_contextMenuState.m_pTrack = m_mouseState.m_pHoveredTrack;
-            m_contextMenuState.m_playheadTimeForMouse = m_mouseState.m_playheadTimeForMouse;
-            ImGui::OpenPopupEx( GImGui->CurrentWindow->GetID( m_contextMenuState.GetContextMenuName() ) );
+            if ( m_mouseState.m_isHoveredOverTrackEditor )
+            {
+                m_contextMenuState.m_pItem = m_mouseState.m_pHoveredItem;
+                m_contextMenuState.m_pTrack = m_mouseState.m_pHoveredTrack;
+                m_contextMenuState.m_playheadTimeForMouse = m_mouseState.m_playheadTimeForMouse;
+                ImGui::OpenPopupEx( GImGui->CurrentWindow->GetID( m_contextMenuState.GetContextMenuName() ) );
+            }
         }
 
         DrawContextMenu();
@@ -173,6 +176,7 @@ namespace KRG::Timeline
             for ( auto pTrack : m_selectedTracks )
             {
                 pTrack->CreateItem( m_playheadTime );
+                m_isDirty = true;
             }
         }
         else  if ( ImGui::IsKeyReleased( ImGui::GetKeyIndex( ImGuiKey_Delete ) ) )
@@ -185,6 +189,7 @@ namespace KRG::Timeline
                     itemDeleted = pTrack->DeleteItem( pItem );
                     if ( itemDeleted )
                     {
+                        m_isDirty = true;
                         break;
                     }
                 }
@@ -295,6 +300,7 @@ namespace KRG::Timeline
                 }
 
                 pEditedItem->SetTimeRange( editedItemTimeRange );
+                m_isDirty = true;
             }
             else if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
             {
@@ -302,9 +308,84 @@ namespace KRG::Timeline
             }
         }
 
+        // Zoom
+        //-------------------------------------------------------------------------
+
+        auto const& IO = ImGui::GetIO();
+        float const mouseWheelDelta = IO.MouseWheel;
+        if ( IO.KeyMods && ImGuiKeyModFlags_Ctrl && mouseWheelDelta != 0 )
+        {
+            m_pixelsPerFrame = Math::Max( 1.0f, m_pixelsPerFrame + mouseWheelDelta );
+        }
+
         //-------------------------------------------------------------------------
 
         m_mouseState.Reset();
+    }
+
+    void Editor::UpdateViewRange()
+    {
+        ImVec2 const canvasSize = ImGui::GetContentRegionAvail();
+        float const trackAreaWidth = ( canvasSize.x - g_trackHeaderWidth - g_playheadHalfWidth );
+        int32 const maxVisibleFrames = Math::FloorToInt( ( canvasSize.x - g_trackHeaderWidth - g_playheadHalfWidth ) / m_pixelsPerFrame );
+
+        // Adjust visible range based on the canvas size
+        if ( m_viewRange.GetLength() != maxVisibleFrames )
+        {
+            m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
+        }
+
+        // Process any update requests
+        //-------------------------------------------------------------------------
+
+        switch ( m_viewUpdateMode )
+        {
+            case ViewUpdateMode::ShowFullTimeRange:
+            {
+                int32 const timeRangeLength = m_timeRange.GetLength();
+                m_pixelsPerFrame = Math::Floor( trackAreaWidth / timeRangeLength );
+                m_viewRange = m_timeRange;
+                m_viewUpdateMode = ViewUpdateMode::None;
+            }
+            break;
+
+            case ViewUpdateMode::GoToStart:
+            {
+                m_viewRange.m_min = m_timeRange.m_min;
+                m_viewRange.m_max = maxVisibleFrames;
+                m_playheadTime = (float) m_timeRange.m_min;
+                m_viewUpdateMode = ViewUpdateMode::None;
+            }
+            break;
+
+            case ViewUpdateMode::GoToEnd:
+            {
+                m_viewRange.m_min = Math::Max( m_timeRange.m_min, m_timeRange.m_max - maxVisibleFrames );
+                m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
+                m_playheadTime = (float) m_timeRange.m_max;
+                m_viewUpdateMode = ViewUpdateMode::None;
+            }
+            break;
+
+            case ViewUpdateMode::TrackPlayhead:
+            {
+                if ( !m_viewRange.ContainsInclusive( (int32) m_playheadTime ) )
+                {
+                    // If the playhead is in the last visible range
+                    if ( m_playheadTime + maxVisibleFrames >= m_timeRange.m_max )
+                    {
+                        m_viewRange.m_min = m_timeRange.m_max - maxVisibleFrames;
+                        m_viewRange.m_max = m_timeRange.m_max;
+                    }
+                    else
+                    {
+                        m_viewRange.m_min = (int) m_playheadTime;
+                        m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
+                    }
+                }
+            }
+            break;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -389,10 +470,18 @@ namespace KRG::Timeline
 
     void Editor::DrawTimelineControls( ImRect const& controlsRect )
     {
-        static ImVec2 const buttonSize = ImVec2( 20, 0 );
+        auto const& style = ImGui::GetStyle();
+
+        ImVec2 const controlsChildSize = controlsRect.GetSize() - ImVec2( 2 * style.ChildBorderSize, 2 * style.ChildBorderSize );
+        ImGui::PushStyleColor( ImGuiCol_ChildBg, (int) g_headerBackgroundColor );
+        ImGui::BeginChild( "TimelineControls", controlsChildSize, false );
+
+        ImVec2 const buttonSize = ImVec2( 20, controlsChildSize.y - style.ChildBorderSize );
         constexpr static float const buttonSeperation = 2;
 
         //-------------------------------------------------------------------------
+
+        ImGui::SameLine( 0, buttonSeperation );
 
         if ( ImGui::Button( KRG_ICON_FAST_BACKWARD "##GoToStart", buttonSize ) )
         {
@@ -404,6 +493,7 @@ namespace KRG::Timeline
         //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, buttonSeperation );
+
         if ( m_playState == PlayState::Playing )
         {
             if ( ImGui::Button( KRG_ICON_PAUSE "##Pause", buttonSize ) )
@@ -426,6 +516,7 @@ namespace KRG::Timeline
         //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, buttonSeperation );
+
         if ( ImGui::Button( KRG_ICON_FAST_FORWARD "##GoToEnd", buttonSize ) )
         {
             SetViewToEnd();
@@ -436,6 +527,7 @@ namespace KRG::Timeline
         //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, buttonSeperation );
+
         if ( ImGuiX::ButtonColored( m_isFrameSnappingEnabled ? ImGuiX::Theme::s_textColor : ImGuiX::Theme::s_textColorDisabled, KRG_ICON_MAGNET "##Snap", buttonSize ) )
         {
             m_isFrameSnappingEnabled = !m_isFrameSnappingEnabled;
@@ -446,6 +538,7 @@ namespace KRG::Timeline
         //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, buttonSeperation );
+
         if ( IsLoopingEnabled() )
         {
             if ( ImGui::Button( KRG_ICON_EXCHANGE "##PlayOnce", buttonSize ) )
@@ -465,12 +558,29 @@ namespace KRG::Timeline
             ImGuiX::ItemTooltip( "Enable looping" );
         }
 
-        // Add tracks button
         //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, buttonSeperation );
 
-        if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_PLUS "##AddTrack" ) )
+        if ( ImGui::Button( KRG_ICON_EYE "##ResetView", buttonSize ) )
+        {
+            ResetViewRange();
+        }
+
+        ImGuiX::ItemTooltip( "Reset View" );
+
+        //-------------------------------------------------------------------------
+        // Spacer
+        //-------------------------------------------------------------------------
+
+        float const buttonOffset = buttonSeperation + buttonSize.x;
+        float const spacerWidth = controlsChildSize.x - ( buttonOffset * 8 );
+        ImGui::SameLine( 0, spacerWidth );
+
+        // Add tracks button
+        //-------------------------------------------------------------------------
+
+        if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_PLUS "##AddTrack", buttonSize ) )
         {
             ImGui::OpenPopup( "AddTracksPopup" );
         }
@@ -479,10 +589,30 @@ namespace KRG::Timeline
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
         if ( ImGui::BeginPopup( "AddTracksPopup" ) )
         {
-            DrawAddTracksMenu();
+            if ( DrawAddTracksMenu() )
+            {
+                m_isDirty = true;
+            }
             ImGui::EndPopup();
         }
         ImGui::PopStyleVar();
+
+        // Save button
+        //-------------------------------------------------------------------------
+
+        ImGui::SameLine( 0, buttonSeperation );
+        if ( ImGuiX::ButtonColored( IsDirty() ? Colors::White.ToFloat4() : ImGuiX::Theme::s_textColorDisabled, KRG_ICON_FLOPPY_O "##Save", buttonSize ) )
+        {
+            if ( IsDirty() )
+            {
+                Save();
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
     }
 
     void Editor::DrawTimeline( ImRect const& timelineRect )
@@ -521,14 +651,14 @@ namespace KRG::Timeline
 
             //-------------------------------------------------------------------------
 
-            bool const isLargeLine = ( ( i % numFramesForLargeInterval ) == 0 ) || ( i == m_viewRange.GetLength() || i == 0 ) || i == m_timeRange.m_max;
+            bool const isRangeEndLine = ( ( m_viewRange.m_min + i ) == m_timeRange.m_max );
+            bool const isLargeLine = ( ( i % numFramesForLargeInterval ) == 0 ) || ( i == m_viewRange.GetLength() || i == 0 ) || isRangeEndLine;
             bool const isMediumLine = ( i % NumFramesForMediumInterval ) == 0;
 
             //-------------------------------------------------------------------------
 
             if ( isLargeLine )
             {
-                bool const isRangeEndLine = ( i == m_timeRange.m_max );
                 float lineOffsetY = g_timelineLargeLineOffset;
                 ImColor lineColor = isRangeEndLine ? g_timelineRangeEndLineColor :  g_timelineLargeLineColor;
 
@@ -682,6 +812,9 @@ namespace KRG::Timeline
             ImRect const trackHeaderRect( ImVec2( fullTrackAreaRect.GetTL().x, trackStartY ), ImVec2( fullTrackAreaRect.GetTL().x + g_trackHeaderWidth, trackEndY ) );
             ImRect const trackAreaRect( ImVec2( fullTrackAreaRect.GetTL().x + g_trackHeaderWidth, trackStartY ), ImVec2( fullTrackAreaRect.GetBR().x, trackEndY ) );
 
+            // Are we hovered over the track editor
+            m_mouseState.m_isHoveredOverTrackEditor = fullTrackAreaRect.Contains( mousePos );
+
             // Are we hovered over this track?
             if ( trackRect.Contains( mousePos ) )
             {
@@ -822,9 +955,10 @@ namespace KRG::Timeline
         }
     }
 
-    void Editor::DrawAddTracksMenu()
+    bool Editor::DrawAddTracksMenu()
     {
         ImGui::Text( "Please override this function" );
+        return false;
     }
 
     void Editor::DrawContextMenu()
@@ -833,6 +967,7 @@ namespace KRG::Timeline
 
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
 
+        // Items
         //-------------------------------------------------------------------------
 
         if ( ImGui::BeginPopupContextItem( "ItemContextMenu" ) )
@@ -854,6 +989,7 @@ namespace KRG::Timeline
                 if ( deleteItem )
                 {
                     m_contextMenuState.m_pTrack->DeleteItem( m_contextMenuState.m_pItem );
+                    m_isDirty = true;
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -862,6 +998,7 @@ namespace KRG::Timeline
             m_contextMenuState.m_isOpen = true;
         }
 
+        // Tracks
         //-------------------------------------------------------------------------
 
         if ( ImGui::BeginPopupContextItem( "TrackContextMenu" ) )
@@ -871,6 +1008,7 @@ namespace KRG::Timeline
                 if ( ImGui::MenuItem( "Add Item" ) )
                 {
                     m_contextMenuState.m_pTrack->CreateItem( m_contextMenuState.m_playheadTimeForMouse < 0.0f ? m_playheadTime : m_contextMenuState.m_playheadTimeForMouse );
+                    m_isDirty = true;
                 }
 
                 bool const deleteTrack = ImGui::MenuItem( "Delete Track" );
@@ -880,7 +1018,7 @@ namespace KRG::Timeline
                 if ( m_contextMenuState.m_pTrack->HasContextMenu() )
                 {
                     ImGui::Separator();
-                    m_contextMenuState.m_pTrack->DrawContextMenu( m_contextMenuState.m_playheadTimeForMouse < 0.0f ? m_playheadTime : m_contextMenuState.m_playheadTimeForMouse );
+                    m_contextMenuState.m_pTrack->DrawContextMenu( m_tracks, m_contextMenuState.m_playheadTimeForMouse < 0.0f ? m_playheadTime : m_contextMenuState.m_playheadTimeForMouse );
                 }
 
                 //-------------------------------------------------------------------------
@@ -888,6 +1026,7 @@ namespace KRG::Timeline
                 if ( deleteTrack )
                 {
                     DeleteTrack( m_contextMenuState.m_pTrack );
+                    m_isDirty = true;
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -896,13 +1035,17 @@ namespace KRG::Timeline
             m_contextMenuState.m_isOpen = true;
         }
 
+        // General
         //-------------------------------------------------------------------------
 
         if ( ImGui::BeginPopupContextItem( "EditorContextMenu" ) )
         {
             if ( ImGui::BeginMenu( "Add Track" ) )
             {
-                DrawAddTracksMenu();
+                if ( DrawAddTracksMenu() )
+                {
+                    m_isDirty = true;
+                }
                 ImGui::EndMenu();
             }
 
@@ -943,64 +1086,15 @@ namespace KRG::Timeline
         // Handle the user input based on the current keyboard state and the mouse state from the last frame
         HandleUserInput();
 
-        //-------------------------------------------------------------------------
-        // Adjust view
-        //-------------------------------------------------------------------------
-
-        // Adjust visible range based on the canvas size
-        int32 const maxVisibleFrames = Math::FloorToInt( ( canvasSize.x - g_trackHeaderWidth - g_playheadHalfWidth ) / m_pixelsPerFrame );
-        if ( m_viewRange.GetLength() != maxVisibleFrames )
-        {
-            m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
-        }
-
-        // Process any update requests
-        switch ( m_viewUpdateMode )
-        {
-            case ViewUpdateMode::GoToStart:
-            {
-                m_viewRange.m_min = m_timeRange.m_min;
-                m_viewRange.m_max = maxVisibleFrames;
-                m_playheadTime = (float) m_timeRange.m_min;
-                m_viewUpdateMode = ViewUpdateMode::None;
-            }
-            break;
-
-            case ViewUpdateMode::GoToEnd:
-            {
-                m_viewRange.m_min = Math::Max( m_timeRange.m_min, m_timeRange.m_max - maxVisibleFrames );
-                m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
-                m_playheadTime = (float) m_timeRange.m_max;
-                m_viewUpdateMode = ViewUpdateMode::None;
-            }
-            break;
-
-            case ViewUpdateMode::TrackPlayhead:
-            {
-                if ( !m_viewRange.ContainsInclusive( (int32) m_playheadTime ) )
-                {
-                    // If the playhead is in the last visible range
-                    if ( m_playheadTime + maxVisibleFrames >= m_timeRange.m_max )
-                    {
-                        m_viewRange.m_min = m_timeRange.m_max - maxVisibleFrames;
-                        m_viewRange.m_max = m_timeRange.m_max;
-                    }
-                    else
-                    {
-                        m_viewRange.m_min = (int) m_playheadTime;
-                        m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
-                    }
-                }
-            }
-            break;
-        }
+        // Update the view range, to ensure that we track the playhead, etc...
+        UpdateViewRange();
 
         //-------------------------------------------------------------------------
 
         ImGui::PushID( this );
         ImGui::PushStyleColor( ImGuiCol_FrameBg, 0 );
         ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 2 ) );
-        ImGui::BeginChildFrame( 889, canvasSize );
+        ImGui::BeginChildFrame( 99, canvasSize );
 
         //-------------------------------------------------------------------------
         // Header
@@ -1009,7 +1103,7 @@ namespace KRG::Timeline
         ImDrawList* pDrawList = ImGui::GetWindowDrawList();
         pDrawList->AddRectFilled( canvasPos, ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + g_headerHeight ), g_headerBackgroundColor, 0 );
 
-        ImRect const timelineControlsRect( canvasPos, ImVec2( canvasPos.x + g_trackHeaderWidth, canvasPos.y + g_headerHeight ) );
+        ImRect const timelineControlsRect( canvasPos, ImVec2( canvasPos.x + g_trackHeaderWidth, canvasPos.y + g_headerHeight - 1 ) );
 
         ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4) g_headerBackgroundColor );
         DrawTimelineControls( timelineControlsRect );

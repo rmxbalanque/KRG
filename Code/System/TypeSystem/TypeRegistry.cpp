@@ -1,6 +1,7 @@
 #include "TypeRegistry.h"
 #include "PropertyPath.h"
 #include "System/Core/Logging/Log.h"
+#include "TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
 

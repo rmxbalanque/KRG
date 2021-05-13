@@ -23,7 +23,7 @@ namespace KRG::TypeSystem
 
         TypeInfo() = default;
 
-        inline char const* GetTypeName() const { return m_ID.GetAsStringID().c_str(); }
+        inline char const* GetTypeName() const { return m_ID.ToStringID().c_str(); }
 
         bool IsDerivedFrom( TypeID const parentTypeID ) const;
 

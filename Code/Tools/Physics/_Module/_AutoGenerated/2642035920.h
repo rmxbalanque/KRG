@@ -170,29 +170,6 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return nullptr;
-                }
-
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor const*>( pTypeInstance );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
@@ -201,25 +178,125 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pType );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor const*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::Physics::PhysicsMeshResourceDescriptor::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1114334994 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 4270100199 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3042015119 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor const*>( pOtherTypeInstance );
+
                     if ( propertyID == 1114334994 )
                     {
-                        return *reinterpret_cast<KRG::DataPath const*>( pValueInstance ) == pDefaultType->m_meshDataPath;
+                        return pType->m_meshDataPath == pOtherType->m_meshDataPath;
                     }
 
                     if ( propertyID == 4270100199 )
                     {
-                        return *reinterpret_cast<KRG::String const*>( pValueInstance ) == pDefaultType->m_meshName;
+                        return pType->m_meshName == pOtherType->m_meshName;
                     }
 
                     if ( propertyID == 3042015119 )
                     {
-                        return *reinterpret_cast<bool const*>( pValueInstance ) == pDefaultType->m_isConvexMesh;
+                        return pType->m_isConvexMesh == pOtherType->m_isConvexMesh;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsMeshResourceDescriptor*>( pTypeInstance );
+
+                    if ( propertyID == 1114334994 )
+                    {
+                        pActualType->m_meshDataPath = pDefaultType->m_meshDataPath;
+                        return;
+                    }
+
+                    if ( propertyID == 4270100199 )
+                    {
+                        pActualType->m_meshName = pDefaultType->m_meshName;
+                        return;
+                    }
+
+                    if ( propertyID == 3042015119 )
+                    {
+                        pActualType->m_isConvexMesh = pDefaultType->m_isConvexMesh;
+                        return;
+                    }
+
                 }
 
             };

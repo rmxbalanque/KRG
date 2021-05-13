@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TypeHelpers.h" />
     <ClInclude Include="CoreTypeIDs.h" />
     <ClInclude Include="TypeDescriptors.h" />
     <ClInclude Include="EnumInfo.h" />
@@ -37,6 +38,7 @@
     <ClCompile Include="TypeDescriptors.cpp" />
     <ClCompile Include="PropertyInfo.cpp" />
     <ClCompile Include="PropertyPath.cpp" />
+    <ClCompile Include="TypeHelpers.cpp" />
     <ClCompile Include="TypeInfo.cpp" />
     <ClCompile Include="TypeRegistry.cpp" />
     <ClCompile Include="CoreTypeConversions.cpp" />

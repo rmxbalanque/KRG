@@ -21,11 +21,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Render::SkeletalMeshComponent::GetTypeInfo() const
-    {
-        return KRG::Render::SkeletalMeshComponent::s_pTypeInfo;
-    }
-
     void KRG::Render::SkeletalMeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Render::SkeletalMeshComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

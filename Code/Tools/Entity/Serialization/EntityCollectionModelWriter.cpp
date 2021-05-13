@@ -52,7 +52,7 @@ namespace KRG
                 writer.StartObject();
 
                 writer.Key( "TypeID" );
-                writer.String( componentDesc.m_typeID.GetAsStringID().c_str() );
+                writer.String( componentDesc.m_typeID.c_str() );
 
                 for ( auto const& propertyDesc : componentDesc.m_properties )
                 {
@@ -72,7 +72,7 @@ namespace KRG
             {
                 writer.StartObject();
                 writer.Key( "TypeID" );
-                writer.String( systemDesc.m_typeID.GetAsStringID().c_str() );
+                writer.String( systemDesc.m_typeID.c_str() );
                 writer.EndObject();
                 return true;
             }

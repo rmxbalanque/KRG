@@ -18,12 +18,31 @@
 // Type Registration
 //-------------------------------------------------------------------------
 
-#define KRG_REGISTER_TYPE \
+namespace KRG
+{
+    // Interface to enforce virtual destructors and type-info overrides
+    class KRG_SYSTEM_TYPESYSTEM_API IRegisteredType
+    {
+    public:
+
+        static KRG::TypeSystem::TypeInfo const* s_pTypeInfo;
+
+    public:
+
+        virtual ~IRegisteredType() = default;
+        virtual KRG::TypeSystem::TypeInfo const* GetTypeInfo() const = 0;
+        virtual KRG::TypeSystem::TypeID GetTypeID() const = 0;
+    };
+}
+
+#define KRG_REGISTER_TYPE( TypeName ) \
         friend KRG::TypeSystem::TypeInfo;\
         template<typename T> friend class KRG::TypeSystem::TypeHelpers::TTypeHelper; \
         public: \
         static KRG::TypeSystem::TypeInfo const* s_pTypeInfo; \
-        static KRG::TypeSystem::TypeID GetStaticTypeID() { KRG_ASSERT( s_pTypeInfo != nullptr ); return s_pTypeInfo->m_ID; }
+        static KRG::TypeSystem::TypeID GetStaticTypeID() { KRG_ASSERT( s_pTypeInfo != nullptr ); return s_pTypeInfo->m_ID; }\
+        virtual KRG::TypeSystem::TypeInfo const* GetTypeInfo() const override { KRG_ASSERT( TypeName::s_pTypeInfo != nullptr ); return TypeName::s_pTypeInfo; }\
+        virtual KRG::TypeSystem::TypeID GetTypeID() const override  { KRG_ASSERT( TypeName::s_pTypeInfo != nullptr ); return TypeName::s_pTypeInfo->m_ID; }
 
 //-------------------------------------------------------------------------
 // Property Registration

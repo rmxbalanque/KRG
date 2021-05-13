@@ -85,7 +85,7 @@
     <ClCompile Include="MeshToolkit\FileTypes\MeshResourceFiles.cpp" />
     <ClCompile Include="MeshToolkit\MeshToolkit.cpp" />
     <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowser.cpp" />
-    <ClCompile Include="Common\DocumentWell.cpp" />
+    <ClCompile Include="Common\TabWell.cpp" />
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -105,8 +105,8 @@
     <ClInclude Include="MeshToolkit\FileTypes\MeshResourceFiles.h" />
     <ClInclude Include="MeshToolkit\MeshToolkit.h" />
     <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowser.h" />
-    <ClInclude Include="Common\DocumentWell.h" />
-    <ClInclude Include="Editor\EditorFile.h" />
+    <ClInclude Include="Common\TabWell.h" />
+    <ClInclude Include="Editor\EditorFileTab.h" />
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
     <ClInclude Include="Win32\Resource.h" />
   </ItemGroup>

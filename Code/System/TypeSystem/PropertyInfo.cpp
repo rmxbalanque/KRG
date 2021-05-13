@@ -2,9 +2,6 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::TypeSystem
 {
-    namespace TypeSystem
-    {
-    }
 }

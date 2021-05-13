@@ -14,17 +14,15 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class KRG_SYSTEM_ENTITY_API IEntitySystem
+    class KRG_SYSTEM_ENTITY_API IEntitySystem : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( IEntitySystem );
 
         friend class Entity;
 
     public:
 
         virtual ~IEntitySystem() {}
-
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const { return IEntitySystem::s_pTypeInfo; }
         virtual char const* GetName() const = 0;
 
     protected:
@@ -43,8 +41,7 @@ namespace KRG
 
 //-------------------------------------------------------------------------
 
-#define KRG_REGISTER_ENTITY_SYSTEM( Type, ... )\
-        KRG_REGISTER_TYPE;\
+#define KRG_REGISTER_ENTITY_SYSTEM( TypeName, ... )\
+        KRG_REGISTER_TYPE( TypeName );\
         virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { static UpdatePriorityList const priorityList = UpdatePriorityList( __VA_ARGS__ ); return priorityList; };\
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return Type::s_pTypeInfo; }\
-        virtual char const* GetName() const override { return #Type; }
+        virtual char const* GetName() const override { return #TypeName; }

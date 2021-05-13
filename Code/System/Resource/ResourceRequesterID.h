@@ -58,7 +58,7 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE String ToString() const { return m_ID.ToString(); }
+        KRG_FORCE_INLINE UUIDString ToString() const { return m_ID.ToString(); }
 
         //-------------------------------------------------------------------------
 

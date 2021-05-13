@@ -1,7 +1,9 @@
 #include "AnimationEventEditor.h"
 #include "Tools/Animation/ResourceCompilers/AnimationCompiler.h"
+#include "Tools/Core/Thirdparty/pfd/portable-file-dialogs.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "System/DevTools/System/ImguiFont.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 
 //-------------------------------------------------------------------------
 
@@ -68,16 +70,29 @@ namespace KRG::Animation::Tools
 {
     const char* EventTrack::GetLabel() const
     {
-        return reinterpret_cast<Event const*>( m_trackInfo.m_pEventTypeInfo->m_pTypeHelper->GetDefaultTypeInstancePtr() )->GetEventTypeName();
+        return reinterpret_cast<Event const*>( m_trackInfo.m_pEventTypeInfo->m_pTypeHelper->GetDefaultTypeInstancePtr() )->GetEventName();
     }
 
     void EventTrack::CreateItem( float itemStartTime )
     {
-        auto pNewEvent = (Event*) m_trackInfo.m_pEventTypeInfo->m_pTypeHelper->CreateType();
-        Seconds const startTime = itemStartTime * 30.0f;
-        EventManipulator::SetEventTime( pNewEvent, startTime, 1.0f );
+        KRG_ASSERT( m_animFrameRate > 0 );
 
-        m_items.emplace_back( KRG::New<EventItem>( pNewEvent, 30.0f ) );
+        Seconds const startTime = itemStartTime / m_animFrameRate;
+
+        //-------------------------------------------------------------------------
+
+        auto pNewEvent = (Event*) m_trackInfo.m_pEventTypeInfo->m_pTypeHelper->CreateType();
+
+        if ( m_trackInfo.m_eventType == Event::EventType::Immediate )
+        {
+            EventManipulator::SetEventTime( pNewEvent, startTime, 0.0f );
+        }
+        else
+        {
+            EventManipulator::SetEventTime( pNewEvent, startTime, 1.0f / m_animFrameRate );
+        }
+
+        m_items.emplace_back( KRG::New<EventItem>( pNewEvent, m_animFrameRate ) );
     };
 
     void EventTrack::DrawHeader( ImRect const& headerRect )
@@ -86,7 +101,7 @@ namespace KRG::Animation::Tools
         ImGui::AlignTextToFramePadding();
         if ( m_trackInfo.m_isSyncTrack )
         {
-            ImGui::Text( KRG_ICON_ASTERISK " %s", GetLabel() );
+            ImGui::Text( KRG_ICON_HANDSHAKE_O " %s", GetLabel() );
         }
         else
         {
@@ -94,7 +109,7 @@ namespace KRG::Animation::Tools
         }
     }
 
-    void EventTrack::DrawContextMenu( float playheadPosition )
+    void EventTrack::DrawContextMenu( TVector<Track*>& tracks, float playheadPosition )
     {
         if ( m_trackInfo.m_isSyncTrack )
         {
@@ -107,6 +122,12 @@ namespace KRG::Animation::Tools
         {
             if ( ImGui::MenuItem( "Set As Sync Track" ) )
             {
+                // Clear sync track from any other track
+                for ( auto pTrack : tracks )
+                {
+                    static_cast<EventTrack*>( pTrack )->m_trackInfo.m_isSyncTrack = false;
+                }
+
                 m_trackInfo.m_isSyncTrack = true;
             }
         }
@@ -181,8 +202,9 @@ namespace KRG::Animation::Tools
         }
     }
 
-    void EventEditor::DrawAddTracksMenu()
+    bool EventEditor::DrawAddTracksMenu()
     {
+        bool result = false;
         int32 numAvailableTracks = 0;
         for ( auto pTypeInfo : m_eventTypes )
         {
@@ -208,13 +230,39 @@ namespace KRG::Animation::Tools
             if ( isAllowedTrackType )
             {
                 numAvailableTracks++;
-                if ( ImGui::MenuItem( pDefaultEventInstance->GetEventTypeName() ) )
+
+                auto CreateTrackOption = [this, pDefaultEventInstance, pTypeInfo] ( Event::EventType type, char const* pNameSuffix = nullptr )
                 {
-                    auto pCreatedTrack = KRG::New<EventTrack>();
-                    pCreatedTrack->m_trackInfo.m_eventTypeID = pTypeInfo->m_ID;
-                    pCreatedTrack->m_trackInfo.m_pEventTypeInfo = pTypeInfo;
-                    pCreatedTrack->m_trackInfo.m_type = pDefaultEventInstance->GetAllowedTypes();
-                    m_tracks.emplace_back( pCreatedTrack );
+                    InlineString<255> menuItemName = pDefaultEventInstance->GetEventName();
+                    if ( pNameSuffix != nullptr )
+                    {
+                        menuItemName += pNameSuffix;
+                    }
+
+                    if ( ImGui::MenuItem( menuItemName.c_str() ) )
+                    {
+                        auto pCreatedTrack = KRG::New<EventTrack>();
+                        pCreatedTrack->m_animFrameRate = m_pAnimation->GetFPS();
+                        pCreatedTrack->m_trackInfo.m_eventTypeID = pTypeInfo->m_ID;
+                        pCreatedTrack->m_trackInfo.m_pEventTypeInfo = pTypeInfo;
+                        pCreatedTrack->m_trackInfo.m_eventType = type;
+                        m_tracks.emplace_back( pCreatedTrack );
+                        return true;
+                    }
+
+                    return false;
+                };
+
+                //-------------------------------------------------------------------------
+
+                if ( pDefaultEventInstance->GetEventType() == Event::EventType::Both )
+                {
+                    result |= CreateTrackOption( Event::EventType::Immediate, "(Immediate)" );
+                    result |= CreateTrackOption( Event::EventType::Duration, "(Duration)" );
+                }
+                else
+                {
+                    result |= CreateTrackOption( pDefaultEventInstance->GetEventType() );
                 }
             }
         }
@@ -225,6 +273,8 @@ namespace KRG::Animation::Tools
         {
             ImGui::Text( "No Available Tracks" );
         }
+
+        return result;
     }
 
     //-------------------------------------------------------------------------
@@ -302,9 +352,13 @@ namespace KRG::Animation::Tools
                 pCreatedTrack->m_trackInfo.m_pEventTypeInfo = m_typeRegistry.GetTypeInfo( pCreatedTrack->m_trackInfo.m_eventTypeID );
                 if ( pCreatedTrack->m_trackInfo.m_pEventTypeInfo == nullptr )
                 {
-                    KRG_LOG_ERROR( "AnimationTools", "Unknown event type encountered: %s", pCreatedTrack->m_trackInfo.m_eventTypeID.GetAsStringID().c_str() );
+                    KRG_LOG_ERROR( "AnimationTools", "Unknown event type encountered: %s", pCreatedTrack->m_trackInfo.m_eventTypeID.c_str() );
                     return false;
                 }
+
+                //-------------------------------------------------------------------------
+
+                pCreatedTrack->m_animFrameRate = m_pAnimation->GetFPS();
 
                 if ( pCreatedTrack->m_trackInfo.m_isSyncTrack )
                 {
@@ -373,12 +427,38 @@ namespace KRG::Animation::Tools
         return true;
     }
 
-    void EventEditor::SaveToFile()
+    void EventEditor::Save()
     {
         if ( !m_eventDataFilePath.IsValid() )
         {
-            // TODO: ask to create file and set the resource desc accordingly
-            return;
+            FileSystem::Path const resourceDescPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
+            
+            FileSystem::Path defaultEventDatafilePath = resourceDescPath;
+            defaultEventDatafilePath.ReplaceExtension( "evnt" );
+
+            pfd::save_file saveDialog( "Save Event Data", defaultEventDatafilePath.c_str(), { "Event Files (.evnt)", "*.evnt", } );
+            m_eventDataFilePath = saveDialog.result().c_str();
+           
+            if ( m_eventDataFilePath.IsValid() )
+            {
+                TypeSystem::Serialization::TypeReader typeReader( m_typeRegistry );
+                if ( typeReader.ReadFromFile( resourceDescPath ) )
+                {
+                    // Read and update resource desc
+                    AnimationResourceDescriptor resourceDesc;
+                    typeReader >> resourceDesc;
+                    resourceDesc.m_animationEventData = DataPath::FromFileSystemPath( m_sourceDataDirectory, m_eventDataFilePath );
+
+                    // Save resource desc
+                    TypeSystem::Serialization::TypeWriter typeWriter( m_typeRegistry );
+                    typeWriter << resourceDesc;
+                    typeWriter.WriteToFile( resourceDescPath );
+                }
+            }
+            else
+            {
+                return;
+            }
         }
 
         //-------------------------------------------------------------------------
@@ -418,5 +498,6 @@ namespace KRG::Animation::Tools
 
         pWriter->EndArray();
         fileWriter.WriteToFile( m_eventDataFilePath );
+        m_isDirty = false;
     }
 }

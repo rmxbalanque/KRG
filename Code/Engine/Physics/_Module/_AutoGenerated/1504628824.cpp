@@ -21,11 +21,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Physics::PhysicsMeshComponent::GetTypeInfo() const
-    {
-        return KRG::Physics::PhysicsMeshComponent::s_pTypeInfo;
-    }
-
     void KRG::Physics::PhysicsMeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Physics::PhysicsMeshComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

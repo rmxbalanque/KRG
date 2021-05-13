@@ -30,7 +30,6 @@ int main( int argc, char *argv[] )
         Animation::Tools::EventTrackInfo trackInfo;
         trackInfo.m_isSyncTrack = true;
         trackInfo.m_eventTypeID = Animation::Events::FootstepEvent::GetStaticTypeID();
-        trackInfo.m_type = Animation::Event::AllowedTypes::Duration;
 
         ExternalTestStruct testStruct;
         testStruct.m_uint16 = 17;

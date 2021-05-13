@@ -4,35 +4,26 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::TypeSystem { class PropertyInstanceModel; class TypeRegistry; }
+namespace KRG::TypeSystem { struct PropertyInfo; class PropertyInstanceModel; class TypeRegistry; }
 
-// Property editor context
 //-------------------------------------------------------------------------
 
 namespace KRG::TypeSystem::PG
 {
     struct Context
     {
-        Context( TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath, TFunction<void( PropertyInstanceModel& )>& preChangeDelegate, TFunction<void( PropertyInstanceModel& )>& postChangeDelegate )
+        Context( TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath )
             : m_typeRegistry( typeRegistry )
             , m_sourceDataPath( sourceDataPath )
-            , m_preChangeDelegate( preChangeDelegate )
-            , m_postChangeDelegate( postChangeDelegate )
         {
             KRG_ASSERT( m_sourceDataPath.ExistsAndIsDirectory() );
         }
 
         TypeRegistry const&                             m_typeRegistry;
         FileSystem::Path const&                         m_sourceDataPath;
-        TFunction<void( PropertyInstanceModel& )>       m_preChangeDelegate;
-        TFunction<void( PropertyInstanceModel& )>       m_postChangeDelegate;
+        TFunction<void()>                               m_preChangeDelegate;
+        TFunction<void()>                               m_postChangeDelegate;
     };
-}
 
-// Factory Method
-//-------------------------------------------------------------------------
-
-namespace KRG::TypeSystem::PG
-{
-    void CreatePropertyEditor( Context& ctx, PropertyInstanceModel& propertyModel );
+    void CreatePropertyEditor( Context& ctx, PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
 }

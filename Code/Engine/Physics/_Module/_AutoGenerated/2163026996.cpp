@@ -21,11 +21,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Physics::PhysicsBoxComponent::GetTypeInfo() const
-    {
-        return KRG::Physics::PhysicsBoxComponent::s_pTypeInfo;
-    }
-
     void KRG::Physics::PhysicsBoxComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Physics::PhysicsBoxComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

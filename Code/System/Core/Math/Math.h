@@ -892,6 +892,12 @@ namespace KRG
             , m_z( inZ )
         {}
 
+        inline EulerAngles( Float3 const& anglesInDegrees )
+            : m_x( anglesInDegrees.m_x )
+            , m_y( anglesInDegrees.m_y )
+            , m_z( anglesInDegrees.m_z )
+        {}
+
         inline void Clamp()
         {
             m_x.Clamp();

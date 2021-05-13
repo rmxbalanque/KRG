@@ -8,16 +8,15 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Resource
 {
-    namespace Resource
+    struct KRG_TOOLS_RESOURCE_API ResourceDescriptor : public IRegisteredType
     {
-        struct KRG_TOOLS_RESOURCE_API ResourceDescriptor
-        {
-            KRG_REGISTER_TYPE;
-            static void ReadCompileDependencies( String const& descriptorFileContents, TVector<DataPath>& outDependencies );
-        };
-    }
+        KRG_REGISTER_TYPE( ResourceDescriptor );
+
+        virtual ~ResourceDescriptor() = default;
+        static void ReadCompileDependencies( String const& descriptorFileContents, TVector<DataPath>& outDependencies );
+    };
 }
 
 #endif

@@ -58,11 +58,6 @@ namespace KRG
         }
     }
 
-    TypeSystem::TypeInfo const* KRG::Render::StaticMeshComponent::GetTypeInfo() const
-    {
-        return KRG::Render::StaticMeshComponent::s_pTypeInfo;
-    }
-
     void KRG::Render::StaticMeshComponent::Load( EntityModel::LoadingContext const& context, UUID requesterID )
     {
         KRG::Render::StaticMeshComponent::s_pTypeInfo->m_pTypeHelper->LoadResources( context.m_pResourceSystem, requesterID, this );

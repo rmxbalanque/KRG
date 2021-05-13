@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #include "MeshCompiler.h"
 #include "MeshOptimizer.h"
 #include "Tools/Resource/RawAssets/RawMesh.h"
@@ -186,4 +185,3 @@ namespace KRG::Render
         }
     }
 }
-#endif

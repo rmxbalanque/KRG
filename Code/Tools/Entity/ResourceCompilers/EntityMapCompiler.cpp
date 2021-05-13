@@ -66,7 +66,7 @@ namespace KRG::EntityModel
                 // Set navmesh resource ptr
                 DataPath navmeshResourceDataPath = ctx.m_resourceID.GetDataPath();
                 navmeshResourceDataPath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
-                navmeshComponents[0]->m_properties.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourceDataPath.ToString() ) );
+                navmeshComponents[0]->m_properties.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourceDataPath.GetString() ) );
 
                 // Generate navmesh
                 FileSystem::Path navmeshResourcePath = ctx.m_outputFilePath;

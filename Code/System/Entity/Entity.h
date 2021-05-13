@@ -53,9 +53,9 @@ namespace KRG
     //  * dont interfere with any current operations for this frame
     //-------------------------------------------------------------------------
 
-    class KRG_SYSTEM_ENTITY_API Entity
+    class KRG_SYSTEM_ENTITY_API Entity : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( Entity );
 
         friend class EntityWorld;
         friend EntityModel::EntityMap;

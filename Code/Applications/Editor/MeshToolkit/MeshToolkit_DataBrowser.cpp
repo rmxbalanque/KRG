@@ -85,7 +85,7 @@ namespace KRG::Render::MeshTools
 
     DataBrowser::DataBrowser( EditorModel* pModel )
         : TEditorTool<EditorModel>( pModel )
-        , m_propertyGrid( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
+        , m_propertyGrid( pModel )
         , m_descriptorCreator( pModel )
         , m_dataBrowserTreeView( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory(), { ".msh", ".smsh", ".fbx", ".gltf" } )
     {
@@ -139,7 +139,7 @@ namespace KRG::Render::MeshTools
                 }
                 else // Resource File
                 {
-                    if ( OpenInspectedResourceFile( context ) )
+                    /*if ( OpenInspectedResourceFile( context ) )
                     {
                         m_propertyGrid.SetTypeToEdit( &m_typeInstance );
                     }
@@ -147,7 +147,7 @@ namespace KRG::Render::MeshTools
                     {
                         m_propertyGrid.SetTypeToEdit( nullptr );
                         KRG_LOG_ERROR( "DataBrowser", "Failed to deserialize resource file: %s", m_inspectedFile.c_str() );
-                    }
+                    }*/
                 }
             }
         }

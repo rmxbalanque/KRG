@@ -19,6 +19,7 @@ namespace KRG::Timeline
         enum class ViewUpdateMode : uint8
         {
             None,
+            ShowFullTimeRange,
             GoToStart,
             GoToEnd,
             TrackPlayhead,
@@ -42,6 +43,7 @@ namespace KRG::Timeline
         {
             inline void Reset()
             {
+                m_isHoveredOverTrackEditor = false;
                 m_pHoveredTrack = nullptr;
                 m_pHoveredItem = nullptr;
                 m_hoveredItemMode = ItemEditMode::None;
@@ -54,6 +56,7 @@ namespace KRG::Timeline
             float                   m_playheadTimeForMouse = -1.0f;
             float                   m_snappedPlayheadTimeForMouse = -1.0f;
             ItemEditMode            m_hoveredItemMode = ItemEditMode::None;
+            bool                    m_isHoveredOverTrackEditor = false;
         };
 
         struct ItemEditState
@@ -141,6 +144,12 @@ namespace KRG::Timeline
         // Set the playhead position from a percentage over the time range
         inline void SetPlayheadPositionAsPercentage( Percentage inPercentage ) { m_playheadTime = inPercentage.GetClamped( m_isLoopingEnabled ).ToFloat() * m_timeRange.m_max; }
 
+        // Has any modifications been made to the tracks/events?
+        virtual bool IsDirty() const { return m_isDirty; }
+
+        // Save the state
+        virtual void Save() {}
+
     private:
 
         inline float ConvertPixelsToFrames( float inPixels ) const { return inPixels / m_pixelsPerFrame; }
@@ -177,8 +186,8 @@ namespace KRG::Timeline
         // Provided rect defines the area available to draw multiple tracks (incl. headers and items)
         void DrawTracks( ImRect const& trackAreaRect );
 
-        // Draw the add track menu
-        virtual void DrawAddTracksMenu();
+        // Draw the add track menu - returns true if a track was added
+        virtual bool DrawAddTracksMenu();
 
         // Draw the various context menus
         void DrawContextMenu();
@@ -187,6 +196,12 @@ namespace KRG::Timeline
 
         // Called each frame to process any mouse/keyboard input
         void HandleUserInput();
+
+        // Called each frame to update the view range
+        void UpdateViewRange();
+
+        // Reset the view to the full time range
+        void ResetViewRange() { m_viewUpdateMode = ViewUpdateMode::ShowFullTimeRange; }
 
         // Selection
         //-------------------------------------------------------------------------
@@ -222,7 +237,7 @@ namespace KRG::Timeline
         float                   m_playheadTime = 0.0f;
 
         PlayState               m_playState = PlayState::Paused;
-        ViewUpdateMode          m_viewUpdateMode = ViewUpdateMode::None;
+        ViewUpdateMode          m_viewUpdateMode = ViewUpdateMode::ShowFullTimeRange;
         bool                    m_isLoopingEnabled = false;
         bool                    m_isFrameSnappingEnabled = true;
         bool                    m_isDraggingPlayhead = false;
@@ -233,5 +248,7 @@ namespace KRG::Timeline
 
         TVector<Item*>          m_selectedItems;
         TVector<Track*>         m_selectedTracks;
+
+        bool                    m_isDirty = false;
     };
 }

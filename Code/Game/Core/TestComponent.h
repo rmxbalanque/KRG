@@ -12,24 +12,24 @@
 
 namespace KRG
 {
-    struct KRG_GAME_CORE_API ExternalTestSubSubStruct
+    struct KRG_GAME_CORE_API ExternalTestSubSubStruct : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( ExternalTestSubSubStruct );
 
         EXPOSE TVector<float>                               m_dynamicArray = { 1.0f, 2.0f, 3.0f };
     };
 
-    struct KRG_GAME_CORE_API ExternalTestSubStruct
+    struct KRG_GAME_CORE_API ExternalTestSubStruct : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( ExternalTestSubStruct );
 
         EXPOSE TVector<float>                               m_floats = { 0.3f, 5.0f, 7.0f };
         EXPOSE TVector<ExternalTestSubSubStruct>            m_dynamicArray = { ExternalTestSubSubStruct(), ExternalTestSubSubStruct() };
     };
 
-    struct KRG_GAME_CORE_API ExternalTestStruct
+    struct KRG_GAME_CORE_API ExternalTestStruct : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( ExternalTestStruct );
 
         EXPOSE uint8                                        m_uint8 = 8;
         EXPOSE uint16                                       m_uint16 = 16;
@@ -58,13 +58,13 @@ namespace KRG
 
     class KRG_GAME_CORE_API TestComponent : public EntityComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT;
+        KRG_REGISTER_ENTITY_COMPONENT( TestComponent );
 
     public:
 
-        struct InternalStruct
+        struct InternalStruct : public IRegisteredType
         {
-            KRG_REGISTER_TYPE;
+            KRG_REGISTER_TYPE( InternalStruct );
 
             EXPOSE EulerAngles                                  m_eulerAngles;
             EXPOSE ResourceID                                   m_resourceID;

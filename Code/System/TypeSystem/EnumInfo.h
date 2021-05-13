@@ -11,6 +11,11 @@ namespace KRG
     {
         struct EnumInfo
         {
+            inline size_t GetNumValues() const
+            {
+                return m_constants.size();
+            }
+
             inline bool IsValidValue( StringID label ) const
             {
                 auto const iter = m_constants.find( label );

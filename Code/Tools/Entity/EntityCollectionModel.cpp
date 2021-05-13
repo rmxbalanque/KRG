@@ -34,7 +34,7 @@ namespace KRG::EntityModel
             auto pComponentTypeInfo = typeRegistry.GetTypeInfo( componentDesc.m_typeID );
             if ( pComponentTypeInfo == nullptr )
             {
-                Error( "Tried to create component of unknown type: %s, for component: %s (%s)", componentDesc.m_typeID.GetAsStringID().c_str(), componentDesc.m_ID.ToString().c_str(), componentDesc.m_name.c_str() );
+                Error( "Tried to create component of unknown type: %s, for component: %s (%s)", componentDesc.m_typeID.c_str(), componentDesc.m_ID.ToString().c_str(), componentDesc.m_name.c_str() );
                 return nullptr;
             }
 
@@ -46,7 +46,7 @@ namespace KRG::EntityModel
             auto pSystemTypeInfo = typeRegistry.GetTypeInfo( systemDesc.m_typeID );
             if ( pSystemTypeInfo == nullptr )
             {
-                Error( "Tried to create system of unknown type: %s", systemDesc.m_typeID.GetAsStringID().c_str() );
+                Error( "Tried to create system of unknown type: %s", systemDesc.m_typeID.c_str() );
                 return nullptr;
             }
 

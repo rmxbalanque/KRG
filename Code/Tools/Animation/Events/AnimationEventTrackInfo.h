@@ -10,13 +10,13 @@
 
 namespace KRG::Animation::Tools
 {
-    struct KRG_TOOLS_ANIMATION_API EventTrackInfo
+    struct KRG_TOOLS_ANIMATION_API EventTrackInfo : public IRegisteredType
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( EventTrackInfo );
 
     public:
 
-        EXPOSE Event::AllowedTypes          m_type;
+        EXPOSE Event::EventType             m_eventType = Event::EventType::Duration;
         EXPOSE bool                         m_isSyncTrack = false;
         EXPOSE TypeSystem::TypeID           m_eventTypeID;
 

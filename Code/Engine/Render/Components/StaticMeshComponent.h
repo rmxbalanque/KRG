@@ -20,7 +20,7 @@ namespace KRG::Render
 
     class KRG_ENGINE_RENDER_API StaticMeshComponent final : public MeshComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT;
+        KRG_REGISTER_ENTITY_COMPONENT( StaticMeshComponent );
 
     public:
 

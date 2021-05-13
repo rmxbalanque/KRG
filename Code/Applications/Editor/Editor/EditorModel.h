@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EditorFile.h"
+#include "EditorFileTab.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
@@ -40,17 +40,17 @@ namespace KRG
         template<typename T>
         void OpenResourceFile( ResourceID const& resourceID )
         {
-            static_assert( std::is_base_of<EditorFile, T>::value, "T must derived from TResourceFile" );
+            static_assert( std::is_base_of<EditorFileTab, T>::value, "T must derived from TResourceFileTab" );
 
             KRG_ASSERT( resourceID.IsValid() );
             FileSystem::Path const path = resourceID.GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
 
             //-------------------------------------------------------------------------
 
-            auto foundFileIter = eastl::find( m_openFiles.begin(), m_openFiles.end(), path, [] ( EditorFile*& pExistingFile, FileSystem::Path const& path ) { return pExistingFile->GetFilePath() == path; } );
-            if ( foundFileIter == m_openFiles.end() )
+            auto foundFileIter = eastl::find( m_openTabs.begin(), m_openTabs.end(), path, [] ( EditorFileTab*& pExistingFile, FileSystem::Path const& path ) { return pExistingFile->GetFilePath() == path; } );
+            if ( foundFileIter == m_openTabs.end() )
             {
-                m_openFiles.emplace_back( KRG::New<T>( this, m_sourceDataDirectory, m_pResourceSystem, resourceID ) );
+                m_openTabs.emplace_back( KRG::New<T>( this, m_sourceDataDirectory, m_pResourceSystem, resourceID ) );
             }
             else // Switch active file
             {
@@ -58,13 +58,13 @@ namespace KRG
             }
         }
 
-        void CloseFile( EditorFile* pFile );
-        inline TVector<EditorFile*> const& GetOpenFiles() const { return m_openFiles; }
+        void CloseFile( EditorFileTab* pFile );
+        inline TVector<EditorFileTab*> const& GetOpenFiles() const { return m_openTabs; }
         inline bool IsFileOpen( FileSystem::Path const& path ) const;
 
         // The active file is the file that has "focus" and is currently being previewed or edited.
-        inline bool IsActiveFile( EditorFile* pFile ) const { return m_pActiveFile == pFile; }
-        void SetActiveFile( EditorFile* pFile );
+        inline bool IsActiveFile( EditorFileTab* pFile ) const { return m_pActiveTab == pFile; }
+        void SetActiveFile( EditorFileTab* pFile );
         void ClearActiveFile();
 
     protected:
@@ -78,7 +78,7 @@ namespace KRG
         EntityWorld*                        m_pPreviewWorld = nullptr;
 
         // File Management
-        TVector<EditorFile*>                m_openFiles;
-        EditorFile*                         m_pActiveFile = nullptr;
+        TVector<EditorFileTab*>             m_openTabs;
+        EditorFileTab*                      m_pActiveTab = nullptr;
     };
 }

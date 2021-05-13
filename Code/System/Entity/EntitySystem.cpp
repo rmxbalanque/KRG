@@ -4,5 +4,5 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* IEntitySystem::s_pTypeInfo = nullptr;
+    
 }

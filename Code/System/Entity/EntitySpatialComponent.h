@@ -15,7 +15,7 @@ namespace KRG
 
     class KRG_SYSTEM_ENTITY_API SpatialEntityComponent : public EntityComponent
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( SpatialEntityComponent );
 
         friend class Entity;
         friend class EntityDebugViewController;
@@ -30,8 +30,6 @@ namespace KRG
         };
 
     public:
-
-        virtual TypeSystem::TypeInfo const* GetTypeInfo() const override { return SpatialEntityComponent::s_pTypeInfo; }
 
         // Spatial data
         //-------------------------------------------------------------------------

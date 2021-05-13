@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::ExternalTestSubSubStruct& type )
     {
-        archive( KRG_NVP( m_dynamicArray ) );
+        archive( cereal::base_class<KRG::IRegisteredType>( &type ), KRG_NVP( m_dynamicArray ) );
     }
 
     //-------------------------------------------------------------------------
@@ -79,6 +79,15 @@ namespace KRG
                     typeInfo.m_size = sizeof( KRG::ExternalTestSubSubStruct );
                     typeInfo.m_alignment = alignof( KRG::ExternalTestSubSubStruct );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
+
+                    // Parent Types 
+                    //-------------------------------------------------------------------------
+
+                    TypeSystem::TypeInfo const* pParentType = nullptr;
+
+                    pParentType = KRG::IRegisteredType::s_pTypeInfo;
+                    KRG_ASSERT( pParentType != nullptr );
+                    typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
@@ -138,9 +147,18 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
+                    // We should never get here since we are asking for a resource type of an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return ResourceTypeID();
+                }
+
                 virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
+
                     if ( arrayID == 1528863423 )
                     {
                         if ( ( arrayIdx + 1 ) >= pActualType->m_dynamicArray.size() )
@@ -159,6 +177,7 @@ namespace KRG
                 virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pTypeInstance );
+
                     if ( arrayID == 1528863423 )
                     {
                         return pActualType->m_dynamicArray.size();
@@ -169,7 +188,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
                 {
                     if ( arrayID == 1528863423 )
                     {
@@ -181,31 +200,112 @@ namespace KRG
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
-                    // We should never get here since we are asking for a resource type of an invalid property
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.clear();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
-                    return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.emplace_back();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.erase( pActualType->m_dynamicArray.begin() + arrayIdx );
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::ExternalTestSubSubStruct::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1528863423 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pOtherTypeInstance );
+
                     if ( propertyID == 1528863423 )
                     {
-                        if ( arrayIdx < pDefaultType->m_dynamicArray.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_dynamicArray[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_dynamicArray.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_dynamicArray[arrayIdx] == pOtherType->m_dynamicArray[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_dynamicArray.size() != pOtherType->m_dynamicArray.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_dynamicArray.size(); i++ )
+                            {
+                                if( pType->m_dynamicArray[i] != pOtherType->m_dynamicArray[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pTypeInstance );
+
+                    if ( propertyID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray = pDefaultType->m_dynamicArray;
+                        return;
+                    }
+
                 }
 
             };
@@ -222,7 +322,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::ExternalTestSubStruct& type )
     {
-        archive( KRG_NVP( m_floats ), KRG_NVP( m_dynamicArray ) );
+        archive( cereal::base_class<KRG::IRegisteredType>( &type ), KRG_NVP( m_floats ), KRG_NVP( m_dynamicArray ) );
     }
 
     //-------------------------------------------------------------------------
@@ -296,6 +396,15 @@ namespace KRG
                     typeInfo.m_size = sizeof( KRG::ExternalTestSubStruct );
                     typeInfo.m_alignment = alignof( KRG::ExternalTestSubStruct );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
+
+                    // Parent Types 
+                    //-------------------------------------------------------------------------
+
+                    TypeSystem::TypeInfo const* pParentType = nullptr;
+
+                    pParentType = KRG::IRegisteredType::s_pTypeInfo;
+                    KRG_ASSERT( pParentType != nullptr );
+                    typeInfo.m_parentTypes.push_back( pParentType );
 
                     // Register properties and type
                     //-------------------------------------------------------------------------
@@ -383,9 +492,18 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
+                    // We should never get here since we are asking for a resource type of an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return ResourceTypeID();
+                }
+
                 virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
+
                     if ( arrayID == 2448071977 )
                     {
                         if ( ( arrayIdx + 1 ) >= pActualType->m_floats.size() )
@@ -414,6 +532,7 @@ namespace KRG
                 virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pTypeInstance );
+
                     if ( arrayID == 2448071977 )
                     {
                         return pActualType->m_floats.size();
@@ -429,7 +548,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
                 {
                     if ( arrayID == 2448071977 )
                     {
@@ -446,31 +565,172 @@ namespace KRG
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
-                    // We should never get here since we are asking for a resource type of an invalid property
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pTypeInstance );
+
+                    if ( arrayID == 2448071977 )
+                    {
+                        pActualType->m_floats.clear();
+                        return;
+                    }
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.clear();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
-                    return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pTypeInstance );
+
+                    if ( arrayID == 2448071977 )
+                    {
+                        pActualType->m_floats.emplace_back();
+                        return;
+                    }
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.emplace_back();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pTypeInstance );
+
+                    if ( arrayID == 2448071977 )
+                    {
+                        pActualType->m_floats.erase( pActualType->m_floats.begin() + arrayIdx );
+                        return;
+                    }
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.erase( pActualType->m_dynamicArray.begin() + arrayIdx );
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::ExternalTestSubStruct::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2448071977 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1528863423 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pOtherTypeInstance );
+
                     if ( propertyID == 2448071977 )
                     {
-                        if ( arrayIdx < pDefaultType->m_floats.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_floats[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_floats.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_floats[arrayIdx] == pOtherType->m_floats[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_floats.size() != pOtherType->m_floats.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_floats.size(); i++ )
+                            {
+                                if( pType->m_floats[i] != pOtherType->m_floats[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                    }
+
+                    if ( propertyID == 1528863423 )
+                    {
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
+                        {
+                            if ( arrayIdx >= pOtherType->m_dynamicArray.size() )
+                            {
+                                return false;
+                            }
+
+                            return KRG::ExternalTestSubSubStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_dynamicArray[arrayIdx], &pOtherType->m_dynamicArray[arrayIdx] );
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_dynamicArray.size() != pOtherType->m_dynamicArray.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_dynamicArray.size(); i++ )
+                            {
+                                if( !KRG::ExternalTestSubSubStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_dynamicArray[i], &pOtherType->m_dynamicArray[i] ) )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pTypeInstance );
+
+                    if ( propertyID == 2448071977 )
+                    {
+                        pActualType->m_floats = pDefaultType->m_floats;
+                        return;
+                    }
+
+                    if ( propertyID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray = pDefaultType->m_dynamicArray;
+                        return;
+                    }
+
                 }
 
             };
@@ -487,7 +747,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::ExternalTestStruct& type )
     {
-        archive( KRG_NVP( m_uint8 ), KRG_NVP( m_uint16 ), KRG_NVP( m_uint32 ), KRG_NVP( m_U64 ), KRG_NVP( m_UUID ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_dynamicArray ) );
+        archive( cereal::base_class<KRG::IRegisteredType>( &type ), KRG_NVP( m_uint8 ), KRG_NVP( m_uint16 ), KRG_NVP( m_uint32 ), KRG_NVP( m_U64 ), KRG_NVP( m_UUID ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_dynamicArray ) );
     }
 
     //-------------------------------------------------------------------------
@@ -624,6 +884,15 @@ namespace KRG
                     typeInfo.m_alignment = alignof( KRG::ExternalTestStruct );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
+                    // Parent Types 
+                    //-------------------------------------------------------------------------
+
+                    TypeSystem::TypeInfo const* pParentType = nullptr;
+
+                    pParentType = KRG::IRegisteredType::s_pTypeInfo;
+                    KRG_ASSERT( pParentType != nullptr );
+                    typeInfo.m_parentTypes.push_back( pParentType );
+
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
@@ -710,9 +979,18 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
+                    // We should never get here since we are asking for a resource type of an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return ResourceTypeID();
+                }
+
                 virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
+
                     if ( arrayID == 1528863423 )
                     {
                         if ( ( arrayIdx + 1 ) >= pActualType->m_dynamicArray.size() )
@@ -731,6 +1009,7 @@ namespace KRG
                 virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct const*>( pTypeInstance );
+
                     if ( arrayID == 1528863423 )
                     {
                         return pActualType->m_dynamicArray.size();
@@ -741,7 +1020,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
                 {
                     if ( arrayID == 1528863423 )
                     {
@@ -753,48 +1032,208 @@ namespace KRG
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
-                    // We should never get here since we are asking for a resource type of an invalid property
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.clear();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
-                    return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestStruct const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.emplace_back();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.erase( pActualType->m_dynamicArray.begin() + arrayIdx );
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::ExternalTestStruct const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::ExternalTestStruct const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1639544406 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2692276328 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 705045617 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1099158272 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1271504002 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1455094642 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1528863423 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::ExternalTestStruct const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::ExternalTestStruct const*>( pOtherTypeInstance );
+
                     if ( propertyID == 1639544406 )
                     {
-                        return *reinterpret_cast<KRG::uint8 const*>( pValueInstance ) == pDefaultType->m_uint8;
+                        return pType->m_uint8 == pOtherType->m_uint8;
                     }
 
                     if ( propertyID == 2692276328 )
                     {
-                        return *reinterpret_cast<KRG::uint16 const*>( pValueInstance ) == pDefaultType->m_uint16;
+                        return pType->m_uint16 == pOtherType->m_uint16;
                     }
 
                     if ( propertyID == 705045617 )
                     {
-                        return *reinterpret_cast<KRG::uint32 const*>( pValueInstance ) == pDefaultType->m_uint32;
+                        return pType->m_uint32 == pOtherType->m_uint32;
                     }
 
                     if ( propertyID == 1099158272 )
                     {
-                        return *reinterpret_cast<KRG::uint64 const*>( pValueInstance ) == pDefaultType->m_U64;
+                        return pType->m_U64 == pOtherType->m_U64;
                     }
 
                     if ( propertyID == 1271504002 )
                     {
-                        return *reinterpret_cast<KRG::UUID const*>( pValueInstance ) == pDefaultType->m_UUID;
+                        return pType->m_UUID == pOtherType->m_UUID;
                     }
 
                     if ( propertyID == 1455094642 )
                     {
-                        return *reinterpret_cast<KRG::EulerAngles const*>( pValueInstance ) == pDefaultType->m_eulerAngles;
+                        return pType->m_eulerAngles == pOtherType->m_eulerAngles;
+                    }
+
+                    if ( propertyID == 1528863423 )
+                    {
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
+                        {
+                            if ( arrayIdx >= pOtherType->m_dynamicArray.size() )
+                            {
+                                return false;
+                            }
+
+                            return KRG::ExternalTestSubStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_dynamicArray[arrayIdx], &pOtherType->m_dynamicArray[arrayIdx] );
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_dynamicArray.size() != pOtherType->m_dynamicArray.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_dynamicArray.size(); i++ )
+                            {
+                                if( !KRG::ExternalTestSubStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_dynamicArray[i], &pOtherType->m_dynamicArray[i] ) )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::ExternalTestStruct const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pTypeInstance );
+
+                    if ( propertyID == 1639544406 )
+                    {
+                        pActualType->m_uint8 = pDefaultType->m_uint8;
+                        return;
+                    }
+
+                    if ( propertyID == 2692276328 )
+                    {
+                        pActualType->m_uint16 = pDefaultType->m_uint16;
+                        return;
+                    }
+
+                    if ( propertyID == 705045617 )
+                    {
+                        pActualType->m_uint32 = pDefaultType->m_uint32;
+                        return;
+                    }
+
+                    if ( propertyID == 1099158272 )
+                    {
+                        pActualType->m_U64 = pDefaultType->m_U64;
+                        return;
+                    }
+
+                    if ( propertyID == 1271504002 )
+                    {
+                        pActualType->m_UUID = pDefaultType->m_UUID;
+                        return;
+                    }
+
+                    if ( propertyID == 1455094642 )
+                    {
+                        pActualType->m_eulerAngles = pDefaultType->m_eulerAngles;
+                        return;
+                    }
+
+                    if ( propertyID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray = pDefaultType->m_dynamicArray;
+                        return;
+                    }
+
                 }
 
             };
@@ -832,7 +1271,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::TestComponent::InternalStruct& type )
     {
-        archive( KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourceID ) );
+        archive( cereal::base_class<KRG::IRegisteredType>( &type ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourceID ) );
     }
 
     //-------------------------------------------------------------------------
@@ -901,6 +1340,15 @@ namespace KRG
                     typeInfo.m_alignment = alignof( KRG::TestComponent::InternalStruct );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
+                    // Parent Types 
+                    //-------------------------------------------------------------------------
+
+                    TypeSystem::TypeInfo const* pParentType = nullptr;
+
+                    pParentType = KRG::IRegisteredType::s_pTypeInfo;
+                    KRG_ASSERT( pParentType != nullptr );
+                    typeInfo.m_parentTypes.push_back( pParentType );
+
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
@@ -959,29 +1407,6 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return nullptr;
-                }
-
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pTypeInstance );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
@@ -990,20 +1415,109 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1455094642 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 159853016 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pOtherTypeInstance );
+
                     if ( propertyID == 1455094642 )
                     {
-                        return *reinterpret_cast<KRG::EulerAngles const*>( pValueInstance ) == pDefaultType->m_eulerAngles;
+                        return pType->m_eulerAngles == pOtherType->m_eulerAngles;
                     }
 
                     if ( propertyID == 159853016 )
                     {
-                        return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_resourceID;
+                        return pType->m_resourceID == pOtherType->m_resourceID;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pTypeInstance );
+
+                    if ( propertyID == 1455094642 )
+                    {
+                        pActualType->m_eulerAngles = pDefaultType->m_eulerAngles;
+                        return;
+                    }
+
+                    if ( propertyID == 159853016 )
+                    {
+                        pActualType->m_resourceID = pDefaultType->m_resourceID;
+                        return;
+                    }
+
                 }
 
             };
@@ -1893,9 +2407,23 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
+                    if ( propertyID == 3104453760 )
+                    {
+                        return KRG::Render::SkeletalMesh::GetStaticResourceTypeID();
+                    }
+
+                    // We should never get here since we are asking for a resource type of an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return ResourceTypeID();
+                }
+
                 virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
+
                     if ( arrayID == 2004964571 )
                     {
                         return (Byte*) &pActualType->m_staticArray[arrayIdx];
@@ -1944,6 +2472,7 @@ namespace KRG
                 virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent const*>( pTypeInstance );
+
                     if ( arrayID == 2004964571 )
                     {
                         return 4;
@@ -1979,7 +2508,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
                 {
                     if ( arrayID == 2004964571 )
                     {
@@ -2016,236 +2545,936 @@ namespace KRG
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
-                    if ( propertyID == 3104453760 )
+                    auto pActualType = reinterpret_cast<KRG::TestComponent*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
                     {
-                        return KRG::Render::SkeletalMesh::GetStaticResourceTypeID();
+                        pActualType->m_dynamicArray.clear();
+                        return;
                     }
 
-                    // We should never get here since we are asking for a resource type of an invalid property
+                    if ( arrayID == 3640519683 )
+                    {
+                        pActualType->m_dynamicArrayOfStructs.clear();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
-                    return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::TestComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::TestComponent*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.emplace_back();
+                        return;
+                    }
+
+                    if ( arrayID == 3640519683 )
+                    {
+                        pActualType->m_dynamicArrayOfStructs.emplace_back();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::TestComponent*>( pTypeInstance );
+
+                    if ( arrayID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray.erase( pActualType->m_dynamicArray.begin() + arrayIdx );
+                        return;
+                    }
+
+                    if ( arrayID == 3640519683 )
+                    {
+                        pActualType->m_dynamicArrayOfStructs.erase( pActualType->m_dynamicArrayOfStructs.begin() + arrayIdx );
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::TestComponent::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::TestComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::TestComponent const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1949576814 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2477887483 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1290600528 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 349389720 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1099158272 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3492112075 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2238197494 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 590949444 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1658055241 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2779447547 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 82971377 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1271504002 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2799478371 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1137073394 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3492891095 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2909786051 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 705098768 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3165776718 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 938393238 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3789540716 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2322373324 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3833515037 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2633518375 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3313859714 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1868635034 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1669746482 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 4027095241 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1083696271 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1455094642 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 780656067 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1147727897 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 887644177 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3111215471 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 159853016 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3104453760 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3763518750 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 4189160738 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2468056801 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1934151689 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2004964571 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2137117432 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3178258553 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1833056808 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1528863423 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3640519683 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::TestComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::TestComponent const*>( pOtherTypeInstance );
+
                     if ( propertyID == 1949576814 )
                     {
-                        return *reinterpret_cast<bool const*>( pValueInstance ) == pDefaultType->m_bool;
+                        return pType->m_bool == pOtherType->m_bool;
                     }
 
                     if ( propertyID == 2477887483 )
                     {
-                        return *reinterpret_cast<KRG::uint8 const*>( pValueInstance ) == pDefaultType->m_U8;
+                        return pType->m_U8 == pOtherType->m_U8;
                     }
 
                     if ( propertyID == 1290600528 )
                     {
-                        return *reinterpret_cast<KRG::uint16 const*>( pValueInstance ) == pDefaultType->m_U16;
+                        return pType->m_U16 == pOtherType->m_U16;
                     }
 
                     if ( propertyID == 349389720 )
                     {
-                        return *reinterpret_cast<KRG::uint32 const*>( pValueInstance ) == pDefaultType->m_U32;
+                        return pType->m_U32 == pOtherType->m_U32;
                     }
 
                     if ( propertyID == 1099158272 )
                     {
-                        return *reinterpret_cast<KRG::uint64 const*>( pValueInstance ) == pDefaultType->m_U64;
+                        return pType->m_U64 == pOtherType->m_U64;
                     }
 
                     if ( propertyID == 3492112075 )
                     {
-                        return *reinterpret_cast<KRG::int8 const*>( pValueInstance ) == pDefaultType->m_S8;
+                        return pType->m_S8 == pOtherType->m_S8;
                     }
 
                     if ( propertyID == 2238197494 )
                     {
-                        return *reinterpret_cast<KRG::int16 const*>( pValueInstance ) == pDefaultType->m_S16;
+                        return pType->m_S16 == pOtherType->m_S16;
                     }
 
                     if ( propertyID == 590949444 )
                     {
-                        return *reinterpret_cast<KRG::int32 const*>( pValueInstance ) == pDefaultType->m_S32;
+                        return pType->m_S32 == pOtherType->m_S32;
                     }
 
                     if ( propertyID == 1658055241 )
                     {
-                        return *reinterpret_cast<KRG::int64 const*>( pValueInstance ) == pDefaultType->m_S64;
+                        return pType->m_S64 == pOtherType->m_S64;
                     }
 
                     if ( propertyID == 2779447547 )
                     {
-                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_F32;
+                        return pType->m_F32 == pOtherType->m_F32;
                     }
 
                     if ( propertyID == 82971377 )
                     {
-                        return *reinterpret_cast<double const*>( pValueInstance ) == pDefaultType->m_F64;
+                        return pType->m_F64 == pOtherType->m_F64;
                     }
 
                     if ( propertyID == 1271504002 )
                     {
-                        return *reinterpret_cast<KRG::UUID const*>( pValueInstance ) == pDefaultType->m_UUID;
+                        return pType->m_UUID == pOtherType->m_UUID;
                     }
 
                     if ( propertyID == 2799478371 )
                     {
-                        return *reinterpret_cast<KRG::StringID const*>( pValueInstance ) == pDefaultType->m_StringID;
+                        return pType->m_StringID == pOtherType->m_StringID;
                     }
 
                     if ( propertyID == 1137073394 )
                     {
-                        return *reinterpret_cast<KRG::String const*>( pValueInstance ) == pDefaultType->m_String;
+                        return pType->m_String == pOtherType->m_String;
                     }
 
                     if ( propertyID == 3492891095 )
                     {
-                        return *reinterpret_cast<KRG::Color const*>( pValueInstance ) == pDefaultType->m_Color;
+                        return pType->m_Color == pOtherType->m_Color;
                     }
 
                     if ( propertyID == 2909786051 )
                     {
-                        return *reinterpret_cast<KRG::Float2 const*>( pValueInstance ) == pDefaultType->m_Float2;
+                        return pType->m_Float2 == pOtherType->m_Float2;
                     }
 
                     if ( propertyID == 705098768 )
                     {
-                        return *reinterpret_cast<KRG::Float3 const*>( pValueInstance ) == pDefaultType->m_Float3;
+                        return pType->m_Float3 == pOtherType->m_Float3;
                     }
 
                     if ( propertyID == 3165776718 )
                     {
-                        return *reinterpret_cast<KRG::Float4 const*>( pValueInstance ) == pDefaultType->m_Float4;
+                        return pType->m_Float4 == pOtherType->m_Float4;
                     }
 
                     if ( propertyID == 938393238 )
                     {
-                        return *reinterpret_cast<KRG::Vector const*>( pValueInstance ) == pDefaultType->m_vector;
+                        return pType->m_vector == pOtherType->m_vector;
                     }
 
                     if ( propertyID == 3789540716 )
                     {
-                        return *reinterpret_cast<KRG::Quaternion const*>( pValueInstance ) == pDefaultType->m_quaternion;
+                        return pType->m_quaternion == pOtherType->m_quaternion;
                     }
 
                     if ( propertyID == 2322373324 )
                     {
-                        return *reinterpret_cast<KRG::Matrix const*>( pValueInstance ) == pDefaultType->m_matrix;
+                        return pType->m_matrix == pOtherType->m_matrix;
                     }
 
                     if ( propertyID == 3833515037 )
                     {
-                        return *reinterpret_cast<KRG::Transform const*>( pValueInstance ) == pDefaultType->m_affineTransform;
+                        return pType->m_affineTransform == pOtherType->m_affineTransform;
                     }
 
                     if ( propertyID == 2633518375 )
                     {
-                        return *reinterpret_cast<KRG::Microseconds const*>( pValueInstance ) == pDefaultType->m_us;
+                        return pType->m_us == pOtherType->m_us;
                     }
 
                     if ( propertyID == 3313859714 )
                     {
-                        return *reinterpret_cast<KRG::Milliseconds const*>( pValueInstance ) == pDefaultType->m_ms;
+                        return pType->m_ms == pOtherType->m_ms;
                     }
 
                     if ( propertyID == 1868635034 )
                     {
-                        return *reinterpret_cast<KRG::Seconds const*>( pValueInstance ) == pDefaultType->m_s;
+                        return pType->m_s == pOtherType->m_s;
                     }
 
                     if ( propertyID == 1669746482 )
                     {
-                        return *reinterpret_cast<KRG::Percentage const*>( pValueInstance ) == pDefaultType->m_percentage;
+                        return pType->m_percentage == pOtherType->m_percentage;
                     }
 
                     if ( propertyID == 4027095241 )
                     {
-                        return *reinterpret_cast<KRG::Degrees const*>( pValueInstance ) == pDefaultType->m_degrees;
+                        return pType->m_degrees == pOtherType->m_degrees;
                     }
 
                     if ( propertyID == 1083696271 )
                     {
-                        return *reinterpret_cast<KRG::Radians const*>( pValueInstance ) == pDefaultType->m_radians;
+                        return pType->m_radians == pOtherType->m_radians;
                     }
 
                     if ( propertyID == 1455094642 )
                     {
-                        return *reinterpret_cast<KRG::EulerAngles const*>( pValueInstance ) == pDefaultType->m_eulerAngles;
+                        return pType->m_eulerAngles == pOtherType->m_eulerAngles;
                     }
 
                     if ( propertyID == 780656067 )
                     {
-                        return *reinterpret_cast<KRG::DataPath const*>( pValueInstance ) == pDefaultType->m_dataPath;
+                        return pType->m_dataPath == pOtherType->m_dataPath;
                     }
 
                     if ( propertyID == 1147727897 )
                     {
-                        return *reinterpret_cast<KRG::BitFlags const*>( pValueInstance ) == pDefaultType->m_genericFlags;
+                        return pType->m_genericFlags == pOtherType->m_genericFlags;
                     }
 
                     if ( propertyID == 887644177 )
                     {
-                        return *reinterpret_cast<KRG::TBitFlags<KRG::TestFlags> const*>( pValueInstance ) == pDefaultType->m_specificFlags;
+                        return pType->m_specificFlags == pOtherType->m_specificFlags;
                     }
 
                     if ( propertyID == 3111215471 )
                     {
-                        return *reinterpret_cast<KRG::ResourceTypeID const*>( pValueInstance ) == pDefaultType->m_resourceTypeID;
+                        return pType->m_resourceTypeID == pOtherType->m_resourceTypeID;
                     }
 
                     if ( propertyID == 159853016 )
                     {
-                        return *reinterpret_cast<KRG::ResourceID const*>( pValueInstance ) == pDefaultType->m_resourceID;
+                        return pType->m_resourceID == pOtherType->m_resourceID;
                     }
 
                     if ( propertyID == 3104453760 )
                     {
-                        return *reinterpret_cast<KRG::TResourcePtr<KRG::Render::SkeletalMesh> const*>( pValueInstance ) == pDefaultType->m_specificResourcePtr;
+                        return pType->m_specificResourcePtr == pOtherType->m_specificResourcePtr;
                     }
 
                     if ( propertyID == 3763518750 )
                     {
-                        return *reinterpret_cast<KRG::TestComponent::InternalEnum const*>( pValueInstance ) == pDefaultType->m_internalEnum;
+                        return pType->m_internalEnum == pOtherType->m_internalEnum;
                     }
 
                     if ( propertyID == 4189160738 )
                     {
-                        return *reinterpret_cast<KRG::TestComponent::InternalTest::InternalEnum const*>( pValueInstance ) == pDefaultType->m_testInternalEnum;
+                        return pType->m_testInternalEnum == pOtherType->m_testInternalEnum;
+                    }
+
+                    if ( propertyID == 2468056801 )
+                    {
+                        return KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_struct0, &pOtherType->m_struct0 );
+                    }
+
+                    if ( propertyID == 1934151689 )
+                    {
+                        return KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_struct1, &pOtherType->m_struct1 );
                     }
 
                     if ( propertyID == 2004964571 )
                     {
-                        return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_staticArray[arrayIdx];
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
+                        {
+                            return pType->m_staticArray[arrayIdx] == pOtherType->m_staticArray[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            for ( size_t i = 0; i < 4; i++ )
+                            {
+                                if( pType->m_staticArray[i] != pOtherType->m_staticArray[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     if ( propertyID == 2137117432 )
                     {
-                        return *reinterpret_cast<KRG::StringID const*>( pValueInstance ) == pDefaultType->m_staticArrayOfStringIDs[arrayIdx];
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
+                        {
+                            return pType->m_staticArrayOfStringIDs[arrayIdx] == pOtherType->m_staticArrayOfStringIDs[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            for ( size_t i = 0; i < 4; i++ )
+                            {
+                                if( pType->m_staticArrayOfStringIDs[i] != pOtherType->m_staticArrayOfStringIDs[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                    }
+
+                    if ( propertyID == 3178258553 )
+                    {
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
+                        {
+                            return KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_staticArrayOfStructs[arrayIdx], &pOtherType->m_staticArrayOfStructs[arrayIdx] );
+                        }
+                        else // Compare entire array contents
+                        {
+                            for ( size_t i = 0; i < 2; i++ )
+                            {
+                                if( !KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_staticArrayOfStructs[i], &pOtherType->m_staticArrayOfStructs[i] ) )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     if ( propertyID == 1833056808 )
                     {
-                        return *reinterpret_cast<KRG::TestComponent::InternalTest::InternalEnum const*>( pValueInstance ) == pDefaultType->m_staticArrayOfEnums[arrayIdx];
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
+                        {
+                            return pType->m_staticArrayOfEnums[arrayIdx] == pOtherType->m_staticArrayOfEnums[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            for ( size_t i = 0; i < 6; i++ )
+                            {
+                                if( pType->m_staticArrayOfEnums[i] != pOtherType->m_staticArrayOfEnums[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     if ( propertyID == 1528863423 )
                     {
-                        if ( arrayIdx < pDefaultType->m_dynamicArray.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<float const*>( pValueInstance ) == pDefaultType->m_dynamicArray[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_dynamicArray.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_dynamicArray[arrayIdx] == pOtherType->m_dynamicArray[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_dynamicArray.size() != pOtherType->m_dynamicArray.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_dynamicArray.size(); i++ )
+                            {
+                                if( pType->m_dynamicArray[i] != pOtherType->m_dynamicArray[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                    }
+
+                    if ( propertyID == 3640519683 )
+                    {
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
+                        {
+                            if ( arrayIdx >= pOtherType->m_dynamicArrayOfStructs.size() )
+                            {
+                                return false;
+                            }
+
+                            return KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_dynamicArrayOfStructs[arrayIdx], &pOtherType->m_dynamicArrayOfStructs[arrayIdx] );
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_dynamicArrayOfStructs.size() != pOtherType->m_dynamicArrayOfStructs.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_dynamicArrayOfStructs.size(); i++ )
+                            {
+                                if( !KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_dynamicArrayOfStructs[i], &pOtherType->m_dynamicArrayOfStructs[i] ) )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::TestComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::TestComponent*>( pTypeInstance );
+
+                    if ( propertyID == 1949576814 )
+                    {
+                        pActualType->m_bool = pDefaultType->m_bool;
+                        return;
+                    }
+
+                    if ( propertyID == 2477887483 )
+                    {
+                        pActualType->m_U8 = pDefaultType->m_U8;
+                        return;
+                    }
+
+                    if ( propertyID == 1290600528 )
+                    {
+                        pActualType->m_U16 = pDefaultType->m_U16;
+                        return;
+                    }
+
+                    if ( propertyID == 349389720 )
+                    {
+                        pActualType->m_U32 = pDefaultType->m_U32;
+                        return;
+                    }
+
+                    if ( propertyID == 1099158272 )
+                    {
+                        pActualType->m_U64 = pDefaultType->m_U64;
+                        return;
+                    }
+
+                    if ( propertyID == 3492112075 )
+                    {
+                        pActualType->m_S8 = pDefaultType->m_S8;
+                        return;
+                    }
+
+                    if ( propertyID == 2238197494 )
+                    {
+                        pActualType->m_S16 = pDefaultType->m_S16;
+                        return;
+                    }
+
+                    if ( propertyID == 590949444 )
+                    {
+                        pActualType->m_S32 = pDefaultType->m_S32;
+                        return;
+                    }
+
+                    if ( propertyID == 1658055241 )
+                    {
+                        pActualType->m_S64 = pDefaultType->m_S64;
+                        return;
+                    }
+
+                    if ( propertyID == 2779447547 )
+                    {
+                        pActualType->m_F32 = pDefaultType->m_F32;
+                        return;
+                    }
+
+                    if ( propertyID == 82971377 )
+                    {
+                        pActualType->m_F64 = pDefaultType->m_F64;
+                        return;
+                    }
+
+                    if ( propertyID == 1271504002 )
+                    {
+                        pActualType->m_UUID = pDefaultType->m_UUID;
+                        return;
+                    }
+
+                    if ( propertyID == 2799478371 )
+                    {
+                        pActualType->m_StringID = pDefaultType->m_StringID;
+                        return;
+                    }
+
+                    if ( propertyID == 1137073394 )
+                    {
+                        pActualType->m_String = pDefaultType->m_String;
+                        return;
+                    }
+
+                    if ( propertyID == 3492891095 )
+                    {
+                        pActualType->m_Color = pDefaultType->m_Color;
+                        return;
+                    }
+
+                    if ( propertyID == 2909786051 )
+                    {
+                        pActualType->m_Float2 = pDefaultType->m_Float2;
+                        return;
+                    }
+
+                    if ( propertyID == 705098768 )
+                    {
+                        pActualType->m_Float3 = pDefaultType->m_Float3;
+                        return;
+                    }
+
+                    if ( propertyID == 3165776718 )
+                    {
+                        pActualType->m_Float4 = pDefaultType->m_Float4;
+                        return;
+                    }
+
+                    if ( propertyID == 938393238 )
+                    {
+                        pActualType->m_vector = pDefaultType->m_vector;
+                        return;
+                    }
+
+                    if ( propertyID == 3789540716 )
+                    {
+                        pActualType->m_quaternion = pDefaultType->m_quaternion;
+                        return;
+                    }
+
+                    if ( propertyID == 2322373324 )
+                    {
+                        pActualType->m_matrix = pDefaultType->m_matrix;
+                        return;
+                    }
+
+                    if ( propertyID == 3833515037 )
+                    {
+                        pActualType->m_affineTransform = pDefaultType->m_affineTransform;
+                        return;
+                    }
+
+                    if ( propertyID == 2633518375 )
+                    {
+                        pActualType->m_us = pDefaultType->m_us;
+                        return;
+                    }
+
+                    if ( propertyID == 3313859714 )
+                    {
+                        pActualType->m_ms = pDefaultType->m_ms;
+                        return;
+                    }
+
+                    if ( propertyID == 1868635034 )
+                    {
+                        pActualType->m_s = pDefaultType->m_s;
+                        return;
+                    }
+
+                    if ( propertyID == 1669746482 )
+                    {
+                        pActualType->m_percentage = pDefaultType->m_percentage;
+                        return;
+                    }
+
+                    if ( propertyID == 4027095241 )
+                    {
+                        pActualType->m_degrees = pDefaultType->m_degrees;
+                        return;
+                    }
+
+                    if ( propertyID == 1083696271 )
+                    {
+                        pActualType->m_radians = pDefaultType->m_radians;
+                        return;
+                    }
+
+                    if ( propertyID == 1455094642 )
+                    {
+                        pActualType->m_eulerAngles = pDefaultType->m_eulerAngles;
+                        return;
+                    }
+
+                    if ( propertyID == 780656067 )
+                    {
+                        pActualType->m_dataPath = pDefaultType->m_dataPath;
+                        return;
+                    }
+
+                    if ( propertyID == 1147727897 )
+                    {
+                        pActualType->m_genericFlags = pDefaultType->m_genericFlags;
+                        return;
+                    }
+
+                    if ( propertyID == 887644177 )
+                    {
+                        pActualType->m_specificFlags = pDefaultType->m_specificFlags;
+                        return;
+                    }
+
+                    if ( propertyID == 3111215471 )
+                    {
+                        pActualType->m_resourceTypeID = pDefaultType->m_resourceTypeID;
+                        return;
+                    }
+
+                    if ( propertyID == 159853016 )
+                    {
+                        pActualType->m_resourceID = pDefaultType->m_resourceID;
+                        return;
+                    }
+
+                    if ( propertyID == 3104453760 )
+                    {
+                        pActualType->m_specificResourcePtr = pDefaultType->m_specificResourcePtr;
+                        return;
+                    }
+
+                    if ( propertyID == 3763518750 )
+                    {
+                        pActualType->m_internalEnum = pDefaultType->m_internalEnum;
+                        return;
+                    }
+
+                    if ( propertyID == 4189160738 )
+                    {
+                        pActualType->m_testInternalEnum = pDefaultType->m_testInternalEnum;
+                        return;
+                    }
+
+                    if ( propertyID == 2468056801 )
+                    {
+                        pActualType->m_struct0 = pDefaultType->m_struct0;
+                        return;
+                    }
+
+                    if ( propertyID == 1934151689 )
+                    {
+                        pActualType->m_struct1 = pDefaultType->m_struct1;
+                        return;
+                    }
+
+                    if ( propertyID == 2004964571 )
+                    {
+                        pActualType->m_staticArray[0] = pDefaultType->m_staticArray[0];
+                        pActualType->m_staticArray[1] = pDefaultType->m_staticArray[1];
+                        pActualType->m_staticArray[2] = pDefaultType->m_staticArray[2];
+                        pActualType->m_staticArray[3] = pDefaultType->m_staticArray[3];
+                        return;
+                    }
+
+                    if ( propertyID == 2137117432 )
+                    {
+                        pActualType->m_staticArrayOfStringIDs[0] = pDefaultType->m_staticArrayOfStringIDs[0];
+                        pActualType->m_staticArrayOfStringIDs[1] = pDefaultType->m_staticArrayOfStringIDs[1];
+                        pActualType->m_staticArrayOfStringIDs[2] = pDefaultType->m_staticArrayOfStringIDs[2];
+                        pActualType->m_staticArrayOfStringIDs[3] = pDefaultType->m_staticArrayOfStringIDs[3];
+                        return;
+                    }
+
+                    if ( propertyID == 3178258553 )
+                    {
+                        pActualType->m_staticArrayOfStructs[0] = pDefaultType->m_staticArrayOfStructs[0];
+                        pActualType->m_staticArrayOfStructs[1] = pDefaultType->m_staticArrayOfStructs[1];
+                        return;
+                    }
+
+                    if ( propertyID == 1833056808 )
+                    {
+                        pActualType->m_staticArrayOfEnums[0] = pDefaultType->m_staticArrayOfEnums[0];
+                        pActualType->m_staticArrayOfEnums[1] = pDefaultType->m_staticArrayOfEnums[1];
+                        pActualType->m_staticArrayOfEnums[2] = pDefaultType->m_staticArrayOfEnums[2];
+                        pActualType->m_staticArrayOfEnums[3] = pDefaultType->m_staticArrayOfEnums[3];
+                        pActualType->m_staticArrayOfEnums[4] = pDefaultType->m_staticArrayOfEnums[4];
+                        pActualType->m_staticArrayOfEnums[5] = pDefaultType->m_staticArrayOfEnums[5];
+                        return;
+                    }
+
+                    if ( propertyID == 1528863423 )
+                    {
+                        pActualType->m_dynamicArray = pDefaultType->m_dynamicArray;
+                        return;
+                    }
+
+                    if ( propertyID == 3640519683 )
+                    {
+                        pActualType->m_dynamicArrayOfStructs = pDefaultType->m_dynamicArrayOfStructs;
+                        return;
+                    }
+
                 }
 
             };

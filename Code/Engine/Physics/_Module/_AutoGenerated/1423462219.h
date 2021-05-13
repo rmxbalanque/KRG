@@ -196,29 +196,6 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent*>( pType );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return nullptr;
-                }
-
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent const*>( pTypeInstance );
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
-                {
-                    // We should never get here since we are asking for a ptr to an invalid property
-                    KRG_UNREACHABLE_CODE();
-                    return 0;
-                }
-
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent*>( pType );
@@ -227,30 +204,141 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Physics::PhysicsComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent*>( pType );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return nullptr;
+                }
+
+                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent const*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
+                {
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return 0;
+                }
+
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent*>( pTypeInstance );
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::Physics::PhysicsComponent::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Physics::PhysicsComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Physics::PhysicsComponent const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2436416701 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 403392667 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3877779688 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1456246424 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::Physics::PhysicsComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Physics::PhysicsComponent const*>( pOtherTypeInstance );
+
                     if ( propertyID == 2436416701 )
                     {
-                        return *reinterpret_cast<KRG::Transform const*>( pValueInstance ) == pDefaultType->m_transform;
+                        return pType->m_transform == pOtherType->m_transform;
                     }
 
                     if ( propertyID == 403392667 )
                     {
-                        return *reinterpret_cast<KRG::Physics::ActorType const*>( pValueInstance ) == pDefaultType->m_actorType;
+                        return pType->m_actorType == pOtherType->m_actorType;
                     }
 
                     if ( propertyID == 3877779688 )
                     {
-                        return *reinterpret_cast<KRG::Physics::ShapeType const*>( pValueInstance ) == pDefaultType->m_shapeType;
+                        return pType->m_shapeType == pOtherType->m_shapeType;
                     }
 
                     if ( propertyID == 1456246424 )
                     {
-                        return *reinterpret_cast<KRG::TBitFlags<KRG::Physics::Layers> const*>( pValueInstance ) == pDefaultType->m_layers;
+                        return pType->m_layers == pOtherType->m_layers;
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Physics::PhysicsComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Physics::PhysicsComponent*>( pTypeInstance );
+
+                    if ( propertyID == 2436416701 )
+                    {
+                        pActualType->m_transform = pDefaultType->m_transform;
+                        return;
+                    }
+
+                    if ( propertyID == 403392667 )
+                    {
+                        pActualType->m_actorType = pDefaultType->m_actorType;
+                        return;
+                    }
+
+                    if ( propertyID == 3877779688 )
+                    {
+                        pActualType->m_shapeType = pDefaultType->m_shapeType;
+                        return;
+                    }
+
+                    if ( propertyID == 1456246424 )
+                    {
+                        pActualType->m_layers = pDefaultType->m_layers;
+                        return;
+                    }
+
                 }
 
             };

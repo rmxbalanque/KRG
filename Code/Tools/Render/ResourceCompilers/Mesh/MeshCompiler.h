@@ -1,6 +1,6 @@
-#ifdef _WIN32
 #pragma once
 
+#include "Tools/Render/_Module/API.h"
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
 #include "Engine/Render/Material/RenderMaterial.h"
 #include "System/Resource/ResourcePtr.h"
@@ -17,9 +17,9 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    struct MeshResourceDescriptor : public Resource::ResourceDescriptor
+    struct KRG_TOOLS_RENDER_API MeshResourceDescriptor : public Resource::ResourceDescriptor
     {
-        KRG_REGISTER_TYPE;
+        KRG_REGISTER_TYPE( MeshResourceDescriptor );
 
         // The path to the mesh source file
         EXPOSE DataPath                             m_meshDataPath;
@@ -47,5 +47,3 @@ namespace KRG::Render
         void SetMeshInstallDependencies( Mesh const& mesh, Resource::ResourceHeader& hdr ) const;
     };
 }
-
-#endif

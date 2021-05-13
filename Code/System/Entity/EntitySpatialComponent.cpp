@@ -4,10 +4,6 @@
 
 namespace KRG
 {
-    TypeSystem::TypeInfo const* SpatialEntityComponent::s_pTypeInfo = nullptr;
-
-    //-------------------------------------------------------------------------
-
     Transform SpatialEntityComponent::GetAttachmentSocketTransform( StringID socketID ) const
     {
         Transform socketTransform;

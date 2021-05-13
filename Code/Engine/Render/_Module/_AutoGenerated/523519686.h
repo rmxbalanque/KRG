@@ -175,9 +175,23 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Render::MeshComponent*>( pType );
+                    if ( propertyID == 2164280863 )
+                    {
+                        return KRG::Render::Material::GetStaticResourceTypeID();
+                    }
+
+                    // We should never get here since we are asking for a resource type of an invalid property
+                    KRG_UNREACHABLE_CODE();
+                    return ResourceTypeID();
+                }
+
                 virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Render::MeshComponent*>( pType );
+
                     if ( arrayID == 2164280863 )
                     {
                         if ( ( arrayIdx + 1 ) >= pActualType->m_materialOverrides.size() )
@@ -196,6 +210,7 @@ namespace KRG
                 virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Render::MeshComponent const*>( pTypeInstance );
+
                     if ( arrayID == 2164280863 )
                     {
                         return pActualType->m_materialOverrides.size();
@@ -206,7 +221,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual size_t GetArrayElementSize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
                 {
                     if ( arrayID == 2164280863 )
                     {
@@ -218,41 +233,128 @@ namespace KRG
                     return 0;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Render::MeshComponent*>( pType );
-                    if ( propertyID == 2164280863 )
+                    auto pActualType = reinterpret_cast<KRG::Render::MeshComponent*>( pTypeInstance );
+
+                    if ( arrayID == 2164280863 )
                     {
-                        return KRG::Render::Material::GetStaticResourceTypeID();
+                        pActualType->m_materialOverrides.clear();
+                        return;
                     }
 
-                    // We should never get here since we are asking for a resource type of an invalid property
+                    // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
-                    return ResourceTypeID();
                 }
 
-                virtual bool IsDefaultValue( void const* pValueInstance, uint32 propertyID, size_t arrayIdx = InvalidIndex ) const override final
+                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Render::MeshComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Render::MeshComponent*>( pTypeInstance );
+
+                    if ( arrayID == 2164280863 )
+                    {
+                        pActualType->m_materialOverrides.emplace_back();
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                {
+                    auto pActualType = reinterpret_cast<KRG::Render::MeshComponent*>( pTypeInstance );
+
+                    if ( arrayID == 2164280863 )
+                    {
+                        pActualType->m_materialOverrides.erase( pActualType->m_materialOverrides.begin() + arrayIdx );
+                        return;
+                    }
+
+                    // We should never get here since we are asking for a ptr to an invalid property
+                    KRG_UNREACHABLE_CODE();
+                }
+
+                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                {
+                    auto pTypeHelper = KRG::Render::MeshComponent::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Render::MeshComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Render::MeshComponent const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2436416701 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2164280863 ) )
+                    {
+                       return false;
+                    }
+
+                    return true;
+                }
+
+                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                {
+                    auto pType = reinterpret_cast<KRG::Render::MeshComponent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Render::MeshComponent const*>( pOtherTypeInstance );
+
                     if ( propertyID == 2436416701 )
                     {
-                        return *reinterpret_cast<KRG::Transform const*>( pValueInstance ) == pDefaultType->m_transform;
+                        return pType->m_transform == pOtherType->m_transform;
                     }
 
                     if ( propertyID == 2164280863 )
                     {
-                        if ( arrayIdx < pDefaultType->m_materialOverrides.size() )
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
                         {
-                            return *reinterpret_cast<KRG::TResourcePtr<KRG::Render::Material> const*>( pValueInstance ) == pDefaultType->m_materialOverrides[arrayIdx];
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ( arrayIdx >= pOtherType->m_materialOverrides.size() )
+                            {
+                                return false;
+                            }
 
+                            return pType->m_materialOverrides[arrayIdx] == pOtherType->m_materialOverrides[arrayIdx];
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_materialOverrides.size() != pOtherType->m_materialOverrides.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_materialOverrides.size(); i++ )
+                            {
+                                if( pType->m_materialOverrides[i] != pOtherType->m_materialOverrides[i] )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
                     }
 
                     return false;
+                }
+
+                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                {
+                    auto pDefaultType = reinterpret_cast<KRG::Render::MeshComponent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Render::MeshComponent*>( pTypeInstance );
+
+                    if ( propertyID == 2436416701 )
+                    {
+                        pActualType->m_transform = pDefaultType->m_transform;
+                        return;
+                    }
+
+                    if ( propertyID == 2164280863 )
+                    {
+                        pActualType->m_materialOverrides = pDefaultType->m_materialOverrides;
+                        return;
+                    }
+
                 }
 
             };

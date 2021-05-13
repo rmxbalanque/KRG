@@ -380,7 +380,7 @@ namespace KRG::Debug
 
             UUID const ID = UUID::GenerateID();
             popupMessage.m_ID = ( entry.m_severity == Log::Severity::Warning ) ? "Warning##" : "Error##";
-            popupMessage.m_ID += ID.ToString();
+            popupMessage.m_ID += ID.ToString().c_str();
             popupMessage.m_channel = entry.m_channel;
             popupMessage.m_severity = entry.m_severity;
             popupMessage.m_message = entry.m_message;

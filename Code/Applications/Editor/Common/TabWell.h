@@ -6,7 +6,7 @@
 
 namespace KRG
 {
-    class DocumentWell : public TEditorTool<EditorModel>
+    class TabWell : public TEditorTool<EditorModel>
     {
     public:
 

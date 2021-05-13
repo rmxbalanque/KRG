@@ -12,6 +12,8 @@ namespace KRG
     //-------------------------------------------------------------------------
     // Guaranteed to be unique
 
+    using UUIDString = InlineString<37>;
+
     class KRG_SYSTEM_CORE_API UUID
     {
         KRG_SERIALIZE_MEMBERS( KRG_NVP( m_data.m_U64 ) );
@@ -36,9 +38,9 @@ namespace KRG
         inline UUID( String const& str ) : UUID( str.c_str() ) {}
         UUID( char const* pString );
 
-        inline String ToString() const
+        inline UUIDString ToString() const
         {
-            return String().sprintf( "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", m_data.m_U8[0], m_data.m_U8[1], m_data.m_U8[2], m_data.m_U8[3], m_data.m_U8[4], m_data.m_U8[5], m_data.m_U8[6], m_data.m_U8[7], m_data.m_U8[8], m_data.m_U8[9], m_data.m_U8[10], m_data.m_U8[11], m_data.m_U8[12], m_data.m_U8[13], m_data.m_U8[14], m_data.m_U8[15] );
+            return UUIDString().sprintf( "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", m_data.m_U8[0], m_data.m_U8[1], m_data.m_U8[2], m_data.m_U8[3], m_data.m_U8[4], m_data.m_U8[5], m_data.m_U8[6], m_data.m_U8[7], m_data.m_U8[8], m_data.m_U8[9], m_data.m_U8[10], m_data.m_U8[11], m_data.m_U8[12], m_data.m_U8[13], m_data.m_U8[14], m_data.m_U8[15] );
         }
 
         inline bool IsValid() const { return m_data.m_U64[0] != 0 && m_data.m_U64[1] != 0; }

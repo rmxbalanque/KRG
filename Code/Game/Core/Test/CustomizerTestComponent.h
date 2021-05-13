@@ -13,7 +13,7 @@ namespace KRG
 {
     class KRG_GAME_CORE_API CustomizerTestComponent : public EntityComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT;
+        KRG_REGISTER_ENTITY_COMPONENT( CustomizerTestComponent );
 
         friend class CustomizerTestSystem;
 
