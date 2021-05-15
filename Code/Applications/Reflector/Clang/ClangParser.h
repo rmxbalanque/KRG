@@ -16,12 +16,12 @@ namespace KRG
 
             public:
 
-                ClangParser( SolutionDesc* pSolution, ReflectionDatabase* pDatabase, String const& reflectionDataPath );
+                ClangParser( SolutionInfo* pSolution, ReflectionDatabase* pDatabase, String const& reflectionDataPath );
 
                 inline Milliseconds GetParsingTime() const { return m_totalParsingTime; }
                 inline Milliseconds GetVisitingTime() const { return m_totalVisitingTime; }
 
-                bool Parse( TVector<HeaderDesc*> const& headers );
+                bool Parse( TVector<HeaderInfo*> const& headers );
                 String GetErrorMessage() const { return m_context.GetErrorMessage(); }
 
             private:

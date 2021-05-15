@@ -23,19 +23,21 @@ namespace KRG::FileSystem
 
     String Path::GetFullPathString( char const* pPath )
     {
-        KRG_ASSERT( pPath != nullptr && pPath[0] != 0 );
-
-        // Warning: this function is slow, so use sparingly
         char fullpath[256] = { 0 };
-        DWORD length = GetFullPathNameA( pPath, 256, fullpath, nullptr );
-        KRG_ASSERT( length != 0 && length != 255 );
 
-        // Ensure directory paths have the final slash appended
-        DWORD const result = GetFileAttributesA( fullpath );
-        if ( result != INVALID_FILE_ATTRIBUTES && ( result & FILE_ATTRIBUTE_DIRECTORY ) && fullpath[length - 1] != Path::PathDelimiter )
+        if ( pPath != nullptr && pPath[0] != 0 )
         {
-            fullpath[length] = Path::PathDelimiter;
-            fullpath[length + 1] = 0;
+            // Warning: this function is slow, so use sparingly
+            DWORD length = GetFullPathNameA( pPath, 256, fullpath, nullptr );
+            KRG_ASSERT( length != 0 && length != 255 );
+
+            // Ensure directory paths have the final slash appended
+            DWORD const result = GetFileAttributesA( fullpath );
+            if ( result != INVALID_FILE_ATTRIBUTES && ( result & FILE_ATTRIBUTE_DIRECTORY ) && fullpath[length - 1] != Path::PathDelimiter )
+            {
+                fullpath[length] = Path::PathDelimiter;
+                fullpath[length + 1] = 0;
+            }
         }
 
         return String( fullpath );

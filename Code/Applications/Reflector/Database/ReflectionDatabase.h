@@ -22,54 +22,54 @@ namespace KRG::TypeSystem::Reflection
         bool CleanDatabase( FileSystem::Path const& databasePath );
 
         // Module functions
-        TVector<ProjectDesc> const& GetAllRegisteredProjects() const { return m_projectDescs; }
+        TVector<ProjectInfo> const& GetAllRegisteredProjects() const { return m_reflectedProjects; }
         bool IsProjectRegistered( ProjectID projectID ) const;
-        ProjectDesc const* GetProjectDesc( ProjectID projectID ) const;
-        void UpdateProjectList( TVector<ProjectDesc> const& registeredProjects );
+        ProjectInfo const* GetProjectDesc( ProjectID projectID ) const;
+        void UpdateProjectList( TVector<ProjectInfo> const& registeredProjects );
 
         bool IsHeaderRegistered( HeaderID headerID ) const;
-        HeaderDesc const* GetHeaderDesc( HeaderID headerID ) const;
-        void UpdateHeaderRecord( HeaderDesc const& header );
+        HeaderInfo const* GetHeaderDesc( HeaderID headerID ) const;
+        void UpdateHeaderRecord( HeaderInfo const& header );
 
         // Type functions
-        TypeDescriptor const* GetType( TypeID typeID ) const;
-        TVector<TypeDescriptor> const& GetAllTypes() const { return m_typeDescs; }
+        ReflectedType const* GetType( TypeID typeID ) const;
+        TVector<ReflectedType> const& GetAllTypes() const { return m_reflectedTypes; }
         bool IsTypeRegistered( TypeID typeID ) const;
         bool IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const;
-        void GetAllTypesForHeader( HeaderID headerID, TVector<TypeDescriptor>& types ) const;
-        void GetAllTypesForProject( ProjectID projectID, TVector<TypeDescriptor>& types ) const;
-        void RegisterType( TypeDescriptor const* pType );
+        void GetAllTypesForHeader( HeaderID headerID, TVector<ReflectedType>& types ) const;
+        void GetAllTypesForProject( ProjectID projectID, TVector<ReflectedType>& types ) const;
+        void RegisterType( ReflectedType const* pType );
 
         // Property functions
-        PropertyDescriptor const* GetPropertyTypeDescriptor( TypeID typeID, PropertyPath const& pathID ) const;
+        ReflectedProperty const* GetPropertyTypeDescriptor( TypeID typeID, PropertyPath const& pathID ) const;
 
         // Resource functions
         bool IsResourceRegistered( ResourceTypeID typeID ) const;
-        void RegisterResource( ResourceDesc const* pDesc );
-        TVector<ResourceDesc> const& GetAllRegisteredResourceTypes() const { return m_resourceDescs; }
+        void RegisterResource( ReflectedResourceType const* pDesc );
+        TVector<ReflectedResourceType> const& GetAllRegisteredResourceTypes() const { return m_reflectedResourceTypes; }
 
         // Cleaning
         void DeleteTypesForHeader( HeaderID headerID );
         void DeleteObseleteHeadersAndTypes( TVector<HeaderID> const& registeredHeaders );
-        void DeleteObseleteProjects( TVector<ProjectDesc> const& registeredProjects );
+        void DeleteObseleteProjects( TVector<ProjectInfo> const& registeredProjects );
 
     private:
 
         bool CreateTables();
         bool DropTables();
 
-        bool ReadAdditionalTypeData( TypeDescriptor& type );
-        bool ReadAdditionalEnumData( TypeDescriptor& type );
+        bool ReadAdditionalTypeData( ReflectedType& type );
+        bool ReadAdditionalEnumData( ReflectedType& type );
 
-        bool WriteAdditionalTypeData( TypeDescriptor const& type );
-        bool WriteAdditionalEnumData( TypeDescriptor const& type );
+        bool WriteAdditionalTypeData( ReflectedType const& type );
+        bool WriteAdditionalEnumData( ReflectedType const& type );
 
     private:
 
-        TypeDescriptor                      m_registeredTypeInterfaceDesc;
-        TVector<TypeDescriptor>             m_typeDescs;
-        TVector<HeaderDesc>                 m_headerDescs;
-        TVector<ProjectDesc>                m_projectDescs;
-        TVector<ResourceDesc>               m_resourceDescs;
+        ReflectedType                       m_registeredTypeBase;
+        TVector<ReflectedType>              m_reflectedTypes;
+        TVector<HeaderInfo>                 m_reflectedHeaders;
+        TVector<ProjectInfo>                m_reflectedProjects;
+        TVector<ReflectedResourceType>      m_reflectedResourceTypes;
     };
 }

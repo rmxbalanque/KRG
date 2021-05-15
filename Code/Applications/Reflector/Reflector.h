@@ -53,7 +53,7 @@ namespace KRG
             private:
 
                 String                              m_reflectionDataPath;
-                SolutionDesc                        m_solution;
+                SolutionInfo                        m_solution;
                 ReflectionDatabase                  m_database;
 
                 // Up to data checks

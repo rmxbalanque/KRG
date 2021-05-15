@@ -1,7 +1,6 @@
 #include "ImguiRenderer.h"
 #include "Shaders/ImguiShaders.h"
 #include "System/Core/Math/Viewport.h"
-#include "System/Core/Threading/Threading.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------

@@ -27,7 +27,7 @@ namespace KRG
                 }
 
                 // Ensure that the header file is part of the list of headers to visit
-                HeaderID const headerID = HeaderDesc::GetHeaderID( headerFilePath );
+                HeaderID const headerID = HeaderInfo::GetHeaderID( headerFilePath );
                 if( !pContext->ShouldVisitHeader( headerID ) )
                 {
                     return CXChildVisit_Continue;

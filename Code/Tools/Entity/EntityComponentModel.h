@@ -1,7 +1,7 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "Tools/Core/TypeSystem/TypeInstanceModel.h"
+#include "EntityPropertyInstanceModel.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Math/Transform.h"
 

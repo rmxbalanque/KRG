@@ -1,8 +1,8 @@
 #pragma once
 
 #include "_Module/API.h"
+#include "EntityPropertyInstanceModel.h"
 #include "System/TypeSystem/TypeInfo.h"
-#include "Tools/Core/TypeSystem/TypeInstanceModel.h"
 
 //-------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ namespace KRG::EntityModel
 
     private:
 
-        TypeSystem::TypeInstanceModel        m_typeInstance;
-        UUID                                m_parentEntityID;
+        TypeSystem::TypeInstanceModel           m_typeInstance;
+        UUID                                    m_parentEntityID;
     };
 }

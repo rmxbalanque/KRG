@@ -119,7 +119,7 @@ namespace KRG
 
             if( m_type == ProjectionType::Perspective )
             {
-                if( Math::IsNearlyZero( m_FOV ) )
+                if( Math::IsNearZero( m_FOV ) )
                 {
                     return false;
                 }

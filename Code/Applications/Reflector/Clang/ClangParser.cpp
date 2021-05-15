@@ -14,14 +14,14 @@ namespace KRG
     {
         namespace Reflection
         {
-            ClangParser::ClangParser( SolutionDesc* pSolution, ReflectionDatabase* pDatabase, String const& reflectionDataPath )
+            ClangParser::ClangParser( SolutionInfo* pSolution, ReflectionDatabase* pDatabase, String const& reflectionDataPath )
                 : m_context( pSolution, pDatabase )
                 , m_totalParsingTime( 0 )
                 , m_totalVisitingTime( 0 )
                 , m_reflectionDataPath( reflectionDataPath )
             {}
 
-            bool ClangParser::Parse( TVector<HeaderDesc*> const& headers )
+            bool ClangParser::Parse( TVector<HeaderInfo*> const& headers )
             {
                 // Create single amalgamated header file for all headers to parse
                 //-------------------------------------------------------------------------
@@ -33,7 +33,7 @@ namespace KRG
                 KRG_ASSERT( !reflectorFileStream.fail() );
 
                 String includeStr;
-                for ( HeaderDesc const* pHeader : headers )
+                for ( HeaderInfo const* pHeader : headers )
                 {
                     m_context.m_headersToVisit.push_back( pHeader->m_ID );
                     includeStr += "#include \"" + pHeader->m_filePath + "\"\n";

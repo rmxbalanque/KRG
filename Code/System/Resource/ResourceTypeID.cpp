@@ -13,11 +13,12 @@ namespace KRG
         m_ID = 0;
 
         size_t const numChars = strlen( pStr );
-        KRG_ASSERT( numChars <= 4 );
-
-        for ( size_t x = 0; x < numChars; x++ )
+        if ( numChars <= 4 )
         {
-            m_ID |= (uint32) toupper( pStr[x] ) << ( numChars - 1 - x ) * 8;
+            for ( size_t x = 0; x < numChars; x++ )
+            {
+                m_ID |= (uint32) toupper( pStr[x] ) << ( numChars - 1 - x ) * 8;
+            }
         }
     }
 }

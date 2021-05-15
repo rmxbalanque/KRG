@@ -9,15 +9,9 @@ using namespace KRG::TypeSystem;
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::CPP::TypeGenerator
 {
-    namespace CPP
-    {
-        namespace TypeGenerator
-        {
-            void Generate( ReflectionDatabase const& database, std::stringstream& headerFile, std::stringstream& codeFile, String const& exportMacro, TypeDescriptor const& type, TVector<TypeDescriptor> const& parentDescs );
-            void GenerateRegistrationFunctionCall( std::stringstream& file, TypeDescriptor const& type );
-            void GenerateUnregistrationFunctionCall( std::stringstream& file, TypeDescriptor const& type );
-        }
-    }
+    void Generate( ReflectionDatabase const& database, std::stringstream& headerFile, std::stringstream& codeFile, String const& exportMacro, ReflectedType const& type, TVector<ReflectedType> const& parentDescs );
+    void GenerateRegistrationFunctionCall( std::stringstream& file, ReflectedType const& type );
+    void GenerateUnregistrationFunctionCall( std::stringstream& file, ReflectedType const& type );
 }

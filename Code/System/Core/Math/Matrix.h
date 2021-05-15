@@ -47,9 +47,9 @@ namespace KRG
 
     public:
 
-        explicit Matrix() {}
+        explicit Matrix() { memcpy( this, &Matrix::Identity, sizeof( Matrix ) ); }
+        explicit Matrix( NoInit ) {}
         explicit Matrix( ZeroInit ) { memset( this, 0, sizeof( Matrix ) ); }
-        explicit Matrix( IdentityInit ) { memcpy( this, &Matrix::Identity, sizeof( Matrix ) ); }
         explicit Matrix( float v00, float v01, float v02, float v03, float v10, float v11, float v12, float v13, float v20, float v21, float v22, float v23, float v30, float v31, float v32, float v33 );
         explicit Matrix( Vector const xAxis, Vector const yAxis, Vector const zAxis );
         explicit Matrix( Vector const xAxis, Vector const yAxis, Vector const zAxis, Vector const translation );

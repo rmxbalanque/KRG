@@ -34,7 +34,7 @@ namespace KRG
 
             inline bool IsDegenerate() const
             {
-                return Math::IsNearlyZero( GetArea() );
+                return Math::IsNearZero( GetArea() );
             }
 
             inline Float2 GetCenter() const

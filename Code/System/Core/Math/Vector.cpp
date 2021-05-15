@@ -12,7 +12,10 @@ namespace KRG
 
     Vector const Vector::Origin = { 0, 0, 0, 1 };
     Vector const Vector::WorldForward = { 0, -1, 0, 0 };
+    Vector const Vector::WorldBackward = { 0, 1, 0, 0 };
     Vector const Vector::WorldUp = { 0, 0, 1, 0 };
+    Vector const Vector::WorldDown = { 0, 0, -1, 0 };
+    Vector const Vector::WorldLeft = { 1, 0, 0, 0 };
     Vector const Vector::WorldRight = { -1, 0, 0, 0 };
 
     Vector const Vector::Infinity = { 0x7F800000, 0x7F800000, 0x7F800000, 0x7F800000 };

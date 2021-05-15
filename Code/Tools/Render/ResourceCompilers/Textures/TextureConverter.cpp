@@ -7,19 +7,11 @@
 //--------------------------------------------------------------------------------------
 
 #include "TextureConverter.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 
-#include <memory>
-#include <list>
 
 #include <wrl\client.h>
 
-#include <dxgiformat.h>
 #include "DirectXTex.h"
-#include <windows.h>
-#include <tchar.h>
 
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;

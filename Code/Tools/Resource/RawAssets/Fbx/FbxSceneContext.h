@@ -1,7 +1,6 @@
-#ifdef _WIN32
 #pragma once
 
-#include "../../_Module/API.h"
+#include "Tools/Resource/_Module/API.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
@@ -27,117 +26,112 @@ using namespace fbxsdk;
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fbx
 {
-    namespace Fbx
+    class KRG_TOOLS_RESOURCE_API FbxSceneContext
     {
-        class KRG_TOOLS_RESOURCE_API FbxSceneContext
+
+    public:
+
+        FbxSceneContext( FileSystem::Path const& filePath );
+        ~FbxSceneContext();
+
+        inline bool IsValid() const { return m_pManager != nullptr && m_pScene != nullptr && m_error.empty(); }
+        inline String const& GetErrorMessage() const { return m_error; }
+
+        // Scene helpers
+        //-------------------------------------------------------------------------
+
+        void FindAllNodesOfType( FbxNodeAttribute::EType nodeType, TVector<FbxNode*>& results ) const;
+        FbxNode* FindNodeOfTypeByName( FbxNodeAttribute::EType nodeType, char const* pNodeName ) const;
+
+        void FindAllAnimStacks( TVector<FbxAnimStack*>& results ) const;
+        FbxAnimStack* FindAnimStack( char const* pTakeName ) const;
+
+        inline FbxAMatrix GetNodeGlobalTransform( FbxNode* pNode ) const
         {
+            KRG_ASSERT( pNode != nullptr );
 
-        public:
+            FbxAMatrix geometricTransform;
+            FbxVector4 const gT = pNode->GetGeometricTranslation( FbxNode::eSourcePivot );
+            FbxVector4 const gR = pNode->GetGeometricRotation( FbxNode::eSourcePivot );
+            FbxVector4 const gS = pNode->GetGeometricScaling( FbxNode::eSourcePivot );
+            geometricTransform.SetT( gT );
+            geometricTransform.SetR( gR );
+            geometricTransform.SetS( gS );
 
-            FbxSceneContext( FileSystem::Path const& filePath );
-            ~FbxSceneContext();
+            geometricTransform = pNode->EvaluateGlobalTransform() * geometricTransform;
+            return geometricTransform;
+        }
 
-            inline bool IsValid() const { return m_pManager != nullptr && m_pScene != nullptr && m_error.empty(); }
-            inline String const& GetErrorMessage() const { return m_error; }
+        // Conversion Functions
+        //-------------------------------------------------------------------------
 
-            // Scene helpers
-            //-------------------------------------------------------------------------
+        inline Transform ConvertMatrixToTransform( FbxAMatrix const& fbxMatrix ) const
+        {
+            auto const Q = fbxMatrix.GetQ();
+            auto const T = fbxMatrix.GetT();
+            auto const S = fbxMatrix.GetS();
 
-            void FindAllNodesOfType( FbxNodeAttribute::EType nodeType, TVector<FbxNode*>& results ) const;
-            FbxNode* FindNodeOfTypeByName( FbxNodeAttribute::EType nodeType, char const* pNodeName ) const;
+            auto const rotation = Quaternion( (float) Q[0], (float) Q[1], (float) Q[2], (float) Q[3] ).GetNormalized();
+            auto const translation = Vector( (float) T[0], (float) T[1], (float) T[2], 1.0f );
+            auto const scale = Vector( (float) S[0], (float) S[1], (float) S[2], 0.0f );
 
-            void FindAllAnimStacks( TVector<FbxAnimStack*>& results ) const;
-            FbxAnimStack* FindAnimStack( char const* pTakeName ) const;
+            Transform transform( rotation, translation, scale );
+            transform.SanitizeScaleValues();
+            return transform;
+        }
 
-            inline FbxAMatrix GetNodeGlobalTransform( FbxNode* pNode ) const
-            {
-                KRG_ASSERT( pNode != nullptr );
+        inline Vector ConvertVector( FbxVector4 const& fbxVector ) const
+        {
+            Vector krgVector( (float) fbxVector[0], (float) fbxVector[1], (float) fbxVector[2], 1.0f );
+            return krgVector;
+        }
 
-                FbxAMatrix geometricTransform;
-                FbxVector4 const gT = pNode->GetGeometricTranslation( FbxNode::eSourcePivot );
-                FbxVector4 const gR = pNode->GetGeometricRotation( FbxNode::eSourcePivot );
-                FbxVector4 const gS = pNode->GetGeometricScaling( FbxNode::eSourcePivot );
-                geometricTransform.SetT( gT );
-                geometricTransform.SetR( gR );
-                geometricTransform.SetS( gS );
+        // Up Axis Correction
+        //-------------------------------------------------------------------------
+        // This is not universally needed since the FBX scene deep convert corrects certain transforms
 
-                geometricTransform = pNode->EvaluateGlobalTransform() * geometricTransform;
-                return geometricTransform;
-            }
+        inline Transform ApplyUpAxisCorrection( Transform const& transform ) const
+        {
+            Transform correctedMatrix = m_upAxisCorrectionTransform * transform;
+            return correctedMatrix;
+        }
 
-            // Conversion Functions
-            //-------------------------------------------------------------------------
+        inline Vector ApplyUpAxisCorrection( Vector const& point ) const
+        {
+            Vector correctedVector = m_upAxisCorrectionTransform.TransformPoint( point );
+            return correctedVector;
+        }
 
-            inline Transform ConvertMatrixToTransform( FbxAMatrix const& fbxMatrix ) const
-            {
-                auto const Q = fbxMatrix.GetQ();
-                auto const T = fbxMatrix.GetT();
-                auto const S = fbxMatrix.GetS();
-                
-                auto const rotation = Quaternion( (float) Q[0], (float) Q[1], (float) Q[2], (float) Q[3] ).GetNormalized();
-                auto const translation = Vector( (float) T[0], (float) T[1], (float) T[2], 1.0f );
-                auto const scale = Vector( (float) S[0], (float) S[1], (float) S[2], 0.0f );
+        // Scale correction
+        //-------------------------------------------------------------------------
 
-                Transform transform( rotation, translation, scale );
-                transform.SanitizeScaleValues();
-                return transform;
-            }
+        inline float GetScaleConversionMultiplier() const { return m_scaleConversionMultiplier; }
 
-            inline Vector ConvertVector( FbxVector4 const& fbxVector ) const
-            {
-                Vector krgVector( (float) fbxVector[0], (float) fbxVector[1], (float) fbxVector[2], 1.0f );
-                return krgVector;
-            }
+        inline Transform const& GetScaleConversionTransform() const { return m_scaleConversionTransform; }
 
-            // Up Axis Correction
-            //-------------------------------------------------------------------------
-            // This is not universally needed since the FBX scene deep convert corrects certain transforms
+        inline Vector ApplyScaleCorrection( Vector const& vector ) const
+        {
+            return Vector( vector.m_x * m_scaleConversionMultiplier, vector.m_y * m_scaleConversionMultiplier, vector.m_z * m_scaleConversionMultiplier, vector.m_w );
+        }
 
-            inline Transform ApplyUpAxisCorrection( Transform const& transform ) const
-            {
-                Transform correctedMatrix = m_upAxisCorrectionTransform * transform;
-                return correctedMatrix;
-            }
+    private:
 
-            inline Vector ApplyUpAxisCorrection( Vector const& point ) const
-            {
-                Vector correctedVector = m_upAxisCorrectionTransform.TransformPoint( point );
-                return correctedVector;
-            }
+        FbxSceneContext() = delete;
+        FbxSceneContext( FbxSceneContext const& ) = delete;
+        FbxSceneContext& operator=( FbxSceneContext const& ) = delete;
 
-            // Scale correction
-            //-------------------------------------------------------------------------
+    public:
 
-            inline float GetScaleConversionMultiplier() const { return m_scaleConversionMultiplier; }
+        FbxManager*                 m_pManager = nullptr;
+        FbxScene*                   m_pScene = nullptr;
 
-            inline Transform const& GetScaleConversionTransform() const { return m_scaleConversionTransform; }
+    private:
 
-            inline Vector ApplyScaleCorrection( Vector const& vector ) const
-            {
-                return Vector( vector.m_x * m_scaleConversionMultiplier, vector.m_y * m_scaleConversionMultiplier, vector.m_z * m_scaleConversionMultiplier, vector.m_w );
-            }
-
-        private:
-
-            FbxSceneContext() = delete;
-            FbxSceneContext( FbxSceneContext const& ) = delete;
-            FbxSceneContext& operator=( FbxSceneContext const& ) = delete;
-
-        public:
-
-            FbxManager*                 m_pManager = nullptr;
-            FbxScene*                   m_pScene = nullptr;
-
-        private:
-
-            String                      m_error;
-            float                         m_scaleConversionMultiplier = 1.0f;
-            Transform                   m_scaleConversionTransform;
-            Transform                   m_upAxisCorrectionTransform;
-        };
-    }
+        String                      m_error;
+        float                         m_scaleConversionMultiplier = 1.0f;
+        Transform                   m_scaleConversionTransform;
+        Transform                   m_upAxisCorrectionTransform;
+    };
 }
-
-#endif

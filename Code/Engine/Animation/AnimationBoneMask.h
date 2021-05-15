@@ -2,6 +2,7 @@
 
 #include "_Module/API.h"
 #include "System/Core/Types/Containers.h"
+#include "System/Core/Types/StringID.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,12 +12,20 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
+    struct BoneWeight
+    {
+        StringID        m_boneID;
+        float           m_weight;
+    };
+
+    //-------------------------------------------------------------------------
+
     class KRG_ENGINE_ANIMATION_API BoneMask
     {
 
     public:
 
-        static inline BoneMask Blend( BoneMask const& source, BoneMask const& target, float blendWeight )
+        static inline BoneMask SetFromBlend( BoneMask const& source, BoneMask const& target, float blendWeight )
         {
             BoneMask result( source );
             result.BlendTo( target, blendWeight );
@@ -27,10 +36,14 @@ namespace KRG::Animation
 
         BoneMask() : m_pSkeleton( nullptr ) {}
         BoneMask( Skeleton const* pSkeleton );
-        BoneMask( Skeleton const* pSkeleton, float const defaultWeight );
+        BoneMask( Skeleton const* pSkeleton, float fixedWeight );
+        BoneMask( Skeleton const* pSkeleton, TVector<BoneWeight> const& weights, float rootMotionWeight );
 
         BoneMask( BoneMask const& rhs );
         BoneMask( BoneMask&& rhs );
+
+        BoneMask& operator=( BoneMask const& rhs );
+        BoneMask& operator=( BoneMask&& rhs );
 
         //-------------------------------------------------------------------------
 
@@ -41,15 +54,17 @@ namespace KRG::Animation
         inline float operator[]( uint32 i ) const { return GetWeight( i ); }
 
         void ResetWeights() { Memory::MemsetZero( m_weights.data(), m_weights.size() ); }
-        void ResetWeights( float weight );
+        void ResetWeights( float fixedWeight );
+        void ResetWeights( TVector<BoneWeight> const& weights, float rootMotionWeight );
 
-        BoneMask& operator*=( BoneMask const& RHS );
-        void BlendFrom( BoneMask const& Source, float BlendWeight );
-        void BlendTo( BoneMask const& Target, float BlendWeight );
+        BoneMask& operator*=( BoneMask const& rhs );
+        void BlendFrom( BoneMask const& source, float blendWeight );
+        void BlendTo( BoneMask const& target, float blendWeight );
 
     private:
 
         Skeleton const*             m_pSkeleton = nullptr;
         TVector<float>              m_weights;
+        float                       m_rootMotionWeight = 0.0f;
     };
 }

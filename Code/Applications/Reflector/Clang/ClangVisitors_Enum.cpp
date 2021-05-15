@@ -16,16 +16,16 @@ namespace KRG
                 CXCursorKind kind = clang_getCursorKind( cr );
                 if ( kind == CXCursor_EnumConstantDecl )
                 {
-                    auto pEnum = reinterpret_cast<TypeDescriptor*>( pContext->m_pCurrentEntry );
+                    auto pEnum = reinterpret_cast<ReflectedType*>( pContext->m_pCurrentEntry );
                     clang::EnumConstantDecl* pEnumConstantDecl = ( clang::EnumConstantDecl* ) cr.data[0];
 
-                    EnumConstantDescriptor constant;
+                    ReflectedEnumConstant constant;
                     constant.m_label = ClangUtils::GetCursorDisplayName( cr );
 
                     auto const& initVal = pEnumConstantDecl->getInitVal();
                     constant.m_value = (int32) initVal.getExtValue();
 
-                    pEnum->AddValue( constant );
+                    pEnum->AddEnumConstant( constant );
                 }
 
                 return CXChildVisit_Continue;
@@ -108,10 +108,10 @@ namespace KRG
 
                 if ( pContext->ShouldRegisterType( cr ) )
                 {
-                    TypeDescriptor enumDescriptor( enumTypeID, cursorName );
+                    ReflectedType enumDescriptor( enumTypeID, cursorName );
                     enumDescriptor.m_headerID = headerID;
                     enumDescriptor.m_namespace = pContext->GetCurrentNamespace();
-                    enumDescriptor.m_flags.SetFlag( TypeDescriptor::Flags::IsEnum );
+                    enumDescriptor.m_flags.SetFlag( ReflectedType::Flags::IsEnum );
                     enumDescriptor.m_underlyingType = underlyingCoreType;
                     pContext->m_pCurrentEntry = &enumDescriptor;
 

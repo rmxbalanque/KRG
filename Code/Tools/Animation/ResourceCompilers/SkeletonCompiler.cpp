@@ -4,7 +4,6 @@
 #include "Engine/Animation/AnimationSkeleton.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
-#include "System/Core/Memory/Pointers.h"
 
 //-------------------------------------------------------------------------
 

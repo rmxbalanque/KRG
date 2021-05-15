@@ -1,7 +1,5 @@
 #include "PhysicsSystem.h"
-#include "PhysicsMaterialDatabase.h"
 #include "PhysicsSimulationFilter.h"
-#include "System/Entity/Entity.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------

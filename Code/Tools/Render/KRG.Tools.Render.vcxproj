@@ -11,6 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MeshToolkit\FileTabs\MeshResourceFileTabs.h" />
+    <ClInclude Include="MeshToolkit\MeshToolkit.h" />
+    <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowser.h" />
     <ClInclude Include="ResourceCompilers\Materials\MaterialCompiler.h" />
     <ClInclude Include="ResourceCompilers\Mesh\MeshCompiler.h" />
     <ClInclude Include="ResourceCompilers\Mesh\SkeletalMeshCompiler.h" />
@@ -22,6 +25,9 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="MeshToolkit\FileTabs\MeshResourceFileTabs.cpp" />
+    <ClCompile Include="MeshToolkit\MeshToolkit.cpp" />
+    <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowser.cpp" />
     <ClCompile Include="ResourceCompilers\Materials\MaterialCompiler.cpp" />
     <ClCompile Include="ResourceCompilers\Mesh\MeshCompiler.cpp" />
     <ClCompile Include="ResourceCompilers\Mesh\SkeletalMeshCompiler.cpp" />
@@ -39,6 +45,12 @@
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\System\DevTools\KRG.System.DevTools.vcxproj">
+      <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
+      <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Render\KRG.System.Render.vcxproj">
       <Project>{9f9f2d36-a465-46a8-b95a-fdad4fb56de0}</Project>
     </ProjectReference>
@@ -50,6 +62,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Core\KRG.Tools.Core.vcxproj">
       <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Editor\KRG.Tools.Editor.vcxproj">
+      <Project>{01997900-abbd-4fbc-84bf-762cf32dc0af}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Resource\KRG.Tools.Resource.vcxproj">
       <Project>{8c38c3bb-6980-4188-964b-984c11b26819}</Project>

@@ -3,9 +3,7 @@
 #include "System/DevTools/CommonWidgets/Gizmo/OrientationGuide.h"
 #include "System/Input/InputSystem.h"
 #include "System/Render/RenderViewportManager.h"
-#include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
-#include "System/Core/Math/Viewport.h"
 
 #if KRG_DEVELOPMENT_TOOLS
 

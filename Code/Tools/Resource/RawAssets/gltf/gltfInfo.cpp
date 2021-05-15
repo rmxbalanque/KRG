@@ -1,7 +1,6 @@
 #include "gltfInfo.h"
 #include "gltfSceneContext.h"
 #include "Tools/Resource/RawAssets/RawAssetInfo.h"
-#include "System/Core/FileSystem/FileSystemPath.h"
 
 //-------------------------------------------------------------------------
 

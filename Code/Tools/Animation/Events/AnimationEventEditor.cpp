@@ -62,12 +62,9 @@ namespace KRG::Animation::Tools
         float const duration = inRange.GetLength() / m_animFrameRate;
         EventManipulator::SetEventTime( m_pEvent, startTime, duration );
     }
-}
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Tools
-{
     const char* EventTrack::GetLabel() const
     {
         return reinterpret_cast<Event const*>( m_trackInfo.m_pEventTypeInfo->m_pTypeHelper->GetDefaultTypeInstancePtr() )->GetEventName();
@@ -109,7 +106,7 @@ namespace KRG::Animation::Tools
         }
     }
 
-    void EventTrack::DrawContextMenu( TVector<Track*>& tracks, float playheadPosition )
+    void EventTrack::DrawContextMenu( TVector<Editor::TimelineTrack*>& tracks, float playheadPosition )
     {
         if ( m_trackInfo.m_isSyncTrack )
         {
@@ -132,14 +129,11 @@ namespace KRG::Animation::Tools
             }
         }
     }
-}
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Tools
-{
     EventEditor::EventEditor( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataDirectory, AnimationClip const* pAnimation )
-        : Timeline::Editor( TRange<int32>( 0, pAnimation->GetNumFrames() ) )
+        : Editor::TimelineEditor( TRange<int32>( 0, pAnimation->GetNumFrames() ) )
         , m_typeRegistry( typeRegistry )
         , m_sourceDataDirectory( sourceDataDirectory )
         , m_eventTypes( typeRegistry.GetAllDerivedTypes( Event::GetStaticTypeID() ) )
@@ -451,7 +445,7 @@ namespace KRG::Animation::Tools
 
                     // Save resource desc
                     TypeSystem::Serialization::TypeWriter typeWriter( m_typeRegistry );
-                    typeWriter << resourceDesc;
+                    typeWriter << &resourceDesc;
                     typeWriter.WriteToFile( resourceDescPath );
                 }
             }

@@ -4,7 +4,6 @@
 #include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "MeshOptimizer.h"
 
 //-------------------------------------------------------------------------
 

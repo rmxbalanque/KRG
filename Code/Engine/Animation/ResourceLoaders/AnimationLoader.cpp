@@ -1,6 +1,5 @@
 #include "AnimationLoader.h"
 #include "Engine/Animation/AnimationClip.h"
-#include "Engine/Animation/AnimationSyncTrack.h"
 #include "System/TypeSystem/TypeDescriptors.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 

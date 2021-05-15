@@ -1,9 +1,5 @@
-#ifdef _WIN32
-
 #include "RawAssetReader.h"
 #include "RawAssetInfo.h"
-#include "RawAnimation.h"
-#include "RawMesh.h"
 #include "Fbx/FbxSkeleton.h"
 #include "Fbx/FbxAnimation.h"
 #include "Fbx/FbxMesh.h"
@@ -207,5 +203,3 @@ namespace KRG::RawAssets
         return pRawAnimation;
     }
 }
-
-#endif

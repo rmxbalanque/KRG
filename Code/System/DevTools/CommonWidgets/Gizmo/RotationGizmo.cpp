@@ -1,8 +1,4 @@
 #include "RotationGizmo.h"
-#include "System/Core/Math/Line.h"
-#include "System/Core/Math/Plane.h"
-#include "System/Core/Math/Rectangle.h"
-#include "System/Core/Types/String.h"
 #include "System/DevTools/ImguiX.h"
 
 //-------------------------------------------------------------------------
@@ -306,7 +302,7 @@ namespace KRG::ImGuiX
 
             //-------------------------------------------------------------------------
 
-            if ( !Math::IsNearlyZero( m_rotationDeltaAngle, Degrees( 1.0f ).ToRadians() ) )
+            if ( !Math::IsNearZero( m_rotationDeltaAngle, Degrees( 1.0f ).ToRadians() ) )
             {
                 // Calculate rotation delta and apply it
                 Quaternion const rotationDelta( m_rotationAxis, m_rotationDeltaAngle );

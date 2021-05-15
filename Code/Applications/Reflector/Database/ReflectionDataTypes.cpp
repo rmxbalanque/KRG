@@ -1,54 +1,45 @@
-#if _WIN32
 #include "ReflectionDataTypes.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::TypeSystem::Reflection
 {
-    namespace TypeSystem
+    ReflectedProperty const* ReflectedType::GetPropertyDescriptor( StringID propertyID ) const
     {
-        namespace Reflection
+        KRG_ASSERT( m_ID.IsValid() && !IsAbstract() && !IsEnum() );
+        for ( auto const& prop : m_properties )
         {
-            PropertyDescriptor const* TypeDescriptor::GetPropertyDescriptor( StringID propertyID ) const
+            if ( prop.m_propertyID == propertyID )
             {
-                KRG_ASSERT( m_ID.IsValid() && !IsAbstract() && !IsEnum() );
-                for ( auto const& prop : m_properties )
-                {
-                    if ( prop.m_propertyID == propertyID )
-                    {
-                        return &prop;
-                    }
-                }
-
-                return nullptr;
-            }
-
-            //-------------------------------------------------------------------------
-
-            void TypeDescriptor::AddValue( EnumConstantDescriptor const& constant )
-            {
-                KRG_ASSERT( m_ID.IsValid() && IsEnum() );
-
-                StringID const id( constant.m_label );
-                KRG_ASSERT( m_constants.find( id ) == m_constants.end() );
-                m_constants[id] = constant;
-            }
-
-            bool TypeDescriptor::GetValueFromLabel( StringID labelID, uint32& value ) const
-            {
-                KRG_ASSERT( m_ID.IsValid() && IsEnum() );
-
-                auto const iter = m_constants.find( labelID );
-                if ( iter != m_constants.end() )
-                {
-                    value = iter->second.m_value;
-                    return true;
-                }
-
-                return false;
+                return &prop;
             }
         }
+
+        return nullptr;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectedType::AddEnumConstant( ReflectedEnumConstant const& constant )
+    {
+        KRG_ASSERT( m_ID.IsValid() && IsEnum() );
+
+        StringID const id( constant.m_label );
+        KRG_ASSERT( m_enumConstants.find( id ) == m_enumConstants.end() );
+        m_enumConstants[id] = constant;
+    }
+
+    bool ReflectedType::GetValueFromEnumLabel( StringID labelID, uint32& value ) const
+    {
+        KRG_ASSERT( m_ID.IsValid() && IsEnum() );
+
+        auto const iter = m_enumConstants.find( labelID );
+        if ( iter != m_enumConstants.end() )
+        {
+            value = iter->second.m_value;
+            return true;
+        }
+
+        return false;
     }
 }
-
-#endif

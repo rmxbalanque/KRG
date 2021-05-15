@@ -1,6 +1,4 @@
 #include "PhysicsBoxComponent.h"
-#include "PxShape.h"
-#include "PxRigidDynamic.h"
 
 //-------------------------------------------------------------------------
 

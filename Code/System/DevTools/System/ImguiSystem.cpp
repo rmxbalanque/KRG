@@ -1,6 +1,7 @@
 #include "ImguiSystem.h"
 #include "ImguiFont.h"
 #include "ImguiTheme.h"
+#include "System/DevTools/ThirdParty/imnodes/imnodes.h"
 #include "System/DevTools/ThirdParty/imgui/misc/freetype/imgui_freetype.h"
 #include "System/Render/Fonts/FontDecompressor.h"
 #include "System/Render/Fonts/FontData_Segoe.h"
@@ -14,6 +15,7 @@ namespace KRG::ImGuiX
     bool ImguiSystem::Initialize( String const& iniFilename )
     {
         ImGui::CreateContext();
+        ImNodes::CreateContext();
 
         //-------------------------------------------------------------------------
 
@@ -48,6 +50,7 @@ namespace KRG::ImGuiX
             SystemFonts::s_fonts[i] = nullptr;
         }
 
+        ImNodes::DestroyContext();
         ImGui::DestroyContext();
     }
 
@@ -118,6 +121,17 @@ namespace KRG::ImGuiX
         iconFontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_ForceAutoHint;
         iconFontConfig.RasterizerMultiply = 1.5f;
 
+        // Extra Small Font
+        //-------------------------------------------------------------------------
+
+        fontConfig.GlyphExtraSpacing = ImVec2( 1, 0 );
+        fontConfig.GlyphOffset = ImVec2( 0, -1 );
+        ImFont* pExtraSmallFont = io.Fonts->AddFontFromMemoryTTF( fontData.data(), (int32) fontData.size(), 12, &fontConfig );
+        SystemFonts::s_fonts[(uint8) Font::ExtraSmall] = pExtraSmallFont;
+
+        iconFontConfig.GlyphOffset = ImVec2( 0, 0 );
+        io.Fonts->AddFontFromMemoryTTF( iconFontData.data(), (int32) iconFontData.size(), 10.0f, &iconFontConfig, icons_ranges );
+
         // Small Font
         //-------------------------------------------------------------------------
 
@@ -182,8 +196,10 @@ namespace KRG::ImGuiX
         //-------------------------------------------------------------------------
 
         io.Fonts->Build();
+        io.FontDefault = pSmallFont;
 
         #if KRG_DEVELOPMENT_TOOLS
+        KRG_ASSERT( pExtraSmallFont->IsLoaded() );
         KRG_ASSERT( pSmallFont->IsLoaded() );
         KRG_ASSERT( pMediumFont->IsLoaded() );
         KRG_ASSERT( pLargeFont->IsLoaded() );

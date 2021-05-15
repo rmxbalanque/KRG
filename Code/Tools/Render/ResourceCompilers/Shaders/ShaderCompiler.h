@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #pragma once
 
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
@@ -6,41 +5,36 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace Render
+    enum class ShaderType : uint8
     {
-        enum class ShaderType : uint8
-        {
-            KRG_REGISTER_ENUM
+        KRG_REGISTER_ENUM
 
-            Vertex = 0,
-            Geometry,
-            Pixel,
-            Hull,
-            Compute,
-        };
+        Vertex = 0,
+        Geometry,
+        Pixel,
+        Hull,
+        Compute,
+    };
 
-        struct ShaderResourceDescriptor : public Resource::ResourceDescriptor
-        {
-            KRG_REGISTER_TYPE( ShaderResourceDescriptor );
+    struct ShaderResourceDescriptor : public Resource::ResourceDescriptor
+    {
+        KRG_REGISTER_TYPE( ShaderResourceDescriptor );
 
-            EXPOSE ShaderType           m_shaderType = ShaderType::Vertex;
-            EXPOSE DataPath             m_shaderDataPath;
-        };
+        EXPOSE ShaderType           m_shaderType = ShaderType::Vertex;
+        EXPOSE DataPath             m_shaderDataPath;
+    };
 
-        //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-        class ShaderCompiler : public Resource::Compiler
-        {
-            static const int32 VERSION = 1;
+    class ShaderCompiler : public Resource::Compiler
+    {
+        static const int32 VERSION = 1;
 
-        public:
+    public:
 
-            ShaderCompiler();
-            virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
-        };
-    }
+        ShaderCompiler();
+        virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
+    };
 }
-
-#endif

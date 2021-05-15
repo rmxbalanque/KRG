@@ -52,7 +52,7 @@ namespace KRG
                 bool                            m_isConstantArray = false;
             };
 
-            static void GetFieldTypeInfo( ClangParserContext* pContext, TypeDescriptor* pType, CXType type, FieldTypeInfo& info )
+            static void GetFieldTypeInfo( ClangParserContext* pContext, ReflectedType* pType, CXType type, FieldTypeInfo& info )
             {
                 clang::QualType const fieldQualType = ClangUtils::GetQualType( type );
 
@@ -84,11 +84,11 @@ namespace KRG
                 }
             }
 
-            static void GetAllDerivedProperties( ReflectionDatabase const* pDatabase, TVector<TypeSystem::TypeID> const& parentTypes, TVector<PropertyDescriptor>& results )
+            static void GetAllDerivedProperties( ReflectionDatabase const* pDatabase, TVector<TypeSystem::TypeID> const& parentTypes, TVector<ReflectedProperty>& results )
             {
                 for ( auto const& parentID : parentTypes )
                 {
-                    TypeDescriptor const* pParentDesc = pDatabase->GetType( parentID );
+                    ReflectedType const* pParentDesc = pDatabase->GetType( parentID );
                     if ( pParentDesc != nullptr )
                     {
                         GetAllDerivedProperties( pDatabase, pParentDesc->m_parents, results );
@@ -105,7 +105,7 @@ namespace KRG
             CXChildVisitResult VisitStructureContents( CXCursor cr, CXCursor parent, CXClientData pClientData )
             {
                 auto pContext = reinterpret_cast<ClangParserContext*>( pClientData );
-                auto pClass = reinterpret_cast<TypeDescriptor*>( pContext->m_pCurrentEntry );
+                auto pClass = reinterpret_cast<ReflectedType*>( pContext->m_pCurrentEntry );
 
                 uint32 const lineNumber = ClangUtils::GetLineNumberForCursor( cr );
                 CXCursorKind kind = clang_getCursorKind( cr );
@@ -142,8 +142,8 @@ namespace KRG
                         auto const iter = std::find( pContext->m_exposedPropertyMacros.begin(), pContext->m_exposedPropertyMacros.end(), ( ExposedPropertyMacro( pClass->m_headerID, lineNumber ) ) );
                         if ( iter != pContext->m_exposedPropertyMacros.end() )
                         {
-                            pClass->m_properties.push_back( PropertyDescriptor( ClangUtils::GetCursorDisplayName( cr ) ) );
-                            PropertyDescriptor& propertyDesc = pClass->m_properties.back();
+                            pClass->m_properties.push_back( ReflectedProperty( ClangUtils::GetCursorDisplayName( cr ) ) );
+                            ReflectedProperty& propertyDesc = pClass->m_properties.back();
 
                             auto type = clang_getCursorType( cr );
                             auto const pFieldQualType = ClangUtils::GetQualType( type );
@@ -251,7 +251,7 @@ namespace KRG
                                     propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsBitFlags );
 
                                     // Perform validation on the enum type for the bit-flags
-                                    TypeDescriptor const* pFlagTypeDesc = pContext->m_pDatabase->GetType( propertyDesc.m_templateArgTypeName );
+                                    ReflectedType const* pFlagTypeDesc = pContext->m_pDatabase->GetType( propertyDesc.m_templateArgTypeName );
                                     if ( pFlagTypeDesc == nullptr || !pFlagTypeDesc->IsEnum() )
                                     {
                                         pContext->LogError( "Unsupported type encountered: %s for bitflags property: %s in class: %s", propertyDesc.m_typeName.c_str(), propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
@@ -269,7 +269,7 @@ namespace KRG
                             else // Non-Core Types
                             {
                                 // Non-core types must have a valid type descriptor
-                                TypeDescriptor const* pPropertyTypeDesc = pContext->m_pDatabase->GetType( propertyDesc.m_typeID );
+                                ReflectedType const* pPropertyTypeDesc = pContext->m_pDatabase->GetType( propertyDesc.m_typeID );
                                 if ( pPropertyTypeDesc == nullptr )
                                 {
                                     pContext->LogError( "Unsupported type encountered: %s for property: %s in class: %s", propertyDesc.m_typeName.c_str(), propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
@@ -368,7 +368,7 @@ namespace KRG
 
                         TypeID typeID = pContext->GenerateTypeID( fullyQualifiedCursorName );
 
-                        ResourceDesc resource;
+                        ReflectedResourceType resource;
                         resource.m_typeID = pContext->GenerateTypeID( fullyQualifiedCursorName );
                         resource.m_resourceTypeID = ResourceTypeID( resourceTypeIDString );
                         resource.m_headerID = headerID;
@@ -396,13 +396,13 @@ namespace KRG
                         auto* pRecordDecl = ( clang::CXXRecordDecl* ) cr.data[0];
 
                         TypeID typeID = pContext->GenerateTypeID( fullyQualifiedCursorName );
-                        TypeDescriptor classDescriptor( typeID, cursorName );
+                        ReflectedType classDescriptor( typeID, cursorName );
                         classDescriptor.m_headerID = headerID;
                         classDescriptor.m_namespace = pContext->GetCurrentNamespace();
-                        classDescriptor.m_flags.SetFlag( TypeDescriptor::Flags::IsEntity, ( cursorName == Reflection::Settings::g_baseEntityClassName ) );
-                        classDescriptor.m_flags.SetFlag( TypeDescriptor::Flags::IsEntityComponent, ( macro.IsEntityComponentMacro() || cursorName == Reflection::Settings::g_baseEntityComponentClassName ) );
-                        classDescriptor.m_flags.SetFlag( TypeDescriptor::Flags::IsEntitySystem, ( macro.IsEntitySystemMacro() || cursorName == Reflection::Settings::g_baseEntitySystemClassName ) );
-                        classDescriptor.m_flags.SetFlag( TypeDescriptor::Flags::IsAbstract, pRecordDecl->isAbstract() );
+                        classDescriptor.m_flags.SetFlag( ReflectedType::Flags::IsEntity, ( cursorName == Reflection::Settings::g_baseEntityClassName ) );
+                        classDescriptor.m_flags.SetFlag( ReflectedType::Flags::IsEntityComponent, ( macro.IsEntityComponentMacro() || cursorName == Reflection::Settings::g_baseEntityComponentClassName ) );
+                        classDescriptor.m_flags.SetFlag( ReflectedType::Flags::IsEntitySystem, ( macro.IsEntitySystemMacro() || cursorName == Reflection::Settings::g_baseEntitySystemClassName ) );
+                        classDescriptor.m_flags.SetFlag( ReflectedType::Flags::IsAbstract, pRecordDecl->isAbstract() );
 
                         pContext->m_pCurrentEntry = &classDescriptor;
                         clang_visitChildren( cr, VisitStructureContents, pContext );

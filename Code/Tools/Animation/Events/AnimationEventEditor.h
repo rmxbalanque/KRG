@@ -2,8 +2,7 @@
 
 #include "Tools/Animation/_Module/API.h"
 #include "AnimationEventTrackInfo.h"
-#include "Tools/Core/Widgets/Timeline/TimelineEditor.h"
-#include "Tools/Core/TypeSystem/TypeInstanceModel.h"
+#include "Tools/Editor/Widgets/Timeline/TimelineEditor.h"
 #include "Engine/Animation/AnimationEvent.h"
 #include "Engine/Animation/AnimationClip.h"
 #include "System/TypeSystem/TypeRegistry.h"
@@ -17,7 +16,7 @@ namespace KRG::Animation { class AnimationPlayerComponent; }
 
 namespace KRG::Animation::Tools
 {
-    class EventItem final : public Timeline::Item
+    class EventItem final : public Editor::TimelineItem
     {
         friend class EventEditor;
 
@@ -31,6 +30,7 @@ namespace KRG::Animation::Tools
         virtual TRange<float> GetTimeRange() const;
         virtual void SetTimeRange( TRange<float> const& inRange );
 
+        Event* GetEvent() const { return m_pEvent; }
         TypeSystem::TypeInfo const* GetEventTypeInfo() const { return m_pEvent->GetTypeInfo(); }
 
     private:
@@ -38,12 +38,10 @@ namespace KRG::Animation::Tools
         Event*                                      m_pEvent = nullptr;
         float                                       m_animFrameRate = 0.0f;
     };
-}
-//-------------------------------------------------------------------------
 
-namespace KRG::Animation::Tools
-{
-    class EventTrack final : public Timeline::Track
+    //-------------------------------------------------------------------------
+
+    class EventTrack final : public Editor::TimelineTrack
     {
         friend class EventEditor;
 
@@ -57,20 +55,17 @@ namespace KRG::Animation::Tools
         virtual void CreateItem( float itemStartTime ) override;
         virtual void DrawHeader( ImRect const& headerRect ) override;
         virtual bool HasContextMenu() const override { return true; }
-        virtual void DrawContextMenu( TVector<Track*>& tracks, float playheadPosition ) override;
+        virtual void DrawContextMenu( TVector<Editor::TimelineTrack*>& tracks, float playheadPosition ) override;
 
     private:
 
         EventTrackInfo                              m_trackInfo;
         float                                       m_animFrameRate = 0.0f;
     };
-}
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Tools
-{
-    class KRG_TOOLS_ANIMATION_API EventEditor final : public Timeline::Editor
+    class KRG_TOOLS_ANIMATION_API EventEditor final : public Editor::TimelineEditor
     {
     public:
 

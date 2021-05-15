@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #pragma once
 
 //-------------------------------------------------------------------------
@@ -12,5 +11,3 @@ namespace KRG::Fbx
 {
     bool ReadFileInfo( FileSystem::Path const& sourceFilePath, RawAssets::RawAssetInfo& outInfo );
 }
-
-#endif

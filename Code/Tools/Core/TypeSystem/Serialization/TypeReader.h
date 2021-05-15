@@ -36,21 +36,6 @@ namespace KRG::TypeSystem::Serialization
             return *this;
         }
 
-        // Type Model
-        //-------------------------------------------------------------------------
-
-        inline bool ReadType( TypeInstanceModel& typeModel )
-        {
-            return ReadTypeModel( m_typeRegistry, GetObjectValueToBeDeserialized(), typeModel );
-        }
-
-        inline TypeReader const& operator>>( TypeInstanceModel& type )
-        {
-            bool const result = ReadType( type );
-            KRG_ASSERT( result );
-            return *this;
-        }
-
         // Native
         //-------------------------------------------------------------------------
         // Do not try to serialize core-types using this reader

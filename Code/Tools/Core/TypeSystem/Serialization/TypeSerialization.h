@@ -38,12 +38,6 @@ namespace KRG::TypeSystem::Serialization
         CreateTypeDescriptorFromNativeType( typeRegistry, T::GetStaticTypeID(), pTypeInstance, outDesc );
     }
 
-    // Type Model
-    //-------------------------------------------------------------------------
-
-    KRG_TOOLS_CORE_API bool ReadTypeModel( TypeRegistry const& typeRegistry, rapidjson::Value const& typeObjectValue, TypeInstanceModel& outType );
-    KRG_TOOLS_CORE_API void WriteTypeModel( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeInstanceModel const& type );
-
     // Native Type
     //-------------------------------------------------------------------------
 

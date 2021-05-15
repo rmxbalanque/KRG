@@ -90,7 +90,7 @@ namespace KRG
 
     private:
 
-        int32                                             m_firstFreeBufferIdx = InvalidIndex;
-        TInlineVector<Buffer, MinimumPoolSize>          m_pool;
+        int32                                               m_firstFreeBufferIdx = InvalidIndex;
+        TInlineVector<Buffer, MinimumPoolSize>              m_pool;
     };
 }

@@ -11,6 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationToolkit\AnimationToolkit.h" />
+    <ClInclude Include="AnimationToolkit\AnimationToolkit_DataBrowser.h" />
+    <ClInclude Include="AnimationToolkit\FileTabs\AnimationFileTab.h" />
+    <ClInclude Include="AnimationToolkit\FileTabs\SkeletonFileTab.h" />
+    <ClInclude Include="AnimGraphToolkit\AnimGraphToolkit.h" />
+    <ClInclude Include="AnimGraphToolkit\AnimGraphToolkit_ControlParameterEditor.h" />
+    <ClInclude Include="AnimGraphToolkit\AnimGraphToolkit_GraphEditor.h" />
+    <ClInclude Include="AnimGraphToolkit\AnimGraphToolkit_PropertyGrid.h" />
     <ClInclude Include="Events\AnimationEventEditor.h" />
     <ClInclude Include="Events\AnimationEventTrackInfo.h" />
     <ClInclude Include="ResourceCompilers\AnimationCompiler.h" />
@@ -19,6 +27,14 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationToolkit\AnimationToolkit.cpp" />
+    <ClCompile Include="AnimationToolkit\AnimationToolkit_DataBrowser.cpp" />
+    <ClCompile Include="AnimationToolkit\FileTabs\AnimationFileTab.cpp" />
+    <ClCompile Include="AnimationToolkit\FileTabs\SkeletonFileTab.cpp" />
+    <ClCompile Include="AnimGraphToolkit\AnimGraphToolkit.cpp" />
+    <ClCompile Include="AnimGraphToolkit\AnimGraphToolkit_ControlParameterEditor.cpp" />
+    <ClCompile Include="AnimGraphToolkit\AnimGraphToolkit_GraphEditor.cpp" />
+    <ClCompile Include="AnimGraphToolkit\AnimGraphToolkit_PropertyGrid.cpp" />
     <ClCompile Include="Events\AnimationEventEditor.cpp" />
     <ClCompile Include="ResourceCompilers\AnimationCompiler.cpp" />
     <ClCompile Include="ResourceCompilers\SkeletonCompiler.cpp" />
@@ -35,6 +51,9 @@
     <ProjectReference Include="..\..\System\DevTools\KRG.System.DevTools.vcxproj">
       <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
+      <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Resource\KRG.System.Resource.vcxproj">
       <Project>{7870de8e-6569-4857-93f9-b1abc1fc0543}</Project>
     </ProjectReference>
@@ -43,6 +62,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Core\KRG.Tools.Core.vcxproj">
       <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Editor\KRG.Tools.Editor.vcxproj">
+      <Project>{01997900-abbd-4fbc-84bf-762cf32dc0af}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Resource\KRG.Tools.Resource.vcxproj">
       <Project>{8c38c3bb-6980-4188-964b-984c11b26819}</Project>

@@ -24,36 +24,36 @@ namespace KRG
             : m_value( percentage )
         {}
 
-        inline operator float() const { return m_value; }
-        inline float ToFloat() const { return m_value; }
-        inline int32 GetLoopCount() const { return (int32) Math::Floor( m_value ); }
+        KRG_FORCE_INLINE operator float() const { return m_value; }
+        KRG_FORCE_INLINE float ToFloat() const { return m_value; }
+        KRG_FORCE_INLINE int32 GetLoopCount() const { return (int32) Math::Floor( m_value ); }
 
-        inline void Invert() { m_value = 1.0f - m_value; }
-        inline Percentage GetInverse() const { return Percentage( 1.0f - m_value ); }
+        KRG_FORCE_INLINE void Invert() { m_value = 1.0f - m_value; }
+        KRG_FORCE_INLINE Percentage GetInverse() const { return Percentage( 1.0f - m_value ); }
 
-        inline Percentage& Clamp( bool allowLooping = true ) { *this = Clamp( *this, allowLooping ); return *this; }
-        inline Percentage GetClamped( bool allowLooping = true ) const { return Clamp( *this, allowLooping ); }
+        KRG_FORCE_INLINE Percentage& Clamp( bool allowLooping = true ) { *this = Clamp( *this, allowLooping ); return *this; }
+        KRG_FORCE_INLINE Percentage GetClamped( bool allowLooping = true ) const { return Clamp( *this, allowLooping ); }
 
         inline void GetLoopCountAndNormalizedTime( int32& loopCount, Percentage& normalizedValue ) const;
         inline Percentage GetNormalizedTime() const;
 
-        inline Percentage operator+( Percentage const f ) const { return Percentage( m_value + f.m_value ); }
-        inline Percentage operator-( Percentage const f ) const { return Percentage( m_value - f.m_value ); }
-        inline Percentage& operator+=( Percentage const f ) { m_value += f.m_value; return *this; }
-        inline Percentage& operator-=( Percentage const f ) { m_value -= f.m_value; return *this; }
-        inline Percentage operator*( Percentage const f ) const { return Percentage( m_value * f.m_value ); }
-        inline Percentage operator/( Percentage const f ) const { return Percentage( m_value / f.m_value ); }
-        inline Percentage& operator*=( Percentage const f ) { m_value *= f.m_value; return *this; }
-        inline Percentage& operator/=( Percentage const f ) { m_value /= f.m_value; return *this; }
+        KRG_FORCE_INLINE Percentage operator+( Percentage const f ) const { return Percentage( m_value + f.m_value ); }
+        KRG_FORCE_INLINE Percentage operator-( Percentage const f ) const { return Percentage( m_value - f.m_value ); }
+        KRG_FORCE_INLINE Percentage& operator+=( Percentage const f ) { m_value += f.m_value; return *this; }
+        KRG_FORCE_INLINE Percentage& operator-=( Percentage const f ) { m_value -= f.m_value; return *this; }
+        KRG_FORCE_INLINE Percentage operator*( Percentage const f ) const { return Percentage( m_value * f.m_value ); }
+        KRG_FORCE_INLINE Percentage operator/( Percentage const f ) const { return Percentage( m_value / f.m_value ); }
+        KRG_FORCE_INLINE Percentage& operator*=( Percentage const f ) { m_value *= f.m_value; return *this; }
+        KRG_FORCE_INLINE Percentage& operator/=( Percentage const f ) { m_value /= f.m_value; return *this; }
 
-        inline Percentage operator+( float const f ) const { return Percentage( m_value + f ); }
-        inline Percentage operator-( float const f ) const { return Percentage( m_value - f ); }
-        inline Percentage& operator+=( float const f ) { m_value += f; return *this; }
-        inline Percentage& operator-=( float const f ) { m_value -= f; return *this; }
-        inline Percentage operator*( float const f ) const { return Percentage( m_value * f ); }
-        inline Percentage operator/ ( float const f ) const { return Percentage( m_value / f ); }
-        inline Percentage& operator*=( float const f ) { m_value *= f; return *this; }
-        inline Percentage& operator/=( float const f ) { m_value /= f; return *this; }
+        KRG_FORCE_INLINE Percentage operator+( float const f ) const { return Percentage( m_value + f ); }
+        KRG_FORCE_INLINE Percentage operator-( float const f ) const { return Percentage( m_value - f ); }
+        KRG_FORCE_INLINE Percentage& operator+=( float const f ) { m_value += f; return *this; }
+        KRG_FORCE_INLINE Percentage& operator-=( float const f ) { m_value -= f; return *this; }
+        KRG_FORCE_INLINE Percentage operator*( float const f ) const { return Percentage( m_value * f ); }
+        KRG_FORCE_INLINE Percentage operator/ ( float const f ) const { return Percentage( m_value / f ); }
+        KRG_FORCE_INLINE Percentage& operator*=( float const f ) { m_value *= f; return *this; }
+        KRG_FORCE_INLINE Percentage& operator/=( float const f ) { m_value /= f; return *this; }
 
     private:
 

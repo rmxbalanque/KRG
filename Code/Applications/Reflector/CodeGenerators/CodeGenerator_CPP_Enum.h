@@ -7,15 +7,9 @@ using namespace KRG::TypeSystem::Reflection;
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::CPP::EnumGenerator
 {
-    namespace CPP
-    {
-        namespace EnumGenerator
-        {
-            void Generate( std::stringstream& headerFile, std::stringstream& codeFile, String const& exportMacro, TypeDescriptor const& type );
-            void GenerateRegistrationFunctionCall( std::stringstream& file, TypeDescriptor const& type );
-            void GenerateUnregistrationFunctionCall( std::stringstream& file, TypeDescriptor const& type );
-        }
-    }
+    void Generate( std::stringstream& headerFile, std::stringstream& codeFile, String const& exportMacro, ReflectedType const& type );
+    void GenerateRegistrationFunctionCall( std::stringstream& file, ReflectedType const& type );
+    void GenerateUnregistrationFunctionCall( std::stringstream& file, ReflectedType const& type );
 }

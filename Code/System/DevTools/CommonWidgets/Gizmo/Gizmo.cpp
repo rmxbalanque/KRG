@@ -1,6 +1,4 @@
 #include "Gizmo.h"
-#include "System/Core/Math/Line.h"
-#include "System/Core/Math/Plane.h"
 #include "System/DevTools/ThirdParty/imgui/imgui.h"
 
 //-------------------------------------------------------------------------

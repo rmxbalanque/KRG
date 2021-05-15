@@ -11,21 +11,24 @@ namespace KRG::TypeSystem::Reflection
 {
     ReflectionDatabase::ReflectionDatabase()
     {
+        // Create the base class for all registered engine types
+        //-------------------------------------------------------------------------
+
         InlineString<100> str;
 
         str.sprintf( "%s::%s", Settings::g_engineNamespace, Settings::g_registeredTypeInterfaceClassName );
-        m_registeredTypeInterfaceDesc = TypeDescriptor( TypeID( str.c_str() ), Settings::g_registeredTypeInterfaceClassName );
-        m_registeredTypeInterfaceDesc.m_flags.SetFlag( TypeDescriptor::Flags::IsAbstract );
+        m_registeredTypeBase = ReflectedType( TypeID( str.c_str() ), Settings::g_registeredTypeInterfaceClassName );
+        m_registeredTypeBase.m_flags.SetFlag( ReflectedType::Flags::IsAbstract );
 
         str.sprintf( "%s::", Settings::g_engineNamespace );
-        m_registeredTypeInterfaceDesc.m_namespace = str.c_str();
+        m_registeredTypeBase.m_namespace = str.c_str();
     }
 
     //-------------------------------------------------------------------------
 
     bool ReflectionDatabase::IsProjectRegistered( ProjectID projectID ) const
     {
-        for ( auto const& prj : m_projectDescs )
+        for ( auto const& prj : m_reflectedProjects )
         {
             if ( prj.m_ID == projectID )
             {
@@ -36,9 +39,9 @@ namespace KRG::TypeSystem::Reflection
         return nullptr;
     }
 
-    ProjectDesc const* ReflectionDatabase::GetProjectDesc( ProjectID projectID ) const
+    ProjectInfo const* ReflectionDatabase::GetProjectDesc( ProjectID projectID ) const
     {
-        for ( auto& prj : m_projectDescs )
+        for ( auto& prj : m_reflectedProjects )
         {
             if ( prj.m_ID == projectID )
             {
@@ -49,17 +52,17 @@ namespace KRG::TypeSystem::Reflection
         return nullptr;
     }
 
-    void ReflectionDatabase::UpdateProjectList( TVector<ProjectDesc> const& registeredProjects )
+    void ReflectionDatabase::UpdateProjectList( TVector<ProjectInfo> const& registeredProjects )
     {
         DeleteObseleteProjects( registeredProjects );
 
         for ( auto& prj : registeredProjects )
         {
             auto const prjID = prj.m_ID;
-            auto existingProj = eastl::find_if( m_projectDescs.begin(), m_projectDescs.end(), [prjID] ( ProjectDesc const& desc )->bool { return desc.m_ID == prjID; } );
-            if ( existingProj == m_projectDescs.end() )
+            auto existingProj = eastl::find_if( m_reflectedProjects.begin(), m_reflectedProjects.end(), [prjID] ( ProjectInfo const& desc )->bool { return desc.m_ID == prjID; } );
+            if ( existingProj == m_reflectedProjects.end() )
             {
-                m_projectDescs.push_back( prj );
+                m_reflectedProjects.push_back( prj );
             }
             else
             {
@@ -70,7 +73,7 @@ namespace KRG::TypeSystem::Reflection
 
     bool ReflectionDatabase::IsHeaderRegistered( HeaderID headerID ) const
     {
-        for ( auto const& hdr : m_headerDescs )
+        for ( auto const& hdr : m_reflectedHeaders )
         {
             if ( hdr.m_ID == headerID )
             {
@@ -81,9 +84,9 @@ namespace KRG::TypeSystem::Reflection
         return false;
     }
 
-    HeaderDesc const* ReflectionDatabase::GetHeaderDesc( HeaderID headerID ) const
+    HeaderInfo const* ReflectionDatabase::GetHeaderDesc( HeaderID headerID ) const
     {
-        for ( auto& hdr : m_headerDescs )
+        for ( auto& hdr : m_reflectedHeaders )
         {
             if ( hdr.m_ID == headerID )
             {
@@ -94,29 +97,29 @@ namespace KRG::TypeSystem::Reflection
         return nullptr;
     }
 
-    void ReflectionDatabase::UpdateHeaderRecord( HeaderDesc const& header )
+    void ReflectionDatabase::UpdateHeaderRecord( HeaderInfo const& header )
     {
-        HeaderDesc* pHdr = const_cast<HeaderDesc*>( GetHeaderDesc( header.m_ID ) );
+        HeaderInfo* pHdr = const_cast<HeaderInfo*>( GetHeaderDesc( header.m_ID ) );
         if ( pHdr != nullptr )
         {
             *pHdr = header;
         }
         else
         {
-            m_headerDescs.push_back( header );
+            m_reflectedHeaders.push_back( header );
         }
     }
 
     //-------------------------------------------------------------------------
 
-    TypeDescriptor const* ReflectionDatabase::GetType( TypeID typeID ) const
+    ReflectedType const* ReflectionDatabase::GetType( TypeID typeID ) const
     {
-        if ( m_registeredTypeInterfaceDesc.m_ID == typeID )
+        if ( m_registeredTypeBase.m_ID == typeID )
         {
-            return &m_registeredTypeInterfaceDesc;
+            return &m_registeredTypeBase;
         }
 
-        for ( auto const& type : m_typeDescs )
+        for ( auto const& type : m_reflectedTypes )
         {
             if ( type.m_ID == typeID )
             {
@@ -129,7 +132,7 @@ namespace KRG::TypeSystem::Reflection
 
     bool ReflectionDatabase::IsTypeRegistered( TypeID typeID ) const
     {
-        for ( auto const& type : m_typeDescs )
+        for ( auto const& type : m_reflectedTypes )
         {
             if ( type.m_ID == typeID )
             {
@@ -173,9 +176,9 @@ namespace KRG::TypeSystem::Reflection
         return false;
     }
 
-    void ReflectionDatabase::GetAllTypesForHeader( HeaderID headerID, TVector<TypeDescriptor>& types ) const
+    void ReflectionDatabase::GetAllTypesForHeader( HeaderID headerID, TVector<ReflectedType>& types ) const
     {
-        for ( auto const& type : m_typeDescs )
+        for ( auto const& type : m_reflectedTypes )
         {
             if ( type.m_headerID == headerID )
             {
@@ -184,9 +187,9 @@ namespace KRG::TypeSystem::Reflection
         }
     }
 
-    void ReflectionDatabase::GetAllTypesForProject( ProjectID projectID, TVector<TypeDescriptor>& types ) const
+    void ReflectionDatabase::GetAllTypesForProject( ProjectID projectID, TVector<ReflectedType>& types ) const
     {
-        for ( auto const& hdr : m_headerDescs )
+        for ( auto const& hdr : m_reflectedHeaders )
         {
             if ( hdr.m_projectID == projectID )
             {
@@ -195,17 +198,17 @@ namespace KRG::TypeSystem::Reflection
         }
     }
 
-    void ReflectionDatabase::RegisterType( TypeDescriptor const* pType )
+    void ReflectionDatabase::RegisterType( ReflectedType const* pType )
     {
         KRG_ASSERT( pType != nullptr && !IsTypeRegistered( pType->m_ID ) );
-        m_typeDescs.push_back( *pType );
+        m_reflectedTypes.push_back( *pType );
     }
 
-    KRG::TypeSystem::Reflection::PropertyDescriptor const* ReflectionDatabase::GetPropertyTypeDescriptor( TypeID typeID, PropertyPath const& pathID ) const
+    KRG::TypeSystem::Reflection::ReflectedProperty const* ReflectionDatabase::GetPropertyTypeDescriptor( TypeID typeID, PropertyPath const& pathID ) const
     {
-        PropertyDescriptor const* pResolvedPropertyTypeDesc = nullptr;
+        ReflectedProperty const* pResolvedPropertyTypeDesc = nullptr;
 
-        TypeDescriptor const* pCurrentTypeDesc = GetType( typeID );
+        ReflectedType const* pCurrentTypeDesc = GetType( typeID );
         if ( pCurrentTypeDesc == nullptr )
         {
             return pResolvedPropertyTypeDesc;
@@ -242,7 +245,7 @@ namespace KRG::TypeSystem::Reflection
 
     bool ReflectionDatabase::IsResourceRegistered( ResourceTypeID typeID ) const
     {
-        for ( auto const& type : m_resourceDescs )
+        for ( auto const& type : m_reflectedResourceTypes )
         {
             if ( type.m_resourceTypeID == typeID )
             {
@@ -253,54 +256,54 @@ namespace KRG::TypeSystem::Reflection
         return false;
     }
 
-    void ReflectionDatabase::RegisterResource( ResourceDesc const* pResource )
+    void ReflectionDatabase::RegisterResource( ReflectedResourceType const* pResource )
     {
         KRG_ASSERT( pResource != nullptr && !IsResourceRegistered( pResource->m_resourceTypeID ) );
-        m_resourceDescs.push_back( *pResource );
+        m_reflectedResourceTypes.push_back( *pResource );
     }
 
     //-------------------------------------------------------------------------
 
     void ReflectionDatabase::DeleteTypesForHeader( HeaderID headerID )
     {
-        for ( auto j = (int32) m_typeDescs.size() - 1; j >= 0; j-- )
+        for ( auto j = (int32) m_reflectedTypes.size() - 1; j >= 0; j-- )
         {
-            if ( m_typeDescs[j].m_headerID == headerID )
+            if ( m_reflectedTypes[j].m_headerID == headerID )
             {
-                m_typeDescs.erase_unsorted( m_typeDescs.begin() + j );
+                m_reflectedTypes.erase_unsorted( m_reflectedTypes.begin() + j );
             }
         }
 
-        for ( auto j = (int32) m_resourceDescs.size() - 1; j >= 0; j-- )
+        for ( auto j = (int32) m_reflectedResourceTypes.size() - 1; j >= 0; j-- )
         {
-            if ( m_resourceDescs[j].m_headerID == headerID )
+            if ( m_reflectedResourceTypes[j].m_headerID == headerID )
             {
-                m_resourceDescs.erase_unsorted( m_resourceDescs.begin() + j );
+                m_reflectedResourceTypes.erase_unsorted( m_reflectedResourceTypes.begin() + j );
             }
         }
     }
 
     void ReflectionDatabase::DeleteObseleteHeadersAndTypes( TVector<HeaderID> const& registeredHeaders )
     {
-        for ( auto i = (int32) m_headerDescs.size() - 1; i >= 0; i-- )
+        for ( auto i = (int32) m_reflectedHeaders.size() - 1; i >= 0; i-- )
         {
-            auto const hdrID = m_headerDescs[i].m_ID;
+            auto const hdrID = m_reflectedHeaders[i].m_ID;
             if ( eastl::find( registeredHeaders.begin(), registeredHeaders.end(), hdrID ) == registeredHeaders.end() )
             {
                 DeleteTypesForHeader( hdrID );
-                m_headerDescs.erase_unsorted( m_headerDescs.begin() + i );
+                m_reflectedHeaders.erase_unsorted( m_reflectedHeaders.begin() + i );
             }
         }
     }
 
-    void ReflectionDatabase::DeleteObseleteProjects( TVector<ProjectDesc> const& registeredProjects )
+    void ReflectionDatabase::DeleteObseleteProjects( TVector<ProjectInfo> const& registeredProjects )
     {
-        for ( auto i = (int32) m_projectDescs.size() - 1; i >= 0; i-- )
+        for ( auto i = (int32) m_reflectedProjects.size() - 1; i >= 0; i-- )
         {
-            auto const prjID = m_projectDescs[i].m_ID;
-            if ( eastl::find_if( registeredProjects.begin(), registeredProjects.end(), [prjID] ( ProjectDesc const& desc )->bool { return desc.m_ID == prjID; } ) == registeredProjects.end() )
+            auto const prjID = m_reflectedProjects[i].m_ID;
+            if ( eastl::find_if( registeredProjects.begin(), registeredProjects.end(), [prjID] ( ProjectInfo const& desc )->bool { return desc.m_ID == prjID; } ) == registeredProjects.end() )
             {
-                m_projectDescs.erase_unsorted( m_projectDescs.begin() + i );
+                m_reflectedProjects.erase_unsorted( m_reflectedProjects.begin() + i );
             }
         }
     }
@@ -319,9 +322,9 @@ namespace KRG::TypeSystem::Reflection
             return false;
         }
 
-        m_projectDescs.clear();
-        m_headerDescs.clear();
-        m_typeDescs.clear();
+        m_reflectedProjects.clear();
+        m_reflectedHeaders.clear();
+        m_reflectedTypes.clear();
 
         //-------------------------------------------------------------------------
         // Read all projects
@@ -332,7 +335,7 @@ namespace KRG::TypeSystem::Reflection
         {
             while ( sqlite3_step( pStatement ) == SQLITE_ROW )
             {
-                ProjectDesc project;
+                ProjectInfo project;
                 project.m_ID = StringID( sqlite3_column_int( pStatement, 0 ) );
                 project.m_name = (char const*) sqlite3_column_text( pStatement, 1 );
                 project.m_path = (char const*) sqlite3_column_text( pStatement, 2 );
@@ -340,7 +343,7 @@ namespace KRG::TypeSystem::Reflection
                 project.m_moduleClassName = (char const*) sqlite3_column_text( pStatement, 4 );
                 project.m_moduleHeaderID = StringID( sqlite3_column_int( pStatement, 5 ) );
                 project.m_dependencyCount = sqlite3_column_int( pStatement, 6 );
-                m_projectDescs.push_back( project );
+                m_reflectedProjects.push_back( project );
             }
 
             if ( !IsValidSQLiteResult( sqlite3_finalize( pStatement ) ) )
@@ -361,13 +364,13 @@ namespace KRG::TypeSystem::Reflection
         {
             while ( sqlite3_step( pStatement ) == SQLITE_ROW )
             {
-                HeaderDesc header;
+                HeaderInfo header;
                 header.m_ID = StringID( sqlite3_column_int( pStatement, 0 ) );
                 header.m_projectID = StringID( sqlite3_column_int( pStatement, 1 ) );
                 header.m_filePath = (char const*) sqlite3_column_text( pStatement, 2 );
                 header.m_timestamp = sqlite3_column_int64( pStatement, 3 );
                 header.m_checksum = sqlite3_column_int64( pStatement, 4 );
-                m_headerDescs.push_back( header );
+                m_reflectedHeaders.push_back( header );
             }
 
             if ( !IsValidSQLiteResult( sqlite3_finalize( pStatement ) ) )
@@ -388,7 +391,7 @@ namespace KRG::TypeSystem::Reflection
         {
             while ( sqlite3_step( pStatement ) == SQLITE_ROW )
             {
-                TypeDescriptor type;
+                ReflectedType type;
                 type.m_ID = sqlite3_column_int( pStatement, 0 );
                 type.m_headerID = StringID( sqlite3_column_int( pStatement, 1 ) );
                 type.m_name = (char const*) sqlite3_column_text( pStatement, 2 );
@@ -412,7 +415,7 @@ namespace KRG::TypeSystem::Reflection
                 }
 
                 // Add type to list
-                m_typeDescs.push_back( type );
+                m_reflectedTypes.push_back( type );
             }
 
             if ( !IsValidSQLiteResult( sqlite3_finalize( pStatement ) ) )
@@ -434,13 +437,13 @@ namespace KRG::TypeSystem::Reflection
         {
             while ( sqlite3_step( pStatement ) == SQLITE_ROW )
             {
-                ResourceDesc header;
+                ReflectedResourceType header;
                 header.m_resourceTypeID = sqlite3_column_int( pStatement, 0 );
                 header.m_headerID = StringID( sqlite3_column_int( pStatement, 1 ) );
                 header.m_className = (char const*) sqlite3_column_text( pStatement, 2 );
                 header.m_namespace = (char const*) sqlite3_column_text( pStatement, 3 );
                 header.m_isVirtual = sqlite3_column_int( pStatement, 4 ) != 0;
-                m_resourceDescs.push_back( header );
+                m_reflectedResourceTypes.push_back( header );
             }
             if ( !IsValidSQLiteResult( sqlite3_finalize( pStatement ) ) )
             {
@@ -484,7 +487,7 @@ namespace KRG::TypeSystem::Reflection
         // Write all projects
         //-------------------------------------------------------------------------
 
-        for ( auto const& project : m_projectDescs )
+        for ( auto const& project : m_reflectedProjects )
         {
             if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `Modules`(`ModuleID`, `Name`, `Path`, `ExportMacro`, `ModuleClassName`, `ModuleHeaderID`, `DependencyCount`) VALUES ( %u, \"%s\", \"%s\",\"%s\",\"%s\", %u, %u);", (uint32) project.m_ID, project.m_name.c_str(), project.m_path.c_str(), project.m_exportMacro.c_str(), project.m_moduleClassName.c_str(), (uint32) project.m_moduleHeaderID, project.m_dependencyCount ) )
             {
@@ -495,7 +498,7 @@ namespace KRG::TypeSystem::Reflection
         // Write all headers
         //-------------------------------------------------------------------------
 
-        for ( auto const& header : m_headerDescs )
+        for ( auto const& header : m_reflectedHeaders )
         {
             if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `HeaderFiles`(`HeaderID`,`ModuleID`,`FilePath`,`TimeStamp`,`Checksum`) VALUES ( %u, %u, \"%s\",%llu,%llu);", (uint32) header.m_ID, (uint32) header.m_projectID, header.m_filePath.c_str(), header.m_timestamp, header.m_checksum ) )
             {
@@ -506,7 +509,7 @@ namespace KRG::TypeSystem::Reflection
         // Write all types
         //-------------------------------------------------------------------------
 
-        for ( auto const& type : m_typeDescs )
+        for ( auto const& type : m_reflectedTypes )
         {
             if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `Types`(`TypeID`, `HeaderID`,`Name`,`Namespace`,`TypeFlags`) VALUES ( %u, %u, \"%s\", \"%s\", %u );", (uint32) type.m_ID, (uint32) type.m_headerID, type.m_name.c_str(), type.m_namespace.c_str(), (uint32) type.m_flags ) )
             {
@@ -532,7 +535,7 @@ namespace KRG::TypeSystem::Reflection
         // Write all resources types
         //-------------------------------------------------------------------------
 
-        for ( auto const& resourceType : m_resourceDescs )
+        for ( auto const& resourceType : m_reflectedResourceTypes )
         {
             if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `ResourceTypes`(`ResourceTypeID`,`HeaderID`,`ClassName`,`Namespace`,`IsVirtual`) VALUES ( %u, %u, \"%s\",\"%s\",%d);", (uint32) resourceType.m_resourceTypeID, (uint32) resourceType.m_headerID, resourceType.m_className.c_str(), resourceType.m_namespace.c_str(), resourceType.m_isVirtual ? 1 : 0 ) )
             {
@@ -678,7 +681,7 @@ namespace KRG::TypeSystem::Reflection
 
     //-------------------------------------------------------------------------
 
-    bool ReflectionDatabase::ReadAdditionalTypeData( TypeDescriptor& type )
+    bool ReflectionDatabase::ReadAdditionalTypeData( ReflectedType& type )
     {
         KRG_ASSERT( type.m_ID.IsValid() && !type.IsEnum() );
 
@@ -717,7 +720,7 @@ namespace KRG::TypeSystem::Reflection
 
             while ( sqlite3_step( pStatement ) == SQLITE_ROW )
             {
-                PropertyDescriptor propDesc;
+                ReflectedProperty propDesc;
                 propDesc.m_typeID = sqlite3_column_int( pStatement, 2 );
                 propDesc.m_name = (char const*) sqlite3_column_text( pStatement, 3 );
                 propDesc.m_typeName = (char const*) sqlite3_column_text( pStatement, 4 );
@@ -740,7 +743,7 @@ namespace KRG::TypeSystem::Reflection
         return false;
     }
 
-    bool ReflectionDatabase::ReadAdditionalEnumData( TypeDescriptor& type )
+    bool ReflectionDatabase::ReadAdditionalEnumData( ReflectedType& type )
     {
         KRG_ASSERT( type.m_ID.IsValid() && type.IsEnum() );
 
@@ -750,10 +753,10 @@ namespace KRG::TypeSystem::Reflection
         {
             while ( sqlite3_step( pStatement ) == SQLITE_ROW )
             {
-                EnumConstantDescriptor constantDesc;
+                ReflectedEnumConstant constantDesc;
                 constantDesc.m_label = (char const*) sqlite3_column_text( pStatement, 0 );
                 constantDesc.m_value = sqlite3_column_int( pStatement, 1 );
-                type.AddValue( constantDesc );
+                type.AddEnumConstant( constantDesc );
             }
 
             if ( !IsValidSQLiteResult( sqlite3_finalize( pStatement ) ) )
@@ -768,7 +771,7 @@ namespace KRG::TypeSystem::Reflection
         return false;
     }
 
-    bool ReflectionDatabase::WriteAdditionalTypeData( TypeDescriptor const& type )
+    bool ReflectionDatabase::WriteAdditionalTypeData( ReflectedType const& type )
     {
         // Update Type Parents
         for ( auto& parent : type.m_parents )
@@ -803,7 +806,7 @@ namespace KRG::TypeSystem::Reflection
         return true;
     }
 
-    bool ReflectionDatabase::WriteAdditionalEnumData( TypeDescriptor const& type )
+    bool ReflectionDatabase::WriteAdditionalEnumData( ReflectedType const& type )
     {
         // Fill enum values table with all constants
         if ( !ExecuteSimpleQuery( "DELETE FROM `EnumConstants` WHERE `TypeID` = %u;", (uint32) type.m_ID ) )
@@ -811,7 +814,7 @@ namespace KRG::TypeSystem::Reflection
             return false;
         }
 
-        for ( auto const& enumConstant : type.m_constants )
+        for ( auto const& enumConstant : type.m_enumConstants )
         {
             if ( !ExecuteSimpleQuery( "INSERT INTO `EnumConstants`(`TypeID`,`Label`,`Value`) VALUES ( %u, \"%s\", %u );", (uint32) type.m_ID, enumConstant.second.m_label.c_str(), enumConstant.second.m_value ) )
             {

@@ -10,27 +10,28 @@
 
 namespace KRG::Animation
 {
+    enum class PoseBlendOptions
+    {
+        None = 0,
+        Interpolate,
+        Additive,
+        GlobalSpace,
+        LockUnmaskedBones,
+        LayeredBlend,
+    };
+
+    enum class RootMotionBlendOptions
+    {
+        None = 0,
+        Additive,
+        IgnoreSource,
+        IgnoreTarget
+    };
+
+    //-------------------------------------------------------------------------
+
     class KRG_ENGINE_ANIMATION_API Blender
     {
-    public:
-
-        enum class PoseBlendOptions
-        {
-            None = 0,
-            Interpolate,
-            Additive,
-            GlobalSpace,
-            LockUnmaskedBones,
-            LayeredBlend,
-        };
-
-        enum class RootMotionBlendOptions
-        {
-            None = 0,
-            Additive,
-            IgnoreSource,
-            IgnoreTarget
-        };
 
     private:
 

@@ -76,7 +76,7 @@ namespace KRG
 
             public:
 
-                ClangParserContext( SolutionDesc* pSolution, ReflectionDatabase* pDatabase )
+                ClangParserContext( SolutionInfo* pSolution, ReflectionDatabase* pDatabase )
                     : m_pTU( nullptr )
                     , m_pDatabase( pDatabase )
                     , m_pCurrentEntry( nullptr )
@@ -114,7 +114,7 @@ namespace KRG
                 CXTranslationUnit*                  m_pTU;
 
                 // Per solution
-                SolutionDesc*                       m_pSolution;
+                SolutionInfo*                       m_pSolution;
                 ReflectionDatabase*                 m_pDatabase;
                 TVector<HeaderID>                   m_headersToVisit;
 

@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #pragma once
 
 #include "Tools/Resource/Compilers/ResourceCompiler.h"
@@ -7,31 +6,26 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace Render
+    struct MaterialResourceDescriptor : public Resource::ResourceDescriptor
     {
-        struct MaterialResourceDescriptor : public Resource::ResourceDescriptor
-        {
-            KRG_REGISTER_TYPE( MaterialResourceDescriptor );
+        KRG_REGISTER_TYPE( MaterialResourceDescriptor );
 
-            bool IsValid();
+        bool IsValid();
 
-            EXPOSE TResourcePtr<Texture>       m_diffuseTexture;
-        };
+        EXPOSE TResourcePtr<Texture>       m_diffuseTexture;
+    };
 
-        //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-        class MaterialCompiler : public Resource::Compiler
-        {
-            static const int32 VERSION = 0;
+    class MaterialCompiler : public Resource::Compiler
+    {
+        static const int32 VERSION = 0;
 
-        public:
+    public:
 
-            MaterialCompiler();
-            virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
-        };
-    }
+        MaterialCompiler();
+        virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
+    };
 }
-
-#endif

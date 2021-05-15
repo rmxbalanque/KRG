@@ -37,7 +37,7 @@ namespace KRG
             inline FrameTime( Percentage percent, Seconds animationDuration, Seconds frameLength )
                 : FrameTime( percent, (uint32) ( animationDuration / frameLength ) )
             {
-                KRG_ASSERT( Math::IsNearlyZero( Math::FModF( animationDuration, frameLength ) ) );
+                KRG_ASSERT( Math::IsNearZero( Math::FModF( animationDuration, frameLength ) ) );
             }
 
             //-------------------------------------------------------------------------

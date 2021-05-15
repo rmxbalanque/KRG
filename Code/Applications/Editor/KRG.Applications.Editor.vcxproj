@@ -70,51 +70,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationToolkit\AnimationToolkit.cpp" />
-    <ClCompile Include="AnimationToolkit\AnimationToolkit_DataBrowser.cpp" />
-    <ClCompile Include="AnimationToolkit\FileTypes\SkeletonResourceFile.cpp" />
-    <ClCompile Include="AnimationToolkit\FileTypes\AnimationResourceFile.cpp" />
-    <ClCompile Include="Common\TreeView.cpp" />
-    <ClCompile Include="Common\ResourceDescriptorCreator.cpp" />
-    <ClCompile Include="Common\DataBrowser\DataBrowserTreeView.cpp" />
-    <ClCompile Include="Editor\EditorToolkit.cpp" />
-    <ClCompile Include="Editor\EditorModel.cpp" />
-    <ClCompile Include="Common\DataFilePicker.cpp" />
-    <ClCompile Include="Common\PropertyGrid\PropertyEditors.cpp" />
-    <ClCompile Include="Common\PropertyGrid\PropertyGrid.cpp" />
-    <ClCompile Include="MeshToolkit\FileTypes\MeshResourceFiles.cpp" />
-    <ClCompile Include="MeshToolkit\MeshToolkit.cpp" />
-    <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowser.cpp" />
-    <ClCompile Include="Common\TabWell.cpp" />
-    <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
+    <ClCompile Include="EditorApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AnimationToolkit\AnimationToolkit.h" />
-    <ClInclude Include="AnimationToolkit\AnimationToolkit_DataBrowser.h" />
-    <ClInclude Include="AnimationToolkit\FileTypes\SkeletonResourceFile.h" />
-    <ClInclude Include="AnimationToolkit\FileTypes\AnimationResourceFile.h" />
-    <ClInclude Include="Common\TreeView.h" />
-    <ClInclude Include="Common\ResourceDescriptorCreator.h" />
-    <ClInclude Include="Common\DataBrowser\DataBrowserTreeView.h" />
-    <ClInclude Include="Editor\EditorToolkit.h" />
-    <ClInclude Include="Editor\EditorModel.h" />
-    <ClInclude Include="Editor\EditorTool.h" />
-    <ClInclude Include="Common\DataFilePicker.h" />
-    <ClInclude Include="Common\PropertyGrid\PropertyEditors.h" />
-    <ClInclude Include="Common\PropertyGrid\PropertyGrid.h" />
-    <ClInclude Include="MeshToolkit\FileTypes\MeshResourceFiles.h" />
-    <ClInclude Include="MeshToolkit\MeshToolkit.h" />
-    <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowser.h" />
-    <ClInclude Include="Common\TabWell.h" />
-    <ClInclude Include="Editor\EditorFileTab.h" />
-    <ClInclude Include="Win32\EditorApplication_Win32.h" />
-    <ClInclude Include="Win32\Resource.h" />
+    <ClInclude Include="EditorApplication.h" />
+    <ClInclude Include="Resources\Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Win32\Apps.Editor.rc" />
+    <ResourceCompile Include="Resources\Apps.Editor.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Win32\Editor.ico" />
+    <Image Include="Resources\Editor.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Engine\Animation\KRG.Engine.Animation.vcxproj">
@@ -170,6 +136,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\Core\KRG.Tools.Core.vcxproj">
       <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Editor\KRG.Tools.Editor.vcxproj">
+      <Project>{01997900-abbd-4fbc-84bf-762cf32dc0af}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\Entity\KRG.Tools.Entity.vcxproj">
       <Project>{8f3df129-8be4-47b8-a96c-ac58b15ed3ba}</Project>

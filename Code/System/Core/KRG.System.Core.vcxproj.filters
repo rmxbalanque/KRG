@@ -1719,7 +1719,7 @@
     <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\weak_ptr.h">
       <Filter>ThirdParty\EA\EASTL\Include\EASTL</Filter>
     </ClInclude>
-    <ClInclude Include="Math\PhysicsMath.h" />
+    <ClInclude Include="Math\MathHelpers.h" />
     <ClInclude Include="Settings\ISettings.h" />
     <ClInclude Include="Serialization\JsonArchive.h" />
   </ItemGroup>

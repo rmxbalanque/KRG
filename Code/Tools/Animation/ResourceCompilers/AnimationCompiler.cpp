@@ -5,7 +5,6 @@
 #include "Engine/Animation/AnimationClip.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
-#include "System/TypeSystem/CoreTypeConversions.h"
 #include "Tools/Animation/Events/AnimationEventTrackInfo.h"
 
 //-------------------------------------------------------------------------
@@ -92,6 +91,7 @@ namespace KRG::Animation
         AnimationClip animData;
         animData.m_pSkeleton = resourceDescriptor.m_pSkeleton;
         TransferAndCompressAnimationData( *pRawAnimation, animData );
+        SetRootMotionData( *pRawAnimation, animData );
 
         // Handle events
         //-------------------------------------------------------------------------
@@ -185,7 +185,7 @@ namespace KRG::Animation
             float const& rawTranslationValueRangeLengthZ = rawTranslationValueRangeZ.GetLength();
 
             // We could arguably compress more by saving each component individually at the cost of sampling performance. If we absolutely need more compression, we can do it here
-            bool const isTranslationConstant = Math::IsNearlyZero( rawTranslationValueRangeLengthX ) && Math::IsNearlyZero( rawTranslationValueRangeLengthY ) && Math::IsNearlyZero( rawTranslationValueRangeLengthZ );
+            bool const isTranslationConstant = Math::IsNearZero( rawTranslationValueRangeLengthX ) && Math::IsNearZero( rawTranslationValueRangeLengthY ) && Math::IsNearZero( rawTranslationValueRangeLengthZ );
             if ( isTranslationConstant )
             {
                 Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[0];
@@ -248,7 +248,7 @@ namespace KRG::Animation
             float const& rawScaleValueRangeLengthZ = rawScaleValueRangeZ.GetLength();
 
             // We could arguably compress more by saving each component individually at the cost of sampling performance. If we absolutely need more compression, we can do it here
-            bool const isScaleConstant = Math::IsNearlyZero( rawScaleValueRangeLengthX ) && Math::IsNearlyZero( rawScaleValueRangeLengthY ) && Math::IsNearlyZero( rawScaleValueRangeLengthZ );
+            bool const isScaleConstant = Math::IsNearZero( rawScaleValueRangeLengthX ) && Math::IsNearZero( rawScaleValueRangeLengthY ) && Math::IsNearZero( rawScaleValueRangeLengthZ );
             if ( isScaleConstant )
             {
                 Transform const& rawBoneTransform = rawTrackData[boneIdx].m_transforms[0];
@@ -302,6 +302,47 @@ namespace KRG::Animation
 
             animClip.m_trackCompressionSettings.emplace_back( trackSettings );
         }
+    }
+
+    void AnimationCompiler::SetRootMotionData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const
+    {
+        if ( animClip.GetNumFrames() <= 1 )
+        {
+            animClip.m_totalRootMotionDelta = Transform::Identity;
+            animClip.m_averageLinearVelocity = 0;
+            animClip.m_averageAngularVelocity = 0;
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        float distanceCovered = 0.0f;
+        float rotationCovered = 0.0f;
+
+        animClip.m_rootMotionTrack.reserve( animClip.GetNumFrames() );
+
+        for ( auto i = 0u; i < animClip.GetNumFrames(); i++ )
+        {
+            // TEMP
+            static Quaternion const tempRotation( EulerAngles( 0, 0, -180 ) );
+            animClip.m_rootMotionTrack.emplace_back( Transform( tempRotation ) );
+
+            // Track deltas
+            if ( i > 0 )
+            {
+                Transform const deltaRoot = Transform::DeltaNoScale( animClip.m_rootMotionTrack[i - 1], animClip.m_rootMotionTrack[i] );
+                distanceCovered += deltaRoot.GetTranslation().GetLength3();
+
+                // We use the negative world forward since deltas are relative to the identity transform
+                Vector const deltaForward2D = deltaRoot.GetForwardVector().GetNormalized2();
+                Radians const deltaAngle = Vector::GetAngleBetweenVectors( deltaForward2D, Vector::WorldBackward ).GetClamped();
+                rotationCovered += Math::Abs( deltaAngle );
+            }
+        }
+
+        animClip.m_totalRootMotionDelta = Transform::DeltaNoScale( animClip.m_rootMotionTrack.front(), animClip.m_rootMotionTrack.back() );
+        animClip.m_averageLinearVelocity = distanceCovered / animClip.GetDuration();
+        animClip.m_averageAngularVelocity = rotationCovered / animClip.GetDuration();
     }
 
     //-------------------------------------------------------------------------

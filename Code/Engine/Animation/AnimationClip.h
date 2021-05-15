@@ -78,7 +78,7 @@ namespace KRG::Animation
     class KRG_ENGINE_ANIMATION_API AnimationClip : public Resource::IResource
     {
         KRG_REGISTER_RESOURCE( 'ANIM' );
-        KRG_SERIALIZE_MEMBERS( m_pSkeleton, m_duration, m_numFrames, m_compressedPoseData, m_trackCompressionSettings, m_isAdditive );
+        KRG_SERIALIZE_MEMBERS( m_pSkeleton, m_duration, m_numFrames, m_compressedPoseData, m_trackCompressionSettings, m_isAdditive, m_averageAngularVelocity, m_averageLinearVelocity, m_totalRootMotionDelta  );
 
         friend class AnimationCompiler;
         friend class AnimationLoader;
@@ -126,6 +126,7 @@ namespace KRG::Animation
         inline Seconds GetTime( uint32 frame ) const { return Seconds( GetPercentageThrough( frame ).ToFloat() * m_duration ); }
         inline Percentage GetPercentageThrough( uint32 frame ) const { return Percentage( ( (float) frame ) / m_numFrames ); }
         FrameTime GetFrameTime( Percentage const percentageThrough ) const;
+        SyncTrack const& GetSyncTrack() const{ return m_syncTrack; }
 
         // Pose
         //-------------------------------------------------------------------------
@@ -157,10 +158,27 @@ namespace KRG::Animation
             return Transform::DeltaNoScale( startTransform, endTransform );
         }
 
+        // Get the average linear velocity of the root for this animation
+        inline float GetAverageLinearVelocity() const { return m_averageAngularVelocity; }
+
+        // Get the average angular velocity (in the X/Y plane) of the root for this animation
+        inline Radians GetAverageAngularVelocity() const { return m_averageAngularVelocity; }
+
+        // Get the total root motion delta for this animation
+        inline Transform const& GetTotalRootMotionDelta() const { return m_totalRootMotionDelta; }
+
         // Events
         //-------------------------------------------------------------------------
 
-        // TODO
+        // Get all the events for the specified range. This function will append the results to the output array
+        inline void GetEventsForRange( TRange<Seconds> const& timeRange, TInlineVector<Event const*, 10>& outEvents ) const;
+
+        inline void GetEventsForRange( TRange<Percentage> const& timeRange, TInlineVector<Event const*, 10>& outEvents ) const
+        {
+            KRG_ASSERT( timeRange.m_min >= 0.0f && timeRange.m_min <= 1.0f );
+            KRG_ASSERT( timeRange.m_max >= 0.0f && timeRange.m_max <= 1.0f );
+            GetEventsForRange( TRange<Seconds>( m_duration * timeRange.m_min.ToFloat(), m_duration * timeRange.m_max.ToFloat() ), outEvents );
+        }
 
         // Debug
         //-------------------------------------------------------------------------
@@ -185,6 +203,11 @@ namespace KRG::Animation
         TVector<Transform>                      m_rootMotionTrack;
         TVector<Event*>                         m_events;
         SyncTrack                               m_syncTrack;
+
+        // Animation features
+        float                                   m_averageLinearVelocity = 0.0f; // In m/s
+        Radians                                 m_averageAngularVelocity = 0.0f; // In rad/s, only on the X/Y plane
+        Transform                               m_totalRootMotionDelta;
         bool                                    m_isAdditive = false;
     };
 }
@@ -370,5 +393,27 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         return pTrackData;
+    }
+
+    //-------------------------------------------------------------------------
+
+    inline void AnimationClip::GetEventsForRange( TRange<Seconds> const& timeRange, TInlineVector<Event const*, 10>& outEvents ) const
+    {
+        KRG_ASSERT( timeRange.IsValid() );
+        TInlineVector<Event const*, 10> events;
+
+        for ( auto const& pEvent : m_events )
+        {
+            // Events are sorted so as soon as we reach an event after the end of the time range, we're done
+            if ( pEvent->GetStartTime() > timeRange.m_max )
+            {
+                break;
+            }
+
+            if ( timeRange.Overlaps( pEvent->GetTimeRange() ) )
+            {
+                events.emplace_back( pEvent );
+            }
+        }
     }
 }

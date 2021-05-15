@@ -2,8 +2,6 @@
 #include "Engine/Navmesh/NavmeshSystem.h"
 #include "System/DevTools/ImguiX.h"
 
-#include <bfxSystem.h>
-#include <bfxPlanner.h>
 
 //-------------------------------------------------------------------------
 

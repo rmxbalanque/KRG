@@ -29,16 +29,7 @@ namespace KRG::TypeSystem::Serialization
         inline TypeWriter& operator<<( T const* pType )
         {
             PreSerializeType();
-            WriteNativeType( m_typeRegistry, m_writer, T::GetStaticTypeID(), pType );
-            m_numTypesSerialized++;
-            return *this;
-        }
-
-        template<typename T>
-        inline TypeWriter& operator<<( T const& pType )
-        {
-            PreSerializeType();
-            WriteNativeType( m_typeRegistry, m_writer, T::GetStaticTypeID(), &pType );
+            WriteNativeType( m_typeRegistry, m_writer, pType->GetTypeID(), pType );
             m_numTypesSerialized++;
             return *this;
         }
@@ -46,23 +37,10 @@ namespace KRG::TypeSystem::Serialization
         // Descriptor
         //-------------------------------------------------------------------------
 
-        template<>
-        inline TypeWriter& operator<< <TypeDescriptor>( TypeDescriptor const& typeDesc )
+        inline TypeWriter& operator<< ( TypeDescriptor const& typeDesc )
         {
             PreSerializeType();
             WriteTypeDescriptor( m_typeRegistry, m_writer, typeDesc );
-            m_numTypesSerialized++;
-            return *this;
-        }
-
-        // Type Model
-        //-------------------------------------------------------------------------
-
-        template<>
-        inline TypeWriter& operator<< <TypeInstanceModel>( TypeInstanceModel const& type )
-        {
-            PreSerializeType();
-            WriteTypeModel( m_typeRegistry, m_writer, type );
             m_numTypesSerialized++;
             return *this;
         }

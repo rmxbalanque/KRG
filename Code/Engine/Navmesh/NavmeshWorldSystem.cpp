@@ -2,7 +2,6 @@
 #include "Engine/Navmesh/Components/NavmeshComponent.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "System/Entity/Entity.h"
-#include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 

@@ -43,7 +43,7 @@ namespace KRG
 
             namespace
             {
-                bool SortProjectsByDependencies( TVector<ProjectDesc>& projects )
+                bool SortProjectsByDependencies( TVector<ProjectInfo>& projects )
                 {
                     int32 const numProjects = (int32) projects.size();
                     if ( numProjects <= 1 )
@@ -81,7 +81,7 @@ namespace KRG
 
                     // Update type list
                     uint32 depValue = 0;
-                    TVector<ProjectDesc> sortedProjects;
+                    TVector<ProjectInfo> sortedProjects;
                     sortedProjects.reserve( numProjects );
 
                     for ( auto& node : list )
@@ -241,8 +241,8 @@ namespace KRG
                 bool moduleHeaderFound = false;
                 bool moduleHeaderUnregistered = false;
 
-                ProjectDesc prj;
-                prj.m_ID = ProjectDesc::GetProjectID( prjPath );
+                ProjectInfo prj;
+                prj.m_ID = ProjectInfo::GetProjectID( prjPath );
                 prj.m_path = prjPath.GetParentDirectory();
 
                 std::string stdLine;
@@ -266,7 +266,7 @@ namespace KRG
                         firstIdx += 27;
                         String dependencyPath = line.substr( firstIdx, line.find( "\">" ) - firstIdx );
                         dependencyPath = prjPath.GetParentDirectory() + dependencyPath;
-                        auto dependencyID = ProjectDesc::GetProjectID( dependencyPath );
+                        auto dependencyID = ProjectInfo::GetProjectID( dependencyPath );
                         prj.m_dependencies.push_back( dependencyID );
                         continue;
                     }
@@ -304,8 +304,8 @@ namespace KRG
                         {
                             case HeaderProcessResult::ParseHeader:
                             {
-                                HeaderDesc headerRecord;
-                                headerRecord.m_ID = HeaderDesc::GetHeaderID( headerFileFullPath );
+                                HeaderInfo headerRecord;
+                                headerRecord.m_ID = HeaderInfo::GetHeaderID( headerFileFullPath );
                                 headerRecord.m_projectID = prj.m_ID;
                                 headerRecord.m_filePath = headerFileFullPath;
                                 headerRecord.m_timestamp = FileSystem::GetFileModifiedTime( headerFileFullPath );
@@ -590,7 +590,7 @@ namespace KRG
                             // Try to get existing record
                             if ( !isDirty )
                             {
-                                HeaderDesc const* pExistingRecord = m_database.GetHeaderDesc( header.m_ID );
+                                HeaderInfo const* pExistingRecord = m_database.GetHeaderDesc( header.m_ID );
                                 if ( pExistingRecord != nullptr  )
                                 {
                                     KRG_ASSERT( pExistingRecord->m_ID != 0 );
@@ -654,7 +654,7 @@ namespace KRG
                 std::cout << " * Reflecting C++ Code - ";
 
                 // Create list of all headers to parse
-                TVector<HeaderDesc*> headersToParse;
+                TVector<HeaderInfo*> headersToParse;
                 for ( auto& prj : m_solution.m_projects )
                 {
                     if ( !prj.m_dirtyHeaders.empty() )

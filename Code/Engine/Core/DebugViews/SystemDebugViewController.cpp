@@ -1,7 +1,6 @@
 #include "SystemDebugViewController.h"
 #include "System/DevTools/ImguiX.h"
 #include "System/Core/Profiling/Profiling.h"
-#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 

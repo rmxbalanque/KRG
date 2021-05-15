@@ -3,7 +3,7 @@
 #include "_Module/API.h"
 #include "EntityComponentModel.h"
 #include "EntitySystemModel.h"
-#include "Tools/Core/TypeSystem/TypeInstanceModel.h"
+#include "EntityPropertyInstanceModel.h"
 
 //-------------------------------------------------------------------------
 

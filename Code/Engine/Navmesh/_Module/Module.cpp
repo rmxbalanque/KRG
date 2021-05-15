@@ -1,6 +1,5 @@
 #include "Module.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
-#include "System/Core/Debug/DebugDrawingSystem.h"
 
 //-------------------------------------------------------------------------
 

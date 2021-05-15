@@ -109,7 +109,7 @@ namespace KRG
         {
             KRG_ASSERT( IsSetAndValid() );
             T const length = GetLength();
-            Percentage const percentageThrough( ( length != 0 ) ? ( Clamp( v ) - m_min ) / length : 0 );
+            Percentage const percentageThrough( ( length != 0 ) ? ( GetClampedValue( v ) - m_min ) / length : 0 );
             return percentageThrough;
         }
 
@@ -124,7 +124,7 @@ namespace KRG
         inline T GetValueForPercentageThroughClamped( Percentage const percentageThrough ) const
         {
             KRG_ASSERT( IsSetAndValid() );
-            auto const clampedPercentage = Math::Clamp( percentageThrough, 0.0f, 1.0f );
+            auto const clampedPercentage = Math::Clamp( percentageThrough.ToFloat(), 0.0f, 1.0f );
             return GetValueForPercentageThrough( clampedPercentage );
         }
 

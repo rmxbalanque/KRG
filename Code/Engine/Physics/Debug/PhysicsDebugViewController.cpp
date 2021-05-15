@@ -2,7 +2,6 @@
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/Components/PhysicsComponent.h"
 #include "Engine/Physics/PhysicsWorldSystem.h"
-#include "Engine/Physics/PhysX.h"
 #include "System/DevTools/ImguiX.h"
 
 //-------------------------------------------------------------------------

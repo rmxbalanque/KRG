@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #pragma once
 
 #include "Tools/Resource/RawAssets/RawMesh.h"
@@ -7,12 +6,8 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fbx
 {
-    namespace Fbx
-    {
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile = String() );
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences = 4 );
-    }
+    KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile = String() );
+    KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences = 4 );
 }
-#endif

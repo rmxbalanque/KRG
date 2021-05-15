@@ -136,6 +136,9 @@
     <ProjectReference Include="..\..\Tools\Core\KRG.Tools.Core.vcxproj">
       <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Editor\KRG.Tools.Editor.vcxproj">
+      <Project>{01997900-abbd-4fbc-84bf-762cf32dc0af}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Tools\Entity\KRG.Tools.Entity.vcxproj">
       <Project>{8f3df129-8be4-47b8-a96c-ac58b15ed3ba}</Project>
     </ProjectReference>

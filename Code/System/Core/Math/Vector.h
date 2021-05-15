@@ -25,7 +25,10 @@ namespace KRG
 
         static Vector const Origin;
         static Vector const WorldForward;
+        static Vector const WorldBackward;
         static Vector const WorldUp;
+        static Vector const WorldDown;
+        static Vector const WorldLeft;
         static Vector const WorldRight;
 
         static Vector const NegativeOne;
@@ -189,6 +192,9 @@ namespace KRG
         KRG_FORCE_INLINE Vector Dot2( Vector const& other ) const;
         KRG_FORCE_INLINE Vector Dot3( Vector const& other ) const;
         KRG_FORCE_INLINE Vector Dot4( Vector const& other ) const;
+        KRG_FORCE_INLINE float GetDot2( Vector const& other ) const { return Dot2( other ).ToFloat(); }
+        KRG_FORCE_INLINE float GetDot3( Vector const& other ) const { return Dot3( other ).ToFloat(); }
+        KRG_FORCE_INLINE float GetDot4( Vector const& other ) const { return Dot4( other ).ToFloat(); }
 
         KRG_FORCE_INLINE Vector ScalarProjection( Vector const& other ) const;
         KRG_FORCE_INLINE float GetScalarProjection( Vector const& other ) const { return ScalarProjection( other ).ToFloat(); }

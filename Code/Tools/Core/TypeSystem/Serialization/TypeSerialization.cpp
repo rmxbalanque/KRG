@@ -1,7 +1,6 @@
 #include "TypeSerialization.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Logging/Log.h"
-#include "Tools/Core/TypeSystem/TypeInstanceModel.h"
 
 //-------------------------------------------------------------------------
 // Descriptors
@@ -12,9 +11,9 @@ namespace KRG::TypeSystem::Serialization
     // Type descriptor reader needs to support both nested and unnested formats as it needs to read the outputs from both descriptor serialization and type model serialization
     struct TypeDescriptorReader
     {
-        static bool ReadArrayDescriptor( TypeRegistry const& typeRegistry, rapidjson::Value const& arrayValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix )
+        static bool ReadArrayDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, rapidjson::Value const& arrayValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix )
         {
-            KRG_ASSERT( arrayValue.IsArray() );
+            KRG_ASSERT( pTypeInfo != nullptr && arrayValue.IsArray() );
 
             int32 const numElements = (int32) arrayValue.Size();
             for ( int32 i = 0; i < numElements; i++ )
@@ -28,41 +27,27 @@ namespace KRG::TypeSystem::Serialization
                 else if ( arrayValue[i].IsObject() )
                 {
                     String const newPrefix = String().sprintf( "%s%d/", propertyPathPrefix.c_str(), i );
-                    if ( !ReadTypeDescriptor( typeRegistry, arrayValue[i], outPropertyValues, newPrefix ) )
+                    if ( !ReadTypeDescriptor( typeRegistry, pTypeInfo, arrayValue[i], outPropertyValues, newPrefix ) )
                     {
                         return false;
                     }
                 }
                 else // Add regular property value
                 {
-                    String const propertyPath = String().sprintf( "%s%d", propertyPathPrefix.c_str(), i );
-                    outPropertyValues.push_back( { PropertyPath( propertyPath ), arrayValue[i].GetString() } );
+                    auto const propertyPath = PropertyPath( String().sprintf( "%s%d", propertyPathPrefix.c_str(), i ) );
+                    auto pPropertyInfo = typeRegistry.ResolvePropertyPath( pTypeInfo, propertyPath );
+                    if ( pPropertyInfo != nullptr )
+                    {
+                        outPropertyValues.push_back( PropertyDescriptor( typeRegistry, propertyPath, *pPropertyInfo, arrayValue[i].GetString() ) );
+                    }
                 }
             }
 
             return true;
         }
 
-        static bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, rapidjson::Value const& typeObjectValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix = String() )
+        static bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, rapidjson::Value const& typeObjectValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix = String() )
         {
-            auto const typeIDIter = typeObjectValue.FindMember( Constants::s_typeID );
-            if ( typeIDIter == typeObjectValue.MemberEnd() )
-            {
-                KRG_LOG_ERROR( "TypeSystem", "Missing typeID for object" );
-                return false;
-            }
-
-            // Get type info
-            //-------------------------------------------------------------------------
-
-            TypeID const typeID( typeIDIter->value.GetString() );
-            auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
-            if ( pTypeInfo == nullptr )
-            {
-                KRG_LOG_ERROR( "TypeSystem", "Unknown type encountered: %s", typeID.c_str() );
-                return false;
-            }
-
             // Read properties
             //-------------------------------------------------------------------------
 
@@ -77,12 +62,12 @@ namespace KRG::TypeSystem::Serialization
                 if ( itr->value.IsArray() )
                 {
                     String const newPrefix = String().sprintf( "%s%s/", propertyPathPrefix.c_str(), itr->name.GetString() );
-                    ReadArrayDescriptor( typeRegistry, itr->value, outPropertyValues, newPrefix );
+                    ReadArrayDescriptor( typeRegistry, pTypeInfo, itr->value, outPropertyValues, newPrefix );
                 }
                 else if ( itr->value.IsObject() )
                 {
                     String const newPrefix = String().sprintf( "%s%s/", propertyPathPrefix.c_str(), itr->name.GetString() );
-                    if ( !ReadTypeDescriptor( typeRegistry, itr->value, outPropertyValues, newPrefix ) )
+                    if ( !ReadTypeDescriptor( typeRegistry, pTypeInfo, itr->value, outPropertyValues, newPrefix ) )
                     {
                         return false;
                     }
@@ -117,6 +102,9 @@ namespace KRG::TypeSystem::Serialization
             return false;
         }
 
+        // Get type info
+        //-------------------------------------------------------------------------
+
         auto const typeIDIter = typeObjectValue.FindMember( Constants::s_typeID );
         if ( typeIDIter == typeObjectValue.MemberEnd() )
         {
@@ -124,8 +112,19 @@ namespace KRG::TypeSystem::Serialization
             return false;
         }
 
+        TypeID const typeID( typeIDIter->value.GetString() );
+        auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
+        if ( pTypeInfo == nullptr )
+        {
+            KRG_LOG_ERROR( "TypeSystem", "Unknown type encountered: %s", typeID.c_str() );
+            return false;
+        }
+
+        // Read descriptor
+        //-------------------------------------------------------------------------
+
         outDesc.m_typeID = TypeID( typeIDIter->value.GetString() );
-        return TypeDescriptorReader::ReadTypeDescriptor( typeRegistry, typeObjectValue, outDesc.m_properties );
+        return TypeDescriptorReader::ReadTypeDescriptor( typeRegistry, pTypeInfo, typeObjectValue, outDesc.m_properties );
     }
 
     //-------------------------------------------------------------------------
@@ -227,124 +226,6 @@ namespace KRG::TypeSystem::Serialization
         outDesc.m_properties.clear();
         PropertyPath path;
         NativeTypeDescriber::DescribeType( typeRegistry, outDesc, typeID, pTypeInstance, path );
-    }
-}
-
-//-------------------------------------------------------------------------
-// Models
-//-------------------------------------------------------------------------
-
-namespace KRG::TypeSystem::Serialization
-{
-    bool ReadTypeModel( TypeRegistry const& typeRegistry, rapidjson::Value const& typeObjectValue, TypeInstanceModel& outType )
-    {
-        if ( !typeObjectValue.IsObject() )
-        {
-            KRG_LOG_ERROR( "TypeSystem", "Supplied json value is not an object" );
-            return false;
-        }
-
-        if ( !typeObjectValue.HasMember( Constants::s_typeID ) )
-        {
-            KRG_LOG_ERROR( "TypeSystem", "Missing typeID for object" );
-            return false;
-        }
-
-        TypeDescriptor typeDesc;
-        if ( !ReadTypeDescriptor( typeRegistry, typeObjectValue, typeDesc ) )
-        {
-            return false;
-        }
-
-        outType = TypeInstanceModel( typeRegistry, typeDesc );
-        return true;
-    }
-
-    //-------------------------------------------------------------------------
-
-    // Type model serialization will not collapse all properties into a single list per type, this will result in a nested output
-    struct TypeModelWriter
-    {
-        static void WriteProperty( RapidJsonWriter& writer, PropertyInstanceModel const& propertyModel )
-        {
-            if ( propertyModel.IsStructure() )
-            {
-                WriteStructure( writer, propertyModel );
-            }
-            else if ( propertyModel.IsArray() )
-            {
-                WriteArray( writer, propertyModel );
-            }
-            else
-            {
-                WriteCoreType( writer, propertyModel );
-            }
-        }
-
-        static void WriteArray( RapidJsonWriter& writer, PropertyInstanceModel const& propertyModel )
-        {
-            if ( propertyModel.IsDefaultValue() )
-            {
-                return;
-            }
-
-            //-------------------------------------------------------------------------
-
-            writer.Key( propertyModel.GetName() );
-
-            writer.StartArray();
-
-            for ( auto const& childProperty : propertyModel.GetProperties() )
-            {
-                if ( childProperty.IsStructure() || childProperty.IsArray() )
-                {
-                    WriteProperty( writer, childProperty );
-                }
-                else
-                {
-                    writer.Key( childProperty.GetStringValue().c_str() );
-                }
-            }
-
-            writer.EndArray();
-        }
-
-        static void WriteCoreType( RapidJsonWriter& writer, PropertyInstanceModel const& propertyModel )
-        {
-            if ( !propertyModel.IsDefaultValue() )
-            {
-                writer.Key( propertyModel.GetName() );
-                writer.Key( propertyModel.GetStringValue().c_str() );
-            }
-        }
-
-        static void WriteStructure( RapidJsonWriter& writer, PropertyInstanceModel const& propertyModel )
-        {
-            KRG_ASSERT( propertyModel.IsStructure() );
-
-            writer.StartObject();
-
-            // Every type has to have a type ID
-            writer.Key( Constants::s_typeID );
-            writer.String( propertyModel.GetStructureTypeName() );
-
-            if ( !propertyModel.IsDefaultValue() )
-            {
-                // Write all property values
-                for ( auto const& propertyValue : propertyModel.GetProperties() )
-                {
-                    WriteProperty( writer, propertyValue );
-                }
-            }
-
-            writer.EndObject();
-        }
-    };
-
-    void WriteTypeModel( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeInstanceModel const& type )
-    {
-        KRG_ASSERT( type.IsValid() );
-        TypeModelWriter::WriteStructure( writer, *type.GetAsPropertyInstance() );
     }
 }
 

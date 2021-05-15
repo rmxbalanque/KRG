@@ -32,6 +32,8 @@
     <ClInclude Include="ThirdParty\imgui\imstb_textedit.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_truetype.h" />
     <ClInclude Include="Renderer\Shaders\ImguiShaders.h" />
+    <ClInclude Include="ThirdParty\imnodes\imnodes.h" />
+    <ClInclude Include="ThirdParty\imnodes\imnodes_internal.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +63,7 @@
     <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="ThirdParty\imnodes\imnodes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\imgui.natvis" />

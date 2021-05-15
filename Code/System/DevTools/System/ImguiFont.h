@@ -14,7 +14,8 @@ namespace KRG::ImGuiX
 {
     enum class Font : uint8
     {
-        Small = 0,
+        ExtraSmall = 0, // Mostly for smaller icon size
+        Small,
         SmallBold,
         Medium,
         MediumBold,

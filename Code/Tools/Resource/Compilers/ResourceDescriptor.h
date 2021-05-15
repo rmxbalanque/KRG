@@ -1,8 +1,6 @@
-#ifdef _WIN32
-
 #pragma once
 
-#include "../_Module/API.h"
+#include "Tools/Resource/_Module/API.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Resource/ResourceID.h"
 
@@ -18,5 +16,3 @@ namespace KRG::Resource
         static void ReadCompileDependencies( String const& descriptorFileContents, TVector<DataPath>& outDependencies );
     };
 }
-
-#endif

@@ -1,16 +1,11 @@
 #include "PhysicsMeshCompiler.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Resource/RawAssets/RawMesh.h"
-#include "Engine/Physics/Physx.h"
 #include "Engine/Physics/PhysicsMesh.h"
 #include "Engine/Physics/PhysicsMaterial.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
-#include <PxPhysicsAPI.h>
-#include <extensions/PxDefaultAllocator.h>
-#include <extensions/PxDefaultErrorCallback.h>
-#include <cooking/PxCooking.h>
 
 //-------------------------------------------------------------------------
 

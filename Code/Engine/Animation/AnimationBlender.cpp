@@ -1,5 +1,4 @@
 #include "AnimationBlender.h"
-#include "System/Core/Types/BitFlags.h"
 
 //-------------------------------------------------------------------------
 

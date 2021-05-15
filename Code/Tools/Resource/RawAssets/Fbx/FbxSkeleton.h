@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #pragma once
 #include "Tools/Resource/_Module/API.h"
 #include "Tools/Resource/RawAssets/RawSkeleton.h"
@@ -7,18 +6,14 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Fbx
 {
-    namespace Fbx 
-    {
-        class FbxSceneContext;
+    class FbxSceneContext;
 
-        //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-        KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName );
+    KRG_TOOLS_RESOURCE_API TUniquePtr<RawAssets::RawSkeleton> ReadSkeleton( FileSystem::Path const& sourceFilePath, String const& skeletonRootBoneName );
 
-		// Temp HACK
-        KRG_TOOLS_RESOURCE_API void ReadSkeleton( FbxSceneContext const& sceneCtx, String const& skeletonRootBoneName, RawAssets::RawSkeleton& skeleton );
-    }
+    // Temp HACK
+    KRG_TOOLS_RESOURCE_API void ReadSkeleton( FbxSceneContext const& sceneCtx, String const& skeletonRootBoneName, RawAssets::RawSkeleton& skeleton );
 }
-#endif

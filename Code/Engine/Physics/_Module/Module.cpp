@@ -1,6 +1,5 @@
 #include "Module.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
-#include "Engine/Physics/PhysicsMaterialDatabase.h"
 #include "Engine/Physics/PhysicsSettings.h"
 
 //-------------------------------------------------------------------------

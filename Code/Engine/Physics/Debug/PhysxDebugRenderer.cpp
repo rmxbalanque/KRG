@@ -1,6 +1,5 @@
 #include "PhysxDebugRenderer.h"
 #include "Engine/Physics/PhysicsSystem.h"
-#include "Engine/Physics/PhysX.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------

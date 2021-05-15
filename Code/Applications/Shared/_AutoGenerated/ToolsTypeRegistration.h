@@ -7,6 +7,8 @@
 #include "System/TypeSystem/TypeRegistry.h"
 
 #include "D:\Kruger\Code\Tools\Render\_Module\Module.h"
+#include "D:\Kruger\Code\Tools\Entity\_Module\Module.h"
+#include "D:\Kruger\Code\Tools\Physics\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
@@ -15,9 +17,8 @@
 #include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
 #include "D:\Kruger\Code\Game\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Tools\Resource\_Module\Module.h"
+#include "D:\Kruger\Code\Tools\Editor\_Module\Module.h"
 #include "D:\Kruger\Code\Tools\Animation\_Module\Module.h"
-#include "D:\Kruger\Code\Tools\Physics\_Module\Module.h"
-#include "D:\Kruger\Code\Tools\Entity\_Module\Module.h"
 
 namespace KRG
 {
@@ -36,6 +37,7 @@ namespace KRG
             KRG::Physics::EngineModule::RegisterTypes( typeRegistry );
             KRG::Game::GameModule::RegisterTypes( typeRegistry );
             KRG::Resource::ToolsModule::RegisterTypes( typeRegistry );
+            KRG::Editor::ToolsModule::RegisterTypes( typeRegistry );
             KRG::Animation::ToolsModule::RegisterTypes( typeRegistry );
             KRG::Physics::ToolsModule::RegisterTypes( typeRegistry );
             KRG::EntityModel::ToolsModule::RegisterTypes( typeRegistry );
@@ -63,6 +65,7 @@ namespace KRG
             KRG::EntityModel::ToolsModule::UnregisterTypes( typeRegistry );
             KRG::Physics::ToolsModule::UnregisterTypes( typeRegistry );
             KRG::Animation::ToolsModule::UnregisterTypes( typeRegistry );
+            KRG::Editor::ToolsModule::UnregisterTypes( typeRegistry );
             KRG::Resource::ToolsModule::UnregisterTypes( typeRegistry );
             KRG::Game::GameModule::UnregisterTypes( typeRegistry );
             KRG::Physics::EngineModule::UnregisterTypes( typeRegistry );

@@ -1,5 +1,4 @@
 #include "AnimDebugDrawing.h"
-#include "Engine/Animation/AnimationPose.h"
 
 //-------------------------------------------------------------------------
 

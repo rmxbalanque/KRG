@@ -128,7 +128,7 @@ namespace KRG
         }
 
         template<typename T>
-        KRG_FORCE_INLINE bool IsNearlyZero( T value, float epsilon = Epsilon )
+        KRG_FORCE_INLINE bool IsNearZero( T value, float epsilon = Epsilon )
         {
             return abs( value ) <= epsilon;
         }
@@ -208,6 +208,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    enum NoInit { SkipInit };
     enum ZeroInit { InitToZero };
     enum IdentityInit { InitToIdentity };
 
@@ -528,10 +529,10 @@ namespace KRG
         inline Degrees( float degrees ) : m_value( degrees ) {}
         inline explicit Degrees( Radians const& radians );
 
-        inline explicit operator float() const { return m_value; }
-        inline operator Radians() const;
-        inline float ToFloat() const { return m_value; }
-        inline Radians ToRadians() const;
+        KRG_FORCE_INLINE operator float() const { return m_value; }
+        KRG_FORCE_INLINE operator Radians() const;
+        KRG_FORCE_INLINE float ToFloat() const { return m_value; }
+        KRG_FORCE_INLINE Radians ToRadians() const;
 
         inline Degrees operator-() const { return Degrees( -m_value ); }
 
@@ -676,10 +677,10 @@ namespace KRG
         inline Radians( float radians ) : m_value( radians ) {}
         inline explicit Radians( Degrees const& degrees );
 
-        inline operator float() const { return m_value; }
-        inline operator Degrees() const { return ToDegrees(); }
-        inline float ToFloat() const { return m_value; }
-        inline Degrees ToDegrees() const { return m_value * Math::RadiansToDegrees; }
+        KRG_FORCE_INLINE operator float() const { return m_value; }
+        KRG_FORCE_INLINE operator Degrees() const { return ToDegrees(); }
+        KRG_FORCE_INLINE float ToFloat() const { return m_value; }
+        KRG_FORCE_INLINE Degrees ToDegrees() const { return m_value * Math::RadiansToDegrees; }
 
         inline Radians operator-() const { return Radians( -m_value ); }
 

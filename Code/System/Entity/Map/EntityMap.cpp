@@ -95,22 +95,25 @@ namespace KRG::EntityModel
         // Lock the map
         Threading::RecursiveScopeLock lock( m_mutex );
 
-        // Queue removal
-        if ( m_isCollectionInstantiated )
+        // Check if the entity is in the add queue, if so just cancel the request
+        int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
+        if ( entityIdx != InvalidIndex )
         {
-            // Note! We explicitly dont support the case where you add and remove an entity on the same frame. Try to avoid doing stupid things!
-            KRG_ASSERT( !VectorContains( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } ) );
-
-            pEntityToRemove = FindEntity( entityID );
-            KRG_ASSERT( pEntityToRemove != nullptr );
-            m_entitiesToRemove.emplace_back( RemovalRequest( pEntityToRemove, false ) );
-        }
-        else // Cancel add request if the collection doesnt exists yet
-        {
-            int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
-            KRG_ASSERT( entityIdx != InvalidIndex );
             pEntityToRemove = m_entitiesToAdd[entityIdx];
             m_entitiesToAdd.erase_unsorted( m_entitiesToAdd.begin() + entityIdx );
+        }
+        else // Queue removal
+        {
+            if ( m_isCollectionInstantiated )
+            {
+                pEntityToRemove = FindEntity( entityID );
+                KRG_ASSERT( pEntityToRemove != nullptr );
+                m_entitiesToRemove.emplace_back( RemovalRequest( pEntityToRemove, false ) );
+            }
+            else // Unknown entity
+            {
+                KRG_UNREACHABLE_CODE();
+            }
         }
 
         return pEntityToRemove;
@@ -123,23 +126,27 @@ namespace KRG::EntityModel
         // Lock the map
         Threading::RecursiveScopeLock lock( m_mutex );
 
-        // Queue removal
-        if ( m_isCollectionInstantiated )
+        // Check if the entity is in the add queue, if so just cancel the request
+        int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
+        if ( entityIdx != InvalidIndex )
         {
-            // Note! We explicitly dont support the case where you add and destroy an entity on the same frame. Try to avoid doing stupid things!
-            KRG_ASSERT( !VectorContains( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } ) );
-
-            pEntityToDestroy = FindEntity( entityID );
-            KRG_ASSERT( pEntityToDestroy != nullptr );
-            m_entitiesToRemove.emplace_back( RemovalRequest( pEntityToDestroy, true ) );
-        }
-        else // Cancel add request if the collection doesnt exists yet
-        {
-            int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
-            KRG_ASSERT( entityIdx != InvalidIndex );
             pEntityToDestroy = m_entitiesToAdd[entityIdx];
             m_entitiesToAdd.erase_unsorted( m_entitiesToAdd.begin() + entityIdx );
             KRG::Delete( pEntityToDestroy );
+        }
+        else
+        {
+            // Queue removal
+            if ( m_isCollectionInstantiated )
+            {
+                pEntityToDestroy = FindEntity( entityID );
+                KRG_ASSERT( pEntityToDestroy != nullptr );
+                m_entitiesToRemove.emplace_back( RemovalRequest( pEntityToDestroy, true ) );
+            }
+            else// Unknown entity
+            {
+                KRG_UNREACHABLE_CODE();
+            }
         }
     }
 

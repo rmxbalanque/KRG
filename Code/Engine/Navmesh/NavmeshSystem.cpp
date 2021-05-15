@@ -1,7 +1,4 @@
 #include "NavmeshSystem.h"
-#include "Engine/Navmesh/Components/NavmeshComponent.h"
-#include "System/Entity/Entity.h"
-#include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 

@@ -30,6 +30,8 @@
     <ClInclude Include="RawAssets\RawAssetReader.h" />
     <ClInclude Include="RawAssets\RawMesh.h" />
     <ClInclude Include="RawAssets\RawSkeleton.h" />
+    <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
+    <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
     <ClInclude Include="_Module\API.h" />
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>

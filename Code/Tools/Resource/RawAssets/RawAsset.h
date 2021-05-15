@@ -1,7 +1,6 @@
-#ifdef _WIN32
 #pragma once
 
-#include "../_Module/API.h"
+#include "Tools/Resource/_Module/API.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Math/Matrix.h"
 #include "System/Core/Types/String.h"
@@ -55,4 +54,3 @@ namespace KRG::RawAssets
         TVector<String>                     m_errors;
     };
 }
-#endif

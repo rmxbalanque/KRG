@@ -1,5 +1,4 @@
 #include "ResourceCompiler.h"
-#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 

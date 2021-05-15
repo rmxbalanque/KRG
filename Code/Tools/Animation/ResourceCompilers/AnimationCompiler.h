@@ -52,6 +52,8 @@ namespace KRG::Animation
 
         void TransferAndCompressAnimationData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const;
 
+        void SetRootMotionData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const;
+
         bool CreateEventsData( Resource::CompileContext const& ctx, AnimationResourceDescriptor const& animResourceDesc, RawAssets::RawAnimation const& rawAnimData, AnimationEventData& outEventData ) const;
     };
 }

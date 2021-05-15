@@ -82,6 +82,8 @@
       <Filter>_Module</Filter>
     </ClInclude>
     <ClInclude Include="Compilers\ResourceCompilerRegistry.h" />
+    <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
+    <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RawAssets\RawAnimation.cpp">

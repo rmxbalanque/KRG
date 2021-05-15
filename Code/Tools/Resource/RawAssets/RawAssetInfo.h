@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #pragma once
 
 #include "../_Module/API.h"
@@ -49,4 +48,3 @@ namespace KRG::RawAssets
         TVector<RawSkeletonInfo>        m_skeletons;
     };
 }
-#endif

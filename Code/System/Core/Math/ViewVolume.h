@@ -31,14 +31,14 @@ namespace KRG
 
             inline static Radians ConvertVerticalToHorizontalFOV( float width, float height, Radians VerticalAngle )
             {
-                KRG_ASSERT( !Math::IsNearlyZero( height ) );
+                KRG_ASSERT( !Math::IsNearZero( height ) );
                 Radians const horizontalFOV = 2.0f * Math::ATan( width / height * Math::Tan( VerticalAngle / 2.0f ) );
                 return horizontalFOV;
             }
 
             inline static Radians ConvertHorizontalToVerticalFOV( float width, float height, Radians HorizontalAngle )
             {
-                KRG_ASSERT( !Math::IsNearlyZero( width ) );
+                KRG_ASSERT( !Math::IsNearZero( width ) );
                 Radians const verticalFOV = 2.0f * Math::ATan( height / width * Math::Tan( HorizontalAngle / 2.0f ) );
                 return verticalFOV;
             }

@@ -38,8 +38,8 @@ namespace KRG
     public:
 
         ResourceID() = default;
-        ResourceID( DataPath const& path ) : m_dataPath( path ) { KRG_ASSERT( path.IsValid() ); OnDataPathChanged(); }
-        ResourceID( DataPath&& path ) : m_dataPath( std::forward<DataPath>( path ) ) { KRG_ASSERT( path.IsValid() ); OnDataPathChanged(); }
+        ResourceID( DataPath const& path ) : m_dataPath( path ) { KRG_ASSERT( m_dataPath.IsValid() ); OnDataPathChanged(); }
+        ResourceID( DataPath&& path ) : m_dataPath( std::move( path ) ) { KRG_ASSERT( m_dataPath.IsValid() ); OnDataPathChanged(); }
         inline ResourceID( String&& path ) : m_dataPath( path ) { OnDataPathChanged(); }
         inline ResourceID( String const& path ) : m_dataPath( path ) { OnDataPathChanged(); }
         inline ResourceID( char const* pPath ) : m_dataPath( pPath ) { OnDataPathChanged(); }

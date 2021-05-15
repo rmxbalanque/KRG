@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #include "FbxMesh.h"
 #include "FbxSceneContext.h"
 #include "FbxSkeleton.h"
@@ -578,5 +577,3 @@ namespace KRG
         return RawAssets::FbxMeshFileReader::ReadSkeletalMesh( sourceFilePath, maxBoneInfluences );
     }
 }
-
-#endif

@@ -2,57 +2,66 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="_Module">
-      <UniqueIdentifier>{272d5f3b-cdb2-4d01-9d99-dcec8233c1e0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\cgltf">
-      <UniqueIdentifier>{81e94e79-f1f7-44d9-a04f-7a78ca561701}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty">
-      <UniqueIdentifier>{f5dde476-fd67-4bd8-a151-5b7459a48e27}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\sqlite">
-      <UniqueIdentifier>{9edfa23a-f572-4b4c-8e0c-734dc43aac10}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FileSystem">
-      <UniqueIdentifier>{0a0ad641-a011-4182-b55c-d98aae87f166}</UniqueIdentifier>
+      <UniqueIdentifier>{7366dbc3-78c4-41dd-97ae-39e53df0f233}</UniqueIdentifier>
     </Filter>
     <Filter Include="Thirdparty">
-      <UniqueIdentifier>{b320cfab-234b-4458-8509-b259cefd6264}</UniqueIdentifier>
+      <UniqueIdentifier>{7fdbd03f-3ba4-4ea2-bc8f-cc48456c1b3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\sqlite">
+      <UniqueIdentifier>{119fc3f8-31e7-48b7-8707-380a6a372a2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{69c9aa8d-5d7d-4418-b75e-58cd5ffbdbbc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Thirdparty\pfd">
-      <UniqueIdentifier>{6e291da8-bd02-4a76-80c6-504271668133}</UniqueIdentifier>
+      <UniqueIdentifier>{2adba5a1-5c53-4df5-a992-7cf0830813d1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Thirdparty\subprocess">
-      <UniqueIdentifier>{becdabc8-d120-48a2-aec3-2f6f7fdd9041}</UniqueIdentifier>
+      <UniqueIdentifier>{5775d0a2-6625-49af-9ffd-47663ae52c79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileSystem">
+      <UniqueIdentifier>{d86a36fa-098b-4094-9feb-3b9c9a41aa13}</UniqueIdentifier>
     </Filter>
     <Filter Include="TypeSystem\Serialization">
-      <UniqueIdentifier>{7f2f4dbf-0bd2-4a8b-9801-ae18a3f4bf65}</UniqueIdentifier>
+      <UniqueIdentifier>{4fa1e191-0d35-415e-b8a8-262d8003288a}</UniqueIdentifier>
     </Filter>
     <Filter Include="TypeSystem">
-      <UniqueIdentifier>{5698e165-20ef-48fc-ac12-e31814f94d7e}</UniqueIdentifier>
+      <UniqueIdentifier>{7c1c1460-1811-471f-a9e4-e0c5fd07704d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Widgets\Timeline">
+      <UniqueIdentifier>{a3d9debb-0857-41c8-8e75-3a2471a7d9e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Widgets">
+      <UniqueIdentifier>{195489e7-490e-4ddf-8a0b-1313d8f85e37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{dd06a3fb-2be7-4abb-bc1f-8eb152f295e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Compilers">
+      <UniqueIdentifier>{958e5ac4-fa69-470c-8d52-f13f52b3ab0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{fde5872a-fe10-4ac1-afb4-c04776b7e849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\RawAssets\Fbx">
+      <UniqueIdentifier>{ce34967b-4ac2-41a6-85e0-fa99395920ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\RawAssets">
+      <UniqueIdentifier>{b843f65e-c983-4459-87b8-fae3bd26d38e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\RawAssets\gltf">
+      <UniqueIdentifier>{81f9a63e-4d9a-4617-851d-b58e46cd30cd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="ThirdParty\cgltf\cgltf.h">
-      <Filter>ThirdParty\cgltf</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\cgltf\cgltf_write.h">
-      <Filter>ThirdParty\cgltf</Filter>
+    <ClInclude Include="Thirdparty\KRG_RapidJson.h">
+      <Filter>Thirdparty</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\sqlite\SqliteHelpers.h">
       <Filter>ThirdParty\sqlite</Filter>
-    </ClInclude>
-    <ClInclude Include="FileSystem\FileSystemHelpers.h">
-      <Filter>FileSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="FileSystem\FileSystemWatcher.h">
-      <Filter>FileSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Thirdparty\KRG_RapidJson.h">
-      <Filter>Thirdparty</Filter>
     </ClInclude>
     <ClInclude Include="Thirdparty\pfd\portable-file-dialogs.h">
       <Filter>Thirdparty\pfd</Filter>
@@ -60,18 +69,21 @@
     <ClInclude Include="Thirdparty\subprocess\subprocess.h">
       <Filter>Thirdparty\subprocess</Filter>
     </ClInclude>
+    <ClInclude Include="FileSystem\FileSystemHelpers.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem\FileSystemWatcher.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
     <ClInclude Include="TypeSystem\Serialization\TypeReader.h">
       <Filter>TypeSystem\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="TypeSystem\Serialization\TypeWriter.h">
       <Filter>TypeSystem\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="TypeSystem\TypeInstanceModel.h">
-      <Filter>TypeSystem</Filter>
+    <ClInclude Include="TypeSystem\Serialization\TypeSerialization.h">
+      <Filter>TypeSystem\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="TypeSystem\Serialization\TypeSerialization.h" />
-    <ClInclude Include="Widgets\Timeline\TimelineEditor.h" />
-    <ClInclude Include="Widgets\Timeline\TimelineTrack.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
@@ -89,13 +101,12 @@
     <ClCompile Include="TypeSystem\Serialization\TypeWriter.cpp">
       <Filter>TypeSystem\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="TypeSystem\TypeInstanceModel.cpp">
-      <Filter>TypeSystem</Filter>
+    <ClCompile Include="Thirdparty\KRG_RapidJson.cpp">
+      <Filter>Thirdparty</Filter>
     </ClCompile>
-    <ClCompile Include="TypeSystem\Serialization\TypeSerialization.cpp" />
-    <ClCompile Include="Thirdparty\KRG_RapidJson.cpp" />
-    <ClCompile Include="Widgets\Timeline\TimelineEditor.cpp" />
-    <ClCompile Include="Widgets\Timeline\TimelineTrack.cpp" />
+    <ClCompile Include="TypeSystem\Serialization\TypeSerialization.cpp">
+      <Filter>TypeSystem\Serialization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Thirdparty\subprocess\LICENSE">

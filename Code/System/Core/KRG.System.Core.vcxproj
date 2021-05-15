@@ -18,7 +18,7 @@
     <ClInclude Include="Core\Defines.h" />
     <ClInclude Include="Core\Platform\Defines_Win32.h" />
     <ClInclude Include="Debug\DebugDrawingSystem.h" />
-    <ClInclude Include="Math\PhysicsMath.h" />
+    <ClInclude Include="Math\MathHelpers.h" />
     <ClInclude Include="Math\Viewport.h" />
     <ClInclude Include="Serialization\JsonArchive.h" />
     <ClInclude Include="Settings\ISettings.h" />

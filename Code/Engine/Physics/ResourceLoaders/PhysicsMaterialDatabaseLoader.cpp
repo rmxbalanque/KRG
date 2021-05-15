@@ -1,5 +1,4 @@
 #include "PhysicsMaterialDatabaseLoader.h"
-#include "Engine/Physics/PhysX.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/PhysicsMaterialDatabase.h"
 #include "System/Core/Serialization/BinaryArchive.h"

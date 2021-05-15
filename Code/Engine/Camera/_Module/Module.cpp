@@ -1,5 +1,4 @@
 #include "Module.h"
-#include "System/Core/Systems/SystemRegistry.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
 
 //-------------------------------------------------------------------------

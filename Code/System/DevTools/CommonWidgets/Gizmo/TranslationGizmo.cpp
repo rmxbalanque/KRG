@@ -1,8 +1,4 @@
 #include "TranslationGizmo.h"
-#include "System/Core/Math/Line.h"
-#include "System/Core/Math/Plane.h"
-#include "System/Core/Math/Rectangle.h"
-#include "System/DevTools/ThirdParty/imgui/imgui.h"
 #include "System/DevTools/ImguiX.h"
 
 //-------------------------------------------------------------------------
