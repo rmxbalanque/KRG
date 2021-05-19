@@ -5,19 +5,16 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Animation
 {
-    namespace Animation
+    class SkeletonLoader final : public Resource::ResourceLoader
     {
-        class SkeletonLoader : public Resource::ResourceLoader
-        {
-        public:
+    public:
 
-            SkeletonLoader();
+        SkeletonLoader();
 
-        private:
+    private:
 
-            virtual bool LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const final;
-        };
-    }
+        virtual bool LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const final;
+    };
 }

@@ -2,8 +2,8 @@
 #include "FileTabs/SkeletonFileTab.h"
 #include "FileTabs/AnimationFileTab.h"
 #include "Tools/Resource/RawAssets/RawAssetReader.h"
-#include "Tools/Animation/ResourceCompilers/AnimationCompiler.h"
-#include "Tools/Animation/ResourceCompilers/SkeletonCompiler.h"
+#include "Tools/Animation/ResourceCompilers/AnimationClipCompiler.h"
+#include "Tools/Animation/ResourceCompilers/AnimationSkeletonCompiler.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
@@ -105,7 +105,7 @@ namespace KRG::Animation::Tools
                     ImGui::PushID( &anim );
                     if ( ImGui::Button( KRG_ICON_FILM "##CreateAnimation", ImVec2( 24, 0 ) ) )
                     {
-                        AnimationResourceDescriptor resourceDesc;
+                        AnimationClipResourceDescriptor resourceDesc;
                         resourceDesc.m_animationDataPath = DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), m_inspectedFile );
                         resourceDesc.m_animationName = anim.m_name;
                         CreateNewDescriptor( AnimationClip::GetStaticResourceTypeID(), resourceDesc );

@@ -9,10 +9,12 @@ namespace KRG
     {
         bool EngineModule::Initialize( ModuleContext& context )
         {
-            m_animationLoader.SetTypeRegistry( context.GetSystem<TypeSystem::TypeRegistry>() );
+            m_animationClipLoader.SetTypeRegistry( context.GetSystem<TypeSystem::TypeRegistry>() );
 
             context.RegisterResourceLoader( &m_skeletonLoader );
-            context.RegisterResourceLoader( &m_animationLoader );
+            context.RegisterResourceLoader( &m_animationClipLoader );
+            context.RegisterResourceLoader( &m_graphLoader );
+            context.RegisterResourceLoader( &m_graphDataSetLoader );
 
             m_initialized = true;
             return m_initialized;
@@ -22,7 +24,9 @@ namespace KRG
         {
             if( m_initialized )
             {
-                context.UnregisterResourceLoader( &m_animationLoader );
+                context.UnregisterResourceLoader( &m_graphDataSetLoader );
+                context.UnregisterResourceLoader( &m_graphLoader );
+                context.UnregisterResourceLoader( &m_animationClipLoader );
                 context.UnregisterResourceLoader( &m_skeletonLoader );
             }
 

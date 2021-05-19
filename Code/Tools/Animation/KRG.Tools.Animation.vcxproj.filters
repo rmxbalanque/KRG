@@ -12,10 +12,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ResourceCompilers\AnimationCompiler.cpp">
+    <ClCompile Include="ResourceCompilers\AnimationClipCompiler.cpp">
       <Filter>ResourceCompilers</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceCompilers\SkeletonCompiler.cpp">
+    <ClCompile Include="ResourceCompilers\AnimationSkeletonCompiler.cpp">
       <Filter>ResourceCompilers</Filter>
     </ClCompile>
     <ClCompile Include="_Module\Module.cpp">
@@ -29,16 +29,18 @@
     <ClCompile Include="AnimationToolkit\FileTabs\SkeletonFileTab.cpp" />
     <ClCompile Include="AnimationToolkit\AnimationToolkit.cpp" />
     <ClCompile Include="AnimationToolkit\AnimationToolkit_DataBrowser.cpp" />
-    <ClCompile Include="AnimGraphToolkit\AnimGraphToolkit.cpp" />
-    <ClCompile Include="AnimGraphToolkit\AnimGraphToolkit_ControlParameterEditor.cpp" />
-    <ClCompile Include="AnimGraphToolkit\AnimGraphToolkit_GraphEditor.cpp" />
-    <ClCompile Include="AnimGraphToolkit\AnimGraphToolkit_PropertyGrid.cpp" />
+    <ClCompile Include="AnimGraphToolkit\AnimationGraphToolkit.cpp" />
+    <ClCompile Include="AnimGraphToolkit\AnimationGraphToolkit_ControlParameterEditor.cpp" />
+    <ClCompile Include="AnimGraphToolkit\AnimationGraphToolkit_GraphEditor.cpp" />
+    <ClCompile Include="AnimGraphToolkit\AnimationGraphToolkit_PropertyGrid.cpp" />
+    <ClCompile Include="ResourceCompilers\AnimationGraphCompiler.cpp" />
+    <ClCompile Include="ResourceCompilers\AnimationGraphDataSetCompiler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ResourceCompilers\AnimationCompiler.h">
+    <ClInclude Include="ResourceCompilers\AnimationClipCompiler.h">
       <Filter>ResourceCompilers</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceCompilers\SkeletonCompiler.h">
+    <ClInclude Include="ResourceCompilers\AnimationSkeletonCompiler.h">
       <Filter>ResourceCompilers</Filter>
     </ClInclude>
     <ClInclude Include="_Module\API.h">
@@ -53,9 +55,11 @@
     <ClInclude Include="AnimationToolkit\FileTabs\SkeletonFileTab.h" />
     <ClInclude Include="AnimationToolkit\AnimationToolkit.h" />
     <ClInclude Include="AnimationToolkit\AnimationToolkit_DataBrowser.h" />
-    <ClInclude Include="AnimGraphToolkit\AnimGraphToolkit.h" />
-    <ClInclude Include="AnimGraphToolkit\AnimGraphToolkit_ControlParameterEditor.h" />
-    <ClInclude Include="AnimGraphToolkit\AnimGraphToolkit_GraphEditor.h" />
-    <ClInclude Include="AnimGraphToolkit\AnimGraphToolkit_PropertyGrid.h" />
+    <ClInclude Include="AnimGraphToolkit\AnimationGraphToolkit.h" />
+    <ClInclude Include="AnimGraphToolkit\AnimationGraphToolkit_ControlParameterEditor.h" />
+    <ClInclude Include="AnimGraphToolkit\AnimationGraphToolkit_GraphEditor.h" />
+    <ClInclude Include="AnimGraphToolkit\AnimationGraphToolkit_PropertyGrid.h" />
+    <ClInclude Include="ResourceCompilers\AnimationGraphCompiler.h" />
+    <ClInclude Include="ResourceCompilers\AnimationGraphDataSetCompiler.h" />
   </ItemGroup>
 </Project>

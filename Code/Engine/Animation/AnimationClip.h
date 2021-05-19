@@ -45,7 +45,7 @@ namespace KRG::Animation
     {
         KRG_SERIALIZE_MEMBERS( m_translationRangeX, m_translationRangeY, m_translationRangeZ, m_scaleRangeX, m_scaleRangeY, m_scaleRangeZ, m_trackStartIndex, m_isTranslationStatic, m_isScaleStatic );
 
-        friend class AnimationCompiler;
+        friend class AnimationClipCompiler;
 
     public:
 
@@ -80,8 +80,8 @@ namespace KRG::Animation
         KRG_REGISTER_RESOURCE( 'ANIM' );
         KRG_SERIALIZE_MEMBERS( m_pSkeleton, m_duration, m_numFrames, m_compressedPoseData, m_trackCompressionSettings, m_isAdditive, m_averageAngularVelocity, m_averageLinearVelocity, m_totalRootMotionDelta  );
 
-        friend class AnimationCompiler;
-        friend class AnimationLoader;
+        friend class AnimationClipCompiler;
+        friend class AnimationClipLoader;
 
     private:
 

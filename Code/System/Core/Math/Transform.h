@@ -24,7 +24,7 @@ namespace KRG
         KRG_FORCE_INLINE static Transform FromScale( Vector const& scale ) { return Transform( Quaternion::Identity, Vector::UnitW, scale ); }
         KRG_FORCE_INLINE static Transform FromUniformScale( float uniformScale ) { return Transform( Quaternion::Identity, Vector::UnitW, Vector( uniformScale, uniformScale, uniformScale, 1.0f ) ); }
         KRG_FORCE_INLINE static Transform FromTranslationAndScale( Vector const& translation, Vector const& scale ) { return Transform( Quaternion::Identity, translation, scale ); }
-        KRG_FORCE_INLINE static Transform FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return Transform( Quaternion::FromRotationBetweenVectors( sourceVector, targetVector ) ); }
+        KRG_FORCE_INLINE static Transform FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return Transform( Quaternion::FromRotationBetweenNormalizedVectors( sourceVector, targetVector ) ); }
 
     public:
 

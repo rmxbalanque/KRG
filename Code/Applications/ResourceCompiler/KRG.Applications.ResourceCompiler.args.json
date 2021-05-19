@@ -118,7 +118,7 @@
         },
         {
           "Id": "273c7e2b-414d-4efb-a8ee-0ede981b6247",
-          "Command": "-compile data://packs/br/characters/SK_Chr_SportyFemale_02.smsh"
+          "Command": "-compile data://animation/animGraphDataSet.agds"
         },
         {
           "Id": "b8487d62-a70c-4723-b2b6-a6c915b7556a",

@@ -38,7 +38,7 @@ namespace KRG
         inline static Matrix FromScale( Vector const& scale );
         inline static Matrix FromUniformScale( float uniformScale );
         inline static Matrix FromTranslationAndScale( Vector const& translation, Vector const& scale );
-        inline static Matrix FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return Matrix( Quaternion::FromRotationBetweenVectors( sourceVector, targetVector ) ); }
+        inline static Matrix FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return Matrix( Quaternion::FromRotationBetweenNormalizedVectors( sourceVector, targetVector ) ); }
 
         // Projection matrix helpers, note: These assume a unit cube with a Z (depth) range of [0,1] i.e. DirectX
         inline static Matrix PerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlane, float farPlane );

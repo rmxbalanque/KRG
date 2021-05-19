@@ -40,18 +40,18 @@ namespace KRG::Resource
 
 //-------------------------------------------------------------------------
 
-#define KRG_REGISTER_RESOURCE( type ) \
+#define KRG_REGISTER_RESOURCE( typeFourCC ) \
     public: \
         static bool const IsVirtualResource = false;\
-        static ResourceTypeID GetStaticResourceTypeID() { return ResourceTypeID( type ); } \
-        virtual ResourceTypeID GetResourceType() const override { return ResourceTypeID( type ); } \
+        static ResourceTypeID GetStaticResourceTypeID() { return ResourceTypeID( typeFourCC ); } \
+        virtual ResourceTypeID GetResourceType() const override { return ResourceTypeID( typeFourCC ); } \
         virtual bool IsVirtualResourceType() const override { return false; }\
     private:
 
-#define KRG_REGISTER_VIRTUAL_RESOURCE( type ) \
+#define KRG_REGISTER_VIRTUAL_RESOURCE( typeFourCC ) \
     public: \
         static bool const IsVirtualResource = true;\
-        static ResourceTypeID GetStaticResourceTypeID() { return ResourceTypeID( type ); } \
-        virtual ResourceTypeID GetResourceType() const override { return ResourceTypeID( type ); } \
+        static ResourceTypeID GetStaticResourceTypeID() { return ResourceTypeID( typeFourCC ); } \
+        virtual ResourceTypeID GetResourceType() const override { return ResourceTypeID( typeFourCC ); } \
         virtual bool IsVirtualResourceType() const override { return true; }\
     private:

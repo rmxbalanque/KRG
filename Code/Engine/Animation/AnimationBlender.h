@@ -32,7 +32,6 @@ namespace KRG::Animation
 
     class KRG_ENGINE_ANIMATION_API Blender
     {
-
     private:
 
         struct InterpolativeBlender
@@ -94,7 +93,7 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        inline static Transform BlendRootMotionDeltas( Transform const& source, Transform const& target, float blendWeight, TBitFlags<RootMotionBlendOptions> blendOptions )
+        inline static Transform BlendRootMotionDeltas( Transform const& source, Transform const& target, float blendWeight, TBitFlags<RootMotionBlendOptions> blendOptions = RootMotionBlendOptions::None )
         {
             Transform result;
 

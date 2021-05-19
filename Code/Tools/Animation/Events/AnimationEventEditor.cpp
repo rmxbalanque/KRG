@@ -1,5 +1,5 @@
 #include "AnimationEventEditor.h"
-#include "Tools/Animation/ResourceCompilers/AnimationCompiler.h"
+#include "Tools/Animation/ResourceCompilers/AnimationClipCompiler.h"
 #include "Tools/Core/Thirdparty/pfd/portable-file-dialogs.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "System/DevTools/System/ImguiFont.h"
@@ -143,7 +143,7 @@ namespace KRG::Animation::Tools
         KRG_ASSERT( m_pAnimation != nullptr );
 
         // Read resource desc to get event data path if set
-        AnimationResourceDescriptor animResourceDesc;
+        AnimationClipResourceDescriptor animResourceDesc;
         auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( sourceDataDirectory );
         TypeSystem::Serialization::TypeReader typeReader( typeRegistry );
         if ( typeReader.ReadFromFile( resourceDescriptorPath ) )
@@ -439,7 +439,7 @@ namespace KRG::Animation::Tools
                 if ( typeReader.ReadFromFile( resourceDescPath ) )
                 {
                     // Read and update resource desc
-                    AnimationResourceDescriptor resourceDesc;
+                    AnimationClipResourceDescriptor resourceDesc;
                     typeReader >> resourceDesc;
                     resourceDesc.m_animationEventData = DataPath::FromFileSystemPath( m_sourceDataDirectory, m_eventDataFilePath );
 

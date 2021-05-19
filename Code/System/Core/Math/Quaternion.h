@@ -18,7 +18,8 @@ namespace KRG
 
         static Quaternion const Identity;
 
-        inline static Quaternion FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector );
+        inline static Quaternion FromRotationBetweenNormalizedVectors( Vector const sourceVector, Vector const targetVector );
+        KRG_FORCE_INLINE static Quaternion FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return FromRotationBetweenNormalizedVectors( sourceVector.GetNormalized3(), targetVector.GetNormalized3() ); }
 
         inline static Quaternion NLerp( Quaternion from, Quaternion to, float t );
         inline static Quaternion SLerp( Quaternion from, Quaternion to, float t );
@@ -188,8 +189,10 @@ namespace KRG
         m_data = ( rotationX * rotationY * rotationZ ).GetNormalized().m_data;
     }
 
-    inline Quaternion Quaternion::FromRotationBetweenVectors( Vector const v0, Vector const v1 )
+    inline Quaternion Quaternion::FromRotationBetweenNormalizedVectors( Vector const v0, Vector const v1 )
     {
+        KRG_ASSERT( v0.IsNormalized3() && v1.IsNormalized3() );
+
         Quaternion result;
 
         // Parallel vectors - return zero rotation

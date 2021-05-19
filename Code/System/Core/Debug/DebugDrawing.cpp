@@ -100,7 +100,7 @@ namespace KRG
         {
             auto const plane = Plane( planeEquation );
             auto const translation = plane.ProjectPoint( Vector::UnitW );
-            auto const rotation = Quaternion::FromRotationBetweenVectors( Vector::UnitZ, plane.GetNormal() );
+            auto const rotation = Quaternion::FromRotationBetweenNormalizedVectors( Vector::UnitZ, plane.GetNormal() );
 
             Transform transform;
             transform.SetTranslation( translation );

@@ -27,8 +27,8 @@
       "Command": "-map data://maps/br_minimal.map"
     },
     {
-      "Id": "c9d23cdf-2302-4200-a0d2-690576acbd7d",
-      "Command": "-editor"
+      "Id": "9ef46359-8556-47e4-bc19-4c6f47260537",
+      "Command": "-map data://maps/animtest.map"
     }
   ]
 }
