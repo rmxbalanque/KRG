@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Scripts
 {
@@ -339,6 +340,51 @@ namespace Scripts
 
                 }
             }
+        }
+        #endregion
+
+        #region misc
+        public static void GenerationAnimDataSetFile( FileInfo file )
+        {
+            StringBuilder sb = new StringBuilder();
+            StringWriter sw = new StringWriter(sb);
+
+            System.Random random = new System.Random();
+
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                writer.Formatting = Formatting.Indented;
+
+                writer.WriteStartObject();
+                writer.WritePropertyName("Name");
+                writer.WriteValue("Default");
+
+                writer.WritePropertyName("Skeleton");
+                writer.WriteValue("data://Animation/SyntyStudiosSkel.skel");
+
+                writer.WritePropertyName("Data");
+                writer.WriteStartArray();
+
+                for( var i=0; i < 5000; i++)
+                {
+                    writer.WriteStartObject();
+
+                    writer.WritePropertyName("ID");
+                    writer.WriteValue( Guid.NewGuid().ToString() );
+
+                    string dataPath = string.Format("data://Animation/Stand_Crowd_Ambient{0}.anim", random.Next(0, 6));
+                    writer.WritePropertyName("DataPath");
+                    writer.WriteValue(dataPath);
+
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
+                writer.WriteEndObject();
+            }
+
+            Directory.CreateDirectory(file.Directory.FullName);
+            File.WriteAllText(file.FullName, sb.ToString());
         }
         #endregion
     }

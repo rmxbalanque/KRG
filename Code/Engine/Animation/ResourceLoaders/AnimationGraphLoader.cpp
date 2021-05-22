@@ -1,6 +1,7 @@
 #include "AnimationGraphLoader.h"
 #include "Engine/Animation/Graph/AnimationGraph.h"
 #include "System/Core/Serialization/BinaryArchive.h"
+#include "System/TypeSystem/TypeDescriptors.h"
 
 //-------------------------------------------------------------------------
 
@@ -15,10 +16,38 @@ namespace KRG::Animation
     {
         KRG_ASSERT( archive.IsValid() );
 
-        AnimationGraph* pDataSet = KRG::New<AnimationGraph>();
-        archive >> *pDataSet;
-        pResourceRecord->SetResourceData( pDataSet );
+        AnimationGraph* pGraph = KRG::New<AnimationGraph>();
+        archive >> *pGraph;
+        pResourceRecord->SetResourceData( pGraph );
 
-        return true;
+        // Create Settings
+        //-------------------------------------------------------------------------
+
+        TypeSystem::TypeDescriptorCollection typeDescriptors;
+        archive >> typeDescriptors;
+
+        typeDescriptors.CalculateCollectionRequirements( *m_pTypeRegistry );
+        TypeSystem::TypeDescriptorCollection::InstantiateStaticCollection( *m_pTypeRegistry, typeDescriptors, pGraph->m_nodeSettings );
+
+        cereal::BinaryInputArchive& settingsArchive = *archive.GetInputArchive();
+        for ( auto pSettings : pGraph->m_nodeSettings )
+        {
+            pSettings->Load( settingsArchive );
+        }
+
+        //-------------------------------------------------------------------------
+
+        return pGraph->IsValid();
+    }
+
+    void AnimationGraphLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const
+    {
+        auto pGraph = pResourceRecord->GetResourceData<AnimationGraph>();
+        if ( pGraph != nullptr )
+        {
+            TypeSystem::TypeDescriptorCollection::DestroyStaticCollection( pGraph->m_nodeSettings );
+        }
+
+        ResourceLoader::UnloadInternal( resID, pResourceRecord );
     }
 }

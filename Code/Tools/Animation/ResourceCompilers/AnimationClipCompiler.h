@@ -34,7 +34,7 @@ namespace KRG::Animation
 
     class AnimationClipCompiler : public Resource::Compiler
     {
-        static const int32 VERSION = 7;
+        static const int32 s_version = 7;
 
         struct AnimationEventData
         {

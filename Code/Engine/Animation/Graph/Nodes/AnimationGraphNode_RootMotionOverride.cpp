@@ -4,15 +4,13 @@
 
 namespace KRG::Animation::Graph
 {
-    void RootMotionOverrideNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void RootMotionOverrideNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        PassthroughNode::OnConstruct( pSettings, nodePtrs, dataSet );
-
-        auto pNodeSettings = GetSettings<RootMotionOverrideNode>();
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_desiredHeadingVelocityNodeIdx, m_pDesiredHeadingVelocityNode );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_desiredFacingDirectionNodeIdx, m_pDesiredFacingDirectionNode );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_linearVelocityLimitNodeIdx, m_pLinearVelocityLimitNode );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_angularVelocityLimitNodeIdx, m_pAngularVelocityLimitNode );
+        auto pNode = CreateNode<RootMotionOverrideNode>( nodePtrs, options );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_desiredHeadingVelocityNodeIdx, pNode->m_pDesiredHeadingVelocityNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_desiredFacingDirectionNodeIdx, pNode->m_pDesiredFacingDirectionNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_linearVelocityLimitNodeIdx, pNode->m_pLinearVelocityLimitNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_angularVelocityLimitNodeIdx, pNode->m_pAngularVelocityLimitNode );
     }
 
     void RootMotionOverrideNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )

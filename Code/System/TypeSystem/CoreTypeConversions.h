@@ -66,4 +66,10 @@ namespace KRG::TypeSystem::Conversion
 
     // Convert an array of floats into a comma separated string of floats
     KRG_SYSTEM_TYPESYSTEM_API void FloatArrayToString( float const* pFloats, int32 const numFloats, String& strValue );
+
+    // Convert a comma separated string of ints into an array of ints
+    KRG_SYSTEM_TYPESYSTEM_API void StringToIntArray( String const& str, int32 const numInts, int32* pInts );
+
+    // Convert an array of ints into a comma separated string of ints
+    KRG_SYSTEM_TYPESYSTEM_API void IntArrayToString( int32 const* pInts, int32 const numInts, String& strValue );
 }

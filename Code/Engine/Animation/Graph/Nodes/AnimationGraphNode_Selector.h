@@ -1,17 +1,23 @@
 #pragma once
 
 #include "Engine/Animation/Graph/AnimationGraphNode.h"
+#include "System/Core/ThirdParty/cereal/archives/binary.hpp"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class FSelectorNode final : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API FSelectorNode final : public AnimationNode
     {
     public:
 
-        struct Settings : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public AnimationNode::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_optionNodeIndices, m_conditionNodeIndices );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             TInlineVector<NodeIndex, 5>                     m_optionNodeIndices;
             TInlineVector<NodeIndex, 5>                     m_conditionNodeIndices;
         };
@@ -23,7 +29,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
@@ -43,12 +48,17 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class FAnimationSelectorNode : public AnimationClipReferenceNode
+    class KRG_ENGINE_ANIMATION_API FAnimationSelectorNode final : public AnimationClipReferenceNode
     {
     public:
 
-        struct Settings : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public AnimationNode::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_optionNodeIndices, m_conditionNodeIndices );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             TInlineVector<NodeIndex, 5>                     m_optionNodeIndices;
             TInlineVector<NodeIndex, 5>                     m_conditionNodeIndices;
         };
@@ -60,7 +70,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 

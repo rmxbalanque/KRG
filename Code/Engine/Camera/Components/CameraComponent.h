@@ -31,7 +31,7 @@ namespace KRG::Camera
 
         Math::ViewVolume const& CalculateViewVolume( Float2 const& viewDimensions );
 
-        inline void SetDepthRange( TRange<float> depthRange ) { m_viewVolume.SetDepthRange( depthRange ); }
+        inline void SetDepthRange( FloatRange depthRange ) { m_viewVolume.SetDepthRange( depthRange ); }
         inline void SetHorizontalFOV( Radians FOV ) { m_viewVolume.SetHorizontalFOV( FOV ); }
         inline void AdjustHeadingAndPitch( Radians headingDelta, Radians pitchDelta );
 

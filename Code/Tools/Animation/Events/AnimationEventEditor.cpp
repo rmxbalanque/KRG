@@ -41,7 +41,7 @@ namespace KRG::Animation::Tools
         return m_pEvent->GetDisplayText();
     }
 
-    TRange<float> EventItem::GetTimeRange() const
+    FloatRange EventItem::GetTimeRange() const
     {
         KRG_ASSERT( m_animFrameRate != 0 && m_pEvent != nullptr );
 
@@ -50,15 +50,15 @@ namespace KRG::Animation::Tools
         float const duration = m_pEvent->GetDuration().ToFloat() * m_animFrameRate;
         float const endTime = startTime + duration;
 
-        return TRange<float>( startTime, endTime );
+        return FloatRange( startTime, endTime );
     }
 
-    void EventItem::SetTimeRange( TRange<float> const& inRange )
+    void EventItem::SetTimeRange( FloatRange const& inRange )
     {
         KRG_ASSERT( m_animFrameRate != 0 && m_pEvent != nullptr );
 
         // Convert to seconds
-        float const startTime = inRange.m_min / m_animFrameRate;
+        float const startTime = inRange.m_start / m_animFrameRate;
         float const duration = inRange.GetLength() / m_animFrameRate;
         EventManipulator::SetEventTime( m_pEvent, startTime, duration );
     }
@@ -133,7 +133,7 @@ namespace KRG::Animation::Tools
     //-------------------------------------------------------------------------
 
     EventEditor::EventEditor( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataDirectory, AnimationClip const* pAnimation )
-        : Editor::TimelineEditor( TRange<int32>( 0, pAnimation->GetNumFrames() ) )
+        : Editor::TimelineEditor( IntRange( 0, pAnimation->GetNumFrames() ) )
         , m_typeRegistry( typeRegistry )
         , m_sourceDataDirectory( sourceDataDirectory )
         , m_eventTypes( typeRegistry.GetAllDerivedTypes( Event::GetStaticTypeID() ) )

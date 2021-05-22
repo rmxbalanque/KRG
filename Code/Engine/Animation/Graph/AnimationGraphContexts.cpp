@@ -13,8 +13,8 @@ namespace KRG::Animation::Graph
 
     void GraphContext::Initialize( TaskSystem* pTaskSystem, AnimationGraphDataSet const* pDataSet, Pose const* pPreviousPose )
     {
-        KRG_ASSERT( m_pPreviousPose == nullptr && pTaskSystem == nullptr && pDataSet == nullptr );
-        KRG_ASSERT( pTaskSystem != nullptr && pDataSet != nullptr );
+        KRG_ASSERT( m_pPreviousPose == nullptr && m_pTaskSystem == nullptr && m_pDataSet == nullptr );
+        KRG_ASSERT( pPreviousPose != nullptr && pTaskSystem != nullptr && pDataSet != nullptr );
 
         const_cast<TaskSystem*&>( m_pTaskSystem ) = pTaskSystem;
         const_cast<AnimationGraphDataSet const*&>( m_pDataSet ) = pDataSet;
@@ -56,6 +56,8 @@ namespace KRG::Animation::Graph
         m_boneMaskPool.Reset();
 
         KRG_ASSERT( m_pPreviousPose->HasGlobalTransforms() );
+
+        m_pTaskSystem->Reset();
 
         //-------------------------------------------------------------------------
 

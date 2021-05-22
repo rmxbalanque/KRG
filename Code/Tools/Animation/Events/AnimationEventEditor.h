@@ -27,8 +27,8 @@ namespace KRG::Animation::Tools
         ~EventItem();
 
         virtual InlineString<100> GetLabel() const override;
-        virtual TRange<float> GetTimeRange() const;
-        virtual void SetTimeRange( TRange<float> const& inRange );
+        virtual FloatRange GetTimeRange() const;
+        virtual void SetTimeRange( FloatRange const& inRange );
 
         Event* GetEvent() const { return m_pEvent; }
         TypeSystem::TypeInfo const* GetEventTypeInfo() const { return m_pEvent->GetTypeInfo(); }

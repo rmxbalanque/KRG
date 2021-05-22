@@ -151,7 +151,7 @@ namespace KRG::Animation::Graph
     public:
 
         TaskSystem* const                       m_pTaskSystem = nullptr;
-        AnimationGraphDataSet const* const               m_pDataSet = nullptr;
+        AnimationGraphDataSet const* const      m_pDataSet = nullptr;
         Pose const* const                       m_pPreviousPose = nullptr;
         Seconds                                 m_deltaTime = 0.0f;
         Transform                               m_worldTransform = Transform::Identity;

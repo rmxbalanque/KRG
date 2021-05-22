@@ -6,6 +6,20 @@
 
 namespace KRG::Animation::Graph
 {
+    void ParameterizedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        KRG_ASSERT( options == GraphNode::Settings::InitOptions::OnlySetPointers );
+        auto pNode = CreateNode<VelocityBlendNode>( nodePtrs, options );
+
+        SetNodePtrFromIndex( nodePtrs, m_inputParameterValueNodeIdx, pNode->m_pInputParameterValueNode );
+
+        pNode->m_sourceNodes.reserve( m_sourceNodeIndices.size() );
+        for ( auto sourceIdx : m_sourceNodeIndices )
+        {
+            SetNodePtrFromIndex( nodePtrs, sourceIdx, pNode->m_sourceNodes.emplace_back() );
+        }
+    }
+
     bool ParameterizedBlendNode::IsValid() const
     {
         if ( !AnimationNode::IsValid() )
@@ -27,21 +41,6 @@ namespace KRG::Animation::Graph
         }
 
         return true;
-    }
-
-    void ParameterizedBlendNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
-    {
-        AnimationNode::OnConstruct( pSettings, nodePtrs, dataSet );
-        auto pNodeSettings = GetSettings<ParameterizedBlendNode>();
-
-        m_sourceNodes.reserve( pNodeSettings->m_sourceNodeIndices.size() );
-        for ( auto sourceIdx : pNodeSettings->m_sourceNodeIndices )
-        {
-            SetNodePtrFromIndex( nodePtrs, sourceIdx, m_sourceNodes.emplace_back() );
-            KRG_ASSERT( m_sourceNodes.back() != nullptr );
-        }
-
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_inputParameterValueNodeIdx, m_pInputParameterValueNode );
     }
 
     void ParameterizedBlendNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
@@ -402,6 +401,20 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
+    void RangedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<RangedBlendNode>( nodePtrs, options );
+        ParameterizedBlendNode::Settings::InstantiateNode( nodePtrs, GraphNode::Settings::InitOptions::OnlySetPointers );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void VelocityBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<VelocityBlendNode>( nodePtrs, options );
+        ParameterizedBlendNode::Settings::InstantiateNode( nodePtrs, GraphNode::Settings::InitOptions::OnlySetPointers );
+    }
+
     void VelocityBlendNode::InitializeParameterization( GraphContext& context )
     {
         struct ParameterValue
@@ -455,10 +468,10 @@ namespace KRG::Animation::Graph
                 KRG_ASSERT( sortedOptions[i].m_value <= sortedOptions[i + 1].m_value );
                 m_parameterization.m_blendRanges[i].m_sourceIdx0 = sortedOptions[i].m_idx;
                 m_parameterization.m_blendRanges[i].m_sourceIdx1 = sortedOptions[i + 1].m_idx;
-                m_parameterization.m_blendRanges[i].m_parameterValueRange = TRange<float>( sortedOptions[i].m_value, sortedOptions[i + 1].m_value );
+                m_parameterization.m_blendRanges[i].m_parameterValueRange = FloatRange( sortedOptions[i].m_value, sortedOptions[i + 1].m_value );
             }
 
-            m_parameterization.m_parameterRange = TRange<float>( sortedOptions.front().m_value, sortedOptions.back().m_value );
+            m_parameterization.m_parameterRange = FloatRange( sortedOptions.front().m_value, sortedOptions.back().m_value );
         }
     }
 

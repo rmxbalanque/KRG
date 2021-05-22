@@ -11,7 +11,7 @@ namespace KRG
     {
         static float const g_lookSpeed = Math::Pi;
         static float const g_moveSpeed = 10.0f; // 10 m/s
-        static TRange<float> const g_moveSpeedLimits( 0.5f, 100 );
+        static FloatRange const g_moveSpeedLimits( 0.5f, 100 );
     }
 
     //-------------------------------------------------------------------------

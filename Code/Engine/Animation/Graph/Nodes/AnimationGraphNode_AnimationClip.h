@@ -7,18 +7,22 @@
 
 namespace KRG::Animation::Graph
 {
-    class AnimationClipNode : public AnimationClipReferenceNode
+    class KRG_ENGINE_ANIMATION_API AnimationClipNode final : public AnimationClipReferenceNode
     {
 
     public:
 
-        struct Settings : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public AnimationNode::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_playInReverseValueNodeIdx, m_shouldSampleRootMotion, m_allowLooping, m_animationID );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
 
             NodeIndex                                   m_playInReverseValueNodeIdx = InvalidIndex;
             bool                                        m_shouldSampleRootMotion = true;
             bool                                        m_allowLooping = false;
-            UUID                                        m_animationID;
+            uint16                                      m_animationID;
         };
 
     public:
@@ -36,7 +40,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 

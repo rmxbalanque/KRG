@@ -40,7 +40,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         int32 const numInstallDependencies = (int32) installDependencies.size();
-        if ( pDataSet->m_dataRecords.size() != numInstallDependencies - 1 )
+        if ( pDataSet->m_animationClips.size() != numInstallDependencies - 1 )
         {
             KRG_LOG_ERROR( "Animation", "Invalid number of install dependencies for graph data set: %s", resID.ToString().c_str() );
             return false;
@@ -48,8 +48,7 @@ namespace KRG::Animation
 
         for ( auto i = 1; i < numInstallDependencies; i++ )
         {
-            pDataSet->m_dataRecords[i - 1].m_pResource = installDependencies[i];
-            pDataSet->m_animationLookupMap.insert( TPair<UUID, AnimationClip const*>( pDataSet->m_dataRecords[i - 1].m_ID, pDataSet->m_dataRecords[i - 1].m_pResource.GetPtr() ) );
+            pDataSet->m_animationClips[i - 1] = installDependencies[i];
         }
 
         //-------------------------------------------------------------------------

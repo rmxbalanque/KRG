@@ -48,7 +48,7 @@ namespace KRG::Editor
 
     //-------------------------------------------------------------------------
 
-    TimelineEditor::TimelineEditor( TRange<int32> const& inTimeRange )
+    TimelineEditor::TimelineEditor( IntRange const& inTimeRange )
         : m_timeRange( inTimeRange )
         , m_viewRange( inTimeRange )
     {
@@ -214,31 +214,31 @@ namespace KRG::Editor
                 //-------------------------------------------------------------------------
 
                 auto const floatViewRange = GetViewRangeAsFloatRange();
-                TRange<float> clampRange = GetViewRangeAsFloatRange();
+                FloatRange clampRange = GetViewRangeAsFloatRange();
                 for ( auto const pOtherItem : m_itemEditState.m_pTrackForEditedItem->m_items )
                 {
-                    TRange<float> const otherItemTimeRange = pOtherItem->GetTimeRange();
+                    FloatRange const otherItemTimeRange = pOtherItem->GetTimeRange();
 
                     if ( pOtherItem == pEditedItem )
                     {
                         continue;
                     }
 
-                    if ( otherItemTimeRange.m_max < m_itemEditState.m_originalTimeRange.m_min && otherItemTimeRange.m_max > clampRange.m_min )
+                    if ( otherItemTimeRange.m_end < m_itemEditState.m_originalTimeRange.m_start && otherItemTimeRange.m_end > clampRange.m_start )
                     {
-                        clampRange.m_min = otherItemTimeRange.m_max;
+                        clampRange.m_start = otherItemTimeRange.m_end;
                     }
 
-                    if ( otherItemTimeRange.m_min > m_itemEditState.m_originalTimeRange.m_max && otherItemTimeRange.m_min < clampRange.m_max )
+                    if ( otherItemTimeRange.m_start > m_itemEditState.m_originalTimeRange.m_end && otherItemTimeRange.m_start < clampRange.m_end )
                     {
-                        clampRange.m_max = otherItemTimeRange.m_min;
+                        clampRange.m_end = otherItemTimeRange.m_start;
                     }
                 }
 
                 // Prevent immediate events ending up on top of other events or outside the range
                 if ( pEditedItem->IsImmediateItem() )
                 {
-                    clampRange.m_max -= 1;
+                    clampRange.m_end -= 1;
                 }
 
                 // Apply mouse delta to item
@@ -247,55 +247,55 @@ namespace KRG::Editor
                 float const pixelOffset = ImGui::GetMouseDragDelta().x;
                 float const timeOffset = pixelOffset / m_pixelsPerFrame;
 
-                TRange<float> editedItemTimeRange = pEditedItem->GetTimeRange();
+                FloatRange editedItemTimeRange = pEditedItem->GetTimeRange();
 
                 if ( m_itemEditState.m_mode == ItemEditMode::Move )
                 {
                     // Moving left
                     if ( timeOffset < 0 )
                     {
-                        float newTime = m_itemEditState.m_originalTimeRange.m_min + timeOffset;
+                        float newTime = m_itemEditState.m_originalTimeRange.m_start + timeOffset;
                         if ( m_isFrameSnappingEnabled )
                         {
                             newTime = Math::Round( newTime );
                         }
 
-                        editedItemTimeRange.m_min = Math::Max( clampRange.m_min, newTime );
-                        editedItemTimeRange.m_max = editedItemTimeRange.m_min + m_itemEditState.m_originalTimeRange.GetLength();
+                        editedItemTimeRange.m_start = Math::Max( clampRange.m_start, newTime );
+                        editedItemTimeRange.m_end = editedItemTimeRange.m_start + m_itemEditState.m_originalTimeRange.GetLength();
                     }
                     else // Moving to the right
                     {
-                        float newTime = m_itemEditState.m_originalTimeRange.m_max + timeOffset;
+                        float newTime = m_itemEditState.m_originalTimeRange.m_end + timeOffset;
                         if ( m_isFrameSnappingEnabled )
                         {
                             newTime = Math::Round( newTime );
                         }
 
-                        editedItemTimeRange.m_max = Math::Min( clampRange.m_max, newTime );
-                        editedItemTimeRange.m_min = editedItemTimeRange.m_max - m_itemEditState.m_originalTimeRange.GetLength();
+                        editedItemTimeRange.m_end = Math::Min( clampRange.m_end, newTime );
+                        editedItemTimeRange.m_start = editedItemTimeRange.m_end - m_itemEditState.m_originalTimeRange.GetLength();
                     }
                 }
                 else if ( m_itemEditState.m_mode == ItemEditMode::ResizeLeft )
                 {
-                    float newTime = m_itemEditState.m_originalTimeRange.m_min + timeOffset;
+                    float newTime = m_itemEditState.m_originalTimeRange.m_start + timeOffset;
                     if ( m_isFrameSnappingEnabled )
                     {
                         newTime = Math::Round( newTime );
                     }
 
-                    editedItemTimeRange.m_min = Math::Min( m_itemEditState.m_originalTimeRange.m_max - 1, newTime );
-                    editedItemTimeRange.m_min = Math::Max( clampRange.m_min, editedItemTimeRange.m_min );
+                    editedItemTimeRange.m_start = Math::Min( m_itemEditState.m_originalTimeRange.m_end - 1, newTime );
+                    editedItemTimeRange.m_start = Math::Max( clampRange.m_start, editedItemTimeRange.m_start );
                 }
                 else if ( m_itemEditState.m_mode == ItemEditMode::ResizeRight )
                 {
-                    float newTime = m_itemEditState.m_originalTimeRange.m_max + timeOffset;
+                    float newTime = m_itemEditState.m_originalTimeRange.m_end + timeOffset;
                     if ( m_isFrameSnappingEnabled )
                     {
                         newTime = Math::Round( newTime );
                     }
 
-                    editedItemTimeRange.m_max = Math::Max( m_itemEditState.m_originalTimeRange.m_min + 1, newTime );
-                    editedItemTimeRange.m_max = Math::Min( clampRange.m_max, editedItemTimeRange.m_max );
+                    editedItemTimeRange.m_end = Math::Max( m_itemEditState.m_originalTimeRange.m_start + 1, newTime );
+                    editedItemTimeRange.m_end = Math::Min( clampRange.m_end, editedItemTimeRange.m_end );
                 }
 
                 pEditedItem->SetTimeRange( editedItemTimeRange );
@@ -331,7 +331,7 @@ namespace KRG::Editor
         // Adjust visible range based on the canvas size
         if ( m_viewRange.GetLength() != maxVisibleFrames )
         {
-            m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
+            m_viewRange.m_end = m_viewRange.m_start + maxVisibleFrames;
         }
 
         // Process any update requests
@@ -350,18 +350,18 @@ namespace KRG::Editor
 
             case ViewUpdateMode::GoToStart:
             {
-                m_viewRange.m_min = m_timeRange.m_min;
-                m_viewRange.m_max = maxVisibleFrames;
-                m_playheadTime = (float) m_timeRange.m_min;
+                m_viewRange.m_start = m_timeRange.m_start;
+                m_viewRange.m_end = maxVisibleFrames;
+                m_playheadTime = (float) m_timeRange.m_start;
                 m_viewUpdateMode = ViewUpdateMode::None;
             }
             break;
 
             case ViewUpdateMode::GoToEnd:
             {
-                m_viewRange.m_min = Math::Max( m_timeRange.m_min, m_timeRange.m_max - maxVisibleFrames );
-                m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
-                m_playheadTime = (float) m_timeRange.m_max;
+                m_viewRange.m_start = Math::Max( m_timeRange.m_start, m_timeRange.m_end - maxVisibleFrames );
+                m_viewRange.m_end = m_viewRange.m_start + maxVisibleFrames;
+                m_playheadTime = (float) m_timeRange.m_end;
                 m_viewUpdateMode = ViewUpdateMode::None;
             }
             break;
@@ -371,15 +371,15 @@ namespace KRG::Editor
                 if ( !m_viewRange.ContainsInclusive( (int32) m_playheadTime ) )
                 {
                     // If the playhead is in the last visible range
-                    if ( m_playheadTime + maxVisibleFrames >= m_timeRange.m_max )
+                    if ( m_playheadTime + maxVisibleFrames >= m_timeRange.m_end )
                     {
-                        m_viewRange.m_min = m_timeRange.m_max - maxVisibleFrames;
-                        m_viewRange.m_max = m_timeRange.m_max;
+                        m_viewRange.m_start = m_timeRange.m_end - maxVisibleFrames;
+                        m_viewRange.m_end = m_timeRange.m_end;
                     }
                     else
                     {
-                        m_viewRange.m_min = (int) m_playheadTime;
-                        m_viewRange.m_max = m_viewRange.m_min + maxVisibleFrames;
+                        m_viewRange.m_start = (int) m_playheadTime;
+                        m_viewRange.m_end = m_viewRange.m_start + maxVisibleFrames;
                     }
                 }
             }
@@ -650,7 +650,7 @@ namespace KRG::Editor
 
             //-------------------------------------------------------------------------
 
-            bool const isRangeEndLine = ( ( m_viewRange.m_min + i ) == m_timeRange.m_max );
+            bool const isRangeEndLine = ( ( m_viewRange.m_start + i ) == m_timeRange.m_end );
             bool const isLargeLine = ( ( i % numFramesForLargeInterval ) == 0 ) || ( i == m_viewRange.GetLength() || i == 0 ) || isRangeEndLine;
             bool const isMediumLine = ( i % NumFramesForMediumInterval ) == 0;
 
@@ -665,7 +665,7 @@ namespace KRG::Editor
 
                 // Draw text label
                 InlineString<256> label;
-                label.sprintf( "%d", m_viewRange.m_min + i );
+                label.sprintf( "%d", m_viewRange.m_start + i );
                 pDrawList->AddText( ImVec2( lineOffsetX + g_timelineLabelLeftPadding, startPosY ), g_headerLabelColor, label.c_str() );
             }
             else if( isMediumLine )
@@ -691,7 +691,7 @@ namespace KRG::Editor
 
         //-------------------------------------------------------------------------
 
-        float const playheadStartOffsetX = ConvertFramesToPixels( m_playheadTime - m_viewRange.m_min );
+        float const playheadStartOffsetX = ConvertFramesToPixels( m_playheadTime - m_viewRange.m_start );
         float const playheadHeight = g_headerHeight - ( g_playHeadVerticalPadding * 2 );
         ImVec2 const playheadPosition( playheadPosX + playheadStartOffsetX, playheadPosY - g_playHeadVerticalPadding );
 
@@ -734,8 +734,8 @@ namespace KRG::Editor
             //-------------------------------------------------------------------------
 
             // The valid range for the playhead, limit it to the current view range but dont let it leave the actual time range
-            TRange<float> const playheadValidRange( (float) Math::Max( m_viewRange.m_min, m_timeRange.m_min ), (float) Math::Min( m_viewRange.m_max, m_timeRange.m_max ) );
-            m_playheadTime = m_viewRange.m_min + ConvertPixelsToFrames( mousePos.x - playheadRect.Min.x );
+            FloatRange const playheadValidRange( (float) Math::Max( m_viewRange.m_start, m_timeRange.m_start ), (float) Math::Min( m_viewRange.m_end, m_timeRange.m_end ) );
+            m_playheadTime = m_viewRange.m_start + ConvertPixelsToFrames( mousePos.x - playheadRect.Min.x );
             m_playheadTime = playheadValidRange.GetClampedValue( m_playheadTime );
 
             if ( m_isFrameSnappingEnabled )
@@ -823,8 +823,8 @@ namespace KRG::Editor
             // Calculate playhead position for the mouse pos
             if ( fullTrackAreaRect.Contains( mousePos ) )
             {
-                TRange<float> const playheadValidRange( (float) Math::Max( m_viewRange.m_min, m_timeRange.m_min ), (float) Math::Min( m_viewRange.m_max, m_timeRange.m_max ) );
-                m_mouseState.m_playheadTimeForMouse = m_viewRange.m_min + ConvertPixelsToFrames( mousePos.x - trackAreaRect.Min.x );
+                FloatRange const playheadValidRange( (float) Math::Max( m_viewRange.m_start, m_timeRange.m_start ), (float) Math::Min( m_viewRange.m_end, m_timeRange.m_end ) );
+                m_mouseState.m_playheadTimeForMouse = m_viewRange.m_start + ConvertPixelsToFrames( mousePos.x - trackAreaRect.Min.x );
                 m_mouseState.m_playheadTimeForMouse = playheadValidRange.GetClampedValue( m_mouseState.m_playheadTimeForMouse );
                 m_mouseState.m_snappedPlayheadTimeForMouse = m_mouseState.m_playheadTimeForMouse;
 
@@ -866,7 +866,7 @@ namespace KRG::Editor
 
                 for ( auto const pItem : pTrack->m_items )
                 {
-                    TRange<float> const itemTimeRange = pItem->GetTimeRange();
+                    FloatRange const itemTimeRange = pItem->GetTimeRange();
                     if ( !floatViewRange.Overlaps( itemTimeRange ) )
                     {
                         continue;
@@ -874,14 +874,14 @@ namespace KRG::Editor
 
                     //-------------------------------------------------------------------------
 
-                    float itemEndTime = itemTimeRange.m_max;
+                    float itemEndTime = itemTimeRange.m_end;
                     if ( pItem->IsImmediateItem() )
                     {
                         itemEndTime += ( g_immediateItemWidth / m_pixelsPerFrame );
                     }
 
-                    float const itemStartX = trackAreaRect.GetTL().x + ( itemTimeRange.m_min - m_viewRange.m_min ) * m_pixelsPerFrame;
-                    float const itemEndX = trackAreaRect.GetTL().x + ( itemEndTime - m_viewRange.m_min ) * m_pixelsPerFrame;
+                    float const itemStartX = trackAreaRect.GetTL().x + ( itemTimeRange.m_start - m_viewRange.m_start ) * m_pixelsPerFrame;
+                    float const itemEndX = trackAreaRect.GetTL().x + ( itemEndTime - m_viewRange.m_start ) * m_pixelsPerFrame;
                     float const itemStartY = trackAreaRect.GetTL().y + g_itemMarginY;
                     float const itemEndY = trackAreaRect.GetBR().y - g_itemMarginY;
 
@@ -1064,7 +1064,7 @@ namespace KRG::Editor
         ImVec2 const canvasPos = ImGui::GetCursorScreenPos();
         ImVec2 const canvasSize = ImGui::GetContentRegionAvail();
 
-        bool const requiresHorizontalScrollBar = ( m_viewRange.m_min > m_timeRange.m_min || m_viewRange.m_max < m_timeRange.m_max );
+        bool const requiresHorizontalScrollBar = ( m_viewRange.m_start > m_timeRange.m_start || m_viewRange.m_end < m_timeRange.m_end );
         float const horizontalScrollBarHeight = requiresHorizontalScrollBar ? g_horizontalScrollbarHeight : 0.0f;
 
         //-------------------------------------------------------------------------
@@ -1073,7 +1073,7 @@ namespace KRG::Editor
 
         if ( IsPlaying() )
         {
-            if ( !m_isLoopingEnabled && m_playheadTime >= m_timeRange.m_max )
+            if ( !m_isLoopingEnabled && m_playheadTime >= m_timeRange.m_end )
             {
                 SetPlayState( PlayState::Paused );
             }
@@ -1131,15 +1131,15 @@ namespace KRG::Editor
         ImRect const horizontalScrollBarRect( ImVec2( canvasPos.x + g_trackHeaderWidth, canvasPos.y + canvasSize.y - horizontalScrollBarHeight ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + canvasSize.y ) );
         float const currentViewSize = m_viewRange.GetLength() * m_pixelsPerFrame;
         float const totalContentSizeNeeded = m_timeRange.GetLength() * m_pixelsPerFrame;
-        float scrollbarPosition = m_viewRange.m_min * m_pixelsPerFrame;
+        float scrollbarPosition = m_viewRange.m_start * m_pixelsPerFrame;
 
         ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
         ImGuiID const horizontalScrollBarID = pWindow->GetID( "#TimelineScrollbarY" );
         if( ImGui::ScrollbarEx( horizontalScrollBarRect, horizontalScrollBarID, ImGuiAxis_X, &scrollbarPosition, currentViewSize, totalContentSizeNeeded, 0 ) )
         {
             int32 const viewRangeOriginalLength = m_viewRange.GetLength();
-            m_viewRange.m_min = Math::FloorToInt( scrollbarPosition / m_pixelsPerFrame );
-            m_viewRange.m_max = m_viewRange.m_min + viewRangeOriginalLength;
+            m_viewRange.m_start = Math::FloorToInt( scrollbarPosition / m_pixelsPerFrame );
+            m_viewRange.m_end = m_viewRange.m_start + viewRangeOriginalLength;
         }
 
         //-------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 #include "AnimationSyncTrack.h"
 #include "AnimationEvent.h"
 #include "System/Resource/ResourcePtr.h"
-#include "System/Core/Math/Range.h"
+#include "System/Core/Math/NumericRange.h"
 #include "System/Core/Types/Percentage.h"
 #include "System/Core/Time/Time.h"
 #include "System/Core/Algorithm/Quantization.h"
@@ -146,15 +146,17 @@ namespace KRG::Animation
 
         Transform GetRootTransform( FrameTime const& frameTime ) const;
 
-        inline Transform GetRootTransform( Percentage percentageThrough ) const 
+        inline Transform GetRootTransform( Percentage percentageThrough ) const
         { 
+            KRG_ASSERT( percentageThrough >= 0 && percentageThrough <= 1.0f );
             return GetRootTransform( GetFrameTime( percentageThrough ) ); 
         }
 
-        inline Transform GetRootTransformDelta( TRange<Percentage> const& timeRange ) const
+        inline Transform GetRootTransformDelta( Percentage fromTime, Percentage toTime ) const
         {
-            Transform const startTransform = GetRootTransform( timeRange.m_min );
-            Transform const endTransform = GetRootTransform( timeRange.m_max );
+            KRG_ASSERT( fromTime <= toTime );
+            Transform const startTransform = GetRootTransform( fromTime );
+            Transform const endTransform = GetRootTransform( toTime );
             return Transform::DeltaNoScale( startTransform, endTransform );
         }
 
@@ -171,13 +173,13 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         // Get all the events for the specified range. This function will append the results to the output array
-        inline void GetEventsForRange( TRange<Seconds> const& timeRange, TInlineVector<Event const*, 10>& outEvents ) const;
+        inline void GetEventsForRange( Seconds fromTime, Seconds toTime, TInlineVector<Event const*, 10>& outEvents ) const;
 
-        inline void GetEventsForRange( TRange<Percentage> const& timeRange, TInlineVector<Event const*, 10>& outEvents ) const
+        inline void GetEventsForRange( Percentage fromTime, Percentage toTime, TInlineVector<Event const*, 10>& outEvents ) const
         {
-            KRG_ASSERT( timeRange.m_min >= 0.0f && timeRange.m_min <= 1.0f );
-            KRG_ASSERT( timeRange.m_max >= 0.0f && timeRange.m_max <= 1.0f );
-            GetEventsForRange( TRange<Seconds>( m_duration * timeRange.m_min.ToFloat(), m_duration * timeRange.m_max.ToFloat() ), outEvents );
+            KRG_ASSERT( fromTime >= 0.0f && fromTime <= 1.0f );
+            KRG_ASSERT( toTime >= 0.0f && toTime <= 1.0f );
+            GetEventsForRange( m_duration * fromTime, m_duration * toTime, outEvents );
         }
 
         // Debug
@@ -397,20 +399,20 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    inline void AnimationClip::GetEventsForRange( TRange<Seconds> const& timeRange, TInlineVector<Event const*, 10>& outEvents ) const
+    inline void AnimationClip::GetEventsForRange( Seconds fromTime, Seconds toTime, TInlineVector<Event const*, 10>& outEvents ) const
     {
-        KRG_ASSERT( timeRange.IsValid() );
+        KRG_ASSERT( toTime >= fromTime );
         TInlineVector<Event const*, 10> events;
 
         for ( auto const& pEvent : m_events )
         {
             // Events are sorted so as soon as we reach an event after the end of the time range, we're done
-            if ( pEvent->GetStartTime() > timeRange.m_max )
+            if ( pEvent->GetStartTime() > toTime )
             {
                 break;
             }
 
-            if ( timeRange.Overlaps( pEvent->GetTimeRange() ) )
+            if ( FloatRange( fromTime, toTime ).Overlaps( pEvent->GetTimeRange() ) )
             {
                 events.emplace_back( pEvent );
             }

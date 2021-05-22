@@ -6,20 +6,24 @@
 
 namespace KRG::Animation::Graph
 {
-    class SpeedScaleNode : public PassthroughNode
+    class KRG_ENGINE_ANIMATION_API SpeedScaleNode final : public PassthroughNode
     {
     public:
 
-        struct Settings : public PassthroughNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public PassthroughNode::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PassthroughNode::Settings, m_scaleValueNodeIdx, m_scaleLimits, m_blendTime );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex               m_scaleValueNodeIdx = InvalidIndex;
-            TRange<float>           m_scaleLimits = TRange<float>( 0, 0 );
+            FloatRange              m_scaleLimits = FloatRange( 0, 0 );
             float                   m_blendTime = 0.2f;
         };
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual UpdateResult Update( GraphContext& context ) override;
@@ -41,19 +45,23 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class VelocityBasedSpeedScaleNode : public PassthroughNode
+    class KRG_ENGINE_ANIMATION_API VelocityBasedSpeedScaleNode final : public PassthroughNode
     {
     public:
 
-        struct Settings : public PassthroughNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public PassthroughNode::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PassthroughNode::Settings, m_desiredVelocityValueNodeIdx, m_blendTime );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex               m_desiredVelocityValueNodeIdx = InvalidIndex;
             float                   m_blendTime = 0.2f;
         };
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual UpdateResult Update( GraphContext& context ) override;

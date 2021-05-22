@@ -9,7 +9,7 @@
 namespace KRG::Render
 {
     TextureCompiler::TextureCompiler()
-        : Resource::Compiler( "TextureCompiler", VERSION )
+        : Resource::Compiler( "TextureCompiler", s_version )
     {
         m_outputTypes.push_back( Texture::GetStaticResourceTypeID() );
     }
@@ -42,7 +42,7 @@ namespace KRG::Render
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            Resource::ResourceHeader hdr( VERSION, Texture::GetStaticResourceTypeID() );
+            Resource::ResourceHeader hdr( s_version, Texture::GetStaticResourceTypeID() );
             archive << hdr << texture;
             return CompilationSucceeded( ctx );
         }

@@ -3,6 +3,8 @@
 #include "AnimationGraphContexts.h"
 #include "Engine/Animation/AnimationSyncTrack.h"
 #include "Engine/Animation/AnimationTarget.h"
+#include "System/TypeSystem/TypeRegistrationMacros.h"
+#include "System/Core/Serialization/BinaryArchive.h"
 
 //-------------------------------------------------------------------------
 
@@ -15,7 +17,7 @@ namespace KRG::Animation
 
 namespace KRG::Animation::Graph
 {
-    class GraphNode
+    class KRG_ENGINE_ANIMATION_API GraphNode
     {
         friend class AnimationNode;
         friend class ValueNode;
@@ -24,8 +26,89 @@ namespace KRG::Animation::Graph
 
         // This is the base for each node's individual settings
         // The settings are all shared for all graph instances since they are immutable, the nodes themselves contain the actual graph state
-        struct Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public IRegisteredType
         {
+            KRG_REGISTER_TYPE( Settings );
+
+            enum class InitOptions
+            {
+                CreateNodeAndSetPointers,
+                OnlySetPointers
+            };
+
+        protected:
+
+            template<typename T>
+            KRG_FORCE_INLINE static void SetNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T*& pTargetPtr )
+            {
+                KRG_ASSERT( nodeIdx >= 0 && nodeIdx < nodePtrs.size() );
+                pTargetPtr = static_cast<T*>( nodePtrs[nodeIdx] );
+            }
+
+            template<typename T>
+            KRG_FORCE_INLINE static void SetNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T const*& pTargetPtr )
+            {
+                KRG_ASSERT( nodeIdx >= 0 && nodeIdx < nodePtrs.size() );
+                pTargetPtr = static_cast<T const*>( nodePtrs[nodeIdx] );
+            }
+
+            template<typename T>
+            KRG_FORCE_INLINE static void SetOptionalNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T*& pTargetPtr )
+            {
+                if ( nodeIdx == InvalidIndex )
+                {
+                    pTargetPtr = nullptr;
+                }
+                else
+                {
+                    KRG_ASSERT( nodeIdx >= 0 && nodeIdx < nodePtrs.size() );
+                    pTargetPtr = static_cast<T*>( nodePtrs[nodeIdx] );
+                }
+            }
+
+            template<typename T>
+            KRG_FORCE_INLINE static void SetOptionalNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T const*& pTargetPtr )
+            {
+                if ( nodeIdx == InvalidIndex )
+                {
+                    pTargetPtr = nullptr;
+                }
+                else
+                {
+                    KRG_ASSERT( nodeIdx >= 0 && nodeIdx < nodePtrs.size() );
+                    pTargetPtr = static_cast<T const*>( nodePtrs[nodeIdx] );
+                }
+            }
+
+        public:
+
+            virtual ~Settings() = default;
+
+            // Factory method, will create the node instance and set all necessary node ptrs
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const = 0;
+
+            // Serialization methods
+            virtual void Load( cereal::BinaryInputArchive& archive ) { archive( m_nodeIdx, m_nodeID ); }
+            virtual void Save( cereal::BinaryOutputArchive& archive ) const { archive( m_nodeIdx, m_nodeID ); }
+
+        protected:
+
+            template<typename T>
+            KRG_FORCE_INLINE T* CreateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+            {
+                T* pNode = static_cast<T*>( nodePtrs[m_nodeIdx] );
+
+                if ( options == InitOptions::CreateNodeAndSetPointers )
+                {
+                    new ( pNode ) T();
+                    pNode->m_pSettings = this;
+                }
+
+                return pNode;
+            }
+
+        public:
+
             NodeIndex                           m_nodeIdx = InvalidIndex; // The index of this node in the graph, we currently only support graphs with max of 32k nodes
             StringID                            m_nodeID;
         };
@@ -37,9 +120,6 @@ namespace KRG::Animation::Graph
 
         GraphNode() = default;
         virtual ~GraphNode();
-
-        // Called once all the nodes are allocated and constructed for a graph instance, used to convert node indices to ptrs
-        virtual void OnConstruct( Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet );
 
         // Node state management
         virtual bool IsValid() const { return true; }
@@ -65,34 +145,6 @@ namespace KRG::Animation::Graph
             return static_cast<typename T::Settings const*>( m_pSettings );
         }
 
-        template<typename T>
-        KRG_FORCE_INLINE void SetNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T*& pTargetPtr )
-        {
-            if ( nodeIdx == InvalidIndex )
-            {
-                pTargetPtr = nullptr;
-            }
-            else
-            {
-                KRG_ASSERT( nodeIdx >= 0 && nodeIdx < nodePtrs.size() );
-                pTargetPtr = static_cast<T*>( nodePtrs[nodeIdx] );
-            }
-        }
-
-        template<typename T>
-        KRG_FORCE_INLINE void SetNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T const*& pTargetPtr )
-        {
-            if ( nodeIdx == InvalidIndex )
-            {
-                pTargetPtr = nullptr;
-            }
-            else
-            {
-                KRG_ASSERT( nodeIdx >= 0 && nodeIdx < nodePtrs.size() );
-                pTargetPtr = static_cast<T const*>( nodePtrs[nodeIdx] );
-            }
-        }
-
     private:
 
         Settings const*                 m_pSettings = nullptr;
@@ -115,7 +167,7 @@ namespace KRG::Animation::Graph
         SampledEventRange           m_sampledEventRange;
     };
 
-    class AnimationNode : public GraphNode
+    class KRG_ENGINE_ANIMATION_API AnimationNode : public GraphNode
     {
 
     public:
@@ -126,7 +178,6 @@ namespace KRG::Animation::Graph
         inline Percentage const& GetPreviousTime() const { return m_previousTime; }
         inline Percentage const& GetCurrentTime() const { return m_currentTime; }
         inline Seconds GetDuration() const { return m_duration; }
-        virtual TRange<Percentage> GetUpdateRange() const { return TRange<Percentage>( m_previousTime, m_currentTime ); }
 
         // Initialize an animation node with a specific start time
         void Initialize( GraphContext& context, SyncTrackTime const& initialTime = SyncTrackTime() );
@@ -157,7 +208,7 @@ namespace KRG::Animation::Graph
     //-------------------------------------------------------------------------
 
     // An interface to directly access a selected animation, this is needed to ensure certain animation nodes only operate on animations directly
-    class AnimationClipReferenceNode : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API AnimationClipReferenceNode : public AnimationNode
     {
     public:
 
@@ -193,7 +244,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ValueNode : public GraphNode
+    class KRG_ENGINE_ANIMATION_API ValueNode : public GraphNode
     {
 
     public:
@@ -229,50 +280,56 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ValueNodeBool : public ValueNode
+    class KRG_ENGINE_ANIMATION_API ValueNodeBool : public ValueNode
     {
         virtual ValueNodeType GetValueType() const final { return ValueNodeType::Bool; }
     };
 
     //-------------------------------------------------------------------------
 
-    class ValueNodeID : public ValueNode
+    class KRG_ENGINE_ANIMATION_API ValueNodeID : public ValueNode
     {
         virtual ValueNodeType GetValueType() const final { return ValueNodeType::ID; }
     };
 
     //-------------------------------------------------------------------------
 
-    class ValueNodeInt : public ValueNode
+    class KRG_ENGINE_ANIMATION_API ValueNodeInt : public ValueNode
     {
         virtual ValueNodeType GetValueType() const final { return ValueNodeType::Int; }
     };
 
     //-------------------------------------------------------------------------
 
-    class ValueNodeFloat : public ValueNode
+    class KRG_ENGINE_ANIMATION_API ValueNodeFloat : public ValueNode
     {
         virtual ValueNodeType GetValueType() const final { return ValueNodeType::Float; }
     };
 
     //-------------------------------------------------------------------------
 
-    class ValueNodeVector : public ValueNode
+    class KRG_ENGINE_ANIMATION_API ValueNodeVector : public ValueNode
     {
         virtual ValueNodeType GetValueType() const final { return ValueNodeType::Vector; }
     };
 
     //-------------------------------------------------------------------------
 
-    class ValueNodeTarget : public ValueNode
+    class KRG_ENGINE_ANIMATION_API ValueNodeTarget : public ValueNode
     {
         virtual ValueNodeType GetValueType() const final { return ValueNodeType::Target; }
     };
 
     //-------------------------------------------------------------------------
 
-    class ValueNodeBoneMask : public ValueNode
+    class KRG_ENGINE_ANIMATION_API ValueNodeBoneMask : public ValueNode
     {
         virtual ValueNodeType GetValueType() const final { return ValueNodeType::BoneMask; }
     };
 }
+
+//-------------------------------------------------------------------------
+
+#define KRG_SERIALIZE_GRAPHNODESETTINGS( BaseClassTypename, ... ) \
+virtual void Load( cereal::BinaryInputArchive& archive ) override { BaseClassTypename::Load( archive ); archive( __VA_ARGS__ ); }\
+virtual void Save( cereal::BinaryOutputArchive& archive ) const override { BaseClassTypename::Save( archive ); archive( __VA_ARGS__ ); }

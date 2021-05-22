@@ -3,25 +3,19 @@
 //-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
-namespace KRG
+namespace KRG::Debug::Drawing
 {
-    namespace Debug
+    void FrameCommandBuffer::AddThreadCommands( ThreadCommandBuffer const& threadCommands )
     {
-        namespace Drawing
-        {
-            void FrameCommandBuffer::AddThreadCommands( ThreadCommandBuffer const& threadCommands )
-            {
-                // TODO:
-                // Broad-phase culling
-                // Sort transparent and depth test off primitives by distance to camera
-                // Sort text by font
+        // TODO:
+        // Broad-phase culling
+        // Sort transparent and depth test off primitives by distance to camera
+        // Sort text by font
 
-                m_opaqueDepthOn.Append( threadCommands.GetOpaqueDepthTestEnabledBuffer() );
-                m_opaqueDepthOff.Append( threadCommands.GetOpaqueDepthTestDisabledBuffer() );
-                m_transparentDepthOn.Append( threadCommands.GetTransparentDepthTestEnabledBuffer() );
-                m_transparentDepthOff.Append( threadCommands.GetTransparentDepthTestDisabledBuffer() );
-            }
-        }
+        m_opaqueDepthOn.Append( threadCommands.GetOpaqueDepthTestEnabledBuffer() );
+        m_opaqueDepthOff.Append( threadCommands.GetOpaqueDepthTestDisabledBuffer() );
+        m_transparentDepthOn.Append( threadCommands.GetTransparentDepthTestEnabledBuffer() );
+        m_transparentDepthOff.Append( threadCommands.GetTransparentDepthTestDisabledBuffer() );
     }
 }
 #endif

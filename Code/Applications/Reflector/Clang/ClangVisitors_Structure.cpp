@@ -56,7 +56,6 @@ namespace KRG
             {
                 clang::QualType const fieldQualType = ClangUtils::GetQualType( type );
 
-
                 // Get typename
                 if ( !ClangUtils::GetQualifiedNameForType( fieldQualType, info.m_name ) )
                 {

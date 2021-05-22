@@ -10,7 +10,7 @@
 namespace KRG::Render
 {
     StaticMeshCompiler::StaticMeshCompiler()
-        : MeshCompiler( "StaticMeshCompiler", VERSION )
+        : MeshCompiler( "StaticMeshCompiler", s_version )
     {
         m_outputTypes.push_back( StaticMesh::GetStaticResourceTypeID() );
     }
@@ -56,7 +56,7 @@ namespace KRG::Render
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            Resource::ResourceHeader hdr( VERSION, StaticMesh::GetStaticResourceTypeID() );
+            Resource::ResourceHeader hdr( s_version, StaticMesh::GetStaticResourceTypeID() );
 
             SetMeshInstallDependencies( staticMesh, hdr );
 

@@ -12,7 +12,7 @@
 namespace KRG::EntityModel
 {
     EntityMapCompiler::EntityMapCompiler()
-        : Resource::Compiler( "EntityMapCompiler", VERSION )
+        : Resource::Compiler( "EntityMapCompiler", s_version )
     {
         m_outputTypes.push_back( EntityMapDescriptor::GetStaticResourceTypeID() );
         m_virtualTypes.push_back( Navmesh::NavmeshData::GetStaticResourceTypeID() );
@@ -89,7 +89,7 @@ namespace KRG::EntityModel
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            archive << Resource::ResourceHeader( VERSION, EntityMapDescriptor::GetStaticResourceTypeID() ) << map;
+            archive << Resource::ResourceHeader( s_version, EntityMapDescriptor::GetStaticResourceTypeID() ) << map;
             return CompilationSucceeded( ctx );
         }
         else

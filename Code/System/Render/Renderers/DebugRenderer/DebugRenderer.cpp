@@ -156,11 +156,11 @@ namespace KRG
             }
         }
 
-        void DebugRenderer::DrawText( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<uint32> cmdRange )
+        void DebugRenderer::DrawText( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, IntRange cmdRange )
         {
             KRG_ASSERT( cmdRange.IsValid() );
 
-            int32 const fontIdx = ( commands[cmdRange.m_min].m_size == Debug::Drawing::TextSize::Small ) ? 0 : 1;
+            int32 const fontIdx = ( commands[cmdRange.m_start].m_fontSize == Debug::TextSize::Small ) ? 0 : 1;
 
             //-------------------------------------------------------------------------
 
@@ -174,7 +174,7 @@ namespace KRG
 
             int32 numGlyphsDrawn = 0;
             int32 const numCommands = (int32) cmdRange.GetLength();
-            for ( auto c = cmdRange.m_min; c < cmdRange.m_max; c++ )
+            for ( auto c = cmdRange.m_start; c < cmdRange.m_end; c++ )
             {
                 auto const& cmd = commands[c];
 
@@ -185,7 +185,7 @@ namespace KRG
                 m_textRS.m_fontAtlas.GetGlyphsForString( fontIdx, cmd.m_text, glyphIndices );
 
                 int32 numGlyphsToDraw = (int32) glyphIndices.size();
-                bool const drawTextBox = cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::DrawBackground );
+                bool const drawTextBox = ( cmd.m_background == Debug::TextBackground::Opaque );
                 if ( drawTextBox )
                 {
                     numGlyphsToDraw++;
@@ -206,7 +206,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 Float2 textPosTopLeft;
-                if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::WorldSpace ) )
+                if ( ( cmd.m_coordinateSpace == Debug::TextCoordinateSpace::World ) )
                 {
                     // Ensure that the world position is on-screen
                     Vector const textPosTopLeftCS = viewport.WorldSpaceToClipSpace( cmd.m_position );
@@ -228,58 +228,117 @@ namespace KRG
                 static int32 const textBoxPadding = 3;
                 Float2 const extents( m_textRS.m_fontAtlas.GetTextExtents( fontIdx, cmd.m_text.c_str() ) );
 
-                // Horizontal Alignment
-                if( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignLeft ) )
+                switch ( cmd.m_alignment )
                 {
-                    if ( drawTextBox )
+                    case Debug::TextAlignment::TopLeft:
                     {
-                        textPosTopLeft.m_x += textBoxPadding;
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x += textBoxPadding;
+                            textPosTopLeft.m_y += textBoxPadding;
+                        }
                     }
-                }
-                else if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignRight ) )
-                {
-                    textPosTopLeft.m_x -= extents.m_x;
+                    break;
 
-                    if ( drawTextBox )
+                    case Debug::TextAlignment::TopCenter:
                     {
-                        textPosTopLeft.m_x -= textBoxPadding;
-                    }
-                }
-                else if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignCenter ) )
-                {
-                    textPosTopLeft.m_x -= ( extents.m_x / 2 );
+                        textPosTopLeft.m_x -= ( extents.m_x / 2 );
 
-                    if ( drawTextBox )
-                    {
-                        textPosTopLeft.m_x -= 0.5f * textBoxPadding;
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x -= 0.5f * textBoxPadding;
+                            textPosTopLeft.m_y += textBoxPadding;
+                        }
                     }
-                }
+                    break;
 
-                // Vertical Alignment
-                if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignTop ) )
-                {
-                    if ( drawTextBox )
+                    case Debug::TextAlignment::TopRight:
                     {
-                        textPosTopLeft.m_y += textBoxPadding;
-                    }
-                }
-                else if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignBottom ) )
-                {
-                    textPosTopLeft.m_y -= extents.m_y;
+                        textPosTopLeft.m_x -= extents.m_x;
 
-                    if ( drawTextBox )
-                    {
-                        textPosTopLeft.m_y -= textBoxPadding;
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x -= textBoxPadding;
+                            textPosTopLeft.m_y += textBoxPadding;
+                        }
                     }
-                }
-                else if ( cmd.m_textFlags.IsFlagSet( Debug::Drawing::TextFlags::AlignMiddle ) )
-                {
-                    textPosTopLeft.m_y -= extents.m_y / 2;
+                    break;
 
-                    if ( drawTextBox )
+                    case Debug::TextAlignment::MiddleLeft:
                     {
-                        textPosTopLeft.m_y -= 0.5f * textBoxPadding;
+                        textPosTopLeft.m_y -= extents.m_y / 2;
+
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x += textBoxPadding;
+                            textPosTopLeft.m_y -= 0.5f * textBoxPadding;
+                        }
                     }
+                    break;
+
+                    case Debug::TextAlignment::MiddleCenter:
+                    {
+                        textPosTopLeft.m_x -= ( extents.m_x / 2 );
+                        textPosTopLeft.m_y -= extents.m_y / 2;
+
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x -= 0.5f * textBoxPadding;
+                            textPosTopLeft.m_y -= 0.5f * textBoxPadding;
+                        }
+                    }
+                    break;
+
+                    case Debug::TextAlignment::MiddleRight:
+                    {
+                        textPosTopLeft.m_x -= extents.m_x;
+                        textPosTopLeft.m_y -= extents.m_y / 2;
+
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x -= textBoxPadding;
+                            textPosTopLeft.m_y -= 0.5f * textBoxPadding;
+                        }
+                    }
+                    break;
+
+                    case Debug::TextAlignment::BottomLeft:
+                    {
+                        textPosTopLeft.m_y -= extents.m_y;
+
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x += textBoxPadding;
+                            textPosTopLeft.m_y -= textBoxPadding;
+                        }
+                    }
+                    break;
+
+                    case Debug::TextAlignment::BottomCenter:
+                    {
+                        textPosTopLeft.m_x -= ( extents.m_x / 2 );
+                        textPosTopLeft.m_y -= extents.m_y;
+
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x -= 0.5f * textBoxPadding;
+                            textPosTopLeft.m_y -= textBoxPadding;
+                        }
+                    }
+                    break;
+
+                    case Debug::TextAlignment::BottomRight:
+                    {
+                        textPosTopLeft.m_x -= extents.m_x;
+                        textPosTopLeft.m_y -= extents.m_y;
+
+                        if ( drawTextBox )
+                        {
+                            textPosTopLeft.m_x -= textBoxPadding;
+                            textPosTopLeft.m_y -= textBoxPadding;
+                        }
+                    }
+                    break;
                 }
 
                 // Draw characters
@@ -308,23 +367,23 @@ namespace KRG
         
         //-------------------------------------------------------------------------
 
-        static void DrawTextCommands( TVector<Debug::Drawing::TextCommand> const& commands, RenderContext const& renderContext, Math::Viewport const& viewport, TFunction<void( RenderContext const&, Math::Viewport const&, TVector<Debug::Drawing::TextCommand> const&, TRange<uint32> )> renderFunction )
+        static void DrawTextCommands( TVector<Debug::Drawing::TextCommand> const& commands, RenderContext const& renderContext, Math::Viewport const& viewport, TFunction<void( RenderContext const&, Math::Viewport const&, TVector<Debug::Drawing::TextCommand> const&, IntRange )> renderFunction )
         {
             uint32 const numCommands = (uint32) commands.size();
-            TRange<uint32> cmdRange = TRange<uint32>( 0, 0 );
-            for ( uint32 i = cmdRange.m_min; i < numCommands; i++ )
+            IntRange cmdRange = IntRange( 0, 0 );
+            for ( uint32 i = cmdRange.m_start; i < numCommands; i++ )
             {
                 // If the text sizes differ
-                if ( commands[i].m_size != commands[cmdRange.m_min].m_size )
+                if ( commands[i].m_fontSize != commands[cmdRange.m_start].m_fontSize )
                 {
-                    cmdRange.m_max = i;
+                    cmdRange.m_end = i;
                     renderFunction( renderContext, viewport, commands, cmdRange );
-                    cmdRange.m_min = i;
+                    cmdRange.m_start = i;
                 }
 
                 if ( i == ( numCommands - 1 ) )
                 {
-                    cmdRange.m_max = numCommands;
+                    cmdRange.m_end = numCommands;
                     renderFunction( renderContext, viewport, commands, cmdRange );
                 }
             }
@@ -424,7 +483,7 @@ namespace KRG
                 KRG_PROFILE_SCOPE_RENDER( "DebugDrawing::DrawText" );
                 m_textRS.SetState( renderContext, viewport );
 
-                auto textRenderfunc = [this] ( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, TRange<uint32> cmdRange ) { DebugRenderer::DrawText( renderContext, viewport, commands, cmdRange ); };
+                auto textRenderfunc = [this] ( RenderContext const& renderContext, Math::Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, IntRange cmdRange ) { DebugRenderer::DrawText( renderContext, viewport, commands, cmdRange ); };
 
                 renderContext.SetDepthTestMode( DepthTestMode::On );
                 DrawTextCommands( m_drawCommands.m_opaqueDepthOn.m_textCommands, renderContext, viewport, textRenderfunc );

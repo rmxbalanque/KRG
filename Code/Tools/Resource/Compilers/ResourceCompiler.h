@@ -55,7 +55,11 @@ namespace KRG::Resource
                 return false;
             }
 
-            typeReader >> outData;
+            if ( !typeReader.ReadType( &outData ) )
+            {
+                return false;
+            }
+
             return true;
         }
 

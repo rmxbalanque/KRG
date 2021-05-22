@@ -14,7 +14,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         Int2 const renderTargetDimensions = m_pRenderDevice->GetRenderTargetDimensions();
-        Math::ViewVolume const orthographicVolume( Float2( renderTargetDimensions ), TRange<float>( 0.1f, 100.0f ) );
+        Math::ViewVolume const orthographicVolume( Float2( renderTargetDimensions ), FloatRange( 0.1f, 100.0f ) );
         m_viewports.push_back( Math::Viewport( Int2( 0, 0 ), Int2( renderTargetDimensions ), orthographicVolume ) );
 
         // Create development tools viewport

@@ -6,7 +6,7 @@
 
 namespace KRG::Animation::Graph
 {
-    class RootMotionOverrideNode : public PassthroughNode
+    class KRG_ENGINE_ANIMATION_API RootMotionOverrideNode final : public PassthroughNode
     {
     public:
 
@@ -21,8 +21,13 @@ namespace KRG::Animation::Graph
             FacingZ,
         };
 
-        struct Settings : public PassthroughNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public PassthroughNode::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PassthroughNode::Settings, m_desiredHeadingVelocityNodeIdx, m_desiredFacingDirectionNodeIdx, m_linearVelocityLimitNodeIdx, m_angularVelocityLimitNodeIdx, m_maxLinearVelocity, m_maxAngularVelocity, m_overrideFlags );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                        m_desiredHeadingVelocityNodeIdx = InvalidIndex;
             NodeIndex                        m_desiredFacingDirectionNodeIdx = InvalidIndex;
             NodeIndex                        m_linearVelocityLimitNodeIdx = InvalidIndex;
@@ -34,7 +39,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 

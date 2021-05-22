@@ -9,7 +9,9 @@ namespace KRG
     {
         bool EngineModule::Initialize( ModuleContext& context )
         {
-            m_animationClipLoader.SetTypeRegistry( context.GetSystem<TypeSystem::TypeRegistry>() );
+            auto const pTypeRegistry = context.GetSystem<TypeSystem::TypeRegistry>();
+            m_animationClipLoader.SetTypeRegistry( pTypeRegistry );
+            m_graphLoader.SetTypeRegistry( pTypeRegistry );
 
             context.RegisterResourceLoader( &m_skeletonLoader );
             context.RegisterResourceLoader( &m_animationClipLoader );

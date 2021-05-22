@@ -2,7 +2,7 @@
 
 #include "Plane.h"
 #include "Line.h"
-#include "Range.h"
+#include "NumericRange.h"
 #include "BoundingVolumes.h"
 
 //-------------------------------------------------------------------------
@@ -46,14 +46,14 @@ namespace KRG
         public:
 
             ViewVolume() {} // Warning: Leaves most members uninitialized!
-            ViewVolume( Float2 const& viewDimensions, TRange<float> depthRange, Matrix const& worldMatrix = Matrix::Identity );
-            ViewVolume( Float2 const& viewDimensions, TRange<float> depthRange, Radians FOV, Matrix const& worldMatrix = Matrix::Identity );
+            ViewVolume( Float2 const& viewDimensions, FloatRange depthRange, Matrix const& worldMatrix = Matrix::Identity );
+            ViewVolume( Float2 const& viewDimensions, FloatRange depthRange, Radians FOV, Matrix const& worldMatrix = Matrix::Identity );
 
             bool IsValid() const;
 
             void SetWorldMatrix( Matrix const& worldTransform );
             void SetView( Float3 const& position, Float3 const& viewDir, Float3 const& upDir );
-            void SetDepthRange( TRange<float> depthRange );
+            void SetDepthRange( FloatRange depthRange );
             void SetViewDimensions( Float2 dimensions );
             void SetHorizontalFOV( Radians FOV );
 
@@ -63,7 +63,7 @@ namespace KRG
             inline bool IsPerspective() const { return m_type == ProjectionType::Perspective; }
             inline bool IsOrthographic() const { return m_type == ProjectionType::Orthographic; }
 
-            inline TRange<float> GetDepthRange() const { return m_depthRange; }
+            inline FloatRange GetDepthRange() const { return m_depthRange; }
             inline Float2 GetViewDimensions() const { return m_viewDimensions; }
             inline float GetAspectRatio() const { return m_viewDimensions.m_x / m_viewDimensions.m_y; }
             inline Radians GetFOV() const { KRG_ASSERT( IsPerspective() ); return m_FOV; }
@@ -129,7 +129,7 @@ namespace KRG
 
             Float2                  m_viewDimensions = Float2::Zero;        // The dimensions of the view volume
             Radians                 m_FOV = 0.0f;                           // The horizontal field of view angle (only for perspective projection)
-            TRange<float>             m_depthRange = TRange<float>( 0 );        // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
+            FloatRange      m_depthRange = FloatRange( 0 );        // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
             ProjectionType          m_type = ProjectionType::Perspective;   // The projection type
         };
     }

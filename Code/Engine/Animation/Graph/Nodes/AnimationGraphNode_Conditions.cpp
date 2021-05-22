@@ -4,15 +4,14 @@
 
 namespace KRG::Animation::Graph
 {
-    void AndNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void AndNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pSettings, nodePtrs, dataSet );
+        auto pNode = CreateNode<AndNode>( nodePtrs, options );
 
-        auto pNodeSettings = static_cast<OrNode::Settings const*>( pSettings );
-        m_conditionNodes.reserve( pNodeSettings->m_conditionNodeIndices.size() );
-        for ( auto conditionNodeIdx : pNodeSettings->m_conditionNodeIndices )
+        pNode->m_conditionNodes.reserve( m_conditionNodeIndices.size() );
+        for ( auto conditionNodeIdx : m_conditionNodeIndices )
         {
-            SetNodePtrFromIndex( nodePtrs, conditionNodeIdx, m_conditionNodes.emplace_back( nullptr ) );
+            SetNodePtrFromIndex( nodePtrs, conditionNodeIdx, pNode->m_conditionNodes.emplace_back( nullptr ) );
         }
     }
 
@@ -66,15 +65,14 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void OrNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void OrNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pSettings, nodePtrs, dataSet );
+        auto pNode = CreateNode<OrNode>( nodePtrs, options );
 
-        auto pNodeSettings = static_cast<OrNode::Settings const*>( pSettings );
-        m_conditionNodes.reserve( pNodeSettings->m_conditionNodeIndices.size() );
-        for ( auto conditionNodeIdx : pNodeSettings->m_conditionNodeIndices )
+        pNode->m_conditionNodes.reserve( m_conditionNodeIndices.size() );
+        for ( auto conditionNodeIdx : m_conditionNodeIndices )
         {
-            SetNodePtrFromIndex( nodePtrs, conditionNodeIdx, m_conditionNodes.emplace_back( nullptr ) );
+            SetNodePtrFromIndex( nodePtrs, conditionNodeIdx, pNode->m_conditionNodes.emplace_back( nullptr ) );
         }
     }
 
@@ -128,10 +126,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void NotNode::OnConstruct( GraphNode::Settings const* pInSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void NotNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pInSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<NotNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<NotNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void NotNode::InitializeInternal( GraphContext& context )
@@ -164,11 +162,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FloatComparisonNode::OnConstruct( GraphNode::Settings const* pInSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FloatComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pInSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<FloatComparisonNode>()->m_inputValueNodeIdx, m_pInputValueNode );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<FloatComparisonNode>()->m_comparandValueNodeIdx, m_pComparandValueNode );
+        auto pNode = CreateNode<FloatComparisonNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
+        SetNodePtrFromIndex( nodePtrs, m_comparandValueNodeIdx, pNode->m_pComparandValueNode );
     }
 
     void FloatComparisonNode::InitializeInternal( GraphContext& context )
@@ -240,10 +238,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void RangeComparisonNode::OnConstruct( GraphNode::Settings const* pInSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void RangeComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pInSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<RangeComparisonNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<RangeComparisonNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void RangeComparisonNode::InitializeInternal( GraphContext& context )
@@ -278,10 +276,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void IDComparisonNode::OnConstruct( GraphNode::Settings const* pInSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void IDComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pInSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<IDComparisonNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<IDComparisonNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void IDComparisonNode::InitializeInternal( GraphContext& context )
@@ -329,10 +327,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void MultipleIDComparisonNode::OnConstruct( GraphNode::Settings const* pInSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void MultipleIDComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pInSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<MultipleIDComparisonNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<MultipleIDComparisonNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void MultipleIDComparisonNode::InitializeInternal( GraphContext& context )
@@ -381,10 +379,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void IsTargetSetNode::OnConstruct( GraphNode::Settings const* pInSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void IsTargetSetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pInSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<IsTargetSetNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<IsTargetSetNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void IsTargetSetNode::InitializeInternal( GraphContext& context )

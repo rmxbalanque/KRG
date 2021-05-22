@@ -2,7 +2,7 @@
 
 #include "Tools/Editor/_Module/API.h"
 #include "System/Core/Types/Containers.h"
-#include "System/Core/Math/Range.h"
+#include "System/Core/Math/NumericRange.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Types/String.h"
 
@@ -33,11 +33,11 @@ namespace KRG::Editor
         //-------------------------------------------------------------------------
         // This is done to abstract the timeline's time format from the item's format since they may differ
 
-        virtual TRange<float> GetTimeRange() const = 0;
-        virtual void SetTimeRange( TRange<float> const& inRange ) = 0;
+        virtual FloatRange GetTimeRange() const = 0;
+        virtual void SetTimeRange( FloatRange const& inRange ) = 0;
 
-        inline bool IsImmediateItem() const { return GetTimeRange().m_min == GetTimeRange().m_max; }
-        inline bool IsDurationItem() const { return GetTimeRange().m_min != GetTimeRange().m_max; }
+        inline bool IsImmediateItem() const { return GetTimeRange().m_start == GetTimeRange().m_end; }
+        inline bool IsDurationItem() const { return GetTimeRange().m_start != GetTimeRange().m_end; }
         inline float GetLength() const { return GetTimeRange().GetLength(); }
 
         // Context menu

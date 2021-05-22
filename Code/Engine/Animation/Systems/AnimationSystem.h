@@ -16,7 +16,7 @@ namespace KRG
 
         class KRG_ENGINE_ANIMATION_API AnimationSystem : public IEntitySystem
         {
-            KRG_REGISTER_ENTITY_SYSTEM( AnimationSystem, RequiresUpdate( UpdateStage::FrameStart ) );
+            KRG_REGISTER_ENTITY_SYSTEM( AnimationSystem, RequiresUpdate( UpdateStage::PrePhysics ), RequiresUpdate( UpdateStage::PostPhysics ) );
 
         public:
 

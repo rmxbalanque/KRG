@@ -7,10 +7,10 @@
 
 namespace KRG::Animation::Graph
 {
-    void AnimationClipNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void AnimationClipNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        AnimationClipReferenceNode::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<AnimationClipNode>()->m_playInReverseValueNodeIdx, m_pPlayInReverseValueNode );
+        auto pNode = CreateNode<AnimationClipNode>( nodePtrs, options );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_playInReverseValueNodeIdx, pNode->m_pPlayInReverseValueNode );
     }
 
     bool AnimationClipNode::IsValid() const
@@ -177,20 +177,16 @@ namespace KRG::Animation::Graph
         {
             KRG_ASSERT( pSettings->m_allowLooping || isSynchronizedUpdate );
 
-            TRange<Percentage> const preLoopUpdateRange( m_previousTime, 1.0f );
-            TRange<Percentage> const postLoopUpdateRange( 0, m_currentTime );
+            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( m_previousTime, 1.0f );
+            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( 0, m_currentTime ) * result.m_rootMotionDelta;
 
-            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( preLoopUpdateRange );
-            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( postLoopUpdateRange ) * result.m_rootMotionDelta;
-
-            m_pAnimation->GetEventsForRange( preLoopUpdateRange, sampledAnimationEvents );
-            m_pAnimation->GetEventsForRange( postLoopUpdateRange, sampledAnimationEvents );
+            m_pAnimation->GetEventsForRange( m_previousTime, 1.0f, sampledAnimationEvents );
+            m_pAnimation->GetEventsForRange( 0, m_currentTime, sampledAnimationEvents );
         }
         else // Just sample the current range
         {
-            TRange<Percentage> const updateRange( m_previousTime, m_currentTime );
-            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( updateRange );
-            m_pAnimation->GetEventsForRange ( updateRange, sampledAnimationEvents );
+            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( m_previousTime, m_currentTime );
+            m_pAnimation->GetEventsForRange ( m_previousTime, m_currentTime, sampledAnimationEvents );
         }
 
         // Record root motion operation

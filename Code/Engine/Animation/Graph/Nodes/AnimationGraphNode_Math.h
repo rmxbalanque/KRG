@@ -6,20 +6,24 @@
 
 namespace KRG::Animation::Graph
 {
-    class FloatRemapNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API FloatRemapNode final : public ValueNodeFloat
     {
     public:
 
-        struct Settings : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_inputValueNodeIdx, m_inputRange, m_outputRange );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
-            TRange<float>               m_inputRange = TRange<float>( 0.0f );
-            TRange<float>               m_outputRange = TRange<float>( 0.0f );
+            FloatRange                  m_inputRange = FloatRange( 0.0f );
+            FloatRange                  m_outputRange = FloatRange( 0.0f );
         };
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
@@ -32,20 +36,23 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class FloatClampNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API FloatClampNode final : public ValueNodeFloat
     {
     public:
 
-        struct Settings : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_inputValueNodeIdx, m_clampRange );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
-            float                       m_minValue = 0;
-            float                       m_maxValue = 0;
+            FloatRange                  m_clampRange = FloatRange( 0 );
         };
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
@@ -58,18 +65,22 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class FloatAbsNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API FloatAbsNode final : public ValueNodeFloat
     {
     public:
 
-        struct Settings : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_inputValueNodeIdx );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
         };
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
@@ -82,12 +93,17 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class IDToFloatNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API IDToFloatNode final : public ValueNodeFloat
     {
     public:
 
-        struct Settings : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_inputValueNodeIdx, m_defaultValue, m_IDs, m_values );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
             float                       m_defaultValue = 0.0f;
             TInlineVector<StringID, 5>  m_IDs;
@@ -96,7 +112,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
@@ -109,7 +124,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class VectorInfoNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API VectorInfoNode final : public ValueNodeFloat
     {
     public:
 
@@ -128,15 +143,19 @@ namespace KRG::Animation::Graph
 
     public:
 
-        struct Settings : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_inputValueNodeIdx, m_desiredInfo );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
             Info                        m_desiredInfo = Info::X;
         };
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
@@ -149,12 +168,17 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class FloatBlendNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API FloatBlendNode final : public ValueNodeFloat
     {
     public:
 
-        struct Settings : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_inputValueNodeIdx, m_blendType, m_blendTime );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
             Math::Easing::Type          m_blendType = Math::Easing::Type::Linear;
             float                       m_blendTime = 1.0f;
@@ -162,7 +186,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
@@ -170,14 +193,14 @@ namespace KRG::Animation::Graph
     private:
 
         ValueNodeFloat*                 m_pInputValueNode = nullptr;
-        TRange<float>                   m_blendRange = TRange<float>( 0.0f );
+        FloatRange                      m_blendRange = FloatRange( 0.0f );
         float                           m_currentValue = 0.0f;
         float                           m_currentBlendTime = 0.0f;
     };
 
     //-------------------------------------------------------------------------
 
-    class FloatMathNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API FloatMathNode final : public ValueNodeFloat
     {
     public:
 
@@ -189,8 +212,13 @@ namespace KRG::Animation::Graph
             Div,
         };
 
-        struct Settings : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_valueNodeIdxA, m_valueNodeIdxB, m_returnAbsoluteResult, m_operator, m_valueB );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                   m_valueNodeIdxA = InvalidIndex;
             NodeIndex                   m_valueNodeIdxB = InvalidIndex; // Optional
             bool                        m_returnAbsoluteResult = false;
@@ -200,7 +228,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
@@ -214,7 +241,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class TargetInfoNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API TargetInfoNode final : public ValueNodeFloat
     {
     public:
 
@@ -232,8 +259,13 @@ namespace KRG::Animation::Graph
             DeltaOrientationZ,
         };
 
-        struct Settings : public ValueNodeTarget::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeTarget::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeTarget::Settings, m_inputTargetNodeIdx, m_expectedCoordinateSpace, m_infoType );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                   m_inputTargetNodeIdx = InvalidIndex;
             CoordinateSpace             m_expectedCoordinateSpace = CoordinateSpace::Character;
             Info                        m_infoType = Info::Distance;
@@ -241,10 +273,9 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
-        virtual void GetValueInternal( GraphContext& context, void* pOutValue );
+        virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
 
     private:
 
@@ -254,12 +285,17 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class FloatSwitchNode : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API FloatSwitchNode final : public ValueNodeFloat
     {
     public:
 
-        struct Settings : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_switchValueNodeIdx, m_trueValueNodeIdx, m_falseValueNodeIdx );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                    m_switchValueNodeIdx = InvalidIndex;
             NodeIndex                    m_trueValueNodeIdx = InvalidIndex;
             NodeIndex                    m_falseValueNodeIdx = InvalidIndex;
@@ -267,7 +303,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
@@ -282,13 +317,18 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class TargetOffsetNode : public ValueNodeTarget
+    class KRG_ENGINE_ANIMATION_API TargetOffsetNode final : public ValueNodeTarget
     {
 
     public:
 
-        struct Settings : public ValueNodeTarget::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeTarget::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeTarget::Settings, m_inputValueNodeIdx, m_isBoneSpaceOffset, m_rotationOffset, m_translationOffset );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex               m_inputValueNodeIdx = InvalidIndex;
             bool                    m_isBoneSpaceOffset = true;
             Quaternion              m_rotationOffset = Quaternion::Identity;
@@ -297,10 +337,9 @@ namespace KRG::Animation::Graph
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
-        virtual void GetValueInternal( GraphContext& context, void* pOutValue );
+        virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
 
     private:
 
@@ -310,21 +349,25 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class VectorNegateNode : public ValueNodeVector
+    class KRG_ENGINE_ANIMATION_API VectorNegateNode final : public ValueNodeVector
     {
     public:
 
-        struct Settings : public ValueNodeVector::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeVector::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeVector::Settings, m_inputValueNodeIdx );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex               m_inputValueNodeIdx = InvalidIndex;
         };
 
     private:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
-        virtual void GetValueInternal( GraphContext& context, void* pOutValue );
+        virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
 
     private:
 

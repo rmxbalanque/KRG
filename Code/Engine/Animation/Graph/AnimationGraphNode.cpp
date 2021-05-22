@@ -9,12 +9,6 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( m_initializationCount == 0 );
     }
 
-    void GraphNode::OnConstruct( Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
-    {
-        KRG_ASSERT( pSettings != nullptr );
-        m_pSettings = pSettings;
-    };
-
     void GraphNode::Initialize( GraphContext& Context )
     {
         if ( IsInitialized() )

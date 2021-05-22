@@ -4,6 +4,11 @@
 
 namespace KRG::Animation::Graph
 {
+    void ControlParameterBool::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ControlParameterBool>( nodePtrs, options );
+    }
+
     void ControlParameterBool::GetValueInternal( GraphContext& context, void* pOutValue )
     {
         *( (bool*) pOutValue ) = m_value;
@@ -15,6 +20,11 @@ namespace KRG::Animation::Graph
     }
 
     //-------------------------------------------------------------------------
+
+    void ControlParameterID::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ControlParameterID>( nodePtrs, options );
+    }
 
     void ControlParameterID::GetValueInternal( GraphContext& context, void* pOutValue )
     {
@@ -28,6 +38,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
+    void ControlParameterInt::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ControlParameterInt>( nodePtrs, options );
+    }
+
     void ControlParameterInt::GetValueInternal( GraphContext& context, void* pOutValue )
     {
         *( (int32*) pOutValue ) = m_value;
@@ -39,6 +54,11 @@ namespace KRG::Animation::Graph
     }
 
     //-------------------------------------------------------------------------
+
+    void ControlParameterFloat::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ControlParameterFloat>( nodePtrs, options );
+    }
 
     void ControlParameterFloat::GetValueInternal( GraphContext& context, void* pOutValue )
     {
@@ -52,6 +72,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
+    void ControlParameterVector::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ControlParameterVector>( nodePtrs, options );
+    }
+
     void ControlParameterVector::GetValueInternal( GraphContext& context, void* pOutValue )
     {
         *( (Vector*) pOutValue ) = m_value;
@@ -64,6 +89,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
+    void ControlParameterTarget::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ControlParameterTarget>( nodePtrs, options );
+    }
+
     void ControlParameterTarget::GetValueInternal( GraphContext& context, void* pOutValue )
     {
         *( (Target*) pOutValue ) = m_value;
@@ -75,6 +105,11 @@ namespace KRG::Animation::Graph
     }
 
     //-------------------------------------------------------------------------
+
+    void ControlParameterBoneMask::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ControlParameterBoneMask>( nodePtrs, options );
+    }
 
     void ControlParameterBoneMask::InitializeInternal( GraphContext& context )
     {
@@ -101,10 +136,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VirtualParameterBool::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VirtualParameterBool::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBool::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VirtualParameterBool>()->m_childNodeIdx, m_pChildNode );
+        auto pNode = CreateNode<VirtualParameterBool>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
     }
 
     void VirtualParameterBool::InitializeInternal( GraphContext& context )
@@ -129,10 +164,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VirtualParameterID::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VirtualParameterID::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeID::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VirtualParameterID>()->m_childNodeIdx, m_pChildNode );
+        auto pNode = CreateNode<VirtualParameterID>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
     }
 
     void VirtualParameterID::InitializeInternal( GraphContext& context )
@@ -157,10 +192,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VirtualParameterInt::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VirtualParameterInt::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeInt::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VirtualParameterInt>()->m_childNodeIdx, m_pChildNode );
+        auto pNode = CreateNode<VirtualParameterInt>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
     }
 
     void VirtualParameterInt::InitializeInternal( GraphContext& context )
@@ -185,10 +220,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VirtualParameterFloat::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VirtualParameterFloat::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VirtualParameterFloat>()->m_childNodeIdx, m_pChildNode );
+        auto pNode = CreateNode<VirtualParameterFloat>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
     }
 
     void VirtualParameterFloat::InitializeInternal( GraphContext& context )
@@ -213,10 +248,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VirtualParameterVector::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VirtualParameterVector::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeVector::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VirtualParameterVector>()->m_childNodeIdx, m_pChildNode );
+        auto pNode = CreateNode<VirtualParameterVector>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
     }
 
     void VirtualParameterVector::InitializeInternal( GraphContext& context )
@@ -241,10 +276,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VirtualParameterTarget::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VirtualParameterTarget::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeTarget::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VirtualParameterTarget>()->m_childNodeIdx, m_pChildNode );
+        auto pNode = CreateNode<VirtualParameterTarget>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
     }
 
     void VirtualParameterTarget::InitializeInternal( GraphContext& context )
@@ -269,10 +304,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VirtualParameterBoneMask::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VirtualParameterBoneMask::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBoneMask::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VirtualParameterBoneMask>()->m_childNodeIdx, m_pChildNode );
+        auto pNode = CreateNode<VirtualParameterBoneMask>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
     }
 
     void VirtualParameterBoneMask::InitializeInternal( GraphContext& context )

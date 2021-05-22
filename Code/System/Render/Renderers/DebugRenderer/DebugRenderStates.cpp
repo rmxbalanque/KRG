@@ -691,7 +691,7 @@ namespace KRG
 
         bool DebugTextFontAtlas::Generate( FontDesc* pFonts, int32 const numFonts )
         {
-            static TRange<int32> const glyphRange( 0x20, 0xFF );
+            static IntRange const glyphRange( 0x20, 0xFF );
 
             // Allocate temporary atlas data
             //-------------------------------------------------------------------------
@@ -743,7 +743,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 charInfo.resize( glyphRange.GetLength() );
-                if ( !stbtt_PackFontRange( &context, fontData.data(), 0, pFonts[i].m_fontSize, glyphRange.m_min, glyphRange.GetLength(), charInfo.data() ) )
+                if ( !stbtt_PackFontRange( &context, fontData.data(), 0, pFonts[i].m_fontSize, glyphRange.m_start, glyphRange.GetLength(), charInfo.data() ) )
                 {
                     return false;
                 }
@@ -751,9 +751,9 @@ namespace KRG
                 // Create Glyph lookup table
                 //-------------------------------------------------------------------------
 
-                for ( auto g = glyphRange.m_min; g < glyphRange.m_max; g++ )
+                for ( auto g = glyphRange.m_start; g < glyphRange.m_end; g++ )
                 {
-                    int32 charIdx = g - glyphRange.m_min;
+                    int32 charIdx = g - glyphRange.m_start;
                     stbtt_aligned_quad q;
                     Float2 pos( 0.0f );
                     stbtt_GetPackedQuad( charInfo.data(), fontAtlasDimensions.m_x, fontAtlasDimensions.m_y, charIdx, &pos.m_x, &pos.m_y, &q, 0 );
@@ -778,8 +778,8 @@ namespace KRG
             KRG_ASSERT( fontIdx < m_fonts.size() );
             auto const& fontInfo = m_fonts[fontIdx];
 
-            TRange<int32> const glyphRange = fontInfo.GetValidGlyphRange();
-            int32 const spaceIdx = ' ' - glyphRange.m_min;
+            IntRange const glyphRange = fontInfo.GetValidGlyphRange();
+            int32 const spaceIdx = ' ' - glyphRange.m_start;
 
             outGlyphIndices.reserve( (int32) ( str.size() * 1.5f ) );
 
@@ -798,7 +798,7 @@ namespace KRG
                 }
                 else if ( glyphRange.ContainsInclusive( ch ) )
                 {
-                    outGlyphIndices.push_back( ch - glyphRange.m_min );
+                    outGlyphIndices.push_back( ch - glyphRange.m_start );
                 }
             }
         }
@@ -808,8 +808,8 @@ namespace KRG
             KRG_ASSERT( fontIdx < m_fonts.size() );
             auto const& fontInfo = m_fonts[fontIdx];
 
-            TRange<int32> const glyphRange = fontInfo.GetValidGlyphRange();
-            int32 const spaceIdx = ' ' - glyphRange.m_min;
+            IntRange const glyphRange = fontInfo.GetValidGlyphRange();
+            int32 const spaceIdx = ' ' - glyphRange.m_start;
 
             int32 const strLen = (int32) strlen( pStr );
             outGlyphIndices.reserve( (int32) ( strLen * 1.5f ) );
@@ -829,7 +829,7 @@ namespace KRG
                 }
                 else if ( glyphRange.ContainsInclusive( pStr[i] ) )
                 {
-                    outGlyphIndices.push_back( pStr[i] - glyphRange.m_min );
+                    outGlyphIndices.push_back( pStr[i] - glyphRange.m_start );
                 }
             }
         }
@@ -867,7 +867,7 @@ namespace KRG
                 {
                     if ( glyphRange.ContainsInclusive( pText[i] ) )
                     {
-                        auto const glyphIdx = pText[i] - glyphRange.m_min;
+                        auto const glyphIdx = pText[i] - glyphRange.m_start;
                         auto const& glyph = fontInfo.m_glyphs[glyphIdx];
                         currentLineWidth += glyph.m_advanceX;
                     }

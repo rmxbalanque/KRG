@@ -5,21 +5,18 @@
 
 namespace KRG::Animation::Graph
 {
-    void FSelectorNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        AnimationNode::OnConstruct( pSettings, nodePtrs, dataSet );
-        auto pNodeSettings = GetSettings<FSelectorNode>();
+        auto pNode = CreateNode<FSelectorNode>( nodePtrs, options );
 
-        for ( auto nodeIdx : pNodeSettings->m_optionNodeIndices )
+        for ( auto nodeIdx : m_optionNodeIndices )
         {
-            SetNodePtrFromIndex( nodePtrs, nodeIdx, m_optionNodes.emplace_back() );
-            KRG_ASSERT( m_optionNodes.back() != nullptr );
+            SetNodePtrFromIndex( nodePtrs, nodeIdx, pNode->m_optionNodes.emplace_back() );
         }
 
-        for ( auto nodeIdx : pNodeSettings->m_conditionNodeIndices )
+        for ( auto nodeIdx : m_conditionNodeIndices )
         {
-            SetNodePtrFromIndex( nodePtrs, nodeIdx, m_conditions.emplace_back() );
-            KRG_ASSERT( m_conditions.back() != nullptr );
+            SetNodePtrFromIndex( nodePtrs, nodeIdx, pNode->m_conditions.emplace_back() );
         }
     }
 
@@ -170,21 +167,18 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FAnimationSelectorNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FAnimationSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        AnimationNode::OnConstruct( pSettings, nodePtrs, dataSet );
-        auto pNodeSettings = GetSettings<FSelectorNode>();
+        auto pNode = CreateNode<FAnimationSelectorNode>( nodePtrs, options );
 
-        for ( auto nodeIdx : pNodeSettings->m_optionNodeIndices )
+        for ( auto nodeIdx : m_optionNodeIndices )
         {
-            SetNodePtrFromIndex( nodePtrs, nodeIdx, m_optionNodes.emplace_back() );
-            KRG_ASSERT( m_optionNodes.back() != nullptr );
+            SetNodePtrFromIndex( nodePtrs, nodeIdx, pNode->m_optionNodes.emplace_back() );
         }
 
-        for ( auto nodeIdx : pNodeSettings->m_conditionNodeIndices )
+        for ( auto nodeIdx : m_conditionNodeIndices )
         {
-            SetNodePtrFromIndex( nodePtrs, nodeIdx, m_conditions.emplace_back() );
-            KRG_ASSERT( m_conditions.back() != nullptr );
+            SetNodePtrFromIndex( nodePtrs, nodeIdx, pNode->m_conditions.emplace_back() );
         }
     }
 

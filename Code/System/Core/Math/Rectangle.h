@@ -1,7 +1,7 @@
 #pragma once
 #include "System/Core/_Module/API.h"
 #include "System/Core/Math/Vector.h"
-#include "Range.h"
+#include "NumericRange.h"
 
 //-------------------------------------------------------------------------
 
@@ -61,12 +61,12 @@ namespace KRG
             inline bool Overlaps( Rectangle const& other ) const
             {
                 Float2 const bottomRight = GetBottomRight();
-                TRange<float> rangeX( m_topLeft.m_x, bottomRight.m_x );
-                TRange<float> rangeY( bottomRight.m_y, m_topLeft.m_y );
+                FloatRange rangeX( m_topLeft.m_x, bottomRight.m_x );
+                FloatRange rangeY( bottomRight.m_y, m_topLeft.m_y );
 
                 Float2 const otherBottomRight = other.GetBottomRight();
-                TRange<float> otherRangeX( other.m_topLeft.m_x, otherBottomRight.m_x );
-                TRange<float> otherRangeY( otherBottomRight.m_y, other.m_topLeft.m_y );
+                FloatRange otherRangeX( other.m_topLeft.m_x, otherBottomRight.m_x );
+                FloatRange otherRangeY( otherBottomRight.m_y, other.m_topLeft.m_y );
 
                 return rangeX.Overlaps( otherRangeX ) && rangeY.Overlaps( otherRangeY );
             }

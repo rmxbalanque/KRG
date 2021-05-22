@@ -7,7 +7,7 @@ namespace KRG::Camera
     void CameraComponent::Initialize()
     {
         SpatialEntityComponent::Initialize();
-        m_viewVolume = Math::ViewVolume( Float2( 1.0f ), TRange<float>( 0.1f, m_depth ), Radians( m_FOV ), GetWorldTransform().ToMatrix() );
+        m_viewVolume = Math::ViewVolume( Float2( 1.0f ), FloatRange( 0.1f, m_depth ), Radians( m_FOV ), GetWorldTransform().ToMatrix() );
 
         // Decompose current view into heading and pitch
         //-------------------------------------------------------------------------

@@ -10,7 +10,7 @@
 namespace KRG::Render
 {
     SkeletalMeshCompiler::SkeletalMeshCompiler()
-        : MeshCompiler( "SkeletalMeshCompiler", VERSION )
+        : MeshCompiler( "SkeletalMeshCompiler", s_version )
     {
         m_outputTypes.push_back( SkeletalMesh::GetStaticResourceTypeID() );
     }
@@ -59,7 +59,7 @@ namespace KRG::Render
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            Resource::ResourceHeader hdr( VERSION, SkeletalMesh::GetStaticResourceTypeID() );
+            Resource::ResourceHeader hdr( s_version, SkeletalMesh::GetStaticResourceTypeID() );
 
             SetMeshInstallDependencies( skeletalMesh, hdr );
 

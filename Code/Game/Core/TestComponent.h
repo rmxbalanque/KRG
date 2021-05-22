@@ -132,6 +132,9 @@ namespace KRG
         EXPOSE ResourceID                                       m_resourceID;
         EXPOSE TResourcePtr<Render::SkeletalMesh>               m_specificResourcePtr;
 
+        EXPOSE IntRange                                         m_intRange;
+        EXPOSE FloatRange                                       m_floatRange;
+
         // Enums
         EXPOSE InternalEnum                                     m_internalEnum = InternalEnum::Bar;
         EXPOSE InternalTest::InternalEnum                       m_testInternalEnum = InternalTest::InternalEnum::Bar;

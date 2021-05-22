@@ -14,7 +14,7 @@ namespace KRG
     namespace Physics
     {
         PhysicsMaterialDatabaseCompiler::PhysicsMaterialDatabaseCompiler()
-            : Resource::Compiler( "PhysicsMaterialCompiler", VERSION )
+            : Resource::Compiler( "PhysicsMaterialCompiler", s_version )
         {
             m_outputTypes.push_back( PhysicsMaterialDatabase::GetStaticResourceTypeID() );
         }
@@ -94,7 +94,7 @@ namespace KRG
             Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
             if ( archive.IsValid() )
             {
-                Resource::ResourceHeader hdr( VERSION, PhysicsMaterialDatabase::GetStaticResourceTypeID() );
+                Resource::ResourceHeader hdr( s_version, PhysicsMaterialDatabase::GetStaticResourceTypeID() );
                 archive << hdr << materialSettings;
                 return CompilationSucceeded( ctx );
             }

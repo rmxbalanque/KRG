@@ -6,7 +6,6 @@
 
 //-------------------------------------------------------------------------
 // Easing utility functions 
-//  - Adapted from Branimir Karadzic's BX lib ( https://github.com/bkaradzic/bx )
 //  - Reference: http://easings.net/ and http://robertpenner.com/easing/
 //-------------------------------------------------------------------------
 

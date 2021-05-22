@@ -89,7 +89,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        ViewVolume::ViewVolume( Float2 const& viewDimensions, TRange<float> depthRange, Matrix const& worldMatrix )
+        ViewVolume::ViewVolume( Float2 const& viewDimensions, FloatRange depthRange, Matrix const& worldMatrix )
             : m_worldMatrix( worldMatrix )
             , m_viewDimensions( viewDimensions )
             , m_depthRange( depthRange )
@@ -99,7 +99,7 @@ namespace KRG
             CalculateProjectionMatrix();
         }
 
-        ViewVolume::ViewVolume( Float2 const& viewDimensions, TRange<float> depthRange, Radians FOV, Matrix const& worldMatrix )
+        ViewVolume::ViewVolume( Float2 const& viewDimensions, FloatRange depthRange, Radians FOV, Matrix const& worldMatrix )
             : m_worldMatrix( worldMatrix )
             , m_viewDimensions( viewDimensions )
             , m_FOV( FOV )
@@ -112,7 +112,7 @@ namespace KRG
 
         bool ViewVolume::IsValid() const
         {
-            if( m_viewDimensions.m_x <= 0.0f || m_viewDimensions.m_y <= 0.0f || m_depthRange.m_min <= 0.0f || !m_depthRange.IsValid() )
+            if( m_viewDimensions.m_x <= 0.0f || m_viewDimensions.m_y <= 0.0f || m_depthRange.m_start <= 0.0f || !m_depthRange.IsValid() )
             {
                 return false;
             }
@@ -166,12 +166,12 @@ namespace KRG
         {
             if ( IsOrthographic() )
             {
-                m_projectionMatrix = Matrix::OrthographicProjectionMatrix( m_viewDimensions.m_x, m_viewDimensions.m_y, m_depthRange.m_min, m_depthRange.m_max );
+                m_projectionMatrix = Matrix::OrthographicProjectionMatrix( m_viewDimensions.m_x, m_viewDimensions.m_y, m_depthRange.m_start, m_depthRange.m_end );
             }
             else
             {
                 Radians const verticalFOV = ConvertHorizontalToVerticalFOV( m_viewDimensions.m_x, m_viewDimensions.m_y, m_FOV );
-                m_projectionMatrix = Matrix::PerspectiveProjectionMatrix( verticalFOV, GetAspectRatio(), m_depthRange.m_min, m_depthRange.m_max );
+                m_projectionMatrix = Matrix::PerspectiveProjectionMatrix( verticalFOV, GetAspectRatio(), m_depthRange.m_start, m_depthRange.m_end );
             }
 
             UpdateInternals();
@@ -189,9 +189,9 @@ namespace KRG
             return OBB();
         }
 
-        void ViewVolume::SetDepthRange( TRange<float> depthRange )
+        void ViewVolume::SetDepthRange( FloatRange depthRange )
         {
-            KRG_ASSERT( depthRange.m_min > 0 && depthRange.m_max > 0 && depthRange.IsValid() );
+            KRG_ASSERT( depthRange.m_start > 0 && depthRange.m_end > 0 && depthRange.IsValid() );
             m_depthRange = depthRange;
             CalculateProjectionMatrix();
         }
@@ -215,7 +215,7 @@ namespace KRG
                 Vector const upDir = GetUpVector();
                 Vector const rightDir = GetRightVector();
 
-                Vector const nearPlaneDepthCenterPoint = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_max ), viewPosition );
+                Vector const nearPlaneDepthCenterPoint = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_end ), viewPosition );
                 Vector const halfWidth( m_viewDimensions.m_x / 2, m_viewDimensions.m_y / 2, 0.0f, 0.0f );
 
                 corners[0] = nearPlaneDepthCenterPoint - ( rightDir * ( m_viewDimensions.m_x / 2 ) ) - ( upDir * ( m_viewDimensions.m_y / 2 ) );
@@ -223,7 +223,7 @@ namespace KRG
                 corners[2] = nearPlaneDepthCenterPoint + ( rightDir * ( m_viewDimensions.m_x / 2 ) ) + ( upDir * ( m_viewDimensions.m_y / 2 ) );
                 corners[3] = nearPlaneDepthCenterPoint + ( rightDir * ( m_viewDimensions.m_x / 2 ) ) - ( upDir * ( m_viewDimensions.m_y / 2 ) );
 
-                Vector const farPlaneDepthOffset = fwdDir * m_depthRange.m_max;
+                Vector const farPlaneDepthOffset = fwdDir * m_depthRange.m_end;
                 corners[4] = corners[0] + farPlaneDepthOffset;
                 corners[5] = corners[1] + farPlaneDepthOffset;
                 corners[6] = corners[2] + farPlaneDepthOffset;
@@ -237,16 +237,16 @@ namespace KRG
                 Vector const upDir = GetUpVector();
 
                 // Near/far plane center points
-                Vector const centerNear = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_min ), viewPosition );
-                Vector const centerFar = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_max ), viewPosition );
+                Vector const centerNear = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_start ), viewPosition );
+                Vector const centerFar = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_end ), viewPosition );
 
                 // Get projected viewport extents on near/far planes
                 Radians const verticalFOV = ConvertHorizontalToVerticalFOV( m_viewDimensions.m_x, m_viewDimensions.m_y, m_FOV );
                 float const aspectRatio = GetAspectRatio();
                 float e = Math::Tan( verticalFOV * 0.5f );
-                float extentUpNear = e * m_depthRange.m_min;
+                float extentUpNear = e * m_depthRange.m_start;
                 float extentRightNear = extentUpNear * aspectRatio;
-                float extentUpFar = e * m_depthRange.m_max;
+                float extentUpFar = e * m_depthRange.m_end;
                 float extentRightFar = extentUpFar * aspectRatio;
 
                 // Points are just offset from the center points along camera basis
@@ -273,7 +273,7 @@ namespace KRG
             drawingContext.DrawPoint( viewPosition, Colors::LimeGreen, 10.0f );
 
             Vector const fwdDir = GetForwardVector();
-            drawingContext.DrawArrow( viewPosition, viewPosition + ( fwdDir * m_depthRange.m_max ), Colors::Pink, 3.0f );
+            drawingContext.DrawArrow( viewPosition, viewPosition + ( fwdDir * m_depthRange.m_end ), Colors::Pink, 3.0f );
 
             //-------------------------------------------------------------------------
 

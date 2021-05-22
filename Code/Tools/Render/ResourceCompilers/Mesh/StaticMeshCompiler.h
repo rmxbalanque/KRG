@@ -16,7 +16,7 @@ namespace KRG::Render
 
     class StaticMeshCompiler : public MeshCompiler
     {
-        static const int32 VERSION = 3;
+        static const int32 s_version = 3;
 
     public:
 

@@ -6,10 +6,11 @@
 
 namespace KRG::Animation::Graph
 {
-    void SpeedScaleNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void SpeedScaleNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        PassthroughNode::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<SpeedScaleNode>()->m_scaleValueNodeIdx, m_pScaleValueNode );
+        auto pNode = CreateNode<SpeedScaleNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_scaleValueNodeIdx, pNode->m_pScaleValueNode );
+        PassthroughNode::Settings::InstantiateNode( nodePtrs, GraphNode::Settings::InitOptions::OnlySetPointers );
     }
 
     void SpeedScaleNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
@@ -78,10 +79,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VelocityBasedSpeedScaleNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VelocityBasedSpeedScaleNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        PassthroughNode::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VelocityBasedSpeedScaleNode>()->m_desiredVelocityValueNodeIdx, m_pDesiredVelocityValueNode );
+        auto pNode = CreateNode<VelocityBasedSpeedScaleNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_desiredVelocityValueNodeIdx, pNode->m_pDesiredVelocityValueNode );
+        PassthroughNode::Settings::InstantiateNode( nodePtrs, GraphNode::Settings::InitOptions::OnlySetPointers );
     }
 
     void VelocityBasedSpeedScaleNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )

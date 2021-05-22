@@ -111,8 +111,9 @@ namespace KRG
             ResourceRequesterID                     m_requesterID;
             ResourceRecord*                         m_pResourceRecord = nullptr;
             ResourceLoader*                         m_pResourceLoader = nullptr;
-            FileSystem::Path                          m_rawResourcePath;
+            FileSystem::Path                        m_rawResourcePath;
             TVector<Byte>                           m_rawResourceData;
+            InstallDependencyList                   m_pendingInstallDependencies;
             InstallDependencyList                   m_installDependencies;
             Type                                    m_type = Type::Invalid;
             Stage                                   m_stage = Stage::None;

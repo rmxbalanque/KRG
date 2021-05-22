@@ -38,7 +38,9 @@ namespace KRG::Animation
         EXPOSE TResourcePtr<AnimationGraph>             m_pGraph = nullptr;
         EXPOSE TResourcePtr<AnimationGraphDataSet>      m_pDataSet = nullptr;
 
+        AnimationGraphInstance*                         m_pGraphInstance = nullptr;
         Pose*                                           m_pPose = nullptr;
-
+        Graph::TaskSystem*                              m_pTaskSystem = nullptr;
+        Graph::GraphContext                             m_graphContext;
     };
 }

@@ -6,13 +6,12 @@
 
 namespace KRG::Animation::Graph
 {
-    void FloatSwitchNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FloatSwitchNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        auto pNodeSettings = GetSettings<FloatSwitchNode>();
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_switchValueNodeIdx, m_pSwitchValueNode );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_trueValueNodeIdx, m_pTrueValueNode );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_falseValueNodeIdx, m_pFalseValueNode );
+        auto pNode = CreateNode<FloatSwitchNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_switchValueNodeIdx, pNode->m_pSwitchValueNode );
+        SetNodePtrFromIndex( nodePtrs, m_trueValueNodeIdx, pNode->m_pTrueValueNode );
+        SetNodePtrFromIndex( nodePtrs, m_falseValueNodeIdx, pNode->m_pFalseValueNode );
     }
 
     void FloatSwitchNode::InitializeInternal( GraphContext& context )
@@ -52,10 +51,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void TargetOffsetNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void TargetOffsetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeTarget::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<TargetOffsetNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<TargetOffsetNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void TargetOffsetNode::InitializeInternal( GraphContext& context )
@@ -96,10 +95,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VectorNegateNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VectorNegateNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeVector::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VectorNegateNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<VectorNegateNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void VectorNegateNode::InitializeInternal( GraphContext& context )
@@ -131,10 +130,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FloatRemapNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FloatRemapNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<FloatRemapNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<FloatRemapNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void FloatRemapNode::InitializeInternal( GraphContext& context )
@@ -168,7 +167,7 @@ namespace KRG::Animation::Graph
             }
             else
             {
-                TRange<float> const validRange( pSettings->m_outputRange.m_max, pSettings->m_outputRange.m_min );
+                FloatRange const validRange( pSettings->m_outputRange.m_end, pSettings->m_outputRange.m_start );
                 m_value = validRange.GetValueForPercentageThroughClamped( 1.0f - percentageThroughInputRange );
             }
         }
@@ -178,10 +177,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FloatClampNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FloatClampNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<FloatClampNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<FloatClampNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void FloatClampNode::InitializeInternal( GraphContext& context )
@@ -201,13 +200,13 @@ namespace KRG::Animation::Graph
     void FloatClampNode::GetValueInternal( GraphContext& context, void* pOutValue )
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
-        auto FloatNodeSettings = GetSettings<FloatClampNode>();
+        auto pSettings = GetSettings<FloatClampNode>();
 
         if ( !IsUpToDate( context ) )
         {
             MarkAsUpdated( context );
             auto const inputValue = m_pInputValueNode->GetValue<float>( context );
-            m_value = Math::Clamp( inputValue, FloatNodeSettings->m_minValue, FloatNodeSettings->m_maxValue );
+            m_value = pSettings->m_clampRange.GetClampedValue( inputValue );
         }
 
         *reinterpret_cast<float*>( pOutValue ) = m_value;
@@ -215,10 +214,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FloatAbsNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FloatAbsNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<FloatAbsNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<FloatAbsNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void FloatAbsNode::InitializeInternal( GraphContext& context )
@@ -252,10 +251,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void IDToFloatNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void IDToFloatNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<IDToFloatNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<IDToFloatNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void IDToFloatNode::InitializeInternal( GraphContext& context )
@@ -301,10 +300,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VectorInfoNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void VectorInfoNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<VectorInfoNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<VectorInfoNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void VectorInfoNode::InitializeInternal( GraphContext& context )
@@ -375,10 +374,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FloatBlendNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FloatBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<FloatBlendNode>()->m_inputValueNodeIdx, m_pInputValueNode );
+        auto pNode = CreateNode<FloatBlendNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
     }
 
     void FloatBlendNode::InitializeInternal( GraphContext& context )
@@ -388,8 +387,8 @@ namespace KRG::Animation::Graph
         ValueNodeFloat::InitializeInternal( context );
         m_pInputValueNode->Initialize( context );
 
-        m_blendRange = TRange<float>( m_pInputValueNode->GetValue<float>( context ) );
-        m_currentValue = m_blendRange.m_max;
+        m_blendRange = FloatRange( m_pInputValueNode->GetValue<float>( context ) );
+        m_currentValue = m_blendRange.m_end;
         m_currentBlendTime = 0;
     }
 
@@ -412,17 +411,17 @@ namespace KRG::Animation::Graph
             float const inputTargetValue = m_pInputValueNode->GetValue<float>( context );
             if ( Math::IsNearEqual( m_currentValue, inputTargetValue, 0.01f ) )
             {
-                m_blendRange = TRange<float>( inputTargetValue );
+                m_blendRange = FloatRange( inputTargetValue );
                 m_currentValue = inputTargetValue;
                 m_currentBlendTime = 0;
             }
             else
             {
                 // If the target has changed
-                if ( inputTargetValue != m_blendRange.m_max )
+                if ( inputTargetValue != m_blendRange.m_end )
                 {
-                    m_blendRange.m_max = inputTargetValue;
-                    m_blendRange.m_min = m_currentValue;
+                    m_blendRange.m_end = inputTargetValue;
+                    m_blendRange.m_start = m_currentValue;
                     m_currentBlendTime = 0;
                 }
 
@@ -431,8 +430,8 @@ namespace KRG::Animation::Graph
 
                 // Calculate the new value, based on the percentage through the blend calculated by the easing function
                 float const T = Math::Clamp( m_currentBlendTime / pSettings->m_blendTime, 0.0f, 1.0f );
-                float const blendValue = Math::Easing::EvaluateEasingFunction( pSettings->m_blendType, T ) * ( m_blendRange.m_max - m_blendRange.m_min );
-                m_currentValue = m_blendRange.m_min + blendValue;
+                float const blendValue = Math::Easing::EvaluateEasingFunction( pSettings->m_blendType, T ) * m_blendRange.GetLength();
+                m_currentValue = m_blendRange.m_start + blendValue;
             }
         }
 
@@ -441,11 +440,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FloatMathNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void FloatMathNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<FloatMathNode>()->m_valueNodeIdxA, m_pValueNodeA );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<FloatMathNode>()->m_valueNodeIdxB, m_pValueNodeB );
+        auto pNode = CreateNode<FloatMathNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_valueNodeIdxA, pNode->m_pValueNodeA );
+        SetNodePtrFromIndex( nodePtrs, m_valueNodeIdxB, pNode->m_pValueNodeB );
     }
 
     void FloatMathNode::InitializeInternal( GraphContext& context )
@@ -544,10 +543,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void TargetInfoNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void TargetInfoNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeFloat::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<TargetInfoNode>()->m_inputTargetNodeIdx, m_pTargetNode );
+        auto pNode = CreateNode<TargetInfoNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_inputTargetNodeIdx, pNode->m_pTargetNode );
     }
 
     void TargetInfoNode::InitializeInternal( GraphContext& context )

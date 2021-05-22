@@ -199,8 +199,8 @@ namespace KRG::TypeSystem
         template<typename T>
         static void* InstantiateStaticCollection( TypeRegistry const& typeRegistry, TypeDescriptorCollection const& collection, TVector<T*>& outTypes )
         {
-            KRG_ASSERT( collection.m_typeSizes.size() == collection.m_descriptors.size() );
-            KRG_ASSERT( collection.m_typeSizes.size() == collection.m_typePaddings.size() );
+            KRG_ASSERT( collection.m_typeSizes.size() == collection.m_descriptors.size() ); // Did you forget to run the calculate requirements function?
+            KRG_ASSERT( collection.m_typeSizes.size() == collection.m_typePaddings.size() ); // Did you forget to run the calculate requirements function?
 
             void* pRawMemory = KRG::Alloc( collection.m_totalRequiredSize, collection.m_requiredAlignment );
             Byte* pTypeMemory = (Byte*) pRawMemory;

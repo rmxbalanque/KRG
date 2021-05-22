@@ -4,6 +4,11 @@
 
 namespace KRG::Animation::Graph
 {
+    void BoneMaskNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<BoneMaskNode>( nodePtrs, options );
+    }
+
     void BoneMaskNode::InitializeInternal( GraphContext& context )
     {
         ValueNodeBoneMask::InitializeInternal( context );
@@ -27,14 +32,12 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void BoneMaskBlendNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void BoneMaskBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBoneMask::OnConstruct( pSettings, nodePtrs, dataSet );
-        auto pNodeSettings = GetSettings<BoneMaskBlendNode>();
-        KRG_ASSERT( pNodeSettings->m_sourceMaskNodeIdx != InvalidIndex && pNodeSettings->m_targetMaskNodeIdx != InvalidIndex && pNodeSettings->m_blendWeightValueNodeIdx != InvalidIndex );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_sourceMaskNodeIdx, m_pSourceBoneMask );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_targetMaskNodeIdx, m_pTargetBoneMask );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_blendWeightValueNodeIdx, m_pBlendWeightValueNode );
+        auto pNode = CreateNode<BoneMaskBlendNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_sourceMaskNodeIdx, pNode->m_pSourceBoneMask );
+        SetNodePtrFromIndex( nodePtrs, m_targetMaskNodeIdx, pNode->m_pTargetBoneMask );
+        SetNodePtrFromIndex( nodePtrs, m_blendWeightValueNodeIdx, pNode->m_pBlendWeightValueNode );
     }
 
     void BoneMaskBlendNode::InitializeInternal( GraphContext& context )
@@ -92,20 +95,17 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void BoneMaskSelectorNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
+    void BoneMaskSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
     {
-        ValueNodeBoneMask::OnConstruct( pSettings, nodePtrs, dataSet );
-        auto pNodeSettings = GetSettings<BoneMaskSelectorNode>();
-        KRG_ASSERT( pNodeSettings->m_parameterValues.size() == pNodeSettings->m_maskNodeIndices.size() );
+        auto pNode = CreateNode<BoneMaskSelectorNode>( nodePtrs, options );
 
-        for ( NodeIndex const maskNodeIdx : pNodeSettings->m_maskNodeIndices )
+        for ( NodeIndex const maskNodeIdx : m_maskNodeIndices )
         {
-            SetNodePtrFromIndex( nodePtrs, maskNodeIdx, m_boneMaskOptionNodes.emplace_back() );
-            KRG_ASSERT( m_boneMaskOptionNodes.back() != nullptr );
+            SetNodePtrFromIndex( nodePtrs, maskNodeIdx, pNode->m_boneMaskOptionNodes.emplace_back() );
         }
 
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_defaultMaskNodeIdx, m_pDefaultMaskValueNode );
-        SetNodePtrFromIndex( nodePtrs, pNodeSettings->m_parameterValueNodeIdx, m_pParameterValueNode );
+        SetNodePtrFromIndex( nodePtrs, m_defaultMaskNodeIdx, pNode->m_pDefaultMaskValueNode );
+        SetNodePtrFromIndex( nodePtrs, m_parameterValueNodeIdx, pNode->m_pParameterValueNode );
     }
 
     void BoneMaskSelectorNode::InitializeInternal( GraphContext& context )

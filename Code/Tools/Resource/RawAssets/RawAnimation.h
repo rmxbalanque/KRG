@@ -6,7 +6,7 @@
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/StringID.h"
 #include "System/Core/Time/Time.h"
-#include "System/Core/Math/Range.h"
+#include "System/Core/Math/NumericRange.h"
 
 //-------------------------------------------------------------------------
 
@@ -19,13 +19,13 @@ namespace KRG::RawAssets
 
         struct TrackData
         {
-            TVector<Transform>                    m_transforms;
-            TRange<float>                         m_translationValueRangeX;
-            TRange<float>                         m_translationValueRangeY;
-            TRange<float>                         m_translationValueRangeZ;
-            TRange<float>                         m_scaleValueRangeX;
-            TRange<float>                         m_scaleValueRangeY;
-            TRange<float>                         m_scaleValueRangeZ;
+            TVector<Transform>                 m_transforms;
+            FloatRange                         m_translationValueRangeX;
+            FloatRange                         m_translationValueRangeY;
+            FloatRange                         m_translationValueRangeZ;
+            FloatRange                         m_scaleValueRangeX;
+            FloatRange                         m_scaleValueRangeY;
+            FloatRange                         m_scaleValueRangeZ;
         };
 
     public:

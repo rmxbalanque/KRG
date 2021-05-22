@@ -6,13 +6,17 @@
 
 namespace KRG::Animation::Graph
 {
-    class DefaultPoseNode final : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API DefaultPoseNode final : public AnimationNode
     {
-
     public:
 
-        struct Settings : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public AnimationNode::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_poseType );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             Pose::InitialState  m_poseType = Pose::InitialState::ReferencePose;
         };
 
@@ -26,29 +30,29 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class PoseNode final : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API PoseNode final : public AnimationNode
     {
-
     public:
 
-        struct Settings : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public AnimationNode::Settings
         {
-            NodeIndex                       m_poseTimeValueNodeIdx = InvalidIndex;
-            UUID                            m_animationID;
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_poseTimeValueNodeIdx, m_animationID, m_remapRange );
 
-            // Time range allows for remapping a time value that is not a normalized time to the animation
-            float                           m_timeRangeStart = 0;
-            float                           m_timeRangeEnd = 1;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
+            NodeIndex                       m_poseTimeValueNodeIdx = InvalidIndex;
+            uint16                          m_animationID;
+            FloatRange                      m_remapRange = FloatRange( 0, 1 ); // Time range allows for remapping a time value that is not a normalized time to the animation
         };
 
     public:
 
-        virtual bool IsValid() const;
+        virtual bool IsValid() const override;
 
     private:
 
         virtual SyncTrack const& GetSyncTrack() const override { return SyncTrack::s_defaultTrack; }
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 

@@ -75,7 +75,7 @@ namespace KRG::Navmesh
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, navmeshResourcePath );
         if ( archive.IsValid() )
         {
-            archive << Resource::ResourceHeader( VERSION, NavmeshData::GetStaticResourceTypeID() ) << navmeshData;
+            archive << Resource::ResourceHeader( s_version, NavmeshData::GetStaticResourceTypeID() ) << navmeshData;
             return true;
         }
         else

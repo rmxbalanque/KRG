@@ -20,6 +20,7 @@
     <ClInclude Include="Debug\DebugDrawingSystem.h" />
     <ClInclude Include="Math\MathHelpers.h" />
     <ClInclude Include="Math\Viewport.h" />
+    <ClInclude Include="Serialization\UserTypes\eastl_fixed_vector.hpp" />
     <ClInclude Include="Serialization\JsonArchive.h" />
     <ClInclude Include="Settings\ISettings.h" />
     <ClInclude Include="Debug\DebugDrawingCommands.h" />
@@ -313,7 +314,7 @@
     <ClInclude Include="Math\PointSet.h" />
     <ClInclude Include="Math\Quaternion.h" />
     <ClInclude Include="Math\Random.h" />
-    <ClInclude Include="Math\Range.h" />
+    <ClInclude Include="Math\NumericRange.h" />
     <ClInclude Include="Math\Rectangle.h" />
     <ClInclude Include="Math\SIMD.h" />
     <ClInclude Include="Math\SimpleMovingAverage.h" />

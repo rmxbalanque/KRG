@@ -4,6 +4,15 @@
 
 namespace KRG::Animation::Graph
 {
+    void PassthroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        KRG_ASSERT( options == GraphNode::Settings::InitOptions::OnlySetPointers );
+        auto pNode = CreateNode<PassthroughNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
+    }
+
+    //-------------------------------------------------------------------------
+
     SyncTrack const& PassthroughNode::GetSyncTrack() const
     {
         if ( IsValid() )
@@ -14,13 +23,6 @@ namespace KRG::Animation::Graph
         {
             return SyncTrack::s_defaultTrack;
         }
-    }
-
-    void PassthroughNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
-    {
-        AnimationNode::OnConstruct( pSettings, nodePtrs, dataSet );
-        KRG_ASSERT( GetSettings<PassthroughNode>()->m_childNodeIdx != InvalidIndex );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<PassthroughNode>()->m_childNodeIdx, m_pChildNode );
     }
 
     void PassthroughNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )

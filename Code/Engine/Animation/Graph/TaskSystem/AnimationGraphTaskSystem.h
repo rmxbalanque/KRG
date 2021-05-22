@@ -38,6 +38,7 @@ namespace KRG::Animation::Graph
         template< typename T, typename ... ConstructorParams >
         inline TaskIndex RegisterTask( ConstructorParams&&... params )
         {
+            KRG_ASSERT( m_tasks.size() < 0xFF );
             auto pNewTask = m_tasks.emplace_back( KRG::New<T>( std::forward<ConstructorParams>( params )... ) );
             m_hasPhysicsDependency |= pNewTask->HasPhysicsDependency();
             return (TaskIndex) ( m_tasks.size() - 1 );

@@ -6,12 +6,17 @@
 
 namespace KRG::Animation::Graph
 {
-    class BoneMaskNode : public ValueNodeBoneMask
+    class KRG_ENGINE_ANIMATION_API BoneMaskNode final : public ValueNodeBoneMask
     {
     public:
 
-        struct Settings : public ValueNodeBoneMask::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeBoneMask::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeBoneMask::Settings, m_rootMotionWeight, m_weights );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             float                               m_rootMotionWeight = 1.0f;
             TVector<BoneWeight>                 m_weights;
         };
@@ -32,13 +37,17 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class BoneMaskBlendNode : public ValueNodeBoneMask
+    class KRG_ENGINE_ANIMATION_API BoneMaskBlendNode final : public ValueNodeBoneMask
     {
-
     public:
 
-        struct Settings : public ValueNodeBoneMask::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeBoneMask::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeBoneMask::Settings, m_sourceMaskNodeIdx, m_targetMaskNodeIdx, m_blendWeightValueNodeIdx );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                           m_sourceMaskNodeIdx = InvalidIndex;
             NodeIndex                           m_targetMaskNodeIdx = InvalidIndex;
             NodeIndex                           m_blendWeightValueNodeIdx = InvalidIndex;
@@ -49,7 +58,6 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
 
     private:
 
@@ -61,12 +69,17 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class BoneMaskSelectorNode : public ValueNodeBoneMask
+    class KRG_ENGINE_ANIMATION_API BoneMaskSelectorNode final : public ValueNodeBoneMask
     {
     public:
 
-        struct Settings : public ValueNodeBoneMask::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeBoneMask::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeBoneMask::Settings, m_defaultMaskNodeIdx, m_parameterValueNodeIdx, m_switchDynamically, m_maskNodeIndices, m_parameterValues, m_blendTime );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex                                       m_defaultMaskNodeIdx = InvalidIndex;
             NodeIndex                                       m_parameterValueNodeIdx = InvalidIndex;
             bool                                            m_switchDynamically = false;
@@ -84,7 +97,6 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void GetValueInternal( GraphContext& context, void* pOutValue ) override;
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
 
         BoneMask const* GetBoneMaskForIndex( GraphContext& context, int32 optionIndex ) const;
 

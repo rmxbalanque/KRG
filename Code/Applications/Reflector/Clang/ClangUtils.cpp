@@ -35,40 +35,17 @@ namespace KRG
         {
             clang::Type const* pType = type.getTypePtr();
 
-            if ( pType->isPointerType() || pType->isReferenceType() )
-            {
-                auto p = pType->getPointeeType();
-                clang::Type const* pClangType2 = p.getTypePtr();
-            }
-            else if ( pType->isRecordType() )
-            {
-                clang::RecordDecl const* pRecordDecl = pType->getAs<clang::RecordType>()->getDecl();
-                KRG_ASSERT( pRecordDecl != nullptr );
-                qualifiedName = pRecordDecl->getQualifiedNameAsString().c_str();
-            }
-            else if ( pType->isEnumeralType() )
-            {
-                clang::NamedDecl const* pNamedDecl = pType->getAs<clang::EnumType>()->getDecl();
-                KRG_ASSERT( pNamedDecl != nullptr );
-                qualifiedName = pNamedDecl->getQualifiedNameAsString().c_str();
-            }
-            else if ( pType->getTypeClass() == clang::Type::Typedef )
-            {
-                clang::NamedDecl const* pNamedDecl = pType->getAs<clang::TypedefType>()->getDecl();
-                KRG_ASSERT( pNamedDecl != nullptr );
-                qualifiedName = pNamedDecl->getQualifiedNameAsString().c_str();
-            }
-            else if ( pType->isBooleanType() )
-            {
-                qualifiedName = "bool";
-            }
-            else if ( pType->isArrayType() )
+            if ( pType->isArrayType() )
             {
                 auto elementType = pType->castAsArrayTypeUnsafe()->getElementType();
                 if ( !GetQualifiedNameForType( elementType, qualifiedName ) )
                 {
                     return false;
                 }
+            }
+            else if ( pType->isBooleanType() )
+            {
+                qualifiedName = "bool";
             }
             else if ( pType->isBuiltinType() )
             {
@@ -137,12 +114,37 @@ namespace KRG
                     }
                 };
             }
+            else if ( pType->isPointerType() || pType->isReferenceType() )
+            {
+                auto p = pType->getPointeeType();
+                clang::Type const* pClangType2 = p.getTypePtr();
+            }
+            else if ( pType->isRecordType() )
+            {
+                clang::RecordDecl const* pRecordDecl = pType->getAs<clang::RecordType>()->getDecl();
+                KRG_ASSERT( pRecordDecl != nullptr );
+                qualifiedName = pRecordDecl->getQualifiedNameAsString().c_str();
+            }
+            else if ( pType->isEnumeralType() )
+            {
+                clang::NamedDecl const* pNamedDecl = pType->getAs<clang::EnumType>()->getDecl();
+                KRG_ASSERT( pNamedDecl != nullptr );
+                qualifiedName = pNamedDecl->getQualifiedNameAsString().c_str();
+            }
+            else if ( pType->getTypeClass() == clang::Type::Typedef )
+            {
+                clang::NamedDecl const* pNamedDecl = pType->getAs<clang::TypedefType>()->getDecl();
+                KRG_ASSERT( pNamedDecl != nullptr );
+                qualifiedName = pNamedDecl->getQualifiedNameAsString().c_str();
+            }
             else
             {
                 return false;
             }
 
-            // Convert standard library types to KRG types
+            // Convert 3rd party types to KRG types
+            //-------------------------------------------------------------------------
+
             if ( qualifiedName == "eastl::basic_string" )
             {
                 qualifiedName = "KRG::String";

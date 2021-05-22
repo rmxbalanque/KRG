@@ -7,7 +7,7 @@ namespace KRG
     namespace Math
     {
         Viewport::Viewport()
-            : m_viewVolume( Float2( 1, 1 ), TRange<float>( 0.1f, 1000.0f ) )
+            : m_viewVolume( Float2( 1, 1 ), FloatRange( 0.1f, 1000.0f ) )
         {}
 
         Viewport::Viewport( Int2 const& topLeft, Int2 const& dimensions, Math::ViewVolume const& viewVolume )

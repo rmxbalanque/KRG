@@ -6,6 +6,11 @@
 
 namespace KRG::Animation::Graph
 {
+    void DefaultPoseNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<DefaultPoseNode>( nodePtrs, options );
+    }
+
     void DefaultPoseNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
     {
         m_previousTime = m_currentTime;
@@ -26,15 +31,15 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
+    void PoseNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    {
+        auto pNode = CreateNode<PoseNode>( nodePtrs, options );
+        SetNodePtrFromIndex( nodePtrs, m_poseTimeValueNodeIdx, pNode->m_pPoseTimeValue );
+    }
+
     bool PoseNode::IsValid() const
     {
         return AnimationNode::IsValid() && m_pAnimation != nullptr;
-    }
-
-    void PoseNode::OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet )
-    {
-        AnimationNode::OnConstruct( pSettings, nodePtrs, dataSet );
-        SetNodePtrFromIndex( nodePtrs, GetSettings<PoseNode>()->m_poseTimeValueNodeIdx, m_pPoseTimeValue );
     }
 
     void PoseNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
@@ -88,19 +93,9 @@ namespace KRG::Animation::Graph
         float timeValue = 0.0f;
         if ( m_pPoseTimeValue != nullptr )
         {
-            timeValue = m_pPoseTimeValue->GetValue<float>( context );
-
-            // Remap the time value using the provided range
             auto pSettings = GetSettings<PoseNode>();
-            if ( pSettings->m_timeRangeStart > pSettings->m_timeRangeEnd )
-            {
-                timeValue = TRange<float>( pSettings->m_timeRangeEnd, pSettings->m_timeRangeStart ).GetPercentageThroughClamped( timeValue );
-                timeValue = 1.0f - timeValue;
-            }
-            else
-            {
-                timeValue = TRange<float>( pSettings->m_timeRangeStart, pSettings->m_timeRangeEnd ).GetPercentageThroughClamped( timeValue );
-            }
+            timeValue = m_pPoseTimeValue->GetValue<float>( context );
+            timeValue = pSettings->m_remapRange.GetPercentageThroughClamped( timeValue );
         }
 
         KRG_ASSERT( timeValue >= 0.0f && timeValue <= 1.0f );

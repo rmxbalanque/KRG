@@ -5,12 +5,17 @@
 
 namespace KRG::Animation::Graph
 {
-    class PassthroughNode : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API PassthroughNode : public AnimationNode
     {
     public:
 
-        struct Settings : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public AnimationNode::Settings
         {
+            KRG_REGISTER_TYPE( Settings );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_childNodeIdx );
+
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+
             NodeIndex       m_childNodeIdx = InvalidIndex;
         };
 
@@ -21,7 +26,6 @@ namespace KRG::Animation::Graph
 
     protected:
 
-        virtual void OnConstruct( GraphNode::Settings const* pSettings, TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const& dataSet ) override;
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
@@ -30,7 +34,7 @@ namespace KRG::Animation::Graph
 
         virtual UpdateResult Update( GraphContext& context ) override;
         virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
-        virtual void DeactivateBranch( GraphContext& context );
+        virtual void DeactivateBranch( GraphContext& context ) override;
 
     protected:
 

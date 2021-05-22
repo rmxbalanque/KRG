@@ -20,6 +20,7 @@
 #include "UserTypes/eastl_string.hpp"
 #include "UserTypes/eastl_bitset.hpp"
 #include "UserTypes/eastl_vector.hpp"
+#include "UserTypes/eastl_fixed_vector.hpp"
 #include "UserTypes/eastl_set.hpp"
 #include "UserTypes/eastl_stack.hpp"
 #include "UserTypes/eastl_deque.hpp"
@@ -61,6 +62,9 @@ namespace KRG
 
             bool IsValid() const;
 
+            inline cereal::BinaryInputArchive* GetInputArchive() { return reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive ); }
+            inline cereal::BinaryOutputArchive* GetOutputArchive() { return reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive ); }
+
             template<typename T>
             inline BinaryFileArchive& operator<<( T&& type )
             {
@@ -101,6 +105,9 @@ namespace KRG
             inline bool IsWriting() const { return m_mode == Mode::Write; }
 
             bool IsValid() const { return true; }
+
+            inline cereal::BinaryInputArchive* GetInputArchive() { return reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive ); }
+            inline cereal::BinaryOutputArchive* GetOutputArchive() { return reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive ); }
 
             template<typename T>
             inline BinaryMemoryArchive& operator<<( T&& type )

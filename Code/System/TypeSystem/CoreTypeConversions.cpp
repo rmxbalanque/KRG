@@ -57,6 +57,47 @@ namespace KRG::TypeSystem::Conversion
         }
     }
 
+    void StringToIntArray( String const& str, int32 const numInts, int32* pInts )
+    {
+        char substr[128] = { 0 };
+        int32 resIdx = 0;
+
+        bool complete = false;
+        size_t startIdx = 0;
+        while ( resIdx < numInts && !complete )
+        {
+            size_t endIdx = str.find_first_of( ',', startIdx );
+            if ( endIdx == String::npos )
+            {
+                endIdx = str.length();
+                complete = true;
+            }
+
+            size_t sizeToCopy = endIdx - startIdx;
+            KRG_ASSERT( sizeToCopy < 128 );
+            memcpy( substr, &str.c_str()[startIdx], sizeToCopy );
+            substr[sizeToCopy] = '\0';
+
+            pInts[resIdx++] = std::strtoul( substr, nullptr, 0 );
+            startIdx = endIdx + 1;
+        }
+    }
+
+    void IntArrayToString( int32 const* pInts, int32 const numInts, String& strValue )
+    {
+        strValue.clear();
+
+        for ( int32 i = 0; i < numInts; i++ )
+        {
+            strValue += eastl::to_string( pInts[i] );
+
+            if ( i != ( numInts - 1 ) )
+            {
+                strValue += ',';
+            }
+        }
+    }
+
     inline static bool ConvertStringToBitFlags( EnumInfo const& enumInfo, String const& str, BitFlags& outFlags )
     {
         outFlags.ClearAllFlags();
@@ -451,6 +492,22 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
+                case CoreTypes::IntRange:
+                {
+                    int32 intData[2];
+                    StringToIntArray( str, 2, intData );
+                    *reinterpret_cast<IntRange*>( pValue ) = IntRange( intData[0], intData[1] );
+                }
+                break;
+
+                case CoreTypes::FloatRange:
+                {
+                    float floatData[2];
+                    StringToFloatArray( str, 2, floatData );
+                    *reinterpret_cast<FloatRange*>( pValue ) = FloatRange( floatData[0], floatData[1] );
+                }
+                break;
+
                 case CoreTypes::ResourceTypeID:
                 {
                     *reinterpret_cast<ResourceTypeID*>( pValue ) = ResourceTypeID( str );
@@ -806,6 +863,20 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
+                case CoreTypes::IntRange:
+                {
+                    IntRange const* pRange = reinterpret_cast<IntRange const*>( pValue );
+                    IntArrayToString( &pRange->m_start, 3, strValue );
+                }
+                break;
+
+                case CoreTypes::FloatRange:
+                {
+                    FloatRange const* pRange = reinterpret_cast<FloatRange const*>( pValue );
+                    FloatArrayToString( &pRange->m_start, 3, strValue );
+                }
+                break;
+
                 case CoreTypes::ResourceTypeID:
                 {
                     strValue = reinterpret_cast<ResourceTypeID const*>( pValue )->ToString();
@@ -1103,6 +1174,18 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
+                case CoreTypes::IntRange:
+                {
+                    archive << *reinterpret_cast<IntRange const*>( pValue );
+                }
+                break;
+
+                case CoreTypes::FloatRange:
+                {
+                    archive << *reinterpret_cast<FloatRange const*>( pValue );
+                }
+                break;
+
                 case CoreTypes::ResourceTypeID:
                 {
                     archive << *reinterpret_cast<ResourceTypeID const*>( pValue );
@@ -1384,6 +1467,18 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::DataPath:
                 {
                     archive >> *reinterpret_cast<DataPath*>( pValue );
+                }
+                break;
+
+                case CoreTypes::IntRange:
+                {
+                    archive >> *reinterpret_cast<IntRange*>( pValue );
+                }
+                break;
+
+                case CoreTypes::FloatRange:
+                {
+                    archive >> *reinterpret_cast<FloatRange*>( pValue );
                 }
                 break;
 
@@ -1740,6 +1835,22 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypes::DataPath:
                 {
                     DataPath value;
+                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
+                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                }
+                break;
+
+                case CoreTypes::IntRange:
+                {
+                    IntRange value;
+                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
+                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                }
+                break;
+
+                case CoreTypes::FloatRange:
+                {
+                    FloatRange value;
                     ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
                     ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }

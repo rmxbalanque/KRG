@@ -14,7 +14,7 @@ namespace KRG::Animation
     class AnimationGraph : public Resource::IResource
     {
         KRG_REGISTER_RESOURCE( 'AG' );
-        KRG_SERIALIZE_NONE();
+        KRG_SERIALIZE_MEMBERS( m_persistentNodes, m_instanceNodeStartOffsets, m_instanceRequiredMemory, m_instanceRequiredAlignment, m_numControlParameters, m_rootNodeIdx );
 
         friend class AnimationGraphCompiler;
         friend class AnimationGraphLoader;
@@ -22,21 +22,24 @@ namespace KRG::Animation
 
     public:
 
-        virtual bool IsValid() const override { return true; }
+        virtual bool IsValid() const override { return m_rootNodeIdx != InvalidIndex; }
 
     private:
 
-        TVector<Graph::GraphNode::Settings*>        m_nodeSettings;
-        TVector<Graph::NodeIndex>                   m_persistentNodes;
+        TVector<NodeIndex>                          m_persistentNodes;
+        TVector<uint32>                             m_instanceNodeStartOffsets;
+        uint32                                      m_instanceRequiredMemory = 0;
+        uint32                                      m_instanceRequiredAlignment = 0;
         int32                                       m_numControlParameters = 0;
         NodeIndex                                   m_rootNodeIdx = InvalidIndex;
+
+        TVector<GraphNode::Settings*>               m_nodeSettings;
     };
 
     //-------------------------------------------------------------------------
 
     class AnimationGraphInstance
     {
-
     public:
 
         AnimationGraphInstance( AnimationGraph const* pGraph );
@@ -116,7 +119,7 @@ namespace KRG::Animation
 
         AnimationGraph const* const             m_pGraph = nullptr;
         TVector<GraphNode*>                     m_nodes;
-        void*                                   m_pAllocatedInstanceMemory = nullptr;
+        Byte*                                   m_pAllocatedInstanceMemory = nullptr;
         AnimationNode*                          m_pRootNode = nullptr;
     };
 }

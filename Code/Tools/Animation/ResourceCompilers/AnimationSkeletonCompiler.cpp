@@ -10,7 +10,7 @@
 namespace KRG::Animation
 {
     SkeletonCompiler::SkeletonCompiler() 
-        : Resource::Compiler( "SkeletonCompiler", VERSION )
+        : Resource::Compiler( "SkeletonCompiler", s_version )
     {
         m_outputTypes.push_back( Skeleton::GetStaticResourceTypeID() );
     }
@@ -61,7 +61,7 @@ namespace KRG::Animation
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            archive << Resource::ResourceHeader( VERSION, Skeleton::GetStaticResourceTypeID() ) << skeleton;
+            archive << Resource::ResourceHeader( s_version, Skeleton::GetStaticResourceTypeID() ) << skeleton;
             return CompilationSucceeded( ctx );
         }
         else

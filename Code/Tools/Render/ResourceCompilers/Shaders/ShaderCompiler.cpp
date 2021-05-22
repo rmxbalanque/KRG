@@ -166,7 +166,7 @@ namespace KRG::Render
     //-------------------------------------------------------------------------
 
     Render::ShaderCompiler::ShaderCompiler()
-        : Resource::Compiler( "ShaderCompiler", VERSION )
+        : Resource::Compiler( "ShaderCompiler", s_version )
     {
         m_outputTypes.push_back( VertexShader::GetStaticResourceTypeID() );
         m_outputTypes.push_back( PixelShader::GetStaticResourceTypeID() );
@@ -285,12 +285,12 @@ namespace KRG::Render
         {
             if ( pShader->GetPipelineStage() == PipelineStage::Pixel )
             {
-                Resource::ResourceHeader hdr( VERSION, PixelShader::GetStaticResourceTypeID() );
+                Resource::ResourceHeader hdr( s_version, PixelShader::GetStaticResourceTypeID() );
                 archive << hdr << *static_cast<PixelShader*>( pShader );
             }
             if ( pShader->GetPipelineStage() == PipelineStage::Vertex )
             {
-                Resource::ResourceHeader hdr( VERSION, PixelShader::GetStaticResourceTypeID() );
+                Resource::ResourceHeader hdr( s_version, PixelShader::GetStaticResourceTypeID() );
                 archive << hdr << *static_cast<VertexShader*>( pShader );
             }
 

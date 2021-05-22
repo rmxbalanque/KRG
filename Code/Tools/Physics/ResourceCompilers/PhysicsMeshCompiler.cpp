@@ -41,7 +41,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         PhysicsMeshCompiler::PhysicsMeshCompiler()
-            : Resource::Compiler( "PhysicsMeshCompiler", VERSION )
+            : Resource::Compiler( "PhysicsMeshCompiler", s_version )
         {
             m_outputTypes.push_back( PhysicsMesh::GetStaticResourceTypeID() );
         }
@@ -121,7 +121,7 @@ namespace KRG
             Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
             if ( archive.IsValid() )
             {
-                Resource::ResourceHeader hdr( VERSION, PhysicsMesh::GetStaticResourceTypeID() );
+                Resource::ResourceHeader hdr( s_version, PhysicsMesh::GetStaticResourceTypeID() );
                 archive << hdr << physicsMesh;
 
                 // Serialize the mesh data separately

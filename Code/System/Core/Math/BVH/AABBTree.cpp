@@ -297,7 +297,7 @@ namespace KRG
         {
             auto const& currentNode = m_nodes[nodeIdx];
             KRG_ASSERT( !currentNode.IsLeafNode() );
-            drawingContext.DrawWireBox( currentNode.m_bounds, Colors::Cyan, 1.0f, Debug::Drawing::DepthTestState::On );
+            drawingContext.DrawWireBox( currentNode.m_bounds, Colors::Cyan, 1.0f, Debug::DepthTestState::On );
 
             // Left
             if ( m_nodes[currentNode.m_leftNodeIdx].IsLeafNode() )
@@ -323,7 +323,7 @@ namespace KRG
         void AABBTree::DrawLeaf( Debug::DrawingContext& drawingContext, int32 nodeIdx ) const
         {
             KRG_ASSERT( m_nodes[nodeIdx].IsLeafNode() );
-            drawingContext.DrawWireBox( m_nodes[nodeIdx].m_bounds, Colors::Lime, 2.0f, Debug::Drawing::DepthTestState::On );
+            drawingContext.DrawWireBox( m_nodes[nodeIdx].m_bounds, Colors::Lime, 2.0f, Debug::DepthTestState::On );
         }
         #endif
     }

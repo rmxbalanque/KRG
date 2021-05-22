@@ -68,6 +68,8 @@ namespace KRG::TypeSystem
         REGISTER_TYPE_RECORD( CoreTypes::Radians, KRG::Radians );
         REGISTER_TYPE_RECORD( CoreTypes::EulerAngles, KRG::EulerAngles );
         REGISTER_TYPE_RECORD( CoreTypes::DataPath, KRG::DataPath );
+        REGISTER_TYPE_RECORD( CoreTypes::IntRange, KRG::IntRange );
+        REGISTER_TYPE_RECORD( CoreTypes::FloatRange, KRG::FloatRange );
 
         REGISTER_TYPE_RECORD( CoreTypes::BitFlags, KRG::BitFlags );
         REGISTER_TEMPLATE_TYPE_RECORD_GENERIC( CoreTypes::TBitFlags, KRG::TBitFlags, enum class TempEnum );

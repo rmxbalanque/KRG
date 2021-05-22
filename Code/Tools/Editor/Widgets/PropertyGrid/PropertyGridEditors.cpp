@@ -566,6 +566,38 @@ namespace KRG::Editor::PG
 
     //-------------------------------------------------------------------------
 
+    void CreateEditorIntRange( Context& ctx, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
+    {
+        KRG_UNIMPLEMENTED_FUNCTION();
+
+        auto pValue = reinterpret_cast<IntRange*>( pPropertyInstance );
+        int32 tmpValue = 0;
+
+        ImGui::SetNextItemWidth( -1 );
+        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U32, &tmpValue ) )
+        {
+            //ScopedChangeNotifier notifier( ctx );
+            //*pValue = tmpValue;
+        }
+    }
+
+    void CreateEditorFloatRange( Context& ctx, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
+    {
+        KRG_UNIMPLEMENTED_FUNCTION();
+
+        auto pValue = reinterpret_cast<FloatRange*>( pPropertyInstance );
+        float tmpValue = 0;
+
+        ImGui::SetNextItemWidth( -1 );
+        if ( ImGui::InputFloat( g_emptyLabel, &tmpValue ) )
+        {
+            //ScopedChangeNotifier notifier( ctx );
+            //*pValue = tmpValue;
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
     void CreateEditorString( Context& ctx, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
     {
         char buffer[256];
@@ -1238,6 +1270,18 @@ namespace KRG::Editor::PG
                 case CoreTypes::DataPath:
                 {
                     CreateEditorDataPath( ctx, propertyInfo, pPropertyInstance );
+                }
+                break;
+
+                case CoreTypes::IntRange:
+                {
+                    CreateEditorIntRange( ctx, propertyInfo, pPropertyInstance );
+                }
+                break;
+
+                case CoreTypes::FloatRange:
+                {
+                    CreateEditorFloatRange( ctx, propertyInfo, pPropertyInstance );
                 }
                 break;
 

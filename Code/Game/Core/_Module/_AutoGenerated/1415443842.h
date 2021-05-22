@@ -1576,7 +1576,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::TestComponent& type )
     {
-        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_bool ), KRG_NVP( m_U8 ), KRG_NVP( m_U16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_S8 ), KRG_NVP( m_S16 ), KRG_NVP( m_S32 ), KRG_NVP( m_S64 ), KRG_NVP( m_F32 ), KRG_NVP( m_F64 ), KRG_NVP( m_UUID ), KRG_NVP( m_StringID ), KRG_NVP( m_String ), KRG_NVP( m_Color ), KRG_NVP( m_Float2 ), KRG_NVP( m_Float3 ), KRG_NVP( m_Float4 ), KRG_NVP( m_vector ), KRG_NVP( m_quaternion ), KRG_NVP( m_matrix ), KRG_NVP( m_affineTransform ), KRG_NVP( m_us ), KRG_NVP( m_ms ), KRG_NVP( m_s ), KRG_NVP( m_percentage ), KRG_NVP( m_degrees ), KRG_NVP( m_radians ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_dataPath ), KRG_NVP( m_genericFlags ), KRG_NVP( m_specificFlags ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_resourceID ), KRG_NVP( m_specificResourcePtr ), KRG_NVP( m_internalEnum ), KRG_NVP( m_testInternalEnum ), KRG_NVP( m_struct0 ), KRG_NVP( m_struct1 ), KRG_NVP( m_staticArray ), KRG_NVP( m_staticArrayOfStringIDs ), KRG_NVP( m_staticArrayOfStructs ), KRG_NVP( m_staticArrayOfEnums ), KRG_NVP( m_dynamicArray ), KRG_NVP( m_dynamicArrayOfStructs ) );
+        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_bool ), KRG_NVP( m_U8 ), KRG_NVP( m_U16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_S8 ), KRG_NVP( m_S16 ), KRG_NVP( m_S32 ), KRG_NVP( m_S64 ), KRG_NVP( m_F32 ), KRG_NVP( m_F64 ), KRG_NVP( m_UUID ), KRG_NVP( m_StringID ), KRG_NVP( m_String ), KRG_NVP( m_Color ), KRG_NVP( m_Float2 ), KRG_NVP( m_Float3 ), KRG_NVP( m_Float4 ), KRG_NVP( m_vector ), KRG_NVP( m_quaternion ), KRG_NVP( m_matrix ), KRG_NVP( m_affineTransform ), KRG_NVP( m_us ), KRG_NVP( m_ms ), KRG_NVP( m_s ), KRG_NVP( m_percentage ), KRG_NVP( m_degrees ), KRG_NVP( m_radians ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_dataPath ), KRG_NVP( m_genericFlags ), KRG_NVP( m_specificFlags ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_resourceID ), KRG_NVP( m_specificResourcePtr ), KRG_NVP( m_intRange ), KRG_NVP( m_floatRange ), KRG_NVP( m_internalEnum ), KRG_NVP( m_testInternalEnum ), KRG_NVP( m_struct0 ), KRG_NVP( m_struct1 ), KRG_NVP( m_staticArray ), KRG_NVP( m_staticArrayOfStringIDs ), KRG_NVP( m_staticArrayOfStructs ), KRG_NVP( m_staticArrayOfEnums ), KRG_NVP( m_dynamicArray ), KRG_NVP( m_dynamicArrayOfStructs ) );
     }
 
     //-------------------------------------------------------------------------
@@ -2042,6 +2042,32 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_specificResourcePtr;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_specificResourcePtr );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Render::SkeletalMesh> );
+            propertyInfo.m_flags.Set( 0 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_intRange" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::IntRange" );
+            propertyInfo.m_parentTypeID = 3100775830;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_intRange;
+            propertyInfo.m_offset = offsetof( KRG::TestComponent, m_intRange );
+            propertyInfo.m_size = sizeof( KRG::IntRange );
+            propertyInfo.m_flags.Set( 0 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_floatRange" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::FloatRange" );
+            propertyInfo.m_parentTypeID = 3100775830;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_floatRange;
+            propertyInfo.m_offset = offsetof( KRG::TestComponent, m_floatRange );
+            propertyInfo.m_size = sizeof( KRG::FloatRange );
             propertyInfo.m_flags.Set( 0 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
@@ -2786,6 +2812,16 @@ namespace KRG
                        return false;
                     }
 
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1475840709 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2711007718 ) )
+                    {
+                       return false;
+                    }
+
                     if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3763518750 ) )
                     {
                        return false;
@@ -3017,6 +3053,16 @@ namespace KRG
                     if ( propertyID == 3104453760 )
                     {
                         return pType->m_specificResourcePtr == pOtherType->m_specificResourcePtr;
+                    }
+
+                    if ( propertyID == 1475840709 )
+                    {
+                        return pType->m_intRange == pOtherType->m_intRange;
+                    }
+
+                    if ( propertyID == 2711007718 )
+                    {
+                        return pType->m_floatRange == pOtherType->m_floatRange;
                     }
 
                     if ( propertyID == 3763518750 )
@@ -3400,6 +3446,18 @@ namespace KRG
                     if ( propertyID == 3104453760 )
                     {
                         pActualType->m_specificResourcePtr = pDefaultType->m_specificResourcePtr;
+                        return;
+                    }
+
+                    if ( propertyID == 1475840709 )
+                    {
+                        pActualType->m_intRange = pDefaultType->m_intRange;
+                        return;
+                    }
+
+                    if ( propertyID == 2711007718 )
+                    {
+                        pActualType->m_floatRange = pDefaultType->m_floatRange;
                         return;
                     }
 

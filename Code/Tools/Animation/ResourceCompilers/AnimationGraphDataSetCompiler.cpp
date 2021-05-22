@@ -2,13 +2,14 @@
 #include "Engine/Animation/Graph/AnimationGraphDataset.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
+#include "Engine/Animation/Graph/AnimationGraph.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation
 {
     AnimationGraphDataSetCompiler::AnimationGraphDataSetCompiler()
-        : Resource::Compiler( "GraphDataSetCompiler", VERSION )
+        : Resource::Compiler( "GraphDataSetCompiler", s_version )
     {
         m_outputTypes.push_back( AnimationGraphDataSet::GetStaticResourceTypeID() );
     }
@@ -42,13 +43,30 @@ namespace KRG::Animation
 
         AnimationGraphDataSet dataSet;
 
-        // Get name and skeleton
+        // Get data set info
         //-------------------------------------------------------------------------
 
         auto nameIter = document.FindMember( "Name" );
         if ( nameIter == document.MemberEnd() || !nameIter->value.IsString() )
         {
             return Error( "Missing Name string" );
+        }
+
+        auto animGraphDataPathIter = document.FindMember( "Graph" );
+        if ( animGraphDataPathIter == document.MemberEnd() || !animGraphDataPathIter->value.IsString() )
+        {
+            return Error( "Missing Graph datapath" );
+        }
+
+        if ( !DataPath::IsValidDataPath( animGraphDataPathIter->value.GetString() ) )
+        {
+            return Error( "Invalid data path format for Graph string" );
+        }
+
+        ResourceID const animGraphResourceID( animGraphDataPathIter->value.GetString() );
+        if ( animGraphResourceID.GetResourceTypeID() != AnimationGraph::GetStaticResourceTypeID() )
+        {
+            return Error( "Graph data path set to a non-animgraph resource" );
         }
 
         auto skeletonDataPathIter = document.FindMember( "Skeleton" );
@@ -115,8 +133,8 @@ namespace KRG::Animation
             {
                 return Error( "Only data paths to animation clips are allowed in graph data set" );
             }
-            
-            dataSet.m_dataRecords.emplace_back( AnimationGraphDataSet::DataRecord( UUID( itemIDiter->value.GetString() ), animResourceID ) );
+
+            dataSet.m_animationClips.emplace_back( animResourceID );
         }
 
         //-------------------------------------------------------------------------
@@ -125,13 +143,13 @@ namespace KRG::Animation
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            Resource::ResourceHeader hdr( VERSION, AnimationGraphDataSet::GetStaticResourceTypeID() );
+            Resource::ResourceHeader hdr( s_version, AnimationGraphDataSet::GetStaticResourceTypeID() );
 
             hdr.AddInstallDependency( dataSet.m_pSkeleton.GetResourceID() );
 
-            for ( auto const& dataRecord : dataSet.m_dataRecords )
+            for ( auto const& dataRecord : dataSet.m_animationClips )
             {
-                hdr.AddInstallDependency( dataRecord.m_pResource.GetResourceID() );
+                hdr.AddInstallDependency( dataRecord.GetResourceID() );
             }
 
             archive << hdr << dataSet;

@@ -12,7 +12,7 @@
 namespace KRG::Animation
 {
     AnimationClipCompiler::AnimationClipCompiler()
-        : Resource::Compiler( "AnimationCompiler", VERSION )
+        : Resource::Compiler( "AnimationCompiler", s_version )
     {
         m_outputTypes.push_back( AnimationClip::GetStaticResourceTypeID() );
     }
@@ -109,7 +109,7 @@ namespace KRG::Animation
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            Resource::ResourceHeader hdr( VERSION, AnimationClip::GetStaticResourceTypeID() );
+            Resource::ResourceHeader hdr( s_version, AnimationClip::GetStaticResourceTypeID() );
             hdr.AddInstallDependency( resourceDescriptor.m_pSkeleton.GetResourceID() );
             archive << hdr << animData;
 
@@ -198,9 +198,9 @@ namespace KRG::Animation
             }
             else
             {
-                trackSettings.m_translationRangeX = { rawTranslationValueRangeX.m_min, rawTranslationValueRangeLengthX };
-                trackSettings.m_translationRangeY = { rawTranslationValueRangeY.m_min, rawTranslationValueRangeLengthY };
-                trackSettings.m_translationRangeZ = { rawTranslationValueRangeZ.m_min, rawTranslationValueRangeLengthZ };
+                trackSettings.m_translationRangeX = { rawTranslationValueRangeX.m_start, rawTranslationValueRangeLengthX };
+                trackSettings.m_translationRangeY = { rawTranslationValueRangeY.m_start, rawTranslationValueRangeLengthY };
+                trackSettings.m_translationRangeZ = { rawTranslationValueRangeZ.m_start, rawTranslationValueRangeLengthZ };
             }
 
             //-------------------------------------------------------------------------
@@ -261,9 +261,9 @@ namespace KRG::Animation
             }
             else
             {
-                trackSettings.m_scaleRangeX = { rawScaleValueRangeX.m_min, rawScaleValueRangeLengthX };
-                trackSettings.m_scaleRangeY = { rawScaleValueRangeY.m_min, rawScaleValueRangeLengthY };
-                trackSettings.m_scaleRangeZ = { rawScaleValueRangeZ.m_min, rawScaleValueRangeLengthZ };
+                trackSettings.m_scaleRangeX = { rawScaleValueRangeX.m_start, rawScaleValueRangeLengthX };
+                trackSettings.m_scaleRangeY = { rawScaleValueRangeY.m_start, rawScaleValueRangeLengthY };
+                trackSettings.m_scaleRangeZ = { rawScaleValueRangeZ.m_start, rawScaleValueRangeLengthZ };
             }
 
             //-------------------------------------------------------------------------
@@ -446,7 +446,7 @@ namespace KRG::Animation
                 return false;
             }
 
-            TRange<float> const animationTimeRange( 0, rawAnimData.GetDuration() );
+            FloatRange const animationTimeRange( 0, rawAnimData.GetDuration() );
             for ( auto& eventObjectValue : eventsArray.GetArray() )
             {
                 EventDescriptor newEvent;
@@ -486,7 +486,7 @@ namespace KRG::Animation
                 // Add event
                 //-------------------------------------------------------------------------
 
-                TRange<float> const eventRange( newEvent.m_startTime, newEvent.m_duration );
+                FloatRange const eventRange( newEvent.m_startTime, newEvent.m_duration );
                 if ( !animationTimeRange.ContainsInclusive( eventRange ) )
                 {
                     Warning( "Event detected outside animation time range, event will be ignored" );

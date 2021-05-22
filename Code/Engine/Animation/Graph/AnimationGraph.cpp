@@ -11,9 +11,25 @@ namespace KRG::Animation
 
         // Create graph nodes
         //-------------------------------------------------------------------------
-        // TODO: Instantiate graph nodes
 
-        m_pAllocatedInstanceMemory = KRG::Alloc( 16 );
+        size_t const numNodes = pGraph->m_instanceNodeStartOffsets.size();
+        KRG_ASSERT( pGraph->m_nodeSettings.size() == numNodes );
+
+        m_pAllocatedInstanceMemory = reinterpret_cast<Byte*>( KRG::Alloc( pGraph->m_instanceRequiredMemory, pGraph->m_instanceRequiredAlignment ) );
+
+        m_nodes.reserve( numNodes );
+        for( auto const& nodeOffset : pGraph->m_instanceNodeStartOffsets )
+        {
+            m_nodes.emplace_back( reinterpret_cast<GraphNode*>( m_pAllocatedInstanceMemory + nodeOffset ) );
+        }
+
+        // Instantiate individual nodes
+        //-------------------------------------------------------------------------
+
+        for ( auto i = 0; i < numNodes; i++ )
+        {
+            pGraph->m_nodeSettings[i]->InstantiateNode( m_nodes, GraphNode::Settings::InitOptions::CreateNodeAndSetPointers );
+        }
     }
 
     AnimationGraphInstance::~AnimationGraphInstance()
@@ -38,6 +54,7 @@ namespace KRG::Animation
         }
 
         m_pRootNode = static_cast<AnimationNode*>( m_nodes[ m_pGraph->m_rootNodeIdx ] );
+        KRG_ASSERT( m_pRootNode->IsInitialized() );
     }
 
     void AnimationGraphInstance::Shutdown( GraphContext& context )
@@ -49,6 +66,7 @@ namespace KRG::Animation
             m_nodes[nodeIdx]->Shutdown( context );
         }
 
+        KRG_ASSERT( !m_pRootNode->IsInitialized() );
         m_pRootNode = nullptr;
     }
 

@@ -21,7 +21,7 @@ namespace KRG::Navmesh
 
     class NavmeshBuilder
     {
-        static const int32 VERSION = 1;
+        static const int32 s_version = 1;
 
     public:
 

@@ -20,6 +20,7 @@
 #include "UserTypes/eastl_string.hpp"
 #include "UserTypes/eastl_bitset.hpp"
 #include "UserTypes/eastl_vector.hpp"
+#include "UserTypes/eastl_fixed_vector.hpp"
 #include "UserTypes/eastl_set.hpp"
 #include "UserTypes/eastl_stack.hpp"
 #include "UserTypes/eastl_deque.hpp"

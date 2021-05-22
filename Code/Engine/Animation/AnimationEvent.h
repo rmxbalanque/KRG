@@ -3,7 +3,7 @@
 #include "_Module/API.h"
 #include "System/Core/Time/Time.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
-#include "System/Core/Math/Range.h"
+#include "System/Core/Math/NumericRange.h"
 
 //-------------------------------------------------------------------------
 // Animation Event
@@ -38,7 +38,9 @@ namespace KRG::Animation
         inline Seconds GetDuration() const { return m_duration; }
         inline bool IsImmediateEvent() const { return m_duration == 0; }
         inline bool IsDurationEvent() const { return m_duration > 0; }
-        KRG_FORCE_INLINE TRange<Seconds> GetTimeRange() const { return TRange<Seconds>( m_startTime, m_startTime + m_duration ); }
+
+        // Get the time range for this event (in seconds)
+        KRG_FORCE_INLINE FloatRange GetTimeRange() const { return FloatRange( m_startTime, m_startTime + m_duration ); }
 
         // Optional: Allow the track to return a specific sync event ID
         virtual StringID GetSyncEventID() const { return StringID(); }

@@ -72,7 +72,7 @@ namespace KRG::Editor
             ItemEditMode            m_mode = ItemEditMode::None;
             TimelineTrack const*    m_pTrackForEditedItem = nullptr;
             TimelineItem*           m_pEditedItem = nullptr;
-            TRange<float>           m_originalTimeRange;
+            FloatRange           m_originalTimeRange;
         };
 
         // The state for the given open context menu
@@ -109,7 +109,7 @@ namespace KRG::Editor
 
     public:
 
-        TimelineEditor( TRange<int32> const& inTimeRange );
+        TimelineEditor( IntRange const& inTimeRange );
         virtual ~TimelineEditor();
 
         inline bool IsPlaying() const { return m_playState == PlayState::Playing; }
@@ -118,7 +118,7 @@ namespace KRG::Editor
         inline bool IsLoopingEnabled() const { return m_isLoopingEnabled; }
         inline bool IsFrameSnappingEnabled() const { return m_isFrameSnappingEnabled; }
 
-        inline Percentage GetPlayheadPositionAsPercentage() const { return Percentage( m_playheadTime / m_timeRange.m_max ); }
+        inline Percentage GetPlayheadPositionAsPercentage() const { return Percentage( m_playheadTime / m_timeRange.m_end ); }
 
         inline TVector<TimelineItem*> const& GetSelectedItems() const { return m_selectedItems; }
         void ClearSelection();
@@ -129,11 +129,11 @@ namespace KRG::Editor
         // that handles the side-effects of the draw e.g. play head position update, track changes, etc...
         void Draw();
 
-        inline TRange<float> GetTimeRangeAsFloatRange() const{ return TRange<float>( float( m_timeRange.m_min ), float( m_timeRange.m_max ) ); }
-        inline TRange<float> GetViewRangeAsFloatRange() const{ return TRange<float>( float( m_viewRange.m_min ), float( m_viewRange.m_max ) ); }
+        inline FloatRange GetTimeRangeAsFloatRange() const{ return FloatRange( float( m_timeRange.m_start ), float( m_timeRange.m_end ) ); }
+        inline FloatRange GetViewRangeAsFloatRange() const{ return FloatRange( float( m_viewRange.m_start ), float( m_viewRange.m_end ) ); }
 
-        inline void SetTimeRange( TRange<int32> const& inRange ) { KRG_ASSERT( inRange.IsSetAndValid() ); m_timeRange = inRange; }
-        inline void SetViewRange( TRange<int32> const& inRange ) { KRG_ASSERT( inRange.IsSetAndValid() ); m_viewRange = inRange; }
+        inline void SetTimeRange( IntRange const& inRange ) { KRG_ASSERT( inRange.IsSetAndValid() ); m_timeRange = inRange; }
+        inline void SetViewRange( IntRange const& inRange ) { KRG_ASSERT( inRange.IsSetAndValid() ); m_viewRange = inRange; }
 
         // Called whenever the play state is switched
         virtual void OnPlayStateChanged() {}
@@ -142,7 +142,7 @@ namespace KRG::Editor
         inline void SetPlayheadPosition( float inPosition ) { m_playheadTime = GetTimeRangeAsFloatRange().GetClampedValue( inPosition ); }
 
         // Set the playhead position from a percentage over the time range
-        inline void SetPlayheadPositionAsPercentage( Percentage inPercentage ) { m_playheadTime = inPercentage.GetClamped( m_isLoopingEnabled ).ToFloat() * m_timeRange.m_max; }
+        inline void SetPlayheadPositionAsPercentage( Percentage inPercentage ) { m_playheadTime = inPercentage.GetClamped( m_isLoopingEnabled ).ToFloat() * m_timeRange.m_end; }
 
         // Has any modifications been made to the tracks/events?
         virtual bool IsDirty() const { return m_isDirty; }
@@ -228,10 +228,10 @@ namespace KRG::Editor
         TVector<TimelineTrack*>     m_tracks;
 
         // The total editable time range
-        TRange<int32>               m_timeRange = TRange<int32>( 0, 0 );
+        IntRange               m_timeRange = IntRange( 0, 0 );
 
         // The current visible time range
-        TRange<int32>               m_viewRange = TRange<int32>( 0, 0 );
+        IntRange               m_viewRange = IntRange( 0, 0 );
 
         float                       m_pixelsPerFrame = 10.0f;
         float                       m_playheadTime = 0.0f;

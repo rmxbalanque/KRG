@@ -105,6 +105,10 @@
       "Command": "Animation",
       "Items": [
         {
+          "Id": "5a3059b3-c4fb-48ed-a6e2-c9e152bdbf58",
+          "Command": "-compile data://animation/animGraph.ag"
+        },
+        {
           "Id": "2844e286-615b-4be6-974a-78cb875650fd",
           "Command": "-compile data://animation/stand_crowd_ambient1.anim"
         },

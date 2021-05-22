@@ -59,23 +59,26 @@ namespace KRG
 
             m_pAnimComponent->Update( ctx );
 
-            auto const* pPose = m_pAnimComponent->GetPose();
-            KRG_ASSERT( pPose->HasGlobalTransforms() );
-
-            auto drawingCtx = ctx.GetDrawingContext();
-            drawingCtx.Draw( *pPose, Transform::Identity /*m_meshComponents[0]->GetWorldTransform()*/ );
-
-            //-------------------------------------------------------------------------
-
-            for ( auto pMeshComponent : m_meshComponents )
+            if ( ctx.GetUpdateStage() == UpdateStage::PostPhysics )
             {
-                if ( pPose->GetSkeleton() != pMeshComponent->GetSkeleton() )
-                {
-                    continue;
-                }
+                auto const* pPose = m_pAnimComponent->GetPose();
+                KRG_ASSERT( pPose->HasGlobalTransforms() );
 
-                pMeshComponent->SetPose( pPose );
-                pMeshComponent->FinalizePose();
+                auto drawingCtx = ctx.GetDrawingContext();
+                drawingCtx.Draw( *pPose, Transform::Identity /*m_meshComponents[0]->GetWorldTransform()*/ );
+
+                //-------------------------------------------------------------------------
+
+                for ( auto pMeshComponent : m_meshComponents )
+                {
+                    if ( pPose->GetSkeleton() != pMeshComponent->GetSkeleton() )
+                    {
+                        continue;
+                    }
+
+                    pMeshComponent->SetPose( pPose );
+                    pMeshComponent->FinalizePose();
+                }
             }
         }
     }

@@ -210,6 +210,7 @@ namespace KRG
                 case ResourceRequest::Stage::CancelWaitForLoadDependencies:
                 {
                     // Execute all unload operations immediately
+                    m_pendingInstallDependencies.clear();
                     m_installDependencies.clear();
                     m_stage = Stage::UnloadResource;
                     UnloadResource( requestContext );
@@ -299,13 +300,13 @@ namespace KRG
             // These resource ptrs are temporary and will be clear upon completion of the request
             ResourceRequesterID const installDependencyRequesterID( m_pResourceRecord->GetResourceID() );
             uint32 const numInstallDependencies = (uint32) m_pResourceRecord->m_installDependencyResourceIDs.size();
-            m_installDependencies.resize( numInstallDependencies );
+            m_pendingInstallDependencies.resize( numInstallDependencies );
             for ( uint32 i = 0; i < numInstallDependencies; i++ )
             {
                 // Do not use the requester ID for install dependencies! Since they are not explicitly loaded by a specific user!
                 // Instead we create a ResourceRequesterID from the depending resource's resourceID
-                m_installDependencies[i] = ResourcePtr( m_pResourceRecord->m_installDependencyResourceIDs[i] );
-                requestContext.m_loadResourceFunction( installDependencyRequesterID, m_installDependencies[i] );
+                m_pendingInstallDependencies[i] = ResourcePtr( m_pResourceRecord->m_installDependencyResourceIDs[i] );
+                requestContext.m_loadResourceFunction( installDependencyRequesterID, m_pendingInstallDependencies[i] );
             }
             m_stage = ResourceRequest::Stage::WaitForLoadDependencies;
         }
@@ -324,16 +325,24 @@ namespace KRG
 
             // Check if all dependencies are finished installing
             auto status = InstallStatus::ShouldProceed;
-            for ( auto const& installDependency : m_installDependencies )
+            
+            for ( size_t i = 0; i < m_pendingInstallDependencies.size(); i++ )
             {
-                if ( installDependency.HasLoadingFailed() )
+                if ( m_pendingInstallDependencies[i].HasLoadingFailed() )
                 {
-                    KRG_LOG_ERROR( "Resource", "Failed to load install dependency: %s", installDependency.GetResourceID().ToString().c_str() );
+                    KRG_LOG_ERROR( "Resource", "Failed to load install dependency: %s", m_pendingInstallDependencies[i].GetResourceID().ToString().c_str() );
                     status = InstallStatus::ShouldFail;
                     break;
                 }
 
-                if ( !installDependency.IsLoaded() )
+                // If it's loaded, move it to the loaded list and continue iterating
+                if ( m_pendingInstallDependencies[i].IsLoaded() )
+                {
+                    m_installDependencies.emplace_back( m_pendingInstallDependencies[i] );
+                    m_pendingInstallDependencies.erase_unsorted( m_pendingInstallDependencies.begin() + i );
+                    i--;
+                }
+                else
                 {
                     status = InstallStatus::Loading;
                     break;
@@ -343,19 +352,31 @@ namespace KRG
             // If dependency has failed, the resource has failed to load so immediately unload and set status to failed
             if ( status == InstallStatus::ShouldFail )
             {
-                // Unload the resource data
-                m_pResourceRecord->SetLoadingStatus( LoadingStatus::Unloading );
-                m_installDependencies.clear();
-                m_stage = Stage::UnloadResource;
-                UnloadResource( requestContext );
+                // Do not use the user ID for install dependencies! Since they are not explicitly loaded by a specific user!
+                // Instead we create a ResourceRequesterID from the depending resource's resourceID
+                ResourceRequesterID const installDependencyRequesterID( m_pResourceRecord->GetResourceID() );
 
-                // Complete request
+                // Unload all install dependencies
+                for ( auto& pendingDependency : m_pendingInstallDependencies )
+                {
+                    requestContext.m_unloadResourceFunction( installDependencyRequesterID, pendingDependency );
+                }
+
+                for ( auto& dependency : m_installDependencies )
+                {
+                    requestContext.m_unloadResourceFunction( installDependencyRequesterID, dependency );
+                }
+
+                m_pendingInstallDependencies.clear();
+                m_installDependencies.clear();
                 m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
+                m_pResourceLoader->Unload( GetResourceID(), m_pResourceRecord );
                 m_stage = ResourceRequest::Stage::Complete;
             }
             // Install runtime resource
             else if ( status == InstallStatus::ShouldProceed )
             {
+                KRG_ASSERT( m_pendingInstallDependencies.empty() );
                 m_stage = ResourceRequest::Stage::InstallResource;
             }
         }
@@ -364,6 +385,7 @@ namespace KRG
         {
             KRG_PROFILE_FUNCTION_RESOURCE();
             KRG_ASSERT( m_stage == ResourceRequest::Stage::InstallResource );
+            KRG_ASSERT( m_pendingInstallDependencies.empty() );
 
             if ( m_pResourceLoader->Install( GetResourceID(), m_pResourceRecord, m_installDependencies ) )
             {
@@ -406,19 +428,17 @@ namespace KRG
             // These resource ptrs are temporary and will be cleared upon completion of the request
             ResourceRequesterID const installDependencyRequesterID( m_pResourceRecord->GetResourceID() );
             uint32 const numInstallDependencies = (uint32) m_pResourceRecord->m_installDependencyResourceIDs.size();
-            m_installDependencies.resize( numInstallDependencies );
+            m_pendingInstallDependencies.resize( numInstallDependencies );
             for ( uint32 i = 0; i < numInstallDependencies; i++ )
             {
                 // Do not use the user ID for install dependencies! Since they are not explicitly loaded by a specific user!
                 // Instead we create a ResourceRequesterID from the depending resource's resourceID
-                m_installDependencies[i] = ResourcePtr( m_pResourceRecord->m_installDependencyResourceIDs[i] );
-                requestContext.m_unloadResourceFunction( installDependencyRequesterID, m_installDependencies[i] );
+                m_pendingInstallDependencies[i] = ResourcePtr( m_pResourceRecord->m_installDependencyResourceIDs[i] );
+                requestContext.m_unloadResourceFunction( installDependencyRequesterID, m_pendingInstallDependencies[i] );
             }
 
             // Unload resource
             //-------------------------------------------------------------------------
-
-            int32 const t = m_pResourceRecord->GetResourceID().GetID();
 
             KRG_ASSERT( m_pResourceRecord->IsUnloading() );
             m_pResourceLoader->Unload( GetResourceID(), m_pResourceRecord );
