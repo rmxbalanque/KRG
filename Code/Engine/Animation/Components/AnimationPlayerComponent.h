@@ -9,7 +9,7 @@
 
 namespace KRG::Animation
 {
-    class KRG_ENGINE_ANIMATION_API AnimationPlayerComponent : public AnimationComponent
+    class KRG_ENGINE_ANIMATION_API AnimationPlayerComponent final : public AnimationComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( AnimationPlayerComponent );
 
@@ -31,15 +31,16 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        virtual void Update( UpdateContext const& ctx ) override final;
+        virtual Skeleton const* GetSkeleton() const override;
+        virtual Pose const* GetPose() const override { return m_pPose; }
+        virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
+        virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override {}
 
         //-------------------------------------------------------------------------
 
         // This function will change the animation resource currently played! Note: this can only be called for unloaded components
         void SetAnimation( ResourceID animationResourceID );
 
-        virtual Skeleton const* GetSkeleton() const override final;
-        virtual Pose const* GetPose() const override final { return m_pPose; }
         inline Percentage GetAnimTime() const { return m_animTime; }
         inline ResourceID const& GetAnimationID() const { return m_pAnimation->GetResourceID(); }
 
@@ -59,8 +60,8 @@ namespace KRG::Animation
 
     protected:
 
-        virtual void Initialize() override final;
-        virtual void Shutdown() override final;
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
 
     private:
 

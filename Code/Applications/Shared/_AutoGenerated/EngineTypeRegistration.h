@@ -7,12 +7,12 @@
 #include "System/TypeSystem/TypeRegistry.h"
 
 #include "D:\Kruger\Code\Game\Core\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
 #include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
 
 namespace KRG
 {
@@ -43,7 +43,8 @@ namespace KRG
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton"), ResourceTypeID( "SKEL" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationClip"), ResourceTypeID( "ANIM" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphDataSet"), ResourceTypeID( "AGDS" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraph"), ResourceTypeID( "AG" ) );
+            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphDefinition"), ResourceTypeID( "AG" ) );
+            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphVariation"), ResourceTypeID( "AGV" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Navmesh::NavmeshData"), ResourceTypeID( "NAV" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMesh"), ResourceTypeID( "PMSH" ) );
             typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMaterialDatabase"), ResourceTypeID( "PMDB" ) );
@@ -62,7 +63,8 @@ namespace KRG
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMaterialDatabase" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMesh" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Navmesh::NavmeshData" ) );
-            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraph" ) );
+            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphVariation" ) );
+            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphDefinition" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphDataSet" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationClip" ) );
             typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton" ) );

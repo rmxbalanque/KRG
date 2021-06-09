@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::AnimationClipResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::AnimationClipResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::AnimationClipResourceDescriptor> TTypeHelper<KRG::Animation::AnimationClipResourceDescriptor>::StaticTypeHelper;
         }

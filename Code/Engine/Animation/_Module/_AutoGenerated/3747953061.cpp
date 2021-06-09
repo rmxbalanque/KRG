@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::FloatRemapNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatRemapNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::FloatRemapNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatRemapNode::Settings>::StaticTypeHelper;
         }
@@ -33,7 +33,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::FloatClampNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatClampNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::FloatClampNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatClampNode::Settings>::StaticTypeHelper;
         }
@@ -51,7 +51,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::FloatAbsNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatAbsNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::FloatAbsNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatAbsNode::Settings>::StaticTypeHelper;
         }
@@ -69,7 +69,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::IDToFloatNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::IDToFloatNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::IDToFloatNode::Settings> TTypeHelper<KRG::Animation::Graph::IDToFloatNode::Settings>::StaticTypeHelper;
         }
@@ -87,7 +87,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::VectorInfoNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::VectorInfoNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::VectorInfoNode::Settings> TTypeHelper<KRG::Animation::Graph::VectorInfoNode::Settings>::StaticTypeHelper;
         }
@@ -105,7 +105,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::FloatBlendNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatBlendNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::FloatBlendNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatBlendNode::Settings>::StaticTypeHelper;
         }
@@ -123,7 +123,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::FloatMathNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatMathNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::FloatMathNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatMathNode::Settings>::StaticTypeHelper;
         }
@@ -141,7 +141,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::TargetInfoNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::TargetInfoNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::TargetInfoNode::Settings> TTypeHelper<KRG::Animation::Graph::TargetInfoNode::Settings>::StaticTypeHelper;
         }
@@ -159,7 +159,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::FloatSwitchNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatSwitchNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::FloatSwitchNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatSwitchNode::Settings>::StaticTypeHelper;
         }
@@ -177,7 +177,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::TargetOffsetNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::TargetOffsetNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::TargetOffsetNode::Settings> TTypeHelper<KRG::Animation::Graph::TargetOffsetNode::Settings>::StaticTypeHelper;
         }
@@ -195,7 +195,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::VectorNegateNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::VectorNegateNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::VectorNegateNode::Settings> TTypeHelper<KRG::Animation::Graph::VectorNegateNode::Settings>::StaticTypeHelper;
         }

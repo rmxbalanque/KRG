@@ -112,9 +112,6 @@
     <ProjectReference Include="..\Physics\KRG.Tools.Physics.vcxproj">
       <Project>{2740c360-55dc-489c-bfd4-e700df47b0b5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Resource\KRG.Tools.Resource.vcxproj">
-      <Project>{8c38c3bb-6980-4188-964b-984c11b26819}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

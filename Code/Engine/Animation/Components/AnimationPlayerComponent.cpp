@@ -1,6 +1,7 @@
 #include "AnimationPlayerComponent.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "System/Core/Update/UpdateContext.h"
+#include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 
@@ -55,8 +56,9 @@ namespace KRG::Animation
         return m_pAnimation->GetSkeleton();
     }
 
-    void AnimationPlayerComponent::Update( UpdateContext const& ctx )
+    void AnimationPlayerComponent::PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform )
     {
+        KRG_PROFILE_FUNCTION_ANIMATION();
         KRG_ASSERT( m_pAnimation != nullptr && m_pPose != nullptr );
 
         //-------------------------------------------------------------------------
@@ -68,7 +70,7 @@ namespace KRG::Animation
             case PlayMode::Loop:
             {
                 m_previousAnimTime = m_animTime;
-                m_animTime += Percentage( ctx.GetDeltaTime() / m_pAnimation->GetDuration() );
+                m_animTime += Percentage( deltaTime / m_pAnimation->GetDuration() );
                 m_animTime = m_animTime.GetClamped( true );
                 bSamplePose = true;
             }
@@ -79,7 +81,7 @@ namespace KRG::Animation
                 if ( m_previousAnimTime < 1.0f )
                 {
                     m_previousAnimTime = m_animTime;
-                    m_animTime += Percentage( ctx.GetDeltaTime() / m_pAnimation->GetDuration() );
+                    m_animTime += Percentage( deltaTime / m_pAnimation->GetDuration() );
                     m_animTime = m_animTime.GetClamped( false );
                     bSamplePose = true;
                 }

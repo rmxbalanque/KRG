@@ -4,8 +4,7 @@
 #include "Tools/Animation/ResourceCompilers/AnimationSkeletonCompiler.h"
 #include "Tools/Animation/ResourceCompilers/AnimationClipCompiler.h"
 #include "Tools/Animation/ResourceCompilers/AnimationGraphCompiler.h"
-#include "Tools/Animation/ResourceCompilers/AnimationGraphDataSetCompiler.h"
-#include "Tools/Resource/Compilers/ResourceCompilerRegistry.h"
+#include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,7 +21,6 @@ namespace KRG::Animation
             compilerRegistry.RegisterCompiler( &m_skeletonCompiler );
             compilerRegistry.RegisterCompiler( &m_animationClipCompiler );
             compilerRegistry.RegisterCompiler( &m_graphCompiler );
-            compilerRegistry.RegisterCompiler( &m_graphDataSetCompiler );
         }
 
         void UnregisterCompilers( Resource::CompilerRegistry& compilerRegistry )
@@ -30,7 +28,6 @@ namespace KRG::Animation
             compilerRegistry.UnregisterCompiler( &m_skeletonCompiler );
             compilerRegistry.UnregisterCompiler( &m_animationClipCompiler );
             compilerRegistry.UnregisterCompiler( &m_graphCompiler );
-            compilerRegistry.UnregisterCompiler( &m_graphDataSetCompiler );
         }
 
     private:
@@ -38,6 +35,5 @@ namespace KRG::Animation
         SkeletonCompiler                m_skeletonCompiler;
         AnimationClipCompiler           m_animationClipCompiler;
         AnimationGraphCompiler          m_graphCompiler;
-        AnimationGraphDataSetCompiler   m_graphDataSetCompiler;
     };
 }

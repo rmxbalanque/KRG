@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tools/Render/_Module/API.h"
-#include "Tools/Resource/Compilers/ResourceCompiler.h"
+#include "Tools/Core/Resource/Compilers/ResourceCompiler.h"
 #include "Engine/Render/Material/RenderMaterial.h"
 #include "System/Resource/ResourcePtr.h"
 

@@ -12,7 +12,8 @@ namespace KRG::TypeSystem
     {
         enum class Flags
         {
-            IsArray = 0,
+            IsExposed = 0,
+            IsArray,
             IsDynamicArray,
             IsEnum,
             IsBitFlags,
@@ -28,6 +29,7 @@ namespace KRG::TypeSystem
         // General queries
         //-------------------------------------------------------------------------
 
+        inline bool IsExposedProperty() const { return m_flags.IsFlagSet( Flags::IsExposed ); }
         inline bool IsStructureProperty() const { return m_flags.IsFlagSet( Flags::IsStructure ); }
         inline bool IsEnumProperty() const { return m_flags.IsFlagSet( Flags::IsEnum ); }
         inline bool IsBitFlagsProperty() const { return m_flags.IsFlagSet( Flags::IsBitFlags ); }

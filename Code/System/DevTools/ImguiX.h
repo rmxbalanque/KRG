@@ -24,14 +24,25 @@ namespace KRG::ImGuiX
     // Helpers
     //-------------------------------------------------------------------------
 
-    inline ImVec4 ConvertColor( Color const& color )
-    {
-        return ::ImGui::ColorConvertU32ToFloat4( IM_COL32( color.m_byteColor.m_r, color.m_byteColor.m_g, color.m_byteColor.m_b, color.m_byteColor.m_a ) );
-    }
-
-    inline ImU32 ConvertColorU32( Color const& color )
+    KRG_FORCE_INLINE ImColor ConvertColor( Color const& color )
     {
         return IM_COL32( color.m_byteColor.m_r, color.m_byteColor.m_g, color.m_byteColor.m_b, color.m_byteColor.m_a );
+    }
+
+    // Adjust the brightness of color by a multiplier
+    KRG_FORCE_INLINE ImColor AdjustColorBrightness( ImColor const& color, float multiplier )
+    {
+        Float4 tmpColor = (ImVec4) color;
+        float const alpha = tmpColor.m_w;
+        tmpColor *= multiplier;
+        tmpColor.m_w = alpha;
+        return ImColor( tmpColor );
+    }
+
+    // Adjust the brightness of color by a multiplier
+    KRG_FORCE_INLINE ImU32 AdjustColorBrightness( ImU32 color, float multiplier )
+    {
+        return AdjustColorBrightness( ImColor( color ), multiplier );
     }
 
     //-------------------------------------------------------------------------
@@ -94,7 +105,7 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        ImColor const separatorColor = ( (int) color == 0 ) ? ImGuiX::Theme::s_backgroundColorLight : color;
+        ImColor const separatorColor = ( (int) color == 0 ) ? ImColor( ImGuiX::Theme::s_backgroundColorLight ) : ImColor( color );
 
         float const startPosX = canvasPos.x + ( seperatorSize.x / 2 );
         float const startPosY = canvasPos.y + 1;

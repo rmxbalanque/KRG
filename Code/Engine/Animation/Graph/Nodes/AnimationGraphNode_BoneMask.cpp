@@ -4,20 +4,20 @@
 
 namespace KRG::Animation::Graph
 {
-    void BoneMaskNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void BoneMaskNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<BoneMaskNode>( nodePtrs, options );
     }
 
     void BoneMaskNode::InitializeInternal( GraphContext& context )
     {
-        ValueNodeBoneMask::InitializeInternal( context );
+        BoneMaskValueNode::InitializeInternal( context );
 
         auto pSettings = GetSettings<BoneMaskNode>();
 
-        if ( m_boneMask.GetSkeleton() != context.GetSkeleton() )
+        if ( m_boneMask.GetSkeleton() != context.m_pSkeleton )
         {
-            m_boneMask = BoneMask( context.GetSkeleton(), pSettings->m_weights, pSettings->m_rootMotionWeight );
+            m_boneMask = BoneMask( context.m_pSkeleton, pSettings->m_weights, pSettings->m_rootMotionWeight );
         }
         else
         {
@@ -32,7 +32,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void BoneMaskBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void BoneMaskBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<BoneMaskBlendNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_sourceMaskNodeIdx, pNode->m_pSourceBoneMask );
@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
 
     void BoneMaskBlendNode::InitializeInternal( GraphContext& context )
     {
-        ValueNodeBoneMask::InitializeInternal( context );
+        BoneMaskValueNode::InitializeInternal( context );
 
         //-------------------------------------------------------------------------
 
@@ -52,9 +52,9 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        if ( m_blendedBoneMask.GetSkeleton() != context.GetSkeleton() )
+        if ( m_blendedBoneMask.GetSkeleton() != context.m_pSkeleton )
         {
-            m_blendedBoneMask = BoneMask( context.GetSkeleton() );
+            m_blendedBoneMask = BoneMask( context.m_pSkeleton );
         }
         else
         {
@@ -68,7 +68,7 @@ namespace KRG::Animation::Graph
         m_pTargetBoneMask->Shutdown( context );
         m_pSourceBoneMask->Shutdown( context );
 
-        ValueNodeBoneMask::ShutdownInternal( context );
+        BoneMaskValueNode::ShutdownInternal( context );
     }
 
     void BoneMaskBlendNode::GetValueInternal( GraphContext& context, void* pOutValue )
@@ -95,7 +95,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void BoneMaskSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void BoneMaskSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<BoneMaskSelectorNode>( nodePtrs, options );
 
@@ -111,7 +111,7 @@ namespace KRG::Animation::Graph
     void BoneMaskSelectorNode::InitializeInternal( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
-        ValueNodeBoneMask::InitializeInternal( context );
+        BoneMaskValueNode::InitializeInternal( context );
         m_pParameterValueNode->Initialize( context );
 
         size_t const numMasks = m_boneMaskOptionNodes.size();
@@ -147,7 +147,7 @@ namespace KRG::Animation::Graph
         }
 
         m_pParameterValueNode->Shutdown( context );
-        ValueNodeBoneMask::ShutdownInternal( context );
+        BoneMaskValueNode::ShutdownInternal( context );
     }
 
     BoneMask const* BoneMaskSelectorNode::GetBoneMaskForIndex( GraphContext& context, int32 optionIndex ) const
@@ -168,7 +168,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() );
 
-        if ( IsUpToDate( context ) )
+        if ( WasUpdated( context ) )
         {
             if ( m_isBlending )
             {
@@ -183,7 +183,7 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        MarkAsUpdated( context );
+        MarkNodeActive( context );
 
         auto pSettings = GetSettings<BoneMaskSelectorNode>();
         if ( pSettings->m_switchDynamically )

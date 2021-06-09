@@ -54,7 +54,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Physics::PhysicsMaterialSettings> TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::StaticTypeHelper;
         }

@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::ExternalTestSubSubStruct>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::ExternalTestSubSubStruct>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::ExternalTestSubSubStruct> TTypeHelper<KRG::ExternalTestSubSubStruct>::StaticTypeHelper;
         }
@@ -33,7 +33,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::ExternalTestSubStruct>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::ExternalTestSubStruct>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::ExternalTestSubStruct> TTypeHelper<KRG::ExternalTestSubStruct>::StaticTypeHelper;
         }
@@ -51,7 +51,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::ExternalTestStruct>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::ExternalTestStruct>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::ExternalTestStruct> TTypeHelper<KRG::ExternalTestStruct>::StaticTypeHelper;
         }
@@ -110,7 +110,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::TestComponent::InternalStruct>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::TestComponent::InternalStruct>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::TestComponent::InternalStruct> TTypeHelper<KRG::TestComponent::InternalStruct>::StaticTypeHelper;
         }
@@ -202,7 +202,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::TestComponent>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::TestComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::TestComponent> TTypeHelper<KRG::TestComponent>::StaticTypeHelper;
         }

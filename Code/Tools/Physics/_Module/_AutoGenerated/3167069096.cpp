@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor> TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::StaticTypeHelper;
         }

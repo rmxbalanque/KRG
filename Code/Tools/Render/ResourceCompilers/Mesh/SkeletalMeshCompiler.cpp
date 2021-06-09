@@ -1,6 +1,6 @@
 #include "SkeletalMeshCompiler.h"
-#include "Tools/Resource/RawAssets/RawAssetReader.h"
-#include "Tools/Resource/RawAssets/RawMesh.h"
+#include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
+#include "Tools/Core/Resource/RawAssets/RawMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"

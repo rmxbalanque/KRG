@@ -27,7 +27,7 @@ namespace KRG::TypeSystem::Serialization
         m_deserializedTypeIdx = 0;
     }
 
-    rapidjson::Value const& TypeReader::GetObjectValueToBeDeserialized()
+    RapidJsonValue const& TypeReader::GetObjectValueToBeDeserialized()
     {
         KRG_ASSERT( m_deserializedTypeIdx < m_numSerializedTypes );
 

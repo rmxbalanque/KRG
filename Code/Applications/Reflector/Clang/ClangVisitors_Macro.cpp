@@ -13,11 +13,17 @@ namespace KRG
             {
                 CXSourceRange range = clang_getCursorExtent( cr );
 
-                if ( cursorName == GetReflectionMacroText( ReflectionMacro::ExposeProperty ) )
+                if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterProperty ) )
                 {
                     uint32 lineNumber;
                     clang_getExpansionLocation( clang_getRangeStart( range ), nullptr, &lineNumber, nullptr, nullptr );
-                    pContext->AddFoundExposedPropertyMacro( ExposedPropertyMacro( headerID, lineNumber ) );
+                    pContext->AddFoundRegisteredPropertyMacro( RegisteredPropertyMacro( headerID, lineNumber, false ) );
+                }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::ExposeProperty ) )
+                {
+                    uint32 lineNumber;
+                    clang_getExpansionLocation( clang_getRangeStart( range ), nullptr, &lineNumber, nullptr, nullptr );
+                    pContext->AddFoundRegisteredPropertyMacro( RegisteredPropertyMacro( headerID, lineNumber, true ) );
                 }
                 else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterEnum ) )
                 {

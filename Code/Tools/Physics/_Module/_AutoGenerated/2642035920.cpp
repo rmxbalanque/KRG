@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor> TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor>::StaticTypeHelper;
         }

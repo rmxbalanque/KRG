@@ -1,7 +1,6 @@
 #include "ImguiSystem.h"
 #include "ImguiFont.h"
 #include "ImguiTheme.h"
-#include "System/DevTools/ThirdParty/imnodes/imnodes.h"
 #include "System/DevTools/ThirdParty/imgui/misc/freetype/imgui_freetype.h"
 #include "System/Render/Fonts/FontDecompressor.h"
 #include "System/Render/Fonts/FontData_Segoe.h"
@@ -15,7 +14,6 @@ namespace KRG::ImGuiX
     bool ImguiSystem::Initialize( String const& iniFilename )
     {
         ImGui::CreateContext();
-        ImNodes::CreateContext();
 
         //-------------------------------------------------------------------------
 
@@ -50,7 +48,6 @@ namespace KRG::ImGuiX
             SystemFonts::s_fonts[i] = nullptr;
         }
 
-        ImNodes::DestroyContext();
         ImGui::DestroyContext();
     }
 

@@ -18,29 +18,29 @@
 
 void KRG::Physics::EngineModule::RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsComponent>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMeshComponent>::RegisterType( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_PhysicsCombineMode::RegisterEnum( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::RegisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_ActorType::RegisterEnum( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_ShapeType::RegisterEnum( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsCapsuleComponent>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsBoxComponent>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsComponent>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMeshComponent>::RegisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_Layers::RegisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsBoxComponent>::RegisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_PhysicsCombineMode::RegisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsSphereComponent>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsCapsuleComponent>::RegisterType( typeRegistry );
 }
 
 void KRG::Physics::EngineModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsSphereComponent>::UnregisterType( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_Layers::UnregisterEnum( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsBoxComponent>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsCapsuleComponent>::UnregisterType( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_ShapeType::UnregisterEnum( typeRegistry );
-    TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_ActorType::UnregisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsSphereComponent>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMaterialSettings>::UnregisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_PhysicsCombineMode::UnregisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsBoxComponent>::UnregisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_Layers::UnregisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMeshComponent>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsComponent>::UnregisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_ShapeType::UnregisterEnum( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Physics_ActorType::UnregisterEnum( typeRegistry );
 }
 

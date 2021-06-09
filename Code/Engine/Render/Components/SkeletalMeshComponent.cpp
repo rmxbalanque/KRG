@@ -1,5 +1,6 @@
 #include "SkeletalMeshComponent.h"
 #include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 
@@ -76,6 +77,8 @@ namespace KRG::Render
 
     void SkeletalMeshComponent::FinalizePose()
     {
+        KRG_PROFILE_FUNCTION_RENDER();
+
         NotifySocketsUpdated();
         UpdateBounds();
         UpdateSkinningTransforms();

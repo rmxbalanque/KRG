@@ -4,7 +4,7 @@
 
 namespace KRG::Animation::Graph
 {
-    void AndNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void AndNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<AndNode>( nodePtrs, options );
 
@@ -19,7 +19,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() );
 
-        ValueNodeBool::InitializeInternal( context );
+        BoolValueNode::InitializeInternal( context );
 
         for ( auto pNode : m_conditionNodes )
         {
@@ -38,16 +38,16 @@ namespace KRG::Animation::Graph
             pNode->Shutdown( context );
         }
 
-        ValueNodeBool::ShutdownInternal( context );
+        BoolValueNode::ShutdownInternal( context );
     }
 
     void AndNode::GetValueInternal( GraphContext& context, void* pOutValue )
     {
         KRG_ASSERT( context.IsValid() );
 
-        if ( !IsUpToDate( context ) )
+        if ( !WasUpdated( context ) )
         {
-            MarkAsUpdated( context );
+            MarkNodeActive( context );
 
             m_result = true;
             for ( auto pCondition : m_conditionNodes )
@@ -65,7 +65,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void OrNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void OrNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<OrNode>( nodePtrs, options );
 
@@ -80,7 +80,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() );
 
-        ValueNodeBool::InitializeInternal( context );
+        BoolValueNode::InitializeInternal( context );
 
         for ( auto pNode : m_conditionNodes )
         {
@@ -99,16 +99,16 @@ namespace KRG::Animation::Graph
             pNode->Shutdown( context );
         }
 
-        ValueNodeBool::ShutdownInternal( context );
+        BoolValueNode::ShutdownInternal( context );
     }
 
     void OrNode::GetValueInternal( GraphContext& context, void* pOutValue )
     {
         KRG_ASSERT( context.IsValid() );
 
-        if ( !IsUpToDate( context ) )
+        if ( !WasUpdated( context ) )
         {
-            MarkAsUpdated( context );
+            MarkNodeActive( context );
 
             m_result = false;
             for ( auto pCondition : m_conditionNodes )
@@ -126,7 +126,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void NotNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void NotNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<NotNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
@@ -135,7 +135,7 @@ namespace KRG::Animation::Graph
     void NotNode::InitializeInternal( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
-        ValueNodeBool::InitializeInternal( context );
+        BoolValueNode::InitializeInternal( context );
         m_pInputValueNode->Initialize( context );
         m_result = false;
     }
@@ -144,16 +144,16 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         m_pInputValueNode->Shutdown( context );
-        ValueNodeBool::ShutdownInternal( context );
+        BoolValueNode::ShutdownInternal( context );
     }
 
     void NotNode::GetValueInternal( GraphContext& context, void* pOutValue )
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
 
-        if ( !IsUpToDate( context ) )
+        if ( !WasUpdated( context ) )
         {
-            MarkAsUpdated( context );
+            MarkNodeActive( context );
             m_result = !( m_pInputValueNode->GetValue<bool>( context ) );
         }
 
@@ -162,7 +162,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FloatComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void FloatComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<FloatComparisonNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
@@ -173,7 +173,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
 
-        ValueNodeBool::InitializeInternal( context );
+        BoolValueNode::InitializeInternal( context );
         m_pInputValueNode->Initialize( context );
 
         if ( m_pComparandValueNode != nullptr )
@@ -194,7 +194,7 @@ namespace KRG::Animation::Graph
         }
 
         m_pInputValueNode->Shutdown( context );
-        ValueNodeBool::ShutdownInternal( context );
+        BoolValueNode::ShutdownInternal( context );
     }
 
     void FloatComparisonNode::GetValueInternal( GraphContext& context, void* pOutValue )
@@ -202,9 +202,9 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         auto pSettings = GetSettings<FloatComparisonNode>();
 
-        if ( !IsUpToDate( context ) )
+        if ( !WasUpdated( context ) )
         {
-            MarkAsUpdated( context );
+            MarkNodeActive( context );
 
             float const a = m_pInputValueNode->GetValue<float>( context );
             float const b = ( m_pComparandValueNode != nullptr ) ? m_pComparandValueNode->GetValue<float>( context ) : pSettings->m_comparisonValue;
@@ -238,7 +238,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void RangeComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void RangeComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<RangeComparisonNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
@@ -247,7 +247,7 @@ namespace KRG::Animation::Graph
     void RangeComparisonNode::InitializeInternal( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
-        ValueNodeBool::InitializeInternal( context );
+        BoolValueNode::InitializeInternal( context );
         m_pInputValueNode->Initialize( context );
         m_result = false;
     }
@@ -256,7 +256,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         m_pInputValueNode->Shutdown( context );
-        ValueNodeBool::ShutdownInternal( context );
+        BoolValueNode::ShutdownInternal( context );
     }
 
     void RangeComparisonNode::GetValueInternal( GraphContext& context, void* pOutValue )
@@ -264,9 +264,9 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         auto pSettings = GetSettings<RangeComparisonNode>();
 
-        if ( !IsUpToDate( context ) )
+        if ( !WasUpdated( context ) )
         {
-            MarkAsUpdated( context );
+            MarkNodeActive( context );
             float const value = m_pInputValueNode->GetValue<float>( context );
             m_result = pSettings->m_range.ContainsInclusive( value );
         }
@@ -276,7 +276,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void IDComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void IDComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<IDComparisonNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
@@ -285,7 +285,7 @@ namespace KRG::Animation::Graph
     void IDComparisonNode::InitializeInternal( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
-        ValueNodeBool::InitializeInternal( context );
+        BoolValueNode::InitializeInternal( context );
         m_pInputValueNode->Initialize( context );
         m_result = false;
     }
@@ -294,7 +294,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         m_pInputValueNode->Shutdown( context );
-        ValueNodeBool::ShutdownInternal( context );
+        BoolValueNode::ShutdownInternal( context );
     }
 
     void IDComparisonNode::GetValueInternal( GraphContext& context, void* pOutValue )
@@ -302,9 +302,9 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         auto pSettings = GetSettings<IDComparisonNode>();
 
-        if ( !IsUpToDate( context ) )
+        if ( !WasUpdated( context ) )
         {
-            MarkAsUpdated( context );
+            MarkNodeActive( context );
 
             switch ( pSettings->m_comparison )
             {
@@ -327,7 +327,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void MultipleIDComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void MultipleIDComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<MultipleIDComparisonNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
@@ -336,7 +336,7 @@ namespace KRG::Animation::Graph
     void MultipleIDComparisonNode::InitializeInternal( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
-        ValueNodeBool::InitializeInternal( context );
+        BoolValueNode::InitializeInternal( context );
         m_pInputValueNode->Initialize( context );
         m_result = false;
     }
@@ -345,7 +345,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         m_pInputValueNode->Shutdown( context );
-        ValueNodeBool::ShutdownInternal( context );
+        BoolValueNode::ShutdownInternal( context );
     }
 
     void MultipleIDComparisonNode::GetValueInternal( GraphContext& context, void* pOutValue )
@@ -353,9 +353,9 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         auto pSettings = GetSettings<MultipleIDComparisonNode>();
 
-        if ( !IsUpToDate( context ) )
+        if ( !WasUpdated( context ) )
         {
-            MarkAsUpdated( context );
+            MarkNodeActive( context );
             StringID const inputID = m_pInputValueNode->GetValue<StringID>( context );
 
             switch ( pSettings->m_comparison )
@@ -379,7 +379,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void IsTargetSetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void IsTargetSetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<IsTargetSetNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
@@ -388,7 +388,7 @@ namespace KRG::Animation::Graph
     void IsTargetSetNode::InitializeInternal( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
-        ValueNodeBool::InitializeInternal( context );
+        BoolValueNode::InitializeInternal( context );
         m_pInputValueNode->Initialize( context );
         m_result = false;
     }
@@ -397,7 +397,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         m_pInputValueNode->Shutdown( context );
-        ValueNodeBool::ShutdownInternal( context );
+        BoolValueNode::ShutdownInternal( context );
     }
 
     void IsTargetSetNode::GetValueInternal( GraphContext& context, void* pOutValue )
@@ -405,9 +405,9 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
         auto pSettings = GetSettings<IsTargetSetNode>();
 
-        if ( !IsUpToDate( context ) )
+        if ( !WasUpdated( context ) )
         {
-            MarkAsUpdated( context );
+            MarkNodeActive( context );
             m_result = m_pInputValueNode->GetValue<Target>( context ).IsTargetSet();
         }
 

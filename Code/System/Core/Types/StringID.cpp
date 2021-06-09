@@ -16,12 +16,12 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        class DebugStringAllocator
+        class StringIDAllocator
         {
 
         public:
 
-            ~DebugStringAllocator()
+            ~StringIDAllocator()
             {
                 auto& nonConstStringMap = const_cast<THashMap<uint32, char*>&>( StringID::StringIDMap );
                 for ( auto& debugString : nonConstStringMap )
@@ -72,22 +72,18 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     StringID const StringID::InvalidID;
-    DebugStringAllocator* g_pDebugStringAllocator = nullptr;
+    StringIDAllocator* g_pStringIDAllocatorCache = nullptr;
 
     //-------------------------------------------------------------------------
 
     void StringID::Initialize()
     {
-        #if KRG_DEVELOPMENT_TOOLS
-        g_pDebugStringAllocator = KRG::New<DebugStringAllocator>();
-        #endif
+        g_pStringIDAllocatorCache = KRG::New<StringIDAllocator>();
     }
 
     void StringID::Shutdown()
     {
-        #if KRG_DEVELOPMENT_TOOLS
-        KRG::Delete( g_pDebugStringAllocator );
-        #endif
+        KRG::Delete( g_pStringIDAllocatorCache );
     }
 
     //-------------------------------------------------------------------------
@@ -95,19 +91,15 @@ namespace KRG
     StringID::StringID( char const* pStr )
         : m_ID( Hash::GetHash32( pStr ) )
     {
-        #if KRG_DEVELOPMENT_TOOLS
-        g_pDebugStringAllocator->RegisterDebugString( m_ID, pStr );
-        #endif
+        g_pStringIDAllocatorCache->RegisterDebugString( m_ID, pStr );
     }
 
     StringID::StringID( uint32 ID )
         : m_ID( ID )
     {}
 
-    #if KRG_DEVELOPMENT_TOOLS
     char const* StringID::ToString() const
     {
-        return g_pDebugStringAllocator->GetString( m_ID );
+        return g_pStringIDAllocatorCache->GetString( m_ID );
     }
-    #endif
 }

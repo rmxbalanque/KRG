@@ -27,10 +27,10 @@
     <ClInclude Include="Events\AnimationEvent_Footstep.h" />
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
-    <ClInclude Include="Graph\AnimationGraph.h" />
+    <ClInclude Include="Graph\AnimationGraphInstance.h" />
     <ClInclude Include="Graph\AnimationGraphBoneMaskPool.h" />
     <ClInclude Include="Graph\AnimationGraphCommon.h" />
-    <ClInclude Include="Graph\AnimationGraphDataset.h" />
+    <ClInclude Include="Graph\AnimationGraphResources.h" />
     <ClInclude Include="Graph\AnimationGraphEvents.h" />
     <ClInclude Include="AnimationBlender.h" />
     <ClInclude Include="Graph\AnimationGraphNode.h" />
@@ -38,7 +38,7 @@
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_BoneMask.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Conditions.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_ConstValues.h" />
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_ControlParameters.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Parameters.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Math.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Passthrough.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Pose.h" />
@@ -51,7 +51,6 @@
     <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Blend.h" />
     <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_DefaultPose.h" />
     <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Sample.h" />
-    <ClInclude Include="ResourceLoaders\AnimationGraphDataSetLoader.h" />
     <ClInclude Include="ResourceLoaders\AnimationClipLoader.h" />
     <ClInclude Include="ResourceLoaders\AnimationSkeletonLoader.h" />
     <ClInclude Include="ResourceLoaders\AnimationGraphLoader.h" />
@@ -78,9 +77,9 @@
     <ClCompile Include="Events\AnimationEvent_ID.cpp" />
     <ClCompile Include="Events\AnimationEvent_Footstep.cpp" />
     <ClCompile Include="AnimationTarget.cpp" />
-    <ClCompile Include="Graph\AnimationGraph.cpp" />
+    <ClCompile Include="Graph\AnimationGraphInstance.cpp" />
     <ClCompile Include="Graph\AnimationGraphBoneMaskPool.cpp" />
-    <ClCompile Include="Graph\AnimationGraphDataset.cpp" />
+    <ClCompile Include="Graph\AnimationGraphResources.cpp" />
     <ClCompile Include="Graph\AnimationGraphEvents.cpp" />
     <ClCompile Include="AnimationBlender.cpp" />
     <ClCompile Include="Graph\AnimationGraphNode.cpp" />
@@ -92,7 +91,7 @@
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Passthrough.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Pose.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_AnimationClip.cpp" />
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_ControlParameters.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Parameters.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_RangedBlends.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_RootMotionOverride.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Selector.cpp" />
@@ -101,7 +100,6 @@
     <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Blend.cpp" />
     <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_DefaultPose.cpp" />
     <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Sample.cpp" />
-    <ClCompile Include="ResourceLoaders\AnimationGraphDataSetLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationClipLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationSkeletonLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationGraphLoader.cpp" />

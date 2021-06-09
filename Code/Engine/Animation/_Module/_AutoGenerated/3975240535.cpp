@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::PassthroughNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::PassthroughNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::PassthroughNode::Settings> TTypeHelper<KRG::Animation::Graph::PassthroughNode::Settings>::StaticTypeHelper;
         }

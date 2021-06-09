@@ -8,8 +8,6 @@
 #include <istream>
 #include <ostream>
 
-#include "cereal/archives/json.hpp"
-
 // Cereal support for common STL types
 #include <cereal/types/complex.hpp>
 #include <cereal/types/array.hpp>
@@ -33,6 +31,9 @@
 #include "UserTypes/eastl_hash_set.hpp"
 #include "UserTypes/eastl_chrono.hpp"
 #include "UserTypes/krg_stringid.hpp"
+
+// Archive
+#include "cereal/archives/json.hpp"
 
 //-------------------------------------------------------------------------
 

@@ -7,10 +7,13 @@
 
 namespace KRG::Animation::Graph
 {
-    void AnimationClipNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void AnimationClipNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<AnimationClipNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_playInReverseValueNodeIdx, pNode->m_pPlayInReverseValueNode );
+
+        auto pSettings = pNode->GetSettings<AnimationClipNode>();
+        pNode->m_pAnimation = pDataSet->GetAnimationClip( pSettings->m_sourceIndex );
     }
 
     bool AnimationClipNode::IsValid() const
@@ -22,9 +25,6 @@ namespace KRG::Animation::Graph
     {
         AnimationClipReferenceNode::InitializeInternal( context, initialTime );
         auto pSettings = GetSettings<AnimationClipNode>();
-
-        // Try to get the animation record for this source node
-        m_pAnimation = context.m_pDataSet->GetAnimationClip( pSettings->m_animationID );
 
         // Try to create play in reverse node
         if ( m_pPlayInReverseValueNode != nullptr )
@@ -44,27 +44,22 @@ namespace KRG::Animation::Graph
 
     void AnimationClipNode::ShutdownInternal( GraphContext& context )
     {
-        if ( m_pAnimation != nullptr )
+        if ( m_pPlayInReverseValueNode != nullptr )
         {
-            if ( m_pPlayInReverseValueNode != nullptr )
-            {
-                m_pPlayInReverseValueNode->Shutdown( context );
-            }
-
-            m_pAnimation = nullptr;
+            m_pPlayInReverseValueNode->Shutdown( context );
         }
 
         m_currentTime = m_previousTime = 0.0f;
         AnimationClipReferenceNode::ShutdownInternal( context );
     }
 
-    UpdateResult AnimationClipNode::Update( GraphContext& context )
+    PoseNodeResult AnimationClipNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
         if ( !IsValid() )
         {
-            return UpdateResult();
+            return PoseNodeResult();
         }
 
         MarkNodeActive( context );
@@ -111,13 +106,13 @@ namespace KRG::Animation::Graph
         return CalculateResult( context, true );
     }
 
-    UpdateResult AnimationClipNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    PoseNodeResult AnimationClipNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
         if ( !IsValid() )
         {
-            return UpdateResult();
+            return PoseNodeResult();
         }
 
         MarkNodeActive( context );
@@ -153,12 +148,12 @@ namespace KRG::Animation::Graph
         return CalculateResult( context, true );
     }
 
-    UpdateResult AnimationClipNode::CalculateResult( GraphContext& context, bool isSynchronizedUpdate ) const
+    PoseNodeResult AnimationClipNode::CalculateResult( GraphContext& context, bool isSynchronizedUpdate ) const
     {
         KRG_ASSERT( m_pAnimation != nullptr );
         auto pSettings = GetSettings<AnimationClipNode>();
 
-        UpdateResult result;
+        PoseNodeResult result;
 
         //-------------------------------------------------------------------------
 

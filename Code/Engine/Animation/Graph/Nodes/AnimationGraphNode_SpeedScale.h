@@ -15,7 +15,7 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PassthroughNode::Settings, m_scaleValueNodeIdx, m_scaleLimits, m_blendTime );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex               m_scaleValueNodeIdx = InvalidIndex;
             FloatRange              m_scaleLimits = FloatRange( 0, 0 );
@@ -26,8 +26,8 @@ namespace KRG::Animation::Graph
 
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual PoseNodeResult Update( GraphContext& context ) override;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
 
         inline float GetSpeedScale( GraphContext& context ) const
         {
@@ -39,7 +39,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        ValueNodeFloat*             m_pScaleValueNode = nullptr;
+        FloatValueNode*             m_pScaleValueNode = nullptr;
         float                       m_blendWeight = 1.0f; // Used to ensure the modifier is slowly blended in when coming from a sync'd transition that ends
     };
 
@@ -54,7 +54,7 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PassthroughNode::Settings, m_desiredVelocityValueNodeIdx, m_blendTime );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex               m_desiredVelocityValueNodeIdx = InvalidIndex;
             float                   m_blendTime = 0.2f;
@@ -64,12 +64,12 @@ namespace KRG::Animation::Graph
 
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual PoseNodeResult Update( GraphContext& context ) override;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
 
     private:
 
-        ValueNodeFloat*             m_pDesiredVelocityValueNode = nullptr;
+        FloatValueNode*             m_pDesiredVelocityValueNode = nullptr;
         float                       m_blendWeight = 1.0f; // Used to ensure the modifier is slowly blended in when coming from a sync'd transition that ends
     };
 }

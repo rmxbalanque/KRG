@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::CustomizerTestComponent>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::CustomizerTestComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::CustomizerTestComponent> TTypeHelper<KRG::CustomizerTestComponent>::StaticTypeHelper;
         }

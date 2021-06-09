@@ -11,15 +11,31 @@
 namespace KRG::Animation
 {
     class AnimationClip;
+    class AnimationGraphDataSet;
 }
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
+    enum class NodeValueType
+    {
+        Unknown = 0,
+        Bool,
+        ID,
+        Int,
+        Float,
+        Vector,
+        Target,
+        BoneMask,
+        Pose
+    };
+
+    //-------------------------------------------------------------------------
+
     class KRG_ENGINE_ANIMATION_API GraphNode
     {
-        friend class AnimationNode;
+        friend class PoseNode;
         friend class ValueNode;
 
     public:
@@ -33,7 +49,7 @@ namespace KRG::Animation::Graph
             enum class InitOptions
             {
                 CreateNodeAndSetPointers,
-                OnlySetPointers
+                OnlySetPointers             // Needed when calling a parent 'InstantiateNode' function from a derived class
             };
 
         protected:
@@ -85,7 +101,7 @@ namespace KRG::Animation::Graph
             virtual ~Settings() = default;
 
             // Factory method, will create the node instance and set all necessary node ptrs
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const = 0;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const = 0;
 
             // Serialization methods
             virtual void Load( cereal::BinaryInputArchive& archive ) { archive( m_nodeIdx, m_nodeID ); }
@@ -115,23 +131,30 @@ namespace KRG::Animation::Graph
 
     public:
 
-        // Node construction/destruction
-        //-------------------------------------------------------------------------
-
         GraphNode() = default;
         virtual ~GraphNode();
 
         // Node state management
+        //-------------------------------------------------------------------------
+
         virtual bool IsValid() const { return true; }
+        virtual NodeValueType GetValueType() const = 0;
+        inline NodeIndex GetNodeIdx() const { return m_pSettings->m_nodeIdx; }
+
         inline bool IsInitialized() const { return m_initializationCount > 0; }
         virtual void Initialize( GraphContext& cContext );
         void Shutdown( GraphContext& context );
 
-        // Node flags
-        inline NodeIndex GetNodeIdx() const { return m_pSettings->m_nodeIdx; }
+        // Update
+        //-------------------------------------------------------------------------
 
-        // Update and activity tracking
+        // Is this node active i.e. was it updated this frame
         KRG_FORCE_INLINE bool IsNodeActive( GraphContext& context ) const { return m_lastUpdateID == context.m_updateID; }
+
+        // Was this node updated this frame, this is syntactic sugar for value nodes
+        KRG_FORCE_INLINE bool WasUpdated( GraphContext& context ) const { return IsNodeActive( context ); }
+
+        // Mark a node as being updated - value nodes will use this to cache values
         void MarkNodeActive( GraphContext& context );
 
     protected:
@@ -156,7 +179,7 @@ namespace KRG::Animation::Graph
     // Animation Nodes
     //-------------------------------------------------------------------------
 
-    struct UpdateResult
+    struct PoseNodeResult
     {
         KRG_FORCE_INLINE bool HasRegisteredTasks() const { return m_taskIdx != InvalidIndex; }
 
@@ -167,7 +190,7 @@ namespace KRG::Animation::Graph
         SampledEventRange           m_sampledEventRange;
     };
 
-    class KRG_ENGINE_ANIMATION_API AnimationNode : public GraphNode
+    class KRG_ENGINE_ANIMATION_API PoseNode : public GraphNode
     {
 
     public:
@@ -184,10 +207,10 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime );
 
         // Unsynchronized update
-        virtual UpdateResult Update( GraphContext& context ) = 0;
+        virtual PoseNodeResult Update( GraphContext& context ) = 0;
 
         // Synchronized update
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) = 0;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) = 0;
 
         // Deactivate a previous active branch, this is needed when trigger transitions
         virtual void DeactivateBranch( GraphContext& context ) { KRG_ASSERT( context.m_branchState == BranchState::Inactive && IsNodeActive( context ) ); }
@@ -196,6 +219,7 @@ namespace KRG::Animation::Graph
 
         virtual void Initialize( GraphContext& context ) override final { Initialize( context, SyncTrackTime() ); }
         virtual void InitializeInternal( GraphContext& context ) override final { Initialize( context, SyncTrackTime() ); }
+        virtual NodeValueType GetValueType() const override final { return NodeValueType::Pose; }
 
     protected:
 
@@ -208,7 +232,7 @@ namespace KRG::Animation::Graph
     //-------------------------------------------------------------------------
 
     // An interface to directly access a selected animation, this is needed to ensure certain animation nodes only operate on animations directly
-    class KRG_ENGINE_ANIMATION_API AnimationClipReferenceNode : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API AnimationClipReferenceNode : public PoseNode
     {
     public:
 
@@ -221,35 +245,20 @@ namespace KRG::Animation::Graph
     // Value Nodes
     //-------------------------------------------------------------------------
 
-    enum class ValueNodeType
-    {
-        Unknown = 0,
-        Bool,
-        ID,
-        Int,
-        Float,
-        Vector,
-        Target,
-        BoneMask,
-    };
-
-    template<typename T> struct ValueTypeValidation { static ValueNodeType const Type = ValueNodeType::Unknown; };
-    template<> struct ValueTypeValidation<bool> { static ValueNodeType const Type = ValueNodeType::Bool; };
-    template<> struct ValueTypeValidation<StringID> { static ValueNodeType const Type = ValueNodeType::ID; };
-    template<> struct ValueTypeValidation<int32> { static ValueNodeType const Type = ValueNodeType::Int; };
-    template<> struct ValueTypeValidation<float> { static ValueNodeType const Type = ValueNodeType::Float; };
-    template<> struct ValueTypeValidation<Vector> { static ValueNodeType const Type = ValueNodeType::Vector; };
-    template<> struct ValueTypeValidation<Target> { static ValueNodeType const Type = ValueNodeType::Target; };
-    template<> struct ValueTypeValidation<BoneMask const*> { static ValueNodeType const Type = ValueNodeType::BoneMask; };
+    template<typename T> struct ValueTypeValidation { static NodeValueType const Type = NodeValueType::Unknown; };
+    template<> struct ValueTypeValidation<bool> { static NodeValueType const Type = NodeValueType::Bool; };
+    template<> struct ValueTypeValidation<StringID> { static NodeValueType const Type = NodeValueType::ID; };
+    template<> struct ValueTypeValidation<int32> { static NodeValueType const Type = NodeValueType::Int; };
+    template<> struct ValueTypeValidation<float> { static NodeValueType const Type = NodeValueType::Float; };
+    template<> struct ValueTypeValidation<Vector> { static NodeValueType const Type = NodeValueType::Vector; };
+    template<> struct ValueTypeValidation<Target> { static NodeValueType const Type = NodeValueType::Target; };
+    template<> struct ValueTypeValidation<BoneMask const*> { static NodeValueType const Type = NodeValueType::BoneMask; };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API ValueNode : public GraphNode
     {
-
     public:
-
-        virtual ValueNodeType GetValueType() const = 0;
 
         template<typename T>
         KRG_FORCE_INLINE T GetValue( GraphContext& context )
@@ -269,62 +278,57 @@ namespace KRG::Animation::Graph
 
     protected:
 
-        KRG_FORCE_INLINE bool IsUpToDate( GraphContext& context ) const { return IsNodeActive( context ); }
-        KRG_FORCE_INLINE void MarkAsUpdated( GraphContext& context ) { MarkNodeActive( context ); }
-
-    protected:
-
         virtual void GetValueInternal( GraphContext& context, void* pValue ) = 0;
         virtual void SetValueInternal( GraphContext& context, void const* pValue ) { KRG_ASSERT( false ); };
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ValueNodeBool : public ValueNode
+    class KRG_ENGINE_ANIMATION_API BoolValueNode : public ValueNode
     {
-        virtual ValueNodeType GetValueType() const final { return ValueNodeType::Bool; }
+        virtual NodeValueType GetValueType() const override final { return NodeValueType::Bool; }
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ValueNodeID : public ValueNode
+    class KRG_ENGINE_ANIMATION_API IDValueNode : public ValueNode
     {
-        virtual ValueNodeType GetValueType() const final { return ValueNodeType::ID; }
+        virtual NodeValueType GetValueType() const override final { return NodeValueType::ID; }
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ValueNodeInt : public ValueNode
+    class KRG_ENGINE_ANIMATION_API IntValueNode : public ValueNode
     {
-        virtual ValueNodeType GetValueType() const final { return ValueNodeType::Int; }
+        virtual NodeValueType GetValueType() const override final { return NodeValueType::Int; }
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ValueNodeFloat : public ValueNode
+    class KRG_ENGINE_ANIMATION_API FloatValueNode : public ValueNode
     {
-        virtual ValueNodeType GetValueType() const final { return ValueNodeType::Float; }
+        virtual NodeValueType GetValueType() const override final { return NodeValueType::Float; }
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ValueNodeVector : public ValueNode
+    class KRG_ENGINE_ANIMATION_API VectorValueNode : public ValueNode
     {
-        virtual ValueNodeType GetValueType() const final { return ValueNodeType::Vector; }
+        virtual NodeValueType GetValueType() const override final { return NodeValueType::Vector; }
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ValueNodeTarget : public ValueNode
+    class KRG_ENGINE_ANIMATION_API TargetValueNode : public ValueNode
     {
-        virtual ValueNodeType GetValueType() const final { return ValueNodeType::Target; }
+        virtual NodeValueType GetValueType() const override final { return NodeValueType::Target; }
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ValueNodeBoneMask : public ValueNode
+    class KRG_ENGINE_ANIMATION_API BoneMaskValueNode : public ValueNode
     {
-        virtual ValueNodeType GetValueType() const final { return ValueNodeType::BoneMask; }
+        virtual NodeValueType GetValueType() const override final { return NodeValueType::BoneMask; }
     };
 }
 

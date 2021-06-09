@@ -55,13 +55,13 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            static void ReadPropertyValue( ParsingContext& ctx, rapidjson::Value::ConstMemberIterator memberIter, TypeSystem::PropertyDescriptor& outPropertyDesc )
+            static void ReadPropertyValue( ParsingContext& ctx, RapidJsonValue::ConstMemberIterator memberIter, TypeSystem::PropertyDescriptor& outPropertyDesc )
             {
                 KRG_ASSERT( !memberIter->value.IsArray() ); // TODO: arrays not supported yet
                 outPropertyDesc = TypeSystem::PropertyDescriptor( TypeSystem::PropertyPath( memberIter->name.GetString() ), memberIter->value.GetString() );
             }
 
-            static bool ReadAndConvertPropertyValue( ParsingContext& ctx, TypeSystem::TypeInfo const* pTypeInfo, rapidjson::Value::ConstMemberIterator memberIter, TypeSystem::PropertyDescriptor& outPropertyDesc )
+            static bool ReadAndConvertPropertyValue( ParsingContext& ctx, TypeSystem::TypeInfo const* pTypeInfo, RapidJsonValue::ConstMemberIterator memberIter, TypeSystem::PropertyDescriptor& outPropertyDesc )
             {
                 ReadPropertyValue( ctx, memberIter, outPropertyDesc );
 
@@ -81,7 +81,7 @@ namespace KRG
                 return true;
             }
 
-            static bool ReadComponent( ParsingContext& ctx, rapidjson::Value const& componentObject, EntityComponentDescriptor& outComponentDesc )
+            static bool ReadComponent( ParsingContext& ctx, RapidJsonValue const& componentObject, EntityComponentDescriptor& outComponentDesc )
             {
                 // Read name and ID
                 //-------------------------------------------------------------------------
@@ -111,7 +111,7 @@ namespace KRG
                     return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and Type Data values set", ctx.m_parsingContextID.ToString().c_str() );
                 }
 
-                rapidjson::Value const& componentTypeDataObject = typeDataIter->value;
+                RapidJsonValue const& componentTypeDataObject = typeDataIter->value;
 
                 auto typeIDIter = componentTypeDataObject.FindMember( TypeSystem::Serialization::Constants::s_typeID );
                 if ( typeIDIter == componentTypeDataObject.MemberEnd() || !typeIDIter->value.IsString() )
@@ -190,7 +190,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            static bool ReadSystemData( ParsingContext& ctx, rapidjson::Value const& systemObject, EntitySystemDescriptor& outSystemDesc )
+            static bool ReadSystemData( ParsingContext& ctx, RapidJsonValue const& systemObject, EntitySystemDescriptor& outSystemDesc )
             {
                 auto typeIDIter = systemObject.FindMember( TypeSystem::Serialization::Constants::s_typeID );
                 if ( typeIDIter == systemObject.MemberEnd() || !typeIDIter->value.IsString() )
@@ -209,7 +209,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            static bool ReadEntityData( ParsingContext& ctx, rapidjson::Value const& entityObject, EntityDescriptor& outEntityDesc )
+            static bool ReadEntityData( ParsingContext& ctx, RapidJsonValue const& entityObject, EntityDescriptor& outEntityDesc )
             {
                 // Read name and ID
                 //-------------------------------------------------------------------------
@@ -338,7 +338,7 @@ namespace KRG
                 }
             }
 
-            static bool ReadEntityArray( ParsingContext& ctx, rapidjson::Value const& entitiesArrayValue, EntityCollectionDescriptor& outCollection )
+            static bool ReadEntityArray( ParsingContext& ctx, RapidJsonValue const& entitiesArrayValue, EntityCollectionDescriptor& outCollection )
             {
                 int32 const numEntities = (int32) entitiesArrayValue.Size();
                 outCollection.Reserve( numEntities );

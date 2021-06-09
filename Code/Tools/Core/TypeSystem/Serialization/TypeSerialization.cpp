@@ -11,7 +11,7 @@ namespace KRG::TypeSystem::Serialization
     // Type descriptor reader needs to support both nested and unnested formats as it needs to read the outputs from both descriptor serialization and type model serialization
     struct TypeDescriptorReader
     {
-        static bool ReadArrayDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, rapidjson::Value const& arrayValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix )
+        static bool ReadArrayDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, RapidJsonValue const& arrayValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix )
         {
             KRG_ASSERT( pTypeInfo != nullptr && arrayValue.IsArray() );
 
@@ -46,7 +46,7 @@ namespace KRG::TypeSystem::Serialization
             return true;
         }
 
-        static bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, rapidjson::Value const& typeObjectValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix = String() )
+        static bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, RapidJsonValue const& typeObjectValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix = String() )
         {
             // Read properties
             //-------------------------------------------------------------------------
@@ -94,7 +94,7 @@ namespace KRG::TypeSystem::Serialization
         }
     };
 
-    bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, rapidjson::Value const& typeObjectValue, TypeDescriptor& outDesc )
+    bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, TypeDescriptor& outDesc )
     {
         if ( !typeObjectValue.IsObject() )
         {
@@ -166,7 +166,7 @@ namespace KRG::TypeSystem::Serialization
 
     struct NativeTypeDescriber
     {
-        static void DescribeType( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeID typeID, void const* pTypeInstance, PropertyPath& path )
+        static void DescribeType( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeID typeID, IRegisteredType const* pTypeInstance, PropertyPath& path )
         {
             KRG_ASSERT( !IsCoreType( typeID ) );
             auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
@@ -180,7 +180,7 @@ namespace KRG::TypeSystem::Serialization
                 {
                     size_t const elementByteSize = propInfo.m_arrayElementSize;
                     size_t const numArrayElements = propInfo.IsStaticArrayProperty() ? propInfo.m_arraySize : pTypeInfo->m_pTypeHelper->GetArraySize( pTypeInstance, propInfo.m_ID );
-                    Byte const* pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( const_cast<void*>( pTypeInstance ), propInfo.m_ID, 0 );
+                    Byte const* pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( const_cast<IRegisteredType*>( pTypeInstance ), propInfo.m_ID, 0 );
 
                     // Write array elements
                     for ( auto i = 0; i < numArrayElements; i++ )
@@ -201,7 +201,7 @@ namespace KRG::TypeSystem::Serialization
             }
         }
 
-        static void DescribeProperty( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeInfo const* pParentTypeInfo, void const* pParentInstance, PropertyInfo const& propertyInfo, void const* pPropertyInstance, PropertyPath& path, int32 arrayElementIdx = InvalidIndex )
+        static void DescribeProperty( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeInfo const* pParentTypeInfo, IRegisteredType const* pParentInstance, PropertyInfo const& propertyInfo, void const* pPropertyInstance, PropertyPath& path, int32 arrayElementIdx = InvalidIndex )
         {
             if ( IsCoreType( propertyInfo.m_typeID ) || propertyInfo.IsEnumProperty() )
             {
@@ -215,17 +215,17 @@ namespace KRG::TypeSystem::Serialization
             }
             else
             {
-                DescribeType( typeRegistry, typeDesc, propertyInfo.m_typeID, pPropertyInstance, path );
+                DescribeType( typeRegistry, typeDesc, propertyInfo.m_typeID, (IRegisteredType*) pPropertyInstance, path );
             }
         }
     };
 
-    void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, TypeID const& typeID, void const* pTypeInstance, TypeDescriptor& outDesc )
+    void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, TypeDescriptor& outDesc )
     {
-        outDesc.m_typeID = typeID;
+        outDesc.m_typeID = pTypeInstance->GetTypeID();
         outDesc.m_properties.clear();
         PropertyPath path;
-        NativeTypeDescriber::DescribeType( typeRegistry, outDesc, typeID, pTypeInstance, path );
+        NativeTypeDescriber::DescribeType( typeRegistry, outDesc, outDesc.m_typeID, pTypeInstance, path );
     }
 }
 
@@ -243,7 +243,7 @@ namespace KRG::TypeSystem::Serialization
             *( (T*) pAddress ) = value;
         }
 
-        static bool ReadCoreType( TypeRegistry const& typeRegistry, PropertyInfo const& propInfo, rapidjson::Value const& typeValue, void* pPropertyDataAddress )
+        static bool ReadCoreType( TypeRegistry const& typeRegistry, PropertyInfo const& propInfo, RapidJsonValue const& typeValue, void* pPropertyDataAddress )
         {
             KRG_ASSERT( pPropertyDataAddress != nullptr );
 
@@ -324,7 +324,7 @@ namespace KRG::TypeSystem::Serialization
 
         //-------------------------------------------------------------------------
 
-        static bool ReadType( TypeRegistry const& typeRegistry, rapidjson::Value const& currentJsonValue, TypeID typeID, void* pTypeData )
+        static bool ReadType( TypeRegistry const& typeRegistry, RapidJsonValue const& currentJsonValue, TypeID typeID, IRegisteredType* pTypeData )
         {
             KRG_ASSERT( !IsCoreType( typeID ) );
 
@@ -425,21 +425,21 @@ namespace KRG::TypeSystem::Serialization
             return true;
         }
 
-        static bool ReadProperty( TypeRegistry const& typeRegistry, rapidjson::Value const& currentJsonValue, PropertyInfo const& propertyInfo, void* pTypeData )
+        static bool ReadProperty( TypeRegistry const& typeRegistry, RapidJsonValue const& currentJsonValue, PropertyInfo const& propertyInfo, void* pPropertyInstance )
         {
             if ( IsCoreType( propertyInfo.m_typeID ) || propertyInfo.IsEnumProperty() )
             {
                 String const typeName = propertyInfo.m_typeID.c_str();
-                return ReadCoreType( typeRegistry, propertyInfo, currentJsonValue, pTypeData );
+                return ReadCoreType( typeRegistry, propertyInfo, currentJsonValue, pPropertyInstance );
             }
             else // Complex Type
             {
-                return ReadType( typeRegistry, currentJsonValue, propertyInfo.m_typeID, pTypeData );
+                return ReadType( typeRegistry, currentJsonValue, propertyInfo.m_typeID, (IRegisteredType*) pPropertyInstance );
             }
         }
     };
 
-    bool ReadNativeType( TypeRegistry const& typeRegistry, rapidjson::Value const& typeObjectValue, TypeID const& typeID, void* pTypeInstance )
+    bool ReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, IRegisteredType* pTypeInstance )
     {
         if ( !typeObjectValue.IsObject() )
         {
@@ -453,14 +453,14 @@ namespace KRG::TypeSystem::Serialization
             return false;
         }
 
-        return NativeTypeReader::ReadType( typeRegistry, typeObjectValue, typeID, pTypeInstance );
+        return NativeTypeReader::ReadType( typeRegistry, typeObjectValue, pTypeInstance->GetTypeID(), pTypeInstance );
     }
 
     //-------------------------------------------------------------------------
 
     struct NativeTypeWriter
     {
-        static void WriteType( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, String& scratchBuffer, TypeID typeID, void const* pTypeData )
+        static void WriteType( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, String& scratchBuffer, TypeID typeID, IRegisteredType const* pTypeInstance )
         {
             KRG_ASSERT( !IsCoreType( typeID ) );
             auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
@@ -482,7 +482,7 @@ namespace KRG::TypeSystem::Serialization
                 writer.Key( pPropertyName );
 
                 // Write Value
-                auto pPropertyDataAddress = propInfo.GetPropertyAddress( pTypeData );
+                auto pPropertyDataAddress = propInfo.GetPropertyAddress( pTypeInstance );
                 if ( propInfo.IsArrayProperty() )
                 {
                     size_t const elementByteSize = typeRegistry.GetTypeByteSize( propInfo.m_typeID );
@@ -497,11 +497,11 @@ namespace KRG::TypeSystem::Serialization
                     if ( propInfo.IsStaticArrayProperty() )
                     {
                         numArrayElements = propInfo.m_size / elementByteSize;
-                        pElementAddress = propInfo.GetPropertyAddress<Byte>( pTypeData );
+                        pElementAddress = propInfo.GetPropertyAddress<Byte>( pTypeInstance );
                     }
                     else // Dynamic array
                     {
-                        TVector<Byte> const& dynamicArray = *propInfo.GetPropertyAddress< TVector<Byte> >( pTypeData );
+                        TVector<Byte> const& dynamicArray = *propInfo.GetPropertyAddress< TVector<Byte> >( pTypeInstance );
                         size_t const arrayByteSize = dynamicArray.size();
                         numArrayElements = arrayByteSize / elementByteSize;
                         pElementAddress = dynamicArray.data();
@@ -525,24 +525,52 @@ namespace KRG::TypeSystem::Serialization
             writer.EndObject();
         }
 
-        static void WriteProperty( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, String& scratchBuffer, PropertyInfo const& propertyInfo, void const* pTypeData )
+        static void WriteProperty( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, String& scratchBuffer, PropertyInfo const& propertyInfo, void const* pPropertyInstance )
         {
             if ( IsCoreType( propertyInfo.m_typeID ) || propertyInfo.IsEnumProperty() )
             {
-                Conversion::ConvertNativeTypeToString( typeRegistry, propertyInfo, pTypeData, scratchBuffer );
+                Conversion::ConvertNativeTypeToString( typeRegistry, propertyInfo, pPropertyInstance, scratchBuffer );
                 writer.String( scratchBuffer.c_str() );
             }
             else
             {
-                WriteType( typeRegistry, writer, scratchBuffer, propertyInfo.m_typeID, pTypeData );
+                WriteType( typeRegistry, writer, scratchBuffer, propertyInfo.m_typeID, (IRegisteredType*) pPropertyInstance );
             }
         }
     };
 
-    void WriteNativeType( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeID const& typeID, void const* pTypeInstance )
+    void WriteNativeType( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, IRegisteredType const* pTypeInstance )
     {
         String scratchBuffer;
         scratchBuffer.reserve( 255 );
-        NativeTypeWriter::WriteType( typeRegistry, writer, scratchBuffer, typeID, pTypeInstance );
+        NativeTypeWriter::WriteType( typeRegistry, writer, scratchBuffer, pTypeInstance->GetTypeID(), pTypeInstance );
+    }
+
+    IRegisteredType* CreateAndReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue )
+    {
+        auto const typeIDIter = typeObjectValue.FindMember( Constants::s_typeID );
+        if ( typeIDIter == typeObjectValue.MemberEnd() )
+        {
+            KRG_LOG_ERROR( "TypeSystem", "Missing typeID for object" );
+            return nullptr;
+        }
+
+        TypeID const typeID( typeIDIter->value.GetString() );
+        auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
+        if ( pTypeInfo == nullptr )
+        {
+            KRG_LOG_ERROR( "TypeSystem", "Unknown type encountered: %s", typeID.c_str() );
+            return nullptr;
+        }
+
+        IRegisteredType* pTypeInstance = pTypeInfo->m_pTypeHelper->CreateType();
+
+        if ( !ReadNativeType( typeRegistry, typeObjectValue, pTypeInstance ) )
+        {
+            KRG::Delete( pTypeInstance );
+            return nullptr;
+        }
+
+        return pTypeInstance;
     }
 }

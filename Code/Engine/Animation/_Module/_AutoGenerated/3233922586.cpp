@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::AndNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::AndNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::AndNode::Settings> TTypeHelper<KRG::Animation::Graph::AndNode::Settings>::StaticTypeHelper;
         }
@@ -33,7 +33,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::OrNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::OrNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::OrNode::Settings> TTypeHelper<KRG::Animation::Graph::OrNode::Settings>::StaticTypeHelper;
         }
@@ -51,7 +51,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::NotNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::NotNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::NotNode::Settings> TTypeHelper<KRG::Animation::Graph::NotNode::Settings>::StaticTypeHelper;
         }
@@ -69,7 +69,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::FloatComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::FloatComparisonNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatComparisonNode::Settings>::StaticTypeHelper;
         }
@@ -87,7 +87,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::RangeComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::RangeComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::RangeComparisonNode::Settings> TTypeHelper<KRG::Animation::Graph::RangeComparisonNode::Settings>::StaticTypeHelper;
         }
@@ -105,7 +105,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::IDComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::IDComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::IDComparisonNode::Settings> TTypeHelper<KRG::Animation::Graph::IDComparisonNode::Settings>::StaticTypeHelper;
         }
@@ -123,7 +123,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::MultipleIDComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::MultipleIDComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::MultipleIDComparisonNode::Settings> TTypeHelper<KRG::Animation::Graph::MultipleIDComparisonNode::Settings>::StaticTypeHelper;
         }
@@ -141,7 +141,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings> TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings>::StaticTypeHelper;
         }

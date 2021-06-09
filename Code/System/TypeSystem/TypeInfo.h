@@ -9,6 +9,7 @@ namespace KRG::TypeSystem
 {
     enum class ETypeInfoMetaData
     {
+        Abstract,
         Entity,
         EntitySystem,
         EntityComponent,
@@ -25,6 +26,8 @@ namespace KRG::TypeSystem
 
         inline char const* GetTypeName() const { return m_ID.ToStringID().c_str(); }
 
+        bool IsAbstractType() const { return m_metadata.IsFlagSet( ETypeInfoMetaData::Abstract ); }
+
         bool IsDerivedFrom( TypeID const parentTypeID ) const;
 
         template<typename T>
@@ -37,7 +40,7 @@ namespace KRG::TypeSystem
 
         // Function declaration for generated property registration functions
         template<typename T>
-        void RegisterProperties( void const* pDefaultTypeInstance )
+        void RegisterProperties( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_UNIMPLEMENTED_FUNCTION(); // Default implementation should never be called
         }
@@ -53,4 +56,47 @@ namespace KRG::TypeSystem
         THashMap<StringID, int32>               m_propertyMap;
         TBitFlags<ETypeInfoMetaData>            m_metadata;
     };
+}
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    template<typename T>
+    T* SafeCast( IRegisteredType* pType )
+    {
+        KRG_ASSERT( pType != nullptr );
+        KRG_ASSERT( pType->GetTypeInfo()->IsDerivedFrom( T::GetStaticTypeID() ) );
+        return static_cast<T*>( pType );
+    }
+
+    template<typename T>
+    T const* SafeCast( IRegisteredType const* pType )
+    {
+        KRG_ASSERT( pType != nullptr );
+        KRG_ASSERT( pType->GetTypeInfo()->IsDerivedFrom( T::GetStaticTypeID() ) );
+        return static_cast<T const*>( pType );
+    }
+
+    template<typename T>
+    T* TryCast( IRegisteredType* pType )
+    {
+        if ( pType != nullptr && pType->GetTypeInfo()->IsDerivedFrom( T::GetStaticTypeID() ) )
+        {
+            return static_cast<T*>( pType );
+        }
+
+        return nullptr;
+    }
+
+    template<typename T>
+    T const* TryCast( IRegisteredType const* pType )
+    {
+        if ( pType != nullptr && pType->GetTypeInfo()->IsDerivedFrom( T::GetStaticTypeID() ) )
+        {
+            return static_cast<T const*>( pType );
+        }
+
+        return nullptr;
+    }
 }

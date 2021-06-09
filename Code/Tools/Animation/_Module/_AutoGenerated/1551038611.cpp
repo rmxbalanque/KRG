@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::SkeletonResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::SkeletonResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::SkeletonResourceDescriptor> TTypeHelper<KRG::Animation::SkeletonResourceDescriptor>::StaticTypeHelper;
         }

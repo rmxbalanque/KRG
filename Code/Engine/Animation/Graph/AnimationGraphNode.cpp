@@ -53,7 +53,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void AnimationNode::Initialize( GraphContext& context, SyncTrackTime const& initialTime )
+    void PoseNode::Initialize( GraphContext& context, SyncTrackTime const& initialTime )
     {
         if ( IsInitialized() )
         {
@@ -65,7 +65,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void AnimationNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
+    void PoseNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
     {
         GraphNode::InitializeInternal( context );
 

@@ -55,7 +55,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Render::ShaderResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Render::ShaderResourceDescriptor>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Render::ShaderResourceDescriptor> TTypeHelper<KRG::Render::ShaderResourceDescriptor>::StaticTypeHelper;
         }

@@ -25,6 +25,7 @@ namespace KRG
     using JsonCharType = rapidjson::UTF8<char>;
     using RapidJsonStringBuffer = rapidjson::GenericStringBuffer<JsonCharType, RapidJsonAllocator>;
     using RapidJsonWriter = rapidjson::PrettyWriter<RapidJsonStringBuffer>;
+    using RapidJsonValue = rapidjson::Value;
 
     // File reader
     //-------------------------------------------------------------------------

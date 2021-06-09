@@ -6,11 +6,11 @@
 
 namespace KRG::Animation::Graph
 {
-    void SpeedScaleNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void SpeedScaleNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<SpeedScaleNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_scaleValueNodeIdx, pNode->m_pScaleValueNode );
-        PassthroughNode::Settings::InstantiateNode( nodePtrs, GraphNode::Settings::InitOptions::OnlySetPointers );
+        PassthroughNode::Settings::InstantiateNode( nodePtrs, pDataSet, GraphNode::Settings::InitOptions::OnlySetPointers );
     }
 
     void SpeedScaleNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
@@ -30,7 +30,7 @@ namespace KRG::Animation::Graph
         PassthroughNode::ShutdownInternal( context );
     }
 
-    UpdateResult SpeedScaleNode::Update( GraphContext& context )
+    PoseNodeResult SpeedScaleNode::Update( GraphContext& context )
     {
         // Record old delta time
         auto const deltaTime = context.m_deltaTime;
@@ -62,7 +62,7 @@ namespace KRG::Animation::Graph
         // Update the child node
         //-------------------------------------------------------------------------
 
-        UpdateResult result = PassthroughNode::Update( context );
+        PoseNodeResult result = PassthroughNode::Update( context );
 
         // Reset the delta time
         //-------------------------------------------------------------------------
@@ -71,7 +71,7 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    UpdateResult SpeedScaleNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    PoseNodeResult SpeedScaleNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         m_blendWeight = ( Math::IsNearZero( GetSettings<SpeedScaleNode>()->m_blendTime ) ) ? 1.0f : 0.0f;
         return PassthroughNode::Update( context, updateRange );
@@ -79,11 +79,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VelocityBasedSpeedScaleNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void VelocityBasedSpeedScaleNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<VelocityBasedSpeedScaleNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_desiredVelocityValueNodeIdx, pNode->m_pDesiredVelocityValueNode );
-        PassthroughNode::Settings::InstantiateNode( nodePtrs, GraphNode::Settings::InitOptions::OnlySetPointers );
+        PassthroughNode::Settings::InstantiateNode( nodePtrs, pDataSet, GraphNode::Settings::InitOptions::OnlySetPointers );
     }
 
     void VelocityBasedSpeedScaleNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
@@ -103,7 +103,7 @@ namespace KRG::Animation::Graph
         PassthroughNode::ShutdownInternal( context );
     }
 
-    UpdateResult VelocityBasedSpeedScaleNode::Update( GraphContext& context )
+    PoseNodeResult VelocityBasedSpeedScaleNode::Update( GraphContext& context )
     {
         // Record old delta time
         auto const deltaTime = context.m_deltaTime;
@@ -152,7 +152,7 @@ namespace KRG::Animation::Graph
         // Update the child node
         //-------------------------------------------------------------------------
 
-        UpdateResult result = PassthroughNode::Update( context );
+        PoseNodeResult result = PassthroughNode::Update( context );
 
         // Reset the time delta
         //-------------------------------------------------------------------------
@@ -161,7 +161,7 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    UpdateResult VelocityBasedSpeedScaleNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    PoseNodeResult VelocityBasedSpeedScaleNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         m_blendWeight = ( Math::IsNearZero( GetSettings<VelocityBasedSpeedScaleNode>()->m_blendTime ) ) ? 1.0f : 0.0f;
         return PassthroughNode::Update( context, updateRange );

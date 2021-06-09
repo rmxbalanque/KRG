@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AnimationGraphBoneMaskPool.h"
-#include "AnimationGraphDataset.h"
 #include "AnimationGraphEvents.h"
 #include "TaskSystem/AnimationGraphTaskSystem.h"
 #include "System/Core/Math/Transform.h"
@@ -127,12 +126,11 @@ namespace KRG::Animation::Graph
 
         GraphContext();
 
-        void Initialize( TaskSystem* pTaskSystem, AnimationGraphDataSet const* pDataSet, Pose const* pPreviousPose );
+        void Initialize( TaskSystem* pTaskSystem, Pose const* pPreviousPose );
         void Shutdown();
 
-        inline bool IsValid() const { return m_pDataSet != nullptr && m_pTaskSystem != nullptr && m_pPreviousPose != nullptr; }
-        void Update( Seconds const deltaTime, Transform const& prevDisplacementDelta, Transform const& currentWorldTransform );
-        inline Skeleton const* GetSkeleton() const { return m_pDataSet->GetSkeleton(); }
+        inline bool IsValid() const { return m_pSkeleton != nullptr && m_pTaskSystem != nullptr && m_pPreviousPose != nullptr; }
+        void Update( Seconds const deltaTime, Transform const& currentWorldTransform );
 
         // Debugging
         //-------------------------------------------------------------------------
@@ -151,7 +149,7 @@ namespace KRG::Animation::Graph
     public:
 
         TaskSystem* const                       m_pTaskSystem = nullptr;
-        AnimationGraphDataSet const* const      m_pDataSet = nullptr;
+        Skeleton const* const                   m_pSkeleton = nullptr;
         Pose const* const                       m_pPreviousPose = nullptr;
         Seconds                                 m_deltaTime = 0.0f;
         Transform                               m_worldTransform = Transform::Identity;

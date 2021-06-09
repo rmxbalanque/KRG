@@ -46,27 +46,29 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            struct ExposedPropertyMacro
+            struct RegisteredPropertyMacro
             {
-                ExposedPropertyMacro( HeaderID ID, uint32 line )
+                RegisteredPropertyMacro( HeaderID ID, uint32 line, bool isExposed = false )
                     : m_headerID( ID )
                     , m_lineNumber( line )
+                    , m_isExposed( isExposed )
                 {}
 
-                bool operator==( ExposedPropertyMacro const& rhs )
+                bool operator==( RegisteredPropertyMacro const& rhs )
                 {
                     return m_headerID == rhs.m_headerID && m_lineNumber == rhs.m_lineNumber;
                 }
 
-                bool operator!=( ExposedPropertyMacro const& rhs )
+                bool operator!=( RegisteredPropertyMacro const& rhs )
                 {
                     return m_headerID != rhs.m_headerID || m_lineNumber != rhs.m_lineNumber;
                 }
 
             public:
 
-                HeaderID        m_headerID;
-                uint32             m_lineNumber;
+                HeaderID            m_headerID;
+                uint32              m_lineNumber;
+                bool                m_isExposed = false;
             };
 
             //-------------------------------------------------------------------------
@@ -106,7 +108,7 @@ namespace KRG
 
                 // Type Registration
                 void AddFoundTypeRegistrationMacro( TypeRegistrationMacro const& foundMacro ) { m_typeRegistrationMacros.push_back( foundMacro ); }
-                void AddFoundExposedPropertyMacro( ExposedPropertyMacro const& foundMacro ) { m_exposedPropertyMacros.push_back( foundMacro ); }
+                void AddFoundRegisteredPropertyMacro( RegisteredPropertyMacro const& foundMacro ) { m_registeredPropertyMacros.push_back( foundMacro ); }
                 bool ShouldRegisterType( CXCursor const& cr, TypeRegistrationMacro* pMacro = nullptr );
 
             public:
@@ -120,7 +122,7 @@ namespace KRG
 
                 // Per Translation unit
                 void*                               m_pCurrentEntry;
-                TVector<ExposedPropertyMacro>       m_exposedPropertyMacros;
+                TVector<RegisteredPropertyMacro>    m_registeredPropertyMacros;
                 TVector<TypeRegistrationMacro>      m_typeRegistrationMacros;
 
             private:

@@ -54,7 +54,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Events::FootstepEvent>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Events::FootstepEvent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Events::FootstepEvent> TTypeHelper<KRG::Animation::Events::FootstepEvent>::StaticTypeHelper;
         }

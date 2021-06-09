@@ -47,7 +47,12 @@ namespace KRG
 //-------------------------------------------------------------------------
 // Property Registration
 //-------------------------------------------------------------------------
+// TODO: extend clang so that we can use attributes instead of this macro shit
 
+// Register this property but dont expose it to the property grid/editors
+#define REGISTER
+
+// Register this property and expose it to the property grid/editors
 #define EXPOSE
 
 //-------------------------------------------------------------------------

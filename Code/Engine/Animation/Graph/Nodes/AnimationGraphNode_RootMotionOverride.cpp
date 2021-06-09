@@ -4,7 +4,7 @@
 
 namespace KRG::Animation::Graph
 {
-    void RootMotionOverrideNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void RootMotionOverrideNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<RootMotionOverrideNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_desiredHeadingVelocityNodeIdx, pNode->m_pDesiredHeadingVelocityNode );
@@ -67,7 +67,7 @@ namespace KRG::Animation::Graph
         PassthroughNode::ShutdownInternal( context );
     }
 
-    void RootMotionOverrideNode::ModifyDisplacement( GraphContext& context, UpdateResult& NodeResult ) const
+    void RootMotionOverrideNode::ModifyDisplacement( GraphContext& context, PoseNodeResult& NodeResult ) const
     {
         auto pSettings = GetSettings<RootMotionOverrideNode>();
         KRG_ASSERT( context.IsValid() && pSettings != nullptr );
@@ -157,16 +157,16 @@ namespace KRG::Animation::Graph
         #endif
     }
 
-    UpdateResult RootMotionOverrideNode::Update( GraphContext& context )
+    PoseNodeResult RootMotionOverrideNode::Update( GraphContext& context )
     {
-        UpdateResult Result = PassthroughNode::Update( context );
+        PoseNodeResult Result = PassthroughNode::Update( context );
         ModifyDisplacement( context, Result );
         return Result;
     }
 
-    UpdateResult RootMotionOverrideNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    PoseNodeResult RootMotionOverrideNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
-        UpdateResult Result = PassthroughNode::Update( context, updateRange );
+        PoseNodeResult Result = PassthroughNode::Update( context, updateRange );
         ModifyDisplacement( context, Result );
         return Result;
     }

@@ -5,23 +5,23 @@
 
 namespace KRG::Animation::Graph
 {
-    class KRG_ENGINE_ANIMATION_API PassthroughNode : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API PassthroughNode : public PoseNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_childNodeIdx );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex       m_childNodeIdx = InvalidIndex;
         };
 
     public:
 
-        virtual bool IsValid() const override { return AnimationNode::IsValid() && IsChildValid(); }
+        virtual bool IsValid() const override { return PoseNode::IsValid() && IsChildValid(); }
         virtual SyncTrack const& GetSyncTrack() const override;
 
     protected:
@@ -32,12 +32,12 @@ namespace KRG::Animation::Graph
         // Syntactic sugar for readability in derived classes
         inline bool IsChildValid() const { return m_pChildNode->IsValid(); }
 
-        virtual UpdateResult Update( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual PoseNodeResult Update( GraphContext& context ) override;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
     protected:
 
-        AnimationNode*      m_pChildNode = nullptr;
+        PoseNode*      m_pChildNode = nullptr;
     };
 }

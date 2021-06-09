@@ -112,33 +112,25 @@ namespace KRG
             return matchingTypes;
         }
 
-        TVector<TypeInfo const*> TypeRegistry::GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults ) const
+        TVector<TypeInfo const*> TypeRegistry::GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults, bool includeAbstractTypes ) const
         {
             TVector<TypeInfo const*> matchingTypes;
 
-            if ( includeParentTypeInResults )
+            for ( auto const& typeInfoPair : m_registeredTypes )
             {
-                for ( auto const& typeInfoPair : m_registeredTypes )
+                if ( !includeParentTypeInResults && typeInfoPair.first == parentTypeID )
                 {
-                    if ( typeInfoPair.second->IsDerivedFrom( parentTypeID ) )
-                    {
-                        matchingTypes.emplace_back( typeInfoPair.second );
-                    }
+                    continue;
                 }
-            }
-            else // Exclude parent
-            {
-                for ( auto const& typeInfoPair : m_registeredTypes )
-                {
-                    if ( typeInfoPair.first == parentTypeID )
-                    {
-                        continue;
-                    }
 
-                    if ( typeInfoPair.second->IsDerivedFrom( parentTypeID ) )
-                    {
-                        matchingTypes.emplace_back( typeInfoPair.second );
-                    }
+                if ( !includeAbstractTypes && typeInfoPair.second->IsAbstractType() )
+                {
+                    continue;
+                }
+
+                if ( typeInfoPair.second->IsDerivedFrom( parentTypeID ) )
+                {
+                    matchingTypes.emplace_back( typeInfoPair.second );
                 }
             }
 

@@ -5,7 +5,7 @@
 //-------------------------------------------------------------------------
 // Base for all KRG resources
 //-------------------------------------------------------------------------
-// Virtual resources are resources produces as side-effects of other resources
+// Virtual resources are resources which are produced as side-effects of compiling other resources
 // e.g. navmesh being generated when compiling a map
 
 namespace KRG::Resource

@@ -1,6 +1,7 @@
 #include "AnimationGraphComponent.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "System/Core/Update/UpdateContext.h"
+#include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,15 +10,15 @@ namespace KRG::Animation
     void AnimationGraphComponent::Initialize()
     {
         AnimationComponent::Initialize();
-        KRG_ASSERT( m_pGraph != nullptr && m_pDataSet.IsLoaded() );
+        KRG_ASSERT( m_pGraphVariation != nullptr && m_pGraphVariation.IsLoaded() );
 
-        m_pPose = KRG::New<Pose>( m_pDataSet->GetSkeleton() );
+        m_pPose = KRG::New<Pose>( m_pGraphVariation->GetSkeleton() );
         m_pPose->CalculateGlobalTransforms();
 
-        m_pTaskSystem = KRG::New<Graph::TaskSystem>( m_pDataSet->GetSkeleton() );
-        m_graphContext.Initialize( m_pTaskSystem, m_pDataSet.GetPtr(), m_pPose );
+        m_pTaskSystem = KRG::New<Graph::TaskSystem>( m_pGraphVariation->GetSkeleton() );
+        m_graphContext.Initialize( m_pTaskSystem, m_pPose );
 
-        m_pGraphInstance = KRG::New<AnimationGraphInstance>( m_pGraph.GetPtr() );
+        m_pGraphInstance = KRG::New<Graph::GraphInstance>( m_pGraphVariation.GetPtr() );
         m_pGraphInstance->Initialize( m_graphContext );
     }
 
@@ -35,23 +36,35 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    Skeleton const* AnimationGraphComponent::GetSkeleton() const
+    void AnimationGraphComponent::SetGraphVariation( ResourceID graphResourceID )
     {
-        KRG_ASSERT( m_pDataSet != nullptr );
-        return m_pDataSet->GetSkeleton();
+        KRG_ASSERT( IsUnloaded() );
+
+        KRG_ASSERT( graphResourceID.IsValid() );
+        m_pGraphVariation = graphResourceID;
     }
 
-    void AnimationGraphComponent::Update( UpdateContext const& ctx )
+    //-------------------------------------------------------------------------
+
+    Skeleton const* AnimationGraphComponent::GetSkeleton() const
     {
-        if ( ctx.GetUpdateStage() == UpdateStage::PrePhysics )
-        {
-            m_graphContext.Update( ctx.GetDeltaTime(), Transform::Identity, Transform::Identity );
-            m_pGraphInstance->UpdateGraph( m_graphContext );
-            m_pTaskSystem->UpdatePrePhysics( m_graphContext.m_deltaTime, m_graphContext.m_worldTransform, m_graphContext.m_worldTransformInverse );
-        }
-        else if ( ctx.GetUpdateStage() == UpdateStage::PostPhysics )
-        {
-            m_pTaskSystem->UpdatePostPhysics( *m_pPose );
-        }
+        KRG_ASSERT( m_pGraphVariation != nullptr );
+        return m_pGraphVariation->GetSkeleton();
+    }
+
+    void AnimationGraphComponent::PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform )
+    {
+        KRG_PROFILE_FUNCTION_ANIMATION();
+        m_graphContext.Update( deltaTime, characterTransform );
+
+        m_pTaskSystem->Reset();
+        m_pGraphInstance->UpdateGraph( m_graphContext );
+        m_pTaskSystem->UpdatePrePhysics( m_graphContext.m_deltaTime, m_graphContext.m_worldTransform, m_graphContext.m_worldTransformInverse );
+    }
+
+    void AnimationGraphComponent::PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform )
+    {
+        KRG_PROFILE_FUNCTION_ANIMATION();
+        m_pTaskSystem->UpdatePostPhysics( *m_pPose );
     }
 }

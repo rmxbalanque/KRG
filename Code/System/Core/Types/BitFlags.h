@@ -126,7 +126,17 @@ namespace KRG
     public:
 
         using BitFlags::BitFlags;
-        inline TBitFlags( T value ) : BitFlags( GetFlagMask( (uint8) value ) ) { KRG_ASSERT( (uint32) value < MaxFlags ); }
+        inline TBitFlags( T value ) 
+            : BitFlags( GetFlagMask( (uint8) value ) )
+        {
+            KRG_ASSERT( (uint32) value < MaxFlags );
+        }
+
+        template<typename... Args>
+        TBitFlags( Args&&... args )
+        {
+            ( ( m_flags |= 1u << (uint8) args ), ... );
+        }
 
         //-------------------------------------------------------------------------
 

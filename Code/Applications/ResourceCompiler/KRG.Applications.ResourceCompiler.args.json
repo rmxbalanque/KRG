@@ -105,6 +105,10 @@
       "Command": "Animation",
       "Items": [
         {
+          "Id": "da2fcc9c-9dcb-4151-8ba8-9e86c59b2324",
+          "Command": "-compile data://animation/animGraph.agv"
+        },
+        {
           "Id": "5a3059b3-c4fb-48ed-a6e2-c9e152bdbf58",
           "Command": "-compile data://animation/animGraph.ag"
         },

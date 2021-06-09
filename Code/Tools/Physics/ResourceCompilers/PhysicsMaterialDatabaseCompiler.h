@@ -1,7 +1,7 @@
 #pragma  once
 
 #include "Tools/Physics/_Module/API.h"
-#include "Tools/Resource/Compilers/ResourceCompiler.h"
+#include "Tools/Core/Resource/Compilers/ResourceCompiler.h"
 
 //-------------------------------------------------------------------------
 

@@ -1,27 +1,38 @@
 #pragma once
 
 #include "ReflectionDataTypes.h"
-#include "Tools/Core/ThirdParty/sqlite/SqliteHelpers.h"
 #include "System/Resource/ResourceTypeID.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
 #include "System/TypeSystem/PropertyPath.h"
+#include <sqlite3.h>
 
 //-------------------------------------------------------------------------
 
 namespace KRG::TypeSystem::Reflection
 {
-    class ReflectionDatabase : public SQLite::SQLiteDatabase
+    class ReflectionDatabase
     {
+        static uint32 const constexpr s_defaultStatementBufferSize = 8096;
+
     public:
 
         ReflectionDatabase();
+        ~ReflectionDatabase();
 
         // Database functions
+        //-------------------------------------------------------------------------
+
+        bool IsConnected() const { return m_pDatabase != nullptr; }
+        inline bool HasErrorOccurred() const { return !m_errorMessage.empty(); }
+        inline String const& GetError() const { return m_errorMessage; }
+
         bool ReadDatabase( FileSystem::Path const& databasePath );
         bool WriteDatabase( FileSystem::Path const& databasePath );
         bool CleanDatabase( FileSystem::Path const& databasePath );
 
         // Module functions
+        //-------------------------------------------------------------------------
+
         TVector<ProjectInfo> const& GetAllRegisteredProjects() const { return m_reflectedProjects; }
         bool IsProjectRegistered( ProjectID projectID ) const;
         ProjectInfo const* GetProjectDesc( ProjectID projectID ) const;
@@ -32,6 +43,8 @@ namespace KRG::TypeSystem::Reflection
         void UpdateHeaderRecord( HeaderInfo const& header );
 
         // Type functions
+        //-------------------------------------------------------------------------
+
         ReflectedType const* GetType( TypeID typeID ) const;
         TVector<ReflectedType> const& GetAllTypes() const { return m_reflectedTypes; }
         bool IsTypeRegistered( TypeID typeID ) const;
@@ -41,19 +54,28 @@ namespace KRG::TypeSystem::Reflection
         void RegisterType( ReflectedType const* pType );
 
         // Property functions
+        //-------------------------------------------------------------------------
+
         ReflectedProperty const* GetPropertyTypeDescriptor( TypeID typeID, PropertyPath const& pathID ) const;
 
         // Resource functions
+        //-------------------------------------------------------------------------
+
         bool IsResourceRegistered( ResourceTypeID typeID ) const;
         void RegisterResource( ReflectedResourceType const* pDesc );
         TVector<ReflectedResourceType> const& GetAllRegisteredResourceTypes() const { return m_reflectedResourceTypes; }
 
         // Cleaning
+        //-------------------------------------------------------------------------
+
         void DeleteTypesForHeader( HeaderID headerID );
         void DeleteObseleteHeadersAndTypes( TVector<HeaderID> const& registeredHeaders );
         void DeleteObseleteProjects( TVector<ProjectInfo> const& registeredProjects );
 
     private:
+
+        // Data
+        //-------------------------------------------------------------------------
 
         bool CreateTables();
         bool DropTables();
@@ -64,7 +86,25 @@ namespace KRG::TypeSystem::Reflection
         bool WriteAdditionalTypeData( ReflectedType const& type );
         bool WriteAdditionalEnumData( ReflectedType const& type );
 
+        // SQLite
+        //-------------------------------------------------------------------------
+
+        bool Connect( FileSystem::Path const& databasePath, bool readOnlyAccess = false, bool useMutex = false );
+        bool Disconnect();
+
+        bool IsValidSQLiteResult( int result, char const* pErrorMessage = nullptr ) const;
+
+        void FillStatementBuffer( char const* pFormat, ... ) const;
+        bool ExecuteSimpleQuery( char const* pFormat, ... ) const;
+
+        bool BeginTransaction() const;
+        bool EndTransaction() const;
+
     private:
+
+        sqlite3*                            m_pDatabase = nullptr;
+        mutable String                      m_errorMessage;
+        mutable char                        m_statementBuffer[s_defaultStatementBufferSize] = { 0 };
 
         ReflectedType                       m_registeredTypeBase;
         TVector<ReflectedType>              m_reflectedTypes;

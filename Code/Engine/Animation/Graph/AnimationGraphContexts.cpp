@@ -11,18 +11,18 @@ namespace KRG::Animation::Graph
         #endif
     }
 
-    void GraphContext::Initialize( TaskSystem* pTaskSystem, AnimationGraphDataSet const* pDataSet, Pose const* pPreviousPose )
+    void GraphContext::Initialize( TaskSystem* pTaskSystem, Pose const* pPreviousPose )
     {
-        KRG_ASSERT( m_pPreviousPose == nullptr && m_pTaskSystem == nullptr && m_pDataSet == nullptr );
-        KRG_ASSERT( pPreviousPose != nullptr && pTaskSystem != nullptr && pDataSet != nullptr );
+        KRG_ASSERT( m_pPreviousPose == nullptr && m_pTaskSystem == nullptr && m_pSkeleton == nullptr );
+        KRG_ASSERT( pPreviousPose != nullptr && pTaskSystem != nullptr );
 
         const_cast<TaskSystem*&>( m_pTaskSystem ) = pTaskSystem;
-        const_cast<AnimationGraphDataSet const*&>( m_pDataSet ) = pDataSet;
         const_cast<Pose const*&>( m_pPreviousPose ) = pPreviousPose;
+        const_cast<Skeleton const*&>( m_pSkeleton ) = pPreviousPose->GetSkeleton();
 
-        KRG_ASSERT( m_pPreviousPose->GetSkeleton() == m_pDataSet->GetSkeleton() );
+        KRG_ASSERT( m_pPreviousPose->GetSkeleton() == m_pSkeleton );
 
-        m_boneMaskPool.Initialize( m_pDataSet->GetSkeleton() );
+        m_boneMaskPool.Initialize( m_pSkeleton );
 
         //-------------------------------------------------------------------------
 
@@ -40,11 +40,11 @@ namespace KRG::Animation::Graph
         m_boneMaskPool.Shutdown();
 
         const_cast<Pose const*&>( m_pPreviousPose ) = nullptr;
-        const_cast<AnimationGraphDataSet const*&>( m_pDataSet ) = nullptr;
+        const_cast<Skeleton const*&>( m_pSkeleton ) = nullptr;
         const_cast<TaskSystem*&>( m_pTaskSystem ) = nullptr;
     }
 
-    void GraphContext::Update( Seconds const deltaTime, Transform const& prevDisplacementDelta, Transform const& currentWorldTransform )
+    void GraphContext::Update( Seconds const deltaTime, Transform const& currentWorldTransform )
     {
         m_deltaTime = deltaTime;
         m_updateID++;
@@ -56,8 +56,6 @@ namespace KRG::Animation::Graph
         m_boneMaskPool.Reset();
 
         KRG_ASSERT( m_pPreviousPose->HasGlobalTransforms() );
-
-        m_pTaskSystem->Reset();
 
         //-------------------------------------------------------------------------
 

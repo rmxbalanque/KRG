@@ -4,7 +4,6 @@
 #include "Engine/Animation/ResourceLoaders/AnimationSkeletonLoader.h"
 #include "Engine/Animation/ResourceLoaders/AnimationClipLoader.h"
 #include "Engine/Animation/ResourceLoaders/AnimationGraphLoader.h"
-#include "Engine/Animation/ResourceLoaders/AnimationGraphDataSetLoader.h"
 
 //-------------------------------------------------------------------------
 
@@ -26,7 +25,6 @@ namespace KRG
             SkeletonLoader                  m_skeletonLoader;
             AnimationClipLoader             m_animationClipLoader;
             AnimationGraphLoader            m_graphLoader;
-            AnimationGraphDataSetLoader     m_graphDataSetLoader;
             bool                            m_initialized = false;
         };
     }

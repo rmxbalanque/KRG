@@ -1,11 +1,12 @@
 #include "AnimationClipCompiler.h"
 #include "AnimationSkeletonCompiler.h"
-#include "Tools/Resource/RawAssets/RawAssetReader.h"
-#include "Tools/Resource/RawAssets/RawAnimation.h"
+#include "Tools/Animation/Events/AnimationEventData.h"
+#include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
+#include "Tools/Core/Resource/RawAssets/RawAnimation.h"
+#include "Tools/Core/TimelineEditor/TimelineData.h"
 #include "Engine/Animation/AnimationClip.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
-#include "Tools/Animation/Events/AnimationEventTrackInfo.h"
 
 //-------------------------------------------------------------------------
 
@@ -363,158 +364,65 @@ namespace KRG::Animation
             return false;
         }
 
-        // Read json data
+        // Read event track data
         //-------------------------------------------------------------------------
 
-        JsonFileReader trackReader;
-        if ( !trackReader.ReadFromFile( eventFilePath ) )
+        JsonFileReader jsonReader;
+        if ( !jsonReader.ReadFromFile( eventFilePath ) )
         {
             Error( "Failed to read event track file: %s", eventFilePath.c_str() );
             return false;
         }
 
-        if ( !trackReader.GetDocument().IsArray() )
+        TimelineData data;
+        if ( !data.Load( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             Error( "Malformed event track file: %s", eventFilePath.c_str() );
             return false;
         }
 
-        // Read event track data
+        // Reflect into runtime events
         //-------------------------------------------------------------------------
 
-        struct EventDescriptor : public TypeSystem::TypeDescriptor
+        int32 numSyncTracks = 0;
+        TVector<Event*> events;
+        FloatRange const animationTimeRange( 0, rawAnimData.GetDuration() );
+        for ( auto pTrack : data.m_tracks )
         {
-            inline bool operator< ( EventDescriptor const& rhs ) const { return m_startTime < rhs.m_startTime; }
-            float m_startTime = 0.0f;
-            float m_duration = 0.0f;
-        };
+            auto pEventTrack = SafeCast<EventTrack>( pTrack );
 
-        int32 numSyncTracksEncountered = 0;
-        TVector<EventDescriptor> events;
-
-        for ( auto& trackObjectValue : trackReader.GetDocument().GetArray() )
-        {
-            if ( !trackObjectValue.IsObject() )
+            if ( pEventTrack->IsSyncTrack() )
             {
-                Error( "Malformed event track file" );
-                return false;
+                numSyncTracks++;
             }
 
-            // Read track info
-            //-------------------------------------------------------------------------
-
-            auto trackInfoValueIter = trackObjectValue.FindMember( "TrackInfo" );
-            if ( trackInfoValueIter == trackObjectValue.MemberEnd() )
+            for ( auto pItem : pTrack->m_items )
             {
-                Error( "Malformed event track file" );
-                return false;
-            }
-
-            auto const& trackInfoValue = trackInfoValueIter->value;
-            if ( !trackInfoValue.IsObject() )
-            {
-                Error( "Malformed event track file" );
-                return false;
-            }
-
-            Tools::EventTrackInfo trackInfo;
-            if ( !TypeSystem::Serialization::ReadNativeType( ctx.m_typeRegistry, trackInfoValue, &trackInfo ) )
-            {
-                Error( "Failed to read track info. Malformed event track file" );
-                return false;
-            }
-
-            if ( trackInfo.m_isSyncTrack )
-            {
-                numSyncTracksEncountered++;
-            }
-
-            // Read events
-            //-------------------------------------------------------------------------
-
-            auto eventsArrayIter = trackObjectValue.FindMember( "Events" );
-            if ( eventsArrayIter == trackObjectValue.MemberEnd() )
-            {
-                Error( "Malformed event track file" );
-                return false;
-            }
-
-            auto const& eventsArray = eventsArrayIter->value;
-            if ( !eventsArray.IsArray() )
-            {
-                Error( "Malformed event track file" );
-                return false;
-            }
-
-            FloatRange const animationTimeRange( 0, rawAnimData.GetDuration() );
-            for ( auto& eventObjectValue : eventsArray.GetArray() )
-            {
-                EventDescriptor newEvent;
-                if ( !TypeSystem::Serialization::ReadTypeDescriptor( ctx.m_typeRegistry, eventObjectValue, newEvent ) )
-                {
-                    Error( "Failed reading event descriptor" );
-                    return false;
-                }
-
-                // Read time info
-                //-------------------------------------------------------------------------
-
-                auto startTimeValueIter = eventObjectValue.FindMember( "m_startTime" );
-                if ( startTimeValueIter != eventObjectValue.MemberEnd() )
-                {
-                    if ( !startTimeValueIter->value.IsString() )
-                    {
-                        Error( "Malformed event detected, start time must be a string" );
-                        return false;
-                    }
-
-                    TypeSystem::Conversion::ConvertStringToNativeType( ctx.m_typeRegistry, GetCoreTypeID( TypeSystem::CoreTypes::Float ), TypeSystem::TypeID(), startTimeValueIter->value.GetString(), &newEvent.m_startTime );
-                }
-
-                auto durationValueIter = eventObjectValue.FindMember( "m_duration" );
-                if ( durationValueIter != eventObjectValue.MemberEnd() )
-                {
-                    if ( !durationValueIter->value.IsString() )
-                    {
-                        Warning( "Malformed event detected, start time must be a string" );
-                        return false;
-                    }
-
-                    TypeSystem::Conversion::ConvertStringToNativeType( ctx.m_typeRegistry, GetCoreTypeID( TypeSystem::CoreTypes::Float ), TypeSystem::TypeID(), durationValueIter->value.GetString(), &newEvent.m_duration );
-                }
+                auto pEvent = SafeCast<EventItem>( pItem )->GetEvent();
 
                 // Add event
                 //-------------------------------------------------------------------------
 
-                FloatRange const eventRange( newEvent.m_startTime, newEvent.m_duration );
-                if ( !animationTimeRange.ContainsInclusive( eventRange ) )
+                if ( !animationTimeRange.ContainsInclusive( pEvent->GetTimeRange() ) )
                 {
                     Warning( "Event detected outside animation time range, event will be ignored" );
                     continue;
                 }
 
                 // TODO: Clamp event to animation length
-                events.emplace_back( newEvent );
+                events.emplace_back( pEvent );
 
                 // Create sync event
                 //-------------------------------------------------------------------------
 
-                if ( trackInfo.m_isSyncTrack && numSyncTracksEncountered == 1 )
+                if ( pEventTrack->IsSyncTrack() && numSyncTracks == 1 )
                 {
-                    auto pTypeInfo = ctx.m_typeRegistry.GetTypeInfo( newEvent.m_typeID );
-                    KRG_ASSERT( pTypeInfo != nullptr );
-
-                    // Create new event instance to execute the sync ID calculation
-                    auto pNewEventInstance = TypeSystem::TypeCreator::CreateTypeFromDescriptor<Event>( ctx.m_typeRegistry, pTypeInfo, newEvent );
-                    outEventData.m_syncEventMarkers.emplace_back( SyncTrack::EventMarker( newEvent.m_startTime, pNewEventInstance->GetSyncEventID() ) );
-                    KRG::Delete( pNewEventInstance );
+                    outEventData.m_syncEventMarkers.emplace_back( SyncTrack::EventMarker( Percentage( pEvent->GetStartTime() / rawAnimData.GetDuration() ), pEvent->GetSyncEventID() ) );
                 }
             }
         }
 
-        //-------------------------------------------------------------------------
-
-        if ( numSyncTracksEncountered > 1 )
+        if ( numSyncTracks > 1 )
         {
             Warning( "Multiple sync tracks detected, using the first one encountered!" );
         }
@@ -522,13 +430,27 @@ namespace KRG::Animation
         // Transfer sorted events
         //-------------------------------------------------------------------------
 
-        eastl::sort( events.begin(), events.end() );
-        for ( auto const& event : events )
+        auto sortPredicate = [] ( Event* const& pEventA, Event* const& pEventB )
         {
-            outEventData.m_collection.m_descriptors.emplace_back( event );
+            return pEventA->GetStartTime() < pEventB->GetStartTime();
+        };
+
+        eastl::sort( events.begin(), events.end(), sortPredicate );
+
+        for ( auto const& pEvent : events )
+        {
+            TypeSystem::TypeDescriptor desc;
+            TypeSystem::Serialization::CreateTypeDescriptorFromNativeType( ctx.m_typeRegistry, pEvent, desc );
+
+            outEventData.m_collection.m_descriptors.emplace_back( desc );
         }
 
         eastl::sort( outEventData.m_syncEventMarkers.begin(), outEventData.m_syncEventMarkers.end() );
+
+        // Free allocated memory
+        //-------------------------------------------------------------------------
+
+        data.Reset();
 
         return true;
     }

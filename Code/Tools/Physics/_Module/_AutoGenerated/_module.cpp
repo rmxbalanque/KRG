@@ -11,13 +11,13 @@
 
 void KRG::Physics::ToolsModule::RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::RegisterType( typeRegistry );
 }
 
 void KRG::Physics::ToolsModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsMeshResourceDescriptor>::UnregisterType( typeRegistry );
 }
 

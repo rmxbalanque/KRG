@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Navmesh::NavmeshComponent>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Navmesh::NavmeshComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Navmesh::NavmeshComponent> TTypeHelper<KRG::Navmesh::NavmeshComponent>::StaticTypeHelper;
         }

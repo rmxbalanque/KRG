@@ -6,7 +6,7 @@
 #include "Tools/Render/ResourceCompilers/Mesh/SkeletalMeshCompiler.h"
 #include "Tools/Render/ResourceCompilers/Textures/TextureCompiler.h"
 #include "Tools/Render/ResourceCompilers/Materials/MaterialCompiler.h"
-#include "Tools/Resource/Compilers/ResourceCompilerRegistry.h"
+#include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 
 //-------------------------------------------------------------------------
 

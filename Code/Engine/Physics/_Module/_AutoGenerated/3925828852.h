@@ -29,7 +29,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsCapsuleComponent> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Physics::PhysicsCapsuleComponent> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
             KRG::Physics::PhysicsCapsuleComponent const* pActualDefaultTypeInstance = ( KRG::Physics::PhysicsCapsuleComponent const* ) pDefaultTypeInstance;
@@ -45,7 +45,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_actorType;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsCapsuleComponent, m_actorType );
             propertyInfo.m_size = sizeof( KRG::Physics::ActorType );
-            propertyInfo.m_flags.Set( 4 );
+            propertyInfo.m_flags.Set( 9 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -58,7 +58,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_layers;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsCapsuleComponent, m_layers );
             propertyInfo.m_size = sizeof( KRG::TBitFlags<KRG::Physics::Layers> );
-            propertyInfo.m_flags.Set( 8 );
+            propertyInfo.m_flags.Set( 17 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -71,7 +71,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_transform;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsCapsuleComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -84,7 +84,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_shapeType;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsCapsuleComponent, m_shapeType );
             propertyInfo.m_size = sizeof( KRG::Physics::ShapeType );
-            propertyInfo.m_flags.Set( 4 );
+            propertyInfo.m_flags.Set( 9 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -97,7 +97,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_physicsMaterialID;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsCapsuleComponent, m_physicsMaterialID );
             propertyInfo.m_size = sizeof( KRG::StringID );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -110,7 +110,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_capsuleHalfHeight;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsCapsuleComponent, m_capsuleHalfHeight );
             propertyInfo.m_size = sizeof( float );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -123,7 +123,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_capsuleRadius;
             propertyInfo.m_offset = offsetof( KRG::Physics::PhysicsCapsuleComponent, m_capsuleRadius );
             propertyInfo.m_size = sizeof( float );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -137,16 +137,16 @@ namespace KRG
             {
                 static TTypeHelper<KRG::Physics::PhysicsCapsuleComponent> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Physics::PhysicsCapsuleComponent ), alignof( KRG::Physics::PhysicsCapsuleComponent ) );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Physics::PhysicsCapsuleComponent ), alignof( KRG::Physics::PhysicsCapsuleComponent ) );
                     new ( pDefaultTypeInstance ) KRG::Physics::PhysicsCapsuleComponent;
 
                     TypeSystem::TypeInfo typeInfo;
@@ -177,37 +177,37 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Physics::PhysicsCapsuleComponent" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pDefaultTypeInstance )->~PhysicsCapsuleComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
                     return KRG::New<KRG::Physics::PhysicsCapsuleComponent>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
                     new( pAllocatedMemory ) KRG::Physics::PhysicsCapsuleComponent();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
@@ -215,7 +215,7 @@ namespace KRG
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
@@ -223,7 +223,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -231,7 +231,7 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pType );
 
@@ -240,7 +240,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent const*>( pTypeInstance );
 
@@ -256,7 +256,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pTypeInstance );
 
@@ -264,7 +264,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pTypeInstance );
 
@@ -272,7 +272,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pTypeInstance );
 
@@ -280,7 +280,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
                     auto pTypeHelper = KRG::Physics::PhysicsCapsuleComponent::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent const*>( pTypeInstance );
@@ -324,7 +324,7 @@ namespace KRG
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
                     auto pType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent const*>( pOtherTypeInstance );
@@ -367,7 +367,7 @@ namespace KRG
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
                     auto pDefaultType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::Physics::PhysicsCapsuleComponent*>( pTypeInstance );

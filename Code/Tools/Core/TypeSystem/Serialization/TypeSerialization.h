@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Tools/Core/_Module/API.h"
-#include "Tools/Core/Thirdparty/KRG_RapidJson.h"
+#include "Tools/Core/ThirdParty/KRG_RapidJson.h"
 #include "System/TypeSystem/TypeDescriptors.h"
+#include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
 
@@ -27,26 +28,21 @@ namespace KRG::TypeSystem::Serialization
     // Type Descriptor
     //-------------------------------------------------------------------------
 
-    KRG_TOOLS_CORE_API bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, rapidjson::Value const& typeObjectValue, TypeDescriptor& outDesc );
+    KRG_TOOLS_CORE_API bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, TypeDescriptor& outDesc );
     KRG_TOOLS_CORE_API void WriteTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeDescriptor const& type );
-
-    KRG_TOOLS_CORE_API void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, TypeID const& typeID, void const* pTypeInstance, TypeDescriptor& outDesc );
-
-    template<typename T>
-    void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, T* pTypeInstance, TypeDescriptor& outDesc )
-    {
-        CreateTypeDescriptorFromNativeType( typeRegistry, T::GetStaticTypeID(), pTypeInstance, outDesc );
-    }
+    KRG_TOOLS_CORE_API void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, TypeDescriptor& outDesc );
 
     // Native Type
     //-------------------------------------------------------------------------
 
-    KRG_TOOLS_CORE_API bool ReadNativeType( TypeRegistry const& typeRegistry, rapidjson::Value const& typeObjectValue, TypeID const& typeID, void* pTypeInstance );
-    KRG_TOOLS_CORE_API void WriteNativeType( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeID const& typeID, void const* pTypeInstance );
+    KRG_TOOLS_CORE_API bool ReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, IRegisteredType* pTypeInstance );
+    KRG_TOOLS_CORE_API void WriteNativeType( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, IRegisteredType const* pTypeInstance );
+    KRG_TOOLS_CORE_API IRegisteredType* CreateAndReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue );
 
     template<typename T>
-    bool ReadNativeType( TypeRegistry const& typeRegistry, rapidjson::Value const& typeObjectValue, T* pOutType ) 
+    T* CreateAndReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue )
     {
-        return ReadNativeType( typeRegistry, typeObjectValue, T::GetStaticTypeID(), pOutType ); 
+        auto pCreatedType = CreateAndReadNativeType( typeRegistry, typeObjectValue );
+        return SafeCast<T>( pCreatedType );
     }
 }

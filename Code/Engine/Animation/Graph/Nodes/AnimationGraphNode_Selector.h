@@ -7,16 +7,16 @@
 
 namespace KRG::Animation::Graph
 {
-    class KRG_ENGINE_ANIMATION_API FSelectorNode final : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API SelectorNode final : public PoseNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_optionNodeIndices, m_conditionNodeIndices );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_optionNodeIndices, m_conditionNodeIndices );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             TInlineVector<NodeIndex, 5>                     m_optionNodeIndices;
             TInlineVector<NodeIndex, 5>                     m_conditionNodeIndices;
@@ -24,7 +24,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        virtual bool IsValid() const override { return AnimationNode::IsValid() && m_pSelectedNode != nullptr; }
+        virtual bool IsValid() const override { return PoseNode::IsValid() && m_pSelectedNode != nullptr; }
         virtual SyncTrack const& GetSyncTrack() const override { return IsValid() ? m_pSelectedNode->GetSyncTrack() : SyncTrack::s_defaultTrack; }
 
     private:
@@ -32,32 +32,32 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        virtual UpdateResult Update( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual PoseNodeResult Update( GraphContext& context ) override;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
         int32 SelectOption( GraphContext& context ) const;
 
     private:
 
-        TInlineVector<AnimationNode*, 5>                    m_optionNodes;
-        TInlineVector<ValueNodeBool*, 5>                    m_conditions;
-        AnimationNode*                                      m_pSelectedNode = nullptr;
+        TInlineVector<PoseNode*, 5>                         m_optionNodes;
+        TInlineVector<BoolValueNode*, 5>                    m_conditions;
+        PoseNode*                                           m_pSelectedNode = nullptr;
         int32                                               m_selectedOptionIdx = InvalidIndex;
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API FAnimationSelectorNode final : public AnimationClipReferenceNode
+    class KRG_ENGINE_ANIMATION_API AnimationSelectorNode final : public AnimationClipReferenceNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_optionNodeIndices, m_conditionNodeIndices );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_optionNodeIndices, m_conditionNodeIndices );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             TInlineVector<NodeIndex, 5>                     m_optionNodeIndices;
             TInlineVector<NodeIndex, 5>                     m_conditionNodeIndices;
@@ -65,7 +65,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        virtual bool IsValid() const override { return AnimationNode::IsValid() && m_pSelectedNode != nullptr; }
+        virtual bool IsValid() const override { return PoseNode::IsValid() && m_pSelectedNode != nullptr; }
         virtual SyncTrack const& GetSyncTrack() const override { return IsValid() ? m_pSelectedNode->GetSyncTrack() : SyncTrack::s_defaultTrack; }
 
     private:
@@ -73,8 +73,8 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        virtual UpdateResult Update( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual PoseNodeResult Update( GraphContext& context ) override;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
         virtual AnimationClip const* GetAnimation() const override;
@@ -86,7 +86,7 @@ namespace KRG::Animation::Graph
     private:
 
         TInlineVector<AnimationClipReferenceNode*, 5>       m_optionNodes;
-        TInlineVector<ValueNodeBool*, 5>                    m_conditions;
+        TInlineVector<BoolValueNode*, 5>                    m_conditions;
         AnimationClipReferenceNode*                         m_pSelectedNode = nullptr;
         int32                                               m_selectedOptionIdx = InvalidIndex;
     };

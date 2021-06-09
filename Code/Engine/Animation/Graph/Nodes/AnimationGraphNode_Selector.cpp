@@ -5,9 +5,9 @@
 
 namespace KRG::Animation::Graph
 {
-    void FSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void SelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
-        auto pNode = CreateNode<FSelectorNode>( nodePtrs, options );
+        auto pNode = CreateNode<SelectorNode>( nodePtrs, options );
 
         for ( auto nodeIdx : m_optionNodeIndices )
         {
@@ -20,10 +20,10 @@ namespace KRG::Animation::Graph
         }
     }
 
-    int32 FSelectorNode::SelectOption( GraphContext& context ) const
+    int32 SelectorNode::SelectOption( GraphContext& context ) const
     {
         KRG_ASSERT( context.IsValid() );
-        auto pSettings = GetSettings<FSelectorNode>();
+        auto pSettings = GetSettings<SelectorNode>();
 
         // Select a valid option
         if ( m_optionNodes.size() > 0 )
@@ -63,12 +63,12 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void FSelectorNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
+    void SelectorNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
     {
         KRG_ASSERT( context.IsValid() );
-        auto pSettings = GetSettings<FSelectorNode>();
+        auto pSettings = GetSettings<SelectorNode>();
 
-        AnimationNode::InitializeInternal( context, initialTime );
+        PoseNode::InitializeInternal( context, initialTime );
 
         // Select option and try to create transient data for it
         m_selectedOptionIdx = SelectOption( context );
@@ -95,7 +95,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void FSelectorNode::ShutdownInternal( GraphContext& context )
+    void SelectorNode::ShutdownInternal( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
@@ -105,14 +105,14 @@ namespace KRG::Animation::Graph
             m_pSelectedNode = nullptr;
         }
 
-        AnimationNode::ShutdownInternal( context );
+        PoseNode::ShutdownInternal( context );
     }
 
-    UpdateResult FSelectorNode::Update( GraphContext& context )
+    PoseNodeResult SelectorNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
-        UpdateResult result;
+        PoseNodeResult result;
         if ( IsValid() )
         {
             MarkNodeActive( context );
@@ -132,11 +132,11 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    UpdateResult FSelectorNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    PoseNodeResult SelectorNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
-        UpdateResult result;
+        PoseNodeResult result;
         if ( IsValid() )
         {
             MarkNodeActive( context );
@@ -156,20 +156,20 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    void FSelectorNode::DeactivateBranch( GraphContext& context )
+    void SelectorNode::DeactivateBranch( GraphContext& context )
     {
         if ( IsValid() )
         {
-            AnimationNode::DeactivateBranch( context );
+            PoseNode::DeactivateBranch( context );
             m_pSelectedNode->DeactivateBranch( context );
         }
     }
 
     //-------------------------------------------------------------------------
 
-    void FAnimationSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void AnimationSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
-        auto pNode = CreateNode<FAnimationSelectorNode>( nodePtrs, options );
+        auto pNode = CreateNode<AnimationSelectorNode>( nodePtrs, options );
 
         for ( auto nodeIdx : m_optionNodeIndices )
         {
@@ -182,10 +182,10 @@ namespace KRG::Animation::Graph
         }
     }
 
-    int32 FAnimationSelectorNode::SelectOption( GraphContext& context ) const
+    int32 AnimationSelectorNode::SelectOption( GraphContext& context ) const
     {
         KRG_ASSERT( context.IsValid() );
-        auto pSettings = GetSettings<FSelectorNode>();
+        auto pSettings = GetSettings<SelectorNode>();
 
         // Select a valid option
         if ( m_optionNodes.size() > 0 )
@@ -224,12 +224,12 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void FAnimationSelectorNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
+    void AnimationSelectorNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
     {
         KRG_ASSERT( context.IsValid() );
-        auto pSettings = GetSettings<FSelectorNode>();
+        auto pSettings = GetSettings<SelectorNode>();
 
-        AnimationNode::InitializeInternal( context, initialTime );
+        PoseNode::InitializeInternal( context, initialTime );
 
         // Select option and try to create transient data for it
         m_selectedOptionIdx = SelectOption( context );
@@ -256,7 +256,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void FAnimationSelectorNode::ShutdownInternal( GraphContext& context )
+    void AnimationSelectorNode::ShutdownInternal( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
@@ -266,14 +266,14 @@ namespace KRG::Animation::Graph
             m_pSelectedNode = nullptr;
         }
 
-        AnimationNode::ShutdownInternal( context );
+        PoseNode::ShutdownInternal( context );
     }
 
-    UpdateResult FAnimationSelectorNode::Update( GraphContext& context )
+    PoseNodeResult AnimationSelectorNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
-        UpdateResult result;
+        PoseNodeResult result;
         if ( IsValid() )
         {
             MarkNodeActive( context );
@@ -293,11 +293,11 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    UpdateResult FAnimationSelectorNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    PoseNodeResult AnimationSelectorNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
-        UpdateResult result;
+        PoseNodeResult result;
         if ( IsValid() )
         {
             MarkNodeActive( context );
@@ -317,16 +317,16 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    void FAnimationSelectorNode::DeactivateBranch( GraphContext& context )
+    void AnimationSelectorNode::DeactivateBranch( GraphContext& context )
     {
         if ( IsValid() )
         {
-            AnimationNode::DeactivateBranch( context );
+            PoseNode::DeactivateBranch( context );
             m_pSelectedNode->DeactivateBranch( context );
         }
     }
 
-    AnimationClip const* FAnimationSelectorNode::GetAnimation() const
+    AnimationClip const* AnimationSelectorNode::GetAnimation() const
     {
         if ( m_pSelectedNode != nullptr )
         {
@@ -336,7 +336,7 @@ namespace KRG::Animation::Graph
         return nullptr;
     }
 
-    void FAnimationSelectorNode::DisableRootMotionSampling()
+    void AnimationSelectorNode::DisableRootMotionSampling()
     {
         if ( m_pSelectedNode != nullptr )
         {
@@ -344,7 +344,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    bool FAnimationSelectorNode::IsLooping() const
+    bool AnimationSelectorNode::IsLooping() const
     {
         if ( m_pSelectedNode != nullptr )
         {

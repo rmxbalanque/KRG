@@ -4,7 +4,7 @@
 
 namespace KRG::Animation::Graph
 {
-    void PassthroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void PassthroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         KRG_ASSERT( options == GraphNode::Settings::InitOptions::OnlySetPointers );
         auto pNode = CreateNode<PassthroughNode>( nodePtrs, options );
@@ -28,7 +28,7 @@ namespace KRG::Animation::Graph
     void PassthroughNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
     {
         KRG_ASSERT( context.IsValid() );
-        AnimationNode::InitializeInternal( context, initialTime );
+        PoseNode::InitializeInternal( context, initialTime );
 
         m_pChildNode->Initialize( context, initialTime );
 
@@ -48,15 +48,15 @@ namespace KRG::Animation::Graph
     void PassthroughNode::ShutdownInternal( GraphContext& context )
     {
         m_pChildNode->Shutdown( context );
-        AnimationNode::ShutdownInternal( context );
+        PoseNode::ShutdownInternal( context );
     }
 
-    UpdateResult PassthroughNode::Update( GraphContext& context )
+    PoseNodeResult PassthroughNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
         MarkNodeActive( context );
 
-        UpdateResult result;
+        PoseNodeResult result;
 
         // Forward child node results
         if ( IsChildValid() )
@@ -74,12 +74,12 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    UpdateResult PassthroughNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    PoseNodeResult PassthroughNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
         MarkNodeActive( context );
 
-        UpdateResult result;
+        PoseNodeResult result;
 
         // Forward child node results
         if ( IsChildValid() )
@@ -101,7 +101,7 @@ namespace KRG::Animation::Graph
     {
         if ( IsValid() )
         {
-            AnimationNode::DeactivateBranch( context );
+            PoseNode::DeactivateBranch( context );
 
             if ( IsChildValid() )
             {

@@ -1,6 +1,6 @@
 #include "MeshCompiler.h"
 #include "MeshOptimizer.h"
-#include "Tools/Resource/RawAssets/RawMesh.h"
+#include "Tools/Core/Resource/RawAssets/RawMesh.h"
 #include "Engine/Render/Mesh/RenderMesh.h"
 
 //-------------------------------------------------------------------------

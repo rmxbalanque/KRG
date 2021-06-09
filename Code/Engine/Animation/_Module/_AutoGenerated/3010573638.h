@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::AnimationGraphComponent& type )
     {
-        archive( cereal::base_class<KRG::Animation::AnimationComponent>( &type ), KRG_NVP( m_pGraph ), KRG_NVP( m_pDataSet ) );
+        archive( cereal::base_class<KRG::Animation::AnimationComponent>( &type ), KRG_NVP( m_pGraphVariation ) );
     }
 
     //-------------------------------------------------------------------------
@@ -29,7 +29,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationGraphComponent> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationGraphComponent> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
             KRG::Animation::AnimationGraphComponent const* pActualDefaultTypeInstance = ( KRG::Animation::AnimationGraphComponent const* ) pDefaultTypeInstance;
@@ -38,27 +38,14 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_pGraph" );
+            propertyInfo.m_ID = StringID( "m_pGraphVariation" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
             propertyInfo.m_parentTypeID = 1471731978;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraph" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pGraph;
-            propertyInfo.m_offset = offsetof( KRG::Animation::AnimationGraphComponent, m_pGraph );
-            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::AnimationGraph> );
-            propertyInfo.m_flags.Set( 0 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_pDataSet" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::TResourcePtr" );
-            propertyInfo.m_parentTypeID = 1471731978;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphDataSet" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pDataSet;
-            propertyInfo.m_offset = offsetof( KRG::Animation::AnimationGraphComponent, m_pDataSet );
-            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::AnimationGraphDataSet> );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphVariation" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pGraphVariation;
+            propertyInfo.m_offset = offsetof( KRG::Animation::AnimationGraphComponent, m_pGraphVariation );
+            propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::AnimationGraphVariation> );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -72,16 +59,16 @@ namespace KRG
             {
                 static TTypeHelper<KRG::Animation::AnimationGraphComponent> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::AnimationGraphComponent ), alignof( KRG::Animation::AnimationGraphComponent ) );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::AnimationGraphComponent ), alignof( KRG::Animation::AnimationGraphComponent ) );
                     new ( pDefaultTypeInstance ) KRG::Animation::AnimationGraphComponent;
 
                     TypeSystem::TypeInfo typeInfo;
@@ -112,75 +99,56 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphComponent" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pDefaultTypeInstance )->~AnimationGraphComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
                     return KRG::New<KRG::Animation::AnimationGraphComponent>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
                     new( pAllocatedMemory ) KRG::Animation::AnimationGraphComponent();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pType );
 
-                    if ( pActualType->m_pGraph.IsValid() )
+                    if ( pActualType->m_pGraphVariation.IsValid() )
                     {
-                        pResourceSystem->LoadResource( pActualType->m_pGraph, requesterID );
-                    }
-
-                    if ( pActualType->m_pDataSet.IsValid() )
-                    {
-                        pResourceSystem->LoadResource( pActualType->m_pDataSet, requesterID );
+                        pResourceSystem->LoadResource( pActualType->m_pGraphVariation, requesterID );
                     }
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pType );
 
-                    if ( pActualType->m_pGraph.IsValid() )
+                    if ( pActualType->m_pGraphVariation.IsValid() )
                     {
-                        pResourceSystem->UnloadResource( pActualType->m_pGraph, requesterID );
-                    }
-
-                    if ( pActualType->m_pDataSet.IsValid() )
-                    {
-                        pResourceSystem->UnloadResource( pActualType->m_pDataSet, requesterID );
+                        pResourceSystem->UnloadResource( pActualType->m_pGraphVariation, requesterID );
                     }
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
-                    if ( !pActualType->m_pGraph.IsValid() || pActualType->m_pGraph.HasLoadingFailed() )
+                    if ( !pActualType->m_pGraphVariation.IsValid() || pActualType->m_pGraphVariation.HasLoadingFailed() )
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pGraph.IsUnloaded() || pActualType->m_pGraph.IsLoading() )
-                    {
-                        return LoadingStatus::Loading;
-                    }
-
-                    if ( !pActualType->m_pDataSet.IsValid() || pActualType->m_pDataSet.HasLoadingFailed() )
-                    {
-                        status = LoadingStatus::Failed;
-                    }
-                    else if ( pActualType->m_pDataSet.IsUnloaded() || pActualType->m_pDataSet.IsLoading() )
+                    else if ( pActualType->m_pGraphVariation.IsUnloaded() || pActualType->m_pGraphVariation.IsLoading() )
                     {
                         return LoadingStatus::Loading;
                     }
@@ -188,19 +156,13 @@ namespace KRG
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
-                    KRG_ASSERT( !pActualType->m_pGraph.IsLoading() );
-                    if ( !pActualType->m_pGraph.IsUnloaded() )
-                    {
-                        return LoadingStatus::Unloading;
-                    }
-
-                    KRG_ASSERT( !pActualType->m_pDataSet.IsLoading() );
-                    if ( !pActualType->m_pDataSet.IsUnloaded() )
+                    KRG_ASSERT( !pActualType->m_pGraphVariation.IsLoading() );
+                    if ( !pActualType->m_pGraphVariation.IsUnloaded() )
                     {
                         return LoadingStatus::Unloading;
                     }
@@ -208,17 +170,12 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pType );
-                    if ( propertyID == 620966544 )
+                    if ( propertyID == 3048730191 )
                     {
-                        return KRG::Animation::AnimationGraph::GetStaticResourceTypeID();
-                    }
-
-                    if ( propertyID == 4118139169 )
-                    {
-                        return KRG::Animation::AnimationGraphDataSet::GetStaticResourceTypeID();
+                        return KRG::Animation::AnimationGraphVariation::GetStaticResourceTypeID();
                     }
 
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -226,7 +183,7 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pType );
 
@@ -235,7 +192,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent const*>( pTypeInstance );
 
@@ -251,7 +208,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pTypeInstance );
 
@@ -259,7 +216,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pTypeInstance );
 
@@ -267,7 +224,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pTypeInstance );
 
@@ -275,18 +232,13 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
                     auto pTypeHelper = KRG::Animation::AnimationGraphComponent::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::Animation::AnimationGraphComponent const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::Animation::AnimationGraphComponent const*>( pOtherTypeInstance );
 
-                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 620966544 ) )
-                    {
-                       return false;
-                    }
-
-                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 4118139169 ) )
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3048730191 ) )
                     {
                        return false;
                     }
@@ -294,38 +246,27 @@ namespace KRG
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
                     auto pType = reinterpret_cast<KRG::Animation::AnimationGraphComponent const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::Animation::AnimationGraphComponent const*>( pOtherTypeInstance );
 
-                    if ( propertyID == 620966544 )
+                    if ( propertyID == 3048730191 )
                     {
-                        return pType->m_pGraph == pOtherType->m_pGraph;
-                    }
-
-                    if ( propertyID == 4118139169 )
-                    {
-                        return pType->m_pDataSet == pOtherType->m_pDataSet;
+                        return pType->m_pGraphVariation == pOtherType->m_pGraphVariation;
                     }
 
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
                     auto pDefaultType = reinterpret_cast<KRG::Animation::AnimationGraphComponent const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimationGraphComponent*>( pTypeInstance );
 
-                    if ( propertyID == 620966544 )
+                    if ( propertyID == 3048730191 )
                     {
-                        pActualType->m_pGraph = pDefaultType->m_pGraph;
-                        return;
-                    }
-
-                    if ( propertyID == 4118139169 )
-                    {
-                        pActualType->m_pDataSet = pDefaultType->m_pDataSet;
+                        pActualType->m_pGraphVariation = pDefaultType->m_pGraphVariation;
                         return;
                     }
 

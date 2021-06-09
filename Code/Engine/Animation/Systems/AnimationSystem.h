@@ -2,36 +2,45 @@
 
 #include "../_Module/API.h"
 #include "System/Entity/EntitySystem.h"
+#include "Engine/Animation/Components/AnimatedMeshComponent.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Animation
 {
-    namespace Animation
+    class AnimationComponent;
+
+    //-------------------------------------------------------------------------
+
+    class KRG_ENGINE_ANIMATION_API AnimationSystem : public IEntitySystem
     {
-        class AnimationComponent;
-        class AnimatedMeshComponent;
+        KRG_REGISTER_ENTITY_SYSTEM( AnimationSystem, RequiresUpdate( UpdateStage::PrePhysics ), RequiresUpdate( UpdateStage::PostPhysics ) );
 
-        //-------------------------------------------------------------------------
+    public:
 
-        class KRG_ENGINE_ANIMATION_API AnimationSystem : public IEntitySystem
+        virtual ~AnimationSystem();
+
+    protected:
+
+        virtual void RegisterComponent( EntityComponent* pComponent ) override;
+        virtual void UnregisterComponent( EntityComponent* pComponent ) override;
+        virtual void Update( UpdateContext const& ctx ) override;
+
+        inline Transform const& GetCharacterWorldTransform() const
         {
-            KRG_REGISTER_ENTITY_SYSTEM( AnimationSystem, RequiresUpdate( UpdateStage::PrePhysics ), RequiresUpdate( UpdateStage::PostPhysics ) );
+            if ( m_meshComponents.empty() )
+            {
+                return Transform::Identity;
+            }
+            else
+            {
+                return m_meshComponents[0]->GetWorldTransform();
+            }
+        }
 
-        public:
+    private:
 
-            virtual ~AnimationSystem();
-
-        protected:
-
-            virtual void RegisterComponent( EntityComponent* pComponent ) override;
-            virtual void UnregisterComponent( EntityComponent* pComponent ) override;
-            virtual void Update( UpdateContext const& ctx ) override;
-
-        private:
-
-            AnimationComponent*                     m_pAnimComponent = nullptr;
-            TVector<AnimatedMeshComponent*>         m_meshComponents;
-        };
-    }
+        AnimationComponent*                     m_pAnimComponent = nullptr;
+        TVector<AnimatedMeshComponent*>         m_meshComponents;
+    };
 }

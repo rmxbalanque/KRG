@@ -40,24 +40,21 @@ namespace KRG::TypeSystem::Serialization
         //-------------------------------------------------------------------------
         // Do not try to serialize core-types using this reader
 
-        template<typename T>
-        inline bool ReadType( T* pType )
+        inline bool ReadType( IRegisteredType* pType )
         {
-            return ReadNativeType( m_typeRegistry, GetObjectValueToBeDeserialized(), T::GetStaticTypeID(), pType );
+            return ReadNativeType( m_typeRegistry, GetObjectValueToBeDeserialized(), pType );
         }
 
-        template<typename T>
-        inline TypeReader const& operator>>( T* pType )
+        inline TypeReader const& operator>>( IRegisteredType* pType )
         {
-            bool const result = ReadType<T>( pType );
+            bool const result = ReadType( pType );
             KRG_ASSERT( result );
             return *this;
         }
 
-        template<typename T>
-        inline TypeReader const& operator>>( T& pType )
+        inline TypeReader const& operator>>( IRegisteredType& type )
         {
-            bool const result = ReadType<T>( &pType );
+            bool const result = ReadType( &type );
             KRG_ASSERT( result );
             return *this;
         }
@@ -69,7 +66,7 @@ namespace KRG::TypeSystem::Serialization
         virtual void Reset() override final;
         virtual void OnFileReadSuccess() override final;
 
-        rapidjson::Value const& GetObjectValueToBeDeserialized();
+        RapidJsonValue const& GetObjectValueToBeDeserialized();
 
     private:
 

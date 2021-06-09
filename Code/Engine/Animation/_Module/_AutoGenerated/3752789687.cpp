@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::BoneMaskNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::BoneMaskNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::BoneMaskNode::Settings> TTypeHelper<KRG::Animation::Graph::BoneMaskNode::Settings>::StaticTypeHelper;
         }
@@ -33,7 +33,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::BoneMaskBlendNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::BoneMaskBlendNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::BoneMaskBlendNode::Settings> TTypeHelper<KRG::Animation::Graph::BoneMaskBlendNode::Settings>::StaticTypeHelper;
         }
@@ -51,7 +51,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::BoneMaskSelectorNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::BoneMaskSelectorNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::BoneMaskSelectorNode::Settings> TTypeHelper<KRG::Animation::Graph::BoneMaskSelectorNode::Settings>::StaticTypeHelper;
         }

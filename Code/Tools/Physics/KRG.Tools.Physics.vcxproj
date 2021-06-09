@@ -38,9 +38,6 @@
     <ProjectReference Include="..\Core\KRG.Tools.Core.vcxproj">
       <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Resource\KRG.Tools.Resource.vcxproj">
-      <Project>{8c38c3bb-6980-4188-964b-984c11b26819}</Project>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2740C360-55DC-489C-BFD4-E700DF47B0B5}</ProjectGuid>

@@ -1,16 +1,14 @@
 #pragma once
 
-#include "Engine/Animation/_Module/API.h"
 #include "AnimationComponent.h"
-#include "Engine/Animation/Graph/AnimationGraph.h"
-#include "Engine/Animation/AnimationClip.h"
-#include "System/Resource/ResourcePtr.h"
+#include "Engine/Animation/Graph/AnimationGraphResources.h"
+#include "Engine/Animation/Graph/AnimationGraphInstance.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation
 {
-    class KRG_ENGINE_ANIMATION_API AnimationGraphComponent : public AnimationComponent
+    class KRG_ENGINE_ANIMATION_API AnimationGraphComponent final : public AnimationComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( AnimationGraphComponent );
 
@@ -21,26 +19,28 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        virtual void Update( UpdateContext const& ctx ) override final;
+        virtual Skeleton const* GetSkeleton() const override;
+        virtual Pose const* GetPose() const override { return m_pPose; }
+        virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
+        virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
 
         //-------------------------------------------------------------------------
 
-        virtual Skeleton const* GetSkeleton() const override final;
-        virtual Pose const* GetPose() const override final { return m_pPose; }
+        // This function will change the graph and data-set used! Note: this can only be called for unloaded components
+        void SetGraphVariation( ResourceID graphResourceID );
 
     protected:
 
-        virtual void Initialize() override final;
-        virtual void Shutdown() override final;
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
 
     private:
 
-        EXPOSE TResourcePtr<AnimationGraph>             m_pGraph = nullptr;
-        EXPOSE TResourcePtr<AnimationGraphDataSet>      m_pDataSet = nullptr;
+        EXPOSE TResourcePtr<AnimationGraphVariation>    m_pGraphVariation = nullptr;
 
-        AnimationGraphInstance*                         m_pGraphInstance = nullptr;
-        Pose*                                           m_pPose = nullptr;
+        Graph::GraphInstance*                           m_pGraphInstance = nullptr;
         Graph::TaskSystem*                              m_pTaskSystem = nullptr;
         Graph::GraphContext                             m_graphContext;
+        Pose*                                           m_pPose = nullptr;
     };
 }

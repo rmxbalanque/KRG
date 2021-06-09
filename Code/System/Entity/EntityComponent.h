@@ -5,6 +5,7 @@
 #include "System/Core/Types/Event.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
+#include "System/TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------
 
@@ -74,6 +75,7 @@ namespace KRG
         virtual ~EntityComponent();
 
         inline UUID GetID() const { return m_ID; }
+        inline UUID GetEntityID() const { return m_entityID; }
         inline StringID GetName() const { return m_name; }
 
         // Status

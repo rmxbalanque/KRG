@@ -18,8 +18,8 @@ namespace KRG::ImGuiX
 
         Color const innerColor = ( m_isScreenRotationWidgetHovered ) ? g_selectedColor : Colors::White;
         Color const outerColor = ( m_isScreenRotationWidgetHovered ) ? g_selectedColor : Colors::White.GetAlphaVersion( 0.5f );
-        uint32 const imguiInnerColor = ConvertColorU32( innerColor );
-        uint32 const imguiOuterColor = ConvertColorU32( outerColor );
+        uint32 const imguiInnerColor = ConvertColor( innerColor );
+        uint32 const imguiOuterColor = ConvertColor( outerColor );
 
         // Draw current Rotation Covered
         //-------------------------------------------------------------------------
@@ -92,7 +92,7 @@ namespace KRG::ImGuiX
             isHovered = false;
         }
 
-        pDrawList->AddPolyline( circlePointsSS, g_halfCircleSegmentCount, ConvertColorU32( color ), false, 3.0f );
+        pDrawList->AddPolyline( circlePointsSS, g_halfCircleSegmentCount, ConvertColor( color ), false, 3.0f );
         return isHovered;
     }
 
@@ -109,8 +109,8 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        auto axisOfRotationColor = ConvertColorU32( color );
-        auto axisOfRotationColorAlpha = ConvertColorU32( color.GetAlphaVersion( 0.75f ) );
+        auto axisOfRotationColor = ConvertColor( color );
+        auto axisOfRotationColorAlpha = ConvertColor( color.GetAlphaVersion( 0.75f ) );
 
         auto lineLength = ( axisOfRotation_ss * 10000 );
         auto lineStart = m_origin_SS + lineLength;
@@ -156,9 +156,9 @@ namespace KRG::ImGuiX
             Vector const pointOnCircle_WS = m_origin_WS + ( startRotationVector.GetNormalized3() * scaleMultiplier );
             Float2 const pointOnCircle_SS = viewport.WorldSpaceToScreenSpace( pointOnCircle_WS );
 
-            pDrawList->AddCircleFilled( m_origin_SS, 3.0f, ConvertColorU32( Colors::White ) );
-            pDrawList->AddLine( m_origin_SS, pointOnCircle_SS, ConvertColorU32( Colors::White ), 1.0f );
-            pDrawList->AddCircleFilled( pointOnCircle_SS, 3.0f, ConvertColorU32( Colors::Orange ) );
+            pDrawList->AddCircleFilled( m_origin_SS, 3.0f, ConvertColor( Colors::White ) );
+            pDrawList->AddLine( m_origin_SS, pointOnCircle_SS, ConvertColor( Colors::White ), 1.0f );
+            pDrawList->AddCircleFilled( pointOnCircle_SS, 3.0f, ConvertColor( Colors::Orange ) );
         }
         else
         {
@@ -175,11 +175,11 @@ namespace KRG::ImGuiX
 
             innerCirclePointsSS[numCoveredCirclePoints] = m_origin_SS;
 
-            pDrawList->AddConvexPolyFilled( innerCirclePointsSS, numCoveredCirclePoints + 1, ConvertColorU32( Colors::Orange.GetAlphaVersion( 0.5f ) ) );
-            pDrawList->AddPolyline( innerCirclePointsSS, numCoveredCirclePoints, ConvertColorU32( Colors::Orange ), false, 4.0f );
-            pDrawList->AddLine( m_origin_SS, innerCirclePointsSS[numCoveredCirclePoints - 1], ConvertColorU32( Colors::Orange ), 1.0f );
-            pDrawList->AddLine( m_origin_SS, innerCirclePointsSS[0], ConvertColorU32( Colors::Orange ), 1.0f );
-            pDrawList->AddCircleFilled( m_origin_SS, 3.0f, ConvertColorU32( Colors::White ) );
+            pDrawList->AddConvexPolyFilled( innerCirclePointsSS, numCoveredCirclePoints + 1, ConvertColor( Colors::Orange.GetAlphaVersion( 0.5f ) ) );
+            pDrawList->AddPolyline( innerCirclePointsSS, numCoveredCirclePoints, ConvertColor( Colors::Orange ), false, 4.0f );
+            pDrawList->AddLine( m_origin_SS, innerCirclePointsSS[numCoveredCirclePoints - 1], ConvertColor( Colors::Orange ), 1.0f );
+            pDrawList->AddLine( m_origin_SS, innerCirclePointsSS[0], ConvertColor( Colors::Orange ), 1.0f );
+            pDrawList->AddCircleFilled( m_origin_SS, 3.0f, ConvertColor( Colors::White ) );
 
             // Draw rotation text
             //-------------------------------------------------------------------------
@@ -189,8 +189,8 @@ namespace KRG::ImGuiX
 
             auto textSize = ImGui::CalcTextSize( buff );
             Vector const textPosition = Vector( innerCirclePointsSS[numCoveredCirclePoints - 1] ) - Float2( textSize.x / 2, 0 );
-            pDrawList->AddRectFilled( textPosition, textPosition + Float2( textSize.x + 3, textSize.y ), ConvertColorU32( Colors::Black.GetAlphaVersion( 0.5f ) ), 3.0f );
-            pDrawList->AddText( textPosition, ConvertColorU32( Colors::White ), buff );
+            pDrawList->AddRectFilled( textPosition, textPosition + Float2( textSize.x + 3, textSize.y ), ConvertColor( Colors::Black.GetAlphaVersion( 0.5f ) ), 3.0f );
+            pDrawList->AddText( textPosition, ConvertColor( Colors::White ), buff );
         }
     }
 

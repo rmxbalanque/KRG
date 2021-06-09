@@ -1,6 +1,6 @@
 #include "StaticMeshCompiler.h"
-#include "Tools/Resource/RawAssets/RawMesh.h"
-#include "Tools/Resource/RawAssets/RawAssetReader.h"
+#include "Tools/Core/Resource/RawAssets/RawMesh.h"
+#include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"

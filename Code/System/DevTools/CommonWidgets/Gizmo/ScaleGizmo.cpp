@@ -24,7 +24,7 @@ namespace KRG
             auto pDrawList = ImGui::GetWindowDrawList();
             KRG_ASSERT( pDrawList != nullptr );
 
-            uint32 const originColor = ConvertColorU32( ( m_mode == ManipulationMode::ScaleXYZ || m_isOriginHovered ) ? g_selectedColor : Colors::White );
+            uint32 const originColor = ConvertColor( ( m_mode == ManipulationMode::ScaleXYZ || m_isOriginHovered ) ? g_selectedColor : Colors::White );
 
             pDrawList->AddCircleFilled( originPosition.ToFloat2(), 3.0f, originColor, 20 );
             pDrawList->AddCircle( originPosition.ToFloat2(), 8.0f, originColor, 20, 2.0f );
@@ -58,7 +58,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             Vector const offsetStart = start + ( axisDirection * g_originSphereAxisOffset );
-            uint32 const axisColor = ConvertColorU32( color );
+            uint32 const axisColor = ConvertColor( color );
             pDrawList->AddLine( offsetStart.ToFloat2(), end.ToFloat2(), axisColor, g_axisThickness );
             pDrawList->AddCircleFilled ( end.ToFloat2(), g_axisThickness * 1.5, axisColor );
 
@@ -91,8 +91,8 @@ namespace KRG
                 ( origin + planeAxisDeltaNearX + planeAxisDeltaFarY ).ToFloat2(),
             };
 
-            pDrawList->AddPolyline( manipulationQuadVerts, 3, ConvertColorU32( color ), true, 1.0f );
-            pDrawList->AddConvexPolyFilled( manipulationQuadVerts, 3, ConvertColorU32( color.GetAlphaVersion( 0.75f ) ) );
+            pDrawList->AddPolyline( manipulationQuadVerts, 3, ConvertColor( color ), true, 1.0f );
+            pDrawList->AddConvexPolyFilled( manipulationQuadVerts, 3, ConvertColor( color.GetAlphaVersion( 0.75f ) ) );
 
             //-------------------------------------------------------------------------
 
@@ -264,7 +264,7 @@ namespace KRG
                 auto lineLength = ( axis * 10000 );
                 auto lineStart = m_origin_SS + lineLength;
                 auto lineEnd = m_origin_SS - lineLength;
-                pDrawList->AddLine( lineStart.ToFloat2(), lineEnd.ToFloat2(), ConvertColorU32( color ), 2.0f );
+                pDrawList->AddLine( lineStart.ToFloat2(), lineEnd.ToFloat2(), ConvertColor( color ), 2.0f );
             };
 
             if ( m_mode == ManipulationMode::ScaleX )

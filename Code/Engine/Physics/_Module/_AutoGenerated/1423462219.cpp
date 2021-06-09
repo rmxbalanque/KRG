@@ -91,7 +91,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Physics::PhysicsComponent>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Physics::PhysicsComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Physics::PhysicsComponent> TTypeHelper<KRG::Physics::PhysicsComponent>::StaticTypeHelper;
         }

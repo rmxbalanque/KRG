@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MeshToolkit\FileTabs\MeshResourceFileTabs.h" />
-    <ClInclude Include="MeshToolkit\MeshToolkit.h" />
-    <ClInclude Include="MeshToolkit\MeshToolkit_DataBrowser.h" />
+    <ClInclude Include="MeshEditor\FileTabs\MeshResourceFileTabs.h" />
+    <ClInclude Include="MeshEditor\MeshEditor.h" />
+    <ClInclude Include="MeshEditor\MeshEditor_DataBrowser.h" />
     <ClInclude Include="ResourceCompilers\Materials\MaterialCompiler.h" />
     <ClInclude Include="ResourceCompilers\Mesh\MeshCompiler.h" />
     <ClInclude Include="ResourceCompilers\Mesh\SkeletalMeshCompiler.h" />
@@ -25,9 +25,9 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MeshToolkit\FileTabs\MeshResourceFileTabs.cpp" />
-    <ClCompile Include="MeshToolkit\MeshToolkit.cpp" />
-    <ClCompile Include="MeshToolkit\MeshToolkit_DataBrowser.cpp" />
+    <ClCompile Include="MeshEditor\FileTabs\MeshResourceFileTabs.cpp" />
+    <ClCompile Include="MeshEditor\MeshEditor.cpp" />
+    <ClCompile Include="MeshEditor\MeshEditor_DataBrowser.cpp" />
     <ClCompile Include="ResourceCompilers\Materials\MaterialCompiler.cpp" />
     <ClCompile Include="ResourceCompilers\Mesh\MeshCompiler.cpp" />
     <ClCompile Include="ResourceCompilers\Mesh\SkeletalMeshCompiler.cpp" />
@@ -62,12 +62,6 @@
     </ProjectReference>
     <ProjectReference Include="..\Core\KRG.Tools.Core.vcxproj">
       <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Editor\KRG.Tools.Editor.vcxproj">
-      <Project>{01997900-abbd-4fbc-84bf-762cf32dc0af}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Resource\KRG.Tools.Resource.vcxproj">
-      <Project>{8c38c3bb-6980-4188-964b-984c11b26819}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">

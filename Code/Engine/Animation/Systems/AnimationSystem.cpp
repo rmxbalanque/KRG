@@ -1,84 +1,98 @@
 #include "AnimationSystem.h"
 #include "Engine/Animation/Components/AnimationComponent.h"
-#include "Engine/Animation/Components/AnimatedMeshComponent.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Animation
 {
-    namespace Animation
+    AnimationSystem::~AnimationSystem()
     {
-        AnimationSystem::~AnimationSystem()
+        KRG_ASSERT( m_pAnimComponent == nullptr && m_meshComponents.empty() );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void AnimationSystem::RegisterComponent( EntityComponent* pComponent )
+    {
+        if ( auto pMeshComponent = ComponentCast<AnimatedMeshComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_pAnimComponent == nullptr && m_meshComponents.empty() );
+            KRG_ASSERT( !VectorContains( m_meshComponents, pMeshComponent ) );
+            m_meshComponents.push_back( pMeshComponent );
         }
-
-        //-------------------------------------------------------------------------
-
-        void AnimationSystem::RegisterComponent( EntityComponent* pComponent )
+        else if ( auto pAnimComponent = ComponentCast<AnimationComponent>( pComponent ) )
         {
-            if ( auto pMeshComponent = ComponentCast<AnimatedMeshComponent>( pComponent ) )
-            {
-                KRG_ASSERT( !VectorContains( m_meshComponents, pMeshComponent ) );
-                m_meshComponents.push_back( pMeshComponent );
-            }
-            else if ( auto pAnimComponent = ComponentCast<AnimationComponent>( pComponent ) )
+            if ( m_pAnimComponent == nullptr )
             {
                 m_pAnimComponent = pAnimComponent;
             }
-        }
-
-        void AnimationSystem::UnregisterComponent( EntityComponent* pComponent )
-        {
-            if ( auto pMeshComponent = ComponentCast<AnimatedMeshComponent>( pComponent ) )
+            else // For now we dont support multiple animation components on one character
             {
-                KRG_ASSERT( VectorContains( m_meshComponents, pMeshComponent ) );
-                m_meshComponents.erase_first( pMeshComponent );
+                KRG_LOG_WARNING( "Animation", "Multiple animation components detected for entity: %s", pAnimComponent->GetEntityID().ToString().c_str() );
             }
-            else if ( auto pAnimComponent = ComponentCast<AnimationComponent>( pComponent ) )
+        }
+    }
+
+    void AnimationSystem::UnregisterComponent( EntityComponent* pComponent )
+    {
+        if ( auto pMeshComponent = ComponentCast<AnimatedMeshComponent>( pComponent ) )
+        {
+            KRG_ASSERT( VectorContains( m_meshComponents, pMeshComponent ) );
+            m_meshComponents.erase_first( pMeshComponent );
+        }
+        else if ( auto pAnimComponent = ComponentCast<AnimationComponent>( pComponent ) )
+        {
+            if ( pAnimComponent == m_pAnimComponent )
             {
                 m_pAnimComponent = nullptr;
             }
         }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void AnimationSystem::Update( UpdateContext const& ctx )
+    {
+        KRG_PROFILE_FUNCTION_ANIMATION();
+
+        if ( m_pAnimComponent == nullptr )
+        {
+            return;
+        }
 
         //-------------------------------------------------------------------------
 
-        void AnimationSystem::Update( UpdateContext const& ctx )
+        auto const updateStage = ctx.GetUpdateStage();
+        if ( updateStage == UpdateStage::PrePhysics )
         {
-            KRG_PROFILE_FUNCTION_ANIMATION();
-
-            if ( m_pAnimComponent == nullptr )
-            {
-                return;
-            }
+            m_pAnimComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), GetCharacterWorldTransform() );
+        }
+        else if ( updateStage == UpdateStage::PostPhysics )
+        {
+            auto const& characterWorldTransform = GetCharacterWorldTransform();
+            m_pAnimComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), characterWorldTransform );
 
             //-------------------------------------------------------------------------
 
-            m_pAnimComponent->Update( ctx );
+            auto const* pPose = m_pAnimComponent->GetPose();
+            KRG_ASSERT( pPose->HasGlobalTransforms() );
 
-            if ( ctx.GetUpdateStage() == UpdateStage::PostPhysics )
+            auto drawingCtx = ctx.GetDrawingContext();
+            drawingCtx.Draw( *pPose, characterWorldTransform );
+
+            //-------------------------------------------------------------------------
+
+            for ( auto pMeshComponent : m_meshComponents )
             {
-                auto const* pPose = m_pAnimComponent->GetPose();
-                KRG_ASSERT( pPose->HasGlobalTransforms() );
-
-                auto drawingCtx = ctx.GetDrawingContext();
-                drawingCtx.Draw( *pPose, Transform::Identity /*m_meshComponents[0]->GetWorldTransform()*/ );
-
-                //-------------------------------------------------------------------------
-
-                for ( auto pMeshComponent : m_meshComponents )
+                if ( pPose->GetSkeleton() != pMeshComponent->GetSkeleton() )
                 {
-                    if ( pPose->GetSkeleton() != pMeshComponent->GetSkeleton() )
-                    {
-                        continue;
-                    }
-
-                    pMeshComponent->SetPose( pPose );
-                    pMeshComponent->FinalizePose();
+                    continue;
                 }
+
+                pMeshComponent->SetPose( pPose );
+                pMeshComponent->FinalizePose();
             }
         }
     }

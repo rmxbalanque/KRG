@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::GameTestSystem>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::GameTestSystem>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::GameTestSystem> TTypeHelper<KRG::GameTestSystem>::StaticTypeHelper;
         }

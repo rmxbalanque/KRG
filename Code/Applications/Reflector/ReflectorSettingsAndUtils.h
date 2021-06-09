@@ -30,6 +30,7 @@ namespace KRG::TypeSystem::Reflection
         RegisterVirtualResource,
         RegisterEntityComponent,
         RegisterEntitySystem,
+        RegisterProperty,
         ExposeProperty,
 
         NumMacros,

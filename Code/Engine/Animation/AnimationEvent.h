@@ -17,6 +17,7 @@ namespace KRG::Animation
         KRG_REGISTER_TYPE( Event );
 
         friend struct EventManipulator;
+        friend class AnimationClipCompiler;
 
     public:
 
@@ -58,7 +59,7 @@ namespace KRG::Animation
 
     protected:
 
-        EXPOSE Seconds         m_startTime = 0.0f;
-        EXPOSE Seconds         m_duration = 0.0f;
+        REGISTER Seconds         m_startTime = 0.0f;
+        REGISTER Seconds         m_duration = 0.0f;
     };
 }

@@ -1,6 +1,6 @@
 #include "PhysicsMeshCompiler.h"
-#include "Tools/Resource/RawAssets/RawAssetReader.h"
-#include "Tools/Resource/RawAssets/RawMesh.h"
+#include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
+#include "Tools/Core/Resource/RawAssets/RawMesh.h"
 #include "Engine/Physics/PhysicsMesh.h"
 #include "Engine/Physics/PhysicsMaterial.h"
 #include "System/Core/FileSystem/FileSystem.h"

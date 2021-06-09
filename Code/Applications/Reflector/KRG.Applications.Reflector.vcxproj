@@ -147,9 +147,6 @@
     <ProjectReference Include="..\..\System\TypeSystem\KRG.System.TypeSystem.vcxproj">
       <Project>{ec1a0a10-5c84-4971-a883-c13e7f76c327}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Tools\Core\KRG.Tools.Core.vcxproj">
-      <Project>{821afa79-df18-4414-9775-e0c0f45bad78}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

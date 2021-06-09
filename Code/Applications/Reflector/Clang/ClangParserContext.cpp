@@ -85,7 +85,7 @@ namespace KRG
                 KRG_ASSERT( m_structureStack.empty() );
 
                 m_pTU = pTU;
-                m_exposedPropertyMacros.clear();
+                m_registeredPropertyMacros.clear();
                 m_typeRegistrationMacros.clear();
                 m_inEngineNamespace = false;
                 m_errorMessage.clear();

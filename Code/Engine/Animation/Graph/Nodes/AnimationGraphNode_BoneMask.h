@@ -6,16 +6,16 @@
 
 namespace KRG::Animation::Graph
 {
-    class KRG_ENGINE_ANIMATION_API BoneMaskNode final : public ValueNodeBoneMask
+    class KRG_ENGINE_ANIMATION_API BoneMaskNode final : public BoneMaskValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeBoneMask::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public BoneMaskValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeBoneMask::Settings, m_rootMotionWeight, m_weights );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( BoneMaskValueNode::Settings, m_rootMotionWeight, m_weights );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             float                               m_rootMotionWeight = 1.0f;
             TVector<BoneWeight>                 m_weights;
@@ -37,16 +37,16 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API BoneMaskBlendNode final : public ValueNodeBoneMask
+    class KRG_ENGINE_ANIMATION_API BoneMaskBlendNode final : public BoneMaskValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeBoneMask::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public BoneMaskValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeBoneMask::Settings, m_sourceMaskNodeIdx, m_targetMaskNodeIdx, m_blendWeightValueNodeIdx );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( BoneMaskValueNode::Settings, m_sourceMaskNodeIdx, m_targetMaskNodeIdx, m_blendWeightValueNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex                           m_sourceMaskNodeIdx = InvalidIndex;
             NodeIndex                           m_targetMaskNodeIdx = InvalidIndex;
@@ -61,24 +61,24 @@ namespace KRG::Animation::Graph
 
     private:
 
-        ValueNodeBoneMask*                      m_pSourceBoneMask = nullptr;
-        ValueNodeBoneMask*                      m_pTargetBoneMask = nullptr;
-        ValueNodeFloat*                         m_pBlendWeightValueNode = nullptr;
+        BoneMaskValueNode*                      m_pSourceBoneMask = nullptr;
+        BoneMaskValueNode*                      m_pTargetBoneMask = nullptr;
+        FloatValueNode*                         m_pBlendWeightValueNode = nullptr;
         BoneMask                                m_blendedBoneMask;
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API BoneMaskSelectorNode final : public ValueNodeBoneMask
+    class KRG_ENGINE_ANIMATION_API BoneMaskSelectorNode final : public BoneMaskValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeBoneMask::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public BoneMaskValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeBoneMask::Settings, m_defaultMaskNodeIdx, m_parameterValueNodeIdx, m_switchDynamically, m_maskNodeIndices, m_parameterValues, m_blendTime );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( BoneMaskValueNode::Settings, m_defaultMaskNodeIdx, m_parameterValueNodeIdx, m_switchDynamically, m_maskNodeIndices, m_parameterValues, m_blendTime );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex                                       m_defaultMaskNodeIdx = InvalidIndex;
             NodeIndex                                       m_parameterValueNodeIdx = InvalidIndex;
@@ -107,9 +107,9 @@ namespace KRG::Animation::Graph
 
     private:
 
-        ValueNodeID*                                        m_pParameterValueNode = nullptr;
-        ValueNodeBoneMask*                                  m_pDefaultMaskValueNode = nullptr;
-        TInlineVector<ValueNodeBoneMask*, 7>                m_boneMaskOptionNodes;
+        IDValueNode*                                        m_pParameterValueNode = nullptr;
+        BoneMaskValueNode*                                  m_pDefaultMaskValueNode = nullptr;
+        TInlineVector<BoneMaskValueNode*, 7>                m_boneMaskOptionNodes;
         int32                                               m_selectedMaskIndex = InvalidIndex;
         int32                                               m_newMaskIndex = InvalidIndex;
         BoneMask                                            m_blendedBoneMask;

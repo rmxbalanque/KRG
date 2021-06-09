@@ -125,6 +125,7 @@ namespace KRG::Resource
                     for ( int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++ )
                     {
                         CompilationRequest const* pCompletedRequest = completedRequests[i];
+                        ImGui::PushID( pCompletedRequest );
 
                         ImVec4 itemColor;
                         ImGui::TableNextRow();
@@ -179,8 +180,8 @@ namespace KRG::Resource
                         //-------------------------------------------------------------------------
 
                         ImGui::TableSetColumnIndex( 3 );
-                        bool const item_is_selected = ( pCompletedRequest == m_pSelectedCompletedRequest );
-                        if ( ImGui::Selectable( pCompletedRequest->GetDestinationFilePath().c_str(), item_is_selected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2( 0, 0 ) ) )
+                        bool const isItemSelected = ( pCompletedRequest == m_pSelectedCompletedRequest );
+                        if ( ImGui::Selectable( pCompletedRequest->GetDestinationFilePath().c_str(), isItemSelected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2( 0, 0 ) ) )
                         {
                             m_pSelectedCompletedRequest = pCompletedRequest;
                         }
@@ -192,6 +193,8 @@ namespace KRG::Resource
 
                         ImGui::TableSetColumnIndex( 5 );
                         ImGui::Text( "%.3fms", pCompletedRequest->GetCompilationElapsedTime().ToFloat() );
+
+                        ImGui::PopID();
                     }
                 }
 

@@ -7,57 +7,54 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Log
 {
-    namespace Log
+    enum class Severity
     {
-        enum class Severity
-        {
-            Message = 0,
-            Warning,
-            Error,
-            FatalError,
-        };
+        Message = 0,
+        Warning,
+        Error,
+        FatalError,
+    };
 
-        struct LogEntry
-        {
-            String      m_timestamp;
-            String      m_message;
-            String      m_channel;
-            String      m_filename;
-            uint32         m_lineNumber;
-            Severity    m_severity;
-        };
+    struct LogEntry
+    {
+        String      m_timestamp;
+        String      m_message;
+        String      m_channel;
+        String      m_filename;
+        uint32      m_lineNumber;
+        Severity    m_severity;
+    };
 
-        // Lifetime
-        //-------------------------------------------------------------------------
+    // Lifetime
+    //-------------------------------------------------------------------------
 
-        KRG_SYSTEM_CORE_API void Initialize();
-        KRG_SYSTEM_CORE_API void Shutdown();
-        KRG_SYSTEM_CORE_API bool IsInitialized();
+    KRG_SYSTEM_CORE_API void Initialize();
+    KRG_SYSTEM_CORE_API void Shutdown();
+    KRG_SYSTEM_CORE_API bool IsInitialized();
 
-        // Logging
-        //-------------------------------------------------------------------------
+    // Logging
+    //-------------------------------------------------------------------------
 
-        KRG_SYSTEM_CORE_API void AddEntry( Severity severity, char const* pChannel, char const* pFilename, int pLineNumber, char const* pMessageFormat, ... );
-        KRG_SYSTEM_CORE_API void AddEntryVarArgs( Severity severity, char const* pChannel, char const* pFilename, int pLineNumber, char const* pMessageFormat, va_list args );
-        KRG_SYSTEM_CORE_API TVector<LogEntry> const& GetLogEntries();
+    KRG_SYSTEM_CORE_API void AddEntry( Severity severity, char const* pChannel, char const* pFilename, int pLineNumber, char const* pMessageFormat, ... );
+    KRG_SYSTEM_CORE_API void AddEntryVarArgs( Severity severity, char const* pChannel, char const* pFilename, int pLineNumber, char const* pMessageFormat, va_list args );
+    KRG_SYSTEM_CORE_API TVector<LogEntry> const& GetLogEntries();
 
-        // Output
-        //-------------------------------------------------------------------------
+    // Output
+    //-------------------------------------------------------------------------
 
-        KRG_SYSTEM_CORE_API void SaveToFile( FileSystem::Path const& logFilePath );
+    KRG_SYSTEM_CORE_API void SaveToFile( FileSystem::Path const& logFilePath );
 
-        // Warnings and errors
-        //-------------------------------------------------------------------------
+    // Warnings and errors
+    //-------------------------------------------------------------------------
 
-        KRG_SYSTEM_CORE_API bool HasFatalErrorOccurred();
-        KRG_SYSTEM_CORE_API LogEntry const& GetFatalError();
+    KRG_SYSTEM_CORE_API bool HasFatalErrorOccurred();
+    KRG_SYSTEM_CORE_API LogEntry const& GetFatalError();
 
-        // Transfers a list of unhandled warnings and errors - useful for displaying all errors for a given frame. 
-        // Calling this function will clear the list of warnings and errors.
-        KRG_SYSTEM_CORE_API TVector<LogEntry> GetUnhandledWarningsAndErrors();
-    }
+    // Transfers a list of unhandled warnings and errors - useful for displaying all errors for a given frame. 
+    // Calling this function will clear the list of warnings and errors.
+    KRG_SYSTEM_CORE_API TVector<LogEntry> GetUnhandledWarningsAndErrors();
 }
 
 //-------------------------------------------------------------------------

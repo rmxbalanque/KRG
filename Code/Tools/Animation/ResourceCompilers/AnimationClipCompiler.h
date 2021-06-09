@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tools/Animation/_Module/API.h"
-#include "Tools/Resource/Compilers/ResourceCompiler.h"
+#include "Tools/Core/Resource/Compilers/ResourceCompiler.h"
 #include "Engine/Animation/AnimationSkeleton.h"
 #include "Engine/Animation/AnimationSyncTrack.h"
 #include "System/Resource/ResourcePtr.h"

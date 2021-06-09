@@ -2,6 +2,7 @@
 
 #include "Engine/Animation/Graph/AnimationGraphNode.h"
 #include "Engine/Animation/AnimationClip.h"
+#include "Engine/Animation/Graph/AnimationGraphResources.h"
 
 //-------------------------------------------------------------------------
 
@@ -12,25 +13,25 @@ namespace KRG::Animation::Graph
 
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_playInReverseValueNodeIdx, m_shouldSampleRootMotion, m_allowLooping, m_animationID );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_playInReverseValueNodeIdx, m_shouldSampleRootMotion, m_allowLooping, m_sourceIndex );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex                                   m_playInReverseValueNodeIdx = InvalidIndex;
             bool                                        m_shouldSampleRootMotion = true;
             bool                                        m_allowLooping = false;
-            uint16                                      m_animationID;
+            DataSetSourceIndex                          m_sourceIndex = InvalidIndex;
         };
 
     public:
 
         virtual bool IsValid() const override;
 
-        virtual UpdateResult Update( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual PoseNodeResult Update( GraphContext& context ) override;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
 
         virtual AnimationClip const* GetAnimation() const final { KRG_ASSERT( IsValid() ); return m_pAnimation; }
         virtual void DisableRootMotionSampling() final { KRG_ASSERT( IsValid() ); m_shouldSampleRootMotion = false; }
@@ -43,12 +44,12 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        UpdateResult CalculateResult( GraphContext& context, bool bIsSynchronizedUpdate ) const;
+        PoseNodeResult CalculateResult( GraphContext& context, bool bIsSynchronizedUpdate ) const;
 
     private:
 
         AnimationClip const*                            m_pAnimation = nullptr;
-        ValueNodeBool*                                  m_pPlayInReverseValueNode = nullptr;
+        BoolValueNode*                                  m_pPlayInReverseValueNode = nullptr;
         bool                                            m_shouldPlayInReverse = false;
         bool                                            m_shouldSampleRootMotion = true;
     };

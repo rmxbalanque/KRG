@@ -29,7 +29,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubSubStruct> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubSubStruct> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
             KRG::ExternalTestSubSubStruct const* pActualDefaultTypeInstance = ( KRG::ExternalTestSubSubStruct const* ) pDefaultTypeInstance;
@@ -48,7 +48,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( TVector<float> );
-            propertyInfo.m_flags.Set( 2 );
+            propertyInfo.m_flags.Set( 5 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -62,16 +62,16 @@ namespace KRG
             {
                 static TTypeHelper<KRG::ExternalTestSubSubStruct> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::ExternalTestSubSubStruct ), alignof( KRG::ExternalTestSubSubStruct ) );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::ExternalTestSubSubStruct ), alignof( KRG::ExternalTestSubSubStruct ) );
                     new ( pDefaultTypeInstance ) KRG::ExternalTestSubSubStruct;
 
                     TypeSystem::TypeInfo typeInfo;
@@ -101,37 +101,37 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::ExternalTestSubSubStruct" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pDefaultTypeInstance )->~ExternalTestSubSubStruct();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
                     return KRG::New<KRG::ExternalTestSubSubStruct>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
                     new( pAllocatedMemory ) KRG::ExternalTestSubSubStruct();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
@@ -139,7 +139,7 @@ namespace KRG
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
@@ -147,7 +147,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -155,7 +155,7 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pType );
 
@@ -174,7 +174,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pTypeInstance );
 
@@ -200,7 +200,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pTypeInstance );
 
@@ -214,7 +214,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pTypeInstance );
 
@@ -228,7 +228,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pTypeInstance );
 
@@ -242,7 +242,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
                     auto pTypeHelper = KRG::ExternalTestSubSubStruct::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pTypeInstance );
@@ -256,7 +256,7 @@ namespace KRG
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
                     auto pType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( pOtherTypeInstance );
@@ -295,7 +295,7 @@ namespace KRG
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
                     auto pDefaultType = reinterpret_cast<KRG::ExternalTestSubSubStruct const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubSubStruct*>( pTypeInstance );
@@ -330,7 +330,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubStruct> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestSubStruct> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
             KRG::ExternalTestSubStruct const* pActualDefaultTypeInstance = ( KRG::ExternalTestSubStruct const* ) pDefaultTypeInstance;
@@ -349,7 +349,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_floats.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( TVector<float> );
-            propertyInfo.m_flags.Set( 2 );
+            propertyInfo.m_flags.Set( 5 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -365,7 +365,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ExternalTestSubSubStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::ExternalTestSubSubStruct> );
-            propertyInfo.m_flags.Set( 18 );
+            propertyInfo.m_flags.Set( 37 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -379,16 +379,16 @@ namespace KRG
             {
                 static TTypeHelper<KRG::ExternalTestSubStruct> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::ExternalTestSubStruct ), alignof( KRG::ExternalTestSubStruct ) );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::ExternalTestSubStruct ), alignof( KRG::ExternalTestSubStruct ) );
                     new ( pDefaultTypeInstance ) KRG::ExternalTestSubStruct;
 
                     TypeSystem::TypeInfo typeInfo;
@@ -418,23 +418,23 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::ExternalTestSubStruct" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::ExternalTestSubStruct*>( pDefaultTypeInstance )->~ExternalTestSubStruct();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
                     return KRG::New<KRG::ExternalTestSubStruct>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
                     new( pAllocatedMemory ) KRG::ExternalTestSubStruct();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
@@ -446,7 +446,7 @@ namespace KRG
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
@@ -458,7 +458,7 @@ namespace KRG
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
@@ -475,7 +475,7 @@ namespace KRG
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
@@ -492,7 +492,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -500,7 +500,7 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pType );
 
@@ -529,7 +529,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pTypeInstance );
 
@@ -565,7 +565,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pTypeInstance );
 
@@ -585,7 +585,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pTypeInstance );
 
@@ -605,7 +605,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pTypeInstance );
 
@@ -625,7 +625,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
                     auto pTypeHelper = KRG::ExternalTestSubStruct::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pTypeInstance );
@@ -644,7 +644,7 @@ namespace KRG
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
                     auto pType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( pOtherTypeInstance );
@@ -714,7 +714,7 @@ namespace KRG
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
                     auto pDefaultType = reinterpret_cast<KRG::ExternalTestSubStruct const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestSubStruct*>( pTypeInstance );
@@ -755,7 +755,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestStruct> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::ExternalTestStruct> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
             KRG::ExternalTestStruct const* pActualDefaultTypeInstance = ( KRG::ExternalTestStruct const* ) pDefaultTypeInstance;
@@ -771,7 +771,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_uint8;
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_uint8 );
             propertyInfo.m_size = sizeof( KRG::uint8 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -784,7 +784,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_uint16;
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_uint16 );
             propertyInfo.m_size = sizeof( KRG::uint16 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -797,7 +797,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_uint32;
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_uint32 );
             propertyInfo.m_size = sizeof( KRG::uint32 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -810,7 +810,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U64;
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_U64 );
             propertyInfo.m_size = sizeof( KRG::uint64 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -823,7 +823,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_UUID;
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_UUID );
             propertyInfo.m_size = sizeof( KRG::UUID );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -836,7 +836,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_eulerAngles;
             propertyInfo.m_offset = offsetof( KRG::ExternalTestStruct, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -852,7 +852,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ExternalTestSubStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::ExternalTestSubStruct> );
-            propertyInfo.m_flags.Set( 18 );
+            propertyInfo.m_flags.Set( 37 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -866,16 +866,16 @@ namespace KRG
             {
                 static TTypeHelper<KRG::ExternalTestStruct> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::ExternalTestStruct ), alignof( KRG::ExternalTestStruct ) );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::ExternalTestStruct ), alignof( KRG::ExternalTestStruct ) );
                     new ( pDefaultTypeInstance ) KRG::ExternalTestStruct;
 
                     TypeSystem::TypeInfo typeInfo;
@@ -905,23 +905,23 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::ExternalTestStruct" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::ExternalTestStruct*>( pDefaultTypeInstance )->~ExternalTestStruct();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
                     return KRG::New<KRG::ExternalTestStruct>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
                     new( pAllocatedMemory ) KRG::ExternalTestStruct();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
@@ -933,7 +933,7 @@ namespace KRG
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
@@ -945,7 +945,7 @@ namespace KRG
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
@@ -962,7 +962,7 @@ namespace KRG
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
@@ -979,7 +979,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -987,7 +987,7 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pType );
 
@@ -1006,7 +1006,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct const*>( pTypeInstance );
 
@@ -1032,7 +1032,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pTypeInstance );
 
@@ -1046,7 +1046,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pTypeInstance );
 
@@ -1060,7 +1060,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pTypeInstance );
 
@@ -1074,7 +1074,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
                     auto pTypeHelper = KRG::ExternalTestStruct::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::ExternalTestStruct const*>( pTypeInstance );
@@ -1118,7 +1118,7 @@ namespace KRG
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
                     auto pType = reinterpret_cast<KRG::ExternalTestStruct const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::ExternalTestStruct const*>( pOtherTypeInstance );
@@ -1187,7 +1187,7 @@ namespace KRG
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
                     auto pDefaultType = reinterpret_cast<KRG::ExternalTestStruct const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::ExternalTestStruct*>( pTypeInstance );
@@ -1279,7 +1279,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent::InternalStruct> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent::InternalStruct> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
             KRG::TestComponent::InternalStruct const* pActualDefaultTypeInstance = ( KRG::TestComponent::InternalStruct const* ) pDefaultTypeInstance;
@@ -1295,7 +1295,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_eulerAngles;
             propertyInfo.m_offset = offsetof( KRG::TestComponent::InternalStruct, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1308,7 +1308,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent::InternalStruct, m_resourceID );
             propertyInfo.m_size = sizeof( KRG::ResourceID );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -1322,16 +1322,16 @@ namespace KRG
             {
                 static TTypeHelper<KRG::TestComponent::InternalStruct> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::TestComponent::InternalStruct ), alignof( KRG::TestComponent::InternalStruct ) );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::TestComponent::InternalStruct ), alignof( KRG::TestComponent::InternalStruct ) );
                     new ( pDefaultTypeInstance ) KRG::TestComponent::InternalStruct;
 
                     TypeSystem::TypeInfo typeInfo;
@@ -1361,37 +1361,37 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::TestComponent::InternalStruct" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::TestComponent::InternalStruct*>( pDefaultTypeInstance )->~InternalStruct();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
                     return KRG::New<KRG::TestComponent::InternalStruct>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
                     new( pAllocatedMemory ) KRG::TestComponent::InternalStruct();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
@@ -1399,7 +1399,7 @@ namespace KRG
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
@@ -1407,7 +1407,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
@@ -1415,7 +1415,7 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pType );
 
@@ -1424,7 +1424,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pTypeInstance );
 
@@ -1440,7 +1440,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pTypeInstance );
 
@@ -1448,7 +1448,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pTypeInstance );
 
@@ -1456,7 +1456,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pTypeInstance );
 
@@ -1464,7 +1464,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
                     auto pTypeHelper = KRG::TestComponent::InternalStruct::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pTypeInstance );
@@ -1483,7 +1483,7 @@ namespace KRG
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
                     auto pType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( pOtherTypeInstance );
@@ -1501,7 +1501,7 @@ namespace KRG
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
                     auto pDefaultType = reinterpret_cast<KRG::TestComponent::InternalStruct const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::TestComponent::InternalStruct*>( pTypeInstance );
@@ -1584,7 +1584,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::TestComponent> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
             KRG::TestComponent const* pActualDefaultTypeInstance = ( KRG::TestComponent const* ) pDefaultTypeInstance;
@@ -1600,7 +1600,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_bool;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_bool );
             propertyInfo.m_size = sizeof( bool );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1613,7 +1613,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U8;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U8 );
             propertyInfo.m_size = sizeof( KRG::uint8 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1626,7 +1626,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U16;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U16 );
             propertyInfo.m_size = sizeof( KRG::uint16 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1639,7 +1639,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U32 );
             propertyInfo.m_size = sizeof( KRG::uint32 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1652,7 +1652,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_U64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_U64 );
             propertyInfo.m_size = sizeof( KRG::uint64 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1665,7 +1665,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S8;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S8 );
             propertyInfo.m_size = sizeof( KRG::int8 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1678,7 +1678,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S16;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S16 );
             propertyInfo.m_size = sizeof( KRG::int16 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1691,7 +1691,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S32 );
             propertyInfo.m_size = sizeof( KRG::int32 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1704,7 +1704,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_S64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_S64 );
             propertyInfo.m_size = sizeof( KRG::int64 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1717,7 +1717,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_F32;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_F32 );
             propertyInfo.m_size = sizeof( float );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1730,7 +1730,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_F64;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_F64 );
             propertyInfo.m_size = sizeof( double );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1743,7 +1743,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_UUID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_UUID );
             propertyInfo.m_size = sizeof( KRG::UUID );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1756,7 +1756,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_StringID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_StringID );
             propertyInfo.m_size = sizeof( KRG::StringID );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1769,7 +1769,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_String;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_String );
             propertyInfo.m_size = sizeof( KRG::String );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1782,7 +1782,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Color;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Color );
             propertyInfo.m_size = sizeof( KRG::Color );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1795,7 +1795,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Float2;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float2 );
             propertyInfo.m_size = sizeof( KRG::Float2 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1808,7 +1808,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Float3;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float3 );
             propertyInfo.m_size = sizeof( KRG::Float3 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1821,7 +1821,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_Float4;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_Float4 );
             propertyInfo.m_size = sizeof( KRG::Float4 );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1834,7 +1834,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_vector;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_vector );
             propertyInfo.m_size = sizeof( KRG::Vector );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1847,7 +1847,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_quaternion;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_quaternion );
             propertyInfo.m_size = sizeof( KRG::Quaternion );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1860,7 +1860,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_matrix;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_matrix );
             propertyInfo.m_size = sizeof( KRG::Matrix );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1873,7 +1873,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_affineTransform;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_affineTransform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1886,7 +1886,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_us;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_us );
             propertyInfo.m_size = sizeof( KRG::Microseconds );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1899,7 +1899,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_ms;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_ms );
             propertyInfo.m_size = sizeof( KRG::Milliseconds );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1912,7 +1912,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_s;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_s );
             propertyInfo.m_size = sizeof( KRG::Seconds );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1925,7 +1925,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_percentage;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_percentage );
             propertyInfo.m_size = sizeof( KRG::Percentage );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1938,7 +1938,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_degrees;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_degrees );
             propertyInfo.m_size = sizeof( KRG::Degrees );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1951,7 +1951,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_radians;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_radians );
             propertyInfo.m_size = sizeof( KRG::Radians );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1964,7 +1964,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_eulerAngles;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_eulerAngles );
             propertyInfo.m_size = sizeof( KRG::EulerAngles );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1977,7 +1977,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dataPath;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_dataPath );
             propertyInfo.m_size = sizeof( KRG::DataPath );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -1990,7 +1990,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_genericFlags;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_genericFlags );
             propertyInfo.m_size = sizeof( KRG::BitFlags );
-            propertyInfo.m_flags.Set( 8 );
+            propertyInfo.m_flags.Set( 17 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2003,7 +2003,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_specificFlags;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_specificFlags );
             propertyInfo.m_size = sizeof( KRG::TBitFlags<KRG::TestFlags> );
-            propertyInfo.m_flags.Set( 8 );
+            propertyInfo.m_flags.Set( 17 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2016,7 +2016,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceTypeID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_resourceTypeID );
             propertyInfo.m_size = sizeof( KRG::ResourceTypeID );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2029,7 +2029,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourceID;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_resourceID );
             propertyInfo.m_size = sizeof( KRG::ResourceID );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2042,7 +2042,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_specificResourcePtr;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_specificResourcePtr );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Render::SkeletalMesh> );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2055,7 +2055,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_intRange;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_intRange );
             propertyInfo.m_size = sizeof( KRG::IntRange );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2068,7 +2068,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_floatRange;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_floatRange );
             propertyInfo.m_size = sizeof( KRG::FloatRange );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2081,7 +2081,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_internalEnum;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_internalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalEnum );
-            propertyInfo.m_flags.Set( 4 );
+            propertyInfo.m_flags.Set( 9 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2094,7 +2094,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_testInternalEnum;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_testInternalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalTest::InternalEnum );
-            propertyInfo.m_flags.Set( 4 );
+            propertyInfo.m_flags.Set( 9 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2107,7 +2107,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_struct0;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_struct0 );
             propertyInfo.m_size = sizeof( KRG::ExternalTestStruct );
-            propertyInfo.m_flags.Set( 16 );
+            propertyInfo.m_flags.Set( 33 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2120,7 +2120,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_struct1;
             propertyInfo.m_offset = offsetof( KRG::TestComponent, m_struct1 );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalStruct );
-            propertyInfo.m_flags.Set( 16 );
+            propertyInfo.m_flags.Set( 33 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2136,7 +2136,7 @@ namespace KRG
             propertyInfo.m_arraySize = 4;
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( float ) * 4;
-            propertyInfo.m_flags.Set( 1 );
+            propertyInfo.m_flags.Set( 3 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2152,7 +2152,7 @@ namespace KRG
             propertyInfo.m_arraySize = 4;
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::StringID );
             propertyInfo.m_size = sizeof( KRG::StringID ) * 4;
-            propertyInfo.m_flags.Set( 1 );
+            propertyInfo.m_flags.Set( 3 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2168,7 +2168,7 @@ namespace KRG
             propertyInfo.m_arraySize = 2;
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::InternalStruct );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalStruct ) * 2;
-            propertyInfo.m_flags.Set( 17 );
+            propertyInfo.m_flags.Set( 35 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2184,7 +2184,7 @@ namespace KRG
             propertyInfo.m_arraySize = 6;
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TestComponent::InternalTest::InternalEnum );
             propertyInfo.m_size = sizeof( KRG::TestComponent::InternalTest::InternalEnum ) * 6;
-            propertyInfo.m_flags.Set( 5 );
+            propertyInfo.m_flags.Set( 11 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2200,7 +2200,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArray.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( float );
             propertyInfo.m_size = sizeof( TVector<float> );
-            propertyInfo.m_flags.Set( 2 );
+            propertyInfo.m_flags.Set( 5 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -2216,7 +2216,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_dynamicArrayOfStructs.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::ExternalTestStruct );
             propertyInfo.m_size = sizeof( TVector<KRG::ExternalTestStruct> );
-            propertyInfo.m_flags.Set( 18 );
+            propertyInfo.m_flags.Set( 37 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -2230,16 +2230,16 @@ namespace KRG
             {
                 static TTypeHelper<KRG::TestComponent> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::TestComponent ), alignof( KRG::TestComponent ) );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::TestComponent ), alignof( KRG::TestComponent ) );
                     new ( pDefaultTypeInstance ) KRG::TestComponent;
 
                     TypeSystem::TypeInfo typeInfo;
@@ -2270,23 +2270,23 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::TestComponent" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::TestComponent*>( pDefaultTypeInstance )->~TestComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
                     return KRG::New<KRG::TestComponent>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
                     new( pAllocatedMemory ) KRG::TestComponent();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
@@ -2311,7 +2311,7 @@ namespace KRG
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
@@ -2336,7 +2336,7 @@ namespace KRG
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
@@ -2386,7 +2386,7 @@ namespace KRG
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
@@ -2433,7 +2433,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
                     if ( propertyID == 3104453760 )
@@ -2446,7 +2446,7 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pType );
 
@@ -2495,7 +2495,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent const*>( pTypeInstance );
 
@@ -2571,7 +2571,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pTypeInstance );
 
@@ -2591,7 +2591,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pTypeInstance );
 
@@ -2611,7 +2611,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pTypeInstance );
 
@@ -2631,7 +2631,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
                     auto pTypeHelper = KRG::TestComponent::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::TestComponent const*>( pTypeInstance );
@@ -2875,7 +2875,7 @@ namespace KRG
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
                     auto pType = reinterpret_cast<KRG::TestComponent const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::TestComponent const*>( pOtherTypeInstance );
@@ -3234,7 +3234,7 @@ namespace KRG
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
                     auto pDefaultType = reinterpret_cast<KRG::TestComponent const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::TestComponent*>( pTypeInstance );

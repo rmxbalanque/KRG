@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::SpeedScaleNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::SpeedScaleNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::SpeedScaleNode::Settings> TTypeHelper<KRG::Animation::Graph::SpeedScaleNode::Settings>::StaticTypeHelper;
         }
@@ -33,7 +33,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::Graph::VelocityBasedSpeedScaleNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::VelocityBasedSpeedScaleNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::VelocityBasedSpeedScaleNode::Settings> TTypeHelper<KRG::Animation::Graph::VelocityBasedSpeedScaleNode::Settings>::StaticTypeHelper;
         }

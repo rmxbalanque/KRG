@@ -13,13 +13,13 @@
 #include "D:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_ConstValues.h"
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Animation::Graph::ConstValueBool::Settings
+// TypeHelper: KRG::Animation::Graph::ConstBoolNode::Settings
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstValueBool::Settings& type )
+    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstBoolNode::Settings& type )
     {
         archive( cereal::base_class<KRG::Animation::Graph::GraphNode::Settings>( &type ) );
     }
@@ -29,10 +29,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstValueBool::Settings> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstBoolNode::Settings> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Animation::Graph::ConstValueBool::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstValueBool::Settings const* ) pDefaultTypeInstance;
+            KRG::Animation::Graph::ConstBoolNode::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstBoolNode::Settings const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
         }
@@ -42,26 +42,26 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstValueBool::Settings> final : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstBoolNode::Settings> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::Animation::Graph::ConstValueBool::Settings> StaticTypeHelper;
+                static TTypeHelper<KRG::Animation::Graph::ConstBoolNode::Settings> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::Graph::ConstValueBool::Settings ), alignof( KRG::Animation::Graph::ConstValueBool::Settings ) );
-                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstValueBool::Settings;
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::Graph::ConstBoolNode::Settings ), alignof( KRG::Animation::Graph::ConstBoolNode::Settings ) );
+                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstBoolNode::Settings;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueBool::Settings" );
-                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstValueBool::Settings );
-                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstValueBool::Settings );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstBoolNode::Settings" );
+                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstBoolNode::Settings );
+                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstBoolNode::Settings );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -76,80 +76,80 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Animation::Graph::ConstValueBool::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::Graph::ConstBoolNode::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueBool::Settings" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstBoolNode::Settings" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pDefaultTypeInstance )->~Settings();
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pDefaultTypeInstance )->~Settings();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::Animation::Graph::ConstValueBool::Settings>();
+                    return KRG::New<KRG::Animation::Graph::ConstBoolNode::Settings>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstValueBool::Settings();
+                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstBoolNode::Settings();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -163,51 +163,51 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::Animation::Graph::ConstValueBool::Settings::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Animation::Graph::ConstBoolNode::Settings::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings const*>( pOtherTypeInstance );
 
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings const*>( pOtherTypeInstance );
 
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueBool::Settings*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstBoolNode::Settings*>( pTypeInstance );
 
                 }
 
@@ -217,13 +217,13 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Animation::Graph::ConstValueID::Settings
+// TypeHelper: KRG::Animation::Graph::ConstIDNode::Settings
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstValueID::Settings& type )
+    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstIDNode::Settings& type )
     {
         archive( cereal::base_class<KRG::Animation::Graph::GraphNode::Settings>( &type ) );
     }
@@ -233,10 +233,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstValueID::Settings> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstIDNode::Settings> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Animation::Graph::ConstValueID::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstValueID::Settings const* ) pDefaultTypeInstance;
+            KRG::Animation::Graph::ConstIDNode::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstIDNode::Settings const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
         }
@@ -246,26 +246,26 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstValueID::Settings> final : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstIDNode::Settings> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::Animation::Graph::ConstValueID::Settings> StaticTypeHelper;
+                static TTypeHelper<KRG::Animation::Graph::ConstIDNode::Settings> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::Graph::ConstValueID::Settings ), alignof( KRG::Animation::Graph::ConstValueID::Settings ) );
-                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstValueID::Settings;
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::Graph::ConstIDNode::Settings ), alignof( KRG::Animation::Graph::ConstIDNode::Settings ) );
+                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstIDNode::Settings;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueID::Settings" );
-                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstValueID::Settings );
-                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstValueID::Settings );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstIDNode::Settings" );
+                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstIDNode::Settings );
+                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstIDNode::Settings );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -280,80 +280,80 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Animation::Graph::ConstValueID::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::Graph::ConstIDNode::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueID::Settings" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstIDNode::Settings" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pDefaultTypeInstance )->~Settings();
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pDefaultTypeInstance )->~Settings();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::Animation::Graph::ConstValueID::Settings>();
+                    return KRG::New<KRG::Animation::Graph::ConstIDNode::Settings>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstValueID::Settings();
+                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstIDNode::Settings();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -367,51 +367,51 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::Animation::Graph::ConstValueID::Settings::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Animation::Graph::ConstIDNode::Settings::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings const*>( pOtherTypeInstance );
 
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings const*>( pOtherTypeInstance );
 
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueID::Settings*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIDNode::Settings*>( pTypeInstance );
 
                 }
 
@@ -421,13 +421,13 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Animation::Graph::ConstValueInt::Settings
+// TypeHelper: KRG::Animation::Graph::ConstIntNode::Settings
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstValueInt::Settings& type )
+    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstIntNode::Settings& type )
     {
         archive( cereal::base_class<KRG::Animation::Graph::GraphNode::Settings>( &type ) );
     }
@@ -437,10 +437,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstValueInt::Settings> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstIntNode::Settings> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Animation::Graph::ConstValueInt::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstValueInt::Settings const* ) pDefaultTypeInstance;
+            KRG::Animation::Graph::ConstIntNode::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstIntNode::Settings const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
         }
@@ -450,26 +450,26 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstValueInt::Settings> final : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstIntNode::Settings> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::Animation::Graph::ConstValueInt::Settings> StaticTypeHelper;
+                static TTypeHelper<KRG::Animation::Graph::ConstIntNode::Settings> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::Graph::ConstValueInt::Settings ), alignof( KRG::Animation::Graph::ConstValueInt::Settings ) );
-                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstValueInt::Settings;
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::Graph::ConstIntNode::Settings ), alignof( KRG::Animation::Graph::ConstIntNode::Settings ) );
+                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstIntNode::Settings;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueInt::Settings" );
-                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstValueInt::Settings );
-                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstValueInt::Settings );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstIntNode::Settings" );
+                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstIntNode::Settings );
+                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstIntNode::Settings );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -484,80 +484,80 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Animation::Graph::ConstValueInt::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::Graph::ConstIntNode::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueInt::Settings" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstIntNode::Settings" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pDefaultTypeInstance )->~Settings();
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pDefaultTypeInstance )->~Settings();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::Animation::Graph::ConstValueInt::Settings>();
+                    return KRG::New<KRG::Animation::Graph::ConstIntNode::Settings>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstValueInt::Settings();
+                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstIntNode::Settings();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -571,51 +571,51 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::Animation::Graph::ConstValueInt::Settings::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Animation::Graph::ConstIntNode::Settings::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings const*>( pOtherTypeInstance );
 
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings const*>( pOtherTypeInstance );
 
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueInt::Settings*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstIntNode::Settings*>( pTypeInstance );
 
                 }
 
@@ -625,13 +625,13 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Animation::Graph::ConstValueFloat::Settings
+// TypeHelper: KRG::Animation::Graph::ConstFloatNode::Settings
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstValueFloat::Settings& type )
+    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstFloatNode::Settings& type )
     {
         archive( cereal::base_class<KRG::Animation::Graph::GraphNode::Settings>( &type ) );
     }
@@ -641,10 +641,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstValueFloat::Settings> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstFloatNode::Settings> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Animation::Graph::ConstValueFloat::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstValueFloat::Settings const* ) pDefaultTypeInstance;
+            KRG::Animation::Graph::ConstFloatNode::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstFloatNode::Settings const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
         }
@@ -654,26 +654,26 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstValueFloat::Settings> final : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstFloatNode::Settings> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::Animation::Graph::ConstValueFloat::Settings> StaticTypeHelper;
+                static TTypeHelper<KRG::Animation::Graph::ConstFloatNode::Settings> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::Graph::ConstValueFloat::Settings ), alignof( KRG::Animation::Graph::ConstValueFloat::Settings ) );
-                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstValueFloat::Settings;
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::Graph::ConstFloatNode::Settings ), alignof( KRG::Animation::Graph::ConstFloatNode::Settings ) );
+                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstFloatNode::Settings;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueFloat::Settings" );
-                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstValueFloat::Settings );
-                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstValueFloat::Settings );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstFloatNode::Settings" );
+                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstFloatNode::Settings );
+                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstFloatNode::Settings );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -688,80 +688,80 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Animation::Graph::ConstValueFloat::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::Graph::ConstFloatNode::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueFloat::Settings" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstFloatNode::Settings" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pDefaultTypeInstance )->~Settings();
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pDefaultTypeInstance )->~Settings();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::Animation::Graph::ConstValueFloat::Settings>();
+                    return KRG::New<KRG::Animation::Graph::ConstFloatNode::Settings>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstValueFloat::Settings();
+                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstFloatNode::Settings();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -775,51 +775,51 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::Animation::Graph::ConstValueFloat::Settings::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Animation::Graph::ConstFloatNode::Settings::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings const*>( pOtherTypeInstance );
 
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings const*>( pOtherTypeInstance );
 
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueFloat::Settings*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstFloatNode::Settings*>( pTypeInstance );
 
                 }
 
@@ -829,13 +829,13 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Animation::Graph::ConstValueVector::Settings
+// TypeHelper: KRG::Animation::Graph::ConstVectorNode::Settings
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstValueVector::Settings& type )
+    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstVectorNode::Settings& type )
     {
         archive( cereal::base_class<KRG::Animation::Graph::GraphNode::Settings>( &type ) );
     }
@@ -845,10 +845,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstValueVector::Settings> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstVectorNode::Settings> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Animation::Graph::ConstValueVector::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstValueVector::Settings const* ) pDefaultTypeInstance;
+            KRG::Animation::Graph::ConstVectorNode::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstVectorNode::Settings const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
         }
@@ -858,26 +858,26 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstValueVector::Settings> final : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstVectorNode::Settings> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::Animation::Graph::ConstValueVector::Settings> StaticTypeHelper;
+                static TTypeHelper<KRG::Animation::Graph::ConstVectorNode::Settings> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::Graph::ConstValueVector::Settings ), alignof( KRG::Animation::Graph::ConstValueVector::Settings ) );
-                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstValueVector::Settings;
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::Graph::ConstVectorNode::Settings ), alignof( KRG::Animation::Graph::ConstVectorNode::Settings ) );
+                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstVectorNode::Settings;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueVector::Settings" );
-                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstValueVector::Settings );
-                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstValueVector::Settings );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstVectorNode::Settings" );
+                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstVectorNode::Settings );
+                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstVectorNode::Settings );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -892,80 +892,80 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Animation::Graph::ConstValueVector::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::Graph::ConstVectorNode::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueVector::Settings" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstVectorNode::Settings" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pDefaultTypeInstance )->~Settings();
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pDefaultTypeInstance )->~Settings();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::Animation::Graph::ConstValueVector::Settings>();
+                    return KRG::New<KRG::Animation::Graph::ConstVectorNode::Settings>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstValueVector::Settings();
+                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstVectorNode::Settings();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -979,51 +979,51 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::Animation::Graph::ConstValueVector::Settings::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Animation::Graph::ConstVectorNode::Settings::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings const*>( pOtherTypeInstance );
 
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings const*>( pOtherTypeInstance );
 
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueVector::Settings*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstVectorNode::Settings*>( pTypeInstance );
 
                 }
 
@@ -1033,13 +1033,13 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Animation::Graph::ConstValueTarget::Settings
+// TypeHelper: KRG::Animation::Graph::ConstTargetNode::Settings
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstValueTarget::Settings& type )
+    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ConstTargetNode::Settings& type )
     {
         archive( cereal::base_class<KRG::Animation::Graph::GraphNode::Settings>( &type ) );
     }
@@ -1049,10 +1049,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstValueTarget::Settings> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ConstTargetNode::Settings> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Animation::Graph::ConstValueTarget::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstValueTarget::Settings const* ) pDefaultTypeInstance;
+            KRG::Animation::Graph::ConstTargetNode::Settings const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::ConstTargetNode::Settings const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
         }
@@ -1062,26 +1062,26 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstValueTarget::Settings> final : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Graph::ConstTargetNode::Settings> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::Animation::Graph::ConstValueTarget::Settings> StaticTypeHelper;
+                static TTypeHelper<KRG::Animation::Graph::ConstTargetNode::Settings> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::Graph::ConstValueTarget::Settings ), alignof( KRG::Animation::Graph::ConstValueTarget::Settings ) );
-                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstValueTarget::Settings;
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::Graph::ConstTargetNode::Settings ), alignof( KRG::Animation::Graph::ConstTargetNode::Settings ) );
+                    new ( pDefaultTypeInstance ) KRG::Animation::Graph::ConstTargetNode::Settings;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueTarget::Settings" );
-                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstValueTarget::Settings );
-                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstValueTarget::Settings );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstTargetNode::Settings" );
+                    typeInfo.m_size = sizeof( KRG::Animation::Graph::ConstTargetNode::Settings );
+                    typeInfo.m_alignment = alignof( KRG::Animation::Graph::ConstTargetNode::Settings );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -1096,80 +1096,80 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::Animation::Graph::ConstValueTarget::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Animation::Graph::ConstTargetNode::Settings::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstValueTarget::Settings" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Graph::ConstTargetNode::Settings" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pDefaultTypeInstance )->~Settings();
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pDefaultTypeInstance )->~Settings();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::Animation::Graph::ConstValueTarget::Settings>();
+                    return KRG::New<KRG::Animation::Graph::ConstTargetNode::Settings>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstValueTarget::Settings();
+                    new( pAllocatedMemory ) KRG::Animation::Graph::ConstTargetNode::Settings();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pType );
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pType );
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -1183,51 +1183,51 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::Animation::Graph::ConstValueTarget::Settings::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Animation::Graph::ConstTargetNode::Settings::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings const*>( pOtherTypeInstance );
 
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings const*>( pOtherTypeInstance );
 
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstValueTarget::Settings*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::Graph::ConstTargetNode::Settings*>( pTypeInstance );
 
                 }
 

@@ -29,7 +29,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent> >( void const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
             KRG::Animation::AnimatedMeshComponent const* pActualDefaultTypeInstance = ( KRG::Animation::AnimatedMeshComponent const* ) pDefaultTypeInstance;
@@ -45,7 +45,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pMesh;
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimatedMeshComponent, m_pMesh );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Render::SkeletalMesh> );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -61,7 +61,7 @@ namespace KRG
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_materialOverrides.size();
             propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::TResourcePtr<KRG::Render::Material> );
             propertyInfo.m_size = sizeof( TVector<KRG::TResourcePtr<KRG::Render::Material>> );
-            propertyInfo.m_flags.Set( 2 );
+            propertyInfo.m_flags.Set( 5 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -74,7 +74,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_transform;
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimatedMeshComponent, m_transform );
             propertyInfo.m_size = sizeof( KRG::Transform );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
@@ -87,7 +87,7 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pSkeleton;
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimatedMeshComponent, m_pSkeleton );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::Skeleton> );
-            propertyInfo.m_flags.Set( 0 );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -101,16 +101,16 @@ namespace KRG
             {
                 static TTypeHelper<KRG::Animation::AnimatedMeshComponent> StaticTypeHelper;
 
-                static void const* s_pDefaultTypeInstancePtr;
+                static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
             public:
 
-                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
+                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = KRG::Alloc( sizeof( KRG::Animation::AnimatedMeshComponent ), alignof( KRG::Animation::AnimatedMeshComponent ) );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::AnimatedMeshComponent ), alignof( KRG::Animation::AnimatedMeshComponent ) );
                     new ( pDefaultTypeInstance ) KRG::Animation::AnimatedMeshComponent;
 
                     TypeSystem::TypeInfo typeInfo;
@@ -141,23 +141,23 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Animation::AnimatedMeshComponent" );
                     typeRegistry.UnregisterType( ID );
 
-                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
                     reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pDefaultTypeInstance )->~AnimatedMeshComponent();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
-                virtual void* CreateType() const override final
+                virtual IRegisteredType* CreateType() const override final
                 {
                     return KRG::New<KRG::Animation::AnimatedMeshComponent>();
                 }
 
-                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final
+                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
                     new( pAllocatedMemory ) KRG::Animation::AnimatedMeshComponent();
                 }
 
-                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pType );
@@ -182,7 +182,7 @@ namespace KRG
 
                 }
 
-                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final
+                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pType );
@@ -207,7 +207,7 @@ namespace KRG
 
                 }
 
-                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
@@ -245,7 +245,7 @@ namespace KRG
                     return status;
                 }
 
-                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final
+                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
@@ -274,7 +274,7 @@ namespace KRG
                     return LoadingStatus::Unloaded;
                 }
 
-                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final
+                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pType );
                     if ( propertyID == 1674268345 )
@@ -297,7 +297,7 @@ namespace KRG
                     return ResourceTypeID();
                 }
 
-                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pType );
 
@@ -316,7 +316,7 @@ namespace KRG
                     return nullptr;
                 }
 
-                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final
+                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent const*>( pTypeInstance );
 
@@ -342,7 +342,7 @@ namespace KRG
                     return 0;
                 }
 
-                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pTypeInstance );
 
@@ -356,7 +356,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final
+                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pTypeInstance );
 
@@ -370,7 +370,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
+                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pTypeInstance );
 
@@ -384,7 +384,7 @@ namespace KRG
                     KRG_UNREACHABLE_CODE();
                 }
 
-                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final
+                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
                     auto pTypeHelper = KRG::Animation::AnimatedMeshComponent::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent const*>( pTypeInstance );
@@ -413,7 +413,7 @@ namespace KRG
                     return true;
                 }
 
-                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
+                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
                     auto pType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent const*>( pOtherTypeInstance );
@@ -467,7 +467,7 @@ namespace KRG
                     return false;
                 }
 
-                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final
+                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
                     auto pDefaultType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::Animation::AnimatedMeshComponent*>( pTypeInstance );

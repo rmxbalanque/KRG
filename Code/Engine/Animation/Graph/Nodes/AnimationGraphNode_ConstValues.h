@@ -5,16 +5,16 @@
 
 namespace KRG::Animation::Graph
 {
-    class KRG_ENGINE_ANIMATION_API ConstValueBool final : public ValueNodeBool
+    class KRG_ENGINE_ANIMATION_API ConstBoolNode final : public BoolValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeBool::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeBool::Settings, m_value );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_value );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             bool m_value;
         };
@@ -26,16 +26,16 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ConstValueID final : public ValueNodeID
+    class KRG_ENGINE_ANIMATION_API ConstIDNode final : public IDValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeID::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public IDValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeID::Settings, m_value );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( IDValueNode::Settings, m_value );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             StringID m_value;
         };
@@ -47,16 +47,16 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ConstValueInt final : public ValueNodeInt
+    class KRG_ENGINE_ANIMATION_API ConstIntNode final : public IntValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeInt::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public IntValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeInt::Settings, m_value );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( IntValueNode::Settings, m_value );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             int32 m_value;
         };
@@ -68,16 +68,16 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ConstValueFloat final : public ValueNodeFloat
+    class KRG_ENGINE_ANIMATION_API ConstFloatNode final : public FloatValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeFloat::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public FloatValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeFloat::Settings, m_value );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_value );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             float m_value;
         };
@@ -89,16 +89,16 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ConstValueVector final : public ValueNodeVector
+    class KRG_ENGINE_ANIMATION_API ConstVectorNode final : public VectorValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeVector::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public VectorValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeVector::Settings, m_value );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( VectorValueNode::Settings, m_value );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             Vector m_value;
         };
@@ -110,16 +110,16 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_ANIMATION_API ConstValueTarget final : public ValueNodeTarget
+    class KRG_ENGINE_ANIMATION_API ConstTargetNode final : public TargetValueNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings final : public ValueNodeTarget::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings final : public TargetValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( ValueNodeTarget::Settings, m_value );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( TargetValueNode::Settings, m_value );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             Target m_value;
         };

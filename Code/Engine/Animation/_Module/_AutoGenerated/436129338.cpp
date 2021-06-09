@@ -53,7 +53,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Animation::AnimationPlayerComponent>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Animation::AnimationPlayerComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::AnimationPlayerComponent> TTypeHelper<KRG::Animation::AnimationPlayerComponent>::StaticTypeHelper;
         }

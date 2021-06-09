@@ -138,11 +138,14 @@ namespace KRG
                     case CXCursor_FieldDecl:
                     {
                         // Should this field be exported?
-                        auto const iter = std::find( pContext->m_exposedPropertyMacros.begin(), pContext->m_exposedPropertyMacros.end(), ( ExposedPropertyMacro( pClass->m_headerID, lineNumber ) ) );
-                        if ( iter != pContext->m_exposedPropertyMacros.end() )
+                        auto const iter = std::find( pContext->m_registeredPropertyMacros.begin(), pContext->m_registeredPropertyMacros.end(), ( RegisteredPropertyMacro( pClass->m_headerID, lineNumber ) ) );
+                        if ( iter != pContext->m_registeredPropertyMacros.end() )
                         {
                             pClass->m_properties.push_back( ReflectedProperty( ClangUtils::GetCursorDisplayName( cr ) ) );
                             ReflectedProperty& propertyDesc = pClass->m_properties.back();
+
+                            // Set whether this is a registered or exposed property
+                            propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsExposed, iter->m_isExposed );
 
                             auto type = clang_getCursorType( cr );
                             auto const pFieldQualType = ClangUtils::GetQualType( type );
@@ -298,7 +301,7 @@ namespace KRG
                             // Remove exposed property macro from the list
                             if ( pClass->IsEntityComponent() || pClass->IsEntitySystem() )
                             {
-                                pContext->m_exposedPropertyMacros.erase( iter );
+                                pContext->m_registeredPropertyMacros.erase( iter );
                             }
                         }
 

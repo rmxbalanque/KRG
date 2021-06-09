@@ -4,73 +4,73 @@
 
 namespace KRG::Animation::Graph
 {
-    void ConstValueBool::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void ConstBoolNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
-        auto pNode = CreateNode<ConstValueBool>( nodePtrs, options );
+        auto pNode = CreateNode<ConstBoolNode>( nodePtrs, options );
     }
 
-    void ConstValueBool::GetValueInternal( GraphContext& context, void* pOutValue )
+    void ConstBoolNode::GetValueInternal( GraphContext& context, void* pOutValue )
     {
-        *( (bool*) pOutValue ) = GetSettings<ConstValueBool>()->m_value;
-    }
-
-    //-------------------------------------------------------------------------
-
-    void ConstValueID::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
-    {
-        auto pNode = CreateNode<ConstValueID>( nodePtrs, options );
-    }
-
-    void ConstValueID::GetValueInternal( GraphContext& context, void* pOutValue )
-    {
-        *( (StringID*) pOutValue ) = GetSettings<ConstValueID>()->m_value;
+        *( (bool*) pOutValue ) = GetSettings<ConstBoolNode>()->m_value;
     }
 
     //-------------------------------------------------------------------------
 
-    void ConstValueInt::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void ConstIDNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
-        auto pNode = CreateNode<ConstValueInt>( nodePtrs, options );
+        auto pNode = CreateNode<ConstIDNode>( nodePtrs, options );
     }
 
-    void ConstValueInt::GetValueInternal( GraphContext& context, void* pOutValue )
+    void ConstIDNode::GetValueInternal( GraphContext& context, void* pOutValue )
     {
-        *( (int32*) pOutValue ) = GetSettings<ConstValueInt>()->m_value;
-    }
-
-    //-------------------------------------------------------------------------
-
-    void ConstValueFloat::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
-    {
-        auto pNode = CreateNode<ConstValueFloat>( nodePtrs, options );
-    }
-
-    void ConstValueFloat::GetValueInternal( GraphContext& context, void* pOutValue )
-    {
-        *( (float*) pOutValue ) = GetSettings<ConstValueFloat>()->m_value;
+        *( (StringID*) pOutValue ) = GetSettings<ConstIDNode>()->m_value;
     }
 
     //-------------------------------------------------------------------------
 
-    void ConstValueVector::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void ConstIntNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
-        auto pNode = CreateNode<ConstValueVector>( nodePtrs, options );
+        auto pNode = CreateNode<ConstIntNode>( nodePtrs, options );
     }
 
-    void ConstValueVector::GetValueInternal( GraphContext& context, void* pOutValue )
+    void ConstIntNode::GetValueInternal( GraphContext& context, void* pOutValue )
     {
-        *( (Vector*) pOutValue ) = GetSettings<ConstValueVector>()->m_value;
+        *( (int32*) pOutValue ) = GetSettings<ConstIntNode>()->m_value;
     }
 
     //-------------------------------------------------------------------------
 
-    void ConstValueTarget::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void ConstFloatNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
-        auto pNode = CreateNode<ConstValueTarget>( nodePtrs, options );
+        auto pNode = CreateNode<ConstFloatNode>( nodePtrs, options );
     }
 
-    void ConstValueTarget::GetValueInternal( GraphContext& context, void* pOutValue )
+    void ConstFloatNode::GetValueInternal( GraphContext& context, void* pOutValue )
     {
-        *( (Target*) pOutValue ) = GetSettings<ConstValueTarget>()->m_value;
+        *( (float*) pOutValue ) = GetSettings<ConstFloatNode>()->m_value;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ConstVectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ConstVectorNode>( nodePtrs, options );
+    }
+
+    void ConstVectorNode::GetValueInternal( GraphContext& context, void* pOutValue )
+    {
+        *( (Vector*) pOutValue ) = GetSettings<ConstVectorNode>()->m_value;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ConstTargetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    {
+        auto pNode = CreateNode<ConstTargetNode>( nodePtrs, options );
+    }
+
+    void ConstTargetNode::GetValueInternal( GraphContext& context, void* pOutValue )
+    {
+        *( (Target*) pOutValue ) = GetSettings<ConstTargetNode>()->m_value;
     }
 }

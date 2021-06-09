@@ -6,38 +6,35 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Animation
 {
-    namespace Animation
+    class Pose;
+
+    //-------------------------------------------------------------------------
+
+    class KRG_ENGINE_ANIMATION_API AnimatedMeshComponent : public Render::SkeletalMeshComponent
     {
-        class Pose;
+        KRG_REGISTER_ENTITY_COMPONENT( AnimatedMeshComponent );
 
-        //-------------------------------------------------------------------------
+    public:
 
-        class KRG_ENGINE_ANIMATION_API AnimatedMeshComponent : public Render::SkeletalMeshComponent
-        {
-            KRG_REGISTER_ENTITY_COMPONENT( AnimatedMeshComponent );
+        using Render::SkeletalMeshComponent::SkeletalMeshComponent;
 
-        public:
+        inline Skeleton const* GetSkeleton() const { return m_pSkeleton.GetPtr(); }
+        void SetSkeleton( ResourceID skeletonResourceID );
 
-            using Render::SkeletalMeshComponent::SkeletalMeshComponent;
+        void SetPose( Pose const* pPose );
 
-            inline Skeleton const* GetSkeleton() const { return m_pSkeleton.GetPtr(); }
-            void SetSkeleton( ResourceID skeletonResourceID );
+    private:
 
-            void SetPose( Pose const* pPose );
+        virtual void Initialize() override final;
+        virtual void Shutdown() override final;
 
-        private:
+        void GenerateBoneMap();
 
-            virtual void Initialize() override final;
-            virtual void Shutdown() override final;
+    private:
 
-            void GenerateBoneMap();
-
-        private:
-
-            EXPOSE TResourcePtr<Skeleton>           m_pSkeleton = nullptr;
-            TVector<int32>                            m_animToMeshBoneMap;
-        };
-    }
+        EXPOSE TResourcePtr<Skeleton>               m_pSkeleton = nullptr;
+        TVector<int32>                              m_animToMeshBoneMap;
+    };
 }

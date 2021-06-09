@@ -4,7 +4,7 @@
 #include "ResourceCompilationRequest.h"
 #include "CompiledResourceDatabase.h"
 #include "Tools/Core/FileSystem/FileSystemWatcher.h"
-#include "Tools/Resource/Compilers/ResourceCompilerRegistry.h"
+#include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 #include "Tools/Animation/_Module/Module.h"
 #include "Tools/Render/_Module/Module.h"
 #include "Tools/Physics/_Module/Module.h"

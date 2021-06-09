@@ -4,15 +4,15 @@
   "Items": [
     {
       "Id": "ffc2057f-4c77-47e0-b51d-fa87044e10e8",
-      "Command": "-mode AnimGraphToolkit"
+      "Command": "-mode AnimationGraphEditor"
     },
     {
       "Id": "62dddc95-4de0-42e8-9027-c987b921a39c",
-      "Command": "-mode AnimationToolkit"
+      "Command": "-mode AnimationClipEditor"
     },
     {
       "Id": "ab95a3f7-d8cc-4fcf-9ea0-e1ebd780f416",
-      "Command": "-mode MeshToolkit"
+      "Command": "-mode MeshEditor"
     }
   ]
 }

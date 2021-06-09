@@ -26,7 +26,7 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PassthroughNode::Settings, m_desiredHeadingVelocityNodeIdx, m_desiredFacingDirectionNodeIdx, m_linearVelocityLimitNodeIdx, m_angularVelocityLimitNodeIdx, m_maxLinearVelocity, m_maxAngularVelocity, m_overrideFlags );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex                        m_desiredHeadingVelocityNodeIdx = InvalidIndex;
             NodeIndex                        m_desiredFacingDirectionNodeIdx = InvalidIndex;
@@ -42,16 +42,16 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        virtual UpdateResult Update( GraphContext& context ) override;
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual PoseNodeResult Update( GraphContext& context ) override;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
 
-        void ModifyDisplacement( GraphContext& context, UpdateResult& NodeResult ) const;
+        void ModifyDisplacement( GraphContext& context, PoseNodeResult& NodeResult ) const;
 
     private:
 
-        ValueNodeVector*                    m_pDesiredHeadingVelocityNode = nullptr;
-        ValueNodeVector*                    m_pDesiredFacingDirectionNode = nullptr;
-        ValueNodeFloat*                     m_pLinearVelocityLimitNode = nullptr;
-        ValueNodeFloat*                     m_pAngularVelocityLimitNode = nullptr;
+        VectorValueNode*                    m_pDesiredHeadingVelocityNode = nullptr;
+        VectorValueNode*                    m_pDesiredFacingDirectionNode = nullptr;
+        FloatValueNode*                     m_pLinearVelocityLimitNode = nullptr;
+        FloatValueNode*                     m_pAngularVelocityLimitNode = nullptr;
     };
 }

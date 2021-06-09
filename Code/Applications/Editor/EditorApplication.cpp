@@ -58,7 +58,7 @@ namespace KRG
         // Create editor
         //-------------------------------------------------------------------------
 
-        auto pEditor = EditorToolkitRegistry::TryCreateEditor( editorModeID );
+        auto pEditor = EditorRegistry::TryCreateEditor( editorModeID );
         if ( pEditor == nullptr )
         {
             return FatalError( String().sprintf( "Couldn't find editor mode: %s", editorModeID.c_str() ) );

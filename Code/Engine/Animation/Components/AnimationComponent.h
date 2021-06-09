@@ -33,7 +33,8 @@ namespace KRG
             virtual Pose const* GetPose() const = 0;
 
             // Run the animation update
-            virtual void Update( UpdateContext const& ctx ) = 0;
+            virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) = 0;
+            virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) = 0;
         };
     }
 }

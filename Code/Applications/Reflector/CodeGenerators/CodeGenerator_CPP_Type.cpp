@@ -41,9 +41,9 @@ namespace KRG::CPP
         file << "    }\n";
     }
 
-    static void GenerateFactoryMethod( std::stringstream& file, ReflectedType const& type )
+    static void GenerateCreationMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void* CreateType() const override final\n";
+        file << "                virtual IRegisteredType* CreateType() const override final\n";
         file << "                {\n";
         if ( !type.IsAbstract() )
         {
@@ -57,9 +57,9 @@ namespace KRG::CPP
         file << "                }\n\n";
     }
 
-    static void GenerateInPlaceFactoryMethod( std::stringstream& file, ReflectedType const& type )
+    static void GenerateInPlaceCreationMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void CreateTypeInPlace( void* pAllocatedMemory ) const override final\n";
+        file << "                virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final\n";
         file << "                {\n";
         if ( !type.IsAbstract() )
         {
@@ -79,7 +79,7 @@ namespace KRG::CPP
 
     static void GenerateArrayAccessorMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual Byte* GetArrayElementDataPtr( void* pType, uint32 arrayID, size_t arrayIdx ) const override final\n";
+        file << "                virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final\n";
         file << "                {\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n\n";
 
@@ -113,7 +113,7 @@ namespace KRG::CPP
 
     static void GenerateArraySizeMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual size_t GetArraySize( void const* pTypeInstance, uint32 arrayID ) const override final\n";
+        file << "                virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final\n";
         file << "                {\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << " const*>( pTypeInstance );\n\n";
 
@@ -167,7 +167,7 @@ namespace KRG::CPP
 
     static void GenerateArrayClearMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void ClearArray( void* pTypeInstance, uint32 arrayID ) const override final\n";
+        file << "                virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final\n";
         file << "                {\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pTypeInstance );\n\n";
 
@@ -190,7 +190,7 @@ namespace KRG::CPP
 
     static void GenerateAddArrayElementMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void AddArrayElement( void* pTypeInstance, uint32 arrayID ) const override final\n";
+        file << "                virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final\n";
         file << "                {\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pTypeInstance );\n\n";
 
@@ -213,7 +213,7 @@ namespace KRG::CPP
 
     static void GenerateRemoveArrayElementMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void RemoveArrayElement( void* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final\n";
+        file << "                virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final\n";
         file << "                {\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pTypeInstance );\n\n";
 
@@ -240,7 +240,7 @@ namespace KRG::CPP
 
     static void GenerateAreAllPropertiesEqualMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual bool AreAllPropertyValuesEqual( void const* pTypeInstance, void const* pOtherTypeInstance ) const override final\n";
+        file << "                virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final\n";
         file << "                {\n";
         file << "                    auto pTypeHelper = " << type.m_namespace.c_str() << type.m_name.c_str() << "::s_pTypeInfo->m_pTypeHelper;\n";
         file << "                    auto pType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << " const*>( pTypeInstance );\n";
@@ -260,7 +260,7 @@ namespace KRG::CPP
 
     static void GenerateIsPropertyEqualMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual bool IsPropertyValueEqual( void const* pTypeInstance, void const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final\n";
+        file << "                virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final\n";
         file << "                {\n";
         file << "                    auto pType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << " const*>( pTypeInstance );\n";
         file << "                    auto pOtherType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << " const*>( pOtherTypeInstance );\n\n";
@@ -373,7 +373,7 @@ namespace KRG::CPP
 
     static void GenerateSetToDefaultValueMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void ResetToDefault( void* pTypeInstance, uint32 propertyID ) override final\n";
+        file << "                virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final\n";
         file << "                {\n";
         file << "                    auto pDefaultType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << " const*>( GetDefaultTypeInstancePtr() );\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pTypeInstance );\n\n";
@@ -408,7 +408,7 @@ namespace KRG::CPP
 
     static void GenerateExpectedResourceTypeMethod( std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual ResourceTypeID GetExpectedResourceTypeForProperty( void* pType, uint32 propertyID ) const override final\n";
+        file << "                virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final\n";
         file << "                {\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n";
 
@@ -438,7 +438,7 @@ namespace KRG::CPP
 
     static void GenerateLoadResourcesMethod( ReflectionDatabase const& database, std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final\n";
+        file << "                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final\n";
         file << "                {\n";
         file << "                    KRG_ASSERT( pResourceSystem != nullptr );\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n\n";
@@ -509,7 +509,7 @@ namespace KRG::CPP
 
     static void GenerateUnloadResourcesMethod( ReflectionDatabase const& database, std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, void* pType ) const override final\n";
+        file << "                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final\n";
         file << "                {\n";
         file << "                    KRG_ASSERT( pResourceSystem != nullptr );\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n\n";
@@ -580,7 +580,7 @@ namespace KRG::CPP
 
     static void GenerateResourceLoadingStatusMethod( ReflectionDatabase const& database, std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual LoadingStatus GetResourceLoadingStatus( void* pType ) const override final\n";
+        file << "                virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final\n";
         file << "                {\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n";
         file << "                    LoadingStatus status = LoadingStatus::Loaded;\n\n";
@@ -676,7 +676,7 @@ namespace KRG::CPP
 
     static void GenerateResourceUnloadingStatusMethod( ReflectionDatabase const& database, std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual LoadingStatus GetResourceUnloadingStatus( void* pType ) const override final\n";
+        file << "                virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final\n";
         file << "                {\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n";
         file << "                    LoadingStatus status = LoadingStatus::Unloading;\n\n";
@@ -893,7 +893,7 @@ namespace KRG::CPP
         //-------------------------------------------------------------------------
 
         file << "        template<>\n";
-        file << "        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << "> >( void const* pDefaultTypeInstance )\n";
+        file << "        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << "> >( IRegisteredType const* pDefaultTypeInstance )\n";
         file << "        {\n";
 
         // Create the default type instance to use as a reference for default values
@@ -923,8 +923,8 @@ namespace KRG::CPP
         // Create default type instance
         if ( !type.IsAbstract() )
         {
-            file << "                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );\n";
-            file << "                    pDefaultTypeInstance = KRG::Alloc( sizeof( " << type.m_namespace.c_str() << type.m_name.c_str() << " ), alignof( " << type.m_namespace.c_str() << type.m_name.c_str() << " ) );\n";
+            file << "                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );\n";
+            file << "                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( " << type.m_namespace.c_str() << type.m_name.c_str() << " ), alignof( " << type.m_namespace.c_str() << type.m_name.c_str() << " ) );\n";
             file << "                    new ( pDefaultTypeInstance ) " << type.m_namespace.c_str() << type.m_name.c_str() << ";\n\n";
         }
 
@@ -936,7 +936,11 @@ namespace KRG::CPP
         file << "                    typeInfo.m_pTypeHelper = &StaticTypeHelper; \n";
 
         // Add type metadata
-        if ( type.IsEntity() )
+        if ( type.IsAbstract() )
+        {
+            file << "                    typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::Abstract );\n\n";
+        }
+        else if ( type.IsEntity() )
         {
             file << "                    typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::Entity );\n\n";
         }
@@ -992,7 +996,7 @@ namespace KRG::CPP
         // Destroy default type instance
         if ( !type.IsAbstract() )
         {
-            file << "                    void*& pDefaultTypeInstance = const_cast<void*&>( s_pDefaultTypeInstancePtr );\n";
+            file << "                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );\n";
             file << "                    reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pDefaultTypeInstance )->~" << type.m_name.c_str() << "();\n";
             file << "                    KRG::Free( pDefaultTypeInstance );\n";
         }
@@ -1032,16 +1036,16 @@ namespace KRG::CPP
         file << "            class " << exportMacro.c_str() << " TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << "> final : public ITypeHelper\n";
         file << "            {\n";
         file << "                static TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << "> StaticTypeHelper;\n\n";
-        file << "                static void const* s_pDefaultTypeInstancePtr;\n\n";
+        file << "                static IRegisteredType const* s_pDefaultTypeInstancePtr;\n\n";
 
         file << "            public:\n\n";
 
-        file << "                virtual void const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }\n\n";
+        file << "                virtual IRegisteredType const* GetDefaultTypeInstancePtr() const override { return s_pDefaultTypeInstancePtr; }\n\n";
 
         GenerateTypeRegistrationMethod( file, type, parentDescs );
         GenerateTypeUnregistrationMethod( file, type );
-        GenerateFactoryMethod( file, type );
-        GenerateInPlaceFactoryMethod( file, type );
+        GenerateCreationMethod( file, type );
+        GenerateInPlaceCreationMethod( file, type );
         GenerateLoadResourcesMethod( database, file, type );
         GenerateUnloadResourcesMethod( database, file, type );
         GenerateResourceLoadingStatusMethod( database, file, type );
@@ -1081,7 +1085,7 @@ namespace KRG::CPP
         file << "        namespace TypeHelpers\n";
         file << "        {\n";
 
-        file << "            void const* TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << ">::s_pDefaultTypeInstancePtr = nullptr;\n\n";
+        file << "            IRegisteredType const* TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << ">::s_pDefaultTypeInstancePtr = nullptr;\n\n";
         file << "            TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << "> TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << ">::StaticTypeHelper;\n";
 
         file << "        }\n";

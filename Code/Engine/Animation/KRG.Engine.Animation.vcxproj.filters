@@ -72,13 +72,13 @@
     <ClCompile Include="Events\AnimationEvent_Footstep.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="Graph\AnimationGraph.cpp">
+    <ClCompile Include="Graph\AnimationGraphInstance.cpp">
       <Filter>Graph</Filter>
     </ClCompile>
     <ClCompile Include="Graph\AnimationGraphBoneMaskPool.cpp">
       <Filter>Graph</Filter>
     </ClCompile>
-    <ClCompile Include="Graph\AnimationGraphDataset.cpp">
+    <ClCompile Include="Graph\AnimationGraphResources.cpp">
       <Filter>Graph</Filter>
     </ClCompile>
     <ClCompile Include="Graph\AnimationGraphEvents.cpp">
@@ -111,7 +111,7 @@
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_AnimationClip.cpp">
       <Filter>Graph\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_ControlParameters.cpp">
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Parameters.cpp">
       <Filter>Graph\Nodes</Filter>
     </ClCompile>
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_RangedBlends.cpp">
@@ -137,9 +137,6 @@
     </ClCompile>
     <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Sample.cpp">
       <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceLoaders\AnimationGraphDataSetLoader.cpp">
-      <Filter>ResourceLoaders</Filter>
     </ClCompile>
     <ClCompile Include="ResourceLoaders\AnimationGraphLoader.cpp">
       <Filter>ResourceLoaders</Filter>
@@ -200,7 +197,7 @@
     <ClInclude Include="Events\AnimationEvent_Footstep.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="Graph\AnimationGraph.h">
+    <ClInclude Include="Graph\AnimationGraphInstance.h">
       <Filter>Graph</Filter>
     </ClInclude>
     <ClInclude Include="Graph\AnimationGraphBoneMaskPool.h">
@@ -209,7 +206,7 @@
     <ClInclude Include="Graph\AnimationGraphCommon.h">
       <Filter>Graph</Filter>
     </ClInclude>
-    <ClInclude Include="Graph\AnimationGraphDataset.h">
+    <ClInclude Include="Graph\AnimationGraphResources.h">
       <Filter>Graph</Filter>
     </ClInclude>
     <ClInclude Include="Graph\AnimationGraphEvents.h">
@@ -230,7 +227,7 @@
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_ConstValues.h">
       <Filter>Graph\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_ControlParameters.h">
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Parameters.h">
       <Filter>Graph\Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Math.h">
@@ -268,9 +265,6 @@
     </ClInclude>
     <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Sample.h">
       <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceLoaders\AnimationGraphDataSetLoader.h">
-      <Filter>ResourceLoaders</Filter>
     </ClInclude>
     <ClInclude Include="ResourceLoaders\AnimationGraphLoader.h">
       <Filter>ResourceLoaders</Filter>

@@ -1,5 +1,5 @@
 #include "ResourceServer.h"
-#include "Tools/Resource/Compilers/ResourceCompiler.h"
+#include "Tools/Core/Resource/Compilers/ResourceCompiler.h"
 #include "System/Resource/ResourceProviders/ResourceNetworkMessages.h"
 #include "System/Core/ThirdParty/iniparser/krg_ini.h"
 #include "System/Core/FileSystem/FileSystem.h"

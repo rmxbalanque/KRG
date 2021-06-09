@@ -41,7 +41,7 @@ namespace KRG::ImGuiX
         //-------------------------------------------------------------------------
 
         Vector const offsetStart = start + ( arrowDirection * g_originSphereAxisOffset );
-        uint32 const axisColor = ConvertColorU32( color );
+        uint32 const axisColor = ConvertColor( color );
         pDrawList->AddLine( offsetStart.ToFloat2(), arrowHeadBase + arrowDirection, axisColor, g_axisThickness );
         pDrawList->AddTriangleFilled( end.ToFloat2(), arrowHeadBase - orthogonalOffset, arrowHeadBase + orthogonalOffset, axisColor );
 
@@ -92,8 +92,8 @@ namespace KRG::ImGuiX
             quadVerts[3].ToFloat2(),
         };
 
-        pDrawList->AddPolyline( drawQuadVerts, 4, ConvertColorU32( color ), true, 1.0f );
-        pDrawList->AddConvexPolyFilled( drawQuadVerts, 4, ConvertColorU32( color.GetAlphaVersion( 0.75f ) ) );
+        pDrawList->AddPolyline( drawQuadVerts, 4, ConvertColor( color ), true, 1.0f );
+        pDrawList->AddConvexPolyFilled( drawQuadVerts, 4, ConvertColor( color.GetAlphaVersion( 0.75f ) ) );
 
         //-------------------------------------------------------------------------
 
@@ -292,7 +292,7 @@ namespace KRG::ImGuiX
             auto lineLength = ( axis * 10000 );
             auto lineStart = m_origin_SS + lineLength;
             auto lineEnd = m_origin_SS - lineLength;
-            pDrawList->AddLine( lineStart.ToFloat2(), lineEnd.ToFloat2(), ConvertColorU32( color ), g_axisGuideThickness );
+            pDrawList->AddLine( lineStart.ToFloat2(), lineEnd.ToFloat2(), ConvertColor( color ), g_axisGuideThickness );
         };
 
         if ( m_mode == ManipulationMode::TranslateX )

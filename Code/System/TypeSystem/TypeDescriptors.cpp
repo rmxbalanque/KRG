@@ -70,7 +70,7 @@ namespace KRG::TypeSystem
             // Calculate the address of the resolved property
             if ( pFoundPropertyInfo->IsArrayProperty() )
             {
-                resolvedPathElement.m_pAddress = pResolvedTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( pResolvedTypeInstance, path[i].m_propertyID, path[i].m_arrayElementIdx );
+                resolvedPathElement.m_pAddress = pResolvedTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( reinterpret_cast<IRegisteredType*>( pResolvedTypeInstance ), path[i].m_propertyID, path[i].m_arrayElementIdx );
             }
             else // Structure/Type
             {

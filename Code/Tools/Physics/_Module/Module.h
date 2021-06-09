@@ -3,7 +3,7 @@
 #include "API.h"
 #include "Tools/Physics/ResourceCompilers/PhysicsMeshCompiler.h"
 #include "Tools/Physics/ResourceCompilers/PhysicsMaterialDatabaseCompiler.h"
-#include "Tools/Resource/Compilers/ResourceCompilerRegistry.h"
+#include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 
 //-------------------------------------------------------------------------
 

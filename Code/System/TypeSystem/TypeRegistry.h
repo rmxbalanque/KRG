@@ -52,7 +52,7 @@ namespace KRG
             TVector<TypeInfo const*> GetAllTypesWithMatchingMetadata( TBitFlags<ETypeInfoMetaData> metadataFlags ) const;
 
             // Return all types that derived from a specified type
-            TVector<TypeInfo const*> GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults = false ) const;
+            TVector<TypeInfo const*> GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults = false, bool includeAbstractTypes = true ) const;
 
             //-------------------------------------------------------------------------
             // Enums

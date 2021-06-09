@@ -52,7 +52,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::Camera::CameraComponent>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::Camera::CameraComponent>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Camera::CameraComponent> TTypeHelper<KRG::Camera::CameraComponent>::StaticTypeHelper;
         }

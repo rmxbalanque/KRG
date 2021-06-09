@@ -1,8 +1,9 @@
 #pragma once
 #include "_Module/API.h"
-#include "System/TypeSystem/PropertyPath.h"
-#include "System/TypeSystem/CoreTypeIDs.h"
-#include "System/TypeSystem/CoreTypeConversions.h"
+#include "TypeRegistrationMacros.h"
+#include "PropertyPath.h"
+#include "CoreTypeIDs.h"
+#include "CoreTypeConversions.h"
 
 //-------------------------------------------------------------------------
 // Basic descriptor of a KRG reflected property
@@ -144,7 +145,7 @@ namespace KRG::TypeSystem
 
         // Warning! Do not use this function on an existing type instance of type T since it will not call the destructor and so will leak, only use on uninitialized memory
         template<typename T>
-        [[nodiscard]] inline static T* CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, TypeDescriptor const& typeDesc, void* pAllocatedMemoryForInstance )
+        [[nodiscard]] inline static T* CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, TypeDescriptor const& typeDesc, IRegisteredType* pAllocatedMemoryForInstance )
         {
             KRG_ASSERT( pTypeInfo != nullptr && pTypeInfo->m_ID == typeDesc.m_typeID );
             KRG_ASSERT( pTypeInfo->IsDerivedFrom<T>() );
@@ -208,7 +209,7 @@ namespace KRG::TypeSystem
             for ( int32 i = 0; i < numDescs; i++ )
             {
                 pTypeMemory += collection.m_typePaddings[i];
-                outTypes.emplace_back( TypeCreator::CreateTypeFromDescriptor<T>( typeRegistry, collection.m_typeInfos[i], collection.m_descriptors[i], pTypeMemory ) );
+                outTypes.emplace_back( TypeCreator::CreateTypeFromDescriptor<T>( typeRegistry, collection.m_typeInfos[i], collection.m_descriptors[i], (IRegisteredType*) pTypeMemory ) );
                 pTypeMemory += collection.m_typeSizes[i];
             }
 

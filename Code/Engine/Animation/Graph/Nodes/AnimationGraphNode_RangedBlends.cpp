@@ -6,7 +6,64 @@
 
 namespace KRG::Animation::Graph
 {
-    void ParameterizedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    ParameterizedBlendNode::Parameterization ParameterizedBlendNode::Parameterization::CreateParameterization( TInlineVector<NodeIndex, 5> const& sourceIndices, TInlineVector<float, 5> values )
+    {
+        struct IndexValuePair
+        {
+            NodeIndex       m_idx;
+            float           m_value;
+        };
+
+        // Create sorted list of index/value pairs
+        //-------------------------------------------------------------------------
+
+        TInlineVector<IndexValuePair, 10> sortedIndexValuePairs;
+
+        int32 const numSources = (int32) sourceIndices.size();
+        for ( int32 i = 0; i < numSources; i++ )
+        {
+            sortedIndexValuePairs[i].m_idx = sourceIndices[i];
+            sortedIndexValuePairs[i].m_value = values[i];
+        }
+
+        // Sort the options based on value
+        //-------------------------------------------------------------------------
+
+        auto SortPredicate = [] ( IndexValuePair const& a, IndexValuePair const& b )
+        {
+            if ( a.m_value == b.m_value )
+            {
+                return a.m_idx < b.m_idx;
+            }
+
+            return a.m_value < b.m_value;
+        };
+
+        eastl::sort( sortedIndexValuePairs.begin(), sortedIndexValuePairs.end(), SortPredicate );
+
+        // Create the parameterization
+        //-------------------------------------------------------------------------
+
+        Parameterization parameterization;
+
+        int32 const numBlendRanges = numSources - 1;
+        parameterization.m_blendRanges.resize( numBlendRanges );
+        for ( auto i = 0; i < numBlendRanges; i++ )
+        {
+            KRG_ASSERT( sortedIndexValuePairs[i].m_value <= sortedIndexValuePairs[i + 1].m_value );
+            parameterization.m_blendRanges[i].m_sourceIdx0 = sortedIndexValuePairs[i].m_idx;
+            parameterization.m_blendRanges[i].m_sourceIdx1 = sortedIndexValuePairs[i + 1].m_idx;
+            parameterization.m_blendRanges[i].m_parameterValueRange = FloatRange( sortedIndexValuePairs[i].m_value, sortedIndexValuePairs[i + 1].m_value );
+        }
+
+        parameterization.m_parameterRange = FloatRange( sortedIndexValuePairs.front().m_value, sortedIndexValuePairs.back().m_value );
+
+        return parameterization;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ParameterizedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         KRG_ASSERT( options == GraphNode::Settings::InitOptions::OnlySetPointers );
         auto pNode = CreateNode<VelocityBlendNode>( nodePtrs, options );
@@ -22,7 +79,7 @@ namespace KRG::Animation::Graph
 
     bool ParameterizedBlendNode::IsValid() const
     {
-        if ( !AnimationNode::IsValid() )
+        if ( !PoseNode::IsValid() )
         {
             return false;
         }
@@ -48,7 +105,7 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( context.IsValid() );
         KRG_ASSERT( m_pInputParameterValueNode != nullptr && m_sourceNodes.size() > 1 );
 
-        AnimationNode::InitializeInternal( context, initialTime );
+        PoseNode::InitializeInternal( context, initialTime );
 
         for ( auto pSourceNode : m_sourceNodes )
         {
@@ -104,7 +161,7 @@ namespace KRG::Animation::Graph
             Source->Shutdown( context );
         }
 
-        AnimationNode::ShutdownInternal( context );
+        PoseNode::ShutdownInternal( context );
     }
 
     void ParameterizedBlendNode::SelectBlendRange( GraphContext& context)
@@ -140,7 +197,7 @@ namespace KRG::Animation::Graph
 
         if ( IsValid() )
         {
-            AnimationNode::DeactivateBranch( context );
+            PoseNode::DeactivateBranch( context );
 
             for ( auto pSource0 : m_sourceNodes )
             {
@@ -152,7 +209,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    SampledEventRange ParameterizedBlendNode::CombineAndUpdateEvents( GraphContext& context, UpdateResult const& sourceResult0, UpdateResult const& sourceResult1, float const blendWeight )
+    SampledEventRange ParameterizedBlendNode::CombineAndUpdateEvents( GraphContext& context, PoseNodeResult const& sourceResult0, PoseNodeResult const& sourceResult1, float const blendWeight )
     {
         SampledEventRange combinedRange;
         SampledEventRange const& sourceEventRange0 = sourceResult0.m_sampledEventRange;
@@ -208,11 +265,11 @@ namespace KRG::Animation::Graph
         return combinedRange;
     }
 
-    UpdateResult ParameterizedBlendNode::Update( GraphContext& context )
+    PoseNodeResult ParameterizedBlendNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
-        UpdateResult result;
+        PoseNodeResult result;
 
         if ( !IsValid() )
         {
@@ -227,7 +284,7 @@ namespace KRG::Animation::Graph
         {
             Percentage const deltaPercentage = Percentage( context.m_deltaTime / m_duration );
             Percentage const fromTime = m_currentTime;
-            Percentage const toTime = Percentage::Clamp( m_currentTime + deltaPercentage, pSettings->m_allowLooping );
+            Percentage const toTime = Percentage::Clamp( m_currentTime + deltaPercentage );
 
             SyncTrackTimeRange UpdateRange;
             UpdateRange.m_startTime = m_blendedSyncTrack.GetTime( fromTime );
@@ -264,8 +321,8 @@ namespace KRG::Animation::Graph
                 #endif
 
                 // Update source nodes
-                UpdateResult const sourceResult0 = pSource0->Update( context );
-                UpdateResult const sourceResult1 = pSource1->Update( context );
+                PoseNodeResult const sourceResult0 = pSource0->Update( context );
+                PoseNodeResult const sourceResult1 = pSource1->Update( context );
 
                 // Update internal time
                 m_duration = Math::Lerp( pSource0->GetDuration(), pSource1->GetDuration(), m_blendWeight );
@@ -318,7 +375,7 @@ namespace KRG::Animation::Graph
                 if ( pSourceNode != pSource0 && pSourceNode != pSource1 )
                 {
                     auto const taskMarker = context.m_pTaskSystem->GetCurrentTaskIndexMarker();
-                    UpdateResult const updateResult = static_cast<AnimationNode*>( pSourceNode )->Update( context );
+                    PoseNodeResult const updateResult = static_cast<PoseNode*>( pSourceNode )->Update( context );
                     context.m_sampledEvents.UpdateWeights( updateResult.m_sampledEventRange, 0.0f );
                     context.m_pTaskSystem->RollbackToTaskIndexMarker( taskMarker );
                 }
@@ -328,11 +385,11 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    UpdateResult ParameterizedBlendNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    PoseNodeResult ParameterizedBlendNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
-        UpdateResult result;
+        PoseNodeResult result;
 
         if ( IsValid() )
         {
@@ -364,8 +421,8 @@ namespace KRG::Animation::Graph
                 context.GetRootMotionActionRecorder()->PushBlendHierarchyLevel();
                 #endif
 
-                UpdateResult const sourceResult0 = pSource0->Update( context, updateRange );
-                UpdateResult const sourceResult1 = pSource1->Update( context, updateRange );
+                PoseNodeResult const sourceResult0 = pSource0->Update( context, updateRange );
+                PoseNodeResult const sourceResult1 = pSource1->Update( context, updateRange );
                 if ( sourceResult0.HasRegisteredTasks() && sourceResult1.HasRegisteredTasks() )
                 {
                     result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIdx(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight, PoseBlendOptions::Interpolate );
@@ -401,77 +458,42 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void RangedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void RangedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<RangedBlendNode>( nodePtrs, options );
-        ParameterizedBlendNode::Settings::InstantiateNode( nodePtrs, GraphNode::Settings::InitOptions::OnlySetPointers );
+        ParameterizedBlendNode::Settings::InstantiateNode( nodePtrs, pDataSet, GraphNode::Settings::InitOptions::OnlySetPointers );
     }
 
     //-------------------------------------------------------------------------
 
-    void VelocityBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const
+    void VelocityBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<VelocityBlendNode>( nodePtrs, options );
-        ParameterizedBlendNode::Settings::InstantiateNode( nodePtrs, GraphNode::Settings::InitOptions::OnlySetPointers );
+        ParameterizedBlendNode::Settings::InstantiateNode( nodePtrs, pDataSet, GraphNode::Settings::InitOptions::OnlySetPointers );
     }
 
     void VelocityBlendNode::InitializeParameterization( GraphContext& context )
     {
-        struct ParameterValue
-        {
-            NodeIndex       m_idx;
-            float           m_value;
-        };
-
-        //-------------------------------------------------------------------------
-
         if ( IsValid() )
         {
-            TInlineVector<ParameterValue, 10> sortedOptions;
+            auto pSettings = GetSettings<VelocityBlendNode>();
 
-            // Get all source velocities
+            // Get source node speeds
             //-------------------------------------------------------------------------
 
-            auto pSettings = GetSettings<VelocityBlendNode>();
+            TInlineVector<float, 5> values;
             int32 const numSources = (int32) pSettings->m_sourceNodeIndices.size();
             for ( NodeIndex i = 0; i < numSources; i++ )
             {
                 AnimationClip const* pAnimation = static_cast<AnimationClipReferenceNode const*>( m_sourceNodes[i] )->GetAnimation();
                 KRG_ASSERT( pAnimation != nullptr );
-
-                sortedOptions[i].m_idx = i;
-                sortedOptions[i].m_value = pAnimation->GetAverageLinearVelocity();
+                values.emplace_back( pAnimation->GetAverageLinearVelocity() );
             }
 
-            // Sort the options based on value
+            // Create parameterization
             //-------------------------------------------------------------------------
 
-            auto SortPredicate = [] ( ParameterValue const& a, ParameterValue const& b )
-            {
-                if ( a.m_value == b.m_value )
-                {
-                    return a.m_idx < b.m_idx;
-                }
-
-                return a.m_value < b.m_value;
-            };
-
-            eastl::sort( sortedOptions.begin(), sortedOptions.end(), SortPredicate );
-
-            // Create the parameterization
-            //-------------------------------------------------------------------------
-
-            int32 const numBlendRanges = numSources - 1;
-            m_parameterization.m_blendRanges.resize( numBlendRanges );
-            for ( auto i = 0; i < numBlendRanges; i++ )
-            {
-                KRG_ASSERT( sortedOptions[i].m_value <= sortedOptions[i + 1].m_value );
-                m_parameterization.m_blendRanges[i].m_sourceIdx0 = sortedOptions[i].m_idx;
-                m_parameterization.m_blendRanges[i].m_sourceIdx1 = sortedOptions[i + 1].m_idx;
-                m_parameterization.m_blendRanges[i].m_parameterValueRange = FloatRange( sortedOptions[i].m_value, sortedOptions[i + 1].m_value );
-            }
-
-            m_parameterization.m_parameterRange = FloatRange( sortedOptions.front().m_value, sortedOptions.back().m_value );
+            m_parameterization = Parameterization::CreateParameterization( pSettings->m_sourceNodeIndices, values );
         }
     }
 

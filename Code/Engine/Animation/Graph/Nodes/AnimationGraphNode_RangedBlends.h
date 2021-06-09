@@ -6,37 +6,43 @@
 
 namespace KRG::Animation::Graph
 {
-    class KRG_ENGINE_ANIMATION_API ParameterizedBlendNode : public AnimationNode
+    class KRG_ENGINE_ANIMATION_API ParameterizedBlendNode : public PoseNode
     {
     public:
 
-        struct KRG_ENGINE_ANIMATION_API Settings : public AnimationNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( AnimationNode::Settings, m_sourceNodeIndices, m_inputParameterValueNodeIdx, m_isSynchronized, m_allowLooping );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_sourceNodeIndices, m_inputParameterValueNodeIdx, m_isSynchronized );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             TInlineVector<NodeIndex, 5>             m_sourceNodeIndices;
             NodeIndex                               m_inputParameterValueNodeIdx = InvalidIndex;
             bool                                    m_isSynchronized = false;
-            bool                                    m_allowLooping = true;
         };
 
-    protected:
+    public:
 
         struct BlendRange
         {
             KRG_SERIALIZE_MEMBERS( m_sourceIdx0, m_sourceIdx1, m_parameterValueRange );
+
+            inline bool operator<( BlendRange const& rhs ) const
+            {
+                return m_parameterValueRange.m_start < rhs.m_parameterValueRange.m_start;
+            }
 
             NodeIndex                               m_sourceIdx0 = InvalidIndex;
             NodeIndex                               m_sourceIdx1 = InvalidIndex;
             FloatRange                              m_parameterValueRange = FloatRange( 0 );
         };
 
-        struct Parameterization
+        struct KRG_ENGINE_ANIMATION_API Parameterization
         {
             KRG_SERIALIZE_MEMBERS( m_blendRanges, m_parameterRange );
+
+            static Parameterization CreateParameterization( TInlineVector<NodeIndex, 5> const& sourceIndices, TInlineVector<float, 5> values );
 
             inline void Reset()
             {
@@ -59,8 +65,8 @@ namespace KRG::Animation::Graph
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void DeactivateBranch( GraphContext& context ) override final;
 
-        virtual UpdateResult Update( GraphContext& context ) override final;
-        virtual UpdateResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override final;
+        virtual PoseNodeResult Update( GraphContext& context ) override final;
+        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override final;
 
         // Parameterization
         //-------------------------------------------------------------------------
@@ -75,12 +81,12 @@ namespace KRG::Animation::Graph
         // Blending
         //-------------------------------------------------------------------------
 
-        [[nodiscard]] SampledEventRange CombineAndUpdateEvents( GraphContext& context, UpdateResult const& SourceTaskResult, UpdateResult const& TargetTaskResult, float const blendWeight );
+        [[nodiscard]] SampledEventRange CombineAndUpdateEvents( GraphContext& context, PoseNodeResult const& SourceTaskResult, PoseNodeResult const& TargetTaskResult, float const blendWeight );
 
     protected:
 
-        TInlineVector<AnimationNode*, 5>            m_sourceNodes;
-        ValueNodeFloat*                             m_pInputParameterValueNode = nullptr;
+        TInlineVector<PoseNode*, 5>                 m_sourceNodes;
+        FloatValueNode*                             m_pInputParameterValueNode = nullptr;
         int32                                       m_selectedRangeIdx = InvalidIndex;
         float                                       m_blendWeight = 0.0f;
         SyncTrack                                   m_blendedSyncTrack;
@@ -97,7 +103,7 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( ParameterizedBlendNode::Settings, m_parameterization );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             Parameterization                        m_parameterization;
         };
@@ -116,7 +122,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public ParameterizedBlendNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:

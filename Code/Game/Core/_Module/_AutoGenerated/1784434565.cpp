@@ -15,7 +15,7 @@ namespace KRG
     {
         namespace TypeHelpers
         {
-            void const* TTypeHelper<KRG::DefaultPlayerController>::s_pDefaultTypeInstancePtr = nullptr;
+            IRegisteredType const* TTypeHelper<KRG::DefaultPlayerController>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::DefaultPlayerController> TTypeHelper<KRG::DefaultPlayerController>::StaticTypeHelper;
         }

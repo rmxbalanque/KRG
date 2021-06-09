@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-mode AnimGraphToolkit</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-mode AnimGraphToolkit</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-mode AnimationGraphEditor</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-mode AnimationGraphEditor</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
