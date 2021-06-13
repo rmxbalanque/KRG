@@ -21,21 +21,24 @@ namespace KRG::Animation
             // If the bone has been masked out
             float const boneBlendWeight = BlendWeight::GetBlendWeight( blendWeight, pBoneMask, boneIdx );
             if ( boneBlendWeight == 0.0f )
-            {
+            { 
                 pResultPose->SetTransform( boneIdx, pSourcePose->GetTransform( boneIdx ) );
             }
             else // Perform Blend
             {
+                Transform const& sourceTransform = pSourcePose->GetTransform( boneIdx );
+                Transform const& targetTransform = pTargetPose->GetTransform( boneIdx );
+
                 // Blend translations
-                Vector const translation = Blender::BlendTranslation( pSourcePose->GetTransform( boneIdx ).GetTranslation(), pTargetPose->GetTransform( boneIdx ).GetTranslation(), boneBlendWeight );
+                Vector const translation = Blender::BlendTranslation( sourceTransform.GetTranslation(), targetTransform.GetTranslation(), boneBlendWeight );
                 pResultPose->SetTranslation( boneIdx, translation );
 
                 // Blend scales
-                Vector const scale = Blender::BlendScale( pSourcePose->GetTransform( boneIdx ).GetScale(), pTargetPose->GetTransform( boneIdx ).GetScale(), boneBlendWeight );
+                Vector const scale = Blender::BlendScale( sourceTransform.GetScale(), targetTransform.GetScale(), boneBlendWeight );
                 pResultPose->SetScale( boneIdx, scale );
 
                 // Blend rotations
-                Quaternion const rotation = Blender::BlendRotation( pSourcePose->GetTransform( boneIdx ).GetRotation(), pTargetPose->GetTransform( boneIdx ).GetRotation(), boneBlendWeight );
+                Quaternion const rotation = Blender::BlendRotation( sourceTransform.GetRotation(), targetTransform.GetRotation(), boneBlendWeight );
                 pResultPose->SetRotation( boneIdx, rotation );
             }
         }
@@ -170,24 +173,24 @@ namespace KRG::Animation
         {
             if ( blendOptions.IsFlagSet( PoseBlendOptions::GlobalSpace ) )
             {
-                if ( blendOptions.IsFlagSet( PoseBlendOptions::Interpolate ) )
-                {
-                    BlenderGlobal<InterpolativeBlender, BlendWeight>( pSourcePose, pTargetPose, blendWeight, nullptr, pResultPose );
-                }
-                else if ( blendOptions.IsFlagSet( PoseBlendOptions::Additive ) )
+                if ( blendOptions.IsFlagSet( PoseBlendOptions::Additive ) )
                 {
                     BlenderGlobal<AdditiveBlender, BlendWeight>( pSourcePose, pTargetPose, blendWeight, nullptr, pResultPose );
+                }
+                else
+                {
+                    BlenderGlobal<InterpolativeBlender, BlendWeight>( pSourcePose, pTargetPose, blendWeight, nullptr, pResultPose );
                 }
             }
             else
             {
-                if ( blendOptions.IsFlagSet( PoseBlendOptions::Interpolate ) )
-                {
-                    BlenderLocal<InterpolativeBlender, BlendWeight>( pSourcePose, pTargetPose, blendWeight, nullptr, pResultPose );
-                }
-                else if ( blendOptions.IsFlagSet( PoseBlendOptions::Additive ) )
+                if ( blendOptions.IsFlagSet( PoseBlendOptions::Additive ) )
                 {
                     BlenderLocal<AdditiveBlender, BlendWeight>( pSourcePose, pTargetPose, blendWeight, nullptr, pResultPose );
+                }
+                else
+                {
+                    BlenderLocal<InterpolativeBlender, BlendWeight>( pSourcePose, pTargetPose, blendWeight, nullptr, pResultPose );
                 }
             }
         }
@@ -197,28 +200,28 @@ namespace KRG::Animation
             {
                 KRG_ASSERT( !pResultPose->HasGlobalTransforms() ); // Ensure we dont have any cached transforms that might screw up the local space transformation
 
-                if ( blendOptions.IsFlagSet( PoseBlendOptions::Interpolate ) )
-                {
-                    BlenderGlobal<InterpolativeBlender, BoneWeight>( pSourcePose, pTargetPose, blendWeight, pBoneMask, pResultPose );
-                }
-                else if ( blendOptions.IsFlagSet( PoseBlendOptions::Additive ) )
+                if ( blendOptions.IsFlagSet( PoseBlendOptions::Additive ) )
                 {
                     BlenderGlobal<AdditiveBlender, BoneWeight>( pSourcePose, pTargetPose, blendWeight, pBoneMask, pResultPose );
+                }
+                else
+                {
+                    BlenderGlobal<InterpolativeBlender, BoneWeight>( pSourcePose, pTargetPose, blendWeight, pBoneMask, pResultPose );
                 }
             }
             else
             {
-                if ( blendOptions.IsFlagSet( PoseBlendOptions::Interpolate ) )
-                {
-                    BlenderLocal<InterpolativeBlender, BoneWeight>( pSourcePose, pTargetPose, blendWeight, pBoneMask, pResultPose );
-                }
-                else if ( blendOptions.IsFlagSet( PoseBlendOptions::Additive ) )
+                if ( blendOptions.IsFlagSet( PoseBlendOptions::Additive ) )
                 {
                     BlenderLocal<AdditiveBlender, BoneWeight>( pSourcePose, pTargetPose, blendWeight, pBoneMask, pResultPose );
                 }
+                else
+                {
+                    BlenderLocal<InterpolativeBlender, BoneWeight>( pSourcePose, pTargetPose, blendWeight, pBoneMask, pResultPose );
+                }
             }
 
-            // Ensure that the unmasked bones maS32ain their global transforms
+            // Ensure that the unmasked bones maintain their global transforms
             if ( blendOptions.IsFlagSet( PoseBlendOptions::LockUnmaskedBones ) )
             {
                 LockUnmaskedBones( pSourcePose, pBoneMask, pResultPose );

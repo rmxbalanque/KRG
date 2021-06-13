@@ -1,6 +1,6 @@
 #pragma once
 #include "../AnimationGraphTools_Node.h"
-#include "Engine/Animation/Graph/Nodes/AnimationGraphNode_RangedBlends.h"
+#include "Engine/Animation/Graph/Nodes/AnimationGraphNode_Blends.h"
 
 //-------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "Blends"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override final { return TBitFlags<GraphType>( GraphType::BlendTree ); }
         virtual bool SupportsDynamicInputPins() const override { return true; }
-        virtual char const* GetDynamicInputPinName() const override { return "Option"; }
+        virtual InlineString<100> GetNewDynamicInputPinName() const override { return "Input"; }
         virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) NodeValueType::Pose; }
 
     protected:
@@ -35,8 +35,13 @@ namespace KRG::Animation::Graph
     {
         KRG_REGISTER_TYPE( RangedBlendToolsNode );
 
+        RangedBlendToolsNode();
+
         virtual char const* GetTypeName() const override { return "Ranged Blend"; }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
+        virtual bool DrawPinControls( GraphEditor::Flow::Pin const& pin ) override;
+        virtual void OnDynamicPinCreation( UUID pinID ) override;
+        virtual void OnDynamicPinDestruction( UUID pinID ) override;
 
     private:
 

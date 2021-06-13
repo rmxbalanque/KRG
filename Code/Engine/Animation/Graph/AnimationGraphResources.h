@@ -13,38 +13,39 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    using DataSetSourceIndex = int16;
+    using DataSetSlotIndex = int16;
 
-    class AnimationGraphDataSet : public Resource::IResource
+    class KRG_ENGINE_ANIMATION_API AnimationGraphDataSet : public Resource::IResource
     {
         KRG_REGISTER_VIRTUAL_RESOURCE( 'AGDS' );
-        KRG_SERIALIZE_MEMBERS( m_name, m_pSkeleton, m_animationClips );
+        KRG_SERIALIZE_MEMBERS( m_variationID, m_pSkeleton, m_resources );
         friend class AnimationGraphCompiler;
         friend class AnimationGraphLoader;
         friend class GraphInstance;
 
     public:
 
-        virtual bool IsValid() const override { return m_name.IsValid() && m_pSkeleton.IsLoaded(); }
+        virtual bool IsValid() const override { return m_variationID.IsValid() && m_pSkeleton.IsLoaded(); }
 
         inline Skeleton const* GetSkeleton() const { return m_pSkeleton.GetPtr(); }
 
-        inline AnimationClip const* GetAnimationClip( DataSetSourceIndex const& ID ) const
+        inline AnimationClip const* GetAnimationClip( DataSetSlotIndex const& ID ) const
         {
-            KRG_ASSERT( ID >= 0 && ID < m_animationClips.size() );
-            return m_animationClips[ID].GetPtr();
+            KRG_ASSERT( ID >= 0 && ID < m_resources.size() );
+            TResourcePtr<AnimationClip> pAnimationClip( m_resources[ID] );
+            return pAnimationClip.GetPtr();
         }
 
     private:
 
-        StringID                                    m_name;
+        StringID                                    m_variationID;
         TResourcePtr<Skeleton>                      m_pSkeleton = nullptr;
-        TVector<TResourcePtr<AnimationClip>>        m_animationClips;
+        TVector<Resource::ResourcePtr>              m_resources;
     };
 
     //-------------------------------------------------------------------------
 
-    class AnimationGraphDefinition : public Resource::IResource
+    class KRG_ENGINE_ANIMATION_API AnimationGraphDefinition : public Resource::IResource
     {
         KRG_REGISTER_RESOURCE( 'AG' );
         KRG_SERIALIZE_MEMBERS( m_persistentNodeIndices, m_instanceNodeStartOffsets, m_instanceRequiredMemory, m_instanceRequiredAlignment, m_numControlParameters, m_rootNodeIdx );
@@ -71,7 +72,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    class AnimationGraphVariation : public Resource::IResource
+    class KRG_ENGINE_ANIMATION_API AnimationGraphVariation : public Resource::IResource
     {
         KRG_REGISTER_RESOURCE( 'AGV' );
         KRG_SERIALIZE_MEMBERS( m_pGraphDefinition, m_pDataSet );
@@ -82,7 +83,7 @@ namespace KRG::Animation
 
     public:
 
-        constexpr static char const* const s_pDefaultVariationName = "Default";
+        static StringID const DefaultVariationID;
 
     public:
 

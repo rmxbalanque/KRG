@@ -4,8 +4,8 @@
   <Type Name="KRG::StringID">
     <Expand>
       <CustomListItems>
-        <Variable Name="buckets" InitialValue="{,,KRG.System.Core} KRG::StringID::StringIDMap.mpBucketArray" />
-        <Variable Name="num_buckets" InitialValue="{,,KRG.System.Core} KRG::StringID::StringIDMap.mnBucketCount" />
+        <Variable Name="buckets" InitialValue="{,,KRG.System.Core} KRG::StringID::s_stringCache.mpBucketArray" />
+        <Variable Name="num_buckets" InitialValue="{,,KRG.System.Core} KRG::StringID::s_stringCache.mnBucketCount" />
         <Variable Name="start_bucket" InitialValue="m_ID % num_buckets" />
         <Variable Name="i" InitialValue="start_bucket" />
         <Variable Name="bucket_item" InitialValue="buckets[i]"/>

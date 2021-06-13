@@ -54,12 +54,12 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_poseTimeValueNodeIdx, m_sourceIndex, m_inputTimeRemapRange );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_poseTimeValueNodeIdx, m_dataSlotIndex, m_inputTimeRemapRange );
 
             virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex                           m_poseTimeValueNodeIdx = InvalidIndex;
-            DataSetSourceIndex                  m_sourceIndex = InvalidIndex;
+            DataSetSlotIndex                    m_dataSlotIndex = InvalidIndex;
             FloatRange                          m_inputTimeRemapRange = FloatRange( 0, 1 ); // Time range allows for remapping a time value that is not a normalized time to the animation
         };
 

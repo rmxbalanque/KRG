@@ -12,9 +12,7 @@ namespace KRG::Animation
 {
     enum class PoseBlendOptions
     {
-        None = 0,
-        Interpolate,
-        Additive,
+        Additive = 0,
         GlobalSpace,
         LockUnmaskedBones,
         LayeredBlend,

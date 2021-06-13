@@ -50,7 +50,7 @@ namespace KRG::Animation
         {
             AnimationGraphDataSet* pDataSet = KRG::New<AnimationGraphDataSet>();
             archive >> *pDataSet;
-            KRG_ASSERT( pDataSet->m_name.IsValid() && pDataSet->m_pSkeleton.IsValid() );
+            KRG_ASSERT( pDataSet->m_variationID.IsValid() && pDataSet->m_pSkeleton.IsValid() );
             pResourceRecord->SetResourceData( pDataSet );
             return true;
         }
@@ -58,6 +58,8 @@ namespace KRG::Animation
         {
             AnimationGraphVariation* pGraphVariation = KRG::New<AnimationGraphVariation>();
             archive >> *pGraphVariation;
+            pResourceRecord->SetResourceData( pGraphVariation );
+            return true;
         }
 
         KRG_UNREACHABLE_CODE();
@@ -84,15 +86,9 @@ namespace KRG::Animation
             //-------------------------------------------------------------------------
 
             int32 const numInstallDependencies = (int32) installDependencies.size();
-            if ( pDataSet->m_animationClips.size() != numInstallDependencies - 1 )
-            {
-                KRG_LOG_ERROR( "Animation", "Invalid number of install dependencies for graph data set: %s", resID.ToString().c_str() );
-                return false;
-            }
-
             for ( auto i = 1; i < numInstallDependencies; i++ )
             {
-                pDataSet->m_animationClips[i - 1] = installDependencies[i];
+                pDataSet->m_resources[i - 1] = GetInstallDependency( installDependencies, pDataSet->m_resources[i - 1].GetResourceID() );
             }
         }
         else if ( resourceTypeID == AnimationGraphVariation::GetStaticResourceTypeID() )

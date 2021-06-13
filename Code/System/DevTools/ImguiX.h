@@ -90,29 +90,7 @@ namespace KRG::ImGuiX
         return result;
     }
 
-    inline void VerticalSeparator( ImVec2 const& size = ImVec2( -1, -1 ), ImColor const& color = 0 )
-    {
-        ImGui::SameLine();
-
-        //-------------------------------------------------------------------------
-
-        auto const canvasPos = ImGui::GetCursorScreenPos();
-        auto const availableRegion = ImGui::GetContentRegionAvail();
-
-        ImVec2 const seperatorSize( size.x <= 0 ? 1 : size.x, size.y <= 0 ? availableRegion.y : size.y );
-        ImGui::Dummy( seperatorSize );
-        ImGui::SameLine();
-
-        //-------------------------------------------------------------------------
-
-        ImColor const separatorColor = ( (int) color == 0 ) ? ImColor( ImGuiX::Theme::s_backgroundColorLight ) : ImColor( color );
-
-        float const startPosX = canvasPos.x + ( seperatorSize.x / 2 );
-        float const startPosY = canvasPos.y + 1;
-        float const endPosY = startPosY + seperatorSize.y - 2;
-
-        ImDrawList* pDrawList = ImGui::GetWindowDrawList();
-        pDrawList->AddLine( ImVec2( startPosX, startPosY ), ImVec2( startPosX, endPosY ), separatorColor, 1 );
-    }
+    // Draws a vertical separator on the current line and forces the next item to be on the same line. The size is the offset between the previous item and the next
+    KRG_SYSTEM_DEVTOOLS_API void VerticalSeparator( ImVec2 const& size = ImVec2( 9, -1 ), ImColor const& color = 0 );
 }
 #endif

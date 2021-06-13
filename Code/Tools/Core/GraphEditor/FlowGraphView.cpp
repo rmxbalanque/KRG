@@ -4,6 +4,13 @@
 
 namespace KRG::GraphEditor
 {
+    constexpr static float const g_pinRadius = 5.0f;
+    constexpr static float const g_pinSelectionExtraRadius = 5.0f;
+    constexpr static float const g_connectionSelectionExtraRadius = 5.0f;
+    constexpr static float const g_marginBetweenInputOutputPins = 16.0f;
+
+    //-------------------------------------------------------------------------
+
     void FlowGraphView::SetGraphToView( FlowGraph* pGraph )
     {
         if ( m_pGraph == pGraph )
@@ -25,77 +32,10 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::DrawNode( DrawingContext const& ctx, Flow::Node* pNode )
-    {
-        KRG_ASSERT( pNode != nullptr );
-
-        ImGui::PushID( pNode );
-
-        // Draw contents
-        //-------------------------------------------------------------------------
-
-        ctx.m_pDrawList->ChannelsSetCurrent( 2 );
-        ImGui::SetCursorPos( ImVec2( pNode->m_canvasPosition ) - ctx.m_viewOffset );
-        ImGui::BeginGroup();
-        DrawNodeTitle( ctx, pNode );
-        DrawNodePins( ctx, pNode );
-        pNode->DrawExtraControls( ctx );
-        ImGui::EndGroup();
-
-        // Update node size
-        //-------------------------------------------------------------------------
-
-        if ( pNode->m_isCalculatingSizes )
-        {
-            pNode->m_size = ImGui::GetItemRectSize();
-
-            float maxInputPinRowWidth = 0;
-            float maxOutputPinRowWidth = 0;
-
-            for ( auto const& pin : pNode->m_inputPins )
-            {
-                maxInputPinRowWidth = Math::Max( maxInputPinRowWidth, pin.m_estimatedWidth );
-            }
-
-            for ( auto const& pin : pNode->m_outputPins )
-            {
-                maxOutputPinRowWidth = Math::Max( maxOutputPinRowWidth, pin.m_estimatedWidth );
-            }
-
-            pNode->m_size.x = Math::Max( pNode->m_size.x, ( maxInputPinRowWidth + maxOutputPinRowWidth + 4 ) );
-        }
-
-        //-------------------------------------------------------------------------
-
-        // Draw background
-        ctx.m_pDrawList->ChannelsSetCurrent( 1 );
-        DrawNodeBackground( ctx, pNode );
-
-        //-------------------------------------------------------------------------
-
-        ImGui::PopID();
-
-        //-------------------------------------------------------------------------
-
-        pNode->m_isHovered = GetNodeCanvasRect( pNode ).Contains( ctx.m_mouseCanvasPos ) || pNode->m_pHoveredPin != nullptr;
-        pNode->m_isCalculatingSizes = false;
-    }
-
     void FlowGraphView::DrawNodeTitle( DrawingContext const& ctx, Flow::Node* pNode )
     {
         KRG_ASSERT( pNode != nullptr );
-
         ImGui::Text( pNode->GetDisplayName() );
-
-        if ( pNode->m_isCalculatingSizes )
-        {
-            ImGui::Separator();
-        }
-        else
-        {
-            auto CursorPos = ImGui::GetCursorScreenPos();
-            ctx.m_pDrawList->AddLine( CursorPos + ImVec2( 0, -2 ), CursorPos + ImVec2( pNode->m_size.x, -2 ), ImGui::GetColorU32( ImGuiCol_Separator ) );
-        }
     }
 
     void FlowGraphView::DrawNodePins( DrawingContext const& ctx, Flow::Node* pNode )
@@ -113,30 +53,34 @@ namespace KRG::GraphEditor
         int32 const numPinRows = Math::Max( pNode->GetNumInputPins(), pNode->GetNumOutputPins() );
         for ( auto i = 0; i < numPinRows; i++ )
         {
-            // Inputs
-            //-------------------------------------------------------------------------
-
             bool const hasInputPin = i < pNode->m_inputPins.size();
+            bool const hasOutputPin = i < pNode->m_outputPins.size();
+
+            // Input Pin
+            //-------------------------------------------------------------------------
             if ( hasInputPin )
             {
                 ImGui::BeginGroup();
+                ImGui::AlignTextToFramePadding();
                 ImGui::Text( pNode->m_inputPins[i].m_name.c_str() );
                 ImGui::SameLine( 0, 0 );
                 pNode->DrawPinControls( pNode->m_inputPins[i] );
+                ImGui::SameLine( 0, 0 );
+                ImGui::Dummy( ImVec2( 16, 0 ) );
                 ImGui::EndGroup();
 
                 // Get the size of the above group
-                ImRect const rect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax() );
                 if ( pNode->m_isCalculatingSizes )
                 {
                     // Record estimate pin rect width
-                    pNode->m_inputPins[i].m_estimatedWidth = rect.GetWidth();
+                    pNode->m_inputPins[i].m_estimatedSize = ImGui::GetItemRectSize();
                 }
 
                 // Check hover state
+                ImRect const rect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax() );
                 ImColor pinColor = pNode->GetPinColor( pNode->m_inputPins[i] );
                 pNode->m_inputPins[i].m_screenPosition = rect.Min + ImVec2( -nodeMargin.x, rect.GetHeight() / 2 );
-                bool const isPinHovered = Vector( pNode->m_inputPins[i].m_screenPosition ).GetDistance2( ImGui::GetMousePos() ) < ( s_pinRadius + s_pinSelectionExtraRadius );
+                bool const isPinHovered = Vector( pNode->m_inputPins[i].m_screenPosition ).GetDistance2( ImGui::GetMousePos() ) < ( g_pinRadius + g_pinSelectionExtraRadius );
                 if ( isPinHovered )
                 {
                     pNode->m_pHoveredPin = &pNode->m_inputPins[i];
@@ -144,60 +88,59 @@ namespace KRG::GraphEditor
                 }
 
                 // Draw pin
-                ctx.m_pDrawList->AddCircleFilled( pNode->m_inputPins[i].m_screenPosition, s_pinRadius, pinColor );
+                ctx.m_pDrawList->AddCircleFilled( pNode->m_inputPins[i].m_screenPosition, g_pinRadius, pinColor );
             }
 
-            // Outputs
+            // Spacer
             //-------------------------------------------------------------------------
 
-            if ( i < pNode->m_outputPins.size() )
+            // Ensure that output pin is on the same row
+            if ( hasInputPin && hasOutputPin )
             {
-                if ( hasInputPin )
-                {
-                    ImGui::SameLine( 0, 0 );
-                }
-
-                // Add spacer based on estimated sizes
-                if ( !pNode->m_isCalculatingSizes )
-                {
-                    if ( hasInputPin )
-                    {
-                        ImGui::InvisibleButton( "Spacer", ImVec2( pNode->m_size.x - pNode->m_inputPins[i].m_estimatedWidth - pNode->m_outputPins[i].m_estimatedWidth, 10 ) );
-                    }
-                    else
-                    {
-                        ImGui::InvisibleButton( "Spacer", ImVec2( pNode->m_size.x - pNode->m_outputPins[i].m_estimatedWidth, 10 ) );
-                    }
-                    ImGui::SameLine( 0, 0 );
-                }
-
-                //-------------------------------------------------------------------------
-
-                ImGui::BeginGroup();
-                pNode->DrawPinControls( pNode->m_outputPins[i] );
                 ImGui::SameLine( 0, 0 );
+            }
+
+            // Add a spacer to align the output pins to the edge of the node (only once the sizes are calculated)
+            if ( !pNode->m_isCalculatingSizes && hasOutputPin )
+            {
+                float const inputPinWidth = hasInputPin ? pNode->m_inputPins[i].m_estimatedSize.x : 0;
+                ImGui::Dummy( ImVec2( pNode->m_size.x - inputPinWidth - pNode->m_outputPins[i].m_estimatedSize.x, 0 ) );
+                ImGui::SameLine( 0, 0 );
+            }
+
+            // Output Pin
+            //-------------------------------------------------------------------------
+
+            if ( hasOutputPin )
+            {
+                ImGui::BeginGroup();
+                ImGui::AlignTextToFramePadding();
+                if ( pNode->DrawPinControls( pNode->m_outputPins[i] ) )
+                {
+                    ImGui::SameLine( 0, 0 );
+                }
                 ImGui::Text( pNode->m_outputPins[i].m_name.c_str() );
                 ImGui::EndGroup();
 
                 // Get the size of the above group
-                ImRect const rect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax() );
                 if ( pNode->m_isCalculatingSizes )
                 {
                     // Record estimate pin rect size
-                    pNode->m_outputPins[i].m_estimatedWidth = rect.GetWidth();
+                    pNode->m_outputPins[i].m_estimatedSize = ImGui::GetItemRectSize();
                 }
 
                 // Check hover state
+                ImRect const rect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax() );
                 ImColor pinColor = pNode->GetPinColor( pNode->m_outputPins[i] );
                 pNode->m_outputPins[i].m_screenPosition = rect.Max + ImVec2( nodeMargin.x, -rect.GetHeight() / 2 );
-                bool const isPinHovered = Vector( pNode->m_outputPins[i].m_screenPosition ).GetDistance2( ImGui::GetMousePos() ) < ( s_pinRadius + s_pinSelectionExtraRadius );
+                bool const isPinHovered = Vector( pNode->m_outputPins[i].m_screenPosition ).GetDistance2( ImGui::GetMousePos() ) < ( g_pinRadius + g_pinSelectionExtraRadius );
                 if ( isPinHovered )
                 {
                     pNode->m_pHoveredPin = &pNode->m_outputPins[i];
                     pinColor = ImGuiX::AdjustColorBrightness( pinColor, 1.25f );
                 }
 
-                ctx.m_pDrawList->AddCircleFilled( pNode->m_outputPins[i].m_screenPosition, s_pinRadius, pinColor );
+                ctx.m_pDrawList->AddCircleFilled( pNode->m_outputPins[i].m_screenPosition, g_pinRadius, pinColor );
             }
         }
     }
@@ -223,6 +166,113 @@ namespace KRG::GraphEditor
 
         ImDrawList* pDrawList = ImGui::GetWindowDrawList();
         pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3 );
+
+        //-------------------------------------------------------------------------
+
+        ImVec2 titleRectEnd = rectMin + nodeMargin + pNode->m_titleRectSize;
+        pDrawList->AddRectFilled( rectMin + nodeMargin, titleRectEnd, 0x660000FF, 3 );
+
+        ImVec2 pinsRectStart = rectMin + nodeMargin + ImVec2( 0, pNode->m_titleRectSize.y );
+        ImVec2 pinsRectEnd = pinsRectStart + pNode->m_pinsRectSize;
+        pDrawList->AddRectFilled( pinsRectStart, pinsRectEnd, 0x6600FF00, 3 );
+
+        ImVec2 controlsRectStart = rectMin + nodeMargin + ImVec2( 0, pNode->m_titleRectSize.y + pNode->m_pinsRectSize.y );
+        ImVec2 controlsRectEnd = controlsRectStart + pNode->m_controlsRectSize;
+        pDrawList->AddRectFilled( controlsRectStart, controlsRectEnd, 0x66FF0000, 3 );
+    }
+
+    void FlowGraphView::DrawNode( DrawingContext const& ctx, Flow::Node* pNode )
+    {
+        KRG_ASSERT( pNode != nullptr );
+
+        ImGui::PushID( pNode );
+
+        //-------------------------------------------------------------------------
+        // Draw contents
+        //-------------------------------------------------------------------------
+
+        ctx.m_pDrawList->ChannelsSetCurrent( 2 );
+        ImGui::SetCursorPos( ImVec2( pNode->m_canvasPosition ) - ctx.m_viewOffset );
+        ImGui::BeginGroup();
+        {
+            ImGui::BeginGroup();
+            DrawNodeTitle( ctx, pNode );
+            ImGui::EndGroup();
+
+            if ( pNode->m_isCalculatingSizes )
+            {
+                pNode->m_titleRectSize = ImGui::GetItemRectSize();
+            }
+
+            //-------------------------------------------------------------------------
+
+            DrawNodePins( ctx, pNode );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::BeginGroup();
+            pNode->DrawExtraControls( ctx );
+            ImGui::EndGroup();
+
+            if ( pNode->m_isCalculatingSizes )
+            {
+                pNode->m_controlsRectSize = ImGui::GetItemRectSize();
+            }
+        }
+        ImGui::EndGroup();
+
+        //-------------------------------------------------------------------------
+        // Node Size Calculations
+        //-------------------------------------------------------------------------
+
+        if ( pNode->m_isCalculatingSizes )
+        {
+            // Set node size
+            pNode->m_size = ImGui::GetItemRectSize();
+            pNode->m_size.x = Math::Max( pNode->m_size.x, pNode->m_controlsRectSize.x );
+            pNode->m_size.x = Math::Max( pNode->m_size.x, pNode->m_titleRectSize.x );
+
+            //-------------------------------------------------------------------------
+
+            float maxInputPinRowWidth = 0;
+            float inputPinColumnHeight = 0;
+            float maxOutputPinRowWidth = 0;
+            float outputPinColumnHeight = 0;
+
+            for ( auto const& pin : pNode->m_inputPins )
+            {
+                maxInputPinRowWidth = Math::Max( maxInputPinRowWidth, pin.m_estimatedSize.x );
+                inputPinColumnHeight += pin.m_estimatedSize.y;
+            }
+
+            for ( auto const& pin : pNode->m_outputPins )
+            {
+                maxOutputPinRowWidth = Math::Max( maxOutputPinRowWidth, pin.m_estimatedSize.x );
+                outputPinColumnHeight += pin.m_estimatedSize.y;
+            }
+
+            // Set pins rect size
+            pNode->m_pinsRectSize.x = Math::Max( pNode->m_size.x, ( maxInputPinRowWidth + maxOutputPinRowWidth ) );
+            pNode->m_pinsRectSize.y = Math::Max( inputPinColumnHeight, outputPinColumnHeight );
+
+            // Adjust node width based on pin row widths
+            pNode->m_size.x = Math::Max( pNode->m_size.x, pNode->m_pinsRectSize.x );
+        }
+
+        //-------------------------------------------------------------------------
+
+        // Draw background
+        ctx.m_pDrawList->ChannelsSetCurrent( 1 );
+        DrawNodeBackground( ctx, pNode );
+
+        //-------------------------------------------------------------------------
+
+        ImGui::PopID();
+
+        //-------------------------------------------------------------------------
+
+        pNode->m_isHovered = GetNodeCanvasRect( pNode ).Contains( ctx.m_mouseCanvasPos ) || pNode->m_pHoveredPin != nullptr;
+        pNode->m_isCalculatingSizes = false;
     }
 
     //-------------------------------------------------------------------------
@@ -325,7 +375,7 @@ namespace KRG::GraphEditor
                     ImVec2 const p2 = p1 + ImVec2( 50, 0 );
                     ImVec2 const p3 = p4 + ImVec2( -50, 0 );
 
-                    if ( IsHoveredOverLink( p1, p2, p3, p4, drawingContext.m_mouseScreenPos, s_connectionSelectionExtraRadius ) )
+                    if ( IsHoveredOverLink( p1, p2, p3, p4, drawingContext.m_mouseScreenPos, g_connectionSelectionExtraRadius ) )
                     {
                         m_hoveredConnectionID = connection.m_ID;
                         connectionColor = ImGuiX::ConvertColor( Colors::HotPink );
@@ -338,12 +388,9 @@ namespace KRG::GraphEditor
 
                 //-------------------------------------------------------------------------
 
-                if ( m_hasFocus )
-                {
-                    HandleContextMenu( drawingContext );
-                    HandleDragging( drawingContext );
-                    HandleClicks( drawingContext );
-                }
+                HandleContextMenu( drawingContext );
+                HandleDragging( drawingContext );
+                HandleClicks( drawingContext );
             }
         }
 
@@ -510,11 +557,53 @@ namespace KRG::GraphEditor
     {
         if ( pNode != nullptr )
         {
-            DrawContextMenuForNode( mouseCanvasPos, pNode );
-
-            if ( pPin != nullptr )
+            if ( ImGui::BeginMenu( "Node Info" ) )
             {
-                DrawContextMenuForPin( mouseCanvasPos, pNode, pPin );
+                auto const IDString = pNode->GetID().ToString();
+                if ( ImGui::MenuItem( IDString.c_str() ) )
+                {
+                    ImGui::SetClipboardText( IDString.c_str() );
+                }
+                ImGui::EndMenu();
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( pNode->SupportsDynamicInputPins() )
+            {
+                ImGui::Separator();
+
+                if ( ImGui::MenuItem( "Add Input" ) )
+                {
+                    m_pGraph->CreateDynamicPin( pNode->GetID() );
+                }
+
+                if ( pPin != nullptr && pPin->IsDynamicPin() )
+                {
+                    if ( ImGui::MenuItem( "Remove Input" ) )
+                    {
+                        m_pGraph->DestroyDynamicPin( pNode->GetID(), pPin->m_ID );
+                        return;
+                    }
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            DrawContextMenuForNode( mouseCanvasPos, pNode, pPin );
+
+            //-------------------------------------------------------------------------
+
+            if ( pNode->IsDestroyable() )
+            {
+                ImGui::Separator();
+
+                if ( ImGui::MenuItem( "Delete Node" ) )
+                {
+                    ClearSelection();
+                    pNode->Destroy();
+                    return;
+                }
             }
         }
         else
@@ -526,54 +615,6 @@ namespace KRG::GraphEditor
     void FlowGraphView::DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos )
     {
         ImGui::Text( "No Options" );
-    }
-
-    void FlowGraphView::DrawContextMenuForNode( ImVec2 const& mouseCanvasPos, Flow::Node* pNode )
-    {
-        if ( ImGui::BeginMenu( "Node Info" ) )
-        {
-            auto const IDString = pNode->GetID().ToString();
-            if ( ImGui::MenuItem( IDString.c_str() ) )
-            {
-                ImGui::SetClipboardText( IDString.c_str() );
-            }
-            ImGui::EndMenu();
-        }
-
-        ImGui::Separator();
-
-        if ( pNode->IsDestroyable() )
-        {
-            if ( ImGui::MenuItem( "Delete Node" ) )
-            {
-                pNode->Destroy();
-                return;
-            }
-        }
-
-        if ( pNode->SupportsDynamicInputPins() )
-        {
-            if ( ImGui::MenuItem( "Add Input" ) )
-            {
-                m_pGraph->CreateDynamicPin( pNode->GetID() );
-            }
-
-            ImGui::Separator();
-        }
-    }
-
-    void FlowGraphView::DrawContextMenuForPin( ImVec2 const& mouseCanvasPos, Flow::Node* pNode, Flow::Pin* pPin )
-    {
-        if ( pPin->IsDynamicPin() )
-        {
-            ImGui::Separator();
-
-            if ( ImGui::MenuItem( "Remove Input" ) )
-            {
-                m_pGraph->DestroyDynamicPin( pNode->GetID(), pPin->m_ID );
-                return;
-            }
-        }
     }
 
     //-------------------------------------------------------------------------
@@ -821,5 +862,16 @@ namespace KRG::GraphEditor
         TVector<BaseNode*> oldSelection = m_selectedNodes;
         m_selectedNodes.erase_first( pNodeToRemove );
         OnSelectionChanged( oldSelection, m_selectedNodes );
+    }
+
+    void FlowGraphView::RecalculateNodeSizes()
+    {
+        if ( m_pGraph != nullptr )
+        {
+            for ( auto pNode : m_pGraph->m_nodes )
+            {
+                pNode->RecalculateNodeSize();
+            }
+        }
     }
 }

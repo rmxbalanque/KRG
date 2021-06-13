@@ -44,6 +44,8 @@ namespace KRG::Animation::Graph
         virtual char const* const GetName() { return "Graph Editor"; }
         virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
 
+        void RefreshView() { m_primaryFlowGraphView.RecalculateNodeSizes(); }
+
     private:
 
         virtual void Initialize( UpdateContext const& context ) override;

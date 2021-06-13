@@ -1,6 +1,6 @@
 #pragma once
 #include "Engine/Animation/Graph/AnimationGraphNode.h"
-#include "System/Core/Math/Easing.h"
+#include "Engine/Core/Math/Easing.h"
 
 //-------------------------------------------------------------------------
 

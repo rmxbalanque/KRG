@@ -114,7 +114,7 @@
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Parameters.cpp">
       <Filter>Graph\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_RangedBlends.cpp">
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Blends.cpp">
       <Filter>Graph\Nodes</Filter>
     </ClCompile>
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_RootMotionOverride.cpp">
@@ -159,6 +159,9 @@
     <ClCompile Include="AnimationEvent.cpp" />
     <ClCompile Include="AnimationTarget.cpp" />
     <ClCompile Include="AnimationBlender.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_State.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_StateMachine.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Transition.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -242,7 +245,7 @@
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_AnimationClip.h">
       <Filter>Graph\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_RangedBlends.h">
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Blends.h">
       <Filter>Graph\Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_RootMotionOverride.h">
@@ -288,6 +291,9 @@
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
     <ClInclude Include="AnimationBlender.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_State.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_StateMachine.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Transition.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graph\todo.md">

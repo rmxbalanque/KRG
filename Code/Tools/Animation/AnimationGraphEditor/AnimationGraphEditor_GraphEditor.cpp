@@ -38,7 +38,8 @@ namespace KRG::Animation::Graph
                     ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetColor() );
                     if ( ImGui::MenuItem( pParameter->GetDisplayName() ) )
                     {
-                        pToolsGraph->CreateNode<ControlParameterReferenceToolsNode>( pParameter );
+                        auto pNode = pToolsGraph->CreateNode<ControlParameterReferenceToolsNode>( pParameter );
+                        pNode->SetCanvasPosition( mouseCanvasPos );
                     }
                     ImGui::PopStyleColor();
                 }
@@ -53,7 +54,8 @@ namespace KRG::Animation::Graph
                     ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetColor() );
                     if ( ImGui::MenuItem( pParameter->GetDisplayName() ) )
                     {
-                        pToolsGraph->CreateNode<VirtualParameterReferenceToolsNode>( pParameter );
+                        auto pNode = pToolsGraph->CreateNode<VirtualParameterReferenceToolsNode>( pParameter );
+                        pNode->SetCanvasPosition( mouseCanvasPos );
                     }
                     ImGui::PopStyleColor();
                 }

@@ -547,7 +547,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::AnimationPoseToolsNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::ToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_name ), KRG_NVP( m_inputTimeRemapRange ) );
+        archive( cereal::base_class<KRG::Animation::Graph::DataSlotNode>( &type ), KRG_NVP( m_defaultResourceID ), KRG_NVP( m_overrides ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_name ), KRG_NVP( m_inputTimeRemapRange ) );
     }
 
     //-------------------------------------------------------------------------
@@ -561,6 +561,35 @@ namespace KRG
             KRG::Animation::Graph::AnimationPoseToolsNode const* pActualDefaultTypeInstance = ( KRG::Animation::Graph::AnimationPoseToolsNode const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_defaultResourceID" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourceID" );
+            propertyInfo.m_parentTypeID = 467749769;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_defaultResourceID;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::AnimationPoseToolsNode, m_defaultResourceID );
+            propertyInfo.m_size = sizeof( KRG::ResourceID );
+            propertyInfo.m_flags.Set( 0 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_overrides" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::DataSlotNode::OverrideValue" );
+            propertyInfo.m_parentTypeID = 467749769;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_overrides;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::AnimationPoseToolsNode, m_overrides );
+            propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_overrides.data();
+            propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_overrides.size();
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::Animation::Graph::DataSlotNode::OverrideValue );
+            propertyInfo.m_size = sizeof( TVector<KRG::Animation::Graph::DataSlotNode::OverrideValue> );
+            propertyInfo.m_flags.Set( 36 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
 
             //-------------------------------------------------------------------------
 
@@ -647,7 +676,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Animation::Graph::ToolsNode::s_pTypeInfo;
+                    pParentType = KRG::Animation::Graph::DataSlotNode::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -684,12 +713,22 @@ namespace KRG
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pType );
 
+                    for ( auto& propertyValue : pActualType->m_overrides )
+                    {
+                        KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );
+                    }
+
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pType );
+
+                    for ( auto& propertyValue : pActualType->m_overrides )
+                    {
+                        KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );
+                    }
 
                 }
 
@@ -698,6 +737,15 @@ namespace KRG
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
+                    for ( auto& propertyValue : pActualType->m_overrides )
+                    {
+                        status = KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );
+                        if ( status == LoadingStatus::Loading )
+                        {
+                            return LoadingStatus::Loading;
+                        }
+                    }
+
                     return status;
                 }
 
@@ -705,6 +753,15 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
+
+                    for ( auto& propertyValue : pActualType->m_overrides )
+                    {
+                        status = KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );
+                        if ( status != LoadingStatus::Unloaded )
+                        {
+                            return LoadingStatus::Unloading;
+                        }
+                    }
 
                     return LoadingStatus::Unloaded;
                 }
@@ -721,6 +778,16 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pType );
 
+                    if ( arrayID == 2183863778 )
+                    {
+                        if ( ( arrayIdx + 1 ) >= pActualType->m_overrides.size() )
+                        {
+                            pActualType->m_overrides.resize( arrayIdx + 1 );
+                        }
+
+                        return (Byte*) &pActualType->m_overrides[arrayIdx];
+                    }
+
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return nullptr;
@@ -730,6 +797,11 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode const*>( pTypeInstance );
 
+                    if ( arrayID == 2183863778 )
+                    {
+                        return pActualType->m_overrides.size();
+                    }
+
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return 0;
@@ -737,6 +809,11 @@ namespace KRG
 
                 virtual size_t GetArrayElementSize( uint32 arrayID ) const override final
                 {
+                    if ( arrayID == 2183863778 )
+                    {
+                        return sizeof( KRG::Animation::Graph::DataSlotNode::OverrideValue );
+                    }
+
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                     return 0;
@@ -746,6 +823,12 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pTypeInstance );
 
+                    if ( arrayID == 2183863778 )
+                    {
+                        pActualType->m_overrides.clear();
+                        return;
+                    }
+
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
@@ -754,6 +837,12 @@ namespace KRG
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pTypeInstance );
 
+                    if ( arrayID == 2183863778 )
+                    {
+                        pActualType->m_overrides.emplace_back();
+                        return;
+                    }
+
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
                 }
@@ -761,6 +850,12 @@ namespace KRG
                 virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pTypeInstance );
+
+                    if ( arrayID == 2183863778 )
+                    {
+                        pActualType->m_overrides.erase( pActualType->m_overrides.begin() + arrayIdx );
+                        return;
+                    }
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -771,6 +866,16 @@ namespace KRG
                     auto pTypeHelper = KRG::Animation::Graph::AnimationPoseToolsNode::s_pTypeInfo->m_pTypeHelper;
                     auto pType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode const*>( pOtherTypeInstance );
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1592680383 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2183863778 ) )
+                    {
+                       return false;
+                    }
 
                     if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2454640797 ) )
                     {
@@ -800,6 +905,42 @@ namespace KRG
                     auto pType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode const*>( pTypeInstance );
                     auto pOtherType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode const*>( pOtherTypeInstance );
 
+                    if ( propertyID == 1592680383 )
+                    {
+                        return pType->m_defaultResourceID == pOtherType->m_defaultResourceID;
+                    }
+
+                    if ( propertyID == 2183863778 )
+                    {
+                        // Compare array elements
+                        if ( arrayIdx != InvalidIndex )
+                        {
+                            if ( arrayIdx >= pOtherType->m_overrides.size() )
+                            {
+                                return false;
+                            }
+
+                            return KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_overrides[arrayIdx], &pOtherType->m_overrides[arrayIdx] );
+                        }
+                        else // Compare entire array contents
+                        {
+                            if ( pType->m_overrides.size() != pOtherType->m_overrides.size() )
+                            {
+                                return false;
+                            }
+
+                            for ( size_t i = 0; i < pType->m_overrides.size(); i++ )
+                            {
+                                if( !KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_overrides[i], &pOtherType->m_overrides[i] ) )
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                    }
+
                     if ( propertyID == 2454640797 )
                     {
                         return pType->m_canvasPosition == pOtherType->m_canvasPosition;
@@ -827,6 +968,18 @@ namespace KRG
                 {
                     auto pDefaultType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode const*>( GetDefaultTypeInstancePtr() );
                     auto pActualType = reinterpret_cast<KRG::Animation::Graph::AnimationPoseToolsNode*>( pTypeInstance );
+
+                    if ( propertyID == 1592680383 )
+                    {
+                        pActualType->m_defaultResourceID = pDefaultType->m_defaultResourceID;
+                        return;
+                    }
+
+                    if ( propertyID == 2183863778 )
+                    {
+                        pActualType->m_overrides = pDefaultType->m_overrides;
+                        return;
+                    }
 
                     if ( propertyID == 2454640797 )
                     {

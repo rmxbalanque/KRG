@@ -1,5 +1,6 @@
 #pragma once
 #include "../AnimationGraphTools_Node.h"
+#include "Engine/Animation/AnimationClip.h"
 
 //-------------------------------------------------------------------------
 
@@ -37,7 +38,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class AnimationPoseToolsNode final : public ToolsNode
+    class AnimationPoseToolsNode final : public DataSlotNode
     {
         KRG_REGISTER_TYPE( AnimationPoseToolsNode );
 
@@ -50,6 +51,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "Poses"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
+        virtual ResourceTypeID GetSlotResourceType() const override { return AnimationClip::GetStaticResourceTypeID(); }
 
     private:
 

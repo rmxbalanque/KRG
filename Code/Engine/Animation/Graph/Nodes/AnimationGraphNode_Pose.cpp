@@ -25,7 +25,7 @@ namespace KRG::Animation::Graph
 
         PoseNodeResult Result;
         Result.m_sampledEventRange = SampledEventRange( context.m_sampledEvents.GetNumEvents() );
-        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::DefaultPoseTask>( GetNodeIdx(), Pose::InitialState::ZeroPose );
+        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ZeroPose );
         return Result;
     }
 
@@ -50,7 +50,7 @@ namespace KRG::Animation::Graph
 
         PoseNodeResult Result;
         Result.m_sampledEventRange = SampledEventRange( context.m_sampledEvents.GetNumEvents() );
-        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::DefaultPoseTask>( GetNodeIdx(), Pose::InitialState::ReferencePose );
+        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ReferencePose );
         return Result;
     }
 
@@ -62,7 +62,7 @@ namespace KRG::Animation::Graph
         SetNodePtrFromIndex( nodePtrs, m_poseTimeValueNodeIdx, pNode->m_pPoseTimeValue );
 
         auto pSettings = pNode->GetSettings<AnimationPoseNode>();
-        pNode->m_pAnimation = pDataSet->GetAnimationClip( pSettings->m_sourceIndex );
+        pNode->m_pAnimation = pDataSet->GetAnimationClip( pSettings->m_dataSlotIndex );
     }
 
     bool AnimationPoseNode::IsValid() const
@@ -105,7 +105,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         Result.m_sampledEventRange = SampledEventRange( context.m_sampledEvents.GetNumEvents() );
-        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::SampleTask>( GetNodeIdx(), m_pAnimation, m_currentTime );
+        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::SampleTask>( GetNodeIndex(), m_pAnimation, m_currentTime );
         return Result;
     }
 

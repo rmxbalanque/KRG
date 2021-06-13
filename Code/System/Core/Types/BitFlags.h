@@ -126,13 +126,17 @@ namespace KRG
     public:
 
         using BitFlags::BitFlags;
-        inline TBitFlags( T value ) 
+        inline explicit TBitFlags( T value ) 
             : BitFlags( GetFlagMask( (uint8) value ) )
         {
             KRG_ASSERT( (uint32) value < MaxFlags );
         }
 
-        template<typename... Args>
+        inline TBitFlags( TBitFlags<T> const& flags )
+            : BitFlags( flags.m_flags )
+        {}
+
+        template<typename... Args, class Enable = std::enable_if_t<( ... && std::is_convertible_v<Args, T> )>>
         TBitFlags( Args&&... args )
         {
             ( ( m_flags |= 1u << (uint8) args ), ... );

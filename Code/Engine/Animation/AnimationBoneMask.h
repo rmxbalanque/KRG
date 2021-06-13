@@ -48,6 +48,8 @@ namespace KRG::Animation
         BoneMask& operator=( BoneMask const& rhs );
         BoneMask& operator=( BoneMask&& rhs );
 
+        inline void CopyFrom( BoneMask const& rhs ) { *this = rhs; }
+
         //-------------------------------------------------------------------------
 
         inline bool IsValid() const { return m_pSkeleton != nullptr && !m_weights.empty(); }
@@ -61,6 +63,8 @@ namespace KRG::Animation
         void ResetWeights( TVector<BoneWeight> const& weights, float rootMotionWeight );
 
         BoneMask& operator*=( BoneMask const& rhs );
+        inline void CombineWith( BoneMask const& rhs ) { operator*=( rhs ); }
+
         void BlendFrom( BoneMask const& source, float blendWeight );
         void BlendTo( BoneMask const& target, float blendWeight );
 

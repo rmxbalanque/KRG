@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Math.h"
-
-//-------------------------------------------------------------------------
+#include "Engine/Core/_Module/API.h"
+#include "System/Core/Math/Math.h"
+#include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
 // Easing utility functions 
@@ -11,8 +11,10 @@
 
 namespace KRG::Math::Easing
 {
-    enum class Type
+    enum class Type : uint8
     {
+        KRG_REGISTER_ENUM
+
         Linear,
         InQuad,
         OutQuad,
@@ -49,7 +51,7 @@ namespace KRG::Math::Easing
     // Helper functions
     //-------------------------------------------------------------------------
 
-    KRG_SYSTEM_CORE_API float EvaluateEasingFunction( Type type, float parameter );
+    KRG_ENGINE_CORE_API float EvaluateEasingFunction( Type type, float parameter );
 
     template<EasingFuncPtr easeFuncPtr>
     float EaseIn( float t )

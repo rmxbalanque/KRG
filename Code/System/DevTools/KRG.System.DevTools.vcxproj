@@ -51,6 +51,7 @@
     <ClCompile Include="CommonWidgets\Gizmo\TranslationGizmo.cpp" />
     <ClCompile Include="CommonWidgets\NumericEditors.cpp" />
     <ClCompile Include="DevelopmentTools.cpp" />
+    <ClCompile Include="ImguiX.cpp" />
     <ClCompile Include="System\ImguiTheme.cpp" />
     <ClCompile Include="Renderer\ImguiRenderer.cpp" />
     <ClCompile Include="System\ImguiSystem.cpp" />

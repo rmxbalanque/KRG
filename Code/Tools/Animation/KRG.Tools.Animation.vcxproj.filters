@@ -43,12 +43,14 @@
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Parameters.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Conditions.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_AnimationClip.cpp" />
-    <ClCompile Include="Graph\Nodes\AnimationToolsNode_RangedBlends.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationToolsNode_Blends.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_ConstValues.cpp" />
     <ClCompile Include="Events\AnimationEventData.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Selector.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_Compilation.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Pose.cpp" />
+    <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_VariationEditor.cpp" />
+    <ClCompile Include="Graph\AnimationGraphTools_Variations.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ResourceCompilers\AnimationClipCompiler.h">
@@ -83,10 +85,13 @@
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Parameters.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Conditions.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_AnimationClip.h" />
-    <ClInclude Include="Graph\Nodes\AnimationToolsNode_RangedBlends.h" />
+    <ClInclude Include="Graph\Nodes\AnimationToolsNode_Blends.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_ConstValues.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Selector.h" />
     <ClInclude Include="Graph\AnimationGraphTools_Compilation.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Pose.h" />
+    <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_VariationEditor.h" />
+    <ClInclude Include="Graph\AnimationGraphTools_Variations.h" />
+    <ClInclude Include="Graph\Nodes\AnimationToolsNode_StateMachine.h" />
   </ItemGroup>
 </Project>

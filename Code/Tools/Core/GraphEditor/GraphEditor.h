@@ -141,8 +141,8 @@ namespace KRG::GraphEditor
         // Can this node be created and added to a graph by a user? i.e. Does it show up in the context menu
         virtual bool IsUserCreatable() const { return true; }
 
-        // Can this node be destroyed via user input - this is tied to whether the user can create a node of this type
-        bool IsDestroyable() const { return IsUserCreatable(); }
+        // Can this node be destroyed via user input - this is generally tied to whether the user can create a node of this type
+        virtual bool IsDestroyable() const { return IsUserCreatable(); }
 
         // Node Visuals
         //-------------------------------------------------------------------------
@@ -208,7 +208,7 @@ namespace KRG::GraphEditor
 
         KRG_REGISTER_TYPE( BaseGraph );
 
-        static BaseGraph* CreateGraphFromSerializedData( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue, BaseGraph* pParentGraph  );
+        static BaseGraph* CreateGraphFromSerializedData( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue, BaseNode* pParentNode  );
 
     public:
 
@@ -219,17 +219,17 @@ namespace KRG::GraphEditor
         //-------------------------------------------------------------------------
 
         // Get the display title for this graph
-        virtual char const* GetTitle() const { return "Unknown"; }
+        virtual char const* GetTitle() const { return HasParentNode() ? m_pParentNode->GetDisplayName() : "Root Graph"; }
 
         // Serialization
         virtual void Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue ) = 0;
         virtual void Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const = 0;
 
-        // Parent graph
-        inline bool HasParentGraph() const { return m_pParentGraph != nullptr; }
-        inline bool IsRootGraph() const { return !HasParentGraph(); }
-        inline BaseGraph* GetParentGraph() { return m_pParentGraph; }
-        inline BaseGraph const* GetParentGraph() const { return m_pParentGraph; }
+        // Parent Node
+        inline bool HasParentNode() const { return m_pParentNode != nullptr; }
+        inline bool IsRootGraph() const { return !HasParentNode(); }
+        inline BaseNode* GetParentNode() { return m_pParentNode; }
+        inline BaseNode const* GetParentNode() const { return m_pParentNode; }
 
         // Node Operations
         //-------------------------------------------------------------------------
@@ -240,13 +240,30 @@ namespace KRG::GraphEditor
         // Helpers
         //-------------------------------------------------------------------------
 
+        // Find all nodes of a specific type in this graph. Note: doesnt clear the results array so ensure you feed in an empty array
         void FindAllNodesOfType( TypeSystem::TypeID typeID, TInlineVector<BaseNode*, 20>& results, bool includeDerivedNodes = true ) const;
 
         template<typename T>
-        TInlineVector<T*, 20> FindAllNodesOfType( bool includeDerivedNodes = true ) const
+        TInlineVector<T*, 20> FindAllNodesOfType( bool includeDerivedNodes = true )
         {
             static_assert( std::is_base_of<BaseNode, T>::value );
             TInlineVector<BaseNode*, 20> intermediateResults;
+            FindAllNodesOfType( T::GetStaticTypeID(), intermediateResults, includeDerivedNodes );
+
+            // Transfer results to typed array
+            TInlineVector<T*, 20> results;
+            for ( auto const& pFoundNode : intermediateResults )
+            {
+                results.emplace_back( SafeCast<T>( pFoundNode ) );
+            }
+            return results;
+        }
+
+        template<typename T>
+        TInlineVector<T const*, 20> FindAllNodesOfType( bool includeDerivedNodes = true ) const
+        {
+            static_assert( std::is_base_of<BaseNode, T>::value );
+            TInlineVector<BaseNode const*, 20> intermediateResults;
             FindAllNodesOfType( T::GetStaticTypeID(), intermediateResults, includeDerivedNodes );
 
             // Transfer results to typed array
@@ -291,6 +308,6 @@ namespace KRG::GraphEditor
 
     private:
 
-        BaseGraph*                              m_pParentGraph = nullptr; // Private so that we can enforce usage
+        BaseNode*                               m_pParentNode = nullptr; // Private so that we can enforce usage
     };
 }

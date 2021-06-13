@@ -41,7 +41,7 @@ namespace KRG::GraphEditor
             uint32                  m_type; // Generic type that allows user to set custom data be it StringIDs or enum values
             Direction               m_direction;
             ImVec2                  m_screenPosition; // Updated each frame (Screen Space)
-            float                   m_estimatedWidth = -1; // Updated on size calculation
+            ImVec2                  m_estimatedSize = ImVec2( -1, -1 ); // Updated on size calculation
             bool                    m_isDynamic = false; // Only relevant for input pins
             bool                    m_allowMultipleOutConnections = false; // Only relevant for output pins
         };
@@ -80,7 +80,7 @@ namespace KRG::GraphEditor
             virtual bool SupportsDynamicInputPins() const { return false; }
 
             // Whats the name of the dynamic inputs
-            virtual char const* GetDynamicInputPinName() const { return "Pin"; }
+            virtual InlineString<100> GetNewDynamicInputPinName() const { return "Pin"; }
 
             // What's the value type of the dynamic inputs
             virtual uint32 GetDynamicInputPinValueType() const { return 0; }
@@ -107,13 +107,13 @@ namespace KRG::GraphEditor
             inline bool HasOutputPin( UUID const& pinID ) const { return GetOutputPin( pinID ) != nullptr; }
 
             // Get an input pin for this node
-            inline Pin const* GetInputPin( int32 pinIdx ) { KRG_ASSERT( pinIdx >= 0 && pinIdx < m_inputPins.size() ); return &m_inputPins[pinIdx]; }
+            inline Pin* GetInputPin( int32 pinIdx ) { KRG_ASSERT( pinIdx >= 0 && pinIdx < m_inputPins.size() ); return &m_inputPins[pinIdx]; }
 
             // Get an input pin for this node
             inline Pin const* GetInputPin( int32 pinIdx ) const { KRG_ASSERT( pinIdx >= 0 && pinIdx < m_inputPins.size() ); return &m_inputPins[pinIdx]; }
 
             // Get an output pin for this node
-            inline Pin const* GetOutputPin( int32 pinIdx = 0 ) { KRG_ASSERT( pinIdx >= 0 && pinIdx < m_outputPins.size() ); return &m_outputPins[pinIdx]; }
+            inline Pin* GetOutputPin( int32 pinIdx = 0 ) { KRG_ASSERT( pinIdx >= 0 && pinIdx < m_outputPins.size() ); return &m_outputPins[pinIdx]; }
 
             // Get an output pin for this node
             inline Pin const* GetOutputPin( int32 pinIdx = 0 ) const { KRG_ASSERT( pinIdx >= 0 && pinIdx < m_outputPins.size() ); return &m_outputPins[pinIdx]; }
@@ -132,6 +132,12 @@ namespace KRG::GraphEditor
 
             // Does the specified pin ID exist on this node
             inline bool HasPin( UUID const& pinID ) const { return HasInputPin( pinID ) || HasOutputPin( pinID ); }
+
+            // Get the index for a specific input pin via ID
+            int32 GetInputPinIndex( UUID const& pinID ) const;
+
+            // Get the index for a specific output pin via ID
+            int32 GetOutputPinIndex( UUID const& pinID ) const;
 
             // Connections
             //-------------------------------------------------------------------------
@@ -168,8 +174,8 @@ namespace KRG::GraphEditor
 
         protected:
 
-            // Override this if you want custom UI after/before the pin
-            virtual void DrawPinControls( Pin const& pin ) {}
+            // Override this if you want custom UI after/before the pin. Returns true if something was drawn, false otherwise
+            virtual bool DrawPinControls( Pin const& pin ) { return false; }
 
             // Override this if you want to add extra controls after the pins block
             virtual void DrawExtraControls( DrawingContext const& ctx ) {}
@@ -178,17 +184,19 @@ namespace KRG::GraphEditor
             void CreateDynamicInputPin();
 
             // Called just after creating a dynamic pin
-            virtual void OnDynamicPinCreated( UUID pinID ) {}
+            virtual void OnDynamicPinCreation( UUID pinID ) {}
 
             // Destroy a dynamic pin
             void DestroyDynamicInputPin( UUID const& pinID );
 
-            // Called just before destroying a dynamic pin
-            virtual void OnDynamicPinDestroyed( UUID pinID ) {}
+            // Called just before actually destroying a dynamic pin
+            virtual void OnDynamicPinDestruction( UUID pinID ) {}
 
             void CreateInputPin( char const* pPinName, uint32 valueType );
             void CreateOutputPin( char const* pPinName, uint32 valueType, bool allowMultipleOutputConnections = false );
-            void RemovePin( UUID const& pinID );
+            void DestroyInputPin( int32 pinIdx );
+            void DestroyOutputPin( int32 pinIdx );
+            void DestroyPin( UUID const& pinID );
 
             // Allow for custom serialization in derived types
             virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& nodeObjectValue ) {};
@@ -204,6 +212,9 @@ namespace KRG::GraphEditor
             TInlineVector<Pin, 4>       m_inputPins;
             TInlineVector<Pin, 1>       m_outputPins;
 
+            ImVec2                      m_titleRectSize = ImVec2( 0, 0 );
+            ImVec2                      m_pinsRectSize = ImVec2( 0, 0 );
+            ImVec2                      m_controlsRectSize = ImVec2( 0, 0 );
             Pin*                        m_pHoveredPin = nullptr;
             bool                        m_isHovered = false;
         };
@@ -215,11 +226,11 @@ namespace KRG::GraphEditor
 
         struct Connection
         {
-            UUID    m_ID = UUID::GenerateID(); // Transient ID that is only needed for identification in the UI
-            Node*   m_pStartNode = nullptr;
-            UUID    m_startPinID;
-            Node*   m_pEndNode = nullptr;
-            UUID    m_endPinID;
+            UUID                        m_ID = UUID::GenerateID(); // Transient ID that is only needed for identification in the UI
+            Node*                       m_pStartNode = nullptr;
+            UUID                        m_startPinID;
+            Node*                       m_pEndNode = nullptr;
+            UUID                        m_endPinID;
         };
     }
 

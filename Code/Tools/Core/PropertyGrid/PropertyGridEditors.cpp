@@ -568,31 +568,87 @@ namespace KRG::PG
 
     void CreateEditorIntRange( Context& ctx, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
     {
-        KRG_UNIMPLEMENTED_FUNCTION();
-
         auto pValue = reinterpret_cast<IntRange*>( pPropertyInstance );
-        int32 tmpValue = 0;
+        auto tmpValue = *pValue;
 
-        ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U32, &tmpValue ) )
+        float const contentWidth = ImGui::GetContentRegionAvail().x;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const inputWidth = ( contentWidth - ( itemSpacing * 1 ) ) / 2;
+
+        //-------------------------------------------------------------------------
+
+        bool valueUpdated = false;
+
+        ImGui::PushID( pValue );
         {
-            //ScopedChangeNotifier notifier( ctx );
-            //*pValue = tmpValue;
+            ImGui::SameLine( 0, 0 );
+            ImGui::SetNextItemWidth( inputWidth );
+            if ( ImGui::InputScalar( "##min", ImGuiDataType_S32, &tmpValue.m_start, 0, 0 ) )
+            {
+                valueUpdated = true;
+            }
+
+            //-------------------------------------------------------------------------
+
+            ImGui::SameLine( 0, itemSpacing );
+
+            ImGui::SameLine( 0, 0 );
+            ImGui::SetNextItemWidth( inputWidth );
+            if ( ImGui::InputScalar( "##max", ImGuiDataType_S32 , &tmpValue.m_end, 0, 0 ) )
+            {
+                valueUpdated = true;
+            }
+        }
+        ImGui::PopID();
+
+        //-------------------------------------------------------------------------
+
+        if ( valueUpdated )
+        {
+            ScopedChangeNotifier notifier( ctx );
+            *pValue = tmpValue;
         }
     }
 
     void CreateEditorFloatRange( Context& ctx, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
     {
-        KRG_UNIMPLEMENTED_FUNCTION();
-
         auto pValue = reinterpret_cast<FloatRange*>( pPropertyInstance );
-        float tmpValue = 0;
+        auto tmpValue = *pValue;
 
-        ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputFloat( g_emptyLabel, &tmpValue ) )
+        float const contentWidth = ImGui::GetContentRegionAvail().x;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const inputWidth = ( contentWidth - ( itemSpacing * 1 ) ) / 2;
+
+        //-------------------------------------------------------------------------
+
+        bool valueUpdated = false;
+
+        ImGui::PushID( pValue );
         {
-            //ScopedChangeNotifier notifier( ctx );
-            //*pValue = tmpValue;
+            ImGui::SetNextItemWidth( inputWidth );
+            if ( ImGui::InputFloat( "##min", &tmpValue.m_start, 0, 0, "%.3f", 0 ) )
+            {
+                valueUpdated = true;
+            }
+
+            //-------------------------------------------------------------------------
+
+            ImGui::SameLine( 0, itemSpacing );
+
+            ImGui::SetNextItemWidth( inputWidth );
+            if ( ImGui::InputFloat( "##max", &tmpValue.m_end, 0, 0, "%.3f", 0 ) )
+            {
+                valueUpdated = true;
+            }
+        }
+        ImGui::PopID();
+
+        //-------------------------------------------------------------------------
+
+        if ( valueUpdated )
+        {
+            ScopedChangeNotifier notifier( ctx );
+            *pValue = tmpValue;
         }
     }
 
@@ -675,7 +731,7 @@ namespace KRG::PG
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
         float const buttonAreaWidth = 21;
-        float const textAreaWidth = cellContentWidth - buttonAreaWidth - itemSpacing;
+        float const textAreaWidth = cellContentWidth - ( buttonAreaWidth * 2 ) - ( itemSpacing * 2 );
 
         //-------------------------------------------------------------------------
 
@@ -696,6 +752,13 @@ namespace KRG::PG
                 ScopedChangeNotifier notifier( ctx );
                 *pValue = pickedDataPath;
             }
+        }
+
+        ImGui::SameLine( 0, itemSpacing );
+        if ( ImGui::Button( KRG_ICON_ERASER "##Clear" ) )
+        {
+            ScopedChangeNotifier notifier( ctx );
+            *pValue = DataPath();
         }
     }
 
@@ -789,7 +852,7 @@ namespace KRG::PG
         //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, itemSpacing );
-        ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 2 ) - buttonAreaWidth - childWindowWidth );
+        ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonAreaWidth * 2 ) - childWindowWidth );
         ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->c_str() ), pValue->GetDataPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
@@ -807,6 +870,13 @@ namespace KRG::PG
                 ScopedChangeNotifier notifier( ctx );
                 *pValue = ResourceID( pickedDataPath );
             }
+        }
+
+        ImGui::SameLine( 0, itemSpacing );
+        if ( ImGui::Button( KRG_ICON_ERASER "##Clear" ) )
+        {
+            ScopedChangeNotifier notifier( ctx );
+            *pValue = ResourceID();
         }
     }
 
@@ -839,7 +909,7 @@ namespace KRG::PG
         //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, itemSpacing );
-        ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 2 ) - buttonAreaWidth - childWindowWidth );
+        ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonAreaWidth * 2 ) - childWindowWidth );
         ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->GetResourceID().c_str() ), pValue->GetResourceID().GetDataPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
@@ -851,6 +921,13 @@ namespace KRG::PG
                 ScopedChangeNotifier notifier( ctx );
                 *pValue = Resource::ResourcePtr( pickedDataPath );
             }
+        }
+
+        ImGui::SameLine( 0, itemSpacing );
+        if ( ImGui::Button( KRG_ICON_ERASER "##Clear" ) )
+        {
+            ScopedChangeNotifier notifier( ctx );
+            *pValue = ResourceID();
         }
     }
 

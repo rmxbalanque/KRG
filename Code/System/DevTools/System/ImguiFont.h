@@ -1,6 +1,8 @@
 #pragma once
 #include "../_Module/API.h"
 #include "System/Core/Core/IntegralTypes.h"
+#include "System/DevTools/ThirdParty/imgui/imgui.h"
+#include "System/Core/Types/Color.h"
 
 //-------------------------------------------------------------------------
 
@@ -42,13 +44,27 @@ namespace KRG::ImGuiX
     public:
 
         ScopedFont( Font font );
-        ScopedFont( Font font, ImVec4 const& color );
+        ScopedFont( Font font, ImColor const& color );
+        explicit ScopedFont( Font font, Color const& color ) : ScopedFont( font, (ImColor) IM_COL32( color.m_byteColor.m_r, color.m_byteColor.m_g, color.m_byteColor.m_b, color.m_byteColor.m_a ) ) {}
         ~ScopedFont();
 
     private:
 
         bool m_colorApplied = false;
     };
+
+    //-------------------------------------------------------------------------
+
+    KRG_SYSTEM_DEVTOOLS_API inline void PushFont( Font font ) 
+    {
+        ImGui::PushFont( SystemFonts::s_fonts[(int8) font] ); 
+    }
+
+    KRG_SYSTEM_DEVTOOLS_API inline void PushFontAndColor( Font font, ImColor const& color ) 
+    {
+        ImGui::PushFont( SystemFonts::s_fonts[(int8) font] );
+        ImGui::PushStyleColor( ImGuiCol_Text, color.Value );
+    }
 }
 #endif
 

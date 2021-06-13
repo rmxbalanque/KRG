@@ -21,6 +21,7 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( m_pControlParameterEditor == nullptr );
         KRG_ASSERT( m_pGraphEditor == nullptr );
         KRG_ASSERT( m_pPropertyGrid == nullptr );
+        KRG_ASSERT( m_pVariationEditor == nullptr );
     }
 
     void AnimationGraphEditor::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
@@ -30,6 +31,7 @@ namespace KRG::Animation::Graph
         m_pControlParameterEditor = CreateTool<GraphControlParameterEditor>( context, &GetModel() );
         m_pGraphEditor = CreateTool<GraphEditorView>( context, &GetModel() );
         m_pPropertyGrid = CreateTool<GraphPropertyGrid>( context, &GetModel() );
+        m_pVariationEditor = CreateTool<GraphVariationEditor>( context, &GetModel() );
     }
 
     void AnimationGraphEditor::Shutdown( UpdateContext const& context )
@@ -37,6 +39,7 @@ namespace KRG::Animation::Graph
         DestroyTool( context, m_pControlParameterEditor );
         DestroyTool( context, m_pGraphEditor );
         DestroyTool( context, m_pPropertyGrid );
+        DestroyTool( context, m_pVariationEditor );
 
         TEditor<GraphEditorModel>::Shutdown( context );
     }
@@ -46,6 +49,7 @@ namespace KRG::Animation::Graph
         m_pControlParameterEditor->SetOpen( flags & ( 1 << 0 ) );
         m_pGraphEditor->SetOpen( flags & ( 1 << 1 ) );
         m_pPropertyGrid->SetOpen( flags & ( 1 << 2 ) );
+        m_pVariationEditor->SetOpen( flags & ( 1 << 3 ) );
     }
 
     uint64 AnimationGraphEditor::GetUserFlags() const
@@ -65,6 +69,11 @@ namespace KRG::Animation::Graph
         if ( m_pPropertyGrid != nullptr && m_pPropertyGrid->IsOpen() )
         {
             flags |= ( 1 << 2 );
+        }
+
+        if ( m_pVariationEditor != nullptr && m_pVariationEditor->IsOpen() )
+        {
+            flags |= ( 1 << 3 );
         }
 
         return flags;
@@ -105,6 +114,11 @@ namespace KRG::Animation::Graph
             }
 
             ImGui::EndMenu();
+        }
+
+        if ( ImGui::MenuItem( "Refresh View" ) )
+        {
+            m_pGraphEditor->RefreshView();
         }
     }
 }

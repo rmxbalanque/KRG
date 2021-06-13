@@ -37,7 +37,7 @@ namespace KRG::Animation::Graph
     //-------------------------------------------------------------------------
 
     AnimationPoseToolsNode::AnimationPoseToolsNode()
-        : ToolsNode()
+        : DataSlotNode()
     {
         CreateOutputPin( "Pose", NodeValueType::Pose );
         CreateInputPin( "Time", NodeValueType::Float );
@@ -70,7 +70,7 @@ namespace KRG::Animation::Graph
 
             //-------------------------------------------------------------------------
 
-            pSettings->m_sourceIndex = context.GetAnimationClipSourceIndex( GetID() );
+            pSettings->m_dataSlotIndex = context.RegisterSlotNode( GetID() );
             pSettings->m_inputTimeRemapRange = m_inputTimeRemapRange;
         }
         return pSettings->m_nodeIdx;

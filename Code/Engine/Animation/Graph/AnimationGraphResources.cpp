@@ -4,4 +4,5 @@
 
 namespace KRG::Animation
 {
+    KRG::StringID const AnimationGraphVariation::DefaultVariationID( "Default" );
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include "AnimationGraphTools_Graph.h"
+#include "AnimationGraphTools_Variations.h"
 #include "Nodes/AnimationToolsNode_Parameters.h"
+#include "Engine/Animation/Graph/AnimationGraphResources.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,6 +24,9 @@ namespace KRG::Animation::Graph
         bool IsValid() const { return m_pRootGraph != nullptr; }
 
         bool IsDirty() const { return false; }
+
+        // File Operations
+        //-------------------------------------------------------------------------
 
         // Creates a new empty graph
         void CreateNew();
@@ -45,6 +50,13 @@ namespace KRG::Animation::Graph
             return m_pRootGraph->FindAllNodesOfType<T>( includeDerivedNodes );
         }
 
+        template<typename T>
+        TInlineVector<T const*, 20> FindAllNodesOfType( bool includeDerivedNodes = true ) const
+        {
+            static_assert( std::is_base_of<ToolsNode, T>::value );
+            return m_pRootGraph->FindAllNodesOfType<T const>( includeDerivedNodes );
+        }
+
         // Parameters
         //-------------------------------------------------------------------------
 
@@ -66,6 +78,18 @@ namespace KRG::Animation::Graph
         void DestroyControlParameter( UUID parameterID );
         void DestroyVirtualParameter( UUID parameterID );
 
+        // Variations and Data Slots
+        //-------------------------------------------------------------------------
+
+        inline VariationHierarchy const& GetVariations() const { return m_variations; }
+        inline VariationHierarchy& GetVariations() { return m_variations; }
+        inline bool IsValidVariation( StringID variationID ) const { return m_variations.IsValidVariation( variationID ); }
+        Variation const* GetVariation( StringID variationID ) const { return m_variations.GetVariation( variationID ); }
+        Variation* GetVariation( StringID variationID ) { return m_variations.GetVariation( variationID ); }
+
+        inline TInlineVector<DataSlotNode*, 20> GetAllDataSlotNodes() { return FindAllNodesOfType<DataSlotNode>(); }
+        inline TInlineVector<DataSlotNode const*, 20> GetAllDataSlotNodes() const { return FindAllNodesOfType<DataSlotNode>(); }
+
         // Compilation
         //-------------------------------------------------------------------------
 
@@ -81,6 +105,7 @@ namespace KRG::Animation::Graph
     private:
 
         ToolsGraph*                                 m_pRootGraph = nullptr;
+        VariationHierarchy                          m_variations;
         TVector<ControlParameterToolsNode*>         m_controlParameters;
         TVector<VirtualParameterToolsNode*>         m_virtualParameters;
     };

@@ -19,6 +19,7 @@ namespace KRG::Animation
     {
         m_outputTypes.push_back( AnimationGraphDefinition::GetStaticResourceTypeID() );
         m_outputTypes.push_back( AnimationGraphVariation::GetStaticResourceTypeID() );
+        m_virtualTypes.push_back( AnimationGraphDataSet::GetStaticResourceTypeID() );
     }
 
     Resource::CompilationResult AnimationGraphCompiler::Compile( Resource::CompileContext const& ctx ) const
@@ -76,6 +77,10 @@ namespace KRG::Animation
 
             return Resource::CompilationResult::Failure;
         }
+
+        // The last offset is actual the required memory
+        context.m_instanceRequiredMemory = context.m_instanceNodeStartOffsets.back();
+        context.m_instanceNodeStartOffsets.pop_back();
 
         // Serialize
         //-------------------------------------------------------------------------
@@ -140,10 +145,42 @@ namespace KRG::Animation
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
+        StringID const variationID = resourceDescriptor.m_variationID.IsValid() ? resourceDescriptor.m_variationID : AnimationGraphVariation::DefaultVariationID;
+        if ( !toolsGraph.IsValidVariation( variationID ) )
+        {
+            return Error( "Invalid variation requested: %s", variationID.c_str() );
+        }
+
+        // Compile
+        //-------------------------------------------------------------------------
+        // We need to compile the graph to get the order of the data slots
+
+        ToolsGraphCompilationContext context;
+        if ( !toolsGraph.Compile( context ) )
+        {
+            // Dump log
+            for ( auto const& logEntry : context.GetLog() )
+            {
+                if ( logEntry.m_severity == Log::Severity::Error )
+                {
+                    Error( "%s", logEntry.m_message.c_str() );
+                }
+                else if ( logEntry.m_severity == Log::Severity::Warning )
+                {
+                    Warning( "%s", logEntry.m_message.c_str() );
+                }
+                else if ( logEntry.m_severity == Log::Severity::Message )
+                {
+                    Message( "%s", logEntry.m_message.c_str() );
+                }
+            }
+
+            return Resource::CompilationResult::Failure;
+        }
+
         // Create requested data set resource
         //-------------------------------------------------------------------------
 
-        StringID const variationID = resourceDescriptor.m_variationID.IsValid() ? resourceDescriptor.m_variationID : StringID( AnimationGraphVariation::s_pDefaultVariationName );
         String dataSetFileName;
         dataSetFileName.sprintf( "%s_%s.%s", graphFilePath.GetFileNameWithoutExtension().c_str(), variationID.c_str(), AnimationGraphDataSet::GetStaticResourceTypeID().ToString().c_str() );
 
@@ -151,7 +188,7 @@ namespace KRG::Animation
         dataSetFilePath.Append( dataSetFileName );
         DataPath const dataSetDataPath = DataPath::FromFileSystemPath( ctx.m_sourceDataPath, dataSetFilePath );
 
-        if ( !GenerateVirtualDataSetResource( ctx, variationID, dataSetDataPath ) )
+        if ( !GenerateVirtualDataSetResource( ctx, toolsGraph, context, variationID, dataSetDataPath ) )
         {
             return Error( "Failed to create data set: %s", dataSetDataPath.c_str() );
         }
@@ -186,152 +223,79 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, StringID const& variationID, DataPath const& dataSetPath ) const
+    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, ToolsAnimationGraph const& toolsGraph, ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, DataPath const& dataSetPath ) const
     {
-        //if ( !ctx.m_inputFilePath.Exists() )
-        //{
-        //    return Error( "Referenced data set file doesnt exist: %s", ctx.m_inputFilePath.c_str() );
-        //}
+        AnimationGraphDataSet dataSet;
+        dataSet.m_variationID = variationID;
 
-        //// Read json data
-        ////-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
+        // Get skeleton for variation
+        //-------------------------------------------------------------------------
 
-        //JsonFileReader dataSetReader;
-        //if ( !dataSetReader.ReadFromFile( ctx.m_inputFilePath ) )
-        //{
-        //    return Error( "Failed to data set file: %s", ctx.m_inputFilePath.c_str() );
-        //}
+        KRG_ASSERT( toolsGraph.IsValidVariation( variationID ) );
+        auto const pVariation = toolsGraph.GetVariation( variationID );
+        KRG_ASSERT( pVariation != nullptr ); 
+        if ( !pVariation->m_pSkeleton.IsValid() )
+        {
+            Error( "Skeleton not set for variation: %s", variationID.c_str() );
+            return false;
+        }
 
-        //if ( !dataSetReader.GetDocument().IsObject() )
-        //{
-        //    return Error( "Malformed data set file: %s", ctx.m_inputFilePath.c_str() );
-        //}
+        dataSet.m_pSkeleton = pVariation->m_pSkeleton;
 
-        //auto const& document = dataSetReader.GetDocument();
+        //-------------------------------------------------------------------------
+        // Fill data slots
+        //-------------------------------------------------------------------------
 
-        ////-------------------------------------------------------------------------
-        //// Read data set
-        ////-------------------------------------------------------------------------
+        THashMap<UUID, DataSlotNode const*> dataSlotLookupMap;
+        auto const& dataSlotNodes = toolsGraph.GetAllDataSlotNodes();
+        for ( auto pSlotNode : dataSlotNodes )
+        {
+            dataSlotLookupMap.insert( TPair<UUID, DataSlotNode const*>( pSlotNode->GetID(), pSlotNode ) );
+        }
 
-        //AnimationGraphDataSet dataSet;
+        dataSet.m_resources.reserve( compilationContext.m_registeredDataSlots.size() );
 
-        //// Get data set info
-        ////-------------------------------------------------------------------------
+        for ( auto const& dataSlotID : compilationContext.m_registeredDataSlots )
+        {
+            auto iter = dataSlotLookupMap.find( dataSlotID );
+            if ( iter == dataSlotLookupMap.end() )
+            {
+                Error( "Unknown data slot encountered (%s) when generating data set", dataSlotID.ToString().c_str() );
+                return false;
+            }
 
-        //auto nameIter = document.FindMember( "Name" );
-        //if ( nameIter == document.MemberEnd() || !nameIter->value.IsString() )
-        //{
-        //    return Error( "Missing Name string" );
-        //}
+            auto const dataSlotResourceID = iter->second->GetValue( toolsGraph.GetVariations(), variationID );
+            dataSet.m_resources.emplace_back( dataSlotResourceID );
+        }
 
-        //auto animGraphDataPathIter = document.FindMember( "Graph" );
-        //if ( animGraphDataPathIter == document.MemberEnd() || !animGraphDataPathIter->value.IsString() )
-        //{
-        //    return Error( "Missing Graph datapath" );
-        //}
+        //-------------------------------------------------------------------------
+        // Serialize
+        //-------------------------------------------------------------------------
 
-        //if ( !DataPath::IsValidDataPath( animGraphDataPathIter->value.GetString() ) )
-        //{
-        //    return Error( "Invalid data path format for Graph string" );
-        //}
+        FileSystem::Path const dataSetOutputPath = dataSetPath.ToFileSystemPath( ctx.m_compiledDataPath );
+        FileSystem::EnsurePathExists( dataSetOutputPath );
+        Serialization::BinaryFileArchive archive( Serialization::Mode::Write, dataSetOutputPath );
+        if ( archive.IsValid() )
+        {
+            Resource::ResourceHeader hdr( s_version, AnimationGraphDataSet::GetStaticResourceTypeID() );
 
-        //ResourceID const animGraphResourceID( animGraphDataPathIter->value.GetString() );
-        //if ( animGraphResourceID.GetResourceTypeID() != AnimationGraphDefinition::GetStaticResourceTypeID() )
-        //{
-        //    return Error( "Graph data path set to a non-animgraph resource" );
-        //}
+            hdr.AddInstallDependency( dataSet.m_pSkeleton.GetResourceID() );
 
-        //auto skeletonDataPathIter = document.FindMember( "Skeleton" );
-        //if ( skeletonDataPathIter == document.MemberEnd() || !skeletonDataPathIter->value.IsString() )
-        //{
-        //    return Error( "Missing Skeleton string" );
-        //}
+            for ( auto const& dataRecord : dataSet.m_resources )
+            {
+                if ( dataRecord.IsValid() )
+                {
+                    hdr.AddInstallDependency( dataRecord.GetResourceID() );
+                }
+            }
 
-        //if ( !DataPath::IsValidDataPath( skeletonDataPathIter->value.GetString() ) )
-        //{
-        //    return Error( "Invalid data path format for Skeleton string" );
-        //}
-
-        //ResourceID const skeletonResourceID( skeletonDataPathIter->value.GetString() );
-        //if ( skeletonResourceID.GetResourceTypeID() != Skeleton::GetStaticResourceTypeID() )
-        //{
-        //    return Error( "Skeleton data path set to a non-skeleton resource" );
-        //}
-
-        //dataSet.m_name = StringID( nameIter->value.GetString() );
-        //dataSet.m_pSkeleton = skeletonResourceID;
-
-        //// Read animations
-        ////-------------------------------------------------------------------------
-
-        //auto dataArrayIter = document.FindMember( "Data" );
-        //if ( dataArrayIter == document.MemberEnd() )
-        //{
-        //    return Error( "Missing data array member" );
-        //}
-
-        //auto const& dataArray = dataArrayIter->value;
-        //if ( !dataArray.IsArray() )
-        //{
-        //    return Error( "Missing data array member" );
-        //}
-
-        //for ( auto& dataValue : dataArray.GetArray() )
-        //{
-        //    auto itemIDiter = dataValue.FindMember( "ID" );
-        //    if ( itemIDiter == dataValue.MemberEnd() || !itemIDiter->value.IsString() )
-        //    {
-        //        return Error( "Missing item ID string" );
-        //    }
-
-        //    if ( !UUID::IsValidUUIDString( itemIDiter->value.GetString() ) )
-        //    {
-        //        return Error( "Invalid GUID format for item ID string" );
-        //    }
-
-        //    auto itemDataPathIter = dataValue.FindMember( "DataPath" );
-        //    if ( itemDataPathIter == dataValue.MemberEnd() || !itemDataPathIter->value.IsString() )
-        //    {
-        //        return Error( "Missing item DataPath string" );
-        //    }
-
-        //    if ( !DataPath::IsValidDataPath( itemDataPathIter->value.GetString() ) )
-        //    {
-        //        return Error( "Invalid data path format for DataPath string" );
-        //    }
-
-        //    ResourceID const animResourceID( itemDataPathIter->value.GetString() );
-        //    if ( animResourceID.GetResourceTypeID() != AnimationClip::GetStaticResourceTypeID() )
-        //    {
-        //        return Error( "Only data paths to animation clips are allowed in graph data set" );
-        //    }
-
-        //    dataSet.m_animationClips.emplace_back( animResourceID );
-        //}
-
-        ////-------------------------------------------------------------------------
-
-        //FileSystem::EnsurePathExists( ctx.m_outputFilePath );
-        //Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
-        //if ( archive.IsValid() )
-        //{
-        //    Resource::ResourceHeader hdr( s_version, AnimationGraphDataSet::GetStaticResourceTypeID() );
-
-        //    hdr.AddInstallDependency( dataSet.m_pSkeleton.GetResourceID() );
-
-        //    for ( auto const& dataRecord : dataSet.m_animationClips )
-        //    {
-        //        hdr.AddInstallDependency( dataRecord.GetResourceID() );
-        //    }
-
-        //    archive << hdr << dataSet;
-        //    return CompilationSucceeded( ctx );
-        //}
-        //else
-        //{
-        //    return CompilationFailed( ctx );
-        //}
-
-        return false;
+            archive << hdr << dataSet;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

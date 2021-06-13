@@ -7,7 +7,7 @@
 namespace KRG::Animation::Graph
 {
     AnimationClipToolsNode::AnimationClipToolsNode()
-        : ToolsNode()
+        : DataSlotNode()
     {
         CreateOutputPin( "Pose", NodeValueType::Pose );
         CreateInputPin( "Play In Reverse", NodeValueType::Bool );
@@ -35,8 +35,8 @@ namespace KRG::Animation::Graph
 
             //-------------------------------------------------------------------------
 
-            pSettings->m_sourceIndex = context.GetAnimationClipSourceIndex( GetID() );
-            pSettings->m_shouldSampleRootMotion = m_shouldSampleRootMotion;
+            pSettings->m_dataSlotIdx = context.RegisterSlotNode( GetID() );
+            pSettings->m_sampleRootMotion = m_sampleRootMotion;
             pSettings->m_allowLooping = m_allowLooping;
         }
         return pSettings->m_nodeIdx;

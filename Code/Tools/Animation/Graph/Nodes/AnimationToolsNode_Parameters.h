@@ -47,6 +47,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Parameter"; }
         virtual char const* GetCategory() const override { return "Control Parameters"; }
         virtual bool IsUserCreatable() const override { return false; }
+        virtual bool IsDestroyable() const override { return true; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
 
@@ -99,6 +100,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Parameter"; }
         virtual char const* GetCategory() const override { return "Virtual Parameters"; }
         virtual bool IsUserCreatable() const override { return false; }
+        virtual bool IsDestroyable() const override { return true; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
 

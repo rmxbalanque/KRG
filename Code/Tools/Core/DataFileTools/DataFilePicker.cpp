@@ -1,11 +1,67 @@
 #include "DataFilePicker.h"
 #include "Tools/Core/Thirdparty/pfd/portable-file-dialogs.h"
+#include "System/DevTools/ImguiX.h"
 #include <sstream>
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
+    bool DataFilePicker::DrawPickerControl( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypeID, ResourceID* pResourceID )
+    {
+        KRG_ASSERT( sourceDataPath.ExistsAndIsDirectory() );
+        KRG_ASSERT( allowedResourceTypeID.IsValid() && pResourceID != nullptr );
+
+        float const cellContentWidth = ImGui::GetContentRegionAvail().x;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const buttonAreaWidth = 21;
+        float const childWindowWidth = 50;
+
+        //-------------------------------------------------------------------------
+
+        char resourceTypeStr[5] = { 0 };
+        allowedResourceTypeID.GetString( resourceTypeStr );
+
+        bool valueUpdated = false;
+
+        //-------------------------------------------------------------------------
+
+        ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 2 ) );
+        ImGui::BeginChild( "IDLabel", ImVec2( childWindowWidth, 18 ), true, ImGuiWindowFlags_None | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
+        {
+            ImGui::TextColored( Colors::LightPink.ToFloat4(), resourceTypeStr );
+        }
+        ImGui::EndChild();
+        ImGui::PopStyleVar( 2 );
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SameLine( 0, itemSpacing );
+        ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonAreaWidth * 2 ) - childWindowWidth );
+        ImGui::InputText( "##DataPath", const_cast<char*>( pResourceID->c_str() ), pResourceID->GetDataPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
+
+        ImGui::SameLine( 0, itemSpacing );
+        if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
+        {
+            DataPath pickedDataPath;
+            if ( DataFilePicker::PickResourceFile( sourceDataPath, allowedResourceTypeID, pickedDataPath ) )
+            {
+                *pResourceID = ResourceID( pickedDataPath );
+                valueUpdated = true;
+            }
+        }
+
+        ImGui::SameLine( 0, itemSpacing );
+        if ( ImGui::Button( KRG_ICON_ERASER "##Clear" ) )
+        {
+            *pResourceID = ResourceID();
+            valueUpdated = true;
+        }
+
+        return valueUpdated;
+    }
+
     bool DataFilePicker::PickFile( FileSystem::Path const & sourceDataPath, DataPath& outPath )
     {
         auto const selectedFiles = pfd::open_file( "Choose Data File", sourceDataPath.c_str(), { "All Files", "*" }, pfd::opt::none ).result();

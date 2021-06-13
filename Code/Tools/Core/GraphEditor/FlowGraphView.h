@@ -35,10 +35,6 @@ namespace KRG::GraphEditor
             bool                    m_menuOpened = false;
         };
 
-        constexpr static float const s_pinRadius = 5.0f;
-        constexpr static float const s_pinSelectionExtraRadius = 5.0f;
-        constexpr static float const s_connectionSelectionExtraRadius = 5.0f;
-
     public:
 
         FlowGraphView() = default;
@@ -48,6 +44,8 @@ namespace KRG::GraphEditor
 
         bool HasFocus() const { return m_hasFocus; }
         void Draw( float childHeightOverride = 0.0f );
+
+        void RecalculateNodeSizes();
 
         // Selection
         //-------------------------------------------------------------------------
@@ -127,9 +125,11 @@ namespace KRG::GraphEditor
         void DrawContextMenu( ImVec2 const& mouseCanvasPos, Flow::Node* pNode, Flow::Pin* pPin );
         inline bool IsContextMenuOpen() const { return m_contextMenuState.m_menuOpened; }
 
+        // User derivable to provide extra option for the context menu
         virtual void DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos );
-        virtual void DrawContextMenuForNode( ImVec2 const& mouseCanvasPos, Flow::Node* pNode );
-        virtual void DrawContextMenuForPin( ImVec2 const& mouseCanvasPos, Flow::Node* pNode, Flow::Pin* pPin );
+
+        // User derivable to provide extra options for the context menu
+        virtual void DrawContextMenuForNode( ImVec2 const& mouseCanvasPos, Flow::Node* pNode, Flow::Pin* pPin ) {}
 
         // Selection
         //-------------------------------------------------------------------------

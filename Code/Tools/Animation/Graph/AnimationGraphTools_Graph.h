@@ -8,6 +8,7 @@ namespace KRG::Animation::Graph
     class ToolsGraph final : public GraphEditor::FlowGraph
     {
         friend class ToolsAnimationGraph;
+        KRG_REGISTER_TYPE( ToolsGraph );
 
     public:
 
@@ -44,6 +45,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        GraphType       m_type;
+        REGISTER GraphType       m_type;
     };
 }

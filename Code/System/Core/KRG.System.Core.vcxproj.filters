@@ -204,9 +204,6 @@
     <ClCompile Include="Math\BoundingVolumes.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Easing.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Math.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -388,9 +385,6 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\BoundingVolumes.h">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Easing.h">
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Line.h">

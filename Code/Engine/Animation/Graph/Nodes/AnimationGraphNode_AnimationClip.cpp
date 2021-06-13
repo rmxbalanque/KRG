@@ -13,7 +13,7 @@ namespace KRG::Animation::Graph
         SetOptionalNodePtrFromIndex( nodePtrs, m_playInReverseValueNodeIdx, pNode->m_pPlayInReverseValueNode );
 
         auto pSettings = pNode->GetSettings<AnimationClipNode>();
-        pNode->m_pAnimation = pDataSet->GetAnimationClip( pSettings->m_sourceIndex );
+        pNode->m_pAnimation = pDataSet->GetAnimationClip( pSettings->m_dataSlotIdx );
     }
 
     bool AnimationClipNode::IsValid() const
@@ -34,7 +34,7 @@ namespace KRG::Animation::Graph
 
         // Initialize state data
         m_duration = m_pAnimation->GetDuration();
-        m_shouldSampleRootMotion = pSettings->m_shouldSampleRootMotion;
+        m_shouldSampleRootMotion = pSettings->m_sampleRootMotion;
         m_shouldPlayInReverse = false;
 
         // Calculate start time
@@ -188,7 +188,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        context.GetRootMotionActionRecorder()->RecordSampling( GetNodeIdx(), result.m_rootMotionDelta );
+        context.GetRootMotionActionRecorder()->RecordSampling( GetNodeIndex(), result.m_rootMotionDelta );
         #endif
 
         // Post-process sampled events
@@ -200,7 +200,7 @@ namespace KRG::Animation::Graph
         for ( auto pEvent : sampledAnimationEvents )
         {
             Percentage const percentageThroughEvent = pEvent->GetTimeRange().GetPercentageThrough( currentAnimTimeSeconds );
-            auto& createdEvent = context.m_sampledEvents.EmplaceAnimEvent( pEvent, percentageThroughEvent, GetNodeIdx() );
+            auto& createdEvent = context.m_sampledEvents.EmplaceAnimEvent( GetNodeIndex(), pEvent, percentageThroughEvent );
 
             if ( isFromInactiveBranch )
             {
@@ -214,7 +214,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         Percentage const sampleTime = m_shouldPlayInReverse ? Percentage( 1.0f - m_currentTime.ToFloat() ) : m_currentTime;
-        result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::SampleTask>( GetNodeIdx(), m_pAnimation, sampleTime );
+        result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::SampleTask>( GetNodeIndex(), m_pAnimation, sampleTime );
         return result;
     }
 }

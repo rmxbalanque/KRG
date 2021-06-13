@@ -25,7 +25,7 @@ namespace KRG
 
             ResourcePtr() = default;
             ResourcePtr( nullptr_t ) {};
-            ResourcePtr( ResourceID id ) : m_resourceID( id ) { KRG_ASSERT( id.IsValid() ); }
+            ResourcePtr( ResourceID id ) : m_resourceID( id ) {}
             ResourcePtr( Resource::ResourcePtr const& rhs ) { operator=( rhs ); }
             ResourcePtr( Resource::ResourcePtr&& rhs ) { operator=( eastl::move( rhs ) ); }
 

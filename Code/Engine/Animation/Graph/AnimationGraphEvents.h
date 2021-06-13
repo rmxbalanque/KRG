@@ -43,17 +43,20 @@ namespace KRG::Animation::Graph
     public:
 
         SampledEvent() = default;
-        SampledEvent( Event const* pEvent, Percentage percentageThrough, NodeIndex sourceNodeIdx );
-        SampledEvent( Flags stateEventType, StringID ID, Percentage percentageThrough, NodeIndex sourceNodeIdx );
+        SampledEvent( NodeIndex sourceNodeIdx, Event const* pEvent, Percentage percentageThrough );
+        SampledEvent( NodeIndex sourceNodeIdx, Flags stateEventType, StringID ID, Percentage percentageThrough );
 
+        inline NodeIndex GetSourceNodeIndex() const { return m_sourceNodeIdx; }
         inline bool IsStateEvent() const { return m_flags.AreAnyFlagsSet( Flags::StateEntry, Flags::StateExecute, Flags::StateExit, Flags::StateTimed ); }
-        inline Event const* GetEvent() const { KRG_ASSERT( !IsStateEvent() ); return m_eventData.m_pEvent; }
+        inline bool IsFromActiveBranch() const { return !m_flags.IsFlagSet( Flags::FromInactiveBranch ); }
         inline StringID GetID() const { KRG_ASSERT( IsStateEvent() ); return m_eventData.m_stateEventID; }
         inline float GetWeight() const { return m_weight; }
         inline void SetWeight( float weight ) { KRG_ASSERT( weight >= 0.0f && weight <= 1.0f ); m_weight = weight; }
         inline Percentage GetPercentageThrough() const { return m_percentageThrough; }
-        inline TBitFlags<Flags>& GetFlags() { return m_flags; }
-        inline TBitFlags<Flags> const& GetFlags() const { return m_flags; }
+
+        //-------------------------------------------------------------------------
+
+        inline Event const* GetEvent() const { KRG_ASSERT( !IsStateEvent() ); return m_eventData.m_pEvent; }
 
         template<typename T>
         inline T const* GetEvent() const
@@ -62,6 +65,13 @@ namespace KRG::Animation::Graph
             KRG_ASSERT( m_pEvent->GetTypeInfo()->IsDerivedFrom( T::s_pTypeInfo.m_ID ) );
             return static_cast<T const*>( m_pEvent );
         }
+
+        // Flags
+        //-------------------------------------------------------------------------
+
+        inline TBitFlags<Flags>& GetFlags() { return m_flags; }
+        inline TBitFlags<Flags> const& GetFlags() const { return m_flags; }
+        inline void SetFlag( Flags flag, bool value ) { m_flags.SetFlag( flag, value ); }
 
     private:
 
@@ -73,8 +83,10 @@ namespace KRG::Animation::Graph
     };
 
     //-------------------------------------------------------------------------
-    // Sample Event Buffer
+    // Sample Event Range
     //-------------------------------------------------------------------------
+    // A range of indices into the sampled events buffer: [startIndex, endIndex);
+    // The end index is not part of each range, it is the start index for the next range or the end of the sampled events buffer
 
     struct SampledEventRange
     {
@@ -92,6 +104,8 @@ namespace KRG::Animation::Graph
         int16                               m_endIdx = InvalidIndex;
     };
 
+    //-------------------------------------------------------------------------
+    // Sample Event Buffer
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API SampledEventsBuffer
@@ -120,7 +134,7 @@ namespace KRG::Animation::Graph
         // Update all event weights for the supplied range
         inline void UpdateWeights( SampledEventRange range, float weightMultiplier )
         {
-            KRG_ASSERT( range.m_startIdx >= 0 && range.m_endIdx < m_events.size() );
+            KRG_ASSERT( range.m_startIdx >= 0 && range.m_endIdx <= m_events.size() );
             for ( int16 i = range.m_startIdx; i < range.m_endIdx; i++ )
             {
                 m_events[i].m_weight *= weightMultiplier;
@@ -139,88 +153,83 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        inline SampledEvent& EmplaceAnimEvent( Event const* pEvent, Percentage percentageThrough, NodeIndex sourceNodeIdx )
+        inline SampledEvent& EmplaceAnimEvent( NodeIndex sourceNodeIdx, Event const* pEvent, Percentage percentageThrough )
         {
-            return m_events.emplace_back( SampledEvent( pEvent, percentageThrough, sourceNodeIdx ) );
+            return m_events.emplace_back( SampledEvent( sourceNodeIdx, pEvent, percentageThrough ) );
         }
 
-        inline SampledEvent& EmplaceStateEvent( SampledEvent::Flags stateEventType, StringID ID, Percentage percentageThrough, NodeIndex sourceNodeIdx )
+        inline SampledEvent& EmplaceStateEvent( NodeIndex sourceNodeIdx, SampledEvent::Flags stateEventType, StringID ID )
         {
-            return m_events.emplace_back( SampledEvent( stateEventType, ID, percentageThrough, sourceNodeIdx ) );
+            KRG_ASSERT( stateEventType >= SampledEvent::Flags::StateEntry );
+            return m_events.emplace_back( SampledEvent( sourceNodeIdx, stateEventType, ID, 1.0f ) );
         }
 
         // Helpers
         //-------------------------------------------------------------------------
-        // These are not the cheapest, so use sparingly
+        // These are not the cheapest, so use sparingly. These functions also take the ignored flag into account.
 
-        inline bool ContainStateEvent( SampledEventRange const& range, StringID ID, bool onlyFromActiveBranch = false ) const
+        inline bool ContainsStateEvent( SampledEventRange const& range, StringID ID, bool onlyFromActiveBranch = false ) const
         {
             KRG_ASSERT( range.m_startIdx >= 0 && range.m_endIdx < m_events.size() );
 
-            if ( onlyFromActiveBranch )
+            for ( int32 i = range.m_startIdx; i < range.m_endIdx; i++ )
             {
-                for ( int32 i = range.m_startIdx; i < range.m_endIdx; i++ )
+                auto& event = m_events[i];
+
+                if ( event.m_flags.IsFlagSet( SampledEvent::Flags::Ignored ) )
                 {
-                    auto& event = m_events[i];
-                    if ( event.IsStateEvent() && !event.m_flags.IsFlagSet( SampledEvent::Flags::FromInactiveBranch ) && event.GetID() == ID )
-                    {
-                        return true;
-                    }
+                    continue;
                 }
-            }
-            else // Dont check the active branch flag
-            {
-                for ( int32 i = range.m_startIdx; i < range.m_endIdx; i++ )
+
+                if ( onlyFromActiveBranch && event.m_flags.IsFlagSet( SampledEvent::Flags::FromInactiveBranch ) )
                 {
-                    auto& event = m_events[i];
-                    if ( event.IsStateEvent() && event.GetID() == ID )
-                    {
-                        return true;
-                    }
+                    continue;
+                }
+
+                if ( event.IsStateEvent() && event.GetID() == ID )
+                {
+                    return true;
                 }
             }
 
             return false;
         }
 
-        inline bool ContainSpecificStateEvent( SampledEventRange const& range, StringID ID, SampledEvent::Flags flag, bool onlyFromActiveBranch = false ) const
+        inline bool ContainsSpecificStateEvent( SampledEventRange const& range, StringID ID, SampledEvent::Flags flag, bool onlyFromActiveBranch = false ) const
         {
             KRG_ASSERT( range.m_startIdx >= 0 && range.m_endIdx < m_events.size() );
 
-            if ( onlyFromActiveBranch )
+            for ( int32 i = range.m_startIdx; i < range.m_endIdx; i++ )
             {
-                for ( int32 i = range.m_startIdx; i < range.m_endIdx; i++ )
+                auto& event = m_events[i];
+
+                if ( event.m_flags.IsFlagSet( SampledEvent::Flags::Ignored ) )
                 {
-                    auto& event = m_events[i];
-                    if ( event.IsStateEvent() && event.m_flags.IsFlagSet( flag ) && !event.m_flags.IsFlagSet( SampledEvent::Flags::FromInactiveBranch ) && event.GetID() == ID )
-                    {
-                        return true;
-                    }
+                    continue;
                 }
-            }
-            else // Dont check the active branch flag
-            {
-                for ( int32 i = range.m_startIdx; i < range.m_endIdx; i++ )
+
+                if ( onlyFromActiveBranch && event.m_flags.IsFlagSet( SampledEvent::Flags::FromInactiveBranch ) )
                 {
-                    auto& event = m_events[i];
-                    if ( event.IsStateEvent() && event.m_flags.IsFlagSet( flag ) && event.GetID() == ID )
-                    {
-                        return true;
-                    }
+                    continue;
+                }
+
+                if ( event.IsStateEvent() && event.m_flags.IsFlagSet( flag ) && !event.m_flags.IsFlagSet( SampledEvent::Flags::FromInactiveBranch ) && event.GetID() == ID )
+                {
+                    return true;
                 }
             }
 
             return false;
         }
 
-        inline bool ContainStateEvent( StringID ID, bool onlyFromActiveBranch = false ) const
+        inline bool ContainsStateEvent( StringID ID, bool onlyFromActiveBranch = false ) const
         {
-            return ContainStateEvent( SampledEventRange( 0, (int16) m_events.size() ), ID, onlyFromActiveBranch );
+            return ContainsStateEvent( SampledEventRange( 0, (int16) m_events.size() ), ID, onlyFromActiveBranch );
         }
 
-        inline bool ContainSpecificStateEvent( StringID ID, SampledEvent::Flags flag, bool onlyFromActiveBranch = false ) const
+        inline bool ContainsSpecificStateEvent( StringID ID, SampledEvent::Flags flag, bool onlyFromActiveBranch = false ) const
         {
-            return ContainSpecificStateEvent( SampledEventRange( 0, (int16) m_events.size() ), ID, flag, onlyFromActiveBranch );
+            return ContainsSpecificStateEvent( SampledEventRange( 0, (int16) m_events.size() ), ID, flag, onlyFromActiveBranch );
         }
 
         // Operators
@@ -237,4 +246,10 @@ namespace KRG::Animation::Graph
 
         TVector<SampledEvent>               m_events;
     };
+
+    //-------------------------------------------------------------------------
+    // Helpers
+    //-------------------------------------------------------------------------
+
+    [[nodiscard]] SampledEventRange CombineAndUpdateEvents( SampledEventsBuffer& sampledEventsBuffer, SampledEventRange const& eventRange0, SampledEventRange const& eventRange1, float const blendWeight );
 }

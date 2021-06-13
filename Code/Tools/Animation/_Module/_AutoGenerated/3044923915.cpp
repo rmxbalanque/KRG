@@ -21,3 +21,39 @@ namespace KRG
         }
     }
 }
+
+//-------------------------------------------------------------------------
+// TypeHelper: KRG::Animation::Graph::DataSlotNode::OverrideValue
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    TypeSystem::TypeInfo const* KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo = nullptr;
+    namespace TypeSystem
+    {
+        namespace TypeHelpers
+        {
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::DataSlotNode::OverrideValue>::s_pDefaultTypeInstancePtr = nullptr;
+
+            TTypeHelper<KRG::Animation::Graph::DataSlotNode::OverrideValue> TTypeHelper<KRG::Animation::Graph::DataSlotNode::OverrideValue>::StaticTypeHelper;
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
+// TypeHelper: KRG::Animation::Graph::DataSlotNode
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    TypeSystem::TypeInfo const* KRG::Animation::Graph::DataSlotNode::s_pTypeInfo = nullptr;
+    namespace TypeSystem
+    {
+        namespace TypeHelpers
+        {
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::DataSlotNode>::s_pDefaultTypeInstancePtr = nullptr;
+
+            TTypeHelper<KRG::Animation::Graph::DataSlotNode> TTypeHelper<KRG::Animation::Graph::DataSlotNode>::StaticTypeHelper;
+        }
+    }
+}

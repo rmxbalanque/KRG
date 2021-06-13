@@ -18,9 +18,9 @@ namespace KRG::Animation
     {
         SyncTrackTime() = default;
 
-        SyncTrackTime( int32 inEventIndex, float inPercentageageThrough )
+        SyncTrackTime( int32 inEventIndex, float inPercentageThrough )
             : m_eventIdx( inEventIndex )
-            , m_percentageThrough( inPercentageageThrough )
+            , m_percentageThrough( inPercentageThrough )
         {}
 
         inline float ToFloat() const
@@ -206,7 +206,7 @@ namespace KRG::Animation
         inline Percentage GetPercentageThrough( SyncTrackTime const& time ) const { return GetPercentageThrough( time, true ); }
 
         // Get the percentage through the track for a given tracking - starting at the actual first event
-        inline Percentage GetPercentageageThroughWithoutOffset( SyncTrackTime const& time ) const { return GetPercentageThrough( time, false ); }
+        inline Percentage GetPercentageThroughWithoutOffset( SyncTrackTime const& time ) const { return GetPercentageThrough( time, false ); }
 
     private:
 

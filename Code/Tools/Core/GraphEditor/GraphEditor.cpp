@@ -94,8 +94,6 @@ namespace KRG::GraphEditor
 
     void BaseGraph::FindAllNodesOfType( TypeSystem::TypeID typeID, TInlineVector<BaseNode*, 20>& results, bool includeDerivedNodes ) const
     {
-        results.clear();
-
         for ( auto pNode : m_nodes )
         {
             if ( pNode->GetTypeID() == typeID )
@@ -126,14 +124,14 @@ namespace KRG::GraphEditor
         }
     }
 
-    BaseGraph* BaseGraph::CreateGraphFromSerializedData( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue, BaseGraph* pParentGraph )
+    BaseGraph* BaseGraph::CreateGraphFromSerializedData( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue, BaseNode* pParentNode )
     {
         TypeSystem::TypeID const graphTypeID = graphObjectValue["TypeData"]["TypeID"].GetString();
         auto pTypeInfo = typeRegistry.GetTypeInfo( graphTypeID );
         KRG_ASSERT( pTypeInfo != nullptr );
 
         BaseGraph* pGraph = TypeSystem::Serialization::CreateAndReadNativeType<BaseGraph>( typeRegistry, graphObjectValue["TypeData"] );
-        pGraph->m_pParentGraph = pParentGraph;
+        pGraph->m_pParentNode = pParentNode;
         pGraph->Serialize( typeRegistry, graphObjectValue );
         return pGraph;
     }

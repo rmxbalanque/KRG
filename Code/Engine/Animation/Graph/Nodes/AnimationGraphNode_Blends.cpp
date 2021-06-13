@@ -1,4 +1,4 @@
-#include "AnimationGraphNode_RangedBlends.h"
+#include "AnimationGraphNode_Blends.h"
 #include "Engine/Animation/AnimationClip.h"
 #include "Engine/Animation/Graph/TaskSystem/Tasks/AnimationGraphTask_Blend.h"
 
@@ -6,11 +6,12 @@
 
 namespace KRG::Animation::Graph
 {
-    ParameterizedBlendNode::Parameterization ParameterizedBlendNode::Parameterization::CreateParameterization( TInlineVector<NodeIndex, 5> const& sourceIndices, TInlineVector<float, 5> values )
+    // Creates a parameterization for a given set of values (each value corresponds to an input node and are initially ordered as such)
+    ParameterizedBlendNode::Parameterization ParameterizedBlendNode::Parameterization::CreateParameterization( TInlineVector<float, 5> values )
     {
         struct IndexValuePair
         {
-            NodeIndex       m_idx;
+            int16           m_idx;
             float           m_value;
         };
 
@@ -18,11 +19,11 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         TInlineVector<IndexValuePair, 10> sortedIndexValuePairs;
-
-        int32 const numSources = (int32) sourceIndices.size();
-        for ( int32 i = 0; i < numSources; i++ )
+        int16 const numSources = (int16) values.size();
+        sortedIndexValuePairs.resize( numSources );
+        for ( int16 i = 0; i < numSources; i++ )
         {
-            sortedIndexValuePairs[i].m_idx = sourceIndices[i];
+            sortedIndexValuePairs[i].m_idx = i;
             sortedIndexValuePairs[i].m_value = values[i];
         }
 
@@ -51,8 +52,8 @@ namespace KRG::Animation::Graph
         for ( auto i = 0; i < numBlendRanges; i++ )
         {
             KRG_ASSERT( sortedIndexValuePairs[i].m_value <= sortedIndexValuePairs[i + 1].m_value );
-            parameterization.m_blendRanges[i].m_sourceIdx0 = sortedIndexValuePairs[i].m_idx;
-            parameterization.m_blendRanges[i].m_sourceIdx1 = sortedIndexValuePairs[i + 1].m_idx;
+            parameterization.m_blendRanges[i].m_inputIdx0 = sortedIndexValuePairs[i].m_idx;
+            parameterization.m_blendRanges[i].m_inputIdx1 = sortedIndexValuePairs[i + 1].m_idx;
             parameterization.m_blendRanges[i].m_parameterValueRange = FloatRange( sortedIndexValuePairs[i].m_value, sortedIndexValuePairs[i + 1].m_value );
         }
 
@@ -121,8 +122,8 @@ namespace KRG::Animation::Graph
             InitializeParameterization( context );
             SelectBlendRange( context );
             auto const& blendRange = GetParameterization().m_blendRanges[m_selectedRangeIdx];
-            auto Source0 = m_sourceNodes[blendRange.m_sourceIdx0];
-            auto Source1 = m_sourceNodes[blendRange.m_sourceIdx1];
+            auto Source0 = m_sourceNodes[blendRange.m_inputIdx0];
+            auto Source1 = m_sourceNodes[blendRange.m_inputIdx1];
             KRG_ASSERT( Source0 != nullptr && Source1 != nullptr );
 
             auto pSettings = GetSettings<RangedBlendNode>();
@@ -209,62 +210,6 @@ namespace KRG::Animation::Graph
         }
     }
 
-    SampledEventRange ParameterizedBlendNode::CombineAndUpdateEvents( GraphContext& context, PoseNodeResult const& sourceResult0, PoseNodeResult const& sourceResult1, float const blendWeight )
-    {
-        SampledEventRange combinedRange;
-        SampledEventRange const& sourceEventRange0 = sourceResult0.m_sampledEventRange;
-        SampledEventRange const& sourceEventRange1 = sourceResult1.m_sampledEventRange;
-
-        // If we are fully in one or the other source, then only sample events for the active source
-        if ( m_blendWeight == 0.0f )
-        {
-            combinedRange = sourceEventRange0;
-            KRG_ASSERT( context.m_sampledEvents.IsValidRange( sourceEventRange1 ) );
-            context.m_sampledEvents.UpdateWeights( sourceEventRange1, 0.0f );
-        }
-        else if ( m_blendWeight == 1.0f )
-        {
-            combinedRange = sourceEventRange1;
-            KRG_ASSERT( context.m_sampledEvents.IsValidRange( sourceEventRange0 ) );
-            context.m_sampledEvents.UpdateWeights( sourceEventRange0, 0.0f );
-        }
-        else // Combine events
-        {
-            // Sample events for both sources and updated sampled event weights
-            uint32 const numEventsSource0 = sourceEventRange0.GetLength();
-            uint32 const numEventsSource1 = sourceEventRange1.GetLength();
-
-            if ( ( numEventsSource0 + numEventsSource1 ) > 0 )
-            {
-                context.m_sampledEvents.UpdateWeights( sourceEventRange0, m_blendWeight );
-                context.m_sampledEvents.UpdateWeights( sourceEventRange1, 1.0f - m_blendWeight );
-
-                // Combine sampled event range - source0's range must always be before source1's range
-                if ( numEventsSource0 > 0 && numEventsSource1 > 0 )
-                {
-                    KRG_ASSERT( sourceEventRange0.m_endIdx <= sourceEventRange1.m_startIdx );
-                    combinedRange.m_startIdx = sourceEventRange0.m_startIdx;
-                    combinedRange.m_endIdx = sourceEventRange1.m_endIdx;
-                }
-                else if ( numEventsSource0 > 0 ) // Only source0 has sampled events
-                {
-                    combinedRange = sourceEventRange0;
-                }
-                else // Only source1 has sampled events
-                {
-                    combinedRange = sourceEventRange1;
-                }
-            }
-            else
-            {
-                combinedRange = SampledEventRange( context.m_sampledEvents.GetNumEvents() );
-            }
-        }
-
-        KRG_ASSERT( context.m_sampledEvents.IsValidRange( combinedRange ) );
-        return combinedRange;
-    }
-
     PoseNodeResult ParameterizedBlendNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
@@ -298,8 +243,8 @@ namespace KRG::Animation::Graph
 
             auto const& parameterization = GetParameterization();
             BlendRange const& selectedBlendRange = parameterization.m_blendRanges[m_selectedRangeIdx];
-            auto pSource0 = m_sourceNodes[selectedBlendRange.m_sourceIdx0];
-            auto pSource1 = m_sourceNodes[selectedBlendRange.m_sourceIdx1];
+            auto pSource0 = m_sourceNodes[selectedBlendRange.m_inputIdx0];
+            auto pSource1 = m_sourceNodes[selectedBlendRange.m_inputIdx1];
             KRG_ASSERT( pSource0 != nullptr && pSource1 != nullptr );
 
             //-------------------------------------------------------------------------
@@ -328,16 +273,16 @@ namespace KRG::Animation::Graph
                 m_duration = Math::Lerp( pSource0->GetDuration(), pSource1->GetDuration(), m_blendWeight );
 
                 // Update events
-                result.m_sampledEventRange = CombineAndUpdateEvents( context, sourceResult0, sourceResult1, m_blendWeight );
+                result.m_sampledEventRange = CombineAndUpdateEvents( context.m_sampledEvents, sourceResult0.m_sampledEventRange, sourceResult1.m_sampledEventRange, m_blendWeight );
 
                 // Do we need to blend between the two nodes?
                 if ( sourceResult0.HasRegisteredTasks() && sourceResult1.HasRegisteredTasks() )
                 {
-                    result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIdx(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight, PoseBlendOptions::Interpolate );
+                    result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight );
                     result.m_rootMotionDelta = Blender::BlendRootMotionDeltas( sourceResult0.m_rootMotionDelta, sourceResult1.m_rootMotionDelta, m_blendWeight);
 
                     #if KRG_DEVELOPMENT_TOOLS
-                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIdx(), result.m_rootMotionDelta );
+                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), result.m_rootMotionDelta );
                     #endif
                 }
                 else // Keep the result that has a pose
@@ -398,8 +343,8 @@ namespace KRG::Animation::Graph
 
             auto const& parameterization = GetParameterization();
             BlendRange const& selectedBlendRange = parameterization.m_blendRanges[m_selectedRangeIdx];
-            auto pSource0 = m_sourceNodes[selectedBlendRange.m_sourceIdx0];
-            auto pSource1 = m_sourceNodes[selectedBlendRange.m_sourceIdx1];
+            auto pSource0 = m_sourceNodes[selectedBlendRange.m_inputIdx0];
+            auto pSource1 = m_sourceNodes[selectedBlendRange.m_inputIdx1];
             KRG_ASSERT( pSource0 != nullptr && pSource1 != nullptr );
 
             //-------------------------------------------------------------------------
@@ -425,11 +370,11 @@ namespace KRG::Animation::Graph
                 PoseNodeResult const sourceResult1 = pSource1->Update( context, updateRange );
                 if ( sourceResult0.HasRegisteredTasks() && sourceResult1.HasRegisteredTasks() )
                 {
-                    result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIdx(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight, PoseBlendOptions::Interpolate );
+                    result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight );
                     result.m_rootMotionDelta = Blender::BlendRootMotionDeltas( sourceResult0.m_rootMotionDelta, sourceResult1.m_rootMotionDelta, m_blendWeight );
 
                     #if KRG_DEVELOPMENT_TOOLS
-                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIdx(), result.m_rootMotionDelta );
+                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), result.m_rootMotionDelta );
                     #endif
                 }
                 else
@@ -441,7 +386,7 @@ namespace KRG::Animation::Graph
                     #endif
                 }
 
-                result.m_sampledEventRange = CombineAndUpdateEvents( context, sourceResult0, sourceResult1, m_blendWeight );
+                result.m_sampledEventRange = CombineAndUpdateEvents( context.m_sampledEvents, sourceResult0.m_sampledEventRange, sourceResult1.m_sampledEventRange, m_blendWeight );
             }
 
             // Update internal time and events
@@ -493,7 +438,7 @@ namespace KRG::Animation::Graph
             // Create parameterization
             //-------------------------------------------------------------------------
 
-            m_parameterization = Parameterization::CreateParameterization( pSettings->m_sourceNodeIndices, values );
+            m_parameterization = Parameterization::CreateParameterization( values );
         }
     }
 

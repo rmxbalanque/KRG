@@ -1,7 +1,6 @@
 #pragma once
 #include "Tools/Core/_Module/API.h"
-#include "System/Core/FileSystem/DataPath.h"
-#include "System/Resource/ResourceTypeID.h"
+#include "System/Resource/ResourceID.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,6 +8,9 @@ namespace KRG
 {
     struct KRG_TOOLS_CORE_API DataFilePicker
     {
+        // Draw an imgui picker control, returns true if the type was edited
+        static bool DrawPickerControl( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypeID, ResourceID* pResourceID );
+
         // Pick any file in the data folder
         static bool PickFile( FileSystem::Path const& sourceDataPath, DataPath& outPath );
 

@@ -4,6 +4,7 @@
 #include "AnimationGraphEditor_ControlParameterEditor.h"
 #include "AnimationGraphEditor_GraphEditor.h"
 #include "AnimationGraphEditor_PropertyGrid.h"
+#include "AnimationGraphEditor_VariationEditor.h"
 #include "Tools/Core/Editor/Editor.h"
 
 //-------------------------------------------------------------------------
@@ -33,5 +34,6 @@ namespace KRG::Animation::Graph
         GraphControlParameterEditor*        m_pControlParameterEditor = nullptr;
         GraphEditorView*                    m_pGraphEditor = nullptr;
         GraphPropertyGrid*                  m_pPropertyGrid = nullptr;
+        GraphVariationEditor*               m_pVariationEditor = nullptr;
     };
 }

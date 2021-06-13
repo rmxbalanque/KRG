@@ -13,7 +13,7 @@ namespace KRG::Animation::Graph::Tasks
 
     public:
 
-        BlendTask( NodeIndex sourceNodeIdx, TaskIndex sourceTaskIdx, TaskIndex targetTaskIdx, float const blendWeight, TBitFlags<PoseBlendOptions> const blendOptions, BoneMask const* pBoneMask = nullptr );
+        BlendTask( NodeIndex sourceNodeIdx, TaskIndex sourceTaskIdx, TaskIndex targetTaskIdx, float const blendWeight, TBitFlags<PoseBlendOptions> const blendOptions = TBitFlags<PoseBlendOptions>(), BoneMask const* pBoneMask = nullptr );
         virtual void Execute( TaskContext const& context ) override;
 
         #if KRG_DEVELOPMENT_TOOLS

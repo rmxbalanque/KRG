@@ -35,7 +35,7 @@ namespace KRG::Animation::Graph
         m_lastUpdateID = context.m_updateID;
 
         #if KRG_DEVELOPMENT_TOOLS
-        context.TrackActiveNode( GetNodeIdx() );
+        context.TrackActiveNode( GetNodeIndex() );
         #endif
     }
 

@@ -27,7 +27,6 @@ namespace KRG
         Memory::Initialize();
         Threading::Initialize( ( pMainThreadName != nullptr ) ? pMainThreadName : "Kruger Main Thread" );
 
-        StringID::Initialize();
         Log::Initialize();
 
         TypeSystem::CoreTypeRegistry::Initialize();
@@ -47,7 +46,6 @@ namespace KRG
             TypeSystem::CoreTypeRegistry::Shutdown();
 
             Log::Shutdown();
-            StringID::Shutdown();
 
             Threading::Shutdown();
             Memory::Shutdown();

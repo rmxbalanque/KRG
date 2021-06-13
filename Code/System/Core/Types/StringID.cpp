@@ -1,105 +1,143 @@
 #include "StringID.h"
 #include "System/Core/Memory/Memory.h"
 #include "System/Core/Algorithm/Hash.h"
+#include "System/Core/Threading/Threading.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    THashMap<uint32, char*> const StringID::StringIDMap;
-
-    //-------------------------------------------------------------------------
-
-    namespace
+    class StringID_CustomAllocator
     {
-        static char const* const InvalidStringID = "Invalid";
+    public:
 
-        //-------------------------------------------------------------------------
+        EASTL_ALLOCATOR_EXPLICIT StringID_CustomAllocator( const char* pName = EASTL_NAME_VAL( EASTL_ALLOCATOR_DEFAULT_NAME ) ) {}
+        StringID_CustomAllocator( const StringID_CustomAllocator& x ) {}
+        StringID_CustomAllocator( const StringID_CustomAllocator& x, const char* pName ) {}
+        StringID_CustomAllocator& operator=( const StringID_CustomAllocator& x ) { return *this; }
+        const char* get_name() const { return "StringID"; }
+        void set_name( const char* pName ) {}
 
-        class StringIDAllocator
+        void* allocate( size_t n, int flags = 0 )
         {
+            #if EASTL_NAME_ENABLED
+            #define pName mpName
+            #else
+            #define pName EASTL_ALLOCATOR_DEFAULT_NAME
+            #endif
 
-        public:
+            #if EASTL_DLL
+            return allocate( n, EASTL_SYSTEM_ALLOCATOR_MIN_ALIGNMENT, 0, flags );
+            #elif (EASTL_DEBUGPARAMS_LEVEL <= 0)
+            return ::new( (char*) 0, flags, 0, (char*) 0, 0 ) char[n];
+            #elif (EASTL_DEBUGPARAMS_LEVEL == 1)
+            return ::new( pName, flags, 0, (char*) 0, 0 ) char[n];
+            #else
+            return ::new( pName, flags, 0, __FILE__, __LINE__ ) char[n];
+            #endif
+        }
 
-            ~StringIDAllocator()
+        void* allocate( size_t n, size_t alignment, size_t offset, int flags = 0 )
+        {
+            #if EASTL_DLL
+            // We currently have no support for implementing flags when 
+            // using the C runtime library operator new function. The user 
+            // can use SetDefaultAllocator to override the default allocator.
+            EA_UNUSED( offset ); EA_UNUSED( flags );
+
+            size_t adjustedAlignment = ( alignment > EA_PLATFORM_PTR_SIZE ) ? alignment : EA_PLATFORM_PTR_SIZE;
+
+            void* p = new char[n + adjustedAlignment + EA_PLATFORM_PTR_SIZE];
+            void* pPlusPointerSize = (void*) ( (uintptr_t) p + EA_PLATFORM_PTR_SIZE );
+            void* pAligned = (void*) ( ( (uintptr_t) pPlusPointerSize + adjustedAlignment - 1 ) & ~( adjustedAlignment - 1 ) );
+
+            void** pStoredPtr = (void**) pAligned - 1;
+            EASTL_ASSERT( pStoredPtr >= p );
+            *( pStoredPtr ) = p;
+
+            EASTL_ASSERT( ( (size_t) pAligned & ~( alignment - 1 ) ) == (size_t) pAligned );
+
+            return pAligned;
+            #elif (EASTL_DEBUGPARAMS_LEVEL <= 0)
+            return ::new( alignment, offset, (char*) 0, flags, 0, (char*) 0, 0 ) char[n];
+            #elif (EASTL_DEBUGPARAMS_LEVEL == 1)
+            return ::new( alignment, offset, pName, flags, 0, (char*) 0, 0 ) char[n];
+            #else
+            return ::new( alignment, offset, pName, flags, 0, __FILE__, __LINE__ ) char[n];
+            #endif
+
+            #undef pName  // See above for the definition of this.
+        }
+
+        void deallocate( void* p, size_t n )
+        {
+            #if EASTL_DLL
+            if ( p != nullptr )
             {
-                auto& nonConstStringMap = const_cast<THashMap<uint32, char*>&>( StringID::StringIDMap );
-                for ( auto& debugString : nonConstStringMap )
-                {
-                    KRG::DeleteArray( debugString.second );
-                }
-
-                // Ensure we free the map memory since it was allocated with our custom allocator
-                nonConstStringMap.clear( true );
+                void* pOriginalAllocation = *( (void**) p - 1 );
+                delete[]( char* )pOriginalAllocation;
             }
+            #else
+            delete[]( char* )p;
+            #endif
+        }
+    };
 
-            // TODO: Make threadsafe
-            char const* GetString( uint32 ID ) const
-            {
-                if ( ID == 0 )
-                {
-                    return InvalidStringID;
-                }
-
-                auto iter = StringID::StringIDMap.find( ID );
-                if ( iter != StringID::StringIDMap.end() )
-                {
-                    return iter->second;
-                }
-                else
-                {
-                    return nullptr;
-                }
-            }
-
-            // TODO: Make threadsafe
-            void RegisterDebugString( uint32 ID, char const* pStr )
-            {
-                auto iter = StringID::StringIDMap.find( ID );
-                if ( iter == StringID::StringIDMap.end() )
-                {
-                    auto const size = strlen( pStr ) + 1;
-                    auto pNewString = KRG::NewArray<char>( size );
-                    memcpy( pNewString, pStr, size );
-
-                    auto& nonConstStringMap = const_cast<THashMap<uint32, char*>&>( StringID::StringIDMap );
-                    nonConstStringMap[ID] = pNewString;
-                }
-            }
-        };
-    }
+    inline bool operator==( const StringID_CustomAllocator&, const StringID_CustomAllocator& ) { return true; }
+    inline bool operator!=( const StringID_CustomAllocator&, const StringID_CustomAllocator& ) { return false; }
 
     //-------------------------------------------------------------------------
+
+    StringID::StringCache const StringID::s_stringCache;
+    Threading::Mutex g_stringCacheMutex;
+
+    //-------------------------------------------------------------------------
+
+    constexpr static char const* const g_invalidString = "Invalid";
+    uint32 const g_invalidStringHash = Hash::GetHash32( g_invalidString );
 
     StringID const StringID::InvalidID;
-    StringIDAllocator* g_pStringIDAllocatorCache = nullptr;
-
-    //-------------------------------------------------------------------------
-
-    void StringID::Initialize()
-    {
-        g_pStringIDAllocatorCache = KRG::New<StringIDAllocator>();
-    }
-
-    void StringID::Shutdown()
-    {
-        KRG::Delete( g_pStringIDAllocatorCache );
-    }
 
     //-------------------------------------------------------------------------
 
     StringID::StringID( char const* pStr )
         : m_ID( Hash::GetHash32( pStr ) )
     {
-        g_pStringIDAllocatorCache->RegisterDebugString( m_ID, pStr );
+        if ( m_ID == g_invalidStringHash )
+        {
+            m_ID = 0;
+        }
+        else
+        {
+            // Cache the string
+            Threading::ScopeLock lock( g_stringCacheMutex );
+            auto iter = StringID::s_stringCache.find( m_ID );
+            if ( iter == StringID::s_stringCache.end() )
+            {
+                auto& nonConstStringMap = const_cast<StringID::StringCache&>( StringID::s_stringCache );
+                nonConstStringMap[m_ID] = StringID::CachedString( pStr );
+            }
+        }
     }
-
-    StringID::StringID( uint32 ID )
-        : m_ID( ID )
-    {}
 
     char const* StringID::ToString() const
     {
-        return g_pStringIDAllocatorCache->GetString( m_ID );
+        if ( m_ID == 0 )
+        {
+            return g_invalidString;
+        }
+
+        {
+            // Get cached string
+            Threading::ScopeLock lock( g_stringCacheMutex );
+            auto iter = StringID::s_stringCache.find( m_ID );
+            if ( iter != StringID::s_stringCache.end() )
+            {
+                return iter->second.c_str();
+            }
+        }
+
+        // ID likely directly created via uint32
+        return nullptr;
     }
 }

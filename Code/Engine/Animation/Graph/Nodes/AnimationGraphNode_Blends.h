@@ -26,15 +26,15 @@ namespace KRG::Animation::Graph
 
         struct BlendRange
         {
-            KRG_SERIALIZE_MEMBERS( m_sourceIdx0, m_sourceIdx1, m_parameterValueRange );
+            KRG_SERIALIZE_MEMBERS( m_inputIdx0, m_inputIdx1, m_parameterValueRange );
 
             inline bool operator<( BlendRange const& rhs ) const
             {
                 return m_parameterValueRange.m_start < rhs.m_parameterValueRange.m_start;
             }
 
-            NodeIndex                               m_sourceIdx0 = InvalidIndex;
-            NodeIndex                               m_sourceIdx1 = InvalidIndex;
+            int16                                   m_inputIdx0 = InvalidIndex;
+            int16                                   m_inputIdx1 = InvalidIndex;
             FloatRange                              m_parameterValueRange = FloatRange( 0 );
         };
 
@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
         {
             KRG_SERIALIZE_MEMBERS( m_blendRanges, m_parameterRange );
 
-            static Parameterization CreateParameterization( TInlineVector<NodeIndex, 5> const& sourceIndices, TInlineVector<float, 5> values );
+            static Parameterization CreateParameterization( TInlineVector<float, 5> values );
 
             inline void Reset()
             {
@@ -77,11 +77,6 @@ namespace KRG::Animation::Graph
 
         virtual Parameterization const& GetParameterization() const = 0;
         void SelectBlendRange( GraphContext& context );
-
-        // Blending
-        //-------------------------------------------------------------------------
-
-        [[nodiscard]] SampledEventRange CombineAndUpdateEvents( GraphContext& context, PoseNodeResult const& SourceTaskResult, PoseNodeResult const& TargetTaskResult, float const blendWeight );
 
     protected:
 

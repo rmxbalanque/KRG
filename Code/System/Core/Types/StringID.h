@@ -12,21 +12,26 @@
 
 namespace KRG
 {
+    class StringID_CustomAllocator;
+
+    //-------------------------------------------------------------------------
+
     class KRG_SYSTEM_CORE_API StringID
     {
 
     public:
 
-        static THashMap<uint32, char*> const StringIDMap;
+        using CachedString = eastl::basic_string<char, StringID_CustomAllocator>;
+        using StringCache = eastl::hash_map<uint32, CachedString, eastl::hash<uint32>, eastl::equal_to<uint32>, StringID_CustomAllocator>;
+
+        static StringCache const s_stringCache;
         static StringID const InvalidID;
-        static void Initialize();
-        static void Shutdown();
 
     public:
 
         StringID() = default;
         explicit StringID( char const* pStr );
-        explicit StringID( uint32 ID );
+        explicit StringID( uint32 ID ) : m_ID( ID ) {}
         inline explicit StringID( String const& str ) : StringID( str.c_str() ) {}
 
         inline bool operator==( StringID const& rhs ) const { return m_ID == rhs.m_ID; }

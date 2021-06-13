@@ -1,7 +1,6 @@
 #include "AnimationGraphTools_AnimationGraph.h"
 #include "AnimationGraphTools_Compilation.h"
 #include "Nodes/AnimationToolsNode_Results.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
 
 //-------------------------------------------------------------------------
 
@@ -26,6 +25,8 @@ namespace KRG::Animation::Graph
         }
         m_virtualParameters.clear();
 
+        m_variations.Reset();
+
         KRG::Delete( m_pRootGraph );
     }
 
@@ -33,6 +34,7 @@ namespace KRG::Animation::Graph
     {
         ResetInternalState();
 
+        // Create root blend tree
         m_pRootGraph = KRG::New<ToolsGraph>( GraphType::BlendTree );
         m_pRootGraph->CreateNode<ResultToolsNode>( NodeValueType::Pose );
     }
@@ -43,6 +45,9 @@ namespace KRG::Animation::Graph
 
         ResetInternalState();
 
+        // Root Graph
+        //-------------------------------------------------------------------------
+
         auto rootGraphValueIter = graphObjectValue.FindMember( "RootGraph" );
         if ( rootGraphValueIter == graphObjectValue.MemberEnd() )
         {
@@ -50,6 +55,20 @@ namespace KRG::Animation::Graph
         }
 
         m_pRootGraph = SafeCast<ToolsGraph>( GraphEditor::BaseGraph::CreateGraphFromSerializedData( typeRegistry, rootGraphValueIter->value, nullptr ) );
+
+        // Variations
+        //-------------------------------------------------------------------------
+
+        auto variationsValueIter = graphObjectValue.FindMember( "Variations" );
+        if ( variationsValueIter == graphObjectValue.MemberEnd() || !variationsValueIter->value.IsArray() )
+        {
+            return false;
+        }
+
+        if ( !m_variations.Serialize( typeRegistry, variationsValueIter->value ) )
+        {
+            return false;
+        }
 
         // Control Parameters
         //-------------------------------------------------------------------------
@@ -120,6 +139,11 @@ namespace KRG::Animation::Graph
 
         writer.Key( "RootGraph" );
         m_pRootGraph->Serialize( typeRegistry, writer );
+
+        //-------------------------------------------------------------------------
+
+        writer.Key( "Variations" );
+        m_variations.Serialize( typeRegistry, writer );
 
         //-------------------------------------------------------------------------
 

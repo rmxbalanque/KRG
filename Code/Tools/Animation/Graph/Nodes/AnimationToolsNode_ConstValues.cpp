@@ -9,7 +9,7 @@ namespace KRG::Animation::Graph
     ConstBoolToolsNode::ConstBoolToolsNode()
         : ToolsNode()
     {
-        CreateOutputPin( "Bool", NodeValueType::Bool, true );
+        CreateOutputPin( "Value", NodeValueType::Bool, true );
     }
 
     NodeIndex ConstBoolToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -23,12 +23,17 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
+    void ConstBoolToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    {
+        ImGui::Text( m_value ? "True" : "False" );
+    }
+
     //-------------------------------------------------------------------------
 
     ConstIDToolsNode::ConstIDToolsNode()
         : ToolsNode()
     {
-        CreateOutputPin( "ID", NodeValueType::ID, true );
+        CreateOutputPin( "Value", NodeValueType::ID, true );
     }
 
     NodeIndex ConstIDToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -41,12 +46,17 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
+    void ConstIDToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    {
+        ImGui::Text( m_value.c_str() );
+    }
+
     //-------------------------------------------------------------------------
 
     ConstIntToolsNode::ConstIntToolsNode()
         : ToolsNode()
     {
-        CreateOutputPin( "Int", NodeValueType::Int, true );
+        CreateOutputPin( "Value", NodeValueType::Int, true );
     }
 
     NodeIndex ConstIntToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -59,12 +69,17 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
+    void ConstIntToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    {
+        ImGui::Text( "%d", m_value );
+    }
+
     //-------------------------------------------------------------------------
 
     ConstFloatToolsNode::ConstFloatToolsNode()
         : ToolsNode()
     {
-        CreateOutputPin( "Float", NodeValueType::Float, true );
+        CreateOutputPin( "Value", NodeValueType::Float, true );
     }
 
     NodeIndex ConstFloatToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -77,12 +92,17 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
+    void ConstFloatToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    {
+        ImGui::Text( "%.3f", m_value );
+    }
+
     //-------------------------------------------------------------------------
 
     ConstVectorToolsNode::ConstVectorToolsNode()
         : ToolsNode()
     {
-        CreateOutputPin( "Vector", NodeValueType::Vector, true );
+        CreateOutputPin( "Value", NodeValueType::Vector, true );
     }
 
     NodeIndex ConstVectorToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -95,12 +115,17 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
+    void ConstVectorToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    {
+        ImGui::Text( "X: %.2f, Y: %.2f, Z: %.2f, W: %.2f", m_value.m_x, m_value.m_y, m_value.m_z, m_value.m_w );
+    }
+
     //-------------------------------------------------------------------------
 
     ConstTargetToolsNode::ConstTargetToolsNode()
         : ToolsNode()
     {
-        CreateOutputPin( "Target", NodeValueType::Target, true );
+        CreateOutputPin( "Value", NodeValueType::Target, true );
     }
 
     NodeIndex ConstTargetToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -111,5 +136,10 @@ namespace KRG::Animation::Graph
             pSettings->m_value = Target( m_value );
         }
         return pSettings->m_nodeIdx;
+    }
+
+    void ConstTargetToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    {
+        ImGui::Text( "Transform - TODO" );
     }
 }

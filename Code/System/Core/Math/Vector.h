@@ -303,9 +303,9 @@ namespace KRG
         KRG_FORCE_INLINE float GetDistanceSquared3( Vector const& to ) const { return ( to - *this ).GetLengthSquared3(); }
         KRG_FORCE_INLINE float GetDistanceSquared4( Vector const& to ) const { return ( to - *this ).GetLengthSquared4(); }
 
-        KRG_FORCE_INLINE bool IsNormalized2() const { return ( LengthSquared2() - Vector::One ).Abs().IsLessThanEqual4( Vector::Epsilon ); }
-        KRG_FORCE_INLINE bool IsNormalized3() const { return ( LengthSquared3() - Vector::One ).Abs().IsLessThanEqual4( Vector::Epsilon ); }
-        KRG_FORCE_INLINE bool IsNormalized4() const { return ( LengthSquared4() - Vector::One ).Abs().IsLessThanEqual4( Vector::Epsilon ); }
+        KRG_FORCE_INLINE bool IsNormalized2() const { return ( LengthSquared2() - Vector::One ).Abs().IsLessThanEqual4( Vector::LargeEpsilon ); }
+        KRG_FORCE_INLINE bool IsNormalized3() const { return ( LengthSquared3() - Vector::One ).Abs().IsLessThanEqual4( Vector::LargeEpsilon ); }
+        KRG_FORCE_INLINE bool IsNormalized4() const { return ( LengthSquared4() - Vector::One ).Abs().IsLessThanEqual4( Vector::LargeEpsilon ); }
 
         KRG_FORCE_INLINE Vector InBounds( Vector const& bounds ) const; // Is this vector within the range [-bounds, bounds]
 

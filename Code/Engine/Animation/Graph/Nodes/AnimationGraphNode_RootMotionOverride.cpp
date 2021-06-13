@@ -153,7 +153,7 @@ namespace KRG::Animation::Graph
         NodeResult.m_rootMotionDelta = AdjustedDisplacementDelta;
 
         #if KRG_DEVELOPMENT_TOOLS
-        context.GetRootMotionActionRecorder()->RecordModification( GetNodeIdx(), NodeResult.m_rootMotionDelta );
+        context.GetRootMotionActionRecorder()->RecordModification( GetNodeIndex(), NodeResult.m_rootMotionDelta );
         #endif
     }
 

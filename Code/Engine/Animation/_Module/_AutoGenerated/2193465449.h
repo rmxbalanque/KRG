@@ -4,13 +4,13 @@
 // This is an auto-generated file - DO NOT edit
 //-------------------------------------------------------------------------
 
-// HeaderID: 3614657310
+// HeaderID: 2193465449
 
 #include "../API.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_RangedBlends.h"
+#include "D:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_Blends.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::Graph::ParameterizedBlendNode::Settings

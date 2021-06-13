@@ -139,7 +139,7 @@ namespace KRG::Animation::Graph
 
         virtual bool IsValid() const { return true; }
         virtual NodeValueType GetValueType() const = 0;
-        inline NodeIndex GetNodeIdx() const { return m_pSettings->m_nodeIdx; }
+        inline NodeIndex GetNodeIndex() const { return m_pSettings->m_nodeIdx; }
 
         inline bool IsInitialized() const { return m_initializationCount > 0; }
         virtual void Initialize( GraphContext& cContext );

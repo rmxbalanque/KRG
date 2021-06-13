@@ -306,7 +306,6 @@
     <ClInclude Include="Math\BezierCurve.h" />
     <ClInclude Include="Math\BoundingVolumes.h" />
     <ClInclude Include="Math\BVH\AABBTree.h" />
-    <ClInclude Include="Math\Easing.h" />
     <ClInclude Include="Math\Line.h" />
     <ClInclude Include="Math\Math.h" />
     <ClInclude Include="Math\Matrix.h" />
@@ -482,7 +481,6 @@
     <ClCompile Include="Math\Transform.cpp" />
     <ClCompile Include="Math\BoundingVolumes.cpp" />
     <ClCompile Include="Math\BVH\AABBTree.cpp" />
-    <ClCompile Include="Math\Easing.cpp" />
     <ClCompile Include="Math\Math.cpp" />
     <ClCompile Include="Math\Matrix.cpp" />
     <ClCompile Include="Math\Plane.cpp" />

@@ -32,6 +32,32 @@ namespace KRG::GraphEditor::Flow
         return nullptr;
     }
 
+    int32 Node::GetInputPinIndex( UUID const& pinID ) const
+    {
+        for ( auto i = 0; i < m_inputPins.size(); i++ )
+        {
+            if ( m_inputPins[i].m_ID == pinID )
+            {
+                return (int32) i;
+            }
+        }
+
+        return InvalidIndex;
+    }
+
+    int32 Node::GetOutputPinIndex( UUID const& pinID ) const
+    {
+        for ( auto i = 0; i < m_outputPins.size(); i++ )
+        {
+            if ( m_outputPins[i].m_ID == pinID )
+            {
+                return (int32) i;
+            }
+        }
+
+        return InvalidIndex;
+    }
+
     //-------------------------------------------------------------------------
 
     void Node::CreateInputPin( char const* pPinName, uint32 valueType )
@@ -55,12 +81,31 @@ namespace KRG::GraphEditor::Flow
         RecalculateNodeSize();
     }
 
-    void Node::RemovePin( UUID const& pinID )
+    void Node::DestroyInputPin( int32 pinIdx )
+    {
+        KRG_ASSERT( pinIdx >= 0 && pinIdx < m_inputPins.size() );
+        static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( m_inputPins[pinIdx].m_ID );
+        m_inputPins.erase( m_inputPins.begin() + pinIdx );
+        RecalculateNodeSize();
+        return;
+    }
+
+    void Node::DestroyOutputPin( int32 pinIdx )
+    {
+        KRG_ASSERT( pinIdx >= 0 && pinIdx < m_outputPins.size() );
+        static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( m_outputPins[pinIdx].m_ID );
+        m_outputPins.erase( m_outputPins.begin() + pinIdx );
+        RecalculateNodeSize();
+        return;
+    }
+
+    void Node::DestroyPin( UUID const& pinID )
     {
         for ( auto iter = m_inputPins.begin(); iter != m_inputPins.end(); ++iter )
         {
             if ( iter->m_ID == pinID )
             {
+                static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( pinID );
                 m_inputPins.erase( iter );
                 RecalculateNodeSize();
                 return;
@@ -71,6 +116,7 @@ namespace KRG::GraphEditor::Flow
         {
             if ( iter->m_ID == pinID )
             {
+                static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( pinID );
                 m_outputPins.erase( iter );
                 RecalculateNodeSize();
                 return;
@@ -83,11 +129,11 @@ namespace KRG::GraphEditor::Flow
     void Node::CreateDynamicInputPin()
     {
         auto& newPin = m_inputPins.emplace_back( Pin() );
-        newPin.m_name = GetDynamicInputPinName();
+        newPin.m_name = GetNewDynamicInputPinName();
         newPin.m_type = GetDynamicInputPinValueType();
         newPin.m_direction = Pin::Direction::In;
         newPin.m_isDynamic = true;
-        OnDynamicPinCreated( newPin.m_ID );
+        OnDynamicPinCreation( newPin.m_ID );
 
         RecalculateNodeSize();
     }
@@ -96,8 +142,8 @@ namespace KRG::GraphEditor::Flow
     {
         auto pPin = GetInputPin( pinID );
         KRG_ASSERT( pPin != nullptr && pPin->IsDynamicPin() );
-        OnDynamicPinDestroyed( pinID );
-        RemovePin( pinID );
+        OnDynamicPinDestruction( pinID );
+        DestroyPin( pinID );
     }
 
     //-------------------------------------------------------------------------
@@ -159,7 +205,7 @@ namespace KRG::GraphEditor::Flow
         {
             KRG_ASSERT( childGraphValueIter->value.IsObject() );
             auto& graphObjectValue = childGraphValueIter->value;
-            m_pChildGraph = BaseGraph::CreateGraphFromSerializedData( typeRegistry, graphObjectValue, GetParentGraph() );
+            m_pChildGraph = BaseGraph::CreateGraphFromSerializedData( typeRegistry, graphObjectValue, this );
         }
 
         //-------------------------------------------------------------------------
@@ -171,7 +217,7 @@ namespace KRG::GraphEditor::Flow
         {
             KRG_ASSERT( secondaryGraphValueIter->value.IsObject() );
             auto& graphObjectValue = secondaryGraphValueIter->value;
-            m_pSecondaryGraph = BaseGraph::CreateGraphFromSerializedData( typeRegistry, graphObjectValue, GetParentGraph() );
+            m_pSecondaryGraph = BaseGraph::CreateGraphFromSerializedData( typeRegistry, graphObjectValue, this );
         }
     }
 

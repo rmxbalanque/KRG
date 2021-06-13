@@ -7,6 +7,14 @@
 
 namespace KRG::Animation
 {
+    namespace Graph
+    {
+        class ToolsAnimationGraph; 
+        class ToolsGraphCompilationContext;
+    }
+
+    //-------------------------------------------------------------------------
+
     struct KRG_TOOLS_ANIMATION_API AnimationGraphVariationResourceDescriptor final : public Resource::ResourceDescriptor
     {
         KRG_REGISTER_TYPE( AnimationGraphVariationResourceDescriptor );
@@ -30,6 +38,6 @@ namespace KRG::Animation
 
         Resource::CompilationResult CompileDefinition( Resource::CompileContext const& ctx ) const;
         Resource::CompilationResult CompileVariation( Resource::CompileContext const& ctx ) const;
-        bool GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, StringID const& variationID, DataPath const& dataSetPath ) const;
+        bool GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::ToolsAnimationGraph const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, DataPath const& dataSetPath ) const;
     };
 }

@@ -10,7 +10,8 @@ namespace KRG::Animation::Graph
     SelectorConditionNode::SelectorConditionNode()
         : ToolsNode()
     {
-        CreateInputPin( "Out", NodeValueType::Bool );
+        CreateInputPin( "Option 0", NodeValueType::Bool );
+        CreateInputPin( "Option 1", NodeValueType::Bool );
     }
 
     //-------------------------------------------------------------------------
@@ -19,8 +20,8 @@ namespace KRG::Animation::Graph
         : ToolsNode()
     {
         CreateOutputPin( "Pose", NodeValueType::Pose );
-        CreateInputPin( "Option", NodeValueType::Pose );
-        CreateInputPin( "Option", NodeValueType::Pose );
+        CreateInputPin( "Option 0", NodeValueType::Pose );
+        CreateInputPin( "Option 1", NodeValueType::Pose );
 
         auto pConditionGraph = KRG::New<ToolsGraph>( GraphType::ValueTree );
         pConditionGraph->CreateNode<SelectorConditionNode>();
@@ -94,19 +95,29 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void SelectorToolsNode::OnDynamicPinCreated( UUID pinID )
+    InlineString<100> SelectorToolsNode::GetNewDynamicInputPinName() const
+    {
+        int32 const numOptions = GetNumInputPins();
+        InlineString<100> pinName;
+        pinName.sprintf( "Option %d", numOptions - 1 );
+        return pinName;
+    }
+
+    void SelectorToolsNode::OnDynamicPinCreation( UUID pinID )
     {
         auto conditionNodes = m_pSecondaryGraph->FindAllNodesOfType<SelectorConditionNode>( false );
         KRG_ASSERT( conditionNodes.size() == 1 );
         auto pConditionsNode = conditionNodes[0];
 
         int32 const numOptions = GetNumInputPins();
-        KRG_ASSERT( pConditionsNode->GetNumInputPins() == ( numOptions - 2 ) );
+        KRG_ASSERT( pConditionsNode->GetNumInputPins() == numOptions - 1 );
 
-        // Update pins on condition node
+        InlineString<100> pinName;
+        pinName.sprintf( "Option %d", numOptions - 1 );
+        pConditionsNode->CreateInputPin( pinName.c_str(), NodeValueType::Bool );
     }
 
-    void SelectorToolsNode::OnDynamicPinDestroyed( UUID pinID )
+    void SelectorToolsNode::OnDynamicPinDestruction( UUID pinID )
     {
         auto conditionNodes = m_pSecondaryGraph->FindAllNodesOfType<SelectorConditionNode>( false );
         KRG_ASSERT( conditionNodes.size() == 1 );
@@ -115,6 +126,31 @@ namespace KRG::Animation::Graph
         int32 const numOptions = GetNumInputPins();
         KRG_ASSERT( pConditionsNode->GetNumInputPins() == numOptions );
 
-        // Update pins on condition node
+        int32 const pintoBeRemovedIdx = GetInputPinIndex( pinID );
+        KRG_ASSERT( pintoBeRemovedIdx != InvalidIndex );
+
+        // Rename all pins
+        //-------------------------------------------------------------------------
+
+        int32 newPinIdx = 2;
+        for ( auto i = 2; i < numOptions; i++ )
+        {
+            if ( i == pintoBeRemovedIdx )
+            {
+                continue;
+            }
+
+            InlineString<100> newPinName; 
+            newPinName.sprintf( "Option %d", newPinIdx );
+
+            GetInputPin( i )->m_name = newPinName;
+            pConditionsNode->GetInputPin( i )->m_name = newPinName;
+            newPinIdx++;
+        }
+
+        // Destroy condition node pin
+        //-------------------------------------------------------------------------
+
+        pConditionsNode->DestroyInputPin( pintoBeRemovedIdx );
     }
 }

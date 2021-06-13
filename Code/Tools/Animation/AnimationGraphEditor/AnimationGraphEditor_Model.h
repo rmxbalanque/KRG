@@ -1,8 +1,9 @@
 #pragma once
 #include "Tools/Core/Editor/EditorModel.h"
 #include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
-#include "System/Core/Types/Containers.h"
 #include "Tools/Core/Trees/CategoryTree.h"
+#include "Engine/Animation/Graph/AnimationGraphResources.h"
+#include "System/Core/Types/Containers.h"
 
 //-------------------------------------------------------------------------
 
@@ -34,6 +35,13 @@ namespace KRG::Animation::Graph
         ToolsGraph* GetCurrentlyViewedGraph() const { return m_pNodeGraphToView; }
 
         void SimulateCompilation();
+
+        // Variation
+        //-------------------------------------------------------------------------
+
+        inline bool IsDefaultVariationSelected() const { return m_selectedVariationID == AnimationGraphVariation::DefaultVariationID; }
+        inline StringID GetSelectedVariationID() const { return m_selectedVariationID; }
+        inline void SetSelectedVariation( StringID variationID ) { KRG_ASSERT( m_pGraph->IsValidVariation( variationID ) ); m_selectedVariationID = variationID; }
 
         // Node Types
         //-------------------------------------------------------------------------
@@ -79,6 +87,7 @@ namespace KRG::Animation::Graph
 
         ToolsAnimationGraph*                        m_pGraph = nullptr;
         FileSystem::Path                            m_currentlyOpenGraphPath;
+        StringID                                    m_selectedVariationID = AnimationGraphVariation::DefaultVariationID;
         ToolsGraph*                                 m_pNodeGraphToView = nullptr;
         TVector<ToolsNode*>                         m_selectedNodes;
         TVector<TypeSystem::TypeInfo const*>        m_registeredNodeTypes;

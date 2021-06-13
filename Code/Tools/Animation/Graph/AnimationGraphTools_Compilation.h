@@ -37,6 +37,7 @@ namespace KRG::Animation::Graph
 
     public:
 
+        ToolsGraphCompilationContext();
         ~ToolsGraphCompilationContext();
 
         inline TVector<LogEntry> const& GetLog() const { return m_log; }
@@ -75,19 +76,19 @@ namespace KRG::Animation::Graph
             m_instanceRequiredAlignment = Math::Max( m_instanceRequiredAlignment, (uint32) alignof( T ) );
             size_t const requiredPadding = Memory::CalculatePaddingForAlignment( m_currentNodeMemoryOffset, alignof( T ) );
             m_currentNodeMemoryOffset += uint32( sizeof( T ) + requiredPadding );
+            m_instanceNodeStartOffsets.emplace_back( m_currentNodeMemoryOffset );
 
             return NodeCompilationState::NeedCompilation;
         }
 
-        // This will return an index that can be used to look up the animation clip at runtime
-        inline DataSetSourceIndex GetAnimationClipSourceIndex( UUID const& nodeID )
+        // This will return an index that can be used to look up the data resource at runtime
+        inline DataSetSlotIndex RegisterSlotNode( UUID const& nodeID )
         {
-            KRG_ASSERT( m_nodeToAnimationClipSourceIdxMap.find( nodeID ) == m_nodeToAnimationClipSourceIdxMap.end() );
+            KRG_ASSERT( !VectorContains( m_registeredDataSlots, nodeID ) );
 
-            DataSetSourceIndex newIdx = m_animationClipCount;
-            m_nodeToAnimationClipSourceIdxMap.insert( TPair<UUID, DataSetSourceIndex>( nodeID, newIdx ) );
-            m_animationClipCount++;
-            return newIdx;
+            DataSetSlotIndex slotIdx = (DataSetSlotIndex) m_registeredDataSlots.size();
+            m_registeredDataSlots.emplace_back( nodeID );
+            return slotIdx;
         }
 
         void SerializeSettings( cereal::BinaryOutputArchive& settingsArchive );
@@ -97,8 +98,6 @@ namespace KRG::Animation::Graph
         THashMap<UUID, NodeIndex>               m_nodeToIndexMap;
         uint32                                  m_currentNodeMemoryOffset = 0;
         TVector<LogEntry>                       m_log;
-
-        THashMap<UUID, DataSetSourceIndex>      m_nodeToAnimationClipSourceIdxMap;
-        DataSetSourceIndex                      m_animationClipCount = 0;
+        TVector<UUID>                           m_registeredDataSlots;
     };
 }

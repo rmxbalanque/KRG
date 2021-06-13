@@ -16,14 +16,14 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_playInReverseValueNodeIdx, m_shouldSampleRootMotion, m_allowLooping, m_sourceIndex );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_playInReverseValueNodeIdx, m_sampleRootMotion, m_allowLooping, m_dataSlotIdx );
 
             virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex                                   m_playInReverseValueNodeIdx = InvalidIndex;
-            bool                                        m_shouldSampleRootMotion = true;
+            bool                                        m_sampleRootMotion = true;
             bool                                        m_allowLooping = false;
-            DataSetSourceIndex                          m_sourceIndex = InvalidIndex;
+            DataSetSlotIndex                            m_dataSlotIdx = InvalidIndex;
         };
 
     public:

@@ -9,6 +9,8 @@ namespace KRG::Animation::Graph
     {
         KRG_REGISTER_TYPE( SelectorConditionNode );
 
+        friend class SelectorToolsNode;
+
     public:
 
         SelectorConditionNode();
@@ -37,9 +39,9 @@ namespace KRG::Animation::Graph
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
 
         virtual bool SupportsDynamicInputPins() const override { return true; }
-        virtual char const* GetDynamicInputPinName() const override { return "Option"; }
+        virtual InlineString<100> GetNewDynamicInputPinName() const override;
         virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) NodeValueType::Pose; }
-        virtual void OnDynamicPinCreated( UUID pinID ) override;
-        virtual void OnDynamicPinDestroyed( UUID pinID ) override;
+        virtual void OnDynamicPinCreation( UUID pinID ) override;
+        virtual void OnDynamicPinDestruction( UUID pinID ) override;
     };
 }
