@@ -26,7 +26,6 @@ namespace KRG
                 enumInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Graph::GraphType" );
                 enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int32;
                 enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "ValueTree" ), 1 ) );
-                enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "StateMachine" ), 3 ) );
                 enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "BlendTree" ), 0 ) );
                 enumInfo.m_constants.insert( TPair<StringID, int64>( StringID( "TransitionTree" ), 2 ) );
 

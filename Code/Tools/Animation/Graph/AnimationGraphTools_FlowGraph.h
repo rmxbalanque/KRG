@@ -1,39 +1,42 @@
 #pragma once
-#include "AnimationGraphTools_Node.h"
+#include "AnimationGraphTools_FlowNode.h"
+#include "Tools/Core/GraphEditor/Flow/FlowGraph.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class ToolsGraph final : public GraphEditor::FlowGraph
+    class FlowToolGraph : public GraphEditor::FlowGraph
     {
         friend class ToolsAnimationGraph;
-        KRG_REGISTER_TYPE( ToolsGraph );
+        KRG_REGISTER_TYPE( FlowToolGraph );
 
     public:
 
-        ToolsGraph( GraphType type = GraphType::BlendTree );
+        FlowToolGraph( GraphType type = GraphType::BlendTree );
 
         inline GraphType GetType() const { return m_type; }
 
+        // Node factory methods
         //-------------------------------------------------------------------------
 
-        // Node factory method
         template<typename T, typename ... ConstructorParams>
         T* CreateNode( ConstructorParams&&... params )
         {
-            static_assert( std::is_base_of<ToolsNode, T>::value );
+            static_assert( std::is_base_of<FlowToolsNode, T>::value );
             auto pNode = KRG::New<T>( std::forward<ConstructorParams>( params )... );
             KRG_ASSERT( pNode->GetAllowedParentGraphTypes().IsFlagSet( m_type ) );
+            pNode->Initialize( this );
             AddNode( pNode );
             return pNode;
         }
 
-        ToolsNode* CreateNode( TypeSystem::TypeInfo const* pTypeInfo )
+        FlowToolsNode* CreateNode( TypeSystem::TypeInfo const* pTypeInfo )
         {
-            KRG_ASSERT( pTypeInfo->IsDerivedFrom( ToolsNode::GetStaticTypeID() ) );
-            auto pNode = SafeCast<ToolsNode>( pTypeInfo->m_pTypeHelper->CreateType() );
+            KRG_ASSERT( pTypeInfo->IsDerivedFrom( FlowToolsNode::GetStaticTypeID() ) );
+            auto pNode = Cast<FlowToolsNode>( pTypeInfo->m_pTypeHelper->CreateType() );
             KRG_ASSERT( pNode->GetAllowedParentGraphTypes().IsFlagSet( m_type ) );
+            pNode->Initialize( this );
             AddNode( pNode );
             return pNode;
         }

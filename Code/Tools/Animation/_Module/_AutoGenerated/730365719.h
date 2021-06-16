@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ResultToolsNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::ToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ) );
+        archive( cereal::base_class<KRG::Animation::Graph::FlowToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_valueType ) );
     }
 
     //-------------------------------------------------------------------------
@@ -61,6 +61,19 @@ namespace KRG
             propertyInfo.m_flags.Set( 0 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_valueType" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::NodeValueType" );
+            propertyInfo.m_parentTypeID = 132384100;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_valueType;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::ResultToolsNode, m_valueType );
+            propertyInfo.m_size = sizeof( KRG::Animation::Graph::NodeValueType );
+            propertyInfo.m_flags.Set( 8 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------
@@ -95,7 +108,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Animation::Graph::ToolsNode::s_pTypeInfo;
+                    pParentType = KRG::Animation::Graph::FlowToolsNode::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -230,6 +243,11 @@ namespace KRG
                        return false;
                     }
 
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 317921679 ) )
+                    {
+                       return false;
+                    }
+
                     return true;
                 }
 
@@ -246,6 +264,11 @@ namespace KRG
                     if ( propertyID == 4230898639 )
                     {
                         return pType->m_ID == pOtherType->m_ID;
+                    }
+
+                    if ( propertyID == 317921679 )
+                    {
+                        return pType->m_valueType == pOtherType->m_valueType;
                     }
 
                     return false;
@@ -265,6 +288,12 @@ namespace KRG
                     if ( propertyID == 4230898639 )
                     {
                         pActualType->m_ID = pDefaultType->m_ID;
+                        return;
+                    }
+
+                    if ( propertyID == 317921679 )
+                    {
+                        pActualType->m_valueType = pDefaultType->m_valueType;
                         return;
                     }
 

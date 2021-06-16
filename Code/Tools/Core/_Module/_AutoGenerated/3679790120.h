@@ -275,6 +275,9 @@ namespace KRG
         template<>
         void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::GraphEditor::BaseGraph> >( IRegisteredType const* pDefaultTypeInstance )
         {
+            KRG_ASSERT( pDefaultTypeInstance != nullptr );
+            KRG::GraphEditor::BaseGraph const* pActualDefaultTypeInstance = ( KRG::GraphEditor::BaseGraph const* ) pDefaultTypeInstance;
+
             PropertyInfo propertyInfo;
 
             //-------------------------------------------------------------------------
@@ -283,7 +286,12 @@ namespace KRG
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::UUID" );
             propertyInfo.m_parentTypeID = 1601682968;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = nullptr;
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_ID;
+            propertyInfo.m_offset = offsetof( KRG::GraphEditor::BaseGraph, m_ID );
+            propertyInfo.m_size = sizeof( KRG::UUID );
+            propertyInfo.m_flags.Set( 0 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------
@@ -303,12 +311,15 @@ namespace KRG
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::GraphEditor::BaseGraph ), alignof( KRG::GraphEditor::BaseGraph ) );
+                    new ( pDefaultTypeInstance ) KRG::GraphEditor::BaseGraph;
+
                     TypeSystem::TypeInfo typeInfo;
                     typeInfo.m_ID = TypeSystem::TypeID( "KRG::GraphEditor::BaseGraph" );
                     typeInfo.m_size = sizeof( KRG::GraphEditor::BaseGraph );
                     typeInfo.m_alignment = alignof( KRG::GraphEditor::BaseGraph );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
-                    typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::Abstract );
 
                     // Parent Types 
                     //-------------------------------------------------------------------------
@@ -331,17 +342,20 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::GraphEditor::BaseGraph" );
                     typeRegistry.UnregisterType( ID );
 
+                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
+                    reinterpret_cast<KRG::GraphEditor::BaseGraph*>( pDefaultTypeInstance )->~BaseGraph();
+                    KRG::Free( pDefaultTypeInstance );
                 }
 
                 virtual IRegisteredType* CreateType() const override final
                 {
-                    KRG_HALT(); // Error! Trying to instantiate an abstract type!
-                    return nullptr;
+                    return KRG::New<KRG::GraphEditor::BaseGraph>();
                 }
 
                 virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
-                    KRG_HALT(); // Error! Trying to instantiate an abstract type!
+                    KRG_ASSERT( pAllocatedMemory != nullptr );
+                    new( pAllocatedMemory ) KRG::GraphEditor::BaseGraph();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final

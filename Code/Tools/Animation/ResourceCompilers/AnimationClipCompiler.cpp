@@ -389,7 +389,7 @@ namespace KRG::Animation
         FloatRange const animationTimeRange( 0, rawAnimData.GetDuration() );
         for ( auto pTrack : data.m_tracks )
         {
-            auto pEventTrack = SafeCast<EventTrack>( pTrack );
+            auto pEventTrack = Cast<EventTrack>( pTrack );
 
             if ( pEventTrack->IsSyncTrack() )
             {
@@ -398,7 +398,7 @@ namespace KRG::Animation
 
             for ( auto pItem : pTrack->m_items )
             {
-                auto pEvent = SafeCast<EventItem>( pItem )->GetEvent();
+                auto pEvent = Cast<EventItem>( pItem )->GetEvent();
 
                 // Add event
                 //-------------------------------------------------------------------------

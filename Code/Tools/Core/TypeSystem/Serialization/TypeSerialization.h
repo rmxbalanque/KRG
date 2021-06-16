@@ -43,6 +43,6 @@ namespace KRG::TypeSystem::Serialization
     T* CreateAndReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue )
     {
         auto pCreatedType = CreateAndReadNativeType( typeRegistry, typeObjectValue );
-        return SafeCast<T>( pCreatedType );
+        return Cast<T>( pCreatedType );
     }
 }

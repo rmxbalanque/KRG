@@ -90,7 +90,12 @@ namespace KRG::ImGuiX
         return result;
     }
 
+    KRG_SYSTEM_DEVTOOLS_API ImVec2 const& GetClosestPointOnRect( ImRect const& rect, ImVec2 const& inPoint );
+
     // Draws a vertical separator on the current line and forces the next item to be on the same line. The size is the offset between the previous item and the next
     KRG_SYSTEM_DEVTOOLS_API void VerticalSeparator( ImVec2 const& size = ImVec2( 9, -1 ), ImColor const& color = 0 );
+
+    // Draw an arrow between two points
+    KRG_SYSTEM_DEVTOOLS_API void DrawArrow( ImDrawList* pDrawList, ImVec2 const& arrowStart, ImVec2 const& arrowEnd, ImU32 col, float arrowWidth, float arrowHeadWidth = 5.0f );
 }
 #endif

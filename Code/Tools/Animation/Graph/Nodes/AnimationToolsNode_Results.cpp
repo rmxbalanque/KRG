@@ -5,16 +5,20 @@
 
 namespace KRG::Animation::Graph
 {
-    ResultToolsNode::ResultToolsNode( NodeValueType type )
-        : ToolsNode()
+    ResultToolsNode::ResultToolsNode( NodeValueType valueType )
+        : m_valueType( valueType )
+    {}
+
+    void ResultToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
-        CreateInputPin( "Out", type );
+        FlowToolsNode::Initialize( pParent );
+        CreateInputPin( "Out", m_valueType );
     }
 
     NodeIndex ResultToolsNode::Compile( ToolsGraphCompilationContext& context ) const
     {
         // Get connected node and compile it
-        auto pConnectedNode = GetConnectedInputNode<ToolsNode>( 0 );
+        auto pConnectedNode = GetConnectedInputNode<FlowToolsNode>( 0 );
         if ( pConnectedNode != nullptr )
         {
             return pConnectedNode->Compile( context );

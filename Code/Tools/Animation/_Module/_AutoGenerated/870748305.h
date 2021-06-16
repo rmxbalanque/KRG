@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ControlParameterToolsNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::ToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_name ) );
+        archive( cereal::base_class<KRG::Animation::Graph::FlowToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_name ), KRG_NVP( m_type ) );
     }
 
     //-------------------------------------------------------------------------
@@ -74,6 +74,19 @@ namespace KRG
             propertyInfo.m_flags.Set( 0 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_type" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::NodeValueType" );
+            propertyInfo.m_parentTypeID = 1966630063;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_type;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::ControlParameterToolsNode, m_type );
+            propertyInfo.m_size = sizeof( KRG::Animation::Graph::NodeValueType );
+            propertyInfo.m_flags.Set( 8 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------
@@ -108,7 +121,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Animation::Graph::ToolsNode::s_pTypeInfo;
+                    pParentType = KRG::Animation::Graph::FlowToolsNode::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -248,6 +261,11 @@ namespace KRG
                        return false;
                     }
 
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 533580642 ) )
+                    {
+                       return false;
+                    }
+
                     return true;
                 }
 
@@ -269,6 +287,11 @@ namespace KRG
                     if ( propertyID == 3460589943 )
                     {
                         return pType->m_name == pOtherType->m_name;
+                    }
+
+                    if ( propertyID == 533580642 )
+                    {
+                        return pType->m_type == pOtherType->m_type;
                     }
 
                     return false;
@@ -297,6 +320,12 @@ namespace KRG
                         return;
                     }
 
+                    if ( propertyID == 533580642 )
+                    {
+                        pActualType->m_type = pDefaultType->m_type;
+                        return;
+                    }
+
                 }
 
             };
@@ -313,7 +342,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::ControlParameterReferenceToolsNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::ToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_parameterUUID ) );
+        archive( cereal::base_class<KRG::Animation::Graph::FlowToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_parameterUUID ) );
     }
 
     //-------------------------------------------------------------------------
@@ -400,7 +429,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Animation::Graph::ToolsNode::s_pTypeInfo;
+                    pParentType = KRG::Animation::Graph::FlowToolsNode::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -605,7 +634,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::VirtualParameterToolsNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::ToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_name ) );
+        archive( cereal::base_class<KRG::Animation::Graph::FlowToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_name ), KRG_NVP( m_type ) );
     }
 
     //-------------------------------------------------------------------------
@@ -658,6 +687,19 @@ namespace KRG
             propertyInfo.m_flags.Set( 0 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_type" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::NodeValueType" );
+            propertyInfo.m_parentTypeID = 2876909626;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_type;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::VirtualParameterToolsNode, m_type );
+            propertyInfo.m_size = sizeof( KRG::Animation::Graph::NodeValueType );
+            propertyInfo.m_flags.Set( 8 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
 
         //-------------------------------------------------------------------------
@@ -692,7 +734,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Animation::Graph::ToolsNode::s_pTypeInfo;
+                    pParentType = KRG::Animation::Graph::FlowToolsNode::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -832,6 +874,11 @@ namespace KRG
                        return false;
                     }
 
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 533580642 ) )
+                    {
+                       return false;
+                    }
+
                     return true;
                 }
 
@@ -853,6 +900,11 @@ namespace KRG
                     if ( propertyID == 3460589943 )
                     {
                         return pType->m_name == pOtherType->m_name;
+                    }
+
+                    if ( propertyID == 533580642 )
+                    {
+                        return pType->m_type == pOtherType->m_type;
                     }
 
                     return false;
@@ -881,6 +933,12 @@ namespace KRG
                         return;
                     }
 
+                    if ( propertyID == 533580642 )
+                    {
+                        pActualType->m_type = pDefaultType->m_type;
+                        return;
+                    }
+
                 }
 
             };
@@ -897,7 +955,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::VirtualParameterReferenceToolsNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::ToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_parameterUUID ) );
+        archive( cereal::base_class<KRG::Animation::Graph::FlowToolsNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_parameterUUID ) );
     }
 
     //-------------------------------------------------------------------------
@@ -984,7 +1042,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Animation::Graph::ToolsNode::s_pTypeInfo;
+                    pParentType = KRG::Animation::Graph::FlowToolsNode::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 

@@ -1,11 +1,11 @@
-#include "AnimationGraphTools_Node.h"
+#include "AnimationGraphTools_FlowNode.h"
 #include "Engine/Animation/Graph/AnimationGraphResources.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    void TraverseHierarchy( GraphEditor::BaseNode const* pNode, TVector<GraphEditor::BaseNode const*>& nodePath )
+    static void TraverseHierarchy( GraphEditor::BaseNode const* pNode, TVector<GraphEditor::BaseNode const*>& nodePath )
     {
         KRG_ASSERT( pNode != nullptr );
         nodePath.emplace_back( pNode );
@@ -16,32 +16,9 @@ namespace KRG::Animation::Graph
         }
     }
 
-    String ToolsNode::GetPathFromRoot() const
-    {
-        TVector<GraphEditor::BaseNode const*> path;
-        if ( HasParentGraph() && !GetParentGraph()->IsRootGraph() )
-        {
-            TraverseHierarchy( this, path );
-        }
-
-        //-------------------------------------------------------------------------
-
-        String pathString;
-        for ( auto iter = path.rbegin(); iter != path.rend(); ++iter )
-        {
-            pathString += ( *iter )->GetDisplayName();
-            if ( iter != ( path.rend() - 1 ) )
-            {
-                pathString += "/";
-            }
-        }
-
-        return pathString;
-    }
-
     //-------------------------------------------------------------------------
 
-    bool DataSlotNode::AreSlotValuesValid() const
+    bool DataSlotToolsNode::AreSlotValuesValid() const
     {
         if ( m_defaultResourceID.GetResourceTypeID() != GetSlotResourceType() )
         {
@@ -64,7 +41,7 @@ namespace KRG::Animation::Graph
         return true;
     }
 
-    ResourceID DataSlotNode::GetValue( VariationHierarchy const& variationHierarchy, StringID variationID ) const
+    ResourceID DataSlotToolsNode::GetValue( VariationHierarchy const& variationHierarchy, StringID variationID ) const
     {
         KRG_ASSERT( variationHierarchy.IsValidVariation( variationID ) );
 
@@ -120,7 +97,7 @@ namespace KRG::Animation::Graph
         return resourceID;
     }
 
-    ResourceID* DataSlotNode::GetOverrideValueForVariation( StringID variationID )
+    ResourceID* DataSlotToolsNode::GetOverrideValueForVariation( StringID variationID )
     {
         KRG_ASSERT( variationID.IsValid() );
 
@@ -140,7 +117,7 @@ namespace KRG::Animation::Graph
         return nullptr;
     }
 
-    void DataSlotNode::SetOverrideValueForVariation( StringID variationID, ResourceID const& resourceID )
+    void DataSlotToolsNode::SetOverrideValueForVariation( StringID variationID, ResourceID const& resourceID )
     {
         KRG_ASSERT( variationID.IsValid() );
         KRG_ASSERT( !resourceID.IsValid() || resourceID.GetResourceTypeID() == GetSlotResourceType() );
@@ -167,7 +144,7 @@ namespace KRG::Animation::Graph
         KRG_UNREACHABLE_CODE();
     }
 
-    void DataSlotNode::CreateOverride( StringID variationID )
+    void DataSlotToolsNode::CreateOverride( StringID variationID )
     {
         KRG_ASSERT( variationID.IsValid() && variationID != AnimationGraphVariation::DefaultVariationID );
         KRG_ASSERT( !HasOverrideForVariation( variationID ) );
@@ -176,7 +153,7 @@ namespace KRG::Animation::Graph
         createdOverride.m_variationID = variationID;
     }
 
-    void DataSlotNode::RenameOverride( StringID oldVariationID, StringID newVariationID )
+    void DataSlotToolsNode::RenameOverride( StringID oldVariationID, StringID newVariationID )
     {
         KRG_ASSERT( oldVariationID.IsValid() && newVariationID.IsValid() );
         KRG_ASSERT( oldVariationID != AnimationGraphVariation::DefaultVariationID && newVariationID != AnimationGraphVariation::DefaultVariationID );
@@ -190,7 +167,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void DataSlotNode::RemoveOverride( StringID variationID )
+    void DataSlotToolsNode::RemoveOverride( StringID variationID )
     {
         KRG_ASSERT( variationID.IsValid() && variationID != AnimationGraphVariation::DefaultVariationID );
 

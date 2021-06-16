@@ -12,8 +12,8 @@ namespace KRG::Animation::Graph
     {
         auto pNode = CreateNode<TransitionNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_targetStateNodeIdx, pNode->m_pTargetNode );
-        SetNodePtrFromIndex( nodePtrs, m_durationOverrideNodeIdx, pNode->m_pDurationOverrideNode );
-        SetNodePtrFromIndex( nodePtrs, m_syncEventOffsetOverrideNodeIdx, pNode->m_pEventOffsetOverrideNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_durationOverrideNodeIdx, pNode->m_pDurationOverrideNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_syncEventOffsetOverrideNodeIdx, pNode->m_pEventOffsetOverrideNode );
     }
 
     PoseNodeResult TransitionNode::StartTransitionFromState( GraphContext& context, InitializationOptions const& options, StateNode* pSourceState )

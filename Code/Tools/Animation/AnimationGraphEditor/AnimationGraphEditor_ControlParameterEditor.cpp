@@ -57,7 +57,7 @@ namespace KRG::Animation::Graph
                 for ( auto pControlParameter : pGraph->GetControlParameters() )
                 {
                     ImGui::PushID( pControlParameter );
-                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pControlParameter->GetColor() );
+                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pControlParameter->GetHighlightColor() );
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -93,7 +93,7 @@ namespace KRG::Animation::Graph
                 for ( auto pVirtualParameter : pGraph->GetVirtualParameters() )
                 {
                     ImGui::PushID( pVirtualParameter );
-                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pVirtualParameter->GetColor() );
+                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pVirtualParameter->GetHighlightColor() );
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();

@@ -1,7 +1,7 @@
 #pragma once
 #include "AnimationGraphTools_Common.h"
 #include "AnimationGraphTools_Variations.h"
-#include "Tools/Core/GraphEditor/FlowGraph.h"
+#include "Tools/Core/GraphEditor/Flow/FlowGraph.h"
 #include "Engine/Animation/Graph/AnimationGraphCommon.h"
 
 //-------------------------------------------------------------------------
@@ -12,27 +12,32 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ToolsNode : public GraphEditor::Flow::Node
+    class FlowToolsNode : public GraphEditor::Flow::Node
     {
-        KRG_REGISTER_TYPE( ToolsNode );
+        KRG_REGISTER_TYPE( FlowToolsNode );
 
     public:
+
+        using GraphEditor::Flow::Node::Node;
 
         // Get the type of node this is, this is either the output type for the nodes with output or the first input for nodes with no outputs
         KRG_FORCE_INLINE NodeValueType GetValueType() const
         {
-            if ( GetNumOutputPins() == 0 )
+            if ( GetNumOutputPins() > 0 )
             {
-                KRG_ASSERT( GetNumInputPins() > 0 );
+                return NodeValueType( GetOutputPin( 0 )->m_type );
+            }
+            else if ( GetNumInputPins() > 0 )
+            {
                 return NodeValueType( GetInputPin( 0 )->m_type );
             }
             else
             {
-                return NodeValueType( GetOutputPin( 0 )->m_type );
+                return NodeValueType::Unknown;
             }
         }
 
-        virtual ImColor GetColor() const final { return GetColorForValueType( GetValueType() ); }
+        virtual ImColor GetHighlightColor() const final { return GetColorForValueType( GetValueType() ); }
 
         virtual ImColor GetPinColor( GraphEditor::Flow::Pin const& pin ) const final { return GetColorForValueType( (NodeValueType) pin.m_type ); }
 
@@ -45,9 +50,6 @@ namespace KRG::Animation::Graph
         // Compile this node into its runtime representation. Returns the node index of the compiled node.
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const { return InvalidIndex; }
 
-        // Returns the string path from the root graph
-        String GetPathFromRoot() const;
-
     protected:
 
         KRG_FORCE_INLINE void CreateInputPin( char const* pPinName, NodeValueType pinType ) { GraphEditor::Flow::Node::CreateInputPin( pPinName, (uint32) pinType ); }
@@ -56,9 +58,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class DataSlotNode : public ToolsNode
+    class DataSlotToolsNode : public FlowToolsNode
     {
-        KRG_REGISTER_TYPE( DataSlotNode );
+        KRG_REGISTER_TYPE( DataSlotToolsNode );
 
     public:
 
@@ -83,7 +85,7 @@ namespace KRG::Animation::Graph
 
         bool HasOverrideForVariation( StringID variationID ) const { return GetOverrideValueForVariation( variationID ) != nullptr; }
         ResourceID* GetOverrideValueForVariation( StringID variationID );
-        ResourceID const* GetOverrideValueForVariation( StringID variationID ) const { return const_cast<DataSlotNode*>( this )->GetOverrideValueForVariation( variationID ); }
+        ResourceID const* GetOverrideValueForVariation( StringID variationID ) const { return const_cast<DataSlotToolsNode*>( this )->GetOverrideValueForVariation( variationID ); }
 
         void CreateOverride( StringID variationID );
         void RenameOverride( StringID oldVariationID, StringID newVariationID );

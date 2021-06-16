@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::AnimationClipToolsNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::DataSlotNode>( &type ), KRG_NVP( m_defaultResourceID ), KRG_NVP( m_overrides ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_name ), KRG_NVP( m_sampleRootMotion ), KRG_NVP( m_allowLooping ) );
+        archive( cereal::base_class<KRG::Animation::Graph::DataSlotToolsNode>( &type ), KRG_NVP( m_defaultResourceID ), KRG_NVP( m_overrides ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_name ), KRG_NVP( m_sampleRootMotion ), KRG_NVP( m_allowLooping ) );
     }
 
     //-------------------------------------------------------------------------
@@ -52,15 +52,15 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             propertyInfo.m_ID = StringID( "m_overrides" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::DataSlotNode::OverrideValue" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::DataSlotToolsNode::OverrideValue" );
             propertyInfo.m_parentTypeID = 1311492385;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_overrides;
             propertyInfo.m_offset = offsetof( KRG::Animation::Graph::AnimationClipToolsNode, m_overrides );
             propertyInfo.m_pDefaultArrayData = pActualDefaultTypeInstance->m_overrides.data();
             propertyInfo.m_arraySize = (int32) pActualDefaultTypeInstance->m_overrides.size();
-            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::Animation::Graph::DataSlotNode::OverrideValue );
-            propertyInfo.m_size = sizeof( TVector<KRG::Animation::Graph::DataSlotNode::OverrideValue> );
+            propertyInfo.m_arrayElementSize = (int32) sizeof( KRG::Animation::Graph::DataSlotToolsNode::OverrideValue );
+            propertyInfo.m_size = sizeof( TVector<KRG::Animation::Graph::DataSlotToolsNode::OverrideValue> );
             propertyInfo.m_flags.Set( 36 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
@@ -163,7 +163,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::Animation::Graph::DataSlotNode::s_pTypeInfo;
+                    pParentType = KRG::Animation::Graph::DataSlotToolsNode::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -202,7 +202,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_overrides )
                     {
-                        KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );
+                        KRG::Animation::Graph::DataSlotToolsNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &propertyValue );
                     }
 
                 }
@@ -214,7 +214,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_overrides )
                     {
-                        KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );
+                        KRG::Animation::Graph::DataSlotToolsNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &propertyValue );
                     }
 
                 }
@@ -226,7 +226,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_overrides )
                     {
-                        status = KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );
+                        status = KRG::Animation::Graph::DataSlotToolsNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->GetResourceLoadingStatus( &propertyValue );
                         if ( status == LoadingStatus::Loading )
                         {
                             return LoadingStatus::Loading;
@@ -243,7 +243,7 @@ namespace KRG
 
                     for ( auto& propertyValue : pActualType->m_overrides )
                     {
-                        status = KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );
+                        status = KRG::Animation::Graph::DataSlotToolsNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->GetResourceUnloadingStatus( &propertyValue );
                         if ( status != LoadingStatus::Unloaded )
                         {
                             return LoadingStatus::Unloading;
@@ -298,7 +298,7 @@ namespace KRG
                 {
                     if ( arrayID == 2183863778 )
                     {
-                        return sizeof( KRG::Animation::Graph::DataSlotNode::OverrideValue );
+                        return sizeof( KRG::Animation::Graph::DataSlotToolsNode::OverrideValue );
                     }
 
                     // We should never get here since we are asking for a ptr to an invalid property
@@ -412,7 +412,7 @@ namespace KRG
                                 return false;
                             }
 
-                            return KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_overrides[arrayIdx], &pOtherType->m_overrides[arrayIdx] );
+                            return KRG::Animation::Graph::DataSlotToolsNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_overrides[arrayIdx], &pOtherType->m_overrides[arrayIdx] );
                         }
                         else // Compare entire array contents
                         {
@@ -423,7 +423,7 @@ namespace KRG
 
                             for ( size_t i = 0; i < pType->m_overrides.size(); i++ )
                             {
-                                if( !KRG::Animation::Graph::DataSlotNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_overrides[i], &pOtherType->m_overrides[i] ) )
+                                if( !KRG::Animation::Graph::DataSlotToolsNode::OverrideValue::s_pTypeInfo->m_pTypeHelper->AreAllPropertyValuesEqual( &pType->m_overrides[i], &pOtherType->m_overrides[i] ) )
                                 {
                                     return false;
                                 }

@@ -36,7 +36,6 @@ namespace KRG
     template<typename T> using TQueue = eastl::queue<T>;
     template<typename T> using TDeque = eastl::deque<T>;
     template<typename T> using TMultiSet = eastl::multiset<T>;
-    template<typename K, typename V> using TMap = eastl::map<K, V>;
     template<typename K, typename V, typename H = eastl::hash<K>> using THashMap = eastl::hash_map<K, V, H>;
     template<typename V, typename H = eastl::hash<V>> using THashSet = eastl::hash_set<V, H>;
     template<typename K, typename V> using TPair = eastl::pair<K, V>;

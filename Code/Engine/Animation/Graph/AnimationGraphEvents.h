@@ -127,7 +127,7 @@ namespace KRG::Animation::Graph
             }
             else
             {
-                return range.m_startIdx >= 0 && range.m_endIdx < m_events.size();
+                return range.m_startIdx >= 0 && range.m_endIdx <= m_events.size();
             }
         }
 

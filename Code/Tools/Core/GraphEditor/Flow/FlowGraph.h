@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GraphEditor.h"
+#include "../GraphEditor.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/UUID.h"
 
@@ -19,6 +19,11 @@ namespace KRG::GraphEditor
 
     namespace Flow
     {
+        struct VisualSettings
+        {
+            constexpr static uint32 const   s_nodeTitleColor = IM_COL32( 0, 0, 0, 255 );
+        };
+
         //-------------------------------------------------------------------------
         // Flow Graph Pin
         //-------------------------------------------------------------------------
@@ -61,14 +66,10 @@ namespace KRG::GraphEditor
 
         public:
 
-            Node() = default;
-            virtual ~Node() {}
+            using BaseNode::BaseNode;
 
             // Node 
             //-------------------------------------------------------------------------
-
-            // Requests that the parent graph destroys this node
-            inline void Destroy() { KRG_ASSERT( HasParentGraph() ); GetParentGraph()->DestroyNode( m_ID ); }
 
             // Get node category name (separated via '/')
             virtual char const* GetCategory() const { return nullptr; }
@@ -161,24 +162,13 @@ namespace KRG::GraphEditor
             // Visual
             //-------------------------------------------------------------------------
 
-            inline void SetCanvasPosition( ImVec2 const& newPosition ) { m_canvasPosition = newPosition; }
-
             // What color should this pin and the connection for it be?
             virtual ImColor GetPinColor( Pin const& pin ) const { return 0xFF888888; }
-
-            // Serialization
-            //-------------------------------------------------------------------------
-
-            virtual void Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& nodeObjectValue ) override final;
-            virtual void Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const override final;
 
         protected:
 
             // Override this if you want custom UI after/before the pin. Returns true if something was drawn, false otherwise
             virtual bool DrawPinControls( Pin const& pin ) { return false; }
-
-            // Override this if you want to add extra controls after the pins block
-            virtual void DrawExtraControls( DrawingContext const& ctx ) {}
 
             // Create a new dynamic pin
             void CreateDynamicInputPin();
@@ -198,9 +188,9 @@ namespace KRG::GraphEditor
             void DestroyOutputPin( int32 pinIdx );
             void DestroyPin( UUID const& pinID );
 
-            // Allow for custom serialization in derived types
-            virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& nodeObjectValue ) {};
-            virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const {};
+            // Serialization
+            virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& nodeObjectValue ) override;
+            virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const override;
 
         private:
 
@@ -211,12 +201,8 @@ namespace KRG::GraphEditor
 
             TInlineVector<Pin, 4>       m_inputPins;
             TInlineVector<Pin, 1>       m_outputPins;
-
-            ImVec2                      m_titleRectSize = ImVec2( 0, 0 );
             ImVec2                      m_pinsRectSize = ImVec2( 0, 0 );
-            ImVec2                      m_controlsRectSize = ImVec2( 0, 0 );
             Pin*                        m_pHoveredPin = nullptr;
-            bool                        m_isHovered = false;
         };
 
         //-------------------------------------------------------------------------
@@ -254,7 +240,7 @@ namespace KRG::GraphEditor
         // Note: There are no default addition methods exposed, it is up to the derived graphs to create them
 
         // Destroys and deletes the specified node
-        virtual void DestroyNode( UUID const& nodeID ) override final;
+        virtual void PreDestroyNode( BaseNode* pNode ) override;
 
         Flow::Node* GetNode( UUID const& nodeID ) const { return static_cast<Flow::Node*>( FindNode( nodeID ) ); }
         Flow::Node* GetNodeForPinID( UUID const& pinID ) const;
@@ -281,14 +267,10 @@ namespace KRG::GraphEditor
         // Serialization
         //-------------------------------------------------------------------------
 
-        virtual void Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue ) override final;
-        virtual void Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const override final;
+        virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue ) override;
+        virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const override;
 
     protected:
-
-        // Allow for custom serialization in derived types
-        virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue ) {};
-        virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const {};
 
         bool CheckForCyclicConnection( Flow::Node const* pOutputNode, Flow::Node const* pInputNode ) const;
 

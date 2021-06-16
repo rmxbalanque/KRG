@@ -15,7 +15,7 @@ namespace KRG
         namespace WindowsKeyMap
         {
             // Virtual key code to KRG keyboard buttons
-            static TMap<uint32, KeyboardButton> g_keyMappings;
+            static THashMap<uint32, KeyboardButton> g_keyMappings;
 
             enum CustomVKeys
             {
@@ -217,7 +217,7 @@ namespace KRG
 
             static void Shutdown()
             {
-                g_keyMappings.clear();
+                g_keyMappings.clear( true );
             }
         }
 

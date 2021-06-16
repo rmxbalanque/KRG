@@ -1,31 +1,34 @@
 #include "AnimationToolsNode_Selector.h"
 #include "Tools/Animation/Graph/AnimationGraphTools_Compilation.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_Graph.h"
+#include "Tools/Animation/Graph/AnimationGraphTools_FlowGraph.h"
 #include "Engine/Animation/Graph/Nodes/AnimationGraphNode_Selector.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    SelectorConditionNode::SelectorConditionNode()
-        : ToolsNode()
+    void SelectorConditionNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
+
         CreateInputPin( "Option 0", NodeValueType::Bool );
         CreateInputPin( "Option 1", NodeValueType::Bool );
     }
 
     //-------------------------------------------------------------------------
 
-    SelectorToolsNode::SelectorToolsNode()
-        : ToolsNode()
+    void SelectorToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
+
         CreateOutputPin( "Pose", NodeValueType::Pose );
         CreateInputPin( "Option 0", NodeValueType::Pose );
         CreateInputPin( "Option 1", NodeValueType::Pose );
 
-        auto pConditionGraph = KRG::New<ToolsGraph>( GraphType::ValueTree );
+        auto pConditionGraph = KRG::New<FlowToolGraph>( GraphType::ValueTree );
         pConditionGraph->CreateNode<SelectorConditionNode>();
-        m_pSecondaryGraph = pConditionGraph;
+
+        SetSecondaryGraph( pConditionGraph );
     }
 
     NodeIndex SelectorToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -36,14 +39,14 @@ namespace KRG::Animation::Graph
         {
             int32 const numOptions = GetNumInputPins();
 
-            auto conditionNodes = m_pSecondaryGraph->FindAllNodesOfType<SelectorConditionNode>( false );
+            auto conditionNodes = GetSecondaryGraph()->FindAllNodesOfType<SelectorConditionNode>();
             KRG_ASSERT( conditionNodes.size() == 1 );
             auto pConditionsNode = conditionNodes[0];
             KRG_ASSERT( pConditionsNode->GetNumInputPins() == numOptions );
 
             for ( auto i = 0; i < numOptions; i++ )
             {
-                auto pOptionNode = GetConnectedInputNode<ToolsNode>( i );
+                auto pOptionNode = GetConnectedInputNode<FlowToolsNode>( i );
                 if ( pOptionNode != nullptr )
                 {
                     auto compiledNodeIdx = pOptionNode->Compile( context );
@@ -62,7 +65,7 @@ namespace KRG::Animation::Graph
                     return InvalidIndex;
                 }
 
-                auto pConditionNode = pConditionsNode->GetConnectedInputNode<ToolsNode>( i );
+                auto pConditionNode = pConditionsNode->GetConnectedInputNode<FlowToolsNode>( i );
                 if ( pConditionNode != nullptr )
                 {
                     auto compiledNodeIdx = pConditionNode->Compile( context );
@@ -105,7 +108,7 @@ namespace KRG::Animation::Graph
 
     void SelectorToolsNode::OnDynamicPinCreation( UUID pinID )
     {
-        auto conditionNodes = m_pSecondaryGraph->FindAllNodesOfType<SelectorConditionNode>( false );
+        auto conditionNodes = GetSecondaryGraph()->FindAllNodesOfType<SelectorConditionNode>();
         KRG_ASSERT( conditionNodes.size() == 1 );
         auto pConditionsNode = conditionNodes[0];
 
@@ -119,7 +122,7 @@ namespace KRG::Animation::Graph
 
     void SelectorToolsNode::OnDynamicPinDestruction( UUID pinID )
     {
-        auto conditionNodes = m_pSecondaryGraph->FindAllNodesOfType<SelectorConditionNode>( false );
+        auto conditionNodes = GetSecondaryGraph()->FindAllNodesOfType<SelectorConditionNode>();
         KRG_ASSERT( conditionNodes.size() == 1 );
         auto pConditionsNode = conditionNodes[0];
 

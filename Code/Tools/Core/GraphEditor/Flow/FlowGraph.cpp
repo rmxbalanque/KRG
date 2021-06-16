@@ -67,7 +67,7 @@ namespace KRG::GraphEditor::Flow
         newPin.m_type = valueType;
         newPin.m_direction = Pin::Direction::In;
 
-        RecalculateNodeSize();
+        RefreshVisualState();
     }
 
     void Node::CreateOutputPin( char const* pPinName, uint32 valueType, bool allowMultipleOutputConnections )
@@ -78,7 +78,7 @@ namespace KRG::GraphEditor::Flow
         newPin.m_direction = Pin::Direction::Out;
         newPin.m_allowMultipleOutConnections = allowMultipleOutputConnections;
 
-        RecalculateNodeSize();
+        RefreshVisualState();
     }
 
     void Node::DestroyInputPin( int32 pinIdx )
@@ -86,7 +86,7 @@ namespace KRG::GraphEditor::Flow
         KRG_ASSERT( pinIdx >= 0 && pinIdx < m_inputPins.size() );
         static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( m_inputPins[pinIdx].m_ID );
         m_inputPins.erase( m_inputPins.begin() + pinIdx );
-        RecalculateNodeSize();
+        RefreshVisualState();
         return;
     }
 
@@ -95,7 +95,7 @@ namespace KRG::GraphEditor::Flow
         KRG_ASSERT( pinIdx >= 0 && pinIdx < m_outputPins.size() );
         static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( m_outputPins[pinIdx].m_ID );
         m_outputPins.erase( m_outputPins.begin() + pinIdx );
-        RecalculateNodeSize();
+        RefreshVisualState();
         return;
     }
 
@@ -107,7 +107,7 @@ namespace KRG::GraphEditor::Flow
             {
                 static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( pinID );
                 m_inputPins.erase( iter );
-                RecalculateNodeSize();
+                RefreshVisualState();
                 return;
             }
         }
@@ -118,7 +118,7 @@ namespace KRG::GraphEditor::Flow
             {
                 static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( pinID );
                 m_outputPins.erase( iter );
-                RecalculateNodeSize();
+                RefreshVisualState();
                 return;
             }
         }
@@ -135,7 +135,7 @@ namespace KRG::GraphEditor::Flow
         newPin.m_isDynamic = true;
         OnDynamicPinCreation( newPin.m_ID );
 
-        RecalculateNodeSize();
+        RefreshVisualState();
     }
 
     void Node::DestroyDynamicInputPin( UUID const& pinID )
@@ -158,17 +158,9 @@ namespace KRG::GraphEditor::Flow
 
     //-------------------------------------------------------------------------
 
-    void Node::Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& nodeObjectValue )
+    void Node::SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& nodeObjectValue )
     {
         KRG_ASSERT( nodeObjectValue.IsObject() );
-
-        //-------------------------------------------------------------------------
-
-        // Note serialization is not symmetric for the nodes, since the node creation also deserializes registered values
-
-        //-------------------------------------------------------------------------
-
-        SerializeCustom( typeRegistry, nodeObjectValue );
 
         //-------------------------------------------------------------------------
 
@@ -195,45 +187,10 @@ namespace KRG::GraphEditor::Flow
             pin.m_type = pinObjectValue["Type"].GetUint();
             pin.m_allowMultipleOutConnections = pinObjectValue["AllowMultipleConnections"].GetBool();
         }
-
-        //-------------------------------------------------------------------------
-
-        KRG::Delete( m_pChildGraph );
-
-        auto const childGraphValueIter = nodeObjectValue.FindMember( "ChildGraph" );
-        if ( childGraphValueIter != nodeObjectValue.MemberEnd() )
-        {
-            KRG_ASSERT( childGraphValueIter->value.IsObject() );
-            auto& graphObjectValue = childGraphValueIter->value;
-            m_pChildGraph = BaseGraph::CreateGraphFromSerializedData( typeRegistry, graphObjectValue, this );
-        }
-
-        //-------------------------------------------------------------------------
-
-        KRG::Delete( m_pSecondaryGraph );
-
-        auto const secondaryGraphValueIter = nodeObjectValue.FindMember( "SecondaryGraph" );
-        if ( secondaryGraphValueIter != nodeObjectValue.MemberEnd() )
-        {
-            KRG_ASSERT( secondaryGraphValueIter->value.IsObject() );
-            auto& graphObjectValue = secondaryGraphValueIter->value;
-            m_pSecondaryGraph = BaseGraph::CreateGraphFromSerializedData( typeRegistry, graphObjectValue, this );
-        }
     }
 
-    void Node::Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
+    void Node::SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
     {
-        writer.StartObject();
-
-        writer.Key( "TypeData" );
-        TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, this );
-
-        //-------------------------------------------------------------------------
-
-        SerializeCustom( typeRegistry, writer );
-
-        //-------------------------------------------------------------------------
-
         writer.Key( "InputPins" );
         writer.StartArray();
         for ( auto const& pin : m_inputPins )
@@ -283,24 +240,6 @@ namespace KRG::GraphEditor::Flow
             writer.EndObject();
         }
         writer.EndArray();
-
-        //-------------------------------------------------------------------------
-
-        if ( HasChildGraph() )
-        {
-            writer.Key( "ChildGraph" );
-            GetChildGraph()->Serialize( typeRegistry, writer );
-        }
-
-        //-------------------------------------------------------------------------
-
-        if ( HasSecondaryGraph() )
-        {
-            writer.Key( "SecondaryGraph" );
-            GetSecondaryGraph()->Serialize( typeRegistry, writer );
-        }
-
-        writer.EndObject();
     }
 }
 
@@ -312,30 +251,17 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraph::DestroyNode( UUID const& nodeID )
+    void FlowGraph::PreDestroyNode( BaseNode* pNode )
     {
-        for ( auto iter = m_nodes.begin(); iter != m_nodes.end(); ++iter )
-        {
-            auto pNode = *iter;
-            if ( pNode->GetID() == nodeID )
-            {
-                BreakAllConnectionsForNode( nodeID );
-
-                // Delete the node
-                KRG::Delete( pNode );
-                m_nodes.erase( iter );
-                return;
-            }
-        }
-
-        KRG_UNREACHABLE_CODE();
+        BreakAllConnectionsForNode( pNode->GetID() );
+        BaseGraph::PreDestroyNode( pNode );
     }
 
     Flow::Node* FlowGraph::GetNodeForPinID( UUID const& pinID ) const
     {
         for ( auto pNode : m_nodes )
         {
-            auto pFlowNode = SafeCast<Flow::Node>( pNode );
+            auto pFlowNode = Cast<Flow::Node>( pNode );
             if ( pFlowNode->HasPin( pinID ) )
             {
                 return pFlowNode;
@@ -511,29 +437,9 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraph::Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue )
+    void FlowGraph::SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue )
     {
         KRG_ASSERT( graphObjectValue.IsObject() );
-
-        // Note serialization is not symmetric for the graphs, since the graph creation also deserializes registered values
-        SerializeCustom( typeRegistry, graphObjectValue );
-
-        // Nodes
-        //-------------------------------------------------------------------------
-
-        for ( auto pNode : m_nodes )
-        {
-            KRG::Delete( pNode );
-        }
-        m_nodes.clear();
-
-        for ( auto& nodeObjectValue : graphObjectValue["Nodes"].GetArray() )
-        {
-            m_nodes.emplace_back( BaseNode::CreateNodeFromSerializedData( typeRegistry, nodeObjectValue, this ) );
-        }
-
-        // Connections
-        //-------------------------------------------------------------------------
 
         m_connections.clear();
         for ( auto& connectionObjectValue : graphObjectValue["Connections"].GetArray() )
@@ -544,7 +450,7 @@ namespace KRG::GraphEditor
                 {
                     if ( pNode->GetID() == ID )
                     {
-                        return SafeCast<Flow::Node>( pNode );
+                        return Cast<Flow::Node>( pNode );
                     }
                 }
 
@@ -566,29 +472,8 @@ namespace KRG::GraphEditor
         }
     }
 
-    void FlowGraph::Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
+    void FlowGraph::SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
     {
-        writer.StartObject();
-
-        writer.Key( "TypeData" );
-        TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, this );
-
-        SerializeCustom( typeRegistry, writer );
-
-        //-------------------------------------------------------------------------
-
-        writer.Key( "Nodes" );
-        writer.StartArray();
-
-        for ( auto pNode : m_nodes )
-        {
-            pNode->Serialize( typeRegistry, writer );
-        }
-
-        writer.EndArray();
-
-        //-------------------------------------------------------------------------
-
         writer.Key( "Connections" );
         writer.StartArray();
 
@@ -612,9 +497,5 @@ namespace KRG::GraphEditor
         }
 
         writer.EndArray();
-
-        //-------------------------------------------------------------------------
-
-        writer.EndObject();
     }
 }

@@ -6,9 +6,9 @@
 
 namespace KRG::Animation::Graph
 {
-    ZeroPoseToolsNode::ZeroPoseToolsNode()
-        : ToolsNode()
+    void ZeroPoseToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Pose", NodeValueType::Pose );
     }
 
@@ -21,9 +21,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    ReferencePoseToolsNode::ReferencePoseToolsNode()
-        : ToolsNode()
+    void ReferencePoseToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Pose", NodeValueType::Pose );
     }
 
@@ -36,9 +36,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    AnimationPoseToolsNode::AnimationPoseToolsNode()
-        : DataSlotNode()
+    void AnimationPoseToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Pose", NodeValueType::Pose );
         CreateInputPin( "Time", NodeValueType::Float );
     }
@@ -49,7 +49,7 @@ namespace KRG::Animation::Graph
         NodeCompilationState const state = context.GetSettings<AnimationPoseNode>( this, pSettings );
         if ( state == NodeCompilationState::NeedCompilation )
         {
-            auto pTimeParameterNode = GetConnectedInputNode<ToolsNode>( 0 );
+            auto pTimeParameterNode = GetConnectedInputNode<FlowToolsNode>( 0 );
             if ( pTimeParameterNode != nullptr )
             {
                 auto compiledNodeIdx = pTimeParameterNode->Compile( context );

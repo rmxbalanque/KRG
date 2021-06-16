@@ -1,5 +1,6 @@
 #pragma once
-#include "AnimationGraphTools_Graph.h"
+#include "AnimationGraphTools_FlowGraph.h"
+#include "AnimationGraphTools_StateMachineGraph.h"
 #include "AnimationGraphTools_Variations.h"
 #include "Nodes/AnimationToolsNode_Parameters.h"
 #include "Engine/Animation/Graph/AnimationGraphResources.h"
@@ -40,21 +41,21 @@ namespace KRG::Animation::Graph
         // Graph
         //-------------------------------------------------------------------------
 
-        inline ToolsGraph* GetRootGraph() { return m_pRootGraph; }
-        inline ToolsGraph const* GetRootGraph() const { return m_pRootGraph; }
+        inline FlowToolGraph* GetRootGraph() { return m_pRootGraph; }
+        inline FlowToolGraph const* GetRootGraph() const { return m_pRootGraph; }
 
         template<typename T>
-        TInlineVector<T*, 20> FindAllNodesOfType( bool includeDerivedNodes = true )
+        TInlineVector<T*, 20> FindAllNodesOfType( GraphEditor::SearchMode mode = GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch typeMatch = GraphEditor::SearchTypeMatch::Exact )
         {
-            static_assert( std::is_base_of<ToolsNode, T>::value );
-            return m_pRootGraph->FindAllNodesOfType<T>( includeDerivedNodes );
+            static_assert( std::is_base_of<FlowToolsNode, T>::value );
+            return m_pRootGraph->FindAllNodesOfType<T>( mode, typeMatch );
         }
 
         template<typename T>
-        TInlineVector<T const*, 20> FindAllNodesOfType( bool includeDerivedNodes = true ) const
+        TInlineVector<T const*, 20> FindAllNodesOfType( GraphEditor::SearchMode mode = GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch typeMatch = GraphEditor::SearchTypeMatch::Exact ) const
         {
-            static_assert( std::is_base_of<ToolsNode, T>::value );
-            return m_pRootGraph->FindAllNodesOfType<T const>( includeDerivedNodes );
+            static_assert( std::is_base_of<FlowToolsNode, T>::value );
+            return m_pRootGraph->FindAllNodesOfType<T const>( mode, typeMatch );
         }
 
         // Parameters
@@ -87,8 +88,8 @@ namespace KRG::Animation::Graph
         Variation const* GetVariation( StringID variationID ) const { return m_variations.GetVariation( variationID ); }
         Variation* GetVariation( StringID variationID ) { return m_variations.GetVariation( variationID ); }
 
-        inline TInlineVector<DataSlotNode*, 20> GetAllDataSlotNodes() { return FindAllNodesOfType<DataSlotNode>(); }
-        inline TInlineVector<DataSlotNode const*, 20> GetAllDataSlotNodes() const { return FindAllNodesOfType<DataSlotNode>(); }
+        inline TInlineVector<DataSlotToolsNode*, 20> GetAllDataSlotNodes() { return FindAllNodesOfType<DataSlotToolsNode>( GraphEditor::SearchMode::Recursive, GraphEditor::SearchTypeMatch::Derived ); }
+        inline TInlineVector<DataSlotToolsNode const*, 20> GetAllDataSlotNodes() const { return FindAllNodesOfType<DataSlotToolsNode>( GraphEditor::SearchMode::Recursive, GraphEditor::SearchTypeMatch::Derived ); }
 
         // Compilation
         //-------------------------------------------------------------------------
@@ -104,7 +105,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        ToolsGraph*                                 m_pRootGraph = nullptr;
+        FlowToolGraph*                                 m_pRootGraph = nullptr;
         VariationHierarchy                          m_variations;
         TVector<ControlParameterToolsNode*>         m_controlParameters;
         TVector<VirtualParameterToolsNode*>         m_virtualParameters;

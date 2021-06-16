@@ -21,6 +21,8 @@ namespace KRG::Animation::Graph
 
         enum class RootMotionBlend : uint8
         {
+            KRG_REGISTER_ENUM
+
             Blend,
             IgnoreSource,
             IgnoreTarget
@@ -30,8 +32,8 @@ namespace KRG::Animation::Graph
         {
             Synchronized,
             ClampDuration,
-            KeepEventIndex,
-            KeepEventPercentage,
+            KeepSyncEventIndex,
+            KeepSyncEventPercentage,
             ForcedTransitionAllowed,
         };
 
@@ -41,7 +43,7 @@ namespace KRG::Animation::Graph
             bool                    m_shouldCachePose = false;
         };
 
-        struct Settings : public PoseNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_targetStateNodeIdx, m_durationOverrideNodeIdx, m_syncEventOffsetOverrideNodeIdx, m_blendWeightEasingType, m_rootMotionBlend, m_duration, m_syncEventOffset, m_transitionOptions );
@@ -52,13 +54,13 @@ namespace KRG::Animation::Graph
 
             inline bool IsSynchronized() const { return m_transitionOptions.IsFlagSet( TransitionOptions::Synchronized ); }
             inline bool ShouldClampDuration() const { return m_transitionOptions.IsFlagSet( TransitionOptions::ClampDuration ); }
-            inline bool ShouldKeepEventIndex() const { return m_transitionOptions.IsFlagSet( TransitionOptions::KeepEventIndex ); }
-            inline bool ShouldKeepEventPercentage() const { return m_transitionOptions.IsFlagSet( TransitionOptions::KeepEventPercentage ); }
+            inline bool ShouldKeepEventIndex() const { return m_transitionOptions.IsFlagSet( TransitionOptions::KeepSyncEventIndex ); }
+            inline bool ShouldKeepEventPercentage() const { return m_transitionOptions.IsFlagSet( TransitionOptions::KeepSyncEventPercentage ); }
             inline bool IsForcedTransitionAllowed() const { return m_transitionOptions.IsFlagSet( TransitionOptions::ForcedTransitionAllowed ); }
 
         public:
 
-            NodeIndex                           m_targetStateNodeIdx = 0;
+            NodeIndex                           m_targetStateNodeIdx = InvalidIndex;
             NodeIndex                           m_durationOverrideNodeIdx = InvalidIndex;
             NodeIndex                           m_syncEventOffsetOverrideNodeIdx = InvalidIndex;
             Math::Easing::Type                  m_blendWeightEasingType = Math::Easing::Type::Linear;

@@ -6,19 +6,20 @@
 
 namespace KRG::Animation::Graph
 {
-    class StateMachineNode final : public PoseNode
+    class KRG_ENGINE_ANIMATION_API StateMachineNode final : public PoseNode
     {
-        using StateIndex = int16;
 
     public:
+
+        using StateIndex = int16;
 
         struct TransitionSettings
         {
             KRG_SERIALIZE_MEMBERS( m_targetStateIdx, m_transitionNodeIdx, m_conditionNodeIdx );
 
             StateIndex                                              m_targetStateIdx = InvalidIndex;
-            NodeIndex                                               m_transitionNodeIdx = InvalidIndex;
             NodeIndex                                               m_conditionNodeIdx = InvalidIndex;
+            NodeIndex                                               m_transitionNodeIdx = InvalidIndex;
         };
 
         struct StateSettings
@@ -32,7 +33,7 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        struct Settings : public PoseNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public PoseNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_stateSettings, m_defaultStateIndex );
@@ -88,7 +89,7 @@ namespace KRG::Animation::Graph
     private:
 
         TInlineVector<State, 10>                                m_states;
-        TransitionNode*                                         m_pActiveTransition;
-        StateIndex                                              m_activeStateIndex;
+        TransitionNode*                                         m_pActiveTransition = nullptr;
+        StateIndex                                              m_activeStateIndex = InvalidIndex;
     };
 }

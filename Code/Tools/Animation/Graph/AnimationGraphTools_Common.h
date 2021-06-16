@@ -23,6 +23,5 @@ namespace KRG::Animation::Graph
         BlendTree,
         ValueTree,
         TransitionTree,
-        StateMachine,
     };
 }

@@ -1,17 +1,17 @@
 #pragma once
-#include "../AnimationGraphTools_Node.h"
+#include "../AnimationGraphTools_FlowNode.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class ConstBoolToolsNode final : public ToolsNode
+    class ConstBoolToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ConstBoolToolsNode );
 
     public:
 
-        ConstBoolToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Bool"; }
         virtual char const* GetCategory() const override { return "Const Values"; }
@@ -26,13 +26,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ConstIDToolsNode final : public ToolsNode
+    class ConstIDToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ConstIDToolsNode );
 
     public:
 
-        ConstIDToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "ID"; }
         virtual char const* GetCategory() const override { return "Const Values"; }
@@ -47,13 +47,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
     
-    class ConstIntToolsNode final : public ToolsNode
+    class ConstIntToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ConstIntToolsNode );
 
     public:
 
-        ConstIntToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Int"; }
         virtual char const* GetCategory() const override { return "Const Values"; }
@@ -68,13 +68,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ConstFloatToolsNode final : public ToolsNode
+    class ConstFloatToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ConstFloatToolsNode );
 
     public:
 
-        ConstFloatToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Float"; }
         virtual char const* GetCategory() const override { return "Const Values"; }
@@ -89,13 +89,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ConstVectorToolsNode final : public ToolsNode
+    class ConstVectorToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ConstVectorToolsNode );
 
     public:
 
-        ConstVectorToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Vector"; }
         virtual char const* GetCategory() const override { return "Const Values"; }
@@ -110,13 +110,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ConstTargetToolsNode final : public ToolsNode
+    class ConstTargetToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ConstTargetToolsNode );
 
     public:
 
-        ConstTargetToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Target"; }
         virtual char const* GetCategory() const override { return "Const Values"; }

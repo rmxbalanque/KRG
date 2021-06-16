@@ -1,11 +1,11 @@
 #pragma once
-#include "../AnimationGraphTools_Node.h"
+#include "../AnimationGraphTools_FlowNode.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class ControlParameterToolsNode final : public ToolsNode
+    class ControlParameterToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ControlParameterToolsNode );
         friend class ToolsAnimationGraph;
@@ -14,6 +14,8 @@ namespace KRG::Animation::Graph
 
         ControlParameterToolsNode() = default;
         ControlParameterToolsNode( String const& name, NodeValueType type );
+
+        virtual void Initialize( GraphEditor::BaseGraph* pParentGraph ) override;
 
         virtual char const* GetDisplayName() const override { return m_name.c_str(); }
         virtual char const* GetTypeName() const override { return "Parameter"; }
@@ -25,12 +27,13 @@ namespace KRG::Animation::Graph
 
     private:
 
-        REGISTER String m_name;
+        REGISTER String             m_name;
+        REGISTER NodeValueType      m_type = NodeValueType::Float;
     };
 
     //-------------------------------------------------------------------------
 
-    class ControlParameterReferenceToolsNode final : public ToolsNode
+    class ControlParameterReferenceToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ControlParameterReferenceToolsNode );
         friend class ToolsAnimationGraph;
@@ -39,6 +42,8 @@ namespace KRG::Animation::Graph
 
         ControlParameterReferenceToolsNode() = default;
         ControlParameterReferenceToolsNode( ControlParameterToolsNode const* pParameter );
+
+        virtual void Initialize( GraphEditor::BaseGraph* pParentGraph ) override;
 
         inline ControlParameterToolsNode const* GetReferencedParameter() const { return m_pParameter; }
         inline UUID const& GetReferencedParameterID() const { return m_parameterUUID; }
@@ -59,7 +64,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class VirtualParameterToolsNode final : public ToolsNode
+    class VirtualParameterToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( VirtualParameterToolsNode );
         friend class ToolsAnimationGraph;
@@ -68,6 +73,8 @@ namespace KRG::Animation::Graph
 
         VirtualParameterToolsNode() = default;
         VirtualParameterToolsNode( String const& name, NodeValueType type );
+
+        virtual void Initialize( GraphEditor::BaseGraph* pParentGraph ) override;
 
         virtual char const* GetDisplayName() const override { return m_name.c_str(); }
         virtual char const* GetTypeName() const override { return "Parameter"; }
@@ -78,12 +85,13 @@ namespace KRG::Animation::Graph
 
     private:
 
-        REGISTER String m_name;
+        REGISTER String             m_name;
+        REGISTER NodeValueType      m_type = NodeValueType::Float;
     };
 
     //-------------------------------------------------------------------------
 
-    class VirtualParameterReferenceToolsNode final : public ToolsNode
+    class VirtualParameterReferenceToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( VirtualParameterReferenceToolsNode );
         friend class ToolsAnimationGraph;
@@ -92,6 +100,8 @@ namespace KRG::Animation::Graph
 
         VirtualParameterReferenceToolsNode() = default;
         VirtualParameterReferenceToolsNode( VirtualParameterToolsNode const* pParameter );
+
+        virtual void Initialize( GraphEditor::BaseGraph* pParentGraph ) override;
 
         inline VirtualParameterToolsNode const* GetReferencedParameter() const { return m_pParameter; }
         inline UUID const& GetReferencedParameterID() const { return m_parameterUUID; }

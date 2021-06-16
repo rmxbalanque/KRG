@@ -13,6 +13,27 @@
 #include "D:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_Transition.h"
 
 //-------------------------------------------------------------------------
+// Enum Helper: KRG::Animation::Graph::TransitionNode::RootMotionBlend
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    namespace TypeSystem
+    {
+        namespace EnumHelpers
+        {
+            class EnumHelper_KRG_Animation_Graph_TransitionNode_RootMotionBlend
+            {
+            public:
+
+                static void RegisterEnum( TypeSystem::TypeRegistry& typeRegistry );
+                static void UnregisterEnum( TypeSystem::TypeRegistry& typeRegistry );
+            };
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::Graph::TransitionNode::Settings
 //-------------------------------------------------------------------------
 

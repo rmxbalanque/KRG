@@ -6,9 +6,9 @@
 
 namespace KRG::Animation::Graph
 {
-    ConstBoolToolsNode::ConstBoolToolsNode()
-        : ToolsNode()
+    void ConstBoolToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Value", NodeValueType::Bool, true );
     }
 
@@ -30,9 +30,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    ConstIDToolsNode::ConstIDToolsNode()
-        : ToolsNode()
+    void ConstIDToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Value", NodeValueType::ID, true );
     }
 
@@ -53,9 +53,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    ConstIntToolsNode::ConstIntToolsNode()
-        : ToolsNode()
+    void ConstIntToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Value", NodeValueType::Int, true );
     }
 
@@ -76,9 +76,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    ConstFloatToolsNode::ConstFloatToolsNode()
-        : ToolsNode()
+    void ConstFloatToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Value", NodeValueType::Float, true );
     }
 
@@ -99,9 +99,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    ConstVectorToolsNode::ConstVectorToolsNode()
-        : ToolsNode()
+    void ConstVectorToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Value", NodeValueType::Vector, true );
     }
 
@@ -122,9 +122,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    ConstTargetToolsNode::ConstTargetToolsNode()
-        : ToolsNode()
+    void ConstTargetToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Value", NodeValueType::Target, true );
     }
 

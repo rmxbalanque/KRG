@@ -6,9 +6,9 @@
 
 namespace KRG::Animation::Graph
 {
-    AnimationClipToolsNode::AnimationClipToolsNode()
-        : DataSlotNode()
+    void AnimationClipToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        DataSlotToolsNode::Initialize( pParent );
         CreateOutputPin( "Pose", NodeValueType::Pose );
         CreateInputPin( "Play In Reverse", NodeValueType::Bool );
     }
@@ -19,7 +19,7 @@ namespace KRG::Animation::Graph
         NodeCompilationState const state = context.GetSettings<AnimationClipNode>( this, pSettings );
         if ( state == NodeCompilationState::NeedCompilation )
         {
-            auto pShouldPlayInReverseNodeNode = GetConnectedInputNode<ToolsNode>( 0 );
+            auto pShouldPlayInReverseNodeNode = GetConnectedInputNode<FlowToolsNode>( 0 );
             if ( pShouldPlayInReverseNodeNode != nullptr )
             {
                 auto compiledNodeIdx = pShouldPlayInReverseNodeNode->Compile( context );

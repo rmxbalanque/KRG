@@ -6,9 +6,9 @@
 
 namespace KRG::Animation::Graph
 {
-    AndToolsNode::AndToolsNode()
-        : ToolsNode()
+    void AndToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Result", NodeValueType::Bool, true );
         CreateInputPin( "And", NodeValueType::Bool );
         CreateInputPin( "And", NodeValueType::Bool );
@@ -24,7 +24,7 @@ namespace KRG::Animation::Graph
             for ( auto i = 0; i < numInputs; i++ )
             {
                 // We allow some disconnected pins
-                auto pConnectedNode = GetConnectedInputNode<ToolsNode>( i );
+                auto pConnectedNode = GetConnectedInputNode<FlowToolsNode>( i );
                 if ( pConnectedNode != nullptr )
                 {
                     auto compiledNodeIdx = pConnectedNode->Compile( context );
@@ -52,9 +52,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    OrToolsNode::OrToolsNode()
-        : ToolsNode()
+    void OrToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Result", NodeValueType::Bool, true );
         CreateInputPin( "Or", NodeValueType::Bool );
         CreateInputPin( "Or", NodeValueType::Bool );
@@ -70,7 +70,7 @@ namespace KRG::Animation::Graph
             for ( auto i = 0; i < numInputs; i++ )
             {
                 // We allow some disconnected pins
-                auto pConnectedNode = GetConnectedInputNode<ToolsNode>( i );
+                auto pConnectedNode = GetConnectedInputNode<FlowToolsNode>( i );
                 if ( pConnectedNode != nullptr )
                 {
                     auto compiledNodeIdx = pConnectedNode->Compile( context );
@@ -98,9 +98,9 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    NotToolsNode::NotToolsNode()
-        : ToolsNode()
+    void NotToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
         CreateOutputPin( "Result", NodeValueType::Bool, true );
         CreateInputPin( "Not", NodeValueType::Bool );
     }
@@ -112,7 +112,7 @@ namespace KRG::Animation::Graph
         if ( state == NodeCompilationState::NeedCompilation )
         {
             // Set input node
-            auto pInputNode = GetConnectedInputNode<ToolsNode>( 0 );
+            auto pInputNode = GetConnectedInputNode<FlowToolsNode>( 0 );
             if ( pInputNode != nullptr )
             {
                 pSettings->m_inputValueNodeIdx = pInputNode->Compile( context );

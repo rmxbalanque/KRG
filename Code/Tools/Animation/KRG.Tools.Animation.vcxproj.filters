@@ -35,10 +35,10 @@
     <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_PropertyGrid.cpp" />
     <ClCompile Include="ResourceCompilers\AnimationGraphCompiler.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_AnimationGraph.cpp" />
-    <ClCompile Include="Graph\AnimationGraphTools_Node.cpp" />
+    <ClCompile Include="Graph\AnimationGraphTools_FlowNode.cpp" />
     <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_Model.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_Common.cpp" />
-    <ClCompile Include="Graph\AnimationGraphTools_Graph.cpp" />
+    <ClCompile Include="Graph\AnimationGraphTools_FlowGraph.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Results.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Parameters.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Conditions.cpp" />
@@ -51,6 +51,11 @@
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Pose.cpp" />
     <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_VariationEditor.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_Variations.cpp" />
+    <ClCompile Include="Graph\StateMachine\AnimationToolsNode_StateMachine.cpp" />
+    <ClCompile Include="Graph\AnimationGraphTools_StateMachineGraph.cpp" />
+    <ClCompile Include="Graph\StateMachine\AnimationToolsNode_State.cpp" />
+    <ClCompile Include="Graph\StateMachine\AnimationToolsNode_EntryStateOverrides.cpp" />
+    <ClCompile Include="Graph\StateMachine\AnimationToolsNode_Transitions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ResourceCompilers\AnimationClipCompiler.h">
@@ -77,10 +82,10 @@
     <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_PropertyGrid.h" />
     <ClInclude Include="ResourceCompilers\AnimationGraphCompiler.h" />
     <ClInclude Include="Graph\AnimationGraphTools_AnimationGraph.h" />
-    <ClInclude Include="Graph\AnimationGraphTools_Node.h" />
+    <ClInclude Include="Graph\AnimationGraphTools_FlowNode.h" />
     <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_Model.h" />
     <ClInclude Include="Graph\AnimationGraphTools_Common.h" />
-    <ClInclude Include="Graph\AnimationGraphTools_Graph.h" />
+    <ClInclude Include="Graph\AnimationGraphTools_FlowGraph.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Results.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Parameters.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Conditions.h" />
@@ -92,6 +97,10 @@
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Pose.h" />
     <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_VariationEditor.h" />
     <ClInclude Include="Graph\AnimationGraphTools_Variations.h" />
-    <ClInclude Include="Graph\Nodes\AnimationToolsNode_StateMachine.h" />
+    <ClInclude Include="Graph\StateMachine\AnimationToolsNode_StateMachine.h" />
+    <ClInclude Include="Graph\AnimationGraphTools_StateMachineGraph.h" />
+    <ClInclude Include="Graph\StateMachine\AnimationToolsNode_State.h" />
+    <ClInclude Include="Graph\StateMachine\AnimationToolsNode_EntryStateOverrides.h" />
+    <ClInclude Include="Graph\StateMachine\AnimationToolsNode_Transitions.h" />
   </ItemGroup>
 </Project>

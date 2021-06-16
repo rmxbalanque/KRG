@@ -67,7 +67,6 @@ namespace KRG
 
         static Vector const BoxCorners[8];
 
-        KRG_FORCE_INLINE static Vector Cross2( Vector const& v0, Vector const& v1 ) { return v0.Cross2( v1 ); }
         KRG_FORCE_INLINE static Vector Cross3( Vector const& v0, Vector const& v1 ) { return v0.Cross3( v1 ); }
         KRG_FORCE_INLINE static Vector Dot2( Vector const& v0, Vector const& v1 ) { return v0.Dot2( v1 ); }
         KRG_FORCE_INLINE static Vector Dot3( Vector const& v0, Vector const& v1 ) { return v0.Dot3( v1 ); }
@@ -187,7 +186,7 @@ namespace KRG
         KRG_FORCE_INLINE Vector operator-() const { return GetNegated(); }
         KRG_FORCE_INLINE Vector& operator-() { Negate(); return *this; }
 
-        KRG_FORCE_INLINE Vector Cross2( Vector const& other ) const;
+        KRG_FORCE_INLINE Vector Orthogonal2D() const;
         KRG_FORCE_INLINE Vector Cross3( Vector const& other ) const;
         KRG_FORCE_INLINE Vector Dot2( Vector const& other ) const;
         KRG_FORCE_INLINE Vector Dot3( Vector const& other ) const;
@@ -836,20 +835,13 @@ namespace KRG
         }
     }
 
-    KRG_FORCE_INLINE Vector Vector::Cross2( Vector const& other ) const
+    KRG_FORCE_INLINE Vector Vector::Orthogonal2D() const
     {
-        Vector result;
+        static Vector const negX( -1.0f, 1.0f, 1.0f, 1.0f );
 
-        // Swap m_x and m_y
-        result = _mm_shuffle_ps( other, other, _MM_SHUFFLE( 0, 1, 0, 1 ) );
-        // Perform the muls
-        result = _mm_mul_ps( result, m_data );
-        // Splat m_y
-        auto vTemp = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 1, 1, 1, 1 ) );
-        // Sub the values
-        result = _mm_sub_ss( result, vTemp );
-        // Splat the cross product
-        result = _mm_shuffle_ps( result, result, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        Vector result;
+        result = _mm_shuffle_ps( *this, *this, _MM_SHUFFLE( 3, 2, 0, 1 ) );
+        result = _mm_mul_ps( result, negX );
         return result;
     }
 

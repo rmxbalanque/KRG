@@ -10,13 +10,13 @@ namespace KRG::Animation::Graph
 
         for ( auto& stateSettings : m_stateSettings )
         {
-            State state = pNode->m_states.emplace_back();
+            State& state = pNode->m_states.emplace_back();
             SetNodePtrFromIndex( nodePtrs, stateSettings.m_stateNodeIdx, state.m_pStateNode );
-            SetNodePtrFromIndex( nodePtrs, stateSettings.m_entryConditionNodeIdx, state.m_pEntryConditionNode );
+            SetOptionalNodePtrFromIndex( nodePtrs, stateSettings.m_entryConditionNodeIdx, state.m_pEntryConditionNode );
 
             for ( auto& transitionSettings : stateSettings.m_transitionSettings )
             {
-                Transition transition = state.m_transitions.emplace_back();
+                Transition& transition = state.m_transitions.emplace_back();
                 transition.m_targetStateIdx = transitionSettings.m_targetStateIdx;
                 SetNodePtrFromIndex( nodePtrs, transitionSettings.m_transitionNodeIdx, transition.m_pTransitionNode );
                 SetNodePtrFromIndex( nodePtrs, transitionSettings.m_conditionNodeIdx, transition.m_pConditionNode );

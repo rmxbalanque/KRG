@@ -5,9 +5,10 @@
 
 namespace KRG::Animation::Graph
 {
-    ParameterizedBlendToolsNode::ParameterizedBlendToolsNode()
-        : ToolsNode()
+    void ParameterizedBlendToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        FlowToolsNode::Initialize( pParent );
+
         CreateOutputPin( "Pose", NodeValueType::Pose );
         CreateInputPin( "Parameter", NodeValueType::Float );
         CreateInputPin( "Input", NodeValueType::Pose );
@@ -19,7 +20,7 @@ namespace KRG::Animation::Graph
         // Parameter
         //-------------------------------------------------------------------------
 
-        auto pParameterNode = GetConnectedInputNode<ToolsNode>( 0 );
+        auto pParameterNode = GetConnectedInputNode<FlowToolsNode>( 0 );
         if ( pParameterNode != nullptr )
         {
             NodeIndex const compiledNodeIdx = pParameterNode->Compile( context );
@@ -43,7 +44,7 @@ namespace KRG::Animation::Graph
 
         for ( auto i = 1; i < GetNumInputPins(); i++ )
         {
-            auto pSourceNode = GetConnectedInputNode<ToolsNode>( i );
+            auto pSourceNode = GetConnectedInputNode<FlowToolsNode>( i );
             if ( pSourceNode != nullptr )
             {
                 NodeIndex const compiledNodeIdx = pSourceNode->Compile( context );
@@ -73,9 +74,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    RangedBlendToolsNode::RangedBlendToolsNode()
-        : ParameterizedBlendToolsNode()
+    void RangedBlendToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
+        ParameterizedBlendToolsNode::Initialize( pParent );
+
         m_parameterValues.emplace_back( 0.0f );
         m_parameterValues.emplace_back( 1.0f );
     }

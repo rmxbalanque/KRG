@@ -175,7 +175,7 @@ namespace KRG::Animation
 
             for ( auto pItem : pEventTrack->m_items )
             {
-                auto pEventItem = SafeCast<EventItem>( pItem );
+                auto pEventItem = Cast<EventItem>( pItem );
                 pEventItem->m_animFrameRate = m_pAnimation->GetFPS();
             }
 

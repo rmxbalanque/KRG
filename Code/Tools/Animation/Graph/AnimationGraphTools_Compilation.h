@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Animation/Graph/AnimationGraphResources.h"
 #include "System/Core/Logging/Log.h"
-#include "AnimationGraphTools_Node.h"
+#include "AnimationGraphTools_FlowNode.h"
 
 //-------------------------------------------------------------------------
 
@@ -42,12 +42,12 @@ namespace KRG::Animation::Graph
 
         inline TVector<LogEntry> const& GetLog() const { return m_log; }
 
-        void LogMessage( ToolsNode const* pNode, String const& message ) { m_log.emplace_back( LogEntry( Log::Severity::Message, pNode->GetID(), message ) ); }
-        void LogWarning( ToolsNode const* pNode, String const& message ) { m_log.emplace_back( LogEntry( Log::Severity::Warning, pNode->GetID(), message ) ); }
-        void LogError( ToolsNode const* pNode, String const& message ) { m_log.emplace_back( LogEntry( Log::Severity::Error, pNode->GetID(), message ) ); }
+        void LogMessage( GraphEditor::BaseNode const* pNode, String const& message ) { m_log.emplace_back( LogEntry( Log::Severity::Message, pNode->GetID(), message ) ); }
+        void LogWarning( GraphEditor::BaseNode const* pNode, String const& message ) { m_log.emplace_back( LogEntry( Log::Severity::Warning, pNode->GetID(), message ) ); }
+        void LogError( GraphEditor::BaseNode const* pNode, String const& message ) { m_log.emplace_back( LogEntry( Log::Severity::Error, pNode->GetID(), message ) ); }
 
         template<typename T>
-        NodeCompilationState GetSettings( ToolsNode const* pNode, typename T::Settings*& pOutSettings )
+        NodeCompilationState GetSettings( GraphEditor::BaseNode const* pNode, typename T::Settings*& pOutSettings )
         {
             auto foundIter = m_nodeToIndexMap.find( pNode->GetID() );
             if ( foundIter != m_nodeToIndexMap.end() )
@@ -67,7 +67,8 @@ namespace KRG::Animation::Graph
             m_nodeToIndexMap.insert( TPair<UUID, NodeIndex>( pNode->GetID(), pOutSettings->m_nodeIdx ) );
 
             // Add to persistent nodes list
-            if ( pNode->IsPersistentNode() )
+            auto pFlowNode = TryCast<FlowToolsNode>( pNode );
+            if ( pFlowNode != nullptr && pFlowNode->IsPersistentNode() )
             {
                 m_persistentNodeIndices.emplace_back( pOutSettings->m_nodeIdx );
             }

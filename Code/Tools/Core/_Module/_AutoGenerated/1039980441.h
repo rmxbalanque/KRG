@@ -4,13 +4,13 @@
 // This is an auto-generated file - DO NOT edit
 //-------------------------------------------------------------------------
 
-// HeaderID: 3562519440
+// HeaderID: 1039980441
 
 #include "../API.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Tools\Core\GraphEditor\FlowGraph.h"
+#include "D:\Kruger\Code\Tools\Core\GraphEditor\Flow\FlowGraph.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::GraphEditor::Flow::Node

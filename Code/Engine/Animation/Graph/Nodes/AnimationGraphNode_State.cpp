@@ -9,8 +9,8 @@ namespace KRG::Animation::Graph
     void StateNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<StateNode>( nodePtrs, options );
-        SetNodePtrFromIndex( nodePtrs, m_layerBoneMaskNodeIdx, pNode->m_pBoneMaskNode );
-        SetNodePtrFromIndex( nodePtrs, m_layerWeightNodeIdx, pNode->m_pLayerWeightNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_layerBoneMaskNodeIdx, pNode->m_pBoneMaskNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_layerWeightNodeIdx, pNode->m_pLayerWeightNode );
         PassthroughNode::Settings::InstantiateNode( nodePtrs, pDataSet, GraphNode::Settings::InitOptions::OnlySetPointers );
     }
 

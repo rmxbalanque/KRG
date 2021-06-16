@@ -1,17 +1,17 @@
 #pragma once
-#include "../AnimationGraphTools_Node.h"
+#include "../AnimationGraphTools_FlowNode.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class AndToolsNode final : public ToolsNode
+    class AndToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( AndToolsNode );
 
     public:
 
-        AndToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "And"; }
         virtual char const* GetCategory() const override { return "Conditions"; }
@@ -24,13 +24,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class OrToolsNode final : public ToolsNode
+    class OrToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( OrToolsNode );
 
     public:
 
-        OrToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Or"; }
         virtual char const* GetCategory() const override { return "Conditions"; }
@@ -43,13 +43,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class NotToolsNode final : public ToolsNode
+    class NotToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( NotToolsNode );
 
     public:
 
-        NotToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Not"; }
         virtual char const* GetCategory() const override { return "Conditions"; }

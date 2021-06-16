@@ -13,21 +13,31 @@ namespace KRG::Animation::Graph
 
     void ToolsAnimationGraph::ResetInternalState()
     {
+        m_variations.Reset();
+
+        //-------------------------------------------------------------------------
+
         for ( auto pParameter : m_controlParameters )
         {
+            pParameter->Shutdown();
             KRG::Delete( pParameter );
         }
         m_controlParameters.clear();
 
         for ( auto pParameter : m_virtualParameters )
         {
+            pParameter->Shutdown();
             KRG::Delete( pParameter );
         }
         m_virtualParameters.clear();
 
-        m_variations.Reset();
+        //-------------------------------------------------------------------------
 
-        KRG::Delete( m_pRootGraph );
+        if ( m_pRootGraph != nullptr )
+        {
+            m_pRootGraph->Shutdown();
+            KRG::Delete( m_pRootGraph );
+        }
     }
 
     void ToolsAnimationGraph::CreateNew()
@@ -35,7 +45,7 @@ namespace KRG::Animation::Graph
         ResetInternalState();
 
         // Create root blend tree
-        m_pRootGraph = KRG::New<ToolsGraph>( GraphType::BlendTree );
+        m_pRootGraph = KRG::New<FlowToolGraph>( GraphType::BlendTree );
         m_pRootGraph->CreateNode<ResultToolsNode>( NodeValueType::Pose );
     }
 
@@ -54,7 +64,7 @@ namespace KRG::Animation::Graph
             return false;
         }
 
-        m_pRootGraph = SafeCast<ToolsGraph>( GraphEditor::BaseGraph::CreateGraphFromSerializedData( typeRegistry, rootGraphValueIter->value, nullptr ) );
+        m_pRootGraph = Cast<FlowToolGraph>( GraphEditor::BaseGraph::CreateGraphFromSerializedData( typeRegistry, rootGraphValueIter->value, nullptr ) );
 
         // Variations
         //-------------------------------------------------------------------------
@@ -82,11 +92,11 @@ namespace KRG::Animation::Graph
         for ( auto& nodeObjectValue : controlParametersValueIter->value.GetArray() )
         {
             auto pNewParameter = GraphEditor::BaseNode::CreateNodeFromSerializedData( typeRegistry, nodeObjectValue, nullptr );
-            m_controlParameters.emplace_back( SafeCast<ControlParameterToolsNode>( pNewParameter ) );
+            m_controlParameters.emplace_back( Cast<ControlParameterToolsNode>( pNewParameter ) );
         }
 
         // Fix reference node ptrs
-        auto const controlParameterReferences = FindAllNodesOfType<ControlParameterReferenceToolsNode>();
+        auto const controlParameterReferences = FindAllNodesOfType<ControlParameterReferenceToolsNode>( GraphEditor::SearchMode::Recursive, GraphEditor::SearchTypeMatch::Exact );
         for ( auto const& pParameter : controlParameterReferences )
         {
             auto pFoundParameter = FindControlParameter( pParameter->GetReferencedParameterID() );
@@ -112,11 +122,11 @@ namespace KRG::Animation::Graph
         for ( auto& nodeObjectValue : virtualParametersValueIter->value.GetArray() )
         {
             auto pNewParameter = GraphEditor::BaseNode::CreateNodeFromSerializedData( typeRegistry, nodeObjectValue, nullptr );
-            m_virtualParameters.emplace_back( SafeCast<VirtualParameterToolsNode>( pNewParameter ) );
+            m_virtualParameters.emplace_back( Cast<VirtualParameterToolsNode>( pNewParameter ) );
         }
 
         // Fix reference node ptrs
-        auto const virtualParameterReferences = FindAllNodesOfType<VirtualParameterReferenceToolsNode>();
+        auto const virtualParameterReferences = FindAllNodesOfType<VirtualParameterReferenceToolsNode>( GraphEditor::SearchMode::Recursive, GraphEditor::SearchTypeMatch::Exact );
         for ( auto const& pParameter : virtualParameterReferences )
         {
             auto pFoundParameter = FindVirtualParameter( pParameter->GetReferencedParameterID() );
@@ -180,14 +190,20 @@ namespace KRG::Animation::Graph
     {
         String parameterName = "Parameter";
         EnsureUniqueParameterName( parameterName );
-        m_controlParameters.emplace_back( KRG::New<ControlParameterToolsNode>( parameterName, type ) );
+
+        auto pParameter = KRG::New<ControlParameterToolsNode>( parameterName, type );
+        pParameter->Initialize( nullptr );
+        m_controlParameters.emplace_back( pParameter );
     }
 
     void ToolsAnimationGraph::CreateVirtualParameter( NodeValueType type )
     {
         String parameterName = "Parameter";
         EnsureUniqueParameterName( parameterName );
-        m_virtualParameters.emplace_back( KRG::New<VirtualParameterToolsNode>( parameterName, type ) );
+
+        auto pParameter = KRG::New<VirtualParameterToolsNode>( parameterName, type );
+        pParameter->Initialize( nullptr );
+        m_virtualParameters.emplace_back( pParameter );
     }
 
     void ToolsAnimationGraph::RenameControlParameter( UUID parameterID, String newName )
@@ -209,7 +225,7 @@ namespace KRG::Animation::Graph
     void ToolsAnimationGraph::DestroyControlParameter( UUID parameterID )
     {
         // Find and remove all reference nodes
-        auto const controlParameterReferences = FindAllNodesOfType<ControlParameterReferenceToolsNode>();
+        auto const controlParameterReferences = FindAllNodesOfType<ControlParameterReferenceToolsNode>( GraphEditor::SearchMode::Recursive, GraphEditor::SearchTypeMatch::Exact );
 
         for ( auto const& pFoundParameterNode : controlParameterReferences )
         {
@@ -222,9 +238,11 @@ namespace KRG::Animation::Graph
         // Delete parameter
         for ( auto iter = m_controlParameters.begin(); iter != m_controlParameters.end(); ++iter )
         {
-            if ( ( *iter )->m_ID == parameterID )
+            auto pParameter = ( *iter );
+            if ( pParameter->m_ID == parameterID )
             {
-                KRG::Delete( *iter );
+                pParameter->Shutdown();
+                KRG::Delete( pParameter );
                 m_controlParameters.erase( iter );
                 break;
             }
@@ -236,7 +254,7 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( FindVirtualParameter( parameterID ) != nullptr );
 
         // Find and remove all reference nodes
-        auto const virtualParameterReferences = FindAllNodesOfType<VirtualParameterReferenceToolsNode>();
+        auto const virtualParameterReferences = FindAllNodesOfType<VirtualParameterReferenceToolsNode>( GraphEditor::SearchMode::Recursive, GraphEditor::SearchTypeMatch::Exact );
 
         for ( auto const& pFoundParameterNode : virtualParameterReferences )
         {
@@ -249,9 +267,11 @@ namespace KRG::Animation::Graph
         // Delete parameter
         for ( auto iter = m_virtualParameters.begin(); iter != m_virtualParameters.end(); ++iter )
         {
-            if ( (*iter)->m_ID == parameterID )
+            auto pParameter = ( *iter );
+            if ( pParameter->m_ID == parameterID )
             {
-                KRG::Delete( *iter );
+                pParameter->Shutdown();
+                KRG::Delete( pParameter );
                 m_virtualParameters.erase( iter );
                 break;
             }
@@ -358,7 +378,7 @@ namespace KRG::Animation::Graph
         // Finally compile the actual graph
         //-------------------------------------------------------------------------
 
-        auto const resultNodes = m_pRootGraph->FindAllNodesOfType<ResultToolsNode>( false );
+        auto const resultNodes = m_pRootGraph->FindAllNodesOfType<ResultToolsNode>();
         KRG_ASSERT( resultNodes.size() == 1 );
         context.m_rootNodeIdx = resultNodes[0]->Compile( context );
         context.m_persistentNodeIndices.emplace_back( context.m_rootNodeIdx );

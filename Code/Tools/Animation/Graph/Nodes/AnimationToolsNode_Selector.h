@@ -1,11 +1,11 @@
 #pragma once
-#include "../AnimationGraphTools_Node.h"
+#include "../AnimationGraphTools_FlowNode.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class SelectorConditionNode final : public ToolsNode
+    class SelectorConditionNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( SelectorConditionNode );
 
@@ -13,7 +13,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        SelectorConditionNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Conditions"; }
         virtual char const* GetCategory() const override { return "Conditions"; }
@@ -23,13 +23,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class SelectorToolsNode final : public ToolsNode
+    class SelectorToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( SelectorToolsNode );
 
     public:
 
-        SelectorToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
     private:
 

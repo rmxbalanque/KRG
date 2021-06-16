@@ -66,6 +66,8 @@ void KRG::Animation::EngineModule::RegisterTypes( TypeSystem::TypeRegistry& type
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::VelocityBasedSpeedScaleNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Event_EventType::RegisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationGraphComponent>::RegisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Graph_NodeValueType::RegisterEnum( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::StateMachineNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::AndNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::OrNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::NotNode::Settings>::RegisterType( typeRegistry );
@@ -75,6 +77,7 @@ void KRG::Animation::EngineModule::RegisterTypes( TypeSystem::TypeRegistry& type
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::MultipleIDComparisonNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::AnimationClipNode::Settings>::RegisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Graph_TransitionNode_RootMotionBlend::RegisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::TransitionNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ControlParameterBoolNode::Settings>::RegisterType( typeRegistry );
@@ -105,12 +108,10 @@ void KRG::Animation::EngineModule::RegisterTypes( TypeSystem::TypeRegistry& type
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::BoneMaskNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::BoneMaskBlendNode::Settings>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::BoneMaskSelectorNode::Settings>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::StateMachineNode::Settings>::RegisterType( typeRegistry );
 }
 
 void KRG::Animation::EngineModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::StateMachineNode::Settings>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::BoneMaskSelectorNode::Settings>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::BoneMaskBlendNode::Settings>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::BoneMaskNode::Settings>::UnregisterType( typeRegistry );
@@ -141,6 +142,7 @@ void KRG::Animation::EngineModule::UnregisterTypes( TypeSystem::TypeRegistry& ty
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::ControlParameterBoolNode::Settings>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimatedMeshComponent>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::TransitionNode::Settings>::UnregisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Graph_TransitionNode_RootMotionBlend::UnregisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::AnimationClipNode::Settings>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::MultipleIDComparisonNode::Settings>::UnregisterType( typeRegistry );
@@ -150,6 +152,8 @@ void KRG::Animation::EngineModule::UnregisterTypes( TypeSystem::TypeRegistry& ty
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::NotNode::Settings>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::OrNode::Settings>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::AndNode::Settings>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::StateMachineNode::Settings>::UnregisterType( typeRegistry );
+    TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Graph_NodeValueType::UnregisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::AnimationGraphComponent>::UnregisterType( typeRegistry );
     TypeSystem::EnumHelpers::EnumHelper_KRG_Animation_Event_EventType::UnregisterEnum( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::VelocityBasedSpeedScaleNode::Settings>::UnregisterType( typeRegistry );

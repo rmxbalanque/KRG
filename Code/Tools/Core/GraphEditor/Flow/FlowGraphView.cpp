@@ -6,7 +6,6 @@ namespace KRG::GraphEditor
 {
     constexpr static float const g_pinRadius = 5.0f;
     constexpr static float const g_pinSelectionExtraRadius = 5.0f;
-    constexpr static float const g_connectionSelectionExtraRadius = 5.0f;
     constexpr static float const g_marginBetweenInputOutputPins = 16.0f;
 
     //-------------------------------------------------------------------------
@@ -18,16 +17,18 @@ namespace KRG::GraphEditor
             return;
         }
 
-        m_viewOffset = ImVec2( 0, 0 );
+        ResetInternalState();
+        m_pGraph = pGraph;
+        RefreshVisualState();
+    }
+
+    void FlowGraphView::ResetInternalState()
+    {
+        BaseGraphView::ResetInternalState();
         m_pHoveredNode = nullptr;
         m_pHoveredPin = nullptr;
         m_contextMenuState.Reset();
         m_dragState.Reset();
-        ClearSelection();
-
-        //-------------------------------------------------------------------------
-
-        m_pGraph = pGraph;
     }
 
     //-------------------------------------------------------------------------
@@ -35,6 +36,7 @@ namespace KRG::GraphEditor
     void FlowGraphView::DrawNodeTitle( DrawingContext const& ctx, Flow::Node* pNode )
     {
         KRG_ASSERT( pNode != nullptr );
+        ImGuiX::ScopedFont fontOverride( ImGuiX::Font::Small, ImColor( Flow::VisualSettings::s_nodeTitleColor ) );
         ImGui::Text( pNode->GetDisplayName() );
     }
 
@@ -153,23 +155,34 @@ namespace KRG::GraphEditor
         ImVec2 const nodeMargin = pNode->GetNodeMargin();
         ImVec2 const rectMin = windowNodePosition - nodeMargin;
         ImVec2 const rectMax = windowNodePosition + pNode->m_size + nodeMargin;
+        ImVec2 const titleRectEnd = rectMin + nodeMargin + pNode->m_titleRectSize;
 
-        ImColor nodeBackgroundColor( Settings::s_nodeBackgroundColor );
-        if ( pNode->m_isHovered && pNode->m_pHoveredPin == nullptr ) // Dont highlight when hovering over a pin
+        // Colors
+        //-------------------------------------------------------------------------
+
+        ImColor nodeBackgroundColor( VisualSettings::s_genericNodeBackgroundColor );
+        ImColor nodeHighlightColor( pNode->GetHighlightColor() );
+
+        ImColor nodeBorderColor( pNode->GetHighlightColor() );
+        if ( IsNodeSelected( pNode ) || ( pNode->m_isHovered && pNode->m_pHoveredPin == nullptr ) )
         {
-            nodeBackgroundColor = Settings::s_nodeBackgroundHoveredColor;
-        }
-        else if ( IsNodeSelected( pNode ) )
-        {
-            nodeBackgroundColor = Settings::s_nodeBackgroundSelectedColor;
+            nodeBorderColor = VisualSettings::s_genericSelectionColor;
         }
 
-        ImDrawList* pDrawList = ImGui::GetWindowDrawList();
-        pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3 );
+        // Draw
+        //-------------------------------------------------------------------------
+
+        ImVec2 const titleBR( rectMax.x, titleRectEnd.y );
+        ctx.m_pDrawList->AddRectFilled( rectMin, titleBR, pNode->GetHighlightColor(), 3, ImDrawCornerFlags_Top );
+
+        ImVec2 const titleRectBL( rectMin.x, titleRectEnd.y );
+        ctx.m_pDrawList->AddRectFilled( titleRectBL, rectMax, nodeBackgroundColor, 3, ImDrawCornerFlags_Bot );
+
+        ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawCornerFlags_All, 2.0f );
 
         //-------------------------------------------------------------------------
 
-        ImVec2 titleRectEnd = rectMin + nodeMargin + pNode->m_titleRectSize;
+        /*ImVec2 titleRectEnd = rectMin + nodeMargin + pNode->m_titleRectSize;
         pDrawList->AddRectFilled( rectMin + nodeMargin, titleRectEnd, 0x660000FF, 3 );
 
         ImVec2 pinsRectStart = rectMin + nodeMargin + ImVec2( 0, pNode->m_titleRectSize.y );
@@ -178,7 +191,7 @@ namespace KRG::GraphEditor
 
         ImVec2 controlsRectStart = rectMin + nodeMargin + ImVec2( 0, pNode->m_titleRectSize.y + pNode->m_pinsRectSize.y );
         ImVec2 controlsRectEnd = controlsRectStart + pNode->m_controlsRectSize;
-        pDrawList->AddRectFilled( controlsRectStart, controlsRectEnd, 0x66FF0000, 3 );
+        pDrawList->AddRectFilled( controlsRectStart, controlsRectEnd, 0x66FF0000, 3 );*/
     }
 
     void FlowGraphView::DrawNode( DrawingContext const& ctx, Flow::Node* pNode )
@@ -191,7 +204,8 @@ namespace KRG::GraphEditor
         // Draw contents
         //-------------------------------------------------------------------------
 
-        ctx.m_pDrawList->ChannelsSetCurrent( 2 );
+        ctx.m_pDrawList->ChannelsSetCurrent( (uint8) DrawChannel::NodeForeground );
+
         ImGui::SetCursorPos( ImVec2( pNode->m_canvasPosition ) - ctx.m_viewOffset );
         ImGui::BeginGroup();
         {
@@ -259,10 +273,10 @@ namespace KRG::GraphEditor
             pNode->m_size.x = Math::Max( pNode->m_size.x, pNode->m_pinsRectSize.x );
         }
 
+        // Draw background
         //-------------------------------------------------------------------------
 
-        // Draw background
-        ctx.m_pDrawList->ChannelsSetCurrent( 1 );
+        ctx.m_pDrawList->ChannelsSetCurrent( (uint8) DrawChannel::NodeBackground );
         DrawNodeBackground( ctx, pNode );
 
         //-------------------------------------------------------------------------
@@ -301,102 +315,88 @@ namespace KRG::GraphEditor
 
     void FlowGraphView::Draw( float childHeightOverride )
     {
-        ImGui::PushID( this );
-        ImGui::PushStyleColor( ImGuiCol_ChildBg, Settings::s_gridBackgroundColor );
-        if( ImGui::BeginChild( "GraphCanvas", ImVec2( 0.f, childHeightOverride ), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse ) )
+        if( BeginDrawCanvas( childHeightOverride ) && m_pGraph != nullptr )
         {
-            m_hasFocus = ImGui::IsWindowFocused( ImGuiFocusedFlags_ChildWindows );
             auto pWindow = ImGui::GetCurrentWindow();
-            ImVec2 const mousePos = ImGui::GetMousePos();
 
             DrawingContext drawingContext;
             drawingContext.m_pDrawList = ImGui::GetWindowDrawList();
             drawingContext.m_viewOffset = m_viewOffset;
             drawingContext.m_windowRect = pWindow->Rect();
             drawingContext.m_canvasVisibleRect = ImRect( m_viewOffset, m_viewOffset + drawingContext.m_windowRect.Max );
-            drawingContext.m_mouseScreenPos = mousePos;
-            drawingContext.m_mouseCanvasPos = drawingContext.ScreenPositionToCanvasPosition( mousePos );
+            drawingContext.m_mouseScreenPos = ImGui::GetMousePos();
+            drawingContext.m_mouseCanvasPos = drawingContext.ScreenPositionToCanvasPosition( drawingContext.m_mouseScreenPos );
 
-            if ( m_pGraph == nullptr )
+            //-------------------------------------------------------------------------
+            // Draw Nodes
+            //-------------------------------------------------------------------------
+
+            m_pHoveredNode = nullptr;
+            m_pHoveredPin = nullptr;
+
+            // Draw nodes
+            for ( auto pNode : m_pGraph->m_nodes )
             {
-                DrawEmptyGrid();
-            }
-            else
-            {
-                drawingContext.m_pDrawList->ChannelsSplit( 3 );
+                auto pFlowNode = Cast<Flow::Node>( pNode );
 
-                drawingContext.m_pDrawList->ChannelsSetCurrent( 0 );
-                DrawCanvasGridAndTitle( drawingContext, m_pGraph->GetTitle() );
+                ImRect nodeCanvasRect = GetNodeCanvasRect( pFlowNode );
 
-                //-------------------------------------------------------------------------
-                // Draw Nodes
-                //-------------------------------------------------------------------------
-
-                m_pHoveredNode = nullptr;
-                m_pHoveredPin = nullptr;
-
-                // Draw nodes
-                for ( auto pNode : m_pGraph->m_nodes )
+                // If we have a rect width, perform culling
+                if ( pFlowNode->m_size.x > 0 )
                 {
-                    auto pFlowNode = SafeCast<Flow::Node>( pNode );
-
-                    ImRect nodeCanvasRect = GetNodeCanvasRect( pFlowNode );
-
-                    // If we have a rect width, perform culling
-                    if ( pFlowNode->m_size.x > 0 )
+                    if ( !drawingContext.IsItemVisible( nodeCanvasRect ) )
                     {
-                        if ( !drawingContext.IsItemVisible( nodeCanvasRect ) )
-                        {
-                            pFlowNode->m_isHovered = false;
-                            continue;
-                        }
-                    }
-
-                    DrawNode( drawingContext, pFlowNode );
-                    if ( pFlowNode->m_isHovered )
-                    {
-                        m_pHoveredNode = pFlowNode;
-                        m_pHoveredPin = pFlowNode->m_pHoveredPin;
+                        pFlowNode->m_isHovered = false;
+                        continue;
                     }
                 }
 
-                // Draw connections
-                m_hoveredConnectionID.Reset();
-                for ( auto const& connection : m_pGraph->m_connections )
+                DrawNode( drawingContext, pFlowNode );
+
+                if ( pFlowNode->m_isHovered )
                 {
-                    auto pStartPin = connection.m_pStartNode->GetOutputPin( connection.m_startPinID );
-                    auto pEndPin = connection.m_pEndNode->GetInputPin( connection.m_endPinID );
+                    m_pHoveredNode = pFlowNode;
+                    m_pHoveredPin = pFlowNode->m_pHoveredPin;
+                }
+            }
 
-                    ImColor connectionColor = connection.m_pStartNode->GetPinColor( *pStartPin );
+            //-------------------------------------------------------------------------
+            // Draw connections
+            //-------------------------------------------------------------------------
 
-                    bool const invertOrder = pStartPin->m_screenPosition.x > pEndPin->m_screenPosition.x;
-                    ImVec2 const& p1 = invertOrder ? pEndPin->m_screenPosition : pStartPin->m_screenPosition;
-                    ImVec2 const& p4 = invertOrder ? pStartPin->m_screenPosition : pEndPin->m_screenPosition;
-                    ImVec2 const p2 = p1 + ImVec2( 50, 0 );
-                    ImVec2 const p3 = p4 + ImVec2( -50, 0 );
+            drawingContext.m_pDrawList->ChannelsSetCurrent( (uint8) DrawChannel::Connections );
 
-                    if ( IsHoveredOverLink( p1, p2, p3, p4, drawingContext.m_mouseScreenPos, g_connectionSelectionExtraRadius ) )
-                    {
-                        m_hoveredConnectionID = connection.m_ID;
-                        connectionColor = ImGuiX::ConvertColor( Colors::HotPink );
-                    }
+            m_hoveredConnectionID.Reset();
+            for ( auto const& connection : m_pGraph->m_connections )
+            {
+                auto pStartPin = connection.m_pStartNode->GetOutputPin( connection.m_startPinID );
+                auto pEndPin = connection.m_pEndNode->GetInputPin( connection.m_endPinID );
 
-                    drawingContext.m_pDrawList->AddBezierCubic( p1, p2, p3, p4, connectionColor, 3.0f );
+                ImColor connectionColor = connection.m_pStartNode->GetPinColor( *pStartPin );
+
+                bool const invertOrder = pStartPin->m_screenPosition.x > pEndPin->m_screenPosition.x;
+                ImVec2 const& p1 = invertOrder ? pEndPin->m_screenPosition : pStartPin->m_screenPosition;
+                ImVec2 const& p4 = invertOrder ? pStartPin->m_screenPosition : pEndPin->m_screenPosition;
+                ImVec2 const p2 = p1 + ImVec2( 50, 0 );
+                ImVec2 const p3 = p4 + ImVec2( -50, 0 );
+
+                if ( IsHoveredOverLink( p1, p2, p3, p4, drawingContext.m_mouseScreenPos, VisualSettings::s_connectionSelectionExtraRadius ) )
+                {
+                    m_hoveredConnectionID = connection.m_ID;
+                    connectionColor = ImGuiX::ConvertColor( VisualSettings::s_connectionColorHovered );
                 }
 
-                drawingContext.m_pDrawList->ChannelsMerge();
-
-                //-------------------------------------------------------------------------
-
-                HandleContextMenu( drawingContext );
-                HandleDragging( drawingContext );
-                HandleClicks( drawingContext );
+                drawingContext.m_pDrawList->AddBezierCubic( p1, p2, p3, p4, connectionColor, 3.0f );
             }
+
+            //-------------------------------------------------------------------------
+
+            HandleContextMenu( drawingContext );
+            HandleDragging( drawingContext );
+            HandleClicks( drawingContext );
         }
 
-        ImGui::EndChild();
-        ImGui::PopStyleColor();
-        ImGui::PopID();
+        EndDrawCanvas();
     }
 
     void FlowGraphView::HandleClicks( DrawingContext const& ctx )
@@ -449,6 +449,19 @@ namespace KRG::GraphEditor
                     ClearSelection();
                 }
             }
+        }
+
+        if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
+        {
+            if ( m_pHoveredNode != nullptr )
+            {
+                OnNodeDoubleClick( m_pHoveredNode );
+            }
+            else
+            {
+                OnGraphDoubleClick( m_pGraph );
+            }
+
         }
     }
 
@@ -506,21 +519,21 @@ namespace KRG::GraphEditor
                     {
                         if ( m_pHoveredPin != nullptr )
                         {
-                            StartDraggingConnection();
+                            StartDraggingConnection( ctx );
                         }
                         else
                         {
-                            StartDraggingNode();
+                            StartDraggingNode( ctx );
                         }
                     }
                     else
                     {
-                        StartDraggingSelection();
+                        StartDraggingSelection( ctx );
                     }
                 }
                 else if ( ImGui::IsMouseDragging( ImGuiMouseButton_Middle ) )
                 {
-                    StartDraggingView();
+                    StartDraggingView( ctx );
                 }
             }
             break;
@@ -619,7 +632,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::StartDraggingView()
+    void FlowGraphView::StartDraggingView( DrawingContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::View;
@@ -649,7 +662,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::StartDraggingSelection()
+    void FlowGraphView::StartDraggingSelection( DrawingContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Selection;
@@ -664,8 +677,8 @@ namespace KRG::GraphEditor
             return;
         }
 
-        ctx.m_pDrawList->AddRectFilled( m_dragState.m_startValue, ImGui::GetMousePos(), Settings::s_selectionBoxFillColor );
-        ctx.m_pDrawList->AddRect( m_dragState.m_startValue, ImGui::GetMousePos(), Settings::s_selectionBoxOutlineColor );
+        ctx.m_pDrawList->AddRectFilled( m_dragState.m_startValue, ImGui::GetMousePos(), VisualSettings::s_selectionBoxFillColor );
+        ctx.m_pDrawList->AddRect( m_dragState.m_startValue, ImGui::GetMousePos(), VisualSettings::s_selectionBoxOutlineColor );
     }
 
     void FlowGraphView::StopDraggingSelection( DrawingContext const& ctx )
@@ -688,7 +701,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::StartDraggingNode()
+    void FlowGraphView::StartDraggingNode( DrawingContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Node;
@@ -726,7 +739,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::StartDraggingConnection()
+    void FlowGraphView::StartDraggingConnection( DrawingContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Connection;
@@ -751,9 +764,10 @@ namespace KRG::GraphEditor
 
         if ( m_pHoveredPin != nullptr )
         {
+            // Trying to make an invalid connection to a pin with the same direction or the same node
             if ( m_pHoveredPin->m_direction == m_dragState.m_pDraggedPin->m_direction || m_pHoveredNode == m_dragState.m_pDraggedNode )
             {
-                connectionColor = Settings::s_invalidConnectionColor;
+                connectionColor = VisualSettings::s_connectionColorInvalid;
             }
             else // Check connection validity
             {
@@ -761,14 +775,14 @@ namespace KRG::GraphEditor
                 {
                     if ( !m_pGraph->IsValidConnection( m_dragState.m_pDraggedNode, m_dragState.m_pDraggedPin, m_pHoveredNode, m_pHoveredPin ) )
                     {
-                        connectionColor = Settings::s_invalidConnectionColor;
+                        connectionColor = VisualSettings::s_connectionColorInvalid;
                     }
                 }
                 else // The hovered pin is the output pin
                 {
                     if ( !m_pGraph->IsValidConnection( m_pHoveredNode, m_pHoveredPin, m_dragState.m_pDraggedNode, m_dragState.m_pDraggedPin ) )
                     {
-                        connectionColor = Settings::s_invalidConnectionColor;
+                        connectionColor = VisualSettings::s_connectionColorInvalid;
                     }
                 }
             }
@@ -801,77 +815,5 @@ namespace KRG::GraphEditor
         }
 
         m_dragState.Reset();
-    }
-
-    //-------------------------------------------------------------------------
-
-    void FlowGraphView::ClearSelection()
-    {
-        TVector<BaseNode*> oldSelection;
-        oldSelection.swap( m_selectedNodes );
-        OnSelectionChanged( oldSelection, m_selectedNodes );
-    }
-
-    void FlowGraphView::UpdateSelection( BaseNode* pNewSelectedNode )
-    {
-        KRG_ASSERT( pNewSelectedNode != nullptr );
-
-        // Avoid calling the notification if the selection hasn't changed
-        if ( m_selectedNodes.size() == 1 && m_selectedNodes[0] == pNewSelectedNode )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        TVector<BaseNode*> oldSelection;
-        oldSelection.swap( m_selectedNodes );
-        m_selectedNodes.emplace_back( pNewSelectedNode );
-        OnSelectionChanged( oldSelection, m_selectedNodes );
-    }
-
-    void FlowGraphView::UpdateSelection( TVector<BaseNode*>&& newSelection )
-    {
-        for ( auto pNode : newSelection )
-        {
-            KRG_ASSERT( pNode != nullptr );
-        }
-
-        TVector<BaseNode*> oldSelection;
-        oldSelection.swap( m_selectedNodes );
-        m_selectedNodes.swap( newSelection );
-        OnSelectionChanged( oldSelection, m_selectedNodes );
-    }
-
-    void FlowGraphView::AddToSelection( BaseNode* pNodeToAdd )
-    {
-        KRG_ASSERT( pNodeToAdd != nullptr );
-        KRG_ASSERT( !IsNodeSelected( pNodeToAdd ) );
-
-        TVector<BaseNode*> oldSelection;
-        oldSelection.swap( m_selectedNodes );
-        m_selectedNodes.emplace_back( pNodeToAdd );
-        OnSelectionChanged( oldSelection, m_selectedNodes );
-    }
-
-    void FlowGraphView::RemoveFromSelection( BaseNode* pNodeToRemove )
-    {
-        KRG_ASSERT( pNodeToRemove != nullptr );
-        KRG_ASSERT( IsNodeSelected( pNodeToRemove ) );
-
-        TVector<BaseNode*> oldSelection = m_selectedNodes;
-        m_selectedNodes.erase_first( pNodeToRemove );
-        OnSelectionChanged( oldSelection, m_selectedNodes );
-    }
-
-    void FlowGraphView::RecalculateNodeSizes()
-    {
-        if ( m_pGraph != nullptr )
-        {
-            for ( auto pNode : m_pGraph->m_nodes )
-            {
-                pNode->RecalculateNodeSize();
-            }
-        }
     }
 }

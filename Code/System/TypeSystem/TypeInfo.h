@@ -63,21 +63,31 @@ namespace KRG::TypeSystem
 namespace KRG
 {
     template<typename T>
-    T* SafeCast( IRegisteredType* pType )
+    bool IsOfType( IRegisteredType const* pType )
+    {
+        KRG_ASSERT( pType != nullptr );
+        return pType->GetTypeInfo()->IsDerivedFrom( T::GetStaticTypeID() );
+    }
+
+    // This is a assumed safe cast, it will validate the cast only in dev builds. Doesnt accept null arguments
+    template<typename T>
+    T* Cast( IRegisteredType* pType )
     {
         KRG_ASSERT( pType != nullptr );
         KRG_ASSERT( pType->GetTypeInfo()->IsDerivedFrom( T::GetStaticTypeID() ) );
         return static_cast<T*>( pType );
     }
 
+    // This is a assumed safe cast, it will validate the cast only in dev builds. Doesnt accept null arguments
     template<typename T>
-    T const* SafeCast( IRegisteredType const* pType )
+    T const* Cast( IRegisteredType const* pType )
     {
         KRG_ASSERT( pType != nullptr );
         KRG_ASSERT( pType->GetTypeInfo()->IsDerivedFrom( T::GetStaticTypeID() ) );
         return static_cast<T const*>( pType );
     }
 
+    // This will try to cast to the specified type but can fail. Also accepts null arguments
     template<typename T>
     T* TryCast( IRegisteredType* pType )
     {
@@ -89,6 +99,7 @@ namespace KRG
         return nullptr;
     }
 
+    // This will try to cast to the specified type but can fail. Also accepts null arguments
     template<typename T>
     T const* TryCast( IRegisteredType const* pType )
     {

@@ -1,18 +1,18 @@
 #pragma once
-#include "../AnimationGraphTools_Node.h"
+#include "../AnimationGraphTools_FlowNode.h"
 #include "Engine/Animation/AnimationClip.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class AnimationClipToolsNode final : public DataSlotNode
+    class AnimationClipToolsNode final : public DataSlotToolsNode
     {
         KRG_REGISTER_TYPE( AnimationClipToolsNode );
 
     public:
 
-        AnimationClipToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetDisplayName() const override { return m_name.c_str(); }
         virtual char const* GetTypeName() const override { return "Animation Clip"; }

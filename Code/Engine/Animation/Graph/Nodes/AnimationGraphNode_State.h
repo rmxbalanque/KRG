@@ -24,8 +24,15 @@ namespace KRG::Animation::Graph
         {
             KRG_SERIALIZE_MEMBERS( m_ID, m_timeValue );
 
+            TimedEvent() = default;
+
+            TimedEvent( StringID ID, Seconds value )
+                : m_ID ( ID )
+                , m_timeValue( value )
+            {}
+
             StringID                                    m_ID;
-            float                                       m_timeValue;
+            Seconds                                     m_timeValue;
         };
 
         //-------------------------------------------------------------------------
@@ -80,11 +87,11 @@ namespace KRG::Animation::Graph
 
     private:
 
-        SampledEventRange           m_sampledEventRange;
-        BoneMaskValueNode*          m_pBoneMaskNode = nullptr;
-        FloatValueNode*             m_pLayerWeightNode = nullptr;
-        Seconds                     m_elapsedTimeInState = 0.0f;
-        TransitionState             m_transitionState = TransitionState::None;
-        bool                        m_isFirstStateUpdate = false;
+        SampledEventRange                               m_sampledEventRange;
+        BoneMaskValueNode*                              m_pBoneMaskNode = nullptr;
+        FloatValueNode*                                 m_pLayerWeightNode = nullptr;
+        Seconds                                         m_elapsedTimeInState = 0.0f;
+        TransitionState                                 m_transitionState = TransitionState::None;
+        bool                                            m_isFirstStateUpdate = false;
     };
 }

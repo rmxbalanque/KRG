@@ -1,16 +1,18 @@
 #pragma once
-#include "../AnimationGraphTools_Node.h"
+#include "../AnimationGraphTools_FlowNode.h"
 #include "Engine/Animation/Graph/Nodes/AnimationGraphNode_Blends.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class ParameterizedBlendToolsNode : public ToolsNode
+    class ParameterizedBlendToolsNode : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ParameterizedBlendToolsNode );
 
     public:
+
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetCategory() const override { return "Blends"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override final { return TBitFlags<GraphType>( GraphType::BlendTree ); }
@@ -19,8 +21,6 @@ namespace KRG::Animation::Graph
         virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) NodeValueType::Pose; }
 
     protected:
-
-        ParameterizedBlendToolsNode();
 
         bool CompileParameterAndSourceNodes( ToolsGraphCompilationContext& context, ParameterizedBlendNode::Settings* pSettings ) const;
 
@@ -35,7 +35,7 @@ namespace KRG::Animation::Graph
     {
         KRG_REGISTER_TYPE( RangedBlendToolsNode );
 
-        RangedBlendToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Ranged Blend"; }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;

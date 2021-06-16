@@ -1,6 +1,7 @@
 #include "AnimationGraphEditor_GraphEditor.h"
 #include "Tools/Animation/Graph/Nodes/AnimationToolsNode_Parameters.h"
 #include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
+#include "Tools/Animation/Graph/AnimationGraphTools_StateMachineGraph.h"
 
 //-------------------------------------------------------------------------
 
@@ -10,10 +11,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void GraphEditorView::GraphView::DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos )
+    void GraphEditorView::FlowGraphView::DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos )
     {
         KRG_ASSERT( m_pGraph != nullptr );
-        auto pToolsGraph = static_cast<ToolsGraph*>( m_pGraph );
+        auto pToolsGraph = static_cast<FlowToolGraph*>( m_pGraph );
 
         //-------------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ namespace KRG::Animation::Graph
             {
                 for ( auto pParameter : sortedControlParameters )
                 {
-                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetColor() );
+                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetHighlightColor() );
                     if ( ImGui::MenuItem( pParameter->GetDisplayName() ) )
                     {
                         auto pNode = pToolsGraph->CreateNode<ControlParameterReferenceToolsNode>( pParameter );
@@ -51,7 +52,7 @@ namespace KRG::Animation::Graph
 
                 for ( auto pParameter : sortedVirtualParameters )
                 {
-                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetColor() );
+                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetHighlightColor() );
                     if ( ImGui::MenuItem( pParameter->GetDisplayName() ) )
                     {
                         auto pNode = pToolsGraph->CreateNode<VirtualParameterReferenceToolsNode>( pParameter );
@@ -73,7 +74,7 @@ namespace KRG::Animation::Graph
         DrawNodeTypeCategoryContextMenu( mouseCanvasPos, pToolsGraph, m_model.GetNodeTypes() );
     }
 
-    void GraphEditorView::GraphView::DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, ToolsGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category )
+    void GraphEditorView::FlowGraphView::DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, FlowToolGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category )
     {
         KRG_ASSERT( m_pGraph != nullptr );
        
@@ -90,12 +91,12 @@ namespace KRG::Animation::Graph
 
         for ( auto const& item : category.m_items )
         {
-            auto pDefaultNode = SafeCast<ToolsNode>( item.m_data->m_pTypeHelper->GetDefaultTypeInstancePtr() );
-            if ( pDefaultNode->GetAllowedParentGraphTypes().AreAnyFlagsSet( pGraph->GetType() ) )
+            auto pDefaultNode = Cast<FlowToolsNode>( item.m_data->m_pTypeHelper->GetDefaultTypeInstancePtr() );
+            if ( m_pGraph->CanCreateNode( item.m_data ) && pDefaultNode->GetAllowedParentGraphTypes().AreAnyFlagsSet( pGraph->GetType() ) )
             {
                 if ( ImGui::MenuItem( item.m_name.c_str() ) )
                 {
-                    auto pToolsGraph = static_cast<ToolsGraph*>( m_pGraph );
+                    auto pToolsGraph = static_cast<FlowToolGraph*>( m_pGraph );
                     auto pNode = pToolsGraph->CreateNode( item.m_data );
                     pNode->SetCanvasPosition( mouseCanvasPos );
                 }
@@ -107,48 +108,128 @@ namespace KRG::Animation::Graph
         }
     }
 
+    void GraphEditorView::FlowGraphView::OnGraphDoubleClick( GraphEditor::BaseGraph* pGraph )
+    {
+        KRG_ASSERT( pGraph != nullptr );
+
+        auto pParentNode = pGraph->GetParentNode();
+        if ( pParentNode != nullptr )
+        {
+            m_model.NavigateTo( pParentNode->GetParentGraph() );
+        }
+    }
+
+    void GraphEditorView::FlowGraphView::OnNodeDoubleClick( GraphEditor::BaseNode* pNode )
+    {
+        KRG_ASSERT( pNode != nullptr );
+
+        if ( pNode->HasChildGraph() )
+        {
+            m_model.NavigateTo( pNode->GetChildGraph() );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void GraphEditorView::StateMachineGraphView::DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos )
+    {
+        KRG_ASSERT( m_pGraph != nullptr );
+        auto pToolsGraph = static_cast<StateMachineToolsGraph*>( m_pGraph );
+
+        if ( ImGui::MenuItem( "Blend Tree State") )
+        {
+            pToolsGraph->CreateNewState( mouseCanvasPos );
+        }
+
+        if ( ImGui::MenuItem( "State Machine State" ) )
+        {
+            pToolsGraph->CreateNewState( mouseCanvasPos );
+        }
+    }
+
+    void GraphEditorView::StateMachineGraphView::DrawContextMenuForNode( ImVec2 const& mouseCanvasPos, GraphEditor::SM::Node* pNode )
+    {
+        auto pStateNode = TryCast<GraphEditor::SM::State>( pNode );
+        if ( pStateNode != nullptr )
+        {
+            if ( ImGui::MenuItem( "Make Default Entry State" ) )
+            {
+                m_pGraph->SetDefaultEntryState( pStateNode->GetID() );
+            }
+        }
+    }
+
+    void GraphEditorView::StateMachineGraphView::OnGraphDoubleClick( GraphEditor::BaseGraph* pGraph )
+    {
+        KRG_ASSERT( pGraph != nullptr );
+
+        auto pParentNode = pGraph->GetParentNode();
+        if ( pParentNode != nullptr )
+        {
+            m_model.NavigateTo( pParentNode->GetParentGraph() );
+        }
+    }
+
+    void GraphEditorView::StateMachineGraphView::OnNodeDoubleClick( GraphEditor::BaseNode* pNode )
+    {
+        if ( pNode->HasChildGraph() )
+        {
+            m_model.NavigateTo( pNode->GetChildGraph() );
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     GraphEditorView::GraphEditorView( EditorModel* pModel )
         : TEditorTool<GraphEditorModel>( pModel )
         , m_primaryFlowGraphView( static_cast<GraphEditorModel&>( *pModel ) )
+        , m_primaryStateMachineGraphView( static_cast<GraphEditorModel&>( *pModel ) )
         , m_secondaryFlowGraphView( static_cast<GraphEditorModel&>( *pModel ) )
     {}
 
-    void GraphEditorView::Initialize( UpdateContext const& context )
+    void GraphEditorView::RefreshView()
     {
-        TEditorTool<GraphEditorModel>::Initialize( context );
+        m_primaryFlowGraphView.RefreshVisualState();
+        m_primaryStateMachineGraphView.RefreshVisualState();
+        m_secondaryFlowGraphView.RefreshVisualState();
     }
 
-    void GraphEditorView::Shutdown( UpdateContext const& context )
+    void GraphEditorView::UpdatePrimaryViewState()
     {
-        TEditorTool<GraphEditorModel>::Shutdown( context );
-    }
-
-    void GraphEditorView::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
-    {
-        if ( !IsOpen() )
-        {
-            return;
-        }
-
-        // Primary graph selection
-        //-------------------------------------------------------------------------
-
         if ( m_model.GetGraph()->IsValid() )
         {
-            if ( m_model.GetGraph()->GetRootGraph() != m_primaryFlowGraphView.GetViewedGraph() )
+            auto pDesiredViewedGraph = m_model.GetCurrentlyViewedGraph();
+            if ( auto pSM = TryCast<GraphEditor::StateMachineGraph>( pDesiredViewedGraph ) )
             {
-                m_primaryFlowGraphView.SetGraphToView( m_model.GetGraph()->GetRootGraph() );
+                if ( m_primaryStateMachineGraphView.GetViewedGraph() != pDesiredViewedGraph )
+                {
+                    m_primaryFlowGraphView.SetGraphToView( nullptr );
+                    m_primaryStateMachineGraphView.SetGraphToView( pSM );
+                    m_pPrimaryGraphView = &m_primaryStateMachineGraphView;
+                }
+            }
+            else // Show the flow graph
+            {
+                auto pFlowGraph = Cast<GraphEditor::FlowGraph>( pDesiredViewedGraph );
+                if ( m_primaryFlowGraphView.GetViewedGraph() != pDesiredViewedGraph )
+                {
+                    m_primaryStateMachineGraphView.SetGraphToView( nullptr );
+                    m_primaryFlowGraphView.SetGraphToView( pFlowGraph );
+                    m_pPrimaryGraphView = &m_primaryFlowGraphView;
+                }
             }
         }
-
-        // Secondary graph selection
-        //-------------------------------------------------------------------------
-        if ( m_primaryFlowGraphView.HasSelectedNodes() )
+        else
         {
-            auto const& selectedNodes = m_primaryFlowGraphView.GetSelectedNodes();
-            auto const pLastSelectedNode = static_cast<GraphEditor::Flow::Node*>( selectedNodes.back() );
+            m_pPrimaryGraphView = &m_primaryFlowGraphView;
+        }
+    }
+
+    void GraphEditorView::UpdateSecondaryViewState()
+    {
+        if ( m_pPrimaryGraphView->HasSelectedNodes() )
+        {
+            auto const pLastSelectedNode = m_pPrimaryGraphView->GetSelectedNodes().back();
             if ( auto pSecondaryGraph = TryCast<GraphEditor::FlowGraph>( pLastSelectedNode->GetSecondaryGraph() ) )
             {
                 m_secondaryFlowGraphView.SetGraphToView( pSecondaryGraph );
@@ -162,8 +243,15 @@ namespace KRG::Animation::Graph
         {
             m_secondaryFlowGraphView.SetGraphToView( nullptr );
         }
+    }
 
-        // Draw
+    void GraphEditorView::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    {
+        if ( !IsOpen() )
+        {
+            return;
+        }
+
         //-------------------------------------------------------------------------
 
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 2 ) );
@@ -171,8 +259,13 @@ namespace KRG::Animation::Graph
         {
             ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 0, 0 ) );
 
-            m_primaryFlowGraphView.Draw( m_primaryGraphViewHeight );
+            // Primary View
+            //-------------------------------------------------------------------------
 
+            UpdatePrimaryViewState();
+            m_pPrimaryGraphView->Draw( m_primaryGraphViewHeight );
+
+            // Splitter
             //-------------------------------------------------------------------------
             
             ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImGuiX::Theme::s_backgroundColorLight );
@@ -191,47 +284,66 @@ namespace KRG::Animation::Graph
                 m_primaryGraphViewHeight = Math::Max( 25.0f, m_primaryGraphViewHeight );
             }
 
+            // SecondaryView
             //-------------------------------------------------------------------------
 
+            UpdateSecondaryViewState();
             m_secondaryFlowGraphView.Draw();
+
+            //-------------------------------------------------------------------------
 
             ImGui::PopStyleVar();
         }
         ImGui::End();
         ImGui::PopStyleVar();
 
+        // Handle Focus and selection 
         //-------------------------------------------------------------------------
 
-        HandleFocusChanges();
+        HandleFocusAndSelectionChanges();
     }
 
-    void GraphEditorView::HandleFocusChanges()
+    void GraphEditorView::HandleFocusAndSelectionChanges()
     {
-        if ( m_primaryFlowGraphView.HasFocus() )
-        {
-            m_model.ClearSelection();
-            for ( auto pNode : m_primaryFlowGraphView.GetSelectedNodes() )
-            {
-                if ( auto pToolsNode = TryCast<ToolsNode>( pNode ) )
-                {
-                    m_model.AddToSelection( pToolsNode );
-                }
-            }
+        GraphEditor::BaseGraphView* pCurrentlyFocusedGraphView = nullptr;
 
-            m_lastFocusedGraph = ViewID::Primary;
+        // Get the currently focused view
+        //-------------------------------------------------------------------------
+
+        if ( m_primaryStateMachineGraphView.HasFocus() )
+        {
+            pCurrentlyFocusedGraphView = &m_primaryStateMachineGraphView;
+        }
+        else if ( m_primaryFlowGraphView.HasFocus() )
+        {
+            pCurrentlyFocusedGraphView = &m_primaryFlowGraphView;
         }
         else if ( m_secondaryFlowGraphView.HasFocus() )
         {
-            m_model.ClearSelection();
-            for ( auto pNode : m_secondaryFlowGraphView.GetSelectedNodes() )
-            {
-                if ( auto pToolsNode = TryCast<ToolsNode>( pNode ) )
-                {
-                    m_model.AddToSelection( pToolsNode );
-                }
-            }
+            pCurrentlyFocusedGraphView = &m_secondaryFlowGraphView;
+        }
 
-            m_lastFocusedGraph = ViewID::Secondary;
+        // Has the focus within the graph editor tool changed?
+        //-------------------------------------------------------------------------
+
+        bool hasUpdatedFocus = false;
+        if ( pCurrentlyFocusedGraphView != nullptr && pCurrentlyFocusedGraphView != m_pFocusedGraphView )
+        {
+            m_pFocusedGraphView = pCurrentlyFocusedGraphView;
+            hasUpdatedFocus = true;
+        }
+
+        // Update selection (if necessary)
+        //-------------------------------------------------------------------------
+
+        if ( pCurrentlyFocusedGraphView != nullptr && ( hasUpdatedFocus || pCurrentlyFocusedGraphView->HasSelectionChanged() ) )
+        {
+            m_model.ClearSelection();
+
+            for ( auto pNode : pCurrentlyFocusedGraphView->GetSelectedNodes() )
+            {
+                m_model.AddToSelection( pNode );
+            }
         }
     }
 }

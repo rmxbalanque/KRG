@@ -21,11 +21,11 @@ namespace KRG::Animation::Graph
     {
         EditorModel::Initialize( context );
 
-        m_registeredNodeTypes = m_pTypeRegistry->GetAllDerivedTypes( ToolsNode::GetStaticTypeID(), false, false );
+        m_registeredNodeTypes = m_pTypeRegistry->GetAllDerivedTypes( FlowToolsNode::GetStaticTypeID(), false, false );
 
         for ( auto pNodeType : m_registeredNodeTypes )
         {
-            auto pDefaultNode = SafeCast<ToolsNode const>( pNodeType->m_pTypeHelper->GetDefaultTypeInstancePtr() );
+            auto pDefaultNode = Cast<FlowToolsNode const>( pNodeType->m_pTypeHelper->GetDefaultTypeInstancePtr() );
             if ( pDefaultNode->IsUserCreatable() )
             {
                 m_categorizedNodeTypes.AddItem( pDefaultNode->GetCategory(), pDefaultNode->GetTypeName(), pNodeType );
@@ -75,7 +75,7 @@ namespace KRG::Animation::Graph
         m_pGraph = KRG::New<ToolsAnimationGraph>();
         m_pGraph->CreateNew();
         m_currentlyOpenGraphPath = FileSystem::Path();
-        m_pNodeGraphToView = m_pGraph->GetRootGraph();
+        m_pViewedGraph = m_pGraph->GetRootGraph();
     }
 
     void GraphEditorModel::OpenGraph()
@@ -104,7 +104,7 @@ namespace KRG::Animation::Graph
                 m_pGraph = KRG::New<ToolsAnimationGraph>();
                 if ( m_pGraph->Load( *m_pTypeRegistry, reader.GetDocument() ) )
                 {
-                    m_pNodeGraphToView = m_pGraph->GetRootGraph();
+                    m_pViewedGraph = m_pGraph->GetRootGraph();
                     m_currentlyOpenGraphPath = newGraphPath;
                 }
                 else // Load failed, so clean up
@@ -148,5 +148,18 @@ namespace KRG::Animation::Graph
     {
         ToolsGraphCompilationContext context;
         bool result = m_pGraph->Compile( context );
+    }
+
+    void GraphEditorModel::NavigateTo( GraphEditor::BaseNode const* pNode )
+    {
+        KRG_ASSERT( pNode != nullptr );
+        m_pViewedGraph = const_cast<GraphEditor::BaseNode*>( pNode )->GetParentGraph();
+        KRG_ASSERT( m_pViewedGraph != nullptr );
+    }
+
+    void GraphEditorModel::NavigateTo( GraphEditor::BaseGraph const* pGraph )
+    {
+        KRG_ASSERT( pGraph != nullptr );
+        m_pViewedGraph = const_cast<GraphEditor::BaseGraph*>( pGraph );
     }
 }

@@ -32,7 +32,10 @@ namespace KRG::Animation::Graph
 
         ToolsAnimationGraph* GetGraph() { return m_pGraph; }
         ToolsAnimationGraph const* GetGraph() const { return m_pGraph; }
-        ToolsGraph* GetCurrentlyViewedGraph() const { return m_pNodeGraphToView; }
+        GraphEditor::BaseGraph* GetCurrentlyViewedGraph() const { return m_pViewedGraph; }
+
+        void NavigateTo( GraphEditor::BaseNode const* pNode );
+        void NavigateTo( GraphEditor::BaseGraph const* pGraph );
 
         void SimulateCompilation();
 
@@ -51,29 +54,29 @@ namespace KRG::Animation::Graph
         // Selection
         //-------------------------------------------------------------------------
 
-        inline TVector<ToolsNode*> const& GetSelectedNodes() const { return m_selectedNodes; }
+        inline TVector<GraphEditor::BaseNode*> const& GetSelectedNodes() const { return m_selectedNodes; }
         inline void ClearSelection() { m_selectedNodes.clear(); }
-        inline void SetSelection( TVector<ToolsNode*> const& inSelection ) { m_selectedNodes = inSelection; }
+        inline void SetSelection( TVector<GraphEditor::BaseNode*> const& inSelection ) { m_selectedNodes = inSelection; }
         
-        inline void SetSelection( ToolsNode* pNode )
+        inline void SetSelection( GraphEditor::BaseNode* pNode )
         {
             KRG_ASSERT( pNode != nullptr );
             m_selectedNodes.clear();
             m_selectedNodes.emplace_back( pNode );
         }
 
-        inline void AddToSelection( ToolsNode* pNode )
+        inline void AddToSelection( GraphEditor::BaseNode* pNode )
         {
             KRG_ASSERT( pNode != nullptr );
             m_selectedNodes.emplace_back( pNode );
         }
 
-        inline void RemoveFromSelection( ToolsNode* pNode )
+        inline void RemoveFromSelection( GraphEditor::BaseNode* pNode )
         {
             m_selectedNodes.erase_first( pNode );
         }
 
-        inline bool IsSelected( ToolsNode* pNode ) const
+        inline bool IsSelected( GraphEditor::BaseNode* pNode ) const
         {
             return VectorContains( m_selectedNodes, pNode );
         }
@@ -88,9 +91,11 @@ namespace KRG::Animation::Graph
         ToolsAnimationGraph*                        m_pGraph = nullptr;
         FileSystem::Path                            m_currentlyOpenGraphPath;
         StringID                                    m_selectedVariationID = AnimationGraphVariation::DefaultVariationID;
-        ToolsGraph*                                 m_pNodeGraphToView = nullptr;
-        TVector<ToolsNode*>                         m_selectedNodes;
+
         TVector<TypeSystem::TypeInfo const*>        m_registeredNodeTypes;
         CategoryTree<TypeSystem::TypeInfo const*>   m_categorizedNodeTypes;
+
+        GraphEditor::BaseGraph*                     m_pViewedGraph = nullptr;
+        TVector<GraphEditor::BaseNode*>             m_selectedNodes;
     };
 }

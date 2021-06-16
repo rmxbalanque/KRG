@@ -1,6 +1,7 @@
 #include "AnimationGraphCompiler.h"
 #include "Tools/Animation/Graph/AnimationGraphTools_Compilation.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_Graph.h"
+#include "Tools/Animation/Graph/AnimationGraphTools_FlowGraph.h"
+#include "Tools/Animation/Graph/AnimationGraphTools_StateMachineGraph.h"
 #include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
@@ -247,11 +248,11 @@ namespace KRG::Animation
         // Fill data slots
         //-------------------------------------------------------------------------
 
-        THashMap<UUID, DataSlotNode const*> dataSlotLookupMap;
+        THashMap<UUID, DataSlotToolsNode const*> dataSlotLookupMap;
         auto const& dataSlotNodes = toolsGraph.GetAllDataSlotNodes();
         for ( auto pSlotNode : dataSlotNodes )
         {
-            dataSlotLookupMap.insert( TPair<UUID, DataSlotNode const*>( pSlotNode->GetID(), pSlotNode ) );
+            dataSlotLookupMap.insert( TPair<UUID, DataSlotToolsNode const*>( pSlotNode->GetID(), pSlotNode ) );
         }
 
         dataSet.m_resources.reserve( compilationContext.m_registeredDataSlots.size() );

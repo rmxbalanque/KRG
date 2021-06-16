@@ -1,7 +1,8 @@
 #pragma once
 #include "AnimationGraphEditor_Model.h"
 #include "Tools/Core/Editor/EditorTool.h"
-#include "Tools/Core/GraphEditor/FlowGraphView.h"
+#include "Tools/Core/GraphEditor/Flow/FlowGraphView.h"
+#include "Tools/Core/GraphEditor/StateMachine/StateMachineGraphView.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,28 +14,59 @@ namespace KRG::Animation::Graph
 {
     class GraphEditorView final : public TEditorTool<GraphEditorModel>
     {
-        enum class ViewID
+        enum ViewID
         {
-            Primary,
+            None = -1,
+            PrimaryFlow,
+            PrimarySM,
             Secondary
         };
 
         //-------------------------------------------------------------------------
 
-        class GraphView : public GraphEditor::FlowGraphView
+        class FlowGraphView : public GraphEditor::FlowGraphView
         {
         public:
 
-            GraphView( GraphEditorModel const& model ) : m_model( model ) {}
+            FlowGraphView( GraphEditorModel& model ) : m_model( model ) {}
 
         protected:
 
             virtual void DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos ) override;
-            void DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, ToolsGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category );
+            virtual void OnGraphDoubleClick( GraphEditor::BaseGraph* pGraph ) override;
+            virtual void OnNodeDoubleClick( GraphEditor::BaseNode* pNode ) override;
+            virtual void OnSelectionChanged( TVector<GraphEditor::BaseNode*> const& oldSelection, TVector<GraphEditor::BaseNode*> const& newSelection ) { m_selectionChanged = true; }
 
-        private:
+            void DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, FlowToolGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category );
 
-            GraphEditorModel const&     m_model;
+        public:
+
+            GraphEditorModel&       m_model;
+            bool                    m_selectionChanged = false;
+            bool                    m_wasFocused = false;
+        };
+
+        //-------------------------------------------------------------------------
+
+        class StateMachineGraphView : public GraphEditor::StateMachineGraphView
+        {
+        public:
+
+            StateMachineGraphView( GraphEditorModel& model ) : m_model( model ) {}
+
+        protected:
+
+            virtual void DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos ) override;
+            virtual void DrawContextMenuForNode( ImVec2 const& mouseCanvasPos, GraphEditor::SM::Node* pNode ) override;
+            virtual void OnGraphDoubleClick( GraphEditor::BaseGraph* pGraph ) override;
+            virtual void OnNodeDoubleClick( GraphEditor::BaseNode* pNode ) override;
+            virtual void OnSelectionChanged( TVector<GraphEditor::BaseNode*> const& oldSelection, TVector<GraphEditor::BaseNode*> const& newSelection ) { m_selectionChanged = true; }
+
+        public:
+
+            GraphEditorModel&       m_model;
+            bool                    m_selectionChanged = false;
+            bool                    m_wasFocused = false;
         };
 
     public:
@@ -44,20 +76,23 @@ namespace KRG::Animation::Graph
         virtual char const* const GetName() { return "Graph Editor"; }
         virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
 
-        void RefreshView() { m_primaryFlowGraphView.RecalculateNodeSizes(); }
+        void RefreshView();
 
     private:
 
-        virtual void Initialize( UpdateContext const& context ) override;
-        virtual void Shutdown( UpdateContext const& context ) override;
-
-        void HandleFocusChanges();
+        void UpdatePrimaryViewState();
+        void UpdateSecondaryViewState();
+        void HandleFocusAndSelectionChanges();
 
     private:
 
         float                           m_primaryGraphViewHeight = 300;
-        GraphView                       m_primaryFlowGraphView;
-        GraphView                       m_secondaryFlowGraphView;
-        ViewID                          m_lastFocusedGraph = ViewID::Primary;
+
+        FlowGraphView                   m_primaryFlowGraphView;
+        StateMachineGraphView           m_primaryStateMachineGraphView;
+        FlowGraphView                   m_secondaryFlowGraphView;
+
+        GraphEditor::BaseGraphView*     m_pPrimaryGraphView = &m_primaryFlowGraphView;
+        GraphEditor::BaseGraphView*     m_pFocusedGraphView = nullptr;
     };
 }

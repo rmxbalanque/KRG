@@ -20,6 +20,8 @@ namespace KRG::Animation::Graph
 {
     enum class NodeValueType
     {
+        KRG_REGISTER_ENUM
+
         Unknown = 0,
         Bool,
         ID,

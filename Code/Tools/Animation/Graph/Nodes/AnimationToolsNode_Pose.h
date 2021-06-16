@@ -1,18 +1,18 @@
 #pragma once
-#include "../AnimationGraphTools_Node.h"
+#include "../AnimationGraphTools_FlowNode.h"
 #include "Engine/Animation/AnimationClip.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class ZeroPoseToolsNode final : public ToolsNode
+    class ZeroPoseToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ZeroPoseToolsNode );
 
     public:
 
-        ZeroPoseToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Zero Pose"; }
         virtual char const* GetCategory() const override { return "Poses"; }
@@ -22,13 +22,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ReferencePoseToolsNode final : public ToolsNode
+    class ReferencePoseToolsNode final : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( ReferencePoseToolsNode );
 
     public:
 
-        ReferencePoseToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Reference Pose"; }
         virtual char const* GetCategory() const override { return "Poses"; }
@@ -38,13 +38,13 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class AnimationPoseToolsNode final : public DataSlotNode
+    class AnimationPoseToolsNode final : public DataSlotToolsNode
     {
         KRG_REGISTER_TYPE( AnimationPoseToolsNode );
 
     public:
 
-        AnimationPoseToolsNode();
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetDisplayName() const override { return m_name.c_str(); }
         virtual char const* GetTypeName() const override { return "Animation Pose"; }
