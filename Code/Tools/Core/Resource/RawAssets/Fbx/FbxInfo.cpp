@@ -73,6 +73,9 @@ namespace KRG::Fbx
             return false;
         }
 
+        outInfo.m_upAxis = sceneCtx.GetOriginalUpAxis();
+        outInfo.m_scale = sceneCtx.GetScaleConversionMultiplier();
+
         //-------------------------------------------------------------------------
 
         ReadMeshInfo( sceneCtx, outInfo );

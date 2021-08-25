@@ -4,6 +4,7 @@
 #include "Tools/Render/ResourceCompilers/Mesh/StaticMeshCompiler.h"
 #include "Tools/Render/ResourceCompilers/Mesh/SkeletalMeshCompiler.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -39,6 +40,8 @@ namespace KRG::Render
         KRG_ASSERT( m_inspectedFile.IsFilePath() );
 
         ImGui::Text( "Raw File: %s", m_inspectedFile.c_str() );
+        ImGui::Text( "Original Up Axis: %s", Math::ToString( m_assetInfo.m_upAxis ) );
+        ImGui::Text( "Scale: %.2f", m_assetInfo.m_scale );
         ImGui::Separator();
 
         if ( m_validAssetInfo )

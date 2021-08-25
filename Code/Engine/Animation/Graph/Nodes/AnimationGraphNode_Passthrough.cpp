@@ -8,7 +8,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( options == GraphNode::Settings::InitOptions::OnlySetPointers );
         auto pNode = CreateNode<PassthroughNode>( nodePtrs, options );
-        SetNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_childNodeIdx, pNode->m_pChildNode );
     }
 
     //-------------------------------------------------------------------------
@@ -30,24 +30,32 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( context.IsValid() );
         PoseNode::InitializeInternal( context, initialTime );
 
-        m_pChildNode->Initialize( context, initialTime );
+        //-------------------------------------------------------------------------
 
-        if ( m_pChildNode->IsValid() )
+        m_previousTime = m_currentTime = 0.0f;
+        m_duration = 1.0f;
+
+        //-------------------------------------------------------------------------
+
+        if ( m_pChildNode != nullptr )
         {
-            m_duration = m_pChildNode->GetDuration();
-            m_previousTime = m_pChildNode->GetPreviousTime();
-            m_currentTime = m_pChildNode->GetCurrentTime();
-        }
-        else
-        {
-            m_previousTime = m_currentTime = 0.0f;
-            m_duration = 1.0f;
+            m_pChildNode->Initialize( context, initialTime );
+
+            if ( m_pChildNode->IsValid() )
+            {
+                m_duration = m_pChildNode->GetDuration();
+                m_previousTime = m_pChildNode->GetPreviousTime();
+                m_currentTime = m_pChildNode->GetCurrentTime();
+            }
         }
     }
 
     void PassthroughNode::ShutdownInternal( GraphContext& context )
     {
-        m_pChildNode->Shutdown( context );
+        if ( m_pChildNode != nullptr )
+        {
+            m_pChildNode->Shutdown( context );
+        }
         PoseNode::ShutdownInternal( context );
     }
 
@@ -102,11 +110,7 @@ namespace KRG::Animation::Graph
         if ( IsValid() )
         {
             PoseNode::DeactivateBranch( context );
-
-            if ( IsChildValid() )
-            {
-                m_pChildNode->DeactivateBranch( context );
-            }
+            m_pChildNode->DeactivateBranch( context );
         }
     }
 }

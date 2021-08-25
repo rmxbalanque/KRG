@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Events
+namespace KRG::Animation
 {
     class KRG_ENGINE_ANIMATION_API IDEvent final : public Event
     {
@@ -12,6 +12,7 @@ namespace KRG::Animation::Events
 
     public:
 
+        inline StringID const& GetID() const { return m_ID; }
         virtual StringID GetSyncEventID() const override { return m_ID; }
 
         #if KRG_DEVELOPMENT_TOOLS

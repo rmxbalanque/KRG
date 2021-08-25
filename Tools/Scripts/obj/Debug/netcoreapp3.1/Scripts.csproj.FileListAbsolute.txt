@@ -5,7 +5,6 @@ D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.1\Scripts.runtimeconfig.dev.json
 D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.1\Scripts.dll
 D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.1\Scripts.pdb
 D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
-D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.csprojAssemblyReference.cache
 D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.AssemblyInfoInputs.cache
 D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.AssemblyInfo.cs
 D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.csproj.CoreCompileInputs.cache
@@ -13,3 +12,5 @@ D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.csproj.CopyComplete
 D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.dll
 D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.pdb
 D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.genruntimeconfig.cache
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.csproj.AssemblyReference.cache
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.1\Scripts.GeneratedMSBuildEditorConfig.editorconfig

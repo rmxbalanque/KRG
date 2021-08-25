@@ -70,7 +70,7 @@ namespace KRG::Animation
 
         if ( setGlobalPose )
         {
-            m_localTransforms = m_pSkeleton->GetGlobalReferencePose();
+            m_globalTransforms = m_pSkeleton->GetGlobalReferencePose();
         }
         else
         {
@@ -107,7 +107,7 @@ namespace KRG::Animation
         m_globalTransforms[0] = m_localTransforms[0];
         for ( auto boneIdx = 1; boneIdx < numBones; boneIdx++ )
         {
-            int32 const parentIdx = m_pSkeleton->GetParentIndex( boneIdx );
+            int32 const parentIdx = m_pSkeleton->GetParentBoneIndex( boneIdx );
             m_globalTransforms[boneIdx] = m_localTransforms[boneIdx] * m_globalTransforms[parentIdx];
         }
     }
@@ -127,11 +127,11 @@ namespace KRG::Animation
             int32 nextEntry = 0;
 
             // Get parent list
-            int32 parentIdx = m_pSkeleton->GetParentIndex( boneIdx );
+            int32 parentIdx = m_pSkeleton->GetParentBoneIndex( boneIdx );
             while ( parentIdx != InvalidIndex )
             {
                 boneParents[nextEntry++] = parentIdx;
-                parentIdx = m_pSkeleton->GetParentIndex( parentIdx );
+                parentIdx = m_pSkeleton->GetParentBoneIndex( parentIdx );
             }
 
             // If we have parents
@@ -162,14 +162,16 @@ namespace KRG::Animation
     #if KRG_DEVELOPMENT_TOOLS
     void Pose::DrawDebug( Debug::DrawingContext& ctx, Transform const& worldTransform ) const
     {
-        auto const& parentIndices = m_pSkeleton->GetParentIndices();
+        auto const& parentIndices = m_pSkeleton->GetParentBoneIndices();
 
         //-------------------------------------------------------------------------
 
         auto const numBones = m_localTransforms.size();
         if ( numBones > 0 )
         {
-            Transform globalTransforms[256];
+            TInlineVector<Transform, 256> globalTransforms;
+            globalTransforms.resize( numBones );
+
             globalTransforms[0] = m_localTransforms[0] * worldTransform;
             for ( auto i = 1; i < numBones; i++ )
             {

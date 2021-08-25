@@ -15,6 +15,35 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
+    void StateBaseToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    {
+        InlineString<255> string;
+        auto CreateEventString = [&] ( TVector<StringID> const& IDs )
+        {
+            string.clear();
+            for ( int32 i = 0; i < (int32) IDs.size(); i++ )
+            {
+                string += IDs[i].c_str();
+
+                if ( i != IDs.size() - 1 )
+                {
+                    string += ", ";
+                }
+            }
+        };
+
+        CreateEventString( m_entryEvents );
+        ImGui::Text( "Entry: %s", string.c_str() );
+
+        CreateEventString( m_executeEvents );
+        ImGui::Text( "Execute: %s", string.c_str() );
+
+        CreateEventString( m_exitEvents );
+        ImGui::Text( "Exit: %s", string.c_str() );
+    }
+
+    //-------------------------------------------------------------------------
+
     void StateToolsNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
         GraphEditor::SM::State::Initialize( pParent );
@@ -44,24 +73,7 @@ namespace KRG::Animation::Graph
 
     void StateToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
     {
-        //-------------------------------------------------------------------------
-
         InlineString<255> string;
-
-        auto CreateEventString = [&] ( TVector<StringID> const& IDs )
-        {
-            string.clear();
-            for ( int32 i = 0; i < (int32) IDs.size(); i++ )
-            {
-                string += IDs[i].c_str();
-
-                if ( i != IDs.size() - 1 )
-                {
-                    string += ", ";
-                }
-            }
-        };
-
         auto CreateTimedEventString = [&] ( TVector<TimedStateEvent> const& events )
         {
             string.clear();
@@ -77,26 +89,25 @@ namespace KRG::Animation::Graph
         };
 
         //-------------------------------------------------------------------------
-        
-        CreateEventString( m_entryEvents );
-        ImGui::Text( "Entry: %s", string.c_str() );
 
-        CreateEventString( m_executeEvents );
-        ImGui::Text(  "Execute: %s", string.c_str() );
-
-        CreateEventString( m_exitEvents );
-        ImGui::Text( "Exit: %s", string.c_str() );
-
-        //-------------------------------------------------------------------------
+        StateBaseToolsNode::DrawExtraControls( ctx );
 
         ImGui::NewLine();
-
-        //-------------------------------------------------------------------------
 
         CreateTimedEventString( m_timeRemainingEvents );
         ImGui::Text( "Time Left: %s", string.c_str() );
 
         CreateTimedEventString( m_timeElapsedEvents );
         ImGui::Text( "Time Elapsed: %s", string.c_str() );
+    }
+
+    void OffStateToolsNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    {
+        {
+            ImGuiX::ScopedFont font( ImGuiX::Font::Large, Colors::Red );
+            ImGui::Text( KRG_ICON_TIMES );
+        }
+
+        StateBaseToolsNode::DrawExtraControls( ctx );
     }
 }

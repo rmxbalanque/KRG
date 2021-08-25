@@ -1,5 +1,5 @@
 #include "AnimationToolsNode_Conditions.h"
-#include "Engine/Animation/Graph/Nodes/AnimationGraphNode_Conditions.h"
+#include "Engine/Animation/Graph/Nodes/AnimationGraphNode_BooleanLogic.h"
 #include "Tools/Animation/Graph/AnimationGraphTools_Compilation.h"
 
 //-------------------------------------------------------------------------

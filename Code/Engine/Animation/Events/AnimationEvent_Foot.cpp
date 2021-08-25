@@ -1,8 +1,8 @@
-#include "AnimationEvent_Footstep.h"
+#include "AnimationEvent_Foot.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Events
+namespace KRG::Animation
 {
     char const* g_phaseNames[4] =
     {
@@ -14,13 +14,13 @@ namespace KRG::Animation::Events
 
     //-------------------------------------------------------------------------
 
-    StringID FootstepEvent::GetSyncEventID() const
+    StringID FootEvent::GetSyncEventID() const
     {
         return StringID( g_phaseNames[(int32) m_phase] );
     }
 
     #if KRG_DEVELOPMENT_TOOLS
-    InlineString<100> FootstepEvent::GetDisplayText() const
+    InlineString<100> FootEvent::GetDisplayText() const
     {
         return g_phaseNames[(int32) m_phase];
     }

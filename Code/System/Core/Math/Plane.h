@@ -115,49 +115,50 @@ namespace KRG
 
         inline Vector ProjectPoint( Vector const point ) const
         {
-            KRG_ASSERT( point.m_w == 1.0f && IsNormalized() );
-            auto const planeVector = ToVector();
-            auto const planeNormal = GetNormal();
-            auto const distanceToPlane = Vector::Dot4( point, planeVector );
-            auto const projectedPoint = Vector::MultiplyAdd( planeNormal.GetNegated(), distanceToPlane, point );
+            KRG_ASSERT( IsNormalized() );
+            Vector const pointW1 = point.GetWithW1();
+            Vector const planeVector = ToVector();
+            Vector const planeNormal = GetNormal();
+            Vector const distanceToPlane = Vector::Dot4( pointW1, planeVector );
+            Vector const projectedPoint = Vector::MultiplyAdd( planeNormal.GetNegated(), distanceToPlane, pointW1 );
             return projectedPoint;
         }
 
         //-------------------------------------------------------------------------
 
-        inline Vector SignedDistanceToPoint( Vector const point ) const
+        KRG_FORCE_INLINE Vector SignedDistanceToPoint( Vector const point ) const
         {
-            KRG_ASSERT( point.m_w == 1.0f && IsNormalized() );
-            return Vector::Dot4( point, ToVector() );
+            KRG_ASSERT( IsNormalized() );
+            return Vector::Dot4( point.GetWithW1(), ToVector() );
         }
 
-        inline float GetSignedDistanceToPoint( Vector const point ) const 
+        KRG_FORCE_INLINE float GetSignedDistanceToPoint( Vector const point ) const 
         { 
             return SignedDistanceToPoint( point ).ToFloat();
         }
 
-        inline Vector AbsoluteDistanceToPoint( Vector const point ) const 
+        KRG_FORCE_INLINE Vector AbsoluteDistanceToPoint( Vector const point ) const
         { 
             return SignedDistanceToPoint( point ).Abs();
         }
 
-        inline float GetAbsoluteDistanceToPoint( Vector const point ) const 
+        KRG_FORCE_INLINE float GetAbsoluteDistanceToPoint( Vector const point ) const
         {
             return AbsoluteDistanceToPoint( point ).ToFloat();
         }
 
-        inline bool ArePointsOnSameSide( Vector const point0, Vector const point1 ) const 
+        KRG_FORCE_INLINE bool ArePointsOnSameSide( Vector const point0, Vector const point1 ) const
         { 
             Vector const distanceProduct = ( SignedDistanceToPoint( point0 ) * SignedDistanceToPoint( point1 ) );
             return distanceProduct.IsGreaterThanEqual4( Vector::Zero );
         }
 
-        inline bool IsPointInFront( Vector const point ) const 
+        KRG_FORCE_INLINE bool IsPointInFront( Vector const point ) const
         {
             return SignedDistanceToPoint( point ).IsGreaterThanEqual4( Vector::Zero );
         }
 
-        inline bool IsPointBehind( Vector const point ) const 
+        KRG_FORCE_INLINE bool IsPointBehind( Vector const point ) const
         { 
             return SignedDistanceToPoint( point ).IsLessThan4( Vector::Zero );
         }

@@ -71,17 +71,17 @@ namespace KRG::GraphEditor
         if ( IsOfType<SM::State>( pNode ) )
         {
             ImVec2 const titleBR( rectMax.x, titleRectEnd.y );
-            ctx.m_pDrawList->AddRectFilled( rectMin, titleBR, stateTitleColor, 3, ImDrawCornerFlags_Top );
+            ctx.m_pDrawList->AddRectFilled( rectMin, titleBR, stateTitleColor, 3, ImDrawFlags_RoundCornersTop );
 
             ImVec2 const titleRectBL( rectMin.x, titleRectEnd.y );
-            ctx.m_pDrawList->AddRectFilled( titleRectBL, rectMax, nodeBackgroundColor, 3, ImDrawCornerFlags_Bot );
+            ctx.m_pDrawList->AddRectFilled( titleRectBL, rectMax, nodeBackgroundColor, 3, ImDrawFlags_RoundCornersBottom );
 
-            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawCornerFlags_All, 2.0f );
+            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 2.0f );
         }
         else // Non-state node
         {
             ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3 );
-            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawCornerFlags_All, 2.0f );
+            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 2.0f );
         }
     }
 
@@ -186,7 +186,7 @@ namespace KRG::GraphEditor
         //-------------------------------------------------------------------------
 
         pTransition->m_isHovered = false;
-        ImColor transitionColor = VisualSettings::s_connectionColor;
+        ImColor transitionColor = pTransition->GetHighlightColor();
         ImVec2 const closestPointOnTransitionToMouse = ImLineClosestPoint( startPoint, endPoint, ctx.m_mouseCanvasPos );
         if ( ImLengthSqr( ctx.m_mouseCanvasPos - closestPointOnTransitionToMouse ) < Math::Pow( VisualSettings::s_connectionSelectionExtraRadius, 2 ) )
         {
@@ -269,6 +269,12 @@ namespace KRG::GraphEditor
             }
 
             drawingContext.m_pDrawList->ChannelsMerge();
+
+            //-------------------------------------------------------------------------
+            // Extra
+            //-------------------------------------------------------------------------
+
+            DrawExtraInformation( drawingContext );
 
             //-------------------------------------------------------------------------
 

@@ -327,8 +327,8 @@ namespace KRG::Render
         //for ( auto const& pComponent : m_visibleStaticComponents )
         {
             auto pMesh = pComponent->GetMesh();
-
-            Matrix const wvp = pComponent->GetWorldTransform().ToMatrix() * viewProjectionMatrix;
+            Matrix const worldMatrix = pComponent->GetWorldTransform().ToMatrix();
+            Matrix const wvp = worldMatrix * viewProjectionMatrix;
             renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &wvp, sizeof( Matrix ) );
 
             SubmitMeshDrawCall( renderContext, pMesh, pComponent->GetMaterials() );

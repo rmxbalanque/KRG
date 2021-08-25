@@ -47,6 +47,18 @@ namespace KRG::Animation::Graph
         UpdateDependentNodes();
     }
 
+    void StateMachineToolsGraph::CreateNewOffState( ImVec2 const& mouseCanvasPos )
+    {
+        auto pStateNode = KRG::New<OffStateToolsNode>();
+        pStateNode->Initialize( this );
+        pStateNode->SetCanvasPosition( mouseCanvasPos );
+        AddNode( pStateNode );
+
+        //-------------------------------------------------------------------------
+
+        UpdateDependentNodes();
+    }
+
     GraphEditor::SM::TransitionConduit* StateMachineToolsGraph::CreateTransitionNode() const
     {
         return KRG::New<TransitionConduitToolsNode>();
@@ -56,10 +68,10 @@ namespace KRG::Animation::Graph
 
     bool StateMachineToolsGraph::CanDeleteNode( GraphEditor::BaseNode const* pNode ) const
     {
-        auto pStateNode = TryCast<StateToolsNode>( pNode );
+        auto pStateNode = TryCast<StateBaseToolsNode>( pNode );
         if ( pStateNode != nullptr )
         {
-            auto const stateNodes = FindAllNodesOfType<StateToolsNode>();
+            auto const stateNodes = FindAllNodesOfType<StateBaseToolsNode>( GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch::Derived );
             return stateNodes.size() > 1;
         }
 
@@ -68,7 +80,7 @@ namespace KRG::Animation::Graph
 
     void StateMachineToolsGraph::UpdateDependentNodes()
     {
-        auto const stateNodes = FindAllNodesOfType<StateToolsNode>();
+        auto const stateNodes = FindAllNodesOfType<StateBaseToolsNode>( GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch::Derived );
         m_pEntryOverridesNode->Update( stateNodes );
         m_pGlobalTransitionsNode->Update( stateNodes );
         UpdateEntryState();

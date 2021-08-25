@@ -39,7 +39,8 @@ namespace KRG::Camera
 
     void CameraComponent::OnWorldTransformUpdated()
     {
-        m_viewVolume.SetWorldMatrix( GetWorldTransform().ToMatrix() );
+        Matrix const worldMatrix = GetWorldTransform().ToMatrix();
+        m_viewVolume.SetWorldMatrix( worldMatrix );
     }
 
     Math::ViewVolume const& CameraComponent::CalculateViewVolume( Float2 const& viewDimensions )

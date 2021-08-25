@@ -213,7 +213,8 @@ namespace KRG
 
                         int32 const ctrlPointIdx = pMesh->GetPolygonVertex( polygonIdx, vertexIdx );
                         FbxVector4 const meshVertex = meshNodeGlobalTransform.MultT( pMesh->GetControlPoints()[ctrlPointIdx] );
-                        vert.m_position = sceneCtx.ConvertVector( meshVertex );
+                        vert.m_position = Vector( (float) meshVertex[0], (float) meshVertex[1], (float) meshVertex[2], (float) meshVertex[3] );
+                        KRG_ASSERT( vert.m_position.m_w == 1.0f );
 
                         // Get vertex normal
                         //-------------------------------------------------------------------------
@@ -260,7 +261,7 @@ namespace KRG
                         }
 
                         meshNormal = meshNodeGlobalTransform.MultT( meshNormal );
-                        vert.m_normal = sceneCtx.ConvertVector( meshNormal ).GetNormalized3().SetW0();
+                        vert.m_normal = Vector( (float) meshNormal[0], (float) meshNormal[1], (float) meshNormal[2] ).GetNormalized3();
 
                         // Get vertex tangent
                         //-------------------------------------------------------------------------
@@ -291,7 +292,7 @@ namespace KRG
                         }
 
                         meshTangent = meshNodeGlobalTransform.MultT( meshTangent );
-                        vert.m_tangent = sceneCtx.ConvertVector( meshTangent ).GetNormalized3().SetW0();
+                        vert.m_tangent = Vector( (float) meshTangent[0], (float) meshTangent[1], (float) meshTangent[2] ).GetNormalized3();
 
                         // Get vertex UV
                         //-------------------------------------------------------------------------
@@ -490,7 +491,7 @@ namespace KRG
                     FbxAMatrix boneTransformGlobalMatrix;
                     pCluster->GetTransformLinkMatrix( boneTransformGlobalMatrix );
                     boneTransformGlobalMatrix = meshNodeGlobalTransform.Inverse() * boneTransformGlobalMatrix;
-                    boneTransformGlobalMatrix.SetT( boneTransformGlobalMatrix.GetT() * sceneCtx.GetScaleConversionMultiplier() );
+                    boneTransformGlobalMatrix.SetT( boneTransformGlobalMatrix.GetT() );
 
                     FbxRawSkeleton& rawSkeleton = (FbxRawSkeleton&) rawMesh.m_skeleton;
                     rawSkeleton.m_bones[boneIdx].m_globalTransform = sceneCtx.ConvertMatrixToTransform( boneTransformGlobalMatrix );

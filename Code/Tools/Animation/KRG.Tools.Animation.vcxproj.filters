@@ -56,6 +56,7 @@
     <ClCompile Include="Graph\StateMachine\AnimationToolsNode_State.cpp" />
     <ClCompile Include="Graph\StateMachine\AnimationToolsNode_EntryStateOverrides.cpp" />
     <ClCompile Include="Graph\StateMachine\AnimationToolsNode_Transitions.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationToolsNode_Layers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ResourceCompilers\AnimationClipCompiler.h">
@@ -102,5 +103,6 @@
     <ClInclude Include="Graph\StateMachine\AnimationToolsNode_State.h" />
     <ClInclude Include="Graph\StateMachine\AnimationToolsNode_EntryStateOverrides.h" />
     <ClInclude Include="Graph\StateMachine\AnimationToolsNode_Transitions.h" />
+    <ClInclude Include="Graph\Nodes\AnimationToolsNode_Layers.h" />
   </ItemGroup>
 </Project>

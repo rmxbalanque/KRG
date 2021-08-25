@@ -8,7 +8,7 @@ namespace KRG::Animation::Graph
     {
         static const ImColor colors[9] =
         {
-            ImGuiX::ConvertColor( Colors::Red ),
+            ImGuiX::ConvertColor( Colors::GhostWhite ),
             ImGuiX::ConvertColor( Colors::Yellow ),
             ImGuiX::ConvertColor( Colors::Orange ),
             ImGuiX::ConvertColor( Colors::Violet ),
@@ -19,7 +19,7 @@ namespace KRG::Animation::Graph
             ImGuiX::ConvertColor( Colors::LimeGreen ),
         };
 
-        return colors[(uint8) type ];
+        return colors[(uint8) type];
     }
 
     char const* GetNameForValueType( NodeValueType type )
@@ -73,12 +73,8 @@ namespace KRG::Animation::Graph
                 return "Pose";
             }
             break;
-
-            default:
-            KRG_UNREACHABLE_CODE();
-            break;
         }
 
-        return "UNKNOWN";
+        return "Unknown";
     }
 }

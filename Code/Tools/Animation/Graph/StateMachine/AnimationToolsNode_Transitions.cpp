@@ -22,15 +22,30 @@ namespace KRG::Animation::Graph
         SetSecondaryGraph( KRG::New<FlowToolGraph>( GraphType::TransitionTree ) );
     }
 
+    bool TransitionConduitToolsNode::HasTransitions() const
+    {
+        return !GetSecondaryGraph()->FindAllNodesOfType<TransitionToolsNode>().empty();
+    }
+
+    ImColor TransitionConduitToolsNode::GetHighlightColor() const
+    {
+        if ( !HasTransitions() )
+        {
+            return GraphEditor::VisualSettings::s_connectionColorInvalid;
+        }
+
+        return GraphEditor::VisualSettings::s_connectionColorValid;
+    }
+
     //-------------------------------------------------------------------------
 
-    void GlobalTransitionsToolsGraph::Update( TInlineVector<StateToolsNode*, 20> const& states )
+    void GlobalTransitionsToolsGraph::Update( TInlineVector<StateBaseToolsNode*, 20> const& states )
     {
         auto globalTransitions = FindAllNodesOfType<GlobalTransitionToolsNode>();
 
         //-------------------------------------------------------------------------
 
-        TInlineVector<StateToolsNode*, 20> transitionsToCreate;
+        TInlineVector<StateBaseToolsNode*, 20> transitionsToCreate;
         TInlineVector<GlobalTransitionToolsNode*, 20> transitionsToRemove;
 
         for ( auto const& pTransition : globalTransitions )
@@ -87,6 +102,21 @@ namespace KRG::Animation::Graph
             pNewTransition->m_name = pState->GetDisplayName();
             pNewTransition->m_stateID = pState->GetID();
         }
+    }
+
+    bool GlobalTransitionsToolsGraph::HasGlobalTransitionForState( UUID const& stateID ) const
+    {
+        auto globalTransitions = FindAllNodesOfType<GlobalTransitionToolsNode>();
+        for ( auto pGlobalTransition : globalTransitions )
+        {
+            if ( pGlobalTransition->m_stateID == stateID )
+            {
+                return pGlobalTransition->GetConnectedInputNode( 0 ) != nullptr;
+            }
+        }
+
+        KRG_UNREACHABLE_CODE();
+        return false;
     }
 
     //-------------------------------------------------------------------------

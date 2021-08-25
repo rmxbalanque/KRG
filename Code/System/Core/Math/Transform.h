@@ -21,8 +21,8 @@ namespace KRG
 
         KRG_FORCE_INLINE static Transform FromRotation( Quaternion const& rotation ) { return Transform( rotation ); }
         KRG_FORCE_INLINE static Transform FromTranslation( Vector const& translation ) { return Transform( Quaternion::Identity, translation ); }
-        KRG_FORCE_INLINE static Transform FromScale( Vector const& scale ) { return Transform( Quaternion::Identity, Vector::UnitW, scale ); }
-        KRG_FORCE_INLINE static Transform FromUniformScale( float uniformScale ) { return Transform( Quaternion::Identity, Vector::UnitW, Vector( uniformScale, uniformScale, uniformScale, 1.0f ) ); }
+        KRG_FORCE_INLINE static Transform FromScale( Vector const& scale ) { return Transform( Quaternion::Identity, Vector::Zero, scale ); }
+        KRG_FORCE_INLINE static Transform FromUniformScale( float uniformScale ) { return Transform( Quaternion::Identity, Vector::Zero, Vector( uniformScale, uniformScale, uniformScale, 1.0f ) ); }
         KRG_FORCE_INLINE static Transform FromTranslationAndScale( Vector const& translation, Vector const& scale ) { return Transform( Quaternion::Identity, translation, scale ); }
         KRG_FORCE_INLINE static Transform FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return Transform( Quaternion::FromRotationBetweenNormalizedVectors( sourceVector, targetVector ) ); }
 
@@ -33,22 +33,17 @@ namespace KRG
         explicit inline Transform( Matrix const& m )
         {
             m.Decompose( m_rotation, m_translation, m_scale );
-            KRG_ASSERT( m_translation.IsPoint() );
         }
 
-        explicit inline Transform( Quaternion const& rotation, Vector const& translation = Vector( 0, 0, 0, 1 ), Vector const& scale = Vector( 1, 1, 1, 0 ) )
+        explicit inline Transform( Quaternion const& rotation, Vector const& translation = Vector( 0, 0, 0, 0 ), Vector const& scale = Vector( 1, 1, 1, 0 ) )
             : m_rotation( rotation )
-            , m_translation( translation )
-            , m_scale( scale )
-        {
-            auto f = m_translation.m_w;
-            KRG_ASSERT( m_translation.IsPoint() );
-            m_scale.SetW0();
-        }
+            , m_translation( translation.GetWithW0() )
+            , m_scale( scale.GetWithW0() )
+        {}
 
         explicit inline Transform( AxisAngle const& rotation )
             : m_rotation( rotation )
-            , m_translation( 0, 0, 0, 1 )
+            , m_translation( 0, 0, 0, 0 )
             , m_scale( 1, 1, 1, 0 )
         {}
 
@@ -65,7 +60,7 @@ namespace KRG
         inline Vector GetForwardVector() const { return m_rotation.RotateVector( Vector::UnitY ); }
         inline Vector GetUpVector() const { return m_rotation.RotateVector( Vector::UnitZ ); }
 
-        inline bool IsIdentity() const { return m_rotation.IsIdentity() && m_translation.IsZero3() && m_scale.IsEqual3( Vector::One ); }
+        inline bool IsIdentity() const { return m_rotation.IsIdentity() && m_translation.IsZero4() && m_scale.IsEqual3( Vector::One ); }
         inline bool IsRigidTransform() const { return m_scale.IsEqual3( Vector::One ); }
         inline void MakeRigidTransform() { m_scale = Vector::One; }
 
@@ -82,14 +77,15 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         inline Vector GetTranslation() const { return m_translation; }
-        inline void SetTranslation( Vector const& translation ) { KRG_ASSERT( translation.IsPoint() ); m_translation = translation; }
+        inline void SetTranslation( Vector const& translation ) { m_translation = translation.GetWithW0(); }
 
         // Scale
         //-------------------------------------------------------------------------
 
         inline Vector GetScale() const { return m_scale; }
-        inline void SetScale( Vector const& scale ) { m_scale = scale; m_scale.SetW0(); }
+        inline void SetScale( Vector const& scale ) { m_scale = scale.GetWithW0(); }
         inline void SetScale( float uniformScale ) { m_scale = Vector( uniformScale, uniformScale, uniformScale, 0.0f ); }
+        inline bool HasScale() const { return !m_scale.IsEqual3( Vector::One ); }
         inline bool HasNegativeScale() const { return m_scale.IsAnyLessThan( Vector::Zero ); }
         inline bool HasUniformScale() const { return m_scale.m_x == m_scale.m_y && m_scale.m_y == m_scale.m_z; }
         inline bool HasShearOrSkew() const { auto const abs = m_scale.GetAbs(); return abs.m_x != abs.m_y || abs.m_y != abs.m_z; }
@@ -105,9 +101,9 @@ namespace KRG
         inline Vector TranslateVector( Vector const& vector ) const { return vector + m_translation; }
         inline Vector ScaleVector( Vector const& vector ) const { return vector * m_scale; }
         inline Vector RotateVector( Vector const& vector ) const { return m_rotation.RotateVector( vector ); }
-        inline Vector TransformPoint( Vector const& vector ) const;             // Out: W=1
-        inline Vector TransformPointNoScale( Vector const& vector ) const;      // Out: W=1
-        inline Vector ApplyTransform( Vector const& vector ) const;             // Out: W=W
+        inline Vector TransformPoint( Vector const& vector ) const;
+        inline Vector TransformPointNoScale( Vector const& vector ) const;
+        inline Vector ApplyTransform( Vector const& vector ) const;
 
         // WARNING: The results from multiplying transforms with shear or skew is ill-defined
         inline Transform operator*( Transform const& rhs ) const;
@@ -129,7 +125,7 @@ namespace KRG
     private:
 
         Quaternion  m_rotation = Quaternion( 0, 0, 0, 1 );
-        Vector      m_translation = Vector( 0, 0, 0, 1 );
+        Vector      m_translation = Vector( 0, 0, 0, 0 );
         Vector      m_scale = Vector( 1, 1, 1, 0 );
     };
 
@@ -145,7 +141,7 @@ namespace KRG
             inverseScale.m_x = Math::IsNearZero( m_scale.m_x ) ? 0.0f : 1.0f / m_scale.m_x;
             inverseScale.m_y = Math::IsNearZero( m_scale.m_y ) ? 0.0f : 1.0f / m_scale.m_y;
             inverseScale.m_z = Math::IsNearZero( m_scale.m_z ) ? 0.0f : 1.0f / m_scale.m_z;
-            inverseScale.m_w = 1.0f;
+            inverseScale.m_w = 0.0f;
         }
         else // Just invert
         {
@@ -157,7 +153,7 @@ namespace KRG
 
         Quaternion const inverseRotation = m_rotation.GetInverse();
         Vector inverseTranslation = ( inverseRotation.RotateVector( inverseScale * m_translation ) ).GetNegated();
-        inverseTranslation.SetW1();
+        inverseTranslation.SetW0();
 
         //-------------------------------------------------------------------------
 
@@ -208,7 +204,7 @@ namespace KRG
             inverseScale.m_x = Math::IsNearZero( from.m_scale.m_x ) ? 0.0f : 1.0f / from.m_scale.m_x;
             inverseScale.m_y = Math::IsNearZero( from.m_scale.m_y ) ? 0.0f : 1.0f / from.m_scale.m_y;
             inverseScale.m_z = Math::IsNearZero( from.m_scale.m_z ) ? 0.0f : 1.0f / from.m_scale.m_z;
-            inverseScale.m_w = 1.0f;
+            inverseScale.m_w = 0.0f;
         }
         else // Just invert
         {
@@ -263,7 +259,7 @@ namespace KRG
         Vector const deltaTranslation = to.GetTranslation() - from.GetTranslation();
         delta.m_translation = inverseFromRotation.RotateVector( deltaTranslation );
 
-        delta.m_scale = Vector::One;
+        delta.m_scale = Vector( 1, 1, 1, 0 );
         return delta;
     }
 
@@ -300,7 +296,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        m_translation.SetW1();
+        m_translation.SetW0();
 
         return *this;
     }
@@ -314,18 +310,14 @@ namespace KRG
 
     inline Vector Transform::TransformPoint( Vector const& point ) const
     {
-        KRG_ASSERT( point.IsPoint() );
         Vector transformedPoint = point * m_scale;
         transformedPoint = m_translation + m_rotation.RotateVector( transformedPoint );
-        transformedPoint.SetW1();
         return transformedPoint;
     }
 
     inline Vector Transform::TransformPointNoScale( Vector const& point ) const
     {
-        KRG_ASSERT( point.IsPoint() );
         Vector transformedPoint = m_translation + m_rotation.RotateVector( point );
-        transformedPoint.SetW1();
         return transformedPoint;
     }
 

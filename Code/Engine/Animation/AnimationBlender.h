@@ -5,6 +5,7 @@
 #include "Engine/Animation/AnimationPose.h"
 #include "System/Core/Math/Quaternion.h"
 #include "System/Core/Types/BitFlags.h"
+#include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
 
@@ -12,10 +13,10 @@ namespace KRG::Animation
 {
     enum class PoseBlendOptions
     {
+        KRG_REGISTER_ENUM
+
         Additive = 0,
         GlobalSpace,
-        LockUnmaskedBones,
-        LayeredBlend,
     };
 
     enum class RootMotionBlendOptions

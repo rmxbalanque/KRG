@@ -18,6 +18,7 @@
     <ClInclude Include="Core\Defines.h" />
     <ClInclude Include="Core\Platform\Defines_Win32.h" />
     <ClInclude Include="Debug\DebugDrawingSystem.h" />
+    <ClInclude Include="Math\MathStringHelpers.h" />
     <ClInclude Include="Math\MathHelpers.h" />
     <ClInclude Include="Math\Viewport.h" />
     <ClInclude Include="Serialization\UserTypes\eastl_fixed_vector.hpp" />
@@ -467,6 +468,7 @@
     <ClCompile Include="Algorithm\TopologicalSort.cpp" />
     <ClCompile Include="Algorithm\Encoding.cpp" />
     <ClCompile Include="Debug\DebugDrawingSystem.cpp" />
+    <ClCompile Include="Math\MathStringHelpers.cpp" />
     <ClCompile Include="Math\Viewport.cpp" />
     <ClCompile Include="Debug\DebugDrawingCommands.cpp" />
     <ClCompile Include="Debug\DebugDrawing.cpp" />

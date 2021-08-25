@@ -156,11 +156,16 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE Vector& SetW0() { m_w = 0.0f; return *this; }
-        KRG_FORCE_INLINE Vector& SetW1() { m_w = 1.0f; return *this; }
-
         float& operator[]( uint32 i ) { KRG_ASSERT( i < 4 ); return ( ( float* ) this )[i]; }
         float const& operator[]( uint32 i ) const { KRG_ASSERT( i < 4 ); return ( ( float* ) this )[i]; }
+
+        // W component operations - needed primarily for homogeneous coordinate operations
+        KRG_FORCE_INLINE bool IsW1() const { return m_w == 1.0f; }
+        KRG_FORCE_INLINE bool IsW0() const { return m_w == 0.0f; }
+        KRG_FORCE_INLINE Vector& SetW0() { m_w = 0.0f; return *this; }
+        KRG_FORCE_INLINE Vector& SetW1() { m_w = 1.0f; return *this; }
+        KRG_FORCE_INLINE Vector GetWithW0() const { Vector v = *this; v.SetW0(); return v; }
+        KRG_FORCE_INLINE Vector GetWithW1() const { Vector v = *this; v.SetW1(); return v; }
 
         // Element access (while you can still access the individual elements via the union, that is not performant, and it is preferable to call these functions to go between scalar and vector)
         KRG_FORCE_INLINE float GetX() const { return _mm_cvtss_f32( m_data ); }
@@ -254,14 +259,6 @@ namespace KRG
         }
 
         // Queries
-        KRG_FORCE_INLINE bool IsPoint() const { return m_w == 1.0f; }
-        KRG_FORCE_INLINE Vector const& MakePoint() { SetW1(); return *this; }
-        KRG_FORCE_INLINE Vector const GetAsPoint() const { Vector p = *this; return p.MakePoint(); }
-
-        KRG_FORCE_INLINE bool IsVector() const { return m_w == 0.0f; }
-        KRG_FORCE_INLINE Vector const& MakeVector() { SetW0(); return *this; }
-        KRG_FORCE_INLINE Vector const GetAsVector() const { Vector p = *this; return p.MakeVector(); }
-
         KRG_FORCE_INLINE Vector Length2() const;
         KRG_FORCE_INLINE Vector Length3() const;
         KRG_FORCE_INLINE Vector Length4() const;

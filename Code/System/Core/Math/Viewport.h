@@ -45,7 +45,7 @@ namespace KRG
             void SetViewVolume( Math::ViewVolume const& viewVolume );
             inline Math::ViewVolume const& GetViewVolume() const { return m_viewVolume; }
 
-            inline Vector const& GetViewOrigin() const { return m_viewVolume.GetWorldMatrix().GetTranslation(); }
+            inline Vector GetViewOrigin() const { return m_viewVolume.GetWorldMatrix().GetTranslation(); }
             inline Vector GetViewForwardDirection() const { return m_viewVolume.GetForwardVector(); }
             inline Vector GetViewRightDirection() const { return m_viewVolume.GetRightVector(); }
             inline Vector GetViewUpDirection() const { return m_viewVolume.GetUpVector(); }

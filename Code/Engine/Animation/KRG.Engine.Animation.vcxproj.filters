@@ -69,7 +69,7 @@
     <ClCompile Include="Events\AnimationEvent_ID.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="Events\AnimationEvent_Footstep.cpp">
+    <ClCompile Include="Events\AnimationEvent_Foot.cpp">
       <Filter>Events</Filter>
     </ClCompile>
     <ClCompile Include="Graph\AnimationGraphInstance.cpp">
@@ -93,7 +93,7 @@
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_BoneMask.cpp">
       <Filter>Graph\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Conditions.cpp">
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_BooleanLogic.cpp">
       <Filter>Graph\Nodes</Filter>
     </ClCompile>
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_ConstValues.cpp">
@@ -162,6 +162,10 @@
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_State.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_StateMachine.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Transition.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Layers.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Events.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_StateConditions.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_ID.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -197,7 +201,7 @@
     <ClInclude Include="Events\AnimationEvent_ID.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="Events\AnimationEvent_Footstep.h">
+    <ClInclude Include="Events\AnimationEvent_Foot.h">
       <Filter>Events</Filter>
     </ClInclude>
     <ClInclude Include="Graph\AnimationGraphInstance.h">
@@ -224,7 +228,7 @@
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_BoneMask.h">
       <Filter>Graph\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Conditions.h">
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_BooleanLogic.h">
       <Filter>Graph\Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_ConstValues.h">
@@ -294,6 +298,10 @@
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_State.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_StateMachine.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Transition.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Layers.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Events.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_StateConditions.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_ID.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graph\todo.md">

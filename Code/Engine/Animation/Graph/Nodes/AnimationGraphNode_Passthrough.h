@@ -30,7 +30,7 @@ namespace KRG::Animation::Graph
         virtual void ShutdownInternal( GraphContext& context ) override;
 
         // Syntactic sugar for readability in derived classes
-        inline bool IsChildValid() const { return m_pChildNode->IsValid(); }
+        inline bool IsChildValid() const { return m_pChildNode != nullptr && m_pChildNode->IsValid(); }
 
         virtual PoseNodeResult Update( GraphContext& context ) override;
         virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;

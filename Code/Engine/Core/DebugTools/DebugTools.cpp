@@ -453,7 +453,7 @@ namespace KRG::Debug
     {
         if ( ImGui::BeginMainMenuBar() )
         {
-            ImGui::TextColored( ImGuiX::Theme::s_accentColorDark, KRG_ICON_BUG );
+            ImGui::TextColored( ImGuiX::Theme::s_itemColorLight, KRG_ICON_BUG );
 
             if ( m_mainMenu.IsEmpty() )
             {

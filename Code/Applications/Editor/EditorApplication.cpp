@@ -102,6 +102,8 @@ namespace KRG
 
     bool EditorApplication::ApplicationLoop()
     {
+        ImGuiX::Theme::ApplyTheme();
+
         return m_editorHost.Update();
     }
 

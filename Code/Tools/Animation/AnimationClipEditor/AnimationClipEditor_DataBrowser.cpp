@@ -5,6 +5,7 @@
 #include "Tools/Animation/ResourceCompilers/AnimationClipCompiler.h"
 #include "Tools/Animation/ResourceCompilers/AnimationSkeletonCompiler.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -40,6 +41,8 @@ namespace KRG::Animation
         KRG_ASSERT( m_inspectedFile.IsFilePath() );
 
         ImGui::Text( "Raw File: %s", m_inspectedFile.c_str() );
+        ImGui::Text( "Original Up Axis: %s", Math::ToString( m_assetInfo.m_upAxis ) );
+        ImGui::Text( "Scale: %.2f", m_assetInfo.m_scale );
         ImGui::Separator();
 
         if ( m_validAssetInfo )
@@ -58,6 +61,7 @@ namespace KRG::Animation
                 for ( auto const& skeleton : m_assetInfo.m_skeletons )
                 {
                     ImGui::TableNextRow();
+                    ImGui::PushID( &skeleton );
 
                     ImGui::TableNextColumn();
                     ImGui::AlignTextToFramePadding();
@@ -71,7 +75,6 @@ namespace KRG::Animation
                     //-------------------------------------------------------------------------
 
                     ImGui::TableNextColumn();
-                    ImGui::PushID( &skeleton );
                     if ( ImGui::Button( KRG_ICON_MALE "##CreateSkeleton", ImVec2( 24, 0 ) ) )
                     {
                         SkeletonResourceDescriptor resourceDesc;
@@ -79,9 +82,12 @@ namespace KRG::Animation
                         resourceDesc.m_skeletonRootBoneName = skeleton.m_name;
                         CreateNewDescriptor( Skeleton::GetStaticResourceTypeID(), resourceDesc );
                     }
-                    ImGui::PopID();
 
                     ImGuiX::ItemTooltip( "Create Skeleton" );
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::PopID();
                 }
 
                 //-------------------------------------------------------------------------
@@ -89,6 +95,7 @@ namespace KRG::Animation
                 for ( auto const& anim : m_assetInfo.m_animations )
                 {
                     ImGui::TableNextRow();
+                    ImGui::PushID( &anim );
 
                     ImGui::TableNextColumn();
                     ImGui::AlignTextToFramePadding();
@@ -102,7 +109,6 @@ namespace KRG::Animation
                     //-------------------------------------------------------------------------
 
                     ImGui::TableNextColumn();
-                    ImGui::PushID( &anim );
                     if ( ImGui::Button( KRG_ICON_FILM "##CreateAnimation", ImVec2( 24, 0 ) ) )
                     {
                         AnimationClipResourceDescriptor resourceDesc;
@@ -110,9 +116,12 @@ namespace KRG::Animation
                         resourceDesc.m_animationName = anim.m_name;
                         CreateNewDescriptor( AnimationClip::GetStaticResourceTypeID(), resourceDesc );
                     }
-                    ImGui::PopID();
 
                     ImGuiX::ItemTooltip( "Create Animation" );
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::PopID();
                 }
 
                 ImGui::EndTable();

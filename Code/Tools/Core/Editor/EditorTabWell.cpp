@@ -12,7 +12,9 @@ namespace KRG
         ImGui::SetNextWindowClass( &windowClass );
 
         // Create tab well window
+        ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGuiX::Theme::s_backgroundColorDark );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 8, 0 ) );
         int32 const windowFlags = 0;
         if ( ImGui::Begin( "Open Files Window", nullptr, windowFlags ) )
         {
@@ -40,7 +42,13 @@ namespace KRG
                         {
                             if ( m_model.IsActiveFile( pOpenFile ) )
                             {
-                                pOpenFile->DrawTools( context, viewportManager );
+                                ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGuiX::Theme::s_backgroundColorMedium );
+                                ImGui::BeginChild( "TabContents");
+                                {
+                                    pOpenFile->DrawTools( context, viewportManager );
+                                }
+                                ImGui::EndChild();
+                                ImGui::PopStyleColor();
                             }
                             else
                             {
@@ -69,6 +77,7 @@ namespace KRG
             }
         }
         ImGui::End();
-        ImGui::PopStyleVar();
+        ImGui::PopStyleVar( 2 );
+        ImGui::PopStyleColor();
     }
 }

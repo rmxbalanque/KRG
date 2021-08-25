@@ -436,8 +436,8 @@ namespace KRG::TypeSystem::Conversion
                     StringToFloatArray( str, 9, floatData );
 
                     EulerAngles const rotation( floatData[0], floatData[1], floatData[2] );
-                    Vector const translation( floatData[3], floatData[4], floatData[5], 1.0f );
-                    Vector const scale( floatData[6], floatData[7], floatData[8], 1.0f );
+                    Vector const translation( floatData[3], floatData[4], floatData[5] );
+                    Vector const scale( floatData[6], floatData[7], floatData[8] );
                     *reinterpret_cast<Transform*>( pValue ) = Transform( Quaternion( rotation ), translation, scale );
                 }
                 break;

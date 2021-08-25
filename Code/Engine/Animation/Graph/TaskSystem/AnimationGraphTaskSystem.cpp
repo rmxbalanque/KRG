@@ -156,26 +156,33 @@ namespace KRG::Animation::Graph
         // Reflect animation pose out
         //-------------------------------------------------------------------------
 
-        auto pFinalTask = m_tasks.back();
-        KRG_ASSERT( pFinalTask->IsComplete() );
-        PoseBuffer const* pResultPoseBuffer = m_posePool.GetBuffer( pFinalTask->GetResultBufferIndex() );
-        Pose const* pResultPose = &pResultPoseBuffer->m_pose;
-
-        // Always return a non-additive pose
-        if ( pResultPose->IsAdditivePose() )
+        if ( !m_tasks.empty() )
         {
-            outPose.Reset( Pose::InitialState::ReferencePose );
-            TBitFlags<PoseBlendOptions> blendOptions( PoseBlendOptions::Additive );
-            Blender::Blend( &outPose, pResultPose, 1.0f, blendOptions, nullptr, &outPose );
-        }
-        else // Just copy the pose
-        {
-            outPose.CopyFrom( pResultPoseBuffer->m_pose );
-        }
+            auto pFinalTask = m_tasks.back();
+            KRG_ASSERT( pFinalTask->IsComplete() );
+            PoseBuffer const* pResultPoseBuffer = m_posePool.GetBuffer( pFinalTask->GetResultBufferIndex() );
+            Pose const* pResultPose = &pResultPoseBuffer->m_pose;
 
-        // Calculate the global transforms and release the task pose buffer
-        outPose.CalculateGlobalTransforms();
-        m_posePool.ReleasePoseBuffer( pFinalTask->GetResultBufferIndex() );
+            // Always return a non-additive pose
+            if ( pResultPose->IsAdditivePose() )
+            {
+                outPose.Reset( Pose::InitialState::ReferencePose );
+                TBitFlags<PoseBlendOptions> blendOptions( PoseBlendOptions::Additive );
+                Blender::Blend( &outPose, pResultPose, 1.0f, blendOptions, nullptr, &outPose );
+            }
+            else // Just copy the pose
+            {
+                outPose.CopyFrom( pResultPoseBuffer->m_pose );
+            }
+
+            // Calculate the global transforms and release the task pose buffer
+            outPose.CalculateGlobalTransforms();
+            m_posePool.ReleasePoseBuffer( pFinalTask->GetResultBufferIndex() );
+        }
+        else
+        {
+            outPose.Reset( Pose::InitialState::ReferencePose, true );
+        }
     }
 
     void TaskSystem::ExecuteTasks()

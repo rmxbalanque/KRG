@@ -40,7 +40,7 @@ namespace KRG::RawAssets
         inline int32 GetNumBones() const { return (int32) m_bones.size(); }
 
         int32 GetBoneIndex( StringID const& boneName ) const;
-        inline int32 GetParentIndex( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_parentBoneIdx; }
+        inline int32 GetParentBoneIndex( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_parentBoneIdx; }
         inline Transform const& GetLocalTransform( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_localTransform; }
         inline Transform const& GetGlobalTransform( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_globalTransform; }
 

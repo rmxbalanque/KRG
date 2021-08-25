@@ -8,7 +8,7 @@
 
 namespace KRG::Animation::Graph
 {
-    class StateToolsNode;
+    class StateBaseToolsNode;
 
     //-------------------------------------------------------------------------
 
@@ -72,9 +72,11 @@ namespace KRG::Animation::Graph
 
     public:
 
-        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
+        bool HasTransitions() const;
 
+        virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
         virtual char const* GetTypeName() const override { return "Transition"; }
+        virtual ImColor GetHighlightColor() const override;
     };
 
     // The Flow graph for the state machine node
@@ -88,7 +90,9 @@ namespace KRG::Animation::Graph
 
         GlobalTransitionsToolsGraph() : FlowToolGraph( GraphType::ValueTree ) {}
 
-        void Update( TInlineVector<StateToolsNode*, 20> const& states );
+        void Update( TInlineVector<StateBaseToolsNode*, 20> const& states );
+
+        bool HasGlobalTransitionForState( UUID const& stateID ) const;
     };
 
     // State machine node
@@ -102,9 +106,14 @@ namespace KRG::Animation::Graph
 
         virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
-        inline void Update( TInlineVector<StateToolsNode*, 20> const& states )
+        inline void Update( TInlineVector<StateBaseToolsNode*, 20> const& states )
         {
             Cast<GlobalTransitionsToolsGraph>( GetSecondaryGraph() )->Update( states );
+        }
+
+        inline bool HasGlobalTransitionForState( UUID const& stateID ) const
+        {
+            return Cast<GlobalTransitionsToolsGraph>( GetSecondaryGraph() )->HasGlobalTransitionForState( stateID );
         }
 
         virtual ImColor GetHighlightColor() const override { return ImGuiX::ConvertColor( Colors::OrangeRed ); }

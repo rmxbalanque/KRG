@@ -248,8 +248,8 @@ namespace KRG
             // We only render a single row here (so we dont bust the imgui index buffer limits for a single tree) - At low frame rates this will flicker
             if ( m_estimatedTreeHeight < 0 )
             {
-                ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_accentColorDark );
-                ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_accentColorDark );
+                ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_itemColorMedium );
+                ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_itemColorMedium );
                 constexpr static ImGuiTableFlags const flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
                 if ( ImGui::BeginTable( "TreeViewTable", 2, flags, ImVec2( ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x / 2, 0 ) ) )
                 {
@@ -305,8 +305,8 @@ namespace KRG
                 ImGui::Dummy( ImVec2( -1, currentVerticalScrollPosition ) );
 
                 // Draw table rows
-                ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_accentColorDark );
-                ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_accentColorDark );
+                ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_itemColorMedium );
+                ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_itemColorSemiLight );
                 constexpr static ImGuiTableFlags const flagss = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_Resizable;
                 if ( ImGui::BeginTable( "Tree View Browser", 2, flagss, ImVec2( ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x / 2, 0 ) ) )
                 {

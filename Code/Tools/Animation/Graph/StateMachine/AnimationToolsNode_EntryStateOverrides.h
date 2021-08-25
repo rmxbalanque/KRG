@@ -7,7 +7,7 @@
 
 namespace KRG::Animation::Graph
 {
-    class StateToolsNode;
+    class StateBaseToolsNode;
 
     // The result node for the entry state overrides
     //-------------------------------------------------------------------------
@@ -24,7 +24,7 @@ namespace KRG::Animation::Graph
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::ValueTree ); }
         virtual bool IsUserCreatable() const override { return false; }
 
-        void Update( TInlineVector<StateToolsNode*, 20> const& states );
+        void Update( TInlineVector<StateBaseToolsNode*, 20> const& states );
 
     private:
 
@@ -45,7 +45,7 @@ namespace KRG::Animation::Graph
 
         virtual void Initialize( GraphEditor::BaseNode* pParentNode ) override;
 
-        void Update( TInlineVector<StateToolsNode*, 20> const& states );
+        void Update( TInlineVector<StateBaseToolsNode*, 20> const& states );
     };
 
     // State machine node
@@ -59,7 +59,7 @@ namespace KRG::Animation::Graph
 
         virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
-        inline void Update( TInlineVector<StateToolsNode*, 20> const& states )
+        inline void Update( TInlineVector<StateBaseToolsNode*, 20> const& states )
         {
             Cast<EntryStateOverrideGraph>( GetSecondaryGraph() )->Update( states );
         }

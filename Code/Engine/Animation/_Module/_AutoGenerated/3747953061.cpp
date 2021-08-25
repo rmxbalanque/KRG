@@ -131,6 +131,42 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
+// TypeHelper: KRG::Animation::Graph::FloatComparisonNode::Settings
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    TypeSystem::TypeInfo const* KRG::Animation::Graph::FloatComparisonNode::Settings::s_pTypeInfo = nullptr;
+    namespace TypeSystem
+    {
+        namespace TypeHelpers
+        {
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+
+            TTypeHelper<KRG::Animation::Graph::FloatComparisonNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatComparisonNode::Settings>::StaticTypeHelper;
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
+// TypeHelper: KRG::Animation::Graph::FloatRangeComparisonNode::Settings
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    TypeSystem::TypeInfo const* KRG::Animation::Graph::FloatRangeComparisonNode::Settings::s_pTypeInfo = nullptr;
+    namespace TypeSystem
+    {
+        namespace TypeHelpers
+        {
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::FloatRangeComparisonNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+
+            TTypeHelper<KRG::Animation::Graph::FloatRangeComparisonNode::Settings> TTypeHelper<KRG::Animation::Graph::FloatRangeComparisonNode::Settings>::StaticTypeHelper;
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::Graph::TargetInfoNode::Settings
 //-------------------------------------------------------------------------
 
@@ -144,6 +180,24 @@ namespace KRG
             IRegisteredType const* TTypeHelper<KRG::Animation::Graph::TargetInfoNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::TargetInfoNode::Settings> TTypeHelper<KRG::Animation::Graph::TargetInfoNode::Settings>::StaticTypeHelper;
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
+// TypeHelper: KRG::Animation::Graph::IsTargetSetNode::Settings
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    TypeSystem::TypeInfo const* KRG::Animation::Graph::IsTargetSetNode::Settings::s_pTypeInfo = nullptr;
+    namespace TypeSystem
+    {
+        namespace TypeHelpers
+        {
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings>::s_pDefaultTypeInstancePtr = nullptr;
+
+            TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings> TTypeHelper<KRG::Animation::Graph::IsTargetSetNode::Settings>::StaticTypeHelper;
         }
     }
 }

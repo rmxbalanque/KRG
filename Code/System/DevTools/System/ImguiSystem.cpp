@@ -193,6 +193,7 @@ namespace KRG::ImGuiX
         //-------------------------------------------------------------------------
 
         io.Fonts->Build();
+        KRG_ASSERT( io.Fonts->IsBuilt() );
         io.FontDefault = pSmallFont;
 
         #if KRG_DEVELOPMENT_TOOLS

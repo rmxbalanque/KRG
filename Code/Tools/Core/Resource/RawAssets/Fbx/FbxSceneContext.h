@@ -39,6 +39,8 @@ namespace KRG::Fbx
         inline bool IsValid() const { return m_pManager != nullptr && m_pScene != nullptr && m_error.empty(); }
         inline String const& GetErrorMessage() const { return m_error; }
 
+        inline Axis GetOriginalUpAxis() const { return m_originalUpAxis; }
+
         // Scene helpers
         //-------------------------------------------------------------------------
 
@@ -74,34 +76,12 @@ namespace KRG::Fbx
             auto const S = fbxMatrix.GetS();
 
             auto const rotation = Quaternion( (float) Q[0], (float) Q[1], (float) Q[2], (float) Q[3] ).GetNormalized();
-            auto const translation = Vector( (float) T[0], (float) T[1], (float) T[2], 1.0f );
-            auto const scale = Vector( (float) S[0], (float) S[1], (float) S[2], 0.0f );
+            auto const translation = Vector( (float) T[0], (float) T[1], (float) T[2] );
+            auto const scale = Vector( (float) S[0], (float) S[1], (float) S[2] );
 
             Transform transform( rotation, translation, scale );
             transform.SanitizeScaleValues();
             return transform;
-        }
-
-        inline Vector ConvertVector( FbxVector4 const& fbxVector ) const
-        {
-            Vector krgVector( (float) fbxVector[0], (float) fbxVector[1], (float) fbxVector[2], 1.0f );
-            return krgVector;
-        }
-
-        // Up Axis Correction
-        //-------------------------------------------------------------------------
-        // This is not universally needed since the FBX scene deep convert corrects certain transforms
-
-        inline Transform ApplyUpAxisCorrection( Transform const& transform ) const
-        {
-            Transform correctedMatrix = m_upAxisCorrectionTransform * transform;
-            return correctedMatrix;
-        }
-
-        inline Vector ApplyUpAxisCorrection( Vector const& point ) const
-        {
-            Vector correctedVector = m_upAxisCorrectionTransform.TransformPoint( point );
-            return correctedVector;
         }
 
         // Scale correction
@@ -130,8 +110,8 @@ namespace KRG::Fbx
     private:
 
         String                      m_error;
-        float                         m_scaleConversionMultiplier = 1.0f;
+        Axis                        m_originalUpAxis = Axis::Z;
+        float                       m_scaleConversionMultiplier = 1.0f;
         Transform                   m_scaleConversionTransform;
-        Transform                   m_upAxisCorrectionTransform;
     };
 }

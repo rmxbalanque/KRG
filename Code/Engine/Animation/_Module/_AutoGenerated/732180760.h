@@ -13,13 +13,13 @@
 #include "D:\Kruger\Code\Engine\Animation\Events\AnimationEvent_ID.h"
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::Animation::Events::IDEvent
+// TypeHelper: KRG::Animation::IDEvent
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Events::IDEvent& type )
+    KRG_ENGINE_ANIMATION_API void serialize( Archive& archive, KRG::Animation::IDEvent& type )
     {
         archive( cereal::base_class<KRG::Animation::Event>( &type ), KRG_NVP( m_startTime ), KRG_NVP( m_duration ), KRG_NVP( m_ID ) );
     }
@@ -29,10 +29,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Events::IDEvent> >( IRegisteredType const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::IDEvent> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Animation::Events::IDEvent const* pActualDefaultTypeInstance = ( KRG::Animation::Events::IDEvent const* ) pDefaultTypeInstance;
+            KRG::Animation::IDEvent const* pActualDefaultTypeInstance = ( KRG::Animation::IDEvent const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
 
@@ -40,10 +40,10 @@ namespace KRG
 
             propertyInfo.m_ID = StringID( "m_startTime" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Seconds" );
-            propertyInfo.m_parentTypeID = 4142154412;
+            propertyInfo.m_parentTypeID = 3630453868;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_startTime;
-            propertyInfo.m_offset = offsetof( KRG::Animation::Events::IDEvent, m_startTime );
+            propertyInfo.m_offset = offsetof( KRG::Animation::IDEvent, m_startTime );
             propertyInfo.m_size = sizeof( KRG::Seconds );
             propertyInfo.m_flags.Set( 0 );
             m_properties.emplace_back( propertyInfo );
@@ -53,10 +53,10 @@ namespace KRG
 
             propertyInfo.m_ID = StringID( "m_duration" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Seconds" );
-            propertyInfo.m_parentTypeID = 4142154412;
+            propertyInfo.m_parentTypeID = 3630453868;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_duration;
-            propertyInfo.m_offset = offsetof( KRG::Animation::Events::IDEvent, m_duration );
+            propertyInfo.m_offset = offsetof( KRG::Animation::IDEvent, m_duration );
             propertyInfo.m_size = sizeof( KRG::Seconds );
             propertyInfo.m_flags.Set( 0 );
             m_properties.emplace_back( propertyInfo );
@@ -66,10 +66,10 @@ namespace KRG
 
             propertyInfo.m_ID = StringID( "m_ID" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::StringID" );
-            propertyInfo.m_parentTypeID = 4142154412;
+            propertyInfo.m_parentTypeID = 3630453868;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_ID;
-            propertyInfo.m_offset = offsetof( KRG::Animation::Events::IDEvent, m_ID );
+            propertyInfo.m_offset = offsetof( KRG::Animation::IDEvent, m_ID );
             propertyInfo.m_size = sizeof( KRG::StringID );
             propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
@@ -81,9 +81,9 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::Events::IDEvent> final : public ITypeHelper
+            class KRG_ENGINE_ANIMATION_API TTypeHelper<KRG::Animation::IDEvent> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::Animation::Events::IDEvent> StaticTypeHelper;
+                static TTypeHelper<KRG::Animation::IDEvent> StaticTypeHelper;
 
                 static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
@@ -94,13 +94,13 @@ namespace KRG
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::Events::IDEvent ), alignof( KRG::Animation::Events::IDEvent ) );
-                    new ( pDefaultTypeInstance ) KRG::Animation::Events::IDEvent;
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Animation::IDEvent ), alignof( KRG::Animation::IDEvent ) );
+                    new ( pDefaultTypeInstance ) KRG::Animation::IDEvent;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::Events::IDEvent" );
-                    typeInfo.m_size = sizeof( KRG::Animation::Events::IDEvent );
-                    typeInfo.m_alignment = alignof( KRG::Animation::Events::IDEvent );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Animation::IDEvent" );
+                    typeInfo.m_size = sizeof( KRG::Animation::IDEvent );
+                    typeInfo.m_alignment = alignof( KRG::Animation::IDEvent );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -115,48 +115,48 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Events::IDEvent> >( s_pDefaultTypeInstancePtr );
-                    KRG::Animation::Events::IDEvent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    typeInfo.RegisterProperties< KRG::TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::IDEvent> >( s_pDefaultTypeInstancePtr );
+                    KRG::Animation::IDEvent::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::Animation::Events::IDEvent" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Animation::IDEvent" );
                     typeRegistry.UnregisterType( ID );
 
                     IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Animation::Events::IDEvent*>( pDefaultTypeInstance )->~IDEvent();
+                    reinterpret_cast<KRG::Animation::IDEvent*>( pDefaultTypeInstance )->~IDEvent();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
                 virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::Animation::Events::IDEvent>();
+                    return KRG::New<KRG::Animation::IDEvent>();
                 }
 
                 virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::Animation::Events::IDEvent();
+                    new( pAllocatedMemory ) KRG::Animation::IDEvent();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pType );
 
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pType );
 
                 }
 
                 virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
@@ -164,7 +164,7 @@ namespace KRG
 
                 virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
@@ -172,7 +172,7 @@ namespace KRG
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
@@ -180,7 +180,7 @@ namespace KRG
 
                 virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -189,7 +189,7 @@ namespace KRG
 
                 virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -205,7 +205,7 @@ namespace KRG
 
                 virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -213,7 +213,7 @@ namespace KRG
 
                 virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -221,7 +221,7 @@ namespace KRG
 
                 virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -229,9 +229,9 @@ namespace KRG
 
                 virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::Animation::Events::IDEvent::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::Animation::Events::IDEvent const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Events::IDEvent const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Animation::IDEvent::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Animation::IDEvent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::IDEvent const*>( pOtherTypeInstance );
 
                     if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 642514472 ) )
                     {
@@ -253,8 +253,8 @@ namespace KRG
 
                 virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::Animation::Events::IDEvent const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::Animation::Events::IDEvent const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Animation::IDEvent const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Animation::IDEvent const*>( pOtherTypeInstance );
 
                     if ( propertyID == 642514472 )
                     {
@@ -276,8 +276,8 @@ namespace KRG
 
                 virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::Animation::Events::IDEvent const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::Animation::Events::IDEvent*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Animation::IDEvent const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Animation::IDEvent*>( pTypeInstance );
 
                     if ( propertyID == 642514472 )
                     {

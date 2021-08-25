@@ -5,11 +5,11 @@
 
 namespace KRG::Animation::Graph
 {
-    void EntryStateOverrideConditionsNode::Update( TInlineVector<StateToolsNode*, 20> const& states )
+    void EntryStateOverrideConditionsNode::Update( TInlineVector<StateBaseToolsNode*, 20> const& states )
     {
         int32 const numOriginalInputPins = GetNumInputPins();
 
-        TInlineVector<StateToolsNode*, 20> pinsToCreate;
+        TInlineVector<StateBaseToolsNode*, 20> pinsToCreate;
         TInlineVector<UUID, 20> pinsToRemove;
 
         for ( auto const& pin : GetInputPins() )
@@ -70,7 +70,7 @@ namespace KRG::Animation::Graph
         CreateNode<EntryStateOverrideConditionsNode>();
     }
 
-    void EntryStateOverrideGraph::Update( TInlineVector<StateToolsNode*, 20> const& states )
+    void EntryStateOverrideGraph::Update( TInlineVector<StateBaseToolsNode*, 20> const& states )
     {
         auto conditionNodes = FindAllNodesOfType<EntryStateOverrideConditionsNode>();
         KRG_ASSERT( conditionNodes.size() == 1 );

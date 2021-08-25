@@ -105,6 +105,14 @@
       "Command": "Animation",
       "Items": [
         {
+          "Id": "fe3f7226-4f1e-44fa-8a8b-974dc399976c",
+          "Command": "-compile data://animation/amplify/Amplify_AnimationPack.skel"
+        },
+        {
+          "Id": "12aa3e43-0ff4-4341-99f7-bc6713c1ab71",
+          "Command": "-compile data://animation/amplify/amplify_animationpack.anim"
+        },
+        {
           "Id": "da2fcc9c-9dcb-4151-8ba8-9e86c59b2324",
           "Command": "-compile data://animation/animGraph.agv"
         },
@@ -135,10 +143,6 @@
         {
           "Id": "aff58edf-520e-486d-80a0-188bf56ffe85",
           "Command": "-compile data://packs/br/textures/polygonbattleroyale_vehicles_01_damaged.txtr"
-        },
-        {
-          "Id": "fe3f7226-4f1e-44fa-8a8b-974dc399976c",
-          "Command": "-compile data://gltf/gltf_test.anim"
         },
         {
           "Id": "664e2fc0-ce82-40d3-a5fb-0625e0fec712",

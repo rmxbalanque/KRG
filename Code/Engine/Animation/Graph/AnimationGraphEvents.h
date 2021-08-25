@@ -62,8 +62,8 @@ namespace KRG::Animation::Graph
         inline T const* GetEvent() const
         {
             KRG_ASSERT( !IsStateEvent() );
-            KRG_ASSERT( m_pEvent->GetTypeInfo()->IsDerivedFrom( T::s_pTypeInfo.m_ID ) );
-            return static_cast<T const*>( m_pEvent );
+            KRG_ASSERT( m_eventData.m_pEvent->GetTypeInfo()->IsDerivedFrom( T::s_pTypeInfo->m_ID ) );
+            return static_cast<T const*>( m_eventData.m_pEvent );
         }
 
         // Flags

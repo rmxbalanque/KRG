@@ -8,6 +8,6 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
-    KRG_SYSTEM_DEVTOOLS_API bool DrawSpinner( char const* pLabel, ImVec4 color = Theme::s_accentColor, float radius = 6.0f, float thickness = 3.0f );
+    KRG_SYSTEM_DEVTOOLS_API bool DrawSpinner( char const* pLabel, ImVec4 color = Theme::s_textColor, float radius = 6.0f, float thickness = 3.0f );
 }
 #endif

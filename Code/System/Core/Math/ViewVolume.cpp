@@ -10,11 +10,11 @@ namespace KRG
         // Creates a Y-up view matrix for rendering from a Z-up world transform
         static Matrix CalculateViewMatrix( Matrix const& worldTransform )
         {
-            Vector const& eyePos = worldTransform.GetTranslation();
+            Vector const& eyePos = worldTransform.GetTranslationWithW();
             Vector const& eyeDir = worldTransform.GetAxisY();
             Vector const& upDir = worldTransform.GetAxisZ();
 
-            KRG_ASSERT( !eyeDir.IsZero3() && !eyeDir.IsInfinite3() && !upDir.IsZero3() && !upDir.IsInfinite3() );
+            KRG_ASSERT( eyePos.IsW1() && !eyeDir.IsZero3() && !eyeDir.IsInfinite3() && !upDir.IsZero3() && !upDir.IsInfinite3() );
 
             Vector eyeDirectionLH = eyeDir.GetNegated();
             Vector R2 = eyeDirectionLH.GetNormalized3();

@@ -9,6 +9,7 @@
 #include "gltf/gltfAnimation.h"
 #include "gltf/gltfInfo.h"
 #include "System/Core/Logging/Log.h"
+#include "System/Core/Types/String.h"
 
 //-------------------------------------------------------------------------
 
@@ -182,9 +183,9 @@ namespace KRG::RawAssets
         }
         else
         {
-            char buffer[512];
-            Printf( buffer, 512, "unsupported extension: %s", sourceFilePath.c_str() );
-            ctx.m_errorDelegate( buffer );
+            InlineString<512> errorString;
+            errorString.sprintf( "unsupported extension: %s", sourceFilePath.c_str() );
+            ctx.m_errorDelegate( errorString.c_str() );
         }
 
         //-------------------------------------------------------------------------

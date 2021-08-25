@@ -23,6 +23,24 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
+// TypeHelper: KRG::Animation::Graph::StateBaseToolsNode
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    TypeSystem::TypeInfo const* KRG::Animation::Graph::StateBaseToolsNode::s_pTypeInfo = nullptr;
+    namespace TypeSystem
+    {
+        namespace TypeHelpers
+        {
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::StateBaseToolsNode>::s_pDefaultTypeInstancePtr = nullptr;
+
+            TTypeHelper<KRG::Animation::Graph::StateBaseToolsNode> TTypeHelper<KRG::Animation::Graph::StateBaseToolsNode>::StaticTypeHelper;
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::Graph::StateToolsNode::TimedStateEvent
 //-------------------------------------------------------------------------
 
@@ -54,6 +72,24 @@ namespace KRG
             IRegisteredType const* TTypeHelper<KRG::Animation::Graph::StateToolsNode>::s_pDefaultTypeInstancePtr = nullptr;
 
             TTypeHelper<KRG::Animation::Graph::StateToolsNode> TTypeHelper<KRG::Animation::Graph::StateToolsNode>::StaticTypeHelper;
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
+// TypeHelper: KRG::Animation::Graph::OffStateToolsNode
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    TypeSystem::TypeInfo const* KRG::Animation::Graph::OffStateToolsNode::s_pTypeInfo = nullptr;
+    namespace TypeSystem
+    {
+        namespace TypeHelpers
+        {
+            IRegisteredType const* TTypeHelper<KRG::Animation::Graph::OffStateToolsNode>::s_pDefaultTypeInstancePtr = nullptr;
+
+            TTypeHelper<KRG::Animation::Graph::OffStateToolsNode> TTypeHelper<KRG::Animation::Graph::OffStateToolsNode>::StaticTypeHelper;
         }
     }
 }

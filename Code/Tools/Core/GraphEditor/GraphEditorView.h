@@ -82,6 +82,9 @@ namespace KRG::GraphEditor
 
         bool BeginDrawCanvas( float childHeightOverride );
         void EndDrawCanvas();
+
+        // User implementable function to draw any additional information needed in the graph (called after everything is drawn)
+        virtual void DrawExtraInformation( DrawingContext const& ctx ) {}
     
         // Dragging
         //-------------------------------------------------------------------------

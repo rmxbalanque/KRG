@@ -5,7 +5,7 @@
 
 namespace KRG::Animation::Graph
 {
-    class StateToolsNode;
+    class StateBaseToolsNode;
     class TransitionToolsNode;
 
     //-------------------------------------------------------------------------
@@ -21,13 +21,15 @@ namespace KRG::Animation::Graph
         virtual char const* GetDisplayName() const override { return m_name.c_str(); }
         virtual char const* GetTypeName() const override { return "State Machine"; }
         virtual char const* GetCategory() const override { return "State Machine"; }
+        virtual ImColor GetHighlightColor() const override { return ImGuiX::ConvertColor( Colors::CornflowerBlue ); }
+
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
 
     private:
 
-        NodeIndex CompileState( ToolsGraphCompilationContext& context, StateToolsNode const* pState ) const;
-        NodeIndex CompileTransition( ToolsGraphCompilationContext& context, TransitionToolsNode const* pTransition, NodeIndex targetStateNodeIdx ) const;
+        NodeIndex CompileState( ToolsGraphCompilationContext& context, StateBaseToolsNode const* pBaseStateNode ) const;
+        NodeIndex CompileTransition( ToolsGraphCompilationContext& context, TransitionToolsNode const* pTransitionNode, NodeIndex targetStateNodeIdx ) const;
 
     private:
 

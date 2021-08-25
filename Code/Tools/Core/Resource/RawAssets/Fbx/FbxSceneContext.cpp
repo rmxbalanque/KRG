@@ -40,9 +40,30 @@ namespace KRG::Fbx
 
         FbxAxisSystem const originalAxisSystem = globalSettings.GetAxisSystem();
 
+        int32 sign = 0;
+        switch ( originalAxisSystem.GetUpVector( sign ) )
+        {
+            case FbxAxisSystem::eXAxis : 
+            {
+                m_originalUpAxis = sign >= 0 ? Axis::X : Axis::NegX;
+            }
+            break;
+
+            case FbxAxisSystem::eYAxis:
+            {
+                m_originalUpAxis = sign >= 0 ? Axis::Y : Axis::NegY;
+            }
+            break;
+
+            case FbxAxisSystem::eZAxis:
+            {
+                m_originalUpAxis = sign >= 0 ? Axis::Z : Axis::NegZ;
+            }
+            break;
+        }
+
         if ( originalAxisSystem != FbxAxisSystem::MayaZUp || originalAxisSystem != FbxAxisSystem::Max )
         {
-            m_upAxisCorrectionTransform = Transform( Quaternion( EulerAngles( 90, 0, 0 ) ) );
             FbxAxisSystem::MayaZUp.DeepConvertScene( m_pScene );
         }
 

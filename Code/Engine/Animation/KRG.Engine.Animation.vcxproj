@@ -24,7 +24,7 @@
     <ClInclude Include="Components\AnimationComponent.h" />
     <ClInclude Include="Debug\AnimationDebugDrawing.h" />
     <ClInclude Include="Events\AnimationEvent_ID.h" />
-    <ClInclude Include="Events\AnimationEvent_Footstep.h" />
+    <ClInclude Include="Events\AnimationEvent_Foot.h" />
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
     <ClInclude Include="Graph\AnimationGraphInstance.h" />
@@ -36,8 +36,11 @@
     <ClInclude Include="Graph\AnimationGraphNode.h" />
     <ClInclude Include="Graph\AnimationGraphContexts.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_BoneMask.h" />
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Conditions.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_BooleanLogic.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_ConstValues.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Events.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_ID.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Layers.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Parameters.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Math.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Passthrough.h" />
@@ -48,6 +51,7 @@
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Selector.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_SpeedScale.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_State.h" />
+    <ClInclude Include="Graph\Nodes\AnimationGraphNode_StateConditions.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_StateMachine.h" />
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Transition.h" />
     <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_CachedPose.h" />
@@ -78,7 +82,7 @@
     <ClCompile Include="Debug\AnimationDebugDrawing.cpp" />
     <ClCompile Include="AnimationEvent.cpp" />
     <ClCompile Include="Events\AnimationEvent_ID.cpp" />
-    <ClCompile Include="Events\AnimationEvent_Footstep.cpp" />
+    <ClCompile Include="Events\AnimationEvent_Foot.cpp" />
     <ClCompile Include="AnimationTarget.cpp" />
     <ClCompile Include="Graph\AnimationGraphInstance.cpp" />
     <ClCompile Include="Graph\AnimationGraphBoneMaskPool.cpp" />
@@ -88,8 +92,11 @@
     <ClCompile Include="Graph\AnimationGraphNode.cpp" />
     <ClCompile Include="Graph\AnimationGraphContexts.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_BoneMask.cpp" />
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Conditions.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_BooleanLogic.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_ConstValues.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Events.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_ID.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Layers.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Math.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Passthrough.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Pose.cpp" />
@@ -100,6 +107,7 @@
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Selector.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_SpeedScale.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_State.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationGraphNode_StateConditions.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_StateMachine.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Transition.cpp" />
     <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_CachedPose.cpp" />

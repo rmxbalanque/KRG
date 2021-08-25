@@ -25,24 +25,7 @@ namespace KRG::Animation::Graph::Tasks
         auto pTargetBuffer = AccessDependencyPoseBuffer( context, 1 );
         auto pFinalBuffer = pSourceBuffer;
 
-        // Ensure the global pose is created as it will be needed during the blend
-        if ( m_blendOptions.IsFlagSet( PoseBlendOptions::LockUnmaskedBones ) )
-        {
-            PoseBuffer* pTemporaryBuffer = nullptr;
-            int8 tempBufferIdx = GetTemporaryPoseBuffer( context, pTemporaryBuffer );
-            KRG_ASSERT( pTemporaryBuffer != nullptr );
-
-            // We need to make a copy of the pose since the lock-unmasked bones requires that the source and the target are not the same pose
-            pTemporaryBuffer->m_pose.CopyFrom( pSourceBuffer->m_pose );
-            pTemporaryBuffer->m_pose.CalculateGlobalTransforms();
-            Blender::Blend( &pTemporaryBuffer->m_pose, &pTargetBuffer->m_pose, m_blendWeight, m_blendOptions, m_pBoneMask, &pFinalBuffer->m_pose );
-
-            ReleaseTemporaryPoseBuffer( context, tempBufferIdx );
-        }
-        else
-        {
-            Blender::Blend( &pSourceBuffer->m_pose, &pTargetBuffer->m_pose, m_blendWeight, m_blendOptions, m_pBoneMask, &pFinalBuffer->m_pose );
-        }
+        Blender::Blend( &pSourceBuffer->m_pose, &pTargetBuffer->m_pose, m_blendWeight, m_blendOptions, m_pBoneMask, &pFinalBuffer->m_pose );
 
         // Release source result
         ConsumePoseBuffer( context, 1 );

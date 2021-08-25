@@ -373,6 +373,7 @@
       <Filter>ThirdParty\EA\EASTL\Source</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\JsonArchive.cpp" />
+    <ClCompile Include="Math\MathStringHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Viewport.h">
@@ -1717,6 +1718,7 @@
     <ClInclude Include="Settings\ISettings.h" />
     <ClInclude Include="Serialization\JsonArchive.h" />
     <ClInclude Include="Serialization\UserTypes\eastl_fixed_vector.hpp" />
+    <ClInclude Include="Math\MathStringHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EA.props">

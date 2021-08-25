@@ -113,10 +113,21 @@ namespace KRG::RawAssets
             {
                 StringID const& boneName = rawAnimation.m_skeleton.GetBoneName( boneIdx );
                 RawAnimation::TrackData& animTrack = rawAnimation.m_tracks[boneIdx];
+                FbxNode* pBoneNode = sceneCtx.m_pScene->FindNodeByName( boneName.c_str() );
+
+                // Get the parent node for non-root bones
+                FbxNode* pParentBoneNode = nullptr;
+                if ( boneIdx != 0 )
+                {
+                    int32 const parentBoneIdx = rawAnimation.m_skeleton.GetParentBoneIndex( boneIdx );
+                    KRG_ASSERT( parentBoneIdx != InvalidIndex );
+                    StringID const parentBoneName = rawAnimation.m_skeleton.GetBoneName( parentBoneIdx );
+                    pParentBoneNode = sceneCtx.m_pScene->FindNodeByName( parentBoneName.c_str() );
+                    KRG_ASSERT( pParentBoneNode != nullptr );
+                }
 
                 // Find a node that matches skeleton joint
-                FbxNode* pNode = sceneCtx.m_pScene->FindNodeByName( boneName.c_str() );
-                if ( pNode == nullptr )
+                if ( pBoneNode == nullptr )
                 {
                     rawAnimation.LogWarning( "Warning: No animation track found for bone (%s), Using skeleton bind pose instead.", boneName.c_str() );
 
@@ -135,11 +146,20 @@ namespace KRG::RawAssets
                     float currentTime = rawAnimation.m_start;
                     for ( auto l = 0u; l < rawAnimation.m_numFrames; l++, currentTime += samplingTimeStep )
                     {
-                        // Get bone transform at current time, and store components per track
-                        // Note: We need to apply the scale correction manually to the translation value, since the scene conversion doesnt modify the local transforms
-                        FbxAMatrix nodeLocalTransform = pEvaluator->GetNodeLocalTransform( pNode, FbxTimeSeconds( currentTime ) );
-                        nodeLocalTransform.SetT( nodeLocalTransform.GetT() * sceneCtx.GetScaleConversionMultiplier() );
-                        animTrack.m_transforms.emplace_back( sceneCtx.ConvertMatrixToTransform( nodeLocalTransform ) );
+                        // Root bone is already in local space
+                        if ( boneIdx == 0 )
+                        {
+                            FbxAMatrix nodeGlobalTransform = pEvaluator->GetNodeGlobalTransform( pBoneNode, FbxTimeSeconds( currentTime ) );
+                            animTrack.m_transforms.emplace_back( sceneCtx.ConvertMatrixToTransform( nodeGlobalTransform ) );
+                        }
+                        else // Read the global transforms and convert to local
+                        {
+                            FbxAMatrix const nodeParentGlobalTransform = pEvaluator->GetNodeGlobalTransform( pParentBoneNode, FbxTimeSeconds( currentTime ) );
+                            FbxAMatrix const nodeGlobalTransform = pEvaluator->GetNodeGlobalTransform( pBoneNode, FbxTimeSeconds( currentTime ) );
+                            FbxAMatrix const nodeLocalTransform = nodeParentGlobalTransform.Inverse() * nodeGlobalTransform;
+
+                            animTrack.m_transforms.emplace_back( sceneCtx.ConvertMatrixToTransform( nodeLocalTransform ) );
+                        }
                     }
 
                     // Update the end duration to the actual sampled end time

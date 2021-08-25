@@ -61,7 +61,7 @@ namespace KRG::Animation
 
         RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };
         auto pRawSkeleton = RawAssets::ReadSkeleton( readerCtx, skeletonFilePath, skeletonResourceDescriptor.m_skeletonRootBoneName );
-        if ( pRawSkeleton == nullptr && !pRawSkeleton->IsValid() )
+        if ( pRawSkeleton == nullptr || !pRawSkeleton->IsValid() )
         {
             return Error( "Failed to read skeleton file: %s", skeletonFilePath.ToString().c_str() );
         }
@@ -92,7 +92,6 @@ namespace KRG::Animation
         AnimationClip animData;
         animData.m_pSkeleton = resourceDescriptor.m_pSkeleton;
         TransferAndCompressAnimationData( *pRawAnimation, animData );
-        SetRootMotionData( *pRawAnimation, animData );
 
         // Handle events
         //-------------------------------------------------------------------------
@@ -145,6 +144,32 @@ namespace KRG::Animation
 
         animClip.m_numFrames = rawAnimData.GetNumFrames();
         animClip.m_duration = ( animClip.IsSingleFrameAnimation() ) ? 0.0f : rawAnimData.GetDuration();
+        animClip.m_rootMotionTrack = rawAnimData.GetRootMotion();
+
+        // Calculate root motion extra data
+        //-------------------------------------------------------------------------
+
+        float distanceCovered = 0.0f;
+        float rotationCovered = 0.0f;
+
+        for ( auto i = 0u; i < animClip.GetNumFrames(); i++ )
+        {
+            // Track deltas
+            if ( i > 0 )
+            {
+                Transform const deltaRoot = Transform::DeltaNoScale( animClip.m_rootMotionTrack[i - 1], animClip.m_rootMotionTrack[i] );
+                distanceCovered += deltaRoot.GetTranslation().GetLength3();
+
+                // We use the negative world forward since deltas are relative to the identity transform
+                Vector const deltaForward2D = deltaRoot.GetForwardVector().GetNormalized2();
+                Radians const deltaAngle = Vector::GetAngleBetweenVectors( deltaForward2D, Vector::WorldBackward ).GetClamped();
+                rotationCovered += Math::Abs( deltaAngle );
+            }
+        }
+
+        animClip.m_totalRootMotionDelta = Transform::DeltaNoScale( animClip.m_rootMotionTrack.front(), animClip.m_rootMotionTrack.back() );
+        animClip.m_averageLinearVelocity = distanceCovered / animClip.GetDuration();
+        animClip.m_averageAngularVelocity = rotationCovered / animClip.GetDuration();
 
         // Compress raw data
         //-------------------------------------------------------------------------
@@ -199,9 +224,9 @@ namespace KRG::Animation
             }
             else
             {
-                trackSettings.m_translationRangeX = { rawTranslationValueRangeX.m_start, rawTranslationValueRangeLengthX };
-                trackSettings.m_translationRangeY = { rawTranslationValueRangeY.m_start, rawTranslationValueRangeLengthY };
-                trackSettings.m_translationRangeZ = { rawTranslationValueRangeZ.m_start, rawTranslationValueRangeLengthZ };
+                trackSettings.m_translationRangeX = { rawTranslationValueRangeX.m_start, Math::IsNearZero( rawTranslationValueRangeLengthX ) ? defaultQuantizationRangeLength : rawTranslationValueRangeLengthX };
+                trackSettings.m_translationRangeY = { rawTranslationValueRangeY.m_start, Math::IsNearZero( rawTranslationValueRangeLengthY ) ? defaultQuantizationRangeLength : rawTranslationValueRangeLengthY };
+                trackSettings.m_translationRangeZ = { rawTranslationValueRangeZ.m_start, Math::IsNearZero( rawTranslationValueRangeLengthZ ) ? defaultQuantizationRangeLength : rawTranslationValueRangeLengthZ };
             }
 
             //-------------------------------------------------------------------------
@@ -262,9 +287,9 @@ namespace KRG::Animation
             }
             else
             {
-                trackSettings.m_scaleRangeX = { rawScaleValueRangeX.m_start, rawScaleValueRangeLengthX };
-                trackSettings.m_scaleRangeY = { rawScaleValueRangeY.m_start, rawScaleValueRangeLengthY };
-                trackSettings.m_scaleRangeZ = { rawScaleValueRangeZ.m_start, rawScaleValueRangeLengthZ };
+                trackSettings.m_scaleRangeX = { rawScaleValueRangeX.m_start, Math::IsNearZero( rawScaleValueRangeLengthX ) ? defaultQuantizationRangeLength : rawScaleValueRangeLengthX };
+                trackSettings.m_scaleRangeY = { rawScaleValueRangeY.m_start, Math::IsNearZero( rawScaleValueRangeLengthY ) ? defaultQuantizationRangeLength : rawScaleValueRangeLengthY };
+                trackSettings.m_scaleRangeZ = { rawScaleValueRangeZ.m_start, Math::IsNearZero( rawScaleValueRangeLengthZ ) ? defaultQuantizationRangeLength : rawScaleValueRangeLengthZ };
             }
 
             //-------------------------------------------------------------------------
@@ -303,47 +328,6 @@ namespace KRG::Animation
 
             animClip.m_trackCompressionSettings.emplace_back( trackSettings );
         }
-    }
-
-    void AnimationClipCompiler::SetRootMotionData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const
-    {
-        if ( animClip.GetNumFrames() <= 1 )
-        {
-            animClip.m_totalRootMotionDelta = Transform::Identity;
-            animClip.m_averageLinearVelocity = 0;
-            animClip.m_averageAngularVelocity = 0;
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        float distanceCovered = 0.0f;
-        float rotationCovered = 0.0f;
-
-        animClip.m_rootMotionTrack.reserve( animClip.GetNumFrames() );
-
-        for ( auto i = 0u; i < animClip.GetNumFrames(); i++ )
-        {
-            // TEMP
-            static Quaternion const tempRotation( EulerAngles( 0, 0, -180 ) );
-            animClip.m_rootMotionTrack.emplace_back( Transform( tempRotation ) );
-
-            // Track deltas
-            if ( i > 0 )
-            {
-                Transform const deltaRoot = Transform::DeltaNoScale( animClip.m_rootMotionTrack[i - 1], animClip.m_rootMotionTrack[i] );
-                distanceCovered += deltaRoot.GetTranslation().GetLength3();
-
-                // We use the negative world forward since deltas are relative to the identity transform
-                Vector const deltaForward2D = deltaRoot.GetForwardVector().GetNormalized2();
-                Radians const deltaAngle = Vector::GetAngleBetweenVectors( deltaForward2D, Vector::WorldBackward ).GetClamped();
-                rotationCovered += Math::Abs( deltaAngle );
-            }
-        }
-
-        animClip.m_totalRootMotionDelta = Transform::DeltaNoScale( animClip.m_rootMotionTrack.front(), animClip.m_rootMotionTrack.back() );
-        animClip.m_averageLinearVelocity = distanceCovered / animClip.GetDuration();
-        animClip.m_averageAngularVelocity = rotationCovered / animClip.GetDuration();
     }
 
     //-------------------------------------------------------------------------

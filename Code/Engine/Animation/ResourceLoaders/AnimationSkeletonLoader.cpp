@@ -29,7 +29,7 @@ namespace KRG::Animation
         pSkeleton->m_globalReferencePose[0] = pSkeleton->m_localReferencePose[0];
         for ( auto boneIdx = 1; boneIdx < numBones; boneIdx++ )
         {
-            int32 const parentIdx = pSkeleton->GetParentIndex( boneIdx );
+            int32 const parentIdx = pSkeleton->GetParentBoneIndex( boneIdx );
             pSkeleton->m_globalReferencePose[boneIdx] = pSkeleton->m_localReferencePose[boneIdx] * pSkeleton->m_globalReferencePose[parentIdx];
         }
 

@@ -49,12 +49,6 @@ namespace KRG::gltf
             return convertedTransform;
         }
 
-        inline Vector ConvertVector( cgltf_float const gltfVector[3] ) const
-        {
-            Vector krgVector( (float) gltfVector[0], (float) gltfVector[1], (float) gltfVector[2], 1.0f );
-            return krgVector;
-        }
-
         // Up Axis Correction
         //-------------------------------------------------------------------------
 
@@ -93,16 +87,16 @@ namespace KRG::gltf
                     rotation = Quaternion( pNode->rotation[0], pNode->rotation[1], pNode->rotation[2], pNode->rotation[3] );
                 }
 
-                Vector translation = Vector::UnitW;
+                Vector translation = Vector::Zero;
                 if ( pNode->has_translation )
                 {
-                    translation = Vector( pNode->translation[0], pNode->translation[1], pNode->translation[2], 1.0f );
+                    translation = Vector( pNode->translation[0], pNode->translation[1], pNode->translation[2] );
                 }
 
                 Vector scale = Vector::One;
                 if ( pNode->has_scale )
                 {
-                    scale = Vector( pNode->scale[0], pNode->scale[1], pNode->scale[2], 1.0f );
+                    scale = Vector( pNode->scale[0], pNode->scale[1], pNode->scale[2] );
                 }
 
                 t = Transform( rotation, translation, scale );

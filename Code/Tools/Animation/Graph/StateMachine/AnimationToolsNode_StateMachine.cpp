@@ -33,7 +33,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
         
         auto pStateMachine = Cast<StateMachineToolsGraph>( GetChildGraph() );
-        auto stateNodes = pStateMachine->FindAllNodesOfType<StateToolsNode>();
+        auto stateNodes = pStateMachine->FindAllNodesOfType<StateBaseToolsNode>( GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch::Derived );
         int32 const numStateNodes = (int32) stateNodes.size();
         KRG_ASSERT( numStateNodes >= 1 );
 
@@ -178,80 +178,95 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    NodeIndex StateMachineToolsNode::CompileState( ToolsGraphCompilationContext& context, StateToolsNode const* pState ) const
+    NodeIndex StateMachineToolsNode::CompileState( ToolsGraphCompilationContext& context, StateBaseToolsNode const* pBaseStateNode ) const
     {
-        KRG_ASSERT( pState != nullptr );
+        KRG_ASSERT( pBaseStateNode != nullptr );
 
         StateNode::Settings* pSettings = nullptr;
-        NodeCompilationState const state = context.GetSettings<StateNode>( pState, pSettings );
+        NodeCompilationState const state = context.GetSettings<StateNode>( pBaseStateNode, pSettings );
         KRG_ASSERT( state == NodeCompilationState::NeedCompilation );
 
         //-------------------------------------------------------------------------
 
-        auto pBlendTreeRoot = pState->GetBlendTreeRootNode();
-        auto pLayerData = pState->GetLayerDataNode();
-        KRG_ASSERT( pBlendTreeRoot != nullptr && pLayerData != nullptr );
+        for ( auto const& ID : pBaseStateNode->m_entryEvents ) { pSettings->m_entryEvents.emplace_back( ID ); }
+        for ( auto const& ID : pBaseStateNode->m_executeEvents ) { pSettings->m_executeEvents.emplace_back( ID ); }
+        for ( auto const& ID : pBaseStateNode->m_exitEvents ) { pSettings->m_exitEvents.emplace_back( ID ); }
 
-        // Compile Blend Tree
         //-------------------------------------------------------------------------
 
-        auto pBlendTreeNode = pBlendTreeRoot->GetConnectedInputNode<FlowToolsNode>( 0 );
-        if ( pBlendTreeNode != nullptr )
+        auto pBlendTreeStateNode = TryCast<StateToolsNode>( pBaseStateNode );
+        if ( pBlendTreeStateNode != nullptr )
         {
-            pSettings->m_childNodeIdx = pBlendTreeNode->Compile( context );
-            if ( pSettings->m_childNodeIdx == InvalidIndex )
+            // Compile Blend Tree
+            //-------------------------------------------------------------------------
+
+            auto pBlendTreeRoot = pBlendTreeStateNode->GetBlendTreeRootNode();
+            KRG_ASSERT( pBlendTreeRoot != nullptr );
+
+            auto pBlendTreeNode = pBlendTreeRoot->GetConnectedInputNode<FlowToolsNode>( 0 );
+            if ( pBlendTreeNode != nullptr )
             {
+                pSettings->m_childNodeIdx = pBlendTreeNode->Compile( context );
+                if ( pSettings->m_childNodeIdx == InvalidIndex )
+                {
+                    return InvalidIndex;
+                }
+            }
+            else
+            {
+                context.LogError( pBlendTreeRoot, "Disconnected blend tree root for state" );
                 return InvalidIndex;
             }
+
+            // Compile Layer Data
+            //-------------------------------------------------------------------------
+
+            auto pLayerData = pBlendTreeStateNode->GetLayerDataNode();
+            KRG_ASSERT( pLayerData != nullptr );
+
+            auto pLayerWeightNode = pLayerData->GetConnectedInputNode<FlowToolsNode>( 0 );
+            if ( pLayerWeightNode != nullptr )
+            {
+                pSettings->m_layerWeightNodeIdx = pLayerWeightNode->Compile( context );
+                if ( pSettings->m_layerWeightNodeIdx == InvalidIndex )
+                {
+                    return InvalidIndex;
+                }
+            }
+
+            auto pLayerMaskNode = pLayerData->GetConnectedInputNode<FlowToolsNode>( 1 );
+            if ( pLayerMaskNode != nullptr )
+            {
+                pSettings->m_layerBoneMaskNodeIdx = pLayerMaskNode->Compile( context );
+                if ( pSettings->m_layerBoneMaskNodeIdx == InvalidIndex )
+                {
+                    return InvalidIndex;
+                }
+            }
+
+            // Transfer additional state events
+            //-------------------------------------------------------------------------
+
+            for ( auto const& evt : pBlendTreeStateNode->m_timeRemainingEvents ) { pSettings->m_timedRemainingEvents.emplace_back( StateNode::TimedEvent( evt.m_ID, evt.m_timeValue ) ); }
+            for ( auto const& evt : pBlendTreeStateNode->m_timeElapsedEvents ) { pSettings->m_timedElapsedEvents.emplace_back( StateNode::TimedEvent( evt.m_ID, evt.m_timeValue ) ); }
         }
         else
         {
-            context.LogError( pBlendTreeRoot, "Disconnected blend tree root for state" );
-            return InvalidIndex;
+            auto pOffState = Cast<OffStateToolsNode>( pBaseStateNode );
+            pSettings->m_childNodeIdx = InvalidIndex;
+            pSettings->m_isOffState = true;
         }
-
-        // Compile Layer Data
-        //-------------------------------------------------------------------------
-
-        auto pLayerWeightNode = pLayerData->GetConnectedInputNode<FlowToolsNode>( 0 );
-        if ( pLayerWeightNode != nullptr )
-        {
-            pSettings->m_layerWeightNodeIdx = pLayerWeightNode->Compile( context );
-            if ( pSettings->m_layerWeightNodeIdx == InvalidIndex )
-            {
-                return InvalidIndex;
-            }
-        }
-
-        auto pLayerMaskNode = pLayerData->GetConnectedInputNode<FlowToolsNode>( 1 );
-        if ( pLayerMaskNode != nullptr )
-        {
-            pSettings->m_layerBoneMaskNodeIdx = pLayerMaskNode->Compile( context );
-            if ( pSettings->m_layerBoneMaskNodeIdx == InvalidIndex )
-            {
-                return InvalidIndex;
-            }
-        }
-
-        // Transfer state events
-        //-------------------------------------------------------------------------
-
-        for ( auto const& ID : pState->m_entryEvents ) { pSettings->m_entryEvents.emplace_back( ID ); }
-        for ( auto const& ID : pState->m_executeEvents ) { pSettings->m_executeEvents.emplace_back( ID ); }
-        for ( auto const& ID : pState->m_exitEvents ) { pSettings->m_exitEvents.emplace_back( ID ); }
-        for ( auto const& evt : pState->m_timeRemainingEvents ) { pSettings->m_timedRemainingEvents.emplace_back( StateNode::TimedEvent( evt.m_ID, evt.m_timeValue ) ); }
-        for ( auto const& evt : pState->m_timeElapsedEvents ) { pSettings->m_timedElapsedEvents.emplace_back( StateNode::TimedEvent( evt.m_ID, evt.m_timeValue ) ); }
 
         //-------------------------------------------------------------------------
 
         return pSettings->m_nodeIdx;
     }
 
-    NodeIndex StateMachineToolsNode::CompileTransition( ToolsGraphCompilationContext& context, TransitionToolsNode const* pTransition, NodeIndex targetStateNodeIdx ) const
+    NodeIndex StateMachineToolsNode::CompileTransition( ToolsGraphCompilationContext& context, TransitionToolsNode const* pTransitionNode, NodeIndex targetStateNodeIdx ) const
     {
-        KRG_ASSERT( pTransition != nullptr );
+        KRG_ASSERT( pTransitionNode != nullptr );
         TransitionNode::Settings* pSettings = nullptr;
-        NodeCompilationState const state = context.GetSettings<TransitionNode>( pTransition, pSettings );
+        NodeCompilationState const state = context.GetSettings<TransitionNode>( pTransitionNode, pSettings );
         if ( state == NodeCompilationState::AlreadyCompiled )
         {
             return pSettings->m_nodeIdx;
@@ -259,7 +274,7 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        auto pDurationOverrideNode = pTransition->GetConnectedInputNode<FlowToolsNode>( 1 );
+        auto pDurationOverrideNode = pTransitionNode->GetConnectedInputNode<FlowToolsNode>( 1 );
         if ( pDurationOverrideNode != nullptr )
         {
             KRG_ASSERT( pDurationOverrideNode->GetValueType() == NodeValueType::Float );
@@ -270,7 +285,7 @@ namespace KRG::Animation::Graph
             }
         }
 
-        auto pSyncEventOffsetOverrideNode = pTransition->GetConnectedInputNode<FlowToolsNode>( 2 );
+        auto pSyncEventOffsetOverrideNode = pTransitionNode->GetConnectedInputNode<FlowToolsNode>( 2 );
         if ( pSyncEventOffsetOverrideNode != nullptr )
         {
             KRG_ASSERT( pSyncEventOffsetOverrideNode->GetValueType() == NodeValueType::Float );
@@ -284,16 +299,16 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         pSettings->m_targetStateNodeIdx = targetStateNodeIdx;
-        pSettings->m_blendWeightEasingType = pTransition->m_blendWeightEasingType;
-        pSettings->m_rootMotionBlend = pTransition->m_rootMotionBlend;
-        pSettings->m_duration = pTransition->m_duration;
-        pSettings->m_syncEventOffset = pTransition->m_syncEventOffset;
+        pSettings->m_blendWeightEasingType = pTransitionNode->m_blendWeightEasingType;
+        pSettings->m_rootMotionBlend = pTransitionNode->m_rootMotionBlend;
+        pSettings->m_duration = pTransitionNode->m_duration;
+        pSettings->m_syncEventOffset = pTransitionNode->m_syncEventOffset;
 
-        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::Synchronized, pTransition->m_isSynchronized );
-        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::ClampDuration, pTransition->m_clampDurationToSource );
-        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::KeepSyncEventIndex, pTransition->m_keepSourceSyncEventIdx );
-        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::KeepSyncEventPercentage, pTransition->m_keepSourceSyncEventPercentageThrough );
-        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::ForcedTransitionAllowed, pTransition->m_canBeForced );
+        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::Synchronized, pTransitionNode->m_isSynchronized );
+        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::ClampDuration, pTransitionNode->m_clampDurationToSource );
+        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::KeepSyncEventIndex, pTransitionNode->m_keepSourceSyncEventIdx );
+        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::KeepSyncEventPercentage, pTransitionNode->m_keepSourceSyncEventPercentageThrough );
+        pSettings->m_transitionOptions.SetFlag( TransitionNode::TransitionOptions::ForcedTransitionAllowed, pTransitionNode->m_canBeForced );
 
         //-------------------------------------------------------------------------
 

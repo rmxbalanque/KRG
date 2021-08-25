@@ -27,7 +27,7 @@ namespace KRG::Animation
                     // Get the local transform and the parent global transform
                     if ( m_isBoneSpaceOffsets )
                     {
-                        int32 const parentBoneIdx = pSkeleton->GetParentIndex( m_boneID );
+                        int32 const parentBoneIdx = pSkeleton->GetParentBoneIndex( m_boneID );
                         if ( parentBoneIdx != InvalidIndex )
                         {
                             parentTransform = pPose->GetGlobalTransform( parentBoneIdx );

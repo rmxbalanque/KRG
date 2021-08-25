@@ -77,7 +77,7 @@ namespace KRG::Animation
         // Blend global space poses together and convert back to local space
         //-------------------------------------------------------------------------
 
-        auto const& parentIndices = pSourcePose->GetSkeleton()->GetParentIndices();
+        auto const& parentIndices = pSourcePose->GetSkeleton()->GetParentBoneIndices();
         auto const numBones = pResultPose->GetNumBones();
         for ( auto boneIdx = 1; boneIdx < numBones; boneIdx++ )
         {
@@ -122,41 +122,6 @@ namespace KRG::Animation
                     pResultPose->SetRotation( boneIdx, localRotation );
                 }
             }
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
-    static void LockUnmaskedBones( Pose const* pSourcePose, BoneMask const* pBoneMask, Pose* pResultPose )
-    {
-        // If these poses are the same, this code will do nothing as the pResult->CalculatGlobalPose will overwrite the original transforms
-        KRG_ASSERT( pSourcePose != pResultPose );
-
-        // Get global transforms from the source and the target pose
-        auto const& sourceGlobalTransforms = pSourcePose->GetGlobalTransforms();
-        KRG_ASSERT( sourceGlobalTransforms.size() == pSourcePose->GetNumBones() );
-
-        pResultPose->CalculateGlobalTransforms();
-        auto& resultGlobalTransforms = pResultPose->GetGlobalTransforms();
-
-        // Copy global transforms from the original pose
-        int32 const numBones = pResultPose->GetNumBones();
-        for ( int32 boneIdx = 1; boneIdx < numBones; boneIdx++ )
-        {
-            auto const boneBlendWeight = pBoneMask->GetWeight( boneIdx );
-            if ( boneBlendWeight == 0.0f )
-            {
-                pResultPose->SetTransform( boneIdx, sourceGlobalTransforms[boneIdx] );
-            }
-        }
-
-        // Calculate new local transforms
-        auto pSkeleton = pResultPose->GetSkeleton();
-        for ( auto boneIdx = ( numBones - 1 ); boneIdx > 0; boneIdx-- )
-        {
-            auto const parentBoneIdx = pSkeleton->GetParentIndex( boneIdx );
-            Transform const localTransform = resultGlobalTransforms[boneIdx] * resultGlobalTransforms[parentBoneIdx].GetInverse();
-            pResultPose->SetTransform( boneIdx, localTransform );
         }
     }
 }
@@ -219,12 +184,6 @@ namespace KRG::Animation
                 {
                     BlenderLocal<InterpolativeBlender, BoneWeight>( pSourcePose, pTargetPose, blendWeight, pBoneMask, pResultPose );
                 }
-            }
-
-            // Ensure that the unmasked bones maintain their global transforms
-            if ( blendOptions.IsFlagSet( PoseBlendOptions::LockUnmaskedBones ) )
-            {
-                LockUnmaskedBones( pSourcePose, pBoneMask, pResultPose );
             }
         }
     }

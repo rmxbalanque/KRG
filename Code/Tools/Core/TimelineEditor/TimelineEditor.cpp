@@ -80,11 +80,28 @@ namespace KRG
         return eastl::find( m_data.begin(), m_data.end(), pTrack ) != m_data.end();
     }
 
+    void TimelineEditor::DeleteItem( TimelineItem* pItem )
+    {
+        KRG_ASSERT( IsValidPtr( pItem ) );
+
+        for ( auto pTrack : m_data )
+        {
+            if ( pTrack->DeleteItem( pItem ) )
+            {
+                m_isDirty = true;
+                break;
+            }
+        }
+
+        m_itemEditState.Reset();
+    }
+
     void TimelineEditor::DeleteTrack( TimelineTrack* pTrack )
     {
         KRG_ASSERT( IsValidPtr( pTrack ) );
         m_data.m_tracks.erase_first( pTrack );
         KRG::Delete( pTrack );
+        m_isDirty = true;
     }
 
     //-------------------------------------------------------------------------
@@ -176,23 +193,13 @@ namespace KRG
         }
         else  if ( ImGui::IsKeyReleased( ImGui::GetKeyIndex( ImGuiKey_Delete ) ) )
         {
-            for ( auto pItem : m_selectedItems )
+            TVector<TimelineItem*> copiedSelectedItems = m_selectedItems;
+            ClearSelection();
+
+            for ( auto pItem : copiedSelectedItems )
             {
-                bool itemDeleted = false;
-                for ( auto pTrack : m_data )
-                {
-                    itemDeleted = pTrack->DeleteItem( pItem );
-                    if ( itemDeleted )
-                    {
-                        m_isDirty = true;
-                        break;
-                    }
-                }
-
-                KRG_ASSERT( itemDeleted );
+                DeleteItem( pItem );
             }
-
-            m_selectedItems.clear();
         }
 
         // Item Edition
@@ -210,7 +217,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 auto const floatViewRange = GetViewRangeAsFloatRange();
-                FloatRange clampRange = GetViewRangeAsFloatRange();
+                FloatRange validEventRange = GetViewRangeAsFloatRange();
                 for ( auto const pOtherItem : m_itemEditState.m_pTrackForEditedItem->m_items )
                 {
                     FloatRange const otherItemTimeRange = pOtherItem->GetTimeRange();
@@ -220,35 +227,52 @@ namespace KRG
                         continue;
                     }
 
-                    if ( otherItemTimeRange.m_end < m_itemEditState.m_originalTimeRange.m_start && otherItemTimeRange.m_end > clampRange.m_start )
+                    if ( otherItemTimeRange.m_end < m_itemEditState.m_originalTimeRange.m_start && otherItemTimeRange.m_end > validEventRange.m_start )
                     {
-                        clampRange.m_start = otherItemTimeRange.m_end;
+                        validEventRange.m_start = otherItemTimeRange.m_end;
                     }
 
-                    if ( otherItemTimeRange.m_start > m_itemEditState.m_originalTimeRange.m_end && otherItemTimeRange.m_start < clampRange.m_end )
+                    if ( otherItemTimeRange.m_start > m_itemEditState.m_originalTimeRange.m_end && otherItemTimeRange.m_start < validEventRange.m_end )
                     {
-                        clampRange.m_end = otherItemTimeRange.m_start;
+                        validEventRange.m_end = otherItemTimeRange.m_start;
                     }
                 }
 
                 // Prevent immediate items ending up on top of other items or outside the range
                 if ( pEditedItem->IsImmediateItem() )
                 {
-                    clampRange.m_end -= 1;
+                    validEventRange.m_end -= 1;
                 }
 
                 // Apply mouse delta to item
                 //-------------------------------------------------------------------------
 
-                float const pixelOffset = ImGui::GetMouseDragDelta().x;
-                float const timeOffset = pixelOffset / m_pixelsPerFrame;
-
-                FloatRange editedItemTimeRange = pEditedItem->GetTimeRange();
-
-                if ( m_itemEditState.m_mode == ItemEditMode::Move )
+                if ( validEventRange.IsSetAndValid() )
                 {
-                    // Moving left
-                    if ( timeOffset < 0 )
+                    float const pixelOffset = ImGui::GetMouseDragDelta().x;
+                    float const timeOffset = pixelOffset / m_pixelsPerFrame;
+
+                    FloatRange editedItemTimeRange = pEditedItem->GetTimeRange();
+
+                    if ( m_itemEditState.m_mode == ItemEditMode::Move )
+                    {
+                        // Create a new range to clamp the event start time to
+                        FloatRange validEventStartRange = validEventRange;
+                        if ( pEditedItem->IsDurationItem() )
+                        {
+                            validEventStartRange.m_end = validEventStartRange.m_end - m_itemEditState.m_originalTimeRange.GetLength();
+                        }
+
+                        float newTime = m_itemEditState.m_originalTimeRange.m_start + timeOffset;
+                        if ( m_isFrameSnappingEnabled )
+                        {
+                            newTime = Math::Round( newTime );
+                        }
+
+                        editedItemTimeRange.m_start = validEventStartRange.GetClampedValue( newTime );
+                        editedItemTimeRange.m_end = editedItemTimeRange.m_start + m_itemEditState.m_originalTimeRange.GetLength();
+                    }
+                    else if ( m_itemEditState.m_mode == ItemEditMode::ResizeLeft )
                     {
                         float newTime = m_itemEditState.m_originalTimeRange.m_start + timeOffset;
                         if ( m_isFrameSnappingEnabled )
@@ -256,10 +280,10 @@ namespace KRG
                             newTime = Math::Round( newTime );
                         }
 
-                        editedItemTimeRange.m_start = Math::Max( clampRange.m_start, newTime );
-                        editedItemTimeRange.m_end = editedItemTimeRange.m_start + m_itemEditState.m_originalTimeRange.GetLength();
+                        editedItemTimeRange.m_start = Math::Min( m_itemEditState.m_originalTimeRange.m_end - 1, newTime );
+                        editedItemTimeRange.m_start = Math::Max( validEventRange.m_start, editedItemTimeRange.m_start );
                     }
-                    else // Moving to the right
+                    else if ( m_itemEditState.m_mode == ItemEditMode::ResizeRight )
                     {
                         float newTime = m_itemEditState.m_originalTimeRange.m_end + timeOffset;
                         if ( m_isFrameSnappingEnabled )
@@ -267,35 +291,13 @@ namespace KRG
                             newTime = Math::Round( newTime );
                         }
 
-                        editedItemTimeRange.m_end = Math::Min( clampRange.m_end, newTime );
-                        editedItemTimeRange.m_start = editedItemTimeRange.m_end - m_itemEditState.m_originalTimeRange.GetLength();
-                    }
-                }
-                else if ( m_itemEditState.m_mode == ItemEditMode::ResizeLeft )
-                {
-                    float newTime = m_itemEditState.m_originalTimeRange.m_start + timeOffset;
-                    if ( m_isFrameSnappingEnabled )
-                    {
-                        newTime = Math::Round( newTime );
+                        editedItemTimeRange.m_end = Math::Max( m_itemEditState.m_originalTimeRange.m_start + 1, newTime );
+                        editedItemTimeRange.m_end = Math::Min( validEventRange.m_end, editedItemTimeRange.m_end );
                     }
 
-                    editedItemTimeRange.m_start = Math::Min( m_itemEditState.m_originalTimeRange.m_end - 1, newTime );
-                    editedItemTimeRange.m_start = Math::Max( clampRange.m_start, editedItemTimeRange.m_start );
+                    pEditedItem->SetTimeRange( editedItemTimeRange );
+                    m_isDirty = true;
                 }
-                else if ( m_itemEditState.m_mode == ItemEditMode::ResizeRight )
-                {
-                    float newTime = m_itemEditState.m_originalTimeRange.m_end + timeOffset;
-                    if ( m_isFrameSnappingEnabled )
-                    {
-                        newTime = Math::Round( newTime );
-                    }
-
-                    editedItemTimeRange.m_end = Math::Max( m_itemEditState.m_originalTimeRange.m_start + 1, newTime );
-                    editedItemTimeRange.m_end = Math::Min( clampRange.m_end, editedItemTimeRange.m_end );
-                }
-
-                pEditedItem->SetTimeRange( editedItemTimeRange );
-                m_isDirty = true;
             }
             else if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
             {
@@ -380,6 +382,18 @@ namespace KRG
                 }
             }
             break;
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void TimelineEditor::SetPlayheadPosition( float inPosition )
+    {
+        m_playheadTime = GetTimeRangeAsFloatRange().GetClampedValue( inPosition );
+
+        if ( m_isFrameSnappingEnabled )
+        {
+            m_playheadTime = Math::Round( m_playheadTime );
         }
     }
 
@@ -701,7 +715,7 @@ namespace KRG
         ImVec2 const mousePos = ImGui::GetMousePos();
 
         // If the mouse is clicked over the header, start dragging operation
-        if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
+        if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) || ImGui::IsMouseClicked( ImGuiMouseButton_Right ) )
         {
             if ( playheadRect.Contains( mousePos ) && mousePos.y < ( playheadRect.Min.y + g_headerHeight ) )
             {
@@ -731,13 +745,9 @@ namespace KRG
 
             // The valid range for the playhead, limit it to the current view range but dont let it leave the actual time range
             FloatRange const playheadValidRange( (float) Math::Max( m_viewRange.m_start, m_timeRange.m_start ), (float) Math::Min( m_viewRange.m_end, m_timeRange.m_end ) );
-            m_playheadTime = m_viewRange.m_start + ConvertPixelsToFrames( mousePos.x - playheadRect.Min.x );
-            m_playheadTime = playheadValidRange.GetClampedValue( m_playheadTime );
-
-            if ( m_isFrameSnappingEnabled )
-            {
-                m_playheadTime = Math::Round( m_playheadTime );
-            }
+            float newPlayheadTime = m_viewRange.m_start + ConvertPixelsToFrames( mousePos.x - playheadRect.Min.x );
+            newPlayheadTime = playheadValidRange.GetClampedValue( newPlayheadTime );
+            SetPlayheadPosition( newPlayheadTime );
         }
 
         // Draw playhead
@@ -969,7 +979,7 @@ namespace KRG
         {
             if ( IsValidPtr( m_contextMenuState.m_pItem ) )
             {
-                bool const deleteItem = ImGui::MenuItem( "Delete Item" );
+                bool const shouldDeleteItem = ImGui::MenuItem( "Delete Item" );
 
                 //-------------------------------------------------------------------------
 
@@ -981,10 +991,10 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                if ( deleteItem )
+                if ( shouldDeleteItem )
                 {
-                    m_contextMenuState.m_pTrack->DeleteItem( m_contextMenuState.m_pItem );
-                    m_isDirty = true;
+                    ClearSelection();
+                    DeleteItem( m_contextMenuState.m_pItem );
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -1006,7 +1016,7 @@ namespace KRG
                     m_isDirty = true;
                 }
 
-                bool const deleteTrack = ImGui::MenuItem( "Delete Track" );
+                bool const shouldDeleteTrack = ImGui::MenuItem( "Delete Track" );
 
                 //-------------------------------------------------------------------------
 
@@ -1018,10 +1028,10 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                if ( deleteTrack )
+                if ( shouldDeleteTrack )
                 {
+                    ClearSelection();
                     DeleteTrack( m_contextMenuState.m_pTrack );
-                    m_isDirty = true;
                     ImGui::CloseCurrentPopup();
                 }
             }

@@ -34,6 +34,7 @@ namespace KRG::ImGuiX
         ImGui::PushStyleVar( ImGuiStyleVar_WindowMinSize, ImVec2( 0.0f, 0.0f ) );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( windowPadding, windowPadding ) );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, windowRounding );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
         uint32 const flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
         if ( ImGui::Begin( "DebugUI_OrientationGuide", &alwaysOpen, flags ) )
         {
@@ -134,6 +135,6 @@ namespace KRG::ImGuiX
 
             ImGui::End();
         }
-        ImGui::PopStyleVar( 3 );
+        ImGui::PopStyleVar( 4 );
     }
 }

@@ -64,9 +64,6 @@
     <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="ThirdParty\imgui\imgui.natvis" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="ThirdParty\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +97,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="System\Platform\ImguiSystem.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}</ProjectGuid>

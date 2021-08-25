@@ -63,7 +63,7 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        bool bSamplePose = false;
+        bool bShouldUpdate = false;
 
         switch ( m_playMode )
         {
@@ -72,7 +72,7 @@ namespace KRG::Animation
                 m_previousAnimTime = m_animTime;
                 m_animTime += Percentage( deltaTime / m_pAnimation->GetDuration() );
                 m_animTime = m_animTime.GetClamped( true );
-                bSamplePose = true;
+                bShouldUpdate = true;
             }
             break;
 
@@ -83,7 +83,7 @@ namespace KRG::Animation
                     m_previousAnimTime = m_animTime;
                     m_animTime += Percentage( deltaTime / m_pAnimation->GetDuration() );
                     m_animTime = m_animTime.GetClamped( false );
-                    bSamplePose = true;
+                    bShouldUpdate = true;
                 }
             }
             break;
@@ -93,7 +93,7 @@ namespace KRG::Animation
                 if ( m_previousAnimTime != m_animTime )
                 {
                     m_previousAnimTime = m_animTime;
-                    bSamplePose = true;
+                    bShouldUpdate = true;
                 }
             }
             break;
@@ -101,10 +101,26 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        if ( bSamplePose )
+        if ( bShouldUpdate )
         {
             m_pAnimation->GetPose( m_animTime, m_pPose );
             m_pPose->CalculateGlobalTransforms();
+
+            // Check if we've looped
+            if( m_animTime < m_previousAnimTime )
+            {
+                Transform const preLoopDelta = m_pAnimation->GetRootMotionDelta( m_previousAnimTime, 1.0f );
+                Transform const postLoopDelta = m_pAnimation->GetRootMotionDelta( 0.0f, m_animTime );
+                m_rootMotionDelta = postLoopDelta * preLoopDelta;
+            }
+            else
+            {
+                m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( m_previousAnimTime, m_animTime );
+            }
+        }
+        else // Clear the root motion delta
+        {
+            m_rootMotionDelta = Transform::Identity;
         }
     }
 }

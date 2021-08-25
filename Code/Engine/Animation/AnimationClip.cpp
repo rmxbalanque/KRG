@@ -128,11 +128,11 @@ namespace KRG::Animation
         TInlineVector<int32, 20> boneHierarchy;
         boneHierarchy.emplace_back( boneIdx );
 
-        int32 parentBoneIdx = m_pSkeleton->GetParentIndex( boneIdx );
+        int32 parentBoneIdx = m_pSkeleton->GetParentBoneIndex( boneIdx );
         while ( parentBoneIdx != InvalidIndex )
         {
             boneHierarchy.emplace_back( parentBoneIdx );
-            parentBoneIdx = m_pSkeleton->GetParentIndex( parentBoneIdx );
+            parentBoneIdx = m_pSkeleton->GetParentBoneIndex( parentBoneIdx );
         }
 
         // Calculate the global transform
@@ -191,7 +191,8 @@ namespace KRG::Animation
     #if KRG_DEVELOPMENT_TOOLS
     void AnimationClip::DrawRootMotionPath( Debug::DrawingContext& ctx, Transform const& worldTransform ) const
     {
-        constexpr static float const axisSize = 0.25f;
+        constexpr static float const axisSize = 0.05f;
+        constexpr static float const axisThickness = 3.0f;
 
         if ( m_rootMotionTrack.empty() )
         {
@@ -205,8 +206,8 @@ namespace KRG::Animation
         for ( auto i = 1; i < numTransforms; i++ )
         {
             auto const worldRootMotionTransform = m_rootMotionTrack[i] * worldTransform;
-            ctx.DrawLine( previousWorldRootMotionTransform.GetTranslation(), worldRootMotionTransform.GetTranslation(), ( i % 2 == 0 ) ? Colors::LimeGreen : Colors::Red );
-            ctx.DrawAxis( worldRootMotionTransform, axisSize );
+            ctx.DrawLine( previousWorldRootMotionTransform.GetTranslation(), worldRootMotionTransform.GetTranslation(), ( i % 2 == 0 ) ? Colors::Yellow : Colors::HotPink );
+            ctx.DrawAxis( worldRootMotionTransform, axisSize, axisThickness );
             previousWorldRootMotionTransform = worldRootMotionTransform;
         }
     }

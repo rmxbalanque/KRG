@@ -29,8 +29,11 @@ namespace KRG
             // Get the skeleton this component animated
             virtual Skeleton const* GetSkeleton() const = 0;
 
-            // Get the final pose
+            // Get the final pose for the last update
             virtual Pose const* GetPose() const = 0;
+
+            // Get the root motion delta for the last update
+            virtual Transform const& GetRootMotionDelta() const { return Transform::Identity; }
 
             // Run the animation update
             virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) = 0;

@@ -19,6 +19,9 @@ namespace KRG::Animation::Graph
     public:
 
         void CreateNewState( ImVec2 const& mouseCanvasPos );
+        void CreateNewOffState( ImVec2 const& mouseCanvasPos );
+
+        GlobalTransitionsToolsNode const* GetGlobalTransitionsNode() const { return m_pGlobalTransitionsNode; }
 
     private:
 

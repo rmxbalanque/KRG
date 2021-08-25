@@ -48,9 +48,9 @@ namespace KRG::Animation
             return m_boneIDs[idx];
         }
 
-        inline TVector<int32> const& GetParentIndices() const { return m_parentIndices; }
+        inline TVector<int32> const& GetParentBoneIndices() const { return m_parentIndices; }
 
-        inline int32 GetParentIndex( int32 idx ) const
+        inline int32 GetParentBoneIndex( int32 idx ) const
         {
             KRG_ASSERT( idx >= 0 && idx < m_parentIndices.size() );
             return m_parentIndices[idx];

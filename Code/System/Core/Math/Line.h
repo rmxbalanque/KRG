@@ -26,17 +26,17 @@ namespace KRG
             KRG_ASSERT( !direction.IsNearZero3() );
             Line line;
             line.m_startPoint = startPoint;
-            line.m_direction = direction.GetAsVector();
+            line.m_direction = direction;
             return line;
         }
 
     public:
 
         Line( Vector const& startPoint, Vector const& endPoint )
-            : m_startPoint( startPoint.GetAsPoint() )
+            : m_startPoint( startPoint )
         {
             KRG_ASSERT( !startPoint.IsNearEqual3( endPoint ) );
-            m_direction = ( endPoint - startPoint ).GetNormalized3().MakeVector();
+            m_direction = ( endPoint - startPoint ).GetNormalized3();
         }
 
         inline Vector GetStartPoint() const { return m_startPoint; }
@@ -100,7 +100,7 @@ namespace KRG
 
         LineSegment( Vector startPoint, Vector endPoint )
             : Line( startPoint, endPoint )
-            , m_endPoint( endPoint.GetAsPoint() )
+            , m_endPoint( endPoint )
             , m_length( startPoint.GetDistance3( endPoint ) )
         {}
 

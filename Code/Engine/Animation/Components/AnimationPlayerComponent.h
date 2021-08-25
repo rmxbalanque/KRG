@@ -33,6 +33,7 @@ namespace KRG::Animation
 
         virtual Skeleton const* GetSkeleton() const override;
         virtual Pose const* GetPose() const override { return m_pPose; }
+        virtual Transform const& GetRootMotionDelta() const override { return m_rootMotionDelta; }
         virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
         virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override {}
 
@@ -69,6 +70,7 @@ namespace KRG::Animation
         EXPOSE PlayMode                                 m_playMode = PlayMode::Loop;
 
         Pose*                                           m_pPose = nullptr;
+        Transform                                       m_rootMotionDelta = Transform::Identity;
         Percentage                                      m_previousAnimTime = Percentage( 0.0f );
         Percentage                                      m_animTime = Percentage( 0.0f );
     };

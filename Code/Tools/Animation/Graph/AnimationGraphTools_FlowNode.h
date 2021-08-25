@@ -37,9 +37,9 @@ namespace KRG::Animation::Graph
             }
         }
 
-        virtual ImColor GetHighlightColor() const final { return GetColorForValueType( GetValueType() ); }
+        virtual ImColor GetHighlightColor() const override { return GetColorForValueType( GetValueType() ); }
 
-        virtual ImColor GetPinColor( GraphEditor::Flow::Pin const& pin ) const final { return GetColorForValueType( (NodeValueType) pin.m_type ); }
+        virtual ImColor GetPinColor( GraphEditor::Flow::Pin const& pin ) const override { return GetColorForValueType( (NodeValueType) pin.m_type ); }
 
         // Get the types of graphs that this node is allowed to be placed in
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const = 0;

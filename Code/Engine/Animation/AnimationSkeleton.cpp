@@ -15,12 +15,12 @@ namespace KRG::Animation
         KRG_ASSERT( idx >= 0 && idx < m_localReferencePose.size() );
 
         Transform boneGlobalTransform = m_localReferencePose[idx];
-        int32 parentIdx = GetParentIndex( idx );
+        int32 parentIdx = GetParentBoneIndex( idx );
 
         while ( parentIdx != InvalidIndex )
         {
             boneGlobalTransform = boneGlobalTransform * m_localReferencePose[parentIdx];
-            parentIdx = GetParentIndex( parentIdx );
+            parentIdx = GetParentBoneIndex( parentIdx );
         }
 
         return boneGlobalTransform;
@@ -34,7 +34,9 @@ namespace KRG::Animation
         auto const numBones = m_localReferencePose.size();
         if ( numBones > 0 )
         {
-            Transform globalTransforms[256];
+            TInlineVector<Transform, 256> globalTransforms;
+            globalTransforms.resize( numBones );
+
             globalTransforms[0] = m_localReferencePose[0] * worldTransform;
             for ( auto i = 1; i < numBones; i++ )
             {

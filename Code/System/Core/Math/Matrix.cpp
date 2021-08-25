@@ -16,20 +16,20 @@ namespace KRG
         m_rows[3] = Vector( v30, v31, v32, v33 );
     }
 
-    Matrix::Matrix( Vector const xAxis, Vector const yAxis, Vector const zAxis )
+    Matrix::Matrix( Vector const& xAxis, Vector const& yAxis, Vector const& zAxis )
     {
         m_rows[0] = xAxis;
         m_rows[1] = yAxis;
         m_rows[2] = zAxis;
-        m_rows[3] = Vector::Zero;
+        m_rows[3] = Vector::UnitW;
     }
 
-    Matrix::Matrix( Vector const xAxis, Vector const yAxis, Vector const zAxis, Vector const translation )
+    Matrix::Matrix( Vector const& xAxis, Vector const& yAxis, Vector const& zAxis, Vector const& translation )
     {
         m_rows[0] = xAxis;
         m_rows[1] = yAxis;
         m_rows[2] = zAxis;
-        m_rows[3] = translation;
+        m_rows[3] = translation.GetWithW1();
     }
 
     Matrix::Matrix( EulerAngles const& eulerAngles, Vector const translation )
@@ -59,7 +59,7 @@ namespace KRG
         m_values[2][3] = 0.0f;
 
         // Translation
-        m_rows[3] = translation;
+        m_rows[3] = translation.GetWithW1();
     }
 
     EulerAngles Matrix::ToEulerAngles() const
@@ -100,6 +100,9 @@ namespace KRG
     // Copied from the IlmBase math library and modified for KRG
     static bool ExtractAndRemoveScalingAndShear( Matrix& matrix, Vector& scale, Vector& shear )
     {
+        scale = Vector::Zero;
+        shear = Vector::Zero;
+
         // This implementation follows the technique described in the paper by
         // Spencer W. Thomas in the Graphics Gems II article: "Decomposing a 
         // Matrix into Simple Transformations", p. 320.
@@ -236,7 +239,7 @@ namespace KRG
         {
             // Extract rotation and translation from unscaled matrix
             outRotation = copy.GetRotation();
-            outTranslation = copy.GetTranslation();
+            outTranslation = copy.GetTranslation().GetWithW0();
             return true;
         }
 

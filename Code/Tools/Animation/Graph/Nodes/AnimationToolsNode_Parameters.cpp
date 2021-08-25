@@ -18,7 +18,7 @@ namespace KRG::Animation::Graph
     void ControlParameterToolsNode::Initialize( GraphEditor::BaseGraph* pParentGraph )
     {
         FlowToolsNode::Initialize( pParentGraph );
-        CreateOutputPin( "Value", m_type);
+        CreateOutputPin( "Value", m_type, true );
     }
 
     NodeIndex ControlParameterToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -119,7 +119,7 @@ namespace KRG::Animation::Graph
     void ControlParameterReferenceToolsNode::Initialize( GraphEditor::BaseGraph* pParentGraph )
     {
         FlowToolsNode::Initialize( pParentGraph );
-        CreateOutputPin( "Value", m_pParameter->GetValueType() );
+        CreateOutputPin( "Value", m_pParameter->GetValueType(), true );
     }
 
     NodeIndex ControlParameterReferenceToolsNode::Compile( ToolsGraphCompilationContext& context ) const
@@ -140,7 +140,7 @@ namespace KRG::Animation::Graph
     {
         FlowToolsNode::Initialize( pParentGraph );
 
-        CreateOutputPin( "Value", m_type );
+        CreateOutputPin( "Value", m_type, true );
 
         auto pParameterGraph = KRG::New<FlowToolGraph>( GraphType::ValueTree );
         pParameterGraph->CreateNode<ResultToolsNode>( m_type );
@@ -166,7 +166,7 @@ namespace KRG::Animation::Graph
     void VirtualParameterReferenceToolsNode::Initialize( GraphEditor::BaseGraph* pParentGraph )
     {
         FlowToolsNode::Initialize( pParentGraph );
-        CreateOutputPin( "Value", m_pParameter->GetValueType() );
+        CreateOutputPin( "Value", m_pParameter->GetValueType(), true );
     }
 
     NodeIndex VirtualParameterReferenceToolsNode::Compile( ToolsGraphCompilationContext& context ) const

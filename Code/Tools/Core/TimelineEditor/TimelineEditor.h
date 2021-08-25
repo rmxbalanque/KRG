@@ -139,7 +139,7 @@ namespace KRG
         virtual void OnPlayStateChanged() {}
 
         // Set the playhead position
-        inline void SetPlayheadPosition( float inPosition ) { m_playheadTime = GetTimeRangeAsFloatRange().GetClampedValue( inPosition ); }
+        void SetPlayheadPosition( float inPosition );
 
         // Set the playhead position from a percentage over the time range
         inline void SetPlayheadPositionAsPercentage( Percentage inPercentage ) { m_playheadTime = inPercentage.GetClamped( m_isLoopingEnabled ).ToFloat() * m_timeRange.m_end; }
@@ -164,6 +164,9 @@ namespace KRG
 
         // Is this a valid track ptr (i.e. is it in the list of tracks)
         bool IsValidPtr( TimelineTrack const* pTrack );
+
+        // Delete specified item
+        void DeleteItem( TimelineItem* pItem );
 
         // Delete specified track
         void DeleteTrack( TimelineTrack* pTrack );

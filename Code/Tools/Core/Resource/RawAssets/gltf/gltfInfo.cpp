@@ -63,6 +63,8 @@ namespace KRG::gltf
             return false;
         }
 
+        outInfo.m_upAxis = Axis::Y;
+
         //-------------------------------------------------------------------------
 
         ReadMeshInfo( sceneCtx, outInfo );

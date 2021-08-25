@@ -78,7 +78,7 @@ namespace KRG::Animation
     class KRG_ENGINE_ANIMATION_API AnimationClip : public Resource::IResource
     {
         KRG_REGISTER_RESOURCE( 'ANIM' );
-        KRG_SERIALIZE_MEMBERS( m_pSkeleton, m_duration, m_numFrames, m_compressedPoseData, m_trackCompressionSettings, m_isAdditive, m_averageAngularVelocity, m_averageLinearVelocity, m_totalRootMotionDelta  );
+        KRG_SERIALIZE_MEMBERS( m_pSkeleton, m_numFrames, m_duration, m_compressedPoseData, m_trackCompressionSettings, m_rootMotionTrack, m_averageLinearVelocity, m_averageAngularVelocity, m_totalRootMotionDelta, m_isAdditive );
 
         friend class AnimationClipCompiler;
         friend class AnimationClipLoader;
@@ -152,13 +152,8 @@ namespace KRG::Animation
             return GetRootTransform( GetFrameTime( percentageThrough ) ); 
         }
 
-        inline Transform GetRootTransformDelta( Percentage fromTime, Percentage toTime ) const
-        {
-            KRG_ASSERT( fromTime <= toTime );
-            Transform const startTransform = GetRootTransform( fromTime );
-            Transform const endTransform = GetRootTransform( toTime );
-            return Transform::DeltaNoScale( startTransform, endTransform );
-        }
+        // Get the delta for the root motion for the given time range
+        inline Transform GetRootMotionDelta( Percentage fromTime, Percentage toTime ) const;
 
         // Get the average linear velocity of the root for this animation
         inline float GetAverageLinearVelocity() const { return m_averageAngularVelocity; }
@@ -395,6 +390,16 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         return pTrackData;
+    }
+
+    //-------------------------------------------------------------------------
+
+    inline Transform AnimationClip::GetRootMotionDelta( Percentage fromTime, Percentage toTime ) const
+    {
+        KRG_ASSERT( fromTime <= toTime ); // Users need to handle looping externally
+        Transform const startTransform = GetRootTransform( fromTime );
+        Transform const endTransform = GetRootTransform( toTime );
+        return Transform::DeltaNoScale( startTransform, endTransform );
     }
 
     //-------------------------------------------------------------------------

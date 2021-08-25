@@ -5,6 +5,7 @@
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/StringID.h"
 #include "System/Core/Time/Time.h"
+#include "System/Core/Math/Math.h"
 
 //-------------------------------------------------------------------------
 // Provide info about a raw file
@@ -46,5 +47,8 @@ namespace KRG::RawAssets
         TVector<RawMeshInfo>            m_meshes;
         TVector<RawAnimationInfo>       m_animations;
         TVector<RawSkeletonInfo>        m_skeletons;
+
+        float                           m_scale = 1.0f; // The scaling needed to convert to M
+        Axis                            m_upAxis = Axis::Z;
     };
 }

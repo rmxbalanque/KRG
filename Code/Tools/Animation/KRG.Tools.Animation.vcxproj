@@ -29,6 +29,7 @@
     <ClInclude Include="Graph\AnimationGraphTools_FlowGraph.h" />
     <ClInclude Include="Graph\AnimationGraphTools_Compilation.h" />
     <ClInclude Include="Graph\AnimationGraphTools_StateMachineGraph.h" />
+    <ClInclude Include="Graph\Nodes\AnimationToolsNode_Layers.h" />
     <ClInclude Include="Graph\StateMachine\AnimationToolsNode_State.h" />
     <ClInclude Include="Graph\StateMachine\AnimationToolsNode_Transitions.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Pose.h" />
@@ -67,6 +68,7 @@
     <ClCompile Include="Graph\AnimationGraphTools_FlowGraph.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_Compilation.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_StateMachineGraph.cpp" />
+    <ClCompile Include="Graph\Nodes\AnimationToolsNode_Layers.cpp" />
     <ClCompile Include="Graph\StateMachine\AnimationToolsNode_State.cpp" />
     <ClCompile Include="Graph\StateMachine\AnimationToolsNode_Transitions.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Pose.cpp" />

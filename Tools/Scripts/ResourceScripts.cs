@@ -386,6 +386,53 @@ namespace Scripts
             Directory.CreateDirectory(file.Directory.FullName);
             File.WriteAllText(file.FullName, sb.ToString());
         }
+
+        internal static void GenerationAmplifyAnimDescriptors(DirectoryInfo directory)
+        {
+            var files = directory.GetFilesByExtensions(".fbx", ".FBX" );
+
+            foreach (var file in files)
+            {
+                var outFile = new FileInfo( Path.ChangeExtension( file.FullName, ".anim" ) );
+
+                if (file.Extension.ToLower() == ".fbx")
+                {
+                    string dataPath = file.FullName.Replace('\\', '/');
+                    dataPath = dataPath.Replace("D:/Kruger/Data/", "data://");
+
+                    StringBuilder sb = new StringBuilder();
+                    StringWriter sw = new StringWriter(sb);
+
+                    System.Random random = new System.Random();
+
+                    using (JsonWriter writer = new JsonTextWriter(sw))
+                    {
+                        writer.Formatting = Formatting.Indented;
+
+                        writer.WriteStartObject();
+
+                        writer.WritePropertyName("TypeID");
+                        writer.WriteValue("KRG::Animation::AnimationClipResourceDescriptor");
+
+                        writer.WritePropertyName("m_animationDataPath");
+                        writer.WriteValue( dataPath );
+
+                        writer.WritePropertyName("m_pSkeleton");
+                        writer.WriteValue("data://animation/amplify/amplifyskeleton.skel");
+
+                        writer.WritePropertyName("m_animationEventData");
+                        writer.WriteValue("");
+
+                        writer.WritePropertyName("m_animationName");
+                        writer.WriteValue("Scene");
+
+                        writer.WriteEndObject();
+                    }
+
+                    File.WriteAllText(outFile.FullName, sb.ToString());
+                }
+            }
+        }
         #endregion
     }
 }

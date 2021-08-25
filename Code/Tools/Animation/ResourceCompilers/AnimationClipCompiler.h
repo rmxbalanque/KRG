@@ -34,7 +34,7 @@ namespace KRG::Animation
 
     class AnimationClipCompiler : public Resource::Compiler
     {
-        static const int32 s_version = 7;
+        static const int32 s_version = 10;
 
         struct AnimationEventData
         {
@@ -51,8 +51,6 @@ namespace KRG::Animation
         virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const final;
 
         void TransferAndCompressAnimationData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const;
-
-        void SetRootMotionData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const;
 
         bool CreateEventsData( Resource::CompileContext const& ctx, AnimationClipResourceDescriptor const& animResourceDesc, RawAssets::RawAnimation const& rawAnimData, AnimationEventData& outEventData ) const;
     };

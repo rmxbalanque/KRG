@@ -47,8 +47,7 @@ namespace KRG
 
         Vector Viewport::WorldSpaceToClipSpace( Vector const& pointWS ) const
         {
-            Vector pointCS = m_viewVolume.GetViewProjectionMatrix().TransformPoint( pointWS.GetAsPoint() );
-
+            Vector pointCS = m_viewVolume.GetViewProjectionMatrix().TransformPoint( pointWS.GetWithW1() );
             Vector const W = pointCS.GetSplatW().Abs();
             if ( !W.IsZero4() )
             {
@@ -108,7 +107,7 @@ namespace KRG
 
         Vector Viewport::ScreenSpaceToWorldSpaceNearPlane( Vector const& pointSS ) const
         {
-            Vector pointCS = ScreenSpaceToClipSpace( pointSS ).MakePoint();
+            Vector pointCS = ScreenSpaceToClipSpace( pointSS ).SetW1();
             pointCS.m_z = 0.0f;
             pointCS = m_viewVolume.GetInverseViewProjectionMatrix().TransformPoint( pointCS );
             pointCS /= pointCS.GetSplatW();
@@ -117,7 +116,7 @@ namespace KRG
 
         Vector Viewport::ScreenSpaceToWorldSpaceFarPlane( Vector const& pointSS ) const
         {
-            Vector pointCS = ScreenSpaceToClipSpace( pointSS ).MakePoint();
+            Vector pointCS = ScreenSpaceToClipSpace( pointSS ).SetW1();
             pointCS.m_z = 1.0f;
             pointCS = m_viewVolume.GetInverseViewProjectionMatrix().TransformPoint( pointCS );
             pointCS /= pointCS.GetSplatW();

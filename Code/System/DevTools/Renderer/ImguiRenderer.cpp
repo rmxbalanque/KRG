@@ -134,8 +134,6 @@ namespace KRG
             m_pRenderDevice->CreateTexture( m_fontTexture );
 
             io.Fonts->TexID = &m_fontTexture;
-            io.Fonts->ClearInputData();
-            io.Fonts->ClearTexData();
 
             //-------------------------------------------------------------------------
 
@@ -158,6 +156,11 @@ namespace KRG
 
         void ImguiRenderer::Shutdown()
         {
+            ImGuiIO& io = ::ImGui::GetIO();
+            io.Fonts->TexID = nullptr;
+
+            //-------------------------------------------------------------------------
+
             ImGui::DestroyPlatformWindows();
 
             //-------------------------------------------------------------------------

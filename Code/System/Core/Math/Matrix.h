@@ -51,8 +51,8 @@ namespace KRG
         explicit Matrix( NoInit ) {}
         explicit Matrix( ZeroInit ) { memset( this, 0, sizeof( Matrix ) ); }
         explicit Matrix( float v00, float v01, float v02, float v03, float v10, float v11, float v12, float v13, float v20, float v21, float v22, float v23, float v30, float v31, float v32, float v33 );
-        explicit Matrix( Vector const xAxis, Vector const yAxis, Vector const zAxis );
-        explicit Matrix( Vector const xAxis, Vector const yAxis, Vector const zAxis, Vector const translation );
+        explicit Matrix( Vector const& xAxis, Vector const& yAxis, Vector const& zAxis );
+        explicit Matrix( Vector const& xAxis, Vector const& yAxis, Vector const& zAxis, Vector const& translation );
 
         inline Matrix( Vector const axis, Radians angleRadians );
         inline Matrix( AxisAngle const axisAngle ) : Matrix( Vector( axisAngle.m_axis ), axisAngle.m_angle ) {}
@@ -97,10 +97,11 @@ namespace KRG
         // Translation
         //-------------------------------------------------------------------------
 
-        inline Vector const& GetTranslation() const { return m_rows[3]; }
-        inline Matrix& SetTranslation( Vector const& v ) { KRG_ASSERT( v.m_w == 1.0f ); m_rows[3] = v; return *this; }
+        inline Vector GetTranslation() const { return m_rows[3].GetWithW0(); }
+        inline Vector const& GetTranslationWithW() const { return m_rows[3]; }
+        inline Matrix& SetTranslation( Vector const& v ) { m_rows[3] = v.GetWithW1(); return *this; }
         inline Matrix& SetTranslation( Float3 const& v ) { m_rows[3] = Vector( v, 1.0f ); return *this; }
-        inline Matrix& SetTranslation( Float4 const& v ) { KRG_ASSERT( v.m_w == 1.0f ); m_rows[3] = v; return *this; }
+        inline Matrix& SetTranslation( Float4 const& v ) { m_rows[3] = Vector( v.m_x, v.m_y, v.m_z, 1.0f ); return *this; }
 
         // Rotation
         //-------------------------------------------------------------------------
@@ -187,7 +188,7 @@ namespace KRG
         m_rows[0] = m_rows[0] * scale.m_x;
         m_rows[1] = m_rows[1] * scale.m_y;
         m_rows[2] = m_rows[2] * scale.m_z;
-        m_rows[3] = translation;
+        m_rows[3] = translation.GetWithW1();
     }
 
     //-------------------------------------------------------------------------
@@ -562,19 +563,21 @@ namespace KRG
 
     inline Vector Matrix::TranslateVector( Vector const& vector ) const
     {
-        return vector + GetTranslation();
+        Vector result = ( vector + GetTranslation() );
+        result.SetW0();
+        return result;
     }
 
     inline Vector Matrix::RotateVector( Vector const& vector ) const
     {
-        KRG_ASSERT( vector.IsVector() );
+        Vector vVector = vector.GetWithW0();
 
-        __m128 vResult = _mm_shuffle_ps( vector, vector, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        __m128 vResult = _mm_shuffle_ps( vVector, vVector, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         vResult = _mm_mul_ps( vResult, m_rows[0] );
-        __m128 vTemp = _mm_shuffle_ps( vector, vector, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        __m128 vTemp = _mm_shuffle_ps( vVector, vVector, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         vTemp = _mm_mul_ps( vTemp, m_rows[1] );
         vResult = _mm_add_ps( vResult, vTemp );
-        vTemp = _mm_shuffle_ps( vector, vector, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        vTemp = _mm_shuffle_ps( vVector, vVector, _MM_SHUFFLE( 2, 2, 2, 2 ) );
         vTemp = _mm_mul_ps( vTemp, m_rows[2] );
         vResult = _mm_add_ps( vResult, vTemp );
         return vResult;
@@ -582,14 +585,14 @@ namespace KRG
 
     inline Vector Matrix::TransformPoint( Vector const& point ) const
     {
-        KRG_ASSERT( point.IsPoint() );
+        Vector vPoint = point.GetWithW1();
 
-        __m128 vResult = _mm_shuffle_ps( point, point, _MM_SHUFFLE( 0, 0, 0, 0 ) );
+        __m128 vResult = _mm_shuffle_ps( vPoint, vPoint, _MM_SHUFFLE( 0, 0, 0, 0 ) );
         vResult = _mm_mul_ps( vResult, m_rows[0] );
-        __m128 vTemp = _mm_shuffle_ps( point, point, _MM_SHUFFLE( 1, 1, 1, 1 ) );
+        __m128 vTemp = _mm_shuffle_ps( vPoint, vPoint, _MM_SHUFFLE( 1, 1, 1, 1 ) );
         vTemp = _mm_mul_ps( vTemp, m_rows[1] );
         vResult = _mm_add_ps( vResult, vTemp );
-        vTemp = _mm_shuffle_ps( point, point, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        vTemp = _mm_shuffle_ps( vPoint, vPoint, _MM_SHUFFLE( 2, 2, 2, 2 ) );
         vTemp = _mm_mul_ps( vTemp, m_rows[2] );
         vResult = _mm_add_ps( vResult, vTemp );
         vResult = _mm_add_ps( vResult, m_rows[3] );
@@ -739,7 +742,7 @@ namespace KRG
         M.m_rows[0] = Vector::UnitX;
         M.m_rows[1] = Vector::UnitY;
         M.m_rows[2] = Vector::UnitZ;
-        M.m_rows[3] = translation;
+        M.m_rows[3] = translation.GetWithW1();
         return M;
     }
 
@@ -769,7 +772,7 @@ namespace KRG
         M.m_rows[0] = _mm_and_ps( scale, SIMD::g_maskX000 );
         M.m_rows[1] = _mm_and_ps( scale, SIMD::g_mask0Y00 );
         M.m_rows[2] = _mm_and_ps( scale, SIMD::g_mask00Z0 );
-        M.m_rows[3] = translation;
+        M.m_rows[3] = translation.GetWithW1();
         return M;
     }
 

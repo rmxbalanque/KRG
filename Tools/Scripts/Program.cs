@@ -10,7 +10,9 @@ namespace Scripts
             //ResourceScripts.RemoveRootArraysFromResourceDescriptors( new DirectoryInfo( "D:\\Kruger\\Data" ) );
             //SceneScripts.GenerateECSTestMapFile( new FileInfo( @"D:\Kruger\Data\Maps\ECS_TestMap.map" ), 100, 100 );
 
-            ResourceScripts.GenerationAnimDataSetFile(new FileInfo("D:\\Kruger\\Data\\Animation\\AnimGraphDataSet.agds"));
+            //ResourceScripts.GenerationAnimDataSetFile(new FileInfo("D:\\Kruger\\Data\\Animation\\AnimGraphDataSet.agds"));
+
+            ResourceScripts.GenerationAmplifyAnimDescriptors(new DirectoryInfo("D:\\Kruger\\Data\\Animation\\Amplify"));
         }
     }
 }

@@ -172,15 +172,15 @@ namespace KRG::Animation::Graph
         {
             KRG_ASSERT( pSettings->m_allowLooping || isSynchronizedUpdate );
 
-            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( m_previousTime, 1.0f );
-            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( 0, m_currentTime ) * result.m_rootMotionDelta;
+            result.m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( m_previousTime, 1.0f );
+            result.m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( 0, m_currentTime ) * result.m_rootMotionDelta;
 
             m_pAnimation->GetEventsForRange( m_previousTime, 1.0f, sampledAnimationEvents );
             m_pAnimation->GetEventsForRange( 0, m_currentTime, sampledAnimationEvents );
         }
         else // Just sample the current range
         {
-            result.m_rootMotionDelta = m_pAnimation->GetRootTransformDelta( m_previousTime, m_currentTime );
+            result.m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( m_previousTime, m_currentTime );
             m_pAnimation->GetEventsForRange ( m_previousTime, m_currentTime, sampledAnimationEvents );
         }
 

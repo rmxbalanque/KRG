@@ -56,6 +56,14 @@ namespace KRG
             SetWorldTransformDirectly( newTransform );
         }
 
+        // Move the component by the specified delta transform
+        inline void MoveByDelta( Transform const& deltaTransform )
+        {
+            KRG_ASSERT( !deltaTransform.HasScale() );
+            Transform const newWorldTransform = deltaTransform * GetWorldTransform();
+            SetWorldTransform( newWorldTransform );
+        }
+
         // The socket that this component is attached to
         inline StringID GetAttachmentSocketID() const { return m_parentAttachmentSocketID; }
         inline void SetAttachmentSocketID( StringID socketID ) { m_parentAttachmentSocketID = socketID; }

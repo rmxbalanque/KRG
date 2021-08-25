@@ -129,7 +129,7 @@ namespace KRG
 
             Float2                  m_viewDimensions = Float2::Zero;        // The dimensions of the view volume
             Radians                 m_FOV = 0.0f;                           // The horizontal field of view angle (only for perspective projection)
-            FloatRange      m_depthRange = FloatRange( 0 );        // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
+            FloatRange              m_depthRange = FloatRange( 0 );        // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
             ProjectionType          m_type = ProjectionType::Perspective;   // The projection type
         };
     }

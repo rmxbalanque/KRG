@@ -61,6 +61,7 @@ namespace KRG::Animation::Graph
             virtual void OnGraphDoubleClick( GraphEditor::BaseGraph* pGraph ) override;
             virtual void OnNodeDoubleClick( GraphEditor::BaseNode* pNode ) override;
             virtual void OnSelectionChanged( TVector<GraphEditor::BaseNode*> const& oldSelection, TVector<GraphEditor::BaseNode*> const& newSelection ) { m_selectionChanged = true; }
+            virtual void DrawExtraInformation( GraphEditor::DrawingContext const& ctx ) override;
 
         public:
 

@@ -70,6 +70,12 @@ namespace KRG::Animation
             m_pEventEditor = KRG::New<EventEditor>( m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
         }
 
+        // Draw debug info in viewport
+        //-------------------------------------------------------------------------
+
+        auto drawingCtx = context.GetDrawingContext();
+        m_pResource->DrawRootMotionPath( drawingCtx, Transform::Identity );
+
         // Anim Info
         //-------------------------------------------------------------------------
 

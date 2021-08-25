@@ -2,15 +2,13 @@
 #include "Tools/Animation/Graph/Nodes/AnimationToolsNode_Parameters.h"
 #include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
 #include "Tools/Animation/Graph/AnimationGraphTools_StateMachineGraph.h"
+#include "Tools/Animation/Graph/StateMachine/AnimationToolsNode_State.h"
+#include "Tools/Animation/Graph/StateMachine/AnimationToolsNode_Transitions.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    constexpr static float const g_splitterHeight = 4.0f;
-
-    //-------------------------------------------------------------------------
-
     void GraphEditorView::FlowGraphView::DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos )
     {
         KRG_ASSERT( m_pGraph != nullptr );
@@ -141,9 +139,9 @@ namespace KRG::Animation::Graph
             pToolsGraph->CreateNewState( mouseCanvasPos );
         }
 
-        if ( ImGui::MenuItem( "State Machine State" ) )
+        if ( ImGui::MenuItem( "Off State" ) )
         {
-            pToolsGraph->CreateNewState( mouseCanvasPos );
+            pToolsGraph->CreateNewOffState( mouseCanvasPos );
         }
     }
 
@@ -175,6 +173,25 @@ namespace KRG::Animation::Graph
         if ( pNode->HasChildGraph() )
         {
             m_model.NavigateTo( pNode->GetChildGraph() );
+        }
+    }
+
+    void GraphEditorView::StateMachineGraphView::DrawExtraInformation( GraphEditor::DrawingContext const& ctx )
+    {
+        auto pToolsGraph = static_cast<StateMachineToolsGraph*>( m_pGraph );
+        auto pGlobalTransitionsNode = pToolsGraph->GetGlobalTransitionsNode();
+
+        auto const stateNodes = pToolsGraph->FindAllNodesOfType<StateBaseToolsNode>( GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch::Derived );
+        for ( auto pStateNode : stateNodes )
+        {
+            if ( pGlobalTransitionsNode->HasGlobalTransitionForState( pStateNode->GetID() ) )
+            {
+                auto const nodeRect = GetNodeWindowRect( pStateNode );
+                ImVec2 const iconSize = ImGui::CalcTextSize( KRG_ICON_BOLT );
+                ImVec2 const iconOffset( 0, iconSize.y + 4.0f );
+                
+                ctx.m_pDrawList->AddText( nodeRect.Min + ctx.m_windowRect.Min - iconOffset, ImGuiX::ConvertColor( Colors::OrangeRed ), KRG_ICON_BOLT );
+            }
         }
     }
 
@@ -254,7 +271,7 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 2 ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
         if ( ImGui::Begin( "Graph Editor" ) )
         {
             ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 0, 0 ) );
@@ -268,10 +285,13 @@ namespace KRG::Animation::Graph
             // Splitter
             //-------------------------------------------------------------------------
             
-            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImGuiX::Theme::s_backgroundColorLight );
-            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImGuiX::Theme::s_backgroundColorLight );
-            ImGui::Button( "##GraphViewSplitter", ImVec2( -1, g_splitterHeight ) );
-            ImGui::PopStyleColor(2);
+            ImGui::PushStyleColor( ImGuiCol_Button, ImGuiX::Theme::s_backgroundColorSemiDark );
+            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImGuiX::Theme::s_backgroundColorSemiLight );
+            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImGuiX::Theme::s_backgroundColorSemiLight );
+            ImGui::PushStyleVar( ImGuiStyleVar_FrameRounding, 0.0f );
+            ImGui::Button( "##GraphViewSplitter", ImVec2( -1, 3 ) );
+            ImGui::PopStyleColor(3);
+            ImGui::PopStyleVar();
 
             if ( ImGui::IsItemHovered() )
             {

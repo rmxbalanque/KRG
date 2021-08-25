@@ -173,12 +173,12 @@ namespace KRG::GraphEditor
         //-------------------------------------------------------------------------
 
         ImVec2 const titleBR( rectMax.x, titleRectEnd.y );
-        ctx.m_pDrawList->AddRectFilled( rectMin, titleBR, pNode->GetHighlightColor(), 3, ImDrawCornerFlags_Top );
+        ctx.m_pDrawList->AddRectFilled( rectMin, titleBR, pNode->GetHighlightColor(), 3, ImDrawFlags_RoundCornersTop );
 
         ImVec2 const titleRectBL( rectMin.x, titleRectEnd.y );
-        ctx.m_pDrawList->AddRectFilled( titleRectBL, rectMax, nodeBackgroundColor, 3, ImDrawCornerFlags_Bot );
+        ctx.m_pDrawList->AddRectFilled( titleRectBL, rectMax, nodeBackgroundColor, 3, ImDrawFlags_RoundCornersBottom );
 
-        ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawCornerFlags_All, 2.0f );
+        ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 2.0f );
 
         //-------------------------------------------------------------------------
 
@@ -388,6 +388,12 @@ namespace KRG::GraphEditor
 
                 drawingContext.m_pDrawList->AddBezierCubic( p1, p2, p3, p4, connectionColor, 3.0f );
             }
+
+            //-------------------------------------------------------------------------
+            // Extra
+            //-------------------------------------------------------------------------
+
+            DrawExtraInformation( drawingContext );
 
             //-------------------------------------------------------------------------
 
