@@ -112,7 +112,7 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    void TranslationGizmo::UpdateMode( Math::Viewport const& viewport )
+    void TranslationGizmo::UpdateMode( Render::Viewport const& viewport )
     {
         ImGuiIO& io = ImGui::GetIO();
 
@@ -197,7 +197,7 @@ namespace KRG::ImGuiX
         }
     }
 
-    void TranslationGizmo::PerformManipulation( Math::Viewport const& viewport )
+    void TranslationGizmo::PerformManipulation( Render::Viewport const& viewport )
     {
         Vector const& origin = m_manipulationTransform.GetTranslation();
 
@@ -279,7 +279,7 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    void TranslationGizmo::InternalUpdate( Math::Viewport const& viewport )
+    void TranslationGizmo::InternalUpdate( Render::Viewport const& viewport )
     {
         auto pDrawList = ImGui::GetWindowDrawList();
 

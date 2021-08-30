@@ -3,6 +3,7 @@
 #include "ApplicationGlobalState.h"
 #include "ResourceServer.h"
 #include "ResourceServerUI.h"
+#include "System/Render/RenderViewportManager.h"
 #include "System/Render/RenderDevice/RenderDevice.h"
 #include "System/Render/Renderers/RendererRegistry.h"
 #include "System/Resource/ResourceSettings.h"
@@ -11,7 +12,6 @@
 #include "System/Core/Types/String.h"
 #include "System/Core/Core/IntegralTypes.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/Core/Math/Viewport.h"
 #include "Win32/Application_Win32.h"
 #include <shellapi.h>
 
@@ -62,11 +62,11 @@ namespace KRG
 
         // Rendering
         Render::RenderDevice*                   m_pRenderDevice = nullptr;
+        Render::ViewportManager                 m_viewportManager;
 
         // Imgui
         ImGuiX::ImguiSystem                     m_imguiSystem;
         ImGuiX::ImguiRenderer                   m_imguiRenderer;
-        Math::Viewport                          m_viewport;
 
         Resource::Settings                      m_settings;
         Resource::ResourceServer                m_resourceServer;

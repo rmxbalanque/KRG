@@ -11,18 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_Model.h" />
-    <ClInclude Include="AnimationClipEditor\AnimationClipEditor.h" />
-    <ClInclude Include="AnimationClipEditor\AnimationClipEditor_DataBrowser.h" />
-    <ClInclude Include="AnimationClipEditor\FileTabs\AnimationFileTab.h" />
-    <ClInclude Include="AnimationClipEditor\FileTabs\SkeletonFileTab.h" />
-    <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor.h" />
-    <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_ControlParameterEditor.h" />
-    <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_GraphEditor.h" />
-    <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_PropertyGrid.h" />
     <ClInclude Include="Events\AnimationEventEditor.h" />
     <ClInclude Include="Events\AnimationEventData.h" />
-    <ClInclude Include="AnimationGraphEditor\AnimationGraphEditor_VariationEditor.h" />
     <ClInclude Include="Graph\AnimationGraphTools_Common.h" />
     <ClInclude Include="Graph\AnimationGraphTools_AnimationGraph.h" />
     <ClInclude Include="Graph\AnimationGraphTools_FlowNode.h" />
@@ -50,18 +40,8 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_Model.cpp" />
-    <ClCompile Include="AnimationClipEditor\AnimationClipEditor.cpp" />
-    <ClCompile Include="AnimationClipEditor\AnimationClipEditor_DataBrowser.cpp" />
-    <ClCompile Include="AnimationClipEditor\FileTabs\AnimationFileTab.cpp" />
-    <ClCompile Include="AnimationClipEditor\FileTabs\SkeletonFileTab.cpp" />
-    <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor.cpp" />
-    <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_ControlParameterEditor.cpp" />
-    <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_GraphEditor.cpp" />
-    <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_PropertyGrid.cpp" />
     <ClCompile Include="Events\AnimationEventData.cpp" />
     <ClCompile Include="Events\AnimationEventEditor.cpp" />
-    <ClCompile Include="AnimationGraphEditor\AnimationGraphEditor_VariationEditor.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_AnimationGraph.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_FlowNode.cpp" />
     <ClCompile Include="Graph\AnimationGraphTools_Common.cpp" />

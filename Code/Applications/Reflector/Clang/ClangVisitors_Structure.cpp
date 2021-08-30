@@ -378,7 +378,15 @@ namespace KRG
                         resource.m_namespace = pContext->GetCurrentNamespace();
                         resource.m_isVirtual = macro.m_type == ReflectionMacro::RegisterVirtualResource;
 
-                        pContext->m_pDatabase->RegisterResource( &resource );
+                        if ( !pContext->m_pDatabase->IsResourceRegistered( resource.m_resourceTypeID ) )
+                        {
+                            pContext->m_pDatabase->RegisterResource( &resource );
+                        }
+                        else // We do not allow multiple resources registered with the same ID
+                        {
+                            pContext->LogError( "Duplicate resource type ID encountered: %s in file: %s", resource.m_resourceTypeID.ToString().c_str(), headerFilePath.c_str() );
+                            return CXChildVisit_Break;
+                        }
                     }
                     else // Classes or structs
                     {

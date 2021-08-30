@@ -1,0 +1,106 @@
+#include "StaticMeshWorkspace.h"
+#include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
+#include "System/Entity/EntityWorld.h"
+#include "Engine/Render/Components/StaticMeshComponent.h"
+#include "Engine/Render/Components/SkeletalMeshComponent.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Render
+{
+    void StaticMeshWorkspace::Activate( EntityWorld* pPreviewWorld )
+    {
+        KRG_ASSERT( m_pPreviewEntity == nullptr );
+
+        // We dont own the entity as soon as we add it to the map
+        auto pPersistentMap = pPreviewWorld->GetPersistentMap();
+
+        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
+        pPersistentMap->AddEntity( m_pPreviewEntity );
+
+        auto pStaticMeshComponent = KRG::New<StaticMeshComponent>( StringID( "Static Mesh Component" ) );
+        pStaticMeshComponent->SetMesh( m_pResource.GetResourceID() );
+        m_pPreviewEntity->AddComponent( pStaticMeshComponent );
+    }
+
+    void StaticMeshWorkspace::Deactivate( EntityWorld* pPreviewWorld )
+    {
+        KRG_ASSERT( m_pPreviewEntity != nullptr );
+
+        auto pPersistentMap = pPreviewWorld->GetPersistentMap();
+        pPersistentMap->DestroyEntity( m_pPreviewEntity->GetID() );
+        m_pPreviewEntity = nullptr;
+    }
+
+    void StaticMeshWorkspace::DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    {
+        if ( IsLoading() || IsUnloaded() )
+        {
+            ImGui::Text( "Loading:" );
+            ImGui::SameLine();
+            ImGuiX::DrawSpinner( "Loading" );
+            return;
+        }
+
+        if ( HasLoadingFailed() )
+        {
+            ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        auto pMesh = m_pResource.GetPtr();
+
+        KRG_ASSERT( pMesh != nullptr );
+
+        ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
+        if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
+        {
+            ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
+            ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "Data Path:" );
+
+            ImGui::TableNextColumn();
+            ImGui::Text( pMesh->GetResourceID().c_str() );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "Num Vertices:" );
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "%d", pMesh->GetNumVertices() );
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "Num Indices:" );
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "%d", pMesh->GetNumIndices() );
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::Text( "Geometry Sections:" );
+
+            ImGui::TableNextColumn();
+            for ( auto const& section : pMesh->GetSections() )
+            {
+                ImGui::Text( section.m_ID.c_str() );
+            }
+
+            ImGui::EndTable();
+        }
+        ImGui::PopStyleVar();
+    }
+}

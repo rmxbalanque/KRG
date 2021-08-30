@@ -303,14 +303,46 @@ namespace KRG
         {
             KRG_ASSERT( IsValid() );
 
+            float const blendFactors[4] = { 0.f, 0.f, 0.f, 0.f };
+
             if ( blendState.IsValid() )
             {
-                m_pDeviceContext->OMSetBlendState( (ID3D11BlendState*) blendState.GetResourceHandle().m_pHandle, nullptr, 0xffffffff );
+                m_pDeviceContext->OMSetBlendState( (ID3D11BlendState*) blendState.GetResourceHandle().m_pHandle, blendFactors, 0xffffffff );
             }
             else
             {
-                m_pDeviceContext->OMSetBlendState( nullptr, nullptr, 0xffffffff );
+                m_pDeviceContext->OMSetBlendState( nullptr, blendFactors, 0xffffffff );
             }
+        }
+
+        void RenderContext::SetRenderTarget( RenderTarget const& renderTarget, bool clearOnSet ) const
+        {
+            KRG_ASSERT( IsValid() && renderTarget.IsValid() );
+
+            auto pRenderTargetSRV = (DX11::RenderTargetSRV*) renderTarget.GetRenderTargetHandle().m_pHandle;
+            m_pDeviceContext->OMSetRenderTargets( 1, &pRenderTargetSRV->m_pRenderTargetView, pRenderTargetSRV->m_pDepthStencilView );
+
+            if ( clearOnSet )
+            {
+                ClearRenderTargetViews( renderTarget );
+            }
+        }
+
+        void RenderContext::ClearRenderTargetViews( RenderTarget const& renderTarget ) const
+        {
+            KRG_ASSERT( IsValid() && renderTarget.IsValid() );
+
+            static Float4 const clearColor = Color( 96, 96, 96 ).ToFloat4();
+
+            auto pRenderTargetSRV = (DX11::RenderTargetSRV*) renderTarget.GetRenderTargetHandle().m_pHandle;
+            m_pDeviceContext->ClearRenderTargetView( pRenderTargetSRV->m_pRenderTargetView, &clearColor.m_x );
+            m_pDeviceContext->ClearDepthStencilView( pRenderTargetSRV->m_pDepthStencilView, D3D10_CLEAR_DEPTH, 1.0f, 0 );
+        }
+
+        void RenderContext::ClearRenderTargets() const
+        {
+            ID3D11RenderTargetView* nullViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { 0 };
+            m_pDeviceContext->OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullViews, nullptr );
         }
 
         //-------------------------------------------------------------------------

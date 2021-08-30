@@ -42,8 +42,8 @@ namespace KRG
                 Byte* pImage = stbi_load_from_memory( decodedData.data(), (int32) decodedData.size(), &width, &height, &channels, 4 );
                 size_t const imageSize = size_t( width ) * height * channels; // 8 bits per channel
 
-                g_pDefaultResources->m_defaultTexture = Texture::InitializeTexture( TextureFormat::Raw, Int2( 320, 240 ) , pImage, imageSize );
-                pRenderDevice->CreateTexture( g_pDefaultResources->m_defaultTexture );
+                g_pDefaultResources->m_defaultTexture = Texture( Int2( 320, 240 ) );
+                pRenderDevice->CreateTexture( g_pDefaultResources->m_defaultTexture, TextureFormat::Raw, pImage, imageSize );
 
                 stbi_image_free( pImage );
             }

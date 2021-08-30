@@ -101,32 +101,25 @@ namespace KRG
             friend class TextureLoader;
 
             KRG_REGISTER_RESOURCE( 'TXTR' );
-            KRG_SERIALIZE_MEMBERS( m_format, m_dimensions, m_rawData );
+            KRG_SERIALIZE_MEMBERS( m_dimensions );
 
         public:
 
-            static Texture InitializeTexture( TextureFormat format, Int2 dimensions, Byte* pData, size_t dataSize );
-
-        public:
-
-            Texture();
+            Texture() = default;
+            Texture( Int2 const& dimensions ) : m_dimensions( dimensions ) {}
 
             virtual bool IsValid() const override { return m_resourceHandle.IsValid(); }
 
-            Int2 GetDimensions() const { return m_dimensions; }
+            Int2 const& GetDimensions() const { return m_dimensions; }
             ResourceHandle const& GetResourceHandle() const { return m_resourceHandle; }
-            TVector<Byte> const& GetRawData() { return m_rawData; }
-            inline bool HasRawData() { return m_rawData.size() > 0; }
 
             inline bool operator==( Texture const& rhs ) const { return m_resourceHandle.m_pHandle == rhs.m_resourceHandle.m_pHandle; }
             inline bool operator!=( Texture const& rhs ) const { return m_resourceHandle.m_pHandle != rhs.m_resourceHandle.m_pHandle; }
 
         protected:
 
-            TVector<Byte>   m_rawData;
             ResourceHandle  m_resourceHandle;
             Int2            m_dimensions;
-            TextureFormat   m_format;
         };
     }
 }

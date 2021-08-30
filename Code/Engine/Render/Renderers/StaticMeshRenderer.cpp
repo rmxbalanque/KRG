@@ -3,7 +3,7 @@
 #include "Engine/Render/Components/StaticMeshComponent.h"
 #include "Engine/Render/Shaders/EngineShaders.h"
 #include "System/Render/RenderDevice/RenderDefaultResources.h"
-#include "System/Core/Math/Viewport.h"
+#include "System/Render/RenderViewport.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
@@ -58,7 +58,7 @@ namespace KRG::Render
         }
 
         // Create blend state
-        m_blendState.m_blendEnable = true;
+        m_blendState.m_blendEnable = false;
         m_blendState.m_srcValue = BlendValue::SourceAlpha;
         m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
         m_blendState.m_blendOp = BlendOp::Add;
@@ -300,7 +300,7 @@ namespace KRG::Render
         }
     }
 
-    void StaticMeshRenderer::RenderStatic( Math::Viewport const& viewport )
+    void StaticMeshRenderer::RenderStatic( Viewport const& viewport )
     {
         KRG_PROFILE_FUNCTION_RENDER();
 
@@ -335,7 +335,7 @@ namespace KRG::Render
         }
     }
 
-    void StaticMeshRenderer::RenderDynamic( Math::Viewport const& viewport )
+    void StaticMeshRenderer::RenderDynamic( Viewport const& viewport )
     {
         KRG_PROFILE_FUNCTION_RENDER();
 

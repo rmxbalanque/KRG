@@ -35,7 +35,7 @@ namespace KRG
             bool IsInitialized() const { return m_initialized; }
             bool Initialize( Render::RenderDevice* pRenderDevice );
             void Shutdown();
-            void Render( Math::Viewport const& viewport ) override final;
+            void Render( Render::Viewport const& viewport ) override final;
 
         private:
 

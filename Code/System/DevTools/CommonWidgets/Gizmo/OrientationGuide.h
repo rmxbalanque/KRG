@@ -5,11 +5,11 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Math { class Viewport; }
+namespace KRG::Render { class Viewport; }
 
 //-------------------------------------------------------------------------
 
 namespace KRG::ImGuiX
 {
-    KRG_SYSTEM_DEVTOOLS_API void DrawOrientationGuide( Math::Viewport const& viewport, ImVec2 const& margin = ImVec2( 3.0f, 4.0f ) );
+    KRG_SYSTEM_DEVTOOLS_API void DrawOrientationGuide( Render::Viewport const& viewport, ImVec2 const& margin = ImVec2( 3.0f, 4.0f ) );
 }

@@ -5,7 +5,7 @@
 
 namespace KRG::ImGuiX
 {
-    void Gizmo::Update( Math::Viewport const& viewport )
+    void Gizmo::Update( Render::Viewport const& viewport )
     {
         m_manipulationTransform = m_targetTransform;
         if ( m_coordinateSpace == CoordinateSpace::World )

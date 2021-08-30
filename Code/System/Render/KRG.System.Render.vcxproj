@@ -21,6 +21,7 @@
     <ClInclude Include="Fonts\FontData_ProggyTiny.h" />
     <ClInclude Include="Fonts\FontDecompressor.h" />
     <ClInclude Include="Renderers\IRenderer.h" />
+    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RenderSettings.h" />
     <ClInclude Include="Renderers\RendererRegistry.h" />
     <ClInclude Include="RenderDevice\Platform\RenderContext_DX11.h" />
@@ -41,6 +42,7 @@
     <ClInclude Include="ThirdParty\stb\stb_rect_pack.h" />
     <ClInclude Include="ThirdParty\stb\stb_textedit.h" />
     <ClInclude Include="ThirdParty\stb\stb_truetype.h" />
+    <ClInclude Include="RenderViewport.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
@@ -65,12 +67,14 @@
     <ClCompile Include="RenderDevice\Platform\RenderDevice_DX11.cpp" />
     <ClCompile Include="RenderDevice\Platform\TextureLoader_Win32.cpp" />
     <ClCompile Include="RenderDevice\RenderDefaultResources.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RenderSettings.cpp" />
     <ClCompile Include="RenderShader.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="RenderVertexFormats.cpp" />
     <ClCompile Include="RenderViewportManager.cpp" />
     <ClCompile Include="ThirdParty\stb\krg_stb.cpp" />
+    <ClCompile Include="RenderViewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli" />

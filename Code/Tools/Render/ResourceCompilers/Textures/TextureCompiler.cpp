@@ -31,7 +31,8 @@ namespace KRG::Render
         }
 
         Texture texture;
-        if ( !ConvertTexture( textureFilePath, texture.m_rawData ) )
+        TVector<Byte> rawData;
+        if ( !ConvertTexture( textureFilePath, rawData ) )
         {
             return Error( "Failed to convert texture!" );
         }
@@ -43,7 +44,7 @@ namespace KRG::Render
         if ( archive.IsValid() )
         {
             Resource::ResourceHeader hdr( s_version, Texture::GetStaticResourceTypeID() );
-            archive << hdr << texture;
+            archive << hdr << TextureFormat::DDS << rawData << texture;
             return CompilationSucceeded( ctx );
         }
         else

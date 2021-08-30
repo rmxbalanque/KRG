@@ -1,7 +1,6 @@
 #pragma once
 
 #include "System/Render/Renderers/RendererRegistry.h"
-#include "System/Core/Math/Viewport.h"
 
 //-------------------------------------------------------------------------
 // KRG Renderer System

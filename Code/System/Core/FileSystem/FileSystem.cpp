@@ -46,7 +46,7 @@ namespace KRG::FileSystem
         KRG_ASSERT( directoryPath.IsDirectoryPath() );
 
         HANDLE hFind;
-        WIN32_FIND_DATAA fd;
+        WIN32_FIND_DATAA findFileData;
 
         // Create search path
         size_t const filterLength = strlen( pFileFilter );
@@ -55,17 +55,17 @@ namespace KRG::FileSystem
         memcpy( searchParam, directoryPath, directoryPath.Length() );
         memcpy( &searchParam[directoryPath.Length()], pFileFilter, strlen( pFileFilter ) );
 
-        // Search directory
-        hFind = ::FindFirstFileA( searchParam, &fd );
+        // Search directory - Case-insensitive
+        hFind = ::FindFirstFileExA( searchParam, FindExInfoStandard, &findFileData,FindExSearchNameMatch, nullptr, 0 );
         if ( hFind != INVALID_HANDLE_VALUE )
         {
             do
             {
-                if ( !( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) )
+                if ( !( findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) )
                 {
-                    contents.push_back( directoryPath + fd.cFileName );
+                    contents.push_back( directoryPath + findFileData.cFileName );
                 }
-            } while ( ::FindNextFileA( hFind, &fd ) );
+            } while ( ::FindNextFileA( hFind, &findFileData ) );
             ::FindClose( hFind );
         }
     }
@@ -83,10 +83,19 @@ namespace KRG::FileSystem
             return false;
         }
 
+        //-------------------------------------------------------------------------
+
         uint32 const numExtensionFilters = (uint32) extensionFilter.size();
+        TVector<String> lowercaseExtensionFilters = extensionFilter;
+        for ( auto& extFilter : lowercaseExtensionFilters )
+        {
+            extFilter.make_lower();
+        }
 
         // Path processing
         //-------------------------------------------------------------------------
+
+        InlineString<15> fileLowercaseExtension;
 
         auto ProcessPath = [&] ( std::filesystem::path const& path )
         {
@@ -109,10 +118,13 @@ namespace KRG::FileSystem
                 // Optional: filter by extensions
                 if ( numExtensionFilters > 0 )
                 {
-                    auto const extension = path.extension();
+                    // Todo: there's likely a more efficient way to do a case insensitive compare
+                    fileLowercaseExtension = InlineString<15>( path.extension().u8string().c_str() );
+                    fileLowercaseExtension.make_lower();
+
                     for ( auto i = 0u; i < numExtensionFilters; i++ )
                     {
-                        if ( extension == extensionFilter[i].c_str() )
+                        if ( fileLowercaseExtension == lowercaseExtensionFilters[i].c_str() )
                         {
                             shouldAddFile = true;
                             break;

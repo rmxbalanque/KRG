@@ -86,6 +86,8 @@ namespace KRG
         {
             KRG_ASSERT( m_pRenderDevice != nullptr && m_pViewportManager != nullptr );
 
+            auto const& immediateContext = m_pRenderDevice->GetImmediateContext();
+
             //-------------------------------------------------------------------------
 
             UpdateStage const updateStage = ctx.GetUpdateStage();
@@ -97,8 +99,21 @@ namespace KRG
                 {
                     KRG_PROFILE_SCOPE_RENDER( "Rendering Pre-Physics" );
 
+                    m_pViewportManager->UpdateCustomRenderTargets();
+
                     for ( auto const& viewport : m_pViewportManager->GetActiveViewports() )
                     {
+                        if ( viewport.HasCustomRenderTarget() )
+                        {
+                            immediateContext.SetRenderTarget( viewport.GetCustomRenderTarget() );
+                        }
+                        else
+                        {
+                            immediateContext.SetRenderTarget( m_pRenderDevice->GetMainRenderTarget() );
+                        }
+
+                        //-------------------------------------------------------------------------
+
                         if ( m_pStaticMeshRenderer != nullptr )
                         {
                             m_pStaticMeshRenderer->RenderStatic( viewport );
@@ -118,6 +133,17 @@ namespace KRG
 
                     for ( auto const& viewport : m_pViewportManager->GetActiveViewports() )
                     {
+                        if ( viewport.HasCustomRenderTarget() )
+                        {
+                            immediateContext.SetRenderTarget( viewport.GetCustomRenderTarget() );
+                        }
+                        else
+                        {
+                            immediateContext.SetRenderTarget( m_pRenderDevice->GetMainRenderTarget() );
+                        }
+
+                        //-------------------------------------------------------------------------
+
                         if ( m_pStaticMeshRenderer != nullptr )
                         {
                             m_pStaticMeshRenderer->RenderDynamic( viewport );
@@ -140,6 +166,8 @@ namespace KRG
                     #if KRG_DEVELOPMENT_TOOLS
                     if ( m_pImguiRenderer != nullptr )
                     {
+                        immediateContext.SetRenderTarget( m_pRenderDevice->GetMainRenderTarget() );
+
                         auto const& devToolsViewport = m_pViewportManager->GetDevelopmentToolsViewport();
                         m_pImguiRenderer->Render( devToolsViewport );
                     }

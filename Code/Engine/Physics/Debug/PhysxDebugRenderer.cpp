@@ -61,7 +61,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    void PhysicsRenderer::DrawPoints( RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugPoint const* pPoints, uint32 numPoints )
+    void PhysicsRenderer::DrawPoints( RenderContext const& renderContext, Render::Viewport const& viewport, physx::PxDebugPoint const* pPoints, uint32 numPoints )
     {
         m_pointRS.SetState( renderContext, viewport );
         renderContext.SetDepthTestMode( DepthTestMode::Off );
@@ -91,7 +91,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsRenderer::DrawLines( RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugLine const* pLines, uint32 numLines )
+    void PhysicsRenderer::DrawLines( RenderContext const& renderContext, Render::Viewport const& viewport, physx::PxDebugLine const* pLines, uint32 numLines )
     {
         m_lineRS.SetState( renderContext, viewport );
         renderContext.SetDepthTestMode( DepthTestMode::Off );
@@ -123,7 +123,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsRenderer::DrawTriangles( RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugTriangle const* pTriangles, uint32 numTriangles )
+    void PhysicsRenderer::DrawTriangles( RenderContext const& renderContext, Render::Viewport const& viewport, physx::PxDebugTriangle const* pTriangles, uint32 numTriangles )
     {
         m_primitiveRS.SetState( renderContext, viewport );
         renderContext.SetDepthTestMode( DepthTestMode::Off );
@@ -157,7 +157,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsRenderer::DrawStrings( RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugText const* pStrings, uint32 numStrings )
+    void PhysicsRenderer::DrawStrings( RenderContext const& renderContext, Render::Viewport const& viewport, physx::PxDebugText const* pStrings, uint32 numStrings )
     {
         m_textRS.SetState( renderContext, viewport );
         renderContext.SetDepthTestMode( DepthTestMode::Off );
@@ -213,7 +213,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    void PhysicsRenderer::Render( Math::Viewport const& viewport )
+    void PhysicsRenderer::Render( Render::Viewport const& viewport )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();

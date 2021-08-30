@@ -22,16 +22,20 @@ namespace KRG::Render
 
     public:
 
-        RenderDevice();
+        RenderDevice() = default;
         ~RenderDevice();
 
         //-------------------------------------------------------------------------
 
-        inline RenderContext const& GetImmediateContext() const { return m_immediateContext; }
-
         bool IsInitialized() const;
         bool Initialize( Settings const& settings );
         void Shutdown();
+
+        // Pipeline state changes
+        //-------------------------------------------------------------------------
+
+        inline RenderContext const& GetImmediateContext() const { return m_immediateContext; }
+        RenderTarget const& GetMainRenderTarget() const& { return m_renderTarget; }
 
         // Device locking: required since we create/destroy resources while rendering
         //-------------------------------------------------------------------------
@@ -44,8 +48,8 @@ namespace KRG::Render
 
         void PresentFrame();
 
-        void ResizeRenderTargets( Int2 const& dimensions );
-        inline Int2 GetRenderTargetDimensions() const { return m_resolution; }
+        void ResizeMainRenderTarget( Int2 const& dimensions );
+        inline Int2 GetMainRenderTargetDimensions() const { return m_resolution; }
 
         // Resource and state management
         //-------------------------------------------------------------------------
@@ -71,46 +75,46 @@ namespace KRG::Render
         void DestroyBlendState( BlendState& state );
 
         // Textures and Sampling
-        void CreateTexture( Texture& texture );
+        void CreateTexture( Texture& texture, TextureFormat format, Byte const* rawData, size_t size );
+        inline void CreateTexture( Texture& texture, TextureFormat format, TVector<Byte> const& rawData ) { CreateTexture( texture, format, rawData.data(), rawData.size() ); }
         void DestroyTexture( Texture& texture );
 
         void CreateSamplerState( SamplerState& state );
         void DestroySamplerState( SamplerState& state );
+
+        // Render Targets
+        void CreateRenderTarget( RenderTarget& target, Int2 const& dimensions );
+        void ResizeRenderTarget( RenderTarget& target, Int2 const& newDimensions );
+        void DestroyRenderTarget( RenderTarget& target );
 
     private:
 
         bool CreateDeviceAndSwapchain();
         void DestroyDeviceAndSwapchain();
 
-        bool CreateRenderTargets();
-        void DestroyRenderTargets();
-
-        bool CreateDepthStencilView();
-        void DestroyDepthStencilView();
+        bool CreateMainRenderTarget();
+        void DestroyMainRenderTarget();
 
         bool CreateDefaultDepthStencilStates();
         void DestroyDefaultDepthStencilStates();
 
-        void CreateRawTexture( Texture& texture );
-        void CreateDDSTexture( Texture& texture );
+        void CreateRenderTargetTexture( Texture& texture );
+        void CreateRawTexture( Texture& texture, Byte const* pRawData, size_t rawDataSize );
+        void CreateDDSTexture( Texture& texture, Byte const* pRawData, size_t rawDataSize );
 
     private:
 
-        Int2                        m_resolution;
-        float                       m_refreshRate;
-        bool                        m_fullscreen;
+        Int2                        m_resolution = Int2( 0 );
+        float                       m_refreshRate = 0;
+        bool                        m_fullscreen = false;
 
         // Device Core 
-        ID3D11Device*               m_pDevice;
-        IDXGISwapChain*             m_pSwapChain;
+        ID3D11Device*               m_pDevice = nullptr;
+        IDXGISwapChain*             m_pSwapChain = nullptr;
         RenderContext               m_immediateContext;
 
         // Render targets
-        ID3D11RenderTargetView*     m_pRenderTargetView;
-
-        // Depth testing
-        ID3D11Texture2D*            m_pDepthStencil;
-        ID3D11DepthStencilView*     m_pDepthStencilView;
+        RenderTarget                m_renderTarget;
 
         // lock to allow loading resources while rendering across different threads
         Threading::Mutex            m_deviceMutex;

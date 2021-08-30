@@ -70,10 +70,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Editors\Editor.cpp" />
     <ClCompile Include="EditorApplication.cpp" />
+    <ClCompile Include="Editors\EditorModel.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\EditorTabWell.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\Workspaces\Render\SkeletalMeshWorkspace.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\ResourceEditor_DataBrowserTreeView.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\ResourceEditor_DataFileInspector.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\Workspaces\Animation\AnimationClipWorkspace.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\Workspaces\Render\StaticMeshWorkspace.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\Workspaces\Animation\SkeletonWorkspace.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\ResourceEditor.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\ResourceEditor_DataBrowser.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\ResourceEditor_Model.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Editors\Editor.h" />
     <ClInclude Include="EditorApplication.h" />
+    <ClInclude Include="Editors\EditorModel.h" />
+    <ClInclude Include="Editors\ResourceEditor\Workspaces\ResourceWorkspace.h" />
+    <ClInclude Include="Editors\ResourceEditor\EditorTabWell.h" />
+    <ClInclude Include="Editors\ResourceEditor\Workspaces\Render\SkeletalMeshWorkspace.h" />
+    <ClInclude Include="Editors\ResourceEditor\ResourceEditor_DataBrowserTreeView.h" />
+    <ClInclude Include="Editors\ResourceEditor\ResourceEditor_DataFileInspector.h" />
+    <ClInclude Include="Editors\ResourceEditor\Workspaces\Animation\AnimationClipWorkspace.h" />
+    <ClInclude Include="Editors\ResourceEditor\Workspaces\Render\StaticMeshWorkspace.h" />
+    <ClInclude Include="Editors\ResourceEditor\Workspaces\Animation\SkeletonWorkspace.h" />
+    <ClInclude Include="Editors\ResourceEditor\ResourceEditor.h" />
+    <ClInclude Include="Editors\ResourceEditor\ResourceEditor_DataBrowser.h" />
+    <ClInclude Include="Editors\ResourceEditor\ResourceEditor_Model.h" />
     <ClInclude Include="Resources\Resource.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,6 @@
 #include "ImguiRenderer.h"
 #include "Shaders/ImguiShaders.h"
-#include "System/Core/Math/Viewport.h"
+#include "System/Render/RenderViewport.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
@@ -56,8 +56,8 @@ namespace KRG
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
-            m_blendState.m_srcAlphaValue = BlendValue::InverseSourceAlpha;
-            m_blendState.m_dstAlphaValue = BlendValue::Zero;
+            m_blendState.m_srcAlphaValue = BlendValue::One;
+            m_blendState.m_dstAlphaValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_pRenderDevice->CreateBlendState( m_blendState );
 
@@ -123,15 +123,17 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Set render dimensions
-            auto const renderTargetDimensions = m_pRenderDevice->GetRenderTargetDimensions();
+            auto const renderTargetDimensions = m_pRenderDevice->GetMainRenderTargetDimensions();
             io.DisplaySize = ImVec2( (float) renderTargetDimensions.m_x, (float) renderTargetDimensions.m_y );
 
             Byte* pPixels = nullptr;
             Int2 dimensions;
             io.Fonts->GetTexDataAsRGBA32( &pPixels, &dimensions.m_x, &dimensions.m_y );
-            m_fontTexture = Texture::InitializeTexture( TextureFormat::Raw, dimensions, pPixels, dimensions.m_x * dimensions.m_y * 4 );
+            size_t const textureDataSize = dimensions.m_x * dimensions.m_y * 4;
+
+            m_fontTexture = Texture( dimensions );
             KRG_ASSERT( pPixels != nullptr );
-            m_pRenderDevice->CreateTexture( m_fontTexture );
+            m_pRenderDevice->CreateTexture( m_fontTexture, TextureFormat::Raw, pPixels, textureDataSize );
 
             io.Fonts->TexID = &m_fontTexture;
 
@@ -216,7 +218,7 @@ namespace KRG
             m_initialized = false;
         }
 
-        void ImguiRenderer::Render( Math::Viewport const& viewport )
+        void ImguiRenderer::Render( Render::Viewport const& viewport )
         {
             KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
             KRG_PROFILE_FUNCTION_RENDER();
@@ -325,14 +327,8 @@ namespace KRG
                     }
                     else
                     {
-                        if ( pCmd->TextureId == &m_fontTexture )
-                        {
-                            renderContext.SetTexture( PipelineStage::Pixel, 0, m_fontTexture );
-                        }
-                        else
-                        {
-                            KRG_HALT();
-                        }
+                        Texture const* pTexture = reinterpret_cast<Texture const*>( pCmd->TextureId );
+                        renderContext.SetTexture( PipelineStage::Pixel, 0, *pTexture );
 
                         ScissorRect scissorRect = { (int32) pCmd->ClipRect.x, (int32) pCmd->ClipRect.y, (int32) pCmd->ClipRect.z, (int32) pCmd->ClipRect.w };
                         renderContext.SetRasterizerScissorRectangles( &scissorRect, 1 );

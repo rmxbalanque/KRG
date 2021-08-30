@@ -53,8 +53,7 @@ namespace KRG
                 if ( width > 0 && height > 0 )
                 {
                     Int2 const newWindowDimensions( width, height );
-                    m_pRenderDevice->ResizeRenderTargets( newWindowDimensions );
-                    m_viewport = Math::Viewport( Int2( 0, 0 ), newWindowDimensions, Math::ViewVolume( Float2( newWindowDimensions ), FloatRange( 0.1f, 100.0f ) ) );
+                    m_viewportManager.UpdateMainWindowSize( newWindowDimensions );
                 }
             }
             break;
@@ -243,9 +242,10 @@ namespace KRG
             return FatalError( "Failed to create render device!" );
         }
 
+        m_viewportManager.Initialize( m_pRenderDevice );
+
         Int2 const windowDimensions( ( m_windowRect.right - m_windowRect.left ), ( m_windowRect.bottom - m_windowRect.top ) );
-        m_pRenderDevice->ResizeRenderTargets( windowDimensions );
-        m_viewport = Math::Viewport( Int2( 0, 0 ), windowDimensions, Math::ViewVolume( Float2( windowDimensions ), FloatRange( 0.1f, 100.0f ) ) );
+        m_viewportManager.UpdateMainWindowSize( windowDimensions );
 
         //-------------------------------------------------------------------------
 
@@ -324,7 +324,7 @@ namespace KRG
                 m_resourceServerUI.Draw();
 
                 m_imguiSystem.EndFrame();
-                m_imguiRenderer.Render( m_viewport );
+                m_imguiRenderer.Render( m_viewportManager.GetDevelopmentToolsViewport() );
                 m_pRenderDevice->PresentFrame();
             }
         }

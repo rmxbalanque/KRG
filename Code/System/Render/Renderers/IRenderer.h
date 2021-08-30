@@ -6,35 +6,32 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace Math { class Viewport; }
+    class Viewport;
 
     //-------------------------------------------------------------------------
 
-    namespace Render
+    // This is a basic set of priority values to help order any registered renderers
+    enum RendererPriorityLevel
     {
-        // This is a basic set of priority values to help order any registered renderers
-        enum RendererPriorityLevel
-        {
-            Game = 0, 
-            GameUI = 100,
-            Debug = 200,
-            DevelopmentTools = 300
-        };
+        Game = 0,
+        GameUI = 100,
+        Debug = 200,
+        DevelopmentTools = 300
+    };
 
-        //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-        class KRG_SYSTEM_RENDER_API IRenderer
-        {
+    class KRG_SYSTEM_RENDER_API IRenderer
+    {
 
-        public:
+    public:
 
-            virtual void Render( Math::Viewport const& viewport ) = 0;
-            virtual uint32 GetRendererID() const = 0;
-            virtual int32 GetPriority() const = 0;
-        };
-    }
+        virtual void Render( Viewport const& viewport ) = 0;
+        virtual uint32 GetRendererID() const = 0;
+        virtual int32 GetPriority() const = 0;
+    };
 }
 
 //-------------------------------------------------------------------------

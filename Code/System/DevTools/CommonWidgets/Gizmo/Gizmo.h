@@ -1,6 +1,6 @@
 #pragma once
 #include "System/Core/Math/Matrix.h"
-#include "System/Core/Math/Viewport.h"
+#include "System/Render/RenderViewport.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ namespace KRG::ImGuiX
 
     public:
 
-        void Update( Math::Viewport const& viewport );
+        void Update( Render::Viewport const& viewport );
         inline Matrix const& GetTransform() const { return m_targetTransform; }
 
         inline void SwitchToWorldSpace() { m_coordinateSpace = CoordinateSpace::World; }
@@ -25,7 +25,7 @@ namespace KRG::ImGuiX
             : m_targetTransform( m )
         {}
 
-        virtual void InternalUpdate( Math::Viewport const& viewport ) = 0;
+        virtual void InternalUpdate( Render::Viewport const& viewport ) = 0;
 
     protected:
 

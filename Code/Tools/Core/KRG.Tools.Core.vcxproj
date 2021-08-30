@@ -64,14 +64,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DataFileTools\DataBrowserTreeView.h" />
-    <ClInclude Include="DataFileTools\DataFileInspector.h" />
     <ClInclude Include="DataFileTools\DataFilePicker.h" />
-    <ClInclude Include="Editor\Editor.h" />
-    <ClInclude Include="Editor\EditorFileTab.h" />
-    <ClInclude Include="Editor\EditorModel.h" />
-    <ClInclude Include="Editor\EditorTabWell.h" />
-    <ClInclude Include="Editor\EditorTool.h" />
     <ClInclude Include="FileSystem\FileSystemHelpers.h" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
     <ClInclude Include="GraphEditor\Flow\FlowGraph.h" />
@@ -119,12 +112,7 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DataFileTools\DataBrowserTreeView.cpp" />
-    <ClCompile Include="DataFileTools\DataFileInspector.cpp" />
     <ClCompile Include="DataFileTools\DataFilePicker.cpp" />
-    <ClCompile Include="Editor\Editor.cpp" />
-    <ClCompile Include="Editor\EditorModel.cpp" />
-    <ClCompile Include="Editor\EditorTabWell.cpp" />
     <ClCompile Include="FileSystem\FileSystemHelpers.cpp" />
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
     <ClCompile Include="GraphEditor\Flow\FlowGraph.cpp" />

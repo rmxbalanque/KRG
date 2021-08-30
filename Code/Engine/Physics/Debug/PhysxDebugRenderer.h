@@ -34,14 +34,14 @@ namespace KRG::Physics
         bool IsInitialized() const { return m_initialized; }
         bool Initialize( Render::RenderDevice* pRenderDevice, PhysicsSystem* pPhysicsSystem );
         void Shutdown();
-        void Render( Math::Viewport const& viewport ) override final;
+        void Render( Render::Viewport const& viewport ) override final;
 
     private:
 
-        void DrawPoints( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugPoint const* pPoints, uint32 numPoints );
-        void DrawLines( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugLine const* pLines, uint32 numLines );
-        void DrawTriangles( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugTriangle const* pTriangles, uint32 numTriangles );
-        void DrawStrings( Render::RenderContext const& renderContext, Math::Viewport const& viewport, physx::PxDebugText const* pStrings, uint32 numStrings );
+        void DrawPoints( Render::RenderContext const& renderContext, Render::Viewport const& viewport, physx::PxDebugPoint const* pPoints, uint32 numPoints );
+        void DrawLines( Render::RenderContext const& renderContext, Render::Viewport const& viewport, physx::PxDebugLine const* pLines, uint32 numLines );
+        void DrawTriangles( Render::RenderContext const& renderContext, Render::Viewport const& viewport, physx::PxDebugTriangle const* pTriangles, uint32 numTriangles );
+        void DrawStrings( Render::RenderContext const& renderContext, Render::Viewport const& viewport, physx::PxDebugText const* pStrings, uint32 numStrings );
 
     private:
 

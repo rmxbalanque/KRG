@@ -36,15 +36,15 @@ namespace KRG::ImGuiX
 
     private:
 
-        virtual void InternalUpdate( Math::Viewport const& viewport ) override final;
+        virtual void InternalUpdate( Render::Viewport const& viewport ) override final;
 
-        bool DrawScreenRotationGizmo( Math::Viewport const& viewport );
+        bool DrawScreenRotationGizmo( Render::Viewport const& viewport );
 
-        bool DrawRotationWidget( Math::Viewport const& viewport, Vector const& axisOfRotation_ws, Color color );
-        void DrawManipulationWidget( Math::Viewport const& viewport, Vector const& axisOfRotation_ws, Vector const& axisOfRotation_ss, Color color );
+        bool DrawRotationWidget( Render::Viewport const& viewport, Vector const& axisOfRotation_ws, Color color );
+        void DrawManipulationWidget( Render::Viewport const& viewport, Vector const& axisOfRotation_ws, Vector const& axisOfRotation_ss, Color color );
 
-        void UpdateMode( Math::Viewport const& viewport );
-        void PerformManipulation( Math::Viewport const& viewport );
+        void UpdateMode( Render::Viewport const& viewport );
+        void PerformManipulation( Render::Viewport const& viewport );
 
     private:
 

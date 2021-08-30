@@ -54,10 +54,6 @@ namespace KRG::RawAssets
         {
             return gltf::ReadFileInfo( sourceFilePath, outInfo );
         }
-        else
-        {
-            KRG_LOG_ERROR( "Raw Assets", "Unsupported extension: %s", sourceFilePath.c_str() );
-        }
 
         return false;
     }

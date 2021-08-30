@@ -10,19 +10,27 @@ namespace KRG::Render
     {
         KRG_ASSERT( m_pRenderDevice != nullptr && archive.IsValid() );
 
+        TextureFormat format;
+        TVector<Byte> rawData;
+
+        archive >> format;
+        archive >> rawData;
+
+        if ( rawData.empty() )
+        {
+            KRG_LOG_ERROR( "Resource", "Failed to install texture resource: %s, compiled resource has no data", resID.ToString().c_str() );
+            return false;
+        }
+
         Texture* pTextureResource = KRG::New<Texture>();
         KRG_ASSERT( pTextureResource != nullptr );
         archive >> *pTextureResource;
 
         pResourceRecord->SetResourceData( pTextureResource );
 
-        if ( !pTextureResource->HasRawData() )
-        {
-            KRG_LOG_ERROR( "Resource", "Failed to install texture resource: %s, compiled resource has no data", resID.ToString().c_str() );
-            return false;
-        }
+        //-------------------------------------------------------------------------
 
-        m_pRenderDevice->CreateTexture( *pTextureResource );
+        m_pRenderDevice->CreateTexture( *pTextureResource, format, rawData );
         if ( !pTextureResource->IsValid() )
         {
             KRG_LOG_ERROR( "Resource", "Failed to create texture handle for texture: %s", resID.ToString().c_str() );

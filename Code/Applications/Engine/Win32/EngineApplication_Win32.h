@@ -24,7 +24,6 @@ namespace KRG
 
         virtual LRESULT WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 
-        bool EnsureResourceServerIsRunning();
         virtual bool ApplicationLoop() override;
 
     private:

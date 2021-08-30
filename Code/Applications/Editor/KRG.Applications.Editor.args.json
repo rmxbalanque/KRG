@@ -8,11 +8,7 @@
     },
     {
       "Id": "62dddc95-4de0-42e8-9027-c987b921a39c",
-      "Command": "-mode AnimationClipEditor"
-    },
-    {
-      "Id": "ab95a3f7-d8cc-4fcf-9ea0-e1ebd780f416",
-      "Command": "-mode MeshEditor"
+      "Command": "-mode ResourceEditor"
     }
   ]
 }

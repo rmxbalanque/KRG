@@ -57,15 +57,6 @@
     <ClCompile Include="ResourceCompilers\Materials\MaterialCompiler.cpp">
       <Filter>ResourceCompilers\Materials</Filter>
     </ClCompile>
-    <ClCompile Include="MeshEditor\MeshEditor.cpp">
-      <Filter>MeshEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshEditor\FileTabs\MeshResourceFileTabs.cpp">
-      <Filter>MeshEditor\FileTabs</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshEditor\MeshEditor_DataBrowser.cpp">
-      <Filter>MeshEditor</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -94,15 +85,6 @@
     </ClInclude>
     <ClInclude Include="ResourceCompilers\Materials\MaterialCompiler.h">
       <Filter>ResourceCompilers\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshEditor\MeshEditor_DataBrowser.h">
-      <Filter>MeshEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshEditor\FileTabs\MeshResourceFileTabs.h">
-      <Filter>MeshEditor\FileTabs</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshEditor\MeshEditor.h">
-      <Filter>MeshEditor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

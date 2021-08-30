@@ -2,7 +2,7 @@
 #include "Engine/Render/Components/SkeletalMeshComponent.h"
 #include "Engine/Render/Shaders/EngineShaders.h"
 #include "System/Entity/Entity.h"
-#include "System/Core/Math/Viewport.h"
+#include "System/Render/RenderViewport.h"
 #include "System/Render/RenderDevice/RenderDefaultResources.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Update/UpdateContext.h"
@@ -52,7 +52,7 @@ namespace KRG::Render
         }
 
         // Create blend state
-        m_blendState.m_blendEnable = true;
+        m_blendState.m_blendEnable = false;
         m_blendState.m_srcValue = BlendValue::SourceAlpha;
         m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
         m_blendState.m_blendOp = BlendOp::Add;
@@ -246,7 +246,7 @@ namespace KRG::Render
         #endif
     }
 
-    void SkeletalMeshRenderer::Render( Math::Viewport const& viewport )
+    void SkeletalMeshRenderer::Render( Viewport const& viewport )
     {
         KRG_PROFILE_FUNCTION_RENDER();
 

@@ -195,9 +195,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Math\Viewport.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Transform.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -376,9 +373,6 @@
     <ClCompile Include="Math\MathStringHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Math\Viewport.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Transform.h">
       <Filter>Math</Filter>
     </ClInclude>

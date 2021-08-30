@@ -12,7 +12,7 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    bool RotationGizmo::DrawScreenRotationGizmo( Math::Viewport const& viewport )
+    bool RotationGizmo::DrawScreenRotationGizmo( Render::Viewport const& viewport )
     {
         auto pDrawList = ImGui::GetWindowDrawList();
 
@@ -38,7 +38,7 @@ namespace KRG::ImGuiX
         return isHovered;
     }
 
-    bool RotationGizmo::DrawRotationWidget( Math::Viewport const& viewport, Vector const& axisOfRotation_WS, Color color )
+    bool RotationGizmo::DrawRotationWidget( Render::Viewport const& viewport, Vector const& axisOfRotation_WS, Color color )
     {
         auto pDrawList = ImGui::GetWindowDrawList();
         KRG_ASSERT( pDrawList != nullptr );
@@ -96,7 +96,7 @@ namespace KRG::ImGuiX
         return isHovered;
     }
 
-    void RotationGizmo::DrawManipulationWidget( Math::Viewport const& viewport, Vector const& axisOfRotation_ws, Vector const& axisOfRotation_ss, Color color )
+    void RotationGizmo::DrawManipulationWidget( Render::Viewport const& viewport, Vector const& axisOfRotation_ws, Vector const& axisOfRotation_ss, Color color )
     {
         static float const gizmoRadius = 40.0f;
         static float const gizmoThickness = 3.0f;
@@ -194,7 +194,7 @@ namespace KRG::ImGuiX
         }
     }
 
-    void RotationGizmo::UpdateMode( Math::Viewport const& viewport )
+    void RotationGizmo::UpdateMode( Render::Viewport const& viewport )
     {
         ImGuiIO& io = ImGui::GetIO();
 
@@ -243,7 +243,7 @@ namespace KRG::ImGuiX
         }
     }
 
-    void RotationGizmo::PerformManipulation( Math::Viewport const& viewport )
+    void RotationGizmo::PerformManipulation( Render::Viewport const& viewport )
     {
         ImGuiIO& io = ImGui::GetIO();
         auto pDrawList = ImGui::GetWindowDrawList();
@@ -317,7 +317,7 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    void RotationGizmo::InternalUpdate( Math::Viewport const& viewport )
+    void RotationGizmo::InternalUpdate( Render::Viewport const& viewport )
     {
         auto pDrawList = ImGui::GetWindowDrawList();
 

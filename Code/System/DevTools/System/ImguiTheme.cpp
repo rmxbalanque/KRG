@@ -38,7 +38,7 @@ namespace KRG::ImGuiX
 
         colors[ImGuiCol_Text] = s_textColor;
         colors[ImGuiCol_TextDisabled] = s_textColorDisabled;
-        colors[ImGuiCol_TextSelectedBg] = s_backgroundColorMedium;
+        colors[ImGuiCol_TextSelectedBg] = s_backgroundColorLight;
 
         colors[ImGuiCol_TitleBg] = s_backgroundColorDark;
         colors[ImGuiCol_TitleBgActive] = s_backgroundColorDark;

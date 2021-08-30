@@ -21,6 +21,7 @@ namespace KRG
                 RasterizerState,
                 SamplerState,
                 Texture,
+                RenderTarget,
 
                 numTypes,
             };

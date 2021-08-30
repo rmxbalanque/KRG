@@ -111,7 +111,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void ScalingGizmo::UpdateMode( Math::Viewport const& viewport )
+        void ScalingGizmo::UpdateMode( Render::Viewport const& viewport )
         {
             ImGuiIO& io = ImGui::GetIO();
 
@@ -170,7 +170,7 @@ namespace KRG
             }
         }
 
-        void ScalingGizmo::PerformManipulation( Math::Viewport const& viewport )
+        void ScalingGizmo::PerformManipulation( Render::Viewport const& viewport )
         {
             Vector const& originWS = m_manipulationTransform.GetTranslation();
 
@@ -251,7 +251,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void ScalingGizmo::InternalUpdate( Math::Viewport const& viewport )
+        void ScalingGizmo::InternalUpdate( Render::Viewport const& viewport )
         {
             auto pDrawList = ImGui::GetWindowDrawList();
             

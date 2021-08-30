@@ -63,7 +63,7 @@ namespace KRG::Camera
         //-------------------------------------------------------------------------
 
         // For now we only support one camera and one viewport
-        Math::Viewport& primaryViewport = pViewportManager->GetActiveViewports()[0];
+        Render::Viewport& primaryViewport = pViewportManager->GetActiveViewports()[0];
         Math::ViewVolume const& cameraViewVolume = m_cameras[0].m_pComponent->CalculateViewVolume( primaryViewport.GetSize() );
         primaryViewport.SetViewVolume( cameraViewVolume );
     }

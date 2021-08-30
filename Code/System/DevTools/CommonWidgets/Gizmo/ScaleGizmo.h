@@ -26,14 +26,14 @@ namespace KRG::ImGuiX
 
     private:
 
-        virtual void InternalUpdate( Math::Viewport const& viewport ) override final;
+        virtual void InternalUpdate( Render::Viewport const& viewport ) override final;
 
         bool DrawOrigin( Vector const& position );
         bool DrawScaleAxis( Vector const& start, Vector const& end, Color color );
         bool DrawPlaneManipulationWidget( Vector const& origin, Vector const& axis0, Vector const& axis1, Color color );
 
-        void UpdateMode( Math::Viewport const& viewport );
-        void PerformManipulation( Math::Viewport const& viewport );
+        void UpdateMode( Render::Viewport const& viewport );
+        void PerformManipulation( Render::Viewport const& viewport );
 
     private:
 

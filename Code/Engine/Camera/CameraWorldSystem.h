@@ -2,7 +2,7 @@
 
 #include "_Module/API.h"
 #include "System/Entity/EntityWorldSystem.h"
-#include "System/Core/Math/Viewport.h"
+#include "System/Render/RenderViewport.h"
 #include "System/Core/Systems/ISystem.h"
 
 //-------------------------------------------------------------------------

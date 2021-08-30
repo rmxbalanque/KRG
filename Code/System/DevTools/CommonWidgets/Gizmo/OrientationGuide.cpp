@@ -1,12 +1,12 @@
 #include "OrientationGuide.h"
-#include "System/Core/Math/Viewport.h"
+#include "System/Render/RenderViewport.h"
 #include "System/Core/Types/Containers.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::ImGuiX
 {
-    void DrawOrientationGuide( Math::Viewport const& viewport, ImVec2 const& margin )
+    void DrawOrientationGuide( Render::Viewport const& viewport, ImVec2 const& margin )
     {
         static float const windowPadding = 4.0f;
         static float const windowRounding = 2.0f;

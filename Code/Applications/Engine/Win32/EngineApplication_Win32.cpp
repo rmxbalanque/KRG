@@ -3,6 +3,7 @@
 #include "EngineApplication_win32.h"
 #include "iniparser/krg_ini.h"
 #include "Applications/Shared/cmdParser/krg_cmdparser.h"
+#include "Applications/Shared/Win32/SharedHelpers_Win32.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Platform/Platform_Win32.h"
@@ -60,7 +61,7 @@ namespace KRG
 
     bool EngineApplication::Initialize()
     {
-        if ( !EnsureResourceServerIsRunning() )
+        if ( !EnsureResourceServerIsRunning( m_engine.m_resourceSettings.m_resourceServerExecutablePath ) )
         {
             return FatalError( "Couldn't start resource server!" );
         }
@@ -82,47 +83,6 @@ namespace KRG
     bool EngineApplication::ApplicationLoop()
     {
         return m_engine.Update();
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool EngineApplication::EnsureResourceServerIsRunning()
-    {
-        bool shouldStartResourceServer = false;
-
-        // If the resource server is not running then start it
-        String const resourceServerExecutableName = m_engine.m_resourceSettings.m_resourceServerExecutablePath.GetFileName();
-        auto resourceServerProcessID = Platform::Win32::GetProcessID( resourceServerExecutableName.c_str() );
-        shouldStartResourceServer = ( resourceServerProcessID == 0 );
-
-        // Ensure we are running the correct build of the resource server
-        if ( !shouldStartResourceServer )
-        {
-            String const resourceServerPath = Platform::Win32::GetProcessPath( resourceServerProcessID );
-            if ( !resourceServerPath.empty() )
-            {
-                FileSystem::Path const resourceServerProcessPath = FileSystem::Path( resourceServerPath ).GetParentDirectory();
-                FileSystem::Path const applicationDirectoryPath = FileSystem::Path( Platform::Win32::GetCurrentModulePath() ).GetParentDirectory();
-
-                if ( resourceServerProcessPath != applicationDirectoryPath )
-                {
-                    Platform::Win32::KillProcess( resourceServerProcessID );
-                    shouldStartResourceServer = true;
-                }
-            }
-            else
-            {
-                return FatalError( "Cant read the resource server EXE path from the currently running process!" );
-            }
-        }
-
-        // Try to start the resource server
-        if ( shouldStartResourceServer )
-        {
-            return Platform::Win32::StartProcess( m_engine.m_resourceSettings.m_resourceServerExecutablePath.c_str() ) != 0;
-        }
-
-        return true;
     }
 
     //-------------------------------------------------------------------------

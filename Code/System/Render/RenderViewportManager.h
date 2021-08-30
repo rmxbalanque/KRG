@@ -1,6 +1,6 @@
 #pragma once
 #include "_Module/API.h"
-#include "System/Core/Math/Viewport.h"
+#include "RenderViewport.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Systems/ISystem.h"
 #include "System/Core/Math/Rectangle.h"
@@ -27,6 +27,8 @@ namespace KRG::Render
         void Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
 
+        void UpdateCustomRenderTargets();
+
         //-------------------------------------------------------------------------
         // Global View Management
         //-------------------------------------------------------------------------
@@ -37,11 +39,13 @@ namespace KRG::Render
         // Engine Viewports
         //-------------------------------------------------------------------------
 
-        inline Math::Viewport const& GetPrimaryViewport() const { return m_viewports[0]; }
+        inline Viewport const& GetPrimaryViewport() const { return m_viewports[0]; }
         void ResizePrimaryViewport( Math::Rectangle const& viewportDimensions );
 
-        inline TInlineVector<Math::Viewport, 2>& GetActiveViewports() { return m_viewports; }
-        inline TInlineVector<Math::Viewport, 2> const& GetActiveViewports() const { return m_viewports; }
+        inline TInlineVector<Viewport, 2>& GetActiveViewports() { return m_viewports; }
+        inline TInlineVector<Viewport, 2> const& GetActiveViewports() const { return m_viewports; }
+
+        void SetRenderToTexture( int32 viewportIdx, bool enableRenderToTexture );
 
         //-------------------------------------------------------------------------
         // Development UI
@@ -49,16 +53,16 @@ namespace KRG::Render
         // There is always an orthographic "development tools" viewport created that is the same size as the main window
 
         #if KRG_DEVELOPMENT_TOOLS
-        inline Math::Viewport const& GetDevelopmentToolsViewport() const { return m_developmentToolsViewport; }
+        inline Viewport const& GetDevelopmentToolsViewport() const { return m_developmentToolsViewport; }
         #endif
 
     private:
 
-        RenderDevice*                               m_pRenderDevice = nullptr;
-        TInlineVector<Math::Viewport, 2>            m_viewports;
+        RenderDevice*                           m_pRenderDevice = nullptr;
+        TInlineVector<Viewport, 2>              m_viewports;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Math::Viewport                              m_developmentToolsViewport;
+        Viewport                                m_developmentToolsViewport;
         #endif
     };
 }

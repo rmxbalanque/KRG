@@ -7,6 +7,7 @@
 #include "System/Render/RenderShader.h"
 #include "System/Render/RenderTexture.h"
 #include "System/Render/RenderBuffer.h"
+#include "System/Render/RenderTarget.h"
 #include "System/Render/RenderPipelineState.h"
 
 #include <D3D11.h>
@@ -50,6 +51,11 @@ namespace KRG
             void SetDepthTestMode( DepthTestMode mode ) const;
             void SetRasterizerScissorRectangles( ScissorRect const* pScissorRects, uint32 numRects = 0 ) const;
             void SetBlendState( BlendState const& blendState ) const;
+
+            // Render Targets
+            void SetRenderTarget( RenderTarget const& renderTarget, bool clearOnSet = false ) const;
+            void ClearRenderTargetViews( RenderTarget const& renderTarget ) const;
+            void ClearRenderTargets() const;
 
             // Drawing
             void SetPrimitiveTopology( Topology topology ) const;
