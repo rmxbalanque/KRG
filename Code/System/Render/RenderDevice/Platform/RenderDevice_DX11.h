@@ -83,9 +83,9 @@ namespace KRG::Render
         void DestroySamplerState( SamplerState& state );
 
         // Render Targets
-        void CreateRenderTarget( RenderTarget& target, Int2 const& dimensions );
-        void ResizeRenderTarget( RenderTarget& target, Int2 const& newDimensions );
-        void DestroyRenderTarget( RenderTarget& target );
+        void CreateRenderTarget( RenderTarget& renderTarget, Int2 const& dimensions );
+        void ResizeRenderTarget( RenderTarget& renderTarget, Int2 const& newDimensions );
+        void DestroyRenderTarget( RenderTarget& renderTarget );
 
     private:
 
@@ -98,7 +98,6 @@ namespace KRG::Render
         bool CreateDefaultDepthStencilStates();
         void DestroyDefaultDepthStencilStates();
 
-        void CreateRenderTargetTexture( Texture& texture );
         void CreateRawTexture( Texture& texture, Byte const* pRawData, size_t rawDataSize );
         void CreateDDSTexture( Texture& texture, Byte const* pRawData, size_t rawDataSize );
 

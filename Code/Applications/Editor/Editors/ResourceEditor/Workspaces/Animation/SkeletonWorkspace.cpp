@@ -6,6 +6,10 @@
 
 namespace KRG::Animation
 {
+    char const* const SkeletonWorkspace::s_infoWindowName = "Info Window##Skeleton";
+
+    //-------------------------------------------------------------------------
+
     SkeletonWorkspace::~SkeletonWorkspace()
     {
         DestroySkeletonTree();
@@ -20,45 +24,57 @@ namespace KRG::Animation
     {
     }
 
-    void SkeletonWorkspace::DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void SkeletonWorkspace::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
-        if ( IsLoading() )
+        auto DrawWindowContents = [this, &context] ()
         {
-            ImGui::Text( "Loading:" );
-            ImGui::SameLine();
-            ImGuiX::DrawSpinner( "Loading" );
-            return;
-        }
+            if ( IsWaitingForResource() )
+            {
+                ImGui::Text( "Loading:" );
+                ImGui::SameLine();
+                ImGuiX::DrawSpinner( "Loading" );
+                return;
+            }
 
-        if ( HasLoadingFailed() )
-        {
-            ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
-            return;
-        }
+            if ( HasLoadingFailed() )
+            {
+                ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
+                return;
+            }
+
+            //-------------------------------------------------------------------------
+
+            auto drawingCtx = context.GetDrawingContext();
+            drawingCtx.Draw( *m_pResource.GetPtr(), Transform::Identity );
+
+            //-------------------------------------------------------------------------
+
+            if ( m_pSkeletonTreeRoot == nullptr )
+            {
+                CreateSkeletonTree();
+            }
+
+            //-------------------------------------------------------------------------
+
+            ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
+            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 4 ) );
+            ImGui::BeginChild( "SkeletonView", ImVec2( 0, 0 ), true, ImGuiWindowFlags_AlwaysVerticalScrollbar );
+            {
+                KRG_ASSERT( m_pSkeletonTreeRoot != nullptr );
+                RenderSkeletonTree( m_pSkeletonTreeRoot );
+            }
+            ImGui::EndChild();
+            ImGui::PopStyleVar( 2 );
+        };
 
         //-------------------------------------------------------------------------
 
-        auto drawingCtx = context.GetDrawingContext();
-        drawingCtx.Draw( *m_pResource.GetPtr(), Transform::Identity );
-
-        //-------------------------------------------------------------------------
-
-        if ( m_pSkeletonTreeRoot == nullptr )
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( s_infoWindowName ) )
         {
-            CreateSkeletonTree();
+            DrawWindowContents();
         }
-
-        //-------------------------------------------------------------------------
-
-        ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 4 ) );
-        ImGui::BeginChild( "SkeletonView", ImVec2( 0, 0 ), true, ImGuiWindowFlags_AlwaysVerticalScrollbar );
-        {
-            KRG_ASSERT( m_pSkeletonTreeRoot != nullptr );
-            RenderSkeletonTree( m_pSkeletonTreeRoot );
-        }
-        ImGui::EndChild();
-        ImGui::PopStyleVar( 2 );
+        ImGui::End();
     }
 
     void SkeletonWorkspace::CreateSkeletonTree()

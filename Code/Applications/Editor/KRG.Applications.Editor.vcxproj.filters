@@ -39,6 +39,7 @@
     <ClCompile Include="Editors\ResourceEditor\EditorTabWell.cpp" />
     <ClCompile Include="Editors\EditorModel.cpp" />
     <ClCompile Include="Editors\Editor.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\Workspaces\ResourceWorkspace.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditorApplication.h">

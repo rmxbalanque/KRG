@@ -15,7 +15,7 @@ namespace KRG::Render
 
         Int2 const renderTargetDimensions = m_pRenderDevice->GetMainRenderTargetDimensions();
         Math::ViewVolume const orthographicVolume( Float2( renderTargetDimensions ), FloatRange( 0.1f, 100.0f ) );
-        m_viewports.push_back( Viewport( Int2( 0, 0 ), Int2( renderTargetDimensions ), orthographicVolume ) );
+        m_viewports.push_back( KRG::New<Viewport>( Int2( 0, 0 ), Int2( renderTargetDimensions ), orthographicVolume ) );
 
         // Create development tools viewport
         //-------------------------------------------------------------------------
@@ -28,12 +28,14 @@ namespace KRG::Render
     void ViewportManager::Shutdown()
     {
         // Destroy any created render targets
-        for ( auto& viewport : m_viewports )
+        for ( auto& pViewport : m_viewports )
         {
-            if ( viewport.HasCustomRenderTarget() )
+            if ( pViewport->m_renderTarget.IsValid() )
             {
-                m_pRenderDevice->DestroyRenderTarget( viewport.m_renderTarget );
+                m_pRenderDevice->DestroyRenderTarget( pViewport->m_renderTarget );
             }
+
+            KRG::Delete( pViewport );
         }
 
         m_viewports.clear();
@@ -46,18 +48,18 @@ namespace KRG::Render
 
     void ViewportManager::UpdateCustomRenderTargets()
     {
-        for ( auto& viewport : m_viewports )
+        for ( auto& pViewport : m_viewports )
         {
-            if ( viewport.HasCustomRenderTarget() )
+            if ( pViewport->m_renderTarget.IsValid() )
             {
                 // Resize render target if needed
-                if ( Int2( viewport.m_size ) != viewport.m_renderTarget.GetDimensions() )
+                if ( Int2( pViewport->m_size ) != pViewport->m_renderTarget.GetDimensions() )
                 {
-                    m_pRenderDevice->ResizeRenderTarget( viewport.m_renderTarget, viewport.m_size );
+                    m_pRenderDevice->ResizeRenderTarget( pViewport->m_renderTarget, pViewport->m_size );
                 }
 
                 // Clear render target and depth stencil textures
-                m_pRenderDevice->GetImmediateContext().ClearRenderTargetViews( viewport.m_renderTarget );
+                m_pRenderDevice->GetImmediateContext().ClearRenderTargetViews( pViewport->m_renderTarget );
             }
         }
     }
@@ -73,13 +75,13 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         // TODO: add info whether viewports are in absolute size or proportional, right now it's all proportional
-        for ( auto& viewport : m_viewports )
+        for ( auto& pViewport : m_viewports )
         {
-            Float2 const viewportPosition = viewport.GetTopLeftPosition();
-            Float2 const viewportSize = viewport.GetSize();
+            Float2 const viewportPosition = pViewport->GetTopLeftPosition();
+            Float2 const viewportSize = pViewport->GetSize();
             Float2 const newViewportPosition = ( viewportPosition / oldWindowDimensions ) * newWindowDimensions;
             Float2 const newViewportSize = ( viewportSize / oldWindowDimensions ) * newWindowDimensions;
-            viewport.Resize( newViewportPosition, newViewportSize );
+            pViewport->Resize( newViewportPosition, newViewportSize );
         }
 
         //-------------------------------------------------------------------------
@@ -91,17 +93,17 @@ namespace KRG::Render
 
     void ViewportManager::ResizePrimaryViewport( Math::Rectangle const& viewportDimensions )
     {
-        m_viewports[0].Resize( viewportDimensions );
+        m_viewports[0]->Resize( viewportDimensions );
     }
 
-    void ViewportManager::SetRenderToTexture( int32 viewportIdx, bool enableRenderToTexture )
+    void ViewportManager::SetUseCustomRenderTargetForViewport( int32 viewportIdx, bool enableRenderToTexture )
     {
         KRG_ASSERT( viewportIdx != InvalidIndex && viewportIdx >= 0 && viewportIdx < m_viewports.size() );
 
-        Viewport& viewport = m_viewports[viewportIdx];
+        Viewport* pViewport = m_viewports[viewportIdx];
 
         // Do nothing if the state is the same
-        if ( viewport.HasCustomRenderTarget() == enableRenderToTexture )
+        if ( pViewport->m_renderTarget.IsValid() == enableRenderToTexture )
         {
             return;
         }
@@ -110,11 +112,32 @@ namespace KRG::Render
 
         if ( enableRenderToTexture )
         {
-            m_pRenderDevice->CreateRenderTarget( viewport.m_renderTarget, viewport.m_size );
+            m_pRenderDevice->CreateRenderTarget( pViewport->m_renderTarget, pViewport->m_size );
         }
         else // Disable render to texture
         {
-            m_pRenderDevice->DestroyRenderTarget( viewport.m_renderTarget );
+            m_pRenderDevice->DestroyRenderTarget( pViewport->m_renderTarget );
+        }
+    }
+
+    ShaderResourceView const& ViewportManager::GetViewportRenderTargetTextureSRV( int32 viewportIdx ) const
+    {
+        KRG_ASSERT( viewportIdx != InvalidIndex && viewportIdx >= 0 && viewportIdx < m_viewports.size() );
+        return m_viewports[viewportIdx]->m_renderTarget.GetRenderTargetShaderResourceView();
+    }
+
+    RenderTarget const& ViewportManager::GetRenderTargetForViewport( int32 viewportIdx ) const
+    {
+        KRG_ASSERT( viewportIdx != InvalidIndex && viewportIdx >= 0 && viewportIdx < m_viewports.size() );
+
+        auto pViewport = m_viewports[viewportIdx];
+        if ( pViewport->m_renderTarget.IsValid() )
+        {
+            return pViewport->m_renderTarget;
+        }
+        else
+        {
+            return m_pRenderDevice->GetMainRenderTarget();
         }
     }
 }

@@ -90,6 +90,8 @@ namespace KRG
         {
             friend class RenderDevice;
 
+            ~RasterizerState() { KRG_ASSERT( !m_resourceHandle.IsValid() ); }
+
             inline bool IsValid() const { return m_resourceHandle.IsValid(); }
 
             ResourceHandle const& GetResourceHandle() const { return m_resourceHandle; }
@@ -111,6 +113,8 @@ namespace KRG
         struct BlendState
         {
             friend class RenderDevice;
+
+            ~BlendState() { KRG_ASSERT( !m_resourceHandle.IsValid() ); }
 
             inline bool IsValid() const { return m_resourceHandle.IsValid(); }
 

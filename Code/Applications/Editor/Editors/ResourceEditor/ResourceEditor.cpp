@@ -1,4 +1,5 @@
 #include "ResourceEditor.h"
+#include "Workspaces\ResourceWorkspace.h"
 #include "System\Render\RenderViewportManager.h"
 
 //-------------------------------------------------------------------------
@@ -41,89 +42,221 @@ namespace KRG::Resource
 
     void ResourceEditor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
-        auto& viewport = viewportManager.GetActiveViewports()[0];
+        auto& model = GetModel();
 
-        //ImTextureID vp = (void*) const_cast<Render::Texture const*>( viewport.GetCustomRenderTarget().GetRenderTargetTexture() );
+        //-------------------------------------------------------------------------
+        // Create main dock window
+        //-------------------------------------------------------------------------
 
-        if ( ImGui::Begin( "Temp" ) )
+        ImGuiWindowClass mainEditorWindowClass;
+        mainEditorWindowClass.ClassId = ImGui::GetID( "EditorWindowClass" );
+        mainEditorWindowClass.DockingAllowUnclassed = false;
+
+        ImGuiID const dockspaceID = ImGui::GetID( "EditorDockSpace" );
+        ImGuiID dockRightID = 0, dockLeftID = 0;
+
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking;
+        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        ImGuiViewport const* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos( viewport->WorkPos );
+        ImGui::SetNextWindowSize( viewport->WorkSize );
+        ImGui::SetNextWindowViewport( viewport->ID );
+
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
+        bool const shouldDrawEditorDockspace = ImGui::Begin( "EditorDockSpaceWindow", nullptr, windowFlags );
+        ImGui::PopStyleVar( 3 );
+
+        if ( shouldDrawEditorDockspace )
         {
-            auto size = ImGui::GetWindowSize();
-            auto region = ImGui::GetContentRegionAvail();
-            Int2 a = Int2( 0, 0 );
-            Int2 b = Int2( region );
-            viewport.Resize( a, b );
+            if ( !ImGui::DockBuilderGetNode( dockspaceID ) )
+            {
+                ImGui::DockBuilderRemoveNode( dockspaceID );
+                ImGui::DockBuilderAddNode( dockspaceID, ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton );
 
-           // ImGui::Image( vp, size );
+                dockRightID = dockspaceID;
+                dockLeftID = ImGui::DockBuilderSplitNode( dockRightID, ImGuiDir_Left, 0.2f, nullptr, &dockRightID );
 
-            //m_mouseWithinEditorViewport = ImGui::IsWindowHovered();
+                // Disable tab bars for main windows
+                ImGuiDockNode* pLeftNode = ImGui::DockBuilderGetNode( dockLeftID );
+                pLeftNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoDockingOverMe;
+
+                ImGuiDockNode* pRightNode = ImGui::DockBuilderGetNode( dockRightID );
+                pRightNode->LocalFlags |= ImGuiDockNodeFlags_CentralNode | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
+
+                // Dock data browser
+                ImGui::DockBuilderDockWindow( "Data Browser", dockLeftID );
+
+                ImGui::DockBuilderFinish( dockRightID );
+            }
+            else // look up the correct IDs
+            {
+                if ( dockLeftID == 0 && dockRightID == 0 )
+                {
+                    auto pDockRootNode = ImGui::DockBuilderGetNode( dockspaceID );
+                    dockLeftID = pDockRootNode->ChildNodes[0]->ID;
+                    dockRightID = pDockRootNode->ChildNodes[1]->ID;
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            //// Dock workspaces
+            //for ( auto pWorkspace : model.GetOpenWorkspaces() )
+            //{
+            //    ImGui::DockBuilderDockWindow( pWorkspace->GetWindowName(), dockRightID );
+            //}
+
+            // Create the actual dock space
+            ImGui::DockSpace( dockspaceID, viewport->WorkSize, ImGuiDockNodeFlags_None, &mainEditorWindowClass );
         }
         ImGui::End();
 
+        //-------------------------------------------------------------------------
+        // Draw Data Browser
+        //-------------------------------------------------------------------------
 
+        ImGui::SetNextWindowClass( &mainEditorWindowClass );
+        m_pDataBrowser->Draw( context );
 
-        //// Create main dock
-        ////-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
+        // Draw open workspaces
+        //-------------------------------------------------------------------------
 
-        //ImGuiID dockspaceID = ImGui::GetID( "EditorDockSpace" );
+        if ( model.HasOpenWorkspaces() )
+        {
+            ResourceEditorWorkspace* pWorkspaceToClose = nullptr;
 
-        //ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking;
-        //windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        //windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+            // Draw all workspaces
+            for ( auto pWorkspace : model.GetOpenWorkspaces() )
+            {
+                ImGui::SetNextWindowDockID( dockRightID );
+                if ( !DrawWorkspaceWindow( context, viewportManager, pWorkspace ) )
+                {
+                    pWorkspaceToClose = pWorkspace;
+                }
+            }
 
-        //ImGuiViewport const* viewport = ImGui::GetMainViewport();
-        //ImGui::SetNextWindowPos( viewport->WorkPos );
-        //ImGui::SetNextWindowSize( viewport->WorkSize );
-        //ImGui::SetNextWindowViewport( viewport->ID );
+            // Did we get a close request?
+            if ( pWorkspaceToClose != nullptr )
+            {
+                model.CloseWorkspace( pWorkspaceToClose );
 
-        //ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0.0f );
-        //ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
-        //ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
+                // If we still have open workspaces, then switch to the new active one
+                if ( model.HasOpenWorkspaces() )
+                {
+                    ImGui::SetWindowFocus( model.GetActiveWorkspace()->GetWindowName() );
+                }
+            }
+        }
+    }
 
-        //ImGui::SetNextWindowBgAlpha( 0.0f );
-        //ImGui::Begin( "EditorDockSpaceWindow", nullptr, windowFlags );
-        //{
-        //    if ( !ImGui::DockBuilderGetNode( dockspaceID ) ) 
-        //    {
-        //        ImGui::DockBuilderRemoveNode( dockspaceID );
-        //        ImGui::DockBuilderAddNode( dockspaceID, ImGuiDockNodeFlags_None );
+    bool ResourceEditor::DrawWorkspaceWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ResourceEditorWorkspace* pWorkspace )
+    {
+        KRG_ASSERT( pWorkspace != nullptr );
 
-        //        ImGuiID dock_main_id = dockspaceID;
-        //        ImGuiID dock_left_id = ImGui::DockBuilderSplitNode( dock_main_id, ImGuiDir_Left, 0.2f, nullptr, &dock_main_id );
+        auto& model = GetModel();
+        bool const isActiveWorkspace = model.IsActiveWorkspace( pWorkspace );
 
-        //        ImGui::DockBuilderDockWindow( "Data Browser", dock_left_id );
+        //-------------------------------------------------------------------------
+        ImGuiWindowClass workspaceWindowClass;
+        workspaceWindowClass.ClassId = ImGui::GetID( pWorkspace->GetWorkspaceName() );
+        workspaceWindowClass.DockingAllowUnclassed = false;
 
-        //        if ( ImGuiDockNode* pCentralNode = ImGui::DockBuilderGetCentralNode( dockspaceID ) )
-        //        {
-        //            pCentralNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-        //            ImGui::DockBuilderDockWindow( "EditorViewport", pCentralNode->ID );
-        //        }
+        //-------------------------------------------------------------------------
 
-        //        // Disable tab bar for custom toolbar
-        //        ImGuiDockNode* node = ImGui::DockBuilderGetNode( dock_left_id );
-        //        node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoDockingOverMe;
+        bool isOpen = true;
+        bool isFocused = false;
+        ImGuiID const dockspaceID = ImGui::GetID( pWorkspace->GetWorkspaceName() );
 
-        //        ImGui::DockBuilderFinish( dock_main_id );
-        //    }
+        ImGuiWindowFlags windowFlags = 0;
+        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
-        //    // Always ensure that the viewport is docked into the central node
-        //    /*if ( ImGuiDockNode* pCentralNode = ImGui::DockBuilderGetCentralNode( dockspaceID ) )
-        //    {
-        //        pCentralNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-        //        ImGui::DockBuilderDockWindow( "EditorViewport", pCentralNode->ID );
-        //    }*/
+        bool const shouldDrawWindowContents = ImGui::Begin( pWorkspace->GetWindowName(), &isOpen );
+        if ( shouldDrawWindowContents )
+        {
+            isFocused = ImGui::IsWindowFocused();
 
-        //    //// Create the actual dock space
-        //    //ImGuiDockNodeFlags const dockSpaceFlags = ImGuiDockNodeFlags_NoDockingInCentralNode;
-        //    //ImGui::DockSpace( dockspaceID, viewport->WorkSize, dockSpaceFlags );
-        //}
-        //ImGui::PopStyleVar( 3 );
-        //ImGui::End();
+            //if ( !ImGui::DockBuilderGetNode( dockspaceID ) )
+            //{
+            //    ImGui::DockBuilderRemoveNode( dockspaceID );
+            //    ImGui::DockBuilderAddNode( dockspaceID, ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton );
 
-        //// Draw windows
-        ////-------------------------------------------------------------------------
+            //    dockRightID = dockspaceID;
+            //    dockLeftID = ImGui::DockBuilderSplitNode( dockRightID, ImGuiDir_Left, 0.2f, nullptr, &dockRightID );
 
-        //m_pDataBrowser->FrameStartUpdate( context );
+            //    // Disable tab bars for main windows
+            //    ImGuiDockNode* pLeftNode = ImGui::DockBuilderGetNode( dockLeftID );
+            //    pLeftNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoDockingOverMe;
 
-        //DrawViewportWindow( context, viewportManager );
+            //    ImGuiDockNode* pRightNode = ImGui::DockBuilderGetNode( dockRightID );
+            //    pRightNode->LocalFlags |= ImGuiDockNodeFlags_CentralNode | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
+
+            //    // Dock data browser
+            //    ImGui::DockBuilderDockWindow( "Data Browser", dockLeftID );
+
+            //    ImGui::DockBuilderFinish( dockRightID );
+            //}
+            //else // look up the correct IDs
+            //{
+            //    if ( dockLeftID == 0 && dockRightID == 0 )
+            //    {
+            //        auto pDockRootNode = ImGui::DockBuilderGetNode( dockspaceID );
+            //        dockLeftID = pDockRootNode->ChildNodes[0]->ID;
+            //        dockRightID = pDockRootNode->ChildNodes[1]->ID;
+            //    }
+            //}
+
+            //// Dock workspaces
+            //for ( auto pWorkspace : model.GetOpenWorkspaces() )
+            //{
+            //    
+            //}
+
+            //ImGui::DockBuilderDockWindow( GetViewportWindowName(), dockspaceID );
+
+            // Create the actual dock space
+            //-------------------------------------------------------------------------
+
+            // Since we share the dock ID across all open workspaces of the same type we dont want to display multiple dockspaces on the frame when we switch tab
+            ImGuiDockNodeFlags const dockFlags = isActiveWorkspace ? ImGuiDockNodeFlags_None : ImGuiDockNodeFlags_KeepAliveOnly;
+            ImGui::DockSpace( dockspaceID, ImGui::GetContentRegionAvail(), dockFlags, &workspaceWindowClass );
+        }
+        ImGui::End();
+
+        // Draw workspace and viewport windows
+        //-------------------------------------------------------------------------
+
+        if ( shouldDrawWindowContents )
+        {
+            // Draw workspace windows
+            pWorkspace->Draw( context, viewportManager, &workspaceWindowClass );
+
+            // Does the active workspace require a viewport?
+            if ( isActiveWorkspace && pWorkspace->RequiresViewportWindow() )
+            {
+                InlineString<100> viewportName;
+                viewportName.sprintf( "Viewport##%s", pWorkspace->GetWorkspaceName() );
+
+                ImGui::SetNextWindowClass( &workspaceWindowClass );
+                DrawViewportWindow( context, viewportManager, viewportName.c_str() );
+            }
+        }
+
+        // Handle tab switches
+        //-------------------------------------------------------------------------
+
+        if ( isFocused && !isActiveWorkspace )
+        {
+            model.SetActiveWorkspace( pWorkspace );
+        }
+
+        //-------------------------------------------------------------------------
+
+        return isOpen;
     }
 }

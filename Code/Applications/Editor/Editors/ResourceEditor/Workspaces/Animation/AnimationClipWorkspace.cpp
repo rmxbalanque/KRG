@@ -9,6 +9,10 @@
 
 namespace KRG::Animation
 {
+    char const* const AnimationClipWorkspace::s_infoWindowName = "Info Window##AnimationClip";
+
+    //-------------------------------------------------------------------------
+
     AnimationClipWorkspace::AnimationClipWorkspace( EditorModel* pModel, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID )
         : TResourceWorkspace<AnimationClip>( pModel, pResourceSystem, resourceID )
         , m_propertyGrid( pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
@@ -49,105 +53,117 @@ namespace KRG::Animation
         m_pAnimationComponent = nullptr;
     }
 
-    void AnimationClipWorkspace::DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void AnimationClipWorkspace::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
-        if ( IsLoading() )
+        auto DrawWindowContents = [this, &context] ()
         {
-            ImGui::Text( "Loading:" );
-            ImGui::SameLine();
-            ImGuiX::DrawSpinner( "Loading" );
-            return;
-        }
-
-        if ( HasLoadingFailed() )
-        {
-            ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
-            return;
-        }
-
-        if ( m_pEventEditor == nullptr )
-        {
-            m_pEventEditor = KRG::New<EventEditor>( m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
-        }
-
-        // Draw debug info in viewport
-        //-------------------------------------------------------------------------
-
-        auto drawingCtx = context.GetDrawingContext();
-        m_pResource->DrawRootMotionPath( drawingCtx, Transform::Identity );
-
-        // Anim Info
-        //-------------------------------------------------------------------------
-
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 0 ) );
-        ImGui::BeginChild( "AnimInfo", ImVec2( 0, 18 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding );
-        {
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text( "Frame: %06.2f / %d", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetNumFrames(), m_pResource->GetNumFrames() );
-
-            ImGuiX::VerticalSeparator();
-
-            ImGui::Text( "Time: %05.2fs / %05.2fs", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetDuration(), m_pResource->GetDuration().ToFloat() );
-
-            ImGuiX::VerticalSeparator();
-
-            ImGui::Text( "Avg Linear Velocity: %.2fm/s", m_pResource->GetAverageLinearVelocity() );
-
-            ImGuiX::VerticalSeparator();
-
-            ImGui::Text( "Avg Angular Velocity: %.2fm/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
-
-            ImGuiX::VerticalSeparator();
-
-            ImGui::Text( "Distance Covered: %.2fm", m_pResource->GetTotalRootMotionDelta().GetTranslation().Length3() );
-        }
-        ImGui::EndChild();
-        ImGui::PopStyleVar();
-
-        // Track editor and property grid
-        //-------------------------------------------------------------------------
-
-        ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 0, 0 ) );
-        if ( ImGui::BeginTable( "LayoutTable", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit ) )
-        {
-            ImGui::TableSetupColumn( "TrackEditor", ImGuiTableColumnFlags_WidthStretch );
-            ImGui::TableSetupColumn( "PropertyGrid", ImGuiTableColumnFlags_WidthFixed, 400 );
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::BeginChild( "TE", ImVec2( 0, 0 ), false );
+            if ( IsWaitingForResource() )
             {
-                m_pEventEditor->Update( context, m_pAnimationComponent );
+                ImGui::Text( "Loading:" );
+                ImGui::SameLine();
+                ImGuiX::DrawSpinner( "Loading" );
+                return;
             }
-            ImGui::EndChild();
 
+            if ( HasLoadingFailed() )
+            {
+                ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
+                return;
+            }
+
+            if ( m_pEventEditor == nullptr )
+            {
+                m_pEventEditor = KRG::New<EventEditor>( m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
+            }
+
+            // Draw debug info in viewport
             //-------------------------------------------------------------------------
 
-            auto const& selectedItems = m_pEventEditor->GetSelectedItems();
-            if ( !selectedItems.empty() )
-            {
-                auto pAnimEventItem = static_cast<EventItem*>( selectedItems.back() );
-                m_propertyGrid.SetTypeToEdit( pAnimEventItem->GetEvent() );
-            }
-            else // Clear property grid
-            {
-                m_propertyGrid.SetTypeToEdit( nullptr );
-            }
+            auto drawingCtx = context.GetDrawingContext();
+            m_pResource->DrawRootMotionPath( drawingCtx, Transform::Identity );
 
+            // Anim Info
             //-------------------------------------------------------------------------
 
-            ImGui::TableNextColumn();
-            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 0 ) );
-            ImGui::BeginChild( "PG", ImVec2( 0, 0 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding );
+            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 0 ) );
+            ImGui::BeginChild( "AnimInfo", ImVec2( 0, 18 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding );
             {
-                m_propertyGrid.DrawGrid();
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text( "Frame: %06.2f / %d", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetNumFrames(), m_pResource->GetNumFrames() );
+
+                ImGuiX::VerticalSeparator();
+
+                ImGui::Text( "Time: %05.2fs / %05.2fs", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetDuration(), m_pResource->GetDuration().ToFloat() );
+
+                ImGuiX::VerticalSeparator();
+
+                ImGui::Text( "Avg Linear Velocity: %.2fm/s", m_pResource->GetAverageLinearVelocity() );
+
+                ImGuiX::VerticalSeparator();
+
+                ImGui::Text( "Avg Angular Velocity: %.2fm/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
+
+                ImGuiX::VerticalSeparator();
+
+                ImGui::Text( "Distance Covered: %.2fm", m_pResource->GetTotalRootMotionDelta().GetTranslation().Length3() );
             }
             ImGui::EndChild();
             ImGui::PopStyleVar();
 
-            ImGui::EndTable();
+            // Track editor and property grid
+            //-------------------------------------------------------------------------
+
+            ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 0, 0 ) );
+            if ( ImGui::BeginTable( "LayoutTable", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit ) )
+            {
+                ImGui::TableSetupColumn( "TrackEditor", ImGuiTableColumnFlags_WidthStretch );
+                ImGui::TableSetupColumn( "PropertyGrid", ImGuiTableColumnFlags_WidthFixed, 400 );
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::BeginChild( "TE", ImVec2( 0, 0 ), false );
+                {
+                    m_pEventEditor->Update( context, m_pAnimationComponent );
+                }
+                ImGui::EndChild();
+
+                //-------------------------------------------------------------------------
+
+                auto const& selectedItems = m_pEventEditor->GetSelectedItems();
+                if ( !selectedItems.empty() )
+                {
+                    auto pAnimEventItem = static_cast<EventItem*>( selectedItems.back() );
+                    m_propertyGrid.SetTypeToEdit( pAnimEventItem->GetEvent() );
+                }
+                else // Clear property grid
+                {
+                    m_propertyGrid.SetTypeToEdit( nullptr );
+                }
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextColumn();
+                ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 0 ) );
+                ImGui::BeginChild( "PG", ImVec2( 0, 0 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding );
+                {
+                    m_propertyGrid.DrawGrid();
+                }
+                ImGui::EndChild();
+                ImGui::PopStyleVar();
+
+                ImGui::EndTable();
+            }
+            ImGui::PopStyleVar();
+        };
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( s_infoWindowName ) )
+        {
+            DrawWindowContents();
         }
-        ImGui::PopStyleVar();
+        ImGui::End();
     }
 }

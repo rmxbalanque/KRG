@@ -16,12 +16,14 @@ namespace KRG::Resource
 
     private:
 
-        virtual char const* GetName() const override final { return "Kruger Mesh Editor"; }
+        virtual char const* GetName() const override final { return "Kruger Resource Editor"; }
 
         virtual void Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry ) override;
         virtual void Shutdown( UpdateContext const& context ) override;
 
         virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+
+        bool DrawWorkspaceWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ResourceEditorWorkspace* pWorkspace );
 
     private:
 

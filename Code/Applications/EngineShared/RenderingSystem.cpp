@@ -101,22 +101,17 @@ namespace KRG
 
                     m_pViewportManager->UpdateCustomRenderTargets();
 
-                    for ( auto const& viewport : m_pViewportManager->GetActiveViewports() )
+                    int32 const numViewports = m_pViewportManager->GetNumViewports();
+                    for ( int32 i = 0; i < numViewports; i++ )
                     {
-                        if ( viewport.HasCustomRenderTarget() )
-                        {
-                            immediateContext.SetRenderTarget( viewport.GetCustomRenderTarget() );
-                        }
-                        else
-                        {
-                            immediateContext.SetRenderTarget( m_pRenderDevice->GetMainRenderTarget() );
-                        }
+                        Render::Viewport const* pViewport = m_pViewportManager->GetActiveViewports()[i];
+                        immediateContext.SetRenderTarget( m_pViewportManager->GetRenderTargetForViewport( i ) );
 
                         //-------------------------------------------------------------------------
 
                         if ( m_pStaticMeshRenderer != nullptr )
                         {
-                            m_pStaticMeshRenderer->RenderStatic( viewport );
+                            m_pStaticMeshRenderer->RenderStatic( *pViewport );
                         }
                     }
                 }
@@ -131,32 +126,27 @@ namespace KRG
                     // Render into active viewports
                     //-------------------------------------------------------------------------
 
-                    for ( auto const& viewport : m_pViewportManager->GetActiveViewports() )
+                    int32 const numViewports = m_pViewportManager->GetNumViewports();
+                    for ( int32 i = 0; i < numViewports; i++ )
                     {
-                        if ( viewport.HasCustomRenderTarget() )
-                        {
-                            immediateContext.SetRenderTarget( viewport.GetCustomRenderTarget() );
-                        }
-                        else
-                        {
-                            immediateContext.SetRenderTarget( m_pRenderDevice->GetMainRenderTarget() );
-                        }
+                        Render::Viewport const* pViewport = m_pViewportManager->GetActiveViewports()[i];
+                        immediateContext.SetRenderTarget( m_pViewportManager->GetRenderTargetForViewport( i ) );
 
                         //-------------------------------------------------------------------------
 
                         if ( m_pStaticMeshRenderer != nullptr )
                         {
-                            m_pStaticMeshRenderer->RenderDynamic( viewport );
+                            m_pStaticMeshRenderer->RenderDynamic( *pViewport );
                         }
 
                         if ( m_pSkeletalMeshRenderer != nullptr )
                         {
-                            m_pSkeletalMeshRenderer->Render( viewport );
+                            m_pSkeletalMeshRenderer->Render( *pViewport );
                         }
 
                         for ( auto const& pCustomRenderer : m_customRenderers )
                         {
-                            pCustomRenderer->Render( viewport );
+                            pCustomRenderer->Render( *pViewport );
                         }
                     }
 

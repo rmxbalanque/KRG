@@ -83,6 +83,7 @@
     <ClCompile Include="Editors\ResourceEditor\ResourceEditor.cpp" />
     <ClCompile Include="Editors\ResourceEditor\ResourceEditor_DataBrowser.cpp" />
     <ClCompile Include="Editors\ResourceEditor\ResourceEditor_Model.cpp" />
+    <ClCompile Include="Editors\ResourceEditor\Workspaces\ResourceWorkspace.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editors\Editor.h" />

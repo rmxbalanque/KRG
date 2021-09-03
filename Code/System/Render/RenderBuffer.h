@@ -36,6 +36,7 @@ namespace KRG
         public:
 
             RenderBuffer() = default;
+            ~RenderBuffer() { KRG_ASSERT( !m_resourceHandle.IsValid() ); }
 
             inline bool IsValid() const { return m_resourceHandle.IsValid(); }
 
@@ -44,10 +45,10 @@ namespace KRG
 
         public:
 
-            uint32                 m_ID;
-            uint32                 m_slot = 0;
-            uint32                 m_byteSize = 0;
-            uint32                 m_byteStride = 0 ;
+            uint32              m_ID;
+            uint32              m_slot = 0;
+            uint32              m_byteSize = 0;
+            uint32              m_byteStride = 0 ;
             Usage               m_usage = Usage::GPU_only;
             Type                m_type = Type::Unknown;
 

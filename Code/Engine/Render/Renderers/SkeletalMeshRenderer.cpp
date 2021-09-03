@@ -52,13 +52,11 @@ namespace KRG::Render
         }
 
         // Create blend state
-        m_blendState.m_blendEnable = false;
         m_blendState.m_srcValue = BlendValue::SourceAlpha;
         m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
         m_blendState.m_blendOp = BlendOp::Add;
-        m_blendState.m_srcAlphaValue = BlendValue::InverseSourceAlpha;
-        m_blendState.m_dstAlphaValue = BlendValue::Zero;
-        m_blendState.m_blendOpAlpha = BlendOp::Add;
+        m_blendState.m_blendEnable = true;
+
         pRenderDevice->CreateBlendState( m_blendState );
 
         if ( !m_blendState.IsValid() )
@@ -330,7 +328,7 @@ namespace KRG::Render
 
                     if ( pTextureToSet != pLastSetTexture )
                     {
-                        renderContext.SetTexture( PipelineStage::Pixel, 0, *pTextureToSet );
+                        renderContext.SetShaderResource( PipelineStage::Pixel, 0, pTextureToSet->GetShaderResourceView() );
                         pLastSetTexture = pTextureToSet;
                     }
 

@@ -36,7 +36,8 @@ namespace KRG
 
             // Shaders
             void SetShaderInputBinding( ResourceHandle const& inputBinding ) const;
-            void SetTexture( PipelineStage stage, uint32 slot, Texture const& texture ) const;
+            void SetShaderResource( PipelineStage stage, uint32 slot, ShaderResourceView const& shaderResourceView ) const;
+            void ClearShaderResource( PipelineStage stage, uint32 slot ) const;
             void SetSampler( PipelineStage stage, uint32 slot, SamplerState const& state ) const;
 
             // Buffers

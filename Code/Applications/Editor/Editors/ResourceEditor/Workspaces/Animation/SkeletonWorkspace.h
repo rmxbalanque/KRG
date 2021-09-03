@@ -32,15 +32,17 @@ namespace KRG::Animation
 
     class SkeletonWorkspace : public Resource::TResourceWorkspace<Skeleton>
     {
+        static char const* const s_infoWindowName;
+
     public:
 
-        using TResourceWorkspace::TResourceWorkspace;
-    
-        ~SkeletonWorkspace();
+        using TResourceWorkspace::TResourceWorkspace;    
+        virtual ~SkeletonWorkspace();
 
+        virtual char const* GetWorkspaceName() const override { return "Skeleton"; }
         virtual void Activate( EntityWorld* pPreviewWorld ) override;
         virtual void Deactivate( EntityWorld* pPreviewWorld ) override;
-        virtual void DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+        virtual void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
 
     private:
 
@@ -50,6 +52,6 @@ namespace KRG::Animation
 
     private:
 
-        BoneInfo* m_pSkeletonTreeRoot = nullptr;
+        BoneInfo*   m_pSkeletonTreeRoot = nullptr;
     };
 }

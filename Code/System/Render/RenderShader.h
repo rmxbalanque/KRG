@@ -47,14 +47,16 @@ namespace KRG
 
         public:
 
+            virtual ~Shader() { KRG_ASSERT( !m_shaderHandle.IsValid() ); }
+
             inline PipelineStage GetPipelineStage() const { return m_pipelineStage; }
 
             inline ResourceHandle const& GetShaderHandle() const { return m_shaderHandle; }
             inline uint32 GetNumConstBuffers() const { return (uint32) m_cbuffers.size(); }
             inline RenderBuffer const& GetConstBuffer( uint32 i ) const { KRG_ASSERT( i < m_cbuffers.size() ); return m_cbuffers[i]; }
 
-            inline bool operator==( Shader const& rhs ) const { return m_shaderHandle.m_pHandle == rhs.m_shaderHandle.m_pHandle; }
-            inline bool operator!=( Shader const& rhs ) const { return m_shaderHandle.m_pHandle != rhs.m_shaderHandle.m_pHandle; }
+            inline bool operator==( Shader const& rhs ) const { return m_shaderHandle.m_pData0 == rhs.m_shaderHandle.m_pData0; }
+            inline bool operator!=( Shader const& rhs ) const { return m_shaderHandle.m_pData0 != rhs.m_shaderHandle.m_pData0; }
 
         protected:
 

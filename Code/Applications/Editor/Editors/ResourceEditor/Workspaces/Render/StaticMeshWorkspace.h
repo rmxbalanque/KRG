@@ -10,13 +10,16 @@ namespace KRG::Render
 {
     class StaticMeshWorkspace : public Resource::TResourceWorkspace<StaticMesh>
     {
+        static char const* const s_infoWindowName;
+
     public:
 
         using TResourceWorkspace::TResourceWorkspace;
-    
+
+        virtual char const* GetWorkspaceName() const override { return "Static Mesh"; }
         virtual void Activate( EntityWorld* pPreviewWorld ) override;
         virtual void Deactivate( EntityWorld* pPreviewWorld ) override;
-        virtual void DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+        virtual void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
 
     private:
 

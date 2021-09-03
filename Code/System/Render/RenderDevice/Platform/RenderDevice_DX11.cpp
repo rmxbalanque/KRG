@@ -1,5 +1,4 @@
 #include "RenderDevice_DX11.h"
-#include "RenderTypes_DX11.h"
 #include "TextureLoader_Win32.h"
 #include "System/Render/RenderDevice/RenderDefaultResources.h"
 #include "System/Render/RenderSettings.h"
@@ -8,7 +7,7 @@
 
 //-------------------------------------------------------------------------
 
-#define KRG_ENABLE_RENDERDEVICE_DEBUG 0
+#define KRG_ENABLE_RENDERDEVICE_DEBUG 1
 
 //-------------------------------------------------------------------------
 
@@ -145,7 +144,6 @@ namespace KRG::Render
 
     void RenderDevice::DestroyDeviceAndSwapchain()
     {
-
         if ( m_pSwapChain != nullptr )
         {
             m_pSwapChain->Release();
@@ -172,7 +170,7 @@ namespace KRG::Render
             #if KRG_ENABLE_RENDERDEVICE_DEBUG
             if ( pDebug != nullptr )
             {
-                pDebug->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL );
+                pDebug->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL ); // Will always print 2 ref counts on the device since since the debug interface holds a ref on the devices
                 pDebug->Release();
             }
             #endif
@@ -249,11 +247,8 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        auto pRenderTargetSRV = KRG::New<DX11::RenderTargetSRV>();
-        pRenderTargetSRV->m_pRenderTargetView = pRenderTargetView;
-        pRenderTargetSRV->m_pDepthStencilView = pDepthStencilView;
-
-        m_renderTarget.m_resourceHandle.m_pHandle = pRenderTargetSRV;
+        m_renderTarget.m_resourceHandle.m_pData0 = pRenderTargetView;
+        m_renderTarget.m_resourceHandle.m_pData1 = pDepthStencilView;
         m_renderTarget.m_resourceHandle.m_type = ResourceHandle::Type::RenderTarget;
         m_renderTarget.m_dimensions = m_resolution;
 
@@ -362,7 +357,7 @@ namespace KRG::Render
             ID3D11VertexShader* pVertexShader;
             if ( SUCCEEDED( m_pDevice->CreateVertexShader( &shader.m_byteCode[0], shader.m_byteCode.size(), nullptr, &pVertexShader ) ) )
             {
-                shader.m_shaderHandle.m_pHandle = pVertexShader;
+                shader.m_shaderHandle.m_pData0 = pVertexShader;
                 shader.m_shaderHandle.m_type = ResourceHandle::Type::Shader;
             }
         }
@@ -371,7 +366,7 @@ namespace KRG::Render
             ID3D11PixelShader* pPixelShader;
             if ( SUCCEEDED( m_pDevice->CreatePixelShader( &shader.m_byteCode[0], shader.m_byteCode.size(), nullptr, &pPixelShader ) ) )
             {
-                shader.m_shaderHandle.m_pHandle = pPixelShader;
+                shader.m_shaderHandle.m_pData0 = pPixelShader;
                 shader.m_shaderHandle.m_type = ResourceHandle::Type::Shader;
             }
         }
@@ -380,7 +375,7 @@ namespace KRG::Render
             ID3D11GeometryShader* pGeometryShader;
             if ( SUCCEEDED( m_pDevice->CreateGeometryShader( &shader.m_byteCode[0], shader.m_byteCode.size(), nullptr, &pGeometryShader ) ) )
             {
-                shader.m_shaderHandle.m_pHandle = pGeometryShader;
+                shader.m_shaderHandle.m_pData0 = pGeometryShader;
                 shader.m_shaderHandle.m_type = ResourceHandle::Type::Shader;
             }
         }
@@ -405,23 +400,23 @@ namespace KRG::Render
 
         if ( shader.GetPipelineStage() == PipelineStage::Vertex )
         {
-            ( (ID3D11VertexShader*) shader.m_shaderHandle.m_pHandle )->Release();
+            ( (ID3D11VertexShader*) shader.m_shaderHandle.m_pData0 )->Release();
         }
         else if ( shader.GetPipelineStage() == PipelineStage::Pixel )
         {
-            ( (ID3D11PixelShader*) shader.m_shaderHandle.m_pHandle )->Release();
+            ( (ID3D11PixelShader*) shader.m_shaderHandle.m_pData0 )->Release();
         }
         else if ( shader.GetPipelineStage() == PipelineStage::Geometry )
         {
-            ( (ID3D11GeometryShader*) shader.m_shaderHandle.m_pHandle )->Release();
+            ( (ID3D11GeometryShader*) shader.m_shaderHandle.m_pData0 )->Release();
         }
         else if ( shader.GetPipelineStage() == PipelineStage::Hull )
         {
-            ( (ID3D11HullShader*) shader.m_shaderHandle.m_pHandle )->Release();
+            ( (ID3D11HullShader*) shader.m_shaderHandle.m_pData0 )->Release();
         }
         else if ( shader.GetPipelineStage() == PipelineStage::Compute )
         {
-            ( (ID3D11ComputeShader*) shader.m_shaderHandle.m_pHandle )->Release();
+            ( (ID3D11ComputeShader*) shader.m_shaderHandle.m_pData0 )->Release();
         }
 
         shader.m_shaderHandle.Reset();
@@ -488,7 +483,7 @@ namespace KRG::Render
         }
 
         // Create and store buffer
-        m_pDevice->CreateBuffer( &bufferDesc, pInitializationData == nullptr ? nullptr : &initData, (ID3D11Buffer**) &buffer.m_resourceHandle.m_pHandle );
+        m_pDevice->CreateBuffer( &bufferDesc, pInitializationData == nullptr ? nullptr : &initData, (ID3D11Buffer**) &buffer.m_resourceHandle.m_pData0 );
         buffer.m_resourceHandle.m_type = ResourceHandle::Type::Buffer;
         KRG_ASSERT( buffer.IsValid() );
     }
@@ -498,8 +493,8 @@ namespace KRG::Render
         KRG_ASSERT( buffer.IsValid() && newSize % buffer.m_byteStride == 0 );
 
         // Release D3D buffer
-        ( (ID3D11Buffer*) buffer.m_resourceHandle.m_pHandle )->Release();
-        buffer.m_resourceHandle.m_pHandle = nullptr;
+        ( (ID3D11Buffer*) buffer.m_resourceHandle.m_pData0 )->Release();
+        buffer.m_resourceHandle.m_pData0 = nullptr;
         buffer.m_byteSize = newSize;
         CreateBuffer( buffer );
     }
@@ -510,7 +505,7 @@ namespace KRG::Render
 
         if ( buffer.IsValid() )
         {
-            ( (ID3D11Buffer*) buffer.m_resourceHandle.m_pHandle )->Release();
+            ( (ID3D11Buffer*) buffer.m_resourceHandle.m_pData0 )->Release();
             buffer.m_resourceHandle.Reset();
             buffer = RenderBuffer();
         }
@@ -618,7 +613,7 @@ namespace KRG::Render
         if ( bindingSucceeded )
         {
             m_pDevice->CreateInputLayout( &inputLayout[0], (UINT) inputLayout.size(), &shader.m_byteCode[0], shader.m_byteCode.size(), &pInputLayout );
-            inputBinding.m_pHandle = pInputLayout;
+            inputBinding.m_pData0 = pInputLayout;
             inputBinding.m_type = ResourceHandle::Type::ShaderInputBinding;
         }
     }
@@ -626,7 +621,7 @@ namespace KRG::Render
     void RenderDevice::DestroyShaderInputBinding( ResourceHandle& inputBinding )
     {
         KRG_ASSERT( IsInitialized() && inputBinding.IsValid() );
-        ( (ID3D11InputLayout*) inputBinding.m_pHandle )->Release();
+        ( (ID3D11InputLayout*) inputBinding.m_pData0 )->Release();
         inputBinding.Reset();
     }
 
@@ -655,7 +650,7 @@ namespace KRG::Render
         }
 
         rdesc.ScissorEnable = state.m_scissorCulling;
-        auto result = m_pDevice->CreateRasterizerState( &rdesc, (ID3D11RasterizerState**) &state.m_resourceHandle.m_pHandle );
+        auto result = m_pDevice->CreateRasterizerState( &rdesc, (ID3D11RasterizerState**) &state.m_resourceHandle.m_pData0 );
         state.m_resourceHandle.m_type = ResourceHandle::Type::RasterizerState;
         KRG_ASSERT( SUCCEEDED( result ) );
     }
@@ -664,7 +659,7 @@ namespace KRG::Render
     {
         KRG_ASSERT( IsInitialized() );
         KRG_ASSERT( state.IsValid() );
-        ( (ID3D11RasterizerState*) state.m_resourceHandle.m_pHandle )->Release();
+        ( (ID3D11RasterizerState*) state.m_resourceHandle.m_pData0 )->Release();
         state.m_resourceHandle.Reset();
     }
 
@@ -744,7 +739,7 @@ namespace KRG::Render
             blendDesc.RenderTarget[i].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
         }
 
-        m_pDevice->CreateBlendState( &blendDesc, (ID3D11BlendState**) &state.m_resourceHandle.m_pHandle );
+        m_pDevice->CreateBlendState( &blendDesc, (ID3D11BlendState**) &state.m_resourceHandle.m_pData0 );
         state.m_resourceHandle.m_type = ResourceHandle::Type::BlendState;
         KRG_ASSERT( state.IsValid() );
     }
@@ -752,7 +747,7 @@ namespace KRG::Render
     void RenderDevice::DestroyBlendState( BlendState& state )
     {
         KRG_ASSERT( IsInitialized() && state.IsValid() );
-        ( (ID3D11BlendState*) state.m_resourceHandle.m_pHandle )->Release();
+        ( (ID3D11BlendState*) state.m_resourceHandle.m_pData0 )->Release();
         state.m_resourceHandle.Reset();
     }
 
@@ -765,60 +760,6 @@ namespace KRG::Render
             case TextureFormat::Raw: CreateRawTexture( texture, pRawData, rawDataSize ); break;
             case TextureFormat::DDS: CreateDDSTexture( texture, pRawData, rawDataSize ); break;
         }
-    }
-
-    void RenderDevice::CreateRenderTargetTexture( Texture& texture )
-    {
-        KRG_ASSERT( IsInitialized() && !texture.IsValid() );
-
-        // Create texture
-        //-------------------------------------------------------------------------
-
-        D3D11_TEXTURE2D_DESC texDesc;
-        Memory::MemsetZero( &texDesc, sizeof( texDesc ) );
-        texDesc.Width = texture.m_dimensions.m_x;
-        texDesc.Height = texture.m_dimensions.m_y;
-        texDesc.MipLevels = 1;
-        texDesc.ArraySize = 1;
-        texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        texDesc.SampleDesc.Count = 1;
-        texDesc.Usage = D3D11_USAGE_DEFAULT;
-        texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-        texDesc.CPUAccessFlags = 0;
-
-        ID3D11Texture2D* pRenderTargetTexture = nullptr;
-        if ( m_pDevice->CreateTexture2D( &texDesc, nullptr, &pRenderTargetTexture ) != S_OK )
-        {
-            KRG_HALT();
-            return;
-        }
-
-        // Create SRV
-        //-------------------------------------------------------------------------
-
-        ID3D11ShaderResourceView* pTextureSharedResourceView = nullptr;
-
-        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-        Memory::MemsetZero( &srvDesc, sizeof( srvDesc ) );
-        srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-        srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
-        srvDesc.Texture2D.MostDetailedMip = 0;
-        if ( m_pDevice->CreateShaderResourceView( pRenderTargetTexture, &srvDesc, &pTextureSharedResourceView ) != S_OK )
-        {
-            KRG_HALT();
-            return;
-        }
-
-        // Update handle
-        //-------------------------------------------------------------------------
-
-        auto pTextureSRV = KRG::New<DX11::TextureSRV>();
-        pTextureSRV->m_pTextureResource = pRenderTargetTexture;
-        pTextureSRV->m_pTextureSRV = pTextureSharedResourceView;
-
-        texture.m_resourceHandle.m_pHandle = pTextureSRV;
-        texture.m_resourceHandle.m_type = ResourceHandle::Type::Texture;
     }
 
     void RenderDevice::CreateRawTexture( Texture& texture, Byte const* pRawData, size_t rawDataSize )
@@ -840,12 +781,12 @@ namespace KRG::Render
         texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
         texDesc.CPUAccessFlags = 0;
 
-        ID3D11Texture2D* pTexture2D = nullptr;
+        ID3D11Texture2D* pTexture = nullptr;
         D3D11_SUBRESOURCE_DATA subResource;
         subResource.pSysMem = pRawData;
         subResource.SysMemPitch = texDesc.Width * 4;
         subResource.SysMemSlicePitch = 0;
-        if ( m_pDevice->CreateTexture2D( &texDesc, &subResource, &pTexture2D ) != S_OK )
+        if ( m_pDevice->CreateTexture2D( &texDesc, &subResource, &pTexture ) != S_OK )
         {
             KRG_HALT();
             return;
@@ -854,7 +795,7 @@ namespace KRG::Render
         // Create texture view
         //-------------------------------------------------------------------------
 
-        ID3D11ShaderResourceView* pTextureSharedResourceView = nullptr;
+        ID3D11ShaderResourceView* pTextureSRV = nullptr;
 
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
         Memory::MemsetZero( &srvDesc, sizeof( srvDesc ) );
@@ -862,48 +803,52 @@ namespace KRG::Render
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
         srvDesc.Texture2D.MostDetailedMip = 0;
-        if ( m_pDevice->CreateShaderResourceView( pTexture2D, &srvDesc, &pTextureSharedResourceView ) != S_OK )
+
+        if ( m_pDevice->CreateShaderResourceView( pTexture, &srvDesc, &pTextureSRV ) != S_OK )
         {
             KRG_HALT();
             return;
         }
 
+        // Release texture reference since the SRV is still holding a ref
+        pTexture->Release();
+
         // Update handle
         //-------------------------------------------------------------------------
 
-        auto pTextureSRV = KRG::New<DX11::TextureSRV>();
-        pTextureSRV->m_pTextureResource = pTexture2D;
-        pTextureSRV->m_pTextureSRV = pTextureSharedResourceView;
-
-        texture.m_resourceHandle.m_pHandle = pTextureSRV;
-        texture.m_resourceHandle.m_type = ResourceHandle::Type::Texture;
+        texture.m_shaderResourceView.m_resourceHandle.m_pData0 = pTextureSRV;
+        texture.m_shaderResourceView.m_resourceHandle.m_type = ResourceHandle::Type::Texture;
     }
 
     void RenderDevice::CreateDDSTexture( Texture& texture, Byte const* pRawData, size_t rawDataSize )
     {
         KRG_ASSERT( IsInitialized() && !texture.IsValid() );
+        
+        ID3D11Resource* pTexture = nullptr;
+        ID3D11ShaderResourceView* pTextureSRV = nullptr;
 
-        auto pTextureSRV = KRG::New<DX11::TextureSRV>();
-        auto result = DirectX::CreateDDSTextureFromMemory( m_pDevice, m_immediateContext.m_pDeviceContext, pRawData, rawDataSize, &pTextureSRV->m_pTextureResource, &pTextureSRV->m_pTextureSRV );
-        if ( result != S_OK )
+        if ( DirectX::CreateDDSTextureFromMemory( m_pDevice, m_immediateContext.m_pDeviceContext, pRawData, rawDataSize, &pTexture, &pTextureSRV ) != S_OK )
         {
-            KRG::Delete<DX11::TextureSRV>( pTextureSRV );
+            KRG_HALT();
+            return;
         }
 
-        texture.m_resourceHandle.m_pHandle = pTextureSRV;
-        texture.m_resourceHandle.m_type = ResourceHandle::Type::Texture;
+        // Release texture reference since the SRV is still holding a ref
+        pTexture->Release();
+
+        // Update handle
+        texture.m_shaderResourceView.m_resourceHandle.m_pData0 = pTextureSRV;
+        texture.m_shaderResourceView.m_resourceHandle.m_type = ResourceHandle::Type::Texture;
     }
 
     void RenderDevice::DestroyTexture( Texture& texture )
     {
         KRG_ASSERT( IsInitialized() && texture.IsValid() );
 
-        auto pTextureSRV = (DX11::TextureSRV*) texture.m_resourceHandle.m_pHandle;
-        pTextureSRV->m_pTextureSRV->Release();
-        pTextureSRV->m_pTextureResource->Release();
+        auto pTextureSRV = (ID3D11ShaderResourceView*) texture.m_shaderResourceView.m_resourceHandle.m_pData0;
+        pTextureSRV->Release();
 
-        KRG::Delete( (DX11::TextureSRV*&) texture.m_resourceHandle.m_pHandle );
-        texture.m_resourceHandle.Reset();
+        texture.m_shaderResourceView.m_resourceHandle.Reset();
     }
 
     //-------------------------------------------------------------------------
@@ -985,7 +930,7 @@ namespace KRG::Render
         samplerDesc.MaxLOD = state.m_maxLOD;
         samplerDesc.MaxAnisotropy = state.m_maxAnisotropyValue;
 
-        m_pDevice->CreateSamplerState( &samplerDesc, (ID3D11SamplerState**) &state.m_resourceHandle.m_pHandle );
+        m_pDevice->CreateSamplerState( &samplerDesc, (ID3D11SamplerState**) &state.m_resourceHandle.m_pData0 );
         state.m_resourceHandle.m_type = ResourceHandle::Type::SamplerState;
     }
 
@@ -993,33 +938,64 @@ namespace KRG::Render
     {
         KRG_ASSERT( IsInitialized() );
         KRG_ASSERT( state.IsValid() );
-        ( (ID3D11SamplerState*) state.m_resourceHandle.m_pHandle )->Release();
+        ( (ID3D11SamplerState*) state.m_resourceHandle.m_pData0 )->Release();
         state.m_resourceHandle.Reset();
     }
 
     //-------------------------------------------------------------------------
 
-    void RenderDevice::CreateRenderTarget( RenderTarget& target, Int2 const& dimensions )
+    void RenderDevice::CreateRenderTarget( RenderTarget& renderTarget, Int2 const& dimensions )
     {
-        KRG_ASSERT( IsInitialized() && !target.m_resourceHandle.IsValid() );
+        KRG_ASSERT( IsInitialized() && !renderTarget.m_resourceHandle.IsValid() );
 
-        auto pRenderTargetSRV = KRG::New<DX11::RenderTargetSRV>();
-        target.m_resourceHandle.m_pHandle = pRenderTargetSRV;
-        target.m_resourceHandle.m_type = ResourceHandle::Type::RenderTarget;
-        target.m_dimensions = dimensions;
-        target.m_pTexture = KRG::New<Texture>( dimensions );
-
-        // Create Render Target
+        // Create render target texture and SRV
         //-------------------------------------------------------------------------
 
-        CreateRenderTargetTexture( *target.m_pTexture );
+        ID3D11Texture2D* pTexture = nullptr;
+        ID3D11ShaderResourceView* pSRV = nullptr;
 
-        auto pRenderTargetTexture = (DX11::TextureSRV*) target.m_pTexture->m_resourceHandle.m_pHandle;
-        if ( m_pDevice->CreateRenderTargetView( pRenderTargetTexture->m_pTextureResource, nullptr, &pRenderTargetSRV->m_pRenderTargetView ) != S_OK )
+        D3D11_TEXTURE2D_DESC texDesc;
+        Memory::MemsetZero( &texDesc, sizeof( texDesc ) );
+        texDesc.Width = dimensions.m_x;
+        texDesc.Height = dimensions.m_y;
+        texDesc.MipLevels = 1;
+        texDesc.ArraySize = 1;
+        texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        texDesc.SampleDesc.Count = 1;
+        texDesc.Usage = D3D11_USAGE_DEFAULT;
+        texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+        texDesc.CPUAccessFlags = 0;
+
+        if ( m_pDevice->CreateTexture2D( &texDesc, nullptr, &pTexture ) != S_OK )
         {
             KRG_HALT();
             return;
         }
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+        Memory::MemsetZero( &srvDesc, sizeof( srvDesc ) );
+        srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        if ( m_pDevice->CreateShaderResourceView( pTexture, &srvDesc, &pSRV ) != S_OK )
+        {
+            KRG_HALT();
+            return;
+        }
+ 
+        // Create render target view
+        //-------------------------------------------------------------------------
+        
+        ID3D11RenderTargetView* pRTV = nullptr;
+        if ( m_pDevice->CreateRenderTargetView( pTexture, nullptr, &pRTV ) != S_OK )
+        {
+            KRG_HALT();
+            return;
+        }
+
+        // Release texture references since the SRV/RTV is holding a ref
+        pTexture->Release();
 
         // Create Depth Stencil
         //-------------------------------------------------------------------------
@@ -1052,12 +1028,26 @@ namespace KRG::Render
         descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         descDSV.Texture2D.MipSlice = 0;
 
-        if ( m_pDevice->CreateDepthStencilView( pDepthStencilTexture, &descDSV, &pRenderTargetSRV->m_pDepthStencilView ) != S_OK )
+        ID3D11DepthStencilView* pDSV = nullptr;
+        if ( m_pDevice->CreateDepthStencilView( pDepthStencilTexture, &descDSV, &pDSV ) != S_OK )
         {
             KRG_HALT();
             return;
         }
+
+        // Release depth stencil texture since the DSV is holding a ref
         pDepthStencilTexture->Release();
+
+        // Update Handle
+        //-------------------------------------------------------------------------
+
+        renderTarget.m_renderTargetSRV.m_resourceHandle.m_pData0 = pSRV;
+        renderTarget.m_renderTargetSRV.m_resourceHandle.m_type = ResourceHandle::Type::Texture;
+
+        renderTarget.m_resourceHandle.m_pData0 = pRTV;
+        renderTarget.m_resourceHandle.m_pData1 = pDSV;
+        renderTarget.m_resourceHandle.m_type = ResourceHandle::Type::RenderTarget;
+        renderTarget.m_dimensions = dimensions;
     }
 
     void RenderDevice::ResizeRenderTarget( RenderTarget& target, Int2 const& newDimensions )
@@ -1068,22 +1058,27 @@ namespace KRG::Render
         CreateRenderTarget( target, newDimensions );
     }
 
-    void RenderDevice::DestroyRenderTarget( RenderTarget& target )
+    void RenderDevice::DestroyRenderTarget( RenderTarget& renderTarget )
     {
-        KRG_ASSERT( IsInitialized() && target.m_resourceHandle.IsValid() );
+        KRG_ASSERT( IsInitialized() && renderTarget.m_resourceHandle.IsValid() );
 
-        auto pRenderTargetSRV = (DX11::RenderTargetSRV*) target.m_resourceHandle.m_pHandle;
-        pRenderTargetSRV->m_pRenderTargetView->Release();
-        pRenderTargetSRV->m_pDepthStencilView->Release();
+        auto pRTV = (ID3D11RenderTargetView*) renderTarget.m_resourceHandle.m_pData0;
+        pRTV->Release();
 
-        KRG::Delete( (DX11::RenderTargetSRV*&) target.m_resourceHandle.m_pHandle );
-        target.m_resourceHandle.Reset();
+        auto pDSV = (ID3D11DepthStencilView*) renderTarget.m_resourceHandle.m_pData1;
+        pDSV->Release();
 
-        // Not all render targets have a valid texture set
-        if ( target.m_pTexture != nullptr )
+        renderTarget.m_resourceHandle.Reset();
+
+        //-------------------------------------------------------------------------
+
+        // Free SRV if set
+        if ( renderTarget.m_renderTargetSRV.IsValid() )
         {
-            DestroyTexture( *target.m_pTexture );
-            KRG::Delete( target.m_pTexture );
+            auto pSRV = (ID3D11ShaderResourceView*) renderTarget.m_renderTargetSRV.m_resourceHandle.m_pData0;
+            pSRV->Release();
+
+            renderTarget.m_renderTargetSRV.m_resourceHandle.Reset();
         }
     }
 }

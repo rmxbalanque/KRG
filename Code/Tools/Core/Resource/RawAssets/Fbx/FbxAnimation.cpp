@@ -60,11 +60,13 @@ namespace KRG::RawAssets
                 sceneCtx.m_pScene->SetCurrentAnimationStack( pAnimStack );
 
                 // Read animation start and end times
-                const FbxTakeInfo* pTakeInfo = sceneCtx.m_pScene->GetTakeInfo( pAnimStack->GetNameWithoutNameSpacePrefix() );
-                if ( pTakeInfo )
+                FbxTime duration;
+                FbxTakeInfo const* pTakeInfo = sceneCtx.m_pScene->GetTakeInfo( pAnimStack->GetNameWithoutNameSpacePrefix() );
+                if ( pTakeInfo != nullptr )
                 {
                     pRawAnimation->m_start = (float) pTakeInfo->mLocalTimeSpan.GetStart().GetSecondDouble();
                     pRawAnimation->m_end = (float) pTakeInfo->mLocalTimeSpan.GetStop().GetSecondDouble();
+                    duration = pTakeInfo->mLocalTimeSpan.GetDuration();
                 }
                 else // Take the time line value
                 {
@@ -72,9 +74,10 @@ namespace KRG::RawAssets
                     sceneCtx.m_pScene->GetGlobalSettings().GetTimelineDefaultTimeSpan( timeLineSpan );
                     pRawAnimation->m_start = (float) timeLineSpan.GetStart().GetSecondDouble();
                     pRawAnimation->m_end = (float) timeLineSpan.GetStop().GetSecondDouble();
+                    duration = timeLineSpan.GetDuration();
                 }
 
-                FbxTime const duration = pTakeInfo->mLocalTimeSpan.GetDuration();
+                // Calculate frame rate
                 FbxTime::EMode mode = duration.GetGlobalTimeMode();
                 double frameRate = duration.GetFrameRate( mode );
 

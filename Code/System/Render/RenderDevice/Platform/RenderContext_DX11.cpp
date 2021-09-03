@@ -1,5 +1,4 @@
 #include "RenderContext_DX11.h"
-#include "RenderTypes_DX11.h"
 
 //-------------------------------------------------------------------------
 
@@ -28,12 +27,12 @@ namespace KRG
 
             if ( pipelineState.m_pVertexShader != nullptr && pipelineState.m_pVertexShader->IsValid() )
             {
-                m_pDeviceContext->VSSetShader( (ID3D11VertexShader*) pipelineState.m_pVertexShader->GetShaderHandle().m_pHandle, nullptr, 0 );
+                m_pDeviceContext->VSSetShader( (ID3D11VertexShader*) pipelineState.m_pVertexShader->GetShaderHandle().m_pData0, nullptr, 0 );
 
                 auto const numCbuffers = pipelineState.m_pVertexShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->VSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pVertexShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->VSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pVertexShader->GetConstBuffer( i ).GetResourceHandle().m_pData0 );
                 }
             }
             else
@@ -48,12 +47,12 @@ namespace KRG
 
             if ( pipelineState.m_pGeometryShader != nullptr && pipelineState.m_pGeometryShader->IsValid() )
             {
-                m_pDeviceContext->GSSetShader( (ID3D11GeometryShader*) pipelineState.m_pGeometryShader->GetShaderHandle().m_pHandle, nullptr, 0 );
+                m_pDeviceContext->GSSetShader( (ID3D11GeometryShader*) pipelineState.m_pGeometryShader->GetShaderHandle().m_pData0, nullptr, 0 );
 
                 auto const numCbuffers = pipelineState.m_pGeometryShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->GSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pGeometryShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->GSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pGeometryShader->GetConstBuffer( i ).GetResourceHandle().m_pData0 );
                 }
             }
             else
@@ -66,12 +65,12 @@ namespace KRG
 
             if ( pipelineState.m_pHullShader != nullptr && pipelineState.m_pHullShader->IsValid() )
             {
-                m_pDeviceContext->HSSetShader( (ID3D11HullShader*) pipelineState.m_pHullShader->GetShaderHandle().m_pHandle, nullptr, 0 );
+                m_pDeviceContext->HSSetShader( (ID3D11HullShader*) pipelineState.m_pHullShader->GetShaderHandle().m_pData0, nullptr, 0 );
 
                 auto const numCbuffers = pipelineState.m_pHullShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->HSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pHullShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->HSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pHullShader->GetConstBuffer( i ).GetResourceHandle().m_pData0 );
                 }
             }
             else
@@ -84,12 +83,12 @@ namespace KRG
 
             if ( pipelineState.m_pComputeShader != nullptr && pipelineState.m_pComputeShader->IsValid() )
             {
-                m_pDeviceContext->CSSetShader( (ID3D11ComputeShader*) pipelineState.m_pComputeShader->GetShaderHandle().m_pHandle, nullptr, 0 );
+                m_pDeviceContext->CSSetShader( (ID3D11ComputeShader*) pipelineState.m_pComputeShader->GetShaderHandle().m_pData0, nullptr, 0 );
 
                 auto const numCbuffers = pipelineState.m_pComputeShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->CSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pComputeShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->CSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pComputeShader->GetConstBuffer( i ).GetResourceHandle().m_pData0 );
                 }
             }
             else
@@ -102,12 +101,12 @@ namespace KRG
 
             if ( pipelineState.m_pPixelShader != nullptr && pipelineState.m_pPixelShader->IsValid() )
             {
-                m_pDeviceContext->PSSetShader( (ID3D11PixelShader*) pipelineState.m_pPixelShader->GetShaderHandle().m_pHandle, nullptr, 0 );
+                m_pDeviceContext->PSSetShader( (ID3D11PixelShader*) pipelineState.m_pPixelShader->GetShaderHandle().m_pData0, nullptr, 0 );
 
                 auto const numCbuffers = pipelineState.m_pPixelShader->GetNumConstBuffers();
                 for ( auto i = 0u; i < numCbuffers; i++ )
                 {
-                    m_pDeviceContext->PSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pPixelShader->GetConstBuffer( i ).GetResourceHandle().m_pHandle );
+                    m_pDeviceContext->PSSetConstantBuffers( (uint32) i, 1, (ID3D11Buffer**) &pipelineState.m_pPixelShader->GetConstBuffer( i ).GetResourceHandle().m_pData0 );
                 }
             }
             else
@@ -120,7 +119,7 @@ namespace KRG
 
             if ( pipelineState.m_pBlendState != nullptr && pipelineState.m_pBlendState->IsValid() )
             {
-                m_pDeviceContext->OMSetBlendState( (ID3D11BlendState*) pipelineState.m_pBlendState->GetResourceHandle().m_pHandle, nullptr, 0xffffffff );
+                m_pDeviceContext->OMSetBlendState( (ID3D11BlendState*) pipelineState.m_pBlendState->GetResourceHandle().m_pData0, nullptr, 0xffffffff );
             }
             else
             {
@@ -129,7 +128,7 @@ namespace KRG
 
             if ( pipelineState.m_pRasterizerState != nullptr && pipelineState.m_pRasterizerState->IsValid() )
             {
-                m_pDeviceContext->RSSetState( (ID3D11RasterizerState*) pipelineState.m_pRasterizerState->GetResourceHandle().m_pHandle );
+                m_pDeviceContext->RSSetState( (ID3D11RasterizerState*) pipelineState.m_pRasterizerState->GetResourceHandle().m_pData0 );
                 SetRasterizerScissorRectangles( nullptr );
             }
         }
@@ -139,35 +138,69 @@ namespace KRG
         void RenderContext::SetShaderInputBinding( ResourceHandle const& inputBinding ) const
         {
             KRG_ASSERT( IsValid() && inputBinding.IsValid() );
-            m_pDeviceContext->IASetInputLayout( (ID3D11InputLayout*) inputBinding.m_pHandle );
+            m_pDeviceContext->IASetInputLayout( (ID3D11InputLayout*) inputBinding.m_pData0 );
         }
 
-        void RenderContext::SetTexture( PipelineStage stage, uint32 slot, Texture const& texture ) const
+        void RenderContext::SetShaderResource( PipelineStage stage, uint32 slot, ShaderResourceView const& shaderResourceView ) const
         {
-            KRG_ASSERT( IsValid() && texture.IsValid() );
+            KRG_ASSERT( IsValid() && shaderResourceView.IsValid() );
 
-            auto const pSRV = ( DX11::TextureSRV* ) texture.GetResourceHandle().m_pHandle;
+            auto pSRV = (ID3D11ShaderResourceView*) shaderResourceView.GetResourceHandle().m_pData0;
 
             switch ( stage )
             {
                 case PipelineStage::Vertex:
-                m_pDeviceContext->VSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV->m_pTextureSRV );
+                m_pDeviceContext->VSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV );
                 break;
 
                 case PipelineStage::Geometry:
-                m_pDeviceContext->GSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV->m_pTextureSRV );
+                m_pDeviceContext->GSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV );
                 break;
 
                 case PipelineStage::Pixel:
-                m_pDeviceContext->PSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV->m_pTextureSRV );
+                m_pDeviceContext->PSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV );
                 break;
 
                 case PipelineStage::Hull:
-                m_pDeviceContext->HSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV->m_pTextureSRV );
+                m_pDeviceContext->HSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV );
                 break;
 
                 case PipelineStage::Compute:
-                m_pDeviceContext->CSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV->m_pTextureSRV );
+                m_pDeviceContext->CSSetShaderResources( slot, 1, (ID3D11ShaderResourceView* const*) &pSRV );
+                break;
+
+                case PipelineStage::None:
+                KRG_HALT();
+                break;
+            }
+        }
+
+        void RenderContext::ClearShaderResource( PipelineStage stage, uint32 slot ) const
+        {
+            KRG_ASSERT( IsValid() );
+
+            ID3D11ShaderResourceView* noSRV[] = { nullptr };
+
+            switch ( stage )
+            {
+                case PipelineStage::Vertex:
+                m_pDeviceContext->VSSetShaderResources( slot, 1, noSRV );
+                break;
+
+                case PipelineStage::Geometry:
+                m_pDeviceContext->GSSetShaderResources( slot, 1, noSRV );
+                break;
+
+                case PipelineStage::Pixel:
+                m_pDeviceContext->PSSetShaderResources( slot, 1, noSRV );
+                break;
+
+                case PipelineStage::Hull:
+                m_pDeviceContext->HSSetShaderResources( slot, 1, noSRV );
+                break;
+
+                case PipelineStage::Compute:
+                m_pDeviceContext->CSSetShaderResources( slot, 1, noSRV );
                 break;
 
                 case PipelineStage::None:
@@ -187,23 +220,23 @@ namespace KRG
                 break;
 
                 case PipelineStage::Vertex:
-                m_pDeviceContext->VSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pHandle );
+                m_pDeviceContext->VSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pData0 );
                 break;
 
                 case PipelineStage::Geometry:
-                m_pDeviceContext->GSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pHandle );
+                m_pDeviceContext->GSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pData0 );
                 break;
 
                 case PipelineStage::Pixel:
-                m_pDeviceContext->PSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pHandle );
+                m_pDeviceContext->PSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pData0 );
                 break;
 
                 case PipelineStage::Hull:
-                m_pDeviceContext->HSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pHandle );
+                m_pDeviceContext->HSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pData0 );
                 break;
 
                 case PipelineStage::Compute:
-                m_pDeviceContext->CSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pHandle );
+                m_pDeviceContext->CSSetSamplers( slot, 1, (ID3D11SamplerState* const*) &state.GetResourceHandle().m_pData0 );
                 break;
             }
         }
@@ -220,7 +253,7 @@ namespace KRG
             D3D11_MAPPED_SUBRESOURCE mappedData;
             KRG::Memory::MemsetZero( &mappedData, sizeof( D3D11_MAPPED_SUBRESOURCE ) );
 
-            auto result = m_pDeviceContext->Map( (ID3D11Buffer*) buffer.GetResourceHandle().m_pHandle, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData );
+            auto result = m_pDeviceContext->Map( (ID3D11Buffer*) buffer.GetResourceHandle().m_pData0, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData );
             KRG_ASSERT( SUCCEEDED( result ) );
             return (Byte*) mappedData.pData;
         }
@@ -229,7 +262,7 @@ namespace KRG
         {
             // Check that we have write access to this buffer and that the data to write is within the buffer size
             KRG_ASSERT( IsValid() && buffer.IsValid() && buffer.m_usage == RenderBuffer::Usage::CPU_and_GPU );
-            m_pDeviceContext->Unmap( (ID3D11Buffer*) buffer.GetResourceHandle().m_pHandle, 0 );
+            m_pDeviceContext->Unmap( (ID3D11Buffer*) buffer.GetResourceHandle().m_pData0, 0 );
         }
 
         void RenderContext::WriteToBuffer( RenderBuffer const& buffer, void const* pData, size_t const dataSize ) const
@@ -243,13 +276,13 @@ namespace KRG
         void RenderContext::SetVertexBuffer( RenderBuffer const& buffer, uint32 offset ) const
         {
             KRG_ASSERT( IsValid() && buffer.IsValid() && buffer.m_type == RenderBuffer::Type::Vertex );
-            m_pDeviceContext->IASetVertexBuffers( 0, 1, (ID3D11Buffer**) &buffer.GetResourceHandle().m_pHandle, &buffer.m_byteStride, &offset );
+            m_pDeviceContext->IASetVertexBuffers( 0, 1, (ID3D11Buffer**) &buffer.GetResourceHandle().m_pData0, &buffer.m_byteStride, &offset );
         }
 
         void RenderContext::SetIndexBuffer( RenderBuffer const& buffer, uint32 offset ) const
         {
             KRG_ASSERT( IsValid() && buffer.IsValid() && buffer.m_type == RenderBuffer::Type::Index );
-            m_pDeviceContext->IASetIndexBuffer( (ID3D11Buffer*) buffer.GetResourceHandle().m_pHandle, buffer.m_byteStride == 4 ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT, offset );
+            m_pDeviceContext->IASetIndexBuffer( (ID3D11Buffer*) buffer.GetResourceHandle().m_pData0, buffer.m_byteStride == 4 ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT, offset );
         }
 
         //-------------------------------------------------------------------------
@@ -307,7 +340,7 @@ namespace KRG
 
             if ( blendState.IsValid() )
             {
-                m_pDeviceContext->OMSetBlendState( (ID3D11BlendState*) blendState.GetResourceHandle().m_pHandle, blendFactors, 0xffffffff );
+                m_pDeviceContext->OMSetBlendState( (ID3D11BlendState*) blendState.GetResourceHandle().m_pData0, blendFactors, 0xffffffff );
             }
             else
             {
@@ -319,8 +352,8 @@ namespace KRG
         {
             KRG_ASSERT( IsValid() && renderTarget.IsValid() );
 
-            auto pRenderTargetSRV = (DX11::RenderTargetSRV*) renderTarget.GetRenderTargetHandle().m_pHandle;
-            m_pDeviceContext->OMSetRenderTargets( 1, &pRenderTargetSRV->m_pRenderTargetView, pRenderTargetSRV->m_pDepthStencilView );
+            ResourceHandle const& resourceHandle = renderTarget.GetRenderTargetHandle();
+            m_pDeviceContext->OMSetRenderTargets( 1, (ID3D11RenderTargetView**) &resourceHandle.m_pData0, (ID3D11DepthStencilView*) resourceHandle.m_pData1 );
 
             if ( clearOnSet )
             {
@@ -334,9 +367,9 @@ namespace KRG
 
             static Float4 const clearColor = Color( 96, 96, 96 ).ToFloat4();
 
-            auto pRenderTargetSRV = (DX11::RenderTargetSRV*) renderTarget.GetRenderTargetHandle().m_pHandle;
-            m_pDeviceContext->ClearRenderTargetView( pRenderTargetSRV->m_pRenderTargetView, &clearColor.m_x );
-            m_pDeviceContext->ClearDepthStencilView( pRenderTargetSRV->m_pDepthStencilView, D3D10_CLEAR_DEPTH, 1.0f, 0 );
+            ResourceHandle const& resourceHandle = renderTarget.GetRenderTargetHandle();
+            m_pDeviceContext->ClearRenderTargetView( (ID3D11RenderTargetView*) resourceHandle.m_pData0, &clearColor.m_x );
+            m_pDeviceContext->ClearDepthStencilView( (ID3D11DepthStencilView*) resourceHandle.m_pData1, D3D10_CLEAR_DEPTH, 1.0f, 0 );
         }
 
         void RenderContext::ClearRenderTargets() const

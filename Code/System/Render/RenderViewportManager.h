@@ -39,13 +39,20 @@ namespace KRG::Render
         // Engine Viewports
         //-------------------------------------------------------------------------
 
-        inline Viewport const& GetPrimaryViewport() const { return m_viewports[0]; }
+        inline Viewport const* GetPrimaryViewport() const { return m_viewports[0]; }
         void ResizePrimaryViewport( Math::Rectangle const& viewportDimensions );
 
-        inline TInlineVector<Viewport, 2>& GetActiveViewports() { return m_viewports; }
-        inline TInlineVector<Viewport, 2> const& GetActiveViewports() const { return m_viewports; }
+        inline int32 GetNumViewports() const { return (int32) m_viewports.size(); }
+        inline TInlineVector<Viewport*, 2>& GetActiveViewports() { return m_viewports; }
+        inline TInlineVector<Viewport*, 2> const& GetActiveViewports() const { return m_viewports; }
 
-        void SetRenderToTexture( int32 viewportIdx, bool enableRenderToTexture );
+        //-------------------------------------------------------------------------
+        // Render Targets
+        //-------------------------------------------------------------------------
+
+        RenderTarget const& GetRenderTargetForViewport( int32 viewportIdx ) const;
+        void SetUseCustomRenderTargetForViewport( int32 viewportIdx, bool enableRenderToTexture );
+        ShaderResourceView const& GetViewportRenderTargetTextureSRV( int32 viewportIdx ) const;
 
         //-------------------------------------------------------------------------
         // Development UI
@@ -59,7 +66,7 @@ namespace KRG::Render
     private:
 
         RenderDevice*                           m_pRenderDevice = nullptr;
-        TInlineVector<Viewport, 2>              m_viewports;
+        TInlineVector<Viewport*, 2>             m_viewports;
 
         #if KRG_DEVELOPMENT_TOOLS
         Viewport                                m_developmentToolsViewport;

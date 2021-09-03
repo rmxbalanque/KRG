@@ -90,9 +90,6 @@ namespace KRG::Render
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
-            m_blendState.m_srcAlphaValue = BlendValue::Zero;
-            m_blendState.m_dstAlphaValue = BlendValue::Zero;
-            m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_blendState.m_blendEnable = true;
 
             pRenderDevice->CreateBlendState( m_blendState );
@@ -264,9 +261,6 @@ namespace KRG::Render
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
-            m_blendState.m_srcAlphaValue = BlendValue::Zero;
-            m_blendState.m_dstAlphaValue = BlendValue::Zero;
-            m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_blendState.m_blendEnable = true;
 
             pRenderDevice->CreateBlendState( m_blendState );
@@ -403,9 +397,6 @@ namespace KRG::Render
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
-            m_blendState.m_srcAlphaValue = BlendValue::Zero;
-            m_blendState.m_dstAlphaValue = BlendValue::Zero;
-            m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_blendState.m_blendEnable = true;
 
             pRenderDevice->CreateBlendState( m_blendState );
@@ -553,9 +544,6 @@ namespace KRG::Render
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
-            m_blendState.m_srcAlphaValue = BlendValue::Zero;
-            m_blendState.m_dstAlphaValue = BlendValue::Zero;
-            m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_blendState.m_blendEnable = true;
 
             pRenderDevice->CreateBlendState( m_blendState );
@@ -673,7 +661,7 @@ namespace KRG::Render
 
         renderContext.SetShaderInputBinding( m_inputBinding );
         renderContext.SetSampler( PipelineStage::Pixel, 0, m_samplerState );
-        renderContext.SetTexture( PipelineStage::Pixel, 0, m_fontAtlasTexture );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 0, m_fontAtlasTexture.GetShaderResourceView() );
         renderContext.SetPrimitiveTopology( Topology::TriangleList );
         renderContext.SetVertexBuffer( m_vertexBuffer );
         renderContext.SetIndexBuffer( m_indexBuffer );

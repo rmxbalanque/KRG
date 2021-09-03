@@ -338,7 +338,7 @@ namespace KRG::Debug
                 {
                     DrawOverlayMenu( context );
                     DrawOverlayStatusBar( context );
-                    ImGuiX::DrawOrientationGuide( viewportSystem.GetActiveViewports().front(), ImVec2( 3.0f, 4.0f + StatusBar::g_height ) );
+                    ImGuiX::OrientationGuide::DrawAsStandaloneWindow( *viewportSystem.GetPrimaryViewport(), ImVec2( 3.0f, 4.0f + StatusBar::g_height ) );
                 }
 
                 // The debug windows should be always be drawn if enabled

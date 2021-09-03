@@ -56,7 +56,7 @@ namespace KRG
         virtual void FrameEndUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) {}
 
         // Draw 3D viewport
-        void DrawViewportWindow( UpdateContext const& context, Render::ViewportManager& viewportManager );
+        void DrawViewportWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, char const* const pEditorViewportName = "Editor Viewport" );
 
     private:
 

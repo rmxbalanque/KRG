@@ -1,6 +1,7 @@
 #include "Editor.h"
 #include "System/DevTools/CommonWidgets/Gizmo/OrientationGuide.h"
 #include "System/Render/RenderViewportManager.h"
+
 #include "System/Input/InputSystem.h"
 
 //-------------------------------------------------------------------------
@@ -30,42 +31,53 @@ namespace KRG
         ImGui::NewLine();
     }
 
-    void Editor::DrawViewportWindow( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void Editor::DrawViewportWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, char const* const pEditorViewportName )
     {
-        ImGui::SetNextWindowBgAlpha( 0.0f );
-        if ( ImGui::Begin( "EditorViewport", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse ) )
+        // Request that game is rendered to texture
+        viewportManager.SetUseCustomRenderTargetForViewport( 0, true );
+
+        // Create viewport window
+        ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
+        if ( ImGui::Begin( pEditorViewportName, nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar ) )
         {
+            ImGuiStyle const& style = ImGui::GetStyle();
             ImVec2 const windowPosition = ImGui::GetWindowPos();
             ImVec2 const windowSize = ImGui::GetWindowSize();
+            ImVec2 const viewportSize( Math::Max( ImGui::GetContentRegionAvail().x, 64.0f ), Math::Max( ImGui::GetContentRegionAvail().y, 64.0f ) );
 
             // Update engine viewport dimensions
             //-------------------------------------------------------------------------
 
-            Math::Rectangle const viewportRect( windowPosition, windowSize );
+            Math::Rectangle const viewportRect( Float2::Zero, viewportSize );
             viewportManager.ResizePrimaryViewport( viewportRect );
             m_mouseWithinEditorViewport = ImGui::IsWindowHovered();
+
+            // Draw 3D scene
+            //-------------------------------------------------------------------------
+
+            ImTextureID vpTextureID = (void*) &viewportManager.GetViewportRenderTargetTextureSRV( 0 );
+            ImGui::Image( vpTextureID, viewportSize );
 
             // Draw orientation guides
             //-------------------------------------------------------------------------
 
-            ImGuiX::DrawOrientationGuide( viewportManager.GetPrimaryViewport() );
+            Float2 const orientationGuidePosition( 4, viewportSize.y - ImGuiX::OrientationGuide::GetRequiredDimensions().m_y );
+            ImGui::SetCursorPos( orientationGuidePosition );
+            ImGuiX::OrientationGuide::DrawAsChildWindow( *viewportManager.GetPrimaryViewport() );
 
             // Draw viewport toolbar
             //-------------------------------------------------------------------------
 
             if ( HasViewportToolbar() )
             {
-                ImGui::SetNextWindowPos( windowPosition );
-                ImGui::SetNextWindowBgAlpha( 0.0f );
+                ImGui::SetCursorPos( style.WindowPadding + ImVec2( 4, 4 ) );
 
-                ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0 );
-                uint32 const viewportToolbarflags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
-                if ( ImGui::Begin( "EditorViewportToolbar", nullptr, viewportToolbarflags ) )
+                ImGui::SetNextWindowBgAlpha( 0.0f );
+                if ( ImGui::BeginChild( "EditorViewportToolbar", ImVec2(0, 0), 0 ) )
                 {
                     DrawViewportToolbar( context, viewportManager );
                 }
-                ImGui::End();
-                ImGui::PopStyleVar();
+                ImGui::EndChild();
             }
         }
         ImGui::End();

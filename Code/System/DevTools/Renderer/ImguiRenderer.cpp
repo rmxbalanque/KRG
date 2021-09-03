@@ -135,7 +135,7 @@ namespace KRG
             KRG_ASSERT( pPixels != nullptr );
             m_pRenderDevice->CreateTexture( m_fontTexture, TextureFormat::Raw, pPixels, textureDataSize );
 
-            io.Fonts->TexID = &m_fontTexture;
+            io.Fonts->TexID = const_cast<ShaderResourceView*>( &m_fontTexture.GetShaderResourceView() );
 
             //-------------------------------------------------------------------------
 
@@ -327,8 +327,8 @@ namespace KRG
                     }
                     else
                     {
-                        Texture const* pTexture = reinterpret_cast<Texture const*>( pCmd->TextureId );
-                        renderContext.SetTexture( PipelineStage::Pixel, 0, *pTexture );
+                        ShaderResourceView const* pSRV = reinterpret_cast<ShaderResourceView const*>( pCmd->TextureId );
+                        renderContext.SetShaderResource( PipelineStage::Pixel, 0, *pSRV );
 
                         ScissorRect scissorRect = { (int32) pCmd->ClipRect.x, (int32) pCmd->ClipRect.y, (int32) pCmd->ClipRect.z, (int32) pCmd->ClipRect.w };
                         renderContext.SetRasterizerScissorRectangles( &scissorRect, 1 );
@@ -338,6 +338,11 @@ namespace KRG
                 }
                 vertexOffset += recordedBuffer.m_numVertices;
             }
+
+            // Clear texture binding
+            //-------------------------------------------------------------------------
+
+            renderContext.ClearShaderResource( Render::PipelineStage::Pixel, 0 );
         }
     }
 }

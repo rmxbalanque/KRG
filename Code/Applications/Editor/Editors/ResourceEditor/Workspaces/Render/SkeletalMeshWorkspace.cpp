@@ -8,6 +8,10 @@
 
 namespace KRG::Render
 {
+    char const* const SkeletalMeshWorkspace::s_infoWindowName = "Info Window##SkeletalMesh";
+
+    //-------------------------------------------------------------------------
+
     struct BoneInfo
     {
         inline void DestroyChildren()
@@ -56,102 +60,114 @@ namespace KRG::Render
         m_pPreviewEntity = nullptr;
     }
 
-    void SkeletalMeshWorkspace::DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void SkeletalMeshWorkspace::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
-        if ( IsLoading() || IsUnloaded() )
+        auto DrawWindowContents = [this] ()
         {
-            ImGui::Text( "Loading:" );
-            ImGui::SameLine();
-            ImGuiX::DrawSpinner( "Loading" );
-            return;
-        }
-
-        if ( HasLoadingFailed() )
-        {
-            ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        if ( m_pSkeletonTreeRoot == nullptr )
-        {
-            CreateSkeletonTree();
-        }
-
-        //-------------------------------------------------------------------------
-
-        auto pMesh = m_pResource.GetPtr();
-        KRG_ASSERT( pMesh != nullptr );
-
-        ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
-        if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
-        {
-            ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
-            ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
-
-            //-------------------------------------------------------------------------
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "Data Path:" );
-
-            ImGui::TableNextColumn();
-            ImGui::Text( pMesh->GetResourceID().c_str() );
-
-            //-------------------------------------------------------------------------
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "Num Vertices:" );
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "%d", pMesh->GetNumVertices() );
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "Num Indices:" );
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "%d", pMesh->GetNumIndices() );
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "Geometry Sections:" );
-
-            ImGui::TableNextColumn();
-            for ( auto const& section : pMesh->GetSections() )
+            if ( IsWaitingForResource() )
             {
-                ImGui::Text( section.m_ID.c_str() );
+                ImGui::Text( "Loading:" );
+                ImGui::SameLine();
+                ImGuiX::DrawSpinner( "Loading" );
+                return;
             }
 
-            auto const pSkeletalMesh = static_cast<SkeletalMesh const*>( pMesh );
+            if ( HasLoadingFailed() )
+            {
+                ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
+                return;
+            }
 
-            ImGui::TableNextColumn();
-            ImGui::Text( "Num Bones:" );
+            //-------------------------------------------------------------------------
 
-            ImGui::TableNextColumn();
-            ImGui::Text( "%d", pSkeletalMesh->GetNumBones() );
+            if ( m_pSkeletonTreeRoot == nullptr )
+            {
+                CreateSkeletonTree();
+            }
 
-            ImGui::EndTable();
-        }
-        ImGui::PopStyleVar();
+            //-------------------------------------------------------------------------
+
+            auto pMesh = m_pResource.GetPtr();
+            KRG_ASSERT( pMesh != nullptr );
+
+            ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
+            if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
+            {
+                ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
+                ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Data Path:" );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( pMesh->GetResourceID().c_str() );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Num Vertices:" );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "%d", pMesh->GetNumVertices() );
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Num Indices:" );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "%d", pMesh->GetNumIndices() );
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Geometry Sections:" );
+
+                ImGui::TableNextColumn();
+                for ( auto const& section : pMesh->GetSections() )
+                {
+                    ImGui::Text( section.m_ID.c_str() );
+                }
+
+                auto const pSkeletalMesh = static_cast<SkeletalMesh const*>( pMesh );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Num Bones:" );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "%d", pSkeletalMesh->GetNumBones() );
+
+                ImGui::EndTable();
+            }
+            ImGui::PopStyleVar();
+
+            //-------------------------------------------------------------------------
+
+            ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
+            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 4 ) );
+            ImGui::BeginChild( "SkeletonView", ImVec2( 0, 0 ), true, ImGuiWindowFlags_AlwaysVerticalScrollbar );
+            {
+                KRG_ASSERT( m_pSkeletonTreeRoot != nullptr );
+                RenderSkeletonTree( m_pSkeletonTreeRoot );
+            }
+            ImGui::EndChild();
+            ImGui::PopStyleVar( 2 );
+        };
 
         //-------------------------------------------------------------------------
 
-        ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 4 ) );
-        ImGui::BeginChild( "SkeletonView", ImVec2( 0, 0 ), true, ImGuiWindowFlags_AlwaysVerticalScrollbar );
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( s_infoWindowName ) )
         {
-            KRG_ASSERT( m_pSkeletonTreeRoot != nullptr );
-            RenderSkeletonTree( m_pSkeletonTreeRoot );
+            DrawWindowContents();
         }
-        ImGui::EndChild();
-        ImGui::PopStyleVar( 2 );
+        ImGui::End();
     }
 
     void SkeletalMeshWorkspace::CreateSkeletonTree()

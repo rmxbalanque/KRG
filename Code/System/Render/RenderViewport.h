@@ -39,12 +39,6 @@ namespace KRG::Render
         // Resize the viewport - Note: this will not resize the render target immediately
         void Resize( Math::Rectangle const& rect );
 
-        // Render target
-        //-------------------------------------------------------------------------
-
-        inline bool HasCustomRenderTarget() const { return m_renderTarget.IsValid(); }
-        inline RenderTarget const& GetCustomRenderTarget() const { KRG_ASSERT( HasCustomRenderTarget() ); return m_renderTarget; }
-
         // Get the viewport position and dimensions - All in screen space
         //-------------------------------------------------------------------------
 

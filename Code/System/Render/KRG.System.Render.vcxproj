@@ -21,12 +21,12 @@
     <ClInclude Include="Fonts\FontData_ProggyTiny.h" />
     <ClInclude Include="Fonts\FontDecompressor.h" />
     <ClInclude Include="Renderers\IRenderer.h" />
+    <ClInclude Include="RenderShaderResource.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RenderSettings.h" />
     <ClInclude Include="Renderers\RendererRegistry.h" />
     <ClInclude Include="RenderDevice\Platform\RenderContext_DX11.h" />
     <ClInclude Include="RenderDevice\Platform\RenderDevice_DX11.h" />
-    <ClInclude Include="RenderDevice\Platform\RenderTypes_DX11.h" />
     <ClInclude Include="RenderDevice\Platform\TextureLoader_Win32.h" />
     <ClInclude Include="RenderDevice\RenderDefaultResources.h" />
     <ClInclude Include="RenderDevice\RenderDevice.h" />

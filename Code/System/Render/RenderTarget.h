@@ -1,8 +1,6 @@
 #pragma once
 
-#include "_Module/API.h"
-#include "RenderTexture.h"
-#include "System/Render/RenderResourceHandle.h"
+#include "RenderShaderResource.h"
 #include "System/Resource/IResource.h"
 #include "System/Core/Serialization/Serialization.h"
 #include "System/Core/Math/Math.h"
@@ -18,21 +16,21 @@ namespace KRG::Render
     public:
 
         RenderTarget() = default;
-        ~RenderTarget();
+        ~RenderTarget() { KRG_ASSERT( !m_resourceHandle.IsValid() ); }
 
         inline bool IsValid() const { return m_resourceHandle.IsValid(); }
 
         inline ResourceHandle const& GetRenderTargetHandle() const { return m_resourceHandle; }
-        inline Texture const* GetRenderTargetTexture() const { KRG_ASSERT( m_pTexture != nullptr && m_pTexture->IsValid() ); return m_pTexture; }
+        inline ShaderResourceView const& GetRenderTargetShaderResourceView() const { return m_renderTargetSRV; }
         inline Int2 const& GetDimensions() const { return m_dimensions; }
 
-        inline bool operator==( RenderTarget const& rhs ) const { return m_resourceHandle.m_pHandle == rhs.m_resourceHandle.m_pHandle; }
-        inline bool operator!=( RenderTarget const& rhs ) const { return m_resourceHandle.m_pHandle != rhs.m_resourceHandle.m_pHandle; }
+        inline bool operator==( RenderTarget const& rhs ) const { return m_resourceHandle.m_pData0 == rhs.m_resourceHandle.m_pData0 && m_resourceHandle.m_pData1 == rhs.m_resourceHandle.m_pData1; }
+        inline bool operator!=( RenderTarget const& rhs ) const { return m_resourceHandle.m_pData0 != rhs.m_resourceHandle.m_pData0 && m_resourceHandle.m_pData1 != rhs.m_resourceHandle.m_pData1; }
 
     protected:
 
-        ResourceHandle  m_resourceHandle;
-        Texture*        m_pTexture = nullptr;
-        Int2            m_dimensions;
+        ResourceHandle              m_resourceHandle;
+        ShaderResourceView          m_renderTargetSRV;
+        Int2                        m_dimensions;
     };
 }

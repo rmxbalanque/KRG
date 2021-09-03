@@ -1,8 +1,10 @@
 #pragma once
-#include "System/Resource/ResourceSystem.h"
 #include "Applications/Editor/Editors/EditorModel.h"
+#include "System/Resource/ResourceSystem.h"
 
 //-------------------------------------------------------------------------
+
+struct ImGuiWindowClass;
 
 namespace KRG
 {
@@ -24,21 +26,18 @@ namespace KRG::Resource
     {
     public:
 
-        ResourceEditorWorkspace( EditorModel* pModel, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID )
-            : m_pResourceSystem( pResourceSystem )
-            , m_pBaseResource( resourceID )
-            , m_pModel( pModel )
-        {
-            KRG_ASSERT( m_pResourceSystem != nullptr && resourceID.IsValid() );
-            m_pResourceSystem->LoadResource( m_pBaseResource );
-            m_filePath = resourceID.GetDataPath().ToFileSystemPath( pModel->GetSourceDataDirectory() );
-            m_displayName = m_filePath.GetFileNameWithoutExtension();
-        }
+        ResourceEditorWorkspace( EditorModel* pModel, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID );
 
         virtual ~ResourceEditorWorkspace() { m_pResourceSystem->UnloadResource( m_pBaseResource ); }
 
         // Get a shorter, display friendly name for this file
-        inline char const* GetDisplayName() const { return m_displayName.c_str(); }
+        virtual char const* GetWorkspaceName() const = 0;
+
+        // Get a shorter, display friendly name for this file
+        inline char const* GetResourceDisplayName() const { return m_resourceDisplayName.c_str(); }
+
+        // Get a shorter, display friendly name for this file
+        inline char const* GetWindowName() const { return m_windowName.c_str(); }
 
         // Get the actual file-path for the file
         inline FileSystem::Path const& GetFilePath() const { return m_filePath; }
@@ -66,7 +65,10 @@ namespace KRG::Resource
         }
 
         // Draw any UI required for this file within the already allocated window
-        virtual void DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager ) = 0;
+        virtual void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) = 0;
+
+        // Should this workspace display a viewport?
+        virtual bool RequiresViewportWindow() const { return true; }
 
         // Has any modifications been made to this file?
         virtual bool IsDirty() const { return false; }
@@ -86,6 +88,7 @@ namespace KRG::Resource
         inline bool IsLoading() const { return m_pBaseResource.IsLoading(); }
         inline bool IsUnloaded() const { return m_pBaseResource.IsUnloaded(); }
         inline bool IsLoaded() const { return m_pBaseResource.IsLoaded(); }
+        inline bool IsWaitingForResource() const { return IsLoading() || IsUnloaded(); }
         inline bool HasLoadingFailed() const { return m_pBaseResource.HasLoadingFailed(); }
 
     protected:
@@ -103,7 +106,8 @@ namespace KRG::Resource
 
     protected:
 
-        String                              m_displayName;
+        String                              m_resourceDisplayName;
+        String                              m_windowName;
         FileSystem::Path                    m_filePath;
         bool                                m_isActive = false;
         Resource::ResourcePtr               m_pBaseResource;

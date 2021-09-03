@@ -108,9 +108,6 @@
     <ClInclude Include="RenderDevice\Platform\RenderDevice_DX11.h">
       <Filter>RenderDevice\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDevice\Platform\RenderTypes_DX11.h">
-      <Filter>RenderDevice\Platform</Filter>
-    </ClInclude>
     <ClInclude Include="RenderDevice\Platform\TextureLoader_Win32.h">
       <Filter>RenderDevice\Platform</Filter>
     </ClInclude>
@@ -150,6 +147,7 @@
     <ClInclude Include="Fonts\FontData_SegoeBold.h" />
     <ClInclude Include="RenderViewport.h" />
     <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="RenderShaderResource.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">

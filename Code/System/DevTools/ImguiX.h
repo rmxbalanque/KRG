@@ -21,7 +21,7 @@
 namespace KRG::ImGuiX
 {
     //-------------------------------------------------------------------------
-    // Helpers
+    // Color Helpers
     //-------------------------------------------------------------------------
 
     KRG_FORCE_INLINE ImColor ConvertColor( Color const& color )
@@ -45,6 +45,24 @@ namespace KRG::ImGuiX
         return AdjustColorBrightness( ImColor( color ), multiplier );
     }
 
+    //-------------------------------------------------------------------------
+    // Docking helpers
+    //-------------------------------------------------------------------------
+
+    inline void MakeTabVisible( char const* const pWindowName )
+    {
+        KRG_ASSERT( pWindowName != nullptr );
+        ImGuiWindow* pWindow = ImGui::FindWindowByName( pWindowName );
+        if ( pWindow == nullptr || pWindow->DockNode == nullptr || pWindow->DockNode->TabBar == nullptr )
+        {
+            return;
+        }
+
+        pWindow->DockNode->TabBar->NextSelectedTabId = pWindow->ID;
+    }
+
+    //-------------------------------------------------------------------------
+    // Widgets
     //-------------------------------------------------------------------------
 
     inline void ItemTooltip( const char* fmt, ... )

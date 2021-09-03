@@ -13,6 +13,8 @@ namespace KRG::Resource
         , m_dataBrowserTreeView( model.GetTypeRegistry(), model.GetSourceDataDirectory() )
         , m_dataFileInspector( model.GetTypeRegistry(), model.GetSourceDataDirectory() )
     {
+        Memory::MemsetZero( m_filterBuffer, 256 * sizeof( char ) );
+
         m_onDoubleClickEventID = m_dataBrowserTreeView.OnItemDoubleClicked().Bind( [this] ( TreeViewItem* pItem ) { OnBrowserItemDoubleClicked( pItem ); } );
         m_dataBrowserTreeView.RebuildBrowserTree();
         UpdateVisibility();
@@ -25,7 +27,7 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    void DataBrowser::FrameStartUpdate( UpdateContext const& context )
+    void DataBrowser::Draw( UpdateContext const& context )
     {
         m_dataBrowserTreeView.Update( context );
 
@@ -235,6 +237,10 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
-        m_model.OpenResourceFile( pDataFileItem->GetResourceID() );
+        auto const resourceID = pDataFileItem->GetResourceID();
+        if ( m_model.CanCreateWorkspaceForResourceType( resourceID.GetResourceTypeID() ) )
+        {
+            m_model.OpenWorkspace( resourceID );
+        }
     }
 }

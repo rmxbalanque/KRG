@@ -16,14 +16,17 @@ namespace KRG::Animation
 {
     class AnimationClipWorkspace : public Resource::TResourceWorkspace<AnimationClip>
     {
+        static char const* const s_infoWindowName;
+
     public:
 
         AnimationClipWorkspace( EditorModel* pModel, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID );
         virtual ~AnimationClipWorkspace();
     
+        virtual char const* GetWorkspaceName() const override { return "Animation Clip"; }
         virtual void Activate( EntityWorld* pPreviewWorld ) override;
         virtual void Deactivate( EntityWorld* pPreviewWorld ) override;
-        virtual void DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+        virtual void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
 
     private:
 

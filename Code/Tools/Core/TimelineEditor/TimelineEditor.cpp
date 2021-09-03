@@ -324,7 +324,7 @@ namespace KRG
     {
         ImVec2 const canvasSize = ImGui::GetContentRegionAvail();
         float const trackAreaWidth = ( canvasSize.x - g_trackHeaderWidth - g_playheadHalfWidth );
-        int32 const maxVisibleFrames = Math::FloorToInt( ( canvasSize.x - g_trackHeaderWidth - g_playheadHalfWidth ) / m_pixelsPerFrame );
+        int32 const maxVisibleFrames = Math::Max( 0, Math::FloorToInt( ( canvasSize.x - g_trackHeaderWidth - g_playheadHalfWidth ) / m_pixelsPerFrame ) );
 
         // Adjust visible range based on the canvas size
         if ( m_viewRange.GetLength() != maxVisibleFrames )
@@ -340,7 +340,7 @@ namespace KRG
             case ViewUpdateMode::ShowFullTimeRange:
             {
                 int32 const timeRangeLength = m_timeRange.GetLength();
-                m_pixelsPerFrame = Math::Floor( trackAreaWidth / timeRangeLength );
+                m_pixelsPerFrame = Math::Max( 1.0f, Math::Floor( trackAreaWidth / timeRangeLength ) );
                 m_viewRange = m_timeRange;
                 m_viewUpdateMode = ViewUpdateMode::None;
             }

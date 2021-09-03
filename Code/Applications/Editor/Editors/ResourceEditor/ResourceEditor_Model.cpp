@@ -12,21 +12,21 @@ namespace KRG::Resource
 {
     ResourceEditorModel::~ResourceEditorModel()
     {
-        KRG_ASSERT( m_openTabs.empty() );
+        KRG_ASSERT( m_openWorkspaces.empty() );
     }
 
     void ResourceEditorModel::Shutdown( UpdateContext const& context )
     {
-        ClearActiveFile();
+        ClearActiveWorkspace();
 
         //-------------------------------------------------------------------------
 
-        for ( auto& pOpenFile : m_openTabs )
+        for ( auto& pOpenWorkspace : m_openWorkspaces )
         {
-            KRG::Delete( pOpenFile );
+            KRG::Delete( pOpenWorkspace );
         }
 
-        m_openTabs.clear();
+        m_openWorkspaces.clear();
 
         //-------------------------------------------------------------------------
 
@@ -89,30 +89,30 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    void ResourceEditorModel::OpenResourceFile( ResourceID const & resourceID )
+    void ResourceEditorModel::OpenWorkspace( ResourceID const & resourceID )
     {
         KRG_ASSERT( resourceID.IsValid() );
         FileSystem::Path const path = resourceID.GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
 
         //-------------------------------------------------------------------------
 
-        auto foundFileIter = eastl::find( m_openTabs.begin(), m_openTabs.end(), path, [] ( ResourceEditorWorkspace*& pExistingFile, FileSystem::Path const& path ) { return pExistingFile->GetFilePath() == path; } );
-        if ( foundFileIter == m_openTabs.end() )
+        auto foundWorkspaceIter = eastl::find( m_openWorkspaces.begin(), m_openWorkspaces.end(), path, [] ( ResourceEditorWorkspace*& pExistingFile, FileSystem::Path const& path ) { return pExistingFile->GetFilePath() == path; } );
+        if ( foundWorkspaceIter == m_openWorkspaces.end() )
         {
-            auto pCreatedWorkspace = m_openTabs.emplace_back( CreateResourceWorkspace( this, m_pResourceSystem, resourceID ) );
-            SetActiveFile( pCreatedWorkspace );
+            auto pCreatedWorkspace = m_openWorkspaces.emplace_back( CreateResourceWorkspace( this, m_pResourceSystem, resourceID ) );
+            SetActiveWorkspace( pCreatedWorkspace );
         }
         else
         {
-            SetActiveFile( *foundFileIter );
+            SetActiveWorkspace( *foundWorkspaceIter );
         }
     }
 
-    bool ResourceEditorModel::IsFileOpen( FileSystem::Path const& path ) const
+    bool ResourceEditorModel::IsWorkspaceOpenForFile( FileSystem::Path const& path ) const
     {
-        for ( auto pFile : m_openTabs )
+        for ( auto pWorkspace : m_openWorkspaces )
         {
-            if ( pFile->GetFilePath() == path )
+            if ( pWorkspace->GetFilePath() == path )
             {
                 return true;
             }
@@ -121,52 +121,59 @@ namespace KRG::Resource
         return false;
     }
 
-    void ResourceEditorModel::CloseFile( ResourceEditorWorkspace* pFile )
+    void ResourceEditorModel::CloseWorkspace( ResourceEditorWorkspace* pWorkspace )
     {
-        KRG_ASSERT( pFile != nullptr );
+        KRG_ASSERT( pWorkspace != nullptr );
 
-        if ( m_pActiveTab == pFile )
+        if ( m_pActiveWorkspace == pWorkspace )
         {
-            ClearActiveFile();
+            ClearActiveWorkspace();
         }
 
         //-------------------------------------------------------------------------
 
-        auto foundFileIter = eastl::find( m_openTabs.begin(), m_openTabs.end(), pFile );
-        KRG_ASSERT( foundFileIter != m_openTabs.end() );
-        KRG::Delete( *foundFileIter );
-        m_openTabs.erase( foundFileIter );
+        auto foundWorkspaceIter = eastl::find( m_openWorkspaces.begin(), m_openWorkspaces.end(), pWorkspace );
+        KRG_ASSERT( foundWorkspaceIter != m_openWorkspaces.end() );
+        KRG::Delete( *foundWorkspaceIter );
+        m_openWorkspaces.erase( foundWorkspaceIter );
+
+        //-------------------------------------------------------------------------
+
+        if ( !m_openWorkspaces.empty() )
+        {
+            SetActiveWorkspace( m_openWorkspaces.back() );
+        }
     }
 
     //-------------------------------------------------------------------------
 
-    void ResourceEditorModel::SetActiveFile( ResourceEditorWorkspace* pFile )
+    void ResourceEditorModel::SetActiveWorkspace( ResourceEditorWorkspace* pWorkspace )
     {
-        KRG_ASSERT( pFile != nullptr );
-        KRG_ASSERT( VectorContains( m_openTabs, pFile ) );
+        KRG_ASSERT( pWorkspace != nullptr );
+        KRG_ASSERT( VectorContains( m_openWorkspaces, pWorkspace ) );
 
-        if ( m_pActiveTab == pFile )
+        if ( m_pActiveWorkspace == pWorkspace )
         {
             return;
         }
 
         //-------------------------------------------------------------------------
 
-        if ( m_pActiveTab != nullptr )
+        if ( m_pActiveWorkspace != nullptr )
         {
-            ClearActiveFile();
+            ClearActiveWorkspace();
         }
 
-        pFile->SetActive( m_pPreviewWorld );
-        m_pActiveTab = pFile;
+        pWorkspace->SetActive( m_pPreviewWorld );
+        m_pActiveWorkspace = pWorkspace;
     }
 
-    void ResourceEditorModel::ClearActiveFile()
+    void ResourceEditorModel::ClearActiveWorkspace()
     {
-        if ( m_pActiveTab != nullptr )
+        if ( m_pActiveWorkspace != nullptr )
         {
-            m_pActiveTab->SetInactive( m_pPreviewWorld );
-            m_pActiveTab = nullptr;
+            m_pActiveWorkspace->SetInactive( m_pPreviewWorld );
+            m_pActiveWorkspace = nullptr;
         }
     }
 }

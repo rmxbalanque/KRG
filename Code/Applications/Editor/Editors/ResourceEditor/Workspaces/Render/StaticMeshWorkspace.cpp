@@ -8,6 +8,10 @@
 
 namespace KRG::Render
 {
+    char const* const StaticMeshWorkspace::s_infoWindowName = "Info Window##StaticMesh";
+
+    //-------------------------------------------------------------------------
+
     void StaticMeshWorkspace::Activate( EntityWorld* pPreviewWorld )
     {
         KRG_ASSERT( m_pPreviewEntity == nullptr );
@@ -32,75 +36,88 @@ namespace KRG::Render
         m_pPreviewEntity = nullptr;
     }
 
-    void StaticMeshWorkspace::DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void StaticMeshWorkspace::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
-        if ( IsLoading() || IsUnloaded() )
+        auto DrawWindowContents = [this] ()
         {
-            ImGui::Text( "Loading:" );
-            ImGui::SameLine();
-            ImGuiX::DrawSpinner( "Loading" );
-            return;
-        }
+            if ( IsWaitingForResource() )
+            {
+                ImGui::Text( "Loading:" );
+                ImGui::SameLine();
+                ImGuiX::DrawSpinner( "Loading" );
+                return;
 
-        if ( HasLoadingFailed() )
-        {
-            ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
-            return;
-        }
+            }
+
+            if ( HasLoadingFailed() )
+            {
+                ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
+                return;
+            }
+
+            //-------------------------------------------------------------------------
+
+            auto pMesh = m_pResource.GetPtr();
+
+            KRG_ASSERT( pMesh != nullptr );
+
+            ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
+            if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
+            {
+                ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
+                ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Data Path:" );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( pMesh->GetResourceID().c_str() );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Num Vertices:" );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "%d", pMesh->GetNumVertices() );
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Num Indices:" );
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "%d", pMesh->GetNumIndices() );
+
+                ImGui::TableNextRow();
+
+                ImGui::TableNextColumn();
+                ImGui::Text( "Geometry Sections:" );
+
+                ImGui::TableNextColumn();
+                for ( auto const& section : pMesh->GetSections() )
+                {
+                    ImGui::Text( section.m_ID.c_str() );
+                }
+
+                ImGui::EndTable();
+            }
+            ImGui::PopStyleVar();
+        };
 
         //-------------------------------------------------------------------------
 
-        auto pMesh = m_pResource.GetPtr();
-
-        KRG_ASSERT( pMesh != nullptr );
-
-        ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
-        if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( s_infoWindowName ) )
         {
-            ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
-            ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
-
-            //-------------------------------------------------------------------------
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "Data Path:" );
-
-            ImGui::TableNextColumn();
-            ImGui::Text( pMesh->GetResourceID().c_str() );
-
-            //-------------------------------------------------------------------------
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "Num Vertices:" );
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "%d", pMesh->GetNumVertices() );
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "Num Indices:" );
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "%d", pMesh->GetNumIndices() );
-
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::Text( "Geometry Sections:" );
-
-            ImGui::TableNextColumn();
-            for ( auto const& section : pMesh->GetSections() )
-            {
-                ImGui::Text( section.m_ID.c_str() );
-            }
-
-            ImGui::EndTable();
+            DrawWindowContents();
         }
-        ImGui::PopStyleVar();
+        ImGui::End();
     }
 }

@@ -12,14 +12,17 @@ namespace KRG::Render
 
     class SkeletalMeshWorkspace : public Resource::TResourceWorkspace<SkeletalMesh>
     {
+        static char const* const s_infoWindowName;
+
     public:
 
         using TResourceWorkspace::TResourceWorkspace;
         virtual ~SkeletalMeshWorkspace();
 
+        virtual char const* GetWorkspaceName() const override { return "Skeletal Mesh"; }
         virtual void Activate( EntityWorld* pPreviewWorld ) override;
         virtual void Deactivate( EntityWorld* pPreviewWorld ) override;
-        virtual void DrawTools( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+        virtual void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
 
     private:
 
@@ -29,7 +32,7 @@ namespace KRG::Render
 
     private:
 
-        Entity* m_pPreviewEntity = nullptr;
-        BoneInfo* m_pSkeletonTreeRoot = nullptr;
+        Entity*     m_pPreviewEntity = nullptr;
+        BoneInfo*   m_pSkeletonTreeRoot = nullptr;
     };
 }
