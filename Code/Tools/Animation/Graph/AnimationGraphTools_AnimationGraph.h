@@ -13,7 +13,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class ToolsAnimationGraph
+    class KRG_TOOLS_ANIMATION_API ToolsAnimationGraph
     {
 
     public:

@@ -27,8 +27,7 @@ namespace KRG::Animation::Graph::Tasks
 
         Blender::Blend( &pSourceBuffer->m_pose, &pTargetBuffer->m_pose, m_blendWeight, m_blendOptions, m_pBoneMask, &pFinalBuffer->m_pose );
 
-        // Release source result
-        ConsumePoseBuffer( context, 1 );
+        ReleaseDependencyPoseBuffer( context, 1 );
         MarkTaskComplete( context );
     }
 }

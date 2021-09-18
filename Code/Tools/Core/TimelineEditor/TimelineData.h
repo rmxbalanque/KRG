@@ -18,7 +18,7 @@ namespace KRG
 {
     class KRG_TOOLS_CORE_API TimelineItem : public IRegisteredType
     {
-        friend class Editor;
+        friend class StandaloneEditor;
         KRG_REGISTER_TYPE( TimelineItem );
 
     public:
@@ -68,7 +68,7 @@ namespace KRG
 
     class KRG_TOOLS_CORE_API TimelineTrack : public IRegisteredType
     {
-        friend class Editor;
+        friend class StandaloneEditor;
         KRG_REGISTER_TYPE( TimelineTrack );
 
     public:
@@ -130,7 +130,7 @@ namespace KRG
 
     class KRG_TOOLS_CORE_API TimelineData
     {
-        friend class Editor;
+        friend class StandaloneEditor;
 
     public:
 

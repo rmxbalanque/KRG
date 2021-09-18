@@ -8,6 +8,13 @@
 
 namespace KRG::Resource
 {
+    static char const* const g_pendingRequestsWindowName = "Pending Requests";
+    static char const* const g_completedRequestsWindowName = "Completed Requests";
+    static char const* const g_workerStatusWindowName = "Worker Status";
+    static char const* const g_serverInfoWindowName = "Server Info";
+
+    //-------------------------------------------------------------------------
+
     ResourceServerUI::ResourceServerUI( ResourceServer* pServer )
         : m_pResourceServer( pServer )
     {
@@ -19,11 +26,7 @@ namespace KRG::Resource
         // Create dock space
         //-------------------------------------------------------------------------
 
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking;
-        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGuiViewport const* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos( viewport->WorkPos );
         ImGui::SetNextWindowSize( viewport->WorkSize );
         ImGui::SetNextWindowViewport( viewport->ID );
@@ -31,11 +34,31 @@ namespace KRG::Resource
         ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0.0f );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
+
+        ImGuiWindowFlags const windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
         ImGui::Begin( "DockSpace", nullptr, windowFlags );
         {
-            ImGuiDockNodeFlags const dockSpaceFlags = ImGuiDockNodeFlags_None;
             ImGuiID const dockspaceID = ImGui::GetID( "ResourceServerDockSpace" );
-            ImGui::DockSpace( dockspaceID, ImVec2( 0.0f, 0.0f ), dockSpaceFlags );
+
+            // Initial Layout
+            if ( !ImGui::DockBuilderGetNode( dockspaceID ) )
+            {
+                ImGui::DockBuilderAddNode( dockspaceID, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton );
+                ImGui::DockBuilderSetNodeSize( dockspaceID, viewport->Size );
+
+                ImGuiID topDockID = 0, topRightDockID = 0;
+                ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.7f, nullptr, &topDockID );
+                ImGuiID topLeftDockID = ImGui::DockBuilderSplitNode( topDockID, ImGuiDir_Left, 0.5f, nullptr, &topRightDockID );
+
+                ImGui::DockBuilderDockWindow( g_workerStatusWindowName, topRightDockID );
+                ImGui::DockBuilderDockWindow( g_pendingRequestsWindowName, topLeftDockID );
+                ImGui::DockBuilderDockWindow( g_serverInfoWindowName, topLeftDockID );
+                ImGui::DockBuilderDockWindow( g_completedRequestsWindowName, bottomDockID );
+
+                ImGui::DockBuilderFinish( dockspaceID );
+            }
+
+            ImGui::DockSpace( dockspaceID, ImVec2( 0.0f, 0.0f ), ImGuiDockNodeFlags_None );
         }
         ImGui::PopStyleVar( 3 );
         ImGui::End();
@@ -51,7 +74,7 @@ namespace KRG::Resource
 
     void ResourceServerUI::DrawPendingRequests()
     {
-        if ( ImGui::Begin( "Pending Requests" ) )
+        if ( ImGui::Begin( g_pendingRequestsWindowName ) )
         {
             if ( ImGui::BeginTable( "Pending Request Table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
             {
@@ -88,7 +111,7 @@ namespace KRG::Resource
 
     void ResourceServerUI::DrawCompletedRequests()
     {
-        if ( ImGui::Begin( "Completed Requests" ) )
+        if ( ImGui::Begin( g_completedRequestsWindowName ) )
         {
             constexpr static float const compilationLogFieldHeight = 125;
             constexpr static float const buttonWidth = 120;
@@ -277,7 +300,7 @@ namespace KRG::Resource
 
     void ResourceServerUI::DrawWorkerStatus()
     {
-        if ( ImGui::Begin( "Worker Status" ) )
+        if ( ImGui::Begin( g_workerStatusWindowName ) )
         {
             int32 const numWorkers = m_pResourceServer->GetNumWorkers();
             for ( auto i = 0; i < numWorkers; i++ )
@@ -299,7 +322,7 @@ namespace KRG::Resource
 
     void ResourceServerUI::DrawServerInfo()
     {
-        if ( ImGui::Begin( "Server Info" ) )
+        if ( ImGui::Begin( g_serverInfoWindowName ) )
         {
             ImGui::Text( "Source Data Path: %s", m_pResourceServer->GetSourceDataDir().c_str() );
             ImGui::Text( "Compiled Data Path: %s", m_pResourceServer->GetCompiledDataDir().c_str() );

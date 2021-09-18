@@ -14,7 +14,6 @@ namespace KRG
     Engine::Engine( TFunction<bool( KRG::String const& error )>&& errorHandler )
         : m_fatalErrorHandler( errorHandler )
         , m_module_engine_core( m_settingsRegistry )
-        , m_pDevelopmentTools( &m_debugTools )
     {
         m_settingsRegistry.RegisterSettings( &m_resourceSettings );
         m_settingsRegistry.RegisterSettings( &m_renderSettings );
@@ -245,8 +244,9 @@ namespace KRG
         m_pViewportManager->UpdateMainWindowSize( Float2( windowDimensions ) );
 
         #if KRG_DEVELOPMENT_TOOLS
-        KRG_ASSERT( m_pDevelopmentTools != nullptr );
-        m_pDevelopmentTools->Initialize( m_updateContext, m_settingsRegistry );
+        CreateDevelopmentToolset();
+        KRG_ASSERT( m_pDevelopmentToolset != nullptr );
+        m_pDevelopmentToolset->Initialize( m_updateContext, m_settingsRegistry );
         #endif
 
         // Load startup map
@@ -278,8 +278,10 @@ namespace KRG
         if ( m_finalInitStageReached )
         {
             #if KRG_DEVELOPMENT_TOOLS
-            KRG_ASSERT( m_pDevelopmentTools != nullptr );
-            m_pDevelopmentTools->Shutdown( m_updateContext );
+            KRG_ASSERT( m_pDevelopmentToolset != nullptr );
+            m_pDevelopmentToolset->Shutdown( m_updateContext );
+            DestroyDevelopmentToolset();
+            KRG_ASSERT( m_pDevelopmentToolset == nullptr );
             #endif
 
             // Wait for resource/object systems to complete all resource unloading
@@ -423,7 +425,7 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
-                m_pDevelopmentTools->Update( m_updateContext, *m_pViewportManager );
+                m_pDevelopmentToolset->Update( m_updateContext, *m_pViewportManager );
                 #endif
 
                 m_pEntityWorld->Update( m_updateContext );
@@ -478,7 +480,7 @@ namespace KRG
                 m_pEntityWorld->Update( m_updateContext );
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDevelopmentTools->Update( m_updateContext, *m_pViewportManager );
+                m_pDevelopmentToolset->Update( m_updateContext, *m_pViewportManager );
                 m_pImguiSystem->EndFrame();
                 #endif
 

@@ -43,7 +43,7 @@ namespace KRG::Physics
         inline physx::PxTriangleMesh const* GetTriangleMesh() const
         {
             KRG_ASSERT( !m_isConvexMesh );
-            return m_pMesh->is<physx::PxTriangleMesh>(); 
+            return m_pMesh->is<physx::PxTriangleMesh>();
         }
         
         inline physx::PxConvexMesh const* GetConvexMesh() const

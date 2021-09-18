@@ -23,7 +23,7 @@ namespace KRG
     class Engine
     {
         friend class EngineApplication;
-        friend class EditorApplication;
+        friend class ResourceEditorApplication;
 
         //-------------------------------------------------------------------------
 
@@ -43,16 +43,23 @@ namespace KRG
 
     protected:
 
-        void UpdateMainWindowSize( Int2 const& windowDimensions );
-
         virtual void RegisterTypes();
         virtual void UnregisterTypes();
+
+        #if KRG_DEVELOPMENT_TOOLS
+        virtual void CreateDevelopmentToolset() { m_pDevelopmentToolset = &m_debugTools; }
+        virtual void DestroyDevelopmentToolset() { m_pDevelopmentToolset = nullptr; }
+        #endif
+
+        //-------------------------------------------------------------------------
 
         bool InitializeModules();
         void LoadModuleResources( Resource::ResourceSystem& resourceSystem );
         bool OnModuleResourceLoadingComplete();
         void UnloadModuleResources( Resource::ResourceSystem& resourceSystem );
         void ShutdownModules();
+
+        void UpdateMainWindowSize( Int2 const& windowDimensions );
 
     protected:
 
@@ -104,7 +111,7 @@ namespace KRG
 
         #if KRG_DEVELOPMENT_TOOLS
         Debug::DebugTools                               m_debugTools;
-        ImGuiX::DevelopmentTools*                       m_pDevelopmentTools = nullptr;
+        ImGuiX::DevelopmentToolset*                     m_pDevelopmentToolset = nullptr;
         Debug::DrawingSystem*                           m_pDebugDrawingSystem = nullptr;
         #endif
 

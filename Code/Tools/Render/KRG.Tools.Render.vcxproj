@@ -16,6 +16,8 @@
     <ClInclude Include="ResourceCompilers\Mesh\SkeletalMeshCompiler.h" />
     <ClInclude Include="ResourceCompilers\Mesh\StaticMeshCompiler.h" />
     <ClInclude Include="ResourceCompilers\Shaders\ShaderCompiler.h" />
+    <ClInclude Include="ResourceEditors\ResourceEditor_SkeletalMesh.h" />
+    <ClInclude Include="ResourceEditors\ResourceEditor_StaticMesh.h" />
     <ClInclude Include="ResourceCompilers\Textures\TextureCompiler.h" />
     <ClInclude Include="ResourceCompilers\Textures\TextureConverter.h" />
     <ClInclude Include="_Module\API.h" />
@@ -27,6 +29,8 @@
     <ClCompile Include="ResourceCompilers\Mesh\SkeletalMeshCompiler.cpp" />
     <ClCompile Include="ResourceCompilers\Mesh\StaticMeshCompiler.cpp" />
     <ClCompile Include="ResourceCompilers\Shaders\ShaderCompiler.cpp" />
+    <ClCompile Include="ResourceEditors\ResourceEditor_SkeletalMesh.cpp" />
+    <ClCompile Include="ResourceEditors\ResourceEditor_StaticMesh.cpp" />
     <ClCompile Include="ResourceCompilers\Textures\TextureCompiler.cpp" />
     <ClCompile Include="ResourceCompilers\Textures\TextureConverter.cpp" />
     <ClCompile Include="_Module\Module.cpp" />

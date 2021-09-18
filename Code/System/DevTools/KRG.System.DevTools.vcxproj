@@ -18,7 +18,7 @@
     <ClInclude Include="CommonWidgets\Gizmo\ScaleGizmo.h" />
     <ClInclude Include="CommonWidgets\Gizmo\TranslationGizmo.h" />
     <ClInclude Include="CommonWidgets\NumericEditors.h" />
-    <ClInclude Include="DevelopmentTools.h" />
+    <ClInclude Include="DevelopmentToolset.h" />
     <ClInclude Include="ImguiX.h" />
     <ClInclude Include="System\ImguiTheme.h" />
     <ClInclude Include="Renderer\ImguiRenderer.h" />
@@ -50,7 +50,7 @@
     <ClCompile Include="CommonWidgets\Gizmo\ScaleGizmo.cpp" />
     <ClCompile Include="CommonWidgets\Gizmo\TranslationGizmo.cpp" />
     <ClCompile Include="CommonWidgets\NumericEditors.cpp" />
-    <ClCompile Include="DevelopmentTools.cpp" />
+    <ClCompile Include="DevelopmentToolset.cpp" />
     <ClCompile Include="ImguiX.cpp" />
     <ClCompile Include="System\ImguiTheme.cpp" />
     <ClCompile Include="Renderer\ImguiRenderer.cpp" />

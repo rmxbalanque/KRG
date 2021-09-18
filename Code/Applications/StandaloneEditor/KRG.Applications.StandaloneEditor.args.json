@@ -1,0 +1,10 @@
+{
+  "FileVersion": 2,
+  "Id": "bee75999-dfbb-4d96-ae17-4de6271aa2f5",
+  "Items": [
+    {
+      "Id": "ffc2057f-4c77-47e0-b51d-fa87044e10e8",
+      "Command": "-mode AnimationGraphEditor"
+    }
+  ]
+}

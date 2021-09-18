@@ -101,7 +101,7 @@ namespace KRG::Animation::Graph
         }
 
         // Acquire and release a dependency's result buffer
-        inline void ConsumePoseBuffer( TaskContext const& context, TaskIndex dependencyIdx )
+        inline void ReleaseDependencyPoseBuffer( TaskContext const& context, TaskIndex dependencyIdx )
         {
             auto pDependencyTask = context.m_dependencies[dependencyIdx];
             KRG_ASSERT( pDependencyTask != nullptr && pDependencyTask->m_isComplete && pDependencyTask->m_bufferIdx != InvalidIndex );

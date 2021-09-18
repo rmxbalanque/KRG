@@ -96,6 +96,8 @@
     <ClCompile Include="System\ImguiFont.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="DevelopmentToolset.cpp" />
+    <ClCompile Include="ImguiX.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\imgui\imconfig.h">
@@ -158,6 +160,8 @@
     <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h">
       <Filter>ThirdParty\imgui\misc\freetype</Filter>
     </ClInclude>
+    <ClInclude Include="DevelopmentToolset.h" />
+    <ClInclude Include="ImguiX.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ThirdParty\imgui\LICENSE.txt">

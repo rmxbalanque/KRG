@@ -90,6 +90,9 @@ namespace KRG::Render
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
+            m_blendState.m_srcAlphaValue = BlendValue::Zero;
+            m_blendState.m_dstAlphaValue = BlendValue::One;
+            m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_blendState.m_blendEnable = true;
 
             pRenderDevice->CreateBlendState( m_blendState );
@@ -261,6 +264,9 @@ namespace KRG::Render
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
+            m_blendState.m_srcAlphaValue = BlendValue::Zero;
+            m_blendState.m_dstAlphaValue = BlendValue::One;
+            m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_blendState.m_blendEnable = true;
 
             pRenderDevice->CreateBlendState( m_blendState );
@@ -397,6 +403,9 @@ namespace KRG::Render
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
+            m_blendState.m_srcAlphaValue = BlendValue::Zero;
+            m_blendState.m_dstAlphaValue = BlendValue::One;
+            m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_blendState.m_blendEnable = true;
 
             pRenderDevice->CreateBlendState( m_blendState );
@@ -544,6 +553,9 @@ namespace KRG::Render
             m_blendState.m_srcValue = BlendValue::SourceAlpha;
             m_blendState.m_dstValue = BlendValue::InverseSourceAlpha;
             m_blendState.m_blendOp = BlendOp::Add;
+            m_blendState.m_srcAlphaValue = BlendValue::Zero;
+            m_blendState.m_dstAlphaValue = BlendValue::One;
+            m_blendState.m_blendOpAlpha = BlendOp::Add;
             m_blendState.m_blendEnable = true;
 
             pRenderDevice->CreateBlendState( m_blendState );

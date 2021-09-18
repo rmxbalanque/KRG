@@ -12,7 +12,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class FlowToolsNode : public GraphEditor::Flow::Node
+    class KRG_TOOLS_ANIMATION_API FlowToolsNode : public GraphEditor::Flow::Node
     {
         KRG_REGISTER_TYPE( FlowToolsNode );
 
@@ -58,7 +58,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class DataSlotToolsNode : public FlowToolsNode
+    class KRG_TOOLS_ANIMATION_API DataSlotToolsNode : public FlowToolsNode
     {
         KRG_REGISTER_TYPE( DataSlotToolsNode );
 

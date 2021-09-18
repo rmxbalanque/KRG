@@ -2,7 +2,7 @@
 
 #include "../_Module/API.h"
 #include "DebugView.h"
-#include "System/DevTools/DevelopmentTools.h"
+#include "System/DevTools/DevelopmentToolset.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Types/Containers.h"
@@ -19,7 +19,7 @@ namespace KRG
 
     namespace Debug
     {
-        class KRG_ENGINE_CORE_API DebugTools final : public ImGuiX::DevelopmentTools
+        class KRG_ENGINE_CORE_API DebugTools final : public ImGuiX::DevelopmentToolset
         {
 
         private:

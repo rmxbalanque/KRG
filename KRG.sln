@@ -67,8 +67,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.EngineShar
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Engine", "Code\Applications\Engine\KRG.Applications.Engine.vcxproj", "{8778C386-A74A-4545-8297-CE68639D4ADE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Editor", "Code\Applications\Editor\KRG.Applications.Editor.vcxproj", "{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Reflector", "Code\Applications\Reflector\KRG.Applications.Reflector.vcxproj", "{C6D6C2BD-89A1-41F2-B27D-3E87B8B678A5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceCompiler", "Code\Applications\ResourceCompiler\KRG.Applications.ResourceCompiler.vcxproj", "{BBCF3423-E4B4-4CDD-8A97-C6C390BACC23}"
@@ -81,6 +79,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Tester", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Scripts.Reflect", "Code\Scripts\Reflect\KRG.Scripts.Reflect.vcxproj", "{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceEditor", "Code\Applications\ResourceEditor\KRG.Applications.ResourceEditor.vcxproj", "{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.StandaloneEditor", "Code\Applications\StandaloneEditor\KRG.Applications.StandaloneEditor.vcxproj", "{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{15e4867a-f174-4f2a-a7c1-99cc6376d8d2}*SharedItemsImports = 4
@@ -89,6 +91,8 @@ Global
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{92f52a23-7513-43a0-8299-8fc752d2b401}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{ac5e982d-b267-4caa-9db7-eda06ad36843}*SharedItemsImports = 9
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{bbcf3423-e4b4-4cdd-8a97-c6c390bacc23}*SharedItemsImports = 4
+		Code\Applications\EngineShared\KRG.Applications.EngineShared.vcxitems*{bee75999-dfbb-4d96-ae17-4de6271aa2f5}*SharedItemsImports = 4
+		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{bee75999-dfbb-4d96-ae17-4de6271aa2f5}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{c6d6c2bd-89a1-41f2-b27d-3e87b8b678a5}*SharedItemsImports = 4
 		Code\Applications\EngineShared\KRG.Applications.EngineShared.vcxitems*{d6bdd49c-ef46-4637-844a-4ffdd6a25dc5}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{d6bdd49c-ef46-4637-844a-4ffdd6a25dc5}*SharedItemsImports = 4
@@ -191,10 +195,6 @@ Global
 		{8778C386-A74A-4545-8297-CE68639D4ADE}.Debug|x64.Build.0 = Debug|x64
 		{8778C386-A74A-4545-8297-CE68639D4ADE}.Release|x64.ActiveCfg = Release|x64
 		{8778C386-A74A-4545-8297-CE68639D4ADE}.Release|x64.Build.0 = Release|x64
-		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Debug|x64.ActiveCfg = Debug|x64
-		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Debug|x64.Build.0 = Debug|x64
-		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.ActiveCfg = Release|x64
-		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.Build.0 = Release|x64
 		{C6D6C2BD-89A1-41F2-B27D-3E87B8B678A5}.Debug|x64.ActiveCfg = Debug|x64
 		{C6D6C2BD-89A1-41F2-B27D-3E87B8B678A5}.Debug|x64.Build.0 = Debug|x64
 		{C6D6C2BD-89A1-41F2-B27D-3E87B8B678A5}.Release|x64.ActiveCfg = Release|x64
@@ -215,6 +215,14 @@ Global
 		{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E}.Debug|x64.Build.0 = Debug|x64
 		{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E}.Release|x64.ActiveCfg = Release|x64
 		{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E}.Release|x64.Build.0 = Release|x64
+		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Debug|x64.ActiveCfg = Debug|x64
+		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Debug|x64.Build.0 = Debug|x64
+		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.ActiveCfg = Release|x64
+		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.Build.0 = Release|x64
+		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}.Debug|x64.ActiveCfg = Debug|x64
+		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}.Debug|x64.Build.0 = Debug|x64
+		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}.Release|x64.ActiveCfg = Release|x64
+		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -244,13 +252,14 @@ Global
 		{7EAEBC2D-F4CB-410D-92C2-BF0481044533} = {FA658C92-4747-4F44-84F5-90F90BD69B5A}
 		{E1B87641-1DBA-429E-9F6B-22534D933097} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{8778C386-A74A-4545-8297-CE68639D4ADE} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
-		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{C6D6C2BD-89A1-41F2-B27D-3E87B8B678A5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{BBCF3423-E4B4-4CDD-8A97-C6C390BACC23} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{92F52A23-7513-43A0-8299-8FC752D2B401} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{AC5E982D-B267-4CAA-9DB7-EDA06AD36843} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{15E4867A-F174-4F2A-A7C1-99CC6376D8D2} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E} = {9205228C-CCFA-4E90-AF60-D157062720B9}
+		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
+		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B3C65B2-09F5-4AAD-909C-407AB4B18705}

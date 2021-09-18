@@ -73,6 +73,7 @@ namespace KRG::Animation::Graph
 
     PoseNodeResult SpeedScaleNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
+        KRG_LOG_WARNING( "Animation", "Attempting to run a speed scale node in a synchronized manner, this is an invalid operation!" );
         m_blendWeight = ( Math::IsNearZero( GetSettings<SpeedScaleNode>()->m_blendTime ) ) ? 1.0f : 0.0f;
         return PassthroughNode::Update( context, updateRange );
     }

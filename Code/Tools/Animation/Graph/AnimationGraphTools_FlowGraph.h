@@ -6,7 +6,7 @@
 
 namespace KRG::Animation::Graph
 {
-    class FlowToolGraph : public GraphEditor::FlowGraph
+    class KRG_TOOLS_ANIMATION_API FlowToolGraph : public GraphEditor::FlowGraph
     {
         friend class ToolsAnimationGraph;
         KRG_REGISTER_TYPE( FlowToolGraph );

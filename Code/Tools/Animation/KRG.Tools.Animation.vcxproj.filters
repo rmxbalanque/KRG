@@ -47,6 +47,14 @@
     <ClCompile Include="Graph\StateMachine\AnimationToolsNode_EntryStateOverrides.cpp" />
     <ClCompile Include="Graph\StateMachine\AnimationToolsNode_Transitions.cpp" />
     <ClCompile Include="Graph\Nodes\AnimationToolsNode_Layers.cpp" />
+    <ClCompile Include="ResourceEditors\ResourceEditor_AnimationClip.cpp" />
+    <ClCompile Include="ResourceEditors\ResourceEditor_Skeleton.cpp" />
+    <ClCompile Include="GraphEditor\AnimationGraphEditor.cpp" />
+    <ClCompile Include="GraphEditor\AnimationGraphEditor_ControlParameterEditor.cpp" />
+    <ClCompile Include="GraphEditor\AnimationGraphEditor_GraphEditor.cpp" />
+    <ClCompile Include="GraphEditor\AnimationGraphEditor_Model.cpp" />
+    <ClCompile Include="GraphEditor\AnimationGraphEditor_PropertyGrid.cpp" />
+    <ClCompile Include="GraphEditor\AnimationGraphEditor_VariationEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ResourceCompilers\AnimationClipCompiler.h">
@@ -84,5 +92,13 @@
     <ClInclude Include="Graph\StateMachine\AnimationToolsNode_EntryStateOverrides.h" />
     <ClInclude Include="Graph\StateMachine\AnimationToolsNode_Transitions.h" />
     <ClInclude Include="Graph\Nodes\AnimationToolsNode_Layers.h" />
+    <ClInclude Include="ResourceEditors\ResourceEditor_AnimationClip.h" />
+    <ClInclude Include="ResourceEditors\ResourceEditor_Skeleton.h" />
+    <ClInclude Include="GraphEditor\AnimationGraphEditor.h" />
+    <ClInclude Include="GraphEditor\AnimationGraphEditor_ControlParameterEditor.h" />
+    <ClInclude Include="GraphEditor\AnimationGraphEditor_GraphEditor.h" />
+    <ClInclude Include="GraphEditor\AnimationGraphEditor_Model.h" />
+    <ClInclude Include="GraphEditor\AnimationGraphEditor_PropertyGrid.h" />
+    <ClInclude Include="GraphEditor\AnimationGraphEditor_VariationEditor.h" />
   </ItemGroup>
 </Project>

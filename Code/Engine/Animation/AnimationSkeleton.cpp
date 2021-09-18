@@ -52,7 +52,7 @@ namespace KRG::Animation
                 auto const& boneTransform = globalTransforms[boneIdx];
 
                 ctx.DrawLine( boneTransform.GetTranslation().ToFloat3(), parentTransform.GetTranslation().ToFloat3(), Colors::HotPink, 2.0f );
-                ctx.DrawAxis( boneTransform, 0.03f, 3.0f );
+                ctx.DrawAxis( boneTransform, 0.03f, 2.0f );
             }
         }
     }

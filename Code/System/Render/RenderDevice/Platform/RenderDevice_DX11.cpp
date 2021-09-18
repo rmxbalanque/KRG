@@ -719,13 +719,13 @@ namespace KRG::Render
         blendDesc.IndependentBlendEnable = true;
 
         blendDesc.RenderTarget[0].BlendEnable = state.m_blendEnable;
-        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
         blendDesc.RenderTarget[0].SrcBlend = DX11::GetBlendValue( state.m_srcValue );
         blendDesc.RenderTarget[0].DestBlend = DX11::GetBlendValue( state.m_dstValue );
         blendDesc.RenderTarget[0].BlendOp = DX11::GetBlendOp( state.m_blendOp );
         blendDesc.RenderTarget[0].SrcBlendAlpha = DX11::GetBlendValue( state.m_srcAlphaValue );
         blendDesc.RenderTarget[0].DestBlendAlpha = DX11::GetBlendValue( state.m_dstAlphaValue );
         blendDesc.RenderTarget[0].BlendOpAlpha = DX11::GetBlendOp( state.m_blendOpAlpha );
+        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
         for ( auto i = 1; i < 8; i++ )
         {

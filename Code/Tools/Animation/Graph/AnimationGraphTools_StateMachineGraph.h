@@ -11,7 +11,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class StateMachineToolsGraph final : public GraphEditor::StateMachineGraph
+    class KRG_TOOLS_ANIMATION_API StateMachineToolsGraph final : public GraphEditor::StateMachineGraph
     {
         friend class StateMachineToolsNode;
         KRG_REGISTER_TYPE( StateMachineToolsGraph );

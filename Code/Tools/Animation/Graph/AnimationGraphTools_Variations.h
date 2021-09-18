@@ -1,4 +1,5 @@
 #pragma once
+#include "../_Module/API.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Types/StringID.h"
 #include "Engine/Animation/AnimationSkeleton.h"
@@ -28,7 +29,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class VariationHierarchy
+    class KRG_TOOLS_ANIMATION_API VariationHierarchy
     {
 
     public:

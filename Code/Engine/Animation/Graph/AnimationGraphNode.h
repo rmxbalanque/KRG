@@ -187,9 +187,9 @@ namespace KRG::Animation::Graph
 
     public:
 
-        TaskIndex                   m_taskIdx = InvalidIndex;
-        Transform                   m_rootMotionDelta = Transform::Identity;
-        SampledEventRange           m_sampledEventRange;
+        TaskIndex                       m_taskIdx = InvalidIndex;
+        Transform                       m_rootMotionDelta = Transform::Identity;
+        SampledEventRange               m_sampledEventRange;
     };
 
     class KRG_ENGINE_ANIMATION_API PoseNode : public GraphNode

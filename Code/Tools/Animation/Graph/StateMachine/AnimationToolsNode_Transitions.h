@@ -12,7 +12,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class TransitionToolsNode : public FlowToolsNode
+    class KRG_TOOLS_ANIMATION_API TransitionToolsNode : public FlowToolsNode
     {
         friend class StateMachineToolsNode;
         KRG_REGISTER_TYPE( TransitionToolsNode );
@@ -43,7 +43,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class GlobalTransitionToolsNode final : public TransitionToolsNode
+    class KRG_TOOLS_ANIMATION_API GlobalTransitionToolsNode final : public TransitionToolsNode
     {
         friend class GlobalTransitionsToolsGraph;
         KRG_REGISTER_TYPE( GlobalTransitionToolsNode );
@@ -66,7 +66,7 @@ namespace KRG::Animation::Graph
     // Transition conduit
     //-------------------------------------------------------------------------
 
-    class TransitionConduitToolsNode final : public GraphEditor::SM::TransitionConduit
+    class KRG_TOOLS_ANIMATION_API TransitionConduitToolsNode final : public GraphEditor::SM::TransitionConduit
     {
         KRG_REGISTER_TYPE( TransitionConduitToolsNode );
 
@@ -82,7 +82,7 @@ namespace KRG::Animation::Graph
     // The Flow graph for the state machine node
     //-------------------------------------------------------------------------
 
-    class GlobalTransitionsToolsGraph final : public FlowToolGraph
+    class KRG_TOOLS_ANIMATION_API GlobalTransitionsToolsGraph final : public FlowToolGraph
     {
         KRG_REGISTER_TYPE( GlobalTransitionsToolsGraph );
 
@@ -98,7 +98,7 @@ namespace KRG::Animation::Graph
     // State machine node
     //-------------------------------------------------------------------------
 
-    class GlobalTransitionsToolsNode final : public GraphEditor::SM::Node
+    class KRG_TOOLS_ANIMATION_API GlobalTransitionsToolsNode final : public GraphEditor::SM::Node
     {
         KRG_REGISTER_TYPE( GlobalTransitionsToolsNode );
 

@@ -120,6 +120,10 @@
     <ClInclude Include="GraphEditor\StateMachine\StateMachineGraphView.h" />
     <ClInclude Include="GraphEditor\GraphEditorView.h" />
     <ClInclude Include="GraphEditor\GraphEditorDrawingContext.h" />
+    <ClInclude Include="Editors\ResourceEditorWorkspace.h" />
+    <ClInclude Include="Helpers\GlobalRegistryBase.h" />
+    <ClInclude Include="Editors\StandaloneEditor.h" />
+    <ClInclude Include="Editors\EditorModel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
@@ -175,6 +179,9 @@
     <ClCompile Include="GraphEditor\StateMachine\StateMachineGraphView.cpp" />
     <ClCompile Include="GraphEditor\GraphEditorView.cpp" />
     <ClCompile Include="GraphEditor\GraphEditorDrawingContext.cpp" />
+    <ClCompile Include="Editors\ResourceEditorWorkspace.cpp" />
+    <ClCompile Include="Editors\StandaloneEditor.cpp" />
+    <ClCompile Include="Editors\EditorModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\subprocess\LICENSE">
