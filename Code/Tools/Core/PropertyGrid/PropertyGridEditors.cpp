@@ -755,7 +755,7 @@ namespace KRG::PG
         }
 
         ImGui::SameLine( 0, itemSpacing );
-        if ( ImGui::Button( KRG_ICON_ERASER "##Clear" ) )
+        if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear" ) )
         {
             ScopedChangeNotifier notifier( ctx );
             *pValue = DataPath();
@@ -873,7 +873,7 @@ namespace KRG::PG
         }
 
         ImGui::SameLine( 0, itemSpacing );
-        if ( ImGui::Button( KRG_ICON_ERASER "##Clear" ) )
+        if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear" ) )
         {
             ScopedChangeNotifier notifier( ctx );
             *pValue = ResourceID();
@@ -924,7 +924,7 @@ namespace KRG::PG
         }
 
         ImGui::SameLine( 0, itemSpacing );
-        if ( ImGui::Button( KRG_ICON_ERASER "##Clear" ) )
+        if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear" ) )
         {
             ScopedChangeNotifier notifier( ctx );
             *pValue = ResourceID();

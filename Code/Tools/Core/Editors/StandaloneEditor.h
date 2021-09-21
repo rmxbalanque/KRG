@@ -31,6 +31,12 @@ namespace KRG
             bool                                        m_isOpen = true;
         };
 
+        struct ViewportSettings
+        {
+            bool                                        m_allowDockingOverViewport = false;
+            bool                                        m_hideViewportTabBar = true;
+        };
+
     public:
 
         virtual ~StandaloneEditor();
@@ -56,7 +62,7 @@ namespace KRG
         virtual void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) = 0;
         virtual void FrameEndUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager ) {}
 
-        // Draw 3D viewport
+        // Viewport
         void DrawViewportWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, char const* const pEditorViewportName = "Editor Viewport" );
 
     private:
@@ -65,11 +71,14 @@ namespace KRG
 
         void DrawPopups( UpdateContext const& context );
 
+    protected:
+
+        ViewportSettings                    m_viewportSettings;
+
     private:
 
-        ImGuiID                             m_mainDockspaceID;
-        bool                                m_mouseWithinEditorViewport = false;
         EditorModel*                        m_pModel = nullptr;
+        bool                                m_mouseWithinEditorViewport = false;
         TVector<ModalPopupMessage>          m_modalPopups;
     };
 

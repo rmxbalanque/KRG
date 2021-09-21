@@ -38,7 +38,7 @@ namespace KRG::Animation::Graph
             virtual void OnNodeDoubleClick( GraphEditor::BaseNode* pNode ) override;
             virtual void OnSelectionChanged( TVector<GraphEditor::BaseNode*> const& oldSelection, TVector<GraphEditor::BaseNode*> const& newSelection ) { m_selectionChanged = true; }
 
-            void DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, FlowToolGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category );
+            void DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, FlowGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category );
 
         public:
 

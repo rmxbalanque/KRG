@@ -21,7 +21,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class GenericEventConditionNode : public BoolValueNode
+    class KRG_ENGINE_ANIMATION_API GenericEventConditionNode : public BoolValueNode
     {
     public:
 
@@ -35,7 +35,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        struct Settings : public BoolValueNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_sourceStateNodeIdx, m_eventIDs, m_operator, m_searchMode );
@@ -66,11 +66,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class GenericEventPercentageThroughNode : public FloatValueNode
+    class KRG_ENGINE_ANIMATION_API GenericEventPercentageThroughNode : public FloatValueNode
     {
     public:
 
-        struct Settings : public BoolValueNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_sourceStateNodeIdx, m_eventID, m_searchMode, m_preferHighestPercentageThrough );
@@ -99,11 +99,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class FootEventConditionNode : public BoolValueNode
+    class KRG_ENGINE_ANIMATION_API FootEventConditionNode : public BoolValueNode
     {
     public:
 
-        struct Settings : public BoolValueNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_sourceStateNodeIdx, m_phaseCondition, m_preferHighestPercentageThrough );
@@ -113,8 +113,8 @@ namespace KRG::Animation::Graph
         public:
 
             NodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
-            bool                                        m_preferHighestPercentageThrough = false;
             FootEvent::PhaseCondition                   m_phaseCondition = FootEvent::PhaseCondition::LeftFootDown;
+            bool                                        m_preferHighestPercentageThrough = false;
         };
 
     private:
@@ -131,11 +131,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class FootstepEventPercentageThroughNode : public FloatValueNode
+    class KRG_ENGINE_ANIMATION_API FootstepEventPercentageThroughNode : public FloatValueNode
     {
     public:
 
-        struct Settings : public FloatValueNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public FloatValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_sourceStateNodeIdx, m_phaseCondition, m_preferHighestPercentageThrough );
@@ -163,7 +163,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class SyncEventConditionNode : public BoolValueNode
+    class KRG_ENGINE_ANIMATION_API SyncEventConditionNode : public BoolValueNode
     {
     public:
 
@@ -175,7 +175,7 @@ namespace KRG::Animation::Graph
             GreaterThanEqualToEventIndex,
         };
 
-        struct Settings : public BoolValueNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_sourceStateNodeIdx, m_syncEventIdx, m_triggerMode );
@@ -206,11 +206,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class CurrentSyncEventNode : public FloatValueNode
+    class KRG_ENGINE_ANIMATION_API CurrentSyncEventNode : public FloatValueNode
     {
     public:
 
-        struct Settings : public FloatValueNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public FloatValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_sourceStateNodeIdx );

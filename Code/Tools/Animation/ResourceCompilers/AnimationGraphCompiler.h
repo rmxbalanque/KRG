@@ -9,7 +9,7 @@ namespace KRG::Animation
 {
     namespace Graph
     {
-        class ToolsAnimationGraph; 
+        class AnimationToolsGraph; 
         class ToolsGraphCompilationContext;
     }
 
@@ -38,6 +38,6 @@ namespace KRG::Animation
 
         Resource::CompilationResult CompileDefinition( Resource::CompileContext const& ctx ) const;
         Resource::CompilationResult CompileVariation( Resource::CompileContext const& ctx ) const;
-        bool GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::ToolsAnimationGraph const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, DataPath const& dataSetPath ) const;
+        bool GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationToolsGraph const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, DataPath const& dataSetPath ) const;
     };
 }

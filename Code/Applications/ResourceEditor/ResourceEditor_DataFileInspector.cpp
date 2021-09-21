@@ -280,6 +280,13 @@ namespace KRG
             return false;
         }
 
+        // Ensure correct extension
+        if ( !newDescriptorPath.MatchesExtension( extension.c_str() ) )
+        {
+            newDescriptorPath.Append( "." );
+            newDescriptorPath.Append( extension.c_str() );
+        }
+
         //-------------------------------------------------------------------------
 
         TypeSystem::Serialization::TypeWriter typeWriter( m_typeRegistry );

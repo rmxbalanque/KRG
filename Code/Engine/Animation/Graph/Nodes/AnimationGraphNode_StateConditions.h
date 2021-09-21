@@ -9,11 +9,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class StateCompletedConditionNode : public BoolValueNode
+    class KRG_ENGINE_ANIMATION_API StateCompletedConditionNode : public BoolValueNode
     {
     public:
 
-        struct Settings : public BoolValueNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_sourceStateNodeIdx, m_transitionDurationOverrideNodeIdx, m_transitionDuration );
@@ -45,7 +45,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class TimeConditionNode : public BoolValueNode
+    class KRG_ENGINE_ANIMATION_API TimeConditionNode : public BoolValueNode
     {
     public:
 
@@ -69,7 +69,7 @@ namespace KRG::Animation::Graph
             GreaterThanEqual,
         };
 
-        struct Settings : public BoolValueNode::Settings
+        struct KRG_ENGINE_ANIMATION_API Settings : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_sourceStateNodeIdx, m_comparand, m_inputValueNodeIdx, m_type, m_operator );

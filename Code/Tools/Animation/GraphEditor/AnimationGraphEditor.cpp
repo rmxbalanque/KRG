@@ -81,9 +81,47 @@ namespace KRG::Animation::Graph
 
     void AnimationGraphEditor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
+        ImGuiWindowClass mainEditorWindowClass;
+        mainEditorWindowClass.ClassId = ImGui::GetID( "EditorWindowClass" );
+        mainEditorWindowClass.DockingAllowUnclassed = false;
+
+        ImGuiID const dockspaceID = ImGui::GetID( "GraphEditorDockSpace" );
+        ImGuiID dockRightID = 0, dockLeftID = 0;
+
+        ImGuiWindowFlags const windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        ImGuiViewport const* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos( viewport->WorkPos );
+        ImGui::SetNextWindowSize( viewport->WorkSize );
+        ImGui::SetNextWindowViewport( viewport->ID );
+
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
+        bool const shouldDrawEditorDockspace = ImGui::Begin( "GraphEditorDockSpaceWindow", nullptr, windowFlags );
+        ImGui::PopStyleVar( 3 );
+
+        if ( shouldDrawEditorDockspace )
+        {
+            // TODO: Initial Layout
+            ImGui::DockSpace( dockspaceID, viewport->WorkSize, ImGuiDockNodeFlags_None, &mainEditorWindowClass );
+        }
+        ImGui::End();
+
+        //-------------------------------------------------------------------------
+        // Draw editor windows
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextWindowClass( &mainEditorWindowClass );
         m_pControlParameterEditor->Draw( context, viewportManager );
+
+        ImGui::SetNextWindowClass( &mainEditorWindowClass );
         m_pGraphEditor->Draw( context, viewportManager );
+
+        ImGui::SetNextWindowClass( &mainEditorWindowClass );
         m_pPropertyGrid->Draw( context, viewportManager );
+
+        ImGui::SetNextWindowClass( &mainEditorWindowClass );
         m_pVariationEditor->Draw( context, viewportManager );
     }
 }

@@ -1,5 +1,5 @@
 #include "AnimationGraphEditor_VariationEditor.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
 #include "Tools/Core/DataFileTools/DataFilePicker.h"
 #include "System/DevTools/ImguiX.h"
 
@@ -108,7 +108,7 @@ namespace KRG::Animation::Graph
 
     void GraphVariationEditor::DrawVariationTree()
     {
-        ToolsAnimationGraph* pGraph = m_model.GetGraph();
+        AnimationToolsGraph* pGraph = m_model.GetGraph();
         DrawVariationTreeNode( pGraph->GetVariations(), AnimationGraphVariation::DefaultVariationID );
     }
 

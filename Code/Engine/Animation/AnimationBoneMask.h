@@ -4,6 +4,7 @@
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Types/StringID.h"
 #include "System/Core/Serialization/Serialization.h"
+#include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,7 +14,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    struct BoneWeight
+    struct KRG_ENGINE_ANIMATION_API BoneWeight
     {
         KRG_SERIALIZE_MEMBERS( m_boneID, m_weight );
 

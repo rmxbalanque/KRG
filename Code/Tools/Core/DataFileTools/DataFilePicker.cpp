@@ -53,7 +53,7 @@ namespace KRG
         }
 
         ImGui::SameLine( 0, itemSpacing );
-        if ( ImGui::Button( KRG_ICON_ERASER "##Clear" ) )
+        if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear" ) )
         {
             *pResourceID = ResourceID();
             valueUpdated = true;

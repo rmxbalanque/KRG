@@ -39,8 +39,8 @@ namespace KRG::Animation::Graph
 
         struct InitializationOptions
         {
-            PoseNodeResult          m_sourceNodeResult;
-            bool                    m_shouldCachePose = false;
+            PoseNodeResult                      m_sourceNodeResult;
+            bool                                m_shouldCachePose = false;
         };
 
         struct KRG_ENGINE_ANIMATION_API Settings : public PoseNode::Settings

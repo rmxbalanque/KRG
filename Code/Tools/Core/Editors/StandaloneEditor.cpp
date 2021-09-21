@@ -33,9 +33,6 @@ namespace KRG
 
     void StandaloneEditor::DrawViewportWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, char const* const pEditorViewportName )
     {
-        // Request that game is rendered to texture
-        viewportManager.SetUseCustomRenderTargetForViewport( 0, true );
-
         // Create viewport window
         ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
@@ -84,7 +81,17 @@ namespace KRG
             // Handle being docked
             if ( auto pDockNode = ImGui::GetWindowDockNode() )
             {
-                pDockNode->LocalFlags = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoTabBar;
+                pDockNode->LocalFlags = 0;
+
+                if ( !m_viewportSettings.m_allowDockingOverViewport )
+                {
+                    pDockNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingOverMe;
+                }
+
+                if ( m_viewportSettings.m_hideViewportTabBar )
+                {
+                    pDockNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+                }
             }
         }
         ImGui::PopStyleVar();
@@ -93,6 +100,11 @@ namespace KRG
 
     void StandaloneEditor::Update( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
+        // Request that game is rendered to texture
+        viewportManager.SetUseCustomRenderTargetForViewport( 0, true );
+
+        //-------------------------------------------------------------------------
+
         UpdateStage const updateStage = context.GetUpdateStage();
 
         switch ( updateStage )

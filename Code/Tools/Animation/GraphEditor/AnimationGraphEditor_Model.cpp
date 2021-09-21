@@ -1,7 +1,7 @@
 #include "AnimationGraphEditor_Model.h"
 #include "Tools/Core/Thirdparty/KRG_RapidJson.h"
 #include "Tools/Core/Thirdparty/pfd/portable-file-dialogs.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_Compilation.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph_Compilation.h"
 
 //-------------------------------------------------------------------------
 
@@ -21,11 +21,11 @@ namespace KRG::Animation::Graph
     {
         EditorModel::Initialize( context );
 
-        m_registeredNodeTypes = m_pTypeRegistry->GetAllDerivedTypes( FlowToolsNode::GetStaticTypeID(), false, false );
+        m_registeredNodeTypes = m_pTypeRegistry->GetAllDerivedTypes( Tools_GraphNode::GetStaticTypeID(), false, false );
 
         for ( auto pNodeType : m_registeredNodeTypes )
         {
-            auto pDefaultNode = Cast<FlowToolsNode const>( pNodeType->m_pTypeHelper->GetDefaultTypeInstancePtr() );
+            auto pDefaultNode = Cast<Tools_GraphNode const>( pNodeType->m_pTypeHelper->GetDefaultTypeInstancePtr() );
             if ( pDefaultNode->IsUserCreatable() )
             {
                 m_categorizedNodeTypes.AddItem( pDefaultNode->GetCategory(), pDefaultNode->GetTypeName(), pNodeType );
@@ -72,7 +72,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         KRG::Delete( m_pGraph );
-        m_pGraph = KRG::New<ToolsAnimationGraph>();
+        m_pGraph = KRG::New<AnimationToolsGraph>();
         m_pGraph->CreateNew();
         m_currentlyOpenGraphPath = FileSystem::Path();
         m_pViewedGraph = m_pGraph->GetRootGraph();
@@ -101,7 +101,7 @@ namespace KRG::Animation::Graph
 
                 // Destroy the old graph and try to the load the specified graph
                 KRG::Delete( m_pGraph );
-                m_pGraph = KRG::New<ToolsAnimationGraph>();
+                m_pGraph = KRG::New<AnimationToolsGraph>();
                 if ( m_pGraph->Load( *m_pTypeRegistry, reader.GetDocument() ) )
                 {
                     m_pViewedGraph = m_pGraph->GetRootGraph();
@@ -132,11 +132,16 @@ namespace KRG::Animation::Graph
     void GraphEditorModel::SaveGraphAsNewFile()
     {
         FileSystem::Path newGraphPath = m_sourceDataDirectory;
-        pfd::save_file saveDialog( "Save Graph", newGraphPath.c_str(), { "Animation Graph Files (.ag)", "*.ag", } );
+        pfd::save_file saveDialog( "Save Animation Graph", newGraphPath.c_str(), { "Animation Graph Files (.ag)", "*.ag", } );
         newGraphPath = saveDialog.result().c_str();
 
         if ( newGraphPath.IsValid() )
         {
+            if ( !newGraphPath.MatchesExtension( "ag" ) )
+            {
+                newGraphPath.Append( ".ag" );
+            }
+
             JsonFileWriter writer;
             m_pGraph->Save( *m_pTypeRegistry, *writer.GetWriter() );
             writer.WriteToFile( newGraphPath );
@@ -147,7 +152,20 @@ namespace KRG::Animation::Graph
     void GraphEditorModel::SimulateCompilation()
     {
         ToolsGraphCompilationContext context;
-        bool result = m_pGraph->Compile( context );
+        if ( !m_pGraph->Compile( context ) )
+        {
+            for ( auto const& entry : context.GetLog() )
+            {
+                if ( entry.m_severity == Log::Severity::Warning )
+                {
+                    KRG_LOG_WARNING( "Anim", entry.m_message.c_str() );
+                }
+                else if( entry.m_severity == Log::Severity::Error )
+                {
+                    KRG_LOG_ERROR( "Anim", entry.m_message.c_str() );
+                }
+            }
+        }
     }
 
     void GraphEditorModel::NavigateTo( GraphEditor::BaseNode const* pNode )

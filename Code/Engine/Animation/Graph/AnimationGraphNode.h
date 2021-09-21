@@ -18,23 +18,6 @@ namespace KRG::Animation
 
 namespace KRG::Animation::Graph
 {
-    enum class NodeValueType
-    {
-        KRG_REGISTER_ENUM
-
-        Unknown = 0,
-        Bool,
-        ID,
-        Int,
-        Float,
-        Vector,
-        Target,
-        BoneMask,
-        Pose
-    };
-
-    //-------------------------------------------------------------------------
-
     class KRG_ENGINE_ANIMATION_API GraphNode
     {
         friend class PoseNode;
@@ -140,7 +123,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         virtual bool IsValid() const { return true; }
-        virtual NodeValueType GetValueType() const = 0;
+        virtual ValueType GetValueType() const = 0;
         inline NodeIndex GetNodeIndex() const { return m_pSettings->m_nodeIdx; }
 
         inline bool IsInitialized() const { return m_initializationCount > 0; }
@@ -221,7 +204,7 @@ namespace KRG::Animation::Graph
 
         virtual void Initialize( GraphContext& context ) override final { Initialize( context, SyncTrackTime() ); }
         virtual void InitializeInternal( GraphContext& context ) override final { Initialize( context, SyncTrackTime() ); }
-        virtual NodeValueType GetValueType() const override final { return NodeValueType::Pose; }
+        virtual ValueType GetValueType() const override final { return ValueType::Pose; }
 
     protected:
 
@@ -247,14 +230,14 @@ namespace KRG::Animation::Graph
     // Value Nodes
     //-------------------------------------------------------------------------
 
-    template<typename T> struct ValueTypeValidation { static NodeValueType const Type = NodeValueType::Unknown; };
-    template<> struct ValueTypeValidation<bool> { static NodeValueType const Type = NodeValueType::Bool; };
-    template<> struct ValueTypeValidation<StringID> { static NodeValueType const Type = NodeValueType::ID; };
-    template<> struct ValueTypeValidation<int32> { static NodeValueType const Type = NodeValueType::Int; };
-    template<> struct ValueTypeValidation<float> { static NodeValueType const Type = NodeValueType::Float; };
-    template<> struct ValueTypeValidation<Vector> { static NodeValueType const Type = NodeValueType::Vector; };
-    template<> struct ValueTypeValidation<Target> { static NodeValueType const Type = NodeValueType::Target; };
-    template<> struct ValueTypeValidation<BoneMask const*> { static NodeValueType const Type = NodeValueType::BoneMask; };
+    template<typename T> struct ValueTypeValidation { static ValueType const Type = ValueType::Unknown; };
+    template<> struct ValueTypeValidation<bool> { static ValueType const Type = ValueType::Bool; };
+    template<> struct ValueTypeValidation<StringID> { static ValueType const Type = ValueType::ID; };
+    template<> struct ValueTypeValidation<int32> { static ValueType const Type = ValueType::Int; };
+    template<> struct ValueTypeValidation<float> { static ValueType const Type = ValueType::Float; };
+    template<> struct ValueTypeValidation<Vector> { static ValueType const Type = ValueType::Vector; };
+    template<> struct ValueTypeValidation<Target> { static ValueType const Type = ValueType::Target; };
+    template<> struct ValueTypeValidation<BoneMask const*> { static ValueType const Type = ValueType::BoneMask; };
 
     //-------------------------------------------------------------------------
 
@@ -288,49 +271,49 @@ namespace KRG::Animation::Graph
 
     class KRG_ENGINE_ANIMATION_API BoolValueNode : public ValueNode
     {
-        virtual NodeValueType GetValueType() const override final { return NodeValueType::Bool; }
+        virtual ValueType GetValueType() const override final { return ValueType::Bool; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API IDValueNode : public ValueNode
     {
-        virtual NodeValueType GetValueType() const override final { return NodeValueType::ID; }
+        virtual ValueType GetValueType() const override final { return ValueType::ID; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API IntValueNode : public ValueNode
     {
-        virtual NodeValueType GetValueType() const override final { return NodeValueType::Int; }
+        virtual ValueType GetValueType() const override final { return ValueType::Int; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API FloatValueNode : public ValueNode
     {
-        virtual NodeValueType GetValueType() const override final { return NodeValueType::Float; }
+        virtual ValueType GetValueType() const override final { return ValueType::Float; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API VectorValueNode : public ValueNode
     {
-        virtual NodeValueType GetValueType() const override final { return NodeValueType::Vector; }
+        virtual ValueType GetValueType() const override final { return ValueType::Vector; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API TargetValueNode : public ValueNode
     {
-        virtual NodeValueType GetValueType() const override final { return NodeValueType::Target; }
+        virtual ValueType GetValueType() const override final { return ValueType::Target; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API BoneMaskValueNode : public ValueNode
     {
-        virtual NodeValueType GetValueType() const override final { return NodeValueType::BoneMask; }
+        virtual ValueType GetValueType() const override final { return ValueType::BoneMask; }
     };
 }
 

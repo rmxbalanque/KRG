@@ -55,7 +55,7 @@ namespace KRG::Animation::Graph
             return InvalidIndex;
         }
 
-        inline NodeValueType GetControlParameterType( NodeIndex parameterNodeIdx )
+        inline ValueType GetControlParameterType( NodeIndex parameterNodeIdx )
         {
             KRG_ASSERT( IsControlParameter( parameterNodeIdx ) );
             return static_cast<ValueNode*>( m_nodes[parameterNodeIdx] )->GetValueType();

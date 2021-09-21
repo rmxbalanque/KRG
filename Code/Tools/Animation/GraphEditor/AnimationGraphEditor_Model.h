@@ -1,5 +1,5 @@
 #pragma once
-#include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
 #include "Tools/Core/Trees/CategoryTree.h"
 #include "Tools/Core/Editors/EditorModel.h"
 #include "Engine/Animation/Graph/AnimationGraphResources.h"
@@ -30,8 +30,8 @@ namespace KRG::Animation::Graph
         // Graph
         //-------------------------------------------------------------------------
 
-        ToolsAnimationGraph* GetGraph() { return m_pGraph; }
-        ToolsAnimationGraph const* GetGraph() const { return m_pGraph; }
+        AnimationToolsGraph* GetGraph() { return m_pGraph; }
+        AnimationToolsGraph const* GetGraph() const { return m_pGraph; }
         GraphEditor::BaseGraph* GetCurrentlyViewedGraph() const { return m_pViewedGraph; }
 
         void NavigateTo( GraphEditor::BaseNode const* pNode );
@@ -88,7 +88,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        ToolsAnimationGraph*                        m_pGraph = nullptr;
+        AnimationToolsGraph*                        m_pGraph = nullptr;
         FileSystem::Path                            m_currentlyOpenGraphPath;
         StringID                                    m_selectedVariationID = AnimationGraphVariation::DefaultVariationID;
 

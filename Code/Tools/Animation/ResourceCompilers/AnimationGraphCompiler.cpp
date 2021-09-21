@@ -1,8 +1,8 @@
 #include "AnimationGraphCompiler.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_Compilation.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_FlowGraph.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_StateMachineGraph.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph_Compilation.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph_FlowGraph.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph_StateMachineGraph.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "Engine/Animation/Graph/AnimationGraphResources.h"
@@ -11,10 +11,6 @@
 
 namespace KRG::Animation
 {
-    using namespace Graph;
-
-    //-------------------------------------------------------------------------
-
     AnimationGraphCompiler::AnimationGraphCompiler()
         : Resource::Compiler( "GraphCompiler", s_version )
     {
@@ -47,7 +43,7 @@ namespace KRG::Animation
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        ToolsAnimationGraph toolsGraph;
+        Graph::AnimationToolsGraph toolsGraph;
         if ( !toolsGraph.Load( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
@@ -56,7 +52,7 @@ namespace KRG::Animation
         // Compile
         //-------------------------------------------------------------------------
 
-        ToolsGraphCompilationContext context;
+        Graph::ToolsGraphCompilationContext context;
         if ( !toolsGraph.Compile( context ) )
         {
             // Dump log
@@ -140,7 +136,7 @@ namespace KRG::Animation
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        ToolsAnimationGraph toolsGraph;
+        Graph::AnimationToolsGraph toolsGraph;
         if ( !toolsGraph.Load( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
@@ -156,7 +152,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
         // We need to compile the graph to get the order of the data slots
 
-        ToolsGraphCompilationContext context;
+        Graph::ToolsGraphCompilationContext context;
         if ( !toolsGraph.Compile( context ) )
         {
             // Dump log
@@ -224,7 +220,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, ToolsAnimationGraph const& toolsGraph, ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, DataPath const& dataSetPath ) const
+    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationToolsGraph const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, DataPath const& dataSetPath ) const
     {
         AnimationGraphDataSet dataSet;
         dataSet.m_variationID = variationID;
@@ -248,11 +244,11 @@ namespace KRG::Animation
         // Fill data slots
         //-------------------------------------------------------------------------
 
-        THashMap<UUID, DataSlotToolsNode const*> dataSlotLookupMap;
+        THashMap<UUID, Tools_DataSlotNode const*> dataSlotLookupMap;
         auto const& dataSlotNodes = toolsGraph.GetAllDataSlotNodes();
         for ( auto pSlotNode : dataSlotNodes )
         {
-            dataSlotLookupMap.insert( TPair<UUID, DataSlotToolsNode const*>( pSlotNode->GetID(), pSlotNode ) );
+            dataSlotLookupMap.insert( TPair<UUID, Tools_DataSlotNode const*>( pSlotNode->GetID(), pSlotNode ) );
         }
 
         dataSet.m_resources.reserve( compilationContext.m_registeredDataSlots.size() );

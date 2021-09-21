@@ -13,27 +13,6 @@
 #include "D:\Kruger\Code\Engine\Animation\Graph\AnimationGraphNode.h"
 
 //-------------------------------------------------------------------------
-// Enum Helper: KRG::Animation::Graph::NodeValueType
-//-------------------------------------------------------------------------
-
-namespace KRG
-{
-    namespace TypeSystem
-    {
-        namespace EnumHelpers
-        {
-            class EnumHelper_KRG_Animation_Graph_NodeValueType
-            {
-            public:
-
-                static void RegisterEnum( TypeSystem::TypeRegistry& typeRegistry );
-                static void UnregisterEnum( TypeSystem::TypeRegistry& typeRegistry );
-            };
-        }
-    }
-}
-
-//-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::Graph::GraphNode::Settings
 //-------------------------------------------------------------------------
 

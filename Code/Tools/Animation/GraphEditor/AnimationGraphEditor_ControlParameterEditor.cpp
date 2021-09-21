@@ -1,6 +1,6 @@
 #include "AnimationGraphEditor_ControlParameterEditor.h"
 #include "System/DevTools/ImguiX.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
 
 //-------------------------------------------------------------------------
 
@@ -12,10 +12,6 @@ namespace KRG::Animation::Graph
 
     void GraphControlParameterEditor::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
-        ImGui::ShowDemoWindow();
-
-        //-------------------------------------------------------------------------
-
         auto pGraph = m_model.GetGraph();
         if ( pGraph == nullptr )
         {
@@ -148,69 +144,69 @@ namespace KRG::Animation::Graph
         {
             if ( ImGui::MenuItem( "Control Parameter - Bool" ) )
             {
-                pGraph->CreateControlParameter( NodeValueType::Bool );
+                pGraph->CreateControlParameter( ValueType::Bool );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - ID" ) )
             {
-                pGraph->CreateControlParameter( NodeValueType::ID );
+                pGraph->CreateControlParameter( ValueType::ID );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Int" ) )
             {
-                pGraph->CreateControlParameter( NodeValueType::Int );
+                pGraph->CreateControlParameter( ValueType::Int );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Float" ) )
             {
-                pGraph->CreateControlParameter( NodeValueType::Float );
+                pGraph->CreateControlParameter( ValueType::Float );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Vector" ) )
             {
-                pGraph->CreateControlParameter( NodeValueType::Vector );
+                pGraph->CreateControlParameter( ValueType::Vector );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Target" ) )
             {
-                pGraph->CreateControlParameter( NodeValueType::Target );
+                pGraph->CreateControlParameter( ValueType::Target );
             }
 
             ImGui::Separator();
 
             if ( ImGui::MenuItem( "Virtual Parameter - Bool" ) )
             {
-                pGraph->CreateVirtualParameter( NodeValueType::Bool );
+                pGraph->CreateVirtualParameter( ValueType::Bool );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - ID" ) )
             {
-                pGraph->CreateVirtualParameter( NodeValueType::ID );
+                pGraph->CreateVirtualParameter( ValueType::ID );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Int" ) )
             {
-                pGraph->CreateVirtualParameter( NodeValueType::Int );
+                pGraph->CreateVirtualParameter( ValueType::Int );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Float" ) )
             {
-                pGraph->CreateVirtualParameter( NodeValueType::Float );
+                pGraph->CreateVirtualParameter( ValueType::Float );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Vector" ) )
             {
-                pGraph->CreateVirtualParameter( NodeValueType::Vector );
+                pGraph->CreateVirtualParameter( ValueType::Vector );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Target" ) )
             {
-                pGraph->CreateVirtualParameter( NodeValueType::Target );
+                pGraph->CreateVirtualParameter( ValueType::Target );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Bone Mask" ) )
             {
-                pGraph->CreateVirtualParameter( NodeValueType::BoneMask );
+                pGraph->CreateVirtualParameter( ValueType::BoneMask );
             }
 
             ImGui::EndPopup();

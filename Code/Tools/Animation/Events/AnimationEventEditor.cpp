@@ -210,6 +210,12 @@ namespace KRG::Animation
            
             if ( m_eventDataFilePath.IsValid() )
             {
+                // Ensure correct extension
+                if ( !m_eventDataFilePath.MatchesExtension( "evnt" ) )
+                {
+                    m_eventDataFilePath.Append( ".evnt" );
+                }
+
                 TypeSystem::Serialization::TypeReader typeReader( m_typeRegistry );
                 if ( typeReader.ReadFromFile( resourceDescPath ) )
                 {

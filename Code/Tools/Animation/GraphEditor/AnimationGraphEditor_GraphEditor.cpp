@@ -1,9 +1,7 @@
 #include "AnimationGraphEditor_GraphEditor.h"
-#include "Tools/Animation/Graph/Nodes/AnimationToolsNode_Parameters.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_AnimationGraph.h"
-#include "Tools/Animation/Graph/AnimationGraphTools_StateMachineGraph.h"
-#include "Tools/Animation/Graph/StateMachine/AnimationToolsNode_State.h"
-#include "Tools/Animation/Graph/StateMachine/AnimationToolsNode_Transitions.h"
+#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
+#include "Tools/Animation/ToolsGraph/Nodes/AnimationToolsNode_State.h"
+#include "Tools/Animation/ToolsGraph/Nodes/AnimationToolsNode_Transitions.h"
 
 //-------------------------------------------------------------------------
 
@@ -12,17 +10,17 @@ namespace KRG::Animation::Graph
     void GraphEditorView::FlowGraphView::DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos )
     {
         KRG_ASSERT( m_pGraph != nullptr );
-        auto pToolsGraph = static_cast<FlowToolGraph*>( m_pGraph );
+        auto pToolsGraph = static_cast<FlowGraph*>( m_pGraph );
 
         //-------------------------------------------------------------------------
 
         if ( ImGui::BeginMenu( "Control Parameters" ) )
         {
-            TVector<ControlParameterToolsNode*> sortedControlParameters = m_model.GetGraph()->GetControlParameters();
-            eastl::sort( sortedControlParameters.begin(), sortedControlParameters.end(), [] ( ControlParameterToolsNode* const& pA, ControlParameterToolsNode* const& pB ) { return strcmp( pA->GetDisplayName(), pB->GetDisplayName() ) < 0; } );
+            TVector<Tools_ControlParameterNode*> sortedControlParameters = m_model.GetGraph()->GetControlParameters();
+            eastl::sort( sortedControlParameters.begin(), sortedControlParameters.end(), [] ( Tools_ControlParameterNode* const& pA, Tools_ControlParameterNode* const& pB ) { return strcmp( pA->GetDisplayName(), pB->GetDisplayName() ) < 0; } );
 
-            TVector<VirtualParameterToolsNode*> sortedVirtualParameters = m_model.GetGraph()->GetVirtualParameters();
-            eastl::sort( sortedVirtualParameters.begin(), sortedVirtualParameters.end(), [] ( VirtualParameterToolsNode* const& pA, VirtualParameterToolsNode* const& pB ) { return strcmp( pA->GetDisplayName(), pB->GetDisplayName() ) < 0; } );
+            TVector<Tools_VirtualParameterNode*> sortedVirtualParameters = m_model.GetGraph()->GetVirtualParameters();
+            eastl::sort( sortedVirtualParameters.begin(), sortedVirtualParameters.end(), [] ( Tools_VirtualParameterNode* const& pA, Tools_VirtualParameterNode* const& pB ) { return strcmp( pA->GetDisplayName(), pB->GetDisplayName() ) < 0; } );
 
             //-------------------------------------------------------------------------
 
@@ -37,7 +35,7 @@ namespace KRG::Animation::Graph
                     ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetHighlightColor() );
                     if ( ImGui::MenuItem( pParameter->GetDisplayName() ) )
                     {
-                        auto pNode = pToolsGraph->CreateNode<ControlParameterReferenceToolsNode>( pParameter );
+                        auto pNode = pToolsGraph->CreateNode<Tools_ControlParameterReferenceNode>( pParameter );
                         pNode->SetCanvasPosition( mouseCanvasPos );
                     }
                     ImGui::PopStyleColor();
@@ -53,7 +51,7 @@ namespace KRG::Animation::Graph
                     ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetHighlightColor() );
                     if ( ImGui::MenuItem( pParameter->GetDisplayName() ) )
                     {
-                        auto pNode = pToolsGraph->CreateNode<VirtualParameterReferenceToolsNode>( pParameter );
+                        auto pNode = pToolsGraph->CreateNode<Tools_VirtualParameterReferenceNode>( pParameter );
                         pNode->SetCanvasPosition( mouseCanvasPos );
                     }
                     ImGui::PopStyleColor();
@@ -72,7 +70,7 @@ namespace KRG::Animation::Graph
         DrawNodeTypeCategoryContextMenu( mouseCanvasPos, pToolsGraph, m_model.GetNodeTypes() );
     }
 
-    void GraphEditorView::FlowGraphView::DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, FlowToolGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category )
+    void GraphEditorView::FlowGraphView::DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, FlowGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category )
     {
         KRG_ASSERT( m_pGraph != nullptr );
        
@@ -89,12 +87,12 @@ namespace KRG::Animation::Graph
 
         for ( auto const& item : category.m_items )
         {
-            auto pDefaultNode = Cast<FlowToolsNode>( item.m_data->m_pTypeHelper->GetDefaultTypeInstancePtr() );
+            auto pDefaultNode = Cast<Tools_GraphNode>( item.m_data->m_pTypeHelper->GetDefaultTypeInstancePtr() );
             if ( m_pGraph->CanCreateNode( item.m_data ) && pDefaultNode->GetAllowedParentGraphTypes().AreAnyFlagsSet( pGraph->GetType() ) )
             {
                 if ( ImGui::MenuItem( item.m_name.c_str() ) )
                 {
-                    auto pToolsGraph = static_cast<FlowToolGraph*>( m_pGraph );
+                    auto pToolsGraph = static_cast<FlowGraph*>( m_pGraph );
                     auto pNode = pToolsGraph->CreateNode( item.m_data );
                     pNode->SetCanvasPosition( mouseCanvasPos );
                 }
@@ -132,7 +130,7 @@ namespace KRG::Animation::Graph
     void GraphEditorView::StateMachineGraphView::DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos )
     {
         KRG_ASSERT( m_pGraph != nullptr );
-        auto pToolsGraph = static_cast<StateMachineToolsGraph*>( m_pGraph );
+        auto pToolsGraph = static_cast<StateMachineGraph*>( m_pGraph );
 
         if ( ImGui::MenuItem( "Blend Tree State") )
         {
@@ -178,10 +176,10 @@ namespace KRG::Animation::Graph
 
     void GraphEditorView::StateMachineGraphView::DrawExtraInformation( GraphEditor::DrawingContext const& ctx )
     {
-        auto pToolsGraph = static_cast<StateMachineToolsGraph*>( m_pGraph );
+        auto pToolsGraph = static_cast<StateMachineGraph*>( m_pGraph );
         auto pGlobalTransitionsNode = pToolsGraph->GetGlobalTransitionsNode();
 
-        auto const stateNodes = pToolsGraph->FindAllNodesOfType<StateBaseToolsNode>( GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch::Derived );
+        auto const stateNodes = pToolsGraph->FindAllNodesOfType<Tools_StateBaseNode>( GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch::Derived );
         for ( auto pStateNode : stateNodes )
         {
             if ( pGlobalTransitionsNode->HasGlobalTransitionForState( pStateNode->GetID() ) )

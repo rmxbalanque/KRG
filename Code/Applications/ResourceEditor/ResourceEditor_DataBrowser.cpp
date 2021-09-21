@@ -183,7 +183,7 @@ namespace KRG
         }
 
         ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 24 );
-        if ( ImGui::Button( KRG_ICON_ERASER "##Clear Filter" ) )
+        if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear Filter" ) )
         {
             m_filterBuffer[0] = 0;
             UpdateVisibility();
