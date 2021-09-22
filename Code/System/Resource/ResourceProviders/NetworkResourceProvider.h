@@ -30,6 +30,7 @@ namespace KRG::Resource
         NetworkResourceProvider() = delete;
 
         virtual bool Initialize() override final;
+        virtual void Shutdown() override final;
         virtual void Update() override final;
 
         virtual void RequestResourceInternal( ResourceRequest* pRequest ) override final;

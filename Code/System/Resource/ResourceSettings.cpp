@@ -105,7 +105,12 @@ namespace KRG::Resource
                 return false;
             }
 
-            if ( !ini.TryGetUInt( "Resource:ResourceServerPort", m_resourceServerPort ) )
+            uint32 tempValue;
+            if ( ini.TryGetUInt( "Resource:ResourceServerPort", tempValue ) )
+            {
+                m_resourceServerPort = (uint16) tempValue;
+            }
+            else
             {
                 KRG_LOG_ERROR( "Engine", "Failed to read ResourceServerPort from ini file" );
                 return false;

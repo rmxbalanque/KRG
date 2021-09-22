@@ -46,13 +46,13 @@ namespace KRG::ImGuiX
 
         colors[ImGuiCol_WindowBg] = s_backgroundColorMedium;
         colors[ImGuiCol_ChildBg] = s_backgroundColorMedium;
-        colors[ImGuiCol_PopupBg] = s_backgroundColorSemiDark;
-        colors[ImGuiCol_MenuBarBg] = s_backgroundColorDark;
+        colors[ImGuiCol_PopupBg] = s_backgroundColorMedium;
+        colors[ImGuiCol_MenuBarBg] = s_backgroundColorSemiDark;
 
         colors[ImGuiCol_Border] = s_backgroundColorDark;
         colors[ImGuiCol_BorderShadow] = s_backgroundColorDark;
 
-        colors[ImGuiCol_FrameBg] = s_backgroundColorSemiDark;
+        colors[ImGuiCol_FrameBg] = s_backgroundColorSemiLight;
         colors[ImGuiCol_FrameBgHovered] = s_backgroundColorSemiLight;
         colors[ImGuiCol_FrameBgActive] = s_backgroundColorSemiLight;
 

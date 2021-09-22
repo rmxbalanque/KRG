@@ -306,6 +306,8 @@ namespace KRG::Debug
     {
         UpdateStage const updateStage = context.GetUpdateStage();
 
+        ImGui::ShowDemoWindow();
+
         switch ( updateStage )
         {
             case UpdateStage::FrameStart:

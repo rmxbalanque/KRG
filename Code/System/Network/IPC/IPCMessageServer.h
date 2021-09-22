@@ -2,39 +2,31 @@
 
 #include "System/Network/_Module/API.h"
 #include "IPCMessage.h"
-#include "System/Core/Types/String.h"
+#include "System/Network/NetworkSystem.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Network::IPC
 {
-    namespace Network
+    class KRG_SYSTEM_NETWORK_API Server final : public ServerConnection
     {
-        namespace IPC
-        {
-            class KRG_SYSTEM_NETWORK_API Server
-            {
-                static constexpr int32 const MaxConnections = 64;
 
-            public:
+    public:
 
-                Server();
-                ~Server();
+        // Queues a message to be sent. Note this is a destructive operation!! This call will move the data
+        void SendMessage( Message&& message );
 
-                bool Start( int32 portNumber );
-                void Stop();
+        // Iterates over all incoming messages and calls the processing function
+        void ProcessIncomingMessages( TFunction<void( Message const& message )> messageProcessorFunction );
 
-                inline bool IsRunning() const { return m_pSocket != nullptr; }
+    private:
 
-                bool WaitForMessage( Message& message, int32 timeout = 0 );
-                void SendMessageToClient( ClientID clientID, Message& message );
+        virtual void ProcessMessage( uint32 connectionID, void* pData, size_t size ) override;
+        virtual void SendMessages( TFunction<void( ServerConnection::ClientConnectionHandle, void*, uint32 )> const& sendFunction ) override;
 
-            private:
+    private:
 
-                void*           m_pContext = nullptr;
-                void*           m_pSocket = nullptr;
-                String          m_address;
-            };
-        }
-    }
+        TVector<Message>            m_incomingMessages;
+        TVector<Message>            m_outgoingMessages;
+    };
 }

@@ -23,7 +23,7 @@ namespace KRG::Resource
 
         #if KRG_DEVELOPMENT_TOOLS
         String                  m_resourceServerNetworkAddress;
-        uint32                  m_resourceServerPort;
+        uint16                  m_resourceServerPort;
         FileSystem::Path        m_workingDirectoryPath;
         FileSystem::Path        m_sourceDataPath;
         FileSystem::Path        m_compiledDataPath;

@@ -62,6 +62,7 @@ namespace KRG
 #define KRG_PROFILE_FUNCTION_RENDER() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Rendering )
 #define KRG_PROFILE_FUNCTION_SCENE() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Scene )
 #define KRG_PROFILE_FUNCTION_RESOURCE() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Streaming )
+#define KRG_PROFILE_FUNCTION_NETWORK() OPTICK_EVENT( OPTICK_FUNC, Optick::Category::Network )
 
 #define KRG_PROFILE_SCOPE_AI( name ) OPTICK_EVENT( name, Optick::Category::AI )
 #define KRG_PROFILE_SCOPE_ANIMATION( name ) OPTICK_EVENT( name, Optick::Category::Animation )
@@ -73,3 +74,4 @@ namespace KRG
 #define KRG_PROFILE_SCOPE_RENDER( name ) OPTICK_EVENT( name, Optick::Category::Rendering )
 #define KRG_PROFILE_SCOPE_SCENE( name ) OPTICK_EVENT( name, Optick::Category::Scene )
 #define KRG_PROFILE_SCOPE_RESOURCE( name ) OPTICK_EVENT( name, Optick::Category::Streaming )
+#define KRG_PROFILE_SCOPE_NETWORK( name ) OPTICK_EVENT( name, Optick::Category::Network )

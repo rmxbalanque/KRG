@@ -14,12 +14,14 @@
     <ClInclude Include="IPC\IPCMessageClient.h" />
     <ClInclude Include="IPC\IPCMessage.h" />
     <ClInclude Include="IPC\IPCMessageServer.h" />
+    <ClInclude Include="NetworkSystem.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IPC\IPCMessageClient.cpp" />
     <ClCompile Include="IPC\IPCMessage.cpp" />
     <ClCompile Include="IPC\IPCMessageServer.cpp" />
+    <ClCompile Include="NetworkSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\KRG.System.Core.vcxproj">
@@ -49,12 +51,12 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\KRG.props" />
-    <Import Project="..\..\..\External\ZeroMQ\ZeroMQ.props" />
+    <Import Project="..\..\..\External\GameNetworkingSockets\GameNetworkingSockets.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\KRG.props" />
-    <Import Project="..\..\..\External\ZeroMQ\ZeroMQ.props" />
+    <Import Project="..\..\..\External\GameNetworkingSockets\GameNetworkingSockets.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />

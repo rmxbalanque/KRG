@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
 #include "System/Entity/EntityTypeHelpers.h"
+#include "System/Network/NetworkSystem.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Time/Timers.h"
@@ -225,6 +226,7 @@ namespace KRG
 
         while ( m_pResourceSystem->IsBusy() )
         {
+            Network::NetworkSystem::Update();
             m_pResourceSystem->Update();
         }
 
@@ -404,6 +406,13 @@ namespace KRG
         Milliseconds deltaTime = 0;
         {
             ScopedSystemTimer frameTimer( deltaTime );
+
+            // Networking
+            //-------------------------------------------------------------------------
+            {
+                KRG_PROFILE_SCOPE_NETWORK( "Networking" );
+                Network::NetworkSystem::Update();
+            }
 
             // Streaming / Loading
             //-------------------------------------------------------------------------

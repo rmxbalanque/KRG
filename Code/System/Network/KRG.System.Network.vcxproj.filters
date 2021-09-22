@@ -18,6 +18,7 @@
     <ClCompile Include="IPC\IPCMessageServer.cpp">
       <Filter>IPC</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPC\IPCMessageClient.h">
@@ -32,5 +33,6 @@
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
+    <ClInclude Include="NetworkSystem.h" />
   </ItemGroup>
 </Project>

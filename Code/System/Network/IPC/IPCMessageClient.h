@@ -2,45 +2,30 @@
 
 #include "System/Network/_Module/API.h"
 #include "IPCMessage.h"
-#include "System/Core/Types/String.h"
+#include "System/Network/NetworkSystem.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Network::IPC
 {
-    namespace Network
+    class KRG_SYSTEM_NETWORK_API Client final : public ClientConnection
     {
-        namespace IPC
-        {
-            class KRG_SYSTEM_NETWORK_API Client
-            {
-            public:
+    public:
 
-                Client();
-                ~Client();
+        // Queues a message to be sent to the server. Note this is a destructive operation!! This call will move the data 
+        void SendMessageToServer( Message&& message );
 
-                bool TryConnect( char const* pAddress );
-                bool TryReconnect();
-                void Disconnect();
+        // Iterates over all incoming messages and calls the processing function
+        void ProcessIncomingMessages( TFunction<void( Message const& message )> messageProcessorFunction );
 
-                inline bool IsConnected() const { return m_pSocket != nullptr; }
-                inline ClientID const& GetClientID() const { return m_clientID; }
-                inline String const& GetAddress() const { return m_address; }
+    private:
 
-                bool WaitForMessage( Message& message, int32 timeout = 0 );
-                void SendMessageToServer( Message const& message );
+        virtual void ProcessMessage( void* pData, size_t size ) override;
+        virtual void SendMessages( TFunction<void( void*, uint32 )> const& sendFunction ) override;
 
-            private:
+    protected:
 
-                bool TryConnectInternal();
-
-            private:
-
-                void*                                   m_pContext = nullptr;
-                void*                                   m_pSocket = nullptr;
-                String                                  m_address;
-                ClientID                                m_clientID;
-            };
-        }
-    }
+        TVector<Message>                        m_incomingMessages;
+        TVector<Message>                        m_outgoingMessages;
+    };
 }

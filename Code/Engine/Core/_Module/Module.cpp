@@ -3,6 +3,7 @@
 #include "System/Resource/ResourceProviders/NetworkResourceProvider.h"
 #include "System/Resource/ResourceSettings.h"
 #include "System/Render/RenderSettings.h"
+#include "System/Network/NetworkSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,6 +23,12 @@ namespace KRG::EngineCore
         KRG_ASSERT( pRenderSettings != nullptr );
 
         //-------------------------------------------------------------------------
+
+        if ( !Network::NetworkSystem::Initialize() )
+        {
+            KRG_LOG_ERROR( "Render", "Failed to initialize network system" );
+            return false;
+        }
 
         m_pResourceProvider = KRG::New<Resource::NetworkResourceProvider>( pResourceSettings );
         if ( !m_pResourceProvider->Initialize() )
@@ -160,5 +167,7 @@ namespace KRG::EngineCore
             m_pResourceProvider->Shutdown();
             KRG::Delete( m_pResourceProvider );
         }
+
+        Network::NetworkSystem::Shutdown();
     }
 }

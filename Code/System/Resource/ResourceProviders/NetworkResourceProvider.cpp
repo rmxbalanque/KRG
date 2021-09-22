@@ -28,20 +28,21 @@ namespace KRG::Resource
 
     bool NetworkResourceProvider::Initialize()
     {
-        m_networkClient.TryConnect( m_address.c_str() );
+        Network::NetworkSystem::StartClientConnection( &m_networkClient, m_address.c_str() );
 
-        if ( !m_networkClient.IsConnected() )
+        if ( m_networkClient.IsConnecting() )
         {
-            int32 numRetries = 25;
-            while ( numRetries > 0 )
+            static constexpr int32 const maxRetries = 10;
+            int32 numRetries = 0;
+            while ( numRetries < maxRetries )
             {
-                KRG_LOG_ERROR( "Resource", "Couldnt connect to resource server at %s - retrying %d / 100", m_networkClient.GetAddress().c_str(), 100 - numRetries );
-                if ( m_networkClient.TryReconnect() )
+                KRG_LOG_MESSAGE( "Resource", "Connecting to resource server at %s - retrying %d / %d", m_networkClient.GetAddress().c_str(), numRetries, maxRetries );
+                if ( m_networkClient.IsConnected() || !m_networkClient.IsConnecting() )
                 {
                     break;
                 }
-                Threading::Sleep( 150.0f );
-                numRetries--;
+                Threading::Sleep( 500.0f );
+                numRetries++;
             }
         }
 
@@ -54,6 +55,11 @@ namespace KRG::Resource
         return true;
     }
 
+    void NetworkResourceProvider::Shutdown()
+    {
+        Network::NetworkSystem::StopClientConnection( &m_networkClient );
+    }
+
     void NetworkResourceProvider::Update()
     {
         KRG_PROFILE_FUNCTION_RESOURCE();
@@ -63,8 +69,7 @@ namespace KRG::Resource
         // Check for any network messages
         //-------------------------------------------------------------------------
 
-        Network::IPC::Message message;
-        if ( m_networkClient.WaitForMessage( message ) )
+        auto ProcessMessageFunction = [this] ( Network::IPC::Message const& message )
         {
             switch ( (NetworkMessageID) message.GetMessageID() )
             {
@@ -81,7 +86,9 @@ namespace KRG::Resource
                 }
                 break;
             };
-        }
+        };
+
+        m_networkClient.ProcessIncomingMessages( ProcessMessageFunction );
 
         // Send all requests and keep-alive messages
         //-------------------------------------------------------------------------
@@ -89,13 +96,12 @@ namespace KRG::Resource
         Network::IPC::Message messageToSend;
         while ( m_messagesToSend.try_dequeue( messageToSend ) )
         {
-            m_networkClient.SendMessageToServer( messageToSend );
+            m_networkClient.SendMessageToServer( eastl::move( messageToSend ) );
         }
 
         if ( m_keepAliveTimer.GetElapsedTimeSeconds() > Seconds( 5.0f ) )
         {
-            Network::IPC::Message const keepAliveMessage( (int32) NetworkMessageID::KeepAlive );
-            m_networkClient.SendMessageToServer( keepAliveMessage );
+            m_networkClient.SendMessageToServer( Network::IPC::Message( (int32) NetworkMessageID::KeepAlive ) );
             m_keepAliveTimer.Reset();
         }
 

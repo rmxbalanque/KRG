@@ -42,7 +42,12 @@ namespace KRG::Resource
         // Open network connection
         //-------------------------------------------------------------------------
 
-        if ( !m_networkServer.Start( settings.m_resourceServerPort ) )
+        if ( !Network::NetworkSystem::Initialize() )
+        {
+            return false;
+        }
+
+        if ( !Network::NetworkSystem::StartServerConnection( &m_networkServer, settings.m_resourceServerPort ) )
         {
             return false;
         }
@@ -117,6 +122,11 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
+        Network::NetworkSystem::StopServerConnection( &m_networkServer );
+        Network::NetworkSystem::Shutdown();
+
+        //-------------------------------------------------------------------------
+
         m_pSettings = nullptr;
     }
 
@@ -127,15 +137,16 @@ namespace KRG::Resource
         // Update network server
         //-------------------------------------------------------------------------
 
+        Network::NetworkSystem::Update();
+
         if ( m_networkServer.IsRunning() )
         {
-            Network::IPC::Message message;
-            if ( m_networkServer.WaitForMessage( message, 0 ) )
+            auto ProcessIncomingMessages = [this] ( Network::IPC::Message const& message )
             {
                 // Track connected clients
                 //-------------------------------------------------------------------------
 
-                uint64 const clientID = message.GetClientID().m_ID;
+                uint32 const clientID = message.GetClientConnectionID();
                 auto foundClientIter = VectorFind( m_knownClients, clientID, [] ( ClientRecord const& record, uint64 clientID ) { return record.m_clientID == clientID; } );
                 if ( foundClientIter != m_knownClients.end() )
                 {
@@ -155,6 +166,8 @@ namespace KRG::Resource
                     ProcessResourceRequest( networkRequest.m_path, clientID );
                 }
             };
+
+            m_networkServer.ProcessIncomingMessages( ProcessIncomingMessages );
 
             // Clean up connected clients list
             //-------------------------------------------------------------------------
@@ -280,7 +293,7 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    CompilationRequest const* ResourceServer::ProcessResourceRequest( ResourceID const& resourceID, uint64 clientID )
+    CompilationRequest const* ResourceServer::ProcessResourceRequest( ResourceID const& resourceID, uint32 clientID )
     {
         KRG_ASSERT( m_compiledResourceDatabase.IsConnected() );
 
@@ -403,16 +416,18 @@ namespace KRG::Resource
                 for ( auto const& clientRecord : m_knownClients )
                 {
                     Network::IPC::Message message;
+                    message.SetClientConnectionID( clientRecord.m_clientID );
                     message.SetData( (int32) NetworkMessageID::ResourceUpdated, response );
-                    m_networkServer.SendMessageToClient( clientRecord.m_clientID, message );
+                    m_networkServer.SendMessage( eastl::move( message ) );
                 }
             }
         }
         else // Notify single client
         {
             Network::IPC::Message message;
+            message.SetClientConnectionID( pRequest->GetClientID() );
             message.SetData( (int32) NetworkMessageID::ResourceRequestComplete, response );
-            m_networkServer.SendMessageToClient( pRequest->GetClientID(), message );
+            m_networkServer.SendMessage( eastl::move( message ) );
         }
     }
 

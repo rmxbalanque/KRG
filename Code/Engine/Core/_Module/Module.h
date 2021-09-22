@@ -67,6 +67,7 @@ namespace KRG::EngineCore
         // Resource
         Resource::ResourceProvider*                     m_pResourceProvider = nullptr;
         Resource::ResourceSystem                        m_resourceSystem;
+
         // Rendering
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
         Render::RendererRegistry                        m_rendererRegistry;

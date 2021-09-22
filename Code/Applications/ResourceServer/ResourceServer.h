@@ -27,10 +27,10 @@ namespace KRG::Resource
     {
         struct ClientRecord
         {
-            explicit ClientRecord( uint64 clientID ) : m_clientID( clientID ) { KRG_ASSERT( clientID != 0 ); }
+            explicit ClientRecord( uint32 clientID ) : m_clientID( clientID ) { KRG_ASSERT( clientID != 0 ); }
 
             Seconds                             m_lastUpdateTime = SystemClock::GetTimeInSeconds();
-            uint64                              m_clientID = 0;
+            uint32                              m_clientID = 0;
         };
 
     public:
@@ -45,7 +45,7 @@ namespace KRG::Resource
 
         inline String const& GetErrorMessage() const { return m_errorMessage; }
         inline String const& GetNetworkAddress() const { return m_pSettings->m_resourceServerNetworkAddress; }
-        inline uint32 GetNetworkPort() const { return m_pSettings->m_resourceServerPort; }
+        inline uint16 GetNetworkPort() const { return m_pSettings->m_resourceServerPort; }
         inline FileSystem::Path const& GetSourceDataDir() const { return m_pSettings->m_sourceDataPath; }
         inline FileSystem::Path const& GetCompiledDataDir() const { return m_pSettings->m_compiledDataPath; }
 
@@ -68,7 +68,7 @@ namespace KRG::Resource
         void CleanupCompletedRequests();
 
         // Request Actions
-        CompilationRequest const* ProcessResourceRequest( ResourceID const& resourceID, uint64 clientID = 0 );
+        CompilationRequest const* ProcessResourceRequest( ResourceID const& resourceID, uint32 clientID = 0 );
         void NotifyClientOnCompletedRequest( CompilationRequest* pRequest );
 
         // Up-to-date system

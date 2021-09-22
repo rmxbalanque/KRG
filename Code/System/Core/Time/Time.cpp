@@ -29,7 +29,7 @@ namespace KRG
 
     void EngineClock::Update( Milliseconds deltaTime )
     {
-        KRG_ASSERT( deltaTime > 0 );
+        KRG_ASSERT( deltaTime >= 0 );
         CurrentTime += deltaTime.ToNanoseconds();
     }
 }
