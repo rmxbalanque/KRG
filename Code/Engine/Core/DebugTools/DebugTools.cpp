@@ -1,6 +1,6 @@
 #include "DebugTools.h"
-#include "System/DevTools/ImguiX.h"
-#include "System/DevTools/CommonWidgets/Gizmo/OrientationGuide.h"
+#include "System/Imgui/ImguiX.h"
+#include "System/Imgui/Widgets/Gizmos/OrientationGuide.h"
 #include "System/Input/InputSystem.h"
 #include "System/Render/RenderViewportManager.h"
 #include "System/Core/Settings/SettingsRegistry.h"

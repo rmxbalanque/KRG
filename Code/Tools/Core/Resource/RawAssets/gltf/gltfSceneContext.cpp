@@ -3,7 +3,7 @@
 //-------------------------------------------------------------------------
 
 #define CGLTF_IMPLEMENTATION
-#include "Tools/Core/Thirdparty/cgltf/cgltf.h"
+#include "Tools/Core/ThirdParty/cgltf/cgltf.h"
 
 //-------------------------------------------------------------------------
 

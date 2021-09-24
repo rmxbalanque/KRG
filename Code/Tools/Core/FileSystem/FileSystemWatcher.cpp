@@ -1,6 +1,6 @@
 #include "FileSystemWatcher.h"
 #include "System/Core/Logging/Log.h"
-#include "System/Core/Platform/Platform_Win32.h"
+#include "System/Core/Platform/PlatformHelpers_Win32.h"
 
 //-------------------------------------------------------------------------
 

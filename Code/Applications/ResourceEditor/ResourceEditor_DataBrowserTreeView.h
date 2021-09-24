@@ -10,6 +10,10 @@
 
 namespace KRG
 {
+    class EditorModel;
+
+    //-------------------------------------------------------------------------
+
     class DataBrowserTreeItem : public TreeViewItem
     {
     public:
@@ -67,7 +71,7 @@ namespace KRG
 
     public:
 
-        DataBrowserTreeView( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& dataDirectoryPath );
+        DataBrowserTreeView( EditorModel* pModel );
         virtual ~DataBrowserTreeView();
 
         void RebuildBrowserTree();
@@ -87,7 +91,7 @@ namespace KRG
 
     private:
 
-        TypeSystem::TypeRegistry const&             m_typeRegistry;
+        EditorModel*                                m_pModel = nullptr;
         FileSystem::Path                            m_dataDirectoryPath;
         int32                                       m_dataDirectoryPathDepth;
         FileSystem::FileSystemWatcher               m_fileSystemWatcher;

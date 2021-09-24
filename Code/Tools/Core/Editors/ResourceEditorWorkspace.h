@@ -1,7 +1,7 @@
 #pragma once
 #include "EditorModel.h"
 #include "Tools/Core/Helpers/GlobalRegistryBase.h"
-#include "System/DevTools/ThirdParty/imgui/imgui.h"
+#include "System/Imgui/ThirdParty/imgui/imgui.h"
 
 //-------------------------------------------------------------------------
 

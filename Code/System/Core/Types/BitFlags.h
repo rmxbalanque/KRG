@@ -1,7 +1,6 @@
 #pragma once
 
-#include "System/Core/Core/IntegralTypes.h"
-#include "System/Core/Core/Defines.h"
+#include "System/Core/Types/IntegralTypes.h"
 #include "System/Core/Serialization/Serialization.h"
 #include <type_traits>
 

@@ -1,8 +1,8 @@
 #ifdef _WIN32
 #pragma once
 
-#include "System\Core\Types\Function.h"
-#include "System\Core\Types\String.h"
+#include "System/Core/Types/Function.h"
+#include "System/Core/Types/String.h"
 
 //-------------------------------------------------------------------------
 

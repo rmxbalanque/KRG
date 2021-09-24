@@ -1,6 +1,6 @@
 #include "AnimationGraphEditor_Model.h"
-#include "Tools/Core/Thirdparty/KRG_RapidJson.h"
-#include "Tools/Core/Thirdparty/pfd/portable-file-dialogs.h"
+#include "Tools/Core/ThirdParty/KRG_RapidJson.h"
+#include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Animation/ToolsGraph/AnimationToolsGraph_Compilation.h"
 
 //-------------------------------------------------------------------------

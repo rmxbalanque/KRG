@@ -2,7 +2,7 @@
 
 #include "Tools/Core/Editors/ResourceEditorWorkspace.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
-#include "System/DevTools/ImguiX.h"
+#include "System/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 

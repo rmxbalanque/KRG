@@ -1,7 +1,7 @@
 #include "ResourceServerUI.h"
 #include "ResourceServer.h"
 #include "Tools/Core/FileSystem/FileSystemHelpers.h"
-#include "System/DevTools/ImguiX.h"
+#include "System/Imgui/ImguiX.h"
 #include "System/Core/Types/Color.h"
 
 //-------------------------------------------------------------------------

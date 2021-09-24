@@ -278,6 +278,8 @@ namespace KRG
 
         m_resourceServer.Shutdown();
 
+        m_viewportManager.Shutdown();
+
         if ( m_pRenderDevice != nullptr )
         {
             m_pRenderDevice->Shutdown();

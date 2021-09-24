@@ -1,5 +1,6 @@
 #include "ResourceEditor_DataBrowserTreeView.h"
 #include "Tools/Core/FileSystem/FileSystemHelpers.h"
+#include "Tools/Core/Editors/EditorModel.h"
 
 //-------------------------------------------------------------------------
 
@@ -59,13 +60,13 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    DataBrowserTreeView::DataBrowserTreeView( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& dataDirectoryPath )
-        : m_typeRegistry( typeRegistry )
-        , m_dataDirectoryPath( dataDirectoryPath )
-        , m_dataDirectoryPathDepth( dataDirectoryPath.GetPathDepth() )
+    DataBrowserTreeView::DataBrowserTreeView( EditorModel* pModel )
+        : m_pModel( pModel )
+        , m_dataDirectoryPath( pModel->GetSourceDataDirectory() )
+        , m_dataDirectoryPathDepth( pModel->GetSourceDataDirectory().GetPathDepth() )
     {
-        KRG_ASSERT( m_dataDirectoryPath.IsValid() );
-        KRG_ASSERT( dataDirectoryPath.ExistsAndIsDirectory() );
+        KRG_ASSERT( m_pModel != nullptr );
+        KRG_ASSERT( m_dataDirectoryPath.IsExistingDirectory() );
 
         // Create root node
         KRG_ASSERT( m_pRoot == nullptr );
@@ -131,7 +132,7 @@ namespace KRG
             if ( strlen( pExtension ) <= 4 )
             {
                 resourceTypeID = ResourceTypeID( pExtension );
-                if ( !m_typeRegistry.IsRegisteredResourceType( resourceTypeID ) )
+                if ( !m_pModel->GetTypeRegistry()->IsRegisteredResourceType( resourceTypeID ) )
                 {
                     resourceTypeID = ResourceTypeID();
                 }

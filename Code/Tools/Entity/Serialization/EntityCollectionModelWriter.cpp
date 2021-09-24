@@ -1,5 +1,5 @@
 #include "EntityCollectionModelWriter.h"
-#include "Tools/Core/Thirdparty/KRG_RapidJson.h"
+#include "Tools/Core/ThirdParty/KRG_RapidJson.h"
 #include "System/Entity/Collections/EntityCollectionDescriptor.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/FileSystem/FileSystem.h"

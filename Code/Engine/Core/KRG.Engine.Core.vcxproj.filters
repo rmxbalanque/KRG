@@ -43,6 +43,7 @@
       <Filter>DebugViews</Filter>
     </ClCompile>
     <ClCompile Include="Math\Easing.cpp" />
+    <ClCompile Include="DevelopmentToolset.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Modules\EngineModuleContext.h">
@@ -76,5 +77,6 @@
       <Filter>DebugViews</Filter>
     </ClInclude>
     <ClInclude Include="Math\Easing.h" />
+    <ClInclude Include="DevelopmentToolset.h" />
   </ItemGroup>
 </Project>

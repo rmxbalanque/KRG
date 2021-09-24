@@ -3,7 +3,7 @@
 #include "Tools/Core/PropertyGrid/PropertyGrid.h"
 #include "Tools/Core/Editors/ResourceEditorWorkspace.h"
 #include "Engine/Animation/AnimationClip.h"
-#include "System/DevTools/ImguiX.h"
+#include "System/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 

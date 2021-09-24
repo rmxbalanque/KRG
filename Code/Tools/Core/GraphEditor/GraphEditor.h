@@ -4,7 +4,7 @@
 #include "GraphEditorDrawingContext.h"
 #include "Tools/Core/ThirdParty/KRG_RapidJson.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
-#include "System/Core/Core/IntegralTypes.h"
+#include "System/Core/Types/IntegralTypes.h"
 
 //-------------------------------------------------------------------------
 

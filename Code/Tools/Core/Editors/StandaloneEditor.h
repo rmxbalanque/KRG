@@ -4,8 +4,8 @@
 #include "Tools/Core/Helpers/GlobalRegistryBase.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/StringID.h"
-#include "System/DevTools/DevelopmentToolset.h"
-#include "System/DevTools/ImguiX.h"
+#include "Engine/Core/DevelopmentToolset.h"
+#include "System/Imgui/ImguiX.h"
 #include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------

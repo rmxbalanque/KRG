@@ -2,46 +2,26 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="_Module">
-      <UniqueIdentifier>{b4864901-4d1f-4fef-98b6-ad5f19780723}</UniqueIdentifier>
+      <UniqueIdentifier>{112151e5-b2e6-42a7-988b-2a545573f598}</UniqueIdentifier>
     </Filter>
     <Filter Include="ResourceProviders">
-      <UniqueIdentifier>{8a365ede-0606-4f31-b02d-b01da744cab5}</UniqueIdentifier>
+      <UniqueIdentifier>{184a400e-14da-4905-8440-154133859e1d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceProviders\ResourceNetworkMessages.h">
-      <Filter>ResourceProviders</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceProviders\NetworkResourceProvider.h">
       <Filter>ResourceProviders</Filter>
     </ClInclude>
-    <ClInclude Include="IResource.h" />
-    <ClInclude Include="ResourceHeader.h" />
-    <ClInclude Include="ResourceID.h" />
-    <ClInclude Include="ResourceLoader.h" />
-    <ClInclude Include="ResourceProvider.h" />
-    <ClInclude Include="ResourcePtr.h" />
-    <ClInclude Include="ResourceRecord.h" />
-    <ClInclude Include="ResourceRequest.h" />
-    <ClInclude Include="ResourceSystem.h" />
-    <ClInclude Include="ResourceTypeID.h" />
-    <ClInclude Include="ResourceRequesterID.h" />
-    <ClInclude Include="ResourceSettings.h" />
+    <ClInclude Include="ResourceProviders\ResourceNetworkMessages.h">
+      <Filter>ResourceProviders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceProviders\NetworkResourceProvider.cpp">
       <Filter>ResourceProviders</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceID.cpp" />
-    <ClCompile Include="ResourceLoader.cpp" />
-    <ClCompile Include="ResourceProvider.cpp" />
-    <ClCompile Include="ResourceRecord.cpp" />
-    <ClCompile Include="ResourceRequest.cpp" />
-    <ClCompile Include="ResourceSystem.cpp" />
-    <ClCompile Include="ResourceTypeID.cpp" />
-    <ClCompile Include="ResourceSettings.cpp" />
   </ItemGroup>
 </Project>

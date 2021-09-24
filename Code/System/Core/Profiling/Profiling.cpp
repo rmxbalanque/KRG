@@ -1,9 +1,12 @@
 #include "Profiling.h"
-#include "Superluminal/PerformanceAPI.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
 
+#if KRG_ENABLE_SUPERLUMINAL
+#include "Superluminal/PerformanceAPI.h"
+#endif
+
 #if _WIN32
-#include "System/Core/Platform/Platform_Win32.h"
+#include "System/Core/Platform/PlatformHelpers_Win32.h"
 #include <shellapi.h>
 #endif
 
@@ -15,13 +18,18 @@ namespace KRG
     {
         void StartFrame()
         {
+            #if KRG_ENABLE_SUPERLUMINAL
             PerformanceAPI::BeginEvent( "Frame" );
+            #endif
+
             OPTICK_FRAME( "KRG Main" );
         }
 
         void EndFrame()
         {
+            #if KRG_ENABLE_SUPERLUMINAL
             PerformanceAPI::EndEvent();
+            #endif
         }
 
         void OpenProfiler()

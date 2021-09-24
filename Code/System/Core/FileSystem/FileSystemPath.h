@@ -68,8 +68,8 @@ namespace KRG::FileSystem
         // These functions actually check the filesystem
 
         bool Exists() const;
-        bool ExistsAndIsDirectory() const;
-        bool ExistsAndIsFile() const;
+        bool IsExistingDirectory() const;
+        bool IsExistingFile() const;
 
         // Files
         //-------------------------------------------------------------------------
@@ -95,6 +95,13 @@ namespace KRG::FileSystem
 
         char const* GetExtension() const;
         inline InlineString<6> GetExtensionAsString() const { return InlineString<6>( GetExtension() ); }
+        
+        inline InlineString<6> GetLowercaseExtensionAsString() const
+        {
+            auto ext = InlineString<6>( GetExtension() );
+            ext.make_lower();
+            return ext;
+        }
 
         void ReplaceExtension( const char* pExtension );
         inline void ReplaceExtension( String const& extension ) { ReplaceExtension( extension.c_str() ); }

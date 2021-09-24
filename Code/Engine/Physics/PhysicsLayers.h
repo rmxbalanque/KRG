@@ -1,5 +1,5 @@
 #pragma once
-#include "System/Core/Core/IntegralTypes.h"
+#include "System/Core/Types/IntegralTypes.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------

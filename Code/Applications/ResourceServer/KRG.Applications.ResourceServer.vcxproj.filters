@@ -84,5 +84,6 @@
     <Image Include="Resources\TrayIconIdle.png">
       <Filter>ResourceServer\Resources</Filter>
     </Image>
+    <Image Include="Resources\icon2.ico" />
   </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    class ResourceServerUI
+    class ResourceServerUI final
     {
 
     public:

@@ -23,18 +23,17 @@ namespace KRG
         void UpdateVisibility();
         void UpdateAndDrawBrowserFilters( UpdateContext const& context );
         void OnBrowserItemDoubleClicked( TreeViewItem* pItem );
+        bool DrawResourceTypeFilterMenu();
 
     private:
 
         ResourceEditorModel&                                        m_model;
-        char                                                        m_filterBuffer[256];
+        char                                                        m_nameFilterBuffer[256];
+        TVector<ResourceTypeID>                                     m_typeFilter;
         DataBrowserTreeView                                         m_dataBrowserTreeView;
         DataFileInspector                                           m_dataFileInspector;
         EventBindingID                                              m_onDoubleClickEventID;
         bool                                                        m_showRawFiles = false;
-
-        bool                                                        m_showStaticMeshes = true;
-        bool                                                        m_showSkeletalMeshes = true;
         float                                                       m_dataBrowserViewHeight = 300;
     };
 }

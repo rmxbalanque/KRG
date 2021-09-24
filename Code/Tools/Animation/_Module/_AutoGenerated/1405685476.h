@@ -284,7 +284,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::Tools_TimeConditionNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::Tools_GraphNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ) );
+        archive( cereal::base_class<KRG::Animation::Graph::Tools_GraphNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_comparand ), KRG_NVP( m_type ), KRG_NVP( m_operator ) );
     }
 
     //-------------------------------------------------------------------------
@@ -322,6 +322,45 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_TimeConditionNode, m_ID );
             propertyInfo.m_size = sizeof( KRG::UUID );
             propertyInfo.m_flags.Set( 0 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_comparand" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "float" );
+            propertyInfo.m_parentTypeID = 1065403770;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_comparand;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_TimeConditionNode, m_comparand );
+            propertyInfo.m_size = sizeof( float );
+            propertyInfo.m_flags.Set( 1 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_type" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::TimeConditionNode::ComparisonType" );
+            propertyInfo.m_parentTypeID = 1065403770;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_type;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_TimeConditionNode, m_type );
+            propertyInfo.m_size = sizeof( KRG::Animation::Graph::TimeConditionNode::ComparisonType );
+            propertyInfo.m_flags.Set( 9 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_operator" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::TimeConditionNode::Operator" );
+            propertyInfo.m_parentTypeID = 1065403770;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_operator;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_TimeConditionNode, m_operator );
+            propertyInfo.m_size = sizeof( KRG::Animation::Graph::TimeConditionNode::Operator );
+            propertyInfo.m_flags.Set( 9 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -493,6 +532,21 @@ namespace KRG
                        return false;
                     }
 
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 2766325010 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 533580642 ) )
+                    {
+                       return false;
+                    }
+
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3611087477 ) )
+                    {
+                       return false;
+                    }
+
                     return true;
                 }
 
@@ -509,6 +563,21 @@ namespace KRG
                     if ( propertyID == 4230898639 )
                     {
                         return pType->m_ID == pOtherType->m_ID;
+                    }
+
+                    if ( propertyID == 2766325010 )
+                    {
+                        return pType->m_comparand == pOtherType->m_comparand;
+                    }
+
+                    if ( propertyID == 533580642 )
+                    {
+                        return pType->m_type == pOtherType->m_type;
+                    }
+
+                    if ( propertyID == 3611087477 )
+                    {
+                        return pType->m_operator == pOtherType->m_operator;
                     }
 
                     return false;
@@ -528,6 +597,24 @@ namespace KRG
                     if ( propertyID == 4230898639 )
                     {
                         pActualType->m_ID = pDefaultType->m_ID;
+                        return;
+                    }
+
+                    if ( propertyID == 2766325010 )
+                    {
+                        pActualType->m_comparand = pDefaultType->m_comparand;
+                        return;
+                    }
+
+                    if ( propertyID == 533580642 )
+                    {
+                        pActualType->m_type = pDefaultType->m_type;
+                        return;
+                    }
+
+                    if ( propertyID == 3611087477 )
+                    {
+                        pActualType->m_operator = pDefaultType->m_operator;
                         return;
                     }
 

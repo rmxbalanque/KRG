@@ -5,7 +5,6 @@
 #include "Applications/Shared/Win32/SharedHelpers_Win32.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "System/Core/Platform/Platform_Win32.h"
 #include "System/Core/Time/Timers.h"
 #include <tchar.h>
 #include <windows.h>

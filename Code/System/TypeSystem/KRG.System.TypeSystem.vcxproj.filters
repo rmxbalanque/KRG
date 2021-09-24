@@ -2,34 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="_Module">
-      <UniqueIdentifier>{a4ac637b-eece-4e00-b3eb-b7983ecc1f11}</UniqueIdentifier>
+      <UniqueIdentifier>{0e6d43f5-1f73-4951-910f-634f6c6e34b3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="CoreTypeIDs.h" />
-    <ClInclude Include="EnumInfo.h" />
-    <ClInclude Include="ITypeHelper.h" />
-    <ClInclude Include="PropertyInfo.h" />
-    <ClInclude Include="TypeID.h" />
-    <ClInclude Include="TypeInfo.h" />
-    <ClInclude Include="TypeRegistrationMacros.h" />
-    <ClInclude Include="TypeRegistry.h" />
-    <ClInclude Include="CoreTypeConversions.h" />
-    <ClInclude Include="PropertyPath.h" />
-    <ClInclude Include="TypeDescriptors.h" />
-    <ClInclude Include="TypeHelpers.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="CoreTypeIDs.cpp" />
-    <ClCompile Include="PropertyInfo.cpp" />
-    <ClCompile Include="TypeInfo.cpp" />
-    <ClCompile Include="TypeRegistry.cpp" />
-    <ClCompile Include="CoreTypeConversions.cpp" />
-    <ClCompile Include="PropertyPath.cpp" />
-    <ClCompile Include="TypeDescriptors.cpp" />
-    <ClCompile Include="TypeHelpers.cpp" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

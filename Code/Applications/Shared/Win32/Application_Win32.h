@@ -1,7 +1,7 @@
 #ifdef _WIN32
 #pragma once
 
-#include "System/Core/Core/IntegralTypes.h"
+#include "System/Core/Types/IntegralTypes.h"
 #include "System/Core/Types/String.h"
 #include "ApplicationGlobalState.h"
 #include "System/Core/Math/Math.h"

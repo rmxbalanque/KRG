@@ -195,7 +195,7 @@ namespace KRG::FileSystem
         return std::filesystem::exists( m_fullpath.c_str(), ec );
     }
 
-    bool Path::ExistsAndIsDirectory() const
+    bool Path::IsExistingDirectory() const
     {
         if ( !Exists() )
         {
@@ -206,7 +206,7 @@ namespace KRG::FileSystem
         return std::filesystem::is_directory( m_fullpath.c_str(), ec );
     }
 
-    bool Path::ExistsAndIsFile() const
+    bool Path::IsExistingFile() const
     {
         if ( !Exists() )
         {

@@ -463,25 +463,25 @@ namespace cli {
 
         std::string usage() const {
             std::stringstream ss{};
-            ss << "Available parameters:\n\n";
+            ss << "Available parameters:/n/n";
 
             for ( const auto& command : _commands )
             {
-                ss << "  " << command->command << "\t" << command->alternative;
+                ss << "  " << command->command << "/t" << command->alternative;
 
                 if ( command->required == true )
                 {
-                    ss << "\t(required)";
+                    ss << "/t(required)";
                 }
 
-                ss << "\n   " << command->description;
+                ss << "/n   " << command->description;
 
                 if ( command->required == false )
                 {
-                    ss << "\n   " << "This parameter is optional. The default value is '" + command->print_value() << "'.";
+                    ss << "/n   " << "This parameter is optional. The default value is '" + command->print_value() << "'.";
                 }
 
-                ss << "\n\n";
+                ss << "/n/n";
             }
 
             return ss.str();
@@ -490,30 +490,30 @@ namespace cli {
         void print_help( std::stringstream& ss ) const {
             if ( has_help() )
             {
-                ss << "For more help use --help or -h.\n";
+                ss << "For more help use --help or -h./n";
             }
         }
 
         std::string howto_required( CmdBase* command ) const {
             std::stringstream ss{};
-            ss << "The parameter " << command->name << " is required.\n";
-            ss << command->description << '\n';
+            ss << "The parameter " << command->name << " is required./n";
+            ss << command->description << '/n';
             print_help( ss );
             return ss.str();
         }
 
         std::string howto_use( CmdBase* command ) const {
             std::stringstream ss{};
-            ss << "The parameter " << command->name << " has invalid arguments.\n";
-            ss << command->description << '\n';
+            ss << "The parameter " << command->name << " has invalid arguments./n";
+            ss << command->description << '/n';
             print_help( ss );
             return ss.str();
         }
 
         std::string no_default() const {
             std::stringstream ss{};
-            ss << "No default parameter has been specified.\n";
-            ss << "The given argument must be used with a parameter.\n";
+            ss << "No default parameter has been specified./n";
+            ss << "The given argument must be used with a parameter./n";
             print_help( ss );
             return ss.str();
         }

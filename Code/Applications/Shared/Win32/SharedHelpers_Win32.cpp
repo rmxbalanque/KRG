@@ -1,7 +1,7 @@
 #ifdef _WIN32
 #include "SharedHelpers_Win32.h"
-#include "System\Core\Platform\Platform_Win32.h"
-#include "System\Core\FileSystem\FileSystemPath.h"
+#include "System/Core/Platform/PlatformHelpers_Win32.h"
+#include "System/Core/FileSystem/FileSystemPath.h"
 
 //-------------------------------------------------------------------------
 

@@ -2,16 +2,16 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="InputDevices">
-      <UniqueIdentifier>{7413c5e3-c40b-432d-b153-4f10612160be}</UniqueIdentifier>
+      <UniqueIdentifier>{bd5c25bb-bd3d-4b6d-afb5-f02ebdcb18cc}</UniqueIdentifier>
     </Filter>
     <Filter Include="InputDevices\Platform">
-      <UniqueIdentifier>{fce0ec52-6c0a-4945-a60f-ffb404433b7e}</UniqueIdentifier>
+      <UniqueIdentifier>{a8f88d70-456a-43f0-ac05-76b72605baf6}</UniqueIdentifier>
     </Filter>
     <Filter Include="InputStates">
-      <UniqueIdentifier>{bacf6e3b-3a4c-4218-b95d-5ff9aa5271e0}</UniqueIdentifier>
+      <UniqueIdentifier>{2e254171-4b60-4b6b-8cc8-ee54acfd5e75}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Module">
-      <UniqueIdentifier>{263741bd-0f9a-4b0b-a8b1-4e204bcfcb50}</UniqueIdentifier>
+      <UniqueIdentifier>{c9919845-91f8-4462-97a6-f9472afff91f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -29,9 +29,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="InputDevices\InputDevice_KeyboardMouse.h">
-      <Filter>InputDevices</Filter>
-    </ClInclude>
     <ClInclude Include="InputDevices\InputDevice.h">
       <Filter>InputDevices</Filter>
     </ClInclude>
@@ -39,6 +36,9 @@
       <Filter>InputDevices</Filter>
     </ClInclude>
     <ClInclude Include="InputDevices\InputDevice_XBoxController.h">
+      <Filter>InputDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevices\InputDevice_KeyboardMouse.h">
       <Filter>InputDevices</Filter>
     </ClInclude>
     <ClInclude Include="InputStates\InputState.h">

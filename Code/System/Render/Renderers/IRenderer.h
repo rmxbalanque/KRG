@@ -1,7 +1,7 @@
 #pragma once
 
 #include "System/Render/_Module/API.h"
-#include "System/Core/Core/IntegralTypes.h"
+#include "System/Core/Types/IntegralTypes.h"
 #include "System/Core/Algorithm/Hash.h"
 
 //-------------------------------------------------------------------------

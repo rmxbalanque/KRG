@@ -48,7 +48,7 @@ namespace KRG
 
     void SettingsRegistry::ReloadSettings()
     {
-        KRG_ASSERT( m_settingsFilePath.ExistsAndIsFile() );
+        KRG_ASSERT( m_settingsFilePath.IsExistingFile() );
         LoadFromFile( m_settingsFilePath );
     }
 

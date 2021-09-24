@@ -8,7 +8,7 @@
 
 namespace KRG::Resource
 {
-    class CompilationRequest
+    class CompilationRequest final
     {
         friend class ResourceServer;
         friend class ResourceServerWorker;

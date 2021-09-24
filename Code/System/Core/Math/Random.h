@@ -2,8 +2,7 @@
 
 #include "System/Core/_Module/API.h"
 #include "System/Core/ThirdParty/pcg/include/pcg_random.hpp"
-#include "System/Core/Core/IntegralTypes.h"
-#include "System/Core/Core/Defines.h"
+#include "System/Core/Types/IntegralTypes.h"
 #include "Math.h"
 
 //-------------------------------------------------------------------------

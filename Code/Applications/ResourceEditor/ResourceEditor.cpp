@@ -1,6 +1,6 @@
 #include "ResourceEditor.h"
-#include "System\Render\RenderViewportManager.h"
-#include "Tools\Core\Editors\ResourceEditorWorkspace.h"
+#include "System/Render/RenderViewportManager.h"
+#include "Tools/Core/Editors/ResourceEditorWorkspace.h"
 
 //-------------------------------------------------------------------------
 

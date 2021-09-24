@@ -7,10 +7,10 @@ namespace KRG
 {
     DataBrowser::DataBrowser( ResourceEditorModel& model )
         : m_model( model )
-        , m_dataBrowserTreeView( *model.GetTypeRegistry(), model.GetSourceDataDirectory() )
-        , m_dataFileInspector( *model.GetTypeRegistry(), model.GetSourceDataDirectory() )
+        , m_dataBrowserTreeView( &model )
+        , m_dataFileInspector( &model )
     {
-        Memory::MemsetZero( m_filterBuffer, 256 * sizeof( char ) );
+        Memory::MemsetZero( m_nameFilterBuffer, 256 * sizeof( char ) );
 
         m_onDoubleClickEventID = m_dataBrowserTreeView.OnItemDoubleClicked().Bind( [this] ( TreeViewItem* pItem ) { OnBrowserItemDoubleClicked( pItem ); } );
         m_dataBrowserTreeView.RebuildBrowserTree();
@@ -111,22 +111,23 @@ namespace KRG
                 {
                     isVisible = m_showRawFiles;
                 }
-                else
+                else // Resource file
                 {
-                    isVisible = true;
+                    auto const& resourceTypeID = pDataFileItem->GetResourceTypeID();
+                    isVisible = m_typeFilter.empty() || VectorContains( m_typeFilter, resourceTypeID );
                 }
             }
 
             // Text filter
             //-------------------------------------------------------------------------
 
-            if ( isVisible && m_filterBuffer[0] != 0 )
+            if ( isVisible && m_nameFilterBuffer[0] != 0 )
             {
                 String lowercaseLabel = pItem->GetLabel();
                 lowercaseLabel.make_lower();
 
                 char tempBuffer[256];
-                strcpy( tempBuffer, m_filterBuffer );
+                strcpy( tempBuffer, m_nameFilterBuffer );
 
                 char* token = strtok( tempBuffer, " " );
                 while ( token )
@@ -155,21 +156,23 @@ namespace KRG
     {
         KRG_PROFILE_FUNCTION();
 
+        bool shouldUpdateVisibility = false;
+
         // Text Filter
         //-------------------------------------------------------------------------
 
-        ImGui::SetNextItemWidth( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 31 );
-        if ( ImGui::InputText( "##Filter", m_filterBuffer, 256 ) )
+        ImGui::SetNextItemWidth( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 27 );
+        if ( ImGui::InputText( "##Filter", m_nameFilterBuffer, 256 ) )
         {
             // Convert buffer to lower case
             int32 i = 0;
-            while ( i < 256 && m_filterBuffer[i] != 0 )
+            while ( i < 256 && m_nameFilterBuffer[i] != 0 )
             {
-                m_filterBuffer[i] = eastl::CharToLower( m_filterBuffer[i] );
+                m_nameFilterBuffer[i] = eastl::CharToLower( m_nameFilterBuffer[i] );
                 i++;
             }
 
-            UpdateVisibility();
+            shouldUpdateVisibility = true;
 
             auto const SetExpansion = []( TreeViewItem* pItem )
             {
@@ -182,44 +185,83 @@ namespace KRG
             m_dataBrowserTreeView.ForEachItem( SetExpansion );
         }
 
-        ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 24 );
-        if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear Filter" ) )
+        ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 20 );
+        if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear Filter", ImVec2( 19, 0 ) ) )
         {
-            m_filterBuffer[0] = 0;
-            UpdateVisibility();
+            m_nameFilterBuffer[0] = 0;
+            shouldUpdateVisibility = true;
         }
 
         // Type Filter + Controls
         //-------------------------------------------------------------------------
 
-        if ( ImGui::Checkbox( "Static Meshes", &m_showStaticMeshes ) )
-        {
-            UpdateVisibility();
-        }
+        shouldUpdateVisibility |= DrawResourceTypeFilterMenu();
 
-        ImGui::SameLine();
-        if ( ImGui::Checkbox( "Skeletal Meshes", &m_showSkeletalMeshes ) )
-        {
-            UpdateVisibility();
-        }
-
-        ImGui::SameLine();
+        ImGui::SameLine( 0, 4 );
         if ( ImGui::Checkbox( "Raw Files", &m_showRawFiles ) )
         {
-            UpdateVisibility();
+            shouldUpdateVisibility = true;
         }
 
         ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 42 );
-        if ( ImGui::Button( KRG_ICON_PLUS "##Expand All" ) )
+        if ( ImGui::Button( KRG_ICON_PLUS "##Expand All", ImVec2( 19, 0 ) ) )
         {
             m_dataBrowserTreeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( true ); } );
         }
 
         ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 20 );
-        if ( ImGui::Button( KRG_ICON_MINUS "##Collapse ALL" ) )
+        if ( ImGui::Button( KRG_ICON_MINUS "##Collapse ALL", ImVec2( 19, 0 ) ) )
         {
             m_dataBrowserTreeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( false ); } );
         }
+
+        //-------------------------------------------------------------------------
+
+        if ( shouldUpdateVisibility )
+        {
+            UpdateVisibility();
+        }
+    }
+
+    bool DataBrowser::DrawResourceTypeFilterMenu()
+    {
+        bool requiresVisibilityUpdate = false;
+
+        if ( ImGui::Button( KRG_ICON_ARROW_CIRCLE_DOWN " Resource Type Filters"  ) )
+        {
+            ImGui::OpenPopup( "ResourceFilters" );
+        }
+
+        if ( ImGui::BeginPopup( "ResourceFilters" ) )
+        {
+            InlineString<255> label;
+
+            for ( auto const& resourceType : m_model.GetTypeRegistry()->GetRegisteredResourceTypes() )
+            {
+                label.sprintf( "%s - %s", resourceType.second.ToString().c_str(), resourceType.first.c_str() );
+
+                bool isChecked = VectorContains( m_typeFilter, resourceType.second );
+                if ( ImGui::Checkbox( label.c_str(), &isChecked ) )
+                {
+                    if ( isChecked )
+                    {
+                        m_typeFilter.emplace_back( resourceType.second );
+                    }
+                    else
+                    {
+                        m_typeFilter.erase_first_unsorted( resourceType.second );
+                    }
+
+                    requiresVisibilityUpdate = true;
+                }
+            }
+
+            ImGui::EndPopup();
+        }
+
+        //-------------------------------------------------------------------------
+
+        return requiresVisibilityUpdate;
     }
 
     //-------------------------------------------------------------------------

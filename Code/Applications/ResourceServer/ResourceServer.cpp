@@ -460,7 +460,7 @@ namespace KRG::Resource
             }
 
             auto const compileDependencyPath = DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, compileDep );
-            if ( !compileDependencyPath.ExistsAndIsFile() )
+            if ( !compileDependencyPath.IsExistingFile() )
             {
                 areCompileDependenciesAreUpToDate = false;
                 break;
@@ -580,7 +580,7 @@ namespace KRG::Resource
         KRG_ASSERT( compilerVersion >= 0 );
 
         FileSystem::Path const sourceFilePath = DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, resourceID.GetDataPath() );
-        if ( !sourceFilePath.ExistsAndIsFile() )
+        if ( !sourceFilePath.IsExistingFile() )
         {
             return false;
         }

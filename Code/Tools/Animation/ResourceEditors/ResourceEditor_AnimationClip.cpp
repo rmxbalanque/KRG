@@ -2,7 +2,7 @@
 #include "Tools/Animation/Events/AnimationEventEditor.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Engine/Animation/Systems/AnimationSystem.h"
-#include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
+#include "System/Imgui/Widgets/InterfaceHelpers.h"
 #include "System/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------

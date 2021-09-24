@@ -2,8 +2,7 @@
 
 #include "System/Core/_Module/API.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "System/Core/Core/IntegralTypes.h"
-#include "System/Core/Core/Defines.h"
+#include "System/Core/Types/IntegralTypes.h"
 #include <math.h>
 #include <float.h>
 #include <stdlib.h>

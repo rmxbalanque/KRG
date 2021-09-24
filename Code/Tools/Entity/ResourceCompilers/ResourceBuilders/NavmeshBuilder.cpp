@@ -225,7 +225,7 @@ namespace KRG::Navmesh
         //-------------------------------------------------------------------------
 
         auto& buildParams = m_buildParams.emplace_back( bfx::BuildParams() );
-        buildParams.m_voxSize = 0.1f;
+        buildParams.m_voxSize = 0.15f;
         buildParams.m_height = 2.0f;
         buildParams.m_radius = 0.4f;
         buildParams.m_step = 0.2f;

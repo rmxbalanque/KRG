@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tools/Core/_Module/API.h"
-#include "Tools/Core/Thirdparty/cgltf/cgltf.h"
+#include "Tools/Core/ThirdParty/cgltf/cgltf.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
 #include "System/Core/Math/Transform.h"
 

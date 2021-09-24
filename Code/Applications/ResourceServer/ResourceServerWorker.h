@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ResourceCompilationRequest.h"
-#include "Tools/Core/Thirdparty/subprocess/subprocess.h"
+#include "Tools/Core/ThirdParty/subprocess/subprocess.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/Threading/Threading.h"
 #include "System/Core/Threading/TaskSystem.h"
@@ -10,7 +10,7 @@
 
 namespace KRG::Resource
 {
-    class ResourceServerWorker : public IAsyncTask
+    class ResourceServerWorker final : public IAsyncTask
     {
     public:
 

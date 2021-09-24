@@ -15,8 +15,8 @@
     <ClInclude Include="Algorithm\Quantization.h" />
     <ClInclude Include="Algorithm\TopologicalSort.h" />
     <ClInclude Include="Algorithm\Encoding.h" />
-    <ClInclude Include="Core\Defines.h" />
-    <ClInclude Include="Core\Platform\Defines_Win32.h" />
+    <ClInclude Include="Defines.h" />
+    <ClInclude Include="Platform\PlatformDefines_Win32.h" />
     <ClInclude Include="Debug\DebugDrawingSystem.h" />
     <ClInclude Include="Math\MathStringHelpers.h" />
     <ClInclude Include="Math\MathHelpers.h" />
@@ -322,7 +322,7 @@
     <ClInclude Include="Math\ViewVolume.h" />
     <ClInclude Include="Memory\Memory.h" />
     <ClInclude Include="Memory\Pointers.h" />
-    <ClInclude Include="Platform\Platform_Win32.h" />
+    <ClInclude Include="Platform\PlatformHelpers_Win32.h" />
     <ClInclude Include="Profiling\Profiling.h" />
     <ClInclude Include="Systems\ISystem.h" />
     <ClInclude Include="Systems\SystemRegistry.h" />
@@ -443,7 +443,7 @@
     <ClInclude Include="ThirdParty\rpmalloc\rpmalloc.h" />
     <ClInclude Include="ThirdParty\xxhash\xxhash.h" />
     <ClInclude Include="Threading\Threading.h" />
-    <ClInclude Include="Core\IntegralTypes.h" />
+    <ClInclude Include="Types\IntegralTypes.h" />
     <ClInclude Include="Types\Function.h" />
     <ClInclude Include="Types\Pool.h" />
     <ClInclude Include="Time\Time.h" />
@@ -490,7 +490,7 @@
     <ClCompile Include="Math\Vector.cpp" />
     <ClCompile Include="Math\ViewVolume.cpp" />
     <ClCompile Include="Memory\Memory.cpp" />
-    <ClCompile Include="Platform\Platform_Win32.cpp" />
+    <ClCompile Include="Platform\PlatformHelpers_Win32.cpp" />
     <ClCompile Include="Profiling\Profiling.cpp" />
     <ClCompile Include="Serialization\BinaryArchive.cpp" />
     <ClCompile Include="Settings\SettingsRegistry.cpp" />

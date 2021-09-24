@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tools/Core/Editors/ResourceEditorWorkspace.h"
-#include "System/DevTools/ImguiX.h"
+#include "System/Imgui/ImguiX.h"
 #include "Engine/Animation/AnimationSkeleton.h"
 
 //-------------------------------------------------------------------------

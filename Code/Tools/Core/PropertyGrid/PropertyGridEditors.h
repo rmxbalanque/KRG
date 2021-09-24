@@ -16,7 +16,7 @@ namespace KRG::PG
             : m_typeRegistry( typeRegistry )
             , m_sourceDataPath( sourceDataPath )
         {
-            KRG_ASSERT( m_sourceDataPath.ExistsAndIsDirectory() );
+            KRG_ASSERT( m_sourceDataPath.IsExistingDirectory() );
         }
 
         TypeSystem::TypeRegistry const&                 m_typeRegistry;

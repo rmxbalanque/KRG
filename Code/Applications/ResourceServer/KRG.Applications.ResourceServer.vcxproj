@@ -78,6 +78,7 @@
     <ClCompile Include="ResourceServerWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Resources\icon2.ico" />
     <Image Include="Resources\ResourceServer.ico" />
     <Image Include="Resources\ResourceServer.png" />
     <Image Include="Resources\TrayIconBusy.ico" />
@@ -101,7 +102,7 @@
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\System\DevTools\KRG.System.DevTools.vcxproj">
+    <ProjectReference Include="..\..\System\Imgui\KRG.System.Imgui.vcxproj">
       <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Network\KRG.System.Network.vcxproj">

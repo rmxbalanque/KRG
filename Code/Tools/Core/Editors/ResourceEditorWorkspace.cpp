@@ -1,5 +1,4 @@
 #include "ResourceEditorWorkspace.h"
-#include "System\DevTools\ThirdParty\imgui\imgui.h"
 
 //-------------------------------------------------------------------------
 

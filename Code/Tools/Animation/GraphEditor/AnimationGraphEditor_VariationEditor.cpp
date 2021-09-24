@@ -1,7 +1,7 @@
 #include "AnimationGraphEditor_VariationEditor.h"
 #include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
 #include "Tools/Core/DataFileTools/DataFilePicker.h"
-#include "System/DevTools/ImguiX.h"
+#include "System/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 

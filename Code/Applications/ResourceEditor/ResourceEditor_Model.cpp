@@ -1,5 +1,5 @@
 #include "ResourceEditor_Model.h"
-#include "Tools\Core\Editors\ResourceEditorWorkspace.h"
+#include "Tools/Core/Editors/ResourceEditorWorkspace.h"
 
 //-------------------------------------------------------------------------
 

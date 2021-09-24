@@ -1,6 +1,6 @@
 #include "NavmeshDebugViewController.h"
 #include "Engine/Navmesh/NavmeshSystem.h"
-#include "System/DevTools/ImguiX.h"
+#include "System/Imgui/ImguiX.h"
 
 
 //-------------------------------------------------------------------------

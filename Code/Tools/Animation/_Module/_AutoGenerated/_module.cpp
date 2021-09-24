@@ -42,16 +42,13 @@ void KRG::Animation::ToolsModule::RegisterTypes( TypeSystem::TypeRegistry& typeR
 {
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_GraphNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_RootMotionOverrideNode>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideConditionsNode>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::FlowGraph>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideGraph>::RegisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_IsTargetSetNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_TargetInfoNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_TargetOffsetNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_TransitionNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_GlobalTransitionNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_TransitionConduitNode>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::FlowGraph>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::GlobalTransitionsToolsGraph>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_GlobalTransitionsNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::EventItem>::RegisterType( typeRegistry );
@@ -122,10 +119,16 @@ void KRG::Animation::ToolsModule::RegisterTypes( TypeSystem::TypeRegistry& typeR
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_ZeroPoseNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_ReferencePoseNode>::RegisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_AnimationPoseNode>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideConditionsNode>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideGraph>::RegisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideNode>::RegisterType( typeRegistry );
 }
 
 void KRG::Animation::ToolsModule::UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )
 {
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideNode>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideGraph>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideConditionsNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_AnimationPoseNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_ReferencePoseNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_ZeroPoseNode>::UnregisterType( typeRegistry );
@@ -196,16 +199,13 @@ void KRG::Animation::ToolsModule::UnregisterTypes( TypeSystem::TypeRegistry& typ
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::EventItem>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_GlobalTransitionsNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::GlobalTransitionsToolsGraph>::UnregisterType( typeRegistry );
+    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::FlowGraph>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_TransitionConduitNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_GlobalTransitionNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_TransitionNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_TargetOffsetNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_TargetInfoNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_IsTargetSetNode>::UnregisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideNode>::UnregisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideGraph>::UnregisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::FlowGraph>::UnregisterType( typeRegistry );
-    TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_EntryStateOverrideConditionsNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_RootMotionOverrideNode>::UnregisterType( typeRegistry );
     TypeSystem::TypeHelpers::TTypeHelper<KRG::Animation::Graph::Tools_GraphNode>::UnregisterType( typeRegistry );
 }

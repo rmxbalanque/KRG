@@ -2,7 +2,7 @@
 
 #include "Tools/Core/_Module/API.h"
 #include "PropertyGridEditors.h"
-#include "System/DevTools/ImguiX.h"
+#include "System/Imgui/ImguiX.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 

@@ -36,6 +36,8 @@ namespace KRG::Resource
         virtual void RequestResourceInternal( ResourceRequest* pRequest ) override final;
         virtual void CancelRequestInternal( ResourceRequest* pRequest ) override final;
 
+        bool TryConnectToServer();
+
     private:
 
         Network::IPC::Client                                m_networkClient;

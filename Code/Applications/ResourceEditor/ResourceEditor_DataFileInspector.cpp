@@ -1,6 +1,8 @@
 #include "ResourceEditor_DataFileInspector.h"
+#include "RawFileInspectors/RawFileInspector.h"
+#include "Tools/Core/Editors/EditorModel.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
-#include "Tools/Core/Thirdparty/pfd/portable-file-dialogs.h"
+#include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
@@ -11,18 +13,17 @@
 
 namespace KRG
 {
-    DataFileInspector::DataFileInspector( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath )
-        : m_typeRegistry( typeRegistry )
-        , m_sourceDataPath( sourceDataPath )
-        , m_propertyGrid( typeRegistry, sourceDataPath )
+    DataFileInspector::DataFileInspector( EditorModel* pModel )
+        : m_pModel( pModel )
+        , m_propertyGrid( *pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
     {
-        KRG_ASSERT( sourceDataPath.ExistsAndIsDirectory() );
+        KRG_ASSERT( m_pModel != nullptr );
     }
 
     DataFileInspector::~DataFileInspector()
     {
         ClearFileToInspect();
-        KRG_ASSERT( m_pDescriptor == nullptr );
+        KRG_ASSERT( m_pDescriptor == nullptr && m_pRawFileInspector == nullptr );
     }
 
     void DataFileInspector::SetFileToInspect( FileSystem::Path const& inFile )
@@ -39,11 +40,11 @@ namespace KRG
 
         m_inspectedFile = inFile;
 
-        m_descriptorID = ResourceID( DataPath::FromFileSystemPath( m_sourceDataPath, m_inspectedFile ) );
+        m_descriptorID = ResourceID( DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), m_inspectedFile ) );
         if ( m_descriptorID.IsValid() )
         {
             // Ensure the resource type ID is a registered resource type
-            if ( !m_typeRegistry.IsRegisteredResourceType( m_descriptorID.GetResourceTypeID() ) )
+            if ( !m_pModel->GetTypeRegistry()->IsRegisteredResourceType( m_descriptorID.GetResourceTypeID() ) )
             {
                 m_descriptorID = ResourceID();
             }
@@ -56,7 +57,7 @@ namespace KRG
         {
             m_mode = Mode::InspectingResourceFile;
             m_isDirty = false;
-            m_descriptorPath = m_descriptorID.GetDataPath().ToFileSystemPath( m_sourceDataPath );
+            m_descriptorPath = m_descriptorID.GetDataPath().ToFileSystemPath( m_pModel->GetSourceDataDirectory() );
 
             if ( LoadResourceDescriptor() )
             {
@@ -65,8 +66,9 @@ namespace KRG
         }
         else
         {
+            KRG_ASSERT( m_pRawFileInspector == nullptr );
             m_mode = Mode::InspectingRawFile;
-            OnStartInspectingRawFile();
+            m_pRawFileInspector = RawFileInspectorFactory::TryCreateInspector( m_pModel, m_inspectedFile );
         }
     }
 
@@ -85,7 +87,7 @@ namespace KRG
         }
         else if ( m_mode == Mode::InspectingRawFile )
         {
-            OnStopInspectingRawFile();
+            KRG::Delete( m_pRawFileInspector );
         }
 
         m_mode = Mode::None;
@@ -106,7 +108,14 @@ namespace KRG
         {
             case DataFileInspector::Mode::InspectingRawFile:
             {
-                DrawRawFileInfo();
+                if ( m_pRawFileInspector != nullptr )
+                {
+                    m_pRawFileInspector->Draw();
+                }
+                else
+                {
+                    ImGui::Text( "Unknown Format" );
+                }
             }
             break;
 
@@ -116,182 +125,6 @@ namespace KRG
             }
             break;
         }
-    }
-
-    //-------------------------------------------------------------------------
-
-    void DataFileInspector::OnStartInspectingRawFile()
-    {
-        if ( RawAssets::ReadFileInfo( m_inspectedFile, m_assetInfo ) )
-        {
-            m_validAssetInfo = true;
-        }
-        else
-        {
-            m_validAssetInfo = false;
-        }
-    }
-
-    void DataFileInspector::OnStopInspectingRawFile()
-    {
-        m_assetInfo.Reset();
-        m_validAssetInfo = false;
-    }
-
-    void DataFileInspector::DrawRawFileInfo()
-    {
-        KRG_ASSERT( m_inspectedFile.IsFilePath() );
-
-        ImGui::Text( "Raw File: %s", m_inspectedFile.c_str() );
-
-        if ( m_validAssetInfo )
-        {
-            ImGui::Text( "Original Up Axis: %s", Math::ToString( m_assetInfo.m_upAxis ) );
-            ImGui::Text( "Scale: %.2f", m_assetInfo.m_scale );
-            ImGui::Separator();
-
-            // Asset Info
-            //-------------------------------------------------------------------------
-
-            bool hasSkeletalMeshes = false;
-
-            ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
-            ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 2, 4 ) );
-            if ( ImGui::BeginTable( "Raw File Contents", 3, 0 ) )
-            {
-                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed, 80 );
-                ImGui::TableSetupColumn( "Mesh Name", ImGuiTableColumnFlags_NoHide );
-                ImGui::TableSetupColumn( "Controls", ImGuiTableColumnFlags_WidthFixed, 46 );
-
-                for ( auto const& mesh : m_assetInfo.m_meshes )
-                {
-                    ImGui::TableNextRow();
-
-                    ImGui::TableNextColumn();
-                    ImGui::AlignTextToFramePadding();
-                    if ( mesh.m_isSkinned )
-                    {
-                        ImGui::Text( "Skeletal Mesh:" );
-                        hasSkeletalMeshes = true;
-                    }
-                    else // Static
-                    {
-                        ImGui::Text( "Static Mesh:" );
-                    }
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableNextColumn();
-                    ImGuiX::SelectableText( mesh.m_name, -1 );
-
-                    ImGui::TableNextColumn();
-
-                    ImGui::PushID( &mesh );
-
-                    bool const canCreateSkeletalMesh = mesh.m_isSkinned;
-                    ImColor const buttonColor = canCreateSkeletalMesh ? ImGuiX::Theme::s_textColor : ImGuiX::Theme::s_textColorDisabled;
-                    if ( ImGuiX::ButtonColored( buttonColor, KRG_ICON_MALE "##CreateSkeletalMesh", ImVec2( 20, 0 ) ) )
-                    {
-                        if ( canCreateSkeletalMesh )
-                        {
-                            /*SkeletalMeshResourceDescriptor resourceDesc;
-                            resourceDesc.m_meshDataPath = DataPath::FromFileSystemPath( m_sourceDataPath, m_inspectedFile );
-                            resourceDesc.m_meshName = mesh.m_name;
-                            CreateNewDescriptor( SkeletalMesh::GetStaticResourceTypeID(), resourceDesc );*/
-                        }
-                    }
-
-                    if ( canCreateSkeletalMesh )
-                    {
-                        ImGuiX::ItemTooltip( "Create skeletal mesh resource for this sub-mesh" );
-                    }
-
-                    ImGui::SameLine( 0, 4 );
-
-                    if ( ImGui::Button( KRG_ICON_CUBE "##CreateStaticMesh", ImVec2( 20, 0 ) ) )
-                    {
-                        /*StaticMeshResourceDescriptor resourceDesc;
-                        resourceDesc.m_meshDataPath = DataPath::FromFileSystemPath( m_sourceDataPath, m_inspectedFile );
-                        resourceDesc.m_meshName = mesh.m_name;
-                        CreateNewDescriptor( StaticMesh::GetStaticResourceTypeID(), resourceDesc );*/
-                    }
-
-                    ImGuiX::ItemTooltip( "Create static mesh resource for this sub-mesh" );
-
-                    ImGui::PopID();
-                }
-
-                ImGui::EndTable();
-            }
-            ImGui::PopStyleVar();
-
-            // Create new descriptor
-            //-------------------------------------------------------------------------
-
-            float buttonWidth = ( ImGui::GetWindowContentRegionWidth() - 4 ) / 2;
-
-            ImColor const buttonColor = hasSkeletalMeshes ? ImGuiX::Theme::s_textColor : ImGuiX::Theme::s_textColorDisabled;
-            if ( ImGui::Button( KRG_ICON_MALE " Create Skeletal Mesh", ImVec2( buttonWidth, 24 ) ) )
-            {
-                if ( hasSkeletalMeshes )
-                {
-                    /*SkeletalMeshResourceDescriptor resourceDesc;
-                    resourceDesc.m_meshDataPath = DataPath::FromFileSystemPath( m_sourceDataPath, m_inspectedFile );
-                    CreateNewDescriptor( SkeletalMesh::GetStaticResourceTypeID(), resourceDesc );*/
-                }
-            }
-
-            ImGui::SameLine( 0, 4 );
-
-            if ( ImGui::Button( KRG_ICON_CUBE " Create Static Mesh", ImVec2( buttonWidth, 24 ) ) )
-            {
-                /*StaticMeshResourceDescriptor resourceDesc;
-                resourceDesc.m_meshDataPath = DataPath::FromFileSystemPath( m_sourceDataPath, m_inspectedFile );
-                CreateNewDescriptor( StaticMesh::GetStaticResourceTypeID(), resourceDesc );*/
-            }
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool DataFileInspector::CreateNewDescriptor( ResourceTypeID resourceTypeID, Resource::ResourceDescriptor const& descriptor ) const
-    {
-        KRG_ASSERT( m_mode == Mode::InspectingRawFile );
-        KRG_ASSERT( resourceTypeID.IsValid() );
-
-        //-------------------------------------------------------------------------
-
-        InlineString<5> extension = resourceTypeID.ToString();
-        extension.make_lower();
-
-        FileSystem::Path newDescriptorPath = m_inspectedFile;
-        newDescriptorPath.ReplaceExtension( extension );
-
-        InlineString<10> filter;
-        filter.sprintf( "*.%s", extension.c_str() );
-
-        //-------------------------------------------------------------------------
-
-        pfd::save_file saveDialog( "Save Resource Descriptor", newDescriptorPath.c_str(), { "Descriptor", filter.c_str() } );
-        newDescriptorPath = saveDialog.result().c_str();
-
-        if ( !newDescriptorPath.IsValid() || !newDescriptorPath.IsFilePath() )
-        {
-            return false;
-        }
-
-        // Ensure correct extension
-        if ( !newDescriptorPath.MatchesExtension( extension.c_str() ) )
-        {
-            newDescriptorPath.Append( "." );
-            newDescriptorPath.Append( extension.c_str() );
-        }
-
-        //-------------------------------------------------------------------------
-
-        TypeSystem::Serialization::TypeWriter typeWriter( m_typeRegistry );
-        typeWriter << &descriptor;
-        return typeWriter.WriteToFile( newDescriptorPath );
     }
 
     //-------------------------------------------------------------------------
@@ -349,13 +182,13 @@ namespace KRG
         KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFilePath() );
         KRG_ASSERT( m_pDescriptor == nullptr );
 
-        TypeSystem::Serialization::TypeReader typeReader( m_typeRegistry );
+        TypeSystem::Serialization::TypeReader typeReader( *m_pModel->GetTypeRegistry() );
         if ( typeReader.ReadFromFile( m_descriptorPath ) )
         {
             TypeSystem::TypeDescriptor typeDesc;
             if ( typeReader.ReadType( typeDesc ) )
             {
-                m_pDescriptor = TypeSystem::TypeCreator::CreateTypeFromDescriptor<Resource::ResourceDescriptor>( m_typeRegistry, typeDesc );
+                m_pDescriptor = TypeSystem::TypeCreator::CreateTypeFromDescriptor<Resource::ResourceDescriptor>( *m_pModel->GetTypeRegistry(), typeDesc );
                 return true;
             }
         }
@@ -368,7 +201,7 @@ namespace KRG
         KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFilePath() );
         KRG_ASSERT( m_pDescriptor != nullptr );
 
-        TypeSystem::Serialization::TypeWriter typeWriter( m_typeRegistry );
+        TypeSystem::Serialization::TypeWriter typeWriter( *m_pModel->GetTypeRegistry() );
         typeWriter << m_pDescriptor;
         return typeWriter.WriteToFile( m_descriptorPath );
     }

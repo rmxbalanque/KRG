@@ -2,7 +2,7 @@
 
 #include "ResourceEditor_Model.h"
 #include "ResourceEditor_DataBrowser.h"
-#include "Tools\Core\Editors\StandaloneEditor.h"
+#include "Tools/Core/Editors/StandaloneEditor.h"
 
 //-------------------------------------------------------------------------
 

@@ -1,67 +1,54 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="_Module">
-      <UniqueIdentifier>{b7c3bece-0c77-4961-aad8-234ecc9f42cb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Map">
-      <UniqueIdentifier>{e98f1424-d102-4956-979d-fef7ab82656e}</UniqueIdentifier>
+      <UniqueIdentifier>{8bfd5e6c-2932-4316-a43a-49d1cf685a83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ResourceLoaders">
+      <UniqueIdentifier>{fef3fcbc-46fb-44b7-82fe-9a7a260292f8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Collections">
-      <UniqueIdentifier>{e7d51eb0-4d0d-452a-ab62-124547bf3cb7}</UniqueIdentifier>
+      <UniqueIdentifier>{d9b5c916-2e58-4597-afd8-d1db3c5b03b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Module">
+      <UniqueIdentifier>{ea714370-5967-4329-96e5-0c5bf54367f9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Map\EntityMapDescriptor.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceLoaders\EntityMapLoader.cpp">
+      <Filter>ResourceLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Map\EntityMap.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Collections\EntityCollectionDescriptor.cpp">
+      <Filter>Collections</Filter>
+    </ClCompile>
+    <ClCompile Include="Collections\EntityCollection.cpp">
+      <Filter>Collections</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Map\EntityMapDescriptor.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceLoaders\EntityMapLoader.h">
+      <Filter>ResourceLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\EntityMap.h">
+      <Filter>Map</Filter>
+    </ClInclude>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
     <ClInclude Include="Collections\EntityCollectionDescriptor.h">
       <Filter>Collections</Filter>
     </ClInclude>
-    <ClInclude Include="Map\EntityMapDescriptor.h">
-      <Filter>Map</Filter>
-    </ClInclude>
     <ClInclude Include="Collections\EntityCollection.h">
       <Filter>Collections</Filter>
     </ClInclude>
-    <ClInclude Include="Map\EntityMap.h">
-      <Filter>Map</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h" />
-    <ClInclude Include="EntityComponent.h" />
-    <ClInclude Include="EntitySpatialComponent.h" />
-    <ClInclude Include="EntitySystem.h" />
-    <ClInclude Include="EntityTypeHelpers.h" />
-    <ClInclude Include="EntityWorld.h" />
-    <ClInclude Include="EntityDescriptors.h" />
-    <ClInclude Include="ResourceLoaders\EntityMapLoader.h">
-      <Filter>Map</Filter>
-    </ClInclude>
-    <ClInclude Include="EntityWorldSystem.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Collections\EntityCollectionDescriptor.cpp">
-      <Filter>Collections</Filter>
-    </ClCompile>
-    <ClCompile Include="Map\EntityMapDescriptor.cpp">
-      <Filter>Map</Filter>
-    </ClCompile>
-    <ClCompile Include="Collections\EntityCollection.cpp">
-      <Filter>Collections</Filter>
-    </ClCompile>
-    <ClCompile Include="Map\EntityMap.cpp">
-      <Filter>Map</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EntityComponent.cpp" />
-    <ClCompile Include="EntitySpatialComponent.cpp" />
-    <ClCompile Include="EntitySystem.cpp" />
-    <ClCompile Include="EntityTypeHelpers.cpp" />
-    <ClCompile Include="EntityWorld.cpp" />
-    <ClCompile Include="EntityDescriptors.cpp" />
-    <ClCompile Include="ResourceLoaders\EntityMapLoader.cpp">
-      <Filter>Map</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityWorldSystem.cpp" />
   </ItemGroup>
 </Project>

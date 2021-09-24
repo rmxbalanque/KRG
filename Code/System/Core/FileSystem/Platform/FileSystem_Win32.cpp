@@ -1,6 +1,6 @@
 #ifdef _WIN32
 #include "../FileSystem.h"
-#include "System/Core/Platform/Platform_Win32.h"
+#include "System/Core/Platform/PlatformHelpers_Win32.h"
 #include "System/Core/Algorithm/Hash.h"
 #include "System/Core/Math/Math.h"
 #include <windows.h>

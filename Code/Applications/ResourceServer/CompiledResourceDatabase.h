@@ -10,7 +10,7 @@ namespace KRG
 {
     namespace Resource
     {
-        struct CompiledResourceRecord
+        struct CompiledResourceRecord final
         {
             inline bool IsValid() const { return m_resourceID.IsValid(); }
 
@@ -22,7 +22,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        class CompiledResourceDatabase : public SQLite::SQLiteDatabase
+        class CompiledResourceDatabase final : public SQLite::SQLiteDatabase
         {
         public:
 

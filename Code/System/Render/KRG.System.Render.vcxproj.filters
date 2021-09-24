@@ -1,48 +1,57 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="DebugRenderer">
-      <UniqueIdentifier>{4d591af0-71ca-4960-93d9-89cf8a486b5d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Fonts">
-      <UniqueIdentifier>{f44d3e6c-7843-41b8-bb87-a81ef8a93f7f}</UniqueIdentifier>
+      <UniqueIdentifier>{6989e52c-6afa-4a89-9168-278bb92e0936}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RenderDevice">
-      <UniqueIdentifier>{ff3ad133-1e10-4337-945d-e39ab787c8c4}</UniqueIdentifier>
+    <Filter Include="Renderers\DebugRenderer">
+      <UniqueIdentifier>{c031897f-3bd2-4520-bed5-48727002500f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RenderDevice\Platform">
-      <UniqueIdentifier>{e8603e61-651d-414a-8033-9486015784f6}</UniqueIdentifier>
+    <Filter Include="Renderers">
+      <UniqueIdentifier>{362cdcfe-0342-4c34-a023-96ea3c30b090}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\stb">
-      <UniqueIdentifier>{a5eda615-195c-42d0-876c-17c3b135552d}</UniqueIdentifier>
+      <UniqueIdentifier>{62374f2e-87f4-4aa6-ac39-4da46a7a347e}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{78441bf3-610d-448e-bd6f-fc6cde81af85}</UniqueIdentifier>
+      <UniqueIdentifier>{707f6278-afb8-4e81-a156-334a04c3d5b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RenderDevice\Platform">
+      <UniqueIdentifier>{a37ff9a3-53f8-42f0-9179-86bbf801b71c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RenderDevice">
+      <UniqueIdentifier>{19935f60-e6c5-408f-b085-c3128f662507}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Module">
-      <UniqueIdentifier>{562b3076-909a-4960-b2ae-d860e5e75812}</UniqueIdentifier>
+      <UniqueIdentifier>{c5c35560-b150-400d-b760-a08a3b7b5653}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DebugRenderer\Shaders">
-      <UniqueIdentifier>{6cadd4b7-7f2a-4daf-8f75-f8e63ef51e91}</UniqueIdentifier>
+    <Filter Include="Renderers\DebugRenderer\Shaders">
+      <UniqueIdentifier>{6df5d2e6-c8b8-4b4e-b926-fd8c3acf2466}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DebugRenderer\Shaders\HLSL">
-      <UniqueIdentifier>{d0b787cb-b38d-4736-804c-0c0b3eb3a2f0}</UniqueIdentifier>
+    <Filter Include="Renderers\DebugRenderer\Shaders\HLSL">
+      <UniqueIdentifier>{f1f3a221-d76c-4c75-b35b-f7b0a60ae176}</UniqueIdentifier>
     </Filter>
     <Filter Include="DebugRenderer\Debug\HLSL">
-      <UniqueIdentifier>{09d65b3d-0a91-4af2-ae35-606d3c1df9d6}</UniqueIdentifier>
+      <UniqueIdentifier>{9880e5ce-2454-4b31-9a9f-c531c938c2b8}</UniqueIdentifier>
     </Filter>
     <Filter Include="DebugRenderer\Debug">
-      <UniqueIdentifier>{b625ab3f-eb3a-46fc-85ee-40b2d186e350}</UniqueIdentifier>
+      <UniqueIdentifier>{0f6d68db-d04d-4a49-9357-3b5695351545}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DebugRenderer">
+      <UniqueIdentifier>{645bb3fc-554f-4c36-be14-9e35f83c771a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Renderers\DebugRenderer\DebugRenderer.cpp">
-      <Filter>DebugRenderer</Filter>
+    <ClCompile Include="Fonts\FontData_SegoeBold.cpp">
+      <Filter>Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="Renderers\DebugRenderer\DebugRenderStates.cpp">
-      <Filter>DebugRenderer</Filter>
+    <ClCompile Include="Fonts\FontData_Segoe.cpp">
+      <Filter>Fonts</Filter>
     </ClCompile>
     <ClCompile Include="Fonts\FontData_FontAwesome4.cpp">
+      <Filter>Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Fonts\FontData_ProggyClean.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
     <ClCompile Include="Fonts\FontData_ProggyTiny.cpp">
@@ -51,8 +60,17 @@
     <ClCompile Include="Fonts\FontDecompressor.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="RenderDevice\RenderDefaultResources.cpp">
-      <Filter>RenderDevice</Filter>
+    <ClCompile Include="Renderers\DebugRenderer\DebugRenderer.cpp">
+      <Filter>Renderers\DebugRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderers\DebugRenderer\DebugRenderStates.cpp">
+      <Filter>Renderers\DebugRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderers\RendererRegistry.cpp">
+      <Filter>Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\stb\krg_stb.cpp">
+      <Filter>ThirdParty\stb</Filter>
     </ClCompile>
     <ClCompile Include="RenderDevice\Platform\RenderContext_DX11.cpp">
       <Filter>RenderDevice\Platform</Filter>
@@ -63,31 +81,21 @@
     <ClCompile Include="RenderDevice\Platform\TextureLoader_Win32.cpp">
       <Filter>RenderDevice\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="RenderSettings.cpp">
+    <ClCompile Include="RenderDevice\RenderDefaultResources.cpp">
       <Filter>RenderDevice</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\stb\krg_stb.cpp">
-      <Filter>ThirdParty\stb</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderers\RendererRegistry.cpp" />
-    <ClCompile Include="RenderShader.cpp" />
-    <ClCompile Include="RenderTexture.cpp" />
-    <ClCompile Include="RenderVertexFormats.cpp" />
-    <ClCompile Include="Fonts\FontData_ProggyClean.cpp" />
-    <ClCompile Include="Fonts\FontData_Segoe.cpp" />
-    <ClCompile Include="RenderViewportManager.cpp" />
-    <ClCompile Include="Fonts\FontData_SegoeBold.cpp" />
-    <ClCompile Include="RenderViewport.cpp" />
-    <ClCompile Include="RenderTarget.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Renderers\DebugRenderer\DebugRenderer.h">
-      <Filter>DebugRenderer</Filter>
+    <ClInclude Include="Fonts\FontData_SegoeBold.h">
+      <Filter>Fonts</Filter>
     </ClInclude>
-    <ClInclude Include="Renderers\DebugRenderer\DebugRenderStates.h">
-      <Filter>DebugRenderer</Filter>
+    <ClInclude Include="Fonts\FontData_Segoe.h">
+      <Filter>Fonts</Filter>
     </ClInclude>
     <ClInclude Include="Fonts\FontData_FontAwesome4.h">
+      <Filter>Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Fonts\FontData_ProggyClean.h">
       <Filter>Fonts</Filter>
     </ClInclude>
     <ClInclude Include="Fonts\FontData_ProggyTiny.h">
@@ -96,29 +104,23 @@
     <ClInclude Include="Fonts\FontDecompressor.h">
       <Filter>Fonts</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDevice\RenderDefaultResources.h">
-      <Filter>RenderDevice</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderDevice\RenderDevice.h">
-      <Filter>RenderDevice</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderDevice\Platform\RenderContext_DX11.h">
-      <Filter>RenderDevice\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderDevice\Platform\RenderDevice_DX11.h">
-      <Filter>RenderDevice\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderDevice\Platform\TextureLoader_Win32.h">
-      <Filter>RenderDevice\Platform</Filter>
-    </ClInclude>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
     <ClInclude Include="Renderers\DebugRenderer\Shaders\DebugShaders.h">
-      <Filter>DebugRenderer\Shaders</Filter>
+      <Filter>Renderers\DebugRenderer\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="RenderSettings.h">
-      <Filter>RenderDevice</Filter>
+    <ClInclude Include="Renderers\DebugRenderer\DebugRenderer.h">
+      <Filter>Renderers\DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderers\DebugRenderer\DebugRenderStates.h">
+      <Filter>Renderers\DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderers\IRenderer.h">
+      <Filter>Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderers\RendererRegistry.h">
+      <Filter>Renderers</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\stb\stb_image.h">
       <Filter>ThirdParty\stb</Filter>
@@ -132,61 +134,60 @@
     <ClInclude Include="ThirdParty\stb\stb_truetype.h">
       <Filter>ThirdParty\stb</Filter>
     </ClInclude>
-    <ClInclude Include="Renderers\IRenderer.h" />
-    <ClInclude Include="Renderers\RendererRegistry.h" />
-    <ClInclude Include="RenderBuffer.h" />
-    <ClInclude Include="RenderPipelineState.h" />
-    <ClInclude Include="RenderResourceHandle.h" />
-    <ClInclude Include="RenderShader.h" />
-    <ClInclude Include="RenderStates.h" />
-    <ClInclude Include="RenderTexture.h" />
-    <ClInclude Include="RenderVertexFormats.h" />
-    <ClInclude Include="Fonts\FontData_ProggyClean.h" />
-    <ClInclude Include="Fonts\FontData_Segoe.h" />
-    <ClInclude Include="RenderViewportManager.h" />
-    <ClInclude Include="Fonts\FontData_SegoeBold.h" />
-    <ClInclude Include="RenderViewport.h" />
-    <ClInclude Include="RenderTarget.h" />
-    <ClInclude Include="RenderShaderResource.h" />
+    <ClInclude Include="RenderDevice\Platform\RenderContext_DX11.h">
+      <Filter>RenderDevice\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderDevice\Platform\RenderDevice_DX11.h">
+      <Filter>RenderDevice\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderDevice\Platform\TextureLoader_Win32.h">
+      <Filter>RenderDevice\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderDevice\RenderDefaultResources.h">
+      <Filter>RenderDevice</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderDevice\RenderDevice.h">
+      <Filter>RenderDevice</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererPoints.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererPoints.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererLines.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererLines.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererLines.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererText.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererText.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererTriangles.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererTriangles.hlsl">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="Renderers\DebugRenderer\Shaders\HLSL\DebugShaderCommon.hlsli">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </None>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
       <Filter>DebugRenderer\Debug\HLSL</Filter>
     </None>
-    <None Include="Renderers\DebugRenderer\Shaders\HLSL\DebugShaderCommon.hlsli">
-      <Filter>DebugRenderer\Shaders\HLSL</Filter>
-    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererPoints.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererPoints.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererLines.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererLines.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererLines.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererText.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererText.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererTriangles.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererTriangles.hlsl">
+      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

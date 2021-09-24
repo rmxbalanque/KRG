@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="IPC">
-      <UniqueIdentifier>{267f27f9-3e27-4ca1-bb4f-fabc48f58740}</UniqueIdentifier>
+      <UniqueIdentifier>{9a5520d0-1959-48e9-b0f7-a078f319aa77}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Module">
-      <UniqueIdentifier>{453080c1-7e7a-4a3a-83a5-9a018383c7ef}</UniqueIdentifier>
+      <UniqueIdentifier>{50bb27eb-7473-418e-85c9-ab77f5ea88d1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -18,7 +18,6 @@
     <ClCompile Include="IPC\IPCMessageServer.cpp">
       <Filter>IPC</Filter>
     </ClCompile>
-    <ClCompile Include="NetworkSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPC\IPCMessageClient.h">
@@ -33,6 +32,5 @@
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="NetworkSystem.h" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 #include "StandaloneEditor.h"
-#include "System/DevTools/CommonWidgets/Gizmo/OrientationGuide.h"
+#include "System/Imgui/Widgets/Gizmos/OrientationGuide.h"
 #include "System/Render/RenderViewportManager.h"
 
 #include "System/Input/InputSystem.h"

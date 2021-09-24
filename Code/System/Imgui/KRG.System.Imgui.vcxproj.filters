@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="System\Platform">
+      <UniqueIdentifier>{58211273-3d2f-489f-a0d5-f918904caaec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{89c80337-48ec-4ccf-a708-e03c111f29d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{d8901959-06ca-4987-8119-89ca54181012}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\imgui\misc\freetype">
+      <UniqueIdentifier>{1a79b0a3-1324-4686-9ab8-99c716d94954}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\imgui\misc">
+      <UniqueIdentifier>{ccefb650-5112-457f-9970-ea75a6330603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\imgui">
+      <UniqueIdentifier>{348b5f41-1f3b-4c9a-9f93-563d497a736f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{6b1b257b-e216-4ff5-9865-8c4e6239e6df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CommonWidgets\Gizmo">
+      <UniqueIdentifier>{db252781-4c12-4370-a175-2013d2dc5dd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CommonWidgets">
+      <UniqueIdentifier>{7fbd9a7c-1b9a-4db4-ae03-b6d0b03cb4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Module">
+      <UniqueIdentifier>{657a613a-0f7f-4ed0-96ca-3929de2d8b53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\Shaders">
+      <UniqueIdentifier>{a6b33c6f-d6f6-4ae2-b5b2-a58a607cf375}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\Shaders\HLSL">
+      <UniqueIdentifier>{5ea7efa2-4c8d-4f41-b786-02380c754cff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\imgui\misc\debuggers">
+      <UniqueIdentifier>{b72cff68-3feb-4215-a256-f17ea418b8c5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="System\Platform\ImguiSystem_win32.cpp">
+      <Filter>System\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="System\ImguiTheme.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="System\ImguiSystem.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="System\ImguiFont.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ImguiRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp">
+      <Filter>ThirdParty\imgui\misc\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\Gizmos\Gizmo.cpp">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\Gizmos\OrientationGuide.cpp">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\Gizmos\RotationGizmo.cpp">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\Gizmos\ScaleGizmo.cpp">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\Gizmos\TranslationGizmo.cpp">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\InterfaceHelpers.cpp">
+      <Filter>CommonWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\NumericEditors.cpp">
+      <Filter>CommonWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="ImguiX.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="System\Platform\ImguiSystem.inl">
+      <Filter>System\Platform</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="System\ImguiTheme.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\ImguiFont.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\ImguiSystem.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="_Module\API.h">
+      <Filter>_Module</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Shaders\ImguiShaders.h">
+      <Filter>Renderer\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ImguiRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h">
+      <Filter>ThirdParty\imgui\misc\freetype</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imconfig.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_internal.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_textedit.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_truetype.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\Gizmos\Gizmo.h">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\Gizmos\OrientationGuide.h">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\Gizmos\RotationGizmo.h">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\Gizmos\ScaleGizmo.h">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\Gizmos\TranslationGizmo.h">
+      <Filter>CommonWidgets\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\InterfaceHelpers.h">
+      <Filter>CommonWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\NumericEditors.h">
+      <Filter>CommonWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="ImguiX.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Renderer\Shaders\HLSL\PS_imgui.hlsl">
+      <Filter>Renderer\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\Shaders\HLSL\VS_imgui.hlsl">
+      <Filter>Renderer\Shaders\HLSL</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis">
+      <Filter>ThirdParty\imgui\misc\debuggers</Filter>
+    </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ThirdParty\imgui\LICENSE.txt">
+      <Filter>ThirdParty\imgui</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

@@ -1,7 +1,7 @@
 #include "ResourceEditor_Skeleton.h"
-#include "System/DevTools/CommonWidgets/InterfaceHelpers.h"
+#include "System/Imgui/Widgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/DevTools/CommonWidgets/NumericEditors.h"
+#include "System/Imgui/Widgets/NumericEditors.h"
 
 //-------------------------------------------------------------------------
 
