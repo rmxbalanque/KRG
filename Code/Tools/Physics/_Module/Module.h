@@ -1,8 +1,8 @@
 #pragma once
 
 #include "API.h"
-#include "Tools/Physics/ResourceCompilers/PhysicsMeshCompiler.h"
-#include "Tools/Physics/ResourceCompilers/PhysicsMaterialDatabaseCompiler.h"
+#include "Tools/Physics/ResourceCompilers/ResourceCompiler_PhysicsMesh.h"
+#include "Tools/Physics/ResourceCompilers/ResourceCompiler_PhysicsMaterialDatabase.h"
 #include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 
 //-------------------------------------------------------------------------

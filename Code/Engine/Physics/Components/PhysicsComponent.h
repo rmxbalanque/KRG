@@ -4,7 +4,7 @@
 #include "Engine/Physics/PhysX.h"
 #include "Engine/Physics/PhysicsMaterial.h"
 #include "Engine/Physics/PhysicsLayers.h"
-#include "System/Entity/EntitySpatialComponent.h"
+#include "Engine/Core/Entity/EntitySpatialComponent.h"
 
 //-------------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Entity/EntitySpatialComponent.h"
+#include "Engine/Core/Entity/EntitySpatialComponent.h"
 #include "System/Core/Math/Math.h"
 #include "System/Core/Math/ViewVolume.h"
 #include "System/Core/Math/Rectangle.h"

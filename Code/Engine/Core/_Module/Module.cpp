@@ -54,7 +54,6 @@ namespace KRG::EngineCore
         m_viewportManager.Initialize( m_pRenderDevice );
         m_inputSystem.Initialize();
         m_imguiSystem.Initialize( context.GetApplicationName() + ".imgui.ini" );
-        m_imguiRenderer.Initialize( m_pRenderDevice );
 
         m_mapLoader.SetTypeRegistry( &m_typeRegistry );
 
@@ -92,7 +91,6 @@ namespace KRG::EngineCore
         //-------------------------------------------------------------------------
 
         m_resourceSystem.RegisterResourceLoader( &m_mapLoader );
-        m_rendererRegistry.RegisterRenderer( &m_imguiRenderer );
 
         //-------------------------------------------------------------------------
 
@@ -110,7 +108,6 @@ namespace KRG::EngineCore
             // Unregister Misc
             //-------------------------------------------------------------------------
 
-            m_rendererRegistry.UnregisterRenderer( &m_imguiRenderer );
             m_resourceSystem.UnregisterResourceLoader( &m_mapLoader );
 
             // Unregister debug views
@@ -146,7 +143,6 @@ namespace KRG::EngineCore
             m_entityDebugViewController.Shutdown();
             #endif
 
-            m_imguiRenderer.Shutdown();
             m_imguiSystem.Shutdown();
             m_inputSystem.Shutdown();
             m_viewportManager.Shutdown();

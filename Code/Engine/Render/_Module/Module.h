@@ -2,14 +2,15 @@
 
 #include "API.h"
 #include "Engine/Core/Modules/IEngineModule.h"
-#include "System/Render/RenderDevice/RenderDevice.h"
+#include "System/Render/RenderDevice.h"
 #include "Engine/Render/Renderers/StaticMeshRenderer.h"
 #include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
-#include "System/Render/Renderers/DebugRenderer/DebugRenderer.h"
-#include "Engine/Render/ResourceLoaders/RenderMeshLoader.h"
-#include "Engine/Render/ResourceLoaders/RenderShaderLoader.h"
-#include "Engine/Render/ResourceLoaders/RenderTextureLoader.h"
-#include "Engine/Render/ResourceLoaders/RenderMaterialLoader.h"
+#include "Engine/Render/Renderers/DebugRenderer.h"
+#include "Engine/Render/Renderers/ImguiRenderer.h"
+#include "Engine/Render/ResourceLoaders/ResourceLoader_RenderMaterial.h"
+#include "Engine/Render/ResourceLoaders/ResourceLoader_RenderMesh.h"
+#include "Engine/Render/ResourceLoaders/ResourceLoader_RenderShader.h"
+#include "Engine/Render/ResourceLoaders/ResourceLoader_RenderTexture.h"
 
 //-------------------------------------------------------------------------
 
@@ -35,6 +36,7 @@ namespace KRG::Render
         SkeletalMeshRenderer                m_skeletalMeshRenderer;
 
         #if KRG_DEVELOPMENT_TOOLS
+        ImguiRenderer                       m_imguiRenderer;
         DebugRenderer                       m_debugRenderer;
         #endif
 

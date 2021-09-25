@@ -4,9 +4,9 @@
 #include "Engine/Core/DebugTools/DebugTools.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
-#include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Render/Renderers/RendererRegistry.h"
-#include "System/Entity/EntityWorld.h"
+#include "System/Render/RenderDevice.h"
+#include "System/Render/RendererRegistry.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Debug/DebugDrawing.h"
@@ -102,7 +102,7 @@ namespace KRG
         Render::RendererRegistry*           m_pRendererRegistry = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DebugTools*                     m_pDebugUI = nullptr;
+        Debug::DebugTools*                  m_pDebugUI = nullptr;
         #endif
     };
 }

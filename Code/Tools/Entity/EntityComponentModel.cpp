@@ -1,6 +1,6 @@
 #include "EntityComponentModel.h"
-#include "System/Entity/EntitySpatialComponent.h"
-#include "System/Entity/EntityDescriptors.h"
+#include "Engine/Core/Entity/EntitySpatialComponent.h"
+#include "Engine/Core/Entity/EntityDescriptors.h"
 
 //-------------------------------------------------------------------------
 

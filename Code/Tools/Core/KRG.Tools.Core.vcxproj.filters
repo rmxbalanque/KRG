@@ -2,55 +2,76 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="_Module">
-      <UniqueIdentifier>{7366dbc3-78c4-41dd-97ae-39e53df0f233}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Thirdparty">
-      <UniqueIdentifier>{7fdbd03f-3ba4-4ea2-bc8f-cc48456c1b3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\sqlite">
-      <UniqueIdentifier>{119fc3f8-31e7-48b7-8707-380a6a372a2c}</UniqueIdentifier>
+      <UniqueIdentifier>{0a2d334b-f2a9-40e1-8b05-248eb284d35e}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{69c9aa8d-5d7d-4418-b75e-58cd5ffbdbbc}</UniqueIdentifier>
+      <UniqueIdentifier>{c037fa70-99e2-4cb1-b8bc-26662b8a5dfa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Thirdparty\pfd">
-      <UniqueIdentifier>{2adba5a1-5c53-4df5-a992-7cf0830813d1}</UniqueIdentifier>
+    <Filter Include="ThirdParty\sqlite">
+      <UniqueIdentifier>{908545ea-0182-4fed-b9ec-5fc5a256bbc9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Thirdparty\subprocess">
-      <UniqueIdentifier>{5775d0a2-6625-49af-9ffd-47663ae52c79}</UniqueIdentifier>
+    <Filter Include="ThirdParty\pfd">
+      <UniqueIdentifier>{1fb4cddc-1afb-406b-ab5b-7e8134e61d36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\subprocess">
+      <UniqueIdentifier>{65257a8e-b564-4180-bc6a-2a024b8dcf6c}</UniqueIdentifier>
     </Filter>
     <Filter Include="FileSystem">
-      <UniqueIdentifier>{d86a36fa-098b-4094-9feb-3b9c9a41aa13}</UniqueIdentifier>
+      <UniqueIdentifier>{4fa37bd8-4e78-4271-9223-b61983dda869}</UniqueIdentifier>
     </Filter>
     <Filter Include="TypeSystem\Serialization">
-      <UniqueIdentifier>{4fa1e191-0d35-415e-b8a8-262d8003288a}</UniqueIdentifier>
+      <UniqueIdentifier>{d801b442-8f93-4f57-8f68-170c08159e44}</UniqueIdentifier>
     </Filter>
     <Filter Include="TypeSystem">
-      <UniqueIdentifier>{7c1c1460-1811-471f-a9e4-e0c5fd07704d}</UniqueIdentifier>
+      <UniqueIdentifier>{dbeffa52-fc6b-46dc-9f10-44fa8ad486c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Widgets\Timeline">
-      <UniqueIdentifier>{a3d9debb-0857-41c8-8e75-3a2471a7d9e8}</UniqueIdentifier>
+    <Filter Include="DataFileTools">
+      <UniqueIdentifier>{97d591ae-e525-4290-b3ff-304df4806e76}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Widgets">
-      <UniqueIdentifier>{195489e7-490e-4ddf-8a0b-1313d8f85e37}</UniqueIdentifier>
+    <Filter Include="Editors">
+      <UniqueIdentifier>{35feea99-791a-4342-be76-4cf4d915c0e5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Editor">
-      <UniqueIdentifier>{dd06a3fb-2be7-4abb-bc1f-8eb152f295e4}</UniqueIdentifier>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{435cdec0-96f3-4173-bd51-0c3b2162be67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphEditor\Flow">
+      <UniqueIdentifier>{737c14a1-87aa-457a-8610-fca3c68595d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphEditor">
+      <UniqueIdentifier>{85fef766-d130-4dba-96af-394e672f26c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphEditor\StateMachine">
+      <UniqueIdentifier>{a8a4a950-8480-4f13-be34-e84286adabb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PropertyGrid">
+      <UniqueIdentifier>{9d971c93-ecea-407b-abf3-764ae1a95d1f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource\Compilers">
-      <UniqueIdentifier>{958e5ac4-fa69-470c-8d52-f13f52b3ab0b}</UniqueIdentifier>
+      <UniqueIdentifier>{4af6df63-1cfe-4332-9ccb-7e1b49d39aa4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource">
-      <UniqueIdentifier>{fde5872a-fe10-4ac1-afb4-c04776b7e849}</UniqueIdentifier>
+      <UniqueIdentifier>{d7c3e099-52db-4674-8167-5d0db15063cc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource\RawAssets\Fbx">
-      <UniqueIdentifier>{ce34967b-4ac2-41a6-85e0-fa99395920ca}</UniqueIdentifier>
+      <UniqueIdentifier>{02530b22-f97b-497d-9cac-80e2b7f34850}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource\RawAssets">
-      <UniqueIdentifier>{b843f65e-c983-4459-87b8-fae3bd26d38e}</UniqueIdentifier>
+      <UniqueIdentifier>{5422a10d-521f-4af6-801c-fbebc4ce5cdd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource\RawAssets\gltf">
-      <UniqueIdentifier>{81f9a63e-4d9a-4617-851d-b58e46cd30cd}</UniqueIdentifier>
+      <UniqueIdentifier>{a22371b6-efcd-4511-82aa-eb600ba949c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\cgltf">
+      <UniqueIdentifier>{02264091-dec6-4cac-b254-6ee5fe071ba2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimelineEditor">
+      <UniqueIdentifier>{9f4726d8-dcbf-441a-916e-330601018b6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Trees">
+      <UniqueIdentifier>{b0349827-0a01-43ee-be67-277766712c97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Module\_AutoGenerated">
+      <UniqueIdentifier>{db786ad9-602c-4f16-94f2-d0066c0f6f0f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -58,16 +79,16 @@
       <Filter>_Module</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\KRG_RapidJson.h">
-      <Filter>Thirdparty</Filter>
+      <Filter>ThirdParty</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\sqlite\SqliteHelpers.h">
       <Filter>ThirdParty\sqlite</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\pfd\portable-file-dialogs.h">
-      <Filter>Thirdparty\pfd</Filter>
+      <Filter>ThirdParty\pfd</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\subprocess\subprocess.h">
-      <Filter>Thirdparty\subprocess</Filter>
+      <Filter>ThirdParty\subprocess</Filter>
     </ClInclude>
     <ClInclude Include="FileSystem\FileSystemHelpers.h">
       <Filter>FileSystem</Filter>
@@ -84,48 +105,131 @@
     <ClInclude Include="TypeSystem\Serialization\TypeSerialization.h">
       <Filter>TypeSystem\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="DataFileTools\DataFilePicker.h" />
-    <ClInclude Include="PropertyGrid\PropertyGrid.h" />
-    <ClInclude Include="PropertyGrid\PropertyGridEditors.h" />
-    <ClInclude Include="TimelineEditor\TimelineData.h" />
-    <ClInclude Include="TimelineEditor\TimelineEditor.h" />
-    <ClInclude Include="Trees\TreeView.h" />
-    <ClInclude Include="_Module\Module.h" />
-    <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
-    <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
-    <ClInclude Include="Resource\RawAssets\Fbx\FbxAnimation.h" />
-    <ClInclude Include="Resource\RawAssets\Fbx\FbxInfo.h" />
-    <ClInclude Include="Resource\RawAssets\Fbx\FbxMesh.h" />
-    <ClInclude Include="Resource\RawAssets\Fbx\FbxSceneContext.h" />
-    <ClInclude Include="Resource\RawAssets\Fbx\FbxSkeleton.h" />
-    <ClInclude Include="Resource\RawAssets\gltf\gltfAnimation.h" />
-    <ClInclude Include="Resource\RawAssets\gltf\gltfInfo.h" />
-    <ClInclude Include="Resource\RawAssets\gltf\gltfMesh.h" />
-    <ClInclude Include="Resource\RawAssets\gltf\gltfSceneContext.h" />
-    <ClInclude Include="Resource\RawAssets\gltf\gltfSkeleton.h" />
-    <ClInclude Include="Resource\RawAssets\RawAnimation.h" />
-    <ClInclude Include="Resource\RawAssets\RawAsset.h" />
-    <ClInclude Include="Resource\RawAssets\RawAssetInfo.h" />
-    <ClInclude Include="Resource\RawAssets\RawAssetReader.h" />
-    <ClInclude Include="Resource\RawAssets\RawMesh.h" />
-    <ClInclude Include="Resource\RawAssets\RawSkeleton.h" />
-    <ClInclude Include="Resource\Compilers\ResourceCompiler.h" />
-    <ClInclude Include="Resource\Compilers\ResourceCompilerRegistry.h" />
-    <ClInclude Include="Resource\Compilers\ResourceDescriptor.h" />
-    <ClInclude Include="Trees\CategoryTree.h" />
-    <ClInclude Include="GraphEditor\Flow\FlowGraph.h" />
-    <ClInclude Include="GraphEditor\StateMachine\StateMachineGraph.h" />
-    <ClInclude Include="GraphEditor\GraphEditor.h" />
-    <ClInclude Include="GraphEditor\Flow\FlowGraphView.h" />
-    <ClInclude Include="GraphEditor\StateMachine\StateMachineGraphView.h" />
-    <ClInclude Include="GraphEditor\GraphEditorView.h" />
-    <ClInclude Include="GraphEditor\GraphEditorDrawingContext.h" />
-    <ClInclude Include="Editors\ResourceEditorWorkspace.h" />
-    <ClInclude Include="Helpers\GlobalRegistryBase.h" />
-    <ClInclude Include="Editors\StandaloneEditor.h" />
-    <ClInclude Include="Editors\EditorModel.h" />
+    <ClInclude Include="DataFileTools\DataFilePicker.h">
+      <Filter>DataFileTools</Filter>
+    </ClInclude>
+    <ClInclude Include="Editors\StandaloneEditor.h">
+      <Filter>Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="Editors\EditorModel.h">
+      <Filter>Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers\GlobalRegistryBase.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphEditor\Flow\FlowGraph.h">
+      <Filter>GraphEditor\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphEditor\Flow\FlowGraphView.h">
+      <Filter>GraphEditor\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphEditor\GraphEditor.h">
+      <Filter>GraphEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphEditor\GraphEditorDrawingContext.h">
+      <Filter>GraphEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphEditor\GraphEditorView.h">
+      <Filter>GraphEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphEditor\StateMachine\StateMachineGraph.h">
+      <Filter>GraphEditor\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphEditor\StateMachine\StateMachineGraphView.h">
+      <Filter>GraphEditor\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyGrid\PropertyGrid.h">
+      <Filter>PropertyGrid</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyGrid\PropertyGridEditors.h">
+      <Filter>PropertyGrid</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\Compilers\ResourceCompiler.h">
+      <Filter>Resource\Compilers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\Compilers\ResourceCompilerRegistry.h">
+      <Filter>Resource\Compilers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\Compilers\ResourceDescriptor.h">
+      <Filter>Resource\Compilers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\Fbx\FbxAnimation.h">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\Fbx\FbxInfo.h">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\Fbx\FbxMesh.h">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\Fbx\FbxSceneContext.h">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\Fbx\FbxSkeleton.h">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\gltf\gltfAnimation.h">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\gltf\gltfInfo.h">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\gltf\gltfMesh.h">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\gltf\gltfSceneContext.h">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\gltf\gltfSkeleton.h">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\RawAnimation.h">
+      <Filter>Resource\RawAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\RawAsset.h">
+      <Filter>Resource\RawAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\RawAssetInfo.h">
+      <Filter>Resource\RawAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\RawAssetReader.h">
+      <Filter>Resource\RawAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\RawMesh.h">
+      <Filter>Resource\RawAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\RawAssets\RawSkeleton.h">
+      <Filter>Resource\RawAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="Editors\ResourceEditorWorkspace.h">
+      <Filter>Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cgltf\cgltf.h">
+      <Filter>ThirdParty\cgltf</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\cgltf\cgltf_write.h">
+      <Filter>ThirdParty\cgltf</Filter>
+    </ClInclude>
+    <ClInclude Include="TimelineEditor\TimelineData.h">
+      <Filter>TimelineEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TimelineEditor\TimelineEditor.h">
+      <Filter>TimelineEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Trees\CategoryTree.h">
+      <Filter>Trees</Filter>
+    </ClInclude>
+    <ClInclude Include="Trees\TreeView.h">
+      <Filter>Trees</Filter>
+    </ClInclude>
+    <ClInclude Include="_Module\Module.h">
+      <Filter>_Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ThirdParty\KRG_RapidJson.cpp">
+      <Filter>ThirdParty</Filter>
+    </ClCompile>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
       <Filter>ThirdParty\sqlite</Filter>
     </ClCompile>
@@ -141,54 +245,121 @@
     <ClCompile Include="TypeSystem\Serialization\TypeWriter.cpp">
       <Filter>TypeSystem\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\KRG_RapidJson.cpp">
-      <Filter>Thirdparty</Filter>
-    </ClCompile>
     <ClCompile Include="TypeSystem\Serialization\TypeSerialization.cpp">
       <Filter>TypeSystem\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="DataFileTools\DataFilePicker.cpp" />
-    <ClCompile Include="PropertyGrid\PropertyGrid.cpp" />
-    <ClCompile Include="PropertyGrid\PropertyGridEditors.cpp" />
-    <ClCompile Include="TimelineEditor\TimelineData.cpp" />
-    <ClCompile Include="TimelineEditor\TimelineEditor.cpp" />
-    <ClCompile Include="Trees\TreeView.cpp" />
-    <ClCompile Include="_Module\Module.cpp" />
-    <ClCompile Include="Resource\RawAssets\Fbx\FbxAnimation.cpp" />
-    <ClCompile Include="Resource\RawAssets\Fbx\FbxInfo.cpp" />
-    <ClCompile Include="Resource\RawAssets\Fbx\FbxMesh.cpp" />
-    <ClCompile Include="Resource\RawAssets\Fbx\FbxSceneContext.cpp" />
-    <ClCompile Include="Resource\RawAssets\Fbx\FbxSkeleton.cpp" />
-    <ClCompile Include="Resource\RawAssets\gltf\gltfAnimation.cpp" />
-    <ClCompile Include="Resource\RawAssets\gltf\gltfInfo.cpp" />
-    <ClCompile Include="Resource\RawAssets\gltf\gltfMesh.cpp" />
-    <ClCompile Include="Resource\RawAssets\gltf\gltfSceneContext.cpp" />
-    <ClCompile Include="Resource\RawAssets\gltf\gltfSkeleton.cpp" />
-    <ClCompile Include="Resource\RawAssets\RawAnimation.cpp" />
-    <ClCompile Include="Resource\RawAssets\RawAssetReader.cpp" />
-    <ClCompile Include="Resource\RawAssets\RawMesh.cpp" />
-    <ClCompile Include="Resource\RawAssets\RawSkeleton.cpp" />
-    <ClCompile Include="Resource\Compilers\ResourceCompiler.cpp" />
-    <ClCompile Include="Resource\Compilers\ResourceCompilerRegistry.cpp" />
-    <ClCompile Include="Resource\Compilers\ResourceDescriptor.cpp" />
-    <ClCompile Include="_Module\_AutoGenerated\_module.cpp" />
-    <ClCompile Include="GraphEditor\Flow\FlowGraph.cpp" />
-    <ClCompile Include="GraphEditor\StateMachine\StateMachineGraph.cpp" />
-    <ClCompile Include="GraphEditor\GraphEditor.cpp" />
-    <ClCompile Include="GraphEditor\Flow\FlowGraphView.cpp" />
-    <ClCompile Include="GraphEditor\StateMachine\StateMachineGraphView.cpp" />
-    <ClCompile Include="GraphEditor\GraphEditorView.cpp" />
-    <ClCompile Include="GraphEditor\GraphEditorDrawingContext.cpp" />
-    <ClCompile Include="Editors\ResourceEditorWorkspace.cpp" />
-    <ClCompile Include="Editors\StandaloneEditor.cpp" />
-    <ClCompile Include="Editors\EditorModel.cpp" />
+    <ClCompile Include="DataFileTools\DataFilePicker.cpp">
+      <Filter>DataFileTools</Filter>
+    </ClCompile>
+    <ClCompile Include="Editors\StandaloneEditor.cpp">
+      <Filter>Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="Editors\EditorModel.cpp">
+      <Filter>Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphEditor\Flow\FlowGraph.cpp">
+      <Filter>GraphEditor\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphEditor\Flow\FlowGraphView.cpp">
+      <Filter>GraphEditor\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphEditor\GraphEditor.cpp">
+      <Filter>GraphEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphEditor\GraphEditorDrawingContext.cpp">
+      <Filter>GraphEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphEditor\GraphEditorView.cpp">
+      <Filter>GraphEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphEditor\StateMachine\StateMachineGraph.cpp">
+      <Filter>GraphEditor\StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphEditor\StateMachine\StateMachineGraphView.cpp">
+      <Filter>GraphEditor\StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyGrid\PropertyGrid.cpp">
+      <Filter>PropertyGrid</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyGrid\PropertyGridEditors.cpp">
+      <Filter>PropertyGrid</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\Compilers\ResourceCompiler.cpp">
+      <Filter>Resource\Compilers</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\Compilers\ResourceCompilerRegistry.cpp">
+      <Filter>Resource\Compilers</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\Compilers\ResourceDescriptor.cpp">
+      <Filter>Resource\Compilers</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\Fbx\FbxAnimation.cpp">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\Fbx\FbxInfo.cpp">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\Fbx\FbxMesh.cpp">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\Fbx\FbxSceneContext.cpp">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\Fbx\FbxSkeleton.cpp">
+      <Filter>Resource\RawAssets\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\gltf\gltfAnimation.cpp">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\gltf\gltfInfo.cpp">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\gltf\gltfMesh.cpp">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\gltf\gltfSceneContext.cpp">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\gltf\gltfSkeleton.cpp">
+      <Filter>Resource\RawAssets\gltf</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\RawAnimation.cpp">
+      <Filter>Resource\RawAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\RawAssetReader.cpp">
+      <Filter>Resource\RawAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\RawMesh.cpp">
+      <Filter>Resource\RawAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\RawAssets\RawSkeleton.cpp">
+      <Filter>Resource\RawAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="Editors\ResourceEditorWorkspace.cpp">
+      <Filter>Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="TimelineEditor\TimelineData.cpp">
+      <Filter>TimelineEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="TimelineEditor\TimelineEditor.cpp">
+      <Filter>TimelineEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Trees\TreeView.cpp">
+      <Filter>Trees</Filter>
+    </ClCompile>
+    <ClCompile Include="_Module\Module.cpp">
+      <Filter>_Module</Filter>
+    </ClCompile>
+    <ClCompile Include="_Module\_AutoGenerated\_module.cpp">
+      <Filter>_Module\_AutoGenerated</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\subprocess\LICENSE">
-      <Filter>Thirdparty\subprocess</Filter>
+      <Filter>ThirdParty\subprocess</Filter>
     </None>
     <None Include="ThirdParty\subprocess\README.md">
-      <Filter>Thirdparty\subprocess</Filter>
+      <Filter>ThirdParty\subprocess</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -65,7 +65,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Components\PhysicsMeshComponent.h" />
-    <ClInclude Include="Debug\PhysicsDebugViewController.h" />
+    <ClInclude Include="Debug\DebugView_Physics.h" />
     <ClInclude Include="PhysicsSettings.h" />
     <ClInclude Include="PhysicsMaterial.h" />
     <ClInclude Include="PhysicsSimulationFilter.h" />
@@ -80,8 +80,8 @@
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PhysicsLayers.h" />
     <ClInclude Include="PhysX.h" />
-    <ClInclude Include="ResourceLoaders\PhysicsMaterialDatabaseLoader.h" />
-    <ClInclude Include="ResourceLoaders\PhysicsMeshLoader.h" />
+    <ClInclude Include="ResourceLoaders\ResourceLoader_PhysicsMaterialDatabase.h" />
+    <ClInclude Include="ResourceLoaders\ResourceLoader_PhysicsMesh.h" />
     <ClInclude Include="PhysicsWorldSystem.h" />
     <ClInclude Include="_Module\Module.h" />
     <ClInclude Include="_Module\API.h" />
@@ -89,7 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\PhysicsMeshComponent.cpp" />
-    <ClCompile Include="Debug\PhysicsDebugViewController.cpp" />
+    <ClCompile Include="Debug\DebugView_Physics.cpp" />
     <ClCompile Include="PhysicsSettings.cpp" />
     <ClCompile Include="PhysicsMaterial.cpp" />
     <ClCompile Include="PhysicsSimulationFilter.cpp" />
@@ -102,8 +102,8 @@
     <ClCompile Include="PhysicsQueryFilter.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PhysX.cpp" />
-    <ClCompile Include="ResourceLoaders\PhysicsMaterialDatabaseLoader.cpp" />
-    <ClCompile Include="ResourceLoaders\PhysicsMeshLoader.cpp" />
+    <ClCompile Include="ResourceLoaders\ResourceLoader_PhysicsMaterialDatabase.cpp" />
+    <ClCompile Include="ResourceLoaders\ResourceLoader_PhysicsMesh.cpp" />
     <ClCompile Include="PhysicsWorldSystem.cpp" />
     <ClCompile Include="_Module\Module.cpp" />
     <ClCompile Include="Components\PhysicsSphereComponent.cpp" />
@@ -112,9 +112,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
-      <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Imgui\KRG.System.Imgui.vcxproj">
       <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
@@ -130,6 +127,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Core\KRG.Engine.Core.vcxproj">
       <Project>{2cfadbdc-ee40-4484-94d0-62a90206209e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Render\KRG.Engine.Render.vcxproj">
+      <Project>{88bbae2e-f1b2-4157-ba64-3e5c7ebd2a9c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

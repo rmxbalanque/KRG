@@ -1,8 +1,7 @@
 #include "AnimationEventEditor.h"
-#include "Tools/Animation/ResourceCompilers/AnimationClipCompiler.h"
+#include "Tools/Animation/ResourceCompilers/ResourceCompiler_AnimationClip.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
-#include "System/Imgui/System/ImguiFont.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 
 //-------------------------------------------------------------------------

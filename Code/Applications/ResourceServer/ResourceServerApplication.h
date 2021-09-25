@@ -3,12 +3,11 @@
 #include "ApplicationGlobalState.h"
 #include "ResourceServer.h"
 #include "ResourceServerUI.h"
+#include "Engine/Render/Renderers/ImguiRenderer.h"
 #include "System/Render/RenderViewportManager.h"
-#include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Render/Renderers/RendererRegistry.h"
+#include "System/Render/RenderDevice.h"
 #include "System/Resource/ResourceSettings.h"
-#include "System/Imgui/System/ImguiSystem.h"
-#include "System/Imgui/Renderer/ImguiRenderer.h"
+#include "System/Imgui/ImguiSystem.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/IntegralTypes.h"
 #include "System/Core/Update/UpdateContext.h"
@@ -60,14 +59,14 @@ namespace KRG
         SettingsRegistry                        m_settingsRegistry;
         InternalUpdateContext                   m_updateContext;
 
+        ImGuiX::ImguiSystem                     m_imguiSystem;
+
         // Rendering
         Render::RenderDevice*                   m_pRenderDevice = nullptr;
         Render::ViewportManager                 m_viewportManager;
+        Render::ImguiRenderer                   m_imguiRenderer;
 
-        // Imgui
-        ImGuiX::ImguiSystem                     m_imguiSystem;
-        ImGuiX::ImguiRenderer                   m_imguiRenderer;
-
+        // Resource
         Resource::Settings                      m_settings;
         Resource::ResourceServer                m_resourceServer;
         Resource::ResourceServerUI              m_resourceServerUI;

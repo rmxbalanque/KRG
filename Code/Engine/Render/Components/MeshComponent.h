@@ -2,7 +2,7 @@
 
 #include "Engine/Render/_Module/API.h"
 #include "Engine/Render/Material/RenderMaterial.h"
-#include "System/Entity/EntitySpatialComponent.h"
+#include "Engine/Core/Entity/EntitySpatialComponent.h"
 
 //-------------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
 #include "EditorModel.h"
-#include "System/Entity/EntityWorld.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Resource/ResourceSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 

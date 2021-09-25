@@ -1,6 +1,6 @@
 #pragma once
 
-#include "System/Render/Renderers/RendererRegistry.h"
+#include "System/Render/RendererRegistry.h"
 
 //-------------------------------------------------------------------------
 // KRG Renderer System
@@ -10,7 +10,6 @@
 namespace KRG
 {
     class UpdateContext;
-    namespace ImGuiX { class ImguiRenderer; }
 
     //-------------------------------------------------------------------------
 
@@ -20,6 +19,7 @@ namespace KRG
         class ViewportManager;
         class SkeletalMeshRenderer;
         class StaticMeshRenderer;
+        class ImguiRenderer;
 
         //-------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ namespace KRG
             TVector<IRenderer*>                             m_customRenderers;
 
             #if KRG_DEVELOPMENT_TOOLS
-            ImGuiX::ImguiRenderer*                          m_pImguiRenderer = nullptr;
+            ImguiRenderer*                                  m_pImguiRenderer = nullptr;
             #endif
         };
     }

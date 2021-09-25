@@ -42,20 +42,17 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="System\Platform\ImguiSystem_win32.cpp">
+    <ClCompile Include="Platform\ImguiSystem_win32.cpp">
       <Filter>System\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="System\ImguiTheme.cpp">
+    <ClCompile Include="ImguiTheme.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="System\ImguiSystem.cpp">
+    <ClCompile Include="ImguiSystem.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="System\ImguiFont.cpp">
+    <ClCompile Include="ImguiFont.cpp">
       <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\ImguiRenderer.cpp">
-      <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp">
       <Filter>ThirdParty\imgui\misc\freetype</Filter>
@@ -99,28 +96,22 @@
     <ClCompile Include="ImguiX.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="System\Platform\ImguiSystem.inl">
+    <None Include="Platform\ImguiSystem.inl">
       <Filter>System\Platform</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="System\ImguiTheme.h">
+    <ClInclude Include="ImguiTheme.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="System\ImguiFont.h">
+    <ClInclude Include="ImguiFont.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="System\ImguiSystem.h">
+    <ClInclude Include="ImguiSystem.h">
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\Shaders\ImguiShaders.h">
-      <Filter>Renderer\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\ImguiRenderer.h">
-      <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h">
       <Filter>ThirdParty\imgui\misc\freetype</Filter>
@@ -165,14 +156,6 @@
       <Filter>CommonWidgets</Filter>
     </ClInclude>
     <ClInclude Include="ImguiX.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Renderer\Shaders\HLSL\PS_imgui.hlsl">
-      <Filter>Renderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderer\Shaders\HLSL\VS_imgui.hlsl">
-      <Filter>Renderer\Shaders\HLSL</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis">

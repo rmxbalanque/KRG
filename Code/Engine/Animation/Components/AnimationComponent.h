@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Animation/_Module/API.h"
-#include "System/Entity/EntityComponent.h"
+#include "Engine/Core/Entity/EntityComponent.h"
 
 //-------------------------------------------------------------------------
 

@@ -4,10 +4,10 @@
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/PhysicsWorldSystem.h"
 #include "Engine/Physics/PhysicsMaterialDatabase.h"
-#include "Engine/Physics/Debug/PhysicsDebugViewController.h"
+#include "Engine/Physics/Debug/DebugView_Physics.h"
 #include "Engine/Physics/Debug/PhysxDebugRenderer.h"
-#include "Engine/Physics/ResourceLoaders/PhysicsMeshLoader.h"
-#include "Engine/Physics/ResourceLoaders/PhysicsMaterialDatabaseLoader.h"
+#include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsMaterialDatabase.h"
+#include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsMesh.h"
 #include "Engine/Core/Modules/IEngineModule.h"
 
 //-------------------------------------------------------------------------

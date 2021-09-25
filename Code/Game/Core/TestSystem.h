@@ -1,6 +1,6 @@
 #pragma once
 
-#include "System/Entity/EntitySystem.h"
+#include "Engine/Core/Entity/EntitySystem.h"
 
 //-------------------------------------------------------------------------
 

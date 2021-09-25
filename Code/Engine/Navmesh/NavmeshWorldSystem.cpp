@@ -1,7 +1,7 @@
 #include "NavmeshWorldSystem.h"
 #include "Engine/Navmesh/Components/NavmeshComponent.h"
 #include "Engine/Navmesh/NavPower.h"
-#include "System/Entity/Entity.h"
+#include "Engine/Core/Entity/Entity.h"
 
 //-------------------------------------------------------------------------
 

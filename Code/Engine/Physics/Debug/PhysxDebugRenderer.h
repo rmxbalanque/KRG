@@ -1,10 +1,9 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Render/Renderers/IRenderer.h"
-#include "System/Render/Renderers/DebugRenderer/DebugRenderStates.h"
-#include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Entity/EntityWorldSystem.h"
+#include "Engine/Render/Renderers/DebugRenderStates.h"
+#include "System/Render/IRenderer.h"
+#include "System/Render/RenderDevice.h"
 
 //-------------------------------------------------------------------------
 

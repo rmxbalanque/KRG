@@ -75,7 +75,6 @@ namespace KRG::CPP
         typeRegistrationStr << "//-------------------------------------------------------------------------\n";
         typeRegistrationStr << "// This is an auto-generated file - DO NOT edit\n";
         typeRegistrationStr << "//-------------------------------------------------------------------------\n\n";
-        typeRegistrationStr << "#include \"System/Entity/EntityTypeHelpers.h\"\n";
         typeRegistrationStr << "#include \"System/TypeSystem/TypeHelpers.h\"\n";
         typeRegistrationStr << "#include \"System/TypeSystem/TypeRegistry.h\"\n\n";
 
@@ -152,9 +151,6 @@ namespace KRG::CPP
         typeRegistrationStr << "        inline void RegisterTypes( TypeSystem::TypeRegistry& typeRegistry )\n";
         typeRegistrationStr << "        {\n";
 
-        typeRegistrationStr << "            TypeSystem::RegisterCoreTypeSystemTypes( typeRegistry );\n";
-        typeRegistrationStr << "            TypeSystem::RegisterCoreEntityTypes( typeRegistry );\n\n";
-
         for ( auto& module : modules )
         {
             typeRegistrationStr << "            " << module.m_moduleClassName.c_str() << "::RegisterTypes( typeRegistry );\n";
@@ -186,9 +182,6 @@ namespace KRG::CPP
         {
             typeRegistrationStr << "            typeRegistry.UnregisterResourceTypeID( TypeSystem::TypeID( \"" << iter->m_typeID.c_str() << "\" ) );\n";
         }
-
-        typeRegistrationStr << "\n            TypeSystem::UnregisterCoreEntityTypes( typeRegistry );\n";
-        typeRegistrationStr << "            TypeSystem::UnregisterCoreTypeSystemTypes( typeRegistry );\n";
 
         typeRegistrationStr << "        }\n";
         typeRegistrationStr << "    }\n";

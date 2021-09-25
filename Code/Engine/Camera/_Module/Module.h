@@ -2,7 +2,7 @@
 
 #include "API.h"
 #include "Engine/Camera/CameraWorldSystem.h"
-#include "Engine/Camera/DebugViews/CameraDebugViewController.h"
+#include "Engine/Camera/DebugViews/DebugView_Camera.h"
 #include "Engine/Core/Modules/IEngineModule.h"
 
 //-------------------------------------------------------------------------

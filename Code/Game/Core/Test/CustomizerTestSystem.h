@@ -1,7 +1,7 @@
 #pragma once
 
-#include "System/Entity/EntitySystem.h"
-#include "System/Entity/Map/EntityMap.h"
+#include "Engine/Core/Entity/EntitySystem.h"
+#include "Engine/Core/Entity/Map/EntityMap.h"
 #include "System/Core/Time/Timers.h"
 
 //-------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 #include "CameraWorldSystem.h"
 #include "Components/CameraComponent.h"
-#include "System/Entity/Entity.h"
+#include "Engine/Core/Entity/Entity.h"
 #include "System/Render/RenderViewportManager.h"
 #include "System/Core/Update/UpdateContext.h"
 

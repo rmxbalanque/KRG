@@ -1,6 +1,5 @@
 #include "Engine.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
-#include "System/Entity/EntityTypeHelpers.h"
 #include "System/Network/NetworkSystem.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/FileSystem/FileSystem.h"

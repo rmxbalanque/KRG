@@ -1,5 +1,5 @@
 #include "EntityCollectionModel.h"
-#include "System/Entity/Collections/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/Collections/EntityCollectionDescriptor.h"
 #include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "System/Entity/EntityWorldSystem.h"
+#include "Engine/Core/Entity/EntityWorldSystem.h"
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Systems/ISystem.h"
 
@@ -43,7 +43,5 @@ namespace KRG::Camera
 
         TVector<RegisteredCamera>               m_cameras;
         Int2                                    m_viewDimensions = Int2::Zero;
-    protected:
-
     };
 } 

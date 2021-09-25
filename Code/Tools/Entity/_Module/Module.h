@@ -1,7 +1,7 @@
 #pragma once
 
 #include "API.h"
-#include "Tools/Entity/ResourceCompilers/EntityMapCompiler.h"
+#include "Tools/Entity/ResourceCompilers/ResourceCompiler_EntityMap.h"
 #include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 
 //-------------------------------------------------------------------------

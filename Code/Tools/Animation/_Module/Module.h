@@ -1,9 +1,9 @@
 #pragma once
 
 #include "API.h"
-#include "Tools/Animation/ResourceCompilers/AnimationSkeletonCompiler.h"
-#include "Tools/Animation/ResourceCompilers/AnimationClipCompiler.h"
-#include "Tools/Animation/ResourceCompilers/AnimationGraphCompiler.h"
+#include "Tools/Animation/ResourceCompilers/ResourceCompiler_AnimationSkeleton.h"
+#include "Tools/Animation/ResourceCompilers/ResourceCompiler_AnimationClip.h"
+#include "Tools/Animation/ResourceCompilers/ResourceCompiler_AnimationGraph.h"
 #include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 
 //-------------------------------------------------------------------------

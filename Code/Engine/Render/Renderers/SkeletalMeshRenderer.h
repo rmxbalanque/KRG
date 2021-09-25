@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Engine/Render/_Module/API.h"
-#include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Render/Renderers/IRenderer.h"
-#include "System/Entity/EntityWorldSystem.h"
+#include "System/Render/RenderDevice.h"
+#include "System/Render/IRenderer.h"
+#include "Engine/Core/Entity/EntityWorldSystem.h"
 
 //-------------------------------------------------------------------------
 

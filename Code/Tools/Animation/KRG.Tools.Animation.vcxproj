@@ -19,6 +19,9 @@
     <ClInclude Include="GraphEditor\AnimationGraphEditor_VariationEditor.h" />
     <ClInclude Include="Events\AnimationEventEditor.h" />
     <ClInclude Include="Events\AnimationEventData.h" />
+    <ClInclude Include="ResourceCompilers\ResourceCompiler_AnimationClip.h" />
+    <ClInclude Include="ResourceCompilers\ResourceCompiler_AnimationGraph.h" />
+    <ClInclude Include="ResourceCompilers\ResourceCompiler_AnimationSkeleton.h" />
     <ClInclude Include="ToolsGraph\AnimationToolsGraph.h" />
     <ClInclude Include="ToolsGraph\AnimationToolsGraph_Common.h" />
     <ClInclude Include="ToolsGraph\AnimationToolsGraph_Compilation.h" />
@@ -47,9 +50,6 @@
     <ClInclude Include="ToolsGraph\Nodes\AnimationToolsNode_Results.h" />
     <ClInclude Include="ToolsGraph\Nodes\AnimationToolsNode_EntryStateOverrides.h" />
     <ClInclude Include="ToolsGraph\Nodes\AnimationToolsNode_StateMachine.h" />
-    <ClInclude Include="ResourceCompilers\AnimationGraphCompiler.h" />
-    <ClInclude Include="ResourceCompilers\AnimationClipCompiler.h" />
-    <ClInclude Include="ResourceCompilers\AnimationSkeletonCompiler.h" />
     <ClInclude Include="ResourceEditors\ResourceEditor_AnimationClip.h" />
     <ClInclude Include="ResourceEditors\ResourceEditor_Skeleton.h" />
     <ClInclude Include="ToolsGraph\Nodes\AnimationToolsNode_Vectors.h" />
@@ -65,6 +65,9 @@
     <ClCompile Include="GraphEditor\AnimationGraphEditor_VariationEditor.cpp" />
     <ClCompile Include="Events\AnimationEventData.cpp" />
     <ClCompile Include="Events\AnimationEventEditor.cpp" />
+    <ClCompile Include="ResourceCompilers\ResourceCompiler_AnimationClip.cpp" />
+    <ClCompile Include="ResourceCompilers\ResourceCompiler_AnimationGraph.cpp" />
+    <ClCompile Include="ResourceCompilers\ResourceCompiler_AnimationSkeleton.cpp" />
     <ClCompile Include="ToolsGraph\AnimationToolsGraph.cpp" />
     <ClCompile Include="ToolsGraph\AnimationToolsGraph_Common.cpp" />
     <ClCompile Include="ToolsGraph\AnimationToolsGraph_Compilation.cpp" />
@@ -93,9 +96,6 @@
     <ClCompile Include="ToolsGraph\Nodes\AnimationToolsNode_Results.cpp" />
     <ClCompile Include="ToolsGraph\Nodes\AnimationToolsNode_EntryStateOverrides.cpp" />
     <ClCompile Include="ToolsGraph\Nodes\AnimationToolsNode_StateMachine.cpp" />
-    <ClCompile Include="ResourceCompilers\AnimationGraphCompiler.cpp" />
-    <ClCompile Include="ResourceCompilers\AnimationClipCompiler.cpp" />
-    <ClCompile Include="ResourceCompilers\AnimationSkeletonCompiler.cpp" />
     <ClCompile Include="ResourceEditors\ResourceEditor_AnimationClip.cpp" />
     <ClCompile Include="ResourceEditors\ResourceEditor_Skeleton.cpp" />
     <ClCompile Include="ToolsGraph\Nodes\AnimationToolsNode_Vectors.cpp" />
@@ -106,11 +106,11 @@
     <ProjectReference Include="..\..\Engine\Animation\KRG.Engine.Animation.vcxproj">
       <Project>{6e63a255-0e1a-4d43-b225-376b5a6c757e}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Engine\Core\KRG.Engine.Core.vcxproj">
+      <Project>{2cfadbdc-ee40-4484-94d0-62a90206209e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
-      <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Imgui\KRG.System.Imgui.vcxproj">
       <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>

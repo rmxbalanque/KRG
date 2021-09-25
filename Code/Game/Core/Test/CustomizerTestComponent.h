@@ -2,7 +2,7 @@
 
 #include "../_Module/API.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
-#include "System/Entity/EntityComponent.h"
+#include "Engine/Core/Entity/EntityComponent.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Resource/ResourcePtr.h"

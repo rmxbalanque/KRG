@@ -1,9 +1,9 @@
 #include "RenderingSystem.h"
 #include "Engine/Render/Renderers/StaticMeshRenderer.h"
 #include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
-#include "System/Imgui/Renderer/ImguiRenderer.h"
+#include "Engine/Render/Renderers/ImguiRenderer.h"
 #include "System/Render/RenderViewportManager.h"
-#include "System/Render/RenderDevice/RenderDevice.h"
+#include "System/Render/RenderDevice.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Math/ViewVolume.h"
@@ -43,10 +43,10 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 #if KRG_DEVELOPMENT_TOOLS
-                if ( pRenderer->GetRendererID() == ImGuiX::ImguiRenderer::RendererID )
+                if ( pRenderer->GetRendererID() == ImguiRenderer::RendererID )
                 {
                     KRG_ASSERT( m_pImguiRenderer == nullptr );
-                    m_pImguiRenderer = static_cast<ImGuiX::ImguiRenderer*>( pRenderer );
+                    m_pImguiRenderer = static_cast<ImguiRenderer*>( pRenderer );
                     continue;
                 }
                 #endif

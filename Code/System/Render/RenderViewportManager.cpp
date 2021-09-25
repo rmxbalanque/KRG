@@ -1,5 +1,5 @@
 #include "RenderViewportManager.h"
-#include "RenderDevice/RenderDevice.h"
+#include "RenderDevice.h"
 
 //-------------------------------------------------------------------------
 

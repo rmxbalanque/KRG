@@ -60,30 +60,26 @@
     <ClCompile Include="Fonts\FontDecompressor.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="Renderers\DebugRenderer\DebugRenderer.cpp">
-      <Filter>Renderers\DebugRenderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderers\DebugRenderer\DebugRenderStates.cpp">
-      <Filter>Renderers\DebugRenderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderers\RendererRegistry.cpp">
-      <Filter>Renderers</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\stb\krg_stb.cpp">
-      <Filter>ThirdParty\stb</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderDevice\Platform\RenderContext_DX11.cpp">
+    <ClCompile Include="Platform\RenderContext_DX11.cpp">
       <Filter>RenderDevice\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="RenderDevice\Platform\RenderDevice_DX11.cpp">
+    <ClCompile Include="Platform\RenderDevice_DX11.cpp">
       <Filter>RenderDevice\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="RenderDevice\Platform\TextureLoader_Win32.cpp">
+    <ClCompile Include="Platform\TextureLoader_Win32.cpp">
       <Filter>RenderDevice\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="RenderDevice\RenderDefaultResources.cpp">
+    <ClCompile Include="RenderDefaultResources.cpp">
       <Filter>RenderDevice</Filter>
     </ClCompile>
+    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="RenderSettings.cpp" />
+    <ClCompile Include="RenderShader.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="RenderVertexFormats.cpp" />
+    <ClCompile Include="RenderViewportManager.cpp" />
+    <ClCompile Include="RenderViewport.cpp" />
+    <ClCompile Include="RendererRegistry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fonts\FontData_SegoeBold.h">
@@ -107,87 +103,39 @@
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="Renderers\DebugRenderer\Shaders\DebugShaders.h">
-      <Filter>Renderers\DebugRenderer\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderers\DebugRenderer\DebugRenderer.h">
-      <Filter>Renderers\DebugRenderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderers\DebugRenderer\DebugRenderStates.h">
-      <Filter>Renderers\DebugRenderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderers\IRenderer.h">
-      <Filter>Renderers</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderers\RendererRegistry.h">
-      <Filter>Renderers</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\stb\stb_image.h">
-      <Filter>ThirdParty\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\stb\stb_rect_pack.h">
-      <Filter>ThirdParty\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\stb\stb_textedit.h">
-      <Filter>ThirdParty\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\stb\stb_truetype.h">
-      <Filter>ThirdParty\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderDevice\Platform\RenderContext_DX11.h">
+    <ClInclude Include="Platform\RenderContext_DX11.h">
       <Filter>RenderDevice\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDevice\Platform\RenderDevice_DX11.h">
+    <ClInclude Include="Platform\RenderDevice_DX11.h">
       <Filter>RenderDevice\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDevice\Platform\TextureLoader_Win32.h">
+    <ClInclude Include="Platform\TextureLoader_Win32.h">
       <Filter>RenderDevice\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDevice\RenderDefaultResources.h">
+    <ClInclude Include="RenderDefaultResources.h">
       <Filter>RenderDevice</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDevice\RenderDevice.h">
+    <ClInclude Include="RenderDevice.h">
       <Filter>RenderDevice</Filter>
     </ClInclude>
+    <ClInclude Include="RenderShaderResource.h" />
+    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="RenderSettings.h" />
+    <ClInclude Include="RenderBuffer.h" />
+    <ClInclude Include="RenderPipelineState.h" />
+    <ClInclude Include="RenderResourceHandle.h" />
+    <ClInclude Include="RenderShader.h" />
+    <ClInclude Include="RenderStates.h" />
+    <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="RenderVertexFormats.h" />
+    <ClInclude Include="RenderViewportManager.h" />
+    <ClInclude Include="RenderViewport.h" />
+    <ClInclude Include="RendererRegistry.h" />
+    <ClInclude Include="IRenderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Renderers\DebugRenderer\Shaders\HLSL\DebugShaderCommon.hlsli">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </None>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
       <Filter>DebugRenderer\Debug\HLSL</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererPoints.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererPoints.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererPoints.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\GS_DebugRendererLines.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererLines.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererLines.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererText.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererText.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\PS_DebugRendererTriangles.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderers\DebugRenderer\Shaders\HLSL\VS_DebugRendererTriangles.hlsl">
-      <Filter>Renderers\DebugRenderer\Shaders\HLSL</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

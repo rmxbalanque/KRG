@@ -32,6 +32,9 @@ namespace KRG::Render
         #if KRG_DEVELOPMENT_TOOLS
         m_debugRenderer.Initialize( pRenderDevice, context.GetSystem<Debug::DrawingSystem>() );
         context.RegisterRenderer( &m_debugRenderer );
+
+        m_imguiRenderer.Initialize( pRenderDevice );
+        context.RegisterRenderer( &m_imguiRenderer );
         #endif
 
         context.RegisterWorldSystem( &m_staticMeshRenderer );
@@ -51,6 +54,9 @@ namespace KRG::Render
             //-------------------------------------------------------------------------
 
             #if KRG_DEVELOPMENT_TOOLS
+            context.UnregisterRenderer( &m_imguiRenderer );
+            m_imguiRenderer.Shutdown();
+
             context.UnregisterRenderer( &m_debugRenderer );
             m_debugRenderer.Shutdown();
             #endif

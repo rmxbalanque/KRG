@@ -369,6 +369,7 @@
     <ClCompile Include="Serialization\JsonArchive.cpp">
       <Filter>Serialization</Filter>
     </ClCompile>
+    <ClCompile Include="ThirdParty\stb\krg_stb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Transform.h">
@@ -1718,6 +1719,10 @@
     <ClInclude Include="Settings\ISettings.h">
       <Filter>Settings</Filter>
     </ClInclude>
+    <ClInclude Include="Defines.h" />
+    <ClInclude Include="ThirdParty\stb\stb_image.h" />
+    <ClInclude Include="ThirdParty\stb\stb_rect_pack.h" />
+    <ClInclude Include="ThirdParty\stb\stb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EA.props">

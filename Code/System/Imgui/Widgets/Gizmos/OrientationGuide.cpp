@@ -153,7 +153,8 @@ namespace KRG::ImGuiX::OrientationGuide
         ImGui::SetNextWindowBgAlpha( 0.0f );
         if ( ImGui::BeginChild( "DebugUI_OrientationGuide", windowDimensions, false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize ) )
         {
-            Float2 const windowCenterSS = Float2( windowDimensions.m_x / 2, windowDimensions.m_y / 2 ) + ImGui::GetWindowPos();
+            Float2 const windowPos = ImGui::GetWindowPos();
+            Float2 const windowCenterSS = Float2( windowDimensions.m_x / 2, windowDimensions.m_y / 2 ) + windowPos;
             DrawOrientationGuide( windowCenterSS, viewport );
         }
         ImGui::EndChild();

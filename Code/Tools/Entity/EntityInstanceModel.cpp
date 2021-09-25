@@ -1,5 +1,5 @@
 #include "EntityInstanceModel.h"
-#include "System/Entity/Entity.h"
+#include "Engine/Core/Entity/Entity.h"
 
 //-------------------------------------------------------------------------
 

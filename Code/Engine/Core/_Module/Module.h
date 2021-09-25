@@ -2,20 +2,19 @@
 
 #include "API.h"
 #include "Engine/Core/Modules/IEngineModule.h"
-#include "Engine/Core/DebugViews/EntityDebugViewController.h"
-#include "Engine/Core/DebugViews/InputDebugViewController.h"
-#include "Engine/Core/DebugViews/SystemDebugViewController.h"
-#include "Engine/Core/DebugViews/ResourceDebugViewController.h"
+#include "Engine/Core/Entity/DebugViews/DebugView_EntityWorld.h"
+#include "Engine/Core/DebugViews/DebugView_Input.h"
+#include "Engine/Core/DebugViews/DebugView_Resource.h"
+#include "Engine/Core/DebugViews/DebugView_System.h"
 #include "Engine/Core/DebugTools/DebugTools.h"
-#include "System/Imgui/Renderer/ImguiRenderer.h"
+#include "Engine/Core/Entity/ResourceLoaders/ResourceLoader_EntityMap.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Imgui/ImguiX.h"
-#include "System/Render/RenderDevice/RenderDevice.h"
-#include "System/Render/Renderers/RendererRegistry.h"
+#include "System/Render/RenderDevice.h"
+#include "System/Render/RendererRegistry.h"
 #include "System/Render/RenderViewportManager.h"
-#include "System/Entity/ResourceLoaders/EntityMapLoader.h"
-#include "System/Entity/EntityWorld.h"
 #include "System/Input/InputSystem.h"
-#include "System/Imgui/System/ImguiSystem.h"
+#include "System/Imgui/ImguiSystem.h"
 #include "System/Resource/ResourceProvider.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
@@ -75,7 +74,6 @@ namespace KRG::EngineCore
 
         // ImGui
         ImGuiX::ImguiSystem                             m_imguiSystem;
-        ImGuiX::ImguiRenderer                           m_imguiRenderer;
 
         // Entity
         EntityWorld                                     m_entityWorld;

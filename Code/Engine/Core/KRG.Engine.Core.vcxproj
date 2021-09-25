@@ -62,11 +62,23 @@
   <ItemGroup>
     <ClInclude Include="DebugTools\DebugView.h" />
     <ClInclude Include="DebugTools\DebugTools.h" />
-    <ClInclude Include="DebugViews\EntityDebugViewController.h" />
-    <ClInclude Include="DebugViews\InputDebugViewController.h" />
-    <ClInclude Include="DebugViews\SystemDebugViewController.h" />
-    <ClInclude Include="DebugViews\ResourceDebugViewController.h" />
+    <ClInclude Include="DebugViews\DebugView_Input.h" />
+    <ClInclude Include="DebugViews\DebugView_System.h" />
+    <ClInclude Include="DebugViews\DebugView_Resource.h" />
     <ClInclude Include="DevelopmentToolset.h" />
+    <ClInclude Include="Entity\Collections\EntityCollection.h" />
+    <ClInclude Include="Entity\Collections\EntityCollectionDescriptor.h" />
+    <ClInclude Include="Entity\DebugViews\DebugView_EntityWorld.h" />
+    <ClInclude Include="Entity\Entity.h" />
+    <ClInclude Include="Entity\EntityComponent.h" />
+    <ClInclude Include="Entity\EntityDescriptors.h" />
+    <ClInclude Include="Entity\EntitySpatialComponent.h" />
+    <ClInclude Include="Entity\EntitySystem.h" />
+    <ClInclude Include="Entity\EntityWorld.h" />
+    <ClInclude Include="Entity\EntityWorldSystem.h" />
+    <ClInclude Include="Entity\Map\EntityMap.h" />
+    <ClInclude Include="Entity\Map\EntityMapDescriptor.h" />
+    <ClInclude Include="Entity\ResourceLoaders\ResourceLoader_EntityMap.h" />
     <ClInclude Include="Math\Easing.h" />
     <ClInclude Include="Modules\EngineModuleContext.h" />
     <ClInclude Include="Modules\IEngineModule.h" />
@@ -75,11 +87,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugTools\DebugTools.cpp" />
-    <ClCompile Include="DebugViews\EntityDebugViewController.cpp" />
-    <ClCompile Include="DebugViews\InputDebugViewController.cpp" />
-    <ClCompile Include="DebugViews\SystemDebugViewController.cpp" />
-    <ClCompile Include="DebugViews\ResourceDebugViewController.cpp" />
+    <ClCompile Include="DebugViews\DebugView_Input.cpp" />
+    <ClCompile Include="DebugViews\DebugView_System.cpp" />
+    <ClCompile Include="DebugViews\DebugView_Resource.cpp" />
     <ClCompile Include="DevelopmentToolset.cpp" />
+    <ClCompile Include="Entity\Collections\EntityCollection.cpp" />
+    <ClCompile Include="Entity\Collections\EntityCollectionDescriptor.cpp" />
+    <ClCompile Include="Entity\DebugViews\DebugView_EntityWorld.cpp" />
+    <ClCompile Include="Entity\Entity.cpp" />
+    <ClCompile Include="Entity\EntityComponent.cpp" />
+    <ClCompile Include="Entity\EntityDescriptors.cpp" />
+    <ClCompile Include="Entity\EntitySpatialComponent.cpp" />
+    <ClCompile Include="Entity\EntitySystem.cpp" />
+    <ClCompile Include="Entity\EntityWorld.cpp" />
+    <ClCompile Include="Entity\EntityWorldSystem.cpp" />
+    <ClCompile Include="Entity\Map\EntityMap.cpp" />
+    <ClCompile Include="Entity\Map\EntityMapDescriptor.cpp" />
+    <ClCompile Include="Entity\ResourceLoaders\ResourceLoader_EntityMap.cpp" />
     <ClCompile Include="Math\Easing.cpp" />
     <ClCompile Include="Modules\EngineModuleContext.cpp" />
     <ClCompile Include="_Module\Module.cpp" />
@@ -88,9 +112,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\Entity\KRG.System.Entity.vcxproj">
-      <Project>{e3085618-d753-48e5-a30f-b44a1c39f6e4}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Imgui\KRG.System.Imgui.vcxproj">
       <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>

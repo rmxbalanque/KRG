@@ -1,8 +1,8 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "System/ImguiFont.h"
-#include "System/ImguiTheme.h"
+#include "ImguiFont.h"
+#include "ImguiTheme.h"
 #include "ThirdParty/imgui/imgui.h"
 #include "ThirdParty/imgui/imgui_internal.h"
 #include "System/Core/Types/Color.h"

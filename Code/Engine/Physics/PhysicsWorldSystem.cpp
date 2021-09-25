@@ -4,7 +4,7 @@
 #include "Components/PhysicsCapsuleComponent.h"
 #include "Components/PhysicsSphereComponent.h"
 #include "Components/PhysicsBoxComponent.h"
-#include "System/Entity/Entity.h"
+#include "Engine/Core/Entity/Entity.h"
 
 //-------------------------------------------------------------------------
 

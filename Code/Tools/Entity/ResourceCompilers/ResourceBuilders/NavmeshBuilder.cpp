@@ -1,5 +1,5 @@
 #include "NavmeshBuilder.h"
-#include "Tools/Physics/ResourceCompilers/PhysicsMeshCompiler.h"
+#include "Tools/Physics/ResourceCompilers/ResourceCompiler_PhysicsMesh.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Core/Resource/RawAssets/RawMesh.h"
 #include "Tools/Entity/EntityCollectionModel.h"
@@ -7,7 +7,7 @@
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/NavmeshData.h"
 #include "Engine/Physics/Components/PhysicsMeshComponent.h"
-#include "System/Entity/Collections/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/Collections/EntityCollectionDescriptor.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
