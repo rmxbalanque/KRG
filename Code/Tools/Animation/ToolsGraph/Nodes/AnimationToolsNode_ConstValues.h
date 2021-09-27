@@ -21,7 +21,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE bool m_value;
+        KRG_EXPOSE bool m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE StringID m_value;
+        KRG_EXPOSE StringID m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -63,7 +63,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE int32 m_value;
+        KRG_EXPOSE int32 m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE float m_value;
+        KRG_EXPOSE float m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -105,7 +105,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE Float4 m_value;
+        KRG_EXPOSE Float4 m_value;
     };
 
     //-------------------------------------------------------------------------
@@ -126,6 +126,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE Transform m_value;
+        KRG_EXPOSE Transform m_value;
     };
 }

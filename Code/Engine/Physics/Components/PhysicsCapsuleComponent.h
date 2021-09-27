@@ -24,8 +24,8 @@ namespace KRG::Physics
 
     protected:
 
-        EXPOSE StringID                                 m_physicsMaterialID;
-        EXPOSE float                                    m_capsuleHalfHeight = 1.0f;
-        EXPOSE float                                    m_capsuleRadius = 0.5f;
+        KRG_EXPOSE StringID                                 m_physicsMaterialID;
+        KRG_EXPOSE float                                    m_capsuleHalfHeight = 1.0f;
+        KRG_EXPOSE float                                    m_capsuleRadius = 0.5f;
     };
 }

@@ -48,6 +48,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        REGISTER GraphType       m_type;
+        KRG_REGISTER GraphType       m_type;
     };
 }

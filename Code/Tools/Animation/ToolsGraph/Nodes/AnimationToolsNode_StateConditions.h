@@ -37,8 +37,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE float                                    m_comparand = 0.0f;
-        EXPOSE TimeConditionNode::ComparisonType        m_type = TimeConditionNode::ComparisonType::ElapsedTime;
-        EXPOSE TimeConditionNode::Operator              m_operator = TimeConditionNode::Operator::LessThan;
+        KRG_EXPOSE float                                    m_comparand = 0.0f;
+        KRG_EXPOSE TimeConditionNode::ComparisonType        m_type = TimeConditionNode::ComparisonType::ElapsedTime;
+        KRG_EXPOSE TimeConditionNode::Operator              m_operator = TimeConditionNode::Operator::LessThan;
     };
 }

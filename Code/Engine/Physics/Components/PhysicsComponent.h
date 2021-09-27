@@ -91,13 +91,13 @@ namespace KRG::Physics
     protected:
 
         // The type of physics actor for this component
-        EXPOSE ActorType                            m_actorType = ActorType::Static;
+        KRG_EXPOSE ActorType                            m_actorType = ActorType::Static;
 
         // How is this shape to be used
-        EXPOSE ShapeType                            m_shapeType = ShapeType::SimulationAndQuery;
+        KRG_EXPOSE ShapeType                            m_shapeType = ShapeType::SimulationAndQuery;
 
         // What layers does this shape belong to?
-        EXPOSE TBitFlags<Layers>                    m_layers;
+        KRG_EXPOSE TBitFlags<Layers>                    m_layers;
 
     private:
 

@@ -33,6 +33,8 @@ namespace KRG
             virtual bool IsReady() const = 0;
             virtual bool Initialize() { return true; }
             virtual void Shutdown() {}
+
+            // The resource provider update function, returns true if an error occurs with the resource provider
             virtual void Update() = 0;
 
             // Request a resource to be loaded

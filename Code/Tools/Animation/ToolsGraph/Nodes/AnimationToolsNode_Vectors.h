@@ -21,7 +21,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE VectorInfoNode::Info            m_desiredInfo = VectorInfoNode::Info::X;
+        KRG_EXPOSE VectorInfoNode::Info            m_desiredInfo = VectorInfoNode::Info::X;
     };
 
     //-------------------------------------------------------------------------

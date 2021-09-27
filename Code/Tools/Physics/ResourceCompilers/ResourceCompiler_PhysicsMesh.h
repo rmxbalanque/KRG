@@ -17,13 +17,13 @@ namespace KRG
         {
             KRG_REGISTER_TYPE( PhysicsMeshResourceDescriptor );
 
-            EXPOSE DataPath         m_meshDataPath;
+            KRG_EXPOSE DataPath         m_meshDataPath;
 
             // Optional value: Specifies a single sub-mesh to use to generated the physics collision, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
-            EXPOSE String           m_meshName;
+            KRG_EXPOSE String           m_meshName;
 
             // Optional value: Specifies if the mesh is a convex mesh (meshes are considered triangle meshes by default)
-            EXPOSE bool             m_isConvexMesh = false;
+            KRG_EXPOSE bool             m_isConvexMesh = false;
         };
 
         //-------------------------------------------------------------------------

@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Tools\Animation\ToolsGraph\Nodes\AnimationToolsNode_RootMotionOverride.h"
+#include "d:\Kruger\Code\Tools\Animation\ToolsGraph\Nodes\AnimationToolsNode_RootMotionOverride.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::Graph::Tools_RootMotionOverrideNode

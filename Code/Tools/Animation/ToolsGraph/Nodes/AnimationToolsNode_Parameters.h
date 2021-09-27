@@ -27,8 +27,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        REGISTER String                     m_name;
-        REGISTER ValueType                  m_type = ValueType::Float;
+        KRG_REGISTER String                     m_name;
+        KRG_REGISTER ValueType                  m_type = ValueType::Float;
     };
 
     //-------------------------------------------------------------------------
@@ -59,7 +59,7 @@ namespace KRG::Animation::Graph
     private:
 
         Tools_ControlParameterNode const*   m_pParameter = nullptr;
-        REGISTER UUID                       m_parameterUUID;
+        KRG_REGISTER UUID                       m_parameterUUID;
     };
 
     //-------------------------------------------------------------------------
@@ -85,8 +85,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        REGISTER String                     m_name;
-        REGISTER ValueType                  m_type = ValueType::Float;
+        KRG_REGISTER String                     m_name;
+        KRG_REGISTER ValueType                  m_type = ValueType::Float;
     };
 
     //-------------------------------------------------------------------------
@@ -117,6 +117,6 @@ namespace KRG::Animation::Graph
     private:
 
         Tools_VirtualParameterNode const*       m_pParameter = nullptr;
-        REGISTER UUID                           m_parameterUUID;
+        KRG_REGISTER UUID                           m_parameterUUID;
     };
 }

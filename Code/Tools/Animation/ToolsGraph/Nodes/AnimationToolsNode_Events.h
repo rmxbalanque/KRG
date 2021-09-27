@@ -22,9 +22,9 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE GenericEventConditionNode::Operator         m_operator = GenericEventConditionNode::Operator::Or;
-        EXPOSE EventSearchMode                             m_searchMode = EventSearchMode::SearchAll;
-        EXPOSE TVector<StringID>                           m_eventIDs;
+        KRG_EXPOSE GenericEventConditionNode::Operator         m_operator = GenericEventConditionNode::Operator::Or;
+        KRG_EXPOSE EventSearchMode                             m_searchMode = EventSearchMode::SearchAll;
+        KRG_EXPOSE TVector<StringID>                           m_eventIDs;
     };
 
     //-------------------------------------------------------------------------
@@ -44,9 +44,9 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE EventSearchMode                             m_searchMode = EventSearchMode::SearchAll;
-        EXPOSE bool                                        m_preferHighestPercentageThrough = false;
-        EXPOSE StringID                                    m_eventID;
+        KRG_EXPOSE EventSearchMode                             m_searchMode = EventSearchMode::SearchAll;
+        KRG_EXPOSE bool                                        m_preferHighestPercentageThrough = false;
+        KRG_EXPOSE StringID                                    m_eventID;
     };
 
     //-------------------------------------------------------------------------
@@ -66,8 +66,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE FootEvent::PhaseCondition                   m_phaseCondition = FootEvent::PhaseCondition::LeftFootDown;
-        EXPOSE bool                                        m_preferHighestPercentageThrough = false;
+        KRG_EXPOSE FootEvent::PhaseCondition                   m_phaseCondition = FootEvent::PhaseCondition::LeftFootDown;
+        KRG_EXPOSE bool                                        m_preferHighestPercentageThrough = false;
     };
 
     //-------------------------------------------------------------------------
@@ -87,8 +87,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE FootEvent::PhaseCondition                   m_phaseCondition = FootEvent::PhaseCondition::LeftFootDown;
-        EXPOSE bool                                        m_preferHighestPercentageThrough = false;
+        KRG_EXPOSE FootEvent::PhaseCondition                   m_phaseCondition = FootEvent::PhaseCondition::LeftFootDown;
+        KRG_EXPOSE bool                                        m_preferHighestPercentageThrough = false;
     };
 
     //-------------------------------------------------------------------------
@@ -108,8 +108,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE SyncEventConditionNode::TriggerMode          m_triggerMode = SyncEventConditionNode::TriggerMode::ExactlyAtEventIndex;
-        EXPOSE int32                                        m_syncEventIdx = InvalidIndex;
+        KRG_EXPOSE SyncEventConditionNode::TriggerMode          m_triggerMode = SyncEventConditionNode::TriggerMode::ExactlyAtEventIndex;
+        KRG_EXPOSE int32                                        m_syncEventIdx = InvalidIndex;
     };
 
     //-------------------------------------------------------------------------

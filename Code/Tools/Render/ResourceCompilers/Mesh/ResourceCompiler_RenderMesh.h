@@ -22,13 +22,13 @@ namespace KRG::Render
         KRG_REGISTER_TYPE( MeshResourceDescriptor );
 
         // The path to the mesh source file
-        EXPOSE DataPath                             m_meshDataPath;
+        KRG_EXPOSE DataPath                             m_meshDataPath;
 
         // Default materials - TODO: extract from FBX
-        EXPOSE TVector<TResourcePtr<Material>>      m_materials;
+        KRG_EXPOSE TVector<TResourcePtr<Material>>      m_materials;
 
         // Optional value that specifies the specific sub-mesh to compile, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
-        EXPOSE String                               m_meshName;
+        KRG_EXPOSE String                               m_meshName;
     };
 
     //-------------------------------------------------------------------------

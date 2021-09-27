@@ -21,8 +21,8 @@ namespace KRG::Animation::Graph
 
     public:
 
-        EXPOSE FloatRange                  m_inputRange = FloatRange( 0.0f );
-        EXPOSE FloatRange                  m_outputRange = FloatRange( 0.0f );
+        KRG_EXPOSE FloatRange                  m_inputRange = FloatRange( 0.0f );
+        KRG_EXPOSE FloatRange                  m_outputRange = FloatRange( 0.0f );
     };
 
     //-------------------------------------------------------------------------
@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        EXPOSE FloatRange                  m_clampRange = FloatRange( 0 );
+        KRG_EXPOSE FloatRange                  m_clampRange = FloatRange( 0 );
     };
 
     //-------------------------------------------------------------------------
@@ -78,8 +78,8 @@ namespace KRG::Animation::Graph
 
     public:
 
-        EXPOSE Math::Easing::Type          m_easingType = Math::Easing::Type::Linear;
-        EXPOSE float                       m_easeTime = 1.0f;
+        KRG_EXPOSE Math::Easing::Type          m_easingType = Math::Easing::Type::Linear;
+        KRG_EXPOSE float                       m_easeTime = 1.0f;
     };
 
     //-------------------------------------------------------------------------
@@ -99,9 +99,9 @@ namespace KRG::Animation::Graph
 
     public:
 
-        EXPOSE bool                       m_returnAbsoluteResult = false;
-        EXPOSE FloatMathNode::Operator    m_operator = FloatMathNode::Operator::Add;
-        EXPOSE float                      m_valueB = 0.0f;
+        KRG_EXPOSE bool                       m_returnAbsoluteResult = false;
+        KRG_EXPOSE FloatMathNode::Operator    m_operator = FloatMathNode::Operator::Add;
+        KRG_EXPOSE float                      m_valueB = 0.0f;
     };
 
     //-------------------------------------------------------------------------
@@ -121,9 +121,9 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE FloatComparisonNode::Comparison         m_comparison = FloatComparisonNode::Comparison::GreaterThanEqual;
-        EXPOSE float                                   m_epsilon = 0.0f;
-        EXPOSE float                                   m_comparisonValue = 0.0f;
+        KRG_EXPOSE FloatComparisonNode::Comparison         m_comparison = FloatComparisonNode::Comparison::GreaterThanEqual;
+        KRG_EXPOSE float                                   m_epsilon = 0.0f;
+        KRG_EXPOSE float                                   m_comparisonValue = 0.0f;
     };
 
     //-------------------------------------------------------------------------
@@ -143,7 +143,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE  FloatRange                              m_range;
+        KRG_EXPOSE  FloatRange                              m_range;
     };
 
     //-------------------------------------------------------------------------

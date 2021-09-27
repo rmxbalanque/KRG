@@ -22,8 +22,8 @@ namespace KRG::Render
     {
         KRG_REGISTER_TYPE( ShaderResourceDescriptor );
 
-        EXPOSE ShaderType           m_shaderType = ShaderType::Vertex;
-        EXPOSE DataPath             m_shaderDataPath;
+        KRG_EXPOSE ShaderType           m_shaderType = ShaderType::Vertex;
+        KRG_EXPOSE DataPath             m_shaderDataPath;
     };
 
     //-------------------------------------------------------------------------

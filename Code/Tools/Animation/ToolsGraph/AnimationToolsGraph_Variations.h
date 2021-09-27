@@ -22,9 +22,9 @@ namespace KRG::Animation::Graph
         inline bool operator==( StringID const& variationID ) const { return m_ID == variationID; }
         inline bool operator!=( StringID const& variationID ) const { return m_ID != variationID; }
 
-        EXPOSE      StringID                m_ID;
-        REGISTER    StringID                m_parentID;
-        EXPOSE      TResourcePtr<Skeleton>  m_pSkeleton;
+        KRG_EXPOSE      StringID                m_ID;
+        KRG_REGISTER    StringID                m_parentID;
+        KRG_EXPOSE      TResourcePtr<Skeleton>  m_pSkeleton;
     };
 
     //-------------------------------------------------------------------------

@@ -34,7 +34,7 @@ namespace KRG::Animation
 
     private:
 
-        EXPOSE TResourcePtr<Skeleton>               m_pSkeleton = nullptr;
+        KRG_EXPOSE TResourcePtr<Skeleton>               m_pSkeleton = nullptr;
         TVector<int32>                              m_animToMeshBoneMap;
     };
 }

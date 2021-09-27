@@ -2,10 +2,11 @@
 # KRG REFLECTION SCRIPT
 ##########################################
 
+KRG_SOLUTION_PATH = "$(KRG_ROOT_DIR)KRG.sln"
+DEPLOY_CMD = msbuild $(KRG_SOLUTION_PATH) /t:"0_ Scripts\KRG_Scripts_Deploy" /p:Configuration=Release;Platform=x64
 REFLECTOR_EXE = $(KRG_BUILD_DIR)x64_Release\KrugerReflector.exe
-REFLECTOR_REFLECT_CMD = $(REFLECTOR_EXE) -s "$(SLN_PATH)" -rebuild
-DEPLOY_CMD = msbuild $(SLN_PATH) /t:"0_ Scripts\KRG_Scripts_Deploy" /p:Configuration=Release;Platform=x64
-REFLECTOR_BUILD_CMD = msbuild $(SLN_PATH) /t:"1_ Applications\KRG_Applications_Reflector" /p:Configuration=Release;Platform=x64 /m /v:q
+REFLECTOR_BUILD_CMD = msbuild $(KRG_SOLUTION_PATH) /t:"1_ Applications\KRG_Applications_Reflector" /p:Configuration=Release;Platform=x64 /m /v:q
+REFLECTOR_REFLECT_CMD = "$(REFLECTOR_EXE)" -s $(KRG_SOLUTION_PATH) -rebuild
 
 !if exist( $(REFLECTOR_EXE) )
 REFLECTOR_CLEAN_CMD = $(REFLECTOR_REFLECT_CMD) -clean

@@ -59,7 +59,7 @@ namespace KRG::Animation
 
     protected:
 
-        REGISTER Seconds         m_startTime = 0.0f;
-        REGISTER Seconds         m_duration = 0.0f;
+        KRG_REGISTER Seconds         m_startTime = 0.0f;
+        KRG_REGISTER Seconds         m_duration = 0.0f;
     };
 }

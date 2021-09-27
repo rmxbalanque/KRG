@@ -69,8 +69,8 @@ namespace KRG::Render
 
     private:
 
-        EXPOSE TResourcePtr<StaticMesh>                                 m_pMesh;
-        EXPOSE Mobility                                                 m_mobility = Mobility::Static;
+        KRG_EXPOSE TResourcePtr<StaticMesh>                                 m_pMesh;
+        KRG_EXPOSE Mobility                                                 m_mobility = Mobility::Static;
         TSingleUserEventInternal<void( StaticMeshComponent* )>          m_mobilityChangedEvent;
     };
 }

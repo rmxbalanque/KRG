@@ -29,16 +29,16 @@ namespace KRG::Animation::Graph
 
     protected:
 
-        EXPOSE String                                       m_name = "Transition";
-        EXPOSE Math::Easing::Type                           m_blendWeightEasingType = Math::Easing::Type::Linear;
-        EXPOSE TransitionNode::RootMotionBlend       m_rootMotionBlend = TransitionNode::RootMotionBlend::Blend;
-        EXPOSE Seconds                                      m_duration = 0.3f;
-        EXPOSE float                                        m_syncEventOffset = 0.0f;
-        EXPOSE bool                                         m_isSynchronized = false;
-        EXPOSE bool                                         m_clampDurationToSource = true;
-        EXPOSE bool                                         m_keepSourceSyncEventIdx = false;
-        EXPOSE bool                                         m_keepSourceSyncEventPercentageThrough = false;
-        EXPOSE bool                                         m_canBeForced = false;
+        KRG_EXPOSE String                                       m_name = "Transition";
+        KRG_EXPOSE Math::Easing::Type                           m_blendWeightEasingType = Math::Easing::Type::Linear;
+        KRG_EXPOSE TransitionNode::RootMotionBlend       m_rootMotionBlend = TransitionNode::RootMotionBlend::Blend;
+        KRG_EXPOSE Seconds                                      m_duration = 0.3f;
+        KRG_EXPOSE float                                        m_syncEventOffset = 0.0f;
+        KRG_EXPOSE bool                                         m_isSynchronized = false;
+        KRG_EXPOSE bool                                         m_clampDurationToSource = true;
+        KRG_EXPOSE bool                                         m_keepSourceSyncEventIdx = false;
+        KRG_EXPOSE bool                                         m_keepSourceSyncEventPercentageThrough = false;
+        KRG_EXPOSE bool                                         m_canBeForced = false;
     };
 
     //-------------------------------------------------------------------------
@@ -60,7 +60,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        REGISTER UUID                               m_stateID;
+        KRG_REGISTER UUID                               m_stateID;
     };
 
     // Transition conduit

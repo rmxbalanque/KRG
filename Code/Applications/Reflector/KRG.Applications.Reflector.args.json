@@ -3,6 +3,10 @@
   "Id": "c6d6c2bd-89a1-41f2-b27d-3e87b8b678a5",
   "Items": [
     {
+      "Id": "bdba4527-67af-4842-a227-ea72968b9c62",
+      "Command": "-s d:\\Kruger\\KRG.sln"
+    },
+    {
       "Id": "3b03f12c-e77f-469f-aea1-23285215d11b",
       "Command": "-rebuild"
     },

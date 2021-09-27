@@ -57,17 +57,17 @@ namespace KRG::Physics
 
         bool IsValid() const;
 
-        EXPOSE StringID                         m_ID;
+        KRG_EXPOSE StringID                         m_ID;
 
         // The friction coefficients - [0, FloatMax]
-        EXPOSE float                            m_staticFriction = PhysicsMaterial::DefaultStaticFriction;
-        EXPOSE float                            m_dynamicFriction = PhysicsMaterial::DefaultDynamicFriction;
+        KRG_EXPOSE float                            m_staticFriction = PhysicsMaterial::DefaultStaticFriction;
+        KRG_EXPOSE float                            m_dynamicFriction = PhysicsMaterial::DefaultDynamicFriction;
 
         // The amount of restitution (bounciness) - [0,1]
-        EXPOSE float                            m_restitution = PhysicsMaterial::DefaultRestitution;
+        KRG_EXPOSE float                            m_restitution = PhysicsMaterial::DefaultRestitution;
 
         // How material properties will be combined on collision
-        EXPOSE PhysicsCombineMode               m_frictionCombineMode = PhysicsCombineMode::Average;
-        EXPOSE PhysicsCombineMode               m_restitutionCombineMode = PhysicsCombineMode::Average;
+        KRG_EXPOSE PhysicsCombineMode               m_frictionCombineMode = PhysicsCombineMode::Average;
+        KRG_EXPOSE PhysicsCombineMode               m_restitutionCombineMode = PhysicsCombineMode::Average;
     };
 }

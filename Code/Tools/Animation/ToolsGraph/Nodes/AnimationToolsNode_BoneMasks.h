@@ -30,8 +30,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE float                                m_rootMotionWeight = 1.0f;
-        EXPOSE TVector<ToolsBoneWeight>             m_weights;
+        KRG_EXPOSE float                                m_rootMotionWeight = 1.0f;
+        KRG_EXPOSE TVector<ToolsBoneWeight>             m_weights;
     };
 
     //-------------------------------------------------------------------------
@@ -72,8 +72,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE bool                                   m_switchDynamically = false;
-        EXPOSE TVector<StringID>                      m_parameterValues;
-        EXPOSE Seconds                                m_blendTime = 0.1f;
+        KRG_EXPOSE bool                                   m_switchDynamically = false;
+        KRG_EXPOSE TVector<StringID>                      m_parameterValues;
+        KRG_EXPOSE Seconds                                m_blendTime = 0.1f;
     };
 }

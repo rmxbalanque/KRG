@@ -23,11 +23,11 @@ namespace KRG
 
     protected:
 
-        EXPOSE TVector<ResourceID>  m_meshIDs;
-        EXPOSE TVector<ResourceID>  m_armorMeshIDs;
-        EXPOSE TVector<ResourceID>  m_hairMeshIDs;
-        EXPOSE TVector<ResourceID>  m_materialIDs;
-        EXPOSE TVector<ResourceID>  m_animationIDs;
-        EXPOSE ResourceID           m_skeletonID;
+        KRG_EXPOSE TVector<ResourceID>  m_meshIDs;
+        KRG_EXPOSE TVector<ResourceID>  m_armorMeshIDs;
+        KRG_EXPOSE TVector<ResourceID>  m_hairMeshIDs;
+        KRG_EXPOSE TVector<ResourceID>  m_materialIDs;
+        KRG_EXPOSE TVector<ResourceID>  m_animationIDs;
+        KRG_EXPOSE ResourceID           m_skeletonID;
     };
 }

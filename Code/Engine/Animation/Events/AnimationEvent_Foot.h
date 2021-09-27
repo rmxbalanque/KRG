@@ -50,6 +50,6 @@ namespace KRG::Animation
 
     private:
 
-        EXPOSE Phase         m_phase = Phase::LeftFootDown;
+        KRG_EXPOSE Phase         m_phase = Phase::LeftFootDown;
     };
 }

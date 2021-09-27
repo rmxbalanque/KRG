@@ -23,12 +23,12 @@ namespace KRG::Resource
 
     bool NetworkResourceProvider::IsReady() const
     {
-        return m_networkClient.IsConnected();
+        return m_networkClient.IsConnected() || m_networkClient.IsConnecting();
     }
 
     bool NetworkResourceProvider::Initialize()
     {
-        return TryConnectToServer();
+        return Network::NetworkSystem::StartClientConnection( &m_networkClient, m_address.c_str() );
     }
 
     void NetworkResourceProvider::Shutdown()
@@ -43,13 +43,19 @@ namespace KRG::Resource
         // Check connection to resource server
         //-------------------------------------------------------------------------
 
-        if ( !m_networkClient.IsConnected() )
+        if ( m_networkClient.IsConnecting() )
         {
-            if ( !TryConnectToServer() )
+            return;
+        }
+
+        if ( m_networkClient.HasConnectionFailed() )
+        {
+            if ( !m_networkFailureDetected )
             {
                 KRG_LOG_FATAL_ERROR( "Resource", "Lost connection to resource server" );
-                return;
+                m_networkFailureDetected = true;
             }
+            return;
         }
 
         // Check for any network messages
@@ -85,12 +91,6 @@ namespace KRG::Resource
             m_networkClient.SendMessageToServer( eastl::move( messageToSend ) );
         }
 
-        if ( m_keepAliveTimer.GetElapsedTimeSeconds() > Seconds( 5.0f ) )
-        {
-            m_networkClient.SendMessageToServer( Network::IPC::Message( (int32) NetworkMessageID::KeepAlive ) );
-            m_keepAliveTimer.Reset();
-        }
-
         // Process all responses
         //-------------------------------------------------------------------------
 
@@ -120,6 +120,7 @@ namespace KRG::Resource
         }
 
         m_serverReponses.clear();
+        return;
     }
 
     void NetworkResourceProvider::RequestResourceInternal( ResourceRequest* pRequest )
@@ -130,35 +131,6 @@ namespace KRG::Resource
     void NetworkResourceProvider::CancelRequestInternal( ResourceRequest* pRequest )
     {
         // Do nothing
-    }
-
-    bool NetworkResourceProvider::TryConnectToServer()
-    {
-        Network::NetworkSystem::StartClientConnection( &m_networkClient, m_address.c_str() );
-
-        if ( m_networkClient.IsConnecting() )
-        {
-            static constexpr int32 const maxRetries = 10;
-            int32 numRetries = 0;
-            while ( numRetries < maxRetries )
-            {
-                KRG_LOG_MESSAGE( "Resource", "Connecting to resource server at %s - retrying %d / %d", m_networkClient.GetAddress().c_str(), numRetries, maxRetries );
-                if ( m_networkClient.IsConnected() || !m_networkClient.IsConnecting() )
-                {
-                    break;
-                }
-                Threading::Sleep( 500.0f );
-                numRetries++;
-            }
-        }
-
-        if ( !m_networkClient.IsConnected() )
-        {
-            KRG_LOG_ERROR( "Resource", "Failed to connect to resource server at %s", m_networkClient.GetAddress().c_str() );
-            return false;
-        }
-
-        return true;
     }
 }
 #endif

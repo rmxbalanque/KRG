@@ -36,7 +36,7 @@ namespace KRG::Animation
 
     private:
 
-        EXPOSE TResourcePtr<AnimationGraphVariation>    m_pGraphVariation = nullptr;
+        KRG_EXPOSE TResourcePtr<AnimationGraphVariation>    m_pGraphVariation = nullptr;
 
         Graph::GraphInstance*                           m_pGraphInstance = nullptr;
         Graph::TaskSystem*                              m_pTaskSystem = nullptr;

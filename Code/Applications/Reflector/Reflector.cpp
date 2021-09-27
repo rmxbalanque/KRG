@@ -38,6 +38,7 @@ namespace KRG
                 va_end( args );
 
                 std::cout << std::endl << "Error: " << buffer << std::endl;
+                KRG_TRACE_MSG( buffer );
                 return false;
             }
 

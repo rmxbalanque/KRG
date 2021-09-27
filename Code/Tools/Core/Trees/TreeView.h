@@ -19,15 +19,22 @@ namespace KRG
 
         TreeViewItem() = default;
 
-        TreeViewItem( StringID ID, String const& label, int32 hierarchyLevel )
-            : m_ID( ID )
+        explicit TreeViewItem( String const& label, int32 hierarchyLevel )
+            : m_labelID( label.c_str() )
             , m_label( label )
+            , m_hierarchyLevel( hierarchyLevel )
+        {}
+
+        explicit TreeViewItem( char const* pLabel, int32 hierarchyLevel )
+            : m_labelID( pLabel )
+            , m_label( pLabel )
             , m_hierarchyLevel( hierarchyLevel )
         {}
 
         virtual ~TreeViewItem() = default;
 
-        inline StringID const& GetStringID() const { return m_ID; }
+        inline StringID const& GetLabelID() const { return m_labelID; }
+        inline uint32 GetUniqueID() const { return m_uniqueID; }
         inline char const* GetLabel() const { return m_label.c_str(); }
         inline int32 GetHierarchyLevel() const { return m_hierarchyLevel; }
 
@@ -53,6 +60,7 @@ namespace KRG
         {
             static_assert( std::is_base_of<TreeViewItem, T>::value, "T must derive from TreeViewItem" );
             TreeViewItem* pAddedItem = m_children.emplace_back( KRG::New<T>( std::forward<ConstructorParams>( params )... ) );
+            KRG_ASSERT( pAddedItem->GetUniqueID() != 0 );
             return static_cast<T*>( pAddedItem );
         }
 
@@ -77,6 +85,36 @@ namespace KRG
             {
                 pFoundItem = *itemIter;
             }
+            return pFoundItem;
+        }
+
+        // Recursively search all children
+        TreeViewItem* SearchChildren( TFunction<bool( TreeViewItem const* )> const& searchPredicate )
+        {
+            TreeViewItem* pFoundItem = nullptr;
+
+            // Search immediate children
+            //-------------------------------------------------------------------------
+
+            auto itemIter = eastl::find_if( m_children.begin(), m_children.end(), searchPredicate );
+            if ( itemIter != m_children.end() )
+            {
+                pFoundItem = *itemIter;
+                return pFoundItem;
+            }
+
+            // Recursively search each child
+            //-------------------------------------------------------------------------
+
+            for ( auto pChild : m_children )
+            {
+                pFoundItem = pChild->SearchChildren( searchPredicate );
+                if ( pFoundItem != nullptr )
+                {
+                    return pFoundItem;
+                }
+            }
+
             return pFoundItem;
         }
 
@@ -152,8 +190,9 @@ namespace KRG
 
     protected:
 
-        StringID                                m_ID;
-        String                                  m_label;
+        uint32                                  m_uniqueID = 0; // Unique ID for the item, needs to be set via derived classes
+        StringID                                m_labelID; // The ID for the item relative to the parent
+        String                                  m_label; // Cached string to speed up imgui
         TVector<TreeViewItem*>                  m_children;
         int32                                   m_hierarchyLevel = -1;
         bool                                    m_isVisible = true;
@@ -237,6 +276,8 @@ namespace KRG
         }
 
     protected:
+
+        inline int32 GetNumItems() const { return (int32) m_visualTree.size(); }
 
         inline void SetItemControlColumnWidth( float width )
         {

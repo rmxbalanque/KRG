@@ -29,7 +29,7 @@ namespace KRG::Animation::Graph
     private:
 
         // For each pin, what state does it represent
-        REGISTER TVector<UUID>  m_pinToStateMapping;
+        KRG_REGISTER TVector<UUID>  m_pinToStateMapping;
     };
 
     // The Flow graph for the state machine node

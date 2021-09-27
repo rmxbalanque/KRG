@@ -36,15 +36,13 @@ namespace KRG::Resource
         virtual void RequestResourceInternal( ResourceRequest* pRequest ) override final;
         virtual void CancelRequestInternal( ResourceRequest* pRequest ) override final;
 
-        bool TryConnectToServer();
-
     private:
 
         Network::IPC::Client                                m_networkClient;
         String                                              m_address;
-        SystemTimer                                         m_keepAliveTimer;
         TVector<NetworkResourceResponse>                    m_serverReponses;
         Threading::LockFreeQueue<Network::IPC::Message>     m_messagesToSend;
+        bool                                                m_networkFailureDetected = false;
     };
 }
 

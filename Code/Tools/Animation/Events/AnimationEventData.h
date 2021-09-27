@@ -64,9 +64,9 @@ namespace KRG::Animation
 
     private:
 
-        EXPOSE Event::EventType                     m_eventType = Event::EventType::Duration;
-        EXPOSE bool                                 m_isSyncTrack = false;
-        EXPOSE TypeSystem::TypeID                   m_eventTypeID;
+        KRG_EXPOSE Event::EventType                     m_eventType = Event::EventType::Duration;
+        KRG_EXPOSE bool                                 m_isSyncTrack = false;
+        KRG_EXPOSE TypeSystem::TypeID                   m_eventTypeID;
         TypeSystem::TypeInfo const*                 m_pEventTypeInfo = nullptr;
         float                                       m_animFrameRate = 0.0f;
     };

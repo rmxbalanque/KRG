@@ -20,13 +20,13 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE float                            m_maxLinearVelocity = 0.0f;
-        EXPOSE float                            m_maxAngularVelocity = 0.0f;
-        EXPOSE bool                             m_overrideHeadingX = true;
-        EXPOSE bool                             m_overrideHeadingY = true;
-        EXPOSE bool                             m_overrideHeadingZ = true;
-        EXPOSE bool                             m_overrideFacingX = true;
-        EXPOSE bool                             m_overrideFacingY = true;
-        EXPOSE bool                             m_overrideFacingZ = true;
+        KRG_EXPOSE float                            m_maxLinearVelocity = 0.0f;
+        KRG_EXPOSE float                            m_maxAngularVelocity = 0.0f;
+        KRG_EXPOSE bool                             m_overrideHeadingX = true;
+        KRG_EXPOSE bool                             m_overrideHeadingY = true;
+        KRG_EXPOSE bool                             m_overrideHeadingZ = true;
+        KRG_EXPOSE bool                             m_overrideFacingX = true;
+        KRG_EXPOSE bool                             m_overrideFacingY = true;
+        KRG_EXPOSE bool                             m_overrideFacingZ = true;
     };
 }

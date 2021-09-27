@@ -32,9 +32,22 @@ namespace KRG
 
         if ( pItem->IsExpanded() )
         {
+            // Always add branch items first
             for ( auto& pChildItem : pItem->m_children )
             {
-                TryAddItemToVisualTree( pChildItem );
+                if ( pChildItem->HasChildren() )
+                {
+                    TryAddItemToVisualTree( pChildItem );
+                }
+            }
+
+            // Add leaf items last
+            for ( auto& pChildItem : pItem->m_children )
+            {
+                if ( !pChildItem->HasChildren() )
+                {
+                    TryAddItemToVisualTree( pChildItem );
+                }
             }
         }
     }
@@ -42,15 +55,28 @@ namespace KRG
     void TreeView::UpdateVisualTree()
     {
         KRG_ASSERT( m_visualTreeState != VisualTreeState::UpToDate );
-        KRG_ASSERT( m_pRoot != nullptr );
+        KRG_ASSERT( m_pRoot != nullptr && m_pRoot->GetUniqueID() != 0 );
 
         //-------------------------------------------------------------------------
 
         m_visualTree.clear();
 
+        // Always add branch items first
         for ( auto& pChildItem : m_pRoot->m_children )
         {
-            TryAddItemToVisualTree( pChildItem );
+            if ( pChildItem->HasChildren() )
+            {
+                TryAddItemToVisualTree( pChildItem );
+            }
+        }
+
+        // Add leaf items last
+        for ( auto& pChildItem : m_pRoot->m_children )
+        {
+            if ( !pChildItem->HasChildren() )
+            {
+                TryAddItemToVisualTree( pChildItem );
+            }
         }
 
         m_estimatedRowHeight = -1.0f;

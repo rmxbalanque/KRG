@@ -28,9 +28,9 @@ namespace KRG::Physics
     protected:
 
         // Optional: Allows the user to override physical materials needed for a triangle mesh. Invalid stringIDs will keep the material defined in the mesh
-        EXPOSE TVector<StringID>                            m_physicsMaterialOverrideIDs;
+        KRG_EXPOSE TVector<StringID>                            m_physicsMaterialOverrideIDs;
 
         // The collision mesh to load (can be either convex or concave)
-        EXPOSE TResourcePtr<PhysicsMesh>                    m_pPhysicsMesh;
+        KRG_EXPOSE TResourcePtr<PhysicsMesh>                    m_pPhysicsMesh;
     };
 }

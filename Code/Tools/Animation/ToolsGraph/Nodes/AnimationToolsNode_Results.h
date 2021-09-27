@@ -24,6 +24,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        REGISTER ValueType m_valueType = ValueType::Pose;
+        KRG_REGISTER ValueType m_valueType = ValueType::Pose;
     };
 }

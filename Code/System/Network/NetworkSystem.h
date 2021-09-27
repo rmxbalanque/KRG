@@ -51,13 +51,26 @@ namespace KRG::Network
 
     public:
 
+        enum class Status
+        {
+            Disconnected,
+            Connecting,
+            Connected,
+            Reconnecting,
+            ConnectionFailed
+        };
+
+    public:
+
         virtual ~ClientConnection();
 
-        bool IsConnected() const;
-        bool IsConnecting() const;
+        inline bool IsConnected() const { return m_status == Status::Connected; }
+        inline bool IsConnecting() const { return m_status == Status::Connecting || m_status == Status::Reconnecting; };
+        inline bool HasConnectionFailed() const { return m_status == Status::ConnectionFailed; }
+        inline bool IsDisconnected() const { return m_status == Status::Disconnected; }
 
         inline uint32 const& GetClientConnectionID() const { return m_connectionHandle; }
-        inline String const& GetAddress() const { return m_address; }
+        inline InlineString<25> const& GetAddress() const { return m_address; }
 
         virtual void ProcessMessage( void* pData, size_t size ) = 0;
 
@@ -65,8 +78,16 @@ namespace KRG::Network
 
     private:
 
-        String                          m_address;
-        uint32                          m_connectionHandle = 0;
+        void Update();
+        bool TryStartConnection();
+        void CloseConnection();
+
+    private:
+
+        InlineString<25>                                m_address;
+        uint32                                          m_connectionHandle = 0;
+        uint32                                          m_reconnectionAttemptsRemaining = 5;
+        Status                                          m_status = Status::Disconnected;
     };
 
     //-------------------------------------------------------------------------

@@ -43,9 +43,9 @@ namespace KRG::Camera
     protected:
 
         // Camera Settings
-        EXPOSE Degrees              m_FOV = 90.0f;
-        EXPOSE float                m_depth = 500.0f;
-        EXPOSE ProjectionType       m_projectionType = ProjectionType::Perspective;
+        KRG_EXPOSE Degrees              m_FOV = 90.0f;
+        KRG_EXPOSE float                m_depth = 500.0f;
+        KRG_EXPOSE ProjectionType       m_projectionType = ProjectionType::Perspective;
 
         // Runtime Data
         Math::ViewVolume            m_viewVolume;

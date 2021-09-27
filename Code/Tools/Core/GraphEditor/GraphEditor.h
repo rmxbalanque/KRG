@@ -122,8 +122,8 @@ namespace KRG::GraphEditor
 
     protected:
 
-        REGISTER UUID           m_ID;
-        REGISTER Float2         m_canvasPosition = Float2( 0, 0 ); // Updated each frame
+        KRG_REGISTER UUID           m_ID;
+        KRG_REGISTER Float2         m_canvasPosition = Float2( 0, 0 ); // Updated each frame
         ImVec2                  m_size = ImVec2( 0, 0 ); // Updated on size calculation
         ImVec2                  m_titleRectSize = ImVec2( 0, 0 );
         ImVec2                  m_controlsRectSize = ImVec2( 0, 0 );
@@ -272,7 +272,7 @@ namespace KRG::GraphEditor
 
     protected:
 
-        REGISTER UUID                           m_ID;
+        KRG_REGISTER UUID                           m_ID;
         TVector<BaseNode*>                      m_nodes;
 
     private:

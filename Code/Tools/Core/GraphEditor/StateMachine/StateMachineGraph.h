@@ -53,8 +53,8 @@ namespace KRG::GraphEditor
 
         private:
 
-            REGISTER UUID   m_startStateID;
-            REGISTER UUID   m_endStateID;
+            KRG_REGISTER UUID   m_startStateID;
+            KRG_REGISTER UUID   m_endStateID;
         };
     }
 
@@ -94,6 +94,6 @@ namespace KRG::GraphEditor
 
     protected:
 
-        REGISTER UUID   m_entryStateID;
+        KRG_REGISTER UUID   m_entryStateID;
     };
 }

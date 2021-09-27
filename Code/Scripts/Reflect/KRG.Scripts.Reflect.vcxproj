@@ -49,17 +49,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NMakeBuildCommandLine>nmake -f Reflect.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_PATH=$(SolutionPath) CRT_PATH="$(UniversalCRT_IncludePath)" PLATFORM=$(Platform) CONFIG=$(Configuration) OUT_DIR=$(OutDir)</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake -f Reflect.nmake PLATFORM=$(Platform) CONFIG=$(Configuration) KRG_ROOT_DIR="$(KRG_ROOT_DIR)\" KRG_BUILD_DIR="$(KRG_BUILD_DIR)\" OUT_DIR="$(OutDir)\"</NMakeBuildCommandLine>
     <NMakeOutput>
     </NMakeOutput>
-    <NMakeCleanCommandLine>nmake clean -f Reflect.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_PATH=$(SolutionPath) CRT_PATH="$(UniversalCRT_IncludePath)" PLATFORM="$(Platform)" CONFIG="$(Configuration)"  OUT_DIR=$(OutDir)</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>nmake clean -f Reflect.nmake PLATFORM=$(Platform) CONFIG=$(Configuration) KRG_ROOT_DIR="$(KRG_ROOT_DIR)\" KRG_BUILD_DIR="$(KRG_BUILD_DIR)\" OUT_DIR="$(OutDir)\"</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NMakeBuildCommandLine>nmake -f Reflect.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_PATH=$(SolutionPath) CRT_PATH="$(UniversalCRT_IncludePath)" PLATFORM=$(Platform) CONFIG=$(Configuration) OUT_DIR=$(OutDir)</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake -f Reflect.nmake PLATFORM=$(Platform) CONFIG=$(Configuration) KRG_ROOT_DIR="$(KRG_ROOT_DIR)\" KRG_BUILD_DIR="$(KRG_BUILD_DIR)\" OUT_DIR="$(OutDir)\"</NMakeBuildCommandLine>
     <NMakeOutput>
     </NMakeOutput>
-    <NMakeCleanCommandLine>nmake clean -f Reflect.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_PATH=$(SolutionPath) CRT_PATH="$(UniversalCRT_IncludePath)" PLATFORM="$(Platform)" CONFIG="$(Configuration)"  OUT_DIR=$(OutDir)</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>nmake clean -f Reflect.nmake PLATFORM=$(Platform) CONFIG=$(Configuration) KRG_ROOT_DIR="$(KRG_ROOT_DIR)\" KRG_BUILD_DIR="$(KRG_BUILD_DIR)\" OUT_DIR="$(OutDir)\"</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <ItemDefinitionGroup>

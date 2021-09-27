@@ -19,8 +19,8 @@ namespace KRG::Animation
     {
         KRG_REGISTER_TYPE( AnimationGraphVariationResourceDescriptor );
 
-        EXPOSE DataPath                     m_graphDataPath;
-        EXPOSE StringID                     m_variationID; // Optional: if not set, will use the default variation
+        KRG_EXPOSE DataPath                     m_graphDataPath;
+        KRG_EXPOSE StringID                     m_variationID; // Optional: if not set, will use the default variation
     };
 
     //-------------------------------------------------------------------------

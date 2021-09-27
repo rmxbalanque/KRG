@@ -30,7 +30,7 @@ namespace KRG::FileSystem
 
         Path() = default;
         Path( Path&& path ) { *this = std::move( path ); }
-        Path( Path const& path ) { *this = path; }
+        Path( Path const& path ) : m_fullpath( path.m_fullpath ), m_hashCode( path.m_hashCode ) {}
         Path( String&& path );
         Path( String const& path );
         Path( char const* pPath );

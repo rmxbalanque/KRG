@@ -24,7 +24,7 @@ namespace KRG::Physics
 
     protected:
 
-        EXPOSE StringID                                 m_physicsMaterialID;
-        EXPOSE Float3                                   m_boxExtents = Float3( 1.0f );
+        KRG_EXPOSE StringID                                 m_physicsMaterialID;
+        KRG_EXPOSE Float3                                   m_boxExtents = Float3( 1.0f );
     };
 }

@@ -55,7 +55,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE String       m_name = "Pose";
-        EXPOSE FloatRange   m_inputTimeRemapRange = FloatRange( 0, 1 );
+        KRG_EXPOSE String       m_name = "Pose";
+        KRG_EXPOSE FloatRange   m_inputTimeRemapRange = FloatRange( 0, 1 );
     };
 }

@@ -24,6 +24,6 @@ namespace KRG::Animation
 
     private:
 
-        EXPOSE StringID         m_ID;
+        KRG_EXPOSE StringID         m_ID;
     };
 }

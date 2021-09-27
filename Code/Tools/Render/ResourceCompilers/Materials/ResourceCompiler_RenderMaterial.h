@@ -14,7 +14,7 @@ namespace KRG::Render
 
         bool IsValid();
 
-        EXPOSE TResourcePtr<Texture>       m_diffuseTexture;
+        KRG_EXPOSE TResourcePtr<Texture>       m_diffuseTexture;
     };
 
     //-------------------------------------------------------------------------

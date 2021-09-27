@@ -14,8 +14,8 @@ namespace KRG::TypeSystem::Reflection
         "KRG_REGISTER_VIRTUAL_RESOURCE",
         "KRG_REGISTER_ENTITY_COMPONENT",
         "KRG_REGISTER_ENTITY_SYSTEM",
-        "REGISTER",
-        "EXPOSE",
+        "KRG_REGISTER",
+        "KRG_EXPOSE",
     };
 
     //-------------------------------------------------------------------------

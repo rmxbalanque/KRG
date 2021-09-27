@@ -39,10 +39,10 @@ namespace KRG::Animation::Graph
 
     protected:
 
-        EXPOSE String                       m_name = "State";
-        EXPOSE TVector<StringID>            m_entryEvents;
-        EXPOSE TVector<StringID>            m_executeEvents;
-        EXPOSE TVector<StringID>            m_exitEvents;
+        KRG_EXPOSE String                       m_name = "State";
+        KRG_EXPOSE TVector<StringID>            m_entryEvents;
+        KRG_EXPOSE TVector<StringID>            m_executeEvents;
+        KRG_EXPOSE TVector<StringID>            m_exitEvents;
     };
 
     //-------------------------------------------------------------------------
@@ -58,8 +58,8 @@ namespace KRG::Animation::Graph
         {
             KRG_REGISTER_TYPE( TimedStateEvent );
 
-            EXPOSE StringID                 m_ID;
-            EXPOSE Seconds                  m_timeValue;
+            KRG_EXPOSE StringID                 m_ID;
+            KRG_EXPOSE Seconds                  m_timeValue;
         };
 
     public:
@@ -75,8 +75,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE TVector<TimedStateEvent>     m_timeRemainingEvents;
-        EXPOSE TVector<TimedStateEvent>     m_timeElapsedEvents;
+        KRG_EXPOSE TVector<TimedStateEvent>     m_timeRemainingEvents;
+        KRG_EXPOSE TVector<TimedStateEvent>     m_timeElapsedEvents;
     };
 
     //-------------------------------------------------------------------------

@@ -66,8 +66,8 @@ namespace KRG::Animation
 
     private:
 
-        EXPOSE TResourcePtr<AnimationClip>              m_pAnimation = nullptr;
-        EXPOSE PlayMode                                 m_playMode = PlayMode::Loop;
+        KRG_EXPOSE TResourcePtr<AnimationClip>              m_pAnimation = nullptr;
+        KRG_EXPOSE PlayMode                                 m_playMode = PlayMode::Loop;
 
         Pose*                                           m_pPose = nullptr;
         Transform                                       m_rootMotionDelta = Transform::Identity;

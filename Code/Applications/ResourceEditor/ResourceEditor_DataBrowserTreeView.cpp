@@ -7,7 +7,7 @@
 namespace KRG
 {
     DataBrowserTreeItem::DataBrowserTreeItem( char const* pName, int32 hierarchyLevel, FileSystem::Path const& path, DataPath const& dataPath, ResourceTypeID resourceTypeID )
-        : TreeViewItem( StringID( pName ), pName, hierarchyLevel )
+        : TreeViewItem( pName, hierarchyLevel )
         , m_path( path )
         , m_dataPath( dataPath )
         , m_resourceTypeID( resourceTypeID )
@@ -21,6 +21,9 @@ namespace KRG
         {
             KRG_ASSERT( !resourceTypeID.IsValid() );
         }
+
+        // Set the unique ID
+        m_uniqueID = Hash::GetHash32( path.c_str() );
     }
 
     void DataBrowserTreeItem::DrawControls()
@@ -104,14 +107,30 @@ namespace KRG
     {
         KRG_ASSERT( m_pRoot != nullptr );
 
+        // Record current state
         //-------------------------------------------------------------------------
-        // TODO: optimize this and maintain active/selected items
+
+        TVector<uint32> originalExpandedItems;
+        originalExpandedItems.reserve( GetNumItems() );
+
+        auto RecordItemState = [ &originalExpandedItems] ( TreeViewItem const* pItem )
+        {
+            if ( pItem->IsExpanded() )
+            {
+                originalExpandedItems.emplace_back( pItem->GetUniqueID() );
+            }
+        };
+
+        ForEachItemConst( RecordItemState );
+
+        uint32 const activeItemID = m_pActiveItem != nullptr ? m_pActiveItem->GetUniqueID() : 0;
+        uint32 const selectedItemID = m_pSelectedItem != nullptr ? m_pSelectedItem->GetUniqueID() : 0;
+
+        // Rebuild Tree
+        //-------------------------------------------------------------------------
 
         m_pActiveItem = nullptr;
         m_pSelectedItem = nullptr;
-
-        //-------------------------------------------------------------------------
-
         m_pRoot->DestroyChildren();
         m_pRoot->SetExpanded( true );
 
@@ -142,7 +161,24 @@ namespace KRG
             parentItem.CreateChild<DataBrowserTreeItem>( path.GetFileName().c_str(), parentItem.GetHierarchyLevel() + 1, path, DataPath::FromFileSystemPath( m_dataDirectoryPath, path ), resourceTypeID );
         }
 
+        // Restore original state
         //-------------------------------------------------------------------------
+
+        auto RestoreItemState = [&originalExpandedItems] ( TreeViewItem* pItem )
+        {
+            if ( VectorContains( originalExpandedItems, pItem->GetUniqueID() ) )
+            {
+                pItem->SetExpanded( true );
+            }
+        };
+
+        ForEachItem( RestoreItemState );
+
+        auto FindActiveItem = [activeItemID] ( TreeViewItem const* pItem ) { return pItem->GetUniqueID() == activeItemID; };
+        m_pActiveItem = m_pRoot->SearchChildren( FindActiveItem );
+
+        auto FindSelectedItem = [selectedItemID] ( TreeViewItem const* pItem ) { return pItem->GetUniqueID() == selectedItemID; };
+        m_pSelectedItem = m_pRoot->SearchChildren( FindSelectedItem );
 
         RefreshVisualState();
     }
@@ -163,7 +199,7 @@ namespace KRG
             directoryPath.Append( splitPath[i] );
 
             StringID const ID( splitPath[i] );
-            auto searchPredicate = [&ID] ( TreeViewItem const* pItem ) { return pItem->GetStringID() == ID; };
+            auto searchPredicate = [&ID] ( TreeViewItem const* pItem ) { return pItem->GetLabelID() == ID; };
 
             auto pFoundChildItem = pCurrentItem->FindChild( searchPredicate );
             if ( pFoundChildItem == nullptr )

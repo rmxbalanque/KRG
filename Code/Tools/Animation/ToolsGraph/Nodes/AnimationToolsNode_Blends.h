@@ -26,7 +26,7 @@ namespace KRG::Animation::Graph
 
     protected:
 
-        EXPOSE bool                 m_isSynchronized = false;
+        KRG_EXPOSE bool                 m_isSynchronized = false;
     };
 
     //-------------------------------------------------------------------------
@@ -45,7 +45,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        REGISTER TVector<float>     m_parameterValues;
+        KRG_REGISTER TVector<float>     m_parameterValues;
     };
 
     //-------------------------------------------------------------------------

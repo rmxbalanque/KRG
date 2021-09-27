@@ -37,8 +37,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE CoordinateSpace          m_expectedCoordinateSpace;
-        EXPOSE TargetInfoNode::Info     m_infoType = TargetInfoNode::Info::Distance;
+        KRG_EXPOSE CoordinateSpace          m_expectedCoordinateSpace;
+        KRG_EXPOSE TargetInfoNode::Info     m_infoType = TargetInfoNode::Info::Distance;
     };
 
     //-------------------------------------------------------------------------
@@ -58,8 +58,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE bool                 m_isBoneSpaceOffset  = true;
-        EXPOSE Quaternion           m_rotationOffset = Quaternion::Identity;
-        EXPOSE Vector               m_translationOffset = Vector::Zero;
+        KRG_EXPOSE bool                 m_isBoneSpaceOffset  = true;
+        KRG_EXPOSE Quaternion           m_rotationOffset = Quaternion::Identity;
+        KRG_EXPOSE Vector               m_translationOffset = Vector::Zero;
     };
 }

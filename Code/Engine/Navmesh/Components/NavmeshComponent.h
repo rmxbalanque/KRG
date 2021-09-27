@@ -16,6 +16,6 @@ namespace KRG::Navmesh
 
     private:
 
-        EXPOSE TResourcePtr<NavmeshData>        m_pNavmeshData;
+        KRG_EXPOSE TResourcePtr<NavmeshData>        m_pNavmeshData;
     };
 }

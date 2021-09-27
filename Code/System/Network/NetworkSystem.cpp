@@ -160,7 +160,13 @@ namespace KRG::Network
             };
 
             auto clientConnectionIter = eastl::find( g_pNetworkState->m_clientConnections.begin(), g_pNetworkState->m_clientConnections.end(), pInfo->m_hConn, FindClientConnection );
-            KRG_ASSERT( clientConnectionIter != g_pNetworkState->m_clientConnections.end() );
+            
+            // Ignore status changes messages for already closed connections
+            if ( clientConnectionIter != g_pNetworkState->m_clientConnections.end() )
+            {
+                return;
+            }
+
             ClientConnection* pClientConnection = *clientConnectionIter;
 
             // Handle state change
@@ -180,7 +186,6 @@ namespace KRG::Network
                     // so we just pass 0's.
                     pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
                     pClientConnection->m_connectionHandle = k_HSteamNetConnection_Invalid;
-                    pClientConnection->m_address.clear();
                     break;
                 }
 
@@ -217,7 +222,7 @@ namespace KRG::Network
         KRG_ASSERT( m_connectionHandle == k_HSteamNetConnection_Invalid );
     }
 
-    bool ClientConnection::IsConnected() const
+    void ClientConnection::Update()
     {
         ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
         KRG_ASSERT( pInterface != nullptr );
@@ -225,18 +230,111 @@ namespace KRG::Network
         SteamNetConnectionInfo_t info;
         pInterface->GetConnectionInfo( m_connectionHandle, &info );
 
-        return info.m_eState == k_ESteamNetworkingConnectionState_Connected;
+        //-------------------------------------------------------------------------
+
+        if ( m_status == Status::Reconnecting )
+        {
+            if ( m_reconnectionAttemptsRemaining > 0 )
+            {
+                m_reconnectionAttemptsRemaining--;
+                Threading::Sleep( 100 );
+                if ( !TryStartConnection() )
+                {
+                    m_status = Status::Reconnecting;
+                    return;
+                }
+            }
+            else
+            {
+                m_status = Status::ConnectionFailed;
+                return;
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        switch ( info.m_eState )
+        {
+            case k_ESteamNetworkingConnectionState_Connecting:
+            case k_ESteamNetworkingConnectionState_FindingRoute:
+            {
+                m_status = Status::Connecting;
+            }
+            break;
+
+            case k_ESteamNetworkingConnectionState_Connected:
+            {
+                m_reconnectionAttemptsRemaining = 5;
+                m_status = Status::Connected;
+            }
+            break;
+
+            case k_ESteamNetworkingConnectionState_ClosedByPeer:
+            case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+            {
+                if ( m_reconnectionAttemptsRemaining > 0 )
+                {
+                    m_reconnectionAttemptsRemaining--;
+                    Threading::Sleep( 100 );
+                    if ( !TryStartConnection() )
+                    {
+                        m_status = Status::Reconnecting;
+                    }
+                }
+                else
+                {
+                    m_status = Status::ConnectionFailed;
+                }
+            }
+            break;
+        }
     }
 
-    bool ClientConnection::IsConnecting() const
+    bool ClientConnection::TryStartConnection()
+    {
+        SteamNetworkingIPAddr serverAddr;
+        if ( !serverAddr.ParseString( m_address.c_str() ) )
+        {
+            KRG_LOG_ERROR( "Network", "Invalid client IP address provided: %s", m_address.c_str() );
+            return false;
+        }
+
+        if ( serverAddr.m_port == 0 )
+        {
+            KRG_LOG_ERROR( "Network", "No port for client address provided: %s", m_address.c_str() );
+            return false;
+        }
+
+        //-------------------------------------------------------------------------
+
+        ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
+        KRG_ASSERT( pInterface != nullptr );
+
+        SteamNetworkingConfigValue_t opt;
+        opt.SetPtr( k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*) NetworkCallbackHandler::ClientNetConnectionStatusChangedCallback );
+        m_connectionHandle = pInterface->ConnectByIPAddress( serverAddr, 1, &opt );
+        if ( m_connectionHandle == k_HSteamNetConnection_Invalid )
+        {
+            KRG_LOG_ERROR( "Network", "Failed to create connection" );
+            return false;
+        }
+
+        m_status = Status::Connecting;
+        return true;
+    }
+
+    void ClientConnection::CloseConnection()
     {
         ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
         KRG_ASSERT( pInterface != nullptr );
 
-        SteamNetConnectionInfo_t info;
-        pInterface->GetConnectionInfo( m_connectionHandle, &info );
+        if ( m_connectionHandle != k_HSteamNetConnection_Invalid )
+        {
+            pInterface->CloseConnection( m_connectionHandle, k_ESteamNetConnectionEnd_App_Generic, "Closing Connection", false );
+            m_connectionHandle = k_HSteamNetConnection_Invalid;
+        }
 
-        return info.m_eState == k_ESteamNetworkingConnectionState_Connecting;
+        m_status = Status::Disconnected;
     }
 
     //-------------------------------------------------------------------------
@@ -282,57 +380,39 @@ namespace KRG::Network
         auto pInterface = SteamNetworkingSockets();
         KRG_ASSERT( pInterface != nullptr );
 
+        //-------------------------------------------------------------------------
         // Handle connection changes
         //-------------------------------------------------------------------------
 
         pInterface->RunCallbacks();
 
-        // Process Received Messages
+        //-------------------------------------------------------------------------
+        // Servers
         //-------------------------------------------------------------------------
 
         for ( auto pServerConnection : g_pNetworkState->m_serverConnections )
         {
+            // Receive
+            //-------------------------------------------------------------------------
+
             ISteamNetworkingMessage *pIncomingMsg = nullptr;
             int32 const numMsgs = pInterface->ReceiveMessagesOnPollGroup( pServerConnection->m_pollingGroupHandle, &pIncomingMsg, 1 );
 
-            if ( numMsgs == 0 )
-            {
-                continue;
-            }
-
             if ( numMsgs < 0 )
             {
                 KRG_LOG_FATAL_ERROR( "Network", "Error checking for messages" );
+                break;
             }
 
-            pServerConnection->ProcessMessage( pIncomingMsg->m_conn, pIncomingMsg->m_pData, pIncomingMsg->m_cbSize );
-            pIncomingMsg->Release();
-        }
-
-        for ( auto pClientConnection : g_pNetworkState->m_clientConnections )
-        {
-            ISteamNetworkingMessage *pIncomingMsg = nullptr;
-            int32 const numMsgs = pInterface->ReceiveMessagesOnConnection( pClientConnection->m_connectionHandle, &pIncomingMsg, 1 );
-
-            if ( numMsgs == 0 )
+            if ( numMsgs > 0 )
             {
-                continue;
+                pServerConnection->ProcessMessage( pIncomingMsg->m_conn, pIncomingMsg->m_pData, pIncomingMsg->m_cbSize );
+                pIncomingMsg->Release();
             }
 
-            if ( numMsgs < 0 )
-            {
-                KRG_LOG_FATAL_ERROR( "Network", "Error checking for messages" );
-            }
+            // Send
+            //-------------------------------------------------------------------------
 
-            pClientConnection->ProcessMessage( pIncomingMsg->m_pData, pIncomingMsg->m_cbSize );
-            pIncomingMsg->Release();
-        }
-
-        // Send Outgoing Messages
-        //-------------------------------------------------------------------------
-
-        for ( auto pServerConnection : g_pNetworkState->m_serverConnections )
-        {
             auto ServerSendFunction = [pInterface, pServerConnection] ( uint32 connectionHandle, void* pData, uint32 size )
             {
                 pInterface->SendMessageToConnection( connectionHandle, pData, size, k_nSteamNetworkingSend_Reliable, nullptr );
@@ -341,14 +421,44 @@ namespace KRG::Network
             pServerConnection->SendMessages( ServerSendFunction );
         }
 
+        //-------------------------------------------------------------------------
+        // Clients
+        //-------------------------------------------------------------------------
+
         for ( auto pClientConnection : g_pNetworkState->m_clientConnections )
         {
-            auto ClientSendFunction = [pInterface, pClientConnection] ( void* pData, uint32 size )
-            {
-                pInterface->SendMessageToConnection( pClientConnection->m_connectionHandle, pData, size, k_nSteamNetworkingSend_Reliable, nullptr );
-            };
+            pClientConnection->Update();
 
-            pClientConnection->SendMessages( ClientSendFunction );
+            if ( pClientConnection->IsConnected() )
+            {
+                // Receive
+                //-------------------------------------------------------------------------
+
+                ISteamNetworkingMessage* pIncomingMsg = nullptr;
+                int32 const numMsgs = pInterface->ReceiveMessagesOnConnection( pClientConnection->m_connectionHandle, &pIncomingMsg, 1 );
+
+                if ( numMsgs < 0 )
+                {
+                    KRG_LOG_FATAL_ERROR( "Network", "Error checking for messages" );
+                    break;
+                }
+
+                if ( numMsgs > 0 )
+                {
+                    pClientConnection->ProcessMessage( pIncomingMsg->m_pData, pIncomingMsg->m_cbSize );
+                    pIncomingMsg->Release();
+                }
+
+                // Send
+                //-------------------------------------------------------------------------
+
+                auto ClientSendFunction = [pInterface, pClientConnection] ( void* pData, uint32 size )
+                {
+                    pInterface->SendMessageToConnection( pClientConnection->m_connectionHandle, pData, size, k_nSteamNetworkingSend_Reliable, nullptr );
+                };
+
+                pClientConnection->SendMessages( ClientSendFunction );
+            }
         }
     }
 
@@ -426,7 +536,7 @@ namespace KRG::Network
 
     bool NetworkSystem::StartClientConnection( ClientConnection* pClientConnection, char const* pAddress )
     {
-        KRG_ASSERT( pClientConnection != nullptr && !pClientConnection->IsConnected() );
+        KRG_ASSERT( pClientConnection != nullptr && pClientConnection->IsDisconnected() );
         KRG_ASSERT( pAddress != nullptr );
 
         ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
@@ -434,54 +544,22 @@ namespace KRG::Network
 
         //-------------------------------------------------------------------------
 
-        SteamNetworkingIPAddr serverAddr;
-        if ( !serverAddr.ParseString( pAddress ) )
-        {
-            KRG_LOG_ERROR( "Network", "Invalid client IP address provided: %s", pAddress );
-            return false;
-        }
-
-        if ( serverAddr.m_port == 0 )
-        {
-            KRG_LOG_ERROR( "Network", "No port for client address provided: %s", pAddress );
-            return false;
-        }
-
         pClientConnection->m_address = pAddress;
-
-        //-------------------------------------------------------------------------
-
-        SteamNetworkingConfigValue_t opt;
-        opt.SetPtr( k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*) NetworkCallbackHandler::ClientNetConnectionStatusChangedCallback );
-        pClientConnection->m_connectionHandle = pInterface->ConnectByIPAddress( serverAddr, 1, &opt );
-        if ( pClientConnection->m_connectionHandle == k_HSteamNetConnection_Invalid )
+        if ( !pClientConnection->TryStartConnection() )
         {
-            KRG_LOG_ERROR( "Network", "Failed to create connection" );
             return false;
         }
 
         g_pNetworkState->m_clientConnections.emplace_back( pClientConnection );
-
-        return false;
+        return true;
     }
 
     void NetworkSystem::StopClientConnection( ClientConnection* pClientConnection )
     {
-        KRG_ASSERT( pClientConnection != nullptr );
+        KRG_ASSERT( pClientConnection != nullptr && !pClientConnection->IsDisconnected() );
 
-        ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
-        KRG_ASSERT( pInterface != nullptr );
-
-        if ( pClientConnection->m_connectionHandle != k_HSteamNetConnection_Invalid )
-        {
-            pInterface->CloseConnection( pClientConnection->m_connectionHandle, k_ESteamNetConnectionEnd_App_Generic, "Closing Connection", false );
-            pClientConnection->m_connectionHandle = k_HSteamNetConnection_Invalid;
-        }
-
+        pClientConnection->CloseConnection();
         pClientConnection->m_address.clear();
-
-        //-------------------------------------------------------------------------
-
         g_pNetworkState->m_clientConnections.erase_first_unsorted( pClientConnection );
     }
 }

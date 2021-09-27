@@ -13,7 +13,7 @@ namespace KRG
         {
             KRG_REGISTER_TYPE( PhysicsMaterialDatabaseResourceDescriptor );
 
-            EXPOSE TVector<DataPath>         m_materialLibraries;
+            KRG_EXPOSE TVector<DataPath>         m_materialLibraries;
         };
 
         //-------------------------------------------------------------------------

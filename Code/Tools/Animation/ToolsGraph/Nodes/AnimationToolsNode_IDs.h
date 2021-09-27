@@ -21,8 +21,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE IDComparisonNode::Comparison     m_comparison = IDComparisonNode::Comparison::Matches;
-        EXPOSE TVector<StringID>                m_IDs;
+        KRG_EXPOSE IDComparisonNode::Comparison     m_comparison = IDComparisonNode::Comparison::Matches;
+        KRG_EXPOSE TVector<StringID>                m_IDs;
     };
 
     //-------------------------------------------------------------------------
@@ -50,7 +50,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE float                            m_defaultValue = 0.0f;
-        EXPOSE TVector<Mapping>                 m_mappings;
+        KRG_EXPOSE float                            m_defaultValue = 0.0f;
+        KRG_EXPOSE TVector<Mapping>                 m_mappings;
     };
 }

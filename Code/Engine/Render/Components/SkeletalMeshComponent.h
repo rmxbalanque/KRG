@@ -73,7 +73,7 @@ namespace KRG::Render
 
     protected:
 
-        EXPOSE TResourcePtr<SkeletalMesh>           m_pMesh;
+        KRG_EXPOSE TResourcePtr<SkeletalMesh>           m_pMesh;
         TVector<Transform>                          m_boneTransforms;
         TVector<Matrix>                             m_skinningTransforms;
     };

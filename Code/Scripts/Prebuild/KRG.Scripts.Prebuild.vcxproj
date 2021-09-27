@@ -44,17 +44,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NMakeBuildCommandLine>nmake -f Prebuild.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_DIR=$(SolutionDir) PLATFORM=$(Platform) CONFIG=$(Configuration) OUT_DIR=$(OutDir)</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake -f Prebuild.nmake PLATFORM=$(Platform) CONFIG=$(Configuration)</NMakeBuildCommandLine>
     <NMakeOutput>
     </NMakeOutput>
-    <NMakeCleanCommandLine>nmake clean -f Prebuild.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_DIR=$(SolutionDir) PLATFORM=$(Platform) CONFIG=$(Configuration) OUT_DIR=$(OutDir)</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>nmake clean -f Prebuild.nmake PLATFORM=$(Platform) CONFIG=$(Configuration)</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NMakeBuildCommandLine>nmake -f Prebuild.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_DIR=$(SolutionDir) PLATFORM=$(Platform) CONFIG=$(Configuration) OUT_DIR=$(OutDir)</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>nmake -f Prebuild.nmake PLATFORM=$(Platform) CONFIG=$(Configuration)</NMakeBuildCommandLine>
     <NMakeOutput>
     </NMakeOutput>
-    <NMakeCleanCommandLine>nmake clean -f Prebuild.nmake KRG_BUILD_DIR=$(KRG_BUILD_DIR) SLN_DIR=$(SolutionDir) PLATFORM=$(Platform) CONFIG=$(Configuration) OUT_DIR=$(OutDir)</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>nmake clean -f Prebuild.nmake PLATFORM=$(Platform) CONFIG=$(Configuration)</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <ItemDefinitionGroup>

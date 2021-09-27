@@ -24,10 +24,10 @@ namespace KRG::Animation
     {
         KRG_REGISTER_TYPE( AnimationClipResourceDescriptor );
 
-        EXPOSE DataPath                    m_animationDataPath;
-        EXPOSE TResourcePtr<Skeleton>      m_pSkeleton = nullptr;
-        EXPOSE DataPath                    m_animationEventData; // Optional: not all animations have events
-        EXPOSE String                      m_animationName; // Optional: if not set, will use the first animation in the file
+        KRG_EXPOSE DataPath                    m_animationDataPath;
+        KRG_EXPOSE TResourcePtr<Skeleton>      m_pSkeleton = nullptr;
+        KRG_EXPOSE DataPath                    m_animationEventData; // Optional: not all animations have events
+        KRG_EXPOSE String                      m_animationName; // Optional: if not set, will use the first animation in the file
     };
 
     //-------------------------------------------------------------------------

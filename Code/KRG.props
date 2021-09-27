@@ -10,6 +10,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <KRG_CORE_THIRD_PARTY_INCLUDE_DIR>$(SolutionDir)Code\System\Core\ThirdParty\</KRG_CORE_THIRD_PARTY_INCLUDE_DIR>
+    <KRG_ROOT_DIR>$(SolutionDir)</KRG_ROOT_DIR>
     <KRG_BUILD_DIR>$(SolutionDir)Build\</KRG_BUILD_DIR>
     <OutDir>$(KRG_BUILD_DIR)$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(KRG_BUILD_DIR)_Temp\$(Platform)_$(Configuration)\$(ProjectName)\</IntDir>

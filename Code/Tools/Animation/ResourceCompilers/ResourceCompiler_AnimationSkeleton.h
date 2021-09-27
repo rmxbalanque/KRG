@@ -11,10 +11,10 @@ namespace KRG::Animation
     {
         KRG_REGISTER_TYPE( SkeletonResourceDescriptor );
 
-        EXPOSE DataPath         m_skeletonDataPath;
+        KRG_EXPOSE DataPath         m_skeletonDataPath;
 
         // Optional value that specifies the name of the skeleton hierarchy to use, if it is unset, we use the first skeleton we find
-        EXPOSE String           m_skeletonRootBoneName;
+        KRG_EXPOSE String           m_skeletonRootBoneName;
     };
 
     //-------------------------------------------------------------------------

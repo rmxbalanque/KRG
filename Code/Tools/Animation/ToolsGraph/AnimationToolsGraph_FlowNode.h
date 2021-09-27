@@ -68,8 +68,8 @@ namespace KRG::Animation::Graph
         {
             KRG_REGISTER_TYPE( OverrideValue );
 
-            REGISTER StringID               m_variationID;
-            REGISTER ResourceID             m_resourceID;
+            KRG_REGISTER StringID               m_variationID;
+            KRG_REGISTER ResourceID             m_resourceID;
         };
 
     public:
@@ -94,7 +94,7 @@ namespace KRG::Animation::Graph
 
     protected:
 
-        REGISTER ResourceID                 m_defaultResourceID;
-        REGISTER TVector<OverrideValue>     m_overrides;
+        KRG_REGISTER ResourceID                 m_defaultResourceID;
+        KRG_REGISTER TVector<OverrideValue>     m_overrides;
     };
 }

@@ -23,8 +23,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE String       m_name = "Animation";
-        EXPOSE bool         m_sampleRootMotion = true;
-        EXPOSE bool         m_allowLooping = false;
+        KRG_EXPOSE String       m_name = "Animation";
+        KRG_EXPOSE bool         m_sampleRootMotion = true;
+        KRG_EXPOSE bool         m_allowLooping = false;
     };
 }

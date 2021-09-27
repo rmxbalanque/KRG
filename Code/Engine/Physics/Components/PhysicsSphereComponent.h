@@ -24,7 +24,7 @@ namespace KRG::Physics
 
     protected:
 
-        EXPOSE StringID                                 m_physicsMaterialID;
-        EXPOSE float                                    m_radius = 0.5f;
+        KRG_EXPOSE StringID                                 m_physicsMaterialID;
+        KRG_EXPOSE float                                    m_radius = 0.5f;
     };
 }

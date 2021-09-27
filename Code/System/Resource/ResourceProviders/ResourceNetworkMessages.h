@@ -10,7 +10,6 @@ namespace KRG
     {
         enum class NetworkMessageID
         {
-            KeepAlive = 'PING',
             RequestResource = 1,
             ResourceRequestComplete = 2,
             ResourceUpdated = 3,

@@ -38,6 +38,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE String m_name = "State Machine";
+        KRG_EXPOSE String m_name = "State Machine";
     };
 }

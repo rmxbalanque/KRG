@@ -5,13 +5,13 @@
 #include "System/TypeSystem/TypeHelpers.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
-#include "D:\Kruger\Code\Game\Core\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
+#include "d:\Kruger\Code\Game\Core\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Core\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Render\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Animation\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Camera\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Physics\_Module\Module.h"
 
 namespace KRG
 {

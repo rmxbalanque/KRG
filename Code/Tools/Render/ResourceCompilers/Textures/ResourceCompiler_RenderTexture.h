@@ -10,7 +10,7 @@ namespace KRG::Render
     {
         KRG_REGISTER_TYPE( TextureResourceDescriptor );
 
-        EXPOSE DataPath m_textureDataPath;
+        KRG_EXPOSE DataPath m_textureDataPath;
     };
 
     //-------------------------------------------------------------------------

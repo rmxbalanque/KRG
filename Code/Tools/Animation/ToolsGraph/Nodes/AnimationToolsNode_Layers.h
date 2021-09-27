@@ -25,9 +25,9 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE bool                             m_isSynchronized = false;
-        EXPOSE bool                             m_ignoreEvents = false;
-        EXPOSE TBitFlags<PoseBlendOptions>      m_blendOptions;
+        KRG_EXPOSE bool                             m_isSynchronized = false;
+        KRG_EXPOSE bool                             m_ignoreEvents = false;
+        KRG_EXPOSE TBitFlags<PoseBlendOptions>      m_blendOptions;
     };
 
     //-------------------------------------------------------------------------
@@ -58,6 +58,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE bool                             m_onlySampleBaseRootMotion = true;
+        KRG_EXPOSE bool                             m_onlySampleBaseRootMotion = true;
     };
 }

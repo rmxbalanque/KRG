@@ -20,8 +20,8 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE FloatRange              m_scaleLimits = FloatRange( 0, 0 );
-        EXPOSE float                   m_blendTime = 0.2f;
+        KRG_EXPOSE FloatRange              m_scaleLimits = FloatRange( 0, 0 );
+        KRG_EXPOSE float                   m_blendTime = 0.2f;
     };
 
     //-------------------------------------------------------------------------
@@ -41,6 +41,6 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EXPOSE float                   m_blendTime = 0.2f;
+        KRG_EXPOSE float                   m_blendTime = 0.2f;
     };
 }
