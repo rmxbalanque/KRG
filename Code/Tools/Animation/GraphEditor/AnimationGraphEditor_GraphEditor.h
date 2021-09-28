@@ -77,8 +77,6 @@ namespace KRG::Animation::Graph
 
         void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager );
 
-        void RefreshView();
-
     private:
 
         void UpdatePrimaryViewState();

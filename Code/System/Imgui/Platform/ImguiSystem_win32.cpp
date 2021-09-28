@@ -467,9 +467,8 @@ namespace KRG::ImGuiX
                     ::SetCapture( data.m_hWnd );
                 }
                 io.MouseDown[button] = true;
-
-                break;
             }
+            break;
 
             case WM_LBUTTONUP:
             case WM_RBUTTONUP:
@@ -487,9 +486,8 @@ namespace KRG::ImGuiX
                 {
                     ::ReleaseCapture();
                 }
-
-                break;
             }
+            break;
 
             case WM_MOUSEWHEEL:
             {
@@ -538,10 +536,12 @@ namespace KRG::ImGuiX
             break;
 
             case WM_CHAR:
-            // You can also use ToAscii()+GetKeyboardState() to retrieve characters.
-            if ( data.m_wParam > 0 && data.m_wParam < 0x10000 )
             {
-                io.AddInputCharacterUTF16( (unsigned short) data.m_wParam );
+                // You can also use ToAscii()+GetKeyboardState() to retrieve characters.
+                if ( data.m_wParam > 0 && data.m_wParam < 0x10000 )
+                {
+                    io.AddInputCharacterUTF16( (unsigned short) data.m_wParam );
+                }
             }
             break;
 
@@ -558,7 +558,7 @@ namespace KRG::ImGuiX
             {
                 m_updateMonitorInfo = true;
             }
-            return 0;
+            break;
         }
 
         // Imgui Viewports

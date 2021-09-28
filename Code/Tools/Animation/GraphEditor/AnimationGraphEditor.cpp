@@ -72,11 +72,6 @@ namespace KRG::Animation::Graph
 
             ImGui::EndMenu();
         }
-
-        if ( ImGui::MenuItem( "Refresh View" ) )
-        {
-            m_pGraphEditor->RefreshView();
-        }
     }
 
     void AnimationGraphEditor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )

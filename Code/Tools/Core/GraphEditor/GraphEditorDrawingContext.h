@@ -17,9 +17,11 @@ namespace KRG::GraphEditor
         constexpr static uint32 const   s_selectionBoxOutlineColor = IM_COL32( 61, 133, 224, 30 );
         constexpr static uint32 const   s_selectionBoxFillColor = IM_COL32( 61, 133, 224, 150 );
 
+        constexpr static uint32 const   s_genericNodeTitleColor = IM_COL32( 0, 0, 0, 255 );
         constexpr static uint32 const   s_genericNodeHighlightColor = IM_COL32( 85, 85, 85, 255 );
-        constexpr static uint32 const   s_genericNodeBackgroundColor = IM_COL32( 50, 50, 50, 255 );
-        constexpr static uint32 const   s_genericNodeBackgroundColorHovered = IM_COL32( 105, 105, 105, 255 );
+        constexpr static uint32 const   s_genericNodeBackgroundColor = IM_COL32( 75, 75, 75, 255 );
+        constexpr static uint32 const   s_genericNodeBorderColorSelected = IM_COL32( 255, 255, 255, 255 );
+        constexpr static uint32 const   s_genericNodeBackgroundColorSelected = IM_COL32( 95, 95, 95, 255 );
         constexpr static uint32 const   s_genericSelectionColor = IM_COL32( 255, 255, 255, 255 );
 
         constexpr static uint32 const   s_connectionColor = IM_COL32( 185, 185, 185, 255 );

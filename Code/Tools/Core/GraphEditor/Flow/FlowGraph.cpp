@@ -66,8 +66,6 @@ namespace KRG::GraphEditor::Flow
         newPin.m_name = pPinName;
         newPin.m_type = valueType;
         newPin.m_direction = Pin::Direction::In;
-
-        RefreshVisualState();
     }
 
     void Node::CreateOutputPin( char const* pPinName, uint32 valueType, bool allowMultipleOutputConnections )
@@ -77,8 +75,6 @@ namespace KRG::GraphEditor::Flow
         newPin.m_type = valueType;
         newPin.m_direction = Pin::Direction::Out;
         newPin.m_allowMultipleOutConnections = allowMultipleOutputConnections;
-
-        RefreshVisualState();
     }
 
     void Node::DestroyInputPin( int32 pinIdx )
@@ -86,7 +82,6 @@ namespace KRG::GraphEditor::Flow
         KRG_ASSERT( pinIdx >= 0 && pinIdx < m_inputPins.size() );
         static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( m_inputPins[pinIdx].m_ID );
         m_inputPins.erase( m_inputPins.begin() + pinIdx );
-        RefreshVisualState();
         return;
     }
 
@@ -95,7 +90,6 @@ namespace KRG::GraphEditor::Flow
         KRG_ASSERT( pinIdx >= 0 && pinIdx < m_outputPins.size() );
         static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( m_outputPins[pinIdx].m_ID );
         m_outputPins.erase( m_outputPins.begin() + pinIdx );
-        RefreshVisualState();
         return;
     }
 
@@ -107,7 +101,6 @@ namespace KRG::GraphEditor::Flow
             {
                 static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( pinID );
                 m_inputPins.erase( iter );
-                RefreshVisualState();
                 return;
             }
         }
@@ -118,7 +111,6 @@ namespace KRG::GraphEditor::Flow
             {
                 static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( pinID );
                 m_outputPins.erase( iter );
-                RefreshVisualState();
                 return;
             }
         }
@@ -134,8 +126,6 @@ namespace KRG::GraphEditor::Flow
         newPin.m_direction = Pin::Direction::In;
         newPin.m_isDynamic = true;
         OnDynamicPinCreation( newPin.m_ID );
-
-        RefreshVisualState();
     }
 
     void Node::DestroyDynamicInputPin( UUID const& pinID )

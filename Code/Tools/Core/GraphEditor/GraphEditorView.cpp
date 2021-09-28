@@ -4,20 +4,6 @@
 
 namespace KRG::GraphEditor
 {
-    void BaseGraphView::RefreshVisualState()
-    {
-        auto pBaseGraph = GetViewedGraph();
-        if ( pBaseGraph != nullptr )
-        {
-            for ( auto pNode : pBaseGraph->m_nodes )
-            {
-                pNode->RefreshVisualState();
-            }
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
     bool BaseGraphView::BeginDrawCanvas( float childHeightOverride )
     {
         m_selectionChanged = false;

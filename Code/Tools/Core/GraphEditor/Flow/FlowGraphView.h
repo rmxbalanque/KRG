@@ -54,9 +54,9 @@ namespace KRG::GraphEditor
         //-------------------------------------------------------------------------
 
         void DrawNode( DrawingContext const& ctx, Flow::Node* pNode );
-        void DrawNodeTitle( DrawingContext const& ctx, Flow::Node* pNode );
-        void DrawNodePins( DrawingContext const& ctx, Flow::Node* pNode );
-        void DrawNodeBackground( DrawingContext const& ctx, Flow::Node* pNode );
+        void DrawNodeTitle( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
+        void DrawNodePins( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
+        void DrawNodeBackground( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
 
         // Events
         //-------------------------------------------------------------------------

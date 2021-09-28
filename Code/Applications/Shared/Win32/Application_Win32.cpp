@@ -13,10 +13,36 @@ namespace KRG
 
         static LRESULT CALLBACK wndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
         {
-            if ( g_pApplicationInstance != nullptr )
+            if ( g_pApplicationInstance != nullptr && g_pApplicationInstance->IsInitialized() )
             {
-                return g_pApplicationInstance->WndProcess( hWnd, message, wParam, lParam );
+                LRESULT const userResult = g_pApplicationInstance->WndProcess( hWnd, message, wParam, lParam );
+                if ( userResult != 0 )
+                {
+                    return userResult;
+                }
+
+                //-------------------------------------------------------------------------
+
+                switch ( message )
+                {
+                    case WM_CLOSE:
+                    case WM_QUIT:
+                    {
+                        g_pApplicationInstance->RequestExit();
+                    }
+                    break;
+
+                    //-------------------------------------------------------------------------
+
+                    case WM_DESTROY:
+                    {
+                        PostQuitMessage( 0 );
+                    }
+                    break;
+                }
             }
+
+            //-------------------------------------------------------------------------
 
             return DefWindowProc( hWnd, message, wParam, lParam );
         }

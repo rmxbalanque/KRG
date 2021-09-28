@@ -10,6 +10,10 @@ namespace KRG::Animation::Graph
     {
         Tools_DataSlotNode::Initialize( pParent );
         CreateOutputPin( "Pose", ValueType::Pose );
+        CreateOutputPin( "SADASD S", ValueType::Bool );
+        CreateOutputPin( "What is This", ValueType::Float );
+        CreateInputPin( "Play In Reverse", ValueType::Bool );
+        CreateInputPin( "Play In Reverse", ValueType::Bool );
         CreateInputPin( "Play In Reverse", ValueType::Bool );
     }
 

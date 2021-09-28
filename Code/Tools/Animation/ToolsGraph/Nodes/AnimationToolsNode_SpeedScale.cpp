@@ -9,7 +9,10 @@ namespace KRG::Animation::Graph
     void Tools_SpeedScaleNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
         Tools_GraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
+        CreateOutputPin( "Result", ValueType::Pose, true );
+        CreateOutputPin( "Result", ValueType::Pose, true );
+        CreateOutputPin( "Result", ValueType::Pose, true );
+        CreateOutputPin( "Result", ValueType::Pose, true );
         CreateInputPin( "Input", ValueType::Pose );
         CreateInputPin( "Scale", ValueType::Float );
     }

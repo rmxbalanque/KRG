@@ -14,7 +14,7 @@ namespace KRG::Animation::Graph
         virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "And"; }
-        virtual char const* GetCategory() const override { return "Conditions"; }
+        virtual char const* GetCategory() const override { return "Bool Operators"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual bool SupportsDynamicInputPins() const override { return true; }
         virtual InlineString<100> GetNewDynamicInputPinName() const override { return "And"; }
@@ -33,7 +33,7 @@ namespace KRG::Animation::Graph
         virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Or"; }
-        virtual char const* GetCategory() const override { return "Conditions"; }
+        virtual char const* GetCategory() const override { return "Bool Operators"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual bool SupportsDynamicInputPins() const override { return true; }
         virtual InlineString<100> GetNewDynamicInputPinName() const override{ return "Or"; }
@@ -52,7 +52,7 @@ namespace KRG::Animation::Graph
         virtual void Initialize( GraphEditor::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Not"; }
-        virtual char const* GetCategory() const override { return "Conditions"; }
+        virtual char const* GetCategory() const override { return "Bool Operators"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
     };

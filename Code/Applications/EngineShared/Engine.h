@@ -23,9 +23,6 @@ namespace KRG
     class Engine
     {
         friend class EngineApplication;
-        friend class ResourceEditorApplication;
-
-        //-------------------------------------------------------------------------
 
         class EngineUpdateContext : public UpdateContext
         {
@@ -40,6 +37,11 @@ namespace KRG
         bool Initialize( String const& applicationName, Int2 const& windowDimensions );
         bool Shutdown();
         bool Update();
+
+        // Needed for window processor access
+        void UpdateMainWindowSize( Int2 const& windowDimensions );
+        Input::InputSystem* GetInputSystem() const { return m_pInputSystem; }
+        ImGuiX::ImguiSystem* GetImguiSystem() const { return m_pImguiSystem; }
 
     protected:
 
@@ -58,8 +60,6 @@ namespace KRG
         bool OnModuleResourceLoadingComplete();
         void UnloadModuleResources( Resource::ResourceSystem& resourceSystem );
         void ShutdownModules();
-
-        void UpdateMainWindowSize( Int2 const& windowDimensions );
 
     protected:
 

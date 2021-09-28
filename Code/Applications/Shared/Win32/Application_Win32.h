@@ -20,13 +20,14 @@ namespace KRG
 
         int Run( int32 argc, char** argv );
 
+        inline bool IsInitialized() const { return m_initialized; }
+        inline void RequestExit() { m_exitRequested = true; }
+
         // Win32 Window process
         virtual LRESULT WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) = 0;
 
     protected:
 
-        inline bool IsInitialized() const { return m_initialized; }
-        inline void RequestExit() { m_exitRequested = true; }
         bool FatalError( String const& error );
 
         // Window creation

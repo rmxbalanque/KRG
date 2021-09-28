@@ -202,13 +202,6 @@ namespace KRG::Animation::Graph
         , m_secondaryFlowGraphView( static_cast<GraphEditorModel&>( model ) )
     {}
 
-    void GraphEditorView::RefreshView()
-    {
-        m_primaryFlowGraphView.RefreshVisualState();
-        m_primaryStateMachineGraphView.RefreshVisualState();
-        m_secondaryFlowGraphView.RefreshVisualState();
-    }
-
     void GraphEditorView::UpdatePrimaryViewState()
     {
         if ( m_model.GetGraph()->IsValid() )

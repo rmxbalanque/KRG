@@ -19,11 +19,6 @@ namespace KRG::GraphEditor
 
     namespace Flow
     {
-        struct VisualSettings
-        {
-            constexpr static uint32 const   s_nodeTitleColor = IM_COL32( 0, 0, 0, 255 );
-        };
-
         //-------------------------------------------------------------------------
         // Flow Graph Pin
         //-------------------------------------------------------------------------
@@ -46,7 +41,7 @@ namespace KRG::GraphEditor
             uint32                  m_type; // Generic type that allows user to set custom data be it StringIDs or enum values
             Direction               m_direction;
             ImVec2                  m_screenPosition; // Updated each frame (Screen Space)
-            ImVec2                  m_estimatedSize = ImVec2( -1, -1 ); // Updated on size calculation
+            ImVec2                  m_size = ImVec2( -1, -1 ); // Updated each frame
             bool                    m_isDynamic = false; // Only relevant for input pins
             bool                    m_allowMultipleOutConnections = false; // Only relevant for output pins
         };
@@ -201,7 +196,6 @@ namespace KRG::GraphEditor
 
             TInlineVector<Pin, 4>       m_inputPins;
             TInlineVector<Pin, 1>       m_outputPins;
-            ImVec2                      m_pinsRectSize = ImVec2( 0, 0 );
             Pin*                        m_pHoveredPin = nullptr;
         };
 

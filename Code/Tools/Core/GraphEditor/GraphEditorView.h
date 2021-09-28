@@ -40,9 +40,6 @@ namespace KRG::GraphEditor
 
         virtual void Draw( float childHeightOverride = 0.0f ) = 0;
 
-        // Request all nodes recalculate their node sizes/visual state
-        void RefreshVisualState();
-
         // Selection
         //-------------------------------------------------------------------------
 

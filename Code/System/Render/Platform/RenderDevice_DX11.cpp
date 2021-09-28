@@ -330,7 +330,7 @@ namespace KRG::Render
         DestroyMainRenderTarget();
         m_immediateContext.m_pDeviceContext->Flush();
 
-        // Create new render targets
+        // Update buffer sizes
         if ( FAILED( m_pSwapChain->ResizeBuffers( 2, m_resolution.m_x, m_resolution.m_y, DXGI_FORMAT_UNKNOWN, 0 ) ) )
         {
             KRG_LOG_ERROR( "Rendering", "Failed to resize swap chain buffers" );

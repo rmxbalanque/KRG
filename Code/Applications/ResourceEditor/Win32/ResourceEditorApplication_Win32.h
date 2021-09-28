@@ -12,6 +12,8 @@ namespace KRG
 {
     class ResourceEditorEngine final : public Engine
     {
+        friend class ResourceEditorApplication;
+
     public:
 
         using Engine::Engine;

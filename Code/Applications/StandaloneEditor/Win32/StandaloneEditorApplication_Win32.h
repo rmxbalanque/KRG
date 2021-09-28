@@ -64,6 +64,6 @@ namespace KRG
 
     private:
 
-        StandaloneEditorEngine          m_editorEngine;
+        StandaloneEditorEngine                      m_editorEngine;
     };
 }

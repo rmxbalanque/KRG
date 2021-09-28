@@ -229,116 +229,114 @@ namespace KRG::Render
         Int2 const viewportDimensions = viewport.GetSize();
         io.DisplaySize = ImVec2( (float) viewportDimensions.m_x, (float) viewportDimensions.m_y );
 
+        ImGui::Render();
+
+        auto const pData = ImGui::GetDrawData();
+        if ( pData != nullptr )
+        {
+            // Buffer management
+            //-------------------------------------------------------------------------
+
+            // Check if our vertex and index buffers are large enough, if not then grow them
+            if ( (int32) m_vertexBuffer.GetNumElements() < pData->TotalVtxCount )
+            {
+                m_pRenderDevice->ResizeBuffer( m_vertexBuffer, m_vertexBuffer.m_byteStride * pData->TotalVtxCount );
+            }
+
+            if ( (int32) m_indexBuffer.GetNumElements() < pData->TotalIdxCount )
+            {
+                m_pRenderDevice->ResizeBuffer( m_indexBuffer, m_indexBuffer.m_byteStride * pData->TotalIdxCount );
+            }
+
+            // Transfer buffer data
+            //-------------------------------------------------------------------------
+
+            auto const& renderContext = m_pRenderDevice->GetImmediateContext();
+
+            // Copy vertices into our vertex and index buffers and record the command lists
+            auto pVertexMemory = renderContext.MapBuffer( m_vertexBuffer );
+            auto pVertex = (ImDrawVert*) pVertexMemory;
+            auto endVertexMemoryBounds = ( (uint8*) pVertexMemory ) + m_vertexBuffer.m_byteSize;
+
+            auto pIndexMemory = renderContext.MapBuffer( m_indexBuffer );
+            auto pIndex = (ImDrawIdx*) pIndexMemory;
+            auto endIndexMemoryBounds = ( (uint8*) pIndexMemory ) + m_indexBuffer.m_byteSize;
+
+            for ( int n = 0; n < pData->CmdListsCount; n++ )
+            {
+                // Copy vertex / index data
+                KRG_ASSERT( (uint8*) pVertex < endVertexMemoryBounds && (uint8*) pIndex < endIndexMemoryBounds );
+                const ImDrawList* cmd_list = pData->CmdLists[n];
+                memcpy( pVertex, &cmd_list->VtxBuffer[0], cmd_list->VtxBuffer.size() * sizeof( ImDrawVert ) );
+                memcpy( pIndex, &cmd_list->IdxBuffer[0], cmd_list->IdxBuffer.size() * sizeof( ImDrawIdx ) );
+                pVertex += cmd_list->VtxBuffer.size();
+                pIndex += cmd_list->IdxBuffer.size();
+
+                // Copy command buffer
+                m_cmdBuffers.emplace_back( RecordedCmdBuffer() );
+                m_cmdBuffers.back().m_numVertices = (uint32) cmd_list->VtxBuffer.size();
+                m_cmdBuffers.back().m_cmdBuffer.resize( cmd_list->CmdBuffer.size() );
+                memcpy( m_cmdBuffers.back().m_cmdBuffer.data(), cmd_list->CmdBuffer.Data, cmd_list->CmdBuffer.size() * sizeof( ImDrawCmd ) );
+            }
+
+            renderContext.UnmapBuffer( m_vertexBuffer );
+            renderContext.UnmapBuffer( m_indexBuffer );
+
+            //-------------------------------------------------------------------------
+
+            // Set view projection matrix
+            ImVec2 const dimensions = ImGui::GetIO().DisplaySize;
+            auto const matrix = Matrix::OrthographicProjectionMatrixOffCenter( 0.0f, dimensions.x, dimensions.y, 0.0f, 0, 1.0f );
+            renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &matrix, sizeof( Matrix ) );
+
+            // Set pipeline and render state
+            renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
+            renderContext.SetPipelineState( m_PSO );
+            renderContext.SetShaderInputBinding( m_inputBinding );
+            renderContext.SetPrimitiveTopology( Topology::TriangleList );
+            renderContext.SetVertexBuffer( m_vertexBuffer );
+            renderContext.SetIndexBuffer( m_indexBuffer );
+            renderContext.SetSampler( PipelineStage::Pixel, 0, m_samplerState );
+            renderContext.SetDepthTestMode( DepthTestMode::Off );
+
+            // Render command lists
+            int vertexOffset = 0;
+            int indexOffset = 0;
+            for ( auto const& recordedBuffer : m_cmdBuffers )
+            {
+                auto const numCommands = recordedBuffer.m_cmdBuffer.size();
+                for ( auto i = 0; i < numCommands; i++ )
+                {
+                    ImDrawCmd const* pCmd = &recordedBuffer.m_cmdBuffer[i];
+                    if ( pCmd->UserCallback )
+                    {
+                        KRG_UNIMPLEMENTED_FUNCTION();
+                    }
+                    else
+                    {
+                        ShaderResourceView const* pSRV = reinterpret_cast<ShaderResourceView const*>( pCmd->TextureId );
+                        renderContext.SetShaderResource( PipelineStage::Pixel, 0, *pSRV );
+
+                        ScissorRect scissorRect = { (int32) pCmd->ClipRect.x, (int32) pCmd->ClipRect.y, (int32) pCmd->ClipRect.z, (int32) pCmd->ClipRect.w };
+                        renderContext.SetRasterizerScissorRectangles( &scissorRect, 1 );
+                        renderContext.DrawIndexed( pCmd->ElemCount, indexOffset, vertexOffset );
+                    }
+                    indexOffset += pCmd->ElemCount;
+                }
+                vertexOffset += recordedBuffer.m_numVertices;
+            }
+
+            // Clear texture binding
+            //-------------------------------------------------------------------------
+
+            renderContext.ClearShaderResource( Render::PipelineStage::Pixel, 0 );
+        }
+
         if ( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
         {
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
         }
-
-        ImGui::Render();
-
-        auto const pData = ImGui::GetDrawData();
-        if ( pData == nullptr )
-        {
-            return;
-        }
-
-        // Buffer management
-        //-------------------------------------------------------------------------
-
-        // Check if our vertex and index buffers are large enough, if not then grow them
-        if ( (int32) m_vertexBuffer.GetNumElements() < pData->TotalVtxCount )
-        {
-            m_pRenderDevice->ResizeBuffer( m_vertexBuffer, m_vertexBuffer.m_byteStride * pData->TotalVtxCount );
-        }
-
-        if ( (int32) m_indexBuffer.GetNumElements() < pData->TotalIdxCount )
-        {
-            m_pRenderDevice->ResizeBuffer( m_indexBuffer, m_indexBuffer.m_byteStride * pData->TotalIdxCount );
-        }
-
-        // Transfer buffer data
-        //-------------------------------------------------------------------------
-
-        auto const& renderContext = m_pRenderDevice->GetImmediateContext();
-
-        // Copy vertices into our vertex and index buffers and record the command lists
-        auto pVertexMemory = renderContext.MapBuffer( m_vertexBuffer );
-        auto pVertex = (ImDrawVert*) pVertexMemory;
-        auto endVertexMemoryBounds = ( (uint8*) pVertexMemory ) + m_vertexBuffer.m_byteSize;
-
-        auto pIndexMemory = renderContext.MapBuffer( m_indexBuffer );
-        auto pIndex = (ImDrawIdx*) pIndexMemory;
-        auto endIndexMemoryBounds = ( (uint8*) pIndexMemory ) + m_indexBuffer.m_byteSize;
-
-        for ( int n = 0; n < pData->CmdListsCount; n++ )
-        {
-            // Copy vertex / index data
-            KRG_ASSERT( (uint8*) pVertex < endVertexMemoryBounds && (uint8*) pIndex < endIndexMemoryBounds );
-            const ImDrawList* cmd_list = pData->CmdLists[n];
-            memcpy( pVertex, &cmd_list->VtxBuffer[0], cmd_list->VtxBuffer.size() * sizeof( ImDrawVert ) );
-            memcpy( pIndex, &cmd_list->IdxBuffer[0], cmd_list->IdxBuffer.size() * sizeof( ImDrawIdx ) );
-            pVertex += cmd_list->VtxBuffer.size();
-            pIndex += cmd_list->IdxBuffer.size();
-
-            // Copy command buffer
-            m_cmdBuffers.emplace_back( RecordedCmdBuffer() );
-            m_cmdBuffers.back().m_numVertices = (uint32) cmd_list->VtxBuffer.size();
-            m_cmdBuffers.back().m_cmdBuffer.resize( cmd_list->CmdBuffer.size() );
-            memcpy( m_cmdBuffers.back().m_cmdBuffer.data(), cmd_list->CmdBuffer.Data, cmd_list->CmdBuffer.size() * sizeof( ImDrawCmd ) );
-        }
-
-        renderContext.UnmapBuffer( m_vertexBuffer );
-        renderContext.UnmapBuffer( m_indexBuffer );
-
-        //-------------------------------------------------------------------------
-
-        // Set view projection matrix
-        ImVec2 const dimensions = ImGui::GetIO().DisplaySize;
-        auto const matrix = Matrix::OrthographicProjectionMatrixOffCenter( 0.0f, dimensions.x, dimensions.y, 0.0f, 0, 1.0f );
-        renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &matrix, sizeof( Matrix ) );
-
-        // Set pipeline and render state
-        renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
-        renderContext.SetPipelineState( m_PSO );
-        renderContext.SetShaderInputBinding( m_inputBinding );
-        renderContext.SetPrimitiveTopology( Topology::TriangleList );
-        renderContext.SetVertexBuffer( m_vertexBuffer );
-        renderContext.SetIndexBuffer( m_indexBuffer );
-        renderContext.SetSampler( PipelineStage::Pixel, 0, m_samplerState );
-        renderContext.SetDepthTestMode( DepthTestMode::Off );
-
-        // Render command lists
-        int vertexOffset = 0;
-        int indexOffset = 0;
-        for ( auto const& recordedBuffer : m_cmdBuffers )
-        {
-            auto const numCommands = recordedBuffer.m_cmdBuffer.size();
-            for ( auto i = 0; i < numCommands; i++ )
-            {
-                ImDrawCmd const* pCmd = &recordedBuffer.m_cmdBuffer[i];
-                if ( pCmd->UserCallback )
-                {
-                    KRG_UNIMPLEMENTED_FUNCTION();
-                }
-                else
-                {
-                    ShaderResourceView const* pSRV = reinterpret_cast<ShaderResourceView const*>( pCmd->TextureId );
-                    renderContext.SetShaderResource( PipelineStage::Pixel, 0, *pSRV );
-
-                    ScissorRect scissorRect = { (int32) pCmd->ClipRect.x, (int32) pCmd->ClipRect.y, (int32) pCmd->ClipRect.z, (int32) pCmd->ClipRect.w };
-                    renderContext.SetRasterizerScissorRectangles( &scissorRect, 1 );
-                    renderContext.DrawIndexed( pCmd->ElemCount, indexOffset, vertexOffset );
-                }
-                indexOffset += pCmd->ElemCount;
-            }
-            vertexOffset += recordedBuffer.m_numVertices;
-        }
-
-        // Clear texture binding
-        //-------------------------------------------------------------------------
-
-        renderContext.ClearShaderResource( Render::PipelineStage::Pixel, 0 );
     }
 }
 #endif

@@ -72,9 +72,6 @@ namespace KRG::GraphEditor
         // Get node highlight color
         virtual ImColor GetHighlightColor() const { return VisualSettings::s_genericNodeHighlightColor; }
 
-        // Request an update of the node and pin sizes
-        inline void RefreshVisualState() { m_isCalculatingSizes = true; }
-
         // Get the margin between the node contents and the outer border
         virtual ImVec2 GetNodeMargin() const { return ImVec2( 8, 4 ); }
 
@@ -124,17 +121,15 @@ namespace KRG::GraphEditor
 
         KRG_REGISTER UUID           m_ID;
         KRG_REGISTER Float2         m_canvasPosition = Float2( 0, 0 ); // Updated each frame
-        ImVec2                  m_size = ImVec2( 0, 0 ); // Updated on size calculation
-        ImVec2                  m_titleRectSize = ImVec2( 0, 0 );
-        ImVec2                  m_controlsRectSize = ImVec2( 0, 0 );
-        bool                    m_isCalculatingSizes = true;
-        bool                    m_isHovered = false;
+        ImVec2                      m_size = ImVec2( 0, 0 ); // Updated each frame
+        ImVec2                      m_titleRectSize = ImVec2( 0, 0 ); // Updated each frame
+        bool                        m_isHovered = false;
 
     private:
 
-        BaseGraph*              m_pParentGraph = nullptr; // Private so that we can enforce how we add nodes to the graphs
-        BaseGraph*              m_pChildGraph = nullptr;
-        BaseGraph*              m_pSecondaryGraph = nullptr;
+        BaseGraph*                  m_pParentGraph = nullptr; // Private so that we can enforce how we add nodes to the graphs
+        BaseGraph*                  m_pChildGraph = nullptr;
+        BaseGraph*                  m_pSecondaryGraph = nullptr;
     };
 
     //-------------------------------------------------------------------------

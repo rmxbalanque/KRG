@@ -6,6 +6,7 @@ namespace KRG::GraphEditor
 {
     constexpr static float const g_transitionArrowWidth = 3.0f;
     constexpr static float const g_transitionArrowOffset = 4.0f;
+    constexpr static float const g_spacingBetweenTitleAndNodeContents = 6.0f;
 
     //-------------------------------------------------------------------------
 
@@ -18,7 +19,6 @@ namespace KRG::GraphEditor
 
         ResetInternalState();
         m_pGraph = pGraph;
-        RefreshVisualState();
     }
 
     void StateMachineGraphView::ResetInternalState()
@@ -31,14 +31,22 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void StateMachineGraphView::DrawNodeTitle( DrawingContext const& ctx, SM::Node* pNode )
+    void StateMachineGraphView::DrawNodeTitle( DrawingContext const& ctx, SM::Node* pNode, ImVec2& newNodeSize )
     {
         KRG_ASSERT( pNode != nullptr );
+
+        ImGui::BeginGroup();
         ImGuiX::ScopedFont fontOverride( ImGuiX::Font::Small, ImColor( SM::VisualSettings::s_nodeTitleColor ) );
-        ImGui::Text( pNode->GetDisplayName() );
+        ImGui::Text( pNode->GetDisplayName() ); 
+        ImGui::EndGroup();
+
+        newNodeSize = pNode->m_titleRectSize = ImGui::GetItemRectSize();
+
+        ImGui::SetCursorPosY( ImGui::GetCursorPos().y + g_spacingBetweenTitleAndNodeContents );
+        newNodeSize.y += g_spacingBetweenTitleAndNodeContents;
     }
 
-    void StateMachineGraphView::DrawNodeBackground( DrawingContext const& ctx, SM::Node* pNode )
+    void StateMachineGraphView::DrawNodeBackground( DrawingContext const& ctx, SM::Node* pNode, ImVec2& newNodeSize )
     {
         KRG_ASSERT( pNode != nullptr );
 
@@ -46,23 +54,30 @@ namespace KRG::GraphEditor
         ImVec2 const nodeMargin = pNode->GetNodeMargin();
         ImVec2 const rectMin = windowNodePosition - nodeMargin;
         ImVec2 const rectMax = windowNodePosition + pNode->m_size + nodeMargin;
-        ImVec2 const titleRectEnd = rectMin + nodeMargin + pNode->m_titleRectSize;
+        ImVec2 const rectTitleBarMax = windowNodePosition + ImVec2( newNodeSize.x, pNode->m_titleRectSize.y ) + nodeMargin;
 
         // Colors
         //-------------------------------------------------------------------------
 
         ImColor const nodeBackgroundColor( VisualSettings::s_genericNodeBackgroundColor );
         ImColor const stateTitleColor( pNode->GetHighlightColor() );
-        ImColor nodeBorderColor( pNode->GetHighlightColor() );
 
-        if ( IsNodeSelected( pNode ) || pNode->m_isHovered )
-        {
-            nodeBorderColor = VisualSettings::s_genericSelectionColor;
-        }
+        // Border
+        //-------------------------------------------------------------------------
+
+        bool drawBorder = false;
+        ImColor nodeBorderColor( pNode->GetHighlightColor() );
 
         if ( pNode->m_ID == m_pGraph->m_entryStateID )
         {
             nodeBorderColor = SM::VisualSettings::s_defaultStateColor;
+            drawBorder = true;
+        }
+        
+        if ( IsNodeSelected( pNode ) || pNode->m_isHovered )
+        {
+            nodeBorderColor = VisualSettings::s_genericSelectionColor;
+            drawBorder = true;
         }
 
         // Draw
@@ -70,18 +85,18 @@ namespace KRG::GraphEditor
 
         if ( IsOfType<SM::State>( pNode ) )
         {
-            ImVec2 const titleBR( rectMax.x, titleRectEnd.y );
-            ctx.m_pDrawList->AddRectFilled( rectMin, titleBR, stateTitleColor, 3, ImDrawFlags_RoundCornersTop );
-
-            ImVec2 const titleRectBL( rectMin.x, titleRectEnd.y );
-            ctx.m_pDrawList->AddRectFilled( titleRectBL, rectMax, nodeBackgroundColor, 3, ImDrawFlags_RoundCornersBottom );
-
-            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 2.0f );
+            ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3, ImDrawFlags_RoundCornersAll );
+            ctx.m_pDrawList->AddRectFilled( rectMin, rectTitleBarMax, pNode->GetHighlightColor(), 3, ImDrawFlags_RoundCornersTop );
+            
+            if ( drawBorder )
+            {
+                ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 1.0f );
+            }
         }
         else // Non-state node
         {
             ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3 );
-            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 2.0f );
+            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 1.0f );
         }
     }
 
@@ -96,17 +111,12 @@ namespace KRG::GraphEditor
         //-------------------------------------------------------------------------
 
         ctx.m_pDrawList->ChannelsSetCurrent( 2 );
+
+        ImVec2 newNodeSize( 0, 0 );
         ImGui::SetCursorPos( ImVec2( pNode->m_canvasPosition ) - ctx.m_viewOffset );
         ImGui::BeginGroup();
         {
-            ImGui::BeginGroup();
-            DrawNodeTitle( ctx, pNode );
-            ImGui::EndGroup();
-
-            if ( pNode->m_isCalculatingSizes )
-            {
-                pNode->m_titleRectSize = ImGui::GetItemRectSize();
-            }
+            DrawNodeTitle( ctx, pNode, newNodeSize );
 
             //-------------------------------------------------------------------------
 
@@ -114,27 +124,18 @@ namespace KRG::GraphEditor
             pNode->DrawExtraControls( ctx );
             ImGui::EndGroup();
 
-            if ( pNode->m_isCalculatingSizes )
-            {
-                pNode->m_controlsRectSize = ImGui::GetItemRectSize();
-            }
+            ImVec2 const extraControlsRectSize = ImGui::GetItemRectSize();
+            newNodeSize.x = Math::Max( newNodeSize.x, extraControlsRectSize.x );
+            newNodeSize.y += extraControlsRectSize.y;
         }
         ImGui::EndGroup();
 
-        //-------------------------------------------------------------------------
-        // Node Size Calculations
-        //-------------------------------------------------------------------------
-
-        if ( pNode->m_isCalculatingSizes )
-        {
-            pNode->m_size = ImGui::GetItemRectSize();
-        }
-
-        //-------------------------------------------------------------------------
-
         // Draw background
+        //-------------------------------------------------------------------------
+        
         ctx.m_pDrawList->ChannelsSetCurrent( 1 );
-        DrawNodeBackground( ctx, pNode );
+        DrawNodeBackground( ctx, pNode, newNodeSize );
+        pNode->m_size = newNodeSize;
 
         //-------------------------------------------------------------------------
 
@@ -143,7 +144,6 @@ namespace KRG::GraphEditor
         //-------------------------------------------------------------------------
 
         pNode->m_isHovered = GetNodeCanvasRect( pNode ).Contains( ctx.m_mouseCanvasPos );
-        pNode->m_isCalculatingSizes = false;
     }
 
     //-------------------------------------------------------------------------

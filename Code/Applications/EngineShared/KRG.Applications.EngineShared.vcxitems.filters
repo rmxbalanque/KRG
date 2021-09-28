@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)RenderingSystem.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Engine.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Engine_Win32.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)RenderingSystem.cpp" />

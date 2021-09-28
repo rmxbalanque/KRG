@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #include "Resource.h"
 #include "EngineApplication_win32.h"
+#include "Engine_Win32.h"
 #include "iniparser/krg_ini.h"
 #include "Applications/Shared/cmdParser/krg_cmdparser.h"
 #include "Applications/Shared/Win32/SharedHelpers_Win32.h"
@@ -89,86 +90,7 @@ namespace KRG
 
     LRESULT EngineApplication::WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
     {
-        if ( !IsInitialized() )
-        {
-            return DefWindowProc( hWnd, message, wParam, lParam );
-        }
-
-        //-------------------------------------------------------------------------
-
-        switch ( message )
-        {
-            case WM_SIZE:
-            {
-                KRG::uint32 width = LOWORD( lParam );
-                KRG::uint32 height = HIWORD( lParam );
-                if ( width > 0 && height > 0 )
-                {
-                    m_engine.UpdateMainWindowSize( Int2( width, height ) );
-                }
-            }
-            break;
-
-            //-------------------------------------------------------------------------
-
-            case WM_SETFOCUS:
-            {
-                m_engine.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
-            }
-            break;
-
-            case WM_KILLFOCUS:
-            {
-                m_engine.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
-            }
-            break;
-
-            //-------------------------------------------------------------------------
-
-            // Forward input messages to the input system
-            case WM_INPUT:
-            case WM_KEYDOWN:
-            case WM_KEYUP:
-            case WM_SYSKEYDOWN:
-            case WM_SYSKEYUP:
-            case WM_CHAR:
-            case WM_MOUSEMOVE:
-            {
-                m_engine.m_pInputSystem->ForwardInputMessageToInputDevices( { message, (uintptr_t) wParam, (uintptr_t) lParam } );
-            }
-            break;
-
-            //-------------------------------------------------------------------------
-
-            case WM_CLOSE:
-            case WM_QUIT:
-            {
-                RequestExit();
-            }
-            break;
-
-            //-------------------------------------------------------------------------
-
-            case WM_DESTROY:
-            {
-                PostQuitMessage( 0 );
-            }
-            break;
-        }
-
-        // ImGui specific message processing
-        //-------------------------------------------------------------------------
-
-        auto const imguiResult = m_engine.m_pImguiSystem->ProcessInput( { hWnd, message, wParam, lParam } );
-        if ( imguiResult != 0 )
-        {
-            return imguiResult;
-        }
-
-        // Default
-        //-------------------------------------------------------------------------
-
-        return DefWindowProc( hWnd, message, wParam, lParam );
+        return DefaultEngineWindowProcessor( &m_engine, hWnd, message, wParam, lParam );
     }
 }
 

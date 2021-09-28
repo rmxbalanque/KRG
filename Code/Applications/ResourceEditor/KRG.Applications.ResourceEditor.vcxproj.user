@@ -12,4 +12,7 @@
     <LocalDebuggerCommandArguments>-mode AnimationGraphEditor</LocalDebuggerCommandArguments>
     <RemoteDebuggerCommandArguments>-mode AnimationGraphEditor</RemoteDebuggerCommandArguments>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
 </Project>
