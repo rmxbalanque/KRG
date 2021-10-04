@@ -42,7 +42,7 @@ namespace KRG::Resource
 
         // This function will just read a resource descriptor from a file
         template<typename T>
-        inline bool TryReadResourceDescriptorFromFile( FileSystem::Path const& descriptorPath, T& outData ) const
+        inline bool TryReadResourceDescriptorFromFile( FileSystem::Path const& descriptorPath, T& outData, TFunction<bool( rapidjson::Document const& )> const& customDeserializationFunction = TFunction<bool( rapidjson::Document const& )>() ) const
         {
             static_assert( std::is_base_of<ResourceDescriptor, T>::value, "T must be a child of ResourceDescriptor" );
             KRG_ASSERT( IsValid() );
@@ -59,13 +59,22 @@ namespace KRG::Resource
                 return false;
             }
 
+            // Allow for custom data serialization in descriptors
+            if ( customDeserializationFunction != nullptr )
+            {
+                if ( !customDeserializationFunction( static_cast<JsonReader&>( typeReader ).GetDocument() ) )
+                {
+                    return false;
+                }
+            }
+
             return true;
         }
 
         template<typename T>
-        inline bool TryReadResourceDescriptor( T& outData ) const
+        inline bool TryReadResourceDescriptor( T& outData, TFunction<bool( rapidjson::Document const& )> const& customDeserializationFunction = TFunction<bool( rapidjson::Document const& )>() ) const
         {
-            return TryReadResourceDescriptorFromFile( m_inputFilePath, outData );
+            return TryReadResourceDescriptorFromFile( m_inputFilePath, outData, customDeserializationFunction );
         }
 
     public:

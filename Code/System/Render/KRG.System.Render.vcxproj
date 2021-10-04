@@ -20,6 +20,7 @@
     <ClInclude Include="IRenderer.h" />
     <ClInclude Include="RendererRegistry.h" />
     <ClInclude Include="RenderShaderResource.h" />
+    <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RenderSettings.h" />
     <ClInclude Include="Platform\RenderContext_DX11.h" />

@@ -39,19 +39,18 @@ namespace KRG::Animation
             return Error( "Failed to read skeleton from source file" );
         }
 
-        // Reflect FBX data into runtime format
+        // Reflect raw data into runtime format
         //-------------------------------------------------------------------------
-        // TODO: properly support animations with a separate root bone
 
         Skeleton skeleton;
 
-        int32 const numFbxBones = pRawSkeleton->GetNumBones();
-        for ( auto fbxBoneIdx = 0; fbxBoneIdx < numFbxBones; fbxBoneIdx++ )
+        int32 const numBones = pRawSkeleton->GetNumBones();
+        for ( auto boneIdx = 0; boneIdx < numBones; boneIdx++ )
         {
-            auto const& boneData = pRawSkeleton->GetBoneData( fbxBoneIdx );
+            auto const& boneData = pRawSkeleton->GetBoneData( boneIdx );
             skeleton.m_boneIDs.push_back( boneData.m_name );
             skeleton.m_parentIndices.push_back( boneData.m_parentBoneIdx );
-            skeleton.m_localReferencePose.push_back( Transform( boneData.m_localTransform.GetRotation(), boneData.m_localTransform.GetTranslation() ) );
+            skeleton.m_localReferencePose.push_back( Transform( boneData.m_localTransform.GetRotation(), boneData.m_localTransform.GetTranslation(), boneData.m_localTransform.GetScale() ) );
         }
 
         // Serialize skeleton

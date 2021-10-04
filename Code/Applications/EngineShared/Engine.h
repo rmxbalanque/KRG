@@ -41,7 +41,6 @@ namespace KRG
         // Needed for window processor access
         void UpdateMainWindowSize( Int2 const& windowDimensions );
         Input::InputSystem* GetInputSystem() const { return m_pInputSystem; }
-        ImGuiX::ImguiSystem* GetImguiSystem() const { return m_pImguiSystem; }
 
     protected:
 

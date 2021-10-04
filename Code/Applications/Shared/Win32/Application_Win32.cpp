@@ -70,7 +70,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        ::DestroyWindow( m_pWindow );
+        ::DestroyWindow( m_windowHandle );
         ::UnregisterClass( m_windowClass.lpszClassName, m_windowClass.hInstance );
     }
 
@@ -177,7 +177,7 @@ namespace KRG
         long const windowDesiredWidth = Math::Max( m_windowRect.right - m_windowRect.left, 100l );
         long const windowDesiredHeight = Math::Max( m_windowRect.bottom - m_windowRect.top, 40l );
 
-        m_pWindow = CreateWindow( m_windowClass.lpszClassName,
+        m_windowHandle = CreateWindow( m_windowClass.lpszClassName,
                                   m_windowClass.lpszClassName,
                                   WS_OVERLAPPEDWINDOW,
                                   m_windowRect.left,
@@ -189,16 +189,16 @@ namespace KRG
                                   m_pInstance,
                                   NULL );
 
-        if ( m_pWindow == nullptr )
+        if ( m_windowHandle == nullptr )
         {
             return false;
         }
 
         //-------------------------------------------------------------------------
 
-        ShowWindow( m_pWindow, SW_SHOW );
-        UpdateWindow( m_pWindow );
-        GetClientRect( m_pWindow, &m_windowRect );
+        ShowWindow( m_windowHandle, SW_SHOW );
+        UpdateWindow( m_windowHandle );
+        GetClientRect( m_windowHandle, &m_windowRect );
         return true;
     }
 
@@ -252,7 +252,7 @@ namespace KRG
                 m_exitRequested = !ApplicationLoop();
             }
 
-            GetWindowRect( m_pWindow, &m_windowRect );
+            GetWindowRect( m_windowHandle, &m_windowRect );
         }
 
         // Shutdown

@@ -45,7 +45,7 @@ namespace KRG::RawAssets
 
         //-------------------------------------------------------------------------
 
-        auto const extension = sourceFilePath.GetExtensionAsString();
+        auto const extension = sourceFilePath.GetLowercaseExtensionAsString();
         if ( extension == "fbx" )
         {
             return Fbx::ReadFileInfo( sourceFilePath, outInfo );
@@ -66,7 +66,7 @@ namespace KRG::RawAssets
 
         TUniquePtr<RawAssets::RawMesh> pRawMesh = nullptr;
 
-        auto const extension = sourceFilePath.GetExtensionAsString();
+        auto const extension = sourceFilePath.GetLowercaseExtensionAsString();
         if ( extension == "fbx" )
         {
             pRawMesh = Fbx::ReadStaticMesh( sourceFilePath, nameOfMeshToCompile );
@@ -100,7 +100,7 @@ namespace KRG::RawAssets
 
         TUniquePtr<RawAssets::RawMesh> pRawMesh = nullptr;
 
-        auto const extension = sourceFilePath.GetExtensionAsString();
+        auto const extension = sourceFilePath.GetLowercaseExtensionAsString();
         if ( extension == "fbx" )
         {
             pRawMesh = Fbx::ReadSkeletalMesh( sourceFilePath, maxBoneInfluences );
@@ -134,7 +134,7 @@ namespace KRG::RawAssets
 
         TUniquePtr<RawAssets::RawSkeleton> pRawSkeleton = nullptr;
 
-        auto const extension = sourceFilePath.GetExtensionAsString();
+        auto const extension = sourceFilePath.GetLowercaseExtensionAsString();
         if ( extension == "fbx" )
         {
             pRawSkeleton = Fbx::ReadSkeleton( sourceFilePath, skeletonRootBoneName );
@@ -168,7 +168,7 @@ namespace KRG::RawAssets
 
         TUniquePtr<RawAssets::RawAnimation> pRawAnimation = nullptr;
 
-        auto const extension = sourceFilePath.GetExtensionAsString();
+        auto const extension = sourceFilePath.GetLowercaseExtensionAsString();
         if ( extension == "fbx" )
         {
             pRawAnimation = Fbx::ReadAnimation( sourceFilePath, rawSkeleton, animationName );

@@ -137,7 +137,7 @@ namespace KRG
 
         void RenderContext::SetShaderInputBinding( ResourceHandle const& inputBinding ) const
         {
-            KRG_ASSERT( IsValid() && inputBinding.IsValid() );
+            KRG_ASSERT( IsValid() && inputBinding.m_type == ResourceHandle::Type::ShaderInputBinding && inputBinding.IsValid() );
             m_pDeviceContext->IASetInputLayout( (ID3D11InputLayout*) inputBinding.m_pData0 );
         }
 
@@ -421,6 +421,12 @@ namespace KRG
         {
             KRG_ASSERT( IsValid() );
             m_pDeviceContext->DrawIndexed( vertexCount, indexStartIndex, vertexStartIndex );
+        }
+
+        void RenderContext::Present( RenderWindow& window ) const
+        { 
+            auto pSwapChain = reinterpret_cast<IDXGISwapChain*>( window.m_pSwapChain );
+            pSwapChain->Present( 0, 0 );
         }
     }
 }

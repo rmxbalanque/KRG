@@ -4,6 +4,7 @@
 #include "System/Core/Logging/Log.h"
 #include "System/Core/Time/Timers.h"
 #include "System/Core/FileSystem/FileSystem.h"
+#include "System/Imgui/Platform/ImguiPlatform_win32.h"
 #include <tchar.h>
 
 #if LIVEPP_ENABLED
@@ -25,11 +26,7 @@ namespace KRG
 
     LRESULT ResourceServerApplication::WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
     {
-        if ( !IsInitialized() )
-        {
-            return DefWindowProc( hWnd, message, wParam, lParam );
-        }
-
+        // SysTray
         //-------------------------------------------------------------------------
 
         if ( message == RegisterWindowMessage( "TaskbarCreated" ) )
@@ -42,18 +39,31 @@ namespace KRG
             }
         }
 
+        // ImGui specific message processing
+        //-------------------------------------------------------------------------
+
+        auto const imguiResult = ImGuiX::Platform::WindowsMessageHandler( hWnd, message, wParam, lParam );
+        if ( imguiResult != 0 )
+        {
+            return imguiResult;
+        }
+
+        // General
         //-------------------------------------------------------------------------
 
         switch ( message )
         {
             case WM_SIZE:
             {
-                KRG::uint32 width = LOWORD( lParam );
-                KRG::uint32 height = HIWORD( lParam );
-                if ( width > 0 && height > 0 )
+                Int2 const newDimensions( LOWORD( lParam ), HIWORD( lParam ) );
+                if ( newDimensions.m_x > 0 && newDimensions.m_y > 0 )
                 {
-                    Int2 const newWindowDimensions( width, height );
-                    m_viewportManager.UpdateMainWindowSize( newWindowDimensions );
+                    m_viewportManager.UpdateMainWindowSize( newDimensions );
+
+                    // Hack to fix client area offset bug
+                    RECT rect;
+                    GetWindowRect( hWnd, &rect );
+                    MoveWindow( hWnd, rect.left + 1, rect.top, rect.right - rect.left, rect.bottom - rect.top, FALSE );
                 }
             }
             break;
@@ -102,7 +112,7 @@ namespace KRG
             case WM_CLOSE:
             {
                 HideApplicationWindow();
-                return 0;
+                return -1;
             }
             break;
 
@@ -119,40 +129,28 @@ namespace KRG
             break;
         }
 
-        // ImGui specific message processing
-        //-------------------------------------------------------------------------
-
-        auto const imguiResult = m_imguiSystem.ProcessInput( { hWnd, message, wParam, lParam } );
-        if ( imguiResult != 0 )
-        {
-            return imguiResult;
-        }
-
-        // Default
-        //-------------------------------------------------------------------------
-
-        return DefWindowProc( hWnd, message, wParam, lParam );
+        return 0;
     }
 
     //-------------------------------------------------------------------------
 
     void ResourceServerApplication::ShowApplicationWindow()
     {
-        ShowWindow( m_pWindow, SW_SHOW );
-        SetForegroundWindow( m_pWindow );
+        ShowWindow( m_windowHandle, SW_SHOW );
+        SetForegroundWindow( m_windowHandle );
         m_applicationWindowHidden = false;
     }
 
     void ResourceServerApplication::HideApplicationWindow()
     {
-        ShowWindow( m_pWindow, SW_HIDE );
+        ShowWindow( m_windowHandle, SW_HIDE );
         m_applicationWindowHidden = true;
     }
 
     bool ResourceServerApplication::CreateSystemTrayIcon( int32 iconID )
     {
         m_systemTrayIconData.cbSize = sizeof( NOTIFYICONDATA );
-        m_systemTrayIconData.hWnd = m_pWindow;
+        m_systemTrayIconData.hWnd = m_windowHandle;
         m_systemTrayIconData.uID = IDI_TRAY_IDLE;
         m_systemTrayIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
         m_systemTrayIconData.hIcon = LoadIcon( m_pInstance, (LPCTSTR) MAKEINTRESOURCE( iconID ) );
@@ -191,9 +189,9 @@ namespace KRG
         }
 
         // Display menu
-        SetForegroundWindow( m_pWindow );
-        TrackPopupMenu( hSubMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_BOTTOMALIGN, lpClickPoint.x, lpClickPoint.y, 0, m_pWindow, NULL );
-        SendMessage( m_pWindow, WM_NULL, 0, 0 );
+        SetForegroundWindow( m_windowHandle );
+        TrackPopupMenu( hSubMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_BOTTOMALIGN, lpClickPoint.x, lpClickPoint.y, 0, m_windowHandle, NULL );
+        SendMessage( m_windowHandle, WM_NULL, 0, 0 );
 
         // Kill off objects we're done with
         DestroyMenu( hMenu );
@@ -256,7 +254,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        m_imguiSystem.Initialize( m_applicationNameNoWhitespace + ".imgui.ini" );
+        m_imguiSystem.Initialize( m_applicationNameNoWhitespace + ".imgui.ini", m_pRenderDevice );
         m_imguiRenderer.Initialize( m_pRenderDevice );
 
         //-------------------------------------------------------------------------

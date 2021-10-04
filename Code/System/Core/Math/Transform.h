@@ -70,19 +70,19 @@ namespace KRG
         // Rotation
         //-------------------------------------------------------------------------
 
-        inline Quaternion GetRotation() const { return m_rotation; }
+        inline Quaternion const& GetRotation() const { return m_rotation; }
         inline void SetRotation( Quaternion const& rotation ) { KRG_ASSERT( rotation.IsNormalized() ); m_rotation = rotation; }
 
         // Translation
         //-------------------------------------------------------------------------
 
-        inline Vector GetTranslation() const { return m_translation; }
+        inline Vector const& GetTranslation() const { return m_translation; }
         inline void SetTranslation( Vector const& translation ) { m_translation = translation.GetWithW0(); }
 
         // Scale
         //-------------------------------------------------------------------------
 
-        inline Vector GetScale() const { return m_scale; }
+        inline Vector const& GetScale() const { return m_scale; }
         inline void SetScale( Vector const& scale ) { m_scale = scale.GetWithW0(); }
         inline void SetScale( float uniformScale ) { m_scale = Vector( uniformScale, uniformScale, uniformScale, 0.0f ); }
         inline bool HasScale() const { return !m_scale.IsEqual3( Vector::One ); }

@@ -14,17 +14,16 @@ struct ImRect;
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Timeline
 {
-    class KRG_TOOLS_CORE_API TimelineItem : public IRegisteredType
+    class KRG_TOOLS_CORE_API TrackItem : public IRegisteredType
     {
-        friend class StandaloneEditor;
-        KRG_REGISTER_TYPE( TimelineItem );
+        KRG_REGISTER_TYPE( TrackItem );
 
     public:
 
-        TimelineItem() = default;
-        virtual ~TimelineItem() = default;
+        TrackItem() = default;
+        virtual ~TrackItem() = default;
 
         // Basic Info
         //-------------------------------------------------------------------------
@@ -60,21 +59,20 @@ namespace KRG
 
     private:
 
-        TimelineItem( TimelineItem const& ) = delete;
-        TimelineItem& operator=( TimelineItem& ) = delete;
+        TrackItem( TrackItem const& ) = delete;
+        TrackItem& operator=( TrackItem& ) = delete;
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_TOOLS_CORE_API TimelineTrack : public IRegisteredType
+    class KRG_TOOLS_CORE_API Track : public IRegisteredType
     {
-        friend class StandaloneEditor;
-        KRG_REGISTER_TYPE( TimelineTrack );
+        KRG_REGISTER_TYPE( Track );
 
     public:
 
-        TimelineTrack() = default;
-        virtual ~TimelineTrack();
+        Track() = default;
+        virtual ~Track();
 
         // Info
         //-------------------------------------------------------------------------
@@ -86,18 +84,18 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         virtual bool HasContextMenu() const { return false; }
-        virtual void DrawContextMenu( TVector<TimelineTrack*>& tracks, float playheadPosition ) {}
+        virtual void DrawContextMenu( TVector<Track*>& tracks, float playheadPosition ) {}
 
         // Items
         //-------------------------------------------------------------------------
 
-        inline bool Contains( TimelineItem const* pItem ) const { return eastl::find( m_items.begin(), m_items.end(), pItem ) != m_items.end(); }
+        inline bool Contains( TrackItem const* pItem ) const { return eastl::find( m_items.begin(), m_items.end(), pItem ) != m_items.end(); }
 
         // Needs to be implemented by the derived track
         virtual void CreateItem( float itemStartTime ) {};
 
         // Try to delete the item from the track if it exists, return true if the item was found and remove, false otherwise
-        inline bool DeleteItem( TimelineItem* pItem )
+        inline bool DeleteItem( TrackItem* pItem )
         {
             auto foundIter = eastl::find( m_items.begin(), m_items.end(), pItem );
             if ( foundIter != m_items.end() )
@@ -118,20 +116,18 @@ namespace KRG
 
     private:
 
-        TimelineTrack( TimelineTrack const& ) = delete;
-        TimelineTrack& operator=( TimelineTrack& ) = delete;
+        Track( Track const& ) = delete;
+        Track& operator=( Track& ) = delete;
 
     public:
 
-        TVector<TimelineItem*>      m_items;
+        TVector<TrackItem*>      m_items;
     };
 
     //-------------------------------------------------------------------------
 
-    class KRG_TOOLS_CORE_API TimelineData
+    class KRG_TOOLS_CORE_API TrackContainer
     {
-        friend class StandaloneEditor;
-
     public:
 
         // Frees all tracks
@@ -139,17 +135,17 @@ namespace KRG
 
         inline int32 GetNumTracks() const { return (int32) m_tracks.size(); }
 
-        inline TVector<TimelineTrack*>::iterator begin() { return m_tracks.begin(); }
-        inline TVector<TimelineTrack*>::iterator end() { return m_tracks.end(); }
+        inline TVector<Track*>::iterator begin() { return m_tracks.begin(); }
+        inline TVector<Track*>::iterator end() { return m_tracks.end(); }
 
-        inline TimelineTrack*& operator[]( size_t i ) { return m_tracks[i]; }
-        inline TimelineTrack* const& operator[]( size_t i ) const { return m_tracks[i]; }
+        inline Track*& operator[]( size_t i ) { return m_tracks[i]; }
+        inline Track* const& operator[]( size_t i ) const { return m_tracks[i]; }
 
         bool Load( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue );
         void Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const;
 
     public:
 
-        TVector<TimelineTrack*>     m_tracks;
+        TVector<Track*>     m_tracks;
     };
 }

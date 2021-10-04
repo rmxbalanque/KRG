@@ -78,7 +78,7 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( s_infoWindowName, bottomDockID );
     }
 
-    void SkeletalMeshResourceEditor::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void SkeletalMeshResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
         auto DrawWindowContents = [this] ()
         {

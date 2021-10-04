@@ -25,6 +25,9 @@ namespace KRG
 
         bool DrawWorkspaceWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ResourceEditorWorkspace* pWorkspace );
 
+        virtual bool HasViewportToolbar() const override;
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+
     private:
 
         DataBrowser*                        m_pDataBrowser = nullptr;

@@ -1,6 +1,5 @@
 #include "AnimationEventEditor.h"
 #include "Tools/Animation/ResourceCompilers/ResourceCompiler_AnimationClip.h"
-#include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 
@@ -17,22 +16,7 @@ namespace KRG::Animation
         , m_pAnimation( pAnimation )
     {
         KRG_ASSERT( m_pAnimation != nullptr );
-
-        // Read resource desc to get event data path if set
-        AnimationClipResourceDescriptor animResourceDesc;
-        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( sourceDataDirectory );
-        TypeSystem::Serialization::TypeReader typeReader( typeRegistry );
-        if ( typeReader.ReadFromFile( resourceDescriptorPath ) )
-        {
-            typeReader >> animResourceDesc;
-        }
-
-        // Load the event data if set
-        if ( animResourceDesc.m_animationEventData.IsValid() )
-        {
-            m_eventDataFilePath = animResourceDesc.m_animationEventData.ToFileSystemPath( sourceDataDirectory );
-            LoadFromFile();
-        }
+        LoadEventData();
     }
 
     //-------------------------------------------------------------------------
@@ -84,7 +68,7 @@ namespace KRG::Animation
             if ( !pDefaultEventInstance->AllowMultipleTracks() )
             {
                 // Check if a track of this type already exists
-                for ( auto pTrack : m_data )
+                for ( auto pTrack : m_trackContainer )
                 {
                     auto pAnimTrack = static_cast<EventTrack*>( pTrack );
                     if ( pAnimTrack->GetEventTypeInfo() == pDefaultEventInstance->GetTypeInfo() )
@@ -116,7 +100,7 @@ namespace KRG::Animation
                         pCreatedTrack->m_eventTypeID = pTypeInfo->m_ID;
                         pCreatedTrack->m_pEventTypeInfo = pTypeInfo;
                         pCreatedTrack->m_eventType = type;
-                        m_data.m_tracks.emplace_back( pCreatedTrack );
+                        m_trackContainer.m_tracks.emplace_back( pCreatedTrack );
                         return true;
                     }
 
@@ -149,25 +133,46 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    bool EventEditor::LoadFromFile()
+    void EventEditor::LoadEventData()
     {
-        JsonFileReader jsonReader;
-        if ( !jsonReader.ReadFromFile( m_eventDataFilePath ) )
+        ClearSelection();
+        m_trackContainer.Reset();
+
+        //-------------------------------------------------------------------------
+
+        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
+        JsonReader typeReader;
+        if ( !typeReader.ReadFromFile( resourceDescriptorPath ) )
         {
-            KRG_LOG_ERROR( "AnimationTools", "Failed to read event track file: %s", m_eventDataFilePath.c_str() );
-            return false;
+            KRG_LOG_ERROR( "AnimationTools", "Failed to read resource descriptor file: %s", resourceDescriptorPath.c_str() );
+            return;
+        }
+
+        // Check if there is event data
+        auto const& document = typeReader.GetDocument();
+        auto trackDataIter = document.FindMember( EventTrack::s_eventTrackContainerKey );
+        if ( trackDataIter == document.MemberEnd() )
+        {
+            return;
+        }
+
+        auto const& eventDataValueObject = trackDataIter->value;
+        if ( !eventDataValueObject.IsArray() )
+        {
+            KRG_LOG_ERROR( "AnimationTools", "Malformed event track data" );
+            return;
+        }
+
+        if ( !m_trackContainer.Load( m_typeRegistry, eventDataValueObject ) )
+        {
+            KRG_LOG_ERROR( "AnimationTools", "Malformed event track file: %s", resourceDescriptorPath.c_str() );
+            return;
         }
 
         //-------------------------------------------------------------------------
 
-        if ( !m_data.Load( m_typeRegistry, jsonReader.GetDocument() ) )
-        {
-            KRG_LOG_ERROR( "AnimationTools", "Malformed event track file: %s", m_eventDataFilePath.c_str() );
-            return false;
-        }
-
         int32 numSyncTracks = 0;
-        for ( auto pTrack : m_data.m_tracks )
+        for ( auto pTrack : m_trackContainer.m_tracks )
         {
             auto pEventTrack = reinterpret_cast<EventTrack*>( pTrack );
             pEventTrack->m_animFrameRate = m_pAnimation->GetFPS();
@@ -189,57 +194,48 @@ namespace KRG::Animation
                 }
             }
         }
-
-        //-------------------------------------------------------------------------
-
-        return true;
     }
 
     void EventEditor::RequestSave()
     {
-        if ( !m_eventDataFilePath.IsValid() )
+        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
+        JsonReader jsonReader;
+        if ( !jsonReader.ReadFromFile( resourceDescriptorPath ) )
         {
-            FileSystem::Path const resourceDescPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
-            
-            FileSystem::Path defaultEventDatafilePath = resourceDescPath;
-            defaultEventDatafilePath.ReplaceExtension( "evnt" );
-
-            pfd::save_file saveDialog( "Save Event Data", defaultEventDatafilePath.c_str(), { "Event Files (.evnt)", "*.evnt", } );
-            m_eventDataFilePath = saveDialog.result().c_str();
-           
-            if ( m_eventDataFilePath.IsValid() )
-            {
-                // Ensure correct extension
-                if ( !m_eventDataFilePath.MatchesExtension( "evnt" ) )
-                {
-                    m_eventDataFilePath.Append( ".evnt" );
-                }
-
-                TypeSystem::Serialization::TypeReader typeReader( m_typeRegistry );
-                if ( typeReader.ReadFromFile( resourceDescPath ) )
-                {
-                    // Read and update resource desc
-                    AnimationClipResourceDescriptor resourceDesc;
-                    typeReader >> resourceDesc;
-                    resourceDesc.m_animationEventData = DataPath::FromFileSystemPath( m_sourceDataDirectory, m_eventDataFilePath );
-
-                    // Save resource desc
-                    TypeSystem::Serialization::TypeWriter typeWriter( m_typeRegistry );
-                    typeWriter << &resourceDesc;
-                    typeWriter.WriteToFile( resourceDescPath );
-                }
-            }
-            else
-            {
-                return;
-            }
+            KRG_LOG_ERROR( "AnimationTools", "Failed to read resource descriptor file: %s", resourceDescriptorPath.c_str() );
+            return;
         }
+
+        auto const& document = jsonReader.GetDocument();
 
         //-------------------------------------------------------------------------
 
-        JsonFileWriter fileWriter;
-        m_data.Save( m_typeRegistry, *fileWriter.GetWriter() );
-        fileWriter.WriteToFile( m_eventDataFilePath );
+        // Serialize the event data
+        JsonWriter eventDataWriter;
+
+        auto pWriter = eventDataWriter.GetWriter();
+        pWriter->StartObject();
+
+        // Write descriptor data
+        for ( auto itr = document.MemberBegin(); itr != document.MemberEnd(); ++itr )
+        {
+            if ( itr->name == EventTrack::s_eventTrackContainerKey )
+            {
+                continue;
+            }
+
+            pWriter->Key( itr->name.GetString() );
+            itr->value.Accept( *pWriter );
+        }
+
+        // Write event data
+        pWriter->Key( EventTrack::s_eventTrackContainerKey );
+        m_trackContainer.Save( m_typeRegistry, *eventDataWriter.GetWriter() );
+
+        pWriter->EndObject();
+
+        // Save descriptor
+        eventDataWriter.WriteToFile( resourceDescriptorPath );
         m_isDirty = false;
     }
 }

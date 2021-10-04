@@ -169,26 +169,44 @@ namespace KRG::Animation
         auto const numBones = m_localTransforms.size();
         if ( numBones > 0 )
         {
-            TInlineVector<Transform, 256> globalTransforms;
-            globalTransforms.resize( numBones );
+            // Calculate bone world transforms
+            //-------------------------------------------------------------------------
 
-            globalTransforms[0] = m_localTransforms[0] * worldTransform;
+            TInlineVector<Transform, 256> worldTransforms;
+            worldTransforms.resize( numBones );
+
+            worldTransforms[0] = m_localTransforms[0] * worldTransform;
             for ( auto i = 1; i < numBones; i++ )
             {
                 auto const& parentIdx = parentIndices[i];
-                auto const& parentTransform = globalTransforms[parentIdx];
-                globalTransforms[i] = m_localTransforms[i] * parentTransform;
+                auto const& parentTransform = worldTransforms[parentIdx];
+                worldTransforms[i] = m_localTransforms[i] * parentTransform;
             }
+
+            // Draw bones
+            //-------------------------------------------------------------------------
 
             for ( auto boneIdx = 1; boneIdx < numBones; boneIdx++ )
             {
                 auto const& parentIdx = parentIndices[boneIdx];
-                auto const& parentTransform = globalTransforms[parentIdx];
-                auto const& boneTransform = globalTransforms[boneIdx];
+                auto const& parentTransform = worldTransforms[parentIdx];
+                auto const& boneTransform = worldTransforms[boneIdx];
 
                 ctx.DrawLine( boneTransform.GetTranslation().ToFloat3(), parentTransform.GetTranslation().ToFloat3(), Colors::HotPink, 2.0f );
                 ctx.DrawAxis( boneTransform, 0.03f, 3.0f );
             }
+
+            // Draw root
+            //-------------------------------------------------------------------------
+
+            constexpr static float const gizmoRadius = 0.025f;
+            constexpr static float const arrowLength = 0.075f;
+
+            Vector const fwdDir = worldTransforms[0].GetAxisY().GetNegated();
+            Vector const arrowStartPos = Vector::MultiplyAdd( fwdDir, Vector( gizmoRadius ), worldTransforms[0].GetTranslation() );
+
+            ctx.DrawDisc( worldTransforms[0].GetTranslation(), gizmoRadius, Colors::Red );
+            ctx.DrawArrow( arrowStartPos, fwdDir, arrowLength, Colors::Lime, 8 );
         }
     }
     #endif

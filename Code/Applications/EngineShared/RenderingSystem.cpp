@@ -156,7 +156,7 @@ namespace KRG
                     #if KRG_DEVELOPMENT_TOOLS
                     if ( m_pImguiRenderer != nullptr )
                     {
-                        immediateContext.SetRenderTarget( m_pRenderDevice->GetMainRenderTarget() );
+                        immediateContext.SetRenderTarget( m_pRenderDevice->GetPrimaryWindowRenderTarget() );
 
                         auto const& devToolsViewport = m_pViewportManager->GetDevelopmentToolsViewport();
                         m_pImguiRenderer->Render( devToolsViewport );

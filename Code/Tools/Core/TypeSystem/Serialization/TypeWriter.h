@@ -12,7 +12,7 @@
 
 namespace KRG::TypeSystem::Serialization
 {
-    class KRG_TOOLS_CORE_API TypeWriter final : public JsonFileWriter
+    class KRG_TOOLS_CORE_API TypeWriter final : public JsonWriter
     {
     public:
 
@@ -47,7 +47,7 @@ namespace KRG::TypeSystem::Serialization
 
     private:
 
-        using JsonFileWriter::GetWriter;
+        using JsonWriter::GetWriter;
 
         void PreSerializeType();
         virtual void FinalizeSerializedData() override final;

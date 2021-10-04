@@ -10,9 +10,6 @@ namespace KRG::Animation::Graph
     {
         Tools_GraphNode::Initialize( pParent );
         CreateOutputPin( "Result", ValueType::Pose, true );
-        CreateOutputPin( "Result", ValueType::Pose, true );
-        CreateOutputPin( "Result", ValueType::Pose, true );
-        CreateOutputPin( "Result", ValueType::Pose, true );
         CreateInputPin( "Input", ValueType::Pose );
         CreateInputPin( "Scale", ValueType::Float );
     }

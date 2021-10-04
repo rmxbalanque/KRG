@@ -16,9 +16,6 @@
     <Filter Include="ResourceLoaders">
       <UniqueIdentifier>{c140389f-c586-4ad0-85f0-7652240b3956}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Debug">
-      <UniqueIdentifier>{b03a016d-70c5-4e0e-a97e-2f048dba76a6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Events">
       <UniqueIdentifier>{a50f7e97-bb59-4f8a-b0d0-501034e567c4}</UniqueIdentifier>
     </Filter>
@@ -65,9 +62,6 @@
     </ClCompile>
     <ClCompile Include="ResourceLoaders\AnimationGraphLoader.cpp">
       <Filter>ResourceLoaders</Filter>
-    </ClCompile>
-    <ClCompile Include="Debug\AnimationDebugDrawing.cpp">
-      <Filter>Debug</Filter>
     </ClCompile>
     <ClCompile Include="Events\AnimationEvent_ID.cpp">
       <Filter>Events</Filter>
@@ -177,6 +171,15 @@
     <ClCompile Include="Graph\Nodes\AnimationGraphNode_Transition.cpp">
       <Filter>Graph\Nodes</Filter>
     </ClCompile>
+    <ClCompile Include="AnimationBoneMask.cpp" />
+    <ClCompile Include="AnimationClip.cpp" />
+    <ClCompile Include="AnimationFrameTime.cpp" />
+    <ClCompile Include="AnimationPose.cpp" />
+    <ClCompile Include="AnimationSkeleton.cpp" />
+    <ClCompile Include="AnimationSyncTrack.cpp" />
+    <ClCompile Include="AnimationEvent.cpp" />
+    <ClCompile Include="AnimationTarget.cpp" />
+    <ClCompile Include="AnimationBlender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -208,9 +211,6 @@
     </ClInclude>
     <ClInclude Include="ResourceLoaders\AnimationGraphLoader.h">
       <Filter>ResourceLoaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Debug\AnimationDebugDrawing.h">
-      <Filter>Debug</Filter>
     </ClInclude>
     <ClInclude Include="Events\AnimationEvent_ID.h">
       <Filter>Events</Filter>
@@ -323,6 +323,16 @@
     <ClInclude Include="Graph\Nodes\AnimationGraphNode_Transition.h">
       <Filter>Graph\Nodes</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationBoneMask.h" />
+    <ClInclude Include="AnimationClip.h" />
+    <ClInclude Include="AnimationEvent.h" />
+    <ClInclude Include="AnimationFrameTime.h" />
+    <ClInclude Include="AnimationPose.h" />
+    <ClInclude Include="AnimationSkeleton.h" />
+    <ClInclude Include="AnimationSyncTrack.h" />
+    <ClInclude Include="AnimationTarget.h" />
+    <ClInclude Include="AnimationCommon.h" />
+    <ClInclude Include="AnimationBlender.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graph\todo.md">

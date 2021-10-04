@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Render\Components\MeshComponent.h"
+#include "D:\Kruger\Code\Engine\Render\Components\MeshComponent.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Render::MeshComponent

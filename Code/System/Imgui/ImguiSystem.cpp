@@ -9,9 +9,15 @@
 
 //-------------------------------------------------------------------------
 
+#if _WIN32
+#include "Platform/ImguiPlatform_Win32.h"
+#endif
+
+//-------------------------------------------------------------------------
+
 namespace KRG::ImGuiX
 {
-    bool ImguiSystem::Initialize( String const& iniFilename )
+    bool ImguiSystem::Initialize( String const& iniFilename, Render::RenderDevice* pRenderDevice, bool enableViewports )
     {
         ImGui::CreateContext();
 
@@ -20,6 +26,15 @@ namespace KRG::ImGuiX
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        if ( enableViewports )
+        {
+            io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        }
+
+        // Set render device in the user data
+        KRG_ASSERT( pRenderDevice != nullptr );
+        io.BackendRendererUserData = pRenderDevice;
 
         //-------------------------------------------------------------------------
 
@@ -31,7 +46,7 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        InitializePlatform();
+        Platform::InitializePlatform();
         InitializeFonts();
 
         //-------------------------------------------------------------------------
@@ -48,36 +63,8 @@ namespace KRG::ImGuiX
             SystemFonts::s_fonts[i] = nullptr;
         }
 
+        Platform::ShutdownPlatform();
         ImGui::DestroyContext();
-    }
-
-    void ImguiSystem::StartFrame( float deltaTime )
-    {
-        ImGuiIO& io = ImGui::GetIO();
-        io.DeltaTime = deltaTime;
-
-        //-------------------------------------------------------------------------
-
-        UpdateDisplayInformation();
-        UpdateMousePosition();
-
-        //-------------------------------------------------------------------------
-
-        ImGuiMouseCursor newMouseCursorState = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
-        if ( m_lastMouseCursorState != newMouseCursorState )
-        {
-            m_lastMouseCursorState = newMouseCursorState;
-            UpdateMouseCursor();
-        }
-
-        //-------------------------------------------------------------------------
-
-        ImGui::NewFrame();
-    }
-
-    void ImguiSystem::EndFrame()
-    {
-        ImGui::EndFrame();
     }
 
     void ImguiSystem::InitializeFonts()
@@ -202,5 +189,22 @@ namespace KRG::ImGuiX
         KRG_ASSERT( pLargeFont->IsLoaded() );
         KRG_ASSERT( pExtraLargeFont->IsLoaded() );
         #endif
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ImguiSystem::StartFrame( float deltaTime )
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.DeltaTime = deltaTime;
+
+        Platform::UpdateDisplayInformation();
+        Platform::UpdateMouseInformation();
+        ImGui::NewFrame();
+    }
+
+    void ImguiSystem::EndFrame()
+    {
+        ImGui::EndFrame();
     }
 }

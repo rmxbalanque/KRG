@@ -22,7 +22,6 @@
     <ClInclude Include="Components\AnimationGraphComponent.h" />
     <ClInclude Include="Components\AnimationPlayerComponent.h" />
     <ClInclude Include="Components\AnimationComponent.h" />
-    <ClInclude Include="Debug\AnimationDebugDrawing.h" />
     <ClInclude Include="Events\AnimationEvent_ID.h" />
     <ClInclude Include="Events\AnimationEvent_Foot.h" />
     <ClInclude Include="AnimationTarget.h" />
@@ -81,7 +80,6 @@
     <ClCompile Include="Components\AnimationGraphComponent.cpp" />
     <ClCompile Include="Components\AnimationPlayerComponent.cpp" />
     <ClCompile Include="Components\AnimationComponent.cpp" />
-    <ClCompile Include="Debug\AnimationDebugDrawing.cpp" />
     <ClCompile Include="AnimationEvent.cpp" />
     <ClCompile Include="Events\AnimationEvent_ID.cpp" />
     <ClCompile Include="Events\AnimationEvent_Foot.cpp" />

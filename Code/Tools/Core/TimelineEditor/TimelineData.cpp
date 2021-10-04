@@ -4,9 +4,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Timeline
 {
-    TimelineTrack::~TimelineTrack()
+    Track::~Track()
     {
         for ( auto pItem : m_items )
         {
@@ -16,7 +16,7 @@ namespace KRG
         m_items.clear();
     }
 
-    void TimelineTrack::DrawHeader( ImRect const& headerRect )
+    void Track::DrawHeader( ImRect const& headerRect )
     {
         ImGui::SameLine( 10 );
         ImGui::AlignTextToFramePadding();
@@ -25,7 +25,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void TimelineData::Reset()
+    void TrackContainer::Reset()
     {
         for ( auto pTrack : m_tracks )
         {
@@ -34,7 +34,7 @@ namespace KRG
         m_tracks.clear();
     }
 
-    bool TimelineData::Load( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& dataObjectValue )
+    bool TrackContainer::Load( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& dataObjectValue )
     {
         auto FreeTrackData = [this] ()
         {
@@ -68,7 +68,7 @@ namespace KRG
             }
 
             // Create track
-            TimelineTrack* pTrack = TypeSystem::Serialization::CreateAndReadNativeType<TimelineTrack>( typeRegistry, trackDataIter->value );
+            Track* pTrack = TypeSystem::Serialization::CreateAndReadNativeType<Track>( typeRegistry, trackDataIter->value );
             m_tracks.emplace_back( pTrack );
 
             // Custom serialization
@@ -98,7 +98,7 @@ namespace KRG
                 }
 
                 // Create item
-                TimelineItem* pItem = TypeSystem::Serialization::CreateAndReadNativeType<TimelineItem>( typeRegistry, itemDataIter->value );
+                TrackItem* pItem = TypeSystem::Serialization::CreateAndReadNativeType<TrackItem>( typeRegistry, itemDataIter->value );
                 pTrack->m_items.emplace_back( pItem );
 
                 // Custom serialization
@@ -128,7 +128,7 @@ namespace KRG
         return true;
     }
 
-    void TimelineData::Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
+    void TrackContainer::Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
     {
         writer.StartArray();
 
@@ -182,5 +182,4 @@ namespace KRG
 
         writer.EndArray();
     }
-
 }

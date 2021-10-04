@@ -33,7 +33,10 @@ namespace KRG::RawAssets
         virtual bool IsValid() const override final { return !m_bones.empty(); }
 
         inline StringID const& GetName() const { return m_name; }
+
         inline BoneData const& GetRootBone() const { return m_bones[0]; }
+        inline StringID const& GetRootBoneName() const { return m_bones[0].m_name; }
+
         inline TVector<BoneData> const& GetBoneData() const { return m_bones; }
         inline BoneData const& GetBoneData( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx]; }
         inline StringID const& GetBoneName( int32 boneIdx ) const { KRG_ASSERT( boneIdx >= 0 && boneIdx < m_bones.size() ); return m_bones[boneIdx].m_name; }

@@ -1,8 +1,6 @@
 #pragma once
 #ifdef _WIN32
 
-#include "System/Render/_Module/API.h"
-
 #include "RenderContext_DX11.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Threading/Threading.h"
@@ -31,11 +29,8 @@ namespace KRG::Render
         bool Initialize( Settings const& settings );
         void Shutdown();
 
-        // Pipeline state changes
-        //-------------------------------------------------------------------------
-
         inline RenderContext const& GetImmediateContext() const { return m_immediateContext; }
-        RenderTarget const& GetMainRenderTarget() const& { return m_renderTarget; }
+        void PresentFrame();
 
         // Device locking: required since we create/destroy resources while rendering
         //-------------------------------------------------------------------------
@@ -43,13 +38,17 @@ namespace KRG::Render
         void LockDevice() { m_deviceMutex.lock(); }
         void UnlockDevice() { m_deviceMutex.unlock(); }
 
-        // Drawing
+        // Swap Chains
         //-------------------------------------------------------------------------
 
-        void PresentFrame();
+        RenderTarget const& GetPrimaryWindowRenderTarget() const& { return m_primaryWindow.m_renderTarget; }
+        inline Int2 GetPrimaryWindowDimensions() const { return m_resolution; }
 
-        void ResizeMainRenderTarget( Int2 const& dimensions );
-        inline Int2 GetMainRenderTargetDimensions() const { return m_resolution; }
+        void CreateSecondaryRenderWindow( RenderWindow& window, HWND platformWindowHandle );
+        void DestroySecondaryRenderWindow( RenderWindow& window );
+
+        void ResizeWindow( RenderWindow& window, Int2 const& dimensions );
+        void ResizePrimaryWindowRenderTarget( Int2 const& dimensions );
 
         // Resource and state management
         //-------------------------------------------------------------------------
@@ -92,8 +91,7 @@ namespace KRG::Render
         bool CreateDeviceAndSwapchain();
         void DestroyDeviceAndSwapchain();
 
-        bool CreateMainRenderTarget();
-        void DestroyMainRenderTarget();
+        bool CreateWindowRenderTarget( RenderWindow& renderWindow, Int2 dimensions );
 
         bool CreateDefaultDepthStencilStates();
         void DestroyDefaultDepthStencilStates();
@@ -109,13 +107,11 @@ namespace KRG::Render
 
         // Device Core 
         ID3D11Device*               m_pDevice = nullptr;
-        IDXGISwapChain*             m_pSwapChain = nullptr;
+        IDXGIFactory*               m_pFactory = nullptr;
+        RenderWindow                m_primaryWindow;
         RenderContext               m_immediateContext;
 
-        // Render targets
-        RenderTarget                m_renderTarget;
-
-        // lock to allow loading resources while rendering across different threads
+        // Lock to allow loading resources while rendering across different threads
         Threading::Mutex            m_deviceMutex;
     };
 }

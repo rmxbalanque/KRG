@@ -14,11 +14,11 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------\
 
-    class KRG_ENGINE_RENDER_API ImguiRenderer final : public Render::IRenderer
+    class KRG_ENGINE_RENDER_API ImguiRenderer final : public IRenderer
     {
     public:
 
-        KRG_RENDERER_ID( ImguiRenderer, Render::RendererPriorityLevel::DevelopmentTools );
+        KRG_RENDERER_ID( ImguiRenderer, RendererPriorityLevel::DevelopmentTools );
 
     private:
 
@@ -31,29 +31,33 @@ namespace KRG::Render
     public:
 
         bool IsInitialized() const { return m_initialized; }
-        bool Initialize( Render::RenderDevice* pRenderDevice );
+        bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
-        void Render( Render::Viewport const& viewport ) override final;
+        void Render( Viewport const& viewport ) override final;
 
     private:
 
-        Render::RenderDevice*                   m_pRenderDevice = nullptr;
+        void RenderImguiData( RenderContext const& renderContext, ImDrawData const* pDrawData );
 
-        Render::VertexShader                    m_vertexShader;
-        Render::PixelShader                     m_pixelShader;
-        Render::ResourceHandle                  m_inputBinding;
-        Render::BlendState                      m_blendState;
-        Render::SamplerState                    m_samplerState;
-        Render::RasterizerState                 m_rasterizerState;
-        TVector<Render::ScissorRect>            m_scissorRects;
-        Render::RenderBuffer                    m_indexBuffer;
-        Render::VertexBuffer                    m_vertexBuffer;
-        Render::Texture                         m_fontTexture;
+    private:
 
-        TVector<RecordedCmdBuffer>              m_cmdBuffers;
+        RenderDevice*                   m_pRenderDevice = nullptr;
 
-        Render::PipelineState                   m_PSO;
-        bool                                    m_initialized = false;
+        VertexShader                    m_vertexShader;
+        PixelShader                     m_pixelShader;
+        ResourceHandle                  m_inputBinding;
+        BlendState                      m_blendState;
+        SamplerState                    m_samplerState;
+        RasterizerState                 m_rasterizerState;
+        TVector<ScissorRect>            m_scissorRects;
+        RenderBuffer                    m_indexBuffer;
+        VertexBuffer                    m_vertexBuffer;
+        Texture                         m_fontTexture;
+
+        TVector<RecordedCmdBuffer>      m_cmdBuffers;
+
+        PipelineState                   m_PSO;
+        bool                            m_initialized = false;
     };
 }
 #endif

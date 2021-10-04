@@ -1,58 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="System\Platform">
-      <UniqueIdentifier>{58211273-3d2f-489f-a0d5-f918904caaec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="System">
-      <UniqueIdentifier>{89c80337-48ec-4ccf-a708-e03c111f29d5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderer">
-      <UniqueIdentifier>{d8901959-06ca-4987-8119-89ca54181012}</UniqueIdentifier>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{199329b3-43dd-4c17-a994-a2c0485662cc}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\imgui\misc\freetype">
-      <UniqueIdentifier>{1a79b0a3-1324-4686-9ab8-99c716d94954}</UniqueIdentifier>
+      <UniqueIdentifier>{a6a9ce4f-783c-4b37-bf6c-937613bffb58}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\imgui\misc">
-      <UniqueIdentifier>{ccefb650-5112-457f-9970-ea75a6330603}</UniqueIdentifier>
+      <UniqueIdentifier>{ce21f71c-7ba2-4f2d-a014-5fe0c2035a8b}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\imgui">
-      <UniqueIdentifier>{348b5f41-1f3b-4c9a-9f93-563d497a736f}</UniqueIdentifier>
+      <UniqueIdentifier>{66199a8c-5b24-4b2b-8255-1b43a7fd8c0d}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{6b1b257b-e216-4ff5-9865-8c4e6239e6df}</UniqueIdentifier>
+      <UniqueIdentifier>{0e2f82a4-c3f9-4cc7-a926-b90145e7a1ec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="CommonWidgets\Gizmo">
-      <UniqueIdentifier>{db252781-4c12-4370-a175-2013d2dc5dd4}</UniqueIdentifier>
+    <Filter Include="Widgets\Gizmos">
+      <UniqueIdentifier>{263efbcf-197d-49ee-8dd2-0f2c4c361013}</UniqueIdentifier>
     </Filter>
-    <Filter Include="CommonWidgets">
-      <UniqueIdentifier>{7fbd9a7c-1b9a-4db4-ae03-b6d0b03cb4c4}</UniqueIdentifier>
+    <Filter Include="Widgets">
+      <UniqueIdentifier>{9bfa344f-2e8f-4808-9bb2-b1e30c3715b3}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Module">
-      <UniqueIdentifier>{657a613a-0f7f-4ed0-96ca-3929de2d8b53}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderer\Shaders">
-      <UniqueIdentifier>{a6b33c6f-d6f6-4ae2-b5b2-a58a607cf375}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderer\Shaders\HLSL">
-      <UniqueIdentifier>{5ea7efa2-4c8d-4f41-b786-02380c754cff}</UniqueIdentifier>
+      <UniqueIdentifier>{bd06d9b9-e443-4b77-9620-36a9ce43b5de}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\imgui\misc\debuggers">
-      <UniqueIdentifier>{b72cff68-3feb-4215-a256-f17ea418b8c5}</UniqueIdentifier>
+      <UniqueIdentifier>{ba7dbebc-0434-41b4-9f92-54e3814e49ba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Platform\ImguiSystem_win32.cpp">
-      <Filter>System\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="ImguiTheme.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="ImguiSystem.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="ImguiFont.cpp">
-      <Filter>System</Filter>
+    <ClCompile Include="Platform\ImguiPlatform_Win32.cpp">
+      <Filter>Platform</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp">
       <Filter>ThirdParty\imgui\misc\freetype</Filter>
@@ -73,43 +52,32 @@
       <Filter>ThirdParty\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\Gizmos\Gizmo.cpp">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\Gizmos\OrientationGuide.cpp">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\Gizmos\RotationGizmo.cpp">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\Gizmos\ScaleGizmo.cpp">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\Gizmos\TranslationGizmo.cpp">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\InterfaceHelpers.cpp">
-      <Filter>CommonWidgets</Filter>
+      <Filter>Widgets</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\NumericEditors.cpp">
-      <Filter>CommonWidgets</Filter>
+      <Filter>Widgets</Filter>
     </ClCompile>
     <ClCompile Include="ImguiX.cpp" />
+    <ClCompile Include="ImguiTheme.cpp" />
+    <ClCompile Include="ImguiSystem.cpp" />
+    <ClCompile Include="ImguiFont.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Platform\ImguiSystem.inl">
-      <Filter>System\Platform</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ImguiTheme.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="ImguiFont.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="ImguiSystem.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
@@ -135,27 +103,31 @@
       <Filter>ThirdParty\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\Gizmos\Gizmo.h">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\Gizmos\OrientationGuide.h">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\Gizmos\RotationGizmo.h">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\Gizmos\ScaleGizmo.h">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\Gizmos\TranslationGizmo.h">
-      <Filter>CommonWidgets\Gizmo</Filter>
+      <Filter>Widgets\Gizmos</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\InterfaceHelpers.h">
-      <Filter>CommonWidgets</Filter>
+      <Filter>Widgets</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\NumericEditors.h">
-      <Filter>CommonWidgets</Filter>
+      <Filter>Widgets</Filter>
     </ClInclude>
     <ClInclude Include="ImguiX.h" />
+    <ClInclude Include="ImguiTheme.h" />
+    <ClInclude Include="ImguiFont.h" />
+    <ClInclude Include="ImguiSystem.h" />
+    <ClInclude Include="Platform\ImguiPlatform_Win32.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis">

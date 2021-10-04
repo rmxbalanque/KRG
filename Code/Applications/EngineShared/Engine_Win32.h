@@ -2,6 +2,7 @@
 
 #include "Engine.h"
 #include <windows.h>
+#include "System/Imgui/Platform/ImguiPlatform_win32.h"
 
 //-------------------------------------------------------------------------
 
@@ -14,7 +15,7 @@ namespace KRG
         // ImGui specific message processing
         //-------------------------------------------------------------------------
 
-        auto const imguiResult = pEngine->GetImguiSystem()->ProcessInput( { hWnd, message, wParam, lParam } );
+        auto const imguiResult = ImGuiX::Platform::WindowsMessageHandler( hWnd, message, wParam, lParam );
         if ( imguiResult != 0 )
         {
             return imguiResult;

@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Tools\Physics\ResourceCompilers\ResourceCompiler_PhysicsMaterialDatabase.h"
+#include "D:\Kruger\Code\Tools\Physics\ResourceCompilers\ResourceCompiler_PhysicsMaterialDatabase.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Physics::PhysicsMaterialDatabaseResourceDescriptor

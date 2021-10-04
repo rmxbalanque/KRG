@@ -214,7 +214,8 @@ namespace KRG
                         int32 const ctrlPointIdx = pMesh->GetPolygonVertex( polygonIdx, vertexIdx );
                         FbxVector4 const meshVertex = meshNodeGlobalTransform.MultT( pMesh->GetControlPoints()[ctrlPointIdx] );
                         vert.m_position = Vector( (float) meshVertex[0], (float) meshVertex[1], (float) meshVertex[2], (float) meshVertex[3] );
-                        KRG_ASSERT( vert.m_position.m_w == 1.0f );
+                        vert.m_position.m_w = 1.0f;
+                        //KRG_ASSERT( vert.m_position.m_w == 1.0f );
 
                         // Get vertex normal
                         //-------------------------------------------------------------------------
@@ -385,21 +386,29 @@ namespace KRG
 
             static FbxNode* FindSkeletonForSkin( FbxSkin* pSkin)
             {
+                FbxNode* pSkeletonRootNode = nullptr;
+
+                //-------------------------------------------------------------------------
+
                 FbxCluster* pCluster = pSkin->GetCluster( 0 );
                 FbxNode* pBoneNode = pCluster->GetLink();
 
                 while ( pBoneNode != nullptr )
                 {
+                    // Traverse hierarchy to find the root of the skeleton
                     FbxNodeAttribute* pNodeAttribute = pBoneNode->GetNodeAttribute();
                     if ( pNodeAttribute != nullptr && pNodeAttribute->GetAttributeType() == FbxNodeAttribute::eSkeleton )
                     {
-                        return pBoneNode;
+                        pSkeletonRootNode = pBoneNode;
+                        pBoneNode = pBoneNode->GetParent();
                     }
-
-                    pBoneNode = pBoneNode->GetParent();
+                    else
+                    {
+                        pBoneNode = nullptr;
+                    }
                 }
 
-                return nullptr;
+                return pSkeletonRootNode;
             }
 
             static bool ReadSkinningData( FbxRawMesh& rawMesh, Fbx::FbxSceneContext const& sceneCtx, fbxsdk::FbxMesh* pMesh, RawMesh::GeometrySection& geometryData, TVector<TVector<uint32>>& controlPointVertexMapping )
@@ -445,11 +454,24 @@ namespace KRG
                     return false;
                 }
 
-                Fbx::ReadSkeleton( sceneCtx, (char const*) pSkeletonNode->GetNameWithoutNameSpacePrefix(), rawMesh.m_skeleton );
-                if ( !rawMesh.m_skeleton.IsValid() )
+                // Check if we have already read a skeleton for this mesh and if the skeleton matches
+                if ( rawMesh.m_skeleton.IsValid() )
                 {
-                    rawMesh.LogError( "Failed to read mesh skeleton", geometryData.m_name.c_str() );
-                    return false;
+                    StringID const skeletonRootName( (char const*) pSkeletonNode->GetNameWithoutNameSpacePrefix() );
+                    if ( rawMesh.GetSkeleton().GetRootBoneName() != skeletonRootName )
+                    {
+                        rawMesh.LogError( "Different skeletons detected for the various sub-meshes. Expected: %s, Got: %s", rawMesh.GetSkeleton().GetRootBoneName().c_str(), skeletonRootName.c_str() );
+                        return false;
+                    }
+                }
+                else // Try to read the skeleton
+                {
+                    Fbx::ReadSkeleton( sceneCtx, (char const*) pSkeletonNode->GetNameWithoutNameSpacePrefix(), rawMesh.m_skeleton );
+                    if ( !rawMesh.m_skeleton.IsValid() )
+                    {
+                        rawMesh.LogError( "Failed to read mesh skeleton", geometryData.m_name.c_str() );
+                        return false;
+                    }
                 }
 
                 // Read skinning cluster data (i.e. bone skin mapping)

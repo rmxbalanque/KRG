@@ -54,7 +54,7 @@ namespace KRG
         int32                           m_applicationIconResourceID = -1;
         WNDCLASSEX                      m_windowClass;
         HINSTANCE                       m_pInstance = nullptr;
-        HWND                            m_pWindow = nullptr;
+        HWND                            m_windowHandle = nullptr;
         RECT                            m_windowRect = { 0, 0, 640, 480 };
         MSG                             m_message;
 

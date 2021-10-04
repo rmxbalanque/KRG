@@ -76,6 +76,8 @@ namespace KRG::Animation::Graph
 
     void AnimationGraphEditor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
     {
+        ImGui::ShowDemoWindow();
+
         ImGuiWindowClass mainEditorWindowClass;
         mainEditorWindowClass.ClassId = ImGui::GetID( "EditorWindowClass" );
         mainEditorWindowClass.DockingAllowUnclassed = false;

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Platform\ImguiPlatform_Win32.h" />
     <ClInclude Include="Widgets\InterfaceHelpers.h" />
     <ClInclude Include="Widgets\Gizmos\Gizmo.h" />
     <ClInclude Include="Widgets\Gizmos\OrientationGuide.h" />
@@ -50,7 +51,7 @@
     <ClCompile Include="ImguiX.cpp" />
     <ClCompile Include="ImguiTheme.cpp" />
     <ClCompile Include="ImguiSystem.cpp" />
-    <ClCompile Include="Platform\ImguiSystem_win32.cpp" />
+    <ClCompile Include="Platform\ImguiPlatform_Win32.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
@@ -63,9 +64,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImguiFont.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Platform\ImguiSystem.inl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis" />

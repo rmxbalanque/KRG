@@ -15,7 +15,7 @@ namespace KRG::Animation { class AnimationPlayerComponent; }
 
 namespace KRG::Animation
 {
-    class KRG_TOOLS_ANIMATION_API EventEditor final : public TimelineEditor
+    class KRG_TOOLS_ANIMATION_API EventEditor final : public Timeline::TimelineEditor
     {
     public:
 
@@ -30,7 +30,7 @@ namespace KRG::Animation
         virtual bool DrawAddTracksMenu() override;
         virtual void RequestSave() override;
 
-        bool LoadFromFile();
+        void LoadEventData();
 
     private:
 
@@ -39,6 +39,5 @@ namespace KRG::Animation
         TVector<TypeSystem::TypeInfo const*>        m_eventTypes;
         ResourceID                                  m_animationID; // This is tracked independently since the animation ptr can be invalidated externally
         AnimationClip const*                        m_pAnimation = nullptr;
-        FileSystem::Path                            m_eventDataFilePath;
     };
 }

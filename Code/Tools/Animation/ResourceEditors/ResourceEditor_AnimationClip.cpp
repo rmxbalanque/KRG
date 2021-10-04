@@ -1,9 +1,12 @@
 #include "ResourceEditor_AnimationClip.h"
 #include "Tools/Animation/Events/AnimationEventEditor.h"
+#include "Engine/Animation/AnimationPose.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Engine/Animation/Systems/AnimationSystem.h"
-#include "System/Imgui/Widgets/InterfaceHelpers.h"
+#include "Engine/Animation/Components/AnimatedMeshComponent.h"
 #include "Engine/Core/Entity/EntityWorld.h"
+#include "System/Imgui/Widgets/InterfaceHelpers.h"
+#include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,7 +16,9 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    char const* const AnimationClipResourceEditor::s_infoWindowName = "Info Window##AnimationClip";
+    char const* const AnimationClipResourceEditor::s_timelineWindowName = "Timeline##AnimationClip";
+    char const* const AnimationClipResourceEditor::s_detailsWindowName = "Details##AnimationClip";
+    char const* const AnimationClipResourceEditor::s_trackDataWindowName = "Track Data##AnimationClip";
 
     //-------------------------------------------------------------------------
 
@@ -60,7 +65,9 @@ namespace KRG::Animation
     void AnimationClipResourceEditor::InitializeDockingLayout( ImGuiID dockspaceID ) const
     {
         ImGuiID topDockID = 0;
+        ImGuiID bottomLeftDockID = 0;
         ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.5f, nullptr, &topDockID );
+        ImGuiID bottomRightDockID = ImGui::DockBuilderSplitNode( bottomDockID, ImGuiDir_Right, 0.25f, nullptr, &bottomLeftDockID );
 
         // Dock viewport
         ImGuiDockNode* pTopNode = ImGui::DockBuilderGetNode( topDockID );
@@ -68,85 +75,109 @@ namespace KRG::Animation
         ImGui::DockBuilderDockWindow( GetViewportWindowName(), topDockID );
 
         // Dock windows
-        ImGui::DockBuilderDockWindow( s_infoWindowName, bottomDockID );
+        ImGui::DockBuilderDockWindow( s_timelineWindowName, bottomLeftDockID );
+        ImGui::DockBuilderDockWindow( s_trackDataWindowName, bottomRightDockID );
+        ImGui::DockBuilderDockWindow( s_detailsWindowName, bottomRightDockID );
     }
 
-    void AnimationClipResourceEditor::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void AnimationClipResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
-        auto DrawWindowContents = [this, &context] ()
+        if ( IsLoaded() )
+        {
+            // Lazy init of the event editor
+            if ( m_pEventEditor == nullptr )
+            {
+                m_pEventEditor = KRG::New<EventEditor>( *m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
+            }
+
+            // Update position
+            //-------------------------------------------------------------------------
+
+            if ( m_isRootMotionEnabled )
+            {
+                m_characterTransform = m_pResource->GetRootTransform( m_pAnimationComponent->GetAnimTime() );
+            }
+            else
+            {
+                m_characterTransform = Transform::Identity;
+            }
+
+            // Draw in viewport
+            //-------------------------------------------------------------------------
+
+            auto drawingCtx = context.GetDrawingContext();
+
+            Pose const* pPose = m_pAnimationComponent->GetPose();
+            if ( pPose != nullptr )
+            {
+                drawingCtx.Draw( *pPose, m_characterTransform );
+            }
+
+            m_pResource->DrawRootMotionPath( drawingCtx, Transform::Identity );
+        }
+
+        //-------------------------------------------------------------------------
+
+        DrawTimelineWindow( context, viewportManager, pWindowClass );
+        DrawDetailsWindow( context, viewportManager, pWindowClass );
+        DrawTrackDataWindow( context, viewportManager, pWindowClass );
+    }
+
+    void AnimationClipResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    {
+        if ( !IsLoaded() )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text( "Frame: %06.2f / %d", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetNumFrames(), m_pResource->GetNumFrames() );
+
+        ImGuiX::VerticalSeparator();
+
+        ImGui::Text( "Time: %05.2fs / %05.2fs", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetDuration(), m_pResource->GetDuration().ToFloat() );
+
+        ImGuiX::VerticalSeparator();
+
+        ImGui::Text( "Avg Linear Velocity: %.2fm/s", m_pResource->GetAverageLinearVelocity() );
+
+        ImGuiX::VerticalSeparator();
+
+        ImGui::Text( "Avg Angular Velocity: %.2fm/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
+
+        ImGuiX::VerticalSeparator();
+
+        ImGui::Text( "Distance Covered: %.2fm", m_pResource->GetTotalRootMotionDelta().GetTranslation().GetLength3() );
+
+        ImGuiX::VerticalSeparator();
+
+        ImGui::Checkbox( "Root Motion", &m_isRootMotionEnabled );
+    }
+
+    void AnimationClipResourceEditor::DrawTimelineWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    {
+        ImGui::SetNextWindowClass( pWindowClass );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
+        if ( ImGui::Begin( s_timelineWindowName ) )
         {
             if ( IsWaitingForResource() )
             {
                 ImGui::Text( "Loading:" );
                 ImGui::SameLine();
                 ImGuiX::DrawSpinner( "Loading" );
-                return;
             }
-
-            if ( HasLoadingFailed() )
+            else if ( HasLoadingFailed() )
             {
                 ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
-                return;
             }
-
-            if ( m_pEventEditor == nullptr )
+            else
             {
-                m_pEventEditor = KRG::New<EventEditor>( *m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
-            }
-
-            // Draw debug info in viewport
-            //-------------------------------------------------------------------------
-
-            auto drawingCtx = context.GetDrawingContext();
-            m_pResource->DrawRootMotionPath( drawingCtx, Transform::Identity );
-
-            // Anim Info
-            //-------------------------------------------------------------------------
-
-            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 0 ) );
-            ImGui::BeginChild( "AnimInfo", ImVec2( 0, 18 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding );
-            {
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text( "Frame: %06.2f / %d", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetNumFrames(), m_pResource->GetNumFrames() );
-
-                ImGuiX::VerticalSeparator();
-
-                ImGui::Text( "Time: %05.2fs / %05.2fs", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetDuration(), m_pResource->GetDuration().ToFloat() );
-
-                ImGuiX::VerticalSeparator();
-
-                ImGui::Text( "Avg Linear Velocity: %.2fm/s", m_pResource->GetAverageLinearVelocity() );
-
-                ImGuiX::VerticalSeparator();
-
-                ImGui::Text( "Avg Angular Velocity: %.2fm/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
-
-                ImGuiX::VerticalSeparator();
-
-                ImGui::Text( "Distance Covered: %.2fm", m_pResource->GetTotalRootMotionDelta().GetTranslation().Length3() );
-            }
-            ImGui::EndChild();
-            ImGui::PopStyleVar();
-
-            // Track editor and property grid
-            //-------------------------------------------------------------------------
-
-            ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 0, 0 ) );
-            if ( ImGui::BeginTable( "LayoutTable", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit ) )
-            {
-                ImGui::TableSetupColumn( "TrackEditor", ImGuiTableColumnFlags_WidthStretch );
-                ImGui::TableSetupColumn( "PropertyGrid", ImGuiTableColumnFlags_WidthFixed, 400 );
-
-                ImGui::TableNextRow();
-
-                ImGui::TableNextColumn();
-                ImGui::BeginChild( "TE", ImVec2( 0, 0 ), false );
-                {
-                    m_pEventEditor->Update( context, m_pAnimationComponent );
-                }
-                ImGui::EndChild();
-
+                // Track editor and property grid
                 //-------------------------------------------------------------------------
+
+                m_pEventEditor->Update( context, m_pAnimationComponent );
 
                 auto const& selectedItems = m_pEventEditor->GetSelectedItems();
                 if ( !selectedItems.empty() )
@@ -158,29 +189,77 @@ namespace KRG::Animation
                 {
                     m_propertyGrid.SetTypeToEdit( nullptr );
                 }
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableNextColumn();
-                ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 0 ) );
-                ImGui::BeginChild( "PG", ImVec2( 0, 0 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding );
-                {
-                    m_propertyGrid.DrawGrid();
-                }
-                ImGui::EndChild();
-                ImGui::PopStyleVar();
-
-                ImGui::EndTable();
             }
-            ImGui::PopStyleVar();
-        };
+        }
+        ImGui::End();
+        ImGui::PopStyleVar();
+    }
 
-        //-------------------------------------------------------------------------
-
+    void AnimationClipResourceEditor::DrawDetailsWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    {
         ImGui::SetNextWindowClass( pWindowClass );
-        if ( ImGui::Begin( s_infoWindowName ) )
+        if ( ImGui::Begin( s_detailsWindowName ) )
         {
-            DrawWindowContents();
+            m_propertyGrid.DrawGrid();
+        }
+        ImGui::End();
+    }
+
+    void AnimationClipResourceEditor::DrawTrackDataWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    {
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( s_trackDataWindowName ) )
+        {
+            if ( IsLoaded() )
+            {
+                // There may be a frame delay between the UI and the entity system creating the pose
+                Pose const* pPose = m_pAnimationComponent->GetPose();
+                if ( pPose != nullptr )
+                {
+                    if ( ImGui::BeginTable( "TrackDataTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
+                    {
+                        ImGui::TableSetupColumn( "Bone", ImGuiTableColumnFlags_WidthStretch );
+                        ImGui::TableSetupColumn( "Transform", ImGuiTableColumnFlags_WidthStretch );
+                        ImGui::TableHeadersRow();
+
+                        //-------------------------------------------------------------------------
+
+                        Transform const rootTransform = m_isRootMotionEnabled ? m_pResource->GetRootTransform( m_pAnimationComponent->GetAnimTime() ) : Transform::Identity;
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "0. Root" );
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "Rot: %s", Math::ToString( rootTransform.GetRotation() ).c_str() );
+                        ImGui::Text( "Tra: %s", Math::ToString( rootTransform.GetTranslation() ).c_str() );
+                        ImGui::Text( "Scl: %s", Math::ToString( rootTransform.GetScale() ).c_str() );
+
+                        //-------------------------------------------------------------------------
+
+                        Skeleton const* pSkeleton = pPose->GetSkeleton();
+                        int32 const numBones = pSkeleton->GetNumBones();
+
+                        for ( auto i = 1; i < numBones; i++ )
+                        {
+                            Transform const& boneTransform = pPose->GetGlobalTransform( i );
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text( "%d. %s", i, pSkeleton->GetBoneID( i ).c_str() );
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text( "Rot: %s", Math::ToString( boneTransform.GetRotation() ).c_str() );
+                            ImGui::Text( "Tra: %s", Math::ToString( boneTransform.GetTranslation() ).c_str() );
+                            ImGui::Text( "Scl: %s", Math::ToString( boneTransform.GetScale() ).c_str() );
+                        }
+
+                        ImGui::EndTable();
+                    }
+                }
+            }
+            else
+            {
+                ImGui::Text( "Nothing to show!" );
+            }
         }
         ImGui::End();
     }

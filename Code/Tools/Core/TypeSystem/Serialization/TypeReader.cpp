@@ -22,7 +22,7 @@ namespace KRG::TypeSystem::Serialization
 
     void TypeReader::Reset()
     {
-        JsonFileReader::Reset();
+        JsonReader::Reset();
         m_numSerializedTypes = 0;
         m_deserializedTypeIdx = 0;
     }

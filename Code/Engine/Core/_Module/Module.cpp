@@ -53,7 +53,7 @@ namespace KRG::EngineCore
         m_resourceSystem.Initialize( m_pResourceProvider );
         m_viewportManager.Initialize( m_pRenderDevice );
         m_inputSystem.Initialize();
-        m_imguiSystem.Initialize( context.GetApplicationName() + ".imgui.ini" );
+        m_imguiSystem.Initialize( context.GetApplicationName() + ".imgui.ini", m_pRenderDevice );
 
         m_mapLoader.SetTypeRegistry( &m_typeRegistry );
 

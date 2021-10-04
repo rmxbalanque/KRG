@@ -156,13 +156,19 @@ namespace KRG::Animation
         inline Transform GetRootMotionDelta( Percentage fromTime, Percentage toTime ) const;
 
         // Get the average linear velocity of the root for this animation
-        inline float GetAverageLinearVelocity() const { return m_averageAngularVelocity; }
+        inline float GetAverageLinearVelocity() const { return m_averageLinearVelocity; }
 
         // Get the average angular velocity (in the X/Y plane) of the root for this animation
         inline Radians GetAverageAngularVelocity() const { return m_averageAngularVelocity; }
 
         // Get the total root motion delta for this animation
         inline Transform const& GetTotalRootMotionDelta() const { return m_totalRootMotionDelta; }
+
+        // Get the distance traveled by this animation
+        inline Vector const& GetDisplacementDelta() const { return m_totalRootMotionDelta.GetTranslation(); }
+
+        // Get the rotation delta for this animation
+        inline Quaternion const& GetRotationDelta() const { return m_totalRootMotionDelta.GetRotation(); }
 
         // Events
         //-------------------------------------------------------------------------

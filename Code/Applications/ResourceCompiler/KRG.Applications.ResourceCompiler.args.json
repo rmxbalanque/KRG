@@ -51,6 +51,10 @@
       "Command": "Render",
       "Items": [
         {
+          "Id": "051d5c39-342a-467f-8d73-281beba52edb",
+          "Command": "-compile data://animation/amplifycharacter.smsh"
+        },
+        {
           "Id": "a8324731-2651-43be-a906-57c40f51d767",
           "Command": "-compile data://packs/br/environment/sm_prop_wirespool_01.msh"
         },
@@ -105,60 +109,28 @@
       "Command": "Animation",
       "Items": [
         {
+          "Id": "4f10648d-b7d6-4b68-aa3e-915b7809edab",
+          "Command": "-compile data://Packs/Amplify/AssaultRifle/AR_Aim_Crouch_Enter.anim"
+        },
+        {
+          "Id": "25a11b81-2401-4dbe-87b0-fa19b0bcc541",
+          "Command": "-compile data://packs/amplify/assaultrifle/ar_aim_crouch_exit.anim"
+        },
+        {
           "Id": "fe3f7226-4f1e-44fa-8a8b-974dc399976c",
-          "Command": "-compile data://animation/amplify/Amplify_AnimationPack.skel"
+          "Command": "-compile data://packs/amplify/AmplifySkeleton.skel"
         },
         {
           "Id": "12aa3e43-0ff4-4341-99f7-bc6713c1ab71",
-          "Command": "-compile data://animation/amplify/amplify_animationpack.anim"
+          "Command": "-compile data://packs/amplify/run/run_fwd.anim"
         },
         {
-          "Id": "da2fcc9c-9dcb-4151-8ba8-9e86c59b2324",
-          "Command": "-compile data://animation/animGraph.agv"
-        },
-        {
-          "Id": "5a3059b3-c4fb-48ed-a6e2-c9e152bdbf58",
-          "Command": "-compile data://animation/animGraph.ag"
-        },
-        {
-          "Id": "2844e286-615b-4be6-974a-78cb875650fd",
-          "Command": "-compile data://animation/stand_crowd_ambient1.anim"
-        },
-        {
-          "Id": "d3ae49e4-9c78-429f-87f7-82d1dff90397",
-          "Command": "-compile data://animation/stand_crowd_ambient0.anim"
-        },
-        {
-          "Id": "1b9a7757-1b63-47d2-b601-4880455a4cd6",
-          "Command": "-compile data://geometry/FloorMesh.msh"
-        },
-        {
-          "Id": "273c7e2b-414d-4efb-a8ee-0ede981b6247",
-          "Command": "-compile data://animation/animGraphDataSet.agds"
-        },
-        {
-          "Id": "b8487d62-a70c-4723-b2b6-a6c915b7556a",
-          "Command": "-compile data://animation/stand_crowd_ambient4.anim"
-        },
-        {
-          "Id": "aff58edf-520e-486d-80a0-188bf56ffe85",
-          "Command": "-compile data://packs/br/textures/polygonbattleroyale_vehicles_01_damaged.txtr"
-        },
-        {
-          "Id": "664e2fc0-ce82-40d3-a5fb-0625e0fec712",
-          "Command": "-compile data://gltf/gltf_test.skel"
-        },
-        {
-          "Id": "06a6b61f-a53b-4094-a349-fdaafd1d495e",
-          "Command": "-compile data://animation/stand_crowd_ambient5.anim"
-        },
-        {
-          "Id": "886da911-f6f1-4eb7-ac0e-04ad07f700c3",
-          "Command": "-compile data://Animation/Stand_Crowd_Ambient2.anim"
+          "Id": "f1f6abf4-c826-4a41-b7a8-b8536d363744",
+          "Command": "-compile data://Packs/SyntyAnims/Stand_Reaction_Lets_Go.anim"
         },
         {
           "Id": "61986e12-b844-4fe5-85ad-5ba8121cb8ad",
-          "Command": "-compile data://animation/syntystudiosskel.skel"
+          "Command": "-compile data://Packs/SyntyAnims/SyntySkeleton.skel"
         }
       ]
     }

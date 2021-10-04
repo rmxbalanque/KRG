@@ -10,7 +10,7 @@
 //-------------------------------------------------------------------------
 // Basic timeline/sequencer style widget
 
-namespace KRG
+namespace KRG::Timeline
 {
     class KRG_TOOLS_CORE_API TimelineEditor
     {
@@ -41,18 +41,10 @@ namespace KRG
 
         struct MouseState
         {
-            inline void Reset()
-            {
-                m_isHoveredOverTrackEditor = false;
-                m_pHoveredTrack = nullptr;
-                m_pHoveredItem = nullptr;
-                m_hoveredItemMode = ItemEditMode::None;
-                m_playheadTimeForMouse = -1.0f;
-                m_snappedPlayheadTimeForMouse = -1.0f;
-            }
+            void Reset();
 
-            TimelineTrack*          m_pHoveredTrack = nullptr;
-            TimelineItem*           m_pHoveredItem = nullptr;
+            Track*                  m_pHoveredTrack = nullptr;
+            TrackItem*              m_pHoveredItem = nullptr;
             float                   m_playheadTimeForMouse = -1.0f;
             float                   m_snappedPlayheadTimeForMouse = -1.0f;
             ItemEditMode            m_hoveredItemMode = ItemEditMode::None;
@@ -61,48 +53,22 @@ namespace KRG
 
         struct ItemEditState
         {
-            inline void Reset()
-            {
-                m_pTrackForEditedItem = nullptr;
-                m_pEditedItem = nullptr;
-                m_mode = ItemEditMode::None;
-                m_originalTimeRange.Reset();
-            }
+            void Reset();
 
             ItemEditMode            m_mode = ItemEditMode::None;
-            TimelineTrack const*    m_pTrackForEditedItem = nullptr;
-            TimelineItem*           m_pEditedItem = nullptr;
+            Track const*            m_pTrackForEditedItem = nullptr;
+            TrackItem*              m_pEditedItem = nullptr;
             FloatRange              m_originalTimeRange;
         };
 
         // The state for the given open context menu
         struct ContextMenuState
         {
-            inline char const* GetContextMenuName() const
-            {
-                if ( m_pItem != nullptr )
-                {
-                    return "ItemContextMenu";
-                }
+            char const* GetContextMenuName() const;
+            void Reset();
 
-                if ( m_pTrack != nullptr )
-                {
-                    return "TrackContextMenu";
-                }
-
-                return "EditorContextMenu";
-            }
-
-            inline void Reset()
-            {
-                m_pTrack = nullptr;
-                m_pItem = nullptr;
-                m_isOpen = false;
-                m_playheadTimeForMouse = -1.0f;
-            }
-
-            TimelineTrack*          m_pTrack = nullptr;
-            TimelineItem*           m_pItem = nullptr;
+            Track*                  m_pTrack = nullptr;
+            TrackItem*              m_pItem = nullptr;
             float                   m_playheadTimeForMouse = -1.0f;
             bool                    m_isOpen = false;
         };
@@ -120,7 +86,7 @@ namespace KRG
 
         inline Percentage GetPlayheadPositionAsPercentage() const { return Percentage( m_playheadTime / m_timeRange.m_end ); }
 
-        inline TVector<TimelineItem*> const& GetSelectedItems() const { return m_selectedItems; }
+        inline TVector<TrackItem*> const& GetSelectedItems() const { return m_selectedItems; }
         void ClearSelection();
 
     protected:
@@ -160,19 +126,20 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Is this a valid item ptr (i.e. is it present in any known track)
-        bool IsValidPtr( TimelineItem const* pItem );
+        bool IsValidPtr( TrackItem const* pItem );
 
         // Is this a valid track ptr (i.e. is it in the list of tracks)
-        bool IsValidPtr( TimelineTrack const* pTrack );
+        bool IsValidPtr( Track const* pTrack );
 
         // Delete specified item
-        void DeleteItem( TimelineItem* pItem );
+        void DeleteItem( TrackItem* pItem );
 
         // Delete specified track
-        void DeleteTrack( TimelineTrack* pTrack );
+        void DeleteTrack( Track* pTrack );
 
         //-------------------------------------------------------------------------
 
+        // Set the current state of the timeline editor
         void SetPlayState( PlayState newPlayState );
 
         //-------------------------------------------------------------------------
@@ -209,26 +176,27 @@ namespace KRG
         // Selection
         //-------------------------------------------------------------------------
 
-        inline bool IsSelected( TimelineItem const* pItem ) const { return VectorContains( m_selectedItems, const_cast<TimelineItem*>( pItem ) ); }
-        inline bool IsSelected( TimelineTrack const* pTrack ) const { return VectorContains( m_selectedTracks, const_cast<TimelineTrack*>( pTrack ) ); }
+        inline bool IsSelected( TrackItem const* pItem ) const { return VectorContains( m_selectedItems, const_cast<TrackItem*>( pItem ) ); }
+        inline bool IsSelected( Track const* pTrack ) const { return VectorContains( m_selectedTracks, const_cast<Track*>( pTrack ) ); }
 
         // Set the selection to a single item
-        void SetSelection( TimelineItem* pItem );
-        void SetSelection( TimelineTrack* pTrack );
+        void SetSelection( TrackItem* pItem );
+        void SetSelection( Track* pTrack );
 
         // Add item to the current selection
-        void AddToSelection( TimelineItem* pItem );
-        void AddToSelection( TimelineTrack* pTrack );
+        void AddToSelection( TrackItem* pItem );
+        void AddToSelection( Track* pTrack );
 
         // Remove an item from the current selection
-        void RemoveFromSelection( TimelineItem* pItem );
-        void RemoveFromSelection( TimelineTrack* pTrack );
+        void RemoveFromSelection( TrackItem* pItem );
+        void RemoveFromSelection( Track* pTrack );
 
+        // Sanitize the current selection and remove any invalid items
         void EnsureValidSelection();
 
     protected:
 
-        TimelineData                m_data;
+        TrackContainer              m_trackContainer;
 
         // The total editable time range
         IntRange                    m_timeRange = IntRange( 0, 0 );
@@ -249,8 +217,8 @@ namespace KRG
         ItemEditState               m_itemEditState;
         ContextMenuState            m_contextMenuState;
 
-        TVector<TimelineItem*>      m_selectedItems;
-        TVector<TimelineTrack*>     m_selectedTracks;
+        TVector<TrackItem*>         m_selectedItems;
+        TVector<Track*>             m_selectedTracks;
 
         bool                        m_isDirty = false;
     };

@@ -13,7 +13,7 @@ namespace KRG::Render
         // Create primary viewport
         //-------------------------------------------------------------------------
 
-        Int2 const renderTargetDimensions = m_pRenderDevice->GetMainRenderTargetDimensions();
+        Int2 const renderTargetDimensions = m_pRenderDevice->GetPrimaryWindowDimensions();
         Math::ViewVolume const orthographicVolume( Float2( renderTargetDimensions ), FloatRange( 0.1f, 100.0f ) );
         m_viewports.push_back( KRG::New<Viewport>( Int2( 0, 0 ), Int2( renderTargetDimensions ), orthographicVolume ) );
 
@@ -69,8 +69,8 @@ namespace KRG::Render
         KRG_ASSERT( newMainWindowDimensions.m_x > 0 && newMainWindowDimensions.m_y > 0 );
 
         Float2 const newWindowDimensions = Float2( newMainWindowDimensions );
-        Float2 const oldWindowDimensions = Float2( m_pRenderDevice->GetMainRenderTargetDimensions() );
-        m_pRenderDevice->ResizeMainRenderTarget( newMainWindowDimensions );
+        Float2 const oldWindowDimensions = Float2( m_pRenderDevice->GetPrimaryWindowDimensions() );
+        m_pRenderDevice->ResizePrimaryWindowRenderTarget( newMainWindowDimensions );
 
         //-------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ namespace KRG::Render
         }
         else
         {
-            return m_pRenderDevice->GetMainRenderTarget();
+            return m_pRenderDevice->GetPrimaryWindowRenderTarget();
         }
     }
 }

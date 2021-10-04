@@ -44,8 +44,8 @@ namespace KRG::Render
         KRG_ASSERT( RenderContext::s_pDepthTestingOn == nullptr );
         KRG_ASSERT( !m_immediateContext.IsValid() );
 
-        KRG_ASSERT( !m_renderTarget.IsValid() );
-        KRG_ASSERT( m_pSwapChain == nullptr );
+        KRG_ASSERT( !m_primaryWindow.IsValid() );
+        KRG_ASSERT( !m_primaryWindow.m_renderTarget.IsValid() );
         KRG_ASSERT( m_pDevice == nullptr );
     }
 
@@ -61,11 +61,10 @@ namespace KRG::Render
         m_fullscreen = settings.m_isFullscreen;
 
         CreateDeviceAndSwapchain();
-        CreateMainRenderTarget();
         CreateDefaultDepthStencilStates();
 
         // Set OM default state
-        m_immediateContext.SetRenderTarget( m_renderTarget, true );
+        m_immediateContext.SetRenderTarget( m_primaryWindow.m_renderTarget, true );
         m_immediateContext.m_pDeviceContext->OMSetDepthStencilState( RenderContext::s_pDepthTestingOn, 0 );
 
         DefaultResources::Initialize( this );
@@ -79,11 +78,8 @@ namespace KRG::Render
 
         m_immediateContext.m_pDeviceContext->ClearState();
         m_immediateContext.m_pDeviceContext->Flush();
-        m_immediateContext.m_pDeviceContext->OMSetDepthStencilState( nullptr, 0 );
-        m_immediateContext.ClearRenderTargets();
 
         DestroyDefaultDepthStencilStates();
-        DestroyMainRenderTarget();
         DestroyDeviceAndSwapchain();
     }
 
@@ -119,8 +115,9 @@ namespace KRG::Render
         D3D_FEATURE_LEVEL featureLevelSupported;
         uint32 const numLevelsRequested = 2;
 
-        // Create the D3D device
-        HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevelsRequested, numLevelsRequested, D3D11_SDK_VERSION, &swapChainDesc, &m_pSwapChain, &m_pDevice, &featureLevelSupported, &m_immediateContext.m_pDeviceContext );
+        // Create the D3D device and swap chain
+        IDXGISwapChain* pSwapChain = nullptr;
+        HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevelsRequested, numLevelsRequested, D3D11_SDK_VERSION, &swapChainDesc, &pSwapChain, &m_pDevice, &featureLevelSupported, &m_immediateContext.m_pDeviceContext );
         if ( FAILED( result ) )
         {
             if ( m_immediateContext.m_pDeviceContext != nullptr )
@@ -129,33 +126,63 @@ namespace KRG::Render
                 m_immediateContext.m_pDeviceContext = nullptr;
             }
 
-            if ( m_pSwapChain != nullptr )
+            if ( pSwapChain != nullptr )
             {
-                m_pSwapChain->Release();
-                m_pSwapChain = nullptr;
+                pSwapChain->Release();
             }
 
             KRG_LOG_ERROR( "Rendering", "Device Creation Failed" );
             return false;
         }
 
+        m_primaryWindow.m_pSwapChain = pSwapChain;
+        CreateWindowRenderTarget( m_primaryWindow, m_resolution );
+
+        //-------------------------------------------------------------------------
+
+        IDXGIDevice* pDXGIDevice = nullptr;
+        IDXGIAdapter* pDXGIAdapter = nullptr;
+
+        if ( FAILED( m_pDevice->QueryInterface( IID_PPV_ARGS( &pDXGIDevice ) ) ) )
+        {
+            KRG_HALT();
+        }
+
+        if ( FAILED( pDXGIDevice->GetParent( IID_PPV_ARGS( &pDXGIAdapter ) ) ) )
+        {
+            KRG_HALT();
+        }
+
+        if ( FAILED( pDXGIAdapter->GetParent( IID_PPV_ARGS( &m_pFactory ) ) ) )
+        {
+            KRG_HALT();
+        }
+
+        pDXGIAdapter->Release();
+        pDXGIDevice->Release();
+
         return true;
     }
 
     void RenderDevice::DestroyDeviceAndSwapchain()
     {
-        if ( m_pSwapChain != nullptr )
+        DestroyRenderTarget( m_primaryWindow.m_renderTarget );
+
+        if ( m_primaryWindow.m_pSwapChain != nullptr )
         {
-            m_pSwapChain->Release();
-            m_pSwapChain = nullptr;
+            reinterpret_cast<IDXGISwapChain*>( m_primaryWindow.m_pSwapChain )->Release();
+            m_primaryWindow.m_pSwapChain = nullptr;
         }
 
         if ( m_immediateContext.m_pDeviceContext != nullptr )
         {
-            m_immediateContext.m_pDeviceContext->Flush();
             m_immediateContext.m_pDeviceContext->Release();
             m_immediateContext.m_pDeviceContext = nullptr;
         }
+
+        //-------------------------------------------------------------------------
+
+        m_pFactory->Release();
 
         if ( m_pDevice != nullptr )
         {
@@ -170,95 +197,11 @@ namespace KRG::Render
             #if KRG_ENABLE_RENDERDEVICE_DEBUG
             if ( pDebug != nullptr )
             {
-                pDebug->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL ); // Will always print 2 ref counts on the device since since the debug interface holds a ref on the devices
+                pDebug->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL );
                 pDebug->Release();
             }
             #endif
         }
-    }
-
-    bool RenderDevice::CreateMainRenderTarget()
-    {
-        ID3D11RenderTargetView* pRenderTargetView = nullptr;
-        ID3D11DepthStencilView* pDepthStencilView = nullptr;
-
-        //-------------------------------------------------------------------------
-
-        ID3D11Texture2D* pBackBuffer;
-        if ( FAILED( m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*) &pBackBuffer ) ) )
-        {
-            KRG_LOG_ERROR( "Rendering", "Failed to get back buffer texture resource" );
-            return false;
-        }
-
-        D3D11_TEXTURE2D_DESC textureDesc;
-        pBackBuffer->GetDesc( &textureDesc );
-
-        // Create primary render target
-        //-------------------------------------------------------------------------
-
-        HRESULT result = m_pDevice->CreateRenderTargetView( pBackBuffer, nullptr, &pRenderTargetView );
-        pBackBuffer->Release();
-        if ( FAILED( result ) )
-        {
-            KRG_LOG_ERROR( "Rendering", "Failed to create render target" );
-            return false;
-        }
-
-        // Create primary depth stencil
-        //-------------------------------------------------------------------------
-
-        // Create depth stencil texture
-        D3D11_TEXTURE2D_DESC descDepth;
-        descDepth.Width = m_resolution.m_x;
-        descDepth.Height = m_resolution.m_y;
-        descDepth.MipLevels = 1;
-        descDepth.ArraySize = 1;
-        descDepth.Format = DXGI_FORMAT_D32_FLOAT;
-        descDepth.SampleDesc.Count = 1;
-        descDepth.SampleDesc.Quality = 0;
-        descDepth.Usage = D3D11_USAGE_DEFAULT;
-        descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-        descDepth.CPUAccessFlags = 0;
-        descDepth.MiscFlags = 0;
-
-        ID3D11Texture2D* pDepthStencilTexture = nullptr;
-        if ( FAILED( m_pDevice->CreateTexture2D( &descDepth, nullptr, &pDepthStencilTexture ) ) )
-        {
-            KRG_LOG_ERROR( "Rendering", "Depth stencil creation failed" );
-            return false;
-        }
-
-        // Create the depth stencil view
-        D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
-        descDSV.Format = descDepth.Format;
-        descDSV.Flags = 0;
-        descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-        descDSV.Texture2D.MipSlice = 0;
-
-        result = m_pDevice->CreateDepthStencilView( pDepthStencilTexture, &descDSV, &pDepthStencilView );
-        pDepthStencilTexture->Release();
-
-        if ( FAILED( result ) )
-        {
-            KRG_LOG_ERROR( "Rendering", "Depth stencil resource view creation failed" );
-            return false;
-        }
-
-        //-------------------------------------------------------------------------
-
-        m_renderTarget.m_resourceHandle.m_pData0 = pRenderTargetView;
-        m_renderTarget.m_resourceHandle.m_pData1 = pDepthStencilView;
-        m_renderTarget.m_resourceHandle.m_type = ResourceHandle::Type::RenderTarget;
-        m_renderTarget.m_dimensions = m_resolution;
-
-        return true;
-    }
-
-    void RenderDevice::DestroyMainRenderTarget()
-    {
-        m_immediateContext.ClearRenderTargets();
-        DestroyRenderTarget( m_renderTarget );
     }
 
     bool RenderDevice::CreateDefaultDepthStencilStates()
@@ -314,36 +257,171 @@ namespace KRG::Render
 
         KRG_ASSERT( IsInitialized() );
 
-        // Show rendered frame
-        m_pSwapChain->Present( 0, 0 );
-
-        // Set render targets and depth stencil
-        m_immediateContext.SetRenderTarget( m_renderTarget, true );
+        // Show rendered frame, and clear buffers
+        m_immediateContext.Present( m_primaryWindow );
+        m_immediateContext.SetRenderTarget( m_primaryWindow.m_renderTarget, true );
     }
 
-    void RenderDevice::ResizeMainRenderTarget( Int2 const& dimensions )
+    void RenderDevice::ResizePrimaryWindowRenderTarget( Int2 const& dimensions )
     {
         KRG_ASSERT( dimensions.m_x > 0 && dimensions.m_y > 0 );
+        ResizeWindow( m_primaryWindow, dimensions );
+        m_immediateContext.SetRenderTarget( m_primaryWindow.m_renderTarget, true );
         m_resolution = dimensions;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void RenderDevice::CreateSecondaryRenderWindow( RenderWindow& window, HWND platformWindowHandle )
+    {
+        KRG_ASSERT( platformWindowHandle != 0 );
+
+        RECT rect;
+        ::GetClientRect( platformWindowHandle, &rect );
+
+        DXGI_SWAP_CHAIN_DESC sd;
+        ZeroMemory( &sd, sizeof( sd ) );
+        sd.BufferDesc.Width = rect.right - rect.left;
+        sd.BufferDesc.Height = rect.bottom - rect.top;
+        sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        sd.SampleDesc.Count = 1;
+        sd.SampleDesc.Quality = 0;
+        sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        sd.BufferCount = 2;
+        sd.OutputWindow = platformWindowHandle;
+        sd.Windowed = TRUE;
+        sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        sd.Flags = 0;
+
+        m_immediateContext.m_pDeviceContext->ClearState();
+        m_immediateContext.m_pDeviceContext->Flush();
+
+        IDXGISwapChain* pSwapChain = nullptr;
+        m_pFactory->CreateSwapChain( m_pDevice, &sd, &pSwapChain );
+        KRG_ASSERT( pSwapChain != nullptr );
+
+        window.m_pSwapChain = pSwapChain;
+        CreateWindowRenderTarget( window, Int2( sd.BufferDesc.Width, sd.BufferDesc.Height ) );
+    }
+
+    void RenderDevice::DestroySecondaryRenderWindow( RenderWindow& window )
+    {
+        KRG_ASSERT( window.IsValid() );
+
+        DestroyRenderTarget( window.m_renderTarget );
+
+        //-------------------------------------------------------------------------
+
+        auto pSC = reinterpret_cast<IDXGISwapChain*>( m_primaryWindow.m_pSwapChain );
+        pSC->Release();
+        window.m_pSwapChain = nullptr;
+
+        m_immediateContext.m_pDeviceContext->ClearState();
+        m_immediateContext.m_pDeviceContext->Flush();
+    }
+
+    bool RenderDevice::CreateWindowRenderTarget( RenderWindow& window, Int2 dimensions )
+    {
+        KRG_ASSERT( window.m_pSwapChain != nullptr );
+
+        ID3D11RenderTargetView* pRenderTargetView = nullptr;
+        ID3D11DepthStencilView* pDepthStencilView = nullptr;
+
+        //-------------------------------------------------------------------------
+
+        ID3D11Texture2D* pBackBuffer;
+        if ( FAILED( reinterpret_cast<IDXGISwapChain*>( window.m_pSwapChain )->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*) &pBackBuffer ) ) )
+        {
+            KRG_LOG_ERROR( "Rendering", "Failed to get back buffer texture resource" );
+            return false;
+        }
+
+        D3D11_TEXTURE2D_DESC textureDesc;
+        pBackBuffer->GetDesc( &textureDesc );
+
+        // Create primary render target
+        //-------------------------------------------------------------------------
+
+        HRESULT result = m_pDevice->CreateRenderTargetView( pBackBuffer, nullptr, &pRenderTargetView );
+        pBackBuffer->Release();
+        if ( FAILED( result ) )
+        {
+            KRG_LOG_ERROR( "Rendering", "Failed to create render target" );
+            return false;
+        }
+
+        // Create primary depth stencil
+        //-------------------------------------------------------------------------
+
+        // Create depth stencil texture
+        D3D11_TEXTURE2D_DESC descDepth;
+        descDepth.Width = dimensions.m_x;
+        descDepth.Height = dimensions.m_y;
+        descDepth.MipLevels = 1;
+        descDepth.ArraySize = 1;
+        descDepth.Format = DXGI_FORMAT_D32_FLOAT;
+        descDepth.SampleDesc.Count = 1;
+        descDepth.SampleDesc.Quality = 0;
+        descDepth.Usage = D3D11_USAGE_DEFAULT;
+        descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        descDepth.CPUAccessFlags = 0;
+        descDepth.MiscFlags = 0;
+
+        ID3D11Texture2D* pDepthStencilTexture = nullptr;
+        if ( FAILED( m_pDevice->CreateTexture2D( &descDepth, nullptr, &pDepthStencilTexture ) ) )
+        {
+            KRG_LOG_ERROR( "Rendering", "Depth stencil creation failed" );
+            return false;
+        }
+
+        // Create the depth stencil view
+        D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+        descDSV.Format = descDepth.Format;
+        descDSV.Flags = 0;
+        descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        descDSV.Texture2D.MipSlice = 0;
+
+        result = m_pDevice->CreateDepthStencilView( pDepthStencilTexture, &descDSV, &pDepthStencilView );
+        pDepthStencilTexture->Release();
+
+        if ( FAILED( result ) )
+        {
+            KRG_LOG_ERROR( "Rendering", "Depth stencil resource view creation failed" );
+            return false;
+        }
+
+        //-------------------------------------------------------------------------
+
+        window.m_renderTarget.m_resourceHandle.m_pData0 = pRenderTargetView;
+        window.m_renderTarget.m_resourceHandle.m_pData1 = pDepthStencilView;
+        window.m_renderTarget.m_resourceHandle.m_type = ResourceHandle::Type::RenderTarget;
+        window.m_renderTarget.m_dimensions = dimensions;
+
+        return true;
+    }
+
+    void RenderDevice::ResizeWindow( RenderWindow& window, Int2 const& dimensions )
+    {
+        KRG_ASSERT( window.IsValid() );
+        auto pSC = reinterpret_cast<IDXGISwapChain*>( window.m_pSwapChain );
 
         // Release render target and depth stencil
-        DestroyMainRenderTarget();
+        m_immediateContext.ClearRenderTargets();
+        DestroyRenderTarget( window.m_renderTarget );
         m_immediateContext.m_pDeviceContext->Flush();
 
         // Update buffer sizes
-        if ( FAILED( m_pSwapChain->ResizeBuffers( 2, m_resolution.m_x, m_resolution.m_y, DXGI_FORMAT_UNKNOWN, 0 ) ) )
+        if ( FAILED( reinterpret_cast<IDXGISwapChain*>( window.m_pSwapChain )->ResizeBuffers( 2, dimensions.m_x, dimensions.m_y, DXGI_FORMAT_UNKNOWN, 0 ) ) )
         {
             KRG_LOG_ERROR( "Rendering", "Failed to resize swap chain buffers" );
             KRG_HALT();
         }
 
-        if ( !CreateMainRenderTarget() )
+        if ( !CreateWindowRenderTarget( window, dimensions ) )
         {
             KRG_LOG_ERROR( "Rendering", "Failed to create render targets/depth stencil view" );
             KRG_HALT();
         }
-
-        m_immediateContext.SetRenderTarget( m_renderTarget, true );
     }
 
     //-------------------------------------------------------------------------

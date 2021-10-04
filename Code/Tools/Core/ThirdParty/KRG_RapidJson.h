@@ -30,17 +30,23 @@ namespace KRG
     // File reader
     //-------------------------------------------------------------------------
 
-    class KRG_TOOLS_CORE_API JsonFileReader
+    class KRG_TOOLS_CORE_API JsonReader
     {
     public:
 
-        virtual ~JsonFileReader();
+        virtual ~JsonReader();
 
         // Read entire json file
         bool ReadFromFile( FileSystem::Path const& filePath );
 
+        // Read from a json string
+        bool ReadFromString( char const* pString );
+
         // Get the read document
-        inline rapidjson::Document const& GetDocument() { return m_document; }
+        inline rapidjson::Document const& GetDocument() const { return m_document; }
+
+        // Get the read document
+        inline rapidjson::Document& GetDocument() { return m_document; }
 
     protected:
 
@@ -56,20 +62,23 @@ namespace KRG
 
     private:
 
-        Byte*                                                       m_pFileBuffer = nullptr;
+        Byte*                                                       m_pStringBuffer = nullptr;
     };
 
-    // File writer
+    // JSON writer
     //-------------------------------------------------------------------------
 
-    class KRG_TOOLS_CORE_API JsonFileWriter
+    class KRG_TOOLS_CORE_API JsonWriter
     {
     public:
 
-        virtual ~JsonFileWriter() = default;
+        virtual ~JsonWriter() = default;
 
         // Get the writer
         inline RapidJsonWriter* GetWriter() { return &m_writer; }
+
+        // Get the generated string buffer
+        inline RapidJsonStringBuffer const& GetStringBuffer() const { return m_stringBuffer; }
 
         // Write currently serialized data to disk and reset serialized data
         bool WriteToFile( FileSystem::Path const& outPath );

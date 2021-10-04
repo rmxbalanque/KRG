@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Camera\Components\CameraComponent.h"
+#include "D:\Kruger\Code\Engine\Camera\Components\CameraComponent.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Camera::CameraComponent::ProjectionType

@@ -11,10 +11,12 @@
 
 namespace KRG::Animation
 {
-    class EventItem final : public TimelineItem
+    class EventItem final : public Timeline::TrackItem
     {
         friend class EventEditor;
         KRG_REGISTER_TYPE( EventItem );
+
+        constexpr static char const* s_eventDataKey = "EventData";
 
     public:
 
@@ -36,16 +38,20 @@ namespace KRG::Animation
 
     private:
 
-        Event*                                      m_pEvent = nullptr;
-        float                                       m_animFrameRate = 0.0f;
+        Event*                                          m_pEvent = nullptr;
+        float                                           m_animFrameRate = 0.0f;
     };
 
     //-------------------------------------------------------------------------
 
-    class EventTrack final : public TimelineTrack
+    class EventTrack final : public Timeline::Track
     {
         friend class EventEditor;
         KRG_REGISTER_TYPE( EventTrack );
+
+    public:
+
+        constexpr static char const* s_eventTrackContainerKey = "EventTracks";
 
     public:
 
@@ -58,7 +64,7 @@ namespace KRG::Animation
         virtual void CreateItem( float itemStartTime ) override;
         virtual void DrawHeader( ImRect const& headerRect ) override;
         virtual bool HasContextMenu() const override { return true; }
-        virtual void DrawContextMenu( TVector<TimelineTrack*>& tracks, float playheadPosition ) override;
+        virtual void DrawContextMenu( TVector<Track*>& tracks, float playheadPosition ) override;
 
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue ) override;
 
@@ -67,7 +73,7 @@ namespace KRG::Animation
         KRG_EXPOSE Event::EventType                     m_eventType = Event::EventType::Duration;
         KRG_EXPOSE bool                                 m_isSyncTrack = false;
         KRG_EXPOSE TypeSystem::TypeID                   m_eventTypeID;
-        TypeSystem::TypeInfo const*                 m_pEventTypeInfo = nullptr;
-        float                                       m_animFrameRate = 0.0f;
+        TypeSystem::TypeInfo const*                     m_pEventTypeInfo = nullptr;
+        float                                           m_animFrameRate = 0.0f;
     };
 }

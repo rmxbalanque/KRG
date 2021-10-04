@@ -191,8 +191,8 @@ namespace KRG::Animation
     #if KRG_DEVELOPMENT_TOOLS
     void AnimationClip::DrawRootMotionPath( Debug::DrawingContext& ctx, Transform const& worldTransform ) const
     {
-        constexpr static float const axisSize = 0.05f;
-        constexpr static float const axisThickness = 3.0f;
+        constexpr static float const axisSize = 0.02f;
+        constexpr static float const axisThickness = 2.0f;
 
         if ( m_rootMotionTrack.empty() )
         {
@@ -206,7 +206,7 @@ namespace KRG::Animation
         for ( auto i = 1; i < numTransforms; i++ )
         {
             auto const worldRootMotionTransform = m_rootMotionTrack[i] * worldTransform;
-            ctx.DrawLine( previousWorldRootMotionTransform.GetTranslation(), worldRootMotionTransform.GetTranslation(), ( i % 2 == 0 ) ? Colors::Yellow : Colors::HotPink );
+            ctx.DrawLine( previousWorldRootMotionTransform.GetTranslation(), worldRootMotionTransform.GetTranslation(), ( i % 2 == 0 ) ? Colors::Yellow : Colors::HotPink, 2.5f );
             ctx.DrawAxis( worldRootMotionTransform, axisSize, axisThickness );
             previousWorldRootMotionTransform = worldRootMotionTransform;
         }

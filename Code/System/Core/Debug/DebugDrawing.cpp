@@ -244,6 +244,11 @@ namespace KRG::Debug
 
     void DrawingContext::DrawDisc( Float3 const& worldPoint, float radius, Float4 const& color, DepthTestState depthTestState /*= false */ )
     {
+        if ( !g_circleVerticesInitialized )
+        {
+            InitializeCircleVertices();
+        }
+
         int32 const numVerts = g_numCircleVertices;
 
         // Create and transform vertices

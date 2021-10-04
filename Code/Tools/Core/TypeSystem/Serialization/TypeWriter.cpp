@@ -15,7 +15,7 @@ namespace KRG::TypeSystem::Serialization
 
     void TypeWriter::Reset()
     {
-        JsonFileWriter::Reset();
+        JsonWriter::Reset();
         m_numTypesSerialized = 0;
     }
 

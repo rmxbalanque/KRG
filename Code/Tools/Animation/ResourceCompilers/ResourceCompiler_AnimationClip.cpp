@@ -21,7 +21,14 @@ namespace KRG::Animation
     Resource::CompilationResult AnimationClipCompiler::Compile( Resource::CompileContext const& ctx ) const
     {
         AnimationClipResourceDescriptor resourceDescriptor;
-        if ( !ctx.TryReadResourceDescriptor( resourceDescriptor ) )
+
+        TypeSystem::Serialization::TypeReader typeReader( ctx.m_typeRegistry );
+        if ( !typeReader.ReadFromFile( ctx.m_inputFilePath ) )
+        {
+            return Error( "Failed to read resource descriptor file: %s", ctx.m_inputFilePath.c_str() );
+        }
+
+        if ( !typeReader.ReadType( &resourceDescriptor ) )
         {
             return Error( "Failed to read resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
         }
@@ -97,7 +104,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         AnimationEventData eventData;
-        if ( !CreateEventsData( ctx, resourceDescriptor, *pRawAnimation, eventData ) )
+        if ( !ReadEventsData( ctx, typeReader.GetDocument(), *pRawAnimation, eventData ) )
         {
             return CompilationFailed( ctx );
         }
@@ -149,8 +156,8 @@ namespace KRG::Animation
         // Calculate root motion extra data
         //-------------------------------------------------------------------------
 
-        float distanceCovered = 0.0f;
-        float rotationCovered = 0.0f;
+        float totalDistance = 0.0f;
+        float totalRotation = 0.0f;
 
         for ( auto i = 0u; i < animClip.GetNumFrames(); i++ )
         {
@@ -158,18 +165,18 @@ namespace KRG::Animation
             if ( i > 0 )
             {
                 Transform const deltaRoot = Transform::DeltaNoScale( animClip.m_rootMotionTrack[i - 1], animClip.m_rootMotionTrack[i] );
-                distanceCovered += deltaRoot.GetTranslation().GetLength3();
+                totalDistance += deltaRoot.GetTranslation().GetLength3();
 
                 // We use the negative world forward since deltas are relative to the identity transform
                 Vector const deltaForward2D = deltaRoot.GetForwardVector().GetNormalized2();
                 Radians const deltaAngle = Vector::GetAngleBetweenVectors( deltaForward2D, Vector::WorldBackward ).GetClamped();
-                rotationCovered += Math::Abs( deltaAngle );
+                totalRotation += Math::Abs( deltaAngle );
             }
         }
 
         animClip.m_totalRootMotionDelta = Transform::DeltaNoScale( animClip.m_rootMotionTrack.front(), animClip.m_rootMotionTrack.back() );
-        animClip.m_averageLinearVelocity = distanceCovered / animClip.GetDuration();
-        animClip.m_averageAngularVelocity = rotationCovered / animClip.GetDuration();
+        animClip.m_averageLinearVelocity = totalDistance / animClip.GetDuration();
+        animClip.m_averageAngularVelocity = totalRotation / animClip.GetDuration();
 
         // Compress raw data
         //-------------------------------------------------------------------------
@@ -332,36 +339,31 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    bool AnimationClipCompiler::CreateEventsData( Resource::CompileContext const& ctx, AnimationClipResourceDescriptor const& animResourceDesc, RawAssets::RawAnimation const& rawAnimData, AnimationEventData& outEventData ) const
+    bool AnimationClipCompiler::ReadEventsData( Resource::CompileContext const& ctx, rapidjson::Document const& document, RawAssets::RawAnimation const& rawAnimData, AnimationEventData& outEventData ) const
     {
-        // Events are optional
-        if ( !animResourceDesc.m_animationEventData.IsValid() )
-        {
-            return true;
-        }
-
-        // If the event data path is set ensure that it exists
-        FileSystem::Path const eventFilePath = animResourceDesc.m_animationEventData.ToFileSystemPath( ctx.m_sourceDataPath );
-        if ( !eventFilePath.Exists() )
-        {
-            Error( "Referenced event data file doesnt exist: %s", eventFilePath.c_str() );
-            return false;
-        }
+        KRG_ASSERT( document.IsObject() );
 
         // Read event track data
         //-------------------------------------------------------------------------
 
-        JsonFileReader jsonReader;
-        if ( !jsonReader.ReadFromFile( eventFilePath ) )
+        // Check if there is potential additional event data
+        auto trackDataIter = document.FindMember( EventTrack::s_eventTrackContainerKey );
+        if ( trackDataIter == document.MemberEnd() )
         {
-            Error( "Failed to read event track file: %s", eventFilePath.c_str() );
+            return true;
+        }
+
+        auto const& eventDataValueObject = trackDataIter->value;
+        if ( !eventDataValueObject.IsArray() )
+        {
+            Error( "Malformed event track data" );
             return false;
         }
 
-        TimelineData data;
-        if ( !data.Load( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
+        Timeline::TrackContainer trackContainer;
+        if ( !trackContainer.Load( ctx.m_typeRegistry, eventDataValueObject ) )
         {
-            Error( "Malformed event track file: %s", eventFilePath.c_str() );
+            Error( "Malformed event track data" );
             return false;
         }
 
@@ -371,7 +373,7 @@ namespace KRG::Animation
         int32 numSyncTracks = 0;
         TVector<Event*> events;
         FloatRange const animationTimeRange( 0, rawAnimData.GetDuration() );
-        for ( auto pTrack : data.m_tracks )
+        for ( auto pTrack : trackContainer.m_tracks )
         {
             auto pEventTrack = Cast<EventTrack>( pTrack );
 
@@ -434,7 +436,7 @@ namespace KRG::Animation
         // Free allocated memory
         //-------------------------------------------------------------------------
 
-        data.Reset();
+        trackContainer.Reset();
 
         return true;
     }

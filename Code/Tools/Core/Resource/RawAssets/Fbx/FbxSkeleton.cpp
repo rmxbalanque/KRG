@@ -77,7 +77,6 @@ namespace KRG::RawAssets
             //-------------------------------------------------------------------------
 
             rawSkeleton.m_name = StringID( (char const*) pSkeletonToUse->GetNameWithoutNameSpacePrefix() );
-
             ReadBoneHierarchy( rawSkeleton, sceneCtx, pSkeletonToUse, -1 );
             rawSkeleton.CalculateLocalTransforms();
         }
@@ -91,7 +90,7 @@ namespace KRG::RawAssets
             rawSkeleton.m_bones[boneIdx].m_parentBoneIdx = parentIdx;
 
             // Read Bone transform
-            FbxAMatrix nodeGlobalTransform = pNode->EvaluateGlobalTransform();
+            FbxAMatrix const nodeGlobalTransform = pNode->EvaluateGlobalTransform();
             rawSkeleton.m_bones[boneIdx].m_globalTransform = sceneCtx.ConvertMatrixToTransform( nodeGlobalTransform );
 
             // Read child bones

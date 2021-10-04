@@ -6,15 +6,15 @@
 
 namespace KRG
 {
-    JsonFileReader::~JsonFileReader()
+    JsonReader::~JsonReader()
     {
-        if ( m_pFileBuffer != nullptr )
+        if ( m_pStringBuffer != nullptr )
         {
-            KRG::Free( m_pFileBuffer );
+            KRG::Free( m_pStringBuffer );
         }
     }
 
-    bool JsonFileReader::ReadFromFile( FileSystem::Path const& filePath )
+    bool JsonReader::ReadFromFile( FileSystem::Path const& filePath )
     {
         KRG_ASSERT( filePath.IsFilePath() );
         Reset();
@@ -34,12 +34,12 @@ namespace KRG
             size_t filesize = (size_t) ftell( pFile );
             fseek( pFile, 0, SEEK_SET );
 
-            m_pFileBuffer = (Byte*) KRG::Alloc( filesize + 1 );
-            size_t readLength = fread( m_pFileBuffer, 1, filesize, pFile );
-            m_pFileBuffer[readLength] = '\0';
+            m_pStringBuffer = (Byte*) KRG::Alloc( filesize + 1 );
+            size_t readLength = fread( m_pStringBuffer, 1, filesize, pFile );
+            m_pStringBuffer[readLength] = '\0';
             fclose( pFile );
 
-            m_document.ParseInsitu( (char*) m_pFileBuffer );
+            m_document.ParseInsitu( (char*) m_pStringBuffer );
 
             bool const isValidJsonFile = ( m_document.GetParseError() == rapidjson::kParseErrorNone );
             if ( isValidJsonFile )
@@ -53,19 +53,48 @@ namespace KRG
         return true;
     }
 
-    void JsonFileReader::Reset()
+    bool JsonReader::ReadFromString( char const* pString )
+    {
+        KRG_ASSERT( pString != nullptr );
+        Reset();
+
+        // Copy string data
+        //-------------------------------------------------------------------------
+
+        size_t const stringLength = strlen( pString );
+        size_t const requiredMemory = sizeof( char ) * ( stringLength + 1 );
+        m_pStringBuffer = (Byte*) KRG::Alloc( requiredMemory );
+        m_pStringBuffer[stringLength] = '\0';
+
+        memcpy( m_pStringBuffer, pString, requiredMemory - sizeof( char ) );
+
+        // Parse json data
+        //-------------------------------------------------------------------------
+
+        m_document.ParseInsitu( (char*) m_pStringBuffer );
+
+        bool const isValidJsonFile = ( m_document.GetParseError() == rapidjson::kParseErrorNone );
+        if ( isValidJsonFile )
+        {
+            OnFileReadSuccess();
+        }
+
+        return isValidJsonFile;
+    }
+
+    void JsonReader::Reset()
     {
         m_document.Clear();
 
-        if ( m_pFileBuffer != nullptr )
+        if ( m_pStringBuffer != nullptr )
         {
-            KRG::Free( m_pFileBuffer );
+            KRG::Free( m_pStringBuffer );
         }
     }
 
     //-------------------------------------------------------------------------
 
-    bool JsonFileWriter::WriteToFile( FileSystem::Path const& outPath )
+    bool JsonWriter::WriteToFile( FileSystem::Path const& outPath )
     {
         KRG_ASSERT( outPath.IsFilePath() );
 
@@ -89,7 +118,7 @@ namespace KRG
         return true;
     }
 
-    void JsonFileWriter::Reset()
+    void JsonWriter::Reset()
     {
         m_stringBuffer.Clear();
     }

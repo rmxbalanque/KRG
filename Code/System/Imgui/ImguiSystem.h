@@ -5,14 +5,10 @@
 #include "System/Imgui/ThirdParty/imgui/imgui.h"
 
 //-------------------------------------------------------------------------
-
-#if _WIN32
-#include "Platform/ImguiSystem.inl"
-#endif
-
-//-------------------------------------------------------------------------
 // Base ImGui integration
 //-------------------------------------------------------------------------
+
+namespace KRG::Render { class RenderDevice; }
 
 namespace KRG::ImGuiX
 {
@@ -24,28 +20,15 @@ namespace KRG::ImGuiX
         void StartFrame( float deltaTime );
         void EndFrame();
 
-        bool Initialize( String const& settingsIniFilename );
+        bool Initialize( String const& settingsIniFilename, Render::RenderDevice* pRenderDevice, bool enableViewports = false );
         void Shutdown();
-
-        // Platform Specific functions
-        PlatformInputResult ProcessInput( PlatformInputData const& data );
-        void InitializePlatform();
-        void UpdateDisplayInformation();
-        void UpdateMousePosition();
-        bool UpdateMouseCursor();
 
     private:
 
         void InitializeFonts();
 
-    protected:
-
-        bool                    m_updateMonitorInfo = true;
-
     private:
 
         String                  m_iniFilename;
-        ImGuiMouseCursor        m_lastMouseCursorState = ImGuiMouseCursor_COUNT;
-        void*                   m_mainWindowHandle = nullptr;
     };
 }

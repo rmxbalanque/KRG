@@ -68,14 +68,17 @@ namespace KRG
 
             if ( HasViewportToolbar() )
             {
-                ImGui::SetCursorPos( style.WindowPadding + ImVec2( 4, 4 ) );
+                ImGui::SetCursorPos( style.WindowPadding );
 
-                ImGui::SetNextWindowBgAlpha( 0.0f );
-                if ( ImGui::BeginChild( "EditorViewportToolbar", ImVec2(0, 0), 0 ) )
+                ImGui::SetNextWindowBgAlpha( 0.2f );
+                ImGui::SetNextWindowSizeConstraints( ImVec2( 0, 0 ), ImVec2( -1, 24 ) );
+                ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 2 ) );
+                if ( ImGui::BeginChild( "EditorViewportToolbar", ImVec2( -1, -1 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar ) )
                 {
                     DrawViewportToolbar( context, viewportManager );
                 }
                 ImGui::EndChild();
+                ImGui::PopStyleVar();
             }
 
             // Handle being docked

@@ -12,7 +12,7 @@
 
 namespace KRG::TypeSystem::Serialization
 {
-    class KRG_TOOLS_CORE_API TypeReader : public JsonFileReader
+    class KRG_TOOLS_CORE_API TypeReader : public JsonReader
     {
     public:
 
@@ -60,8 +60,6 @@ namespace KRG::TypeSystem::Serialization
         }
 
     private:
-
-        using JsonFileReader::GetDocument;
 
         virtual void Reset() override final;
         virtual void OnFileReadSuccess() override final;

@@ -74,10 +74,16 @@ namespace KRG
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const = 0;
 
         // Draw any UI required for this file within the already allocated window
-        virtual void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) = 0;
+        virtual void UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) = 0;
 
         // Should this workspace display a viewport?
         virtual bool RequiresViewportWindow() const { return true; }
+
+        // Do we have a viewport toolbar>
+        virtual bool HasViewportToolbar() const { return false; }
+        
+        // Draw the viewport toolbar
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) {};
 
         // Has any modifications been made to this file?
         virtual bool IsDirty() const { return false; }

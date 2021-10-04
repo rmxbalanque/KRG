@@ -93,7 +93,7 @@ namespace KRG::Animation::Graph
 
             if ( newGraphPath.IsValid() )
             {
-                JsonFileReader reader;
+                JsonReader reader;
                 if ( !reader.ReadFromFile( newGraphPath ) )
                 {
                     return;
@@ -119,7 +119,7 @@ namespace KRG::Animation::Graph
     {
         if ( m_currentlyOpenGraphPath.IsValid() )
         {
-            JsonFileWriter writer;
+            JsonWriter writer;
             m_pGraph->Save( *m_pTypeRegistry, *writer.GetWriter() );
             writer.WriteToFile( m_currentlyOpenGraphPath );
         }
@@ -142,7 +142,7 @@ namespace KRG::Animation::Graph
                 newGraphPath.Append( ".ag" );
             }
 
-            JsonFileWriter writer;
+            JsonWriter writer;
             m_pGraph->Save( *m_pTypeRegistry, *writer.GetWriter() );
             writer.WriteToFile( newGraphPath );
             m_currentlyOpenGraphPath = newGraphPath;

@@ -37,7 +37,7 @@ namespace KRG::Animation
 
     Resource::CompilationResult AnimationGraphCompiler::CompileDefinition( Resource::CompileContext const& ctx ) const
     {
-        JsonFileReader jsonReader;
+        JsonReader jsonReader;
         if ( !jsonReader.ReadFromFile( ctx.m_inputFilePath ) )
         {
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
@@ -130,7 +130,7 @@ namespace KRG::Animation
             return Error( "invalid graph data path: %s", resourceDescriptor.m_graphDataPath.c_str() );
         }
 
-        JsonFileReader jsonReader;
+        JsonReader jsonReader;
         if ( !jsonReader.ReadFromFile( graphFilePath ) )
         {
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );

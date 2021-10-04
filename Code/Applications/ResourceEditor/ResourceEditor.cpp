@@ -181,7 +181,7 @@ namespace KRG
             // Draw workspace windows
             //-------------------------------------------------------------------------
 
-            pWorkspace->Draw( context, viewportManager, &workspaceWindowClass );
+            pWorkspace->UpdateAndDraw( context, viewportManager, &workspaceWindowClass );
 
             // Does the active workspace require a viewport?
             if ( isActiveWorkspace && pWorkspace->RequiresViewportWindow() )
@@ -195,5 +195,25 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         return isTabOpen;
+    }
+
+    bool ResourceEditor::HasViewportToolbar() const
+    {
+        auto& model = GetModel();
+        auto pActiveWorkspace = model.GetActiveWorkspace();
+        if ( pActiveWorkspace != nullptr )
+        {
+            return pActiveWorkspace->HasViewportToolbar();
+        }
+
+        return false;
+    }
+
+    void ResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    {
+        auto& model = GetModel();
+        auto pActiveWorkspace = model.GetActiveWorkspace();
+        KRG_ASSERT( pActiveWorkspace != nullptr );
+        pActiveWorkspace->DrawViewportToolbar( context, viewportManager );
     }
 }

@@ -2,6 +2,7 @@
 #include "System/Imgui/Widgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Imgui/Widgets/NumericEditors.h"
+#include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,8 +10,8 @@ namespace KRG::Animation
 {
     KRG_RESOURCE_WORKSPACE_FACTORY( SkeletonWorkspaceFactory, Skeleton, SkeletonResourceEditor );
 
-    char const* const SkeletonResourceEditor::s_infoWindowName = "Info##Skeleton";
-    char const* const SkeletonResourceEditor::s_skeletonTreeWindowName = "Skeleton Tree##Skeleton";
+    char const* const SkeletonResourceEditor::s_infoWindowName = "Skeleton Info##Skeleton";
+    char const* const SkeletonResourceEditor::s_skeletonTreeWindowName = "Skeleton Hierarchy##Skeleton";
 
     //-------------------------------------------------------------------------
 
@@ -56,7 +57,7 @@ namespace KRG::Animation
         ImGui::DockBuilderDockWindow( s_infoWindowName, bottomDockID );
     }
 
-    void SkeletonResourceEditor::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void SkeletonResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
         // Info
         //-------------------------------------------------------------------------
@@ -78,28 +79,38 @@ namespace KRG::Animation
             }
             else
             {
-                if ( m_selectedBoneID.IsValid() )
+                if ( ImGui::BeginTable( "SkeletonDataTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
                 {
-                    int32 const boneIdx = m_pResource->GetBoneIndex( m_selectedBoneID );
-                    KRG_ASSERT( boneIdx != InvalidIndex );
-                    Transform const refTransform = m_pResource->GetBoneTransform( boneIdx );
-                    Transform const refGlobalTransform = m_pResource->GetBoneGlobalTransform( boneIdx );
+                    ImGui::TableSetupColumn( "Bone", ImGuiTableColumnFlags_WidthStretch );
+                    ImGui::TableSetupColumn( "Local Transform", ImGuiTableColumnFlags_WidthStretch );
+                    ImGui::TableSetupColumn( "Global Transform", ImGuiTableColumnFlags_WidthStretch );
 
-                    ImGui::Text( "Selected Bone: %s", m_selectedBoneID.c_str() );
+                    //-------------------------------------------------------------------------
 
-                    ImGui::Separator();
+                    ImGui::TableHeadersRow();
 
-                    EulerAngles const refRotation = refTransform.GetRotation().ToEulerAngles();
-                    ImGui::Text( "Local Rotation: R: %.2f, %.2f, %.2f", Degrees( refRotation.m_x ).ToFloat(), Degrees( refRotation.m_y ).ToFloat(), Degrees( refRotation.m_z ).ToFloat() );
-                    ImGui::Text( "Local Translation: %.2f %.2f %.2f", refTransform.GetTranslation().m_x, refTransform.GetTranslation().m_y, refTransform.GetTranslation().m_z );
-                    ImGui::Text( "Local Scale: %.2f %.2f %.2f", refTransform.GetScale().m_x, refTransform.GetScale().m_y, refTransform.GetScale().m_z );
+                    int32 const numBones = m_pResource->GetNumBones();
 
-                    ImGui::Separator();
+                    for ( auto i = 0; i < numBones; i++ )
+                    {
+                        Transform const& localBoneTransform = m_pResource->GetLocalReferencePose()[i];
+                        Transform const& globalBoneTransform = m_pResource->GetGlobalReferencePose()[i];
 
-                    EulerAngles const refGlobalRotation = refGlobalTransform.GetRotation().ToEulerAngles();
-                    ImGui::Text( "Global Rotation: R: %.2f, %.2f, %.2f", Degrees( refGlobalRotation.m_x ).ToFloat(), Degrees( refGlobalRotation.m_y ).ToFloat(), Degrees( refGlobalRotation.m_z ).ToFloat() );
-                    ImGui::Text( "Global Translation: %.2f %.2f %.2f", refGlobalTransform.GetTranslation().m_x, refGlobalTransform.GetTranslation().m_y, refGlobalTransform.GetTranslation().m_z );
-                    ImGui::Text( "Global Scale: %.2f %.2f %.2f", refGlobalTransform.GetScale().m_x, refGlobalTransform.GetScale().m_y, refGlobalTransform.GetScale().m_z );
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "%d. %s", i, m_pResource->GetBoneID( i ).c_str() );
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "Rot: %s", Math::ToString( localBoneTransform.GetRotation() ).c_str() );
+                        ImGui::Text( "Tra: %s", Math::ToString( localBoneTransform.GetTranslation() ).c_str() );
+                        ImGui::Text( "Scl: %s", Math::ToString( localBoneTransform.GetScale() ).c_str() );
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "Rot: %s", Math::ToString( globalBoneTransform.GetRotation() ).c_str() );
+                        ImGui::Text( "Tra: %s", Math::ToString( globalBoneTransform.GetTranslation() ).c_str() );
+                        ImGui::Text( "Scl: %s", Math::ToString( globalBoneTransform.GetScale() ).c_str() );
+                    }
+
+                    ImGui::EndTable();
                 }
             }
         }
@@ -109,6 +120,7 @@ namespace KRG::Animation
         // Skeleton Tree
         //-------------------------------------------------------------------------
 
+        ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( s_skeletonTreeWindowName ) )
         {
             if ( IsLoaded() )

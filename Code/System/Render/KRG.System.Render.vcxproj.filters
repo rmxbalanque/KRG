@@ -132,6 +132,7 @@
     <ClInclude Include="RenderViewport.h" />
     <ClInclude Include="RendererRegistry.h" />
     <ClInclude Include="IRenderer.h" />
+    <ClInclude Include="RenderWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">

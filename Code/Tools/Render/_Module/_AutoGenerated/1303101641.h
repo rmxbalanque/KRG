@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Tools\Render\ResourceCompilers\Mesh\ResourceCompiler_StaticMesh.h"
+#include "D:\Kruger\Code\Tools\Render\ResourceCompilers\Mesh\ResourceCompiler_StaticMesh.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Render::StaticMeshResourceDescriptor

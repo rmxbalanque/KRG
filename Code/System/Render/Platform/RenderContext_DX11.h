@@ -8,6 +8,7 @@
 #include "System/Render/RenderTexture.h"
 #include "System/Render/RenderBuffer.h"
 #include "System/Render/RenderTarget.h"
+#include "System/Render/RenderWindow.h"
 #include "System/Render/RenderPipelineState.h"
 
 #include <D3D11.h>
@@ -62,6 +63,9 @@ namespace KRG
             void SetPrimitiveTopology( Topology topology ) const;
             void Draw( uint32 vertexCount, uint32 vertexStartIndex = 0 ) const;
             void DrawIndexed( uint32 vertexCount, uint32 indexStartIndex = 0, uint32 vertexStartIndex = 0 ) const;
+
+            // Window
+            void Present( RenderWindow& window ) const;
 
         private:
 

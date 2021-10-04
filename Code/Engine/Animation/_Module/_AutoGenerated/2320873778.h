@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_Selector.h"
+#include "D:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_Selector.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::Graph::SelectorNode::Settings

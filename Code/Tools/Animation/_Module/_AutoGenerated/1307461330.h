@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Tools\Animation\Events\AnimationEventData.h"
+#include "D:\Kruger\Code\Tools\Animation\Events\AnimationEventData.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::EventItem
@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::EventItem& type )
     {
-        archive( cereal::base_class<KRG::TimelineItem>( &type ) );
+        archive( cereal::base_class<KRG::Timeline::TrackItem>( &type ) );
     }
 
     //-------------------------------------------------------------------------
@@ -69,7 +69,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::TimelineItem::s_pTypeInfo;
+                    pParentType = KRG::Timeline::TrackItem::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 
@@ -225,7 +225,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::EventTrack& type )
     {
-        archive( cereal::base_class<KRG::TimelineTrack>( &type ), KRG_NVP( m_eventType ), KRG_NVP( m_isSyncTrack ), KRG_NVP( m_eventTypeID ) );
+        archive( cereal::base_class<KRG::Timeline::Track>( &type ), KRG_NVP( m_eventType ), KRG_NVP( m_isSyncTrack ), KRG_NVP( m_eventTypeID ) );
     }
 
     //-------------------------------------------------------------------------
@@ -312,7 +312,7 @@ namespace KRG
 
                     TypeSystem::TypeInfo const* pParentType = nullptr;
 
-                    pParentType = KRG::TimelineTrack::s_pTypeInfo;
+                    pParentType = KRG::Timeline::Track::s_pTypeInfo;
                     KRG_ASSERT( pParentType != nullptr );
                     typeInfo.m_parentTypes.push_back( pParentType );
 

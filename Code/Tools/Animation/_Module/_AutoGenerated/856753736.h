@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Tools\Animation\ResourceCompilers\ResourceCompiler_AnimationClip.h"
+#include "D:\Kruger\Code\Tools\Animation\ResourceCompilers\ResourceCompiler_AnimationClip.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::AnimationClipResourceDescriptor
@@ -21,7 +21,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::AnimationClipResourceDescriptor& type )
     {
-        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_animationDataPath ), KRG_NVP( m_pSkeleton ), KRG_NVP( m_animationEventData ), KRG_NVP( m_animationName ) );
+        archive( cereal::base_class<KRG::Resource::ResourceDescriptor>( &type ), KRG_NVP( m_animationDataPath ), KRG_NVP( m_pSkeleton ), KRG_NVP( m_animationName ) );
     }
 
     //-------------------------------------------------------------------------
@@ -58,19 +58,6 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_pSkeleton;
             propertyInfo.m_offset = offsetof( KRG::Animation::AnimationClipResourceDescriptor, m_pSkeleton );
             propertyInfo.m_size = sizeof( KRG::TResourcePtr<KRG::Animation::Skeleton> );
-            propertyInfo.m_flags.Set( 1 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
-
-            //-------------------------------------------------------------------------
-
-            propertyInfo.m_ID = StringID( "m_animationEventData" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::DataPath" );
-            propertyInfo.m_parentTypeID = 272179067;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_animationEventData;
-            propertyInfo.m_offset = offsetof( KRG::Animation::AnimationClipResourceDescriptor, m_animationEventData );
-            propertyInfo.m_size = sizeof( KRG::DataPath );
             propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
@@ -286,11 +273,6 @@ namespace KRG
                        return false;
                     }
 
-                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 506310546 ) )
-                    {
-                       return false;
-                    }
-
                     if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1418688656 ) )
                     {
                        return false;
@@ -312,11 +294,6 @@ namespace KRG
                     if ( propertyID == 1093290281 )
                     {
                         return pType->m_pSkeleton == pOtherType->m_pSkeleton;
-                    }
-
-                    if ( propertyID == 506310546 )
-                    {
-                        return pType->m_animationEventData == pOtherType->m_animationEventData;
                     }
 
                     if ( propertyID == 1418688656 )
@@ -341,12 +318,6 @@ namespace KRG
                     if ( propertyID == 1093290281 )
                     {
                         pActualType->m_pSkeleton = pDefaultType->m_pSkeleton;
-                        return;
-                    }
-
-                    if ( propertyID == 506310546 )
-                    {
-                        pActualType->m_animationEventData = pDefaultType->m_animationEventData;
                         return;
                     }
 

@@ -31,7 +31,7 @@ namespace KRG
 
         // The active workspace is the one that has "focus" and is currently being worked on.
         inline bool IsActiveWorkspace( ResourceEditorWorkspace const* pWorkspace ) const { return m_pActiveWorkspace == pWorkspace; }
-        inline ResourceEditorWorkspace const* GetActiveWorkspace() const { return m_pActiveWorkspace; }
+        inline ResourceEditorWorkspace* GetActiveWorkspace() const { return m_pActiveWorkspace; }
         void SetActiveWorkspace( ResourceEditorWorkspace* pWorkspace );
         void ClearActiveWorkspace();
 

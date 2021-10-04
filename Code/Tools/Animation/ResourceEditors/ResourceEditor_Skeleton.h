@@ -43,7 +43,7 @@ namespace KRG::Animation
         virtual void Deactivate( EntityWorld* pPreviewWorld ) override;
 
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
+        virtual void UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
 
     private:
 

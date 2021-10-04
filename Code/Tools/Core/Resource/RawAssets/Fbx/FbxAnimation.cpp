@@ -152,7 +152,7 @@ namespace KRG::RawAssets
                         // Root bone is already in local space
                         if ( boneIdx == 0 )
                         {
-                            FbxAMatrix nodeGlobalTransform = pEvaluator->GetNodeGlobalTransform( pBoneNode, FbxTimeSeconds( currentTime ) );
+                            FbxAMatrix const nodeGlobalTransform = pEvaluator->GetNodeGlobalTransform( pBoneNode, FbxTimeSeconds( currentTime ) );
                             animTrack.m_transforms.emplace_back( sceneCtx.ConvertMatrixToTransform( nodeGlobalTransform ) );
                         }
                         else // Read the global transforms and convert to local

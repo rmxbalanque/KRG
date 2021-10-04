@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tools/Animation/_Module/API.h"
+#include "Tools/Animation/Events/AnimationEventData.h"
 #include "Tools/Core/Resource/Compilers/ResourceCompiler.h"
 #include "Engine/Animation/AnimationSkeleton.h"
 #include "Engine/Animation/AnimationSyncTrack.h"
@@ -26,7 +27,6 @@ namespace KRG::Animation
 
         KRG_EXPOSE DataPath                    m_animationDataPath;
         KRG_EXPOSE TResourcePtr<Skeleton>      m_pSkeleton = nullptr;
-        KRG_EXPOSE DataPath                    m_animationEventData; // Optional: not all animations have events
         KRG_EXPOSE String                      m_animationName; // Optional: if not set, will use the first animation in the file
     };
 
@@ -34,7 +34,7 @@ namespace KRG::Animation
 
     class AnimationClipCompiler : public Resource::Compiler
     {
-        static const int32 s_version = 10;
+        static const int32 s_version = 11;
 
         struct AnimationEventData
         {
@@ -52,6 +52,6 @@ namespace KRG::Animation
 
         void TransferAndCompressAnimationData( RawAssets::RawAnimation const& rawAnimData, AnimationClip& animClip ) const;
 
-        bool CreateEventsData( Resource::CompileContext const& ctx, AnimationClipResourceDescriptor const& animResourceDesc, RawAssets::RawAnimation const& rawAnimData, AnimationEventData& outEventData ) const;
+        bool ReadEventsData( Resource::CompileContext const& ctx, rapidjson::Document const& document, RawAssets::RawAnimation const& rawAnimData, AnimationEventData& outEventData ) const;
     };
 }

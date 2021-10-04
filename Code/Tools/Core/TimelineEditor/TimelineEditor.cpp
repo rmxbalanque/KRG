@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Timeline
 {
     static float g_headerHeight = 24;
     static float g_trackHeaderWidth = 200;
@@ -48,6 +48,49 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    void TimelineEditor::MouseState::Reset()
+    {
+        m_isHoveredOverTrackEditor = false;
+        m_pHoveredTrack = nullptr;
+        m_pHoveredItem = nullptr;
+        m_hoveredItemMode = ItemEditMode::None;
+        m_playheadTimeForMouse = -1.0f;
+        m_snappedPlayheadTimeForMouse = -1.0f;
+    }
+
+    inline void TimelineEditor::ItemEditState::Reset()
+    {
+        m_pTrackForEditedItem = nullptr;
+        m_pEditedItem = nullptr;
+        m_mode = ItemEditMode::None;
+        m_originalTimeRange.Reset();
+    }
+
+    char const* TimelineEditor::ContextMenuState::GetContextMenuName() const
+    {
+        if ( m_pItem != nullptr )
+        {
+            return "ItemContextMenu";
+        }
+
+        if ( m_pTrack != nullptr )
+        {
+            return "TrackContextMenu";
+        }
+
+        return "EditorContextMenu";
+    }
+
+    void TimelineEditor::ContextMenuState::Reset()
+    {
+        m_pTrack = nullptr;
+        m_pItem = nullptr;
+        m_isOpen = false;
+        m_playheadTimeForMouse = -1.0f;
+    }
+
+    //-------------------------------------------------------------------------
+
     TimelineEditor::TimelineEditor( IntRange const& inTimeRange )
         : m_timeRange( inTimeRange )
         , m_viewRange( inTimeRange )
@@ -57,14 +100,14 @@ namespace KRG
 
     TimelineEditor::~TimelineEditor()
     {
-        m_data.Reset();
+        m_trackContainer.Reset();
     }
 
     //-------------------------------------------------------------------------
 
-    bool TimelineEditor::IsValidPtr( TimelineItem const* pItem )
+    bool TimelineEditor::IsValidPtr( TrackItem const* pItem )
     {
-        for ( auto pTrack : m_data )
+        for ( auto pTrack : m_trackContainer )
         {
             if ( pTrack->Contains( pItem ) )
             {
@@ -75,16 +118,16 @@ namespace KRG
         return false;
     }
 
-    bool TimelineEditor::IsValidPtr( TimelineTrack const* pTrack )
+    bool TimelineEditor::IsValidPtr( Track const* pTrack )
     {
-        return eastl::find( m_data.begin(), m_data.end(), pTrack ) != m_data.end();
+        return eastl::find( m_trackContainer.begin(), m_trackContainer.end(), pTrack ) != m_trackContainer.end();
     }
 
-    void TimelineEditor::DeleteItem( TimelineItem* pItem )
+    void TimelineEditor::DeleteItem( TrackItem* pItem )
     {
         KRG_ASSERT( IsValidPtr( pItem ) );
 
-        for ( auto pTrack : m_data )
+        for ( auto pTrack : m_trackContainer )
         {
             if ( pTrack->DeleteItem( pItem ) )
             {
@@ -96,10 +139,10 @@ namespace KRG
         m_itemEditState.Reset();
     }
 
-    void TimelineEditor::DeleteTrack( TimelineTrack* pTrack )
+    void TimelineEditor::DeleteTrack( Track* pTrack )
     {
         KRG_ASSERT( IsValidPtr( pTrack ) );
-        m_data.m_tracks.erase_first( pTrack );
+        m_trackContainer.m_tracks.erase_first( pTrack );
         KRG::Delete( pTrack );
         m_isDirty = true;
     }
@@ -193,7 +236,7 @@ namespace KRG
         }
         else  if ( ImGui::IsKeyReleased( ImGui::GetKeyIndex( ImGuiKey_Delete ) ) )
         {
-            TVector<TimelineItem*> copiedSelectedItems = m_selectedItems;
+            TVector<TrackItem*> copiedSelectedItems = m_selectedItems;
             ClearSelection();
 
             for ( auto pItem : copiedSelectedItems )
@@ -404,7 +447,7 @@ namespace KRG
         m_selectedItems.clear();
     }
 
-    void TimelineEditor::SetSelection( TimelineItem* pItem )
+    void TimelineEditor::SetSelection( TrackItem* pItem )
     {
         KRG_ASSERT( pItem != nullptr );
         m_selectedTracks.clear();
@@ -412,7 +455,7 @@ namespace KRG
         m_selectedItems.emplace_back( pItem );
     }
 
-    void TimelineEditor::SetSelection( TimelineTrack* pTrack )
+    void TimelineEditor::SetSelection( Track* pTrack )
     {
         KRG_ASSERT( pTrack != nullptr );
         m_selectedItems.clear();
@@ -420,7 +463,7 @@ namespace KRG
         m_selectedTracks.emplace_back( pTrack );
     }
 
-    void TimelineEditor::AddToSelection( TimelineItem* pItem )
+    void TimelineEditor::AddToSelection( TrackItem* pItem )
     {
         KRG_ASSERT( pItem != nullptr );
         m_selectedTracks.clear();
@@ -430,7 +473,7 @@ namespace KRG
         }
     }
 
-    void TimelineEditor::AddToSelection( TimelineTrack* pTrack )
+    void TimelineEditor::AddToSelection( Track* pTrack )
     {
         KRG_ASSERT( pTrack != nullptr );
         m_selectedItems.clear();
@@ -440,13 +483,13 @@ namespace KRG
         }
     }
 
-    void TimelineEditor::RemoveFromSelection( TimelineItem* pItem )
+    void TimelineEditor::RemoveFromSelection( TrackItem* pItem )
     {
         KRG_ASSERT( pItem != nullptr );
         m_selectedItems.erase_first( pItem );
     }
 
-    void TimelineEditor::RemoveFromSelection( TimelineTrack* pTrack )
+    void TimelineEditor::RemoveFromSelection( Track* pTrack )
     {
         KRG_ASSERT( pTrack != nullptr );
         m_selectedTracks.erase_first( pTrack );
@@ -798,10 +841,10 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         float trackStartY = fullTrackAreaRect.GetTL().y;
-        int32 const numTracks = m_data.GetNumTracks();
+        int32 const numTracks = m_trackContainer.GetNumTracks();
         for ( int32 i = 0; i < numTracks; i++ )
         {
-            auto pTrack = m_data[i];
+            auto pTrack = m_trackContainer[i];
 
             float const trackEndY = trackStartY + g_trackHeight;
 
@@ -1023,7 +1066,7 @@ namespace KRG
                 if ( m_contextMenuState.m_pTrack->HasContextMenu() )
                 {
                     ImGui::Separator();
-                    m_contextMenuState.m_pTrack->DrawContextMenu( m_data.m_tracks, m_contextMenuState.m_playheadTimeForMouse < 0.0f ? m_playheadTime : m_contextMenuState.m_playheadTimeForMouse );
+                    m_contextMenuState.m_pTrack->DrawContextMenu( m_trackContainer.m_tracks, m_contextMenuState.m_playheadTimeForMouse < 0.0f ? m_playheadTime : m_contextMenuState.m_playheadTimeForMouse );
                 }
 
                 //-------------------------------------------------------------------------

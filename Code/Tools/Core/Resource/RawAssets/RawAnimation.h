@@ -45,7 +45,7 @@ namespace KRG::RawAssets
         inline TVector<TrackData> const& GetTrackData() const { return m_tracks; }
         inline RawSkeleton const& GetSkeleton() const { return m_skeleton; }
 
-        inline TVector<Transform> const& GetRootMotion() const { return m_rootMotionDeltas; }
+        inline TVector<Transform> const& GetRootMotion() const { return m_rootPositions; }
 
         // Extract root motion and calculate transform component ranges
         void Finalize();
@@ -58,6 +58,6 @@ namespace KRG::RawAssets
         Seconds                             m_end = 0;
         uint32                              m_numFrames = 0;
         TVector<TrackData>                  m_tracks;
-        TVector<Transform>                  m_rootMotionDeltas;
+        TVector<Transform>                  m_rootPositions;
     };
 }

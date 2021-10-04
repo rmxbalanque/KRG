@@ -79,9 +79,6 @@ namespace KRG::Animation
             auto const* pPose = m_pAnimComponent->GetPose();
             KRG_ASSERT( pPose->HasGlobalTransforms() );
 
-            auto drawingCtx = ctx.GetDrawingContext();
-            drawingCtx.Draw( *pPose, characterWorldTransform );
-
             //-------------------------------------------------------------------------
 
             for ( auto pMeshComponent : m_meshComponents )

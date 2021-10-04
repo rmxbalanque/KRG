@@ -62,12 +62,12 @@ namespace KRG::Animation
 
     void EventItem::SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue )
     {
-        m_pEvent = TypeSystem::Serialization::CreateAndReadNativeType<Event>( typeRegistry, typeObjectValue["EventData"] );
+        m_pEvent = TypeSystem::Serialization::CreateAndReadNativeType<Event>( typeRegistry, typeObjectValue[s_eventDataKey] );
     }
 
     void EventItem::SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
     {
-        writer.Key( "EventData" );
+        writer.Key( s_eventDataKey );
         TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, m_pEvent );
     }
 
@@ -114,7 +114,7 @@ namespace KRG::Animation
         }
     }
 
-    void EventTrack::DrawContextMenu( TVector<TimelineTrack*>& tracks, float playheadPosition )
+    void EventTrack::DrawContextMenu( TVector<Track*>& tracks, float playheadPosition )
     {
         if ( m_isSyncTrack )
         {

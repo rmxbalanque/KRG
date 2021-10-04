@@ -10,16 +10,16 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Tools\Core\TimelineEditor\TimelineData.h"
+#include "D:\Kruger\Code\Tools\Core\TimelineEditor\TimelineData.h"
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::TimelineItem
+// TypeHelper: KRG::Timeline::TrackItem
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_TOOLS_CORE_API void serialize( Archive& archive, KRG::TimelineItem& type )
+    KRG_TOOLS_CORE_API void serialize( Archive& archive, KRG::Timeline::TrackItem& type )
     {
         archive( cereal::base_class<KRG::IRegisteredType>( &type ) );
     }
@@ -29,7 +29,7 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::TimelineItem> >( IRegisteredType const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Timeline::TrackItem> >( IRegisteredType const* pDefaultTypeInstance )
         {
             PropertyInfo propertyInfo;
         }
@@ -39,9 +39,9 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_TOOLS_CORE_API TTypeHelper<KRG::TimelineItem> final : public ITypeHelper
+            class KRG_TOOLS_CORE_API TTypeHelper<KRG::Timeline::TrackItem> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::TimelineItem> StaticTypeHelper;
+                static TTypeHelper<KRG::Timeline::TrackItem> StaticTypeHelper;
 
                 static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
@@ -52,9 +52,9 @@ namespace KRG
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::TimelineItem" );
-                    typeInfo.m_size = sizeof( KRG::TimelineItem );
-                    typeInfo.m_alignment = alignof( KRG::TimelineItem );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Timeline::TrackItem" );
+                    typeInfo.m_size = sizeof( KRG::Timeline::TrackItem );
+                    typeInfo.m_alignment = alignof( KRG::Timeline::TrackItem );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
                     typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::Abstract );
 
@@ -70,12 +70,12 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::TimelineItem::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Timeline::TrackItem::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::TimelineItem" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Timeline::TrackItem" );
                     typeRegistry.UnregisterType( ID );
 
                 }
@@ -94,20 +94,20 @@ namespace KRG
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pType );
 
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pType );
 
                 }
 
                 virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
@@ -115,7 +115,7 @@ namespace KRG
 
                 virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
@@ -123,7 +123,7 @@ namespace KRG
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
@@ -131,7 +131,7 @@ namespace KRG
 
                 virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -140,7 +140,7 @@ namespace KRG
 
                 virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -156,7 +156,7 @@ namespace KRG
 
                 virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -164,7 +164,7 @@ namespace KRG
 
                 virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -172,7 +172,7 @@ namespace KRG
 
                 virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -180,25 +180,25 @@ namespace KRG
 
                 virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::TimelineItem::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::TimelineItem const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::TimelineItem const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Timeline::TrackItem::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Timeline::TrackItem const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Timeline::TrackItem const*>( pOtherTypeInstance );
 
                     return true;
                 }
 
                 virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::TimelineItem const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::TimelineItem const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Timeline::TrackItem const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Timeline::TrackItem const*>( pOtherTypeInstance );
 
                     return false;
                 }
 
                 virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::TimelineItem const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::TimelineItem*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Timeline::TrackItem const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::TrackItem*>( pTypeInstance );
 
                 }
 
@@ -208,13 +208,13 @@ namespace KRG
 }
 
 //-------------------------------------------------------------------------
-// TypeHelper: KRG::TimelineTrack
+// TypeHelper: KRG::Timeline::Track
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     template<class Archive>
-    KRG_TOOLS_CORE_API void serialize( Archive& archive, KRG::TimelineTrack& type )
+    KRG_TOOLS_CORE_API void serialize( Archive& archive, KRG::Timeline::Track& type )
     {
         archive( cereal::base_class<KRG::IRegisteredType>( &type ) );
     }
@@ -224,10 +224,10 @@ namespace KRG
     namespace TypeSystem
     {
         template<>
-        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::TimelineTrack> >( IRegisteredType const* pDefaultTypeInstance )
+        void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Timeline::Track> >( IRegisteredType const* pDefaultTypeInstance )
         {
             KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::TimelineTrack const* pActualDefaultTypeInstance = ( KRG::TimelineTrack const* ) pDefaultTypeInstance;
+            KRG::Timeline::Track const* pActualDefaultTypeInstance = ( KRG::Timeline::Track const* ) pDefaultTypeInstance;
 
             PropertyInfo propertyInfo;
         }
@@ -237,9 +237,9 @@ namespace KRG
         namespace TypeHelpers
         {
             template<>
-            class KRG_TOOLS_CORE_API TTypeHelper<KRG::TimelineTrack> final : public ITypeHelper
+            class KRG_TOOLS_CORE_API TTypeHelper<KRG::Timeline::Track> final : public ITypeHelper
             {
-                static TTypeHelper<KRG::TimelineTrack> StaticTypeHelper;
+                static TTypeHelper<KRG::Timeline::Track> StaticTypeHelper;
 
                 static IRegisteredType const* s_pDefaultTypeInstancePtr;
 
@@ -250,13 +250,13 @@ namespace KRG
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
                     IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::TimelineTrack ), alignof( KRG::TimelineTrack ) );
-                    new ( pDefaultTypeInstance ) KRG::TimelineTrack;
+                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Timeline::Track ), alignof( KRG::Timeline::Track ) );
+                    new ( pDefaultTypeInstance ) KRG::Timeline::Track;
 
                     TypeSystem::TypeInfo typeInfo;
-                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::TimelineTrack" );
-                    typeInfo.m_size = sizeof( KRG::TimelineTrack );
-                    typeInfo.m_alignment = alignof( KRG::TimelineTrack );
+                    typeInfo.m_ID = TypeSystem::TypeID( "KRG::Timeline::Track" );
+                    typeInfo.m_size = sizeof( KRG::Timeline::Track );
+                    typeInfo.m_alignment = alignof( KRG::Timeline::Track );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
 
                     // Parent Types 
@@ -271,47 +271,47 @@ namespace KRG
                     // Register properties and type
                     //-------------------------------------------------------------------------
 
-                    KRG::TimelineTrack::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
+                    KRG::Timeline::Track::s_pTypeInfo = typeRegistry.RegisterType( typeInfo );
                 }
 
                 static void UnregisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    auto const ID = TypeSystem::TypeID( "KRG::TimelineTrack" );
+                    auto const ID = TypeSystem::TypeID( "KRG::Timeline::Track" );
                     typeRegistry.UnregisterType( ID );
 
                     IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::TimelineTrack*>( pDefaultTypeInstance )->~TimelineTrack();
+                    reinterpret_cast<KRG::Timeline::Track*>( pDefaultTypeInstance )->~Track();
                     KRG::Free( pDefaultTypeInstance );
                 }
 
                 virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::TimelineTrack>();
+                    return KRG::New<KRG::Timeline::Track>();
                 }
 
                 virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
                     KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::TimelineTrack();
+                    new( pAllocatedMemory ) KRG::Timeline::Track();
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pType );
 
                 }
 
                 virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final
                 {
                     KRG_ASSERT( pResourceSystem != nullptr );
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pType );
 
                 }
 
                 virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pType );
                     LoadingStatus status = LoadingStatus::Loaded;
 
                     return status;
@@ -319,7 +319,7 @@ namespace KRG
 
                 virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pType );
                     LoadingStatus status = LoadingStatus::Unloading;
 
                     return LoadingStatus::Unloaded;
@@ -327,7 +327,7 @@ namespace KRG
 
                 virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pType );
                     // We should never get here since we are asking for a resource type of an invalid property
                     KRG_UNREACHABLE_CODE();
                     return ResourceTypeID();
@@ -335,7 +335,7 @@ namespace KRG
 
                 virtual Byte* GetArrayElementDataPtr( IRegisteredType* pType, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pType );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pType );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -344,7 +344,7 @@ namespace KRG
 
                 virtual size_t GetArraySize( IRegisteredType const* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack const*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track const*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -360,7 +360,7 @@ namespace KRG
 
                 virtual void ClearArray( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -368,7 +368,7 @@ namespace KRG
 
                 virtual void AddArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -376,7 +376,7 @@ namespace KRG
 
                 virtual void RemoveArrayElement( IRegisteredType* pTypeInstance, uint32 arrayID, size_t arrayIdx ) const override final
                 {
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pTypeInstance );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pTypeInstance );
 
                     // We should never get here since we are asking for a ptr to an invalid property
                     KRG_UNREACHABLE_CODE();
@@ -384,25 +384,25 @@ namespace KRG
 
                 virtual bool AreAllPropertyValuesEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance ) const override final
                 {
-                    auto pTypeHelper = KRG::TimelineTrack::s_pTypeInfo->m_pTypeHelper;
-                    auto pType = reinterpret_cast<KRG::TimelineTrack const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::TimelineTrack const*>( pOtherTypeInstance );
+                    auto pTypeHelper = KRG::Timeline::Track::s_pTypeInfo->m_pTypeHelper;
+                    auto pType = reinterpret_cast<KRG::Timeline::Track const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Timeline::Track const*>( pOtherTypeInstance );
 
                     return true;
                 }
 
                 virtual bool IsPropertyValueEqual( IRegisteredType const* pTypeInstance, IRegisteredType const* pOtherTypeInstance, uint32 propertyID, int32 arrayIdx = InvalidIndex ) const override final
                 {
-                    auto pType = reinterpret_cast<KRG::TimelineTrack const*>( pTypeInstance );
-                    auto pOtherType = reinterpret_cast<KRG::TimelineTrack const*>( pOtherTypeInstance );
+                    auto pType = reinterpret_cast<KRG::Timeline::Track const*>( pTypeInstance );
+                    auto pOtherType = reinterpret_cast<KRG::Timeline::Track const*>( pOtherTypeInstance );
 
                     return false;
                 }
 
                 virtual void ResetToDefault( IRegisteredType* pTypeInstance, uint32 propertyID ) override final
                 {
-                    auto pDefaultType = reinterpret_cast<KRG::TimelineTrack const*>( GetDefaultTypeInstancePtr() );
-                    auto pActualType = reinterpret_cast<KRG::TimelineTrack*>( pTypeInstance );
+                    auto pDefaultType = reinterpret_cast<KRG::Timeline::Track const*>( GetDefaultTypeInstancePtr() );
+                    auto pActualType = reinterpret_cast<KRG::Timeline::Track*>( pTypeInstance );
 
                 }
 
