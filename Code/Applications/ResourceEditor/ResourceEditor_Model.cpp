@@ -1,5 +1,6 @@
 #include "ResourceEditor_Model.h"
 #include "Tools/Core/Editors/ResourceEditorWorkspace.h"
+#include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 
 //-------------------------------------------------------------------------
 
@@ -18,6 +19,22 @@ namespace KRG
 
         for ( auto& pOpenWorkspace : m_openWorkspaces )
         {
+            if ( pOpenWorkspace->IsDirty() )
+            {
+                InlineString<255> messageTitle;
+                messageTitle.sprintf( "Unsaved Changes for %s", pOpenWorkspace->GetFilePath().c_str() );
+
+                auto messageDialog = pfd::message( messageTitle.c_str(), "You have unsaved changes!\nDo you wish to save these changes before closing?", pfd::choice::yes_no_cancel );
+                switch ( messageDialog.result() )
+                {
+                    case pfd::button::yes:
+                    {
+                        pOpenWorkspace->Save();
+                    }
+                    break;
+                }
+            }
+
             KRG::Delete( pOpenWorkspace );
         }
 
@@ -83,6 +100,30 @@ namespace KRG
     void ResourceEditorModel::CloseWorkspace( ResourceEditorWorkspace* pWorkspace )
     {
         KRG_ASSERT( pWorkspace != nullptr );
+
+        if ( pWorkspace->IsDirty() )
+        {
+            auto messageDialog = pfd::message( "Unsaved Changes", "You have unsaved changes!\nDo you wish to save these changes before closing?", pfd::choice::yes_no_cancel );
+            switch ( messageDialog.result() )
+            {
+                case pfd::button::yes:
+                {
+                    if ( !pWorkspace->Save() )
+                    {
+                        return;
+                    }
+                }
+                break;
+
+                case pfd::button::cancel:
+                {
+                    return;
+                }
+                break;
+            }
+        }
+
+        //-------------------------------------------------------------------------
 
         if ( m_pActiveWorkspace == pWorkspace )
         {

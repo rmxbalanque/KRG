@@ -8,6 +8,8 @@
 
 namespace KRG::Animation
 {
+    class AnimatedMeshComponent;
+
     class SkeletonResourceEditor : public TResourceEditorWorkspace<Skeleton>
     {
         static char const* const s_infoWindowName;
@@ -55,5 +57,8 @@ namespace KRG::Animation
 
         BoneInfo*   m_pSkeletonTreeRoot = nullptr;
         StringID    m_selectedBoneID;
+
+        Entity*                         m_pPreviewEntity = nullptr;
+        AnimatedMeshComponent*          m_pMeshComponent = nullptr;
     };
 }

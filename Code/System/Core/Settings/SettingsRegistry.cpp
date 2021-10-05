@@ -9,7 +9,9 @@ namespace KRG
 {
     SettingsRegistry::SettingsRegistry()
     {
+        #if KRG_DEVELOPMENT_TOOLS
         GenerateDebugSettingsMap();
+        #endif
     }
 
     bool SettingsRegistry::LoadFromFile( FileSystem::Path const& iniFilePath )

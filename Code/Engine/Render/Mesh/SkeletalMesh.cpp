@@ -44,7 +44,7 @@ namespace KRG::Render
 
             drawingContext.DrawLine( parentBoneWorldTransform.GetTranslation(), boneWorldTransform.GetTranslation(), Colors::Orange );
             drawingContext.DrawBox( boneWorldTransform, Float3( 0.005f ), Colors::Orange );
-            drawingContext.DrawAxis( boneWorldTransform, 0.05f );
+            drawingContext.DrawAxis( boneWorldTransform, 0.05f, 2.0f );
         }
     }
     #endif

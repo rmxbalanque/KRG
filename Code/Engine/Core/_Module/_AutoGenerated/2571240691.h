@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Engine\Core\Math\Easing.h"
+#include "d:\Kruger\Code\Engine\Core\Math\Easing.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Math::Easing::Type

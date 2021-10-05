@@ -5,13 +5,13 @@
 #include "System/TypeSystem/TypeHelpers.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
-#include "D:\Kruger\Code\Game\Core\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
-#include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
+#include "d:\Kruger\Code\Game\Core\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Core\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Render\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Animation\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Camera\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
+#include "d:\Kruger\Code\Engine\Physics\_Module\Module.h"
 
 namespace KRG
 {
@@ -27,23 +27,126 @@ namespace KRG
             KRG::Physics::EngineModule::RegisterTypes( typeRegistry );
             KRG::Game::GameModule::RegisterTypes( typeRegistry );
 
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::Shader"), ResourceTypeID( "SHDR" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::PixelShader"), ResourceTypeID( "PSDR" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::GeometryShader"), ResourceTypeID( "GSDR" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::VertexShader"), ResourceTypeID( "VSDR" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::Texture"), ResourceTypeID( "TXTR" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor"), ResourceTypeID( "MAP" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::Material"), ResourceTypeID( "MTRL" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::StaticMesh"), ResourceTypeID( "MSH" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Render::SkeletalMesh"), ResourceTypeID( "SMSH" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::Skeleton"), ResourceTypeID( "SKEL" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationClip"), ResourceTypeID( "ANIM" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphDataSet"), ResourceTypeID( "AGDS" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphDefinition"), ResourceTypeID( "AG" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Animation::AnimationGraphVariation"), ResourceTypeID( "AGV" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Navmesh::NavmeshData"), ResourceTypeID( "NAV" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMesh"), ResourceTypeID( "PMSH" ) );
-            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( "KRG::Physics::PhysicsMaterialDatabase"), ResourceTypeID( "PMDB" ) );
+            TypeSystem::ResourceInfo resourceInfo;
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::Shader");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "SHDR" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Render Shader";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::PixelShader");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "PSDR" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Pixel Shader";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::GeometryShader");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "GSDR" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Geometry Shader";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::VertexShader");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "VSDR" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Vertex Shader";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::Texture");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "TXTR" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Render Texture";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "MAP" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Map";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::Material");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "MTRL" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Render Material";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::StaticMesh");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "MSH" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Static Mesh";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::SkeletalMesh");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "SMSH" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Skeletal Mesh";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Skeleton");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "SKEL" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Animation Skeleton";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationClip");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "ANIM" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Animation Clip";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphDataSet");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "AGDS" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Animation Graph DataSet";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphDefinition");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "AG" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Animation Graph";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphVariation");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "AGV" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Animation Graph Variation";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Navmesh::NavmeshData");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "NAV" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Navmesh";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::PhysicsMesh");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "PMSH" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Physics Mesh";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
+
+            resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::PhysicsMaterialDatabase");
+            resourceInfo.m_resourceTypeID = ResourceTypeID( "PMDB" );
+            #if KRG_DEVELOPMENT_TOOLS
+            resourceInfo.m_friendlyName = "Physics Material DB";
+            #endif
+            typeRegistry.RegisterResourceTypeID( resourceInfo );
         }
 
         inline void UnregisterTypes( TypeSystem::TypeRegistry& typeRegistry )

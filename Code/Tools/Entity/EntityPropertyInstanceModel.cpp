@@ -164,7 +164,7 @@ namespace KRG::TypeSystem
         ResourceTypeID resourceTypeID;
         if ( m_propertyInfo.m_typeID == CoreTypes::TResourcePtr )
         {
-            resourceTypeID = m_pTypeRegistry->GetResourceTypeIDForType( m_propertyInfo.m_templateArgumentTypeID );
+            resourceTypeID = m_pTypeRegistry->GetResourceInfoForType( m_propertyInfo.m_templateArgumentTypeID )->m_resourceTypeID;
         }
 
         return resourceTypeID;

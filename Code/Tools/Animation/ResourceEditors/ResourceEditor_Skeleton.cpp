@@ -3,6 +3,9 @@
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Imgui/Widgets/NumericEditors.h"
 #include "System/Core/Math/MathStringHelpers.h"
+#include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Animation/Components/AnimatedMeshComponent.h"
+#include "Engine/Animation/AnimationPose.h"
 
 //-------------------------------------------------------------------------
 
@@ -24,11 +27,27 @@ namespace KRG::Animation
     void SkeletonResourceEditor::Activate( EntityWorld* pPreviewWorld )
     {
         m_selectedBoneID = StringID();
+
+        //-------------------------------------------------------------------------
+
+        auto pPersistentMap = pPreviewWorld->GetPersistentMap();
+
+        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
+        m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
+        m_pMeshComponent->SetSkeleton( "data://ue_mann_anim/run_fwd.skel" );
+        m_pMeshComponent->SetMesh( "data://ue_mann_anim/run_fwd.smsh" );
+        m_pPreviewEntity->AddComponent( m_pMeshComponent );
+        pPersistentMap->AddEntity( m_pPreviewEntity );
     }
 
     void SkeletonResourceEditor::Deactivate( EntityWorld* pPreviewWorld )
     {
         m_selectedBoneID = StringID();
+
+        auto pPersistentMap = pPreviewWorld->GetPersistentMap();
+        pPersistentMap->DestroyEntity( m_pPreviewEntity->GetID() );
+        m_pPreviewEntity = nullptr;
+        m_pMeshComponent = nullptr;
     }
 
     void SkeletonResourceEditor::InitializeDockingLayout( ImGuiID dockspaceID ) const
@@ -59,6 +78,17 @@ namespace KRG::Animation
 
     void SkeletonResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
+        if ( IsLoaded() )
+        {
+            if ( m_pMeshComponent && m_pMeshComponent->IsInitialized() )
+            {
+                Animation::Pose pose( m_pMeshComponent->GetSkeleton() );
+                pose.CalculateGlobalTransforms();
+                m_pMeshComponent->SetPose( &pose );
+                m_pMeshComponent->FinalizePose();
+            }
+        }
+
         // Info
         //-------------------------------------------------------------------------
 
@@ -217,7 +247,9 @@ namespace KRG::Animation
             treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
         }
 
-        pBone->m_isExpanded = ImGui::TreeNodeEx( currentBoneID.c_str(), treeNodeFlags );
+        InlineString<128> boneLabel;
+        boneLabel.sprintf( "%d. %s", pBone->m_boneIdx, currentBoneID.c_str() );
+        pBone->m_isExpanded = ImGui::TreeNodeEx( boneLabel.c_str(), treeNodeFlags );
 
         // Handle bone selection
         if( ImGui::IsItemClicked() )

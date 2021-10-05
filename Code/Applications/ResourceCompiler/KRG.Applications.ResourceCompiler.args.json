@@ -52,7 +52,7 @@
       "Items": [
         {
           "Id": "051d5c39-342a-467f-8d73-281beba52edb",
-          "Command": "-compile data://animation/amplifycharacter.smsh"
+          "Command": "-compile data://ue_mann_anim/run_fwd.smsh"
         },
         {
           "Id": "a8324731-2651-43be-a906-57c40f51d767",

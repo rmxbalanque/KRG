@@ -16,6 +16,7 @@ namespace KRG::Animation
     void AnimatedMeshComponent::SetPose( Pose const* pPose )
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
+        KRG_ASSERT( !m_animToMeshBoneMap.empty() );
         KRG_ASSERT( pPose != nullptr && pPose->HasGlobalTransforms() );
 
         int32 const numAnimBones = pPose->GetNumBones();

@@ -5,6 +5,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
     class RotationGizmo : public Gizmo
@@ -60,3 +61,4 @@ namespace KRG::ImGuiX
         Radians             m_rotationDeltaAngle = 0.0f;
     };
 }
+#endif

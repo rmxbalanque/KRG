@@ -8,11 +8,25 @@
 
 namespace KRG::Render
 {
-    struct BoneInfo;
+    class SkeletalMeshComponent;
+
+    //-------------------------------------------------------------------------
 
     class SkeletalMeshResourceEditor : public TResourceEditorWorkspace<SkeletalMesh>
     {
         static char const* const s_infoWindowName;
+        static char const* const s_skeletonWindowName;
+
+        struct BoneInfo
+        {
+            void DestroyChildren();
+
+        public:
+
+            int32                           m_boneIdx;
+            TInlineVector<BoneInfo*, 5>     m_children;
+            bool                            m_isExpanded = true;
+        };
 
     public:
 
@@ -26,15 +40,25 @@ namespace KRG::Render
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
 
+        virtual bool HasViewportToolbar() const override { return true; }
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+
     private:
 
         void CreateSkeletonTree();
         void DestroySkeletonTree();
         ImRect RenderSkeletonTree( BoneInfo* pBone ) const;
 
+        void DrawInfoWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
+        void DrawSkeletonTreeWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
+
     private:
 
-        Entity*     m_pPreviewEntity = nullptr;
-        BoneInfo*   m_pSkeletonTreeRoot = nullptr;
+        Entity*                 m_pPreviewEntity = nullptr;
+        SkeletalMeshComponent*  m_pMeshComponent = nullptr;
+        BoneInfo*               m_pSkeletonTreeRoot = nullptr;
+
+        bool                    m_showBindPose = true;
+        bool                    m_showBounds = true;
     };
 }

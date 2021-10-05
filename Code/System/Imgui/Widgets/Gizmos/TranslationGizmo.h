@@ -4,6 +4,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
     class TranslationGizmo : public Gizmo
@@ -48,3 +49,4 @@ namespace KRG::ImGuiX
         bool                m_isPlaneHoveredYZ = false;
     };
 }
+#endif

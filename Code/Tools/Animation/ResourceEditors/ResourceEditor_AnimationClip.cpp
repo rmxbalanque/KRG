@@ -90,6 +90,15 @@ namespace KRG::Animation
                 m_pEventEditor = KRG::New<EventEditor>( *m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
             }
 
+            if ( m_pMeshComponent == nullptr )
+            {
+                m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
+                m_pMeshComponent->SetSkeleton( m_pAnimationComponent->GetSkeleton()->GetResourceID() );
+                m_pMeshComponent->SetMesh( "data://ue_mann_anim/run_fwd.smsh" );
+                //m_pMeshComponent->SetMesh( "data://packs/br/characters/sk_chr_70sfemale_01.smsh" );
+                m_pPreviewEntity->AddComponent( m_pMeshComponent );
+            }
+
             // Update position
             //-------------------------------------------------------------------------
 
@@ -119,8 +128,8 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         DrawTimelineWindow( context, viewportManager, pWindowClass );
-        DrawDetailsWindow( context, viewportManager, pWindowClass );
         DrawTrackDataWindow( context, viewportManager, pWindowClass );
+        DrawDetailsWindow( context, viewportManager, pWindowClass );
     }
 
     void AnimationClipResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
@@ -262,5 +271,20 @@ namespace KRG::Animation
             }
         }
         ImGui::End();
+    }
+
+    bool AnimationClipResourceEditor::IsDirty() const
+    {
+        return ( m_pEventEditor != nullptr ) ? m_pEventEditor->IsDirty() : false;
+    }
+
+    bool AnimationClipResourceEditor::OnSave()
+    {
+        if ( m_pEventEditor != nullptr )
+        {
+            return m_pEventEditor->RequestSave();
+        }
+
+        return false;
     }
 }

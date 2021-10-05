@@ -117,8 +117,14 @@ namespace KRG::TypeSystem::Reflection
 
     struct ReflectedResourceType
     {
+        // Fill the resource type ID and the friendly name from the macro registration string
+        bool TryParseRegistrationMacroString( String const& registrationStr );
+
+    public:
+
         TypeID                                          m_typeID;
         ResourceTypeID                                  m_resourceTypeID;
+        String                                          m_friendlyName;
         HeaderID                                        m_headerID;
         String                                          m_className;
         String                                          m_namespace;

@@ -649,18 +649,6 @@ namespace KRG::Timeline
         }
         ImGui::PopStyleVar();
 
-        // Save button
-        //-------------------------------------------------------------------------
-
-        ImGui::SameLine( 0, buttonSeperation );
-        if ( ImGuiX::ButtonColored( IsDirty() ? Colors::White.ToFloat4() : ImGuiX::Theme::s_textColorDisabled, KRG_ICON_FLOPPY_O "##Save", buttonSize ) )
-        {
-            if ( IsDirty() )
-            {
-                RequestSave();
-            }
-        }
-
         //-------------------------------------------------------------------------
 
         ImGui::EndChild();

@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_Events.h"
+#include "d:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_Events.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Animation::Graph::EventSearchMode

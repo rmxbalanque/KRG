@@ -89,6 +89,12 @@ namespace KRG::Timeline
         inline TVector<TrackItem*> const& GetSelectedItems() const { return m_selectedItems; }
         void ClearSelection();
 
+        // Has any modifications been made to the tracks/events?
+        virtual bool IsDirty() const { return m_isDirty; }
+
+        // Request that we save the state
+        virtual bool RequestSave() { return false; }
+
     protected:
 
         // This is protected, since most of the time the client will want to provide a custom update function 
@@ -109,12 +115,6 @@ namespace KRG::Timeline
 
         // Set the playhead position from a percentage over the time range
         inline void SetPlayheadPositionAsPercentage( Percentage inPercentage ) { m_playheadTime = inPercentage.GetClamped( m_isLoopingEnabled ).ToFloat() * m_timeRange.m_end; }
-
-        // Has any modifications been made to the tracks/events?
-        virtual bool IsDirty() const { return m_isDirty; }
-
-        // Request that we save the state
-        virtual void RequestSave() {}
 
     private:
 

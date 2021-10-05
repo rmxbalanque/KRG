@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_IDs.h"
+#include "d:\Kruger\Code\Engine\Animation\Graph\Nodes\AnimationGraphNode_IDs.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Animation::Graph::IDComparisonNode::Comparison

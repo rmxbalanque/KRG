@@ -2,6 +2,7 @@
 
 #include "EnumInfo.h"
 #include "TypeInfo.h"
+#include "ResourceInfo.h"
 #include "CoreTypeIDs.h"
 #include "System/Core/Systems/ISystem.h"
 
@@ -65,16 +66,16 @@ namespace KRG::TypeSystem
         // Resources
         //-------------------------------------------------------------------------
 
-        inline THashMap<TypeID, ResourceTypeID> const& GetRegisteredResourceTypes() const { return m_registeredResourceTypes; }
-        void RegisterResourceTypeID( TypeID typeID, ResourceTypeID resourceTypeID );
+        inline THashMap<TypeID, ResourceInfo> const& GetRegisteredResourceTypes() const { return m_registeredResourceTypes; }
+        void RegisterResourceTypeID( ResourceInfo const& resourceInfo );
         void UnregisterResourceTypeID( TypeID typeID );
         bool IsRegisteredResourceType( ResourceTypeID resourceTypeID ) const;
-        ResourceTypeID GetResourceTypeIDForType( TypeID typeID ) const;
+        ResourceInfo const* GetResourceInfoForType( TypeID typeID ) const;
 
     private:
 
         THashMap<TypeID, TypeInfo*>             m_registeredTypes;
         THashMap<TypeID, EnumInfo*>             m_registeredEnums;
-        THashMap<TypeID, ResourceTypeID>        m_registeredResourceTypes;
+        THashMap<TypeID, ResourceInfo>          m_registeredResourceTypes;
     };
 }

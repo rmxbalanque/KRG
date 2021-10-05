@@ -177,12 +177,11 @@ namespace KRG::TypeSystem
 
     //-------------------------------------------------------------------------
 
-    void TypeRegistry::RegisterResourceTypeID( TypeID typeID, ResourceTypeID resourceTypeID )
+    void TypeRegistry::RegisterResourceTypeID( ResourceInfo const& resourceInfo )
     {
-        KRG_ASSERT( typeID.IsValid() && !CoreTypeRegistry::IsCoreType( typeID ) );
-        KRG_ASSERT( resourceTypeID.IsValid() );
-        KRG_ASSERT( m_registeredResourceTypes.find( typeID ) == m_registeredResourceTypes.end() );
-        m_registeredResourceTypes.insert( eastl::pair<TypeID, ResourceTypeID>( typeID, resourceTypeID ) );
+        KRG_ASSERT( resourceInfo.IsValid() && !CoreTypeRegistry::IsCoreType( resourceInfo.m_typeID ) );
+        KRG_ASSERT( m_registeredResourceTypes.find( resourceInfo.m_typeID ) == m_registeredResourceTypes.end() );
+        m_registeredResourceTypes.insert( eastl::pair<TypeID, ResourceInfo>( resourceInfo.m_typeID, resourceInfo ) );
     }
 
     void TypeRegistry::UnregisterResourceTypeID( TypeID typeID )
@@ -197,7 +196,7 @@ namespace KRG::TypeSystem
     {
         for ( auto const& pair : m_registeredResourceTypes )
         {
-            if ( pair.second == resourceTypeID )
+            if ( pair.second.m_resourceTypeID == resourceTypeID )
             {
                 return true;
             }
@@ -206,17 +205,18 @@ namespace KRG::TypeSystem
         return false;
     }
 
-    ResourceTypeID TypeRegistry::GetResourceTypeIDForType( TypeID typeID ) const
+    ResourceInfo const* TypeRegistry::GetResourceInfoForType( TypeID typeID ) const
     {
-        ResourceTypeID resourceTypeID;
-
         auto iter = m_registeredResourceTypes.find( typeID );
         if ( iter != m_registeredResourceTypes.end() )
         {
-            resourceTypeID = iter->second;
+            return &iter->second;
         }
 
-        return resourceTypeID;
+        //-------------------------------------------------------------------------
+
+        KRG_HALT();
+        return nullptr;
     }
 
     //-------------------------------------------------------------------------

@@ -54,14 +54,11 @@ namespace KRG::Fbx
         {
             KRG_ASSERT( pNode != nullptr );
 
-            FbxAMatrix geometricTransform;
             FbxVector4 const gT = pNode->GetGeometricTranslation( FbxNode::eSourcePivot );
             FbxVector4 const gR = pNode->GetGeometricRotation( FbxNode::eSourcePivot );
             FbxVector4 const gS = pNode->GetGeometricScaling( FbxNode::eSourcePivot );
-            geometricTransform.SetT( gT );
-            geometricTransform.SetR( gR );
-            geometricTransform.SetS( gS );
 
+            FbxAMatrix geometricTransform( gT, gR, gS );
             geometricTransform = pNode->EvaluateGlobalTransform() * geometricTransform;
             return geometricTransform;
         }

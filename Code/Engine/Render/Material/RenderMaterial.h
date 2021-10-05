@@ -13,7 +13,7 @@ namespace KRG::Render
 {
     class KRG_ENGINE_RENDER_API Material : public Resource::IResource
     {
-        KRG_REGISTER_RESOURCE( 'MTRL' );
+        KRG_REGISTER_RESOURCE( 'MTRL', "Render Material" );
         friend class MaterialCompiler;
         friend class MaterialLoader;
 

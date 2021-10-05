@@ -3,6 +3,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
     static uint32 const g_halfCircleSegmentCount = 64;
@@ -379,3 +380,4 @@ namespace KRG::ImGuiX
         PerformManipulation( viewport );
     }
 }
+#endif

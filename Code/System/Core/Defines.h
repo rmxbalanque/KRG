@@ -25,10 +25,14 @@
 //-------------------------------------------------------------------------
 // Development
 //-------------------------------------------------------------------------
-// Are the debug/development tools compiled into the build
+// This define controls whether the dev tools are compiled
+// KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO exists for use in macros.
 
 #if !KRG_CONFIGURATION_FINAL
 #define KRG_DEVELOPMENT_TOOLS 1
+#define KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( x ) x
+#else
+#define KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( x )
 #endif
 
 //-------------------------------------------------------------------------

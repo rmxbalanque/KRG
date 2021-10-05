@@ -1,4 +1,6 @@
 #include "ImguiSystem.h"
+
+#if KRG_DEVELOPMENT_TOOLS
 #include "ImguiFont.h"
 #include "ImguiTheme.h"
 #include "System/Imgui/ThirdParty/imgui/misc/freetype/imgui_freetype.h"
@@ -208,3 +210,4 @@ namespace KRG::ImGuiX
         ImGui::EndFrame();
     }
 }
+#endif

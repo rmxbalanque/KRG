@@ -234,22 +234,18 @@ namespace KRG
 
         if ( ImGui::BeginPopup( "ResourceFilters" ) )
         {
-            InlineString<255> label;
-
-            for ( auto const& resourceType : m_model.GetTypeRegistry()->GetRegisteredResourceTypes() )
+            for ( auto const& resourceInfo : m_model.GetTypeRegistry()->GetRegisteredResourceTypes() )
             {
-                label.sprintf( "%s - %s", resourceType.second.ToString().c_str(), resourceType.first.c_str() );
-
-                bool isChecked = VectorContains( m_typeFilter, resourceType.second );
-                if ( ImGui::Checkbox( label.c_str(), &isChecked ) )
+                bool isChecked = VectorContains( m_typeFilter, resourceInfo.second.m_resourceTypeID );
+                if ( ImGui::Checkbox( resourceInfo.second.m_friendlyName.c_str(), &isChecked ) )
                 {
                     if ( isChecked )
                     {
-                        m_typeFilter.emplace_back( resourceType.second );
+                        m_typeFilter.emplace_back( resourceInfo.second.m_resourceTypeID );
                     }
                     else
                     {
-                        m_typeFilter.erase_first_unsorted( resourceType.second );
+                        m_typeFilter.erase_first_unsorted( resourceInfo.second.m_resourceTypeID );
                     }
 
                     requiresVisibilityUpdate = true;

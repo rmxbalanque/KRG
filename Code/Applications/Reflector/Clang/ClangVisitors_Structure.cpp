@@ -366,13 +366,16 @@ namespace KRG
                     // Resources
                     else if ( macro.IsResourceMacro() )
                     {
-                        String const resourceTypeIDString = macro.m_macroContents.substr( 1, macro.m_macroContents.length() - 2 );
-
-                        TypeID typeID = pContext->GenerateTypeID( fullyQualifiedCursorName );
-
+                        // Register the resource
                         ReflectedResourceType resource;
                         resource.m_typeID = pContext->GenerateTypeID( fullyQualifiedCursorName );
-                        resource.m_resourceTypeID = ResourceTypeID( resourceTypeIDString );
+
+                        if ( !resource.TryParseRegistrationMacroString( macro.m_macroContents ) )
+                        {
+                            pContext->LogError( "Invalid macro registration string for resource detected: %s", macro.m_macroContents.c_str() );
+                            return CXChildVisit_Break;
+                        }
+
                         resource.m_headerID = headerID;
                         resource.m_className = cursorName;
                         resource.m_namespace = pContext->GetCurrentNamespace();

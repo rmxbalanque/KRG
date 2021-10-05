@@ -3,6 +3,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
     static float const g_axisLength = 75.0f;
@@ -375,3 +376,4 @@ namespace KRG::ImGuiX
         PerformManipulation( viewport );
     }
 }
+#endif

@@ -18,7 +18,7 @@ namespace KRG::EntityModel
 
     class KRG_ENGINE_CORE_API EntityMapDescriptor final : public Resource::IResource
     {
-        KRG_REGISTER_RESOURCE( 'MAP' );
+        KRG_REGISTER_RESOURCE( 'MAP', "Map" );
         KRG_SERIALIZE_MEMBERS( KRG_NVP( m_ID ), KRG_NVP( m_collectionDescriptor ) );
 
         friend class EntityMapCompiler;

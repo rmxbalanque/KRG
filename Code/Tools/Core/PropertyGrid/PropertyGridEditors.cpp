@@ -790,16 +790,13 @@ namespace KRG::PG
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::BeginCombo( g_emptyLabel, currentResourceTypeStr ) )
         {
-            auto AddComboItem = [&ctx, &currentResourceTypeStr, &pValue] ( ResourceTypeID ID )
+            auto AddComboItem = [&ctx, &currentResourceTypeStr, &pValue] ( ResourceInfo const& resourceInfo )
             {
-                char resourceTypeStr[5];
-                ID.GetString( resourceTypeStr );
-
-                bool const isSelected = ( pValue->m_ID == ID.m_ID );
-                if ( ImGui::Selectable( resourceTypeStr, isSelected ) )
+                bool const isSelected = ( pValue->m_ID == resourceInfo.m_resourceTypeID );
+                if ( ImGui::Selectable( resourceInfo.m_friendlyName.c_str(), isSelected ) )
                 {
                     ScopedChangeNotifier notifier( ctx );
-                    *pValue = ResourceTypeID( ID );
+                    *pValue = resourceInfo.m_resourceTypeID;
                 }
 
                 // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -811,7 +808,7 @@ namespace KRG::PG
 
             //-------------------------------------------------------------------------
 
-            AddComboItem( ResourceTypeID::Unknown );
+            AddComboItem( ResourceInfo() );
 
             //-------------------------------------------------------------------------
 
@@ -861,7 +858,7 @@ namespace KRG::PG
             TVector<ResourceTypeID> allowedResourceTypes;
             for ( auto const& registeredResourceType : ctx.m_typeRegistry.GetRegisteredResourceTypes() )
             {
-                allowedResourceTypes.emplace_back( registeredResourceType.second );
+                allowedResourceTypes.emplace_back( registeredResourceType.second.m_resourceTypeID );
             }
 
             DataPath pickedDataPath;
@@ -892,7 +889,7 @@ namespace KRG::PG
         auto pValue = reinterpret_cast<Resource::ResourcePtr*>( pPropertyInstance );
 
         char resourceTypeStr[5] = { 0 };
-        ResourceTypeID const resourceTypeID = ctx.m_typeRegistry.GetResourceTypeIDForType( propertyInfo.m_templateArgumentTypeID );
+        ResourceTypeID const resourceTypeID = ctx.m_typeRegistry.GetResourceInfoForType( propertyInfo.m_templateArgumentTypeID )->m_resourceTypeID;
         resourceTypeID.GetString( resourceTypeStr );
 
         //-------------------------------------------------------------------------

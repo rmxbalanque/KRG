@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Tools\Render\ResourceCompilers\Shaders\ResourceCompiler_RenderShader.h"
+#include "d:\Kruger\Code\Tools\Render\ResourceCompilers\Shaders\ResourceCompiler_RenderShader.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Render::ShaderType

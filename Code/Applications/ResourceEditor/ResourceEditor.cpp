@@ -126,6 +126,18 @@ namespace KRG
                 }
             }
         }
+
+        //-------------------------------------------------------------------------
+        // Handle saving
+        //-------------------------------------------------------------------------
+
+        if ( model.GetActiveWorkspace() != nullptr )
+        {
+            if ( ( ImGui::GetIO().KeyMods & ImGuiKeyModFlags_Ctrl ) && ImGui::IsKeyDown( 'S' ) )
+            {
+                model.GetActiveWorkspace()->Save();
+            }
+        }
     }
 
     bool ResourceEditor::DrawWorkspaceWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ResourceEditorWorkspace* pWorkspace )
@@ -135,6 +147,7 @@ namespace KRG
         auto& model = GetModel();
 
         bool const isActiveWorkspace = model.IsActiveWorkspace( pWorkspace );
+        bool const isDirty = pWorkspace->IsDirty();
         bool isTabOpen = true;
         bool isFocused = false;
 
@@ -145,10 +158,9 @@ namespace KRG
         workspaceWindowClass.DockingAllowUnclassed = false;
 
         ImGuiID const dockspaceID = ImGui::GetID( pWorkspace->GetWorkspaceName() );
-        ImGuiWindowFlags const windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
-        bool const shouldDrawWindowContents = ImGui::Begin( pWorkspace->GetWindowName(), &isTabOpen );
+        bool const shouldDrawWindowContents = ImGui::Begin( pWorkspace->GetWindowName(), &isTabOpen, isDirty ? ImGuiWindowFlags_UnsavedDocument : 0 );
         ImGui::PopStyleVar();
 
         if ( shouldDrawWindowContents )

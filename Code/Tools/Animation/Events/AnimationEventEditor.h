@@ -25,10 +25,11 @@ namespace KRG::Animation
 
         void Update( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent );
 
+        virtual bool RequestSave() override;
+
     private:
 
         virtual bool DrawAddTracksMenu() override;
-        virtual void RequestSave() override;
 
         void LoadEventData();
 

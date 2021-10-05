@@ -93,6 +93,7 @@ namespace KRG::Render
             mesh.m_boneIDs.push_back( boneData[i].m_name );
             mesh.m_parentBoneIndices.push_back( boneData[i].m_parentBoneIdx );
             mesh.m_bindPose.push_back( boneData[i].m_globalTransform );
+            mesh.m_inverseBindPose.push_back( boneData[i].m_globalTransform.GetInverse() );
         }
     }
 }

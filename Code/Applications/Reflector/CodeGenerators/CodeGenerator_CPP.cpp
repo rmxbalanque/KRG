@@ -158,9 +158,21 @@ namespace KRG::CPP
 
         typeRegistrationStr << "\n";
 
+        if ( !registeredResourceTypes.empty() )
+        {
+            typeRegistrationStr << "            TypeSystem::ResourceInfo resourceInfo;\n";
+        }
+
         for ( auto& registeredResourceType : registeredResourceTypes )
         {
-            typeRegistrationStr << "            typeRegistry.RegisterResourceTypeID( TypeSystem::TypeID( \"" << registeredResourceType.m_typeID.c_str() << "\"), ResourceTypeID( \"" << registeredResourceType.m_resourceTypeID.ToString().c_str() << "\" ) );\n";
+            typeRegistrationStr << "\n";
+            typeRegistrationStr << "            resourceInfo.m_typeID = TypeSystem::TypeID( \"" << registeredResourceType.m_typeID.c_str() << "\");\n";
+            typeRegistrationStr << "            resourceInfo.m_resourceTypeID = ResourceTypeID( \"" << registeredResourceType.m_resourceTypeID.ToString().c_str() << "\" );\n";
+            typeRegistrationStr << "            #if KRG_DEVELOPMENT_TOOLS\n";
+            typeRegistrationStr << "            resourceInfo.m_friendlyName = \"" << registeredResourceType.m_friendlyName.c_str() << "\";\n";
+            typeRegistrationStr << "            #endif\n";
+
+            typeRegistrationStr << "            typeRegistry.RegisterResourceTypeID( resourceInfo );\n";
         }
 
         typeRegistrationStr << "        }\n\n";

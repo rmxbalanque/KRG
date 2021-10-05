@@ -223,7 +223,6 @@ namespace KRG::Render
 
             for ( auto pMeshComponent : record.m_components )
             {
-
                 if ( g_showSkeletalMeshBounds )
                 {
                     drawCtx.DrawWireBox( pMeshComponent->GetWorldBounds(), Colors::Cyan );

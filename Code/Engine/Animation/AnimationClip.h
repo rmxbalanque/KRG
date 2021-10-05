@@ -77,7 +77,7 @@ namespace KRG::Animation
 
     class KRG_ENGINE_ANIMATION_API AnimationClip : public Resource::IResource
     {
-        KRG_REGISTER_RESOURCE( 'ANIM' );
+        KRG_REGISTER_RESOURCE( 'ANIM', "Animation Clip" );
         KRG_SERIALIZE_MEMBERS( m_pSkeleton, m_numFrames, m_duration, m_compressedPoseData, m_trackCompressionSettings, m_rootMotionTrack, m_averageLinearVelocity, m_averageAngularVelocity, m_totalRootMotionDelta, m_isAdditive );
 
         friend class AnimationClipCompiler;

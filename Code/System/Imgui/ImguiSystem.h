@@ -2,6 +2,8 @@
 
 #include "_Module/API.h"
 #include "System/Core/Types/String.h"
+
+#if KRG_DEVELOPMENT_TOOLS
 #include "System/Imgui/ThirdParty/imgui/imgui.h"
 
 //-------------------------------------------------------------------------
@@ -32,3 +34,4 @@ namespace KRG::ImGuiX
         String                  m_iniFilename;
     };
 }
+#endif

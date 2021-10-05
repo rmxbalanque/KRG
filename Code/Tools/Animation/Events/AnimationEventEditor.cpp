@@ -196,14 +196,14 @@ namespace KRG::Animation
         }
     }
 
-    void EventEditor::RequestSave()
+    bool EventEditor::RequestSave()
     {
         auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
         JsonReader jsonReader;
         if ( !jsonReader.ReadFromFile( resourceDescriptorPath ) )
         {
             KRG_LOG_ERROR( "AnimationTools", "Failed to read resource descriptor file: %s", resourceDescriptorPath.c_str() );
-            return;
+            return false;
         }
 
         auto const& document = jsonReader.GetDocument();
@@ -237,5 +237,6 @@ namespace KRG::Animation
         // Save descriptor
         eventDataWriter.WriteToFile( resourceDescriptorPath );
         m_isDirty = false;
+        return true;
     }
 }

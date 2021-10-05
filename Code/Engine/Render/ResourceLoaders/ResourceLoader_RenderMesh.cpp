@@ -57,14 +57,6 @@ namespace KRG::Render
             pResource = pSkeletalMesh;
 
             CreateRenderBuffers( pSkeletalMesh );
-
-            // Create the inverse bind pose
-            auto const numBones = pSkeletalMesh->m_bindPose.size();
-            pSkeletalMesh->m_inverseBindPose.resize( numBones );
-            for ( auto i = 0; i < numBones; i++ )
-            {
-                pSkeletalMesh->m_inverseBindPose[i] = pSkeletalMesh->m_bindPose[i].GetInverse();
-            }
         }
 
         //-------------------------------------------------------------------------

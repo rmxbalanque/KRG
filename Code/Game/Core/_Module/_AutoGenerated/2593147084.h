@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "D:\Kruger\Code\Game\Core\TestSystem.h"
+#include "d:\Kruger\Code\Game\Core\TestSystem.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::GameTestSystem

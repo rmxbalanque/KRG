@@ -100,7 +100,7 @@ namespace KRG::Render
         friend class TextureCompiler;
         friend class TextureLoader;
 
-        KRG_REGISTER_RESOURCE( 'TXTR' );
+        KRG_REGISTER_RESOURCE( 'TXTR', "Render Texture" );
         KRG_SERIALIZE_MEMBERS( m_dimensions );
 
     public:

@@ -215,7 +215,6 @@ namespace KRG
                         FbxVector4 const meshVertex = meshNodeGlobalTransform.MultT( pMesh->GetControlPoints()[ctrlPointIdx] );
                         vert.m_position = Vector( (float) meshVertex[0], (float) meshVertex[1], (float) meshVertex[2], (float) meshVertex[3] );
                         vert.m_position.m_w = 1.0f;
-                        //KRG_ASSERT( vert.m_position.m_w == 1.0f );
 
                         // Get vertex normal
                         //-------------------------------------------------------------------------
@@ -431,7 +430,10 @@ namespace KRG
                 // Get the final global transform of the mesh
                 //-------------------------------------------------------------------------
 
-                FbxAMatrix const meshNodeGlobalTransform = sceneCtx.GetNodeGlobalTransform( pMesh->GetNode() );
+                FbxVector4 const gT = pMesh->GetNode()->GetGeometricTranslation( FbxNode::eSourcePivot );
+                FbxVector4 const gR = pMesh->GetNode()->GetGeometricRotation( FbxNode::eSourcePivot );
+                FbxVector4 const gS = pMesh->GetNode()->GetGeometricScaling( FbxNode::eSourcePivot );
+                FbxAMatrix geometricTransform( gT, gR, gS );
 
                 // Read skin
                 //-------------------------------------------------------------------------
@@ -508,15 +510,16 @@ namespace KRG
                         return false;
                     }
 
-                    // Get the bone's bind pose transform
-                    // The bind pose is in mesh space, we need to remove the global mesh transform (we also need to apply the scale correction)
-                    FbxAMatrix boneTransformGlobalMatrix;
-                    pCluster->GetTransformLinkMatrix( boneTransformGlobalMatrix );
-                    boneTransformGlobalMatrix = meshNodeGlobalTransform.Inverse() * boneTransformGlobalMatrix;
-                    boneTransformGlobalMatrix.SetT( boneTransformGlobalMatrix.GetT() );
+                    //-------------------------------------------------------------------------
 
-                    FbxRawSkeleton& rawSkeleton = (FbxRawSkeleton&) rawMesh.m_skeleton;
-                    rawSkeleton.m_bones[boneIdx].m_globalTransform = sceneCtx.ConvertMatrixToTransform( boneTransformGlobalMatrix );
+                    FbxAMatrix clusterTransform, clusterLinkTransform;
+                    pCluster->GetTransformMatrix( clusterTransform );
+                    pCluster->GetTransformLinkMatrix( clusterLinkTransform );
+                    FbxAMatrix const inverseBindPoseTransform = clusterLinkTransform.Inverse() * clusterTransform * geometricTransform;
+
+                    FbxRawSkeleton& rawSkeleton = static_cast<FbxRawSkeleton&>( rawMesh.m_skeleton );
+                    rawSkeleton.m_bones[boneIdx].m_globalTransform = sceneCtx.ConvertMatrixToTransform( inverseBindPoseTransform.Inverse() );
+                    rawSkeleton.m_bones[boneIdx].m_globalTransform.SetTranslation( rawSkeleton.m_bones[boneIdx].m_globalTransform.GetTranslation() * sceneCtx.GetScaleConversionMultiplier() );
 
                     // Add bone indices and weight to all influenced vertices
                     auto const* pControlPointIndices = pCluster->GetControlPointIndices();

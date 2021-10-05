@@ -10,8 +10,8 @@ namespace KRG::Render
         friend class SkeletalMeshCompiler;
         friend class MeshLoader;
 
-        KRG_REGISTER_RESOURCE( 'SMSH' );
-        KRG_SERIALIZE_MEMBERS( KRG_SERIALIZE_BASE( Mesh ), KRG_NVP( m_boneIDs ), KRG_NVP( m_parentBoneIndices ), KRG_NVP( m_bindPose ) );
+        KRG_REGISTER_RESOURCE( 'SMSH', "Skeletal Mesh" );
+        KRG_SERIALIZE_MEMBERS( KRG_SERIALIZE_BASE( Mesh ), KRG_NVP( m_boneIDs ), KRG_NVP( m_parentBoneIndices ), KRG_NVP( m_bindPose ), KRG_NVP( m_inverseBindPose ) );
 
     public:
 
@@ -38,6 +38,6 @@ namespace KRG::Render
         TVector<StringID>                   m_boneIDs;
         TVector<int32>                      m_parentBoneIndices;
         TVector<Transform>                  m_bindPose;             // Note: bind pose is in global space
-        TVector<Transform>                  m_inverseBindPose;      // Not serialized, created upon installation
+        TVector<Transform>                  m_inverseBindPose;
     };
 }

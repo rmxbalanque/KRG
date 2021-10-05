@@ -547,11 +547,13 @@ namespace KRG::TypeSystem::Reflection
             while ( sqlite3_step( pStatement ) == SQLITE_ROW )
             {
                 ReflectedResourceType header;
-                header.m_resourceTypeID = sqlite3_column_int( pStatement, 0 );
-                header.m_headerID = StringID( sqlite3_column_int( pStatement, 1 ) );
-                header.m_className = (char const*) sqlite3_column_text( pStatement, 2 );
-                header.m_namespace = (char const*) sqlite3_column_text( pStatement, 3 );
-                header.m_isVirtual = sqlite3_column_int( pStatement, 4 ) != 0;
+                header.m_typeID = TypeID( (char const*) sqlite3_column_text( pStatement, 0 ) );
+                header.m_resourceTypeID = sqlite3_column_int( pStatement, 1 );
+                header.m_friendlyName = (char const*) sqlite3_column_text( pStatement, 2 );
+                header.m_headerID = StringID( sqlite3_column_int( pStatement, 3 ) );
+                header.m_className = (char const*) sqlite3_column_text( pStatement, 4 );
+                header.m_namespace = (char const*) sqlite3_column_text( pStatement, 5 );
+                header.m_isVirtual = sqlite3_column_int( pStatement, 6 ) != 0;
                 m_reflectedResourceTypes.push_back( header );
             }
             if ( !IsValidSQLiteResult( sqlite3_finalize( pStatement ) ) )
@@ -646,7 +648,7 @@ namespace KRG::TypeSystem::Reflection
 
         for ( auto const& resourceType : m_reflectedResourceTypes )
         {
-            if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `ResourceTypes`(`ResourceTypeID`,`HeaderID`,`ClassName`,`Namespace`,`IsVirtual`) VALUES ( %u, %u, \"%s\",\"%s\",%d);", (uint32) resourceType.m_resourceTypeID, (uint32) resourceType.m_headerID, resourceType.m_className.c_str(), resourceType.m_namespace.c_str(), resourceType.m_isVirtual ? 1 : 0 ) )
+            if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `ResourceTypes`( `TypeID`, `ResourceTypeID`, `FriendlyName`, `HeaderID`,`ClassName`,`Namespace`,`IsVirtual`) VALUES ( \"%s\", %u, \"%s\", %u, \"%s\",\"%s\",%d);", resourceType.m_typeID.c_str(), (uint32) resourceType.m_resourceTypeID, resourceType.m_friendlyName.c_str(), (uint32) resourceType.m_headerID, resourceType.m_className.c_str(), resourceType.m_namespace.c_str(), resourceType.m_isVirtual ? 1 : 0 ) )
             {
                 return false;
             }
@@ -724,7 +726,7 @@ namespace KRG::TypeSystem::Reflection
             return false;
         }
 
-        if ( !ExecuteSimpleQuery( "CREATE TABLE IF NOT EXISTS `ResourceTypes` ( `ResourceTypeID` INTEGER, `HeaderID` INTEGER, `ClassName` TEXT, `Namespace` TEXT, `IsVirtual` INTEGER, PRIMARY KEY( `ResourceTypeID`) );" ) )
+        if ( !ExecuteSimpleQuery( "CREATE TABLE IF NOT EXISTS `ResourceTypes` ( `TypeID` TEXT, `ResourceTypeID` INTEGER, `FriendlyName` TEXT, `HeaderID` INTEGER, `ClassName` TEXT, `Namespace` TEXT, `IsVirtual` INTEGER, PRIMARY KEY( `ResourceTypeID`) );" ) )
         {
             return false;
         }
