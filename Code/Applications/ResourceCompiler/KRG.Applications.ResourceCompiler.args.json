@@ -51,56 +51,16 @@
       "Command": "Render",
       "Items": [
         {
+          "Id": "afa6c43d-eb4c-45c3-bf2a-b277c08570c7",
+          "Command": "-compile data://mannequin.smsh"
+        },
+        {
           "Id": "051d5c39-342a-467f-8d73-281beba52edb",
           "Command": "-compile data://ue_mann_anim/run_fwd.smsh"
         },
         {
-          "Id": "a8324731-2651-43be-a906-57c40f51d767",
-          "Command": "-compile data://packs/br/environment/sm_prop_wirespool_01.msh"
-        },
-        {
-          "Id": "3631014b-0e9e-491d-ad5f-5389417f7ce5",
-          "Command": "-compile data://packs/br/vehicles/sm_veh_plane_destroyed_01.msh"
-        },
-        {
           "Id": "43330e5f-5d0e-4711-8040-48b47946f12c",
-          "Command": "-compile data://packs/br/characters/sk_chr_sportsbrafemale_01.smsh"
-        },
-        {
-          "Id": "49789742-7198-414e-a48d-c5f62b46cdcc",
-          "Command": "-compile data://gltf/gltf_test.skms"
-        },
-        {
-          "Id": "dac5113c-0c63-43d8-a428-f286bcb86cc6",
-          "Command": "-compile data://heist/staticmeshes/sm_prop_desk_03.stms"
-        },
-        {
-          "Id": "03843274-3771-46ea-a996-944555a55ce2",
-          "Command": "-compile data://packs/br/vehicles/sm_veh_car_destroyed_01.msh"
-        },
-        {
-          "Id": "adb3dbe5-e664-47f2-8752-beb1ab3f97a5",
-          "Command": "-compile data://br/characters/sk_chr_militaryfemale_01.skms"
-        },
-        {
-          "Id": "1c9b4980-e0f4-4f99-af9d-f39468135e65",
-          "Command": "-compile data://packs/br/environment/sm_prop_crate_01.msh"
-        },
-        {
-          "Id": "0596872a-7c9e-4365-9d11-0c1b100ecf83",
-          "Command": "-compile data://geometry/floormesh.stms"
-        },
-        {
-          "Id": "32fa22d8-01bf-4b98-aaa0-169068ae4a48",
-          "Command": "-compile data://br/characters/sk_chr_militaryfemale_01.skms"
-        },
-        {
-          "Id": "e4a27392-eab0-42dd-b4b8-b817a46597da",
-          "Command": "-compile data://br/sm_chr_attach_female_hair_01.stms"
-        },
-        {
-          "Id": "85351718-1503-4065-942e-659788f1553c",
-          "Command": "-compile data://BR/characters/SK_Chr_Attach_Female_Armor_01.skms"
+          "Command": "-compile data://amplifycharacter.smsh"
         }
       ]
     },
@@ -118,7 +78,7 @@
         },
         {
           "Id": "fe3f7226-4f1e-44fa-8a8b-974dc399976c",
-          "Command": "-compile data://packs/amplify/AmplifySkeleton.skel"
+          "Command": "-compile data://packs/amplify/amplifyskeleton.skel"
         },
         {
           "Id": "12aa3e43-0ff4-4341-99f7-bc6713c1ab71",

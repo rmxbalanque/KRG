@@ -69,12 +69,10 @@ namespace KRG::Fbx
 
         // Unit conversion
         //-------------------------------------------------------------------------
+        // DO NOT USE THE FBX UNIT CONVERSION FUNCTIONS AS THEY JUST INTRODUCE SCALES INTO ALL TRANSFORMS!
 
         FbxSystemUnit const originalSystemUnits = globalSettings.GetSystemUnit();
         m_scaleConversionMultiplier = (float) originalSystemUnits.GetConversionFactorTo( FbxSystemUnit::m );
-        m_scaleConversionTransform = Transform::FromUniformScale( m_scaleConversionMultiplier );
-
-        FbxSystemUnit::m.ConvertScene( m_pScene );
     }
 
     FbxSceneContext::~FbxSceneContext()

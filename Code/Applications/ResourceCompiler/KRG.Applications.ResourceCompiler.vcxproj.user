@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-compile data://ue_mann_anim/run_fwd.smsh</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://ue_mann_anim/run_fwd.smsh</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-compile data://mannequin.smsh</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://mannequin.smsh</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>

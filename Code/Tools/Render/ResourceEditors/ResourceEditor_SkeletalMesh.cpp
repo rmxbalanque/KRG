@@ -3,6 +3,7 @@
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Render/Components/StaticMeshComponent.h"
 #include "Engine/Render/Components/SkeletalMeshComponent.h"
+#include "../../../System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -136,6 +137,10 @@ namespace KRG::Render
                 auto pMesh = m_pResource.GetPtr();
                 KRG_ASSERT( pMesh != nullptr );
 
+                //-------------------------------------------------------------------------
+                // Draw Mesh Data
+                //-------------------------------------------------------------------------
+
                 ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
                 if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
                 {
@@ -192,6 +197,37 @@ namespace KRG::Render
                     ImGui::EndTable();
                 }
                 ImGui::PopStyleVar();
+
+                //-------------------------------------------------------------------------
+                // Draw Bind Pose Data
+                //-------------------------------------------------------------------------
+
+                if ( ImGui::BeginTable( "SkeletonDataTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
+                {
+                    ImGui::TableSetupColumn( "Bone", ImGuiTableColumnFlags_WidthStretch );
+                    ImGui::TableSetupColumn( "Bind Transform", ImGuiTableColumnFlags_WidthStretch );
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableHeadersRow();
+
+                    int32 const numBones = m_pResource->GetNumBones();
+
+                    for ( auto i = 0; i < numBones; i++ )
+                    {
+                        Transform const& boneBindPoseTransform = m_pResource->GetBindPose()[i];
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "%d. %s", i, m_pResource->GetBoneID( i ).c_str() );
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text( "Rot: %s", Math::ToString( boneBindPoseTransform.GetRotation() ).c_str() );
+                        ImGui::Text( "Tra: %s", Math::ToString( boneBindPoseTransform.GetTranslation() ).c_str() );
+                        ImGui::Text( "Scl: %s", Math::ToString( boneBindPoseTransform.GetScale() ).c_str() );
+                    }
+
+                    ImGui::EndTable();
+                }
             }
         }
         ImGui::End();

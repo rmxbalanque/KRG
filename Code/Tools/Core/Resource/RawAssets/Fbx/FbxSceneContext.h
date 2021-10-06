@@ -81,17 +81,45 @@ namespace KRG::Fbx
             return transform;
         }
 
+        inline Transform ConvertMatrixToTransformAndFixScale( FbxAMatrix const& fbxMatrix ) const
+        {
+            auto const Q = fbxMatrix.GetQ();
+            auto const T = fbxMatrix.GetT();
+            auto const S = fbxMatrix.GetS();
+
+            auto const rotation = Quaternion( (float) Q[0], (float) Q[1], (float) Q[2], (float) Q[3] ).GetNormalized();
+            auto const translation = Vector( (float) T[0] * m_scaleConversionMultiplier, (float) T[1] * m_scaleConversionMultiplier, (float) T[2] * m_scaleConversionMultiplier );
+            auto const scale = Vector( (float) S[0], (float) S[1], (float) S[2] );
+
+            Transform transform( rotation, translation, scale );
+            transform.SanitizeScaleValues();
+            return transform;
+        }
+
+        inline Vector ConvertVector3( FbxVector4 const& fbxVec ) const
+        {
+            return  Vector( (float) fbxVec[0], (float) fbxVec[1], (float) fbxVec[2] );
+        }
+
+        inline Vector ConvertVector3AndFixScale( FbxVector4 const& fbxVec ) const
+        {
+            return Vector( (float) fbxVec[0] * m_scaleConversionMultiplier, (float) fbxVec[1] * m_scaleConversionMultiplier, (float) fbxVec[2] * m_scaleConversionMultiplier );
+        }
+
+        inline Vector ConvertVector4( FbxVector4 const& fbxVec ) const
+        {
+            return  Vector( (float) fbxVec[0], (float) fbxVec[1], (float) fbxVec[2], (float) fbxVec[3] );
+        }
+
+        inline Vector ConvertVectorAndFixScale4( FbxVector4 const& fbxVec ) const
+        {
+            return Vector( (float) fbxVec[0] * m_scaleConversionMultiplier, (float) fbxVec[1] * m_scaleConversionMultiplier, (float) fbxVec[2] * m_scaleConversionMultiplier, (float) fbxVec[3] * m_scaleConversionMultiplier );
+        }
+
         // Scale correction
         //-------------------------------------------------------------------------
 
         inline float GetScaleConversionMultiplier() const { return m_scaleConversionMultiplier; }
-
-        inline Transform const& GetScaleConversionTransform() const { return m_scaleConversionTransform; }
-
-        inline Vector ApplyScaleCorrection( Vector const& vector ) const
-        {
-            return Vector( vector.m_x * m_scaleConversionMultiplier, vector.m_y * m_scaleConversionMultiplier, vector.m_z * m_scaleConversionMultiplier, vector.m_w );
-        }
 
     private:
 
@@ -109,6 +137,5 @@ namespace KRG::Fbx
         String                      m_error;
         Axis                        m_originalUpAxis = Axis::Z;
         float                       m_scaleConversionMultiplier = 1.0f;
-        Transform                   m_scaleConversionTransform;
     };
 }

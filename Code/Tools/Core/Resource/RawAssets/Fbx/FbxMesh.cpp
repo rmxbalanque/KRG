@@ -213,7 +213,7 @@ namespace KRG
 
                         int32 const ctrlPointIdx = pMesh->GetPolygonVertex( polygonIdx, vertexIdx );
                         FbxVector4 const meshVertex = meshNodeGlobalTransform.MultT( pMesh->GetControlPoints()[ctrlPointIdx] );
-                        vert.m_position = Vector( (float) meshVertex[0], (float) meshVertex[1], (float) meshVertex[2], (float) meshVertex[3] );
+                        vert.m_position = sceneCtx.ConvertVector3AndFixScale( meshVertex );
                         vert.m_position.m_w = 1.0f;
 
                         // Get vertex normal
@@ -261,7 +261,7 @@ namespace KRG
                         }
 
                         meshNormal = meshNodeGlobalTransform.MultT( meshNormal );
-                        vert.m_normal = Vector( (float) meshNormal[0], (float) meshNormal[1], (float) meshNormal[2] ).GetNormalized3();
+                        vert.m_normal = sceneCtx.ConvertVector3( meshNormal ).GetNormalized3();
 
                         // Get vertex tangent
                         //-------------------------------------------------------------------------
@@ -292,7 +292,7 @@ namespace KRG
                         }
 
                         meshTangent = meshNodeGlobalTransform.MultT( meshTangent );
-                        vert.m_tangent = Vector( (float) meshTangent[0], (float) meshTangent[1], (float) meshTangent[2] ).GetNormalized3();
+                        vert.m_tangent = sceneCtx.ConvertVector3( meshNormal ).GetNormalized3();
 
                         // Get vertex UV
                         //-------------------------------------------------------------------------
@@ -427,14 +427,6 @@ namespace KRG
                     rawMesh.LogWarning( "More than one skin found for mesh (%s), compiling only the first skin found!", geometryData.m_name.c_str() );
                 }
 
-                // Get the final global transform of the mesh
-                //-------------------------------------------------------------------------
-
-                FbxVector4 const gT = pMesh->GetNode()->GetGeometricTranslation( FbxNode::eSourcePivot );
-                FbxVector4 const gR = pMesh->GetNode()->GetGeometricRotation( FbxNode::eSourcePivot );
-                FbxVector4 const gS = pMesh->GetNode()->GetGeometricScaling( FbxNode::eSourcePivot );
-                FbxAMatrix geometricTransform( gT, gR, gS );
-
                 // Read skin
                 //-------------------------------------------------------------------------
 
@@ -479,6 +471,8 @@ namespace KRG
                 // Read skinning cluster data (i.e. bone skin mapping)
                 //-------------------------------------------------------------------------
 
+                FbxRawSkeleton& rawSkeleton = static_cast<FbxRawSkeleton&>( rawMesh.m_skeleton );
+
                 auto const numVertices = geometryData.m_vertices.size();
                 TVector<TVector<TPair<uint16, float>>> vertexSkinMapping( numVertices );
 
@@ -486,10 +480,10 @@ namespace KRG
                 for ( auto c = 0; c < numClusters; c++ )
                 {
                     FbxCluster* pCluster = pSkin->GetCluster( c );
-                    FbxNode const* pBoneNode = pCluster->GetLink();
+                    FbxNode* pClusterNode = pCluster->GetLink();
 
-                    StringID const boneName( pBoneNode->GetNameWithoutNameSpacePrefix() );
-                    if ( pBoneNode == nullptr )
+                    StringID const clusterName( pClusterNode->GetNameWithoutNameSpacePrefix() );
+                    if ( pClusterNode == nullptr )
                     {
                         rawMesh.LogError( "No node linked to cluster %s", (char const*) pCluster->GetNameWithoutNameSpacePrefix() );
                         return false;
@@ -498,27 +492,26 @@ namespace KRG
                     FbxCluster::ELinkMode const mode = pCluster->GetLinkMode();
                     if ( mode == FbxCluster::eAdditive )
                     {
-                        rawMesh.LogError( "Unsupported link mode for joint: %s", boneName.c_str() );
+                        rawMesh.LogError( "Unsupported link mode for joint: %s", clusterName.c_str() );
                         return false;
                     }
 
                     // Find bone in skeleton that matches this cluster name
-                    int32 const boneIdx = rawMesh.m_skeleton.GetBoneIndex( boneName );
+                    int32 const boneIdx = rawMesh.m_skeleton.GetBoneIndex( clusterName );
                     if ( boneIdx == InvalidIndex )
                     {
-                        rawMesh.LogError( "Unknown bone link node encountered in FBX scene (%s)", boneName.c_str() );
+                        rawMesh.LogError( "Unknown bone link node encountered in FBX scene (%s)", clusterName.c_str() );
                         return false;
                     }
 
                     //-------------------------------------------------------------------------
 
-                    FbxAMatrix clusterTransform, clusterLinkTransform;
-                    pCluster->GetTransformMatrix( clusterTransform );
+                    // Read bind pose
+                    FbxAMatrix clusterLinkTransform;
                     pCluster->GetTransformLinkMatrix( clusterLinkTransform );
-                    FbxAMatrix const inverseBindPoseTransform = clusterLinkTransform.Inverse() * clusterTransform * geometricTransform;
+                    rawSkeleton.m_bones[boneIdx].m_globalTransform = sceneCtx.ConvertMatrixToTransform( clusterLinkTransform );
 
-                    FbxRawSkeleton& rawSkeleton = static_cast<FbxRawSkeleton&>( rawMesh.m_skeleton );
-                    rawSkeleton.m_bones[boneIdx].m_globalTransform = sceneCtx.ConvertMatrixToTransform( inverseBindPoseTransform.Inverse() );
+                    // Manually scale translation
                     rawSkeleton.m_bones[boneIdx].m_globalTransform.SetTranslation( rawSkeleton.m_bones[boneIdx].m_globalTransform.GetTranslation() * sceneCtx.GetScaleConversionMultiplier() );
 
                     // Add bone indices and weight to all influenced vertices
@@ -586,6 +579,9 @@ namespace KRG
                     rawMesh.LogWarning( "More than %d skinning influences detected per bone for mesh (%s), this is not supported - influences have been reduced to %d", rawMesh.m_maxNumberOfBoneInfluences, geometryData.m_name.c_str(), rawMesh.m_maxNumberOfBoneInfluences );
                 }
 
+                //-------------------------------------------------------------------------
+
+                rawSkeleton.CalculateLocalTransforms();
                 return true;
             }
         };

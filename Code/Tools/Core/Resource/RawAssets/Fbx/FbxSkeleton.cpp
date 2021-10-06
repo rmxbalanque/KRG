@@ -74,11 +74,12 @@ namespace KRG::RawAssets
                 pSkeletonToUse = skeletonRootNodes[0];
             }
 
+            // Finalize skeleton transforms
             //-------------------------------------------------------------------------
 
             rawSkeleton.m_name = StringID( (char const*) pSkeletonToUse->GetNameWithoutNameSpacePrefix() );
             ReadBoneHierarchy( rawSkeleton, sceneCtx, pSkeletonToUse, -1 );
-            rawSkeleton.CalculateGlobalTransforms();
+            rawSkeleton.CalculateLocalTransforms();
         }
 
         static void ReadBoneHierarchy( FbxRawSkeleton& rawSkeleton, Fbx::FbxSceneContext const& sceneCtx, fbxsdk::FbxNode* pNode, int32 parentIdx )
@@ -90,10 +91,9 @@ namespace KRG::RawAssets
             rawSkeleton.m_bones[boneIdx].m_parentBoneIdx = parentIdx;
 
             // Read Bone transform
-            // Note: We need to apply the scale correction manually to the translation value, since the scene conversion doesnt modify the local transforms
-            FbxAMatrix nodeTransform = pNode->EvaluateLocalTransform();
-            nodeTransform.SetT( nodeTransform.GetT() * sceneCtx.GetScaleConversionMultiplier() );
-            rawSkeleton.m_bones[boneIdx].m_localTransform = sceneCtx.ConvertMatrixToTransform( nodeTransform );
+            FbxAMatrix const nodeTransform = pNode->EvaluateGlobalTransform();
+            rawSkeleton.m_bones[boneIdx].m_globalTransform = sceneCtx.ConvertMatrixToTransform( nodeTransform );
+            rawSkeleton.m_bones[boneIdx].m_globalTransform.SetTranslation( rawSkeleton.m_bones[boneIdx].m_globalTransform.GetTranslation() * sceneCtx.GetScaleConversionMultiplier() );
 
             // Read child bones
             auto const numChildren = pNode->GetChildCount();

@@ -90,12 +90,12 @@ namespace KRG::Animation
                 m_pEventEditor = KRG::New<EventEditor>( *m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
             }
 
+            // HACK
             if ( m_pMeshComponent == nullptr )
             {
                 m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
                 m_pMeshComponent->SetSkeleton( m_pAnimationComponent->GetSkeleton()->GetResourceID() );
-                m_pMeshComponent->SetMesh( "data://ue_mann_anim/run_fwd.smsh" );
-                //m_pMeshComponent->SetMesh( "data://packs/br/characters/sk_chr_70sfemale_01.smsh" );
+                m_pMeshComponent->SetMesh( "data://packs/amplify/amplifycharacter.smsh" );
                 m_pPreviewEntity->AddComponent( m_pMeshComponent );
             }
 
@@ -109,6 +109,12 @@ namespace KRG::Animation
             else
             {
                 m_characterTransform = Transform::Identity;
+            }
+
+            // HACK
+            if ( m_pMeshComponent != nullptr )
+            {
+                m_pMeshComponent->SetWorldTransform( m_characterTransform );
             }
 
             // Draw in viewport
