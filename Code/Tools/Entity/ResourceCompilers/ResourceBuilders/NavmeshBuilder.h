@@ -4,7 +4,9 @@
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Math/Transform.h"
 
+#if WITH_BFX
 #include <bfxBuilder.h>
+#endif
 
 //-------------------------------------------------------------------------
 
@@ -29,8 +31,8 @@ namespace KRG::Navmesh
 
     private:
 
-        bool CollectCollisionPrimitives( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, THashMap<DataPath, TVector<Transform>>& collisionPrimitives );
-        bool CollectTriangles( Resource::CompileContext const& ctx, THashMap<DataPath, TVector<Transform>> const& collisionPrimitives );
+        bool CollectCollisionPrimitives( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, THashMap<ResourcePath, TVector<Transform>>& collisionPrimitives );
+        bool CollectTriangles( Resource::CompileContext const& ctx, THashMap<ResourcePath, TVector<Transform>> const& collisionPrimitives );
         bool BuildNavmesh( Resource::CompileContext const& ctx, NavmeshData& navmeshData );
 
         bool Error( char const* pFormat, ... ) const;
@@ -39,7 +41,9 @@ namespace KRG::Navmesh
 
     private:
 
+        #if WITH_BFX
         TVector<bfx::BuildFace>         m_buildFaces;
         TVector<bfx::BuildParams>       m_buildParams;
+        #endif
     };
 }

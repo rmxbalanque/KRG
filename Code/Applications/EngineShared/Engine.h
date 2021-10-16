@@ -117,7 +117,7 @@ namespace KRG
         // Application data
         //-------------------------------------------------------------------------
 
-        DataPath                                        m_startupMap;
+        ResourcePath                                        m_startupMap;
         bool                                            m_moduleInitStageReached = false;
         bool                                            m_moduleResourcesInitStageReached = false;
         bool                                            m_finalInitStageReached = false;

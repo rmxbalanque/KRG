@@ -44,7 +44,7 @@ namespace KRG::GraphEditor
 
         virtual BaseGraph* GetViewedGraph() override final { return m_pGraph; }
         virtual DragMode GetDragMode() const final { return m_dragState.m_mode; }
-        virtual void Draw( float childHeightOverride = 0.0f ) override final;
+        virtual void Draw( float childHeightOverride = 0.0f, void* pUserContext = nullptr ) override final;
 
     protected:
 

@@ -36,7 +36,7 @@ namespace KRG::Physics
 
         auto pSettings = context.GetSettingsRegistry()->GetSettings<Settings>();
         KRG_ASSERT( pSettings != nullptr );
-        m_pPhysicMaterialDB = ResourceID( pSettings->m_physicalMaterialDataPath );
+        m_pPhysicMaterialDB = ResourceID( pSettings->m_physicalMaterialDatabasePath );
 
         //-------------------------------------------------------------------------
 

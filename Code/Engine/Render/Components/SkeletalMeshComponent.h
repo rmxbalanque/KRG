@@ -21,7 +21,6 @@ namespace KRG::Render
         inline void SetMesh( ResourceID meshResourceID )
         {
             KRG_ASSERT( IsUnloaded() );
-            KRG_ASSERT( meshResourceID.IsValid() );
             m_pMesh = meshResourceID;
         }
 

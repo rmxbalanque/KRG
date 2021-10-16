@@ -54,8 +54,16 @@ namespace KRG::Animation::Graph
                     speedScale = Math::Lerp( 1.0f, speedScale, m_blendWeight );
                 }
 
-                context.m_deltaTime *= speedScale;
-                m_duration = m_pChildNode->GetDuration() / speedScale;
+                if ( Math::IsNearZero( speedScale ) )
+                {
+                    context.m_deltaTime = 0.0f;
+                    m_duration = 0.0f;
+                }
+                else
+                {
+                    context.m_deltaTime *= speedScale;
+                    m_duration = m_pChildNode->GetDuration() / speedScale;
+                }
             }
         }
 

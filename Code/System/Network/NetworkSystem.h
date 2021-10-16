@@ -12,6 +12,10 @@ namespace KRG::Network
 
     //-------------------------------------------------------------------------
 
+    using AddressString = InlineString<30>;
+
+    //-------------------------------------------------------------------------
+
     class KRG_SYSTEM_NETWORK_API ServerConnection
     {
         friend NetworkSystem;
@@ -29,7 +33,16 @@ namespace KRG::Network
 
         inline uint32 GetSocketHandle() const { return m_socketHandle; }
 
+        // Client info
+        //-------------------------------------------------------------------------
+
+        inline int32 GetNumConnectedClients() const { return (int32) m_connectedClients.size(); }
         inline TVector<uint32> const& GetConnectedClientIDs() const { return m_connectedClients; }
+        inline uint32 GetClientID( int32 clientIdx ) const { return m_connectedClients[clientIdx]; }
+        inline AddressString GetConnectedClientAddress( int32 clientIdx ) const { return m_connectedClientAddresses[clientIdx]; }
+
+        // Messages
+        //-------------------------------------------------------------------------
 
         virtual void ProcessMessage( uint32 connectionID, void* pData, size_t size ) = 0;
 
@@ -40,6 +53,10 @@ namespace KRG::Network
         uint32                                          m_socketHandle = 0;
         uint32                                          m_pollingGroupHandle = 0;
         TVector<ClientConnectionHandle>                 m_connectedClients;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        TVector<AddressString>                          m_connectedClientAddresses;
+        #endif
     };
 
     //-------------------------------------------------------------------------
@@ -70,7 +87,7 @@ namespace KRG::Network
         inline bool IsDisconnected() const { return m_status == Status::Disconnected; }
 
         inline uint32 const& GetClientConnectionID() const { return m_connectionHandle; }
-        inline InlineString<25> const& GetAddress() const { return m_address; }
+        inline AddressString const& GetAddress() const { return m_address; }
 
         virtual void ProcessMessage( void* pData, size_t size ) = 0;
 
@@ -84,7 +101,7 @@ namespace KRG::Network
 
     private:
 
-        InlineString<25>                                m_address;
+        AddressString                                   m_address;
         uint32                                          m_connectionHandle = 0;
         uint32                                          m_reconnectionAttemptsRemaining = 5;
         Status                                          m_status = Status::Disconnected;

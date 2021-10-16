@@ -52,7 +52,7 @@ namespace KRG
 
             private:
 
-                String                              m_reflectionDataPath;
+                FileSystem::Path                    m_reflectionDataPath;
                 SolutionInfo                        m_solution;
                 ReflectionDatabase                  m_database;
 
@@ -60,11 +60,11 @@ namespace KRG
                 TVector<HeaderTimestamp>            m_registeredHeaderTimestamps;
 
                 // Timing
-                Milliseconds                  m_slnParsingTime;
-                Milliseconds                  m_upToDateCheckTime;
-                Milliseconds                  m_clangParsingTime;
-                Milliseconds                  m_clangVisitingTime;
-                Milliseconds                  m_codeGenerationTime;
+                Milliseconds                        m_slnParsingTime;
+                Milliseconds                        m_upToDateCheckTime;
+                Milliseconds                        m_clangParsingTime;
+                Milliseconds                        m_clangVisitingTime;
+                Milliseconds                        m_codeGenerationTime;
             };
         }
     }

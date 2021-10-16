@@ -125,7 +125,7 @@ namespace KRG
         KRG_EXPOSE Degrees                                          m_degrees;
         KRG_EXPOSE Radians                                          m_radians;
         KRG_EXPOSE EulerAngles                                      m_eulerAngles = EulerAngles( 15, 25, 23 );
-        KRG_EXPOSE DataPath                                         m_dataPath = DataPath( "data://Default.txt" );
+        KRG_EXPOSE ResourcePath                                     m_resourcePath = ResourcePath( "data://Default.txt" );
         KRG_EXPOSE BitFlags                                         m_genericFlags;
         KRG_EXPOSE TBitFlags<TestFlags>                             m_specificFlags;
         KRG_EXPOSE ResourceTypeID                                   m_resourceTypeID;

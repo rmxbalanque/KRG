@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Physics\Components\PhysicsMeshComponent.h"
+#include "D:\Kruger\Code\Engine\Physics\Components\PhysicsMeshComponent.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Physics::PhysicsMeshComponent
@@ -216,7 +216,7 @@ namespace KRG
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pPhysicsMesh.IsUnloaded() || pActualType->m_pPhysicsMesh.IsLoading() )
+                    else if ( !pActualType->m_pPhysicsMesh.IsLoaded() )
                     {
                         return LoadingStatus::Loading;
                     }

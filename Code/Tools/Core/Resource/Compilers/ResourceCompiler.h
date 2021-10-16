@@ -22,15 +22,15 @@ namespace KRG::Resource
 
     struct KRG_TOOLS_CORE_API CompileContext
     {
-        CompileContext( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath, FileSystem::Path const& compiledDataPath, ResourceID const& resourceToCompile );
+        CompileContext( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath, FileSystem::Path const& compiledResourceDirectoryPath, ResourceID const& resourceToCompile );
 
         bool IsValid() const;
 
-        inline bool ConvertDataPathToFilePath( DataPath const& resourcePath, FileSystem::Path& filePath ) const
+        inline bool ConvertResourcePathToFilePath( ResourcePath const& resourcePath, FileSystem::Path& filePath ) const
         {
             if ( resourcePath.IsValid() )
             {
-                filePath = DataPath::ToFileSystemPath( m_sourceDataPath, resourcePath );
+                filePath = ResourcePath::ToFileSystemPath( m_rawResourceDirectoryPath, resourcePath );
                 return true;
             }
             else
@@ -40,49 +40,18 @@ namespace KRG::Resource
             }
         }
 
-        // This function will just read a resource descriptor from a file
-        template<typename T>
-        inline bool TryReadResourceDescriptorFromFile( FileSystem::Path const& descriptorPath, T& outData, TFunction<bool( rapidjson::Document const& )> const& customDeserializationFunction = TFunction<bool( rapidjson::Document const& )>() ) const
-        {
-            static_assert( std::is_base_of<ResourceDescriptor, T>::value, "T must be a child of ResourceDescriptor" );
-            KRG_ASSERT( IsValid() );
-
-            TypeSystem::Serialization::TypeReader typeReader( m_typeRegistry );
-            if ( !typeReader.ReadFromFile( descriptorPath ) )
-            {
-                KRG_LOG_ERROR( "ResourceCompiler", "Failed to read resource descriptor file: %s", descriptorPath.c_str() );
-                return false;
-            }
-
-            if ( !typeReader.ReadType( &outData ) )
-            {
-                return false;
-            }
-
-            // Allow for custom data serialization in descriptors
-            if ( customDeserializationFunction != nullptr )
-            {
-                if ( !customDeserializationFunction( static_cast<JsonReader&>( typeReader ).GetDocument() ) )
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         template<typename T>
         inline bool TryReadResourceDescriptor( T& outData, TFunction<bool( rapidjson::Document const& )> const& customDeserializationFunction = TFunction<bool( rapidjson::Document const& )>() ) const
         {
-            return TryReadResourceDescriptorFromFile( m_inputFilePath, outData, customDeserializationFunction );
+            return TryReadResourceDescriptorFromFile( m_typeRegistry, m_inputFilePath, outData, customDeserializationFunction );
         }
 
     public:
 
         TypeSystem::TypeRegistry const&                 m_typeRegistry;
         Platform::Target const                          m_platform = Platform::Target::PC;
-        FileSystem::Path const                          m_sourceDataPath;
-        FileSystem::Path const                          m_compiledDataPath;
+        FileSystem::Path const                          m_rawResourceDirectoryPath;
+        FileSystem::Path const                          m_compiledResourceDirectoryPath;
 
         ResourceID const                                m_resourceID;
         FileSystem::Path const                          m_inputFilePath;

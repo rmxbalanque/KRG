@@ -8,10 +8,10 @@ using namespace KRG::TypeSystem;
 
 namespace KRG
 {
-    PropertyGrid::PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath )
+    PropertyGrid::PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath )
         : m_typeRegistry( typeRegistry )
-        , m_sourceDataPath( sourceDataPath )
-        , m_context( typeRegistry, sourceDataPath )
+        , m_rawResourceDirectoryPath( rawResourceDirectoryPath )
+        , m_context( typeRegistry, rawResourceDirectoryPath )
     {
         m_context.m_preChangeDelegate = TFunction<void()>( [this] () { PreChange(); } );
         m_context.m_postChangeDelegate = TFunction<void()>( [this] () { PostChange(); } );

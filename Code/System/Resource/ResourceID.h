@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ResourceTypeID.h"
-#include "System/Core/FileSystem/DataPath.h"
+#include "ResourcePath.h"
 #include "System/Core/Types/UUID.h"
 
 //-------------------------------------------------------------------------
@@ -20,14 +20,14 @@ namespace KRG
         template <class Archive>
         void save( Archive& ar ) const
         {
-            ar( m_dataPath );
+            ar( m_path );
         }
 
         template <class Archive>
         void load( Archive& ar )
         {
-            ar( m_dataPath );
-            OnDataPathChanged();
+            ar( m_path );
+            OnPathChanged();
         }
 
     public:
@@ -38,38 +38,38 @@ namespace KRG
     public:
 
         ResourceID() = default;
-        ResourceID( DataPath const& path ) : m_dataPath( path ) { KRG_ASSERT( m_dataPath.IsValid() ); OnDataPathChanged(); }
-        ResourceID( DataPath&& path ) : m_dataPath( std::move( path ) ) { KRG_ASSERT( m_dataPath.IsValid() ); OnDataPathChanged(); }
-        inline ResourceID( String&& path ) : m_dataPath( path ) { OnDataPathChanged(); }
-        inline ResourceID( String const& path ) : m_dataPath( path ) { OnDataPathChanged(); }
-        inline ResourceID( char const* pPath ) : m_dataPath( pPath ) { OnDataPathChanged(); }
+        ResourceID( ResourcePath const& path ) : m_path( path ) { KRG_ASSERT( m_path.IsValid() ); OnPathChanged(); }
+        ResourceID( ResourcePath&& path ) : m_path( std::move( path ) ) { KRG_ASSERT( m_path.IsValid() ); OnPathChanged(); }
+        inline ResourceID( String&& path ) : m_path( path ) { OnPathChanged(); }
+        inline ResourceID( String const& path ) : m_path( path ) { OnPathChanged(); }
+        inline ResourceID( char const* pPath ) : m_path( pPath ) { OnPathChanged(); }
 
-        inline bool IsValid() const { return m_dataPath.IsValid(); }
-        inline uint32 GetID() const { return m_dataPath.GetID(); }
-        inline DataPath const& GetDataPath() const { return m_dataPath; }
+        inline bool IsValid() const { return m_path.IsValid(); }
+        inline uint32 GetID() const { return m_path.GetID(); }
+        inline ResourcePath const& GetPath() const { return m_path; }
         inline ResourceTypeID GetResourceTypeID() const { return m_type; }
 
         //-------------------------------------------------------------------------
 
-        inline String const& ToString() const { return m_dataPath.GetString(); }
-        inline char const* c_str() const { return m_dataPath.c_str(); }
+        inline String const& ToString() const { return m_path.GetString(); }
+        inline char const* c_str() const { return m_path.c_str(); }
 
         //-------------------------------------------------------------------------
 
-        inline bool operator==( ResourceID const& rhs ) const { return m_dataPath == rhs.m_dataPath; }
-        inline bool operator!=( ResourceID const& rhs ) const { return m_dataPath != rhs.m_dataPath; }
+        inline bool operator==( ResourceID const& rhs ) const { return m_path == rhs.m_path; }
+        inline bool operator!=( ResourceID const& rhs ) const { return m_path != rhs.m_path; }
 
-        inline bool operator==( uint32 const& ID ) const { return m_dataPath.GetID() == ID; }
-        inline bool operator!=( uint32 const& ID ) const { return m_dataPath.GetID() != ID; }
-
-    private:
-
-        void OnDataPathChanged();
+        inline bool operator==( uint32 const& ID ) const { return m_path.GetID() == ID; }
+        inline bool operator!=( uint32 const& ID ) const { return m_path.GetID() != ID; }
 
     private:
 
-        DataPath            m_dataPath;
-        ResourceTypeID      m_type = ResourceTypeID::Unknown;
+        void OnPathChanged();
+
+    private:
+
+        ResourcePath            m_path;
+        ResourceTypeID          m_type = ResourceTypeID::Unknown;
     };
 }
 

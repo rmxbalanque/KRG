@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Animation\Events\AnimationEvent_Foot.h"
+#include "D:\Kruger\Code\Engine\Animation\Events\AnimationEvent_Foot.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Animation::FootEvent::Phase

@@ -16,7 +16,7 @@ namespace KRG::GraphEditor
         struct VisualSettings
         {
             constexpr static uint32 const   s_nodeTitleColor = IM_COL32( 255, 255, 255, 255 );
-            constexpr static uint32 const   s_defaultStateColor = IM_COL32( 255, 255, 0, 255 );
+            constexpr static uint32 const   s_defaultStateColor = IM_COL32( 128, 128, 0, 255 );
         };
 
         //-------------------------------------------------------------------------
@@ -84,6 +84,7 @@ namespace KRG::GraphEditor
         void UpdateEntryState();
 
         virtual void PreDestroyNode( BaseNode* pNodeAboutToBeDestroyed ) override;
+        virtual void PostDestroyNode( UUID const& nodeID ) override;
 
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue ) override;
 

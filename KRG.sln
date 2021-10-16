@@ -77,8 +77,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Scripts.Reflect", "Code
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceEditor", "Code\Applications\ResourceEditor\KRG.Applications.ResourceEditor.vcxproj", "{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.StandaloneEditor", "Code\Applications\StandaloneEditor\KRG.Applications.StandaloneEditor.vcxproj", "{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.System.Imgui", "Code\System\Imgui\KRG.System.Imgui.vcxproj", "{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}"
 EndProject
 Global
@@ -89,8 +87,6 @@ Global
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{92f52a23-7513-43a0-8299-8fc752d2b401}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{ac5e982d-b267-4caa-9db7-eda06ad36843}*SharedItemsImports = 9
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{bbcf3423-e4b4-4cdd-8a97-c6c390bacc23}*SharedItemsImports = 4
-		Code\Applications\EngineShared\KRG.Applications.EngineShared.vcxitems*{bee75999-dfbb-4d96-ae17-4de6271aa2f5}*SharedItemsImports = 4
-		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{bee75999-dfbb-4d96-ae17-4de6271aa2f5}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{c6d6c2bd-89a1-41f2-b27d-3e87b8b678a5}*SharedItemsImports = 4
 		Code\Applications\EngineShared\KRG.Applications.EngineShared.vcxitems*{d6bdd49c-ef46-4637-844a-4ffdd6a25dc5}*SharedItemsImports = 4
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{d6bdd49c-ef46-4637-844a-4ffdd6a25dc5}*SharedItemsImports = 4
@@ -207,10 +203,6 @@ Global
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Debug|x64.Build.0 = Debug|x64
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.ActiveCfg = Release|x64
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.Build.0 = Release|x64
-		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}.Debug|x64.ActiveCfg = Debug|x64
-		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}.Debug|x64.Build.0 = Debug|x64
-		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}.Release|x64.ActiveCfg = Release|x64
-		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5}.Release|x64.Build.0 = Release|x64
 		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}.Debug|x64.ActiveCfg = Debug|x64
 		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}.Debug|x64.Build.0 = Debug|x64
 		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}.Release|x64.ActiveCfg = Release|x64
@@ -249,7 +241,6 @@ Global
 		{15E4867A-F174-4F2A-A7C1-99CC6376D8D2} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E} = {9205228C-CCFA-4E90-AF60-D157062720B9}
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
-		{BEE75999-DFBB-4D96-AE17-4DE6271AA2F5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913} = {9D6C7A6E-449A-4D52-AA7F-7F6DA3B418D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

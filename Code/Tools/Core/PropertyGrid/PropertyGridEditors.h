@@ -12,15 +12,15 @@ namespace KRG::PG
 {
     struct Context
     {
-        Context( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath )
+        Context( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath )
             : m_typeRegistry( typeRegistry )
-            , m_sourceDataPath( sourceDataPath )
+            , m_rawResourceDirectoryPath( rawResourceDirectoryPath )
         {
-            KRG_ASSERT( m_sourceDataPath.IsExistingDirectory() );
+            KRG_ASSERT( m_rawResourceDirectoryPath.IsExistingDirectory() );
         }
 
         TypeSystem::TypeRegistry const&                 m_typeRegistry;
-        FileSystem::Path const&                         m_sourceDataPath;
+        FileSystem::Path const&                         m_rawResourceDirectoryPath;
         TFunction<void()>                               m_preChangeDelegate;
         TFunction<void()>                               m_postChangeDelegate;
     };

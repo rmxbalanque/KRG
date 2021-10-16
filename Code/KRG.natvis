@@ -77,12 +77,12 @@
     <DisplayString>{{Ctr( {m_center.m_x}, {m_center.m_y}, {m_center.m_z} ), Ext( {m_extents.m_x}, {m_extents.m_y}, {m_extents.m_z} ), Rot( {m_orientation} )}}</DisplayString>
   </Type>
 
-  <Type Name="KRG::DataPath">
-    <DisplayString>{m_path}</DisplayString>
-  </Type>
-
   <Type Name="KRG::FileSystem::Path">
     <DisplayString>{m_fullpath}</DisplayString>
+  </Type>
+
+  <Type Name="KRG::ResourcePath">
+    <DisplayString>{m_path}</DisplayString>
   </Type>
 
   <Type Name="KRG::ResourceTypeID">
@@ -90,7 +90,7 @@
   </Type>
   
   <Type Name="KRG::ResourceID">
-    <DisplayString>{m_dataPath}, Type: {m_type.m_ID}</DisplayString>
+    <DisplayString>{m_path}, Type: {m_type.m_ID}</DisplayString>
   </Type>
 
   <Type Name="KRG::TResourcePtr&lt;*&gt;">

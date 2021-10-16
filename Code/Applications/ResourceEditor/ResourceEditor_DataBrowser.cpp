@@ -47,9 +47,9 @@ namespace KRG
                 auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<DataBrowserTreeItem>();
                 if ( pSelectedItem != nullptr && pSelectedItem->IsFile() )
                 {
-                    if ( pSelectedItem->GetPath() != m_dataFileInspector.GetInspectedFilePath() )
+                    if ( pSelectedItem->GetFilePath() != m_dataFileInspector.GetInspectedFilePath() )
                     {
-                        m_dataFileInspector.SetFileToInspect( pSelectedItem->GetPath() );
+                        m_dataFileInspector.SetFileToInspect( pSelectedItem->GetFilePath() );
                     }
                 }
                 else // Clear inspected file
@@ -157,11 +157,12 @@ namespace KRG
         KRG_PROFILE_FUNCTION();
 
         bool shouldUpdateVisibility = false;
+        Int2 const windowContentRegion = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() );
 
         // Text Filter
         //-------------------------------------------------------------------------
 
-        ImGui::SetNextItemWidth( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 27 );
+        ImGui::SetNextItemWidth( windowContentRegion.m_x + ImGui::GetStyle().WindowPadding.x - 27 );
         if ( ImGui::InputText( "##Filter", m_nameFilterBuffer, 256 ) )
         {
             // Convert buffer to lower case
@@ -185,7 +186,7 @@ namespace KRG
             m_dataBrowserTreeView.ForEachItem( SetExpansion );
         }
 
-        ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 20 );
+        ImGui::SameLine( windowContentRegion.m_x + ImGui::GetStyle().WindowPadding.x - 20 );
         if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear Filter", ImVec2( 19, 0 ) ) )
         {
             m_nameFilterBuffer[0] = 0;
@@ -203,13 +204,13 @@ namespace KRG
             shouldUpdateVisibility = true;
         }
 
-        ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 42 );
+        ImGui::SameLine( windowContentRegion.m_x + ImGui::GetStyle().WindowPadding.x - 42 );
         if ( ImGui::Button( KRG_ICON_PLUS "##Expand All", ImVec2( 19, 0 ) ) )
         {
             m_dataBrowserTreeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( true ); } );
         }
 
-        ImGui::SameLine( ImGui::GetWindowContentRegionWidth() + ImGui::GetStyle().WindowPadding.x - 20 );
+        ImGui::SameLine( windowContentRegion.m_x + ImGui::GetStyle().WindowPadding.x - 20 );
         if ( ImGui::Button( KRG_ICON_MINUS "##Collapse ALL", ImVec2( 19, 0 ) ) )
         {
             m_dataBrowserTreeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( false ); } );

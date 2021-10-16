@@ -1,5 +1,6 @@
 #include "NavPower.h"
 
+#if WITH_BFX
 //-------------------------------------------------------------------------
 
 namespace KRG::Navmesh
@@ -47,3 +48,4 @@ namespace KRG::Navmesh
         ctx.DrawText3D( FromBfx( pos ), str, FromBfx( color ), Debug::TextSize::Small );
     }
 }
+#endif

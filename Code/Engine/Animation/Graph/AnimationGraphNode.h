@@ -175,6 +175,18 @@ namespace KRG::Animation::Graph
         SampledEventRange               m_sampledEventRange;
     };
 
+    #if KRG_DEVELOPMENT_TOOLS
+    struct PoseNodeDebugInfo
+    {
+        int32                           m_loopCount = 0;
+        Seconds                         m_duration = 0.0f;
+        Percentage                      m_currentTime = 0.0f;       // Clamped percentage over the duration
+        Percentage                      m_previousTime = 0.0f;      // Clamped percentage over the duration
+        SyncTrack const*                m_pSyncTrack = nullptr;
+        SyncTrackTime                   m_currentSyncTime;
+    };
+    #endif
+
     class KRG_ENGINE_ANIMATION_API PoseNode : public GraphNode
     {
 
@@ -199,6 +211,11 @@ namespace KRG::Animation::Graph
 
         // Deactivate a previous active branch, this is needed when trigger transitions
         virtual void DeactivateBranch( GraphContext& context ) { KRG_ASSERT( context.m_branchState == BranchState::Inactive && IsNodeActive( context ) ); }
+
+        #if KRG_DEVELOPMENT_TOOLS
+        // Get the current state of the node
+        PoseNodeDebugInfo GetDebugInfo() const;
+        #endif
 
     private:
 

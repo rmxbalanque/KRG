@@ -1,7 +1,7 @@
 #include "ResourceEditor_Skeleton.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "System/Imgui/Widgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/Imgui/Widgets/NumericEditors.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Animation/Components/AnimatedMeshComponent.h"
@@ -26,12 +26,40 @@ namespace KRG::Animation
 
     void SkeletonResourceEditor::Activate( EntityWorld* pPreviewWorld )
     {
+        KRG_ASSERT( m_pPreviewEntity == nullptr );
+
+        // Load resource descriptor for skeleton to get the preview mesh
+        FileSystem::Path const resourceDescPath = m_pResource.GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
+        SkeletonResourceDescriptor resourceDesc;
+        TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
+
+        // We dont own the entity as soon as we add it to the map
+        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
+        m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
+        m_pMeshComponent->SetSkeleton( m_pResource.GetResourceID() );
+        m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
+        m_pPreviewEntity->AddComponent( m_pMeshComponent );
+
+        auto pPersistentMap = pPreviewWorld->GetPersistentMap();
+        pPersistentMap->AddEntity( m_pPreviewEntity );
+
+        //-------------------------------------------------------------------------
+
         m_selectedBoneID = StringID();
     }
 
     void SkeletonResourceEditor::Deactivate( EntityWorld* pPreviewWorld )
     {
         m_selectedBoneID = StringID();
+
+        //-------------------------------------------------------------------------
+
+        KRG_ASSERT( m_pPreviewEntity != nullptr );
+
+        auto pPersistentMap = pPreviewWorld->GetPersistentMap();
+        pPersistentMap->DestroyEntity( m_pPreviewEntity->GetID() );
+        m_pPreviewEntity = nullptr;
+        m_pMeshComponent = nullptr;
     }
 
     void SkeletonResourceEditor::InitializeDockingLayout( ImGuiID dockspaceID ) const
@@ -62,9 +90,61 @@ namespace KRG::Animation
 
     void SkeletonResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
-        // Info
+        // Debug drawing in Viewport
         //-------------------------------------------------------------------------
 
+        if ( IsLoaded() )
+        {
+            auto drawingCtx = context.GetDrawingContext();
+            drawingCtx.Draw( *m_pResource.GetPtr(), Transform::Identity );
+
+            if ( m_selectedBoneID.IsValid() )
+            {
+                int32 const boneIdx = m_pResource->GetBoneIndex( m_selectedBoneID );
+                KRG_ASSERT( boneIdx != InvalidIndex );
+                Transform const refGlobalTransform = m_pResource->GetBoneGlobalTransform( boneIdx );
+
+                drawingCtx.DrawAxis( refGlobalTransform, 0.10f, 4.0f );
+
+                Vector textLocation = refGlobalTransform.GetTranslation() + Vector( 0, 0, 0.1f );
+                Vector const textLineLocation = textLocation - Vector( 0, 0, 0.01f );
+                drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
+                drawingCtx.DrawLine( textLineLocation, refGlobalTransform.GetTranslation(), Colors::Yellow, 2.0f );
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( m_pMeshComponent != nullptr && m_pMeshComponent->IsInitialized() )
+            {
+                if ( m_showPreviewMesh )
+                {
+                    Pose referencePose( m_pResource.GetPtr() );
+                    referencePose.CalculateGlobalTransforms();
+
+                    m_pMeshComponent->SetPose( &referencePose );
+                    m_pMeshComponent->FinalizePose();
+                }
+                else
+                {
+                    //m_pMeshComponent->SetHidden();
+                }
+            }
+        }
+
+        // UI
+        //-------------------------------------------------------------------------
+
+        DrawInfoWindow( context, viewportManager, pWindowClass );
+        DrawSkeletonHierarchyWindow( context, viewportManager, pWindowClass );
+    }
+
+    void SkeletonResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    {
+        ImGui::Checkbox( "Show Preview Mesh", &m_showPreviewMesh );
+    }
+
+    void SkeletonResourceEditor::DrawInfoWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    {
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 8 ) );
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( s_infoWindowName ) )
@@ -119,10 +199,10 @@ namespace KRG::Animation
         }
         ImGui::End();
         ImGui::PopStyleVar();
+    }
 
-        // Skeleton Tree
-        //-------------------------------------------------------------------------
-
+    void SkeletonResourceEditor::DrawSkeletonHierarchyWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    {
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( s_skeletonTreeWindowName ) )
         {
@@ -143,29 +223,6 @@ namespace KRG::Animation
             }
         }
         ImGui::End();
-
-        // Debug drawing in Viewport
-        //-------------------------------------------------------------------------
-
-        if ( IsLoaded() )
-        {
-            auto drawingCtx = context.GetDrawingContext();
-            drawingCtx.Draw( *m_pResource.GetPtr(), Transform::Identity );
-
-            if ( m_selectedBoneID.IsValid() )
-            {
-                int32 const boneIdx = m_pResource->GetBoneIndex( m_selectedBoneID );
-                KRG_ASSERT( boneIdx != InvalidIndex );
-                Transform const refGlobalTransform = m_pResource->GetBoneGlobalTransform( boneIdx );
-
-                drawingCtx.DrawAxis( refGlobalTransform, 0.10f, 4.0f );
-
-                Vector textLocation = refGlobalTransform.GetTranslation() + Vector( 0, 0, 0.1f );
-                Vector const textLineLocation = textLocation - Vector( 0, 0, 0.01f );
-                drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
-                drawingCtx.DrawLine( textLineLocation, refGlobalTransform.GetTranslation(), Colors::Yellow, 2.0f );
-            }
-        }
     }
 
     //-------------------------------------------------------------------------

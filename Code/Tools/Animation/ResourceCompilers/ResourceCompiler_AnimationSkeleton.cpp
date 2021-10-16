@@ -1,4 +1,5 @@
 #include "ResourceCompiler_AnimationSkeleton.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Tools/Core/Resource/RawAssets/RawSkeleton.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Engine/Animation/AnimationSkeleton.h"
@@ -27,9 +28,9 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
             
         FileSystem::Path skeletonFilePath;
-        if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_skeletonDataPath, skeletonFilePath ) )
+        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_skeletonPath, skeletonFilePath ) )
         {
-            return Error( "Invalid skeleton data path: %s", resourceDescriptor.m_skeletonDataPath.c_str() );
+            return Error( "Invalid skeleton data path: %s", resourceDescriptor.m_skeletonPath.c_str() );
         }
 
         RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };

@@ -11,180 +11,154 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG { class TaskScheduler; }
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Resource
 {
-    class TaskScheduler;
+    class ResourceProvider;
+    class ResourceLoader;
+    class ResourceRequest;
 
     //-------------------------------------------------------------------------
 
-    namespace Resource
+    class KRG_SYSTEM_RESOURCE_API ResourceSystem : public ISystem
     {
-        class ResourceProvider;
-        class ResourceLoader;
-        class ResourceRequest;
+        friend class ResourceDebugViewController;
+
+        struct PendingRequest
+        {
+            enum class Type { Load, Unload };
+
+        public:
+
+            PendingRequest() = default;
+
+            PendingRequest( Type type, ResourceRecord* pRecord, ResourceRequesterID const& requesterID )
+                : m_pRecord( pRecord )
+                , m_requesterID( requesterID )
+                , m_type( type )
+            {
+                KRG_ASSERT( m_pRecord != nullptr );
+            }
+
+            ResourceRecord*         m_pRecord = nullptr;
+            ResourceRequesterID     m_requesterID;
+            Type                    m_type = Type::Load;
+        };
+
+        #if KRG_DEVELOPMENT_TOOLS
+        struct CompletedRequestLog
+        {
+            CompletedRequestLog( PendingRequest::Type type, ResourceID ID ) : m_type( type ), m_ID( ID ) {}
+
+            PendingRequest::Type    m_type;
+            ResourceID              m_ID;
+            TimeStamp               m_time;
+        };
+        #endif
+
+    public:
+
+        KRG_SYSTEM_ID( ResourceSystem );
+
+    public:
+
+        ResourceSystem( TaskSystem& taskSystem );
+        ~ResourceSystem();
+
+        inline bool IsInitialized() const { return m_pResourceProvider != nullptr; }
+        void Initialize( ResourceProvider* pResourceProvider );
+        void Shutdown();
+
+        // Do we still have work we need to perform
+        bool IsBusy() const;
+
+        // Update all active requests (if you set the 'waitForAsyncTask' to true, this function will block and wait for the async task to complete)
+        void Update( bool waitForAsyncTask = false );
+
+        // Blocking wait for all requests to be completed
+        void WaitForAllRequestsToComplete();
+
+        // Resource Loaders
         //-------------------------------------------------------------------------
 
-        class KRG_SYSTEM_RESOURCE_API ResourceSystem : public ISystem
-        {
-            friend class ResourceDebugViewController;
+        void RegisterResourceLoader( ResourceLoader* pLoader );
+        void UnregisterResourceLoader( ResourceLoader* pLoader );
 
-            struct PendingRequest
-            {
-                enum class Type { Load, Unload };
+        // Loading/Unloading
+        //-------------------------------------------------------------------------
 
-            public:
+        // Request a load of a resource, can optionally provide a ResourceRequesterID for identification of the request source
+        void LoadResource( ResourcePtr& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() );
 
-                PendingRequest() = default;
+        // Request an unload of a resource, can optionally provide a ResourceRequesterID for identification of the request source
+        void UnloadResource( ResourcePtr& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() );
 
-                PendingRequest( Type type, ResourceRecord* pRecord, ResourceRequesterID const& requesterID )
-                    : m_pRecord( pRecord )
-                    , m_requesterID( requesterID )
-                    , m_type( type )
-                {
-                    KRG_ASSERT( m_pRecord != nullptr );
-                }
+        template<typename T>
+        inline void LoadResource( TResourcePtr<T>& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() ) { LoadResource( (ResourcePtr&) resourcePtr, requesterID ); }
 
-                ResourceRecord*         m_pRecord = nullptr;
-                ResourceRequesterID     m_requesterID;
-                Type                    m_type = Type::Load;
-            };
+        template<typename T>
+        inline void UnloadResource( TResourcePtr<T>& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() ) { UnloadResource( (ResourcePtr&) resourcePtr, requesterID ); }
 
-            #if KRG_DEVELOPMENT_TOOLS
-            struct CompletedRequestLog
-            {
-                CompletedRequestLog( PendingRequest::Type type, ResourceID ID ) : m_type( type ), m_ID( ID ) {}
+        // Hot Reload
+        //-------------------------------------------------------------------------
 
-                PendingRequest::Type    m_type;
-                ResourceID              m_ID;
-                TimeStamp               m_time;
-            };
-            #endif
+        #if KRG_DEVELOPMENT_TOOLS
+        inline bool RequiresHotReloading() const { return !m_usersThatRequireReload.empty(); }
+        inline TVector<ResourceRequesterID> const& GetHotReloadRequests() const { return m_usersThatRequireReload; }
+        void ClearHotReloadRequests() { m_usersThatRequireReload.clear(); }
+        #endif
 
-        public:
+    private:
 
-            KRG_SYSTEM_ID( ResourceSystem );
+        // Non-copyable
+        ResourceSystem( const ResourceSystem& ) = delete;
+        ResourceSystem( const ResourceSystem&& ) = delete;
+        ResourceSystem& operator=( const ResourceSystem& ) = delete;
+        ResourceSystem& operator=( const ResourceSystem&& ) = delete;
 
-        public:
+        ResourceRecord* FindOrCreateResourceRecord( ResourceID const& resourceID );
+        ResourceRecord* FindExistingResourceRecord( ResourceID const& resourceID );
 
-            ResourceSystem( TaskSystem& taskSystem );
-            ~ResourceSystem();
+        void AddPendingRequest( PendingRequest&& request );
+        ResourceRequest* TryFindActiveRequest( ResourceRecord const* pResourceRecord ) const;
 
-            inline bool IsInitialized() const { return m_pResourceProvider != nullptr; }
-            void Initialize( ResourceProvider* pResourceProvider );
-            void Shutdown();
+        // Returns a list of all unique external references for the given resource
+        void GetUsersForResource( ResourceRecord const* pResourceRecord, TVector<ResourceRequesterID>& requesterIDs ) const;
 
-            // Do we still have work we need to perform
-            bool IsBusy() const;
+        // Process all queued resource requests
+        void ProcessResourceRequests();
 
-            // Update all active requests
-            void Update();
+        #if KRG_DEVELOPMENT_TOOLS
+        // Called whenever a resource is changed externally and requires reloading
+        void OnResourceExternallyUpdated( ResourceID const& resourceID );
+        #endif
 
-            // Blocking wait for all requests to be completed
-            void WaitForAllRequestsToComplete();
+    private:
 
-            //-------------------------------------------------------------------------
+        TaskSystem&                                             m_taskSystem;
+        ResourceProvider*                                       m_pResourceProvider = nullptr;
+        THashMap<ResourceTypeID, ResourceLoader*>               m_resourceLoaders;
+        THashMap<ResourceID, ResourceRecord*>                   m_resourceRecords;
+        mutable Threading::RecursiveMutex                       m_accessLock;
 
-            void RegisterResourceLoader( ResourceLoader* pLoader );
-            void UnregisterResourceLoader( ResourceLoader* pLoader );
+        // Requests
+        TVector<PendingRequest>                                 m_pendingRequests;
+        TVector<ResourceRequest*>                               m_activeRequests;
+        TVector<ResourceRequest*>                               m_completedRequests;
 
-            //-------------------------------------------------------------------------
+        // ASync
+        AsyncTask                                               m_asyncProcessingTask;
+        bool                                                    m_isAsyncTaskRunning = false;
 
-            // Request a load of a resource, can optionally provide a ResourceRequesterID for identification of the request source
-            inline void LoadResource( ResourcePtr& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() )
-            {
-                Threading::RecursiveScopeLock lock( m_accessLock );
+        #if KRG_DEVELOPMENT_TOOLS
+        // Hot reload
+        TVector<ResourceRequesterID>                            m_usersThatRequireReload;
+        EventBindingID                                          m_resourceExternalUpdateEventBinding;
 
-                // Immediately update the resource ptr
-                auto pRecord = FindOrCreateResourceRecord( resourcePtr.GetResourceID() );
-                resourcePtr.m_pResource = pRecord;
-
-                //-------------------------------------------------------------------------
-
-                if ( !pRecord->HasReferences() )
-                {
-                    AddPendingRequest( PendingRequest( PendingRequest::Type::Load, pRecord, requesterID ) );
-                }
-
-                pRecord->AddReference( requesterID );
-            }
-
-            // Request an unload of a resource, can optionally provide a ResourceRequesterID for identification of the request source
-            inline void UnloadResource( ResourcePtr& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() )
-            {
-                Threading::RecursiveScopeLock lock( m_accessLock );
-
-                // Immediately update the resource ptr
-                resourcePtr.m_pResource = nullptr;
-
-                //-------------------------------------------------------------------------
-
-                auto pRecord = FindExistingResourceRecord( resourcePtr.GetResourceID() );
-                pRecord->RemoveReference( requesterID );
-
-                if ( !pRecord->HasReferences() )
-                {
-                    AddPendingRequest( PendingRequest( PendingRequest::Type::Unload, pRecord, requesterID ) );
-                }
-            }
-
-            template<typename T> 
-            inline void LoadResource( TResourcePtr<T>& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() ) { LoadResource( (ResourcePtr&) resourcePtr, requesterID ); }
-
-            template<typename T> 
-            inline void UnloadResource( TResourcePtr<T>& resourcePtr, ResourceRequesterID const& requesterID = ResourceRequesterID() ) { UnloadResource( (ResourcePtr&) resourcePtr, requesterID ); }
-
-            //-------------------------------------------------------------------------
-
-            inline TVector<ResourceRequesterID> const& GetUsersThatRequireReload() const { return m_usersThatRequireReload; }
-
-        private:
-
-            // Non-copyable
-            ResourceSystem( const ResourceSystem& ) = delete;
-            ResourceSystem( const ResourceSystem&& ) = delete;
-            ResourceSystem& operator=( const ResourceSystem& ) = delete;
-            ResourceSystem& operator=( const ResourceSystem&& ) = delete;
-
-            ResourceRecord* FindOrCreateResourceRecord( ResourceID const& resourceID );
-            ResourceRecord* FindExistingResourceRecord( ResourceID const& resourceID );
-
-            void AddPendingRequest( PendingRequest&& request );
-            ResourceRequest* TryFindActiveRequest( ResourceRecord const* pResourceRecord ) const;
-
-            // Returns a list of all unique external references for the given resource
-            void GetUsersForResource( ResourceRecord const* pResourceRecord, TVector<ResourceRequesterID>& requesterIDs ) const;
-
-            // Called whenever a resource is changed externally and requires reloading
-            void OnResourceExternallyUpdated( ResourceID const& resourceID );
-
-            // Process all queued resource requests
-            void ProcessResourceRequests();
-
-        private:
-
-            TaskSystem&                                             m_taskSystem;
-            ResourceProvider*                                       m_pResourceProvider = nullptr;
-            THashMap<ResourceTypeID, ResourceLoader*>               m_resourceLoaders;
-            THashMap<ResourceID, ResourceRecord*>                   m_resourceRecords;
-            mutable Threading::RecursiveMutex                       m_accessLock;
-
-            // Hot reload
-            TVector<ResourceRequesterID>                            m_usersThatRequireReload;
-            TVector<ResourceID>                                     m_externallyUpdatedResources;
-            EventBindingID                                          m_resourceExternalUpdateEventBinding;
-
-            // Requests
-            TVector<PendingRequest>                                 m_pendingRequests;
-            TVector<ResourceRequest*>                               m_activeRequests;
-            TVector<ResourceRequest*>                               m_completedRequests;
-
-            // ASync
-            AsyncTask                                               m_asyncProcessingTask;
-            bool                                                    m_isAsyncTaskRunning = false;
-
-            #if KRG_DEVELOPMENT_TOOLS
-            TVector<CompletedRequestLog>                            m_history;
-            #endif
-        };
-    }
+        TVector<CompletedRequestLog>                            m_history;
+        #endif
+    };
 }

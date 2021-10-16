@@ -1,6 +1,6 @@
 #include "ResourceEditor_DataFileInspector.h"
 #include "RawFileInspectors/RawFileInspector.h"
-#include "Tools/Core/Editors/EditorModel.h"
+#include "ResourceEditor_Model.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
@@ -13,7 +13,7 @@
 
 namespace KRG
 {
-    DataFileInspector::DataFileInspector( EditorModel* pModel )
+    DataFileInspector::DataFileInspector( ResourceEditorModel* pModel )
         : m_pModel( pModel )
         , m_propertyGrid( *pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
     {
@@ -40,7 +40,7 @@ namespace KRG
 
         m_inspectedFile = inFile;
 
-        m_descriptorID = ResourceID( DataPath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), m_inspectedFile ) );
+        m_descriptorID = ResourceID( ResourcePath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), m_inspectedFile ) );
         if ( m_descriptorID.IsValid() )
         {
             // Ensure the resource type ID is a registered resource type
@@ -57,7 +57,7 @@ namespace KRG
         {
             m_mode = Mode::InspectingResourceFile;
             m_isDirty = false;
-            m_descriptorPath = m_descriptorID.GetDataPath().ToFileSystemPath( m_pModel->GetSourceDataDirectory() );
+            m_descriptorPath = m_descriptorID.GetPath().ToFileSystemPath( m_pModel->GetSourceDataDirectory() );
 
             if ( LoadResourceDescriptor() )
             {
@@ -200,9 +200,6 @@ namespace KRG
     {
         KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFilePath() );
         KRG_ASSERT( m_pDescriptor != nullptr );
-
-        TypeSystem::Serialization::TypeWriter typeWriter( *m_pModel->GetTypeRegistry() );
-        typeWriter << m_pDescriptor;
-        return typeWriter.WriteToFile( m_descriptorPath );
+        return WriteResourceDescriptorToFile( *m_pModel->GetTypeRegistry(), m_descriptorPath, m_pDescriptor );
     }
 }

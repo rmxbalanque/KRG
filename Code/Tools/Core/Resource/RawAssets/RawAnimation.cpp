@@ -29,21 +29,12 @@ namespace KRG::RawAssets
 
         for ( uint32 i = 0; i < m_numFrames; i++ )
         {
-            // If the root has scale applied to it, we need to bake that into each child of the root since once we extract the root motion the root needs to be identity
-            if ( !rootTrackData.m_transforms[i].GetScale().IsEqual3( Vector::One ) )
+            // If we detect scaling on the root, log an error and exit
+            if ( rootTrackData.m_transforms[i].HasScale() )
             {
-                // Scale children
-                Transform const childCorrectiveTransform( Quaternion::Identity, Vector::Zero, rootTrackData.m_transforms[i].GetScale() );
-                for ( int32 const childOfRoot : immediateChildrenOfRoot )
-                {
-                    m_tracks[childOfRoot].m_transforms[i] = m_tracks[childOfRoot].m_transforms[i] * childCorrectiveTransform;
-                }
-
-                // Remove scale from root
-                m_tracks[0].m_transforms[i].SetScale( 1.0f );
+                LogError( "Root scaling detected! This is not allowed, please remove all scaling from the root bone!" );
+                return;
             }
-
-            //-------------------------------------------------------------------------
 
             // Extract root position and remove the origin offset from it
             m_rootPositions.emplace_back( rootTrackData.m_transforms[i] );

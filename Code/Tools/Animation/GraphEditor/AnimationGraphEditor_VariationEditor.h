@@ -21,9 +21,11 @@ namespace KRG::Animation::Graph
 
     public:
 
-        GraphVariationEditor( GraphEditorModel& model ) : m_model( model ) {}
+        GraphVariationEditor( GraphEditorModel& graphModel )
+            : m_graphModel( graphModel )
+        {}
 
-        void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager );
+        void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName );
 
     private:
 
@@ -38,7 +40,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        GraphEditorModel&           m_model;
+        GraphEditorModel&           m_graphModel;
         StringID                    m_activeOperationVariationID;
         char                        m_buffer[255];
         OperationType               m_activeOperation;

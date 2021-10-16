@@ -1,13 +1,9 @@
 #pragma once
 
 #include "Tools/Animation/_Module/API.h"
-#include "Tools/Animation/Events/AnimationEventData.h"
 #include "Tools/Core/Resource/Compilers/ResourceCompiler.h"
-#include "Engine/Animation/AnimationSkeleton.h"
 #include "Engine/Animation/AnimationSyncTrack.h"
 #include "System/Resource/ResourcePtr.h"
-#include "System/TypeSystem/TypeDescriptors.h"
-#include "System/Core/Memory/Pointers.h"
 
 //-------------------------------------------------------------------------
 
@@ -18,17 +14,6 @@ namespace KRG::RawAssets { class RawAnimation; }
 namespace KRG::Animation
 {
     class AnimationClip;
-
-    //-------------------------------------------------------------------------
-
-    struct KRG_TOOLS_ANIMATION_API AnimationClipResourceDescriptor final : public Resource::ResourceDescriptor
-    {
-        KRG_REGISTER_TYPE( AnimationClipResourceDescriptor );
-
-        KRG_EXPOSE DataPath                    m_animationDataPath;
-        KRG_EXPOSE TResourcePtr<Skeleton>      m_pSkeleton = nullptr;
-        KRG_EXPOSE String                      m_animationName; // Optional: if not set, will use the first animation in the file
-    };
 
     //-------------------------------------------------------------------------
 

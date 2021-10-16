@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Game\Core\TestComponent.h"
+#include "D:\Kruger\Code\Game\Core\TestComponent.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::ExternalTestSubSubStruct
@@ -1576,7 +1576,7 @@ namespace KRG
     template<class Archive>
     KRG_GAME_CORE_API void serialize( Archive& archive, KRG::TestComponent& type )
     {
-        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_bool ), KRG_NVP( m_U8 ), KRG_NVP( m_U16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_S8 ), KRG_NVP( m_S16 ), KRG_NVP( m_S32 ), KRG_NVP( m_S64 ), KRG_NVP( m_F32 ), KRG_NVP( m_F64 ), KRG_NVP( m_UUID ), KRG_NVP( m_StringID ), KRG_NVP( m_String ), KRG_NVP( m_Color ), KRG_NVP( m_Float2 ), KRG_NVP( m_Float3 ), KRG_NVP( m_Float4 ), KRG_NVP( m_vector ), KRG_NVP( m_quaternion ), KRG_NVP( m_matrix ), KRG_NVP( m_affineTransform ), KRG_NVP( m_us ), KRG_NVP( m_ms ), KRG_NVP( m_s ), KRG_NVP( m_percentage ), KRG_NVP( m_degrees ), KRG_NVP( m_radians ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_dataPath ), KRG_NVP( m_genericFlags ), KRG_NVP( m_specificFlags ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_resourceID ), KRG_NVP( m_specificResourcePtr ), KRG_NVP( m_intRange ), KRG_NVP( m_floatRange ), KRG_NVP( m_internalEnum ), KRG_NVP( m_testInternalEnum ), KRG_NVP( m_struct0 ), KRG_NVP( m_struct1 ), KRG_NVP( m_staticArray ), KRG_NVP( m_staticArrayOfStringIDs ), KRG_NVP( m_staticArrayOfStructs ), KRG_NVP( m_staticArrayOfEnums ), KRG_NVP( m_dynamicArray ), KRG_NVP( m_dynamicArrayOfStructs ) );
+        archive( cereal::base_class<KRG::EntityComponent>( &type ), KRG_NVP( m_bool ), KRG_NVP( m_U8 ), KRG_NVP( m_U16 ), KRG_NVP( m_U32 ), KRG_NVP( m_U64 ), KRG_NVP( m_S8 ), KRG_NVP( m_S16 ), KRG_NVP( m_S32 ), KRG_NVP( m_S64 ), KRG_NVP( m_F32 ), KRG_NVP( m_F64 ), KRG_NVP( m_UUID ), KRG_NVP( m_StringID ), KRG_NVP( m_String ), KRG_NVP( m_Color ), KRG_NVP( m_Float2 ), KRG_NVP( m_Float3 ), KRG_NVP( m_Float4 ), KRG_NVP( m_vector ), KRG_NVP( m_quaternion ), KRG_NVP( m_matrix ), KRG_NVP( m_affineTransform ), KRG_NVP( m_us ), KRG_NVP( m_ms ), KRG_NVP( m_s ), KRG_NVP( m_percentage ), KRG_NVP( m_degrees ), KRG_NVP( m_radians ), KRG_NVP( m_eulerAngles ), KRG_NVP( m_resourcePath ), KRG_NVP( m_genericFlags ), KRG_NVP( m_specificFlags ), KRG_NVP( m_resourceTypeID ), KRG_NVP( m_resourceID ), KRG_NVP( m_specificResourcePtr ), KRG_NVP( m_intRange ), KRG_NVP( m_floatRange ), KRG_NVP( m_internalEnum ), KRG_NVP( m_testInternalEnum ), KRG_NVP( m_struct0 ), KRG_NVP( m_struct1 ), KRG_NVP( m_staticArray ), KRG_NVP( m_staticArrayOfStringIDs ), KRG_NVP( m_staticArrayOfStructs ), KRG_NVP( m_staticArrayOfEnums ), KRG_NVP( m_dynamicArray ), KRG_NVP( m_dynamicArrayOfStructs ) );
     }
 
     //-------------------------------------------------------------------------
@@ -1970,13 +1970,13 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_dataPath" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::DataPath" );
+            propertyInfo.m_ID = StringID( "m_resourcePath" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::ResourcePath" );
             propertyInfo.m_parentTypeID = 3100775830;
             propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_dataPath;
-            propertyInfo.m_offset = offsetof( KRG::TestComponent, m_dataPath );
-            propertyInfo.m_size = sizeof( KRG::DataPath );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_resourcePath;
+            propertyInfo.m_offset = offsetof( KRG::TestComponent, m_resourcePath );
+            propertyInfo.m_size = sizeof( KRG::ResourcePath );
             propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
@@ -2345,7 +2345,7 @@ namespace KRG
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_specificResourcePtr.IsUnloaded() || pActualType->m_specificResourcePtr.IsLoading() )
+                    else if ( !pActualType->m_specificResourcePtr.IsLoaded() )
                     {
                         return LoadingStatus::Loading;
                     }
@@ -2782,7 +2782,7 @@ namespace KRG
                        return false;
                     }
 
-                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 780656067 ) )
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1580011022 ) )
                     {
                        return false;
                     }
@@ -3025,9 +3025,9 @@ namespace KRG
                         return pType->m_eulerAngles == pOtherType->m_eulerAngles;
                     }
 
-                    if ( propertyID == 780656067 )
+                    if ( propertyID == 1580011022 )
                     {
-                        return pType->m_dataPath == pOtherType->m_dataPath;
+                        return pType->m_resourcePath == pOtherType->m_resourcePath;
                     }
 
                     if ( propertyID == 1147727897 )
@@ -3413,9 +3413,9 @@ namespace KRG
                         return;
                     }
 
-                    if ( propertyID == 780656067 )
+                    if ( propertyID == 1580011022 )
                     {
-                        pActualType->m_dataPath = pDefaultType->m_dataPath;
+                        pActualType->m_resourcePath = pDefaultType->m_resourcePath;
                         return;
                     }
 

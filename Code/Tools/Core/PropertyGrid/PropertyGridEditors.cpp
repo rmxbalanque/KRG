@@ -1,5 +1,5 @@
 #include "PropertyGridEditors.h"
-#include "Tools/Core/DataFileTools/DataFilePicker.h"
+#include "Tools/Core/Resource/DataFilePicker.h"
 #include "System/Imgui/Widgets/NumericEditors.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
@@ -726,7 +726,7 @@ namespace KRG::PG
 
     //-------------------------------------------------------------------------
 
-    void CreateEditorDataPath( Context& ctx, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
+    void CreateEditorResourcePath( Context& ctx, PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
     {
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
@@ -735,22 +735,22 @@ namespace KRG::PG
 
         //-------------------------------------------------------------------------
 
-        auto pValue = reinterpret_cast<DataPath*>( pPropertyInstance );
-        String dataPathStr = pValue->GetString();
+        auto pValue = reinterpret_cast<ResourcePath*>( pPropertyInstance );
+        String pathStr = pValue->GetString();
 
         //-------------------------------------------------------------------------
 
         ImGui::SetNextItemWidth( textAreaWidth );
-        ImGui::InputText( g_emptyLabel, dataPathStr.data(), dataPathStr.length(), ImGuiInputTextFlags_ReadOnly );
+        ImGui::InputText( g_emptyLabel, pathStr.data(), pathStr.length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick", ImVec2( buttonAreaWidth - 1, 0 ) ) )
         {
-            DataPath pickedDataPath;
-            if ( DataFilePicker::PickFile( ctx.m_sourceDataPath, pickedDataPath ) )
+            ResourcePath pickedResourcePath;
+            if ( DataFilePicker::PickFile( ctx.m_rawResourceDirectoryPath, pickedResourcePath ) )
             {
                 ScopedChangeNotifier notifier( ctx );
-                *pValue = pickedDataPath;
+                *pValue = pickedResourcePath;
             }
         }
 
@@ -758,7 +758,7 @@ namespace KRG::PG
         if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear" ) )
         {
             ScopedChangeNotifier notifier( ctx );
-            *pValue = DataPath();
+            *pValue = ResourcePath();
         }
     }
 
@@ -850,7 +850,7 @@ namespace KRG::PG
 
         ImGui::SameLine( 0, itemSpacing );
         ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonAreaWidth * 2 ) - childWindowWidth );
-        ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->c_str() ), pValue->GetDataPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
+        ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->c_str() ), pValue->GetPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
@@ -861,11 +861,11 @@ namespace KRG::PG
                 allowedResourceTypes.emplace_back( registeredResourceType.second.m_resourceTypeID );
             }
 
-            DataPath pickedDataPath;
-            if ( DataFilePicker::PickResourceFile( ctx.m_sourceDataPath, allowedResourceTypes, pickedDataPath ) )
+            ResourcePath pickedResourcePath;
+            if ( DataFilePicker::PickResourceFile( ctx.m_rawResourceDirectoryPath, allowedResourceTypes, pickedResourcePath ) )
             {
                 ScopedChangeNotifier notifier( ctx );
-                *pValue = ResourceID( pickedDataPath );
+                *pValue = ResourceID( pickedResourcePath );
             }
         }
 
@@ -907,16 +907,16 @@ namespace KRG::PG
 
         ImGui::SameLine( 0, itemSpacing );
         ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonAreaWidth * 2 ) - childWindowWidth );
-        ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->GetResourceID().c_str() ), pValue->GetResourceID().GetDataPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
+        ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->GetResourceID().c_str() ), pValue->GetResourceID().GetPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
         {
-            DataPath pickedDataPath;
-            if ( DataFilePicker::PickResourceFile( ctx.m_sourceDataPath, resourceTypeID, pickedDataPath ) )
+            ResourcePath pickedResourcePath;
+            if ( DataFilePicker::PickResourceFile( ctx.m_rawResourceDirectoryPath, resourceTypeID, pickedResourcePath ) )
             {
                 ScopedChangeNotifier notifier( ctx );
-                *pValue = Resource::ResourcePtr( pickedDataPath );
+                *pValue = Resource::ResourcePtr( pickedResourcePath );
             }
         }
 
@@ -1341,9 +1341,9 @@ namespace KRG::PG
                 }
                 break;
 
-                case CoreTypes::DataPath:
+                case CoreTypes::ResourcePath:
                 {
-                    CreateEditorDataPath( ctx, propertyInfo, pPropertyInstance );
+                    CreateEditorResourcePath( ctx, propertyInfo, pPropertyInstance );
                 }
                 break;
 

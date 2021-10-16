@@ -297,6 +297,7 @@ namespace KRG
         // Update all maps internal loading state
         //-------------------------------------------------------------------------
         // This will fill the world activation/registration lists used below
+        // This will also handle all hot-reload unload/load requests
 
         for ( int32 i = (int32) m_maps.size() - 1; i >= 0; i-- )
         {
@@ -453,4 +454,38 @@ namespace KRG
             }
         }
     }
+
+    //-------------------------------------------------------------------------
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void EntityWorld::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload )
+    {
+        KRG_ASSERT( !usersToReload.empty() );
+
+        // Fill the hot-reload lists per map and deactivate any active entities
+        for ( auto& map : m_maps )
+        {
+            map.HotReloadPrepareEntities( m_loadingContext, m_activationContext, usersToReload );
+        }
+
+        // Process all deactivation requests
+        ProcessEntityRegistrationRequests();
+        ProcessComponentRegistrationRequests();
+
+        // Unload all entities that require hot reload
+        for ( auto& map : m_maps )
+        {
+            map.HotReloadUnloadEntities( m_loadingContext, m_activationContext );
+        }
+    }
+
+    void EntityWorld::EndHotReload()
+    {
+        // Load all entities that require hot reload
+        for ( auto& map : m_maps )
+        {
+            map.HotReloadLoadEntities( m_loadingContext, m_activationContext );
+        }
+    }
+    #endif
 }

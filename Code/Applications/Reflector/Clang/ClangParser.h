@@ -16,7 +16,7 @@ namespace KRG
 
             public:
 
-                ClangParser( SolutionInfo* pSolution, ReflectionDatabase* pDatabase, String const& reflectionDataPath );
+                ClangParser( SolutionInfo* pSolution, ReflectionDatabase* pDatabase, FileSystem::Path const& reflectionDataPath );
 
                 inline Milliseconds GetParsingTime() const { return m_totalParsingTime; }
                 inline Milliseconds GetVisitingTime() const { return m_totalVisitingTime; }
@@ -29,7 +29,7 @@ namespace KRG
                 ClangParserContext                  m_context;
                 Milliseconds                        m_totalParsingTime;
                 Milliseconds                        m_totalVisitingTime;
-                String                              m_reflectionDataPath;
+                FileSystem::Path                    m_reflectionDataPath;
             };
         }
     }

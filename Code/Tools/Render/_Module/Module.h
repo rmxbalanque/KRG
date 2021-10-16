@@ -1,11 +1,10 @@
 #pragma once
 
 #include "API.h"
-#include "Tools/Render/ResourceCompilers/Shaders/ResourceCompiler_RenderShader.h"
-#include "Tools/Render/ResourceCompilers/Mesh/ResourceCompiler_StaticMesh.h"
-#include "Tools/Render/ResourceCompilers/Mesh/ResourceCompiler_SkeletalMesh.h"
-#include "Tools/Render/ResourceCompilers/Textures/ResourceCompiler_RenderTexture.h"
-#include "Tools/Render/ResourceCompilers/Materials/ResourceCompiler_RenderMaterial.h"
+#include "Tools/Render/ResourceCompilers/ResourceCompiler_RenderShader.h"
+#include "Tools/Render/ResourceCompilers/ResourceCompiler_RenderTexture.h"
+#include "Tools/Render/ResourceCompilers/ResourceCompiler_RenderMaterial.h"
+#include "Tools/Render/ResourceCompilers/ResourceCompiler_RenderMesh.h"
 #include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 
 //-------------------------------------------------------------------------

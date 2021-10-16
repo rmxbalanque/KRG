@@ -1,7 +1,5 @@
 #include "AnimationEventEditor.h"
-#include "Tools/Animation/ResourceCompilers/ResourceCompiler_AnimationClip.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 
 //-------------------------------------------------------------------------
 
@@ -21,7 +19,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    void EventEditor::Update( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent )
+    void EventEditor::UpdateAndDraw( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent )
     {
         KRG_ASSERT( pPreviewAnimationComponent != nullptr );
 
@@ -56,9 +54,8 @@ namespace KRG::Animation
         }
     }
 
-    bool EventEditor::DrawAddTracksMenu()
+    void EventEditor::DrawAddTracksMenu()
     {
-        bool result = false;
         int32 numAvailableTracks = 0;
         for ( auto pTypeInfo : m_eventTypes )
         {
@@ -95,28 +92,24 @@ namespace KRG::Animation
 
                     if ( ImGui::MenuItem( menuItemName.c_str() ) )
                     {
-                        auto pCreatedTrack = KRG::New<EventTrack>();
+                        auto pCreatedTrack = m_trackContainer.CreateTrack<EventTrack>();
                         pCreatedTrack->m_animFrameRate = m_pAnimation->GetFPS();
                         pCreatedTrack->m_eventTypeID = pTypeInfo->m_ID;
                         pCreatedTrack->m_pEventTypeInfo = pTypeInfo;
                         pCreatedTrack->m_eventType = type;
-                        m_trackContainer.m_tracks.emplace_back( pCreatedTrack );
-                        return true;
                     }
-
-                    return false;
                 };
 
                 //-------------------------------------------------------------------------
 
                 if ( pDefaultEventInstance->GetEventType() == Event::EventType::Both )
                 {
-                    result |= CreateTrackOption( Event::EventType::Immediate, "(Immediate)" );
-                    result |= CreateTrackOption( Event::EventType::Duration, "(Duration)" );
+                    CreateTrackOption( Event::EventType::Immediate, "(Immediate)" );
+                    CreateTrackOption( Event::EventType::Duration, "(Duration)" );
                 }
                 else
                 {
-                    result |= CreateTrackOption( pDefaultEventInstance->GetEventType() );
+                    CreateTrackOption( pDefaultEventInstance->GetEventType() );
                 }
             }
         }
@@ -127,8 +120,6 @@ namespace KRG::Animation
         {
             ImGui::Text( "No Available Tracks" );
         }
-
-        return result;
     }
 
     //-------------------------------------------------------------------------
@@ -140,7 +131,7 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
+        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetPath().ToFileSystemPath( m_sourceDataDirectory );
         JsonReader typeReader;
         if ( !typeReader.ReadFromFile( resourceDescriptorPath ) )
         {
@@ -198,7 +189,7 @@ namespace KRG::Animation
 
     bool EventEditor::RequestSave()
     {
-        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
+        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetPath().ToFileSystemPath( m_sourceDataDirectory );
         JsonReader jsonReader;
         if ( !jsonReader.ReadFromFile( resourceDescriptorPath ) )
         {
@@ -236,7 +227,6 @@ namespace KRG::Animation
 
         // Save descriptor
         eventDataWriter.WriteToFile( resourceDescriptorPath );
-        m_isDirty = false;
         return true;
     }
 }

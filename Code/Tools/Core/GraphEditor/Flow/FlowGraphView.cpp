@@ -20,6 +20,10 @@ namespace KRG::GraphEditor
 
         ResetInternalState();
         m_pGraph = pGraph;
+        if ( m_pGraph != nullptr )
+        {
+            m_pGraph->OnShowGraph();
+        }
     }
 
     void FlowGraphView::ResetInternalState()
@@ -66,6 +70,7 @@ namespace KRG::GraphEditor
         {
             bool const hasInputPin = i < pNode->m_inputPins.size();
             bool const hasOutputPin = i < pNode->m_outputPins.size();
+            float estimatedSpacingBetweenPins = 0.0f;
 
             // Input Pin
             //-------------------------------------------------------------------------
@@ -111,15 +116,9 @@ namespace KRG::GraphEditor
                 }
 
                 float const inputPinWidth = hasInputPin ? pNode->m_inputPins[i].m_size.x : 0;
-                float const estimatedSpacing = pNode->m_size.x - inputPinWidth - pNode->m_outputPins[i].m_size.x;
-                if ( estimatedSpacing < g_spacingBetweenInputOutputPins )
-                {
-                    ImGui::SameLine( 0, g_spacingBetweenInputOutputPins );
-                }
-                else
-                {
-                    ImGui::SameLine( 0, estimatedSpacing );
-                }
+                estimatedSpacingBetweenPins = pNode->m_size.x - inputPinWidth - pNode->m_outputPins[i].m_size.x;
+                estimatedSpacingBetweenPins = Math::Max( estimatedSpacingBetweenPins, g_spacingBetweenInputOutputPins );
+                ImGui::SameLine( 0, estimatedSpacingBetweenPins );
             }
 
             // Output Pin
@@ -170,11 +169,7 @@ namespace KRG::GraphEditor
                 pinRowRectSize.y = Math::Max( pinRowRectSize.y, pNode->m_outputPins[i].m_size.y );
             }
 
-            if ( hasInputPin && hasOutputPin )
-            {
-                pinRowRectSize.x += g_spacingBetweenInputOutputPins;
-            }
-
+            pinRowRectSize.x += estimatedSpacingBetweenPins;
             pinRectSize.x = Math::Max( pinRectSize.x, pinRowRectSize.x );
             pinRectSize.y += pinRowRectSize.y;
         }
@@ -201,7 +196,7 @@ namespace KRG::GraphEditor
 
         ImColor nodeBackgroundColor( VisualSettings::s_genericNodeBackgroundColor );
         ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3, ImDrawFlags_RoundCornersAll );
-        ctx.m_pDrawList->AddRectFilled( rectMin, rectTitleBarMax, pNode->GetHighlightColor(), 3, ImDrawFlags_RoundCornersTop );
+        ctx.m_pDrawList->AddRectFilled( rectMin, rectTitleBarMax, pNode->GetNodeColor(), 3, ImDrawFlags_RoundCornersTop );
 
         if ( IsNodeSelected( pNode ) || ( pNode->m_isHovered && pNode->m_pHoveredPin == nullptr ) )
         {
@@ -284,7 +279,7 @@ namespace KRG::GraphEditor
         return false;
     }
 
-    void FlowGraphView::Draw( float childHeightOverride )
+    void FlowGraphView::Draw( float childHeightOverride, void* pUserContext )
     {
         if( BeginDrawCanvas( childHeightOverride ) && m_pGraph != nullptr )
         {
@@ -297,6 +292,7 @@ namespace KRG::GraphEditor
             drawingContext.m_canvasVisibleRect = ImRect( m_viewOffset, m_viewOffset + drawingContext.m_windowRect.Max );
             drawingContext.m_mouseScreenPos = ImGui::GetMousePos();
             drawingContext.m_mouseCanvasPos = drawingContext.ScreenPositionToCanvasPosition( drawingContext.m_mouseScreenPos );
+            drawingContext.m_pUserContext = pUserContext;
 
             //-------------------------------------------------------------------------
             // Draw Nodes

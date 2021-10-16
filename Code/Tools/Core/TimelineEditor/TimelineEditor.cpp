@@ -105,46 +105,19 @@ namespace KRG::Timeline
 
     //-------------------------------------------------------------------------
 
-    bool TimelineEditor::IsValidPtr( TrackItem const* pItem )
-    {
-        for ( auto pTrack : m_trackContainer )
-        {
-            if ( pTrack->Contains( pItem ) )
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool TimelineEditor::IsValidPtr( Track const* pTrack )
-    {
-        return eastl::find( m_trackContainer.begin(), m_trackContainer.end(), pTrack ) != m_trackContainer.end();
-    }
-
     void TimelineEditor::DeleteItem( TrackItem* pItem )
     {
-        KRG_ASSERT( IsValidPtr( pItem ) );
+        KRG_ASSERT( m_trackContainer.Contains( pItem ) );
 
         for ( auto pTrack : m_trackContainer )
         {
             if ( pTrack->DeleteItem( pItem ) )
             {
-                m_isDirty = true;
                 break;
             }
         }
 
         m_itemEditState.Reset();
-    }
-
-    void TimelineEditor::DeleteTrack( Track* pTrack )
-    {
-        KRG_ASSERT( IsValidPtr( pTrack ) );
-        m_trackContainer.m_tracks.erase_first( pTrack );
-        KRG::Delete( pTrack );
-        m_isDirty = true;
     }
 
     //-------------------------------------------------------------------------
@@ -231,7 +204,6 @@ namespace KRG::Timeline
             for ( auto pTrack : m_selectedTracks )
             {
                 pTrack->CreateItem( m_playheadTime );
-                m_isDirty = true;
             }
         }
         else  if ( ImGui::IsKeyReleased( ImGui::GetKeyIndex( ImGuiKey_Delete ) ) )
@@ -261,7 +233,7 @@ namespace KRG::Timeline
 
                 auto const floatViewRange = GetViewRangeAsFloatRange();
                 FloatRange validEventRange = GetViewRangeAsFloatRange();
-                for ( auto const pOtherItem : m_itemEditState.m_pTrackForEditedItem->m_items )
+                for ( auto const pOtherItem : m_itemEditState.m_pTrackForEditedItem->GetItems() )
                 {
                     FloatRange const otherItemTimeRange = pOtherItem->GetTimeRange();
 
@@ -339,7 +311,6 @@ namespace KRG::Timeline
                     }
 
                     pEditedItem->SetTimeRange( editedItemTimeRange );
-                    m_isDirty = true;
                 }
             }
             else if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
@@ -501,7 +472,7 @@ namespace KRG::Timeline
     {
         for ( int32 i = (int32) m_selectedItems.size() - 1; i >= 0; i-- )
         {
-            if ( !IsValidPtr( m_selectedItems[i] ) )
+            if ( !m_trackContainer.Contains( m_selectedItems[i] ) )
             {
                 m_selectedItems.erase_unsorted( m_selectedItems.begin() + i );
             }
@@ -511,7 +482,7 @@ namespace KRG::Timeline
 
         for ( int32 i = (int32) m_selectedTracks.size() - 1; i >= 0; i-- )
         {
-            if ( !IsValidPtr( m_selectedTracks[i] ) )
+            if ( !m_trackContainer.Contains( m_selectedTracks[i] ) )
             {
                 m_selectedTracks.erase_unsorted( m_selectedTracks.begin() + i );
             }
@@ -641,10 +612,7 @@ namespace KRG::Timeline
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
         if ( ImGui::BeginPopup( "AddTracksPopup" ) )
         {
-            if ( DrawAddTracksMenu() )
-            {
-                m_isDirty = true;
-            }
+            DrawAddTracksMenu();
             ImGui::EndPopup();
         }
         ImGui::PopStyleVar();
@@ -901,7 +869,7 @@ namespace KRG::Timeline
 
                 ImGui::PushClipRect( trackAreaRect.GetTL(), trackAreaRect.GetBR(), false );
 
-                for ( auto const pItem : pTrack->m_items )
+                for ( auto const pItem : pTrack->GetItems() )
                 {
                     FloatRange const itemTimeRange = pItem->GetTimeRange();
                     if ( !floatViewRange.Overlaps( itemTimeRange ) )
@@ -991,12 +959,6 @@ namespace KRG::Timeline
         }
     }
 
-    bool TimelineEditor::DrawAddTracksMenu()
-    {
-        ImGui::Text( "Please override this function" );
-        return false;
-    }
-
     void TimelineEditor::DrawContextMenu()
     {
         m_contextMenuState.m_isOpen = false;
@@ -1008,7 +970,7 @@ namespace KRG::Timeline
 
         if ( ImGui::BeginPopupContextItem( "ItemContextMenu" ) )
         {
-            if ( IsValidPtr( m_contextMenuState.m_pItem ) )
+            if ( m_trackContainer.Contains( m_contextMenuState.m_pItem ) )
             {
                 bool const shouldDeleteItem = ImGui::MenuItem( "Delete Item" );
 
@@ -1039,12 +1001,11 @@ namespace KRG::Timeline
 
         if ( ImGui::BeginPopupContextItem( "TrackContextMenu" ) )
         {
-            if ( IsValidPtr( m_contextMenuState.m_pTrack ) )
+            if ( m_trackContainer.Contains( m_contextMenuState.m_pTrack ) )
             {
                 if ( ImGui::MenuItem( "Add Item" ) )
                 {
                     m_contextMenuState.m_pTrack->CreateItem( m_contextMenuState.m_playheadTimeForMouse < 0.0f ? m_playheadTime : m_contextMenuState.m_playheadTimeForMouse );
-                    m_isDirty = true;
                 }
 
                 bool const shouldDeleteTrack = ImGui::MenuItem( "Delete Track" );
@@ -1078,10 +1039,7 @@ namespace KRG::Timeline
         {
             if ( ImGui::BeginMenu( "Add Track" ) )
             {
-                if ( DrawAddTracksMenu() )
-                {
-                    m_isDirty = true;
-                }
+                DrawAddTracksMenu();
                 ImGui::EndMenu();
             }
 

@@ -2,15 +2,15 @@
 #include "Tools/Core/Trees/TreeView.h"
 #include "Tools/Core/FileSystem/FileSystemWatcher.h"
 #include "System/TypeSystem/TypeRegistry.h"
+#include "System/Resource/ResourcePath.h"
 #include "System/Resource/ResourceTypeID.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/Core/FileSystem/DataPath.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    class EditorModel;
+    class ResourceEditorModel;
 
     //-------------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ namespace KRG
 
     public:
 
-        DataBrowserTreeItem( char const* pName, int32 hierarchyLevel, FileSystem::Path const& path, DataPath const& dataPath, ResourceTypeID resourceTypeID = ResourceTypeID() );
+        DataBrowserTreeItem( char const* pName, int32 hierarchyLevel, FileSystem::Path const& path, ResourcePath const& resourcePath, ResourceTypeID resourceTypeID = ResourceTypeID() );
 
         virtual void DrawControls() override;
         virtual bool SupportsContextMenu() const override { return true; }
@@ -38,15 +38,15 @@ namespace KRG
 
         inline bool IsFile() const { return m_type == Type::File; }
         inline bool IsDirectory() const { return m_type == Type::Directory; }
-        inline FileSystem::Path const& GetPath() const { return m_path; }
-        inline DataPath const& GetDataPath() const { return m_dataPath; }
+        inline FileSystem::Path const& GetFilePath() const { return m_path; }
+        inline ResourcePath const& GetResourcePath() const { return m_resourcePath; }
 
         // Resource Info
         //-------------------------------------------------------------------------
 
         inline bool IsRawFile() const { KRG_ASSERT( IsFile() ); return !m_resourceTypeID.IsValid(); }
         inline bool IsResourceFile() const { KRG_ASSERT( IsFile() ); return m_resourceTypeID.IsValid(); }
-        inline ResourceID GetResourceID() const { KRG_ASSERT( IsResourceFile() ); return ResourceID( m_dataPath ); }
+        inline ResourceID GetResourceID() const { KRG_ASSERT( IsResourceFile() ); return ResourceID( m_resourcePath ); }
         inline ResourceTypeID const& GetResourceTypeID() const { KRG_ASSERT( IsFile() ); return m_resourceTypeID; }
 
         template<typename T>
@@ -59,7 +59,7 @@ namespace KRG
     protected:
 
         FileSystem::Path                        m_path;
-        DataPath                                m_dataPath;
+        ResourcePath                            m_resourcePath;
         ResourceTypeID                          m_resourceTypeID;
         Type                                    m_type;
     };
@@ -71,7 +71,7 @@ namespace KRG
 
     public:
 
-        DataBrowserTreeView( EditorModel* pModel );
+        DataBrowserTreeView( ResourceEditorModel* pModel );
         virtual ~DataBrowserTreeView();
 
         void RebuildBrowserTree();
@@ -91,7 +91,7 @@ namespace KRG
 
     private:
 
-        EditorModel*                                m_pModel = nullptr;
+        ResourceEditorModel*                                m_pModel = nullptr;
         FileSystem::Path                            m_dataDirectoryPath;
         int32                                       m_dataDirectoryPathDepth;
         FileSystem::FileSystemWatcher               m_fileSystemWatcher;

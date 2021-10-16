@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Tools\Core\TimelineEditor\TimelineData.h"
+#include "D:\Kruger\Code\Tools\Core\TimelineEditor\TimelineData.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Timeline::TrackItem
@@ -226,9 +226,6 @@ namespace KRG
         template<>
         void TypeInfo::RegisterProperties< TypeSystem::TypeHelpers::TTypeHelper<KRG::Timeline::Track> >( IRegisteredType const* pDefaultTypeInstance )
         {
-            KRG_ASSERT( pDefaultTypeInstance != nullptr );
-            KRG::Timeline::Track const* pActualDefaultTypeInstance = ( KRG::Timeline::Track const* ) pDefaultTypeInstance;
-
             PropertyInfo propertyInfo;
         }
 
@@ -249,15 +246,12 @@ namespace KRG
 
                 static void RegisterType( TypeSystem::TypeRegistry& typeRegistry )
                 {
-                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
-                    pDefaultTypeInstance = (IRegisteredType*) KRG::Alloc( sizeof( KRG::Timeline::Track ), alignof( KRG::Timeline::Track ) );
-                    new ( pDefaultTypeInstance ) KRG::Timeline::Track;
-
                     TypeSystem::TypeInfo typeInfo;
                     typeInfo.m_ID = TypeSystem::TypeID( "KRG::Timeline::Track" );
                     typeInfo.m_size = sizeof( KRG::Timeline::Track );
                     typeInfo.m_alignment = alignof( KRG::Timeline::Track );
                     typeInfo.m_pTypeHelper = &StaticTypeHelper; 
+                    typeInfo.m_metadata.SetFlag( ETypeInfoMetaData::Abstract );
 
                     // Parent Types 
                     //-------------------------------------------------------------------------
@@ -279,20 +273,17 @@ namespace KRG
                     auto const ID = TypeSystem::TypeID( "KRG::Timeline::Track" );
                     typeRegistry.UnregisterType( ID );
 
-                    IRegisteredType*& pDefaultTypeInstance = const_cast<IRegisteredType*&>( s_pDefaultTypeInstancePtr );
-                    reinterpret_cast<KRG::Timeline::Track*>( pDefaultTypeInstance )->~Track();
-                    KRG::Free( pDefaultTypeInstance );
                 }
 
                 virtual IRegisteredType* CreateType() const override final
                 {
-                    return KRG::New<KRG::Timeline::Track>();
+                    KRG_HALT(); // Error! Trying to instantiate an abstract type!
+                    return nullptr;
                 }
 
                 virtual void CreateTypeInPlace( IRegisteredType* pAllocatedMemory ) const override final
                 {
-                    KRG_ASSERT( pAllocatedMemory != nullptr );
-                    new( pAllocatedMemory ) KRG::Timeline::Track();
+                    KRG_HALT(); // Error! Trying to instantiate an abstract type!
                 }
 
                 virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final

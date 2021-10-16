@@ -1,6 +1,10 @@
 #include "ResourceEditor_Model.h"
-#include "Tools/Core/Editors/ResourceEditorWorkspace.h"
+#include "Tools/Core/Resource/ResourceEditorWorkspace.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
+#include "Engine/Core/Entity/EntityWorld.h"
+#include "System/Resource/ResourceSettings.h"
+#include "System/Core/Settings/SettingsRegistry.h"
+#include "System/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,6 +13,26 @@ namespace KRG
     ResourceEditorModel::~ResourceEditorModel()
     {
         KRG_ASSERT( m_openWorkspaces.empty() );
+    }
+
+    void ResourceEditorModel::Initialize( UpdateContext const& context )
+    {
+        auto pSettingsRegistry = context.GetSystem<SettingsRegistry>();
+        KRG_ASSERT( pSettingsRegistry != nullptr );
+        auto pResourceSettings = pSettingsRegistry->GetSettings<Resource::Settings>();
+        KRG_ASSERT( pResourceSettings != nullptr );
+
+        m_editorContext.m_sourceDataDirectory = pResourceSettings->m_rawResourcePath;
+        m_editorContext.m_compiledDataDirectory = pResourceSettings->m_compiledResourcePath;
+
+        m_editorContext.m_pTypeRegistry = context.GetSystem<TypeSystem::TypeRegistry>();
+        KRG_ASSERT( m_editorContext.m_pTypeRegistry != nullptr );
+
+        m_editorContext.m_pResourceSystem = context.GetSystem<Resource::ResourceSystem>();
+        KRG_ASSERT( m_editorContext.m_pResourceSystem != nullptr );
+
+        m_editorContext.m_pPreviewWorld = context.GetSystem<EntityWorld>();
+        KRG_ASSERT( m_editorContext.m_pPreviewWorld != nullptr );
     }
 
     void ResourceEditorModel::Shutdown( UpdateContext const& context )
@@ -39,10 +63,6 @@ namespace KRG
         }
 
         m_openWorkspaces.clear();
-
-        //-------------------------------------------------------------------------
-
-        EditorModel::Shutdown( context );
     }
 
     //-------------------------------------------------------------------------
@@ -53,9 +73,9 @@ namespace KRG
         return ResourceEditorWorkspaceFactory::CanCreateWorkspace( typeID );
     }
 
-    ResourceEditorWorkspace* ResourceEditorModel::CreateResourceWorkspace( EditorModel* pModel, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID )
+    ResourceEditorWorkspace* ResourceEditorModel::CreateResourceWorkspace( ResourceEditorContext const& model, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID )
     {
-        return ResourceEditorWorkspaceFactory::TryCreateWorkspace( pModel, resourceID );
+        return ResourceEditorWorkspaceFactory::TryCreateWorkspace( model, resourceID );
     }
 
     //-------------------------------------------------------------------------
@@ -63,7 +83,7 @@ namespace KRG
     void ResourceEditorModel::OpenWorkspace( ResourceID const & resourceID )
     {
         KRG_ASSERT( resourceID.IsValid() );
-        FileSystem::Path const path = resourceID.GetDataPath().ToFileSystemPath( m_sourceDataDirectory );
+        FileSystem::Path const path = resourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
 
         //-------------------------------------------------------------------------
 
@@ -75,7 +95,7 @@ namespace KRG
         auto foundWorkspaceIter = eastl::find( m_openWorkspaces.begin(), m_openWorkspaces.end(), path, SearchPredicate );
         if ( foundWorkspaceIter == m_openWorkspaces.end() )
         {
-            auto pCreatedWorkspace = m_openWorkspaces.emplace_back( CreateResourceWorkspace( this, m_pResourceSystem, resourceID ) );
+            auto pCreatedWorkspace = m_openWorkspaces.emplace_back( CreateResourceWorkspace( m_editorContext, m_editorContext.m_pResourceSystem, resourceID ) );
             SetActiveWorkspace( pCreatedWorkspace );
         }
         else
@@ -164,7 +184,7 @@ namespace KRG
             ClearActiveWorkspace();
         }
 
-        pWorkspace->SetActive( m_pPreviewWorld );
+        pWorkspace->SetActive( m_editorContext.m_pPreviewWorld );
         m_pActiveWorkspace = pWorkspace;
     }
 
@@ -172,7 +192,7 @@ namespace KRG
     {
         if ( m_pActiveWorkspace != nullptr )
         {
-            m_pActiveWorkspace->SetInactive( m_pPreviewWorld );
+            m_pActiveWorkspace->SetInactive( m_editorContext.m_pPreviewWorld );
             m_pActiveWorkspace = nullptr;
         }
     }

@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Physics\Components\PhysicsComponent.h"
+#include "D:\Kruger\Code\Engine\Physics\Components\PhysicsComponent.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Physics::ActorType

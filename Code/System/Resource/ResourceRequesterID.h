@@ -14,7 +14,7 @@ namespace KRG::Resource
 
         // Install dependency reference
         ResourceRequesterID( ResourceID const& resourceID )
-            : m_ID( UUID( 0, 0, 0, resourceID.GetDataPath().GetID() ) )
+            : m_ID( UUID( 0, 0, 0, resourceID.GetPath().GetID() ) )
         {}
 
         // Explicit ID - generally refers to an entity
@@ -50,7 +50,7 @@ namespace KRG::Resource
         inline UUID GetID() const { return m_ID; }
 
         // Get the ID for the data path for install dependencies, used for reverse look ups
-        inline uint32 GetInstallDependencyDataPathID() const
+        inline uint32 GetInstallDependencyResourcePathID() const
         {
             KRG_ASSERT( IsInstallDependencyRequest() );
             return m_ID.GetValueU32( 3 );

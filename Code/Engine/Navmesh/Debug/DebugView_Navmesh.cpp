@@ -27,6 +27,7 @@ namespace KRG::Navmesh
 
     void NavmeshDebugViewController::DrawDebugMenu( UpdateContext const& context )
     {
+        #if WITH_BFX
         auto CreateCheckboxForFlag = [] ( char const* pLabel, bfx::PlannerDebugFlag flag )
         {
             bool isEnabled = bfx::GetGlobalDebugFlag( flag );
@@ -91,6 +92,7 @@ namespace KRG::Navmesh
 
             ImGui::EndMenu();
         }
+        #endif
     }
 
     void NavmeshDebugViewController::DrawWindows( UpdateContext const& context )

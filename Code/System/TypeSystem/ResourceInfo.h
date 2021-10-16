@@ -14,6 +14,7 @@ namespace KRG::TypeSystem
 
         TypeID                  m_typeID;
         ResourceTypeID          m_resourceTypeID;
+        bool                    m_isVirtualResource = false;
 
         #if KRG_DEVELOPMENT_TOOLS
         String                  m_friendlyName;

@@ -4,14 +4,14 @@
 
 namespace KRG::Animation::Graph
 {
-    GraphPropertyGrid::GraphPropertyGrid( GraphEditorModel& model )
-        : m_model( model )
-        , m_propertyGrid( *model.GetTypeRegistry(), model.GetSourceDataDirectory() )
+    GraphPropertyGrid::GraphPropertyGrid( GraphEditorModel& graphModel )
+        : m_graphModel( graphModel )
+        , m_propertyGrid( *graphModel.GetTypeRegistry(), graphModel.GetSourceDataDirectory() )
     {}
 
-    void GraphPropertyGrid::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void GraphPropertyGrid::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName )
     {
-        auto const& selection = m_model.GetSelectedNodes();
+        auto const& selection = m_graphModel.GetSelectedNodes();
 
         if ( selection.empty() )
         {
@@ -24,7 +24,8 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        if ( ImGui::Begin( "PropertyGrid" ) )
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( pWindowName ) )
         {
             m_propertyGrid.DrawGrid();
         }

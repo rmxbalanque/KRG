@@ -300,7 +300,6 @@
     <ClInclude Include="ThirdParty\stb\stb_truetype.h" />
     <ClInclude Include="Time\TimeStamp.h" />
     <ClInclude Include="Types\Event.h" />
-    <ClInclude Include="FileSystem\DataPath.h" />
     <ClInclude Include="FileSystem\FileSystemPath.h" />
     <ClInclude Include="FileSystem\FileStreams.h" />
     <ClInclude Include="FileSystem\FileSystem.h" />
@@ -475,7 +474,6 @@
     <ClCompile Include="Debug\DebugDrawing.cpp" />
     <ClCompile Include="Serialization\JsonArchive.cpp" />
     <ClCompile Include="Settings\DebugSettings.cpp" />
-    <ClCompile Include="FileSystem\DataPath.cpp" />
     <ClCompile Include="FileSystem\FileSystemPath.cpp" />
     <ClCompile Include="FileSystem\FileStreams.cpp" />
     <ClCompile Include="FileSystem\FileSystem.cpp" />

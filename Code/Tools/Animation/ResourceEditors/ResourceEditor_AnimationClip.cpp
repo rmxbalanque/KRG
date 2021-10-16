@@ -1,12 +1,13 @@
 #include "ResourceEditor_AnimationClip.h"
 #include "Tools/Animation/Events/AnimationEventEditor.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Engine/Animation/Systems/AnimationSystem.h"
-#include "Engine/Animation/Components/AnimatedMeshComponent.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Imgui/Widgets/InterfaceHelpers.h"
 #include "System/Core/Math/MathStringHelpers.h"
+#include "System/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,9 +23,9 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    AnimationClipResourceEditor::AnimationClipResourceEditor( EditorModel* pModel, ResourceID const& resourceID )
-        : TResourceEditorWorkspace<AnimationClip>( pModel, resourceID )
-        , m_propertyGrid( *pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
+    AnimationClipResourceEditor::AnimationClipResourceEditor( ResourceEditorContext const& context, ResourceID const& resourceID )
+        : TResourceEditorWorkspace<AnimationClip>( context, resourceID )
+        , m_propertyGrid( *context.m_pTypeRegistry, context.m_sourceDataDirectory )
     {}
 
     AnimationClipResourceEditor::~AnimationClipResourceEditor()
@@ -39,17 +40,16 @@ namespace KRG::Animation
     {
         KRG_ASSERT( m_pPreviewEntity == nullptr );
 
-        // We dont own the entity as soon as we add it to the map
-        auto pPersistentMap = pPreviewWorld->GetPersistentMap();
-
         m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
-        pPersistentMap->AddEntity( m_pPreviewEntity );
-
         m_pPreviewEntity->CreateSystem<AnimationSystem>();
 
         m_pAnimationComponent = KRG::New<AnimationPlayerComponent>( StringID( "Animation Component" ) );
         m_pAnimationComponent->SetAnimation( m_pResource.GetResourceID() );
         m_pPreviewEntity->AddComponent( m_pAnimationComponent );
+
+        // We dont own the entity as soon as we add it to the map
+        auto pPersistentMap = pPreviewWorld->GetPersistentMap();
+        pPersistentMap->AddEntity( m_pPreviewEntity );
     }
 
     void AnimationClipResourceEditor::Deactivate( EntityWorld* pPreviewWorld )
@@ -58,8 +58,10 @@ namespace KRG::Animation
 
         auto pPersistentMap = pPreviewWorld->GetPersistentMap();
         pPersistentMap->DestroyEntity( m_pPreviewEntity->GetID() );
+
         m_pPreviewEntity = nullptr;
         m_pAnimationComponent = nullptr;
+        m_pMeshComponent = nullptr;
     }
 
     void AnimationClipResourceEditor::InitializeDockingLayout( ImGuiID dockspaceID ) const
@@ -87,15 +89,21 @@ namespace KRG::Animation
             // Lazy init of the event editor
             if ( m_pEventEditor == nullptr )
             {
-                m_pEventEditor = KRG::New<EventEditor>( *m_pModel->GetTypeRegistry(), m_pModel->GetSourceDataDirectory(), m_pResource.GetPtr() );
+                m_pEventEditor = KRG::New<EventEditor>( *m_editorContext.m_pTypeRegistry, m_editorContext.m_sourceDataDirectory, m_pResource.GetPtr() );
             }
 
-            // HACK
+            // Initialize preview mesh
             if ( m_pMeshComponent == nullptr )
             {
+                // Load resource descriptor for skeleton to get the preview mesh
+                FileSystem::Path const resourceDescPath = m_pResource->GetSkeleton()->GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
+                SkeletonResourceDescriptor resourceDesc;
+                TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
+
+                // Create a preview mesh component
                 m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
-                m_pMeshComponent->SetSkeleton( m_pAnimationComponent->GetSkeleton()->GetResourceID() );
-                m_pMeshComponent->SetMesh( "data://packs/amplify/amplifycharacter.smsh" );
+                m_pMeshComponent->SetSkeleton( m_pResource->GetSkeleton()->GetResourceID() );
+                m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
                 m_pPreviewEntity->AddComponent( m_pMeshComponent );
             }
 
@@ -133,9 +141,8 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        DrawTimelineWindow( context, viewportManager, pWindowClass );
         DrawTrackDataWindow( context, viewportManager, pWindowClass );
-        DrawDetailsWindow( context, viewportManager, pWindowClass );
+        DrawTimelineAndPropertGridsWindows( context, viewportManager, pWindowClass );
     }
 
     void AnimationClipResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
@@ -169,10 +176,15 @@ namespace KRG::Animation
         ImGuiX::VerticalSeparator();
 
         ImGui::Checkbox( "Root Motion", &m_isRootMotionEnabled );
+
+        ImGuiX::VerticalSeparator();
     }
 
-    void AnimationClipResourceEditor::DrawTimelineWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void AnimationClipResourceEditor::DrawTimelineAndPropertGridsWindows( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
     {
+        // Draw timeline window
+        //-------------------------------------------------------------------------
+
         ImGui::SetNextWindowClass( pWindowClass );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
         if ( ImGui::Begin( s_timelineWindowName ) )
@@ -192,8 +204,15 @@ namespace KRG::Animation
                 // Track editor and property grid
                 //-------------------------------------------------------------------------
 
-                m_pEventEditor->Update( context, m_pAnimationComponent );
+                m_pEventEditor->UpdateAndDraw( context, m_pAnimationComponent );
 
+                // Transfer dirty state from property grid
+                if ( m_propertyGrid.IsDirty() )
+                {
+                    m_pEventEditor->MarkDirty();
+                }
+
+                // Handle selection changes
                 auto const& selectedItems = m_pEventEditor->GetSelectedItems();
                 if ( !selectedItems.empty() )
                 {
@@ -208,10 +227,10 @@ namespace KRG::Animation
         }
         ImGui::End();
         ImGui::PopStyleVar();
-    }
 
-    void AnimationClipResourceEditor::DrawDetailsWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
-    {
+        // Draw property grid window
+        //-------------------------------------------------------------------------
+
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( s_detailsWindowName ) )
         {
@@ -288,7 +307,11 @@ namespace KRG::Animation
     {
         if ( m_pEventEditor != nullptr )
         {
-            return m_pEventEditor->RequestSave();
+            if ( m_pEventEditor->RequestSave() )
+            {
+                m_propertyGrid.ClearDirty();
+                return true;
+            }
         }
 
         return false;

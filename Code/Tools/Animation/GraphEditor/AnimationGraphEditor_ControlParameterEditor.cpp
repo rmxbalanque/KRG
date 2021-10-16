@@ -1,33 +1,23 @@
 #include "AnimationGraphEditor_ControlParameterEditor.h"
-#include "System/Imgui/ImguiX.h"
-#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    GraphControlParameterEditor::GraphControlParameterEditor( GraphEditorModel& model )
-        : m_model( model )
+    GraphControlParameterEditor::GraphControlParameterEditor( GraphEditorModel& graphModel )
+        : m_graphModel( graphModel )
     {}
 
-    void GraphControlParameterEditor::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void GraphControlParameterEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName )
     {
-        auto pGraph = m_model.GetGraph();
-        if ( pGraph == nullptr )
-        {
-            if ( ImGui::Begin( "Control Parameters" ) )
-            {
-                ImGui::Text( "No Graph Open" );
-            }
-            ImGui::End();
-            return;
-        }
+        auto pGraph = m_graphModel.GetGraph();
 
         //-------------------------------------------------------------------------
 
         int32 windowFlags = 0;
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
-        if ( ImGui::Begin( "Control Parameters", nullptr, windowFlags ) )
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( pWindowName, nullptr, windowFlags ) )
         {
             DrawAddParameterUI();
 
@@ -46,16 +36,16 @@ namespace KRG::Animation::Graph
                 for ( auto pControlParameter : pGraph->GetControlParameters() )
                 {
                     ImGui::PushID( pControlParameter );
-                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pControlParameter->GetHighlightColor() );
+                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pControlParameter->GetNodeColor() );
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
 
-                    bool const isParameterSelected = m_model.IsSelected( pControlParameter );
+                    bool const isParameterSelected = m_graphModel.IsSelected( pControlParameter );
                     ImGui::AlignTextToFramePadding();
                     if ( ImGui::Selectable( pControlParameter->GetDisplayName(), isParameterSelected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2( 0, 0 ) ) )
                     {
-                        m_model.SetSelection( pControlParameter );
+                        m_graphModel.SetSelection( pControlParameter );
                     }
 
                     ImGui::TableNextColumn();
@@ -82,15 +72,15 @@ namespace KRG::Animation::Graph
                 for ( auto pVirtualParameter : pGraph->GetVirtualParameters() )
                 {
                     ImGui::PushID( pVirtualParameter );
-                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pVirtualParameter->GetHighlightColor() );
+                    ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pVirtualParameter->GetNodeColor() );
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
                      
-                    bool const isParameterSelected = m_model.IsSelected( pVirtualParameter );
+                    bool const isParameterSelected = m_graphModel.IsSelected( pVirtualParameter );
                     if ( ImGui::Selectable( pVirtualParameter->GetDisplayName(), isParameterSelected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2( 0, 0 ) ) )
                     {
-                        m_model.SetSelection( pVirtualParameter );
+                        m_graphModel.SetSelection( pVirtualParameter );
                     }
 
                     ImGui::TableNextColumn();
@@ -129,7 +119,7 @@ namespace KRG::Animation::Graph
 
     void GraphControlParameterEditor::DrawAddParameterUI()
     {
-        auto pGraph = m_model.GetGraph();
+        auto pGraph = m_graphModel.GetGraph();
 
         //-------------------------------------------------------------------------
 
@@ -221,11 +211,11 @@ namespace KRG::Animation::Graph
         m_currentOperationParameterID = parameterID;
         m_activeOperation = OperationType::Rename;
 
-        if ( auto pControlParameter = m_model.GetGraph()->FindControlParameter( parameterID ) )
+        if ( auto pControlParameter = m_graphModel.GetGraph()->FindControlParameter( parameterID ) )
         {
             strncpy_s( m_buffer, pControlParameter->GetDisplayName(), 255 );
         }
-        else if ( auto pVirtualParameter = m_model.GetGraph()->FindVirtualParameter( parameterID ) )
+        else if ( auto pVirtualParameter = m_graphModel.GetGraph()->FindVirtualParameter( parameterID ) )
         {
             strncpy_s( m_buffer, pVirtualParameter->GetDisplayName(), 255 );
         }
@@ -258,18 +248,18 @@ namespace KRG::Animation::Graph
                 }
                 ImGui::NewLine();
 
-                float const dialogWidth = ImGui::GetWindowContentRegionWidth();
+                float const dialogWidth = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x;
                 ImGui::SameLine( 0, dialogWidth - 104 );
 
                 if ( ImGui::Button( "Ok", ImVec2( 50, 0 ) ) || nameChangeConfirmed )
                 {
-                    if ( auto pControlParameter = m_model.GetGraph()->FindControlParameter( m_currentOperationParameterID ) )
+                    if ( auto pControlParameter = m_graphModel.GetGraph()->FindControlParameter( m_currentOperationParameterID ) )
                     {
-                        m_model.GetGraph()->RenameControlParameter( m_currentOperationParameterID, m_buffer );
+                        m_graphModel.GetGraph()->RenameControlParameter( m_currentOperationParameterID, m_buffer );
                     }
-                    else if ( auto pVirtualParameter = m_model.GetGraph()->FindVirtualParameter( m_currentOperationParameterID ) )
+                    else if ( auto pVirtualParameter = m_graphModel.GetGraph()->FindVirtualParameter( m_currentOperationParameterID ) )
                     {
-                        m_model.GetGraph()->RenameVirtualParameter( m_currentOperationParameterID, m_buffer );
+                        m_graphModel.GetGraph()->RenameVirtualParameter( m_currentOperationParameterID, m_buffer );
                     }
                     else
                     {
@@ -302,18 +292,18 @@ namespace KRG::Animation::Graph
                 ImGui::Text( "Are you sure you want to delete this parameter?" );
                 ImGui::NewLine();
 
-                float const dialogWidth = ImGui::GetWindowContentRegionWidth();
+                float const dialogWidth = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x;
                 ImGui::SameLine( 0, dialogWidth - 64 );
 
                 if ( ImGui::Button( "Yes", ImVec2( 30, 0 ) ) )
                 {
-                    if ( auto pControlParameter = m_model.GetGraph()->FindControlParameter( m_currentOperationParameterID ) )
+                    if ( auto pControlParameter = m_graphModel.GetGraph()->FindControlParameter( m_currentOperationParameterID ) )
                     {
-                        m_model.GetGraph()->DestroyControlParameter( m_currentOperationParameterID );
+                        m_graphModel.GetGraph()->DestroyControlParameter( m_currentOperationParameterID );
                     }
-                    else if ( auto pVirtualParameter = m_model.GetGraph()->FindVirtualParameter( m_currentOperationParameterID ) )
+                    else if ( auto pVirtualParameter = m_graphModel.GetGraph()->FindVirtualParameter( m_currentOperationParameterID ) )
                     {
-                        m_model.GetGraph()->DestroyVirtualParameter( m_currentOperationParameterID );
+                        m_graphModel.GetGraph()->DestroyVirtualParameter( m_currentOperationParameterID );
                     }
                     else
                     {

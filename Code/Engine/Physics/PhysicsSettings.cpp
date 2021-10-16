@@ -11,9 +11,9 @@ namespace KRG::Physics
         String s;
         if ( ini.TryGetString( "Physics:PhysicalMaterialDatabasePath", s ) )
         {
-            if ( DataPath::IsValidDataPath( s ) )
+            if ( ResourcePath::IsValidPath( s ) )
             {
-                m_physicalMaterialDataPath = DataPath( s );
+                m_physicalMaterialDatabasePath = ResourcePath( s );
             }
             else
             {

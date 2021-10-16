@@ -168,6 +168,7 @@ namespace KRG::CPP
             typeRegistrationStr << "\n";
             typeRegistrationStr << "            resourceInfo.m_typeID = TypeSystem::TypeID( \"" << registeredResourceType.m_typeID.c_str() << "\");\n";
             typeRegistrationStr << "            resourceInfo.m_resourceTypeID = ResourceTypeID( \"" << registeredResourceType.m_resourceTypeID.ToString().c_str() << "\" );\n";
+            typeRegistrationStr << "            resourceInfo.m_isVirtualResource = " << ( registeredResourceType.m_isVirtual ? "true" : "false" ) << ";\n";
             typeRegistrationStr << "            #if KRG_DEVELOPMENT_TOOLS\n";
             typeRegistrationStr << "            resourceInfo.m_friendlyName = \"" << registeredResourceType.m_friendlyName.c_str() << "\";\n";
             typeRegistrationStr << "            #endif\n";
@@ -212,7 +213,7 @@ namespace KRG::CPP
         stream.seekg( std::ios::beg );
 
         // Open existing file and compare contents to the newly generated stream
-        std::fstream existingFile( filePath.c_str(), std::ios::in );
+        std::ifstream existingFile( filePath.c_str(), std::ios::in );
         if ( existingFile.is_open() )
         {
             std::string lineNew, lineExisting;
@@ -234,21 +235,22 @@ namespace KRG::CPP
         }
         else
         {
+            // std::cout << "Error opening existing file: " << strerror( errno );
             fileContentsEqual = false;
         }
 
         // If the contents differ overwrite the existing file
         if ( !fileContentsEqual )
         {
-            existingFile.open( filePath.c_str(), std::ios::out | std::ios::trunc );
-            if ( !existingFile.is_open() )
+            std::fstream outputFile( filePath.c_str(), std::ios::out | std::ios::trunc );
+            if ( !outputFile.is_open() )
             {
                 return false;
             }
 
             stream.seekg( std::ios::beg );
-            existingFile << stream.rdbuf();
-            existingFile.close();
+            outputFile << stream.rdbuf();
+            outputFile.close();
         }
 
         return true;

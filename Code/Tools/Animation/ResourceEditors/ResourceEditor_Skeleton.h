@@ -1,13 +1,17 @@
 #pragma once
 
-#include "Tools/Core/Editors/ResourceEditorWorkspace.h"
-#include "System/Imgui/ImguiX.h"
+#include "Tools/Core/Resource/ResourceEditorWorkspace.h"
 #include "Engine/Animation/AnimationSkeleton.h"
+#include "System/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation
 {
+    class AnimatedMeshComponent;
+
+    //-------------------------------------------------------------------------
+
     class SkeletonResourceEditor : public TResourceEditorWorkspace<Skeleton>
     {
         static char const* const s_infoWindowName;
@@ -45,7 +49,13 @@ namespace KRG::Animation
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
 
+        virtual bool HasViewportToolbar() const override { return true; }
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+
     private:
+
+        void DrawInfoWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
+        void DrawSkeletonHierarchyWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
 
         void CreateSkeletonTree();
         void DestroySkeletonTree();
@@ -53,7 +63,11 @@ namespace KRG::Animation
 
     private:
 
-        BoneInfo*   m_pSkeletonTreeRoot = nullptr;
-        StringID    m_selectedBoneID;
+        BoneInfo*                       m_pSkeletonTreeRoot = nullptr;
+        StringID                        m_selectedBoneID;
+
+        Entity*                         m_pPreviewEntity = nullptr;
+        AnimatedMeshComponent*          m_pMeshComponent = nullptr;
+        bool                            m_showPreviewMesh = true;
     };
 }

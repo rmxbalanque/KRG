@@ -25,13 +25,6 @@ namespace KRG::Resource
 {
     class ResourceServer : public FileSystem::IFileSystemChangeListener
     {
-        struct ClientRecord
-        {
-            explicit ClientRecord( uint32 clientID ) : m_clientID( clientID ) { KRG_ASSERT( clientID != 0 ); }
-
-            Seconds                             m_lastUpdateTime = SystemClock::GetTimeInSeconds();
-            uint32                              m_clientID = 0;
-        };
 
     public:
 
@@ -46,8 +39,8 @@ namespace KRG::Resource
         inline String const& GetErrorMessage() const { return m_errorMessage; }
         inline String const& GetNetworkAddress() const { return m_pSettings->m_resourceServerNetworkAddress; }
         inline uint16 GetNetworkPort() const { return m_pSettings->m_resourceServerPort; }
-        inline FileSystem::Path const& GetSourceDataDir() const { return m_pSettings->m_sourceDataPath; }
-        inline FileSystem::Path const& GetCompiledDataDir() const { return m_pSettings->m_compiledDataPath; }
+        inline FileSystem::Path const& GetRawResourceDir() const { return m_pSettings->m_rawResourcePath; }
+        inline FileSystem::Path const& GetCompiledResourceDir() const { return m_pSettings->m_compiledResourcePath; }
 
         // Compilers
         inline CompilerRegistry const* GetCompilerRegistry() const { return &m_compilerRegistry; }
@@ -63,6 +56,11 @@ namespace KRG::Resource
         inline ResourceServerWorker::Status GetWorkerStatus( int32 workerIdx ) const { return m_workers[workerIdx]->GetStatus(); }
         inline ResourceID const& GetCompilationTaskResourceID( int32 workerIdx ) const { return m_workers[workerIdx]->GetRequestResourceID(); }
 
+        // Clients
+        inline int32 const& GetNumConnectedClients() const { return m_networkServer.GetNumConnectedClients(); }
+        inline uint32 GetClientID( int32 clientIdx ) const { return m_networkServer.GetClientID( clientIdx ); }
+        inline Network::AddressString GetConnectedClientAddress( int32 clientIdx ) const { return m_networkServer.GetConnectedClientAddress( clientIdx ); }
+
     private:
 
         void CleanupCompletedRequests();
@@ -72,8 +70,8 @@ namespace KRG::Resource
         void NotifyClientOnCompletedRequest( CompilationRequest* pRequest );
 
         // Up-to-date system
-        void PerformResourceUpToDateCheck( CompilationRequest* pRequest, TVector<DataPath> const& compileDependencies ) const;
-        bool TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog = nullptr ) const;
+        void PerformResourceUpToDateCheck( CompilationRequest* pRequest, TVector<ResourcePath> const& compileDependencies ) const;
+        bool TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<ResourcePath>& outDependencies, String* pErrorLog = nullptr ) const;
         bool IsResourceUpToDate( ResourceID const& resourceID ) const;
         void WriteCompiledResourceRecord( CompilationRequest* pRequest );
         bool IsCompileableResourceType( ResourceTypeID ID ) const;
@@ -86,7 +84,6 @@ namespace KRG::Resource
         String                                  m_errorMessage;
         bool                                    m_cleanupRequested = false;
         Network::IPC::Server                    m_networkServer;
-        TVector<ClientRecord>                   m_knownClients;
 
         // Settings
         Settings const*                         m_pSettings = nullptr;

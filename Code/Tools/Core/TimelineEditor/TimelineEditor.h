@@ -90,7 +90,8 @@ namespace KRG::Timeline
         void ClearSelection();
 
         // Has any modifications been made to the tracks/events?
-        virtual bool IsDirty() const { return m_isDirty; }
+        virtual bool IsDirty() const { return m_trackContainer.IsDirty(); }
+        inline void MarkDirty() { m_trackContainer.MarkDirty(); }
 
         // Request that we save the state
         virtual bool RequestSave() { return false; }
@@ -125,17 +126,11 @@ namespace KRG::Timeline
 
         //-------------------------------------------------------------------------
 
-        // Is this a valid item ptr (i.e. is it present in any known track)
-        bool IsValidPtr( TrackItem const* pItem );
-
-        // Is this a valid track ptr (i.e. is it in the list of tracks)
-        bool IsValidPtr( Track const* pTrack );
-
         // Delete specified item
         void DeleteItem( TrackItem* pItem );
 
         // Delete specified track
-        void DeleteTrack( Track* pTrack );
+        inline void DeleteTrack( Track* pTrack ) { m_trackContainer.DeleteTrack( pTrack ); }
 
         //-------------------------------------------------------------------------
 
@@ -156,8 +151,8 @@ namespace KRG::Timeline
         // Provided rect defines the area available to draw multiple tracks (incl. headers and items)
         void DrawTracks( ImRect const& trackAreaRect );
 
-        // Draw the add track menu - returns true if a track was added
-        virtual bool DrawAddTracksMenu();
+        // Draw the add track menu
+        virtual void DrawAddTracksMenu() = 0;
 
         // Draw the various context menus
         void DrawContextMenu();
@@ -219,7 +214,5 @@ namespace KRG::Timeline
 
         TVector<TrackItem*>         m_selectedItems;
         TVector<Track*>             m_selectedTracks;
-
-        bool                        m_isDirty = false;
     };
 }

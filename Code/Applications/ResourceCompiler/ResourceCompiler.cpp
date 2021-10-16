@@ -37,10 +37,10 @@ namespace KRG
                 m_triggerDebugBreak = cmdParser.get<bool>( "debug" );
 
                 // Get compile argument
-                DataPath const resourceDataPath( cmdParser.get<std::string>( "compile" ).c_str() );
-                if ( resourceDataPath.IsValid() )
+                ResourcePath const resourcePath( cmdParser.get<std::string>( "compile" ).c_str() );
+                if ( resourcePath.IsValid() )
                 {
-                    m_resourceID = ResourceID( resourceDataPath );
+                    m_resourceID = ResourceID( resourcePath );
 
                     if ( m_resourceID.IsValid() )
                     {
@@ -113,8 +113,8 @@ int main( int argc, char* argv[] )
     // File Paths
     //-------------------------------------------------------------------------
 
-    FileSystem::EnsurePathExists( settings.m_sourceDataPath);
-    FileSystem::EnsurePathExists( settings.m_compiledDataPath );
+    FileSystem::EnsurePathExists( settings.m_rawResourcePath);
+    FileSystem::EnsurePathExists( settings.m_compiledResourcePath );
 
     // Create tools modules and register compilers
     //-------------------------------------------------------------------------
@@ -145,7 +145,7 @@ int main( int argc, char* argv[] )
     auto CompileResource = [&] ()
     {
         // Try create compilation context
-        Resource::CompileContext compileContext( typeRegistry, settings.m_sourceDataPath, settings.m_compiledDataPath, argParser.m_resourceID );
+        Resource::CompileContext compileContext( typeRegistry, settings.m_rawResourcePath, settings.m_compiledResourcePath, argParser.m_resourceID );
         if ( !compileContext.IsValid() )
         {
             return -1;
@@ -154,7 +154,7 @@ int main( int argc, char* argv[] )
         // Validate input path
         if ( !compileContext.m_inputFilePath.Exists() )
         {
-            KRG_LOG_ERROR( "ResourceCompiler", "Source file for data path ('%s') does not exist: '%s'\n", settings.m_sourceDataPath.c_str(), compileContext.m_inputFilePath.c_str() );
+            KRG_LOG_ERROR( "ResourceCompiler", "Source file for data path ('%s') does not exist: '%s'\n", settings.m_rawResourcePath.c_str(), compileContext.m_inputFilePath.c_str() );
             return -1;
         }
 

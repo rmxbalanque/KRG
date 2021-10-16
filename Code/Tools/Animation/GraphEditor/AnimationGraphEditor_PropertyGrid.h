@@ -14,13 +14,13 @@ namespace KRG::Animation::Graph
     {
     public:
 
-        GraphPropertyGrid( GraphEditorModel& model );
+        GraphPropertyGrid( GraphEditorModel& graphModel );
 
-        void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager );
+        void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName );
 
     private:
 
-        GraphEditorModel&       m_model;
-        PropertyGrid            m_propertyGrid;
+        GraphEditorModel&           m_graphModel;
+        PropertyGrid                m_propertyGrid;
     };
 }

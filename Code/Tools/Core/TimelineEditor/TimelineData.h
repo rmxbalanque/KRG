@@ -25,6 +25,13 @@ namespace KRG::Timeline
         TrackItem() = default;
         virtual ~TrackItem() = default;
 
+        // Dirty state
+        //-------------------------------------------------------------------------
+
+        inline bool IsDirty() const { return m_isDirty; }
+        inline void MarkDirty() { m_isDirty = true; }
+        inline void ClearDirtyFlag() { m_isDirty = false; }
+
         // Basic Info
         //-------------------------------------------------------------------------
 
@@ -36,7 +43,12 @@ namespace KRG::Timeline
         // This is done to abstract the timeline's time format from the item's format since they may differ
 
         virtual FloatRange GetTimeRange() const = 0;
-        virtual void SetTimeRange( FloatRange const& inRange ) = 0;
+
+        void SetTimeRange( FloatRange const& inRange )
+        {
+            SetTimeRangeInternal( inRange );
+            m_isDirty = true;
+        }
 
         inline bool IsImmediateItem() const { return GetTimeRange().m_start == GetTimeRange().m_end; }
         inline bool IsDurationItem() const { return GetTimeRange().m_start != GetTimeRange().m_end; }
@@ -57,10 +69,18 @@ namespace KRG::Timeline
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& dataObjectValue ) {}
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const {}
 
+    protected:
+
+        virtual void SetTimeRangeInternal( FloatRange const& inRange ) = 0;
+
     private:
 
         TrackItem( TrackItem const& ) = delete;
         TrackItem& operator=( TrackItem& ) = delete;
+
+    private:
+
+        bool                    m_isDirty = false;
     };
 
     //-------------------------------------------------------------------------
@@ -68,6 +88,7 @@ namespace KRG::Timeline
     class KRG_TOOLS_CORE_API Track : public IRegisteredType
     {
         KRG_REGISTER_TYPE( Track );
+        friend class TrackContainer;
 
     public:
 
@@ -80,6 +101,10 @@ namespace KRG::Timeline
         virtual const char* GetLabel() const { return "Track"; }
         virtual void DrawHeader( ImRect const& headerRect );
 
+        bool IsDirty() const;
+        void ClearDirtyFlags();
+        inline void MarkDirty() { m_isDirty = true; }
+
         // UI
         //-------------------------------------------------------------------------
 
@@ -91,8 +116,14 @@ namespace KRG::Timeline
 
         inline bool Contains( TrackItem const* pItem ) const { return eastl::find( m_items.begin(), m_items.end(), pItem ) != m_items.end(); }
 
-        // Needs to be implemented by the derived track
-        virtual void CreateItem( float itemStartTime ) {};
+        inline TVector<TrackItem*> const& GetItems() const { return m_items; }
+
+        // Create a new item at the specified start time
+        inline void CreateItem( float itemStartTime )
+        {
+            CreateItemInternal( itemStartTime );
+            m_isDirty = true;
+        };
 
         // Try to delete the item from the track if it exists, return true if the item was found and remove, false otherwise
         inline bool DeleteItem( TrackItem* pItem )
@@ -102,6 +133,7 @@ namespace KRG::Timeline
             {
                 KRG::Delete( *foundIter );
                 m_items.erase( foundIter );
+                m_isDirty = true;
                 return true;
             }
 
@@ -116,12 +148,16 @@ namespace KRG::Timeline
 
     private:
 
+        // Needs to be implemented by the derived track
+        virtual void CreateItemInternal( float itemStartTime ) = 0;
+
         Track( Track const& ) = delete;
         Track& operator=( Track& ) = delete;
 
-    public:
+    protected:
 
         TVector<TrackItem*>      m_items;
+        bool                     m_isDirty = false;
     };
 
     //-------------------------------------------------------------------------
@@ -133,7 +169,15 @@ namespace KRG::Timeline
         // Frees all tracks
         void Reset();
 
-        inline int32 GetNumTracks() const { return (int32) m_tracks.size(); }
+        // Dirty state
+        //-------------------------------------------------------------------------
+
+        bool IsDirty() const;
+        void ClearDirtyFlags();
+        inline void MarkDirty() { m_isDirty = true; }
+
+        // Tracks
+        //-------------------------------------------------------------------------
 
         inline TVector<Track*>::iterator begin() { return m_tracks.begin(); }
         inline TVector<Track*>::iterator end() { return m_tracks.end(); }
@@ -141,11 +185,32 @@ namespace KRG::Timeline
         inline Track*& operator[]( size_t i ) { return m_tracks[i]; }
         inline Track* const& operator[]( size_t i ) const { return m_tracks[i]; }
 
+        template<typename T> T* CreateTrack()
+        {
+            static_assert( std::is_base_of<Track, T>::value, "T has to derive from Timeline::Track" );
+            auto pCreatedTrack = static_cast<T*>( m_tracks.emplace_back( KRG::New<T>() ) );
+            m_isDirty = true;
+            return pCreatedTrack;
+        }
+
+        void DeleteTrack( Track* pTrack );
+
+        // Query
+        //-------------------------------------------------------------------------
+
+        inline int32 GetNumTracks() const { return (int32) m_tracks.size(); }
+        bool Contains( Track const* pTrack ) const;
+        bool Contains( TrackItem const* pItem ) const;
+
+        // Serialization
+        //-------------------------------------------------------------------------
+
         bool Load( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue );
-        void Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const;
+        void Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer );
 
     public:
 
         TVector<Track*>     m_tracks;
+        bool                m_isDirty = false;
     };
 }

@@ -12,6 +12,7 @@ namespace KRG::Resource
     static char const* const g_completedRequestsWindowName = "Completed Requests";
     static char const* const g_workerStatusWindowName = "Worker Status";
     static char const* const g_serverInfoWindowName = "Server Info";
+    static char const* const g_connectionInfoWindowName = "Connected Clients";
 
     //-------------------------------------------------------------------------
 
@@ -51,8 +52,9 @@ namespace KRG::Resource
                 ImGuiID topLeftDockID = ImGui::DockBuilderSplitNode( topDockID, ImGuiDir_Left, 0.5f, nullptr, &topRightDockID );
 
                 ImGui::DockBuilderDockWindow( g_workerStatusWindowName, topRightDockID );
-                ImGui::DockBuilderDockWindow( g_pendingRequestsWindowName, topLeftDockID );
+                ImGui::DockBuilderDockWindow( g_connectionInfoWindowName, topLeftDockID );
                 ImGui::DockBuilderDockWindow( g_serverInfoWindowName, topLeftDockID );
+                ImGui::DockBuilderDockWindow( g_pendingRequestsWindowName, topLeftDockID );
                 ImGui::DockBuilderDockWindow( g_completedRequestsWindowName, bottomDockID );
 
                 ImGui::DockBuilderFinish( dockspaceID );
@@ -67,6 +69,7 @@ namespace KRG::Resource
         //-------------------------------------------------------------------------
 
         DrawServerInfo();
+        DrawConnectionInfo();
         DrawPendingRequests();
         DrawCompletedRequests();
         DrawWorkerStatus();
@@ -117,7 +120,7 @@ namespace KRG::Resource
             constexpr static float const buttonWidth = 120;
             float const tableHeight = ImGui::GetContentRegionAvail().y - compilationLogFieldHeight - 32;
             float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-            float const textfieldWidth = ImGui::GetWindowContentRegionWidth() - ( ( buttonWidth + itemSpacing ) * 4 );
+            float const textfieldWidth = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x - ( ( buttonWidth + itemSpacing ) * 4 );
 
             //-------------------------------------------------------------------------
             // Table
@@ -126,12 +129,13 @@ namespace KRG::Resource
             ImGuiX::ScopedFont const BigScopedFont( ImGuiX::Font::Small );
 
             ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_itemColorMedium );
-            if ( ImGui::BeginTable( "Completed Requests Table", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX, ImVec2( 0, tableHeight ) ) )
+            if ( ImGui::BeginTable( "Completed Requests Table", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX, ImVec2( 0, tableHeight ) ) )
             {
                 ImGui::TableSetupColumn( "##Status", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 10 );
                 ImGui::TableSetupColumn( "Client", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 120 );
                 ImGui::TableSetupColumn( "Source", ImGuiTableColumnFlags_WidthStretch );
                 ImGui::TableSetupColumn( "Destination", ImGuiTableColumnFlags_WidthStretch );
+                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 30 );
                 ImGui::TableSetupColumn( "Up To Date", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 60 );
                 ImGui::TableSetupColumn( "Compile", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 60 );
 
@@ -211,10 +215,16 @@ namespace KRG::Resource
 
                         //-------------------------------------------------------------------------
 
+                        auto const resourceTypeStr = pCompletedRequest->GetResourceID().GetResourceTypeID().ToString();
                         ImGui::TableSetColumnIndex( 4 );
-                        ImGui::Text( "%.3fms", pCompletedRequest->GetUptoDateCheckElapsedTime().ToFloat() );
+                        ImGui::Text( "%s", resourceTypeStr.c_str() );
+
+                        //-------------------------------------------------------------------------
 
                         ImGui::TableSetColumnIndex( 5 );
+                        ImGui::Text( "%.3fms", pCompletedRequest->GetUptoDateCheckElapsedTime().ToFloat() );
+
+                        ImGui::TableSetColumnIndex( 6 );
                         ImGui::Text( "%.3fms", pCompletedRequest->GetCompilationElapsedTime().ToFloat() );
 
                         ImGui::PopID();
@@ -288,11 +298,11 @@ namespace KRG::Resource
 
             if ( m_pSelectedCompletedRequest != nullptr )
             {
-                ImGui::InputTextMultiline( "##Output", const_cast<char*>( m_pSelectedCompletedRequest->GetLog() ), strlen( m_pSelectedCompletedRequest->GetLog() ), ImVec2( ImGui::GetWindowContentRegionWidth(), compilationLogFieldHeight ), ImGuiInputTextFlags_ReadOnly );
+                ImGui::InputTextMultiline( "##Output", const_cast<char*>( m_pSelectedCompletedRequest->GetLog() ), strlen( m_pSelectedCompletedRequest->GetLog() ), ImVec2( ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x, compilationLogFieldHeight ), ImGuiInputTextFlags_ReadOnly );
             }
             else
             {
-                ImGui::InputTextMultiline( "##Output", emptyBuffer, 255, ImVec2( ImGui::GetWindowContentRegionWidth(), compilationLogFieldHeight ), ImGuiInputTextFlags_ReadOnly );
+                ImGui::InputTextMultiline( "##Output", emptyBuffer, 255, ImVec2( ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x, compilationLogFieldHeight ), ImGuiInputTextFlags_ReadOnly );
             }
         }
         ImGui::End();
@@ -324,18 +334,18 @@ namespace KRG::Resource
     {
         if ( ImGui::Begin( g_serverInfoWindowName ) )
         {
-            ImGui::Text( "Source Data Path: %s", m_pResourceServer->GetSourceDataDir().c_str() );
-            ImGui::Text( "Compiled Data Path: %s", m_pResourceServer->GetCompiledDataDir().c_str() );
+            ImGui::Text( "Raw Resource Path: %s", m_pResourceServer->GetRawResourceDir().c_str() );
+            ImGui::Text( "Compiled Resource Path: %s", m_pResourceServer->GetCompiledResourceDir().c_str() );
             ImGui::Text( "IP Address: %s:%d", m_pResourceServer->GetNetworkAddress().c_str(), m_pResourceServer->GetNetworkPort() );
 
             ImGui::NewLine();
 
             //-------------------------------------------------------------------------
 
-            if ( ImGui::BeginTable( "Registered Compilers Table", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
+            if ( ImGui::BeginTable( "Registered Compilers Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
             {
                 ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 150 );
-                ImGui::TableSetupColumn( "Ver", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 15 );
+                ImGui::TableSetupColumn( "Ver", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 25 );
                 ImGui::TableSetupColumn( "Output Types", ImGuiTableColumnFlags_WidthStretch );
                 ImGui::TableSetupColumn( "Virtual Types", ImGuiTableColumnFlags_WidthStretch );
 
@@ -374,6 +384,37 @@ namespace KRG::Resource
                         ImGui::Text( str );
                         ImGui::SameLine();
                     }
+                }
+
+                ImGui::EndTable();
+            }
+        }
+        ImGui::End();
+    }
+
+    void ResourceServerUI::DrawConnectionInfo()
+    {
+        if ( ImGui::Begin( g_connectionInfoWindowName ) )
+        {
+            if ( ImGui::BeginTable( "ConnectionInfo", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
+            {
+                ImGui::TableSetupColumn( "Client ID", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 150 );
+                ImGui::TableSetupColumn( "IP", ImGuiTableColumnFlags_WidthStretch );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableHeadersRow();
+
+                int32 const numConnectedClients = m_pResourceServer->GetNumConnectedClients();
+                for ( int32 i = 0; i < numConnectedClients; i++ )
+                {
+                    ImGui::TableNextRow();
+
+                    ImGui::TableSetColumnIndex( 0 );
+                    ImGui::Text( "%u", m_pResourceServer->GetClientID( i ) );
+
+                    ImGui::TableSetColumnIndex( 1 );
+                    ImGui::Text( m_pResourceServer->GetConnectedClientAddress( i ).c_str() );
                 }
 
                 ImGui::EndTable();

@@ -14,7 +14,7 @@ namespace KRG
     {
         namespace Reflection
         {
-            ClangParser::ClangParser( SolutionInfo* pSolution, ReflectionDatabase* pDatabase, String const& reflectionDataPath )
+            ClangParser::ClangParser( SolutionInfo* pSolution, ReflectionDatabase* pDatabase, FileSystem::Path const& reflectionDataPath )
                 : m_context( pSolution, pDatabase )
                 , m_totalParsingTime( 0 )
                 , m_totalVisitingTime( 0 )
@@ -27,7 +27,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 std::ofstream reflectorFileStream;
-                String const reflectorHeader = m_reflectionDataPath + "Reflector.h";
+                FileSystem::Path const reflectorHeader = m_reflectionDataPath + "Reflector.h";
                 FileSystem::EnsurePathExists( reflectorHeader );
                 reflectorFileStream.open( reflectorHeader.c_str(), std::ios::out | std::ios::trunc );
                 KRG_ASSERT( !reflectorFileStream.fail() );

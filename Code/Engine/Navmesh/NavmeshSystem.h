@@ -28,10 +28,12 @@ namespace KRG::Navmesh
      
     private:
 
+        #if WITH_BFX
         NavPowerAllocator                               m_allocator;
 
         #if KRG_DEVELOPMENT_TOOLS
         NavPowerRenderer                                m_debugRenderer;
+        #endif
         #endif
     };
 }

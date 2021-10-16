@@ -291,9 +291,6 @@
     <ClCompile Include="Algorithm\Encoding.cpp">
       <Filter>Algorithm</Filter>
     </ClCompile>
-    <ClCompile Include="FileSystem\DataPath.cpp">
-      <Filter>FileSystem</Filter>
-    </ClCompile>
     <ClCompile Include="FileSystem\FileSystemPath.cpp">
       <Filter>FileSystem</Filter>
     </ClCompile>
@@ -527,9 +524,6 @@
     </ClInclude>
     <ClInclude Include="Algorithm\Encoding.h">
       <Filter>Algorithm</Filter>
-    </ClInclude>
-    <ClInclude Include="FileSystem\DataPath.h">
-      <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="FileSystem\FileSystemPath.h">
       <Filter>FileSystem</Filter>

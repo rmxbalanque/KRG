@@ -9,8 +9,8 @@ namespace KRG::Animation
 {
     void AnimationGraphComponent::Initialize()
     {
-        AnimationComponent::Initialize();
         KRG_ASSERT( m_pGraphVariation != nullptr && m_pGraphVariation.IsLoaded() );
+        AnimationComponent::Initialize();
 
         m_pPose = KRG::New<Pose>( m_pGraphVariation->GetSkeleton() );
         m_pPose->CalculateGlobalTransforms();

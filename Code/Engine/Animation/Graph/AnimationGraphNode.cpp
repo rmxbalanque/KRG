@@ -75,4 +75,18 @@ namespace KRG::Animation::Graph
         m_previousTime = 0.0f;
         m_currentTime = m_previousTime;
     }
+
+    #if KRG_DEVELOPMENT_TOOLS
+    PoseNodeDebugInfo PoseNode::GetDebugInfo() const
+    {
+        PoseNodeDebugInfo info;
+        info.m_loopCount = m_loopCount;
+        info.m_duration = m_duration;
+        info.m_currentTime = m_currentTime;
+        info.m_previousTime = m_previousTime;
+        info.m_pSyncTrack = &GetSyncTrack();
+        info.m_currentSyncTime = info.m_pSyncTrack->GetTime( m_currentTime );
+        return info;
+    }
+    #endif
 }

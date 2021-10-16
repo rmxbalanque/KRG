@@ -69,6 +69,10 @@
       "Command": "Animation",
       "Items": [
         {
+          "Id": "5f1791ee-5758-48e0-8206-8919902f6d7c",
+          "Command": "-compile data://packs/amplify/walk/walk_fwd_v2.anim"
+        },
+        {
           "Id": "4f10648d-b7d6-4b68-aa3e-915b7809edab",
           "Command": "-compile data://Packs/Amplify/AssaultRifle/AR_Aim_Crouch_Enter.anim"
         },

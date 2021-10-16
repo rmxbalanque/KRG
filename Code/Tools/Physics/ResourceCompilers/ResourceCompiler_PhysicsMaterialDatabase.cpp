@@ -1,4 +1,5 @@
 #include "ResourceCompiler_PhysicsMaterialDatabase.h"
+#include "Tools/Physics/ResourceDescriptors/ResourceDescriptor_PhysicsMaterialDatabase.h"
 #include "Engine/Physics/PhysicsMaterialDatabase.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
@@ -32,12 +33,12 @@ namespace KRG
 
             TVector<PhysicsMaterialSettings> materialSettings;
 
-            for ( auto const& libraryDataPath : resourceDescriptor.m_materialLibraries )
+            for ( ResourcePath const& libraryPath : resourceDescriptor.m_materialLibraries )
             {
                 FileSystem::Path libraryFilePath;
-                if ( !ctx.ConvertDataPathToFilePath( libraryDataPath, libraryFilePath ) )
+                if ( !ctx.ConvertResourcePathToFilePath( libraryPath, libraryFilePath ) )
                 {
-                    return Error( "Failed to convert data path to filepath: %s", libraryDataPath.c_str() );
+                    return Error( "Failed to convert data path to filepath: %s", libraryPath.c_str() );
                 }
 
                 //-------------------------------------------------------------------------

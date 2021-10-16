@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Navmesh\Components\NavmeshComponent.h"
+#include "D:\Kruger\Code\Engine\Navmesh\Components\NavmeshComponent.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Navmesh::NavmeshComponent
@@ -161,7 +161,7 @@ namespace KRG
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pNavmeshData.IsUnloaded() || pActualType->m_pNavmeshData.IsLoading() )
+                    else if ( !pActualType->m_pNavmeshData.IsLoaded() )
                     {
                         return LoadingStatus::Loading;
                     }

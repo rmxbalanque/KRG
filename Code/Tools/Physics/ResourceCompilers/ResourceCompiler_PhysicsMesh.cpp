@@ -1,4 +1,5 @@
 #include "ResourceCompiler_PhysicsMesh.h"
+#include "Tools/Physics/ResourceDescriptors/ResourceDescriptor_PhysicsMesh.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Core/Resource/RawAssets/RawMesh.h"
 #include "Engine/Physics/PhysicsMesh.h"
@@ -58,9 +59,9 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             FileSystem::Path meshFilePath;
-            if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_meshDataPath, meshFilePath ) )
+            if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_meshPath, meshFilePath ) )
             {
-                return Error( "Invalid source data path: %s", resourceDescriptor.m_meshDataPath.c_str() );
+                return Error( "Invalid source data path: %s", resourceDescriptor.m_meshPath.c_str() );
             }
 
             RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };

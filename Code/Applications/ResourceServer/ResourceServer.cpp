@@ -54,7 +54,7 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
-        if ( m_fileSystemWatcher.StartWatching( m_pSettings->m_sourceDataPath ) )
+        if ( m_fileSystemWatcher.StartWatching( m_pSettings->m_rawResourcePath ) )
         {
             m_fileSystemWatcher.RegisterChangeListener( this );
         }
@@ -143,45 +143,15 @@ namespace KRG::Resource
         {
             auto ProcessIncomingMessages = [this] ( Network::IPC::Message const& message )
             {
-                // Track connected clients
-                //-------------------------------------------------------------------------
-
-                uint32 const clientID = message.GetClientConnectionID();
-                auto foundClientIter = VectorFind( m_knownClients, clientID, [] ( ClientRecord const& record, uint64 clientID ) { return record.m_clientID == clientID; } );
-                if ( foundClientIter != m_knownClients.end() )
-                {
-                    foundClientIter->m_lastUpdateTime = SystemClock::GetTimeInSeconds();
-                }
-                else // Add new client record
-                {
-                    m_knownClients.emplace_back( ClientRecord( clientID ) );
-                }
-
-                // Process messages
-                //-------------------------------------------------------------------------
-
                 if ( message.GetMessageID() == (int32) NetworkMessageID::RequestResource )
                 {
+                    uint32 const clientID = message.GetClientConnectionID();
                     NetworkResourceRequest networkRequest = message.GetData<NetworkResourceRequest>();
                     ProcessResourceRequest( networkRequest.m_path, clientID );
                 }
             };
 
             m_networkServer.ProcessIncomingMessages( ProcessIncomingMessages );
-
-            // Clean up connected clients list
-            //-------------------------------------------------------------------------
-
-            static Seconds const keepAliveTime( 10 );
-            Seconds const currentTime = SystemClock::GetTimeInSeconds();
-            for ( int32 i = (int32) m_knownClients.size() - 1; i >= 0; i-- )
-            {
-                Seconds const timeSinceLastUpdate = currentTime - m_knownClients[i].m_lastUpdateTime;
-                if ( timeSinceLastUpdate > keepAliveTime )
-                {
-                    m_knownClients.erase_unsorted( m_knownClients.begin() + i );
-                }
-            }
         }
 
         // Update requests
@@ -258,13 +228,13 @@ namespace KRG::Resource
     {
         KRG_ASSERT( filePath.IsValid() && filePath.IsFilePath() );
 
-        DataPath dataPath = DataPath::FromFileSystemPath( m_pSettings->m_sourceDataPath, filePath );
-        if ( !dataPath.IsValid() )
+        ResourcePath resourcePath = ResourcePath::FromFileSystemPath( m_pSettings->m_rawResourcePath, filePath );
+        if ( !resourcePath.IsValid() )
         {
             return;
         }
 
-        ResourceID resourceID( dataPath );
+        ResourceID resourceID( resourcePath );
         if ( !resourceID.IsValid() )
         {
             return;
@@ -304,9 +274,9 @@ namespace KRG::Resource
             pRequest->m_clientID = clientID;
             pRequest->m_isHotReloadRequest = ( clientID == 0 );
             pRequest->m_resourceID = resourceID;
-            pRequest->m_sourceFile = DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, pRequest->m_resourceID.GetDataPath() );
-            pRequest->m_destinationFile = DataPath::ToFileSystemPath( m_pSettings->m_compiledDataPath, pRequest->m_resourceID.GetDataPath() );
-            pRequest->m_compilerArgs = pRequest->m_resourceID.GetDataPath().c_str();
+            pRequest->m_sourceFile = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, pRequest->m_resourceID.GetPath() );
+            pRequest->m_destinationFile = ResourcePath::ToFileSystemPath( m_pSettings->m_compiledResourcePath, pRequest->m_resourceID.GetPath() );
+            pRequest->m_compilerArgs = pRequest->m_resourceID.GetPath().c_str();
 
             // Resource type validity check
             ResourceTypeID const resourceTypeID = pRequest->m_resourceID.GetResourceTypeID();
@@ -351,7 +321,7 @@ namespace KRG::Resource
                     }
                 }
 
-                TVector<DataPath> compileDependencies;
+                TVector<ResourcePath> compileDependencies;
 
                 if ( pRequest->m_status != CompilationRequest::Status::Failed )
                 {
@@ -413,10 +383,10 @@ namespace KRG::Resource
             // Only notify all clients is the request succeeded
             if ( pRequest->HasSucceeded() )
             {
-                for ( auto const& clientRecord : m_knownClients )
+                for ( auto const& clientID : m_networkServer.GetConnectedClientIDs() )
                 {
                     Network::IPC::Message message;
-                    message.SetClientConnectionID( clientRecord.m_clientID );
+                    message.SetClientConnectionID( clientID );
                     message.SetData( (int32) NetworkMessageID::ResourceUpdated, response );
                     m_networkServer.SendMessage( eastl::move( message ) );
                 }
@@ -433,7 +403,7 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    void ResourceServer::PerformResourceUpToDateCheck( CompilationRequest* pRequest, TVector<DataPath> const& compileDependencies ) const
+    void ResourceServer::PerformResourceUpToDateCheck( CompilationRequest* pRequest, TVector<ResourcePath> const& compileDependencies ) const
     {
         KRG_ASSERT( pRequest != nullptr && pRequest->IsPending() );
 
@@ -459,7 +429,7 @@ namespace KRG::Resource
                 break;
             }
 
-            auto const compileDependencyPath = DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, compileDep );
+            auto const compileDependencyPath = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, compileDep );
             if ( !compileDependencyPath.IsExistingFile() )
             {
                 areCompileDependenciesAreUpToDate = false;
@@ -521,7 +491,7 @@ namespace KRG::Resource
         pRequest->m_upToDateCheckTimeFinished = SystemClock::GetTime();
     }
 
-    bool ResourceServer::TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<DataPath>& outDependencies, String* pErrorLog ) const
+    bool ResourceServer::TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<ResourcePath>& outDependencies, String* pErrorLog ) const
     {
         KRG_ASSERT( resourceFilePath.IsValid() );
 
@@ -568,7 +538,7 @@ namespace KRG::Resource
         // Check that the target file exists
         //-------------------------------------------------------------------------
 
-        if ( !FileSystem::FileExists( DataPath::ToFileSystemPath( m_pSettings->m_compiledDataPath, resourceID.GetDataPath() ) ) )
+        if ( !FileSystem::FileExists( ResourcePath::ToFileSystemPath( m_pSettings->m_compiledResourcePath, resourceID.GetPath() ) ) )
         {
             return false;
         }
@@ -579,7 +549,7 @@ namespace KRG::Resource
         int32 const compilerVersion = m_compilerRegistry.GetVersionForType( resourceID.GetResourceTypeID() );
         KRG_ASSERT( compilerVersion >= 0 );
 
-        FileSystem::Path const sourceFilePath = DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, resourceID.GetDataPath() );
+        FileSystem::Path const sourceFilePath = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, resourceID.GetPath() );
         if ( !sourceFilePath.IsExistingFile() )
         {
             return false;
@@ -588,7 +558,7 @@ namespace KRG::Resource
         uint64 const fileTimestamp = FileSystem::GetFileModifiedTime( sourceFilePath );
         uint64 sourceTimestampHash = 0;
 
-        TVector<DataPath> compileDependencies;
+        TVector<ResourcePath> compileDependencies;
         if ( !TryReadCompileDependencies( sourceFilePath, compileDependencies ) )
         {
             return false;
@@ -596,7 +566,7 @@ namespace KRG::Resource
 
         for ( auto const& compileDep : compileDependencies )
         {
-            sourceTimestampHash += FileSystem::GetFileModifiedTime( DataPath::ToFileSystemPath( m_pSettings->m_sourceDataPath, compileDep ) );
+            sourceTimestampHash += FileSystem::GetFileModifiedTime( ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, compileDep ) );
 
             ResourceTypeID const extension( compileDep.GetExtension() );
             if ( IsCompileableResourceType( extension ) && IsResourceUpToDate( ResourceID( compileDep ) ) )

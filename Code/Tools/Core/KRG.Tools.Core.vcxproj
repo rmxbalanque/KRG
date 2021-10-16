@@ -64,9 +64,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DataFileTools\DataFilePicker.h" />
-    <ClInclude Include="Editors\StandaloneEditor.h" />
-    <ClInclude Include="Editors\EditorModel.h" />
+    <ClInclude Include="Resource\DataFilePicker.h" />
     <ClInclude Include="FileSystem\FileSystemHelpers.h" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
     <ClInclude Include="Helpers\GlobalRegistryBase.h" />
@@ -98,7 +96,8 @@
     <ClInclude Include="Resource\RawAssets\RawAssetReader.h" />
     <ClInclude Include="Resource\RawAssets\RawMesh.h" />
     <ClInclude Include="Resource\RawAssets\RawSkeleton.h" />
-    <ClInclude Include="Editors\ResourceEditorWorkspace.h" />
+    <ClInclude Include="Resource\ResourceEditorWorkspace.h" />
+    <ClInclude Include="Resource\ResourceDatabase.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
     <ClInclude Include="ThirdParty\KRG_RapidJson.h" />
@@ -116,9 +115,7 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DataFileTools\DataFilePicker.cpp" />
-    <ClCompile Include="Editors\StandaloneEditor.cpp" />
-    <ClCompile Include="Editors\EditorModel.cpp" />
+    <ClCompile Include="Resource\DataFilePicker.cpp" />
     <ClCompile Include="FileSystem\FileSystemHelpers.cpp" />
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
     <ClCompile Include="GraphEditor\Flow\FlowGraph.cpp" />
@@ -147,7 +144,8 @@
     <ClCompile Include="Resource\RawAssets\RawAssetReader.cpp" />
     <ClCompile Include="Resource\RawAssets\RawMesh.cpp" />
     <ClCompile Include="Resource\RawAssets\RawSkeleton.cpp" />
-    <ClCompile Include="Editors\ResourceEditorWorkspace.cpp" />
+    <ClCompile Include="Resource\ResourceEditorWorkspace.cpp" />
+    <ClCompile Include="Resource\ResourceDatabase.cpp" />
     <ClCompile Include="ThirdParty\KRG_RapidJson.cpp" />
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp" />
     <ClCompile Include="TimelineEditor\TimelineData.cpp" />

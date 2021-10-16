@@ -154,7 +154,7 @@ namespace KRG::Resource
                             }
                             else if ( requesterID.IsInstallDependencyRequest() )
                             {
-                                ImGui::TextColored( Colors::Coral.ToFloat4(), "Install Dependency: %u", requesterID.GetInstallDependencyDataPathID() );
+                                ImGui::TextColored( Colors::Coral.ToFloat4(), "Install Dependency: %u", requesterID.GetInstallDependencyResourcePathID() );
                             }
                             else // Normal request
                             {

@@ -22,7 +22,7 @@ namespace KRG
         , m_editorEngine( TFunction<bool( String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
     {
         // This is hard-coded since this is always the default map for the editor. There is no need for this to change.
-        m_editorEngine.m_startupMap = DataPath( "data://Editor/EditorMap.map" );
+        m_editorEngine.m_startupMap = ResourcePath( "data://Editor/EditorMap.map" );
     }
 
     bool ResourceEditorApplication::ReadSettings( int32 argc, char** argv )

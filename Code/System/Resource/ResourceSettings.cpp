@@ -14,12 +14,12 @@ namespace KRG::Resource
             String s;
             m_workingDirectoryPath = FileSystem::GetCurrentProcessPath();
 
-            if ( ini.TryGetString( "Paths:SourceDataPath", s ) )
+            if ( ini.TryGetString( "Paths:RawResourcePath", s ) )
             {
-                m_sourceDataPath = m_workingDirectoryPath + s;
-                if ( !m_sourceDataPath.IsValid() )
+                m_rawResourcePath = m_workingDirectoryPath + s;
+                if ( !m_rawResourcePath.IsValid() )
                 {
-                    KRG_LOG_ERROR( "Engine", "Invalid source data path: %s", m_compiledDataPath.c_str() );
+                    KRG_LOG_ERROR( "Engine", "Invalid source data path: %s", m_compiledResourcePath.c_str() );
                     return false;
                 }
             }
@@ -31,12 +31,12 @@ namespace KRG::Resource
 
             //-------------------------------------------------------------------------
 
-            if ( ini.TryGetString( "Paths:CompiledDataPath", s ) )
+            if ( ini.TryGetString( "Paths:CompiledResourcePath", s ) )
             {
-                m_compiledDataPath = m_workingDirectoryPath + s;
-                if ( !m_compiledDataPath.IsValid() )
+                m_compiledResourcePath = m_workingDirectoryPath + s;
+                if ( !m_compiledResourcePath.IsValid() )
                 {
-                    KRG_LOG_ERROR( "Engine", "Invalid compiled data path: %s", m_compiledDataPath.c_str() );
+                    KRG_LOG_ERROR( "Engine", "Invalid compiled data path: %s", m_compiledResourcePath.c_str() );
                     return false;
                 }
             }

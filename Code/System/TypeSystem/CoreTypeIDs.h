@@ -44,7 +44,6 @@ namespace KRG::TypeSystem
         Degrees,
         Radians,
         EulerAngles,
-        DataPath,
         IntRange,
         FloatRange,
 
@@ -53,6 +52,7 @@ namespace KRG::TypeSystem
 
         TVector,
 
+        ResourcePath,
         ResourceTypeID,
         ResourceID,
         ResourcePtr,
@@ -150,12 +150,12 @@ namespace KRG::TypeSystem
     template<> inline bool IsCoreType<Degrees>() { return true; }
     template<> inline bool IsCoreType<Radians>() { return true; }
     template<> inline bool IsCoreType<EulerAngles >() { return true; }
-    template<> inline bool IsCoreType<DataPath>() { return true; }
     template<> inline bool IsCoreType<IntRange>() { return true; }
     template<> inline bool IsCoreType<FloatRange>() { return true; }
     template<> inline bool IsCoreType<BitFlags>() { return true; }
     template<> inline bool IsCoreType<TBitFlags>() { return true; }
     template<> inline bool IsCoreType<TVector>() { return true; }
+    template<> inline bool IsCoreType<ResourcePath>() { return true; }
     template<> inline bool IsCoreType<ResourceTypeID>() { return true; }
     template<> inline bool IsCoreType<ResourceID>() { return true; }
     template<> inline bool IsCoreType<Resource::ResourcePtr>() { return true; }
@@ -196,12 +196,12 @@ namespace KRG::TypeSystem
     template<> inline TypeID GetCoreTypeID<Degrees>() { return GetCoreTypeID( CoreTypes::Degrees ); }
     template<> inline TypeID GetCoreTypeID<Radians>() { return GetCoreTypeID( CoreTypes::Radians ); }
     template<> inline TypeID GetCoreTypeID<EulerAngles >() { return GetCoreTypeID( CoreTypes::EulerAngles ); }
-    template<> inline TypeID GetCoreTypeID<DataPath>() { return GetCoreTypeID( CoreTypes::DataPath ); }
     template<> inline TypeID GetCoreTypeID<IntRange>() { return GetCoreTypeID( CoreTypes::IntRange ); }
     template<> inline TypeID GetCoreTypeID<FloatRange>() { return GetCoreTypeID( CoreTypes::FloatRange ); }
     template<> inline TypeID GetCoreTypeID<BitFlags>() { return GetCoreTypeID( CoreTypes::BitFlags ); }
     template<> inline TypeID GetCoreTypeID<TBitFlags>() { return GetCoreTypeID( CoreTypes::TBitFlags ); }
     template<> inline TypeID GetCoreTypeID<TVector>() { return GetCoreTypeID( CoreTypes::TVector ); }
+    template<> inline TypeID GetCoreTypeID<ResourcePath>() { return GetCoreTypeID( CoreTypes::ResourcePath ); }
     template<> inline TypeID GetCoreTypeID<ResourceTypeID>() { return GetCoreTypeID( CoreTypes::ResourceTypeID ); }
     template<> inline TypeID GetCoreTypeID<ResourceID>() { return GetCoreTypeID( CoreTypes::ResourceID ); }
     template<> inline TypeID GetCoreTypeID<Resource::ResourcePtr>() { return GetCoreTypeID( CoreTypes::ResourcePtr ); }

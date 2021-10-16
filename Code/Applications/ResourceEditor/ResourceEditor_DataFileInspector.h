@@ -10,7 +10,7 @@ namespace KRG {}
 
 namespace KRG
 {
-    class EditorModel;
+    class ResourceEditorModel;
     class RawFileInspector;
     namespace Resource { struct ResourceDescriptor; }
 
@@ -27,7 +27,7 @@ namespace KRG
 
     public:
 
-        DataFileInspector( EditorModel* pModel );
+        DataFileInspector( ResourceEditorModel* pModel );
         virtual ~DataFileInspector();
 
         inline FileSystem::Path const& GetInspectedFilePath() const { return m_inspectedFile; }
@@ -44,7 +44,7 @@ namespace KRG
 
     protected:
 
-        EditorModel*                                m_pModel = nullptr;
+        ResourceEditorModel*                                m_pModel = nullptr;
         PropertyGrid                                m_propertyGrid;
         FileSystem::Path                            m_inspectedFile;
         Mode                                        m_mode = Mode::None;

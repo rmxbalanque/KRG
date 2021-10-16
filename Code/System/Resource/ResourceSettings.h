@@ -25,8 +25,8 @@ namespace KRG::Resource
         String                  m_resourceServerNetworkAddress;
         uint16                  m_resourceServerPort;
         FileSystem::Path        m_workingDirectoryPath;
-        FileSystem::Path        m_sourceDataPath;
-        FileSystem::Path        m_compiledDataPath;
+        FileSystem::Path        m_rawResourcePath;
+        FileSystem::Path        m_compiledResourcePath;
         FileSystem::Path        m_compiledResourceDatabasePath;
         FileSystem::Path        m_resourceServerExecutablePath;
         FileSystem::Path        m_resourceCompilerExecutablePath;

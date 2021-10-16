@@ -13,6 +13,8 @@
   <ItemGroup>
     <ClInclude Include="ResourceCompilers\ResourceCompiler_PhysicsMaterialDatabase.h" />
     <ClInclude Include="ResourceCompilers\ResourceCompiler_PhysicsMesh.h" />
+    <ClInclude Include="ResourceDescriptors\ResourceDescriptor_PhysicsMaterialDatabase.h" />
+    <ClInclude Include="ResourceDescriptors\ResourceDescriptor_PhysicsMesh.h" />
     <ClInclude Include="_Module\API.h" />
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>

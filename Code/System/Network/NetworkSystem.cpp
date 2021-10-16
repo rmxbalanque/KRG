@@ -81,12 +81,15 @@ namespace KRG::Network
                     // before we accepted the connection.)
                     if ( pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connected )
                     {
-                        // Locate the client.  Note that it should have been found, because this
-                        // is the only codepath where we remove clients (except on shutdown),
-                        // and connection change callbacks are dispatched in queue order.
+                        // Locate the client.  Note that it should have been found, because this is the only code path where we remove clients (except on shutdown), and connection change callbacks are dispatched in queue order.
                         auto clientIter = eastl::find( pServerConnection->m_connectedClients.begin(), pServerConnection->m_connectedClients.end(), pInfo->m_hConn );
                         KRG_ASSERT( clientIter != pServerConnection->m_connectedClients.end() );
-                        pServerConnection->m_connectedClients.erase_unsorted( clientIter );
+                        auto idx = eastl::distance( clientIter, pServerConnection->m_connectedClients.begin() );
+                        pServerConnection->m_connectedClients.erase( clientIter );
+
+                        #if KRG_DEVELOPMENT_TOOLS
+                        pServerConnection->m_connectedClientAddresses.erase( pServerConnection->m_connectedClientAddresses.begin() + idx );
+                        #endif
                     }
                     else
                     {
@@ -128,6 +131,13 @@ namespace KRG::Network
 
                     // Add them to the client list, using std::map wacky syntax
                     pServerConnection->m_connectedClients.emplace_back( pInfo->m_hConn );
+
+                    #if KRG_DEVELOPMENT_TOOLS
+                    auto& addressStr = pServerConnection->m_connectedClientAddresses.emplace_back( AddressString() );
+                    addressStr.resize( AddressString::kMaxSize );
+                    pInfo->m_info.m_addrRemote.ToString( addressStr.data(), AddressString::kMaxSize, true );
+                    #endif
+
                     break;
                 }
 
@@ -512,6 +522,10 @@ namespace KRG::Network
             pInterface->CloseConnection( it, 0, "Server Shutdown", true );
         }
         pServerConnection->m_connectedClients.clear();
+
+        #if KRG_DEVELOPMENT_TOOLS
+        pServerConnection->m_connectedClientAddresses.clear();
+        #endif
 
         //-------------------------------------------------------------------------
 

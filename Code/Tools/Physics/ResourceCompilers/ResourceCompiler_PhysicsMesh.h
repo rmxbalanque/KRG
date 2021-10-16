@@ -5,42 +5,24 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::RawAssets { class RawMesh; }
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Physics
 {
-    namespace RawAssets { class RawMesh; }
-
-    //-------------------------------------------------------------------------
-
-    namespace Physics
+    class PhysicsMeshCompiler : public Resource::Compiler
     {
-        struct KRG_TOOLS_PHYSICS_API PhysicsMeshResourceDescriptor : public Resource::ResourceDescriptor
-        {
-            KRG_REGISTER_TYPE( PhysicsMeshResourceDescriptor );
+        static const int32 s_version = 4;
 
-            KRG_EXPOSE DataPath         m_meshDataPath;
+    public:
 
-            // Optional value: Specifies a single sub-mesh to use to generated the physics collision, if this is not set, all sub-meshes contained in the source will be combined into a single mesh object
-            KRG_EXPOSE String           m_meshName;
+        PhysicsMeshCompiler();
+        virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
 
-            // Optional value: Specifies if the mesh is a convex mesh (meshes are considered triangle meshes by default)
-            KRG_EXPOSE bool             m_isConvexMesh = false;
-        };
+    private:
 
-        //-------------------------------------------------------------------------
-
-        class PhysicsMeshCompiler : public Resource::Compiler
-        {
-            static const int32 s_version = 4;
-
-        public:
-
-            PhysicsMeshCompiler();
-            virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
-
-        private:
-
-            bool CookTriangleMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const;
-            bool CookConvexMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const;
-        };
-    }
+        bool CookTriangleMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const;
+        bool CookConvexMeshData( RawAssets::RawMesh const& rawMesh, TVector<Byte>& outCookedData ) const;
+    };
 }

@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Animation\Components\AnimationPlayerComponent.h"
+#include "D:\Kruger\Code\Engine\Animation\Components\AnimationPlayerComponent.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Animation::AnimationPlayerComponent::PlayMode
@@ -182,7 +182,7 @@ namespace KRG
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pAnimation.IsUnloaded() || pActualType->m_pAnimation.IsLoading() )
+                    else if ( !pActualType->m_pAnimation.IsLoaded() )
                     {
                         return LoadingStatus::Loading;
                     }

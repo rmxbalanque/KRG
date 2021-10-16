@@ -19,7 +19,7 @@ namespace KRG::TypeSystem::Serialization
         TypeWriter( TypeRegistry const& typeRegistry );
 
         // Reset all serialized data without writing to disk
-        void Reset();
+        void Reset() override;
 
         // Native
         //-------------------------------------------------------------------------

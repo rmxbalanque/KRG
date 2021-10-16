@@ -8,8 +8,6 @@
 #include "gltf/gltfSkeleton.h"
 #include "gltf/gltfAnimation.h"
 #include "gltf/gltfInfo.h"
-#include "System/Core/Logging/Log.h"
-#include "System/Core/Types/String.h"
 
 //-------------------------------------------------------------------------
 

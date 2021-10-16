@@ -7,7 +7,7 @@
 
 namespace KRG
 {
-    RawFileInspector::RawFileInspector( EditorModel* pModel, FileSystem::Path const& filePath )
+    RawFileInspector::RawFileInspector( ResourceEditorModel* pModel, FileSystem::Path const& filePath )
         : m_filePath( filePath )
         , m_pModel( pModel )
     {
@@ -77,7 +77,7 @@ namespace KRG
         return false;
     }
 
-    RawFileInspector* RawFileInspectorFactory::TryCreateInspector( EditorModel* pModel, FileSystem::Path const& filePath )
+    RawFileInspector* RawFileInspectorFactory::TryCreateInspector( ResourceEditorModel* pModel, FileSystem::Path const& filePath )
     {
         KRG_ASSERT( filePath.IsValid() );
 

@@ -65,13 +65,14 @@ namespace KRG::Navmesh
         // Add resource
         //-------------------------------------------------------------------------
 
-        auto const componentWorldTransform = pComponent->GetWorldTransform();
+        #if WITH_BFX
+        Transform const& componentWorldTransform = pComponent->GetWorldTransform();
 
         bfx::ResourceOffset offset;
         offset.m_positionOffset = ToBfx( componentWorldTransform.GetTranslation() );
         offset.m_rotationOffset = ToBfx( componentWorldTransform.GetRotation() );
-
         bfx::AddResource( pNavmesh, offset );
+        #endif
 
         // Add record
         m_registeredNavmeshes.emplace_back( RegisteredNavmesh( pComponent->GetID(), pNavmesh ) );
@@ -84,7 +85,9 @@ namespace KRG::Navmesh
         {
             if ( pComponent->GetID() == m_registeredNavmeshes[i].m_componentID )
             {
+                #if WITH_BFX
                 bfx::RemoveResource( m_registeredNavmeshes[i].m_pNavmesh );
+                #endif
 
                 //-------------------------------------------------------------------------
 

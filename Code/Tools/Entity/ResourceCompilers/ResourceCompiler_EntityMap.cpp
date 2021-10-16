@@ -64,16 +64,16 @@ namespace KRG::EntityModel
                 }
 
                 // Set navmesh resource ptr
-                DataPath navmeshResourceDataPath = ctx.m_resourceID.GetDataPath();
-                navmeshResourceDataPath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
-                navmeshComponents[0]->m_properties.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourceDataPath.GetString() ) );
+                ResourcePath navmeshResourcePath = ctx.m_resourceID.GetPath();
+                navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
+                navmeshComponents[0]->m_properties.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourcePath.GetString() ) );
 
                 // Generate navmesh
-                FileSystem::Path navmeshResourcePath = ctx.m_outputFilePath;
+                FileSystem::Path navmeshFilePath = ctx.m_outputFilePath;
                 navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
 
                 Navmesh::NavmeshBuilder navmeshBuilder;
-                if ( !navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshResourcePath ) )
+                if ( !navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshFilePath ) )
                 {
                     return Resource::CompilationResult::Failure;
                 }

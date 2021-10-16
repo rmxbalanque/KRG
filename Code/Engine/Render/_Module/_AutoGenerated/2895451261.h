@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Render\Components\StaticMeshComponent.h"
+#include "D:\Kruger\Code\Engine\Render\Components\StaticMeshComponent.h"
 
 //-------------------------------------------------------------------------
 // Enum Helper: KRG::Render::Mobility
@@ -229,7 +229,7 @@ namespace KRG
                         {
                             status = LoadingStatus::Failed;
                         }
-                        else if ( resourcePtr.IsUnloaded() || resourcePtr.IsLoading() )
+                        else if ( !resourcePtr.IsLoaded() )
                         {
                             return LoadingStatus::Loading;
                         }
@@ -239,7 +239,7 @@ namespace KRG
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pMesh.IsUnloaded() || pActualType->m_pMesh.IsLoading() )
+                    else if ( !pActualType->m_pMesh.IsLoaded() )
                     {
                         return LoadingStatus::Loading;
                     }

@@ -75,6 +75,25 @@ namespace KRG::Animation::Graph
             return static_cast<ValueNode*>( m_nodes[parameterNodeIdx] )->GetValue<T>( context );
         }
 
+        // Debug Information
+        //-------------------------------------------------------------------------
+        
+        #if KRG_DEVELOPMENT_TOOLS
+        inline bool IsNodeActive( GraphContext& context, NodeIndex nodeIdx ) const
+        {
+            KRG_ASSERT( IsValidNodeIndex( nodeIdx ) );
+            auto pNode = m_nodes[nodeIdx];
+            return pNode->IsNodeActive( context );
+        }
+
+        inline PoseNodeDebugInfo GetPoseNodeDebugInfo( GraphContext& context, NodeIndex nodeIdx ) const
+        {
+            KRG_ASSERT( IsValidNodeIndex( nodeIdx ) );
+            auto pNode = static_cast<PoseNode const*>( m_nodes[nodeIdx] );
+            return pNode->GetDebugInfo();
+        }
+        #endif
+
     private:
 
         KRG_FORCE_INLINE bool IsControlParameter( NodeIndex nodeIdx ) const 

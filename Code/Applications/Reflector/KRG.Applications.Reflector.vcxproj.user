@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-s d:\Kruger\KRG.sln -rebuild</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-s d:\Kruger\KRG.sln -rebuild</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-s d:\Kruger\KRG.sln</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-s d:\Kruger\KRG.sln</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>

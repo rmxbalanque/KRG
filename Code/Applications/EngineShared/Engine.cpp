@@ -418,6 +418,18 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_RESOURCE( "Loading/Streaming" );
                 m_pResourceSystem->Update();
+
+                // Handle hot-reloading of entities
+                #if KRG_DEVELOPMENT_TOOLS
+                if ( m_pResourceSystem->RequiresHotReloading() )
+                {
+                    m_pEntityWorld->BeginHotReload( m_pResourceSystem->GetHotReloadRequests() );
+                    m_pResourceSystem->ClearHotReloadRequests();
+                    m_pResourceSystem->Update( true );
+                    m_pEntityWorld->EndHotReload();
+                }
+                #endif
+
                 m_pEntityWorld->UpdateLoading();
             }
 

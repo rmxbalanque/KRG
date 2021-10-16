@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Animation\Components\AnimationGraphComponent.h"
+#include "D:\Kruger\Code\Engine\Animation\Components\AnimationGraphComponent.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::AnimationGraphComponent
@@ -148,7 +148,7 @@ namespace KRG
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pGraphVariation.IsUnloaded() || pActualType->m_pGraphVariation.IsLoading() )
+                    else if ( !pActualType->m_pGraphVariation.IsLoaded() )
                     {
                         return LoadingStatus::Loading;
                     }

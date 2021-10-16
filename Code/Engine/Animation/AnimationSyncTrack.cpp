@@ -168,18 +168,18 @@ namespace KRG::Animation
         KRG_ASSERT( time.m_percentageThrough >= 0.0f && time.m_percentageThrough <= 1.0f );
 
         // Adjust event index based on event offset and clamp to the track
-        int32 Offset = withOffset ? m_startEventOffset : 0;
-        int32 const eventIdx = ClampIndexToTrack( time.m_eventIdx + Offset );
-        Percentage PlaybackPercent = m_syncEvents[eventIdx].m_startTime + ( m_syncEvents[eventIdx].m_duration * time.m_percentageThrough );
+        int32 offset = withOffset ? m_startEventOffset : 0;
+        int32 const eventIdx = ClampIndexToTrack( time.m_eventIdx + offset );
+        Percentage percentageThroughSyncTrack = m_syncEvents[eventIdx].m_startTime + ( m_syncEvents[eventIdx].m_duration * time.m_percentageThrough );
 
         // Handle looping sequences
-        while ( PlaybackPercent > 1.0f )
+        while ( percentageThroughSyncTrack > 1.0f )
         {
-            PlaybackPercent -= 1.0f;
+            percentageThroughSyncTrack -= 1.0f;
         }
 
-        KRG_ASSERT( PlaybackPercent >= 0.0f && PlaybackPercent <= 1.0f );
-        return PlaybackPercent;
+        KRG_ASSERT( percentageThroughSyncTrack >= 0.0f && percentageThroughSyncTrack <= 1.0f );
+        return percentageThroughSyncTrack;
     }
 
     Percentage SyncTrack::GetEventDuration( int32 const eventIdx, bool withOffset ) const

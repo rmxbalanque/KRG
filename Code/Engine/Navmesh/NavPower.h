@@ -1,4 +1,5 @@
 #pragma once
+#if WITH_BFX
 #include "_Module/API.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Types/Color.h"
@@ -109,3 +110,4 @@ namespace KRG::Navmesh
     };
     #endif
 }
+#endif

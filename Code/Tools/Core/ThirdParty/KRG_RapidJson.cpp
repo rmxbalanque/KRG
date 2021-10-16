@@ -1,5 +1,4 @@
 #include "KRG_RapidJson.h"
-#include "System/Core/FileSystem/FileSystemPath.h"
 #include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
@@ -50,7 +49,7 @@ namespace KRG
             return isValidJsonFile;
         }
 
-        return true;
+        return false;
     }
 
     bool JsonReader::ReadFromString( char const* pString )

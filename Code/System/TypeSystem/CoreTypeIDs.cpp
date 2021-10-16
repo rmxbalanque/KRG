@@ -67,7 +67,6 @@ namespace KRG::TypeSystem
         REGISTER_TYPE_RECORD( CoreTypes::Degrees, KRG::Degrees );
         REGISTER_TYPE_RECORD( CoreTypes::Radians, KRG::Radians );
         REGISTER_TYPE_RECORD( CoreTypes::EulerAngles, KRG::EulerAngles );
-        REGISTER_TYPE_RECORD( CoreTypes::DataPath, KRG::DataPath );
         REGISTER_TYPE_RECORD( CoreTypes::IntRange, KRG::IntRange );
         REGISTER_TYPE_RECORD( CoreTypes::FloatRange, KRG::FloatRange );
 
@@ -77,6 +76,7 @@ namespace KRG::TypeSystem
         REGISTER_TEMPLATE_TYPE_RECORD_GENERIC( CoreTypes::TVector, KRG::TVector, uint8 );
 
         // Resources
+        REGISTER_TYPE_RECORD( CoreTypes::ResourcePath, KRG::ResourcePath );
         REGISTER_TYPE_RECORD( CoreTypes::ResourceID, KRG::ResourceID );
         REGISTER_TYPE_RECORD( CoreTypes::ResourceTypeID, KRG::ResourceTypeID );
         REGISTER_TYPE_RECORD( CoreTypes::ResourcePtr, KRG::Resource::ResourcePtr );
@@ -119,17 +119,17 @@ namespace KRG::TypeSystem
     {
         KRG_ASSERT( s_areCoreTypeRecordsInitialized );
 
-        auto RecordIter = eastl::find( s_coreTypeRecords.begin(), s_coreTypeRecords.end(), typeID );
-        KRG_ASSERT( RecordIter != s_coreTypeRecords.end() );
-        return RecordIter->m_typeSize;
+        auto recordIter = eastl::find( s_coreTypeRecords.begin(), s_coreTypeRecords.end(), typeID );
+        KRG_ASSERT( recordIter != s_coreTypeRecords.end() );
+        return recordIter->m_typeSize;
     }
 
     size_t CoreTypeRegistry::GetTypeAlignment( TypeID typeID )
     {
         KRG_ASSERT( s_areCoreTypeRecordsInitialized );
 
-        auto RecordIter = eastl::find( s_coreTypeRecords.begin(), s_coreTypeRecords.end(), typeID );
-        KRG_ASSERT( RecordIter != s_coreTypeRecords.end() );
-        return RecordIter->m_typeAlignment;
+        auto recordIter = eastl::find( s_coreTypeRecords.begin(), s_coreTypeRecords.end(), typeID );
+        KRG_ASSERT( recordIter != s_coreTypeRecords.end() );
+        return recordIter->m_typeAlignment;
     }
 }

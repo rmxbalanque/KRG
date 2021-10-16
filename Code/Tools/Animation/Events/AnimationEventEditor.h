@@ -23,13 +23,13 @@ namespace KRG::Animation
 
         inline ResourceID const& GetAnimationID() const { return m_animationID; }
 
-        void Update( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent );
+        void UpdateAndDraw( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent );
 
         virtual bool RequestSave() override;
 
     private:
 
-        virtual bool DrawAddTracksMenu() override;
+        virtual void DrawAddTracksMenu() override;
 
         void LoadEventData();
 

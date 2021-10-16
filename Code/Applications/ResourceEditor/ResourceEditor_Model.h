@@ -1,5 +1,5 @@
 #pragma once
-#include "Tools/Core/Editors/EditorModel.h"
+#include "Tools/Core/Resource/ResourceEditorWorkspace.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,13 +9,19 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class ResourceEditorModel : public EditorModel
+    class ResourceEditorModel final
     {
     public:
 
-        virtual ~ResourceEditorModel();
+        ~ResourceEditorModel();
 
-        virtual void Shutdown( UpdateContext const& context ) override;
+        void Initialize( UpdateContext const& context );
+        void Shutdown( UpdateContext const& context );
+
+        inline FileSystem::Path const& GetSourceDataDirectory() const { return m_editorContext.m_sourceDataDirectory; }
+        inline FileSystem::Path const& GetCompiledDataDirectory() const { return m_editorContext.m_compiledDataDirectory; }
+        inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_editorContext.m_pTypeRegistry; }
+        inline Resource::ResourceSystem* GetResourceSystem() const { return m_editorContext.m_pResourceSystem; }
 
         // Workspaces
         //-------------------------------------------------------------------------
@@ -37,11 +43,12 @@ namespace KRG
 
     private:
 
-        ResourceEditorWorkspace* CreateResourceWorkspace( EditorModel* pModel, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID );
+        ResourceEditorWorkspace* CreateResourceWorkspace( ResourceEditorContext const& model, Resource::ResourceSystem* pResourceSystem, ResourceID const& resourceID );
 
     private:
 
-        TVector<ResourceEditorWorkspace*>             m_openWorkspaces;
-        ResourceEditorWorkspace*                      m_pActiveWorkspace = nullptr;
+        ResourceEditorContext                       m_editorContext;
+        TVector<ResourceEditorWorkspace*>           m_openWorkspaces;
+        ResourceEditorWorkspace*                    m_pActiveWorkspace = nullptr;
     };
 }

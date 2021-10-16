@@ -5,13 +5,13 @@
 #include "System/TypeSystem/TypeHelpers.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
-#include "d:\Kruger\Code\Game\Core\_Module\Module.h"
-#include "d:\Kruger\Code\Engine\Core\_Module\Module.h"
-#include "d:\Kruger\Code\Engine\Render\_Module\Module.h"
-#include "d:\Kruger\Code\Engine\Animation\_Module\Module.h"
-#include "d:\Kruger\Code\Engine\Camera\_Module\Module.h"
-#include "d:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
-#include "d:\Kruger\Code\Engine\Physics\_Module\Module.h"
+#include "D:\Kruger\Code\Game\Core\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Core\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Render\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Animation\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Camera\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Navmesh\_Module\Module.h"
+#include "D:\Kruger\Code\Engine\Physics\_Module\Module.h"
 
 namespace KRG
 {
@@ -31,6 +31,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::Shader");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "SHDR" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Render Shader";
             #endif
@@ -38,6 +39,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::PixelShader");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "PSDR" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Pixel Shader";
             #endif
@@ -45,6 +47,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::GeometryShader");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "GSDR" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Geometry Shader";
             #endif
@@ -52,6 +55,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::VertexShader");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "VSDR" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Vertex Shader";
             #endif
@@ -59,6 +63,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::Texture");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "TXTR" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Render Texture";
             #endif
@@ -66,6 +71,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::EntityModel::EntityMapDescriptor");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "MAP" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Map";
             #endif
@@ -73,6 +79,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::Material");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "MTRL" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Render Material";
             #endif
@@ -80,6 +87,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::StaticMesh");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "MSH" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Static Mesh";
             #endif
@@ -87,6 +95,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Render::SkeletalMesh");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "SMSH" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Skeletal Mesh";
             #endif
@@ -94,6 +103,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Skeleton");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "SKEL" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Animation Skeleton";
             #endif
@@ -101,6 +111,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationClip");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "ANIM" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Animation Clip";
             #endif
@@ -108,6 +119,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphDataSet");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "AGDS" );
+            resourceInfo.m_isVirtualResource = true;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Animation Graph DataSet";
             #endif
@@ -115,6 +127,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphDefinition");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "AG" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Animation Graph";
             #endif
@@ -122,6 +135,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::AnimationGraphVariation");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "AGV" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Animation Graph Variation";
             #endif
@@ -129,6 +143,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Navmesh::NavmeshData");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "NAV" );
+            resourceInfo.m_isVirtualResource = true;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Navmesh";
             #endif
@@ -136,6 +151,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::PhysicsMesh");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "PMSH" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Physics Mesh";
             #endif
@@ -143,6 +159,7 @@ namespace KRG
 
             resourceInfo.m_typeID = TypeSystem::TypeID( "KRG::Physics::PhysicsMaterialDatabase");
             resourceInfo.m_resourceTypeID = ResourceTypeID( "PMDB" );
+            resourceInfo.m_isVirtualResource = false;
             #if KRG_DEVELOPMENT_TOOLS
             resourceInfo.m_friendlyName = "Physics Material DB";
             #endif

@@ -10,7 +10,7 @@ namespace KRG
     {
     public:
 
-        FbxFileInspector( EditorModel* pModel, FileSystem::Path const& filePath );
+        FbxFileInspector( ResourceEditorModel* pModel, FileSystem::Path const& filePath );
 
     private:
 

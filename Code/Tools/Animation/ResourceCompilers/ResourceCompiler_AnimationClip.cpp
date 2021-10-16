@@ -1,9 +1,9 @@
 #include "ResourceCompiler_AnimationClip.h"
-#include "ResourceCompiler_AnimationSkeleton.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationClip.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Tools/Animation/Events/AnimationEventData.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Core/Resource/RawAssets/RawAnimation.h"
-#include "Tools/Core/TimelineEditor/TimelineData.h"
 #include "Engine/Animation/AnimationClip.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
@@ -42,11 +42,11 @@ namespace KRG::Animation
             return Error( "Invalid skeleton resource ID" );
         }
 
-        DataPath const& skeletonDataPath = resourceDescriptor.m_pSkeleton.GetResourceID().GetDataPath();
+        ResourcePath const& skeletonPath = resourceDescriptor.m_pSkeleton.GetResourceID().GetPath();
         FileSystem::Path skeletonDescriptorFilePath;
-        if ( !ctx.ConvertDataPathToFilePath( skeletonDataPath, skeletonDescriptorFilePath ) )
+        if ( !ctx.ConvertResourcePathToFilePath( skeletonPath, skeletonDescriptorFilePath ) )
         {
-            return Error( "Invalid skeleton data path: %s", skeletonDataPath.c_str() );
+            return Error( "Invalid skeleton data path: %s", skeletonPath.c_str() );
         }
 
         if ( !skeletonDescriptorFilePath.Exists() )
@@ -55,15 +55,15 @@ namespace KRG::Animation
         }
 
         SkeletonResourceDescriptor skeletonResourceDescriptor;
-        if ( !ctx.TryReadResourceDescriptorFromFile( skeletonDescriptorFilePath, skeletonResourceDescriptor ) )
+        if ( !TryReadResourceDescriptorFromFile( ctx.m_typeRegistry, skeletonDescriptorFilePath, skeletonResourceDescriptor ) )
         {
             return Error( "Failed to read skeleton resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
         }
 
         FileSystem::Path skeletonFilePath;
-        if ( !ctx.ConvertDataPathToFilePath( skeletonResourceDescriptor.m_skeletonDataPath, skeletonFilePath ) )
+        if ( !ctx.ConvertResourcePathToFilePath( skeletonResourceDescriptor.m_skeletonPath, skeletonFilePath ) )
         {
-            return Error( "Invalid skeleton FBX data path: %s", skeletonResourceDescriptor.m_skeletonDataPath.GetString().c_str() );
+            return Error( "Invalid skeleton FBX data path: %s", skeletonResourceDescriptor.m_skeletonPath.GetString().c_str() );
         }
 
         RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };
@@ -77,9 +77,9 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         FileSystem::Path animationFilePath;
-        if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_animationDataPath, animationFilePath ) )
+        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_animationPath, animationFilePath ) )
         {
-            return Error( "Invalid animation data path: %s", resourceDescriptor.m_animationDataPath.c_str() );
+            return Error( "Invalid animation data path: %s", resourceDescriptor.m_animationPath.c_str() );
         }
 
         if ( !animationFilePath.Exists() )
@@ -382,7 +382,7 @@ namespace KRG::Animation
                 numSyncTracks++;
             }
 
-            for ( auto pItem : pTrack->m_items )
+            for ( auto const pItem : pTrack->GetItems() )
             {
                 auto pEvent = Cast<EventItem>( pItem )->GetEvent();
 

@@ -4,7 +4,7 @@
 
 namespace KRG::Resource
 {
-    void ResourceDescriptor::ReadCompileDependencies( String const& descriptorFileContents, TVector<DataPath>& outDependencies )
+    void ResourceDescriptor::ReadCompileDependencies( String const& descriptorFileContents, TVector<ResourcePath>& outDependencies )
     {
         // Read all strings and return any data paths we encounter
         String stringToTest;
@@ -28,9 +28,9 @@ namespace KRG::Resource
 
             // Check if string is a data path
             stringToTest = descriptorFileContents.substr( stringStartPos + 1, stringEndPos - stringStartPos - 1 );
-            if ( DataPath::IsValidDataPath( stringToTest ) )
+            if ( ResourcePath::IsValidPath( stringToTest ) )
             {
-                outDependencies.emplace_back( DataPath( stringToTest ) );
+                outDependencies.emplace_back( ResourcePath( stringToTest ) );
             }
         }
     }

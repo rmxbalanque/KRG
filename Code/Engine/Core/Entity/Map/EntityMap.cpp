@@ -39,6 +39,7 @@ namespace KRG::EntityModel
     {
         KRG_ASSERT( IsUnloaded() && !m_isCollectionInstantiated );
         KRG_ASSERT( m_entities.empty() && m_entityLookupMap.empty() );
+        KRG_ASSERT( m_entitiesToHotReload.empty() );
         Entity::OnEntityStateUpdated().Unbind( m_entityUpdateEventBindingID );
     }
 
@@ -48,6 +49,7 @@ namespace KRG::EntityModel
     {
         // Only allow copy constructor for unloaded maps
         KRG_ASSERT( m_status == Status::Unloaded && map.m_status == Status::Unloaded );
+        KRG_ASSERT( map.m_entitiesToHotReload.empty() );
 
         m_pMapDesc = map.m_pMapDesc;
         const_cast<bool&>( m_isTransientMap ) = map.m_isTransientMap;
@@ -56,12 +58,13 @@ namespace KRG::EntityModel
 
     EntityMap& EntityMap::operator=( EntityMap&& map )
     {
+        KRG_ASSERT( map.m_entitiesToHotReload.empty() );
+
         m_ID = map.m_ID;
         m_entities.swap( map.m_entities );
         m_entityLookupMap.swap( map.m_entityLookupMap );
         m_pMapDesc = eastl::move( map.m_pMapDesc );
         m_entitiesToLoad = eastl::move( map.m_entitiesToLoad );
-        m_reloadRequests = eastl::move( map.m_reloadRequests );
         m_status = map.m_status;
         m_isUnloadRequested = map.m_isUnloadRequested;
         m_isCollectionInstantiated = map.m_isCollectionInstantiated;
@@ -298,50 +301,7 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    void EntityMap::ProcessHotReloadRequests( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
-    {
-        auto const& entitiesThatRequireReload = loadingContext.m_pResourceSystem->GetUsersThatRequireReload();
-        if ( !entitiesThatRequireReload.empty() )
-        {
-            for ( auto const& requesterID : entitiesThatRequireReload )
-            {
-                auto pFoundEntity = FindEntity( requesterID.GetID() );
-                if ( pFoundEntity != nullptr )
-                {
-                    m_reloadRequests.emplace_back( ReloadRequest( pFoundEntity ) );
-                }
-            }
-        }
-
-        // We need to have at least a single frame delay between the unload and load requests
-        // so that the resource system can actually unload the resource, instead of just canceling the unload request
-        for ( int32 i = (int32) m_reloadRequests.size() - 1; i >= 0; i-- )
-        {
-            auto& request = m_reloadRequests[i];
-
-            if ( request.m_isUnloading )
-            {
-                if ( request.m_pEntity->IsActivated() )
-                {
-                    request.m_pEntity->Deactivate( loadingContext, activationContext );
-                }
-                else
-                {
-                    request.m_pEntity->UnloadComponents( loadingContext );
-                    request.m_isUnloading = false;
-                }
-            }
-            else
-            {
-                KRG_ASSERT( !request.m_pEntity->IsActivated() );
-                request.m_pEntity->LoadComponents( loadingContext );
-                m_entitiesToLoad.emplace_back( request.m_pEntity );
-                m_reloadRequests.erase_unsorted( m_reloadRequests.begin() + i );
-            }
-        }
-    }
-
-    bool EntityMap::ProcessUnloadRequest( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    bool EntityMap::ProcessMapUnloadRequest( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         KRG_ASSERT( m_isUnloadRequested );
 
@@ -380,7 +340,6 @@ namespace KRG::EntityModel
 
                 // Clear all internal entity lists
                 m_entitiesToLoad.clear();
-                m_reloadRequests.clear();
                 m_entitiesToRemove.clear();
             }
 
@@ -482,7 +441,6 @@ namespace KRG::EntityModel
             else // Remove from loading list as we might still be loaded this entity
             {
                 m_entitiesToLoad.erase_first_unsorted( pEntityToRemove );
-                m_reloadRequests.erase_first_unsorted( pEntityToRemove );
 
                 // Unload components and remove from collection
                 pEntityToRemove->UnloadComponents( loadingContext );
@@ -596,6 +554,7 @@ namespace KRG::EntityModel
     {
         KRG_PROFILE_SCOPE_SCENE( "Map Loading" );
         KRG_ASSERT( Threading::IsMainThread() && loadingContext.IsValid() );
+        KRG_ASSERT( m_entitiesToHotReload.empty() );
 
         //-------------------------------------------------------------------------
 
@@ -603,14 +562,10 @@ namespace KRG::EntityModel
 
         //-------------------------------------------------------------------------
 
-        ProcessHotReloadRequests( loadingContext, activationContext );
-
-        //-------------------------------------------------------------------------
-
         // Process the request and return immediately if it isnt completed
         if ( m_isUnloadRequested )
         {
-            if ( !ProcessUnloadRequest( loadingContext, activationContext ) )
+            if ( !ProcessMapUnloadRequest( loadingContext, activationContext ) )
             {
                 return false;
             }
@@ -632,4 +587,60 @@ namespace KRG::EntityModel
         ProcessEntityAdditionAndRemoval( loadingContext, activationContext );
         return ProcessEntityLoadingAndActivation( loadingContext, activationContext );
     }
+
+    //-------------------------------------------------------------------------
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void EntityMap::HotReloadPrepareEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Resource::ResourceRequesterID> const& usersToReload )
+    {
+        KRG_ASSERT( !usersToReload.empty() );
+        KRG_ASSERT( m_entitiesToHotReload.empty() );
+
+        // Generate list of entities to be reloaded
+        for ( auto const& requesterID : usersToReload )
+        {
+            // See if the entity that needs a reload is in this map
+            Entity* pFoundEntity = FindEntity( requesterID.GetID() );
+            if ( pFoundEntity != nullptr )
+            {
+                m_entitiesToHotReload.emplace_back( pFoundEntity );
+            }
+        }
+
+        // Request deactivation for any entities that are activated
+        for ( auto pEntityToHotReload : m_entitiesToHotReload )
+        {
+            if ( pEntityToHotReload->IsActivated() )
+            {
+                pEntityToHotReload->Deactivate( loadingContext, activationContext );
+            }
+        }
+    }
+
+    void EntityMap::HotReloadUnloadEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    {
+        for ( auto pEntityToHotReload : m_entitiesToHotReload )
+        {
+            KRG_ASSERT( !pEntityToHotReload->IsActivated() );
+
+            // We might still be loading this entity so remove it from the loading requests
+            m_entitiesToLoad.erase_first_unsorted( pEntityToHotReload );
+
+            // Request unload of the components (client system needs to ensure that all resource requests are processed)
+            pEntityToHotReload->UnloadComponents( loadingContext );
+        }
+    }
+
+    void EntityMap::HotReloadLoadEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    {
+        for ( auto pEntityToHotReload : m_entitiesToHotReload )
+        {
+            KRG_ASSERT( pEntityToHotReload->IsUnloaded() );
+            pEntityToHotReload->LoadComponents( loadingContext );
+            m_entitiesToLoad.emplace_back( pEntityToHotReload );
+        }
+
+        m_entitiesToHotReload.clear();
+    }
+    #endif
 }

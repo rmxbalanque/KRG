@@ -486,9 +486,9 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
-                case CoreTypes::DataPath:
+                case CoreTypes::ResourcePath:
                 {
-                    *reinterpret_cast<DataPath*>( pValue ) = DataPath( str );
+                    *reinterpret_cast<ResourcePath*>( pValue ) = ResourcePath( str );
                 }
                 break;
 
@@ -857,9 +857,9 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
-                case CoreTypes::DataPath:
+                case CoreTypes::ResourcePath:
                 {
-                    strValue = reinterpret_cast<DataPath const*>( pValue )->c_str();
+                    strValue = reinterpret_cast<ResourcePath const*>( pValue )->c_str();
                 }
                 break;
 
@@ -1168,9 +1168,9 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
-                case CoreTypes::DataPath:
+                case CoreTypes::ResourcePath:
                 {
-                    archive << *reinterpret_cast<DataPath const*>( pValue );
+                    archive << *reinterpret_cast<ResourcePath const*>( pValue );
                 }
                 break;
 
@@ -1464,9 +1464,9 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
-                case CoreTypes::DataPath:
+                case CoreTypes::ResourcePath:
                 {
-                    archive >> *reinterpret_cast<DataPath*>( pValue );
+                    archive >> *reinterpret_cast<ResourcePath*>( pValue );
                 }
                 break;
 
@@ -1832,9 +1832,9 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
-                case CoreTypes::DataPath:
+                case CoreTypes::ResourcePath:
                 {
-                    DataPath value;
+                    ResourcePath value;
                     ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
                     ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }

@@ -7,9 +7,9 @@ namespace KRG::Animation
     char const* g_phaseNames[4] =
     {
         "Left Foot Down",
-        "Left Foot Passing",
+        "Right Foot Passing",
         "Right Foot Down",
-        "Right Foot Passing"
+        "Left Foot Passing",
     };
 
     //-------------------------------------------------------------------------

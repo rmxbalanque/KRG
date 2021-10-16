@@ -1,16 +1,15 @@
 #include "AnimationGraphEditor_VariationEditor.h"
-#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
-#include "Tools/Core/DataFileTools/DataFilePicker.h"
-#include "System/Imgui/ImguiX.h"
+#include "Tools/Core/Resource/DataFilePicker.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    void GraphVariationEditor::Draw( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void GraphVariationEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName )
     {
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
-        if ( ImGui::Begin( "Variation Editor", nullptr, 0 ) )
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( pWindowName, nullptr, 0 ) )
         {
             if ( ImGui::BeginTable( "VariationMainSplitter", 2, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX ) )
             {
@@ -46,7 +45,7 @@ namespace KRG::Animation::Graph
         // Open Tree Node
         //-------------------------------------------------------------------------
 
-        bool const isSelected = m_model.GetSelectedVariationID() == variationID;
+        bool const isSelected = m_graphModel.GetSelectedVariationID() == variationID;
 
         ImGuiX::PushFontAndColor( isSelected ? ImGuiX::Font::SmallBold : ImGuiX::Font::Small, isSelected ? ImGuiX::ConvertColor( Colors::LimeGreen ) : ImGuiX::Theme::s_textColor );
         bool const isTreeNodeOpen = ImGui::TreeNode( variationID.c_str() );
@@ -58,7 +57,7 @@ namespace KRG::Animation::Graph
 
         if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
         {
-            m_model.SetSelectedVariation( variationID );
+            m_graphModel.SetSelectedVariation( variationID );
         }
 
         // Context Menu
@@ -108,14 +107,14 @@ namespace KRG::Animation::Graph
 
     void GraphVariationEditor::DrawVariationTree()
     {
-        AnimationToolsGraph* pGraph = m_model.GetGraph();
-        DrawVariationTreeNode( pGraph->GetVariations(), AnimationGraphVariation::DefaultVariationID );
+        AnimationToolsGraph* pGraph = m_graphModel.GetGraph();
+        DrawVariationTreeNode( pGraph->GetVariationHierarchy(), AnimationGraphVariation::DefaultVariationID );
     }
 
     void GraphVariationEditor::DrawOverridesTable()
     {
-        auto dataSlotNodes = m_model.GetGraph()->GetAllDataSlotNodes();
-        bool isDefaultVariationSelected = m_model.IsDefaultVariationSelected();
+        auto dataSlotNodes = m_graphModel.GetGraph()->GetAllDataSlotNodes();
+        bool isDefaultVariationSelected = m_graphModel.IsDefaultVariationSelected();
 
         //-------------------------------------------------------------------------
 
@@ -123,10 +122,10 @@ namespace KRG::Animation::Graph
         ImGui::Text( "Skeleton: " );
         ImGui::SameLine( 0, 0 );
 
-        auto pGraph = m_model.GetGraph();
-        auto pVariation = pGraph->GetVariation( m_model.GetSelectedVariationID() );
+        auto pGraph = m_graphModel.GetGraph();
+        auto pVariation = pGraph->GetVariation( m_graphModel.GetSelectedVariationID() );
         ResourceID resourceID = pVariation->m_pSkeleton.GetResourceID();
-        if ( DataFilePicker::DrawPickerControl( m_model.GetSourceDataDirectory(), Skeleton::GetStaticResourceTypeID(), &resourceID ) )
+        if ( DataFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), Skeleton::GetStaticResourceTypeID(), &resourceID ) )
         {
             pVariation->m_pSkeleton = resourceID;
         }
@@ -143,7 +142,7 @@ namespace KRG::Animation::Graph
 
             //-------------------------------------------------------------------------
 
-            StringID const currentVariationID = m_model.GetSelectedVariationID();
+            StringID const currentVariationID = m_graphModel.GetSelectedVariationID();
 
             for ( auto pDataSlotNode : dataSlotNodes )
             {
@@ -162,19 +161,19 @@ namespace KRG::Animation::Graph
                 // Default variations always have values created
                 if ( isDefaultVariationSelected )
                 {
-                    ResourceID* pResourceID = pDataSlotNode->GetOverrideValueForVariation( m_model.GetSelectedVariationID() );
-                    DataFilePicker::DrawPickerControl( m_model.GetSourceDataDirectory(), pDataSlotNode->GetSlotResourceType(), pResourceID );
+                    ResourceID* pResourceID = pDataSlotNode->GetOverrideValueForVariation( currentVariationID );
+                    DataFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), pDataSlotNode->GetSlotResourceType(), pResourceID );
                 }
                 else // Variation
                 {
                     // If we have an override for this variation
                     if ( pDataSlotNode->HasOverrideForVariation( currentVariationID ) )
                     {
-                        ResourceID* pResourceID = pDataSlotNode->GetOverrideValueForVariation( m_model.GetSelectedVariationID() );
-                        if ( DataFilePicker::DrawPickerControl( m_model.GetSourceDataDirectory(), pDataSlotNode->GetSlotResourceType(), pResourceID ) )
+                        ResourceID* pResourceID = pDataSlotNode->GetOverrideValueForVariation( currentVariationID );
+                        if ( DataFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), pDataSlotNode->GetSlotResourceType(), pResourceID ) )
                         {
                             // If we've cleared the resource ID and it's not the default, remove the override
-                            if ( !pResourceID->IsValid() && !m_model.IsDefaultVariationSelected() )
+                            if ( !pResourceID->IsValid() && !m_graphModel.IsDefaultVariationSelected() )
                             {
                                 pDataSlotNode->RemoveOverride( currentVariationID );
                             }
@@ -182,7 +181,7 @@ namespace KRG::Animation::Graph
                     }
                     else // Show current value
                     {
-                        ImGui::Text( pDataSlotNode->GetValue( pGraph->GetVariations(), currentVariationID ).c_str() );
+                        ImGui::Text( pDataSlotNode->GetValue( pGraph->GetVariationHierarchy(), currentVariationID ).c_str() );
                     }
                 }
 
@@ -244,7 +243,7 @@ namespace KRG::Animation::Graph
     void GraphVariationEditor::DrawActiveOperationUI()
     {
         bool isDialogOpen = m_activeOperation != OperationType::None;
-        auto pGraph = m_model.GetGraph();
+        auto pGraph = m_graphModel.GetGraph();
 
         if ( m_activeOperation == OperationType::Create )
         {
@@ -261,7 +260,7 @@ namespace KRG::Animation::Graph
                 ImGui::PopStyleColor();
                 ImGui::NewLine();
 
-                float const dialogWidth = ImGui::GetWindowContentRegionWidth();
+                float const dialogWidth = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x;
                 ImGui::SameLine( 0, dialogWidth - 104 );
 
                 if ( ImGui::Button( "Ok", ImVec2( 50, 0 ) ) || nameChangeConfirmed )
@@ -270,7 +269,7 @@ namespace KRG::Animation::Graph
                     StringID newVariationID( m_buffer );
                     if ( !pGraph->IsValidVariation( newVariationID ) )
                     {
-                        pGraph->GetVariations().CreateVariation( newVariationID, m_activeOperationVariationID );
+                        pGraph->GetVariationHierarchy().CreateVariation( newVariationID, m_activeOperationVariationID );
                         m_activeOperationVariationID = StringID();
                         m_activeOperation = OperationType::None;
                     }
@@ -304,7 +303,7 @@ namespace KRG::Animation::Graph
                 ImGui::PopStyleColor();
                 ImGui::NewLine();
 
-                float const dialogWidth = ImGui::GetWindowContentRegionWidth();
+                float const dialogWidth = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x;
                 ImGui::SameLine( 0, dialogWidth - 104 );
 
                 if ( ImGui::Button( "Ok", ImVec2( 50, 0 ) ) || nameChangeConfirmed )
@@ -314,7 +313,7 @@ namespace KRG::Animation::Graph
                     if ( !pGraph->IsValidVariation( newVariationID ) )
                     {
                         // Rename actual variation
-                        pGraph->GetVariations().RenameVariation( m_activeOperationVariationID, newVariationID );
+                        pGraph->GetVariationHierarchy().RenameVariation( m_activeOperationVariationID, newVariationID );
 
                         // Update all data slot nodes
                         auto dataSlotNodes = pGraph->GetAllDataSlotNodes();
@@ -349,7 +348,7 @@ namespace KRG::Animation::Graph
                 ImGui::Text( "Are you sure you want to delete this variation?" );
                 ImGui::NewLine();
 
-                float const dialogWidth = ImGui::GetWindowContentRegionWidth();
+                float const dialogWidth = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x;
                 ImGui::SameLine( 0, dialogWidth - 64 );
 
                 if ( ImGui::Button( "Yes", ImVec2( 30, 0 ) ) )
@@ -358,10 +357,10 @@ namespace KRG::Animation::Graph
 
                     // Update selection
                     auto const pVariation = pGraph->GetVariation( m_activeOperationVariationID );
-                    m_model.SetSelectedVariation( pVariation->m_parentID );
+                    m_graphModel.SetSelectedVariation( pVariation->m_parentID );
 
                     // Destroy variation
-                    pGraph->GetVariations().DestroyVariation( m_activeOperationVariationID );
+                    pGraph->GetVariationHierarchy().DestroyVariation( m_activeOperationVariationID );
                     m_activeOperationVariationID = StringID();
                     m_activeOperation = OperationType::None;
                 }

@@ -42,7 +42,7 @@ namespace KRG
             std::string const map = cmdParser.get<std::string>( "map" );
             if ( !map.empty() )
             {
-                m_engine.m_startupMap = DataPath( map.c_str() );
+                m_engine.m_startupMap = ResourcePath( map.c_str() );
             }
         }
 

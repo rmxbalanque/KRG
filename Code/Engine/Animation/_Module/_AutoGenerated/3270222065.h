@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Engine\Animation\Components\AnimatedMeshComponent.h"
+#include "D:\Kruger\Code\Engine\Animation\Components\AnimatedMeshComponent.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Animation::AnimatedMeshComponent
@@ -216,7 +216,7 @@ namespace KRG
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pMesh.IsUnloaded() || pActualType->m_pMesh.IsLoading() )
+                    else if ( !pActualType->m_pMesh.IsLoaded() )
                     {
                         return LoadingStatus::Loading;
                     }
@@ -227,7 +227,7 @@ namespace KRG
                         {
                             status = LoadingStatus::Failed;
                         }
-                        else if ( resourcePtr.IsUnloaded() || resourcePtr.IsLoading() )
+                        else if ( !resourcePtr.IsLoaded() )
                         {
                             return LoadingStatus::Loading;
                         }
@@ -237,7 +237,7 @@ namespace KRG
                     {
                         status = LoadingStatus::Failed;
                     }
-                    else if ( pActualType->m_pSkeleton.IsUnloaded() || pActualType->m_pSkeleton.IsLoading() )
+                    else if ( !pActualType->m_pSkeleton.IsLoaded() )
                     {
                         return LoadingStatus::Loading;
                     }

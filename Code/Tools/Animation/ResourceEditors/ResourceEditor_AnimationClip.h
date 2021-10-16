@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Tools/Core/PropertyGrid/PropertyGrid.h"
-#include "Tools/Core/Editors/ResourceEditorWorkspace.h"
+#include "Tools/Core/Resource/ResourceEditorWorkspace.h"
 #include "Engine/Animation/AnimationClip.h"
-#include "System/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 
@@ -23,7 +22,7 @@ namespace KRG::Animation
 
     public:
 
-        AnimationClipResourceEditor( EditorModel* pModel, ResourceID const& resourceID );
+        AnimationClipResourceEditor( ResourceEditorContext const& context, ResourceID const& resourceID );
         virtual ~AnimationClipResourceEditor();
     
         virtual char const* GetWorkspaceName() const override { return "Animation Clip"; }
@@ -42,8 +41,7 @@ namespace KRG::Animation
 
         virtual bool OnSave() override;
 
-        void DrawTimelineWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
-        void DrawDetailsWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
+        void DrawTimelineAndPropertGridsWindows( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
         void DrawTrackDataWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
 
     private:
@@ -55,6 +53,7 @@ namespace KRG::Animation
         PropertyGrid                    m_propertyGrid;
 
         Transform                       m_characterTransform = Transform::Identity;
+        ResourceID                      m_previewMeshOverride;
         bool                            m_isRootMotionEnabled = true;
     };
 }

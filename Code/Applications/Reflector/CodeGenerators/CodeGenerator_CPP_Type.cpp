@@ -599,7 +599,7 @@ namespace KRG::CPP
                         file << "                        {\n";
                         file << "                            status = LoadingStatus::Failed;\n";
                         file << "                        }\n";
-                        file << "                        else if ( resourcePtr.IsUnloaded() || resourcePtr.IsLoading() )\n";
+                        file << "                        else if ( !resourcePtr.IsLoaded() )\n";
                         file << "                        {\n";
                         file << "                            return LoadingStatus::Loading;\n";
                         file << "                        }\n";
@@ -613,7 +613,7 @@ namespace KRG::CPP
                             file << "                    {\n";
                             file << "                        status = LoadingStatus::Failed;\n";
                             file << "                    }\n";
-                            file << "                    else if ( pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].IsUnloaded() || pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].IsLoading() )\n";
+                            file << "                    else if ( !pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].IsLoaded() )\n";
                             file << "                    {\n";
                             file << "                        return LoadingStatus::Loading;\n";
                             file << "                    }\n\n";
@@ -626,7 +626,7 @@ namespace KRG::CPP
                     file << "                    {\n";
                     file << "                        status = LoadingStatus::Failed;\n";
                     file << "                    }\n";
-                    file << "                    else if ( pActualType->" << propertyDesc.m_name.c_str() << ".IsUnloaded() || pActualType->" << propertyDesc.m_name.c_str() << ".IsLoading() )\n";
+                    file << "                    else if ( !pActualType->" << propertyDesc.m_name.c_str() << ".IsLoaded() )\n";
                     file << "                    {\n";
                     file << "                        return LoadingStatus::Loading;\n";
                     file << "                    }\n\n";

@@ -23,6 +23,34 @@ namespace KRG::Timeline
         ImGui::Text( GetLabel() );
     }
 
+    bool Track::IsDirty() const
+    {
+        if ( m_isDirty )
+        {
+            return true;
+        }
+
+        for ( auto const pItem : m_items )
+        {
+            if ( pItem->IsDirty() )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void Track::ClearDirtyFlags()
+    {
+        m_isDirty = false;
+
+        for ( auto pItem : m_items )
+        {
+            pItem->ClearDirtyFlag();
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     void TrackContainer::Reset()
@@ -32,6 +60,7 @@ namespace KRG::Timeline
             KRG::Delete( pTrack );
         }
         m_tracks.clear();
+        m_isDirty = false;
     }
 
     bool TrackContainer::Load( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& dataObjectValue )
@@ -122,13 +151,15 @@ namespace KRG::Timeline
         if ( failed )
         {
             FreeTrackData();
+            m_isDirty = false;
             return false;
         }
 
+        ClearDirtyFlags();
         return true;
     }
 
-    void TrackContainer::Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
+    void TrackContainer::Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer )
     {
         writer.StartArray();
 
@@ -181,5 +212,60 @@ namespace KRG::Timeline
         //-------------------------------------------------------------------------
 
         writer.EndArray();
+        ClearDirtyFlags();
+    }
+
+    bool TrackContainer::IsDirty() const
+    {
+        if ( m_isDirty )
+        {
+            return true;
+        }
+
+        for ( auto const pTrack : m_tracks )
+        {
+            if ( pTrack->IsDirty() )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void TrackContainer::ClearDirtyFlags()
+    {
+        m_isDirty = false;
+
+        for ( auto pTrack : m_tracks )
+        {
+            pTrack->ClearDirtyFlags();
+        }
+    }
+
+    bool TrackContainer::Contains( Track const* pTrack ) const
+    {
+        return eastl::find( m_tracks.begin(), m_tracks.end(), pTrack ) != m_tracks.end();
+    }
+
+    bool TrackContainer::Contains( TrackItem const* pItem ) const
+    {
+        for ( auto pTrack : m_tracks )
+        {
+            if ( pTrack->Contains( pItem ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void TrackContainer::DeleteTrack( Track* pTrack )
+    {
+        KRG_ASSERT( Contains( pTrack ) );
+        m_tracks.erase_first( pTrack );
+        KRG::Delete( pTrack );
+        m_isDirty = true;
     }
 }

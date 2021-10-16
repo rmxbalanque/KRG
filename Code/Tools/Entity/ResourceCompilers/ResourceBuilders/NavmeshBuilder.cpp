@@ -1,9 +1,8 @@
 #include "NavmeshBuilder.h"
-#include "Tools/Physics/ResourceCompilers/ResourceCompiler_PhysicsMesh.h"
+#include "Tools/Physics/ResourceDescriptors/ResourceDescriptor_PhysicsMesh.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Core/Resource/RawAssets/RawMesh.h"
 #include "Tools/Entity/EntityCollectionModel.h"
-#include "Tools/Core/Resource/Compilers/ResourceCompiler.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/NavmeshData.h"
 #include "Engine/Physics/Components/PhysicsMeshComponent.h"
@@ -11,7 +10,9 @@
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
+#if WITH_BFX
 #include <bfxSystem.h>
+#endif
 
 //-------------------------------------------------------------------------
 
@@ -46,7 +47,7 @@ namespace KRG::Navmesh
 
     bool NavmeshBuilder::Build( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, FileSystem::Path const& navmeshResourcePath )
     {
-        THashMap<DataPath, TVector<Transform>> collisionPrimitives;
+        THashMap<ResourcePath, TVector<Transform>> collisionPrimitives;
         if ( !CollectCollisionPrimitives( ctx, entityCollectionDesc, collisionPrimitives ) )
         {
             return false;
@@ -84,7 +85,7 @@ namespace KRG::Navmesh
         }
     }
 
-    bool NavmeshBuilder::CollectCollisionPrimitives( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, THashMap<DataPath, TVector<Transform>>& collisionPrimitives )
+    bool NavmeshBuilder::CollectCollisionPrimitives( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, THashMap<ResourcePath, TVector<Transform>>& collisionPrimitives )
     {
         EntityModel::EntityCollectionModel entityCollectionModel( ctx.m_typeRegistry );
         if ( !EntityModel::EntityCollectionModel::FromDescriptor( entityCollectionDesc, entityCollectionModel ) )
@@ -108,14 +109,14 @@ namespace KRG::Navmesh
             Resource::ResourcePtr geometryPtr = pProperty->GetValue<Resource::ResourcePtr>();
             if ( geometryPtr.IsValid() )
             {
-                collisionPrimitives[geometryPtr.GetResourceID().GetDataPath()].emplace_back( pPhysicsComponent->GetWorldTransform() );
+                collisionPrimitives[geometryPtr.GetResourceID().GetPath()].emplace_back( pPhysicsComponent->GetWorldTransform() );
             }
         }
 
         return true;
     }
 
-    bool NavmeshBuilder::CollectTriangles( Resource::CompileContext const& ctx, THashMap<DataPath, TVector<Transform>> const& collisionPrimitives )
+    bool NavmeshBuilder::CollectTriangles( Resource::CompileContext const& ctx, THashMap<ResourcePath, TVector<Transform>> const& collisionPrimitives )
     {
         for ( auto const& primitiveDesc : collisionPrimitives )
         {
@@ -123,13 +124,13 @@ namespace KRG::Navmesh
             //-------------------------------------------------------------------------
 
             FileSystem::Path descFilePath;
-            if ( !ctx.ConvertDataPathToFilePath( primitiveDesc.first, descFilePath ) )
+            if ( !ctx.ConvertResourcePathToFilePath( primitiveDesc.first, descFilePath ) )
             {
                 return Error( "Invalid source data path (%s) for physics mesh descriptor", primitiveDesc.first.c_str() );
             }
 
             Physics::PhysicsMeshResourceDescriptor resourceDescriptor;
-            if ( !ctx.TryReadResourceDescriptorFromFile( descFilePath, resourceDescriptor ) )
+            if ( !TryReadResourceDescriptorFromFile( ctx.m_typeRegistry, descFilePath, resourceDescriptor ) )
             {
                 return Error( "Failed to read physics mesh resource descriptor from file: %s", descFilePath.c_str() );
             }
@@ -138,9 +139,9 @@ namespace KRG::Navmesh
             //-------------------------------------------------------------------------
 
             FileSystem::Path meshFilePath;
-            if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_meshDataPath, meshFilePath ) )
+            if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_meshPath, meshFilePath ) )
             {
-                return Error( "Invalid source data path (%) in physics mesh descriptor: %s", resourceDescriptor.m_meshDataPath.c_str(), descFilePath.c_str() );
+                return Error( "Invalid source data path (%) in physics mesh descriptor: %s", resourceDescriptor.m_meshPath.c_str(), descFilePath.c_str() );
             }
 
             RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };
@@ -191,11 +192,13 @@ namespace KRG::Navmesh
                         int32 const index2 = geometrySection.m_indices[flipWinding ? i : i + 2];
 
                         // Add triangle
+                        #if WITH_BFX
                         auto& buildFace = m_buildFaces.emplace_back( bfx::BuildFace() );
                         buildFace.m_type = bfx::WALKABLE_FACE;
                         buildFace.m_verts[0] = ToBfx( transform.TransformPoint( geometrySection.m_vertices[index0].m_position ) );
                         buildFace.m_verts[1] = ToBfx( transform.TransformPoint( geometrySection.m_vertices[index1].m_position ) );
                         buildFace.m_verts[2] = ToBfx( transform.TransformPoint( geometrySection.m_vertices[index2].m_position ) );
+                        #endif
                     }
                 }
             }
@@ -206,6 +209,7 @@ namespace KRG::Navmesh
 
     bool NavmeshBuilder::BuildNavmesh( Resource::CompileContext const& ctx, NavmeshData& navmeshData )
     {
+        #if WITH_BFX
         if ( m_buildFaces.empty() )
         {
             return true;
@@ -267,6 +271,7 @@ namespace KRG::Navmesh
         bfx::SystemStop();
         bfx::SystemDestroy();
         bfx::DestroyAllocator( pAllocator );
+        #endif
 
         return true;
     }

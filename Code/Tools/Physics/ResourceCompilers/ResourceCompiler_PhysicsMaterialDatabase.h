@@ -5,27 +5,15 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Physics
 {
-    namespace Physics
+    class PhysicsMaterialDatabaseCompiler : public Resource::Compiler
     {
-        struct KRG_TOOLS_PHYSICS_API PhysicsMaterialDatabaseResourceDescriptor : public Resource::ResourceDescriptor
-        {
-            KRG_REGISTER_TYPE( PhysicsMaterialDatabaseResourceDescriptor );
+        static const int32 s_version = 0;
 
-            KRG_EXPOSE TVector<DataPath>         m_materialLibraries;
-        };
+    public:
 
-        //-------------------------------------------------------------------------
-
-        class PhysicsMaterialDatabaseCompiler : public Resource::Compiler
-        {
-            static const int32 s_version = 0;
-
-        public:
-
-            PhysicsMaterialDatabaseCompiler();
-            virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
-        };
-    }
+        PhysicsMaterialDatabaseCompiler();
+        virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
+    };
 }

@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Tools\Core\Resource\Compilers\ResourceDescriptor.h"
+#include "D:\Kruger\Code\Tools\Core\Resource\Compilers\ResourceDescriptor.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::Resource::ResourceDescriptor

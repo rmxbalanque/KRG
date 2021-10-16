@@ -76,6 +76,15 @@ namespace KRG
 
         inline TMultiUserEvent<EntityModel::EntityMap*> OnCreatePersistentEntities() { return m_createPersistentEntitiesEvent; }
 
+        //-------------------------------------------------------------------------
+        // Hot Reload
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload );
+        void EndHotReload();
+        #endif
+
     private:
 
         SystemRegistry const*                                       m_pSystemsRegistry = nullptr;

@@ -21,7 +21,7 @@ namespace KRG
     {
     public:
 
-        PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataPath );
+        PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath );
 
         // Set the type instance to edit, will reset dirty status
         inline void SetTypeToEdit( IRegisteredType* pTypeInstance )
@@ -66,7 +66,7 @@ namespace KRG
     private:
 
         TypeSystem::TypeRegistry const&             m_typeRegistry;
-        FileSystem::Path const                      m_sourceDataPath;
+        FileSystem::Path const                      m_rawResourceDirectoryPath;
         PG::Context                                 m_context;
         TypeSystem::TypeInfo const*                 m_pTypeInfo = nullptr;
         IRegisteredType*                            m_pTypeInstance = nullptr;

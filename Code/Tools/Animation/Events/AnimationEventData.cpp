@@ -50,7 +50,7 @@ namespace KRG::Animation
         return FloatRange( startTime, endTime );
     }
 
-    void EventItem::SetTimeRange( FloatRange const& inRange )
+    void EventItem::SetTimeRangeInternal( FloatRange const& inRange )
     {
         KRG_ASSERT( m_animFrameRate != 0 && m_pEvent != nullptr );
 
@@ -78,7 +78,7 @@ namespace KRG::Animation
         return reinterpret_cast<Event const*>( m_pEventTypeInfo->m_pTypeHelper->GetDefaultTypeInstancePtr() )->GetEventName();
     }
 
-    void EventTrack::CreateItem( float itemStartTime )
+    void EventTrack::CreateItemInternal( float itemStartTime )
     {
         KRG_ASSERT( m_animFrameRate > 0 );
 
@@ -121,6 +121,7 @@ namespace KRG::Animation
             if ( ImGui::MenuItem( "Clear Sync Track" ) )
             {
                 m_isSyncTrack = false;
+                MarkDirty();
             }
         }
         else // Allow setting of sync track
@@ -134,6 +135,7 @@ namespace KRG::Animation
                 }
 
                 m_isSyncTrack = true;
+                MarkDirty();
             }
         }
     }

@@ -1,11 +1,8 @@
 #include "ResourceCompiler_AnimationGraph.h"
-#include "Tools/Animation/ToolsGraph/AnimationToolsGraph_Compilation.h"
-#include "Tools/Animation/ToolsGraph/AnimationToolsGraph_FlowGraph.h"
-#include "Tools/Animation/ToolsGraph/AnimationToolsGraph_StateMachineGraph.h"
-#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
+#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Compilation.h"
+#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "System/Core/Serialization/BinaryArchive.h"
-#include "Engine/Animation/Graph/AnimationGraphResources.h"
 
 //-------------------------------------------------------------------------
 
@@ -125,9 +122,9 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         FileSystem::Path graphFilePath;
-        if ( !ctx.ConvertDataPathToFilePath( resourceDescriptor.m_graphDataPath, graphFilePath ) )
+        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_graphPath, graphFilePath ) )
         {
-            return Error( "invalid graph data path: %s", resourceDescriptor.m_graphDataPath.c_str() );
+            return Error( "invalid graph data path: %s", resourceDescriptor.m_graphPath.c_str() );
         }
 
         JsonReader jsonReader;
@@ -183,19 +180,19 @@ namespace KRG::Animation
 
         FileSystem::Path dataSetFilePath = graphFilePath.GetParentDirectory();
         dataSetFilePath.Append( dataSetFileName );
-        DataPath const dataSetDataPath = DataPath::FromFileSystemPath( ctx.m_sourceDataPath, dataSetFilePath );
+        ResourcePath const dataSetPath = ResourcePath::FromFileSystemPath( ctx.m_rawResourceDirectoryPath, dataSetFilePath );
 
-        if ( !GenerateVirtualDataSetResource( ctx, toolsGraph, context, variationID, dataSetDataPath ) )
+        if ( !GenerateVirtualDataSetResource( ctx, toolsGraph, context, variationID, dataSetPath ) )
         {
-            return Error( "Failed to create data set: %s", dataSetDataPath.c_str() );
+            return Error( "Failed to create data set: %s", dataSetPath.c_str() );
         }
 
         // Create variation resource and serialize
         //-------------------------------------------------------------------------
 
         AnimationGraphVariation variation;
-        variation.m_pGraphDefinition = ResourceID( resourceDescriptor.m_graphDataPath );
-        variation.m_pDataSet = ResourceID( dataSetDataPath );
+        variation.m_pGraphDefinition = ResourceID( resourceDescriptor.m_graphPath );
+        variation.m_pDataSet = ResourceID( dataSetPath );
 
         //-------------------------------------------------------------------------
 
@@ -220,7 +217,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationToolsGraph const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, DataPath const& dataSetPath ) const
+    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationToolsGraph const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const
     {
         AnimationGraphDataSet dataSet;
         dataSet.m_variationID = variationID;
@@ -262,7 +259,7 @@ namespace KRG::Animation
                 return false;
             }
 
-            auto const dataSlotResourceID = iter->second->GetValue( toolsGraph.GetVariations(), variationID );
+            auto const dataSlotResourceID = iter->second->GetValue( toolsGraph.GetVariationHierarchy(), variationID );
             dataSet.m_resources.emplace_back( dataSlotResourceID );
         }
 
@@ -270,7 +267,7 @@ namespace KRG::Animation
         // Serialize
         //-------------------------------------------------------------------------
 
-        FileSystem::Path const dataSetOutputPath = dataSetPath.ToFileSystemPath( ctx.m_compiledDataPath );
+        FileSystem::Path const dataSetOutputPath = dataSetPath.ToFileSystemPath( ctx.m_compiledResourceDirectoryPath );
         FileSystem::EnsurePathExists( dataSetOutputPath );
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, dataSetOutputPath );
         if ( archive.IsValid() )

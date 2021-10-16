@@ -1,20 +1,20 @@
 #include "ResourceEditor_DataBrowserTreeView.h"
+#include "ResourceEditor_Model.h"
 #include "Tools/Core/FileSystem/FileSystemHelpers.h"
-#include "Tools/Core/Editors/EditorModel.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    DataBrowserTreeItem::DataBrowserTreeItem( char const* pName, int32 hierarchyLevel, FileSystem::Path const& path, DataPath const& dataPath, ResourceTypeID resourceTypeID )
+    DataBrowserTreeItem::DataBrowserTreeItem( char const* pName, int32 hierarchyLevel, FileSystem::Path const& path, ResourcePath const& resourcePath, ResourceTypeID resourceTypeID )
         : TreeViewItem( pName, hierarchyLevel )
         , m_path( path )
-        , m_dataPath( dataPath )
+        , m_resourcePath( resourcePath )
         , m_resourceTypeID( resourceTypeID )
         , m_type( path.IsFilePath() ? Type::File : Type::Directory )
     {
         KRG_ASSERT( m_path.IsValid() );
-        KRG_ASSERT( m_dataPath.IsValid() );
+        KRG_ASSERT( m_resourcePath.IsValid() );
 
         // Directories are not allowed to have resource type IDs set
         if ( IsDirectory() )
@@ -34,11 +34,11 @@ namespace KRG
         {
             if ( IsRawFile() )
             {
-                ImGui::Text( GetPath().GetExtension() );
+                ImGui::Text( GetFilePath().GetExtension() );
             }
             else // Resource file
             {
-                ImGui::TextColored( resourceColor.ToFloat4(), GetPath().GetExtension() );
+                ImGui::TextColored( resourceColor.ToFloat4(), GetFilePath().GetExtension() );
             }
         }
     }
@@ -57,13 +57,13 @@ namespace KRG
 
         if ( ImGui::Selectable( "Copy Data Path" ) )
         {
-            ImGui::SetClipboardText( m_dataPath.c_str() );
+            ImGui::SetClipboardText( m_resourcePath.c_str() );
         }
     }
 
     //-------------------------------------------------------------------------
 
-    DataBrowserTreeView::DataBrowserTreeView( EditorModel* pModel )
+    DataBrowserTreeView::DataBrowserTreeView( ResourceEditorModel* pModel )
         : m_pModel( pModel )
         , m_dataDirectoryPath( pModel->GetSourceDataDirectory() )
         , m_dataDirectoryPathDepth( pModel->GetSourceDataDirectory().GetPathDepth() )
@@ -73,7 +73,7 @@ namespace KRG
 
         // Create root node
         KRG_ASSERT( m_pRoot == nullptr );
-        m_pRoot = KRG::New<DataBrowserTreeItem>( "Data", -1, m_dataDirectoryPath, DataPath::FromFileSystemPath( m_dataDirectoryPath, m_dataDirectoryPath ) );
+        m_pRoot = KRG::New<DataBrowserTreeItem>( "Data", -1, m_dataDirectoryPath, ResourcePath::FromFileSystemPath( m_dataDirectoryPath, m_dataDirectoryPath ) );
         m_pRoot->SetExpanded( true );
 
         // Start file watcher
@@ -158,7 +158,7 @@ namespace KRG
             }
 
             // Create file item
-            parentItem.CreateChild<DataBrowserTreeItem>( path.GetFileName().c_str(), parentItem.GetHierarchyLevel() + 1, path, DataPath::FromFileSystemPath( m_dataDirectoryPath, path ), resourceTypeID );
+            parentItem.CreateChild<DataBrowserTreeItem>( path.GetFileName().c_str(), parentItem.GetHierarchyLevel() + 1, path, ResourcePath::FromFileSystemPath( m_dataDirectoryPath, path ), resourceTypeID );
         }
 
         // Restore original state
@@ -204,7 +204,7 @@ namespace KRG
             auto pFoundChildItem = pCurrentItem->FindChild( searchPredicate );
             if ( pFoundChildItem == nullptr )
             {
-                auto pItem = pCurrentItem->CreateChild<DataBrowserTreeItem>( splitPath[i].c_str(), pCurrentItem->GetHierarchyLevel() + 1, directoryPath, DataPath::FromFileSystemPath( m_dataDirectoryPath, directoryPath ) );
+                auto pItem = pCurrentItem->CreateChild<DataBrowserTreeItem>( splitPath[i].c_str(), pCurrentItem->GetHierarchyLevel() + 1, directoryPath, ResourcePath::FromFileSystemPath( m_dataDirectoryPath, directoryPath ) );
                 pCurrentItem = pItem;
             }
             else

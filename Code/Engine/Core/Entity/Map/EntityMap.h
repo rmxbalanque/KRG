@@ -52,19 +52,6 @@ namespace KRG
                 bool        m_shouldDestroy = false;
             };
 
-            struct ReloadRequest
-            {
-                ReloadRequest( Entity* pEntity ) : m_pEntity( pEntity ) {}
-
-                inline bool operator==( Entity* const& pEntity ) const { return m_pEntity == pEntity; }
-                inline bool operator==( ReloadRequest const& request ) const { return m_pEntity == request.m_pEntity; }
-
-            public:
-
-                Entity*     m_pEntity = nullptr;
-                bool        m_isUnloading = true;
-            };
-
         public:
 
             EntityMap(); // Default constructor creates a transient map
@@ -123,14 +110,28 @@ namespace KRG
             // May take multiple frame to be fully destroyed, as the removal occurs during the loading update
             void DestroyEntity( UUID entityID );
 
+            // Hot-reloading
+            //-------------------------------------------------------------------------
+            // Hot reloading is a blocking process that runs in stages
+
+            #if KRG_DEVELOPMENT_TOOLS
+            // 1st Stage: Fills the hot-reload list and request deactivation for any entities that require a hot-reload
+            void HotReloadPrepareEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Resource::ResourceRequesterID> const& usersToReload );
+
+            // 2nd Stage: Requests unload of all entities required hot-reload
+            void HotReloadUnloadEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+
+            // 3rd Stage: Requests load of all entities required hot-reload
+            void HotReloadLoadEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            #endif
+
         private:
 
             void OnEntityStateUpdated( Entity* pEntity );
 
             //-------------------------------------------------------------------------
 
-            void ProcessHotReloadRequests( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-            bool ProcessUnloadRequest( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            bool ProcessMapUnloadRequest( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
             bool ProcessMapLoading( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
             void ProcessEntityAdditionAndRemoval( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
             bool ProcessEntityLoadingAndActivation( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
@@ -142,7 +143,7 @@ namespace KRG
             TVector<Entity*>                            m_entitiesToLoad;
             TInlineVector<Entity*, 5>                   m_entitiesToAdd;
             TInlineVector<RemovalRequest, 5>            m_entitiesToRemove;
-            TVector<ReloadRequest>                      m_reloadRequests;
+            TVector<Entity*>                            m_entitiesToHotReload;
             Status                                      m_status = Status::Unloaded;
             EventBindingID                              m_entityUpdateEventBindingID;
             bool                                        m_isUnloadRequested = false;

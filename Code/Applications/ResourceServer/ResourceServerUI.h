@@ -23,6 +23,7 @@ namespace KRG::Resource
         void DrawCompletedRequests();
         void DrawWorkerStatus();
         void DrawServerInfo();
+        void DrawConnectionInfo();
 
     private:
 

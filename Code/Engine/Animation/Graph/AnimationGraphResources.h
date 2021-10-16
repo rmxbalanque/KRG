@@ -74,7 +74,7 @@ namespace KRG::Animation
 
     class KRG_ENGINE_ANIMATION_API AnimationGraphVariation : public Resource::IResource
     {
-        KRG_REGISTER_VIRTUAL_RESOURCE( 'AGV', "Animation Graph Variation" );
+        KRG_REGISTER_RESOURCE( 'AGV', "Animation Graph Variation" );
         KRG_SERIALIZE_MEMBERS( m_pGraphDefinition, m_pDataSet );
 
         friend class AnimationGraphCompiler;

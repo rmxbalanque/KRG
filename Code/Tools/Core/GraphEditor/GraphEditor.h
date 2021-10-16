@@ -70,7 +70,7 @@ namespace KRG::GraphEditor
         inline void SetCanvasPosition( ImVec2 const& newPosition ) { m_canvasPosition = newPosition; }
 
         // Get node highlight color
-        virtual ImColor GetHighlightColor() const { return VisualSettings::s_genericNodeHighlightColor; }
+        virtual ImColor GetNodeColor() const { return VisualSettings::s_genericNodeHighlightColor; }
 
         // Get the margin between the node contents and the outer border
         virtual ImVec2 GetNodeMargin() const { return ImVec2( 8, 4 ); }
@@ -162,6 +162,9 @@ namespace KRG::GraphEditor
 
         // Called just before we destroy a graph
         virtual void Shutdown();
+
+        // Called whenever we change the view to this graph
+        virtual void OnShowGraph() {}
 
         // Graph
         //-------------------------------------------------------------------------
@@ -261,13 +264,16 @@ namespace KRG::GraphEditor
         // Called after we destroy a node, allows derived graphs to handle the event.
         virtual void PostDestroyNode( UUID const& nodeID ) {};
 
+        // Override this if you need to handle any child state changes (i.e. update one child node because another changed)
+        virtual void OnNodeStateUpdated() {}
+
         // Allow for custom serialization in derived types
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue ) {}
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const {}
 
     protected:
 
-        KRG_REGISTER UUID                           m_ID;
+        KRG_REGISTER UUID                       m_ID;
         TVector<BaseNode*>                      m_nodes;
 
     private:

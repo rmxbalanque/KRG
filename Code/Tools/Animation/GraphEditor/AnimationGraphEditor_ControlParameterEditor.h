@@ -20,9 +20,9 @@ namespace KRG::Animation::Graph
 
     public:
 
-        GraphControlParameterEditor( GraphEditorModel& model );
+        GraphControlParameterEditor( GraphEditorModel& graphModel );
 
-        void Draw( UpdateContext const& context, Render::ViewportManager& viewportManager );
+        void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName );
 
     private:
 
@@ -34,7 +34,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        GraphEditorModel&           m_model;
+        GraphEditorModel&           m_graphModel;
         UUID                        m_currentOperationParameterID;
         char                        m_buffer[255];
         OperationType               m_activeOperation;

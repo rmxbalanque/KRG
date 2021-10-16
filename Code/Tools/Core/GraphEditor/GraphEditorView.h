@@ -38,7 +38,7 @@ namespace KRG::GraphEditor
 
         bool HasFocus() const { return m_hasFocus; }
 
-        virtual void Draw( float childHeightOverride = 0.0f ) = 0;
+        virtual void Draw( float childHeightOverride = 0.0f, void* pUserContext = nullptr ) = 0;
 
         // Selection
         //-------------------------------------------------------------------------

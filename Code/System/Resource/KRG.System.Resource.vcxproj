@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ResourcePath.h" />
     <ClInclude Include="ResourceSettings.h" />
     <ClInclude Include="IResource.h" />
     <ClInclude Include="ResourceHeader.h" />
@@ -28,6 +29,7 @@
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ResourcePath.cpp" />
     <ClCompile Include="ResourceSettings.cpp" />
     <ClCompile Include="ResourceID.cpp" />
     <ClCompile Include="ResourceLoader.cpp" />

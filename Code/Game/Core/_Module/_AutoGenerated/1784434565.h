@@ -10,7 +10,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/ITypeHelper.h"
 #include "System/Core/Serialization/Serialization.h"
-#include "d:\Kruger\Code\Game\Core\PlayerController\DefaultPlayerController.h"
+#include "D:\Kruger\Code\Game\Core\PlayerController\DefaultPlayerController.h"
 
 //-------------------------------------------------------------------------
 // TypeHelper: KRG::DefaultPlayerController

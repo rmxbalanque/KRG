@@ -1,31 +1,35 @@
 #pragma once
-#include "Tools/Animation/ToolsGraph/AnimationToolsGraph.h"
+#include "ToolsGraph/AnimationToolsGraph.h"
 #include "Tools/Core/Trees/CategoryTree.h"
-#include "Tools/Core/Editors/EditorModel.h"
-#include "Engine/Animation/Graph/AnimationGraphResources.h"
+#include "Tools/Core/Resource/ResourceEditorWorkspace.h"
+#include "Engine/Animation/Components/AnimationGraphComponent.h"
 #include "System/Core/Types/Containers.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    class Entity;
+    namespace Animation { class AnimationGraphComponent; }
+}
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    class GraphEditorModel : public EditorModel
+    class GraphEditorModel
     {
     public:
 
-        GraphEditorModel();
+        GraphEditorModel( ResourceEditorContext const& editorContext, ResourceID const& graphResourceID );
         ~GraphEditorModel();
 
-        virtual void Initialize( UpdateContext const& context ) override;
-        virtual void Shutdown( UpdateContext const& context ) override;
+        inline FileSystem::Path const& GetSourceDataDirectory() const { return m_editorContext.m_sourceDataDirectory; }
+        inline FileSystem::Path const& GetCompiledDataDirectory() const { return m_editorContext.m_compiledDataDirectory; }
+        inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_editorContext.m_pTypeRegistry; }
+        inline Resource::ResourceSystem* GetResourceSystem() const { return m_editorContext.m_pResourceSystem; }
 
-        // File Operations
-        //-------------------------------------------------------------------------
-
-        void NewGraph();
-        void OpenGraph();
-        void SaveGraph();
-        void SaveGraphAsNewFile();
+        bool SaveGraph();
 
         // Graph
         //-------------------------------------------------------------------------
@@ -36,8 +40,6 @@ namespace KRG::Animation::Graph
 
         void NavigateTo( GraphEditor::BaseNode const* pNode );
         void NavigateTo( GraphEditor::BaseGraph const* pGraph );
-
-        void SimulateCompilation();
 
         // Variation
         //-------------------------------------------------------------------------
@@ -81,15 +83,37 @@ namespace KRG::Animation::Graph
             return VectorContains( m_selectedNodes, pNode );
         }
 
+        // Preview
+        //-------------------------------------------------------------------------
+
+        inline bool IsPreviewing() const { return m_isPreviewing; }
+        void StartPreview( EntityWorld* pPreviewWorld );
+        void StopPreview( EntityWorld* pPreviewWorld );
+
+        inline DebugContext* GetDebugContext() 
+        {
+            if ( !m_isPreviewing || !m_pGraphComponent->IsInitialized() )
+            {
+                return nullptr;
+            }
+
+            return &m_debugContext; 
+        }
+
     private:
 
         // Shows the dirty flag dialog, return whether the calling operation should continue
         bool ShowDirtyDialog();
 
+        // Saving
+        void GenerateAnimGraphVariationDescriptors();
+
     public:
 
+        ResourceEditorContext const&                m_editorContext;
+
         AnimationToolsGraph*                        m_pGraph = nullptr;
-        FileSystem::Path                            m_currentlyOpenGraphPath;
+        FileSystem::Path                            m_graphFilePath;
         StringID                                    m_selectedVariationID = AnimationGraphVariation::DefaultVariationID;
 
         TVector<TypeSystem::TypeInfo const*>        m_registeredNodeTypes;
@@ -97,5 +121,10 @@ namespace KRG::Animation::Graph
 
         GraphEditor::BaseGraph*                     m_pViewedGraph = nullptr;
         TVector<GraphEditor::BaseNode*>             m_selectedNodes;
+
+        Entity*                                     m_pPreviewEntity = nullptr;
+        AnimationGraphComponent*                    m_pGraphComponent = nullptr;
+        DebugContext                                m_debugContext;
+        bool                                        m_isPreviewing = false;
     };
 }

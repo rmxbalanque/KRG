@@ -19,6 +19,10 @@ namespace KRG::GraphEditor
 
         ResetInternalState();
         m_pGraph = pGraph;
+        if ( m_pGraph != nullptr )
+        {
+            m_pGraph->OnShowGraph();
+        }
     }
 
     void StateMachineGraphView::ResetInternalState()
@@ -59,18 +63,19 @@ namespace KRG::GraphEditor
         // Colors
         //-------------------------------------------------------------------------
 
+        ImColor nodeTitleColor( pNode->GetNodeColor() );
         ImColor const nodeBackgroundColor( VisualSettings::s_genericNodeBackgroundColor );
-        ImColor const stateTitleColor( pNode->GetHighlightColor() );
 
         // Border
         //-------------------------------------------------------------------------
 
         bool drawBorder = false;
-        ImColor nodeBorderColor( pNode->GetHighlightColor() );
+        ImColor nodeBorderColor( pNode->GetNodeColor() );
 
         if ( pNode->m_ID == m_pGraph->m_entryStateID )
         {
             nodeBorderColor = SM::VisualSettings::s_defaultStateColor;
+            nodeTitleColor = SM::VisualSettings::s_defaultStateColor;
             drawBorder = true;
         }
         
@@ -86,7 +91,7 @@ namespace KRG::GraphEditor
         if ( IsOfType<SM::State>( pNode ) )
         {
             ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3, ImDrawFlags_RoundCornersAll );
-            ctx.m_pDrawList->AddRectFilled( rectMin, rectTitleBarMax, pNode->GetHighlightColor(), 3, ImDrawFlags_RoundCornersTop );
+            ctx.m_pDrawList->AddRectFilled( rectMin, rectTitleBarMax, nodeTitleColor, 3, ImDrawFlags_RoundCornersTop );
             
             if ( drawBorder )
             {
@@ -186,7 +191,7 @@ namespace KRG::GraphEditor
         //-------------------------------------------------------------------------
 
         pTransition->m_isHovered = false;
-        ImColor transitionColor = pTransition->GetHighlightColor();
+        ImColor transitionColor = pTransition->GetNodeColor();
         ImVec2 const closestPointOnTransitionToMouse = ImLineClosestPoint( startPoint, endPoint, ctx.m_mouseCanvasPos );
         if ( ImLengthSqr( ctx.m_mouseCanvasPos - closestPointOnTransitionToMouse ) < Math::Pow( VisualSettings::s_connectionSelectionExtraRadius, 2 ) )
         {
@@ -215,7 +220,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void StateMachineGraphView::Draw( float childHeightOverride )
+    void StateMachineGraphView::Draw( float childHeightOverride, void* pUserContext )
     {
         if ( BeginDrawCanvas( childHeightOverride ) && m_pGraph != nullptr )
         {
@@ -229,6 +234,7 @@ namespace KRG::GraphEditor
             drawingContext.m_canvasVisibleRect = ImRect( m_viewOffset, m_viewOffset + drawingContext.m_windowRect.Max );
             drawingContext.m_mouseScreenPos = ImGui::GetMousePos();
             drawingContext.m_mouseCanvasPos = drawingContext.ScreenPositionToCanvasPosition( drawingContext.m_mouseScreenPos );
+            drawingContext.m_pUserContext = pUserContext;
 
             //-------------------------------------------------------------------------
             // Draw Nodes

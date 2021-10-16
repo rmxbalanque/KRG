@@ -1,5 +1,6 @@
 #pragma once
 
+#include "_Module/API.h"
 #include "System/Core/Types/Percentage.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Types/StringID.h"
@@ -72,7 +73,7 @@ namespace KRG::Animation
     // A sync track simply specifies the sync ranges in terms of events.
     // TODO: explain how sync tracks work in detail here
 
-    class SyncTrack
+    class KRG_ENGINE_ANIMATION_API SyncTrack
     {
         KRG_SERIALIZE_MEMBERS( m_syncEvents, m_startEventOffset );
 
@@ -139,6 +140,9 @@ namespace KRG::Animation
         SyncTrack( SyncTrack const& track0, SyncTrack const& track1, float const blendWeight );
 
         inline int32 GetNumEvents() const { return (int32) m_syncEvents.size(); }
+
+        // The all the events in this sync track
+        inline TInlineVector<Event, 10> const& GetEvents() const { return m_syncEvents; }
 
         // Does this sync track artificially start at a different event than the first one
         inline bool HasStartOffset() const { return m_startEventOffset != 0; }

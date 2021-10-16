@@ -78,6 +78,16 @@ namespace KRG::GraphEditor
         BaseGraph::PreDestroyNode( pNodeAboutToBeDestroyed );
     }
 
+    void StateMachineGraph::PostDestroyNode( UUID const& nodeID )
+    {
+        if ( m_entryStateID == nodeID )
+        {
+            UpdateEntryState();
+        }
+
+        BaseGraph::PostDestroyNode( nodeID );
+    }
+
     void StateMachineGraph::SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue )
     {
         BaseGraph::SerializeCustom( typeRegistry, graphObjectValue );

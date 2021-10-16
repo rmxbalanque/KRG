@@ -26,13 +26,13 @@ namespace KRG::Animation
 
         virtual InlineString<100> GetLabel() const override;
         virtual FloatRange GetTimeRange() const override;
-        virtual void SetTimeRange( FloatRange const& inRange ) override;
 
         Event* GetEvent() const { return m_pEvent; }
         TypeSystem::TypeInfo const* GetEventTypeInfo() const { return m_pEvent->GetTypeInfo(); }
 
     private:
 
+        virtual void SetTimeRangeInternal( FloatRange const& inRange ) override;
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue ) override;
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const override;
 
@@ -61,11 +61,13 @@ namespace KRG::Animation
         inline bool IsSyncTrack() const { return m_isSyncTrack; }
 
         virtual const char* GetLabel() const override;
-        virtual void CreateItem( float itemStartTime ) override;
         virtual void DrawHeader( ImRect const& headerRect ) override;
         virtual bool HasContextMenu() const override { return true; }
         virtual void DrawContextMenu( TVector<Track*>& tracks, float playheadPosition ) override;
 
+    private:
+
+        virtual void CreateItemInternal( float itemStartTime ) override;
         virtual void SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue ) override;
 
     private:

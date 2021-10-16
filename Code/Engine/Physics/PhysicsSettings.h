@@ -1,8 +1,8 @@
 #pragma once
 
 #include "_Module/API.h"
+#include "System/Resource/ResourcePath.h"
 #include "System/Core/Settings/ISettings.h"
-#include "System/Core/FileSystem/DataPath.h"
 
 //-------------------------------------------------------------------------
 
@@ -20,6 +20,6 @@ namespace KRG::Physics
 
     public:
 
-        DataPath      m_physicalMaterialDataPath;
+        ResourcePath      m_physicalMaterialDatabasePath;
     };
 }

@@ -1,5 +1,4 @@
 #include "TypeWriter.h"
-#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
