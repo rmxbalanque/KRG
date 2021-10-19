@@ -57,7 +57,7 @@ namespace KRG::Resource
         inline ResourceID const& GetCompilationTaskResourceID( int32 workerIdx ) const { return m_workers[workerIdx]->GetRequestResourceID(); }
 
         // Clients
-        inline int32 const& GetNumConnectedClients() const { return m_networkServer.GetNumConnectedClients(); }
+        inline int32 GetNumConnectedClients() const { return m_networkServer.GetNumConnectedClients(); }
         inline uint32 GetClientID( int32 clientIdx ) const { return m_networkServer.GetClientID( clientIdx ); }
         inline Network::AddressString GetConnectedClientAddress( int32 clientIdx ) const { return m_networkServer.GetConnectedClientAddress( clientIdx ); }
 

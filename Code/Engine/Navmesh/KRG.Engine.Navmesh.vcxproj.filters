@@ -33,6 +33,10 @@
     <ClCompile Include="ResourceLoaders\ResourceLoader_Navmesh.cpp">
       <Filter>ResourceLoaders</Filter>
     </ClCompile>
+    <ClCompile Include="NavmeshWorldSystem.cpp" />
+    <ClCompile Include="NavmeshData.cpp" />
+    <ClCompile Include="NavmeshSystem.cpp" />
+    <ClCompile Include="NavPower.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\DebugView_Navmesh.h">
@@ -50,5 +54,9 @@
     <ClInclude Include="ResourceLoaders\ResourceLoader_Navmesh.h">
       <Filter>ResourceLoaders</Filter>
     </ClInclude>
+    <ClInclude Include="NavmeshWorldSystem.h" />
+    <ClInclude Include="NavmeshData.h" />
+    <ClInclude Include="NavmeshSystem.h" />
+    <ClInclude Include="NavPower.h" />
   </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@ namespace KRG
         , m_pBaseResource( resourceID )
     {
         KRG_ASSERT( resourceID.IsValid() );
-        m_filePath = resourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
+        m_filePath = resourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
 
         m_resourceDisplayName = m_filePath.GetFileNameWithoutExtension();
         m_windowName.sprintf( "%s##%u", m_resourceDisplayName.c_str(), resourceID.GetPath().GetID() );

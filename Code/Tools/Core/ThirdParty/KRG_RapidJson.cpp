@@ -15,12 +15,12 @@ namespace KRG
 
     bool JsonReader::ReadFromFile( FileSystem::Path const& filePath )
     {
-        KRG_ASSERT( filePath.IsFilePath() );
+        KRG_ASSERT( filePath.IsFile() );
         Reset();
 
         //-------------------------------------------------------------------------
 
-        if ( filePath.Exists() )
+        if ( FileSystem::Exists( filePath ) )
         {
             FILE* pFile = fopen( filePath, "r" );
 
@@ -95,7 +95,7 @@ namespace KRG
 
     bool JsonWriter::WriteToFile( FileSystem::Path const& outPath )
     {
-        KRG_ASSERT( outPath.IsFilePath() );
+        KRG_ASSERT( outPath.IsFile() );
 
         FinalizeSerializedData();
 

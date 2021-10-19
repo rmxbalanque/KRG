@@ -1,7 +1,7 @@
 #pragma once
 #include "Tools/Core/_Module/API.h"
 #include "Tools/Core/Helpers/GlobalRegistryBase.h"
-#include "System/Imgui/ThirdParty/imgui/imgui.h"
+#include "imgui.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
@@ -26,8 +26,8 @@ namespace KRG
 {
     struct ResourceEditorContext
     {
-        FileSystem::Path                    m_sourceDataDirectory;
-        FileSystem::Path                    m_compiledDataDirectory;
+        FileSystem::Path                    m_sourceResourceDirectory;
+        FileSystem::Path                    m_compiledResourceDirectory;
         TypeSystem::TypeRegistry const*     m_pTypeRegistry = nullptr;
         Resource::ResourceSystem*           m_pResourceSystem = nullptr;
         EntityWorld*                        m_pPreviewWorld = nullptr;

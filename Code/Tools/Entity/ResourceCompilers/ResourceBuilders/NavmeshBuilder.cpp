@@ -10,7 +10,7 @@
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 
-#if WITH_BFX
+#if KRG_ENABLE_NAVPOWER
 #include <bfxSystem.h>
 #endif
 
@@ -192,7 +192,7 @@ namespace KRG::Navmesh
                         int32 const index2 = geometrySection.m_indices[flipWinding ? i : i + 2];
 
                         // Add triangle
-                        #if WITH_BFX
+                        #if KRG_ENABLE_NAVPOWER
                         auto& buildFace = m_buildFaces.emplace_back( bfx::BuildFace() );
                         buildFace.m_type = bfx::WALKABLE_FACE;
                         buildFace.m_verts[0] = ToBfx( transform.TransformPoint( geometrySection.m_vertices[index0].m_position ) );
@@ -209,7 +209,7 @@ namespace KRG::Navmesh
 
     bool NavmeshBuilder::BuildNavmesh( Resource::CompileContext const& ctx, NavmeshData& navmeshData )
     {
-        #if WITH_BFX
+        #if KRG_ENABLE_NAVPOWER
         if ( m_buildFaces.empty() )
         {
             return true;

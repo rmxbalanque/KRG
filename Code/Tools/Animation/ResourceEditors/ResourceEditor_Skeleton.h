@@ -2,7 +2,7 @@
 
 #include "Tools/Core/Resource/ResourceEditorWorkspace.h"
 #include "Engine/Animation/AnimationSkeleton.h"
-#include "System/Imgui/ImguiX.h"
+#include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 

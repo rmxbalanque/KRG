@@ -1,6 +1,7 @@
 #pragma once
 #include "System/Core/FileSystem/FileSystemPath.h"
 #include "System/Core/Types/Function.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,7 +17,7 @@ namespace KRG::PG
             : m_typeRegistry( typeRegistry )
             , m_rawResourceDirectoryPath( rawResourceDirectoryPath )
         {
-            KRG_ASSERT( m_rawResourceDirectoryPath.IsExistingDirectory() );
+            KRG_ASSERT( FileSystem::Exists( m_rawResourceDirectoryPath ) );
         }
 
         TypeSystem::TypeRegistry const&                 m_typeRegistry;

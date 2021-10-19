@@ -77,7 +77,26 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Scripts.Reflect", "Code
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceEditor", "Code\Applications\ResourceEditor\KRG.Applications.ResourceEditor.vcxproj", "{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.System.Imgui", "Code\System\Imgui\KRG.System.Imgui.vcxproj", "{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Property Sheets", "6. Property Sheets", "{CE2201AC-CE64-4BD9-8317-4E4E5B370CD9}"
+	ProjectSection(SolutionItems) = preProject
+		Code\PropertySheets\DirectXTex.props = Code\PropertySheets\DirectXTex.props
+		Code\PropertySheets\EA.props = Code\PropertySheets\EA.props
+		Code\PropertySheets\FBXSDK.props = Code\PropertySheets\FBXSDK.props
+		Code\PropertySheets\FreeType.props = Code\PropertySheets\FreeType.props
+		Code\PropertySheets\GameNetworkingSockets.props = Code\PropertySheets\GameNetworkingSockets.props
+		Code\PropertySheets\Imgui.props = Code\PropertySheets\Imgui.props
+		Code\PropertySheets\KRG.props = Code\PropertySheets\KRG.props
+		Code\PropertySheets\KRG.Render.props = Code\PropertySheets\KRG.Render.props
+		Code\PropertySheets\LivePP.props = Code\PropertySheets\LivePP.props
+		Code\PropertySheets\LLVM.props = Code\PropertySheets\LLVM.props
+		Code\PropertySheets\MeshOptimizer.props = Code\PropertySheets\MeshOptimizer.props
+		Code\PropertySheets\NavPower.props = Code\PropertySheets\NavPower.props
+		Code\PropertySheets\NavPowerBuilder.props = Code\PropertySheets\NavPowerBuilder.props
+		Code\PropertySheets\Optick.props = Code\PropertySheets\Optick.props
+		Code\PropertySheets\PhysX.props = Code\PropertySheets\PhysX.props
+		Code\PropertySheets\SQLite.props = Code\PropertySheets\SQLite.props
+		Code\PropertySheets\SuperLuminal.props = Code\PropertySheets\SuperLuminal.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -203,10 +222,6 @@ Global
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Debug|x64.Build.0 = Debug|x64
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.ActiveCfg = Release|x64
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.Build.0 = Release|x64
-		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}.Debug|x64.ActiveCfg = Debug|x64
-		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}.Debug|x64.Build.0 = Debug|x64
-		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}.Release|x64.ActiveCfg = Release|x64
-		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -241,7 +256,6 @@ Global
 		{15E4867A-F174-4F2A-A7C1-99CC6376D8D2} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E} = {9205228C-CCFA-4E90-AF60-D157062720B9}
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
-		{0E47E8C4-A7F3-4E6C-B7B4-CBBF37AD4913} = {9D6C7A6E-449A-4D52-AA7F-7F6DA3B418D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B3C65B2-09F5-4AAD-909C-407AB4B18705}

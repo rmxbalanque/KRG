@@ -3,6 +3,7 @@
 #include "ResourceEditor_Model.h"
 #include "ResourceEditor_DataBrowser.h"
 #include "Engine/Core/DevelopmentToolset.h"
+#include "Tools/Core/Resource/ResourceDatabase.h"
 
 //-------------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ namespace KRG
         bool                                m_mouseWithinEditorViewport = false;
         TVector<ModalPopupMessage>          m_modalPopups;
 
+        Resource::ResourceDatabase          m_db;
         DataBrowser*                        m_pDataBrowser = nullptr;
         float                               m_dataBrowserViewWidth = 150;
     };

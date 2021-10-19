@@ -226,7 +226,7 @@ namespace KRG::Resource
 
     void ResourceServer::OnFileModified( FileSystem::Path const& filePath )
     {
-        KRG_ASSERT( filePath.IsValid() && filePath.IsFilePath() );
+        KRG_ASSERT( filePath.IsValid() && filePath.IsFile() );
 
         ResourcePath resourcePath = ResourcePath::FromFileSystemPath( m_pSettings->m_rawResourcePath, filePath );
         if ( !resourcePath.IsValid() )
@@ -296,7 +296,7 @@ namespace KRG::Resource
                 // File Validity check
                 if ( pRequest->m_status != CompilationRequest::Status::Failed )
                 {
-                    if ( !FileSystem::FileExists( pRequest->m_sourceFile ) )
+                    if ( !FileSystem::Exists( pRequest->m_sourceFile ) )
                     {
                         pRequest->m_log = String().sprintf( "Error: Source file ( %s ) doesnt exist!", pRequest->m_sourceFile.GetFullPath().c_str() );
                         pRequest->m_status = CompilationRequest::Status::Failed;
@@ -314,7 +314,7 @@ namespace KRG::Resource
 
                 if ( pRequest->m_status != CompilationRequest::Status::Failed )
                 {
-                    if ( FileSystem::FileExists( pRequest->m_destinationFile ) && FileSystem::IsFileReadOnly( pRequest->m_destinationFile ) )
+                    if ( FileSystem::Exists( pRequest->m_destinationFile ) && FileSystem::IsFileReadOnly( pRequest->m_destinationFile ) )
                     {
                         pRequest->m_log = String().sprintf( "Error: Destination file ( %s ) is read-only!", pRequest->m_destinationFile.GetFullPath().c_str() );
                         pRequest->m_status = CompilationRequest::Status::Failed;
@@ -430,7 +430,7 @@ namespace KRG::Resource
             }
 
             auto const compileDependencyPath = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, compileDep );
-            if ( !compileDependencyPath.IsExistingFile() )
+            if ( !FileSystem::Exists( compileDependencyPath ) )
             {
                 areCompileDependenciesAreUpToDate = false;
                 break;
@@ -473,7 +473,7 @@ namespace KRG::Resource
         }
 
         // Check that the target file exists
-        if ( isResourceUpToDate && !FileSystem::FileExists( pRequest->m_destinationFile ) )
+        if ( isResourceUpToDate && !FileSystem::Exists( pRequest->m_destinationFile ) )
         {
             isResourceUpToDate = false;
         }
@@ -496,7 +496,7 @@ namespace KRG::Resource
         KRG_ASSERT( resourceFilePath.IsValid() );
 
         // Read JSON descriptor file - we do this by hand since we dont want to create a type registry in the resource server
-        if ( resourceFilePath.Exists() )
+        if ( FileSystem::Exists( resourceFilePath ) )
         {
             FILE* fp = fopen( resourceFilePath, "r" );
             if ( fp == nullptr )
@@ -538,7 +538,7 @@ namespace KRG::Resource
         // Check that the target file exists
         //-------------------------------------------------------------------------
 
-        if ( !FileSystem::FileExists( ResourcePath::ToFileSystemPath( m_pSettings->m_compiledResourcePath, resourceID.GetPath() ) ) )
+        if ( !FileSystem::Exists( ResourcePath::ToFileSystemPath( m_pSettings->m_compiledResourcePath, resourceID.GetPath() ) ) )
         {
             return false;
         }
@@ -550,7 +550,7 @@ namespace KRG::Resource
         KRG_ASSERT( compilerVersion >= 0 );
 
         FileSystem::Path const sourceFilePath = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, resourceID.GetPath() );
-        if ( !sourceFilePath.IsExistingFile() )
+        if ( !FileSystem::Exists( sourceFilePath ) )
         {
             return false;
         }
@@ -569,7 +569,7 @@ namespace KRG::Resource
             sourceTimestampHash += FileSystem::GetFileModifiedTime( ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, compileDep ) );
 
             ResourceTypeID const extension( compileDep.GetExtension() );
-            if ( IsCompileableResourceType( extension ) && IsResourceUpToDate( ResourceID( compileDep ) ) )
+            if ( IsCompileableResourceType( extension ) && !IsResourceUpToDate( ResourceID( compileDep ) ) )
             {
                 return false;
             }

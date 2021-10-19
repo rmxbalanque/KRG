@@ -49,7 +49,7 @@ namespace KRG::Animation
             return Error( "Invalid skeleton data path: %s", skeletonPath.c_str() );
         }
 
-        if ( !skeletonDescriptorFilePath.Exists() )
+        if ( !FileSystem::Exists( skeletonDescriptorFilePath ) )
         {
             return Error( "Invalid skeleton descriptor file path: %s", skeletonDescriptorFilePath.ToString().c_str() );
         }
@@ -82,7 +82,7 @@ namespace KRG::Animation
             return Error( "Invalid animation data path: %s", resourceDescriptor.m_animationPath.c_str() );
         }
 
-        if ( !animationFilePath.Exists() )
+        if ( !FileSystem::Exists( animationFilePath ) )
         {
             return Error( "Invalid animation file path: %s", animationFilePath.ToString().c_str() );
         }

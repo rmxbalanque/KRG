@@ -36,7 +36,7 @@ namespace KRG::TypeSystem::Reflection
 
     bool ReflectionDatabase::Connect( FileSystem::Path const& databasePath, bool readOnlyAccess, bool useMutex )
     {
-        KRG_ASSERT( databasePath.IsFilePath() );
+        KRG_ASSERT( databasePath.IsFile() );
 
         FileSystem::EnsurePathExists( databasePath );
 
@@ -671,7 +671,7 @@ namespace KRG::TypeSystem::Reflection
 
     bool ReflectionDatabase::CleanDatabase( FileSystem::Path const& databasePath )
     {
-        KRG_ASSERT( databasePath.IsFilePath() );
+        KRG_ASSERT( databasePath.IsFile() );
 
         if ( !Connect( databasePath, false ) )
         {

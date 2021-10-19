@@ -7,7 +7,7 @@
 #include "System/Render/RenderViewportManager.h"
 #include "System/Render/RenderDevice.h"
 #include "System/Resource/ResourceSettings.h"
-#include "System/Imgui/ImguiSystem.h"
+#include "System/Render/Imgui/ImguiSystem.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/IntegralTypes.h"
 #include "System/Core/Update/UpdateContext.h"

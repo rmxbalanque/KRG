@@ -50,29 +50,42 @@ namespace KRG
         explicit ResourcePath( char const* pPath );
         explicit ResourcePath( String&& path );
 
-        // Assignment
-        ResourcePath& operator=( ResourcePath&& path );
-        ResourcePath& operator=( ResourcePath const& path );
+        //-------------------------------------------------------------------------
 
-        // Accessors
         inline bool IsValid() const { return !m_path.empty() && IsValidPath( m_path ); }
         inline void Clear() { m_path.clear(); m_ID = 0; }
         inline uint32 GetID() const { return m_ID; }
 
         // Extension
+        //-------------------------------------------------------------------------
+
+        // Get the extension for this path (excluding the '.')
         String GetExtension() const;
+
+        // Replaces the extension for this path. Supplied extension must not start with '.'
         void ReplaceExtension( const char* pExtension );
+
+        // Replaces the extension for this path. Supplied extension must not start with '.'
         inline void ReplaceExtension( String const& extension ) { ReplaceExtension( extension.c_str() ); }
+
+        // Replaces the extension for this path. Supplied extension must not start with '.'
         template<size_t S> void ReplaceExtension( InlineString<S> const& extension ) { ReplaceExtension( extension.c_str() ); }
 
         // Conversion
+        //-------------------------------------------------------------------------
+
         inline String const& GetString() const { return m_path; }
         inline char const* c_str() const { return m_path.c_str(); }
         inline FileSystem::Path ToFileSystemPath( FileSystem::Path const& rawResourceDirectoryPath ) const { return ToFileSystemPath( rawResourceDirectoryPath, *this ); }
 
-        // Comparison
+        // Operators
+        //-------------------------------------------------------------------------
+
         inline bool operator==( ResourcePath const& rhs ) const { return m_ID == rhs.m_ID; }
         inline bool operator!=( ResourcePath const& rhs ) const { return m_ID != rhs.m_ID; }
+
+        ResourcePath& operator=( ResourcePath&& path );
+        ResourcePath& operator=( ResourcePath const& path );
 
     private:
 

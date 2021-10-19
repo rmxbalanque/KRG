@@ -15,7 +15,7 @@ namespace KRG
 {
     DataFileInspector::DataFileInspector( ResourceEditorModel* pModel )
         : m_pModel( pModel )
-        , m_propertyGrid( *pModel->GetTypeRegistry(), pModel->GetSourceDataDirectory() )
+        , m_propertyGrid( *pModel->GetTypeRegistry(), pModel->GetRawResourceDirectory() )
     {
         KRG_ASSERT( m_pModel != nullptr );
     }
@@ -40,7 +40,7 @@ namespace KRG
 
         m_inspectedFile = inFile;
 
-        m_descriptorID = ResourceID( ResourcePath::FromFileSystemPath( m_pModel->GetSourceDataDirectory(), m_inspectedFile ) );
+        m_descriptorID = ResourceID( ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_inspectedFile ) );
         if ( m_descriptorID.IsValid() )
         {
             // Ensure the resource type ID is a registered resource type
@@ -57,7 +57,7 @@ namespace KRG
         {
             m_mode = Mode::InspectingResourceFile;
             m_isDirty = false;
-            m_descriptorPath = m_descriptorID.GetPath().ToFileSystemPath( m_pModel->GetSourceDataDirectory() );
+            m_descriptorPath = m_descriptorID.GetPath().ToFileSystemPath( m_pModel->GetRawResourceDirectory() );
 
             if ( LoadResourceDescriptor() )
             {
@@ -179,7 +179,7 @@ namespace KRG
 
     bool DataFileInspector::LoadResourceDescriptor()
     {
-        KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFilePath() );
+        KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFile() );
         KRG_ASSERT( m_pDescriptor == nullptr );
 
         TypeSystem::Serialization::TypeReader typeReader( *m_pModel->GetTypeRegistry() );
@@ -198,7 +198,7 @@ namespace KRG
 
     bool DataFileInspector::SaveLoadedResourceDescriptor()
     {
-        KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFilePath() );
+        KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFile() );
         KRG_ASSERT( m_pDescriptor != nullptr );
         return WriteResourceDescriptorToFile( *m_pModel->GetTypeRegistry(), m_descriptorPath, m_pDescriptor );
     }

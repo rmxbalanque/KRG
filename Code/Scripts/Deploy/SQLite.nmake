@@ -1,0 +1,23 @@
+##########################################
+# PLATFORM CONFIG
+##########################################
+
+!IF "$(PLATFORM)" == "x64" && "$(CONFIG)" == "Debug"
+
+SQLITE_BIN_DIR = $(EXTERNAL_DEPENDENCY_DIR)Lib\x64\Release\
+
+!ELSE IF "$(PLATFORM)" == "x64" && "$(CONFIG)" == "Release"
+
+SQLITE_BIN_DIR = $(EXTERNAL_DEPENDENCY_DIR)Lib\x64\Release\
+
+!ENDIF
+
+##########################################
+# FILE OPERATIONS
+##########################################
+
+prebuild:
+    xcopy /y /i /D "$(SQLITE_BIN_DIR)\Sqlite.dll" "$(OUT_DIR)"
+
+clean:
+    del /F /Q "$(OUT_DIR)Sqlite.dll"

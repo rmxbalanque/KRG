@@ -2,6 +2,7 @@
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,7 +12,7 @@ namespace KRG
         : m_filePath( filePath )
         , m_pModel( pModel )
     {
-        KRG_ASSERT( filePath.IsValid() && filePath.IsExistingFile() );
+        KRG_ASSERT( filePath.IsValid() && FileSystem::Exists( filePath ) );
     }
 
     bool RawFileInspector::CreateNewDescriptor( ResourceTypeID resourceTypeID, Resource::ResourceDescriptor const& descriptor ) const
@@ -34,7 +35,7 @@ namespace KRG
         pfd::save_file saveDialog( "Save Resource Descriptor", newDescriptorPath.c_str(), { "Descriptor", filter.c_str() } );
         newDescriptorPath = saveDialog.result().c_str();
 
-        if ( !newDescriptorPath.IsValid() || !newDescriptorPath.IsFilePath() )
+        if ( !newDescriptorPath.IsValid() || !newDescriptorPath.IsFile() )
         {
             return false;
         }

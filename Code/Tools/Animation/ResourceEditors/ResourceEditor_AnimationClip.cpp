@@ -5,7 +5,7 @@
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Engine/Animation/Systems/AnimationSystem.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "System/Imgui/Widgets/InterfaceHelpers.h"
+#include "System/Render/Imgui/Widgets/InterfaceHelpers.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 
@@ -25,7 +25,7 @@ namespace KRG::Animation
 
     AnimationClipResourceEditor::AnimationClipResourceEditor( ResourceEditorContext const& context, ResourceID const& resourceID )
         : TResourceEditorWorkspace<AnimationClip>( context, resourceID )
-        , m_propertyGrid( *context.m_pTypeRegistry, context.m_sourceDataDirectory )
+        , m_propertyGrid( *context.m_pTypeRegistry, context.m_sourceResourceDirectory )
     {}
 
     AnimationClipResourceEditor::~AnimationClipResourceEditor()
@@ -89,14 +89,14 @@ namespace KRG::Animation
             // Lazy init of the event editor
             if ( m_pEventEditor == nullptr )
             {
-                m_pEventEditor = KRG::New<EventEditor>( *m_editorContext.m_pTypeRegistry, m_editorContext.m_sourceDataDirectory, m_pResource.GetPtr() );
+                m_pEventEditor = KRG::New<EventEditor>( *m_editorContext.m_pTypeRegistry, m_editorContext.m_sourceResourceDirectory, m_pResource.GetPtr() );
             }
 
             // Initialize preview mesh
             if ( m_pMeshComponent == nullptr )
             {
                 // Load resource descriptor for skeleton to get the preview mesh
-                FileSystem::Path const resourceDescPath = m_pResource->GetSkeleton()->GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
+                FileSystem::Path const resourceDescPath = m_pResource->GetSkeleton()->GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
                 SkeletonResourceDescriptor resourceDesc;
                 TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
 

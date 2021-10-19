@@ -55,7 +55,7 @@ namespace KRG
 
     ResourcePath ResourcePath::FromFileSystemPath( FileSystem::Path const& rawResourceDirectoryPath, FileSystem::Path const& filePath )
     {
-        KRG_ASSERT( rawResourceDirectoryPath.IsValid() && rawResourceDirectoryPath.IsDirectoryPath() && filePath.IsValid() );
+        KRG_ASSERT( rawResourceDirectoryPath.IsValid() && rawResourceDirectoryPath.IsDirectory() && filePath.IsValid() );
 
         ResourcePath path;
 
@@ -72,7 +72,7 @@ namespace KRG
 
     FileSystem::Path ResourcePath::ToFileSystemPath( FileSystem::Path const& rawResourceDirectoryPath, ResourcePath const& resourcePath )
     {
-        KRG_ASSERT( rawResourceDirectoryPath.IsValid() && rawResourceDirectoryPath.IsDirectoryPath() && resourcePath.IsValid() );
+        KRG_ASSERT( rawResourceDirectoryPath.IsValid() && rawResourceDirectoryPath.IsDirectory() && resourcePath.IsValid() );
 
         // Replace slashes and remove prefix
         String tempPath = resourcePath.m_path;
@@ -151,7 +151,8 @@ namespace KRG
 
     void ResourcePath::ReplaceExtension( const char* pExtension )
     {
-        KRG_ASSERT( IsValid() && pExtension != nullptr && pExtension[0] != 0 );
+        KRG_ASSERT( IsValid() && pExtension != nullptr );
+        KRG_ASSERT( pExtension[0] != 0 && pExtension[0] != '.' );
         size_t const extIdx = FindExtensionStartIdx( m_path.c_str() );
         m_path = m_path.substr( 0, extIdx ) + pExtension;
         OnPathMemberChanged();

@@ -1,6 +1,5 @@
 #include "RenderingSystem.h"
-#include "Engine/Render/Renderers/StaticMeshRenderer.h"
-#include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
+#include "Engine/Render/Renderers/MeshRenderer.h"
 #include "Engine/Render/Renderers/ImguiRenderer.h"
 #include "System/Render/RenderViewportManager.h"
 #include "System/Render/RenderDevice.h"
@@ -26,17 +25,10 @@ namespace KRG
 
             for ( auto pRenderer : pRegistry->GetRegisteredRenderers() )
             {
-                if ( pRenderer->GetRendererID() == SkeletalMeshRenderer::RendererID )
+                if ( pRenderer->GetRendererID() == MeshRenderer::RendererID )
                 {
-                    KRG_ASSERT( m_pSkeletalMeshRenderer == nullptr );
-                    m_pSkeletalMeshRenderer = static_cast<SkeletalMeshRenderer*>( pRenderer );
-                    continue;
-                }
-                
-                if ( pRenderer->GetRendererID() == StaticMeshRenderer::RendererID )
-                {
-                    KRG_ASSERT( m_pStaticMeshRenderer == nullptr );
-                    m_pStaticMeshRenderer = static_cast<StaticMeshRenderer*>( pRenderer );
+                    KRG_ASSERT( m_pMeshRenderer == nullptr );
+                    m_pMeshRenderer = static_cast<MeshRenderer*>( pRenderer );
                     continue;
                 }
 
@@ -71,8 +63,7 @@ namespace KRG
 
         void RenderingSystem::Shutdown()
         {
-            m_pStaticMeshRenderer = nullptr;
-            m_pSkeletalMeshRenderer = nullptr;
+            m_pMeshRenderer = nullptr;
 
             #if KRG_DEVELOPMENT_TOOLS
             m_pImguiRenderer = nullptr;
@@ -109,9 +100,9 @@ namespace KRG
 
                         //-------------------------------------------------------------------------
 
-                        if ( m_pStaticMeshRenderer != nullptr )
+                        if ( m_pMeshRenderer != nullptr )
                         {
-                            m_pStaticMeshRenderer->RenderStatic( *pViewport );
+                            m_pMeshRenderer->RenderStatic( *pViewport );
                         }
                     }
                 }
@@ -134,14 +125,10 @@ namespace KRG
 
                         //-------------------------------------------------------------------------
 
-                        if ( m_pStaticMeshRenderer != nullptr )
+                        if ( m_pMeshRenderer != nullptr )
                         {
-                            m_pStaticMeshRenderer->RenderDynamic( *pViewport );
-                        }
-
-                        if ( m_pSkeletalMeshRenderer != nullptr )
-                        {
-                            m_pSkeletalMeshRenderer->Render( *pViewport );
+                            m_pMeshRenderer->RenderDynamic( *pViewport );
+                            m_pMeshRenderer->RenderSkeletal( *pViewport );
                         }
 
                         for ( auto const& pCustomRenderer : m_customRenderers )

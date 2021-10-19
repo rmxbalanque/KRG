@@ -24,8 +24,8 @@ namespace KRG::Animation::Graph
         GraphEditorModel( ResourceEditorContext const& editorContext, ResourceID const& graphResourceID );
         ~GraphEditorModel();
 
-        inline FileSystem::Path const& GetSourceDataDirectory() const { return m_editorContext.m_sourceDataDirectory; }
-        inline FileSystem::Path const& GetCompiledDataDirectory() const { return m_editorContext.m_compiledDataDirectory; }
+        inline FileSystem::Path const& GetSourceDataDirectory() const { return m_editorContext.m_sourceResourceDirectory; }
+        inline FileSystem::Path const& GetCompiledDataDirectory() const { return m_editorContext.m_compiledResourceDirectory; }
         inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_editorContext.m_pTypeRegistry; }
         inline Resource::ResourceSystem* GetResourceSystem() const { return m_editorContext.m_pResourceSystem; }
 

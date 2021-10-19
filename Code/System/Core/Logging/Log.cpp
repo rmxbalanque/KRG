@@ -115,7 +115,7 @@ namespace KRG::Log
 
     void SaveToFile( FileSystem::Path const& logFilePath )
     {
-        KRG_ASSERT( IsInitialized() && logFilePath.IsValid() && logFilePath.IsFilePath() );
+        KRG_ASSERT( IsInitialized() && logFilePath.IsValid() && logFilePath.IsFile() );
 
         FileSystem::EnsurePathExists( logFilePath );
 

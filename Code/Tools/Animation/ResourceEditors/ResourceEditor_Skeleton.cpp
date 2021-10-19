@@ -1,6 +1,6 @@
 #include "ResourceEditor_Skeleton.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
-#include "System/Imgui/Widgets/InterfaceHelpers.h"
+#include "System/Render/Imgui/Widgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "Engine/Core/Entity/EntityWorld.h"
@@ -29,7 +29,7 @@ namespace KRG::Animation
         KRG_ASSERT( m_pPreviewEntity == nullptr );
 
         // Load resource descriptor for skeleton to get the preview mesh
-        FileSystem::Path const resourceDescPath = m_pResource.GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
+        FileSystem::Path const resourceDescPath = m_pResource.GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
         SkeletonResourceDescriptor resourceDesc;
         TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
 

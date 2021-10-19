@@ -1,4 +1,5 @@
 #include "ResourceCompiler.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -10,7 +11,7 @@ namespace KRG::Resource
         , m_compiledResourceDirectoryPath( compiledResourceDirectoryPath )
         , m_resourceID( resourceToCompile )
     {
-        KRG_ASSERT( m_rawResourceDirectoryPath.IsDirectoryPath() && m_rawResourceDirectoryPath.Exists() && resourceToCompile.IsValid() );
+        KRG_ASSERT( m_rawResourceDirectoryPath.IsDirectory() && FileSystem::Exists( m_rawResourceDirectoryPath ) && resourceToCompile.IsValid() );
 
         // Resolve paths
         ResourcePath const& resourceToCompilePath = resourceToCompile.GetPath();

@@ -17,8 +17,7 @@ namespace KRG
     {
         class RenderDevice;
         class ViewportManager;
-        class SkeletalMeshRenderer;
-        class StaticMeshRenderer;
+        class MeshRenderer;
         class ImguiRenderer;
 
         //-------------------------------------------------------------------------
@@ -38,8 +37,7 @@ namespace KRG
             RenderDevice*                                   m_pRenderDevice = nullptr;
 
             ViewportManager*                                m_pViewportManager = nullptr;
-            StaticMeshRenderer*                             m_pStaticMeshRenderer = nullptr;
-            SkeletalMeshRenderer*                           m_pSkeletalMeshRenderer = nullptr;
+            MeshRenderer*                                   m_pMeshRenderer = nullptr;
             TVector<IRenderer*>                             m_customRenderers;
 
             #if KRG_DEVELOPMENT_TOOLS

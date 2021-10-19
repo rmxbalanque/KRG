@@ -54,7 +54,7 @@ namespace KRG::FileSystem
 
     bool LoadFile( Path const& path, TVector<Byte>& fileData )
     {
-        KRG_ASSERT( path.IsFilePath() );
+        KRG_ASSERT( path.IsFile() );
 
         // Open file handle
         HANDLE hFile = CreateFile( path.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr );

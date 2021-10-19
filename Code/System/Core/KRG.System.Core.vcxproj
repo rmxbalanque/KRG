@@ -529,7 +529,6 @@
   <ItemGroup>
     <None Include="ThirdParty\concurrentqueue\LICENSE.md" />
     <None Include="ThirdParty\concurrentqueue\README.md" />
-    <None Include="ThirdParty\EA\EA.props" />
     <None Include="ThirdParty\EA\EABase\doc\EABase.html" />
   </ItemGroup>
   <ItemGroup>
@@ -560,11 +559,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\KRG.props" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\KRG.props" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

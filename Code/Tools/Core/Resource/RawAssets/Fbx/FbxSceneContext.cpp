@@ -1,4 +1,5 @@
 #include "FbxSceneContext.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -6,7 +7,7 @@ namespace KRG::Fbx
 {
     FbxSceneContext::FbxSceneContext( FileSystem::Path const& filePath )
     {
-        if ( !filePath.Exists() )
+        if ( !FileSystem::Exists( filePath ) )
         {
             m_error.sprintf( "Specified FBX file doesn't exist: %s", filePath.c_str() );
             return;

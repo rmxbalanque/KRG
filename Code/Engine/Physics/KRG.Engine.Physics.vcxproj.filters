@@ -51,6 +51,15 @@
     <ClCompile Include="ResourceLoaders\ResourceLoader_PhysicsMesh.cpp">
       <Filter>ResourceLoaders</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsSettings.cpp" />
+    <ClCompile Include="PhysicsMaterial.cpp" />
+    <ClCompile Include="PhysicsSimulationFilter.cpp" />
+    <ClCompile Include="PhysicsMaterialDatabase.cpp" />
+    <ClCompile Include="PhysicsMesh.cpp" />
+    <ClCompile Include="PhysicsQueryFilter.cpp" />
+    <ClCompile Include="PhysicsSystem.cpp" />
+    <ClCompile Include="PhysX.cpp" />
+    <ClCompile Include="PhysicsWorldSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\DebugView_Physics.h">
@@ -86,5 +95,16 @@
     <ClInclude Include="ResourceLoaders\ResourceLoader_PhysicsMesh.h">
       <Filter>ResourceLoaders</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsSettings.h" />
+    <ClInclude Include="PhysicsMaterial.h" />
+    <ClInclude Include="PhysicsSimulationFilter.h" />
+    <ClInclude Include="PhysicsMaterialDatabase.h" />
+    <ClInclude Include="PhysicsMesh.h" />
+    <ClInclude Include="PhysicsQueryFilter.h" />
+    <ClInclude Include="PhysicsQueryTypes.h" />
+    <ClInclude Include="PhysicsSystem.h" />
+    <ClInclude Include="PhysicsLayers.h" />
+    <ClInclude Include="PhysX.h" />
+    <ClInclude Include="PhysicsWorldSystem.h" />
   </ItemGroup>
 </Project>

@@ -27,6 +27,7 @@
     <ClCompile Include="DebugViews\DebugView_Camera.cpp">
       <Filter>DebugViews</Filter>
     </ClCompile>
+    <ClCompile Include="CameraWorldSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\Module.h">
@@ -41,5 +42,6 @@
     <ClInclude Include="DebugViews\DebugView_Camera.h">
       <Filter>DebugViews</Filter>
     </ClInclude>
+    <ClInclude Include="CameraWorldSystem.h" />
   </ItemGroup>
 </Project>

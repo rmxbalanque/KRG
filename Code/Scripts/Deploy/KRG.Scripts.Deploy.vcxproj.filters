@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="KRG.ini" />
+    <None Include="Freetype.nmake">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="GameNetworkingSockets.nmake">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="Optick.nmake">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="PhysX.nmake">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="SQLite.nmake">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="Deploy.nmake" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{b34d1909-b268-48ce-b1ce-d9814dd3c944}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

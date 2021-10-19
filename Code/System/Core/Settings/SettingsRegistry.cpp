@@ -2,6 +2,7 @@
 #include "System/Core/Algorithm/Hash.h"
 #include "System/Core/ThirdParty/iniparser/krg_ini.h"
 #include "System/Core/Logging/Log.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ namespace KRG
 
     void SettingsRegistry::ReloadSettings()
     {
-        KRG_ASSERT( m_settingsFilePath.IsExistingFile() );
+        KRG_ASSERT( FileSystem::Exists( m_settingsFilePath ) );
         LoadFromFile( m_settingsFilePath );
     }
 

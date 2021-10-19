@@ -1,6 +1,6 @@
 #include "DebugView_Resource.h"
 #include "System/Resource/ResourceSystem.h"
-#include "System/Imgui/ImguiX.h"
+#include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 

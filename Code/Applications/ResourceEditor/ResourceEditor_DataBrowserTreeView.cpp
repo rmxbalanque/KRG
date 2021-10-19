@@ -11,7 +11,7 @@ namespace KRG
         , m_path( path )
         , m_resourcePath( resourcePath )
         , m_resourceTypeID( resourceTypeID )
-        , m_type( path.IsFilePath() ? Type::File : Type::Directory )
+        , m_type( path.IsFile() ? Type::File : Type::Directory )
     {
         KRG_ASSERT( m_path.IsValid() );
         KRG_ASSERT( m_resourcePath.IsValid() );
@@ -65,11 +65,11 @@ namespace KRG
 
     DataBrowserTreeView::DataBrowserTreeView( ResourceEditorModel* pModel )
         : m_pModel( pModel )
-        , m_dataDirectoryPath( pModel->GetSourceDataDirectory() )
-        , m_dataDirectoryPathDepth( pModel->GetSourceDataDirectory().GetPathDepth() )
+        , m_dataDirectoryPath( pModel->GetRawResourceDirectory() )
+        , m_dataDirectoryPathDepth( pModel->GetRawResourceDirectory().GetPathDepth() )
     {
         KRG_ASSERT( m_pModel != nullptr );
-        KRG_ASSERT( m_dataDirectoryPath.IsExistingDirectory() );
+        KRG_ASSERT( FileSystem::Exists( m_dataDirectoryPath ) );
 
         // Create root node
         KRG_ASSERT( m_pRoot == nullptr );
@@ -185,7 +185,7 @@ namespace KRG
 
     TreeViewItem& DataBrowserTreeView::FindOrCreateParentForItem( FileSystem::Path const& path )
     {
-        KRG_ASSERT( path.IsFilePath() );
+        KRG_ASSERT( path.IsFile() );
 
         TreeViewItem* pCurrentItem = m_pRoot;
         FileSystem::Path directoryPath = m_dataDirectoryPath;

@@ -152,7 +152,7 @@ int main( int argc, char* argv[] )
         }
 
         // Validate input path
-        if ( !compileContext.m_inputFilePath.Exists() )
+        if ( !FileSystem::Exists( compileContext.m_inputFilePath ) )
         {
             KRG_LOG_ERROR( "ResourceCompiler", "Source file for data path ('%s') does not exist: '%s'\n", settings.m_rawResourcePath.c_str(), compileContext.m_inputFilePath.c_str() );
             return -1;

@@ -91,7 +91,7 @@ namespace KRG
 
     private:
 
-        ResourceEditorModel*                                m_pModel = nullptr;
+        ResourceEditorModel*                        m_pModel = nullptr;
         FileSystem::Path                            m_dataDirectoryPath;
         int32                                       m_dataDirectoryPathDepth;
         FileSystem::FileSystemWatcher               m_fileSystemWatcher;

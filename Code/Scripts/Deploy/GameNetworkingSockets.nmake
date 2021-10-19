@@ -1,0 +1,31 @@
+GNS_DIR = $(EXTERNAL_DEPENDENCY_DIR)
+
+##########################################
+# PLATFORM CONFIG
+##########################################
+
+GNS_BIN_DIR = $(GNS_DIR)\bin\
+
+##########################################
+# FILE OPERATIONS
+##########################################
+
+prebuild:
+    xcopy /y /i /D "$(GNS_BIN_DIR)\GameNetworkingSockets.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(GNS_BIN_DIR)\GameNetworkingSockets.pdb" "$(OUT_DIR)"
+    xcopy /y /i /D "$(GNS_BIN_DIR)\libcrypto-1_1-x64.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(GNS_BIN_DIR)\libcrypto-1_1-x64.pdb" "$(OUT_DIR)"
+    xcopy /y /i /D "$(GNS_BIN_DIR)\libprotobuf.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(GNS_BIN_DIR)\libprotobuf.pdb" "$(OUT_DIR)"
+    xcopy /y /i /D "$(GNS_BIN_DIR)\libssl-1_1-x64.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(GNS_BIN_DIR)\libssl-1_1-x64.pdb" "$(OUT_DIR)"
+
+clean:
+    del /F /Q "$(OUT_DIR)GameNetworkingSockets.dll"
+    del /F /Q "$(OUT_DIR)GameNetworkingSockets.pdb"
+    del /F /Q "$(OUT_DIR)libcrypto-1_1-x64.dll"
+    del /F /Q "$(OUT_DIR)libcrypto-1_1-x64.pdb"
+    del /F /Q "$(OUT_DIR)libprotobuf.dll"
+    del /F /Q "$(OUT_DIR)libprotobuf.pdb"
+    del /F /Q "$(OUT_DIR)libssl-1_1-x64.dll"
+    del /F /Q "$(OUT_DIR)libssl-1_1-x64.pdb"

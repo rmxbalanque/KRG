@@ -12,7 +12,7 @@ namespace KRG
             : m_filePath( filePath )
             , m_mode( mode )
         {
-            KRG_ASSERT( m_filePath.IsFilePath() );
+            KRG_ASSERT( m_filePath.IsFile() );
 
             if ( mode == Mode::Read )
             {

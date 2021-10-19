@@ -65,7 +65,7 @@ namespace KRG::Navmesh
         // Add resource
         //-------------------------------------------------------------------------
 
-        #if WITH_BFX
+        #if KRG_ENABLE_NAVPOWER
         Transform const& componentWorldTransform = pComponent->GetWorldTransform();
 
         bfx::ResourceOffset offset;
@@ -85,7 +85,7 @@ namespace KRG::Navmesh
         {
             if ( pComponent->GetID() == m_registeredNavmeshes[i].m_componentID )
             {
-                #if WITH_BFX
+                #if KRG_ENABLE_NAVPOWER
                 bfx::RemoveResource( m_registeredNavmeshes[i].m_pNavmesh );
                 #endif
 

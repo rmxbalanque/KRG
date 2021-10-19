@@ -5,6 +5,7 @@
 #include "System/TypeSystem/CoreTypeConversions.h"
 #include "System/Core/ThirdParty/cereal/external/rapidjson/error/en.h"
 #include "System/Core/Logging/Log.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -372,7 +373,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            if ( !filePath.Exists() )
+            if ( !FileSystem::Exists( filePath ) )
             {
                 return Error( "Cant read source file %s", filePath.GetFullPath().c_str() );
             }

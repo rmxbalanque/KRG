@@ -1719,9 +1719,6 @@
     <ClInclude Include="ThirdParty\stb\stb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ThirdParty\EA\EA.props">
-      <Filter>ThirdParty\EA</Filter>
-    </None>
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">
       <Filter>ThirdParty\EA\EABase\doc</Filter>
     </None>

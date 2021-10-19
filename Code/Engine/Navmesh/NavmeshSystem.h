@@ -28,7 +28,7 @@ namespace KRG::Navmesh
      
     private:
 
-        #if WITH_BFX
+        #if KRG_ENABLE_NAVPOWER
         NavPowerAllocator                               m_allocator;
 
         #if KRG_DEVELOPMENT_TOOLS

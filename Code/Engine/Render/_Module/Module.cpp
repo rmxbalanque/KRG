@@ -23,11 +23,9 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        m_staticMeshRenderer.Initialize( pRenderDevice );
-        m_skeletalMeshRenderer.Initialize( pRenderDevice );
+        m_meshRenderer.Initialize( pRenderDevice );
 
-        context.RegisterRenderer( &m_staticMeshRenderer );
-        context.RegisterRenderer( &m_skeletalMeshRenderer );
+        context.RegisterRenderer( &m_meshRenderer );
 
         #if KRG_DEVELOPMENT_TOOLS
         m_debugRenderer.Initialize( pRenderDevice, context.GetSystem<Debug::DrawingSystem>() );
@@ -37,8 +35,7 @@ namespace KRG::Render
         context.RegisterRenderer( &m_imguiRenderer );
         #endif
 
-        context.RegisterWorldSystem( &m_staticMeshRenderer );
-        context.RegisterWorldSystem( &m_skeletalMeshRenderer );
+        context.RegisterWorldSystem( &m_meshRenderer );
 
         m_initialized = true;
         return m_initialized;
@@ -48,8 +45,7 @@ namespace KRG::Render
     {
         if ( m_initialized )
         {
-            context.UnregisterWorldSystem( &m_skeletalMeshRenderer );
-            context.UnregisterWorldSystem( &m_staticMeshRenderer );
+            context.UnregisterWorldSystem( &m_meshRenderer );
 
             //-------------------------------------------------------------------------
 
@@ -61,11 +57,9 @@ namespace KRG::Render
             m_debugRenderer.Shutdown();
             #endif
 
-            context.UnregisterRenderer( &m_skeletalMeshRenderer );
-            context.UnregisterRenderer( &m_staticMeshRenderer );
+            context.UnregisterRenderer( &m_meshRenderer );
 
-            m_skeletalMeshRenderer.Shutdown();
-            m_staticMeshRenderer.Shutdown();
+            m_meshRenderer.Shutdown();
 
             //-------------------------------------------------------------------------
 

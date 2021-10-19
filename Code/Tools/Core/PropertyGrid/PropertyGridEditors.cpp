@@ -1,6 +1,6 @@
 #include "PropertyGridEditors.h"
 #include "Tools/Core/Resource/DataFilePicker.h"
-#include "System/Imgui/Widgets/NumericEditors.h"
+#include "System/Render/Imgui/Widgets/NumericEditors.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------

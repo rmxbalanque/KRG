@@ -1,5 +1,5 @@
 #include "DebugView_Input.h"
-#include "System/Imgui/ImguiX.h"
+#include "System/Render/Imgui/ImguiX.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Input/InputSystem.h"
 

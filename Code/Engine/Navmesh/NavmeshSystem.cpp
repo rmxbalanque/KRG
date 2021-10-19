@@ -8,7 +8,7 @@ namespace KRG::Navmesh
     {
         KRG_ASSERT( pDebugDrawingSystem != nullptr );
 
-        #if WITH_BFX
+        #if KRG_ENABLE_NAVPOWER
         bfx::SystemCreate( bfx::SystemParams( 2.0f, bfx::Z_UP ), &m_allocator );
         bfx::RegisterPlannerSystem();
         bfx::SystemStart();
@@ -22,7 +22,7 @@ namespace KRG::Navmesh
 
     void NavmeshSystem::Shutdown()
     {
-        #if WITH_BFX
+        #if KRG_ENABLE_NAVPOWER
         #if KRG_DEVELOPMENT_TOOLS
         bfx::SetRenderer( nullptr );
         m_debugRenderer.SetDebugDrawingSystem( nullptr );
@@ -35,7 +35,7 @@ namespace KRG::Navmesh
 
     void NavmeshSystem::Update( UpdateContext const& ctx )
     {
-        #if WITH_BFX
+        #if KRG_ENABLE_NAVPOWER
         bfx::SystemSimulate( ctx.GetDeltaTime() );
 
         #if KRG_DEVELOPMENT_TOOLS

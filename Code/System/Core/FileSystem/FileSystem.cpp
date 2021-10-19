@@ -1,4 +1,5 @@
 #include "FileSystem.h"
+#include "System/Core/Logging/Log.h"
 #include <filesystem>
 #include <regex>
 
@@ -6,29 +7,51 @@
 
 namespace KRG::FileSystem
 {
-    bool CreateDir( Path const& path )
+    bool Exists( char const* pPath )
     {
-        KRG_ASSERT( path.IsDirectoryPath() );
-
         std::error_code ec;
-        std::filesystem::create_directories( path.c_str(), ec );
-        return ec.value() == 0;
+        bool const result = std::filesystem::exists( pPath, ec );
+        KRG_ASSERT( ec.value() == 0 );
+        return result;
     }
 
-    bool EraseDir( Path const& path )
+    bool IsFile( char const* pPath )
     {
-        KRG_ASSERT( path.IsDirectoryPath() );
-        
         std::error_code ec;
-        auto const result = std::filesystem::remove_all( path.c_str(), ec );
-        return ec.value() == 0;
+        bool const result = !std::filesystem::is_directory( pPath, ec );
+        KRG_ASSERT( ec.value() == 0 );
+        return result;
+    }
+
+    bool IsDirectory( char const* pPath )
+    {
+        std::error_code ec;
+        bool const result = std::filesystem::is_directory( pPath, ec );
+        KRG_ASSERT( ec.value() == 0 );
+        return result;
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool Exists( Path const& filePath )
+    {
+        if ( !Exists( filePath.c_str() ) )
+        {
+            return false;
+        }
+
+        std::error_code ec;
+        bool const isDirectory = std::filesystem::is_directory( filePath.c_str(), ec );
+        KRG_ASSERT( ec.value() == 0 );
+
+        return isDirectory ? filePath.IsDirectory() : filePath.IsFile();
     }
 
     bool EnsurePathExists( Path const& path )
     {
-        if ( !path.Exists() )
+        if ( !Exists( path ) )
         {
-            if ( path.IsDirectoryPath() )
+            if ( path.IsDirectory() )
             {
                 return CreateDir( path );
             }
@@ -41,9 +64,92 @@ namespace KRG::FileSystem
         return true;
     }
 
+    bool IsFileReadOnly( Path const& filePath )
+    {
+        KRG_ASSERT( filePath.IsFile() );
+
+        std::error_code ec;
+        std::filesystem::path const path( filePath.c_str() );
+        KRG_ASSERT( std::filesystem::exists( path, ec ) );
+
+        std::filesystem::perms const permissions = std::filesystem::status( path, ec ).permissions();
+        KRG_ASSERT( ec.value() == 0 );
+        std::filesystem::perms const allWrite = std::filesystem::perms::owner_write | std::filesystem::perms::group_write | std::filesystem::perms::others_write;
+        bool const isReadOnly = ( permissions & allWrite ) == std::filesystem::perms::none;
+        return isReadOnly;
+    }
+
+    bool EraseFile( Path const& filePath )
+    {
+        KRG_ASSERT( filePath.IsFile() );
+
+        std::error_code ec;
+        bool const result = std::filesystem::remove( filePath.c_str(), ec );
+        if ( ec.value() != 0 )
+        {
+            KRG_LOG_ERROR( "FileSystem", ec.message().c_str() );
+        }
+
+        return result;
+    }
+
+    uint64 GetFileModifiedTime( Path const& filePath )
+    {
+        KRG_ASSERT( filePath.IsFile() );
+
+        std::error_code ec;
+        auto const timepoint = std::filesystem::last_write_time( filePath.c_str(), ec );
+        KRG_ASSERT( ec.value() == 0 );
+        return timepoint.time_since_epoch().count();
+    }
+
+    void EnsureCorrectPathStringFormat( Path& filePath )
+    {
+        std::error_code ec;
+        bool const isPathADirectory = std::filesystem::is_directory( filePath.c_str(), ec );
+        if ( ec.value() != 0 )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        // Add trailing delimiter for directories
+        if ( isPathADirectory && !filePath.IsDirectory() )
+        {
+            filePath.m_fullpath += Path::PathDelimiter;
+        }
+
+        // Remove trailing delimiter for files
+        else if ( !isPathADirectory && filePath.IsDirectory() )
+        {
+            filePath.m_fullpath.pop_back();
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool CreateDir( Path const& path )
+    {
+        KRG_ASSERT( path.IsDirectory() );
+
+        std::error_code ec;
+        std::filesystem::create_directories( path.c_str(), ec );
+        return ec.value() == 0;
+    }
+
+    bool EraseDir( Path const& path )
+    {
+        KRG_ASSERT( path.IsDirectory() );
+
+        std::error_code ec;
+        auto const result = std::filesystem::remove_all( path.c_str(), ec );
+        return ec.value() == 0;
+    }
+
     void GetDirectoryContents( Path const& directoryPath, TVector<Path>& contents, const char* pFileFilter )
     {
-        KRG_ASSERT( directoryPath.IsDirectoryPath() );
+        KRG_ASSERT( directoryPath.IsDirectory() );
 
         HANDLE hFind;
         WIN32_FIND_DATAA findFileData;
@@ -56,7 +162,7 @@ namespace KRG::FileSystem
         memcpy( &searchParam[directoryPath.Length()], pFileFilter, strlen( pFileFilter ) );
 
         // Search directory - Case-insensitive
-        hFind = ::FindFirstFileExA( searchParam, FindExInfoStandard, &findFileData,FindExSearchNameMatch, nullptr, 0 );
+        hFind = ::FindFirstFileExA( searchParam, FindExInfoStandard, &findFileData, FindExSearchNameMatch, nullptr, 0 );
         if ( hFind != INVALID_HANDLE_VALUE )
         {
             do
@@ -74,11 +180,11 @@ namespace KRG::FileSystem
 
     bool GetDirectoryContents( Path const& directoryPath, TVector<Path>& contents, DirectoryReaderOutput output, DirectoryReaderMode mode, TVector<String> const& extensionFilter )
     {
-        KRG_ASSERT( directoryPath.IsDirectoryPath() );
+        KRG_ASSERT( directoryPath.IsDirectory() );
 
         contents.clear();
 
-        if ( !directoryPath.Exists() )
+        if ( !Exists( directoryPath ) )
         {
             return false;
         }
@@ -106,7 +212,7 @@ namespace KRG::FileSystem
                     contents.emplace_back( Path( path.string().c_str() ) );
                 }
             }
-            else if( std::filesystem::is_regular_file( path ) )
+            else if ( std::filesystem::is_regular_file( path ) )
             {
                 if ( output == DirectoryReaderOutput::OnlyDirectories )
                 {
@@ -174,12 +280,12 @@ namespace KRG::FileSystem
 
     bool GetDirectoryContents( Path const& directoryPath, char const* const pRegexExpression, TVector<Path>& contents, DirectoryReaderOutput output, DirectoryReaderMode mode )
     {
-        KRG_ASSERT( directoryPath.IsDirectoryPath() );
+        KRG_ASSERT( directoryPath.IsDirectory() );
         KRG_ASSERT( pRegexExpression != nullptr );
 
         contents.clear();
 
-        if ( !directoryPath.Exists() )
+        if ( !Exists( directoryPath ) )
         {
             return false;
         }
@@ -250,43 +356,5 @@ namespace KRG::FileSystem
         }
 
         return true;
-    }
-}
-
-//-------------------------------------------------------------------------
-
-namespace KRG::FileSystem
-{
-    bool FileExists( Path const& filePath )
-    {
-        std::error_code ec;
-        return std::filesystem::exists( filePath.c_str(), ec );
-    }
-
-    bool IsFileReadOnly( Path const& filePath )
-    {
-        std::error_code ec;
-        std::filesystem::path const path( filePath.c_str() );
-        KRG_ASSERT( std::filesystem::exists( path, ec ) );
-
-        std::filesystem::perms const permissions = std::filesystem::status( path, ec ).permissions();
-        KRG_ASSERT( ec.value() == 0 );
-        std::filesystem::perms const allWrite = std::filesystem::perms::owner_write | std::filesystem::perms::group_write | std::filesystem::perms::others_write;
-        bool const isReadOnly = ( permissions & allWrite ) == std::filesystem::perms::none;
-        return isReadOnly;
-    }
-
-    bool EraseFile( Path const& filePath )
-    {
-        std::error_code ec;
-        return std::filesystem::remove( filePath.c_str(), ec );
-    }
-
-    uint64 GetFileModifiedTime( Path const& filePath )
-    {
-        std::error_code ec;
-        auto const timepoint = std::filesystem::last_write_time( filePath.c_str(), ec );
-        KRG_ASSERT( ec.value() == 0 );
-        return timepoint.time_since_epoch().count();
     }
 }

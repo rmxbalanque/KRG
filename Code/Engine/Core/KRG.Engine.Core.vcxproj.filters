@@ -99,6 +99,7 @@
     <ClCompile Include="DebugViews\DebugView_Resource.cpp">
       <Filter>DebugViews</Filter>
     </ClCompile>
+    <ClCompile Include="DevelopmentToolset.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Easing.h">
@@ -170,5 +171,6 @@
     <ClInclude Include="DebugViews\DebugView_Resource.h">
       <Filter>DebugViews</Filter>
     </ClInclude>
+    <ClInclude Include="DevelopmentToolset.h" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,11 @@
+FREETYPE_LIB_DIR = $(EXTERNAL_DEPENDENCY_DIR)release dll\win64\
+
+##########################################
+# FILE OPERATIONS
+##########################################
+
+prebuild:
+    xcopy /y /i /D "$(FREETYPE_LIB_DIR)\freetype.dll" "$(OUT_DIR)"
+
+clean:
+    del /F /Q "$(OUT_DIR)freetype.dll"

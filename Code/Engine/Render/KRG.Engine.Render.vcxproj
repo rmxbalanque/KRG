@@ -33,11 +33,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\KRG.props" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\KRG.props" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -71,8 +71,7 @@
     <ClInclude Include="Renderers\DebugRenderer.h" />
     <ClInclude Include="Renderers\DebugRenderStates.h" />
     <ClInclude Include="Renderers\ImguiRenderer.h" />
-    <ClInclude Include="Renderers\SkeletalMeshRenderer.h" />
-    <ClInclude Include="Renderers\StaticMeshRenderer.h" />
+    <ClInclude Include="Renderers\MeshRenderer.h" />
     <ClInclude Include="ResourceLoaders\ResourceLoader_RenderMaterial.h" />
     <ClInclude Include="ResourceLoaders\ResourceLoader_RenderMesh.h" />
     <ClInclude Include="ResourceLoaders\ResourceLoader_RenderShader.h" />
@@ -94,8 +93,7 @@
     <ClCompile Include="Renderers\DebugRenderer.cpp" />
     <ClCompile Include="Renderers\DebugRenderStates.cpp" />
     <ClCompile Include="Renderers\ImguiRenderer.cpp" />
-    <ClCompile Include="Renderers\SkeletalMeshRenderer.cpp" />
-    <ClCompile Include="Renderers\StaticMeshRenderer.cpp" />
+    <ClCompile Include="Renderers\MeshRenderer.cpp" />
     <ClCompile Include="ResourceLoaders\ResourceLoader_RenderMaterial.cpp" />
     <ClCompile Include="ResourceLoaders\ResourceLoader_RenderMesh.cpp" />
     <ClCompile Include="ResourceLoaders\ResourceLoader_RenderShader.cpp" />
@@ -106,9 +104,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\Imgui\KRG.System.Imgui.vcxproj">
-      <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Render\KRG.System.Render.vcxproj">
       <Project>{9f9f2d36-a465-46a8-b95a-fdad4fb56de0}</Project>

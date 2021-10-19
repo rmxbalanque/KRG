@@ -1,6 +1,6 @@
 #include "DebugView_Navmesh.h"
 #include "Engine/Navmesh/NavmeshSystem.h"
-#include "System/Imgui/ImguiX.h"
+#include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ namespace KRG::Navmesh
 
     void NavmeshDebugViewController::DrawDebugMenu( UpdateContext const& context )
     {
-        #if WITH_BFX
+        #if KRG_ENABLE_NAVPOWER
         auto CreateCheckboxForFlag = [] ( char const* pLabel, bfx::PlannerDebugFlag flag )
         {
             bool isEnabled = bfx::GetGlobalDebugFlag( flag );

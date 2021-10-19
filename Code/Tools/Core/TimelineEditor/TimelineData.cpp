@@ -1,5 +1,5 @@
 #include "TimelineData.h"
-#include "System/Imgui/ThirdParty/imgui/imgui.h"
+#include "imgui.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
 
 //-------------------------------------------------------------------------

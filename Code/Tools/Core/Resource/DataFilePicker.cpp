@@ -1,6 +1,7 @@
 #include "DataFilePicker.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
-#include "System/Imgui/ImguiX.h"
+#include "System/Render/Imgui/ImguiX.h"
+#include "System/Core/FileSystem/FileSystem.h"
 #include <sstream>
 
 //-------------------------------------------------------------------------
@@ -9,7 +10,7 @@ namespace KRG
 {
     bool DataFilePicker::DrawPickerControl( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypeID, ResourceID* pResourceID )
     {
-        KRG_ASSERT( sourceDataPath.IsExistingDirectory() );
+        KRG_ASSERT( FileSystem::Exists( sourceDataPath ) );
         KRG_ASSERT( allowedResourceTypeID.IsValid() && pResourceID != nullptr );
 
         float const cellContentWidth = ImGui::GetContentRegionAvail().x;

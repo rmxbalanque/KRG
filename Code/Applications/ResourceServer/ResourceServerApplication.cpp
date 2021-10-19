@@ -4,7 +4,7 @@
 #include "System/Core/Logging/Log.h"
 #include "System/Core/Time/Timers.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "System/Imgui/Platform/ImguiPlatform_win32.h"
+#include "System/Render/Imgui/Platform/ImguiPlatform_win32.h"
 #include <tchar.h>
 
 #if LIVEPP_ENABLED

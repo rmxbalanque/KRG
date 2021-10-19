@@ -3,8 +3,7 @@
 #include "API.h"
 #include "Engine/Core/Modules/IEngineModule.h"
 #include "System/Render/RenderDevice.h"
-#include "Engine/Render/Renderers/StaticMeshRenderer.h"
-#include "Engine/Render/Renderers/SkeletalMeshRenderer.h"
+#include "Engine/Render/Renderers/MeshRenderer.h"
 #include "Engine/Render/Renderers/DebugRenderer.h"
 #include "Engine/Render/Renderers/ImguiRenderer.h"
 #include "Engine/Render/ResourceLoaders/ResourceLoader_RenderMaterial.h"
@@ -32,8 +31,7 @@ namespace KRG::Render
         TextureLoader                       m_textureLoader;
         MaterialLoader                      m_materialLoader;
 
-        StaticMeshRenderer                  m_staticMeshRenderer;
-        SkeletalMeshRenderer                m_skeletalMeshRenderer;
+        MeshRenderer                        m_meshRenderer;
 
         #if KRG_DEVELOPMENT_TOOLS
         ImguiRenderer                       m_imguiRenderer;

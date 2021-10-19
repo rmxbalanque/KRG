@@ -39,13 +39,13 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\KRG.props" />
-    <Import Project="..\..\..\External\LivePP\LivePP.props" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
+    <Import Project="..\..\PropertySheets\LivePP.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\KRG.props" />
-    <Import Project="..\..\..\External\LivePP\LivePP.props" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
+    <Import Project="..\..\PropertySheets\LivePP.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,9 +109,6 @@
     </ProjectReference>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\Imgui\KRG.System.Imgui.vcxproj">
-      <Project>{0e47e8c4-a7f3-4e6c-b7b4-cbbf37ad4913}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\System\Input\KRG.System.Input.vcxproj">
       <Project>{42511c8d-2df8-4bf2-a87e-80707563573d}</Project>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "System/Imgui/ThirdParty/imgui/imgui.h"
+#include "imgui.h"
 #include "System/Render/RenderDevice.h"
 #include "System/Render/IRenderer.h"
 

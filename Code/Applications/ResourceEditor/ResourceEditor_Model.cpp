@@ -22,8 +22,8 @@ namespace KRG
         auto pResourceSettings = pSettingsRegistry->GetSettings<Resource::Settings>();
         KRG_ASSERT( pResourceSettings != nullptr );
 
-        m_editorContext.m_sourceDataDirectory = pResourceSettings->m_rawResourcePath;
-        m_editorContext.m_compiledDataDirectory = pResourceSettings->m_compiledResourcePath;
+        m_editorContext.m_sourceResourceDirectory = pResourceSettings->m_rawResourcePath;
+        m_editorContext.m_compiledResourceDirectory = pResourceSettings->m_compiledResourcePath;
 
         m_editorContext.m_pTypeRegistry = context.GetSystem<TypeSystem::TypeRegistry>();
         KRG_ASSERT( m_editorContext.m_pTypeRegistry != nullptr );
@@ -83,7 +83,7 @@ namespace KRG
     void ResourceEditorModel::OpenWorkspace( ResourceID const & resourceID )
     {
         KRG_ASSERT( resourceID.IsValid() );
-        FileSystem::Path const path = resourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
+        FileSystem::Path const path = resourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
 
         //-------------------------------------------------------------------------
 

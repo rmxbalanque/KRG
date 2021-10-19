@@ -2,7 +2,7 @@
 #include "Tools/Core/Resource/ResourceEditorWorkspace.h"
 #include "System/Render/RenderViewportManager.h"
 #include "System/Input/InputSystem.h"
-#include "System/Imgui/Widgets/Gizmos/OrientationGuide.h"
+#include "System/Render/Imgui/Widgets/Gizmos/OrientationGuide.h"
 
 //-------------------------------------------------------------------------
 
@@ -17,10 +17,12 @@ namespace KRG
     {
         m_model.Initialize( context );
         m_pDataBrowser = KRG::New<DataBrowser>( m_model );
+        m_db.Initialize( m_model.GetTypeRegistry(), m_model.GetRawResourceDirectory() );
     }
 
     void ResourceEditor::Shutdown( UpdateContext const& context )
     {
+        m_db.Shutdown();
         KRG::Delete( m_pDataBrowser );
         m_model.Shutdown( context );
     }
@@ -38,6 +40,8 @@ namespace KRG
         {
             case UpdateStage::FrameStart:
             {
+                m_db.Update();
+
                 if ( ImGui::BeginMainMenuBar() )
                 {
                     DrawMainMenu( context, viewportManager );

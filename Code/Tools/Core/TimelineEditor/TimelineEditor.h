@@ -2,8 +2,8 @@
 
 #include "Tools/Core/_Module/API.h"
 #include "TimelineData.h"
-#include "System/Imgui/ThirdParty/imgui/imgui.h"
-#include "System/Imgui/ThirdParty/imgui/imgui_internal.h"
+#include "imgui.h"
+#include "imgui_internal.h"
 
 //-------------------------------------------------------------------------
 // Timeline Widget

@@ -33,15 +33,15 @@ namespace KRG::FileSystem
 
     class KRG_TOOLS_CORE_API FileSystemWatcher final
     {
-        static constexpr uint32 const ResultBufferSize = 16384; // 1000 results
+        static constexpr uint32 const ResultBufferSize = 16384;
         static constexpr float const FileModificationBatchTimeout = 250; // How long to wait between the start of the first modification event and notifying the event listeners
 
         struct FileModificationEvent
         {
-            FileModificationEvent( FileSystem::Path const& path ) : m_path( path ) { KRG_ASSERT( path.IsValid() && path.IsFilePath() ); }
+            FileModificationEvent( FileSystem::Path const& path ) : m_path( path ) { KRG_ASSERT( path.IsValid() && path.IsFile() ); }
 
-            FileSystem::Path      m_path;
-            Milliseconds        m_startTime = SystemClock::GetTimeInMilliseconds();
+            FileSystem::Path                            m_path;
+            Milliseconds                                m_startTime = SystemClock::GetTimeInMilliseconds();
         };
 
     public:

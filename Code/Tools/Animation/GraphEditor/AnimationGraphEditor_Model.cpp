@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
         // Load graph from descriptor
         //-------------------------------------------------------------------------
 
-        m_graphFilePath = graphResourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
+        m_graphFilePath = graphResourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
         if ( m_graphFilePath.IsValid() )
         {
             bool graphLoadFailed = false;
@@ -106,7 +106,7 @@ namespace KRG::Animation::Graph
         for ( auto const& variation : variations.GetAllVariations() )
         {
             AnimationGraphVariationResourceDescriptor resourceDesc;
-            resourceDesc.m_graphPath = ResourcePath::FromFileSystemPath( m_editorContext.m_sourceDataDirectory, m_graphFilePath );
+            resourceDesc.m_graphPath = ResourcePath::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, m_graphFilePath );
             resourceDesc.m_variationID = variation.m_ID;
 
             InlineString<255> const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, variation.m_ID );
@@ -172,7 +172,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         InlineString<255> const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, m_selectedVariationID );
-        ResourceID const graphVariationResourceID( ResourcePath::FromFileSystemPath( m_editorContext.m_sourceDataDirectory, variationPathStr.c_str() ) );
+        ResourceID const graphVariationResourceID( ResourcePath::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, variationPathStr.c_str() ) );
 
         m_pGraphComponent = KRG::New<AnimationGraphComponent>( StringID( "Animation Component" ) );
         m_pGraphComponent->SetGraphVariation( graphVariationResourceID );
@@ -188,7 +188,7 @@ namespace KRG::Animation::Graph
         if ( pVariation->m_pSkeleton.IsValid() )
         {
             // Load resource descriptor for skeleton to get the preview mesh
-            FileSystem::Path const resourceDescPath = pVariation->m_pSkeleton.GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceDataDirectory );
+            FileSystem::Path const resourceDescPath = pVariation->m_pSkeleton.GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
             SkeletonResourceDescriptor resourceDesc;
             if ( TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc ) )
             {

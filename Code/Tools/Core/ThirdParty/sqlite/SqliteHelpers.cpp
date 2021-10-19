@@ -15,7 +15,7 @@ namespace KRG::SQLite
 
     bool SQLiteDatabase::Connect( FileSystem::Path const& databasePath, bool readOnlyAccess, bool useMutex )
     {
-        KRG_ASSERT( databasePath.IsFilePath() );
+        KRG_ASSERT( databasePath.IsFile() );
 
         FileSystem::EnsurePathExists( databasePath );
 

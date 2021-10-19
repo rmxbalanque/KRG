@@ -1,6 +1,6 @@
 #include "NavPower.h"
 
-#if WITH_BFX
+#if KRG_ENABLE_NAVPOWER
 //-------------------------------------------------------------------------
 
 namespace KRG::Navmesh
