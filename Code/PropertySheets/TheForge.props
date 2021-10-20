@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <FORGE_DIR>$(SolutionDir)External\TheForge\</FORGE_DIR>
+    <FORGE_LIB_DIR Condition="$(Configuration) == 'Debug'">$(FORGE_DIR)lib\ReleaseNoLTCG\</FORGE_LIB_DIR>
+    <FORGE_LIB_DIR Condition="$(Configuration) == 'Release'">$(FORGE_DIR)lib\Release\</FORGE_LIB_DIR>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(FORGE_DIR)Common_3\;$(VULKAN_SDK)\Include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(FORGE_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OS.lib;Renderer.lib;SpirvTools.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(FORGE_DIR)Common_3\Tools\ForgeShadingLanguage\VS\fsl.targets" />
+</Project>

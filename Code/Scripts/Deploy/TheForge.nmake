@@ -1,0 +1,17 @@
+FORGE_LIB_DIR = $(EXTERNAL_DEPENDENCY_DIR)Lib\Release
+
+##########################################
+# FILE OPERATIONS
+##########################################
+
+prebuild:
+    xcopy /y /i /D "$(FORGE_LIB_DIR)\amd_ags_x64.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(FORGE_LIB_DIR)\dxcompiler.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(FORGE_LIB_DIR)\dxil.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(FORGE_LIB_DIR)\WinPixEventRunTime.dll" "$(OUT_DIR)"
+
+clean:
+    del /F /Q "$(OUT_DIR)amd_ags_x64.dll"
+    del /F /Q "$(OUT_DIR)dxcompiler.dll"
+    del /F /Q "$(OUT_DIR)dxil.dll"
+    del /F /Q "$(OUT_DIR)WinPixEventRunTime.dll"

@@ -96,6 +96,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Property Sheets", "6. Pr
 		Code\PropertySheets\PhysX.props = Code\PropertySheets\PhysX.props
 		Code\PropertySheets\SQLite.props = Code\PropertySheets\SQLite.props
 		Code\PropertySheets\SuperLuminal.props = Code\PropertySheets\SuperLuminal.props
+		Code\PropertySheets\TheForge.props = Code\PropertySheets\TheForge.props
 	EndProjectSection
 EndProject
 Global
