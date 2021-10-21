@@ -76,10 +76,82 @@ namespace KRG::Animation::Graph
 
             //-------------------------------------------------------------------------
 
-            pSettings->m_expectedCoordinateSpace = m_expectedCoordinateSpace;
+            pSettings->m_isWorldSpaceTarget = m_isWorldSpaceTarget;
             pSettings->m_infoType = m_infoType;
         }
         return pSettings->m_nodeIdx;
+    }
+
+    void Tools_TargetInfoNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    {
+        InlineString<150> infoText = "Expected Space: ";
+        
+        if ( m_isWorldSpaceTarget )
+        {
+            infoText += "World";
+        }
+        else
+        {
+            infoText += "Character";
+        }
+
+        ImGui::Text( infoText.c_str() );
+        infoText.clear();
+
+        //-------------------------------------------------------------------------
+
+        switch ( m_infoType )
+        {
+            case TargetInfoNode::Info::AngleHorizontal:
+            {
+                infoText = "Horizontal Angle";
+            }
+            break;
+
+            case TargetInfoNode::Info::AngleVertical:
+            {
+                infoText = "Vertical Angle";
+            }
+            break;
+
+            case TargetInfoNode::Info::Distance:
+            {
+                infoText = "Distance";
+            }
+            break;
+
+            case TargetInfoNode::Info::DistanceHorizontalOnly:
+            {
+                infoText = "Horizontal Distance";
+            }
+            break;
+
+            case TargetInfoNode::Info::DistanceVerticalOnly:
+            {
+                infoText = "Vertical Distance";
+            }
+            break;
+
+            case TargetInfoNode::Info::DeltaOrientationX:
+            {
+                infoText = "Rotation Angle X";
+            }
+            break;
+
+            case TargetInfoNode::Info::DeltaOrientationY:
+            {
+                infoText = "Rotation Angle Y";
+            }
+            break;
+
+            case TargetInfoNode::Info::DeltaOrientationZ:
+            {
+                infoText = "Rotation Angle Z";
+            }
+            break;
+        }
+
+        ImGui::Text( infoText.c_str() );
     }
 
     //-------------------------------------------------------------------------

@@ -219,12 +219,13 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_inputValueNodeIdx, m_range );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_inputValueNodeIdx, m_range, m_isInclusiveCheck );
 
             virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex                               m_inputValueNodeIdx = InvalidIndex;
             FloatRange                              m_range;
+            NodeIndex                               m_inputValueNodeIdx = InvalidIndex;
+            bool                                    m_isInclusiveCheck = true;
         };
 
     private:

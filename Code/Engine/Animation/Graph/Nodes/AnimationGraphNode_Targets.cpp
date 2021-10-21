@@ -81,8 +81,7 @@ namespace KRG::Animation::Graph
                 // If we have a valid transform, update the internal value
                 if ( bIsValidTransform )
                 {
-                    bool const isInWorldSpace = ( pSettings->m_expectedCoordinateSpace == CoordinateSpace::World );
-                    if ( isInWorldSpace )
+                    if ( pSettings->m_isWorldSpaceTarget )
                     {
                         inputTargetTransform = inputTargetTransform * context.m_worldTransformInverse;
                     }

@@ -447,7 +447,7 @@ namespace KRG::Animation::Graph
         {
             MarkNodeActive( context );
             float const value = m_pInputValueNode->GetValue<float>( context );
-            m_result = pSettings->m_range.ContainsInclusive( value );
+            m_result = pSettings->m_isInclusiveCheck ? pSettings->m_range.ContainsInclusive( value ) : pSettings->m_range.ContainsExclusive( value );
         }
 
         *( (bool*) pOutValue ) = m_result;

@@ -141,10 +141,12 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "Floats"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
+        virtual void DrawInfoText( GraphEditor::DrawingContext const& ctx ) override;
 
     private:
 
-        KRG_EXPOSE  FloatRange                              m_range;
+        KRG_EXPOSE  FloatRange                              m_range = FloatRange( 0, 1 );
+        KRG_EXPOSE  bool                                    m_isInclusiveCheck = true;
     };
 
     //-------------------------------------------------------------------------

@@ -284,7 +284,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::Tools_TargetInfoNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::Tools_GraphNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_expectedCoordinateSpace ), KRG_NVP( m_infoType ) );
+        archive( cereal::base_class<KRG::Animation::Graph::Tools_GraphNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_infoType ), KRG_NVP( m_isWorldSpaceTarget ) );
     }
 
     //-------------------------------------------------------------------------
@@ -327,19 +327,6 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            propertyInfo.m_ID = StringID( "m_expectedCoordinateSpace" );
-            propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::CoordinateSpace" );
-            propertyInfo.m_parentTypeID = 334514246;
-            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
-            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_expectedCoordinateSpace;
-            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_TargetInfoNode, m_expectedCoordinateSpace );
-            propertyInfo.m_size = sizeof( KRG::Animation::CoordinateSpace );
-            propertyInfo.m_flags.Set( 9 );
-            m_properties.emplace_back( propertyInfo );
-            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
-
-            //-------------------------------------------------------------------------
-
             propertyInfo.m_ID = StringID( "m_infoType" );
             propertyInfo.m_typeID = TypeSystem::TypeID( "KRG::Animation::Graph::TargetInfoNode::Info" );
             propertyInfo.m_parentTypeID = 334514246;
@@ -348,6 +335,19 @@ namespace KRG
             propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_TargetInfoNode, m_infoType );
             propertyInfo.m_size = sizeof( KRG::Animation::Graph::TargetInfoNode::Info );
             propertyInfo.m_flags.Set( 9 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_isWorldSpaceTarget" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "bool" );
+            propertyInfo.m_parentTypeID = 334514246;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_isWorldSpaceTarget;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_TargetInfoNode, m_isWorldSpaceTarget );
+            propertyInfo.m_size = sizeof( bool );
+            propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
         }
@@ -519,12 +519,12 @@ namespace KRG
                        return false;
                     }
 
-                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1814903982 ) )
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 822027663 ) )
                     {
                        return false;
                     }
 
-                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 822027663 ) )
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 1704287313 ) )
                     {
                        return false;
                     }
@@ -547,14 +547,14 @@ namespace KRG
                         return pType->m_ID == pOtherType->m_ID;
                     }
 
-                    if ( propertyID == 1814903982 )
-                    {
-                        return pType->m_expectedCoordinateSpace == pOtherType->m_expectedCoordinateSpace;
-                    }
-
                     if ( propertyID == 822027663 )
                     {
                         return pType->m_infoType == pOtherType->m_infoType;
+                    }
+
+                    if ( propertyID == 1704287313 )
+                    {
+                        return pType->m_isWorldSpaceTarget == pOtherType->m_isWorldSpaceTarget;
                     }
 
                     return false;
@@ -577,15 +577,15 @@ namespace KRG
                         return;
                     }
 
-                    if ( propertyID == 1814903982 )
-                    {
-                        pActualType->m_expectedCoordinateSpace = pDefaultType->m_expectedCoordinateSpace;
-                        return;
-                    }
-
                     if ( propertyID == 822027663 )
                     {
                         pActualType->m_infoType = pDefaultType->m_infoType;
+                        return;
+                    }
+
+                    if ( propertyID == 1704287313 )
+                    {
+                        pActualType->m_isWorldSpaceTarget = pDefaultType->m_isWorldSpaceTarget;
                         return;
                     }
 

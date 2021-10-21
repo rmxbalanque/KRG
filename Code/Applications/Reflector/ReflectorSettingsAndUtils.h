@@ -110,6 +110,7 @@ namespace KRG::TypeSystem::Reflection
             "Code\\System\\Core\\ThirdParty\\EA\\EABase\\include\\common\\",
             "Code\\System\\Core\\ThirdParty\\EA\\EASTL\\include\\",
             "Code\\System\\Core\\ThirdParty\\",
+            "Code\\System\\Render\\ThirdParty\\imgui\\",
             "External\\PhysX\\pxshared\\include\\",
             "External\\PhysX\\physx\\include\\",
             "External\\NavPower\\include\\"

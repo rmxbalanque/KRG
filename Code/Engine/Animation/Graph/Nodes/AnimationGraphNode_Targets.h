@@ -56,13 +56,13 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public TargetValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            KRG_SERIALIZE_GRAPHNODESETTINGS( TargetValueNode::Settings, m_inputValueNodeIdx, m_expectedCoordinateSpace, m_infoType );
+            KRG_SERIALIZE_GRAPHNODESETTINGS( TargetValueNode::Settings, m_inputValueNodeIdx, m_isWorldSpaceTarget, m_infoType );
 
             virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
 
             NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
-            CoordinateSpace             m_expectedCoordinateSpace = CoordinateSpace::Character;
             Info                        m_infoType = Info::Distance;
+            bool                        m_isWorldSpaceTarget = true;
         };
 
     private:

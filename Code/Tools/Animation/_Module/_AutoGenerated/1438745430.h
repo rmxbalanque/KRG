@@ -1918,7 +1918,7 @@ namespace KRG
     template<class Archive>
     KRG_TOOLS_ANIMATION_API void serialize( Archive& archive, KRG::Animation::Graph::Tools_FloatRangeComparisonNode& type )
     {
-        archive( cereal::base_class<KRG::Animation::Graph::Tools_GraphNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_range ) );
+        archive( cereal::base_class<KRG::Animation::Graph::Tools_GraphNode>( &type ), KRG_NVP( m_canvasPosition ), KRG_NVP( m_ID ), KRG_NVP( m_range ), KRG_NVP( m_isInclusiveCheck ) );
     }
 
     //-------------------------------------------------------------------------
@@ -1968,6 +1968,19 @@ namespace KRG
             propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_range;
             propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_FloatRangeComparisonNode, m_range );
             propertyInfo.m_size = sizeof( KRG::FloatRange );
+            propertyInfo.m_flags.Set( 1 );
+            m_properties.emplace_back( propertyInfo );
+            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
+
+            //-------------------------------------------------------------------------
+
+            propertyInfo.m_ID = StringID( "m_isInclusiveCheck" );
+            propertyInfo.m_typeID = TypeSystem::TypeID( "bool" );
+            propertyInfo.m_parentTypeID = 279950476;
+            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( "" );
+            propertyInfo.m_pDefaultValue = &pActualDefaultTypeInstance->m_isInclusiveCheck;
+            propertyInfo.m_offset = offsetof( KRG::Animation::Graph::Tools_FloatRangeComparisonNode, m_isInclusiveCheck );
+            propertyInfo.m_size = sizeof( bool );
             propertyInfo.m_flags.Set( 1 );
             m_properties.emplace_back( propertyInfo );
             m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );
@@ -2145,6 +2158,11 @@ namespace KRG
                        return false;
                     }
 
+                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, 3346609117 ) )
+                    {
+                       return false;
+                    }
+
                     return true;
                 }
 
@@ -2166,6 +2184,11 @@ namespace KRG
                     if ( propertyID == 3723448540 )
                     {
                         return pType->m_range == pOtherType->m_range;
+                    }
+
+                    if ( propertyID == 3346609117 )
+                    {
+                        return pType->m_isInclusiveCheck == pOtherType->m_isInclusiveCheck;
                     }
 
                     return false;
@@ -2191,6 +2214,12 @@ namespace KRG
                     if ( propertyID == 3723448540 )
                     {
                         pActualType->m_range = pDefaultType->m_range;
+                        return;
+                    }
+
+                    if ( propertyID == 3346609117 )
+                    {
+                        pActualType->m_isInclusiveCheck = pDefaultType->m_isInclusiveCheck;
                         return;
                     }
 

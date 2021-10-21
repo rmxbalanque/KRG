@@ -287,7 +287,7 @@ namespace KRG::Animation::Graph
     void Tools_FloatRangeComparisonNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
         Tools_GraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Float, true );
+        CreateOutputPin( "Result", ValueType::Bool, true );
         CreateInputPin( "Float", ValueType::Float );
     }
 
@@ -319,8 +319,21 @@ namespace KRG::Animation::Graph
             //-------------------------------------------------------------------------
 
             pSettings->m_range = m_range;
+            pSettings->m_isInclusiveCheck = m_isInclusiveCheck;
         }
         return pSettings->m_nodeIdx;
+    }
+
+    void Tools_FloatRangeComparisonNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    {
+        if ( m_isInclusiveCheck )
+        {
+            ImGui::Text( "%.2f <= X <= %.2f", m_range.m_start, m_range.m_end );
+        }
+        else
+        {
+            ImGui::Text( "%.2f < X < %.2f", m_range.m_start, m_range.m_end );
+        }
     }
 
     //-------------------------------------------------------------------------
