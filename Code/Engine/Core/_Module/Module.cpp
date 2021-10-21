@@ -38,6 +38,9 @@ namespace KRG::EngineCore
             return false;
         }
 
+        Render::InitializeRenderSystem();
+        m_renderDeviceForge.Initialize( *pRenderSettings );
+
         m_pRenderDevice = KRG::New<Render::RenderDevice>();
         if ( !m_pRenderDevice->Initialize( *pRenderSettings ) )
         {
@@ -157,6 +160,9 @@ namespace KRG::EngineCore
             m_pRenderDevice->Shutdown();
             KRG::Delete( m_pRenderDevice );
         }
+
+        m_renderDeviceForge.Shutdown();
+        Render::ShutdownRenderSystem();
 
         if ( m_pResourceProvider != nullptr )
         {

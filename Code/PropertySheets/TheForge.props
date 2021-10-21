@@ -3,15 +3,15 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <FORGE_DIR>$(SolutionDir)External\TheForge\</FORGE_DIR>
-    <FORGE_LIB_DIR Condition="$(Configuration) == 'Debug'">$(FORGE_DIR)lib\ReleaseNoLTCG\</FORGE_LIB_DIR>
-    <FORGE_LIB_DIR Condition="$(Configuration) == 'Release'">$(FORGE_DIR)lib\Release\</FORGE_LIB_DIR>
+    <FORGE_LIB_DIR Condition="$(Configuration) == 'Debug'">$(FORGE_DIR)Build\x64\ReleaseNoLTCG\</FORGE_LIB_DIR>
+    <FORGE_LIB_DIR Condition="$(Configuration) == 'Release'">$(FORGE_DIR)Build\x64\Release\</FORGE_LIB_DIR>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(FORGE_DIR)Common_3\;$(VULKAN_SDK)\Include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FORGE_DIR)Common_3\;$(VULKAN_SDK)\Include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(FORGE_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(FORGE_LIB_DIR);$(VULKAN_SDK)\Lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>OS.lib;Renderer.lib;SpirvTools.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

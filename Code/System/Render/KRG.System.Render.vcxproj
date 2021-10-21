@@ -32,7 +32,7 @@
     <ClInclude Include="IRenderer.h" />
     <ClInclude Include="RendererRegistry.h" />
     <ClInclude Include="RenderShaderResource.h" />
-    <ClInclude Include="RenderSystem_Forge.h" />
+    <ClInclude Include="RenderDevice_Forge.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RenderSettings.h" />
@@ -91,7 +91,7 @@
     <ClCompile Include="Platform\TextureLoader_Win32.cpp" />
     <ClCompile Include="RenderDefaultResources.cpp" />
     <ClCompile Include="RendererRegistry.cpp" />
-    <ClCompile Include="RenderSystem_Forge.cpp" />
+    <ClCompile Include="RenderDevice_Forge.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RenderSettings.cpp" />
     <ClCompile Include="RenderShader.cpp" />
@@ -148,7 +148,9 @@
     <Import Project="..\..\PropertySheets\TheForge.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>

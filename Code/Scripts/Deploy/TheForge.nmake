@@ -1,4 +1,16 @@
-FORGE_LIB_DIR = $(EXTERNAL_DEPENDENCY_DIR)Lib\Release
+##########################################
+# PLATFORM CONFIG
+##########################################
+
+!IF "$(PLATFORM)" == "x64" && "$(CONFIG)" == "Debug"
+
+FORGE_LIB_DIR = $(EXTERNAL_DEPENDENCY_DIR)Build\x64\ReleaseNoLTCG
+
+!ELSE IF "$(PLATFORM)" == "x64" && "$(CONFIG)" == "Release"
+
+FORGE_LIB_DIR = $(EXTERNAL_DEPENDENCY_DIR)Build\x64\Release
+
+!ENDIF
 
 ##########################################
 # FILE OPERATIONS

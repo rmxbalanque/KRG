@@ -1,4 +1,4 @@
-#include "RenderSystem_Forge.h"
+#include "RenderDevice_Forge.h"
 
 //-------------------------------------------------------------------------
 
@@ -35,5 +35,26 @@ namespace KRG::Render
     {
         exitLog();
         exitMemAlloc();
+    }
+
+    //-------------------------------------------------------------------------
+
+    RenderDeviceForge::~RenderDeviceForge()
+    {
+        KRG_ASSERT( m_pRenderer == nullptr );
+    }
+
+    bool RenderDeviceForge::Initialize( Settings const& settings )
+    {
+        RendererDesc renderDesc;
+        memset( &renderDesc, 0, sizeof( renderDesc ) );
+        initRenderer( "KrugerRenderer", &renderDesc, &m_pRenderer );
+        return true;
+    }
+
+    void RenderDeviceForge::Shutdown()
+    {
+        exitRenderer( m_pRenderer );
+        m_pRenderer = nullptr;
     }
 }

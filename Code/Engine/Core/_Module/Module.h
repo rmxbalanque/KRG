@@ -15,6 +15,7 @@
 #include "System/Render/RenderViewportManager.h"
 #include "System/Input/InputSystem.h"
 #include "System/Render/Imgui/ImguiSystem.h"
+#include "System/Render/RenderDevice_Forge.h"
 #include "System/Resource/ResourceProvider.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
@@ -69,6 +70,7 @@ namespace KRG::EngineCore
 
         // Rendering
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
+        Render::RenderDeviceForge                       m_renderDeviceForge;
         Render::RendererRegistry                        m_rendererRegistry;
         Render::ViewportManager                         m_viewportManager;
 
