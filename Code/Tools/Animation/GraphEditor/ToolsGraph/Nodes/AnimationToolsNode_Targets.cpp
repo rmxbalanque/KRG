@@ -84,19 +84,16 @@ namespace KRG::Animation::Graph
 
     void Tools_TargetInfoNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
     {
-        InlineString<150> infoText = "Expected Space: ";
+        InlineString<150> infoText;
         
         if ( m_isWorldSpaceTarget )
         {
-            infoText += "World";
+            infoText += "World Space - ";
         }
         else
         {
-            infoText += "Character";
+            infoText += "Character Space - ";
         }
-
-        ImGui::Text( infoText.c_str() );
-        infoText.clear();
 
         //-------------------------------------------------------------------------
 
@@ -104,49 +101,49 @@ namespace KRG::Animation::Graph
         {
             case TargetInfoNode::Info::AngleHorizontal:
             {
-                infoText = "Horizontal Angle";
+                infoText += "Horizontal Angle";
             }
             break;
 
             case TargetInfoNode::Info::AngleVertical:
             {
-                infoText = "Vertical Angle";
+                infoText += "Vertical Angle";
             }
             break;
 
             case TargetInfoNode::Info::Distance:
             {
-                infoText = "Distance";
+                infoText += "Distance";
             }
             break;
 
             case TargetInfoNode::Info::DistanceHorizontalOnly:
             {
-                infoText = "Horizontal Distance";
+                infoText += "Horizontal Distance";
             }
             break;
 
             case TargetInfoNode::Info::DistanceVerticalOnly:
             {
-                infoText = "Vertical Distance";
+                infoText += "Vertical Distance";
             }
             break;
 
             case TargetInfoNode::Info::DeltaOrientationX:
             {
-                infoText = "Rotation Angle X";
+                infoText += "Rotation Angle X";
             }
             break;
 
             case TargetInfoNode::Info::DeltaOrientationY:
             {
-                infoText = "Rotation Angle Y";
+                infoText += "Rotation Angle Y";
             }
             break;
 
             case TargetInfoNode::Info::DeltaOrientationZ:
             {
-                infoText = "Rotation Angle Z";
+                infoText += "Rotation Angle Z";
             }
             break;
         }

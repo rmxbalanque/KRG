@@ -26,12 +26,13 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "State Machine"; }
         virtual bool IsUserCreatable() const override { return true; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree ); }
+        virtual void DrawInfoText( GraphEditor::DrawingContext const& ctx ) override;
 
     protected:
 
         KRG_EXPOSE String                                       m_name = "Transition";
         KRG_EXPOSE Math::Easing::Type                           m_blendWeightEasingType = Math::Easing::Type::Linear;
-        KRG_EXPOSE TransitionNode::RootMotionBlend       m_rootMotionBlend = TransitionNode::RootMotionBlend::Blend;
+        KRG_EXPOSE TransitionNode::RootMotionBlend              m_rootMotionBlend = TransitionNode::RootMotionBlend::Blend;
         KRG_EXPOSE Seconds                                      m_duration = 0.3f;
         KRG_EXPOSE float                                        m_syncEventOffset = 0.0f;
         KRG_EXPOSE bool                                         m_isSynchronized = false;
@@ -60,7 +61,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        KRG_REGISTER UUID                               m_stateID;
+        KRG_REGISTER UUID                                       m_stateID;
     };
 
     // Transition conduit

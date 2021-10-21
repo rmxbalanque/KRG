@@ -45,6 +45,11 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
+    void Tools_FloatRemapNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    {
+        ImGui::Text( "[%.2f, %.2f] to [%.2f, %.2f]", m_inputRange.m_start, m_inputRange.m_end, m_outputRange.m_start, m_outputRange.m_end );
+    }
+
     //-------------------------------------------------------------------------
 
     void Tools_FloatClampNode::Initialize( GraphEditor::BaseGraph* pParent )

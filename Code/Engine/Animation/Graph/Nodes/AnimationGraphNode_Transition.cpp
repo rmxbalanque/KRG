@@ -493,7 +493,6 @@ namespace KRG::Animation::Graph
             //-------------------------------------------------------------------------
 
             outResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), sourceResult.m_taskIdx, targetResult.m_taskIdx, m_blendWeight );
-            
 
             #if KRG_DEVELOPMENT_TOOLS
             context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), outResult.m_rootMotionDelta );

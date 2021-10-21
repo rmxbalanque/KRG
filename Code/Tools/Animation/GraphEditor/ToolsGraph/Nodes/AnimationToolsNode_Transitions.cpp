@@ -15,6 +15,57 @@ namespace KRG::Animation::Graph
         CreateInputPin( "Sync Event Override", ValueType::Float );
     }
 
+    void Tools_TransitionNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    {
+        switch ( m_rootMotionBlend )
+        {
+            case KRG::Animation::Graph::TransitionNode::RootMotionBlend::Blend:
+            ImGui::Text( "Blend Root Motion" );
+            break;
+
+            case KRG::Animation::Graph::TransitionNode::RootMotionBlend::IgnoreSource:
+            ImGui::Text( "Ignore Source Root Motion" );
+            break;
+
+            case KRG::Animation::Graph::TransitionNode::RootMotionBlend::IgnoreTarget:
+            ImGui::Text( "Ignore Target Root Motion" );
+            break;
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::Text( "Duration: %.2fs", m_duration.ToFloat() );
+
+        if ( m_isSynchronized )
+        {
+            ImGui::Text( "Synchronized" );
+        }
+        else
+        {
+            if ( m_keepSourceSyncEventIdx && m_keepSourceSyncEventPercentageThrough )
+            {
+                ImGui::Text( "Match Sync Event and Percentage" );
+            }
+            else if ( m_keepSourceSyncEventIdx )
+            {
+                ImGui::Text( "Match Sync Event" );
+            }
+            else if ( m_keepSourceSyncEventPercentageThrough )
+            {
+                ImGui::Text( "Match Sync Percentage" );
+            }
+        }
+
+        ImGui::Text( "Sync Offset: %.2f", m_syncEventOffset );
+
+        //-------------------------------------------------------------------------
+
+        if ( m_canBeForced )
+        {
+            ImGui::Text( "Forced" );
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     void Tools_TransitionConduitNode::Initialize( GraphEditor::BaseGraph* pParent )
