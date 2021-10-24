@@ -14,6 +14,11 @@ namespace KRG::Navmesh
 
     class KRG_ENGINE_NAVMESH_API NavmeshWorldSystem : public IWorldEntitySystem
     {
+        friend class NavmeshDebugView;
+        friend class NavmeshDebugRenderer;
+
+        //-------------------------------------------------------------------------
+
         struct RegisteredNavmeshComponent : public EntityRegistryRecord
         {
             NavmeshComponent*               m_pComponent = nullptr;
@@ -29,6 +34,7 @@ namespace KRG::Navmesh
 
     public:
 
+        KRG_REGISTER_TYPE( NavmeshWorldSystem );
         KRG_ENTITY_WORLD_SYSTEM( NavmeshWorldSystem );
 
     public:
@@ -37,7 +43,7 @@ namespace KRG::Navmesh
 
     private:
 
-        virtual void ShutdownEntitySystem() override;
+        virtual void ShutdownSystem() override;
 
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
@@ -49,5 +55,9 @@ namespace KRG::Navmesh
 
         EntityRegistry<RegisteredNavmeshComponent>      m_navmeshComponents;
         TVector<RegisteredNavmesh>                      m_registeredNavmeshes;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        bool                                            m_disableDebugDrawDepthTest = false;
+        #endif
     };
 }

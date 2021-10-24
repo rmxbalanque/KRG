@@ -1,6 +1,7 @@
 #include "Module.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
 #include "Engine/Physics/PhysicsSettings.h"
+#include "Engine/Render/RendererRegistry.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,7 +10,6 @@ namespace KRG::Physics
     bool EngineModule::Initialize( ModuleContext& context )
     {
         m_physicsSystem.Initialize();
-        m_pPhysicsWorldSystem = KRG::New<PhysicsWorldSystem>( m_physicsSystem );
 
         //-------------------------------------------------------------------------
 
@@ -22,14 +22,12 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
 
         context.RegisterSystem( m_physicsSystem );
-        context.RegisterWorldSystem( m_pPhysicsWorldSystem );
 
         #if KRG_DEVELOPMENT_TOOLS
-        m_physicsRenderer.Initialize( context.GetRenderDevice(), &m_physicsSystem );
-        context.RegisterRenderer( &m_physicsRenderer );
-
-        m_physicsDebugViewController.Initialize( &m_physicsSystem, m_pPhysicsWorldSystem );
-        context.RegisterDebugView( &m_physicsDebugViewController );
+        m_physicsRenderer.Initialize( context.GetRenderDevice() );
+        auto pRendererRegistry = context.GetSystem<Render::RendererRegistry>();
+        KRG_ASSERT( pRendererRegistry != nullptr );
+        pRendererRegistry->RegisterRenderer( &m_physicsRenderer );
         #endif
 
         //-------------------------------------------------------------------------
@@ -46,14 +44,12 @@ namespace KRG::Physics
     void EngineModule::Shutdown( ModuleContext& context )
     {
         #if KRG_DEVELOPMENT_TOOLS
-        context.UnregisterDebugView( &m_physicsDebugViewController );
-        m_physicsDebugViewController.Shutdown();
-
-        context.UnregisterRenderer( &m_physicsRenderer );
+        auto pRendererRegistry = context.GetSystem<Render::RendererRegistry>();
+        KRG_ASSERT( pRendererRegistry != nullptr );
+        pRendererRegistry->UnregisterRenderer( &m_physicsRenderer );
         m_physicsRenderer.Shutdown();
         #endif
 
-        context.UnregisterWorldSystem( m_pPhysicsWorldSystem );
         context.UnregisterSystem( m_physicsSystem );
 
         //-------------------------------------------------------------------------
@@ -65,8 +61,7 @@ namespace KRG::Physics
         m_physicsMeshLoader.ClearPhysics();
 
         //-------------------------------------------------------------------------
-        
-        KRG::Delete( m_pPhysicsWorldSystem );
+
         m_physicsSystem.Shutdown();
     }
 

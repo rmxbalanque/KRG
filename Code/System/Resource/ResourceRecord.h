@@ -21,7 +21,7 @@ namespace KRG
             friend class ResourceSystem;
             friend class ResourceRequest;
             friend class ResourceLoader;
-            friend class ResourceDebugViewController;
+            friend class ResourceDebugView;
 
         public:
 

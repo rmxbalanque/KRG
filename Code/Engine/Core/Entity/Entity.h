@@ -13,7 +13,7 @@ namespace KRG
 {
     class SystemRegistry;
     class IEntitySystem;
-    class UpdateContext;
+    class EntityUpdateContext;
     class Entity;
 
     namespace EntityModel
@@ -244,7 +244,7 @@ namespace KRG
         void GenerateSystemUpdateList();
 
         // Run Entity Systems
-        void UpdateSystems( UpdateContext const& context );
+        void UpdateSystems( EntityUpdateContext const& context );
 
         // Registers a component with all the local entity systems
         void RegisterComponentWithLocalSystems( EntityComponent* pComponent );

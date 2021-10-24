@@ -21,21 +21,38 @@ namespace KRG::Render
         context.RegisterResourceLoader( &m_textureLoader );
         context.RegisterResourceLoader( &m_materialLoader );
 
+        context.RegisterSystem( m_rendererRegistry );
+
         //-------------------------------------------------------------------------
 
-        m_meshRenderer.Initialize( pRenderDevice );
-
-        context.RegisterRenderer( &m_meshRenderer );
+        if ( m_worldRenderer.Initialize( pRenderDevice ) )
+        {
+            m_rendererRegistry.RegisterRenderer( &m_worldRenderer );
+        }
+        else
+        {
+            return false;
+        }
 
         #if KRG_DEVELOPMENT_TOOLS
-        m_debugRenderer.Initialize( pRenderDevice, context.GetSystem<Debug::DrawingSystem>() );
-        context.RegisterRenderer( &m_debugRenderer );
+        if ( m_debugRenderer.Initialize( pRenderDevice ) )
+        {
+            m_rendererRegistry.RegisterRenderer( &m_debugRenderer );
+        }
+        else
+        {
+            return false;
+        }
 
-        m_imguiRenderer.Initialize( pRenderDevice );
-        context.RegisterRenderer( &m_imguiRenderer );
+        if ( m_imguiRenderer.Initialize( pRenderDevice ) )
+        {
+            m_rendererRegistry.RegisterRenderer( &m_imguiRenderer );
+        }
+        else
+        {
+            return false;
+        }
         #endif
-
-        context.RegisterWorldSystem( &m_meshRenderer );
 
         m_initialized = true;
         return m_initialized;
@@ -45,32 +62,38 @@ namespace KRG::Render
     {
         if ( m_initialized )
         {
-            context.UnregisterWorldSystem( &m_meshRenderer );
-
-            //-------------------------------------------------------------------------
-
             #if KRG_DEVELOPMENT_TOOLS
-            context.UnregisterRenderer( &m_imguiRenderer );
+            if ( m_imguiRenderer.IsInitialized() )
+            {
+                m_rendererRegistry.UnregisterRenderer( &m_imguiRenderer );
+            }
             m_imguiRenderer.Shutdown();
 
-            context.UnregisterRenderer( &m_debugRenderer );
+            if ( m_debugRenderer.IsInitialized() )
+            {
+                m_rendererRegistry.UnregisterRenderer( &m_debugRenderer );
+            }
             m_debugRenderer.Shutdown();
             #endif
 
-            context.UnregisterRenderer( &m_meshRenderer );
-
-            m_meshRenderer.Shutdown();
+            if ( m_worldRenderer.IsInitialized() )
+            {
+                m_rendererRegistry.UnregisterRenderer( &m_worldRenderer );
+            }
+            m_worldRenderer.Shutdown();
 
             //-------------------------------------------------------------------------
 
-            m_meshLoader.ClearRenderDevice();
-            m_shaderLoader.ClearRenderDevice();
-            m_textureLoader.ClearRenderDevice();
+            context.UnregisterSystem( m_rendererRegistry );
 
             context.UnregisterResourceLoader( &m_meshLoader );
             context.UnregisterResourceLoader( &m_shaderLoader );
             context.UnregisterResourceLoader( &m_textureLoader );
             context.UnregisterResourceLoader( &m_materialLoader );
+
+            m_meshLoader.ClearRenderDevice();
+            m_shaderLoader.ClearRenderDevice();
+            m_textureLoader.ClearRenderDevice();
         }
 
         m_initialized = false;

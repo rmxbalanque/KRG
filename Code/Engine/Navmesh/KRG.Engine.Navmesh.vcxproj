@@ -65,6 +65,7 @@
   <ItemGroup>
     <ClInclude Include="Components\NavmeshComponent.h" />
     <ClInclude Include="Debug\DebugView_Navmesh.h" />
+    <ClInclude Include="Debug\NavmeshDebugRenderer.h" />
     <ClInclude Include="NavmeshWorldSystem.h" />
     <ClInclude Include="NavmeshData.h" />
     <ClInclude Include="NavmeshSystem.h" />
@@ -76,6 +77,7 @@
   <ItemGroup>
     <ClCompile Include="Components\NavmeshComponent.cpp" />
     <ClCompile Include="Debug\DebugView_Navmesh.cpp" />
+    <ClCompile Include="Debug\NavmeshDebugRenderer.cpp" />
     <ClCompile Include="NavmeshWorldSystem.cpp" />
     <ClCompile Include="NavmeshData.cpp" />
     <ClCompile Include="NavmeshSystem.cpp" />
@@ -99,6 +101,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Core\KRG.Engine.Core.vcxproj">
       <Project>{2cfadbdc-ee40-4484-94d0-62a90206209e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Render\KRG.Engine.Render.vcxproj">
+      <Project>{88bbae2e-f1b2-4157-ba64-3e5c7ebd2a9c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

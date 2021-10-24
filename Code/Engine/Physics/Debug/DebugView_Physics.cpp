@@ -2,6 +2,8 @@
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/Components/PhysicsComponent.h"
 #include "Engine/Physics/PhysicsWorldSystem.h"
+#include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
@@ -14,38 +16,33 @@ using namespace physx;
 
 namespace KRG::Physics
 {
-    PhysicsDebugViewController::PhysicsDebugViewController()
+    PhysicsDebugView::PhysicsDebugView()
     {
-        auto drawDebugMenu = [this] ( UpdateContext const& context )
-        {
-            DrawPhysicsMenu( context );
-        };
-
-        m_menuCallbacks.emplace_back( Debug::DebugMenuCallback( "Debug Options", "Physics", drawDebugMenu ) );
+        m_menus.emplace_back( DebugMenu( "Debug Options", "Physics", [this] ( EntityUpdateContext const& context ) { DrawPhysicsMenu( context ); } ) );
     }
 
-    void PhysicsDebugViewController::Initialize( PhysicsSystem* pPhysicsSystem, PhysicsWorldSystem* pPhysicsWorldSystem )
+    void PhysicsDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
     {
-        KRG_ASSERT( pPhysicsSystem != nullptr && pPhysicsWorldSystem != nullptr );
-        m_pPhysicsSystem = pPhysicsSystem;
-        m_pPhysicsWorldSystem = pPhysicsWorldSystem;
+        m_pPhysicsSystem = systemRegistry.GetSystem<PhysicsSystem>();
+        m_pPhysicsWorldSystem = pWorld->GetWorldSystem<PhysicsWorldSystem>();
     }
 
-    void PhysicsDebugViewController::Shutdown()
+    void PhysicsDebugView::Shutdown()
     {
         m_pPhysicsSystem = nullptr;
+        m_pPhysicsWorldSystem = nullptr;
     }
 
     //-------------------------------------------------------------------------
 
-    void PhysicsDebugViewController::DrawPhysicsMenu( UpdateContext const& context )
+    void PhysicsDebugView::DrawPhysicsMenu( EntityUpdateContext const& context )
     {
         //-------------------------------------------------------------------------
         // Scene
         //-------------------------------------------------------------------------
 
-        uint32 debugFlags = m_pPhysicsSystem->GetDebugFlags();
-        float drawDistance = m_pPhysicsSystem->GetDebugDrawDistance();
+        uint32 debugFlags = m_pPhysicsWorldSystem->GetDebugFlags();
+        float drawDistance = m_pPhysicsWorldSystem->GetDebugDrawDistance();
 
         bool stateUpdated = false;
 
@@ -81,8 +78,8 @@ namespace KRG::Physics
 
         if ( stateUpdated )
         {
-            m_pPhysicsSystem->SetDebugFlags( debugFlags );
-            m_pPhysicsSystem->SetDebugDrawDistance( drawDistance );
+            m_pPhysicsWorldSystem->SetDebugFlags( debugFlags );
+            m_pPhysicsWorldSystem->SetDebugDrawDistance( drawDistance );
         }
 
         ImGui::Separator();
@@ -107,7 +104,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsDebugViewController::DrawWindows( UpdateContext const& context )
+    void PhysicsDebugView::DrawWindows( EntityUpdateContext const& context )
     {
         if ( m_isComponentWindowOpen )
         {
@@ -122,7 +119,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    void PhysicsDebugViewController::DrawPVDMenu( UpdateContext const& context )
+    void PhysicsDebugView::DrawPVDMenu( EntityUpdateContext const& context )
     {
         if ( ImGui::BeginMenu( "PhysX Visual Debugger" ) )
         {
@@ -151,7 +148,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsDebugViewController::DrawComponentsWindow( UpdateContext const& context )
+    void PhysicsDebugView::DrawComponentsWindow( EntityUpdateContext const& context )
     {
         ImGui::SetNextWindowBgAlpha( 0.5f );
         if ( ImGui::Begin( "Physics Components", &m_isComponentWindowOpen ) )
@@ -173,7 +170,7 @@ namespace KRG::Physics
         ImGui::End();
     }
 
-    void PhysicsDebugViewController::DrawMaterialDatabaseWindow( UpdateContext const& context )
+    void PhysicsDebugView::DrawMaterialDatabaseWindow( EntityUpdateContext const& context )
     {
         ImGui::SetNextWindowBgAlpha( 0.5f );
         if ( ImGui::Begin( "Physics Material Database", &m_isMaterialDatabaseWindowOpen ) )

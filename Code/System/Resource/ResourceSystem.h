@@ -25,7 +25,7 @@ namespace KRG::Resource
 
     class KRG_SYSTEM_RESOURCE_API ResourceSystem : public ISystem
     {
-        friend class ResourceDebugViewController;
+        friend class ResourceDebugView;
 
         struct PendingRequest
         {

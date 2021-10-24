@@ -1,36 +1,39 @@
 #pragma once
 
-#include "Engine/Core/DebugTools/DebugView.h"
+#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
 #include "System/Input/InputDevices/InputDevice_Controller.h"
 
 //-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
-namespace KRG
+namespace KRG::Input
 {
-    namespace Input
+    class ControllerInputDevice;
+    class InputSystem;
+
+    //-------------------------------------------------------------------------
+
+    class InputDebugView : public EntityWorldDebugView
     {
-        class ControllerInputDevice;
+        KRG_REGISTER_TYPE( InputDebugView );
 
-        //-------------------------------------------------------------------------
+    public:
 
-        class InputDebugViewController : public Debug::DebugView
-        {
+        InputDebugView();
 
-        public:
+    private:
 
-            InputDebugViewController();
+        virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
+        virtual void Shutdown() override;
+        virtual void DrawWindows( EntityUpdateContext const& context ) override;
 
-        private:
+        void DrawControllerMenu( EntityUpdateContext const& context );
+        void DrawControllerState( ControllerInputDevice const& controllerState );
 
-            virtual void DrawWindows( UpdateContext const& context ) override final;
+    private:
 
-            void DrawControllerState( ControllerInputDevice const& controllerState );
-
-        private:
-
-            TVector<ControllerInputDevice const*>          m_openControllerWindows;
-        };
-    }
+        InputSystem*                                   m_pInputSystem = nullptr;
+        TVector<ControllerInputDevice const*>          m_openControllerWindows;
+    };
 }
 #endif

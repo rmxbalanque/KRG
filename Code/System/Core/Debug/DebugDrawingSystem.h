@@ -3,41 +3,36 @@
 #include "../_Module/API.h"
 #include "System/Core/Debug/DebugDrawing.h"
 #include "System/Core/Threading/Threading.h"
-#include "System/Core/Systems/ISystem.h"
 
 //-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
-namespace KRG
+namespace KRG::Debug
 {
-    namespace Debug
+    class KRG_SYSTEM_CORE_API DrawingSystem
     {
-        class KRG_SYSTEM_CORE_API DrawingSystem : public ISystem
-        {
-        public:
+    public:
 
-            KRG_SYSTEM_ID( DrawingSystem );
+        DrawingSystem() = default;
+        ~DrawingSystem();
 
-        public:
+        // Empty all per thread buffers
+        void Reset();
 
-            DrawingSystem() = default;
-            ~DrawingSystem();
+        // Returns a per-thread drawing context, this removes the need for constantly calling get thread command buffer
+        inline DrawingContext GetDrawingContext() { return DrawingContext( GetThreadCommandBuffer() ); }
 
-            // Returns a per-thread drawing context, this removes the need for constantly calling get thread command buffer
-            inline DrawingContext GetDrawingContext() { return DrawingContext( GetThreadCommandBuffer() ); }
+        // Reflects all the individual per-thread buffers into a single supplied frame command buffer. Clears all thread buffers.
+        void ReflectFrameCommandBuffer( Drawing::FrameCommandBuffer& reflectedFrameCommands );
 
-            // Reflects all the individual per-thread buffers into a single frame command buffer
-            void ReflectFrameCommandBuffer( Drawing::FrameCommandBuffer& reflectedFrameCommands );
+    private:
 
-        private:
+        Drawing::ThreadCommandBuffer& GetThreadCommandBuffer();
 
-            Drawing::ThreadCommandBuffer& GetThreadCommandBuffer();
+    private:
 
-        private:
-
-            TVector<Drawing::ThreadCommandBuffer*>      m_threadCommandBuffers;
-            Threading::Mutex                            m_acquireCommandBufferMutex;
-        };
-    }
+        TVector<Drawing::ThreadCommandBuffer*>      m_threadCommandBuffers;
+        Threading::Mutex                            m_acquireCommandBufferMutex;
+    };
 }
 #endif

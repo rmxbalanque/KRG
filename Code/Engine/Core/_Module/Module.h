@@ -2,16 +2,11 @@
 
 #include "API.h"
 #include "Engine/Core/Modules/IEngineModule.h"
-#include "Engine/Core/Entity/DebugViews/DebugView_EntityWorld.h"
-#include "Engine/Core/DebugViews/DebugView_Input.h"
-#include "Engine/Core/DebugViews/DebugView_Resource.h"
-#include "Engine/Core/DebugViews/DebugView_System.h"
-#include "Engine/Core/DebugTools/DebugTools.h"
-#include "Engine/Core/Entity/ResourceLoaders/ResourceLoader_EntityMap.h"
 #include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Core/Entity/EntityWorldManager.h"
+#include "Engine/Core/ResourceLoaders/ResourceLoader_EntityMap.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Render/RenderDevice.h"
-#include "System/Render/RendererRegistry.h"
 #include "System/Render/RenderViewportManager.h"
 #include "System/Input/InputSystem.h"
 #include "System/Render/Imgui/ImguiSystem.h"
@@ -21,7 +16,6 @@
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Core/Threading/TaskSystem.h"
 #include "System/Core/Systems/SystemRegistry.h"
-#include "System/Core/Debug/DebugDrawingSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -45,15 +39,10 @@ namespace KRG::EngineCore
         inline Resource::ResourceSystem* GetResourceSystem() { return &m_resourceSystem; }
 
         inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
-        inline Render::RendererRegistry* GetRendererRegistry() { return &m_rendererRegistry; }
         inline Render::ViewportManager* GetViewportManager() { return &m_viewportManager; }
         inline ImGuiX::ImguiSystem* GetImguiSystem() { return &m_imguiSystem; }
 
-        inline EntityWorld* GetEntityWorld() { return &m_entityWorld; }
-
-        #if KRG_DEVELOPMENT_TOOLS
-        inline Debug::DrawingSystem* GetDebugDrawingSystem() { return &m_debugDrawingSystem; }
-        #endif
+        inline EntityWorldManager* GetEntityWorldManager() { return &m_entityWorldManager; }
 
     private:
 
@@ -71,28 +60,13 @@ namespace KRG::EngineCore
         // Rendering
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
         Render::RenderDeviceForge                       m_renderDeviceForge;
-        Render::RendererRegistry                        m_rendererRegistry;
         Render::ViewportManager                         m_viewportManager;
 
         // ImGui
         ImGuiX::ImguiSystem                             m_imguiSystem;
 
         // Entity
-        EntityWorld                                     m_entityWorld;
+        EntityWorldManager                              m_entityWorldManager;
         EntityModel::EntityMapLoader                    m_mapLoader;
-
-        // Debug
-        #if KRG_DEVELOPMENT_TOOLS
-        Debug::DrawingSystem                            m_debugDrawingSystem;
-        #endif
-
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        Debug::SystemDebugViewController                m_systemDebugViewController;
-        EntityDebugViewController                       m_entityDebugViewController;
-        Input::InputDebugViewController                 m_inputDebugViewController;
-        Resource::ResourceDebugViewController           m_resourceDebugViewController;
-        #endif
     };
 }

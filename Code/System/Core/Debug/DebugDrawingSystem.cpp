@@ -1,47 +1,51 @@
 #include "DebugDrawingSystem.h"
-#include "System/Core/Debug/DebugDrawingCommands.h"
-#include "System/Core/Threading/Threading.h"
 
 //-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
-namespace KRG
+namespace KRG::Debug
 {
-    namespace Debug
+    Drawing::ThreadCommandBuffer& DrawingSystem::GetThreadCommandBuffer()
     {
-        Drawing::ThreadCommandBuffer& DrawingSystem::GetThreadCommandBuffer()
+        static thread_local Drawing::ThreadCommandBuffer* pThreadCommandBuffer = nullptr;
+
+        Threading::ScopeLock Lock( m_acquireCommandBufferMutex );
+
+        if ( pThreadCommandBuffer == nullptr )
         {
-            static thread_local Drawing::ThreadCommandBuffer* pThreadCommandBuffer = nullptr;
-
-            Threading::ScopeLock Lock( m_acquireCommandBufferMutex );
-
-            if ( pThreadCommandBuffer == nullptr )
-            {
-                pThreadCommandBuffer = KRG::New<Drawing::ThreadCommandBuffer>( Threading::GetCurrentThreadID() );
-                m_threadCommandBuffers.emplace_back( pThreadCommandBuffer );
-            }
-
-            return *pThreadCommandBuffer;
+            pThreadCommandBuffer = KRG::New<Drawing::ThreadCommandBuffer>( Threading::GetCurrentThreadID() );
+            m_threadCommandBuffers.emplace_back( pThreadCommandBuffer );
         }
 
-        DrawingSystem::~DrawingSystem()
+        return *pThreadCommandBuffer;
+    }
+
+    DrawingSystem::~DrawingSystem()
+    {
+        for ( auto pCommandBuffer : m_threadCommandBuffers )
         {
-            for ( auto pCommandBuffer : m_threadCommandBuffers )
-            {
-                KRG::Delete( pCommandBuffer );
-            }
+            KRG::Delete( pCommandBuffer );
         }
+    }
 
-        void DrawingSystem::ReflectFrameCommandBuffer( Drawing::FrameCommandBuffer& reflectedFrameCommands )
+    void DrawingSystem::ReflectFrameCommandBuffer( Drawing::FrameCommandBuffer& reflectedFrameCommands )
+    {
+        reflectedFrameCommands.Clear();
+
+        Threading::ScopeLock Lock( m_acquireCommandBufferMutex );
+        for ( auto pCommandBuffer : m_threadCommandBuffers )
         {
-            reflectedFrameCommands.Clear();
+            reflectedFrameCommands.AddThreadCommands( *pCommandBuffer );
+            pCommandBuffer->Clear();
+        }
+    }
 
-            Threading::ScopeLock Lock( m_acquireCommandBufferMutex );
-            for ( auto pCommandBuffer : m_threadCommandBuffers )
-            {
-                reflectedFrameCommands.AddThreadCommands( *pCommandBuffer );
-                pCommandBuffer->Clear();
-            }
+    void DrawingSystem::Reset()
+    {
+        Threading::ScopeLock Lock( m_acquireCommandBufferMutex );
+        for ( auto pCommandBuffer : m_threadCommandBuffers )
+        {
+            pCommandBuffer->Clear();
         }
     }
 }

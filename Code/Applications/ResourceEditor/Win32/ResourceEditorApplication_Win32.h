@@ -29,12 +29,8 @@ namespace KRG
         }
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void CreateDevelopmentToolset() { m_pDevelopmentToolset = &m_resourceEditor; }
+        virtual void CreateDevelopmentUI() { m_pDevelopmentUI = KRG::New<ResourceEditor>(); }
         #endif
-
-    private:
-
-        ResourceEditor                         m_resourceEditor;
     };
 
     //-------------------------------------------------------------------------

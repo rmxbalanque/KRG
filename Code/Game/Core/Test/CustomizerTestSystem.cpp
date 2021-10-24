@@ -5,11 +5,13 @@
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Engine/Render/Components/StaticMeshComponent.h"
 #include "Engine/Animation/Systems/AnimationSystem.h"
+#include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "Engine/Core/Entity/Entity.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Animation/Components/AnimatedMeshComponent.h"
 #include "System/Core/Math/Random.h"
 #include "../TestSystem.h"
+#include "Engine/Core/Entity/EntityWorldManager.h"
 
 //-------------------------------------------------------------------------
 
@@ -40,7 +42,7 @@ namespace KRG
         }
     }
 
-    void CustomizerTestSystem::Update( UpdateContext const& ctx )
+    void CustomizerTestSystem::Update( EntityUpdateContext const& ctx )
     {
         if (  m_pComponent == nullptr )
         {
@@ -65,8 +67,8 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            auto pEntityWorld = ctx.GetSystem<EntityWorld>();
-            auto pPersisentMap = pEntityWorld->GetPersistentMap();
+            auto pEntityWorldManager = ctx.GetSystem<EntityWorldManager>();
+            auto pPersisentMap = pEntityWorldManager->GetPrimaryWorld()->GetPersistentMap();
 
             //-------------------------------------------------------------------------
 

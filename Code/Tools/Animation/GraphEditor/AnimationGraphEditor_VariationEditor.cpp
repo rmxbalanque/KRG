@@ -146,12 +146,21 @@ namespace KRG::Animation::Graph
 
             for ( auto pDataSlotNode : dataSlotNodes )
             {
+                bool const hasOverrideForVariation = pDataSlotNode->HasOverrideForVariation( currentVariationID );
+
                 ImGui::PushID( pDataSlotNode );
 
                 ImGui::TableNextRow();
 
                 ImGui::TableNextColumn();
-                ImGui::Text( pDataSlotNode->GetDisplayName() );
+                if ( !isDefaultVariationSelected && hasOverrideForVariation )
+                {
+                    ImGui::TextColored( ImVec4( 0, 1, 0, 1 ), pDataSlotNode->GetDisplayName() );
+                }
+                else
+                {
+                    ImGui::Text( pDataSlotNode->GetDisplayName() );
+                }
 
                 ImGui::TableNextColumn();
                 ImGui::Text( pDataSlotNode->GetPathFromRoot().c_str() );

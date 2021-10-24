@@ -168,8 +168,8 @@ namespace KRG::Render
 
         CB cb;
         cb.m_viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
-        cb.m_viewport.m_x = (float) viewport.GetSize().m_x;
-        cb.m_viewport.m_y = (float) viewport.GetSize().m_y;
+        cb.m_viewport.m_x = (float) viewport.GetDimensions().m_x;
+        cb.m_viewport.m_y = (float) viewport.GetDimensions().m_y;
 
         renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
         renderContext.WriteToBuffer( m_geometryShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
@@ -342,8 +342,8 @@ namespace KRG::Render
 
         CB cb;
         cb.m_viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
-        cb.m_viewport.m_x = (float) viewport.GetSize().m_x;
-        cb.m_viewport.m_y = (float) viewport.GetSize().m_y;
+        cb.m_viewport.m_x = (float) viewport.GetDimensions().m_x;
+        cb.m_viewport.m_y = (float) viewport.GetDimensions().m_y;
 
         renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
         renderContext.WriteToBuffer( m_geometryShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
@@ -480,8 +480,8 @@ namespace KRG::Render
 
         CB cb;
         cb.m_viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
-        cb.m_viewport.m_x = (float) viewport.GetSize().m_x;
-        cb.m_viewport.m_y = (float) viewport.GetSize().m_y;
+        cb.m_viewport.m_x = (float) viewport.GetDimensions().m_x;
+        cb.m_viewport.m_y = (float) viewport.GetDimensions().m_y;
         renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &cb, sizeof( CB ) );
     }
 
@@ -679,7 +679,7 @@ namespace KRG::Render
         renderContext.SetIndexBuffer( m_indexBuffer );
 
         // Set viewport info
-        Float4 const m_viewportInfo( viewport.GetSize() );
+        Float4 const m_viewportInfo( viewport.GetDimensions() );
         renderContext.WriteToBuffer( m_vertexShader.GetConstBuffer( 0 ), &m_viewportInfo, sizeof( Float4 ) );
     }
 

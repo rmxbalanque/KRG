@@ -437,15 +437,24 @@ namespace KRG::CPP
                     else // Generate type info
                     {
                         parentDescs.clear();
+                        bool hasNoRegisteredParents = true;
+
                         for ( TypeID const& parentID : type.m_parents )
                         {
                             auto pTypeDesc = m_pDatabase->GetType( parentID );
                             if ( pTypeDesc == nullptr )
                             {
-                                String const fullTypeName = type.m_namespace + type.m_name;
-                                return LogError( "Unknown base class: %s encountered for type: %s", parentID.c_str(), fullTypeName.c_str() );
+                                continue;
                             }
+
                             parentDescs.push_back( *pTypeDesc );
+                            hasNoRegisteredParents = false;
+                        }
+
+                        if ( hasNoRegisteredParents )
+                        {
+                            String const fullTypeName = type.m_namespace + type.m_name;
+                            return LogError( "Invalid parent hierarchy for type (%s), all registered types must derived from a registered type.", fullTypeName.c_str() );
                         }
 
                         TypeGenerator::Generate( database, m_headerFile, m_cppFile, prj.m_exportMacro, type, parentDescs );

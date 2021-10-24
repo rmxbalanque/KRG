@@ -1,6 +1,6 @@
 #include "ResourceEditor_Skeleton.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
-#include "System/Render/Imgui/Widgets/InterfaceHelpers.h"
+#include "Tools/Core/Widgets/InterfaceHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "Engine/Core/Entity/EntityWorld.h"
@@ -95,40 +95,40 @@ namespace KRG::Animation
 
         if ( IsLoaded() )
         {
-            auto drawingCtx = context.GetDrawingContext();
-            drawingCtx.Draw( *m_pResource.GetPtr(), Transform::Identity );
+            //auto drawingCtx = context.GetDrawingContext();
+            //drawingCtx.Draw( *m_pResource.GetPtr(), Transform::Identity );
 
-            if ( m_selectedBoneID.IsValid() )
-            {
-                int32 const boneIdx = m_pResource->GetBoneIndex( m_selectedBoneID );
-                KRG_ASSERT( boneIdx != InvalidIndex );
-                Transform const refGlobalTransform = m_pResource->GetBoneGlobalTransform( boneIdx );
+            //if ( m_selectedBoneID.IsValid() )
+            //{
+            //    int32 const boneIdx = m_pResource->GetBoneIndex( m_selectedBoneID );
+            //    KRG_ASSERT( boneIdx != InvalidIndex );
+            //    Transform const refGlobalTransform = m_pResource->GetBoneGlobalTransform( boneIdx );
 
-                drawingCtx.DrawAxis( refGlobalTransform, 0.10f, 4.0f );
+            //    drawingCtx.DrawAxis( refGlobalTransform, 0.10f, 4.0f );
 
-                Vector textLocation = refGlobalTransform.GetTranslation() + Vector( 0, 0, 0.1f );
-                Vector const textLineLocation = textLocation - Vector( 0, 0, 0.01f );
-                drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
-                drawingCtx.DrawLine( textLineLocation, refGlobalTransform.GetTranslation(), Colors::Yellow, 2.0f );
-            }
+            //    Vector textLocation = refGlobalTransform.GetTranslation() + Vector( 0, 0, 0.1f );
+            //    Vector const textLineLocation = textLocation - Vector( 0, 0, 0.01f );
+            //    drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
+            //    drawingCtx.DrawLine( textLineLocation, refGlobalTransform.GetTranslation(), Colors::Yellow, 2.0f );
+            //}
 
-            //-------------------------------------------------------------------------
+            ////-------------------------------------------------------------------------
 
-            if ( m_pMeshComponent != nullptr && m_pMeshComponent->IsInitialized() )
-            {
-                if ( m_showPreviewMesh )
-                {
-                    Pose referencePose( m_pResource.GetPtr() );
-                    referencePose.CalculateGlobalTransforms();
+            //if ( m_pMeshComponent != nullptr && m_pMeshComponent->IsInitialized() )
+            //{
+            //    if ( m_showPreviewMesh )
+            //    {
+            //        Pose referencePose( m_pResource.GetPtr() );
+            //        referencePose.CalculateGlobalTransforms();
 
-                    m_pMeshComponent->SetPose( &referencePose );
-                    m_pMeshComponent->FinalizePose();
-                }
-                else
-                {
-                    //m_pMeshComponent->SetHidden();
-                }
-            }
+            //        m_pMeshComponent->SetPose( &referencePose );
+            //        m_pMeshComponent->FinalizePose();
+            //    }
+            //    else
+            //    {
+            //        //m_pMeshComponent->SetHidden();
+            //    }
+            //}
         }
 
         // UI

@@ -31,7 +31,7 @@ namespace KRG::Render
         m_viewVolume = viewVolume;
 
         // Update the aspect ratio based on the viewport desc we are using
-        if ( m_viewVolume.IsPerspective() )
+        if ( m_viewVolume.IsPerspective() && m_viewVolume.GetViewDimensions() != m_size )
         {
             m_viewVolume.SetViewDimensions( m_size );
         }

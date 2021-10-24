@@ -69,7 +69,7 @@
     <ClInclude Include="PhysicsSettings.h" />
     <ClInclude Include="PhysicsMaterial.h" />
     <ClInclude Include="PhysicsSimulationFilter.h" />
-    <ClInclude Include="Debug\PhysxDebugRenderer.h" />
+    <ClInclude Include="Debug\PhysicsDebugRenderer.h" />
     <ClInclude Include="Components\PhysicsComponent.h" />
     <ClInclude Include="PhysicsMaterialDatabase.h" />
     <ClInclude Include="PhysicsMesh.h" />
@@ -93,7 +93,7 @@
     <ClCompile Include="PhysicsSettings.cpp" />
     <ClCompile Include="PhysicsMaterial.cpp" />
     <ClCompile Include="PhysicsSimulationFilter.cpp" />
-    <ClCompile Include="Debug\PhysxDebugRenderer.cpp" />
+    <ClCompile Include="Debug\PhysicsDebugRenderer.cpp" />
     <ClCompile Include="Components\PhysicsComponent.cpp" />
     <ClCompile Include="PhysicsMaterialDatabase.cpp" />
     <ClCompile Include="PhysicsMesh.cpp" />

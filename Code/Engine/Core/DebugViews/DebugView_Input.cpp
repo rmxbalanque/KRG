@@ -2,6 +2,7 @@
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Input/InputSystem.h"
+#include "Engine/Core/Entity/EntityUpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -142,7 +143,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void InputDebugViewController::DrawControllerState( ControllerInputDevice const& controller )
+        void InputDebugView::DrawControllerState( ControllerInputDevice const& controller )
         {
             auto const& controllerState = controller.GetControllerState();
 
@@ -225,48 +226,22 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        InputDebugViewController::InputDebugViewController()
+        InputDebugView::InputDebugView()
         {
-            auto drawSystemLogMenuOptions = [this] ( UpdateContext const& context )
-            {
-                if ( ImGui::BeginMenu( "Controllers" ) )
-                {
-                    auto pInputSystem = context.GetSystem<InputSystem>();
-                    KRG_ASSERT( pInputSystem != nullptr );
-
-                    uint32 const numControllers = pInputSystem->GetNumConnectedControllers();
-                    if ( numControllers > 0 )
-                    {
-                        char buffer[256];
-                        bool noControllersConnected = true;
-                        for ( uint32 i = 0u; i < numControllers; i++ )
-                        {
-
-                            Printf( buffer, 256, "Show Controller State: %d", i );
-                            if ( ImGui::Button( buffer ) )
-                            {
-                                auto pController = pInputSystem->GetControllerDevice( i );
-                                bool isWindowAlreadyOpen = VectorContains( m_openControllerWindows, pController );
-                                if ( !isWindowAlreadyOpen )
-                                {
-                                    m_openControllerWindows.emplace_back( pController );
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ImGui::Text( "No Controllers Connected" );
-                    }
-
-                    ImGui::EndMenu();
-                }
-            };
-
-            m_menuCallbacks.emplace_back( Debug::DebugMenuCallback( "Controller", "Input", drawSystemLogMenuOptions ) );
+            m_menus.emplace_back( DebugMenu( "Controller", "Input", [this] ( EntityUpdateContext const& context ) { DrawControllerMenu( context ); } ) );
         }
 
-        void InputDebugViewController::DrawWindows( UpdateContext const& context )
+        void InputDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
+        {
+            m_pInputSystem = systemRegistry.GetSystem<InputSystem>();
+        }
+
+        void InputDebugView::Shutdown()
+        {
+            m_pInputSystem = nullptr;
+        }
+
+        void InputDebugView::DrawWindows( EntityUpdateContext const& context )
         {
             auto pInputSystem = context.GetSystem<InputSystem>();
             KRG_ASSERT( pInputSystem != nullptr );
@@ -293,6 +268,41 @@ namespace KRG
                 {
                     m_openControllerWindows.erase_unsorted( m_openControllerWindows.begin() + i );
                 }
+            }
+        }
+
+        void InputDebugView::DrawControllerMenu( EntityUpdateContext const& context )
+        {
+            KRG_ASSERT( m_pInputSystem != nullptr );
+
+            if ( ImGui::BeginMenu( "Controllers" ) )
+            {
+                uint32 const numControllers = m_pInputSystem->GetNumConnectedControllers();
+                if ( numControllers > 0 )
+                {
+                    char buffer[256];
+                    bool noControllersConnected = true;
+                    for ( uint32 i = 0u; i < numControllers; i++ )
+                    {
+
+                        Printf( buffer, 256, "Show Controller State: %d", i );
+                        if ( ImGui::Button( buffer ) )
+                        {
+                            auto pController = m_pInputSystem->GetControllerDevice( i );
+                            bool isWindowAlreadyOpen = VectorContains( m_openControllerWindows, pController );
+                            if ( !isWindowAlreadyOpen )
+                            {
+                                m_openControllerWindows.emplace_back( pController );
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ImGui::Text( "No Controllers Connected" );
+                }
+
+                ImGui::EndMenu();
             }
         }
     }

@@ -1,6 +1,6 @@
 #include "Entity.h"
 #include "EntitySystem.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "EntityUpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -247,7 +247,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Entity::UpdateSystems( UpdateContext const& context )
+    void Entity::UpdateSystems( EntityUpdateContext const& context )
     {
         int8 const updateStageIdx = (int8) context.GetUpdateStage();
         for( auto pSystem : m_systemUpdateLists[updateStageIdx] )

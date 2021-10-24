@@ -1,31 +1,38 @@
 #pragma once
 
-#include "Engine/Core/DebugTools/DebugView.h"
+#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
 
 //-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
-    namespace Debug
+    class DebugSetting;
+
+    //-------------------------------------------------------------------------
+
+    class SystemDebugView final : public EntityWorldDebugView
     {
-        class SystemDebugViewController : public DebugView
-        {
-        public:
+        KRG_REGISTER_TYPE( SystemDebugView );
 
-            SystemDebugViewController();
+    public:
 
-        private:
+        SystemDebugView();
 
-            virtual void DrawWindows( UpdateContext const& context ) override final;
+    private:
 
-            void DrawSystemMenu( UpdateContext const& context );
-            void DrawSystemLogWindow( UpdateContext const& context );
+        virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
+        virtual void Shutdown() override;
+        virtual void DrawWindows( EntityUpdateContext const& context ) override;
 
-        private:
+        void DrawSystemMenu( EntityUpdateContext const& context );
+        void DrawSystemLogWindow( EntityUpdateContext const& context );
 
-            bool        m_isSystemLogWindowOpen = false;
-        };
-    }
+        void DrawDebugSetting( DebugSetting* pDebugSetting );
+
+    private:
+
+        bool        m_isSystemLogWindowOpen = false;
+    };
 }
 #endif

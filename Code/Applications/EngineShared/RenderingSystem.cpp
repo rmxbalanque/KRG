@@ -1,6 +1,8 @@
 #include "RenderingSystem.h"
-#include "Engine/Render/Renderers/MeshRenderer.h"
+#include "Engine/Render/Renderers/WorldRenderer.h"
+#include "Engine/Render/Renderers/DebugRenderer.h"
 #include "Engine/Render/Renderers/ImguiRenderer.h"
+#include "Engine/Core/Entity/EntityWorldManager.h"
 #include "System/Render/RenderViewportManager.h"
 #include "System/Render/RenderDevice.h"
 #include "System/Core/Update/UpdateContext.h"
@@ -13,22 +15,24 @@ namespace KRG
 {
     namespace Render
     {
-        void RenderingSystem::Initialize( RenderDevice* pRenderDevice, ViewportManager* pViewportManager, RendererRegistry* pRegistry )
+        void RenderingSystem::Initialize( RenderDevice* pRenderDevice, ViewportManager* pViewportManager, RendererRegistry* pRegistry, EntityWorldManager* pWorldManager )
         {
             KRG_ASSERT( m_pRenderDevice == nullptr && m_pViewportManager == nullptr );
             KRG_ASSERT( pRenderDevice != nullptr && pViewportManager != nullptr && pRegistry != nullptr );
+            KRG_ASSERT( pWorldManager != nullptr );
 
             m_pRenderDevice = pRenderDevice;
             m_pViewportManager = pViewportManager;
+            m_pWorldManager = pWorldManager;
 
             //-------------------------------------------------------------------------
 
             for ( auto pRenderer : pRegistry->GetRegisteredRenderers() )
             {
-                if ( pRenderer->GetRendererID() == MeshRenderer::RendererID )
+                if ( pRenderer->GetRendererID() == WorldRenderer::RendererID )
                 {
-                    KRG_ASSERT( m_pMeshRenderer == nullptr );
-                    m_pMeshRenderer = static_cast<MeshRenderer*>( pRenderer );
+                    KRG_ASSERT( m_pWorldRenderer == nullptr );
+                    m_pWorldRenderer = static_cast<WorldRenderer*>( pRenderer );
                     continue;
                 }
 
@@ -41,12 +45,21 @@ namespace KRG
                     m_pImguiRenderer = static_cast<ImguiRenderer*>( pRenderer );
                     continue;
                 }
+
+                if ( pRenderer->GetRendererID() == DebugRenderer::RendererID )
+                {
+                    KRG_ASSERT( m_pDebugRenderer == nullptr );
+                    m_pDebugRenderer = static_cast<DebugRenderer*>( pRenderer );
+                    continue;
+                }
                 #endif
 
                 //-------------------------------------------------------------------------
 
                 m_customRenderers.push_back( pRenderer );
             }
+
+            KRG_ASSERT( m_pWorldRenderer != nullptr );
 
             // Sort custom renderers
             //-------------------------------------------------------------------------
@@ -63,12 +76,13 @@ namespace KRG
 
         void RenderingSystem::Shutdown()
         {
-            m_pMeshRenderer = nullptr;
+            m_pWorldRenderer = nullptr;
 
             #if KRG_DEVELOPMENT_TOOLS
             m_pImguiRenderer = nullptr;
             #endif
 
+            m_pWorldManager = nullptr;
             m_pViewportManager = nullptr;
             m_pRenderDevice = nullptr;
         }
@@ -91,20 +105,6 @@ namespace KRG
                     KRG_PROFILE_SCOPE_RENDER( "Rendering Pre-Physics" );
 
                     m_pViewportManager->UpdateCustomRenderTargets();
-
-                    int32 const numViewports = m_pViewportManager->GetNumViewports();
-                    for ( int32 i = 0; i < numViewports; i++ )
-                    {
-                        Render::Viewport const* pViewport = m_pViewportManager->GetActiveViewports()[i];
-                        immediateContext.SetRenderTarget( m_pViewportManager->GetRenderTargetForViewport( i ) );
-
-                        //-------------------------------------------------------------------------
-
-                        if ( m_pMeshRenderer != nullptr )
-                        {
-                            m_pMeshRenderer->RenderStatic( *pViewport );
-                        }
-                    }
                 }
                 break;
 
@@ -125,19 +125,23 @@ namespace KRG
 
                         //-------------------------------------------------------------------------
 
-                        if ( m_pMeshRenderer != nullptr )
-                        {
-                            m_pMeshRenderer->RenderDynamic( *pViewport );
-                            m_pMeshRenderer->RenderSkeletal( *pViewport );
-                        }
+                        // Draw world
+                        auto pWorld = m_pWorldManager->GetPrimaryWorld();
+                        m_pWorldRenderer->RenderWorld( pWorld );
 
+                        // Custom renderers
                         for ( auto const& pCustomRenderer : m_customRenderers )
                         {
-                            pCustomRenderer->Render( *pViewport );
+                            pCustomRenderer->RenderWorld( pWorld );
+                            pCustomRenderer->RenderViewport( *pViewport );
                         }
+
+                        // Debug renderer
+                        m_pDebugRenderer->RenderWorld( pWorld );
+                        m_pDebugRenderer->RenderViewport( *pViewport );
                     }
 
-                    // Draw development tools viewport
+                    // Draw development UI
                     //-------------------------------------------------------------------------
 
                     #if KRG_DEVELOPMENT_TOOLS
@@ -146,7 +150,7 @@ namespace KRG
                         immediateContext.SetRenderTarget( m_pRenderDevice->GetPrimaryWindowRenderTarget() );
 
                         auto const& devToolsViewport = m_pViewportManager->GetDevelopmentToolsViewport();
-                        m_pImguiRenderer->Render( devToolsViewport );
+                        m_pImguiRenderer->RenderViewport( devToolsViewport );
                     }
                     #endif
 

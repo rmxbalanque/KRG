@@ -149,7 +149,6 @@ namespace KRG
         {
             KRG_ASSERT( dimensions.m_x > 0.0f && dimensions.m_y > 0.0f );
             m_viewDimensions = dimensions;
-
             CalculateProjectionMatrix();
         }
 

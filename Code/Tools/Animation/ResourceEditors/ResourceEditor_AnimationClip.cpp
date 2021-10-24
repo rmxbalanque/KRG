@@ -1,11 +1,11 @@
 #include "ResourceEditor_AnimationClip.h"
 #include "Tools/Animation/Events/AnimationEventEditor.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
+#include "Tools/Core/Widgets/InterfaceHelpers.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
 #include "Engine/Animation/Systems/AnimationSystem.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "System/Render/Imgui/Widgets/InterfaceHelpers.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
 
@@ -128,7 +128,7 @@ namespace KRG::Animation
             // Draw in viewport
             //-------------------------------------------------------------------------
 
-            auto drawingCtx = context.GetDrawingContext();
+            /*auto drawingCtx = context.GetDrawingContext();
 
             Pose const* pPose = m_pAnimationComponent->GetPose();
             if ( pPose != nullptr )
@@ -136,7 +136,7 @@ namespace KRG::Animation
                 drawingCtx.Draw( *pPose, m_characterTransform );
             }
 
-            m_pResource->DrawRootMotionPath( drawingCtx, Transform::Identity );
+            m_pResource->DrawRootMotionPath( drawingCtx, Transform::Identity );*/
         }
 
         //-------------------------------------------------------------------------

@@ -21,7 +21,7 @@
     <ClCompile Include="Debug\DebugView_Physics.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\PhysxDebugRenderer.cpp">
+    <ClCompile Include="Debug\PhysicsDebugRenderer.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
     <ClCompile Include="_Module\Module.cpp">
@@ -65,7 +65,7 @@
     <ClInclude Include="Debug\DebugView_Physics.h">
       <Filter>Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Debug\PhysxDebugRenderer.h">
+    <ClInclude Include="Debug\PhysicsDebugRenderer.h">
       <Filter>Debug</Filter>
     </ClInclude>
     <ClInclude Include="_Module\Module.h">

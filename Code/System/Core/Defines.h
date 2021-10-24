@@ -31,8 +31,10 @@
 #if !KRG_CONFIGURATION_FINAL
 #define KRG_DEVELOPMENT_TOOLS 1
 #define KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( x ) x
+#define KRG_DEVELOPMENT_TOOLS_ONLY( x ) x
 #else
 #define KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( x )
+#define KRG_DEVELOPMENT_TOOLS_ONLY( x )
 #endif
 
 //-------------------------------------------------------------------------

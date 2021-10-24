@@ -33,6 +33,8 @@ namespace KRG::TypeSystem
         template<typename T>
         inline bool IsDerivedFrom() const { return IsDerivedFrom( T::GetStaticTypeID() ); }
 
+        inline IRegisteredType const* GetDefaultInstance() const { return m_pTypeHelper->GetDefaultTypeInstancePtr(); }
+
         // Properties
         //-------------------------------------------------------------------------
 

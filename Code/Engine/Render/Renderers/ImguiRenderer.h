@@ -2,8 +2,8 @@
 
 #include "../_Module/API.h"
 #include "imgui.h"
+#include "Engine/Render/IRenderer.h"
 #include "System/Render/RenderDevice.h"
-#include "System/Render/IRenderer.h"
 
 //-------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ namespace KRG::Render
         bool IsInitialized() const { return m_initialized; }
         bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
-        void Render( Viewport const& viewport ) override final;
+        void RenderViewport( Viewport const& viewport ) override final;
 
     private:
 

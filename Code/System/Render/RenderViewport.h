@@ -30,6 +30,7 @@ namespace KRG::Render
         Viewport( Int2 const& topLeft, Int2 const& size, Math::ViewVolume const& viewVolume = Math::ViewVolume() );
 
         inline bool IsValid() const { return ( m_size.m_x > 0 && m_size.m_y > 0 ) && ( m_topLeftPosition.m_x >= 0 && m_topLeftPosition.m_y >= 0 ); }
+        inline UUID const& GetID() const { return m_ID; }
 
         //-------------------------------------------------------------------------
 
@@ -42,7 +43,7 @@ namespace KRG::Render
         // Get the viewport position and dimensions - All in screen space
         //-------------------------------------------------------------------------
 
-        inline Float2 const& GetSize() const { return m_size; }
+        inline Float2 const& GetDimensions() const { return m_size; }
         inline Float2 const& GetTopLeftPosition() const { return m_topLeftPosition; }
         inline float GetAspectRatio() const { return m_size.m_x / m_size.m_y; }
 
@@ -73,6 +74,7 @@ namespace KRG::Render
 
     private:
 
+        UUID                            m_ID = UUID::GenerateID();
         Math::ViewVolume                m_viewVolume = Math::ViewVolume( Float2( 1, 1 ), FloatRange( 0.1f, 1000.0f ) );
         Float2                          m_topLeftPosition = Float2( 0.0f );
         Float2                          m_size = Float2( 0.0f );

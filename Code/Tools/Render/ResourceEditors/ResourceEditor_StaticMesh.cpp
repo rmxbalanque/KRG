@@ -1,5 +1,5 @@
 #include "ResourceEditor_StaticMesh.h"
-#include "System/Render/Imgui/Widgets/InterfaceHelpers.h"
+#include "Tools/Core/Widgets/InterfaceHelpers.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Render/Components/StaticMeshComponent.h"
 #include "Engine/Render/Components/SkeletalMeshComponent.h"

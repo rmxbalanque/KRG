@@ -1,16 +1,16 @@
 #include "DebugRenderer.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Types/Function.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Render
 {
-    bool DebugRenderer::Initialize( RenderDevice* pRenderDevice, Debug::DrawingSystem* pDrawingSystem )
+    bool DebugRenderer::Initialize( RenderDevice* pRenderDevice )
     {
-        KRG_ASSERT( m_pRenderDevice == nullptr && pRenderDevice != nullptr && pDrawingSystem != nullptr );
+        KRG_ASSERT( m_pRenderDevice == nullptr && pRenderDevice != nullptr );
         m_pRenderDevice = pRenderDevice;
-        m_pDebugDrawingSystem = pDrawingSystem;
 
         //-------------------------------------------------------------------------
 
@@ -47,7 +47,6 @@ namespace KRG::Render
 
     void DebugRenderer::Shutdown()
     {
-        m_pDebugDrawingSystem->ReflectFrameCommandBuffer( m_drawCommands );
         m_drawCommands.Clear();
 
         //-------------------------------------------------------------------------
@@ -60,7 +59,6 @@ namespace KRG::Render
             m_pointRS.Shutdown( m_pRenderDevice );
         }
 
-        m_pDebugDrawingSystem = nullptr;
         m_pRenderDevice = nullptr;
         m_initialized = false;
     }
@@ -389,20 +387,25 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void DebugRenderer::Render( Viewport const& viewport )
+    void DebugRenderer::RenderWorld( EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
 
-        m_pDebugDrawingSystem->ReflectFrameCommandBuffer( m_drawCommands );
-
+        auto const& viewport = pWorld->GetViewport();
         if ( !viewport.IsValid() )
         {
             return;
         }
 
+        auto pDebugDrawingSystem = pWorld->GetDebugDrawingSystem();
+        KRG_ASSERT( pDebugDrawingSystem != nullptr );
+        pDebugDrawingSystem->ReflectFrameCommandBuffer( m_drawCommands );
+
+        //-------------------------------------------------------------------------
+
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
-        renderContext.SetViewport( Float2( viewport.GetSize() ), Float2( viewport.GetTopLeftPosition() ) );
+        renderContext.SetViewport( Float2( viewport.GetDimensions() ), Float2( viewport.GetTopLeftPosition() ) );
 
         //-------------------------------------------------------------------------
         // Draw Points

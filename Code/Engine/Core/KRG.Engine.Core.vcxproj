@@ -60,25 +60,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DebugTools\DebugView.h" />
-    <ClInclude Include="DebugTools\DebugTools.h" />
+    <ClInclude Include="Camera\CameraComponent.h" />
+    <ClInclude Include="Camera\CameraWorldSystem.h" />
+    <ClInclude Include="Entity\Debug\EntityWorldDebugView.h" />
+    <ClInclude Include="Entity\Debug\EntityWorldDebugger.h" />
+    <ClInclude Include="DebugViews\DebugView_Camera.h" />
     <ClInclude Include="DebugViews\DebugView_Input.h" />
     <ClInclude Include="DebugViews\DebugView_System.h" />
     <ClInclude Include="DebugViews\DebugView_Resource.h" />
-    <ClInclude Include="DevelopmentToolset.h" />
+    <ClInclude Include="DevelopmentUI.h" />
+    <ClInclude Include="Entity\EntityUpdateContext.h" />
     <ClInclude Include="Entity\Collections\EntityCollection.h" />
     <ClInclude Include="Entity\Collections\EntityCollectionDescriptor.h" />
-    <ClInclude Include="Entity\DebugViews\DebugView_EntityWorld.h" />
+    <ClInclude Include="DebugViews\DebugView_EntityWorld.h" />
     <ClInclude Include="Entity\Entity.h" />
     <ClInclude Include="Entity\EntityComponent.h" />
     <ClInclude Include="Entity\EntityDescriptors.h" />
     <ClInclude Include="Entity\EntitySpatialComponent.h" />
     <ClInclude Include="Entity\EntitySystem.h" />
     <ClInclude Include="Entity\EntityWorld.h" />
+    <ClInclude Include="Entity\EntityWorldManager.h" />
     <ClInclude Include="Entity\EntityWorldSystem.h" />
     <ClInclude Include="Entity\Map\EntityMap.h" />
     <ClInclude Include="Entity\Map\EntityMapDescriptor.h" />
-    <ClInclude Include="Entity\ResourceLoaders\ResourceLoader_EntityMap.h" />
+    <ClInclude Include="Imgui\OrientationGuide.h" />
+    <ClInclude Include="ResourceLoaders\ResourceLoader_EntityMap.h" />
     <ClInclude Include="Math\Easing.h" />
     <ClInclude Include="Modules\EngineModuleContext.h" />
     <ClInclude Include="Modules\IEngineModule.h" />
@@ -86,24 +92,30 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DebugTools\DebugTools.cpp" />
+    <ClCompile Include="Camera\CameraComponent.cpp" />
+    <ClCompile Include="Camera\CameraWorldSystem.cpp" />
+    <ClCompile Include="Entity\Debug\EntityWorldDebugger.cpp" />
+    <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
     <ClCompile Include="DebugViews\DebugView_Input.cpp" />
     <ClCompile Include="DebugViews\DebugView_System.cpp" />
     <ClCompile Include="DebugViews\DebugView_Resource.cpp" />
-    <ClCompile Include="DevelopmentToolset.cpp" />
+    <ClCompile Include="DevelopmentUI.cpp" />
     <ClCompile Include="Entity\Collections\EntityCollection.cpp" />
     <ClCompile Include="Entity\Collections\EntityCollectionDescriptor.cpp" />
-    <ClCompile Include="Entity\DebugViews\DebugView_EntityWorld.cpp" />
+    <ClCompile Include="DebugViews\DebugView_EntityWorld.cpp" />
     <ClCompile Include="Entity\Entity.cpp" />
     <ClCompile Include="Entity\EntityComponent.cpp" />
     <ClCompile Include="Entity\EntityDescriptors.cpp" />
     <ClCompile Include="Entity\EntitySpatialComponent.cpp" />
     <ClCompile Include="Entity\EntitySystem.cpp" />
+    <ClCompile Include="Entity\EntityUpdateContext.cpp" />
     <ClCompile Include="Entity\EntityWorld.cpp" />
+    <ClCompile Include="Entity\EntityWorldManager.cpp" />
     <ClCompile Include="Entity\EntityWorldSystem.cpp" />
     <ClCompile Include="Entity\Map\EntityMap.cpp" />
     <ClCompile Include="Entity\Map\EntityMapDescriptor.cpp" />
-    <ClCompile Include="Entity\ResourceLoaders\ResourceLoader_EntityMap.cpp" />
+    <ClCompile Include="Imgui\OrientationGuide.cpp" />
+    <ClCompile Include="ResourceLoaders\ResourceLoader_EntityMap.cpp" />
     <ClCompile Include="Math\Easing.cpp" />
     <ClCompile Include="Modules\EngineModuleContext.cpp" />
     <ClCompile Include="_Module\Module.cpp" />

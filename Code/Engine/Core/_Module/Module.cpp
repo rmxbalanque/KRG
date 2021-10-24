@@ -60,11 +60,6 @@ namespace KRG::EngineCore
 
         m_mapLoader.SetTypeRegistry( &m_typeRegistry );
 
-        #if KRG_DEVELOPMENT_TOOLS
-        m_entityDebugViewController.Initialize( &m_entityWorld );
-        m_resourceDebugViewController.Initialize( &m_resourceSystem );
-        #endif
-
         // Register systems
         //-------------------------------------------------------------------------
 
@@ -74,21 +69,7 @@ namespace KRG::EngineCore
         m_systemRegistry.RegisterSystem( &m_resourceSystem );
         m_systemRegistry.RegisterSystem( &m_inputSystem );
         m_systemRegistry.RegisterSystem( &m_viewportManager );
-        m_systemRegistry.RegisterSystem( &m_entityWorld );
-
-        #if KRG_DEVELOPMENT_TOOLS
-        m_systemRegistry.RegisterSystem( &m_debugDrawingSystem );
-        #endif
-
-        // Register debug views
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        context.RegisterDebugView( &m_systemDebugViewController );
-        context.RegisterDebugView( &m_resourceDebugViewController );
-        context.RegisterDebugView( &m_entityDebugViewController );
-        context.RegisterDebugView( &m_inputDebugViewController );
-        #endif
+        m_systemRegistry.RegisterSystem( &m_entityWorldManager );
 
         // Register Misc
         //-------------------------------------------------------------------------
@@ -113,24 +94,10 @@ namespace KRG::EngineCore
 
             m_resourceSystem.UnregisterResourceLoader( &m_mapLoader );
 
-            // Unregister debug views
-            //-------------------------------------------------------------------------
-
-            #if KRG_DEVELOPMENT_TOOLS
-            context.UnregisterDebugView( &m_inputDebugViewController );
-            context.UnregisterDebugView( &m_entityDebugViewController );
-            context.UnregisterDebugView( &m_resourceDebugViewController );
-            context.UnregisterDebugView( &m_systemDebugViewController );
-            #endif
-
             // Unregister systems
             //-------------------------------------------------------------------------
 
-            #if KRG_DEVELOPMENT_TOOLS
-            m_systemRegistry.UnregisterSystem( &m_debugDrawingSystem );
-            #endif
-
-            m_systemRegistry.UnregisterSystem( &m_entityWorld );
+            m_systemRegistry.UnregisterSystem( &m_entityWorldManager );
             m_systemRegistry.UnregisterSystem( &m_viewportManager );
             m_systemRegistry.UnregisterSystem( &m_inputSystem );
             m_systemRegistry.UnregisterSystem( &m_resourceSystem );
@@ -140,11 +107,6 @@ namespace KRG::EngineCore
 
             // Shutdown
             //-------------------------------------------------------------------------
-
-            #if KRG_DEVELOPMENT_TOOLS
-            m_resourceDebugViewController.Shutdown();
-            m_entityDebugViewController.Shutdown();
-            #endif
 
             m_imguiSystem.Shutdown();
             m_inputSystem.Shutdown();

@@ -18,7 +18,7 @@ namespace KRG
         KRG_REGISTER_TYPE( SpatialEntityComponent );
 
         friend class Entity;
-        friend class EntityDebugViewController;
+        friend class EntityDebugView;
         friend class EntityModel::EntityCollection;
 
         struct AttachmentSocketTransformResult

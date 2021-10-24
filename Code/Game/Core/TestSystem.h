@@ -18,6 +18,6 @@ namespace KRG
 
         virtual void RegisterComponent( EntityComponent* pComponent ) override {}
         virtual void UnregisterComponent( EntityComponent* pComponent ) override {}
-        virtual void Update( UpdateContext const& ctx ) override {}
+        virtual void Update( EntityUpdateContext const& ctx ) override {}
     };
 }

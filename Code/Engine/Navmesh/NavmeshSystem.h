@@ -11,7 +11,7 @@ namespace KRG::Navmesh
 {
     class KRG_ENGINE_NAVMESH_API NavmeshSystem : public ISystem
     {
-        friend class NavmeshDebugViewController;
+        friend class NavmeshDebugView;
 
     public:
 
@@ -21,7 +21,7 @@ namespace KRG::Navmesh
 
         NavmeshSystem() = default;
 
-        void Initialize( Debug::DrawingSystem* pDebugDrawingSystem );
+        void Initialize();
         void Shutdown();
 
         void Update( UpdateContext const& ctx );
@@ -30,10 +30,6 @@ namespace KRG::Navmesh
 
         #if KRG_ENABLE_NAVPOWER
         NavPowerAllocator                               m_allocator;
-
-        #if KRG_DEVELOPMENT_TOOLS
-        NavPowerRenderer                                m_debugRenderer;
-        #endif
         #endif
     };
 }

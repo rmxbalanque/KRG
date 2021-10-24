@@ -36,17 +36,12 @@ namespace KRG
 
         // CORE MODULE IS SPECIAL
 
-        if ( !m_module_engine_physics.Initialize( m_moduleContext ) )
-        {
-            return m_fatalErrorHandler( "Failed to initialize module" );
-        }
-
         if ( !m_module_engine_render.Initialize( m_moduleContext ) )
         {
             return m_fatalErrorHandler( "Failed to initialize module" );
         }
 
-        if ( !m_module_engine_camera.Initialize( m_moduleContext ) )
+        if ( !m_module_engine_physics.Initialize( m_moduleContext ) )
         {
             return m_fatalErrorHandler( "Failed to initialize module" );
         }
@@ -121,9 +116,8 @@ namespace KRG
 
         m_module_engine_navmesh.Shutdown( m_moduleContext );
         m_module_engine_animation.Shutdown( m_moduleContext );
-        m_module_engine_camera.Shutdown( m_moduleContext );
-        m_module_engine_render.Shutdown( m_moduleContext );
         m_module_engine_physics.Shutdown( m_moduleContext );
+        m_module_engine_render.Shutdown( m_moduleContext );
 
         // Core module is special
 
@@ -152,10 +146,6 @@ namespace KRG
 
         m_moduleContext.m_applicationName = applicationName;
 
-        #if KRG_DEVELOPMENT_TOOLS
-        m_moduleContext.m_pDebugUI = &m_debugTools;
-        #endif
-
         //-------------------------------------------------------------------------
         // Initialize Core
         //-------------------------------------------------------------------------
@@ -171,14 +161,9 @@ namespace KRG
         m_pInputSystem = m_module_engine_core.GetInputSystem();
         m_pResourceSystem = m_module_engine_core.GetResourceSystem();
         m_pRenderDevice = m_module_engine_core.GetRenderDevice();
-        m_pRendererRegistry = m_module_engine_core.GetRendererRegistry();
         m_pImguiSystem = m_module_engine_core.GetImguiSystem();
         m_pViewportManager = m_module_engine_core.GetViewportManager();
-        m_pEntityWorld = m_module_engine_core.GetEntityWorld();
-
-        #if KRG_DEVELOPMENT_TOOLS
-        m_pDebugDrawingSystem = m_module_engine_core.GetDebugDrawingSystem();
-        #endif
+        m_pEntityWorldManager = m_module_engine_core.GetEntityWorldManager();
 
         //-------------------------------------------------------------------------
         // Register Types
@@ -198,8 +183,7 @@ namespace KRG
         m_moduleContext.m_pResourceSystem = m_pResourceSystem;
         m_moduleContext.m_pSystemRegistry = m_pSystemRegistry;
         m_moduleContext.m_pRenderDevice = m_pRenderDevice;
-        m_moduleContext.m_pRendererRegistry = m_pRendererRegistry;
-        m_moduleContext.m_pEntityWorld = m_pEntityWorld;
+        m_moduleContext.m_pEntityWorldManager = m_pEntityWorldManager;
 
         if ( !InitializeModules() )
         {
@@ -210,10 +194,6 @@ namespace KRG
         m_pNavmeshSystem = m_pSystemRegistry->GetSystem<Navmesh::NavmeshSystem>();
 
         m_updateContext.m_pSystemRegistry = m_pSystemRegistry;
-
-        #if KRG_DEVELOPMENT_TOOLS
-        m_updateContext.m_pDebugDrawingSystem = m_pDebugDrawingSystem;
-        #endif
 
         //-------------------------------------------------------------------------
         // Load engine resources
@@ -240,14 +220,15 @@ namespace KRG
 
         m_finalInitStageReached = true;
 
-        m_renderingSystem.Initialize( m_pRenderDevice, m_pViewportManager, m_pRendererRegistry );
-        m_pEntityWorld->Initialize( *m_pSystemRegistry );
+        m_pEntityWorldManager->Initialize( *m_pSystemRegistry );
+
+        m_renderingSystem.Initialize( m_pRenderDevice, m_pViewportManager, m_module_engine_render.GetRendererRegistry(), m_pEntityWorldManager );
         m_pViewportManager->UpdateMainWindowSize( Float2( windowDimensions ) );
 
         #if KRG_DEVELOPMENT_TOOLS
-        CreateDevelopmentToolset();
-        KRG_ASSERT( m_pDevelopmentToolset != nullptr );
-        m_pDevelopmentToolset->Initialize( m_updateContext, m_settingsRegistry );
+        CreateDevelopmentUI();
+        KRG_ASSERT( m_pDevelopmentUI != nullptr );
+        m_pDevelopmentUI->Initialize( m_updateContext );
         #endif
 
         // Load startup map
@@ -256,7 +237,7 @@ namespace KRG
         if ( m_startupMap.IsValid() )
         {
             auto const sceneResourceID = KRG::ResourceID( m_startupMap );
-            m_pEntityWorld->LoadMap( sceneResourceID );
+            m_pEntityWorldManager->GetPrimaryWorld()->LoadMap( sceneResourceID );
         }
 
         m_initialized = true;
@@ -279,16 +260,16 @@ namespace KRG
         if ( m_finalInitStageReached )
         {
             #if KRG_DEVELOPMENT_TOOLS
-            KRG_ASSERT( m_pDevelopmentToolset != nullptr );
-            m_pDevelopmentToolset->Shutdown( m_updateContext );
+            KRG_ASSERT( m_pDevelopmentUI != nullptr );
+            m_pDevelopmentUI->Shutdown( m_updateContext );
             DestroyDevelopmentToolset();
-            KRG_ASSERT( m_pDevelopmentToolset == nullptr );
+            KRG_ASSERT( m_pDevelopmentUI == nullptr );
             #endif
 
             // Wait for resource/object systems to complete all resource unloading
-            m_pEntityWorld->Shutdown();
+            m_pEntityWorldManager->Shutdown();
 
-            while ( m_pEntityWorld->IsBusyLoading() || m_pResourceSystem->IsBusy() )
+            while ( m_pEntityWorldManager->IsBusyLoading() || m_pResourceSystem->IsBusy() )
             {
                 m_pResourceSystem->Update();
             }
@@ -322,10 +303,6 @@ namespace KRG
 
         if ( m_moduleInitStageReached )
         {
-            #if KRG_DEVELOPMENT_TOOLS
-            m_updateContext.m_pDebugDrawingSystem = nullptr;
-            #endif
-
             m_updateContext.m_pSystemRegistry = nullptr;
 
             ShutdownModules();
@@ -336,8 +313,7 @@ namespace KRG
             m_moduleContext.m_pResourceSystem = nullptr;
             m_moduleContext.m_pSystemRegistry = nullptr;
             m_moduleContext.m_pRenderDevice = nullptr;
-            m_moduleContext.m_pRendererRegistry = nullptr;
-            m_moduleContext.m_pEntityWorld = nullptr;
+            m_moduleContext.m_pEntityWorldManager = nullptr;
         }
 
         //-------------------------------------------------------------------------
@@ -362,16 +338,11 @@ namespace KRG
         m_pInputSystem = nullptr;
         m_pResourceSystem = nullptr;
         m_pRenderDevice = nullptr;
-        m_pRendererRegistry = nullptr;
         m_pImguiSystem = nullptr;
         m_pViewportManager = nullptr;
-        m_pEntityWorld = nullptr;
+        m_pEntityWorldManager = nullptr;
 
         //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        m_moduleContext.m_pDebugUI = nullptr;
-        #endif
 
         m_initialized = false;
         return true;
@@ -423,14 +394,14 @@ namespace KRG
                 #if KRG_DEVELOPMENT_TOOLS
                 if ( m_pResourceSystem->RequiresHotReloading() )
                 {
-                    m_pEntityWorld->BeginHotReload( m_pResourceSystem->GetHotReloadRequests() );
+                    m_pEntityWorldManager->BeginHotReload( m_pResourceSystem->GetHotReloadRequests() );
                     m_pResourceSystem->ClearHotReloadRequests();
                     m_pResourceSystem->Update( true );
-                    m_pEntityWorld->EndHotReload();
+                    m_pEntityWorldManager->EndHotReload();
                 }
                 #endif
 
-                m_pEntityWorld->UpdateLoading();
+                m_pEntityWorldManager->UpdateLoading();
             }
 
             // Frame Start
@@ -445,10 +416,15 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
-                m_pDevelopmentToolset->Update( m_updateContext, *m_pViewportManager );
+                m_pDevelopmentUI->Update( m_updateContext, *m_pViewportManager );
                 #endif
 
-                m_pEntityWorld->Update( m_updateContext );
+                // HACK
+                auto pPrimaryWorld = m_pEntityWorldManager->GetPrimaryWorld();
+                auto primaryViewport = m_pViewportManager->GetPrimaryViewport();
+                pPrimaryWorld->UpdateViewportSize( primaryViewport->GetTopLeftPosition(), primaryViewport->GetDimensions() );
+
+                m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 
             // Pre-Physics
@@ -459,7 +435,7 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_pEntityWorld->Update( m_updateContext );
+                m_pEntityWorldManager->UpdateWorlds( m_updateContext );
                 m_renderingSystem.Update( m_updateContext );
             }
 
@@ -472,7 +448,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 m_pPhysicsSystem->Update( m_updateContext );
-                m_pEntityWorld->Update( m_updateContext );
+                m_pEntityWorldManager->UpdateWorlds( m_updateContext );
                 m_renderingSystem.Update( m_updateContext );
             }
 
@@ -485,7 +461,7 @@ namespace KRG
                 //-------------------------------------------------------------------------
                 
                 m_pNavmeshSystem->Update( m_updateContext );
-                m_pEntityWorld->Update( m_updateContext );
+                m_pEntityWorldManager->UpdateWorlds( m_updateContext );
                 m_renderingSystem.Update( m_updateContext );
             }
 
@@ -497,10 +473,10 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_pEntityWorld->Update( m_updateContext );
+                m_pEntityWorldManager->UpdateWorlds( m_updateContext );
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDevelopmentToolset->Update( m_updateContext, *m_pViewportManager );
+                m_pDevelopmentUI->Update( m_updateContext, *m_pViewportManager );
                 m_pImguiSystem->EndFrame();
                 #endif
 

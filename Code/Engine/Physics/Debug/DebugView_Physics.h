@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "Engine/Core/DebugTools/DebugTools.h"
+#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,23 +13,24 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_PHYSICS_API PhysicsDebugViewController : public Debug::DebugView
+    class KRG_ENGINE_PHYSICS_API PhysicsDebugView : public EntityWorldDebugView
     {
+        KRG_REGISTER_TYPE( PhysicsDebugView );
+
     public:
 
-        PhysicsDebugViewController();
-
-        void Initialize( PhysicsSystem* pPhysicSystem, PhysicsWorldSystem* pPhysicsWorldSystem );
-        void Shutdown();
+        PhysicsDebugView();
 
     private:
 
-        virtual void DrawWindows( UpdateContext const& context ) override final;
+        virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
+        virtual void Shutdown() override;
+        virtual void DrawWindows( EntityUpdateContext const& context ) override;
 
-        void DrawPhysicsMenu( UpdateContext const& context );
-        void DrawPVDMenu( UpdateContext const& context );
-        void DrawComponentsWindow( UpdateContext const& context );
-        void DrawMaterialDatabaseWindow( UpdateContext const& context );
+        void DrawPhysicsMenu( EntityUpdateContext const& context );
+        void DrawPVDMenu( EntityUpdateContext const& context );
+        void DrawComponentsWindow( EntityUpdateContext const& context );
+        void DrawMaterialDatabaseWindow( EntityUpdateContext const& context );
 
     private:
 

@@ -21,7 +21,7 @@ namespace KRG
 
         private:
 
-            EventBindingID  m_createPersistentEntitiesBinding;
+            EventBindingID  m_createDefaultEntitiesBinding;
         };
     }
 }

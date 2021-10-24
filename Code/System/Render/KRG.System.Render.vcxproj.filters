@@ -79,7 +79,6 @@
     <ClCompile Include="RenderVertexFormats.cpp" />
     <ClCompile Include="RenderViewportManager.cpp" />
     <ClCompile Include="RenderViewport.cpp" />
-    <ClCompile Include="RendererRegistry.cpp" />
     <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp" />
@@ -87,13 +86,6 @@
     <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Imgui\Platform\ImguiPlatform_Win32.cpp" />
-    <ClCompile Include="Imgui\Widgets\Gizmos\Gizmo.cpp" />
-    <ClCompile Include="Imgui\Widgets\Gizmos\OrientationGuide.cpp" />
-    <ClCompile Include="Imgui\Widgets\Gizmos\RotationGizmo.cpp" />
-    <ClCompile Include="Imgui\Widgets\Gizmos\ScaleGizmo.cpp" />
-    <ClCompile Include="Imgui\Widgets\Gizmos\TranslationGizmo.cpp" />
-    <ClCompile Include="Imgui\Widgets\InterfaceHelpers.cpp" />
-    <ClCompile Include="Imgui\Widgets\NumericEditors.cpp" />
     <ClCompile Include="Imgui\ImguiFont.cpp" />
     <ClCompile Include="Imgui\ImguiSystem.cpp" />
     <ClCompile Include="Imgui\ImguiTheme.cpp" />
@@ -149,8 +141,6 @@
     <ClInclude Include="RenderVertexFormats.h" />
     <ClInclude Include="RenderViewportManager.h" />
     <ClInclude Include="RenderViewport.h" />
-    <ClInclude Include="RendererRegistry.h" />
-    <ClInclude Include="IRenderer.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="ThirdParty\imgui\imconfig.h" />
@@ -160,13 +150,6 @@
     <ClInclude Include="ThirdParty\imgui\imstb_textedit.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_truetype.h" />
     <ClInclude Include="Imgui\Platform\ImguiPlatform_Win32.h" />
-    <ClInclude Include="Imgui\Widgets\Gizmos\Gizmo.h" />
-    <ClInclude Include="Imgui\Widgets\Gizmos\OrientationGuide.h" />
-    <ClInclude Include="Imgui\Widgets\Gizmos\RotationGizmo.h" />
-    <ClInclude Include="Imgui\Widgets\Gizmos\ScaleGizmo.h" />
-    <ClInclude Include="Imgui\Widgets\Gizmos\TranslationGizmo.h" />
-    <ClInclude Include="Imgui\Widgets\InterfaceHelpers.h" />
-    <ClInclude Include="Imgui\Widgets\NumericEditors.h" />
     <ClInclude Include="Imgui\ImguiFont.h" />
     <ClInclude Include="Imgui\ImguiSystem.h" />
     <ClInclude Include="Imgui\ImguiTheme.h" />

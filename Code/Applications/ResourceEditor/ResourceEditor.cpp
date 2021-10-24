@@ -1,8 +1,8 @@
 #include "ResourceEditor.h"
 #include "Tools/Core/Resource/ResourceEditorWorkspace.h"
+#include "Engine/Core/Imgui/OrientationGuide.h"
 #include "System/Render/RenderViewportManager.h"
 #include "System/Input/InputSystem.h"
-#include "System/Render/Imgui/Widgets/Gizmos/OrientationGuide.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ namespace KRG
         KRG_ASSERT( m_pDataBrowser == nullptr );
     }
 
-    void ResourceEditor::Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry )
+    void ResourceEditor::Initialize( UpdateContext const& context )
     {
         m_model.Initialize( context );
         m_pDataBrowser = KRG::New<DataBrowser>( m_model );

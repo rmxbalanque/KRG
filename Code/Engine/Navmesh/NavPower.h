@@ -7,7 +7,7 @@
 #include "System/Core/Debug/DebugDrawingSystem.h"
 
 #include <bfxSystem.h>
-#include <bfxPlanner.h>
+#include <bfxPlannerSpace.h>
 
 //-------------------------------------------------------------------------
 
@@ -80,34 +80,5 @@ namespace KRG::Navmesh
         virtual bool IsThreadSafe() const override final { return true; }
         virtual const char* GetName() const override { return "KRUGER"; }
     };
-
-    //-------------------------------------------------------------------------
-
-    #if KRG_DEVELOPMENT_TOOLS
-    class NavPowerRenderer final : public bfx::Renderer
-    {
-
-    public:
-
-        void SetDebugDrawingSystem( Debug::DrawingSystem* pDebugDrawingSystem );
-        void Reset();
-
-        inline bool IsDepthTestEnabled() const { return m_depthTestEnabled; }
-        inline void SetDepthTestState( bool isEnabled ) { m_depthTestEnabled = isEnabled; }
-
-    private:
-
-        virtual void DrawLineList( bfx::LineSegment const* pLines, uint32 numLines, bfx::Color const& color ) override;
-        virtual void DrawTriList( bfx::Triangle const* pTris, uint32 numTris, bfx::Color const& color ) override;
-        virtual void DrawString( bfx::Color const& color, char const* str ) override;
-        virtual void DrawString( bfx::Color const& color, bfx::Vector3 const& pos, char const* str ) override;
-
-    private:
-
-        Debug::DrawingSystem*                       m_pDebugDrawingSystem = nullptr;
-        Float2                                      m_statsPos = Float2::Zero;
-        bool                                        m_depthTestEnabled = true;
-    };
-    #endif
 }
 #endif

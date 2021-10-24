@@ -1,12 +1,10 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
-#include "Engine/Core/DebugTools/DebugTools.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Render/RenderDevice.h"
-#include "System/Render/RendererRegistry.h"
-#include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Core/Entity/EntityWorldManager.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Debug/DebugDrawing.h"
@@ -51,8 +49,8 @@ namespace KRG
         inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
         inline Render::RenderDevice const* GetRenderDevice() const { return m_pRenderDevice; }
 
-        inline EntityWorld* GetEntityWorld() { return m_pEntityWorld; }
-        inline EntityWorld const* GetEntityWorld() const { return m_pEntityWorld; }
+        inline EntityWorldManager* GetEntityWorldManager() { return m_pEntityWorldManager; }
+        inline EntityWorldManager const* GetEntityWorldManager() const { return m_pEntityWorldManager; }
 
         // ResourceLoader Registration
         //-------------------------------------------------------------------------
@@ -67,28 +65,6 @@ namespace KRG
         inline void RegisterSystem( ISystem& system ) { return m_pSystemRegistry->RegisterSystem( &system ); }
         inline void UnregisterSystem( ISystem& system ) { return m_pSystemRegistry->UnregisterSystem( &system ); }
 
-        // Entity System Registration
-        //-------------------------------------------------------------------------
-
-        inline void RegisterWorldSystem( IWorldEntitySystem* pSystem ) { m_pEntityWorld->RegisterWorldSystem( pSystem ); }
-        inline void UnregisterWorldSystem( IWorldEntitySystem* pSystem ) { m_pEntityWorld->UnregisterWorldSystem( pSystem ); }
-
-        // Renderer Registration
-        //-------------------------------------------------------------------------
-
-        inline void RegisterRenderer( Render::IRenderer* pRenderer ) { m_pRendererRegistry->RegisterRenderer( pRenderer ); }
-        inline void UnregisterRenderer( Render::IRenderer* pRenderer ) { m_pRendererRegistry->UnregisterRenderer( pRenderer ); }
-
-        // Debug UI System
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        inline Debug::DebugTools* GetDebugUI() { return m_pDebugUI; }
-        inline Debug::DebugTools const* GetDebugUI() const { return m_pDebugUI; }
-        inline void RegisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUI->RegisterDebugView( pDebugView ); }
-        inline void UnregisterDebugView( Debug::DebugView* pDebugView ) { m_pDebugUI->UnregisterDebugView( pDebugView ); }
-        #endif
-
     private:
 
         String                              m_applicationName;
@@ -97,12 +73,7 @@ namespace KRG
         TypeSystem::TypeRegistry*           m_pTypeRegistry = nullptr;
         Resource::ResourceSystem*           m_pResourceSystem = nullptr;
         SystemRegistry*                     m_pSystemRegistry = nullptr;
-        EntityWorld*                        m_pEntityWorld = nullptr;
+        EntityWorldManager*                 m_pEntityWorldManager = nullptr;
         Render::RenderDevice*               m_pRenderDevice = nullptr;
-        Render::RendererRegistry*           m_pRendererRegistry = nullptr;
-
-        #if KRG_DEVELOPMENT_TOOLS
-        Debug::DebugTools*                  m_pDebugUI = nullptr;
-        #endif
     };
 }

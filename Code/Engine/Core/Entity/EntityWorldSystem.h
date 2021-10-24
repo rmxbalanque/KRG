@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
+#include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Update/UpdateStage.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Types/UUID.h"
@@ -13,19 +14,21 @@
 namespace KRG
 {
     class SystemRegistry;
-    class UpdateContext;
+    class EntityUpdateContext;
     class Entity;
     class EntityComponent;
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_CORE_API IWorldEntitySystem
+    class KRG_ENGINE_CORE_API IWorldEntitySystem : public IRegisteredType
     {
+        KRG_REGISTER_TYPE( IWorldEntitySystem );
+
         friend class EntityWorld;
 
     public:
 
-        virtual uint32 GetEntitySystemID() const = 0;
+        virtual uint32 GetSystemID() const = 0;
 
     protected:
 
@@ -33,13 +36,13 @@ namespace KRG
         virtual UpdatePriorityList const& GetRequiredUpdatePriorities() = 0;
 
         // Called when the system is registered with the world - using explicit "EntitySystem" name to allow for a standalone initialize function
-        virtual void InitializeEntitySystem( SystemRegistry const& systemRegistry ) {};
+        virtual void InitializeSystem( SystemRegistry const& systemRegistry ) {};
 
         // Called when the system is removed from the world - using explicit "EntitySystem" name to allow for a standalone shutdown function
-        virtual void ShutdownEntitySystem() {};
+        virtual void ShutdownSystem() {};
 
         // System Update - using explicit "EntitySystem" name to allow for a standalone update functions
-        virtual void UpdateEntitySystem( UpdateContext const& ctx ) {};
+        virtual void UpdateSystem( EntityUpdateContext const& ctx ) {};
 
         // Called whenever a new component is activated (i.e. added to the world)
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) = 0;
@@ -52,8 +55,8 @@ namespace KRG
 //-------------------------------------------------------------------------
 
 #define KRG_ENTITY_WORLD_SYSTEM( Type, ... )\
-    constexpr static uint32 const EntitySystemID = Hash::FNV1a::GetHash32( #Type );\
-    virtual uint32 GetEntitySystemID() const override final { return Type::EntitySystemID; }\
+    constexpr static uint32 const s_entitySystemID = Hash::FNV1a::GetHash32( #Type );\
+    virtual uint32 GetSystemID() const override final { return Type::s_entitySystemID; }\
     static UpdatePriorityList const PriorityList;\
     virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { static UpdatePriorityList const priorityList = UpdatePriorityList( __VA_ARGS__ ); return priorityList; };\
 

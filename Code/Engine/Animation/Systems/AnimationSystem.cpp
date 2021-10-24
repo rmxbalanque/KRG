@@ -1,8 +1,8 @@
 #include "AnimationSystem.h"
 #include "Engine/Animation/Components/AnimationComponent.h"
 #include "Engine/Animation/AnimationPose.h"
+#include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
-#include "System/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    void AnimationSystem::Update( UpdateContext const& ctx )
+    void AnimationSystem::Update( EntityUpdateContext const& ctx )
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
 

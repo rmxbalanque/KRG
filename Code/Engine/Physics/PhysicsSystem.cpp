@@ -95,36 +95,16 @@ namespace KRG::Physics
         m_pPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *m_pFoundation, tolerancesScale, true, m_pPVD );
         m_pCooking = PxCreateCooking( PX_PHYSICS_VERSION, *m_pFoundation, PxCookingParams( tolerancesScale ) );
 
-        // Create PhysX scene
-        //-------------------------------------------------------------------------
-
-        KRG_ASSERT( m_pScene == nullptr );
-        PxSceneDesc sceneDesc( tolerancesScale );
-        sceneDesc.gravity = ToPx( Constants::s_gravity );
-        sceneDesc.cpuDispatcher = m_pDispatcher;
-        sceneDesc.filterShader = SimulationFilter::Shader;
-        m_pScene = m_pPhysics->createScene( sceneDesc );
-
         // Create shared resources
         //-------------------------------------------------------------------------
 
         CreateSharedMeshes();
-
-        // Debug
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        auto pPvdClient = m_pScene->getScenePvdClient();
-        pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true );
-        pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONTACTS, true );
-        pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true );
-        SetDebugFlags( 1 << PxVisualizationParameter::eCOLLISION_SHAPES );
-        #endif
     }
 
     void PhysicsSystem::Shutdown()
     {
         KRG_ASSERT( m_pFoundation != nullptr && m_pPhysics != nullptr && m_pDispatcher != nullptr );
+        KRG_ASSERT( m_scenes.empty() );
 
         #if KRG_DEVELOPMENT_TOOLS
         if ( m_pPVD->isConnected() )
@@ -136,14 +116,6 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
 
         DestroySharedMeshes();
-
-        //-------------------------------------------------------------------------
-
-        if ( m_pScene != nullptr )
-        {
-            m_pScene->release();
-            m_pScene = nullptr;
-        }
 
         //-------------------------------------------------------------------------
 
@@ -164,18 +136,54 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
+    physx::PxScene* PhysicsSystem::CreateScene()
+    {
+        PxTolerancesScale tolerancesScale;
+        tolerancesScale.length = Constants::s_lengthScale;
+        tolerancesScale.speed = Constants::s_speedScale;
+
+        PxSceneDesc sceneDesc( tolerancesScale );
+        sceneDesc.gravity = ToPx( Constants::s_gravity );
+        sceneDesc.cpuDispatcher = m_pDispatcher;
+        sceneDesc.filterShader = SimulationFilter::Shader;
+        auto pScene = m_pPhysics->createScene( sceneDesc );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        auto pPvdClient = pScene->getScenePvdClient();
+        pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true );
+        pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONTACTS, true );
+        pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true );
+        #endif
+
+        m_scenes.emplace_back( pScene );
+        return pScene;
+    }
+
+    void PhysicsSystem::DestroyScene( physx::PxScene*& pScene )
+    {
+        KRG_ASSERT( pScene != nullptr );
+
+        // Remove from scene list
+        auto foundIter = eastl::find( m_scenes.begin(), m_scenes.end(), pScene );
+        KRG_ASSERT( foundIter != m_scenes.end() );
+        m_scenes.erase( foundIter );
+
+        // Destroy scene
+        pScene->release();
+        pScene = nullptr;
+    }
+
+    //-------------------------------------------------------------------------
+
     void PhysicsSystem::CreateSharedMeshes()
     {
         KRG_ASSERT( m_pCooking != nullptr );
-        Threading::ScopeLock lock( m_systemLock );
-
         KRG_ASSERT( SharedMeshes::s_pUnitCylinderMesh == nullptr );
         SharedMeshes::s_pUnitCylinderMesh = CreateSharedCylinderMesh( m_pPhysics, m_pCooking, 30 );
     }
 
     void PhysicsSystem::DestroySharedMeshes()
     {
-        Threading::ScopeLock lock( m_systemLock );
         SharedMeshes::s_pUnitCylinderMesh->release();
         SharedMeshes::s_pUnitCylinderMesh = nullptr;
     }
@@ -184,254 +192,43 @@ namespace KRG::Physics
 
     void PhysicsSystem::Update( UpdateContext& ctx )
     {
+        for ( auto pScene : m_scenes )
         {
-            KRG_PROFILE_SCOPE_PHYSICS( "Simulate" );
-            m_pScene->simulate( ctx.GetDeltaTime() );
-        }
+            {
+                KRG_PROFILE_SCOPE_PHYSICS( "Simulate" );
+                pScene->simulate( ctx.GetDeltaTime() );
+            }
 
-        {
-            KRG_PROFILE_SCOPE_PHYSICS( "Fetch Results" );
-            m_pScene->fetchResults( true );
+            {
+                KRG_PROFILE_SCOPE_PHYSICS( "Fetch Results" );
+                pScene->fetchResults( true );
+            }
         }
 
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        UpdatePVD( ctx.GetDeltaTime() );
+        if ( m_recordingTimeLeft >= 0 )
+        {
+            if ( m_pPVD->isConnected() )
+            {
+                m_recordingTimeLeft -= ctx.GetDeltaTime();
+                if ( m_recordingTimeLeft < 0 )
+                {
+                    m_pPVD->disconnect();
+                    m_recordingTimeLeft = -1.0f;
+                }
+            }
+            else
+            {
+                m_recordingTimeLeft = -1.0f;
+            }
+        }
         #endif
     }
-}
-
-//-------------------------------------------------------------------------
-// Physical Materials
-//-------------------------------------------------------------------------
-
-namespace KRG::Physics
-{
-    void PhysicsSystem::FillMaterialDatabase( TVector<PhysicsMaterialSettings> const& materials )
-    {
-        ScopeLock const lock( this, ScopeLock::Type::Write );
-
-        // Create default physics material
-        StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
-        auto pxMaterial = m_pPhysics->createMaterial( PhysicsMaterial::DefaultStaticFriction, PhysicsMaterial::DefaultDynamicFriction, PhysicsMaterial::DefaultRestitution );
-        m_materials.insert( TPair<StringID, PhysicsMaterial>( defaultMaterialID, PhysicsMaterial( defaultMaterialID, pxMaterial ) ) );
-
-        // Create physX material
-        for ( auto const& materialSettings : materials )
-        {
-            pxMaterial = m_pPhysics->createMaterial( materialSettings.m_staticFriction, materialSettings.m_dynamicFriction, materialSettings.m_restitution );
-            pxMaterial->setFrictionCombineMode( (PxCombineMode::Enum) materialSettings.m_frictionCombineMode );
-            pxMaterial->setRestitutionCombineMode( (PxCombineMode::Enum) materialSettings.m_restitutionCombineMode );
-
-            m_materials.insert( TPair<StringID, PhysicsMaterial>( materialSettings.m_ID, PhysicsMaterial( materialSettings.m_ID, pxMaterial ) ) );
-        }
-    }
-
-    void PhysicsSystem::ClearMaterialDatabase()
-    {
-        ScopeLock const lock( this, ScopeLock::Type::Write );
-
-        for ( auto& materialPair : m_materials )
-        {
-            materialPair.second.m_pMaterial->release();
-            materialPair.second.m_pMaterial = nullptr;
-        }
-
-        m_materials.clear();
-    }
-
-    PxMaterial* PhysicsSystem::GetMaterial( StringID materialID ) const
-    {
-        KRG_ASSERT( materialID.IsValid() );
-
-        auto foundMaterialPairIter = m_materials.find( materialID );
-        if ( foundMaterialPairIter != m_materials.end() )
-        {
-            return foundMaterialPairIter->second.m_pMaterial;
-        }
-
-        KRG_LOG_WARNING( "Physics", "Failed to find physic material with ID: %s", materialID.c_str() );
-        return nullptr;
-    }
-}
-
-//-------------------------------------------------------------------------
-// Queries
-//-------------------------------------------------------------------------
-
-namespace KRG::Physics
-{
-    bool PhysicsSystem::RayCast( Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, PxRaycastCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-
-        bool const result = m_pScene->raycast( ToPx( start ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, rules, &m_queryFilter );
-        return result;
-    }
-
-    bool PhysicsSystem::RayCast( Vector const& start, Vector const& end, QueryRules const& rules, PxRaycastCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return RayCast( start, dir, length.m_x, rules, outResults );
-    }
 
     //-------------------------------------------------------------------------
 
-    bool PhysicsSystem::SphereCast( float radius, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-
-        PxSphereGeometry const sphereGeo( radius );
-        bool const result = m_pScene->sweep( sphereGeo, PxTransform( ToPx( start ) ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, rules, &m_queryFilter );
-        return result;
-    }
-
-    bool PhysicsSystem::SphereCast( float radius, Vector const& start, Vector const& end, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return SphereCast( radius, start, dir, length.m_x, rules, outResults );
-    }
-
-    bool PhysicsSystem::SphereOverlap( float radius, Vector const& position, QueryRules const& rules, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        PxSphereGeometry const sphereGeo( radius );
-        QueryRules overlapRules = rules;
-        overlapRules.flags |= PxQueryFlag::eNO_BLOCK;
-        bool const result = m_pScene->overlap( sphereGeo, PxTransform( ToPx( position ) ), outResults, overlapRules, &m_queryFilter );
-        return result;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsSystem::CapsuleCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-
-        PxCapsuleGeometry const capsuleGeo( radius, halfHeight );
-        bool const result = m_pScene->sweep( capsuleGeo, PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, rules, &m_queryFilter );
-        return result;
-    }
-
-    bool PhysicsSystem::CapsuleCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return CapsuleCast( halfHeight, radius, orientation, start, dir, length.m_x, rules, outResults );
-    }
-
-    bool PhysicsSystem::CapsuleOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, PxMeshScale( PxVec3( radius, radius, halfHeight ) ) );
-        bool result = m_pScene->overlap( cylinderGeo, PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, rules, &m_queryFilter );
-        return result;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsSystem::CylinderCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-        KRG_ASSERT( SharedMeshes::s_pUnitCylinderMesh != nullptr );
-
-        PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, PxMeshScale( PxVec3( radius, radius, halfHeight ) ) );
-        bool const result = m_pScene->sweep( cylinderGeo, PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, rules, &m_queryFilter );
-        return result;
-    }
-
-    bool PhysicsSystem::CylinderCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return CylinderCast( halfHeight, radius, orientation, start, dir, length.m_x, rules, outResults );
-    }
-
-    bool PhysicsSystem::CylinderOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        PxCapsuleGeometry const capsuleGeo( radius, halfHeight );
-        bool const result = m_pScene->overlap( capsuleGeo, PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, rules, &m_queryFilter );
-        return result;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsSystem::BoxCast( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-
-        PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
-        bool const result = m_pScene->sweep( boxGeo, PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, rules, &m_queryFilter );
-        return result;
-    }
-
-    bool PhysicsSystem::BoxCast( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return BoxCast( halfExtents, position, orientation, start, dir, length.m_x, rules, outResults );
-    }
-
-    bool PhysicsSystem::BoxOverlap( Vector halfExtents, Vector const& position, Quaternion const& orientation, QueryRules const& rules, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
-        bool const result = m_pScene->overlap( boxGeo, PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, rules, &m_queryFilter );
-        return result;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsSystem::ShapeCast( physx::PxShape* pShape, Transform const& startTransform, Vector const& unitDirection, float distance, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-        bool const result = m_pScene->sweep( pShape->getGeometry().any(), ToPx( startTransform ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, rules, &m_queryFilter );
-        return result;
-    }
-
-    bool PhysicsSystem::ShapeCast( physx::PxShape* pShape, Transform const& startTransform, Vector const& desiredEndPosition, QueryRules const& rules, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        Vector dir, length;
-        ( desiredEndPosition - startTransform.GetTranslation() ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return ShapeCast( pShape, startTransform, dir, length.m_x, rules, outResults );
-    }
-
-    bool PhysicsSystem::ShapeOverlap( physx::PxShape* pShape, Transform const& transform, QueryRules const& rules, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        bool const result = m_pScene->overlap( pShape->getGeometry().any(), ToPx( transform ), outResults, rules, &m_queryFilter );
-        return result;
-    }
-}
-
-//------------------------------------------------------------------------- 
-// Debug
-//-------------------------------------------------------------------------
-
-namespace KRG::Physics
-{
     #if KRG_DEVELOPMENT_TOOLS
     bool PhysicsSystem::IsConnectedToPVD()
     {
@@ -457,63 +254,55 @@ namespace KRG::Physics
             m_pPVD->disconnect();
         }
     }
+    #endif
+}
 
-    void PhysicsSystem::UpdatePVD( Seconds TimeDelta )
+//-------------------------------------------------------------------------
+// Physical Materials
+//-------------------------------------------------------------------------
+
+namespace KRG::Physics
+{
+    void PhysicsSystem::FillMaterialDatabase( TVector<PhysicsMaterialSettings> const& materials )
     {
-        if ( m_recordingTimeLeft >= 0 )
+        // Create default physics material
+        StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
+        auto pxMaterial = m_pPhysics->createMaterial( PhysicsMaterial::DefaultStaticFriction, PhysicsMaterial::DefaultDynamicFriction, PhysicsMaterial::DefaultRestitution );
+        m_materials.insert( TPair<StringID, PhysicsMaterial>( defaultMaterialID, PhysicsMaterial( defaultMaterialID, pxMaterial ) ) );
+
+        // Create physX material
+        for ( auto const& materialSettings : materials )
         {
-            if ( m_pPVD->isConnected() )
-            {
-                m_recordingTimeLeft -= TimeDelta;
-                if ( m_recordingTimeLeft < 0 )
-                {
-                    m_pPVD->disconnect();
-                    m_recordingTimeLeft = -1.0f;
-                }
-            }
-            else
-            {
-                m_recordingTimeLeft = -1.0f;
-            }
+            pxMaterial = m_pPhysics->createMaterial( materialSettings.m_staticFriction, materialSettings.m_dynamicFriction, materialSettings.m_restitution );
+            pxMaterial->setFrictionCombineMode( (PxCombineMode::Enum) materialSettings.m_frictionCombineMode );
+            pxMaterial->setRestitutionCombineMode( (PxCombineMode::Enum) materialSettings.m_restitutionCombineMode );
+
+            m_materials.insert( TPair<StringID, PhysicsMaterial>( materialSettings.m_ID, PhysicsMaterial( materialSettings.m_ID, pxMaterial ) ) );
         }
     }
 
-    bool PhysicsSystem::IsDebugDrawingEnabled() const
+    void PhysicsSystem::ClearMaterialDatabase()
     {
-        return m_sceneDebugFlags && ( 1 << physx::PxVisualizationParameter::eSCALE ) != 0;
-    }
-
-    void PhysicsSystem::SetDebugFlags( uint32 debugFlags )
-    {
-        KRG_ASSERT( m_pScene != nullptr );
-        m_sceneDebugFlags = debugFlags;
-
-        //-------------------------------------------------------------------------
-
-        auto SetVisualizationParameter = [this] ( PxVisualizationParameter::Enum flag, float onValue, float offValue )
+        for ( auto& materialPair : m_materials )
         {
-            bool const isFlagSet = ( m_sceneDebugFlags & ( 1 << flag ) ) != 0;
-            m_pScene->setVisualizationParameter( flag, isFlagSet ? onValue : offValue );
-        };
+            materialPair.second.m_pMaterial->release();
+            materialPair.second.m_pMaterial = nullptr;
+        }
 
-        AcquireWriteLock();
-        SetVisualizationParameter( PxVisualizationParameter::eSCALE, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_AABBS, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_AXES, 0.25f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_FNORMALS, 0.15f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_EDGES, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eCONTACT_POINT, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eCONTACT_NORMAL, 0.25f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eCONTACT_FORCE, 0.25f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eACTOR_AXES, 0.25f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eBODY_AXES, 0.25f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eBODY_LIN_VELOCITY, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eBODY_ANG_VELOCITY, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eBODY_MASS_AXES, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eJOINT_LIMITS, 1.0f, 0.0f );
-        SetVisualizationParameter( PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f, 0.0f );
-        ReleaseWriteLock();
+        m_materials.clear();
     }
-    #endif
+
+    PxMaterial* PhysicsSystem::GetMaterial( StringID materialID ) const
+    {
+        KRG_ASSERT( materialID.IsValid() );
+
+        auto foundMaterialPairIter = m_materials.find( materialID );
+        if ( foundMaterialPairIter != m_materials.end() )
+        {
+            return foundMaterialPairIter->second.m_pMaterial;
+        }
+
+        KRG_LOG_WARNING( "Physics", "Failed to find physic material with ID: %s", materialID.c_str() );
+        return nullptr;
+    }
 }

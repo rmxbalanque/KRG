@@ -1,5 +1,6 @@
 #include "DebugView_Resource.h"
 #include "System/Resource/ResourceSystem.h"
+#include "System/Core/Systems/SystemRegistry.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
@@ -7,12 +8,22 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Resource
 {
-    ResourceDebugViewController::ResourceDebugViewController()
+    ResourceDebugView::ResourceDebugView()
     {
-        m_menuCallbacks.emplace_back( Debug::DebugMenuCallback( "Resource", "Resource", [this] ( UpdateContext const& context ) { DrawResourceMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Resource", "Resource", [this] ( EntityUpdateContext const& context ) { DrawResourceMenu( context ); } ) );
     }
 
-    void ResourceDebugViewController::DrawWindows( UpdateContext const& context )
+    void ResourceDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
+    {
+        m_pResourceSystem = systemRegistry.GetSystem<ResourceSystem>();
+    }
+
+    void ResourceDebugView::Shutdown()
+    {
+        m_pResourceSystem = nullptr;
+    }
+
+    void ResourceDebugView::DrawWindows( EntityUpdateContext const& context )
     {
         if ( m_isHistoryWindowOpen )
         {
@@ -25,9 +36,7 @@ namespace KRG::Resource
         }
     }
 
-    //-------------------------------------------------------------------------
-
-    void ResourceDebugViewController::DrawResourceMenu( UpdateContext const& context )
+    void ResourceDebugView::DrawResourceMenu( EntityUpdateContext const& context )
     {
         if ( ImGui::Button( "Show Request History" ) )
         {
@@ -40,7 +49,7 @@ namespace KRG::Resource
         }
     }
 
-    void ResourceDebugViewController::DrawHistoryWindow( UpdateContext const& context )
+    void ResourceDebugView::DrawHistoryWindow( EntityUpdateContext const& context )
     {
         KRG_ASSERT( m_isHistoryWindowOpen );
 
@@ -106,7 +115,7 @@ namespace KRG::Resource
         ImGui::End();
     }
 
-    void ResourceDebugViewController::DrawReferenceTrackerWindow( UpdateContext const& context )
+    void ResourceDebugView::DrawReferenceTrackerWindow( EntityUpdateContext const& context )
     {
         KRG_ASSERT( m_isReferenceTrackerWindowOpen );
 

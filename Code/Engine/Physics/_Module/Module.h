@@ -2,10 +2,8 @@
 
 #include "API.h"
 #include "Engine/Physics/PhysicsSystem.h"
-#include "Engine/Physics/PhysicsWorldSystem.h"
 #include "Engine/Physics/PhysicsMaterialDatabase.h"
-#include "Engine/Physics/Debug/DebugView_Physics.h"
-#include "Engine/Physics/Debug/PhysxDebugRenderer.h"
+#include "Engine/Physics/Debug/PhysicsDebugRenderer.h"
 #include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsMaterialDatabase.h"
 #include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsMesh.h"
 #include "Engine/Core/Modules/IEngineModule.h"
@@ -32,12 +30,10 @@ namespace KRG::Physics
         PhysicsSystem                               m_physicsSystem;
         PhysicsMeshLoader                           m_physicsMeshLoader;
         PhysicsMaterialDatabaseLoader               m_physicsMaterialLoader;
-        PhysicsWorldSystem*                         m_pPhysicsWorldSystem = nullptr;
         TResourcePtr<PhysicsMaterialDatabase>       m_pPhysicMaterialDB;
 
         #if KRG_DEVELOPMENT_TOOLS
         PhysicsRenderer                             m_physicsRenderer;
-        PhysicsDebugViewController                  m_physicsDebugViewController;
         #endif
     };
 }

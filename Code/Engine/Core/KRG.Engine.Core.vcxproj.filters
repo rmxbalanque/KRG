@@ -45,7 +45,7 @@
     <ClCompile Include="Entity\Map\EntityMapDescriptor.cpp">
       <Filter>Entity\Map</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\DebugViews\DebugView_EntityWorld.cpp">
+    <ClCompile Include="DebugViews\DebugView_EntityWorld.cpp">
       <Filter>Entity\DebugViews</Filter>
     </ClCompile>
     <ClCompile Include="Entity\Collections\EntityCollection.cpp">
@@ -54,7 +54,7 @@
     <ClCompile Include="Entity\Collections\EntityCollectionDescriptor.cpp">
       <Filter>Entity\Collections</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\ResourceLoaders\ResourceLoader_EntityMap.cpp">
+    <ClCompile Include="ResourceLoaders\ResourceLoader_EntityMap.cpp">
       <Filter>Entity\ResourceLoaders</Filter>
     </ClCompile>
     <ClCompile Include="Entity\Entity.cpp">
@@ -87,7 +87,7 @@
     <ClCompile Include="_Module\Module.cpp">
       <Filter>_Module</Filter>
     </ClCompile>
-    <ClCompile Include="DebugTools\DebugTools.cpp">
+    <ClCompile Include="Entity\Debug\EntityWorldDebugger.cpp">
       <Filter>DebugTools</Filter>
     </ClCompile>
     <ClCompile Include="DebugViews\DebugView_Input.cpp">
@@ -99,7 +99,13 @@
     <ClCompile Include="DebugViews\DebugView_Resource.cpp">
       <Filter>DebugViews</Filter>
     </ClCompile>
-    <ClCompile Include="DevelopmentToolset.cpp" />
+    <ClCompile Include="DevelopmentUI.cpp" />
+    <ClCompile Include="Entity\EntityUpdateContext.cpp" />
+    <ClCompile Include="Entity\EntityWorldManager.cpp" />
+    <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
+    <ClCompile Include="Camera\CameraComponent.cpp" />
+    <ClCompile Include="Camera\CameraWorldSystem.cpp" />
+    <ClCompile Include="Imgui\OrientationGuide.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Easing.h">
@@ -111,7 +117,7 @@
     <ClInclude Include="Entity\Map\EntityMapDescriptor.h">
       <Filter>Entity\Map</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\DebugViews\DebugView_EntityWorld.h">
+    <ClInclude Include="DebugViews\DebugView_EntityWorld.h">
       <Filter>Entity\DebugViews</Filter>
     </ClInclude>
     <ClInclude Include="Entity\Collections\EntityCollection.h">
@@ -120,7 +126,7 @@
     <ClInclude Include="Entity\Collections\EntityCollectionDescriptor.h">
       <Filter>Entity\Collections</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\ResourceLoaders\ResourceLoader_EntityMap.h">
+    <ClInclude Include="ResourceLoaders\ResourceLoader_EntityMap.h">
       <Filter>Entity\ResourceLoaders</Filter>
     </ClInclude>
     <ClInclude Include="Entity\Entity.h">
@@ -156,10 +162,10 @@
     <ClInclude Include="_Module\Module.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="DebugTools\DebugView.h">
+    <ClInclude Include="Entity\Debug\EntityWorldDebugView.h">
       <Filter>DebugTools</Filter>
     </ClInclude>
-    <ClInclude Include="DebugTools\DebugTools.h">
+    <ClInclude Include="Entity\Debug\EntityWorldDebugger.h">
       <Filter>DebugTools</Filter>
     </ClInclude>
     <ClInclude Include="DebugViews\DebugView_Input.h">
@@ -171,6 +177,14 @@
     <ClInclude Include="DebugViews\DebugView_Resource.h">
       <Filter>DebugViews</Filter>
     </ClInclude>
-    <ClInclude Include="DevelopmentToolset.h" />
+    <ClInclude Include="DevelopmentUI.h" />
+    <ClInclude Include="Entity\EntityUpdateContext.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity\EntityWorldManager.h" />
+    <ClInclude Include="DebugViews\DebugView_Camera.h" />
+    <ClInclude Include="Camera\CameraComponent.h" />
+    <ClInclude Include="Camera\CameraWorldSystem.h" />
+    <ClInclude Include="Imgui\OrientationGuide.h" />
   </ItemGroup>
 </Project>

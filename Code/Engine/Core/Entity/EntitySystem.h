@@ -10,7 +10,7 @@
 namespace KRG
 {
     class SystemRegistry;
-    class UpdateContext;
+    class EntityUpdateContext;
     class EntityComponent;
 
     //-------------------------------------------------------------------------
@@ -36,7 +36,7 @@ namespace KRG
         virtual void UnregisterComponent( EntityComponent* pComponent ) = 0;
 
         // System Update
-        virtual void Update( UpdateContext const& ctx ) = 0;
+        virtual void Update( EntityUpdateContext const& ctx ) = 0;
     };
 }
 

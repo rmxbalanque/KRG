@@ -70,7 +70,7 @@ namespace KRG::EntityModel
 
                 // Generate navmesh
                 FileSystem::Path navmeshFilePath = ctx.m_outputFilePath;
-                navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
+                navmeshFilePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
 
                 Navmesh::NavmeshBuilder navmeshBuilder;
                 if ( !navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshFilePath ) )

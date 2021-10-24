@@ -2,6 +2,7 @@
 
 #include "RenderingSystem.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
+#include "Engine/Core/DevelopmentUI.h"
 #include "Engine/Physics/PhysicsSettings.h"
 #include "System/Render/RenderSettings.h"
 #include "System/Resource/ResourceSettings.h"
@@ -11,7 +12,6 @@
 #include "Engine/Core/_Module/Module.h"
 #include "Engine/Physics/_Module/Module.h"
 #include "Engine/Render/_Module/Module.h"
-#include "Engine/Camera/_Module/Module.h"
 #include "Engine/Animation/_Module/Module.h"
 #include "Engine/Navmesh/_Module/Module.h"
 #include "Game/Core/_Module/Module.h"
@@ -48,8 +48,8 @@ namespace KRG
         virtual void UnregisterTypes();
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void CreateDevelopmentToolset() { m_pDevelopmentToolset = &m_debugTools; }
-        virtual void DestroyDevelopmentToolset() { m_pDevelopmentToolset = nullptr; }
+        virtual void CreateDevelopmentUI() = 0;
+        void DestroyDevelopmentToolset() { KRG::Delete( m_pDevelopmentUI ); }
         #endif
 
         //-------------------------------------------------------------------------
@@ -80,7 +80,6 @@ namespace KRG
         EngineCore::EngineModule                        m_module_engine_core;
         Physics::EngineModule                           m_module_engine_physics;
         Render::EngineModule                            m_module_engine_render;
-        Camera::EngineModule                            m_module_engine_camera;
         Animation::EngineModule                         m_module_engine_animation;
         Navmesh::EngineModule                           m_module_engine_navmesh;
         Game::GameModule                                m_module_game_core;
@@ -100,24 +99,21 @@ namespace KRG
         Resource::ResourceSystem*                       m_pResourceSystem = nullptr;
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
         Render::ViewportManager*                        m_pViewportManager = nullptr;
-        Render::RendererRegistry*                       m_pRendererRegistry = nullptr;
         Render::RenderingSystem                         m_renderingSystem;
-        EntityWorld*                                    m_pEntityWorld = nullptr;
+        EntityWorldManager*                             m_pEntityWorldManager = nullptr;
         ImGuiX::ImguiSystem*                            m_pImguiSystem = nullptr;
         Input::InputSystem*                             m_pInputSystem = nullptr;
         Navmesh::NavmeshSystem*                         m_pNavmeshSystem = nullptr;
         Physics::PhysicsSystem*                         m_pPhysicsSystem = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DebugTools                               m_debugTools;
-        ImGuiX::DevelopmentToolset*                     m_pDevelopmentToolset = nullptr;
-        Debug::DrawingSystem*                           m_pDebugDrawingSystem = nullptr;
+        ImGuiX::DevelopmentUI*                          m_pDevelopmentUI = nullptr;
         #endif
 
         // Application data
         //-------------------------------------------------------------------------
 
-        ResourcePath                                        m_startupMap;
+        ResourcePath                                    m_startupMap;
         bool                                            m_moduleInitStageReached = false;
         bool                                            m_moduleResourcesInitStageReached = false;
         bool                                            m_finalInitStageReached = false;

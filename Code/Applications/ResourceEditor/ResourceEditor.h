@@ -2,14 +2,14 @@
 
 #include "ResourceEditor_Model.h"
 #include "ResourceEditor_DataBrowser.h"
-#include "Engine/Core/DevelopmentToolset.h"
+#include "Engine/Core/DevelopmentUI.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    class ResourceEditor final : public ImGuiX::DevelopmentToolset
+    class ResourceEditor final : public ImGuiX::DevelopmentUI
     {
         struct ModalPopupMessage
         {
@@ -30,11 +30,8 @@ namespace KRG
 
         ~ResourceEditor();
 
-        // Init/shutdown
-        void Initialize( UpdateContext const& context, SettingsRegistry const& settingsRegistry ) override;
+        void Initialize( UpdateContext const& context ) override;
         void Shutdown( UpdateContext const& context ) override;
-
-        // Main updates
         virtual void Update( UpdateContext const& context, Render::ViewportManager& viewportManager ) override final;
 
     private:

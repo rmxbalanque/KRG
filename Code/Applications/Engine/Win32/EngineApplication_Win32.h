@@ -4,11 +4,27 @@
 #include <windows.h>
 #include "Win32/Application_Win32.h"
 #include "Applications/EngineShared/Engine.h"
+#include "Applications/Engine/StandaloneEngineTools.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
+    class StandaloneEngine final : public Engine
+    {
+        friend class ResourceEditorApplication;
+
+    public:
+
+        using Engine::Engine;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        virtual void CreateDevelopmentUI() { m_pDevelopmentUI = KRG::New<StandaloneEngineTools>(); }
+        #endif
+    };
+
+    //-------------------------------------------------------------------------
+
     class EngineApplication : public Win32Application
     {
 
@@ -28,7 +44,7 @@ namespace KRG
 
     private:
 
-        Engine                          m_engine;
+        StandaloneEngine            m_engine;
     };
 }
 

@@ -14,7 +14,7 @@ namespace KRG
     {
         class KRG_SYSTEM_INPUT_API InputSystem : public ISystem
         {
-            friend class InputDebugViewController;
+            friend class InputDebugView;
 
         public:
 

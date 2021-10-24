@@ -1,5 +1,8 @@
 #include "DebugView_Navmesh.h"
 #include "Engine/Navmesh/NavmeshSystem.h"
+#include "Engine/Navmesh/NavmeshWorldSystem.h"
+#include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
@@ -7,25 +10,26 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Navmesh
 {
-    NavmeshDebugViewController::NavmeshDebugViewController()
+    NavmeshDebugView::NavmeshDebugView()
     {
-        auto drawDebugMenu = [this] ( UpdateContext const& context )
-        {
-            DrawDebugMenu( context );
-        };
-
-        m_menuCallbacks.emplace_back( Debug::DebugMenuCallback( "Debug Options", "Navmesh", drawDebugMenu ) );
+        m_menus.emplace_back( DebugMenu( "Debug Options", "Navmesh", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
     }
 
-    void NavmeshDebugViewController::Initialize()
-    {}
+    void NavmeshDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
+    {
+        m_pNavmeshSystem = systemRegistry.GetSystem<NavmeshSystem>();
+        m_pNavmeshWorldSystem = pWorld->GetWorldSystem<NavmeshWorldSystem>();
+    }
 
-    void NavmeshDebugViewController::Shutdown()
-    {}
+    void NavmeshDebugView::Shutdown()
+    {
+        m_pNavmeshSystem = nullptr;
+        m_pNavmeshWorldSystem = nullptr;
+    }
 
     //-------------------------------------------------------------------------
 
-    void NavmeshDebugViewController::DrawDebugMenu( UpdateContext const& context )
+    void NavmeshDebugView::DrawMenu( EntityUpdateContext const& context )
     {
         #if KRG_ENABLE_NAVPOWER
         auto CreateCheckboxForFlag = [] ( char const* pLabel, bfx::PlannerDebugFlag flag )
@@ -83,19 +87,18 @@ namespace KRG::Navmesh
 
         if ( ImGui::BeginMenu( "Drawing Options" ) )
         {
-            auto pNavmeshSystem = context.GetSystem<NavmeshSystem>();
-            bool isDepthTestEnabled = pNavmeshSystem->m_debugRenderer.IsDepthTestEnabled();
+            /*bool isDepthTestEnabled = m_pNavmeshWorldSystem->IsDepthTestEnabled();
             if ( ImGui::Checkbox( "Enable Depth Test", &isDepthTestEnabled ) )
             {
-                pNavmeshSystem->m_debugRenderer.SetDepthTestState( isDepthTestEnabled );
-            }
+                m_pNavmeshWorldSystem->SetDepthTestState( isDepthTestEnabled );
+            }*/
 
             ImGui::EndMenu();
         }
         #endif
     }
 
-    void NavmeshDebugViewController::DrawWindows( UpdateContext const& context )
+    void NavmeshDebugView::DrawWindows( EntityUpdateContext const& context )
     {}
 }
 #endif

@@ -2,6 +2,7 @@
 #include "Tools/Core/Resource/ResourceEditorWorkspace.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Core/Entity/EntityWorldManager.h"
 #include "System/Resource/ResourceSettings.h"
 #include "System/Core/Settings/SettingsRegistry.h"
 #include "System/Core/Update/UpdateContext.h"
@@ -31,7 +32,7 @@ namespace KRG
         m_editorContext.m_pResourceSystem = context.GetSystem<Resource::ResourceSystem>();
         KRG_ASSERT( m_editorContext.m_pResourceSystem != nullptr );
 
-        m_editorContext.m_pPreviewWorld = context.GetSystem<EntityWorld>();
+        m_editorContext.m_pPreviewWorld = context.GetSystem<EntityWorldManager>()->GetPrimaryWorld();
         KRG_ASSERT( m_editorContext.m_pPreviewWorld != nullptr );
     }
 

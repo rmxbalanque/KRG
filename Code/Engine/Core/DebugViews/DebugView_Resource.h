@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/DebugTools/DebugView.h"
+#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,22 +11,23 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    class ResourceDebugViewController : public Debug::DebugView
+    class ResourceDebugView : public EntityWorldDebugView
     {
+        KRG_REGISTER_TYPE( ResourceDebugView );
+
     public:
 
-        ResourceDebugViewController();
-
-        inline void Initialize( ResourceSystem* pResourceSystem ) { KRG_ASSERT( pResourceSystem != nullptr ); m_pResourceSystem = pResourceSystem; }
-        inline void Shutdown() { m_pResourceSystem = nullptr; }
+        ResourceDebugView();
 
     private:
 
-        virtual void DrawWindows( UpdateContext const& context ) override final;
+        virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
+        virtual void Shutdown() override;
+        virtual void DrawWindows( EntityUpdateContext const& context ) override;
 
-        void DrawResourceMenu( UpdateContext const& context );
-        void DrawHistoryWindow( UpdateContext const& context );
-        void DrawReferenceTrackerWindow( UpdateContext const& context );
+        void DrawResourceMenu( EntityUpdateContext const& context );
+        void DrawHistoryWindow( EntityUpdateContext const& context );
+        void DrawReferenceTrackerWindow( EntityUpdateContext const& context );
 
     private:
 

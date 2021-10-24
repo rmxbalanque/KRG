@@ -1,6 +1,6 @@
 #pragma once
 
-#include "System/Render/RendererRegistry.h"
+#include "Engine/Render/RendererRegistry.h"
 
 //-------------------------------------------------------------------------
 // KRG Renderer System
@@ -10,6 +10,7 @@
 namespace KRG
 {
     class UpdateContext;
+    class EntityWorldManager;
 
     //-------------------------------------------------------------------------
 
@@ -17,7 +18,8 @@ namespace KRG
     {
         class RenderDevice;
         class ViewportManager;
-        class MeshRenderer;
+        class WorldRenderer;
+        class DebugRenderer;
         class ImguiRenderer;
 
         //-------------------------------------------------------------------------
@@ -27,7 +29,7 @@ namespace KRG
 
         public:
 
-            void Initialize( RenderDevice* pRenderDevice, ViewportManager* pViewportManager, RendererRegistry* pRegistry );
+            void Initialize( RenderDevice* pRenderDevice, ViewportManager* pViewportManager, RendererRegistry* pRegistry, EntityWorldManager* pWorldManager );
             void Shutdown();
 
             void Update( UpdateContext const& ctx );
@@ -37,10 +39,13 @@ namespace KRG
             RenderDevice*                                   m_pRenderDevice = nullptr;
 
             ViewportManager*                                m_pViewportManager = nullptr;
-            MeshRenderer*                                   m_pMeshRenderer = nullptr;
+            EntityWorldManager*                             m_pWorldManager = nullptr;
+
+            WorldRenderer*                                  m_pWorldRenderer = nullptr;
             TVector<IRenderer*>                             m_customRenderers;
 
             #if KRG_DEVELOPMENT_TOOLS
+            DebugRenderer*                                  m_pDebugRenderer = nullptr;
             ImguiRenderer*                                  m_pImguiRenderer = nullptr;
             #endif
         };

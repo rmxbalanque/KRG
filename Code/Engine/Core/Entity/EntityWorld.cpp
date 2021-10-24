@@ -1,11 +1,9 @@
 #include "EntityWorld.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "EntityUpdateContext.h"
+#include "Debug/EntityWorldDebugView.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Settings/DebugSettings.h"
-#include "EASTL/bonus/adaptors.h"
-#include "System/Core/Time/Timers.h"
-#include "System/Core/Types/Pool.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,7 +20,6 @@ namespace KRG
 
     EntityWorld::~EntityWorld()
     {
-        KRG_ASSERT( !m_createPersistentEntitiesEvent.HasBoundUsers() );
         KRG_ASSERT( m_maps.empty());
         KRG_ASSERT( m_worldSystems.empty() );
         KRG_ASSERT( m_entityUpdateList.empty() );
@@ -31,9 +28,13 @@ namespace KRG
         {
             KRG_ASSERT( m_systemUpdateLists[i].empty() );
         }
+
+        #if KRG_DEVELOPMENT_TOOLS
+        KRG_ASSERT( m_debugViews.empty() );
+        #endif
     }
 
-    void EntityWorld::Initialize( SystemRegistry const& systemsRegistry )
+    void EntityWorld::Initialize( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> worldSystemTypeInfos )
     {
         m_pTaskSystem = systemsRegistry.GetSystem<TaskSystem>();
         KRG_ASSERT( m_pTaskSystem != nullptr );
@@ -41,19 +42,42 @@ namespace KRG
         m_loadingContext = EntityModel::LoadingContext( m_pTaskSystem, systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
         KRG_ASSERT( m_loadingContext.IsValid() );
 
+        // Create World Systems
         //-------------------------------------------------------------------------
 
-        // Initialize all world systems
-        for ( auto pSystem : m_worldSystems )
+        for ( auto pTypeInfo : worldSystemTypeInfos )
         {
-            pSystem->InitializeEntitySystem( systemsRegistry );
+            // Create and initialize world system
+            auto pWorldSystem = Cast<IWorldEntitySystem>( pTypeInfo->m_pTypeHelper->CreateType() );
+            pWorldSystem->InitializeSystem( systemsRegistry );
+            m_worldSystems.push_back( pWorldSystem );
+
+            // Add to update lists
+            for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
+            {
+                if ( pWorldSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) i ) )
+                {
+                    m_systemUpdateLists[i].push_back( pWorldSystem );
+                }
+
+                // Sort update list
+                auto comparator = [i] ( IWorldEntitySystem* const& pSystemA, IWorldEntitySystem* const& pSystemB )
+                {
+                    uint8 const A = pSystemA->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
+                    uint8 const B = pSystemB->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
+                    return A > B;
+                };
+
+                eastl::sort( m_systemUpdateLists[i].begin(), m_systemUpdateLists[i].end(), comparator );
+            }
         }
 
         // Create and activate the persistent map
+        //-------------------------------------------------------------------------
+
         m_maps.emplace_back( EntityModel::EntityMap() );
         m_maps[0].Load( m_loadingContext );
         m_maps[0].Activate( m_loadingContext, m_activationContext );
-        m_createPersistentEntitiesEvent.Execute( &m_maps[0] );
 
         //-------------------------------------------------------------------------
 
@@ -81,15 +105,78 @@ namespace KRG
         // Shutdown all world systems
         //-------------------------------------------------------------------------
 
-        for( auto pSystem : m_worldSystems )
+        for( auto pWorldSystem : m_worldSystems )
         {
-            pSystem->ShutdownEntitySystem();
+            // Remove from update lists
+            for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
+            {
+                if ( pWorldSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) i ) )
+                {
+                    auto updateIter = VectorFind( m_systemUpdateLists[i], pWorldSystem );
+                    KRG_ASSERT( updateIter != m_systemUpdateLists[i].end() );
+                    m_systemUpdateLists[i].erase( updateIter );
+                }
+            }
+
+            // Shutdown and destroy world system
+            pWorldSystem->ShutdownSystem();
+            KRG::Delete( pWorldSystem );
         }
+
+        m_worldSystems.clear();
 
         //-------------------------------------------------------------------------
 
         m_pTaskSystem = nullptr;
         m_initialized = false;
+    }
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void EntityWorld::InitializeDebugViews( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> debugViewTypeInfos )
+    {
+        for ( auto pTypeInfo : debugViewTypeInfos )
+        {
+            auto pDebugView = Cast<EntityWorldDebugView>( pTypeInfo->m_pTypeHelper->CreateType() );
+            pDebugView->Initialize( systemsRegistry, this );
+            m_debugViews.push_back( pDebugView );
+        }
+    }
+
+    void EntityWorld::ShutdownDebugViews()
+    {
+        for ( auto pDebugView : m_debugViews )
+        {
+            // Shutdown and destroy world system
+            pDebugView->Shutdown();
+            KRG::Delete( pDebugView );
+        }
+
+        m_debugViews.clear();
+    }
+    #endif
+
+    //-------------------------------------------------------------------------
+    // Misc
+    //-------------------------------------------------------------------------
+
+    IWorldEntitySystem* EntityWorld::GetWorldSystem( uint32 worldSystemID ) const
+    {
+        for ( IWorldEntitySystem* pWorldSystem : m_worldSystems )
+        {
+            if ( pWorldSystem->GetSystemID() == worldSystemID )
+            {
+                return pWorldSystem;
+            }
+        }
+
+        KRG_UNREACHABLE_CODE();
+        return nullptr;
+    }
+
+    void EntityWorld::UpdateViewportSize( Int2 const& topLeft, Int2 const& dimensions )
+    {
+        KRG_ASSERT( Threading::IsMainThread() );
+        m_viewport.Resize( topLeft, dimensions );
     }
 
     //-------------------------------------------------------------------------
@@ -98,9 +185,11 @@ namespace KRG
 
     void EntityWorld::Update( UpdateContext const& context )
     {
+        KRG_ASSERT( Threading::IsMainThread() );
+
         struct EntityUpdateTask : public IAsyncTask
         {
-            EntityUpdateTask( UpdateContext const& context, TVector<Entity*>& updateList )
+            EntityUpdateTask( EntityUpdateContext const& context, TVector<Entity*>& updateList )
                 : m_context( context )
                 , m_updateList( updateList )
             {
@@ -147,95 +236,40 @@ namespace KRG
 
         private:
 
-            UpdateContext const&                    m_context;
+            EntityUpdateContext const&              m_context;
             TVector<Entity*>&                       m_updateList;
         };
 
         //-------------------------------------------------------------------------
 
-        int8 const updateStageIdx = (int8) context.GetUpdateStage();
+        EntityUpdateContext entityUpdateContext( context, this );
+        UpdateStage const updateStage =  entityUpdateContext.GetUpdateStage();
+
+        // Clear debug drawing
+        //-------------------------------------------------------------------------
+
+        if ( updateStage == UpdateStage::FrameStart )
+        {
+            #if KRG_DEVELOPMENT_TOOLS
+            m_debugDrawingSystem.Reset();
+            #endif
+        }
 
         // Update entities
         //-------------------------------------------------------------------------
 
-        EntityUpdateTask entityUpdateTask( context, m_entityUpdateList );
+        EntityUpdateTask entityUpdateTask( entityUpdateContext, m_entityUpdateList );
         m_pTaskSystem->ScheduleTask( &entityUpdateTask );
         m_pTaskSystem->WaitForTask( &entityUpdateTask );
 
         // Update systems
         //-------------------------------------------------------------------------
 
-        for ( auto pSystem : m_systemUpdateLists[updateStageIdx] )
+        for ( auto pSystem : m_systemUpdateLists[(int8) updateStage] )
         {
             KRG_PROFILE_SCOPE_SCENE( "Update World Systems" );
-            KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) updateStageIdx ) );
-            pSystem->UpdateEntitySystem( context );
-        }
-    }
-
-    //-------------------------------------------------------------------------
-    // Systems
-    //-------------------------------------------------------------------------
-
-    void EntityWorld::RegisterWorldSystem( IWorldEntitySystem* pSystem )
-    {
-        KRG_ASSERT( pSystem != nullptr && m_initialized == false );
-
-        // Add system
-        //-------------------------------------------------------------------------
-
-        // Ensure that we only allow a single system of a specific type - world systems are essentially singletons
-        for ( auto pExistingSystem : m_worldSystems )
-        {
-            if ( pExistingSystem->GetEntitySystemID() == pSystem->GetEntitySystemID() )
-            {
-                KRG_HALT();
-            }
-        }
-        
-        m_worldSystems.push_back( pSystem );
-
-        // Add to update lists
-        //-------------------------------------------------------------------------
-
-        for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
-        {
-            if ( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) i ) )
-            {
-                m_systemUpdateLists[i].push_back( pSystem );
-            }
-
-            // Sort update list
-            auto comparator = [i] ( IWorldEntitySystem* const& pSystemA, IWorldEntitySystem* const& pSystemB )
-            {
-                uint8 const A = pSystemA->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
-                uint8 const B = pSystemB->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
-                return A > B;
-            };
-
-            eastl::sort( m_systemUpdateLists[i].begin(), m_systemUpdateLists[i].end(), comparator );
-        }
-    }
-
-    void EntityWorld::UnregisterWorldSystem( IWorldEntitySystem* pSystem )
-    {
-        KRG_ASSERT( pSystem != nullptr && m_initialized == false );
-        auto iter = VectorFind( m_worldSystems, pSystem );
-        KRG_ASSERT( iter != m_worldSystems.end() );
-
-        m_worldSystems.erase_unsorted( iter );
-
-        // Remove from update lists
-        //-------------------------------------------------------------------------
-
-        for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
-        {
-            if ( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( (UpdateStage) i ) )
-            {
-                auto updateIter = VectorFind( m_systemUpdateLists[i], pSystem );
-                KRG_ASSERT( updateIter != m_systemUpdateLists[i].end() );
-                m_systemUpdateLists[i].erase( updateIter );
-            }
+            KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( updateStage ) );
+            pSystem->UpdateSystem( entityUpdateContext );
         }
     }
 
@@ -455,6 +489,8 @@ namespace KRG
         }
     }
 
+    //-------------------------------------------------------------------------
+    // Hot Reload
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS

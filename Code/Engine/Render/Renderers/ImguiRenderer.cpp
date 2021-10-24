@@ -256,7 +256,7 @@ namespace KRG::Render
         m_initialized = false;
     }
 
-    void ImguiRenderer::Render( Render::Viewport const& viewport )
+    void ImguiRenderer::RenderViewport( Render::Viewport const& viewport )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();

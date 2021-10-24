@@ -23,10 +23,6 @@ namespace KRG
         inline UpdateStage GetUpdateStage() const { return m_stage; }
         template<typename T> inline T* GetSystem() const { return m_pSystemRegistry->GetSystem<T>(); }
 
-        #if KRG_DEVELOPMENT_TOOLS
-        inline Debug::DrawingContext GetDrawingContext() const { return m_pDebugDrawingSystem->GetDrawingContext(); }
-        #endif
-
     protected:
 
         // Set the time scale for this update ( only positive values under 100 allowed )
@@ -42,9 +38,5 @@ namespace KRG
         uint64                                      m_frameID = 0;
         UpdateStage                                 m_stage = UpdateStage::FrameStart;
         SystemRegistry*                             m_pSystemRegistry = nullptr;
-
-        #if KRG_DEVELOPMENT_TOOLS
-        Debug::DrawingSystem*                       m_pDebugDrawingSystem = nullptr;
-        #endif
     };
 }

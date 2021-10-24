@@ -1,7 +1,7 @@
 #include "DefaultPlayerController.h"
-#include "Engine/Camera/Components/CameraComponent.h"
+#include "Engine/Core/Camera/CameraComponent.h"
+#include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Input/InputSystem.h"
-#include "System/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ namespace KRG
             }
         }
 
-        if ( auto pCameraComponent = ComponentCast<Camera::CameraComponent>( pComponent ) )
+        if ( auto pCameraComponent = ComponentCast<CameraComponent>( pComponent ) )
         {
             m_pCameraComponent = pCameraComponent;
         }
@@ -52,7 +52,7 @@ namespace KRG
             }
         }
 
-        if ( auto pCameraComponent = ComponentCast<Camera::CameraComponent>( pComponent ) )
+        if ( auto pCameraComponent = ComponentCast<CameraComponent>( pComponent ) )
         {
             if ( m_pCameraComponent == pCameraComponent )
             {
@@ -61,7 +61,7 @@ namespace KRG
         }
     }
 
-    void DefaultPlayerController::Update( UpdateContext const& ctx )
+    void DefaultPlayerController::Update( EntityUpdateContext const& ctx )
     {
         if ( m_pCameraComponent == nullptr || m_pRootComponent == nullptr )
         {

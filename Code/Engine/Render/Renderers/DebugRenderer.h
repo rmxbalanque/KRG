@@ -1,10 +1,9 @@
 #pragma once
 
 #include "DebugRenderStates.h"
+#include "Engine/Render/IRenderer.h"
 #include "System/Render/RenderDevice.h"
 #include "System/Core/Debug/DebugDrawing.h"
-#include "System/Core/Debug/DebugDrawingSystem.h"
-#include "System/Render/IRenderer.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,14 +12,16 @@ namespace KRG::Render
 {
     class KRG_ENGINE_RENDER_API DebugRenderer final : public IRenderer
     {
+    public:
+
         KRG_RENDERER_ID( DebugRenderer, RendererPriorityLevel::Debug );
 
     public:
 
         bool IsInitialized() const { return m_initialized; }
-        bool Initialize( RenderDevice* pRenderDevice, Debug::DrawingSystem* pDrawingSystem );
+        bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
-        void Render( Viewport const& viewport ) override final;
+        void RenderWorld( EntityWorld* pWorld ) override final;
 
     private:
 
@@ -38,7 +39,6 @@ namespace KRG::Render
         DebugPrimitiveRenderState                   m_primitiveRS;
         DebugTextRenderState                        m_textRS;
 
-        Debug::DrawingSystem*                       m_pDebugDrawingSystem = nullptr;
         Debug::Drawing::FrameCommandBuffer          m_drawCommands;
         bool                                        m_initialized = false;
 

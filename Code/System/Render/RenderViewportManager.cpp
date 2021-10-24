@@ -78,7 +78,7 @@ namespace KRG::Render
         for ( auto& pViewport : m_viewports )
         {
             Float2 const viewportPosition = pViewport->GetTopLeftPosition();
-            Float2 const viewportSize = pViewport->GetSize();
+            Float2 const viewportSize = pViewport->GetDimensions();
             Float2 const newViewportPosition = ( viewportPosition / oldWindowDimensions ) * newWindowDimensions;
             Float2 const newViewportSize = ( viewportSize / oldWindowDimensions ) * newWindowDimensions;
             pViewport->Resize( newViewportPosition, newViewportSize );

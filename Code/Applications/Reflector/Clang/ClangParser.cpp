@@ -52,6 +52,12 @@ namespace KRG
                     String const shortPath = Platform::Win32::GetShortPath( fullPath );
                     fullIncludePaths.push_back( "-I" + shortPath );
                     clangArgs.push_back( fullIncludePaths.back().c_str() );
+
+                    if ( !FileSystem::Exists( fullPath ) )
+                    {
+                        m_context.LogError( "Invalid include path: %s", fullPath.c_str() );
+                        return false;
+                    }
                 }
 
                 clangArgs.push_back( "-x" );
@@ -63,6 +69,8 @@ namespace KRG
                 clangArgs.push_back( "-Wno-unknown-warning-option" );
                 clangArgs.push_back( "-Wno-return-type-c-linkage" );
                 clangArgs.push_back( "-Wno-gnu-folding-constant" );
+
+                //-------------------------------------------------------------------------
 
                 // Set up clang
                 auto idx = clang_createIndex( 0, 1 );
@@ -76,6 +84,7 @@ namespace KRG
                     result = clang_parseTranslationUnit2( idx, reflectorHeader.c_str(), clangArgs.data(), clangArgs.size(), 0, 0, clangOptions, &tu );
                 }
 
+                // Handle result of parse
                 if ( result == CXError_Success )
                 {
                     ScopedSystemTimer timer( m_totalVisitingTime );
@@ -83,19 +92,38 @@ namespace KRG
                     auto cursor = clang_getTranslationUnitCursor( tu );
                     clang_visitChildren( cursor, VisitTranslationUnit, &m_context );
                 }
+                else
+                {
+                    switch ( result )
+                    {
+                        case CXError_Failure:
+                        m_context.LogError( "Clang Unknown failure" );
+                        break;
+
+                        case CXError_Crashed:
+                        m_context.LogError( "Clang crashed" );
+                        break;
+
+                        case CXError_InvalidArguments:
+                        m_context.LogError( "Clang Invalid arguments" );
+                        break;
+
+                        case CXError_ASTReadError:
+                        m_context.LogError( "Clang AST read error" );
+                        break;
+                    }
+                }
                 clang_disposeIndex( idx );
 
-                // Check for error
-                if ( result != CXError_Success || m_context.ErrorOccured() )
-                {
-                    if ( m_context.ErrorOccured() )
-                    {
-                        m_context.LogError( "%s --> %s", reflectorHeader.c_str(), m_context.GetErrorMessage() );
-                    }
-                    return false;
-                }
+                //-------------------------------------------------------------------------
 
-                return true;
+                // If we have an error from the parser, prepend the header to it
+                if ( m_context.ErrorOccured() )
+                {
+                    m_context.LogError( "%s --> %s", reflectorHeader.c_str(), m_context.GetErrorMessage() );
+                }
+                
+                return !m_context.ErrorOccured();
             }
         }
     }

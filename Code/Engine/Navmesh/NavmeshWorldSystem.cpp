@@ -7,7 +7,7 @@
 
 namespace KRG::Navmesh
 {
-    void NavmeshWorldSystem::ShutdownEntitySystem()
+    void NavmeshWorldSystem::ShutdownSystem()
     {
         KRG_ASSERT( m_registeredNavmeshes.empty() );
     }
