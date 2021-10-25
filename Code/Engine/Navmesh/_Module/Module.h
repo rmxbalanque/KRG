@@ -25,7 +25,7 @@ namespace KRG::Navmesh
         NavmeshSystem               m_navmeshSystem;
         NavmeshLoader               m_navmeshLoader;
 
-        #if KRG_DEVELOPMENT_TOOLS
+        #if KRG_DEVELOPMENT_TOOLS && KRG_ENABLE_NAVPOWER
         NavmeshDebugRenderer        m_navmeshRenderer;
         #endif
 
