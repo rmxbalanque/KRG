@@ -12,7 +12,72 @@ namespace KRG
 {
     namespace StatusBar
     {
-        static float const g_height = 16.0f;
+        constexpr static float const g_height = 19.0f;
+    }
+
+    static void DrawDebugSetting( DebugSetting* pDebugSetting )
+    {
+        KRG_ASSERT( pDebugSetting != nullptr );
+
+        //-------------------------------------------------------------------------
+
+        switch ( pDebugSetting->GetType() )
+        {
+            case DebugSetting::Type::Bool:
+            {
+                auto pSetting = static_cast<DebugSettingBool*>( pDebugSetting );
+                bool value = *pSetting;
+                if ( ImGui::Checkbox( pDebugSetting->GetName(), &value ) )
+                {
+                    *pSetting = value;
+                }
+            }
+            break;
+
+            case DebugSetting::Type::Int:
+            {
+                auto pSetting = static_cast<DebugSettingInt*>( pDebugSetting );
+                int32 value = *pSetting;
+
+                if ( pSetting->HasLimits() )
+                {
+                    if ( ImGui::SliderInt( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
+                    {
+                        *pSetting = value;
+                    }
+                }
+                else
+                {
+                    if ( ImGui::InputInt( pDebugSetting->GetName(), &value ) )
+                    {
+                        *pSetting = value;
+                    }
+                }
+            }
+            break;
+
+            case DebugSetting::Type::Float:
+            {
+                auto pSetting = static_cast<DebugSettingFloat*>( pDebugSetting );
+                float value = *pSetting;
+
+                if ( pSetting->HasLimits() )
+                {
+                    if ( ImGui::SliderFloat( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
+                    {
+                        *pSetting = value;
+                    }
+                }
+                else
+                {
+                    if ( ImGui::InputFloat( pDebugSetting->GetName(), &value, 0.1f, 1.0f ) )
+                    {
+                        *pSetting = value;
+                    }
+                }
+            }
+            break;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -21,6 +86,7 @@ namespace KRG
     {
         m_pWorldManager = context.GetSystem<EntityWorldManager>();
         m_pWorldDebugger = KRG::New<EntityWorldDebugger>( m_pWorldManager->GetPrimaryWorld() );
+        m_logFilter.resize( 255 );
     }
 
     void StandaloneEngineTools::Shutdown( UpdateContext const& context )
@@ -65,13 +131,13 @@ namespace KRG
             {
                 if ( m_debugOverlayEnabled )
                 {
-                    DrawOverlayMenu( context );
-                    DrawOverlayStatusBar( context );
+                    DrawMenu( context );
+                    DrawStatusBar( context );
                     ImGuiX::OrientationGuide::DrawAsStandaloneWindow( *viewportSystem.GetPrimaryViewport(), ImVec2( 3.0f, 4.0f + StatusBar::g_height ) );
                 }
 
                 // The debug windows should be always be drawn if enabled
-                DrawDebugWindows( context );
+                DrawWindows( context );
 
                 // The pop-ups should be always be drawn if enabled
                 DrawPopups( context );
@@ -175,53 +241,240 @@ namespace KRG
         }
     }
 
-    void StandaloneEngineTools::DrawOverlayMenu( UpdateContext const& context )
+    void StandaloneEngineTools::DrawMenu( UpdateContext const& context )
     {
         if ( ImGui::BeginMainMenuBar() )
         {
-            ImGui::TextColored( ImGuiX::Theme::s_itemColorLight, KRG_ICON_BUG );
+            // Draw Debug Menu
+            //-------------------------------------------------------------------------
+
+            ImGui::TextColored( ImGuiX::ConvertColor( Colors::LimeGreen ), KRG_ICON_BUG );
             m_pWorldDebugger->DrawMenu( context );
+
+            // Draw Performance Stats
+            //-------------------------------------------------------------------------
+
+            ImGuiViewport const* viewport = ImGui::GetMainViewport();
+            ImGui::SameLine( viewport->WorkSize.x - 155 );
+
+            float const currentFPS = 1.0f / context.GetDeltaTime();
+            float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
+            ImGui::Text( "FPS: %3.0f  Mem: %.2fMB", currentFPS, allocatedMemory );
+
             ImGui::EndMainMenuBar();
         }
     }
 
-    void StandaloneEngineTools::DrawDebugWindows( UpdateContext const& context )
+    void StandaloneEngineTools::DrawWindows( UpdateContext const& context )
     {
         m_pWorldDebugger->DrawWindows( context );
+
+        //-------------------------------------------------------------------------
+
+        if ( m_isLogWindowOpen )
+        {
+            DrawLogWindow( context );
+        }
+
+        if ( m_isDebugSettingsWindowOpen )
+        {
+            DrawDebugSettingsWindow( context );
+        }
     }
 
-    void StandaloneEngineTools::DrawOverlayStatusBar( UpdateContext const& context )
+    void StandaloneEngineTools::DrawStatusBar( UpdateContext const& context )
     {
         bool showAlways = true;
         uint32 flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
 
         ImGuiIO& io = ImGui::GetIO();
         ImGui::SetNextWindowPos( ImVec2( 0, io.DisplaySize.y - StatusBar::g_height ) );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 1.0f ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 2.0f ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 4.0f, 1.0f ) );
 
         ImGui::SetNextWindowBgAlpha( 0.75f );
         ImGui::SetNextWindowSize( ImVec2( io.DisplaySize.x, StatusBar::g_height ) );
         if ( ImGui::Begin( "Stats", &showAlways, flags ) )
         {
-            float const currentFPS = 1.0f / context.GetDeltaTime();
-            float const avgFPS = 1.0f / m_avgTimeDelta;
-            float const requestedMemory = Memory::GetTotalRequestedMemory() / 1024.0f / 1024.0f;
-            float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
-            Seconds const currentEngineTime = EngineClock::GetTimeInSeconds();
+            InlineString<100> tempStr;
 
-            ImGui::Text( "Current FPS: %4.0f, Avg FPS: %4.0f", currentFPS, avgFPS );
-            ImGui::SameLine();
-            ImGui::TextColored( ( Colors::Cyan ).ToFloat4(), "|" );
-            ImGui::SameLine();
-            ImGui::Text( "Engine Time: %.3f", currentEngineTime.ToFloat() );
-            ImGui::SameLine();
-            ImGui::TextColored( ( Colors::Cyan ).ToFloat4(), "|" );
-            ImGui::SameLine();
-            ImGui::Text( "Memory: %.2fMB Requested (%.2fMB Allocated)", requestedMemory, allocatedMemory );
+            if ( ImGui::Button( KRG_ICON_SLIDERS" Debug Settings" ) )
+            {
+                m_isDebugSettingsWindowOpen = true;
+            }
 
-            ImGui::End();
+            ImGuiX::VerticalSeparator();
+
+            tempStr.sprintf( KRG_ICON_QUESTION_CIRCLE" %d", Log::GetNumWarnings() );
+            if ( ImGui::Button( tempStr.c_str() ) )
+            {
+                m_isLogWindowOpen = true;
+                m_showLogMessages = false;
+                m_showLogWarnings = true;
+                m_showLogErrors = false;
+            }
+            
+            ImGuiX::VerticalSeparator();
+
+            tempStr.sprintf( KRG_ICON_EXCLAMATION_CIRCLE" %d", Log::GetNumErrors() );
+            if ( ImGui::Button( tempStr.c_str() ) )
+            {
+                m_isLogWindowOpen = true;
+                m_showLogMessages = false;
+                m_showLogWarnings = false;
+                m_showLogErrors = true;
+            }
         }
-        ImGui::PopStyleVar();
+        ImGui::End();
+        ImGui::PopStyleVar( 2 );
+    }
+
+    void StandaloneEngineTools::DrawLogWindow( UpdateContext const& context )
+    {
+        ImGui::SetNextWindowBgAlpha( 0.75f );
+        if ( ImGui::Begin( "System Log", &m_isLogWindowOpen ) )
+        {
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text( "Filter:" );
+            ImGui::SameLine();
+            ImGui::BeginDisabled();
+            if ( ImGui::InputText( "##Filter", m_logFilter.data(), 255 ) )
+            {
+                // TODO
+            }
+            ImGui::EndDisabled();
+
+            //-------------------------------------------------------------------------
+
+            ImGui::SameLine();
+            ImGui::Checkbox( "Messages", &m_showLogMessages );
+            ImGui::SameLine();
+            ImGui::Checkbox( "Warnings", &m_showLogWarnings );
+            ImGui::SameLine();
+            ImGui::Checkbox( "Errors", &m_showLogErrors );
+
+            //-------------------------------------------------------------------------
+
+            if ( ImGui::BeginTable( "System Log Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
+            {
+                ImGui::TableSetupColumn( "Time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 55 );
+                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 55 );
+                ImGui::TableSetupColumn( "Channel", ImGuiTableColumnFlags_WidthFixed, 60 );
+                ImGui::TableSetupColumn( "Message", ImGuiTableColumnFlags_WidthStretch );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableHeadersRow();
+
+                //-------------------------------------------------------------------------
+
+                auto const& logEntries = Log::GetLogEntries();
+                for ( auto const& entry : logEntries )
+                {
+                    switch ( entry.m_severity )
+                    {
+                        case Log::Severity::Warning:
+                        if ( !m_showLogWarnings )
+                        {
+                            continue;
+                        }
+                        break;
+
+                        case Log::Severity::Error:
+                        if ( !m_showLogErrors )
+                        {
+                            continue;
+                        }
+                        break;
+
+                        case Log::Severity::Message:
+                        if ( !m_showLogMessages )
+                        {
+                            continue;
+                        }
+                        break;
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableNextRow();
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 0 );
+                    ImGui::Text( entry.m_timestamp.c_str() );
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 1 );
+                    switch ( entry.m_severity )
+                    {
+                        case Log::Severity::Warning:
+                        ImGui::TextColored( Colors::Yellow.ToFloat4(), "Warning" );
+                        break;
+
+                        case Log::Severity::Error:
+                        ImGui::TextColored( Colors::Red.ToFloat4(), "Error" );
+                        break;
+
+                        case Log::Severity::Message:
+                        ImGui::Text( "Message" );
+                        break;
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 2 );
+                    ImGui::Text( entry.m_channel.c_str() );
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 3 );
+                    ImGui::Text( entry.m_message.c_str() );
+                }
+
+                ImGui::EndTable();
+            }
+        }
+        ImGui::End();
+    }
+
+    void StandaloneEngineTools::DrawDebugSettingsWindow( UpdateContext const& context )
+    {
+        auto pSettingsRegistry = context.GetSystem<SettingsRegistry>();
+        auto const& debugSettings = pSettingsRegistry->GetAllDebugSettings();
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextWindowBgAlpha( 0.75f );
+        if ( ImGui::Begin( "Debug Settings", &m_isLogWindowOpen ) )
+        {
+            if ( ImGui::BeginTable( "Settings Table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
+            {
+                ImGui::TableSetupColumn( "Channel", ImGuiTableColumnFlags_WidthFixed, 200 );
+                ImGui::TableSetupColumn( "Setting", ImGuiTableColumnFlags_WidthStretch );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableHeadersRow();
+
+                //-------------------------------------------------------------------------
+
+                for ( auto const& settingPair : debugSettings )
+                {
+                    ImGui::TableNextRow();
+
+                    ImGui::TableSetColumnIndex( 0 );
+                    ImGui::Text( settingPair.second->GetCategory() );
+
+                    ImGui::TableSetColumnIndex( 1 );
+                    DrawDebugSetting( settingPair.second );
+                }
+
+                ImGui::EndTable();
+            }
+        }
+        ImGui::End();
     }
 }
 #endif

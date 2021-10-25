@@ -17,10 +17,12 @@ namespace KRG::Log
             TVector<LogEntry>               m_logEntries;
             TVector<LogEntry>               m_unhandledWarningsAndErrors;
             Threading::Mutex                m_mutex;
-            int32                             m_fatalErrorIndex = InvalidIndex;
+            int32                           m_fatalErrorIndex = InvalidIndex;
+            int32                           m_numWarnings = 0;
+            int32                           m_numErrors = 0;
         };
 
-        static LogData* g_pLog = nullptr;
+        static LogData*                     g_pLog = nullptr;
     }
 
     //-------------------------------------------------------------------------
@@ -104,8 +106,10 @@ namespace KRG::Log
             // Track unhandled warnings and errors
             //-------------------------------------------------------------------------
 
-            if ( entry.m_severity > Log::Severity::Message )
+            if ( entry.m_severity > Severity::Message )
             {
+                g_pLog->m_numWarnings += ( entry.m_severity == Severity::Warning ) ? 1 : 0;
+                g_pLog->m_numErrors += ( entry.m_severity == Severity::Error ) ? 1 : 0;
                 g_pLog->m_unhandledWarningsAndErrors.emplace_back( entry );
             }
         }
@@ -157,5 +161,17 @@ namespace KRG::Log
         TVector<Log::LogEntry> outEntries = g_pLog->m_unhandledWarningsAndErrors;
         g_pLog->m_unhandledWarningsAndErrors.clear();
         return outEntries;
+    }
+
+    int32 GetNumWarnings()
+    {
+        KRG_ASSERT( IsInitialized() );
+        return g_pLog->m_numWarnings;
+    }
+
+    int32 GetNumErrors()
+    {
+        KRG_ASSERT( IsInitialized() );
+        return g_pLog->m_numErrors;
     }
 }

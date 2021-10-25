@@ -36,9 +36,12 @@ namespace KRG
     private:
 
         void DrawPopups( UpdateContext const& context );
-        void DrawOverlayMenu( UpdateContext const& context );
-        void DrawDebugWindows( UpdateContext const& context );
-        void DrawOverlayStatusBar( UpdateContext const& context );
+        void DrawMenu( UpdateContext const& context );
+        void DrawWindows( UpdateContext const& context );
+        void DrawStatusBar( UpdateContext const& context );
+
+        void DrawLogWindow( UpdateContext const& context );
+        void DrawDebugSettingsWindow( UpdateContext const& context );
 
     protected:
 
@@ -48,6 +51,14 @@ namespace KRG
         TVector<ModalPopupMessage>                          m_modalPopups;
         Seconds                                             m_avgTimeDelta = 0.0f;
         bool                                                m_debugOverlayEnabled = false;
+
+        bool                                                m_isLogWindowOpen = false;
+        InlineString<255>                                   m_logFilter;
+        bool                                                m_showLogMessages = true;
+        bool                                                m_showLogWarnings = true;
+        bool                                                m_showLogErrors = true;
+
+        bool                                                m_isDebugSettingsWindowOpen = false;
     };
 }
 #endif

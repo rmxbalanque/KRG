@@ -63,94 +63,35 @@ namespace KRG
         ImGui::SetNextWindowBgAlpha( 0.75f );
         if ( ImGui::Begin( "Map Loader", &m_isMapLoaderOpen ) )
         {
-            ResourceID const BRMinimal( "data://maps/BR_Minimal.map" );
-            ResourceID const BRFull( "data://maps/BR_full.map" );
-            ResourceID const ECS( "data://maps/ecs_testmap.map" );
-            ResourceID const Tiny( "data://maps/tiny.map" );
-            ResourceID const PhysicsTest( "data://maps/PhysicsTestMap.map" );
+            InlineString<100> tempStr;
+
+            TPair<String, ResourceID> maps[] =
+            {
+                TPair<String, ResourceID>( "BR Minimal", ResourceID( "data://maps/BR_Minimal.map" ) ),
+                TPair<String, ResourceID>( "BR Full", ResourceID( "data://maps/BR_Full.map" ) ),
+                TPair<String, ResourceID>( "Anim Minimal", ResourceID( "data://maps/AnimTest_Minimal.map" ) ),
+                TPair<String, ResourceID>( "Anim Full", ResourceID( "data://maps/AnimTest_Full.map" ) ),
+            };
 
             //-------------------------------------------------------------------------
 
-            if ( m_pWorld->IsMapLoaded( BRMinimal ) )
+            for ( auto i = 0; i < 4; i++ )
             {
-                if ( ImGui::Button( "Unload BR Minimal map" ) )
+                if ( m_pWorld->IsMapLoaded( maps[i].second ) )
                 {
-                    m_pWorld->UnloadMap( BRMinimal );
+                    tempStr.sprintf( "Unload Map: %s", maps[i].first.c_str() );
+                    if ( ImGui::Button( tempStr.c_str() ) )
+                    {
+                        m_pWorld->UnloadMap( maps[i].second );
+                    }
                 }
-            }
-            else
-            {
-                if ( ImGui::Button( "Load BR Minimal map" ) )
+                else
                 {
-                    m_pWorld->LoadMap( BRMinimal );
-                }
-            }
-
-            //-------------------------------------------------------------------------
-
-            if ( m_pWorld->IsMapLoaded( BRFull ) )
-            {
-                if ( ImGui::Button( "Unload BR Full map" ) )
-                {
-                    m_pWorld->UnloadMap( BRFull );
-                }
-            }
-            else
-            {
-                if ( ImGui::Button( "Load BR Full map" ) )
-                {
-                    m_pWorld->LoadMap( BRFull );
-                }
-            }
-
-            //-------------------------------------------------------------------------
-
-            if ( m_pWorld->IsMapLoaded( ECS ) )
-            {
-                if ( ImGui::Button( "Unload ECS Test map" ) )
-                {
-                    m_pWorld->UnloadMap( ECS );
-                }
-            }
-            else
-            {
-                if ( ImGui::Button( "Load ECS Test map" ) )
-                {
-                    m_pWorld->LoadMap( ECS );
-                }
-            }
-
-            //-------------------------------------------------------------------------
-
-            if ( m_pWorld->IsMapLoaded( Tiny ) )
-            {
-                if ( ImGui::Button( "Unload Tiny map" ) )
-                {
-                    m_pWorld->UnloadMap( Tiny );
-                }
-            }
-            else
-            {
-                if ( ImGui::Button( "Load Tiny map" ) )
-                {
-                    m_pWorld->LoadMap( Tiny );
-                }
-            }
-
-            //-------------------------------------------------------------------------
-
-            if ( m_pWorld->IsMapLoaded( PhysicsTest ) )
-            {
-                if ( ImGui::Button( "Unload Physics Test map" ) )
-                {
-                    m_pWorld->UnloadMap( PhysicsTest );
-                }
-            }
-            else
-            {
-                if ( ImGui::Button( "Load Physics Test map" ) )
-                {
-                    m_pWorld->LoadMap( PhysicsTest );
+                    tempStr.sprintf( "Load Map: %s", maps[i].first.c_str() );
+                    if ( ImGui::Button( tempStr.c_str() ) )
+                    {
+                        m_pWorld->LoadMap( maps[i].second );
+                    }
                 }
             }
         }

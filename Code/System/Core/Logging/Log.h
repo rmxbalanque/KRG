@@ -40,6 +40,8 @@ namespace KRG::Log
     KRG_SYSTEM_CORE_API void AddEntry( Severity severity, char const* pChannel, char const* pFilename, int pLineNumber, char const* pMessageFormat, ... );
     KRG_SYSTEM_CORE_API void AddEntryVarArgs( Severity severity, char const* pChannel, char const* pFilename, int pLineNumber, char const* pMessageFormat, va_list args );
     KRG_SYSTEM_CORE_API TVector<LogEntry> const& GetLogEntries();
+    KRG_SYSTEM_CORE_API int32 GetNumWarnings();
+    KRG_SYSTEM_CORE_API int32 GetNumErrors();
 
     // Output
     //-------------------------------------------------------------------------
