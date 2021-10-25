@@ -29,11 +29,11 @@ namespace KRG::Navmesh
         BfxRenderer* m_pRenderer = nullptr;
     };
 }
-#endif
 #else
 // TEMP hack for reflector, since it doesnt have the correct PP defines
 namespace KRG::Navmesh
 {
     class NavmeshDebugRenderer {};
 }
+#endif
 #endif
