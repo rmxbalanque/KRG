@@ -23,7 +23,6 @@
     <ClInclude Include="Imgui\ImguiX.h" />
     <ClInclude Include="Imgui\Platform\ImguiPlatform_Win32.h" />
     <ClInclude Include="RenderShaderResource.h" />
-    <ClInclude Include="RenderDevice_Forge.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RenderSettings.h" />
@@ -74,7 +73,6 @@
     <ClCompile Include="Platform\RenderDevice_DX11.cpp" />
     <ClCompile Include="Platform\TextureLoader_Win32.cpp" />
     <ClCompile Include="RenderDefaultResources.cpp" />
-    <ClCompile Include="RenderDevice_Forge.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RenderSettings.cpp" />
     <ClCompile Include="RenderShader.cpp" />
@@ -122,13 +120,11 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
     <Import Project="..\..\PropertySheets\FreeType.props" />
-    <Import Project="..\..\PropertySheets\TheForge.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
     <Import Project="..\..\PropertySheets\FreeType.props" />
-    <Import Project="..\..\PropertySheets\TheForge.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

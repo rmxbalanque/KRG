@@ -90,7 +90,6 @@
     <ClCompile Include="Imgui\ImguiSystem.cpp" />
     <ClCompile Include="Imgui\ImguiTheme.cpp" />
     <ClCompile Include="Imgui\ImguiX.cpp" />
-    <ClCompile Include="RenderDevice_Forge.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fonts\FontData_SegoeBold.h">
@@ -154,7 +153,6 @@
     <ClInclude Include="Imgui\ImguiSystem.h" />
     <ClInclude Include="Imgui\ImguiTheme.h" />
     <ClInclude Include="Imgui\ImguiX.h" />
-    <ClInclude Include="RenderDevice_Forge.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
