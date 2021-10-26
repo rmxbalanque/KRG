@@ -172,7 +172,7 @@ namespace KRG::Network
             auto clientConnectionIter = eastl::find( g_pNetworkState->m_clientConnections.begin(), g_pNetworkState->m_clientConnections.end(), pInfo->m_hConn, FindClientConnection );
             
             // Ignore status changes messages for already closed connections
-            if ( clientConnectionIter != g_pNetworkState->m_clientConnections.end() )
+            if ( clientConnectionIter == g_pNetworkState->m_clientConnections.end() )
             {
                 return;
             }
