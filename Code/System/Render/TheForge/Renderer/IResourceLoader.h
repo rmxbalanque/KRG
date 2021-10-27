@@ -26,7 +26,7 @@
 
 #include "RendererConfig.h"
 
-#include "../Math/MathTypes.h"
+#include "System/Core/Math/Matrix.h"
 #include "../Core/Atomics.h"
 #include "IRenderer.h"
 
@@ -110,7 +110,7 @@ typedef struct Geometry
 	ShadowData* pShadow;
 
 	/// The array of joint inverse bind-pose matrices ( object-space )
-	mat4* pInverseBindPoses;
+	KRG::Matrix* pInverseBindPoses;
 	/// The array of data to remap skin batch local joint ids to global joint ids
 	uint32_t* pJointRemaps;
 	/// The array of vertex buffer strides to bind when drawing this geometry
@@ -162,10 +162,10 @@ typedef struct GeometryLoadDesc
 
 typedef struct VirtualTexturePageInfo
 {
-	uint pageAlive;
-	uint TexID;
-	uint mipLevel;
-	uint padding1;
+	uint32_t pageAlive;
+	uint32_t TexID;
+	uint32_t mipLevel;
+	uint32_t padding1;
 } VirtualTexturePageInfo;
 
 typedef struct BufferUpdateDesc

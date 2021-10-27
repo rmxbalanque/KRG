@@ -27,7 +27,17 @@
 #endif
 
 #include "../RendererConfig.h"
-#include "../../Math/MathTypes.h"
+#include "System/Core/Math/Math.h"
+
+template<typename T>
+static inline size_t tf_mem_hash( const T* mem, size_t size, size_t prev = 2166136261U )
+{
+    uint32_t result = (uint32_t) prev; // Intentionally uint32_t instead of size_t, so the behavior is the same
+                                      // regardless of size.
+    while ( size-- )
+        result = ( result * 16777619 ) ^ *mem++;
+    return (size_t) result;
+}
 
 #ifdef DIRECT3D12
 
@@ -342,7 +352,7 @@ static void add_descriptor_heap(ID3D12Device* pDevice, const D3D12_DESCRIPTOR_HE
 	pHeap->pDevice = pDevice;
 
 	// Keep 32 aligned for easy remove
-	numDescriptors = round_up(numDescriptors, 32);
+	numDescriptors = KRG::Math::RoundUpToNearestMultiple32(numDescriptors, 32);
 
 	D3D12_DESCRIPTOR_HEAP_DESC Desc = *pDesc;
 	Desc.NumDescriptors = numDescriptors;
@@ -2658,7 +2668,7 @@ void d3d12_addBuffer(Renderer* pRenderer, const BufferDesc* pDesc, Buffer** ppBu
 	// Align the buffer size to multiples of 256
 	if ((pDesc->mDescriptors & DESCRIPTOR_TYPE_UNIFORM_BUFFER))
 	{
-		allocationSize = round_up_64(allocationSize, pRenderer->pActiveGpuSettings->mUniformBufferAlignment);
+		allocationSize = KRG::Math::RoundUpToNearestMultiple64(allocationSize, pRenderer->pActiveGpuSettings->mUniformBufferAlignment);
 	}
 
 	DECLARE_ZERO(D3D12_RESOURCE_DESC, desc);
@@ -3362,7 +3372,7 @@ void d3d12_addRenderTarget(Renderer* pRenderer, const RenderTargetDesc* pDesc, R
 	const bool isDepth = TinyImageFormat_HasDepth(pDesc->mFormat);
 	ASSERT(!((isDepth) && (pDesc->mDescriptors & DESCRIPTOR_TYPE_RW_TEXTURE)) && "Cannot use depth stencil as UAV");
 
-	((RenderTargetDesc*)pDesc)->mMipLevels = max(1U, pDesc->mMipLevels);
+	((RenderTargetDesc*)pDesc)->mMipLevels = std::max(1U, pDesc->mMipLevels);
 
 	RenderTarget* pRenderTarget = (RenderTarget*)tf_calloc_memalign(1, alignof(RenderTarget), sizeof(RenderTarget));
 	ASSERT(pRenderTarget);
@@ -3504,7 +3514,7 @@ void d3d12_addSampler(Renderer* pRenderer, const SamplerDesc* pDesc, Sampler** p
 	desc.AddressV = util_to_dx12_texture_address_mode(pDesc->mAddressV);
 	desc.AddressW = util_to_dx12_texture_address_mode(pDesc->mAddressW);
 	desc.MipLODBias = pDesc->mMipLodBias;
-	desc.MaxAnisotropy = max((UINT)pDesc->mMaxAnisotropy, 1U);
+	desc.MaxAnisotropy = std::max((UINT)pDesc->mMaxAnisotropy, 1U);
 	desc.ComparisonFunc = gDx12ComparisonFuncTranslator[pDesc->mCompareFunc];
 	desc.BorderColor[0] = 0.0f;
 	desc.BorderColor[1] = 0.0f;
@@ -4510,7 +4520,7 @@ void d3d12_updateDescriptorSet(
 		}
 
 		const DescriptorType type = (DescriptorType)pDesc->mType;    //-V522
-		const uint32_t       arrayCount = max(1U, pParam->mCount);
+		const uint32_t       arrayCount = std::max(1U, pParam->mCount);
 
 		VALIDATE_DESCRIPTOR(
 			pDesc->mUpdateFrequency == updateFreq, "Descriptor (%s) - Mismatching update frequency and register space", pDesc->pName);
@@ -4923,7 +4933,7 @@ void addGraphicsPipeline(Renderer* pRenderer, const PipelineDesc* pMainDesc, Pip
 
 			if (attrib->mSemanticNameLength > 0)
 			{
-				uint32_t name_length = min((uint32_t)MAX_SEMANTIC_NAME_LENGTH, attrib->mSemanticNameLength);
+				uint32_t name_length = std::min((uint32_t)MAX_SEMANTIC_NAME_LENGTH, attrib->mSemanticNameLength);
 				strncpy_s(semantic_names[attrib_index], attrib->mSemanticName, name_length);
 			}
 			else
@@ -5005,8 +5015,8 @@ void addGraphicsPipeline(Renderer* pRenderer, const PipelineDesc* pMainDesc, Pip
 	input_layout_desc.pInputElementDescs = input_elementCount ? input_elements : NULL;
 	input_layout_desc.NumElements = input_elementCount;
 
-	uint32_t render_target_count = min(pDesc->mRenderTargetCount, (uint32_t)MAX_RENDER_TARGET_ATTACHMENTS);
-	render_target_count = min(render_target_count, (uint32_t)D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT);
+	uint32_t render_target_count = std::min(pDesc->mRenderTargetCount, (uint32_t)MAX_RENDER_TARGET_ATTACHMENTS);
+	render_target_count = std::min(render_target_count, (uint32_t)D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT);
 
 	DECLARE_ZERO(DXGI_SAMPLE_DESC, sample_desc);
 	sample_desc.Count = (UINT)(pDesc->mSampleCount);
@@ -6119,7 +6129,7 @@ void d3d12_addIndirectCommandSignature(Renderer* pRenderer, const CommandSignatu
 	// #NOTE : In non SLI mode, mNodeCount will be 0 which sets nodeMask to default value
 	commandSignatureDesc.NodeMask = util_calculate_shared_node_mask(pRenderer);
 
-	uint32_t alignedStride = round_up(commandStride, 16);
+	uint32_t alignedStride = KRG::Math::RoundUpToNearestMultiple32(commandStride, 16);
 	if (!pDesc->mPacked && alignedStride != commandStride)
 	{
 		hook_modify_command_signature_desc(&commandSignatureDesc, alignedStride - commandStride);
@@ -6643,7 +6653,7 @@ void d3d12_uploadVirtualTexturePage(Cmd* pCmd, Texture* pTexture, VirtualTexture
 		if (!heapData.pSparseCoordinates)
 		{
 			const D3D12_HEAP_DESC heapDesc = pPage->mD3D12.pAllocation->GetHeap()->GetDesc();
-			const uint32_t maxCount = min((uint32_t)(heapDesc.SizeInBytes / pPage->mD3D12.size), pTexture->pSvt->mVirtualPageTotalCount);
+			const uint32_t maxCount = std::min((uint32_t)(heapDesc.SizeInBytes / pPage->mD3D12.size), pTexture->pSvt->mVirtualPageTotalCount);
 			heapData.pSparseCoordinates = (D3D12_TILED_RESOURCE_COORDINATE*)tf_calloc(maxCount, sizeof(D3D12_TILED_RESOURCE_COORDINATE) + sizeof(uint32_t));
 			heapData.pRangeStartOffsets = (uint32_t*)&heapData.pSparseCoordinates[maxCount];
 			heapData.mSparseCoordinatesCount = 0;
@@ -6831,7 +6841,7 @@ void d3d12_addVirtualTexture(Cmd* pCmd, const TextureDesc* pDesc, Texture** ppTe
 		cachedTileCounts[i] = 1;
 	}
 
-	uint32_t TiledMiplevel = pDesc->mMipLevels - (uint32_t)log2(min((uint32_t)pTexture->pSvt->mSparseVirtualTexturePageWidth, (uint32_t)pTexture->pSvt->mSparseVirtualTexturePageHeight));
+	uint32_t TiledMiplevel = pDesc->mMipLevels - (uint32_t)log2( std::min((uint32_t)pTexture->pSvt->mSparseVirtualTexturePageWidth, (uint32_t)pTexture->pSvt->mSparseVirtualTexturePageHeight));
 	pTexture->pSvt->mTiledMipLevelCount = (uint8_t)TiledMiplevel;
 
 	uint32_t currentPageIndex = 0;
@@ -6842,9 +6852,9 @@ void d3d12_addVirtualTexture(Cmd* pCmd, const TextureDesc* pDesc, Texture** ppTe
 		for (uint32_t mipLevel = 0; mipLevel < TiledMiplevel; mipLevel++)
 		{
 			D3D12_TILED_RESOURCE_COORDINATE extent;
-			extent.X = max(pDesc->mWidth >> mipLevel, 1u);
-			extent.Y = max(pDesc->mHeight >> mipLevel, 1u);
-			extent.Z = max(pDesc->mDepth >> mipLevel, 1u);
+			extent.X = std::max(pDesc->mWidth >> mipLevel, 1u);
+			extent.Y = std::max(pDesc->mHeight >> mipLevel, 1u);
+			extent.Z = std::max(pDesc->mDepth >> mipLevel, 1u);
 
 			// Aligned sizes by image granularity
 			D3D12_TILED_RESOURCE_COORDINATE imageGranularity;

@@ -68,11 +68,11 @@ static inline bool util_get_surface_info(
 		uint32_t numBlocksHigh = 0;
 		if (width > 0)
 		{
-			numBlocksWide = max(1U, (width + (blockWidth - 1)) / blockWidth);
+			numBlocksWide = std::max(1U, (width + (blockWidth - 1)) / blockWidth);
 		}
 		if (height > 0)
 		{
-			numBlocksHigh = max(1u, (height + (blockHeight - 1)) / blockHeight);
+			numBlocksHigh = std::max(1u, (height + (blockHeight - 1)) / blockHeight);
 		}
 
 		rowBytes = numBlocksWide * (bpp >> 3);
@@ -152,7 +152,7 @@ static inline uint32_t util_get_surface_size(
 				return 0;
 			}
 
-			requiredSize += round_up(d * round_up(rowBytes, rowStride) * numRows, sliceStride);
+			requiredSize += KRG::Math::RoundUpToNearestMultiple32(d * KRG::Math::RoundUpToNearestMultiple32(rowBytes, rowStride) * numRows, sliceStride);
 
 			w = w >> 1;
 			h = h >> 1;
@@ -631,7 +631,7 @@ if (!(exp))                   \
 	textureDesc.mWidth = header->width;
 	textureDesc.mHeight = header->height;
 	textureDesc.mDepth = header->depth;
-	textureDesc.mMipLevels = max(1U, header->mipMapCount);
+	textureDesc.mMipLevels = std::max(1U, header->mipMapCount);
 	textureDesc.mDescriptors = DESCRIPTOR_TYPE_TEXTURE;
 	textureDesc.mSampleCount = SAMPLE_COUNT_1;
 
@@ -756,9 +756,9 @@ if (!(exp))                   \
 	TextureDesc& textureDesc = *pOutDesc;
 	textureDesc.mWidth = TinyKtx_Width(ctx);
 	textureDesc.mHeight = TinyKtx_Height(ctx);
-	textureDesc.mDepth = max(1U, TinyKtx_Depth(ctx));
-	textureDesc.mArraySize = max(1U, TinyKtx_ArraySlices(ctx));
-	textureDesc.mMipLevels = max(1U, TinyKtx_NumberOfMipmaps(ctx));
+	textureDesc.mDepth = std::max(1U, TinyKtx_Depth(ctx));
+	textureDesc.mArraySize = std::max(1U, TinyKtx_ArraySlices(ctx));
+	textureDesc.mMipLevels = std::max(1U, TinyKtx_NumberOfMipmaps(ctx));
 	textureDesc.mFormat = TinyImageFormat_FromTinyKtxFormat(TinyKtx_GetFormat(ctx));
 	textureDesc.mDescriptors = DESCRIPTOR_TYPE_TEXTURE;
 	textureDesc.mSampleCount = SAMPLE_COUNT_1;

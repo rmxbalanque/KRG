@@ -35,7 +35,6 @@
 #endif
 
 #include <EABase/eabase.h>
-#include "../../ThirdParty/ModifiedSonyMath/vectormath_settings.hpp"
 
 #include <stdlib.h>
 #include <memory.h>
@@ -43,7 +42,7 @@
 #define MEM_MAX(a, b) ((a) > (b) ? (a) : (b))
 
 #define ALIGN_TO(size, alignment) (((size) + (alignment)-1) & ~((alignment)-1))
-#define MIN_ALLOC_ALIGNMENT MEM_MAX(VECTORMATH_MIN_ALIGN, EA_PLATFORM_MIN_MALLOC_ALIGNMENT)
+#define MIN_ALLOC_ALIGNMENT MEM_MAX(16, EA_PLATFORM_MIN_MALLOC_ALIGNMENT)
 
 #ifdef ENABLE_MTUNER
 #define MTUNER_ALLOC(_handle, _ptr, _size, _overhead) rmemAlloc((_handle), (_ptr), (uint32_t)(_size), (uint32_t)(_overhead))

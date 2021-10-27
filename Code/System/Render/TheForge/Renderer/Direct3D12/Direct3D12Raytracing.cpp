@@ -46,6 +46,7 @@
 #include <EASTL/hash_map.h>
 #include <EASTL/sort.h>
 
+#include "System/Core/Math/Math.h"
 // Renderer
 #include "../IRenderer.h"
 #include "../IRay.h"
@@ -209,14 +210,14 @@ HRESULT createBottomAS(
 		BufferLoadDesc vbDesc = {};
 		vbDesc.mDesc.mDescriptors = DESCRIPTOR_TYPE_VERTEX_BUFFER;
 		vbDesc.mDesc.mMemoryUsage = RESOURCE_MEMORY_USAGE_GPU_ONLY;
-		vbDesc.mDesc.mSize = sizeof(float3) * pGeom->mVertexCount;
+		vbDesc.mDesc.mSize = sizeof(KRG::Float3) * pGeom->mVertexCount;
 		vbDesc.pData = pGeom->pVertexArray;
 		vbDesc.ppBuffer = &blas.pVertexBuffer;
 		addResource(&vbDesc, NULL);
 
 		pGeomD3D12->Triangles.VertexBuffer.StartAddress = blas.pVertexBuffer->mD3D12.mDxGpuAddress;
-		pGeomD3D12->Triangles.VertexBuffer.StrideInBytes = (UINT)sizeof(float3);
-		pGeomD3D12->Triangles.VertexCount = (UINT)vbDesc.mDesc.mSize / (UINT)sizeof(float3);
+		pGeomD3D12->Triangles.VertexBuffer.StrideInBytes = (UINT)sizeof( KRG::Float3);
+		pGeomD3D12->Triangles.VertexCount = (UINT)vbDesc.mDesc.mSize / (UINT)sizeof( KRG::Float3);
 		if (pGeomD3D12->Triangles.VertexBuffer.StrideInBytes == sizeof(float))
 			pGeomD3D12->Triangles.VertexFormat = DXGI_FORMAT_R32_FLOAT;
 		else if (pGeomD3D12->Triangles.VertexBuffer.StrideInBytes == sizeof(float) * 2)
@@ -359,7 +360,7 @@ void d3d12_addAccelerationStructure(
 		pRaytracing, pDesc, &pAccelerationStructure->mBottomAS, &scratchTopBufferSize, &pAccelerationStructure->pInstanceDescBuffer,
 		&pAccelerationStructure->pASBuffer));
 
-	pAccelerationStructure->mScratchBufferSize = max(scratchBottomBufferSize, scratchTopBufferSize);
+	pAccelerationStructure->mScratchBufferSize = std::max(scratchBottomBufferSize, scratchTopBufferSize);
 	pAccelerationStructure->mFlags = util_to_dx_acceleration_structure_build_flags(pDesc->mFlags);
 
 	//Create scratch buffer
@@ -416,7 +417,7 @@ void FillShaderIdentifiers(
 		WCHAR        pName[kMaxRecordNameLength + 1];
 		ASSERT(recordNameLength <= kMaxRecordNameLength);
 		mbstowcs(pName, pRecordName, kMaxRecordNameLength);
-		pName[min(recordNameLength, kMaxRecordNameLength)] = 0;
+		pName[std::min(recordNameLength, kMaxRecordNameLength)] = 0;
 
 		pIdentifier = pRtsoProps->GetShaderIdentifier(pName);
 
@@ -547,7 +548,7 @@ void d3d12_addRaytracingShaderTable(Raytracing* pRaytracing, const RaytracingSha
 	/************************************************************************/
 	// Align max size
 	/************************************************************************/
-	maxShaderTableSize = round_up_64(gShaderIdentifierSize + maxShaderTableSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+	maxShaderTableSize = KRG::Math::RoundUpToNearestMultiple64(gShaderIdentifierSize + maxShaderTableSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 	pTable->mMaxEntrySize = maxShaderTableSize;
 	/************************************************************************/
 	// Create shader table buffer

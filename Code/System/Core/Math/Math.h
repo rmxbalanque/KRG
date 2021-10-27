@@ -203,6 +203,38 @@ namespace KRG
             static_assert( std::numeric_limits<T>::is_integer, "Integer type required." );
             return n % 2 == 0; 
         }
+
+        //-------------------------------------------------------------------------
+
+        // Note: returns true for 0
+        KRG_FORCE_INLINE bool IsPowerOf2( const int x ) { return ( x & ( x - 1 ) ) == 0; }
+
+        KRG_FORCE_INLINE uint32 GetClosestPowerOfTwo( uint32 x )
+        {
+            uint32 i = 1;
+            while ( i < x ) i += i;
+            if ( 4 * x < 3 * i ) i >>= 1;
+            return i;
+        }
+
+        KRG_FORCE_INLINE uint32 GetUpperPowerOfTwo( uint32 x )
+        {
+            uint32 i = 1;
+            while ( i < x ) i += i;
+            return i;
+        }
+
+        KRG_FORCE_INLINE uint32 GetLowerPowerOfTwo( uint32 x )
+        {
+            uint32 i = 1;
+            while ( i <= x ) i += i;
+            return i >> 1;
+        }
+
+        KRG_FORCE_INLINE uint32 RoundUpToNearestMultiple32( uint32 value, uint32 multiple ) { return ( ( value + multiple - 1 ) / multiple ) * multiple; }
+        KRG_FORCE_INLINE uint64 RoundUpToNearestMultiple64( uint64 value, uint64 multiple ) { return ( ( value + multiple - 1 ) / multiple ) * multiple; }
+        KRG_FORCE_INLINE uint32 RoundDownToNearestMultiple32( uint32 value, uint32 multiple ) { return value - value % multiple; }
+        KRG_FORCE_INLINE uint64 RoundDownToNearestMultiple64( uint64 value, uint64 multiple ) { return value - value % multiple; }
     }
 
     //-------------------------------------------------------------------------

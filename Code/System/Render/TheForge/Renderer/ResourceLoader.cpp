@@ -76,7 +76,7 @@ struct SubresourceDataDesc
 #endif
 };
 
-#define MIP_REDUCE(s, mip) (max(1u, (uint32_t)((s) >> (mip))))
+#define MIP_REDUCE(s, mip) (std::max(1u, (uint32_t)((s) >> (mip))))
 
 enum
 {
@@ -286,8 +286,8 @@ static inline void util_pack_float2_to_half2(uint32_t count, uint32_t stride, ui
 
 static inline uint32_t util_float2_to_unorm2x16(const float* v)
 {
-	uint32_t x = (uint32_t)round(clamp(v[0], 0, 1) * 65535.0f);
-	uint32_t y = (uint32_t)round(clamp(v[1], 0, 1) * 65535.0f);
+    uint32_t x = (uint32_t) round( KRG::Math::Clamp( v[0], 0.0f, 1.0f ) * 65535.0f );
+    uint32_t y = (uint32_t) round( KRG::Math::Clamp( v[1], 0.0f, 1.0f ) * 65535.0f );
 	return ((uint32_t)0x0000FFFF & x) | ((y << 16) & (uint32_t)0xFFFF0000);
 }
 
@@ -460,14 +460,14 @@ static ResourceLoader* pResourceLoader = NULL;
 
 static uint32_t util_get_texture_row_alignment(Renderer* pRenderer)
 {
-	return max(1u, pRenderer->pActiveGpuSettings->mUploadBufferTextureRowAlignment);
+	return std::max(1u, pRenderer->pActiveGpuSettings->mUploadBufferTextureRowAlignment);
 }
 
 static uint32_t util_get_texture_subresource_alignment(Renderer* pRenderer, TinyImageFormat fmt = TinyImageFormat_UNDEFINED)
 {
-	uint32_t blockSize = max(1u, TinyImageFormat_BitSizeOfBlock(fmt) >> 3);
-	uint32_t alignment = round_up(pRenderer->pActiveGpuSettings->mUploadBufferTextureAlignment, blockSize);
-	return round_up(alignment, util_get_texture_row_alignment(pRenderer));
+	uint32_t blockSize = std::max(1u, TinyImageFormat_BitSizeOfBlock(fmt) >> 3);
+	uint32_t alignment = KRG::Math::RoundUpToNearestMultiple32(pRenderer->pActiveGpuSettings->mUploadBufferTextureAlignment, blockSize);
+	return KRG::Math::RoundUpToNearestMultiple32(alignment, util_get_texture_row_alignment(pRenderer));
 }
 /************************************************************************/
 // Internal Functions
@@ -520,7 +520,7 @@ static void setupCopyEngine(Renderer* pRenderer, CopyEngine* pCopyEngine, uint32
 	addQueue(pRenderer, &desc, &pCopyEngine->pQueue);
 
 	const uint64_t maxBlockSize = 32;
-	size = max(size, maxBlockSize);
+	size = std::max(size, maxBlockSize);
 
 	pCopyEngine->resourceSets = (CopyResourceSet*)tf_malloc(sizeof(CopyResourceSet) * bufferCount);
 	for (uint32_t i = 0; i < bufferCount; ++i)
@@ -669,7 +669,7 @@ static MappedMemoryRange allocateStagingMemory(uint64_t memoryRequirement, uint3
 	uint64_t offset = pCopyEngine->resourceSets[pResourceLoader->mNextSet].mAllocatedSpace;
 	if (alignment != 0)
 	{
-		offset = round_up_64(offset, alignment);
+		offset = KRG::Math::RoundUpToNearestMultiple64(offset, alignment);
 	}
 
 	CopyResourceSet* pResourceSet = &pCopyEngine->resourceSets[pResourceLoader->mNextSet];
@@ -810,8 +810,8 @@ static UploadFunctionResult
 					return UPLOAD_FUNCTION_RESULT_INVALID_REQUEST;
 				}
 
-				uint32_t subRowPitch = round_up(rowBytes, rowAlignment);
-				uint32_t subSlicePitch = round_up(subRowPitch * numRows, sliceAlignment);
+				uint32_t subRowPitch = KRG::Math::RoundUpToNearestMultiple32(rowBytes, rowAlignment);
+				uint32_t subSlicePitch = KRG::Math::RoundUpToNearestMultiple32(subRowPitch * numRows, sliceAlignment);
 				uint32_t subNumRows = numRows;
 				uint32_t subDepth = d;
 				uint32_t subRowSize = rowBytes;
@@ -1248,17 +1248,17 @@ static UploadFunctionResult loadGeometry(Renderer* pRenderer, CopyEngine* pCopyE
 		const uint32_t indexStride = vertexCount > UINT16_MAX ? sizeof(uint32_t) : sizeof(uint16_t);
 
 		uint32_t totalSize = 0;
-		totalSize += round_up(sizeof(Geometry), 16);
-		totalSize += round_up(drawCount * sizeof(IndirectDrawIndexArguments), 16);
-		totalSize += round_up(jointCount * sizeof(mat4), 16);
-		totalSize += round_up(jointCount * sizeof(uint32_t), 16);
+		totalSize += KRG::Math::RoundUpToNearestMultiple32(sizeof(Geometry), 16);
+		totalSize += KRG::Math::RoundUpToNearestMultiple32(drawCount * sizeof(IndirectDrawIndexArguments), 16);
+		totalSize += KRG::Math::RoundUpToNearestMultiple32(jointCount * sizeof(KRG::Matrix), 16);
+		totalSize += KRG::Math::RoundUpToNearestMultiple32(jointCount * sizeof(uint32_t), 16);
 
 		Geometry* geom = (Geometry*)tf_calloc(1, totalSize);
 		ASSERT(geom);
 
 		geom->pDrawArgs = (IndirectDrawIndexArguments*)(geom + 1);    //-V1027
-		geom->pInverseBindPoses = (mat4*)((uint8_t*)geom->pDrawArgs + round_up(drawCount * sizeof(*geom->pDrawArgs), 16));
-		geom->pJointRemaps = (uint32_t*)((uint8_t*)geom->pInverseBindPoses + round_up(jointCount * sizeof(*geom->pInverseBindPoses), 16));
+		geom->pInverseBindPoses = (KRG::Matrix*)((uint8_t*)geom->pDrawArgs + KRG::Math::RoundUpToNearestMultiple32(drawCount * sizeof(*geom->pDrawArgs), 16));
+		geom->pJointRemaps = (uint32_t*)((uint8_t*)geom->pInverseBindPoses + KRG::Math::RoundUpToNearestMultiple32(jointCount * sizeof(*geom->pInverseBindPoses), 16));
 
 		uint32_t shadowSize = 0;
 		if (pDesc->mFlags & GEOMETRY_LOAD_FLAG_SHADOWED)
@@ -1600,8 +1600,8 @@ static UploadFunctionResult copyTexture(Renderer* pRenderer, CopyEngine* pCopyEn
 #if defined(DIRECT3D11) || defined(METAL) || defined(VULKAN)
 	const uint32_t sliceAlignment = util_get_texture_subresource_alignment(pRenderer, fmt);
 	const uint32_t rowAlignment = util_get_texture_row_alignment(pRenderer);
-	uint32_t subRowPitch = round_up(rowBytes, rowAlignment);
-	uint32_t subSlicePitch = round_up(subRowPitch * numRows, sliceAlignment);
+	uint32_t subRowPitch = KRG::Math::RoundUpToNearestMultiple32(rowBytes, rowAlignment);
+	uint32_t subSlicePitch = KRG::Math::RoundUpToNearestMultiple32(subRowPitch * numRows, sliceAlignment);
 	subresourceDesc.mRowPitch = subRowPitch;
 	subresourceDesc.mSlicePitch = subSlicePitch;
 #endif
@@ -1759,7 +1759,7 @@ static void streamerThreadFunc(void* pThreadData)
 
 				ASSERT(result != UPLOAD_FUNCTION_RESULT_STAGING_BUFFER_FULL);
 			}
-			maxToken = max(maxToken, maxNodeToken);
+			maxToken = std::max(maxToken, maxNodeToken);
 		}
 
 		if (completionMask != 0)
@@ -1778,7 +1778,7 @@ static void streamerThreadFunc(void* pThreadData)
 
 		}
 
-		SyncToken nextToken = max(maxToken, getLastTokenCompleted());
+		SyncToken nextToken = std::max(maxToken, getLastTokenCompleted());
 		pLoader->mCurrentTokenState[pLoader->mNextSet] = nextToken;
 
 		// Signal submitted tokens
@@ -1921,7 +1921,7 @@ static void queueBufferUpdate(ResourceLoader* pLoader, BufferUpdateDesc* pBuffer
 	releaseMutex(&pLoader->mQueueMutex);
 	wakeOneConditionVariable(&pLoader->mQueueCond);
 	if (token)
-		*token = max(t, *token);
+		*token = std::max(t, *token);
 }
 
 static void queueTextureLoad(ResourceLoader* pLoader, TextureLoadDesc* pTextureUpdate, SyncToken* token)
@@ -1936,7 +1936,7 @@ static void queueTextureLoad(ResourceLoader* pLoader, TextureLoadDesc* pTextureU
 	releaseMutex(&pLoader->mQueueMutex);
 	wakeOneConditionVariable(&pLoader->mQueueCond);
 	if (token)
-		*token = max(t, *token);
+		*token = std::max(t, *token);
 }
 
 static void queueGeometryLoad(ResourceLoader* pLoader, GeometryLoadDesc* pGeometryLoad, SyncToken* token)
@@ -1951,7 +1951,7 @@ static void queueGeometryLoad(ResourceLoader* pLoader, GeometryLoadDesc* pGeomet
 	releaseMutex(&pLoader->mQueueMutex);
 	wakeOneConditionVariable(&pLoader->mQueueCond);
 	if (token)
-		*token = max(t, *token);
+		*token = std::max(t, *token);
 }
 
 static void queueTextureUpdate(ResourceLoader* pLoader, TextureUpdateDescInternal* pTextureUpdate, SyncToken* token)
@@ -1970,7 +1970,7 @@ static void queueTextureUpdate(ResourceLoader* pLoader, TextureUpdateDescInterna
 	releaseMutex(&pLoader->mQueueMutex);
 	wakeOneConditionVariable(&pLoader->mQueueCond);
 	if (token)
-		*token = max(t, *token);
+		*token = std::max(t, *token);
 }
 
 #if defined(VULKAN)
@@ -2018,7 +2018,7 @@ static void queueTextureCopy(ResourceLoader* pLoader, TextureCopyDesc* pTextureC
 	releaseMutex(&pLoader->mQueueMutex);
 	wakeOneConditionVariable(&pLoader->mQueueCond);
 	if (token)
-		*token = max(t, *token);
+		*token = std::max(t, *token);
 }
 
 static void waitForToken(ResourceLoader* pLoader, const SyncToken* token)
@@ -2101,7 +2101,7 @@ void addResource(BufferLoadDesc* pBufferDesc, SyncToken* token)
 			updateDesc.pBuffer = *pBufferDesc->ppBuffer;
 			for (uint64_t offset = 0; offset < pBufferDesc->mDesc.mSize; offset += stagingBufferSize)
 			{
-				size_t chunkSize = (size_t)min(stagingBufferSize, pBufferDesc->mDesc.mSize - offset);
+				size_t chunkSize = (size_t) std::min(stagingBufferSize, pBufferDesc->mDesc.mSize - offset);
 				updateDesc.mSize = chunkSize;
 				updateDesc.mDstOffset = offset;
 				beginUpdateResource(&updateDesc);
@@ -2279,10 +2279,10 @@ void beginUpdateResource(TextureUpdateDesc* pTextureUpdate)
 	ASSERT(success);
 	UNREF_PARAM(success);
 
-	pTextureUpdate->mDstRowStride = round_up(pTextureUpdate->mSrcRowStride, util_get_texture_row_alignment(pRenderer));
-	pTextureUpdate->mDstSliceStride = round_up(pTextureUpdate->mDstRowStride * pTextureUpdate->mRowCount, alignment);
+	pTextureUpdate->mDstRowStride = KRG::Math::RoundUpToNearestMultiple32(pTextureUpdate->mSrcRowStride, util_get_texture_row_alignment(pRenderer));
+	pTextureUpdate->mDstSliceStride = KRG::Math::RoundUpToNearestMultiple32(pTextureUpdate->mDstRowStride * pTextureUpdate->mRowCount, alignment);
 
-	const ssize_t requiredSize = round_up(
+	const ssize_t requiredSize = KRG::Math::RoundUpToNearestMultiple32(
 		MIP_REDUCE(texture->mDepth, pTextureUpdate->mMipLevel) * pTextureUpdate->mDstRowStride * pTextureUpdate->mRowCount, alignment);
 
 	// We need to use a staging buffer.

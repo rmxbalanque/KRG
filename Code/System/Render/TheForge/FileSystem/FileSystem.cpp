@@ -24,8 +24,6 @@
 
 #include <errno.h>
 
-#include "../Math/MathTypes.h"
-
 #include "../Interfaces/ILog.h"
 #include "../Interfaces/IMemory.h"
 
@@ -50,7 +48,7 @@ static ResourceDirectoryInfo gResourceDirectories[RD_COUNT] = {};
 /************************************************************************/
 static inline FORGE_CONSTEXPR size_t MemoryStreamAvailableSize(FileStream* pStream, size_t requestedSize)
 {
-	return min((ssize_t)requestedSize, max((ssize_t)pStream->mSize - (ssize_t)pStream->mMemory.mCursor, (ssize_t)0));
+	return std::min( (ssize_t) requestedSize, std::max( (ssize_t) pStream->mSize - (ssize_t) pStream->mMemory.mCursor, (ssize_t) 0 ) );
 }
 
 static bool MemoryStreamClose(FileStream* pStream)
@@ -118,7 +116,7 @@ static size_t MemoryStreamWrite(FileStream* pStream, const void* sourceBuffer, s
 	}
 	memcpy(pStream->mMemory.pBuffer + pStream->mMemory.mCursor, sourceBuffer, byteCount);
 	pStream->mMemory.mCursor += byteCount;
-	pStream->mSize = max(pStream->mSize, (ssize_t)pStream->mMemory.mCursor);
+	pStream->mSize = std::max(pStream->mSize, (ssize_t)pStream->mMemory.mCursor);
 	return byteCount;
 }
 
@@ -441,7 +439,7 @@ bool fsCopyStream(FileStream* pDst, FileStream* pSrc, size_t byteCount)
 	size_t copySize = 0;
 	while (byteCount > 0)
 	{
-		copySize = min(byteCount, sizeof(buffer));
+		copySize = std::min(byteCount, sizeof(buffer));
 		size_t readBytes = fsReadFromStream(pSrc, buffer, copySize);
 		if (readBytes <= 0)
 			return false;
