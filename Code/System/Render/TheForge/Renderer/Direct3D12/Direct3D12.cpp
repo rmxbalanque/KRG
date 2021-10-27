@@ -85,8 +85,8 @@ static inline size_t tf_mem_hash( const T* mem, size_t size, size_t prev = 21661
 #include "Direct3D12CapBuilder.h"
 #include "Direct3D12Hooks.h"
 
-#include "../../ThirdParty/ags/AgsHelper.h"
-#include "../../ThirdParty/nvapi/NvApiHelper.h"
+//#include "../../ThirdParty/ags/AgsHelper.h"
+//#include "../../ThirdParty/nvapi/NvApiHelper.h"
 
 #if !defined(_WINDOWS) && !defined(XBOX)
 #error "Windows is needed!"
@@ -1904,17 +1904,17 @@ static void RemoveDevice(Renderer* pRenderer)
 
 void InitCommon(const RendererDesc* pDesc, Renderer* pRenderer)
 {
-	AGSReturnCode agsRet = agsInit();
-	if (AGSReturnCode::AGS_SUCCESS == agsRet)
-	{
-		agsPrintDriverInfo();
-	}
+	//AGSReturnCode agsRet = agsInit();
+	//if (AGSReturnCode::AGS_SUCCESS == agsRet)
+	//{
+	//	agsPrintDriverInfo();
+	//}
 
-	NvAPI_Status nvStatus = nvapiInit();
-	if (NvAPI_Status::NVAPI_OK == nvStatus)
-	{
-		nvapiPrintDriverInfo();
-	}
+	//NvAPI_Status nvStatus = nvapiInit();
+	//if (NvAPI_Status::NVAPI_OK == nvStatus)
+	//{
+	//	nvapiPrintDriverInfo();
+	//}
 
 	// The D3D debug layer (as well as Microsoft PIX and other graphics debugger
 	// tools using an injection library) is not compatible with Nsight Aftermath.
@@ -1943,8 +1943,8 @@ void ExitCommon(Renderer* pRenderer)
 {
 	SAFE_RELEASE(pRenderer->mD3D12.pDXGIFactory);
 
-	nvapiExit();
-	agsExit();
+	//nvapiExit();
+	//agsExit();
 }
 
 /************************************************************************/

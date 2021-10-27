@@ -173,7 +173,6 @@
     <ClInclude Include="TheForge\Renderer\Direct3D12\Direct3D12Config.h" />
     <ClInclude Include="TheForge\Renderer\Direct3D12\Direct3D12Hooks.h" />
     <ClInclude Include="TheForge\MemoryTracking\NoMemoryDefines.h" />
-    <ClInclude Include="TheForge\Math\MathTypes.h" />
     <ClInclude Include="TheForge\Logging\Log.h" />
     <ClInclude Include="TheForge\Interfaces\ILog.h" />
     <ClInclude Include="TheForge\Interfaces\IMemory.h" />
