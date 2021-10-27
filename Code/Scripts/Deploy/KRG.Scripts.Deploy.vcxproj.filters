@@ -18,6 +18,9 @@
       <Filter>Scripts</Filter>
     </None>
     <None Include="Deploy.nmake" />
+    <None Include="Render.nmake">
+      <Filter>Scripts</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Scripts">

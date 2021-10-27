@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <RENDER_3RD_PARTY>$(SolutionDir)Code\System\Render\ThirdParty\</RENDER_3RD_PARTY>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies Condition="!$(ProjectName.Contains('Tools'))">dxguid.lib;D3D11.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="$(ProjectName.Contains('Tools'))">D3DCompiler.lib;dxguid.lib;D3D11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>amd_ags_x64.lib;nvapi64.lib;dxcompiler.lib;WinPixEventRuntime.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+        $(RENDER_3RD_PARTY)ags\ags_lib\lib;$(RENDER_3RD_PARTY)\nvapi\amd64;$(RENDER_3RD_PARTY)DirectXShaderCompiler\lib\x64;$(RENDER_3RD_PARTY)winpixeventruntime\bin\;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
 </Project>

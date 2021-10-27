@@ -60,10 +60,10 @@
     <ClCompile Include="Fonts\FontDecompressor.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\RenderContext_DX11.cpp">
+    <ClCompile Include="RenderContext.cpp">
       <Filter>RenderDevice\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\RenderDevice_DX11.cpp">
+    <ClCompile Include="RenderDevice.cpp">
       <Filter>RenderDevice\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Platform\TextureLoader_Win32.cpp">
@@ -90,6 +90,20 @@
     <ClCompile Include="Imgui\ImguiSystem.cpp" />
     <ClCompile Include="Imgui\ImguiTheme.cpp" />
     <ClCompile Include="Imgui\ImguiX.cpp" />
+    <ClCompile Include="TheForge\Renderer\CommonShaderReflection.cpp" />
+    <ClCompile Include="TheForge\Renderer\Renderer.cpp" />
+    <ClCompile Include="TheForge\Renderer\ResourceLoader.cpp" />
+    <ClCompile Include="TheForge\Renderer\Direct3D12\Direct3D12.cpp" />
+    <ClCompile Include="TheForge\Renderer\Direct3D12\Direct3D12Hooks.cpp" />
+    <ClCompile Include="TheForge\Renderer\Direct3D12\Direct3D12Raytracing.cpp" />
+    <ClCompile Include="TheForge\Renderer\Direct3D12\Direct3D12ShaderReflection.cpp" />
+    <ClCompile Include="TheForge\Windows\WindowsLog.c" />
+    <ClCompile Include="TheForge\Windows\WindowsThread.c" />
+    <ClCompile Include="TheForge\MemoryTracking\MemoryTracking.c" />
+    <ClCompile Include="TheForge\Logging\Log.c" />
+    <ClCompile Include="TheForge\FileSystem\FileSystem.cpp" />
+    <ClCompile Include="TheForge\Windows\WindowsFileSystem.cpp" />
+    <ClCompile Include="ThirdParty\basis_universal\transcoder\basisu_transcoder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fonts\FontData_SegoeBold.h">
@@ -113,19 +127,16 @@
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\RenderContext_DX11.h">
+    <ClInclude Include="RenderContext.h">
       <Filter>RenderDevice\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\RenderDevice_DX11.h">
+    <ClInclude Include="RenderDevice.h">
       <Filter>RenderDevice\Platform</Filter>
     </ClInclude>
     <ClInclude Include="Platform\TextureLoader_Win32.h">
       <Filter>RenderDevice\Platform</Filter>
     </ClInclude>
     <ClInclude Include="RenderDefaultResources.h">
-      <Filter>RenderDevice</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderDevice.h">
       <Filter>RenderDevice</Filter>
     </ClInclude>
     <ClInclude Include="RenderShaderResource.h" />
@@ -153,11 +164,51 @@
     <ClInclude Include="Imgui\ImguiSystem.h" />
     <ClInclude Include="Imgui\ImguiTheme.h" />
     <ClInclude Include="Imgui\ImguiX.h" />
+    <ClInclude Include="TheForge\Renderer\IRay.h" />
+    <ClInclude Include="TheForge\Renderer\IRenderer.h" />
+    <ClInclude Include="TheForge\Renderer\IResourceLoader.h" />
+    <ClInclude Include="TheForge\Renderer\IShaderReflection.h" />
+    <ClInclude Include="TheForge\Renderer\RendererConfig.h" />
+    <ClInclude Include="TheForge\Renderer\Direct3D12\Direct3D12CapBuilder.h" />
+    <ClInclude Include="TheForge\Renderer\Direct3D12\Direct3D12Config.h" />
+    <ClInclude Include="TheForge\Renderer\Direct3D12\Direct3D12Hooks.h" />
+    <ClInclude Include="TheForge\MemoryTracking\NoMemoryDefines.h" />
+    <ClInclude Include="TheForge\Math\MathTypes.h" />
+    <ClInclude Include="TheForge\Logging\Log.h" />
+    <ClInclude Include="TheForge\Interfaces\ILog.h" />
+    <ClInclude Include="TheForge\Interfaces\IMemory.h" />
+    <ClInclude Include="TheForge\Interfaces\IOperatingSystem.h" />
+    <ClInclude Include="TheForge\Interfaces\IThread.h" />
+    <ClInclude Include="TheForge\Core\Atomics.h" />
+    <ClInclude Include="TheForge\Core\Config.h" />
+    <ClInclude Include="TheForge\Core\DLL.h" />
+    <ClInclude Include="TheForge\Core\TextureContainers.h" />
+    <ClInclude Include="TheForge\Interfaces\IFileSystem.h" />
+    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu.h" />
+    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_file_headers.h" />
+    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_global_selector_cb.h" />
+    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_global_selector_palette.h" />
+    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_transcoder.h" />
+    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_internal.h" />
+    <ClInclude Include="ThirdParty\D3D12MemoryAllocator\Direct3D12MemoryAllocator.h" />
+    <ClInclude Include="ThirdParty\DirectXShaderCompiler\inc\d3d12shader.h" />
+    <ClInclude Include="ThirdParty\DirectXShaderCompiler\inc\dxcapi.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
       <Filter>DebugRenderer\Debug\HLSL</Filter>
     </None>
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_astc.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_astc_0_255.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_atc_55.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_atc_56.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_bc7_m5_alpha.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_bc7_m5_color.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_bc7_m6.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_dxt1_5.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_dxt1_6.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_pvrtc2_45.inc" />
+    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_pvrtc2_alpha_33.inc" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis" />

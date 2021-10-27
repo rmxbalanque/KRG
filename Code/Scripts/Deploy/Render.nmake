@@ -1,0 +1,21 @@
+##########################################
+# PLATFORM CONFIG
+##########################################
+
+RENDER_3RDPARTY_DEPENDENCIES_DIR = $(KRG_ROOT_DIR)\Code\System\Render\ThirdParty
+
+##########################################
+# FILE OPERATIONS
+##########################################
+
+prebuild:
+    xcopy /y /i /D "$(RENDER_3RDPARTY_DEPENDENCIES_DIR)\ags\ags_lib\lib\amd_ags_x64.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(RENDER_3RDPARTY_DEPENDENCIES_DIR)\DirectXShaderCompiler\bin\x64\dxcompiler.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(RENDER_3RDPARTY_DEPENDENCIES_DIR)\DirectXShaderCompiler\bin\x64\dxil.dll" "$(OUT_DIR)"
+    xcopy /y /i /D "$(RENDER_3RDPARTY_DEPENDENCIES_DIR)\winpixeventruntime\bin\WinPixEventRunTime.dll" "$(OUT_DIR)"
+
+clean:
+    del /F /Q "$(OUT_DIR)amd_ags_x64.dll"
+    del /F /Q "$(OUT_DIR)dxcompiler.dll"
+    del /F /Q "$(OUT_DIR)dxil.dll"
+    del /F /Q "$(OUT_DIR)WinPixEventRunTime.dll"
