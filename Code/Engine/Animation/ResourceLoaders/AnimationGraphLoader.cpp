@@ -66,7 +66,7 @@ namespace KRG::Animation
         return false;
     }
 
-    bool AnimationGraphLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
+    Resource::InstallResult AnimationGraphLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
     {
         auto const resourceTypeID = resID.GetResourceTypeID();
 
@@ -80,7 +80,7 @@ namespace KRG::Animation
             if ( !pDataSet->IsValid() )
             {
                 KRG_LOG_ERROR( "Animation", "Failed to install skeleton for graph data set resource: %s", resID.ToString().c_str() );
-                return false;
+                return Resource::InstallResult::Failed;
             }
 
             //-------------------------------------------------------------------------
@@ -101,7 +101,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         ResourceLoader::Install( resID, pResourceRecord, installDependencies );
-        return true;
+        return Resource::InstallResult::Succeeded;
     }
 
     void AnimationGraphLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const

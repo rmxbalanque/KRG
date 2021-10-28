@@ -24,6 +24,7 @@ namespace KRG
                 LoadResource,
                 WaitForLoadDependencies,
                 InstallResource,
+                WaitForInstallResource,
 
                 // Unload Stages
                 UninstallResource,
@@ -101,6 +102,7 @@ namespace KRG
             void LoadResource( RequestContext& requestContext );
             void WaitForLoadDependencies( RequestContext& requestContext );
             void InstallResource( RequestContext& requestContext );
+            void WaitForInstallResource( RequestContext& requestContext );
             void UninstallResource( RequestContext& requestContext );
             void UnloadResource( RequestContext& requestContext );
             void UnloadFailedResource( RequestContext& requestContext );

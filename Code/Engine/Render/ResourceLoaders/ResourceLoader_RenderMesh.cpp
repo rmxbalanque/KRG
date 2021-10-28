@@ -35,28 +35,25 @@ namespace KRG::Render
         KRG_ASSERT( pMesh->m_indexBuffer.IsValid() );
     }
 
-    bool MeshLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
+    bool MeshLoader::LoadInternal( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
     {
         KRG_ASSERT( m_pRenderDevice != nullptr );
         KRG_ASSERT( archive.IsValid() );
 
         Resource::IResource* pResource = nullptr;
 
-        if ( resID.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
+        // Static Mesh
+        if ( resourceID.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
         {
             StaticMesh* pStaticMesh = KRG::New<StaticMesh>();
             archive >> *pStaticMesh;
             pResource = pStaticMesh;
-
-            CreateRenderBuffers( pStaticMesh );
         }
         else // Skeletal Mesh
         {
             SkeletalMesh* pSkeletalMesh = KRG::New<SkeletalMesh>();
             archive >> *pSkeletalMesh;
             pResource = pSkeletalMesh;
-
-            CreateRenderBuffers( pSkeletalMesh );
         }
 
         //-------------------------------------------------------------------------
@@ -66,36 +63,16 @@ namespace KRG::Render
         return true;
     }
 
-    void MeshLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const
+    Resource::InstallResult MeshLoader::Install( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
     {
-        KRG_ASSERT( m_pRenderDevice != nullptr );
-
-        Mesh* pMesh = nullptr;
-
-        if ( resID.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
-        {
-            pMesh = pResourceRecord->GetResourceData<StaticMesh>();
-        }
-        else // Skeletal Mesh
-        {
-            pMesh = pResourceRecord->GetResourceData<SkeletalMesh>();
-        }
-
+        // Create GPU buffers
         //-------------------------------------------------------------------------
 
-        if ( pMesh != nullptr )
-        {
-            m_pRenderDevice->DestroyBuffer( pMesh->m_vertexBuffer );
-            m_pRenderDevice->DestroyBuffer( pMesh->m_indexBuffer );
-        }
+        // BLOCKING FOR NOW! TODO: request the load and return Resource::InstallResult::InProgress
+        auto pMesh = pResourceRecord->GetResourceData<Mesh>();
+        CreateRenderBuffers( pMesh );
 
-        ResourceLoader::UnloadInternal( resID, pResourceRecord );
-    }
-
-    bool MeshLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
-    {
-        Mesh* pMesh = pResourceRecord->GetResourceData<Mesh>();
-
+        // Set materials
         //-------------------------------------------------------------------------
 
         for ( auto& pMaterial : pMesh->m_materials )
@@ -110,14 +87,31 @@ namespace KRG::Render
             pMaterial = GetInstallDependency( installDependencies, pMaterial.GetResourceID() );
             if ( !pMaterial->IsValid() )
             {
-                KRG_LOG_ERROR( "Resource", "Failed to install resource: %s", resID.ToString().c_str() );
-                return false;
+                KRG_LOG_ERROR( "Resource", "Failed to install resource: %s", resourceID.ToString().c_str() );
+                return Resource::InstallResult::Failed;
             }
         }
 
         //-------------------------------------------------------------------------
 
-        ResourceLoader::Install( resID, pResourceRecord, installDependencies );
-        return true;
+        ResourceLoader::Install( resourceID, pResourceRecord, installDependencies );
+        return Resource::InstallResult::Succeeded;
+    }
+
+    void MeshLoader::Uninstall( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord ) const
+    {
+        auto pMesh = pResourceRecord->GetResourceData<Mesh>();
+        if ( pMesh != nullptr )
+        {
+            m_pRenderDevice->DestroyBuffer( pMesh->m_vertexBuffer );
+            m_pRenderDevice->DestroyBuffer( pMesh->m_indexBuffer );
+        }
+    }
+
+    Resource::InstallResult MeshLoader::UpdateInstall( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord ) const
+    {
+        // TODO: implement when moving to theforge
+        KRG_UNIMPLEMENTED_FUNCTION();
+        return Resource::InstallResult::Failed;
     }
 }

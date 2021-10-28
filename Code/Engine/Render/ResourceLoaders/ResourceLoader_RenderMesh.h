@@ -12,7 +12,7 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    class MeshLoader : public Resource::ResourceLoader
+    class MeshLoader final : public Resource::ResourceLoader
     {
     public:
 
@@ -28,11 +28,12 @@ namespace KRG::Render
 
     private:
 
-        virtual bool LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const final;
-        virtual void UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const final;
-        virtual bool Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const final;
+        virtual bool LoadInternal( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const override;
+        virtual Resource::InstallResult Install( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const override;
+        virtual Resource::InstallResult UpdateInstall( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord ) const override;
+        virtual void Uninstall( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord ) const override;
 
-        virtual void CreateRenderBuffers( Mesh* pMesh ) const;
+        void CreateRenderBuffers( Mesh* pMesh ) const;
 
     private:
 

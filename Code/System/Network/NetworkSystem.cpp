@@ -447,12 +447,14 @@ namespace KRG::Network
                 ISteamNetworkingMessage* pIncomingMsg = nullptr;
                 int32 const numMsgs = pInterface->ReceiveMessagesOnConnection( pClientConnection->m_connectionHandle, &pIncomingMsg, 1 );
 
+                // Handle invalid connection handle
                 if ( numMsgs < 0 )
                 {
-                    KRG_LOG_FATAL_ERROR( "Network", "Error checking for messages" );
+                    KRG_LOG_FATAL_ERROR( "Network", "Client connection handle is invalid, we've likely lost connection to the server" );
                     break;
                 }
 
+                // Process received messages
                 if ( numMsgs > 0 )
                 {
                     pClientConnection->ProcessMessage( pIncomingMsg->m_pData, pIncomingMsg->m_cbSize );

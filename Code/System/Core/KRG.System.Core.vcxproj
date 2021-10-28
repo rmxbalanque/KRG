@@ -534,6 +534,11 @@
   <ItemGroup>
     <Natvis Include="ThirdParty\EA\EASTL\Doc\EASTL.natvis" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Scripts\Prebuild\KRG.Scripts.Prebuild.vcxproj">
+      <Project>{f3d9d4ba-4d04-402b-b8d8-9a4a9400bfb6}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{07414BA8-87A7-449B-8AB7-551254B57FB3}</ProjectGuid>
     <RootNamespace>KRG.System.Core</RootNamespace>

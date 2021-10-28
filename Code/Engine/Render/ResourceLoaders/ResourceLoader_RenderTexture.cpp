@@ -10,46 +10,44 @@ namespace KRG::Render
     {
         KRG_ASSERT( m_pRenderDevice != nullptr && archive.IsValid() );
 
-        TextureFormat format;
-        TVector<Byte> rawData;
-
-        archive >> format;
-        archive >> rawData;
-
-        if ( rawData.empty() )
-        {
-            KRG_LOG_ERROR( "Resource", "Failed to install texture resource: %s, compiled resource has no data", resID.ToString().c_str() );
-            return false;
-        }
-
         Texture* pTextureResource = KRG::New<Texture>();
         KRG_ASSERT( pTextureResource != nullptr );
         archive >> *pTextureResource;
 
-        pResourceRecord->SetResourceData( pTextureResource );
-
-        //-------------------------------------------------------------------------
-
-        m_pRenderDevice->CreateTexture( *pTextureResource, format, rawData );
-        if ( !pTextureResource->IsValid() )
+        if ( pTextureResource->m_rawData.empty() )
         {
-            KRG_LOG_ERROR( "Resource", "Failed to create texture handle for texture: %s", resID.ToString().c_str() );
+            KRG_LOG_ERROR( "Resource", "Failed to load texture resource: %s, compiled resource has no data", resID.ToString().c_str() );
             return false;
         }
 
+        pResourceRecord->SetResourceData( pTextureResource );
         return true;
     }
 
-    void TextureLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const
+    Resource::InstallResult TextureLoader::Install( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
     {
-        KRG_ASSERT( m_pRenderDevice != nullptr );
+        auto pTextureResource = pResourceRecord->GetResourceData<Texture>();
 
+        // BLOCKING FOR NOW! TODO: request the load and return Resource::InstallResult::InProgress
+        m_pRenderDevice->CreateTexture( *pTextureResource, pTextureResource->m_format, pTextureResource->m_rawData );
+
+        ResourceLoader::Install( resourceID, pResourceRecord, installDependencies );
+        return Resource::InstallResult::Succeeded;
+    }
+
+    void TextureLoader::Uninstall( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord ) const
+    {
         auto pTextureResource = pResourceRecord->GetResourceData<Texture>();
         if ( pTextureResource != nullptr && pTextureResource->IsValid() )
         {
             m_pRenderDevice->DestroyTexture( *pTextureResource );
         }
+    }
 
-        ResourceLoader::UnloadInternal( resID, pResourceRecord );
+    Resource::InstallResult TextureLoader::UpdateInstall( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord ) const
+    {
+        // TODO: implement when moving to theforge
+        KRG_UNIMPLEMENTED_FUNCTION();
+        return Resource::InstallResult::Failed;
     }
 }

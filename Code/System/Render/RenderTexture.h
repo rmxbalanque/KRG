@@ -101,7 +101,7 @@ namespace KRG::Render
         friend class TextureLoader;
 
         KRG_REGISTER_RESOURCE( 'TXTR', "Render Texture" );
-        KRG_SERIALIZE_MEMBERS( m_dimensions );
+        KRG_SERIALIZE_MEMBERS( m_dimensions, m_format, m_rawData );
 
     public:
 
@@ -119,7 +119,9 @@ namespace KRG::Render
 
     protected:
 
-        ShaderResourceView  m_shaderResourceView;
-        Int2                m_dimensions;
+        ShaderResourceView      m_shaderResourceView;
+        Int2                    m_dimensions;
+        TextureFormat           m_format;
+        TVector<Byte>           m_rawData; // Temporary storage for the raw data used during installation, cleared when installation completes
     };
 }

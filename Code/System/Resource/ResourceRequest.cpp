@@ -127,6 +127,7 @@ namespace KRG::Resource
             break;
 
             case Stage::InstallResource:
+            case Stage::WaitForInstallResource:
             {
                 m_stage = Stage::UnloadResource;
             }
@@ -181,6 +182,12 @@ namespace KRG::Resource
             case ResourceRequest::Stage::InstallResource:
             {
                 InstallResource( requestContext );
+            }
+            break;
+
+            case ResourceRequest::Stage::WaitForInstallResource:
+            {
+                WaitForInstallResource( requestContext );
             }
             break;
 
@@ -393,20 +400,87 @@ namespace KRG::Resource
         KRG_ASSERT( m_stage == ResourceRequest::Stage::InstallResource );
         KRG_ASSERT( m_pendingInstallDependencies.empty() );
 
-        if ( m_pResourceLoader->Install( GetResourceID(), m_pResourceRecord, m_installDependencies ) )
+        InstallResult const result = m_pResourceLoader->Install( GetResourceID(), m_pResourceRecord, m_installDependencies );
+        switch ( result )
         {
-            KRG_ASSERT( m_pResourceRecord->GetResourceData() != nullptr );
-            m_installDependencies.clear();
-            m_pResourceRecord->SetLoadingStatus( LoadingStatus::Loaded );
-        }
-        else // Install operation failed, unload resource and set status to failed
-        {
-            m_stage = ResourceRequest::Stage::UnloadResource;
-            UnloadResource( requestContext );
-            m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
-        }
+            // Finished installing the resource
+            case InstallResult::Succeeded :
+            {
+                KRG_ASSERT( m_pResourceRecord->GetResourceData() != nullptr );
+                m_installDependencies.clear();
+                m_pResourceRecord->SetLoadingStatus( LoadingStatus::Loaded );
+                m_stage = ResourceRequest::Stage::Complete;
+            }
+            break;
 
-        m_stage = ResourceRequest::Stage::Complete;
+            // Wait for install to complete
+            case InstallResult::InProgress:
+            {
+                KRG_ASSERT( m_pResourceRecord->GetResourceData() != nullptr );
+                m_installDependencies.clear();
+                m_stage = ResourceRequest::Stage::WaitForInstallResource;
+            }
+            break;
+
+            // Install operation failed, unload resource and set status to failed
+            case InstallResult::Failed:
+            {
+                m_stage = ResourceRequest::Stage::UnloadResource;
+                UnloadResource( requestContext );
+                m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
+                m_stage = ResourceRequest::Stage::Complete;
+            }
+            break;
+
+            default:
+            {
+                KRG_UNREACHABLE_CODE();
+            }
+            break;
+        }
+    }
+
+    void ResourceRequest::WaitForInstallResource( RequestContext& requestContext )
+    {
+        KRG_PROFILE_FUNCTION_RESOURCE();
+        KRG_ASSERT( m_stage == ResourceRequest::Stage::WaitForInstallResource );
+        KRG_ASSERT( m_pendingInstallDependencies.empty() );
+        KRG_ASSERT( m_pResourceRecord->GetResourceData() != nullptr );
+
+        InstallResult const result = m_pResourceLoader->UpdateInstall( GetResourceID(), m_pResourceRecord );
+        switch ( result )
+        {
+            // Finished installing the resource
+            case InstallResult::Succeeded:
+            {
+                m_pResourceRecord->SetLoadingStatus( LoadingStatus::Loaded );
+                m_stage = ResourceRequest::Stage::Complete;
+            }
+            break;
+
+            // Wait for install to complete
+            case InstallResult::InProgress:
+            {
+                // Do Nothing
+            }
+            break;
+
+            // Install operation failed, unload resource and set status to failed
+            case InstallResult::Failed:
+            {
+                m_stage = ResourceRequest::Stage::UnloadResource;
+                UnloadResource( requestContext );
+                m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
+                m_stage = ResourceRequest::Stage::Complete;
+            }
+            break;
+
+            default:
+            {
+                KRG_UNREACHABLE_CODE();
+            }
+            break;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -414,12 +488,7 @@ namespace KRG::Resource
     void ResourceRequest::UninstallResource( RequestContext& requestContext )
     {
         KRG_ASSERT( m_stage == ResourceRequest::Stage::UninstallResource );
-
-        if ( m_pResourceRecord->IsLoaded() )
-        {
-            m_pResourceLoader->Uninstall( GetResourceID(), m_pResourceRecord );
-        }
-
+        m_pResourceLoader->Uninstall( GetResourceID(), m_pResourceRecord );
         m_stage = ResourceRequest::Stage::UnloadResource;
     }
 

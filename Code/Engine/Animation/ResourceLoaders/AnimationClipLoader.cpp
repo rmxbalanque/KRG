@@ -60,7 +60,7 @@ namespace KRG::Animation
         ResourceLoader::UnloadInternal( resID, pResourceRecord );
     }
 
-    bool AnimationClipLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
+    Resource::InstallResult AnimationClipLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
     {
         auto pAnimData = pResourceRecord->GetResourceData<AnimationClip>();
         KRG_ASSERT( pAnimData->m_pSkeleton.GetResourceID().IsValid() );
@@ -70,6 +70,6 @@ namespace KRG::Animation
 
         ResourceLoader::Install( resID, pResourceRecord, installDependencies );
 
-        return true;
+        return Resource::InstallResult::Succeeded;
     }
 }

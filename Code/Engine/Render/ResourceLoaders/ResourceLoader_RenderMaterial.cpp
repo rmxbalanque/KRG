@@ -24,7 +24,7 @@ namespace KRG::Render
         return true;
     }
 
-    bool MaterialLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
+    Resource::InstallResult MaterialLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
     {
         Material* pMaterial = pResourceRecord->GetResourceData<Material>();
 
@@ -34,13 +34,13 @@ namespace KRG::Render
         if ( !pMaterial->IsValid() )
         {
             KRG_LOG_ERROR( "Resource", "Failed to install resource: %s", resID.ToString().c_str() );
-            return false;
+            return Resource::InstallResult::Failed;
         }
         else
         {
             ResourceLoader::Install( resID, pResourceRecord, installDependencies );
         }
 
-        return true;
+        return Resource::InstallResult::Succeeded;
     }
 }
