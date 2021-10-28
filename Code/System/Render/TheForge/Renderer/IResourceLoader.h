@@ -39,25 +39,6 @@ typedef struct MappedMemoryRange
 	uint32_t mFlags;
 } MappedMemoryRange;
 
-typedef enum TextureContainerType
-{
-	/// Use whatever container is designed for that platform
-	/// Windows, macOS, Linux - TEXTURE_CONTAINER_DDS
-	/// iOS, Android          - TEXTURE_CONTAINER_KTX
-	TEXTURE_CONTAINER_DEFAULT = 0,
-	/// Explicit container types
-	/// .dds
-	TEXTURE_CONTAINER_DDS,
-	/// .ktx
-	TEXTURE_CONTAINER_KTX,
-	/// .gnf
-	TEXTURE_CONTAINER_GNF,
-	/// .basis
-	TEXTURE_CONTAINER_BASIS,
-	/// .svt
-	TEXTURE_CONTAINER_SVT,
-} TextureContainerType;
-
 // MARK: - Resource Loading
 
 typedef struct BufferLoadDesc
@@ -68,97 +49,6 @@ typedef struct BufferLoadDesc
 	/// Force Reset buffer to NULL
 	bool mForceReset;
 } BufferLoadDesc;
-
-typedef struct TextureLoadDesc
-{
-	Texture** ppTexture;
-	/// Load empty texture
-	TextureDesc* pDesc;
-	/// Filename without extension. Extension will be determined based on mContainer
-	const char* pFileName;
-	/// Password for loading texture from encrypted files
-	const char* pFilePassword;
-	/// The index of the GPU in SLI/Cross-Fire that owns this texture, or the Renderer index in unlinked mode.
-	uint32_t mNodeIndex;
-	/// Following is ignored if pDesc != NULL.  pDesc->mFlags will be considered instead.
-	TextureCreationFlags mCreationFlag;
-	/// The texture file format (dds/ktx/...)
-	TextureContainerType mContainer;
-} TextureLoadDesc;
-
-typedef struct Geometry
-{
-	struct Hair
-	{
-		uint32_t mVertexCountPerStrand;
-		uint32_t mGuideCountPerStrand;
-	};
-
-	struct ShadowData
-	{
-		void* pIndices;
-		void* pAttributes[MAX_VERTEX_ATTRIBS];
-	};
-
-	/// Index buffer to bind when drawing this geometry
-	Buffer* pIndexBuffer;
-	/// The array of vertex buffers to bind when drawing this geometry
-	Buffer* pVertexBuffers[MAX_VERTEX_BINDINGS];
-	/// The array of traditional draw arguments to draw each subset in this geometry
-	IndirectDrawIndexArguments* pDrawArgs;
-	/// Shadow copy of the geometry vertex and index data if requested through the load flags
-	ShadowData* pShadow;
-
-	/// The array of joint inverse bind-pose matrices ( object-space )
-	KRG::Matrix* pInverseBindPoses;
-	/// The array of data to remap skin batch local joint ids to global joint ids
-	uint32_t* pJointRemaps;
-	/// The array of vertex buffer strides to bind when drawing this geometry
-	uint32_t mVertexStrides[MAX_VERTEX_BINDINGS];
-	/// Hair data
-	Hair mHair;
-
-	/// Number of vertex buffers in this geometry
-	uint32_t mVertexBufferCount : 8;
-	/// Index type (32 or 16 bit)
-	uint32_t mIndexType : 2;
-	/// Number of joints in the skinned geometry
-	uint32_t mJointCount : 16;
-	/// Number of draw args in the geometry
-	uint32_t mDrawArgCount;
-	/// Number of indices in the geometry
-	uint32_t mIndexCount;
-	/// Number of vertices in the geometry
-	uint32_t mVertexCount;
-
-	uint32_t mPad[3];
-} Geometry;
-static_assert(sizeof(Geometry) % 16 == 0, "GLTFContainer size must be a multiple of 16");
-
-typedef enum GeometryLoadFlags
-{
-	/// Keep shadow copy of indices and vertices for CPU
-	GEOMETRY_LOAD_FLAG_SHADOWED = 0x1,
-	/// Use structured buffers instead of raw buffers
-	GEOMETRY_LOAD_FLAG_STRUCTURED_BUFFERS = 0x2,
-} GeometryLoadFlags;
-MAKE_ENUM_FLAG(uint32_t, GeometryLoadFlags)
-
-typedef struct GeometryLoadDesc
-{
-	/// Output geometry
-	Geometry** ppGeometry;
-	/// Filename of geometry container
-	const char* pFileName;
-	/// Password for file
-	const char* pFilePassword;
-	/// Loading flags
-	GeometryLoadFlags mFlags;
-	/// Linked gpu node / Unlinked Renderer index
-	uint32_t mNodeIndex;
-	/// Specifies how to arrange the vertex data loaded from the file into GPU memory
-	VertexLayout* pVertexLayout;
-} GeometryLoadDesc;
 
 typedef struct VirtualTexturePageInfo
 {
@@ -309,18 +199,7 @@ void exitResourceLoaderInterface(Renderer* pRenderer);
 void initResourceLoaderInterface(Renderer** ppRenderers, uint32_t rendererCount, ResourceLoaderDesc* pDesc = nullptr);
 void exitResourceLoaderInterface(Renderer** ppRenderers, uint32_t rendererCount);
 
-// MARK: addResource and updateResource
-
-/// Adding and updating resources can be done using a addResource or
-/// beginUpdateResource/endUpdateResource pair.
-/// if addResource(BufferLoadDesc) is called with a data size larger than the ResourceLoader's staging buffer, the ResourceLoader
-/// will perform multiple copies/flushes rather than failing the copy.
-
-/// If token is NULL, the resource will be available when allResourceLoadsCompleted() returns true.
-/// If token is non NULL, the resource will be available after isTokenCompleted(token) returns true.
-void addResource(BufferLoadDesc* pBufferDesc, SyncToken* token);
-void addResource(TextureLoadDesc* pTextureDesc, SyncToken* token);
-void addResource(GeometryLoadDesc* pGeomDesc, SyncToken* token);
+// MARK: updateResource
 
 void beginUpdateResource(BufferUpdateDesc* pBufferDesc);
 void beginUpdateResource(TextureUpdateDesc* pTextureDesc);
@@ -331,12 +210,6 @@ void endUpdateResource(TextureUpdateDesc* pTexture, SyncToken* token);
 /// For optimal use, the amount of data to transfer should be minimized as much as possible and applications should
 /// provide additional graphics/compute work that the GPU can execute alongside the copy.
 void copyResource(TextureCopyDesc* pTextureDesc, SyncToken* token);
-
-// MARK: removeResource
-
-void removeResource(Buffer* pBuffer);
-void removeResource(Texture* pTexture);
-void removeResource(Geometry* pGeom);
 
 // MARK: Waiting for Loads
 
@@ -369,9 +242,6 @@ void      waitForTokenSubmitted(const SyncToken* token);
 /// Return the semaphore for the last copy operation of a specific GPU.
 /// Could be NULL if no operations have been executed.
 Semaphore* getLastSemaphoreCompleted(uint32_t nodeIndex);
-
-/// Either loads the cached shader bytecode or compiles the shader to create new bytecode depending on whether source is newer than binary
-void addShader(Renderer* pRenderer, const ShaderLoadDesc* pDesc, Shader** pShader);
 
 /// Save/Load pipeline cache from disk
 void loadPipelineCache(Renderer* pRenderer, const PipelineCacheLoadDesc* pDesc, PipelineCache** ppPipelineCache);

@@ -26,8 +26,6 @@
 
 #include "../Core/Config.h"
 
-#include "../Interfaces/IFileSystem.h"
-
 #include "stdbool.h"
 
 #ifndef FILENAME_NAME_LENGTH_LOG
@@ -73,7 +71,6 @@ extern "C"
 	void initLog(const char* appName, LogLevel level);
 	void exitLog(void);
 
-	void addLogFile(const char* filename, FileMode file_mode, LogLevel log_level);
 	void addLogCallback(const char* id, uint32_t log_level, void* user_data, LogCallbackFn callback, LogCloseFn close, LogFlushFn flush);
 
 	void writeLog(uint32_t level, const char* filename, int line_number, const char* message, ...);

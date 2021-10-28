@@ -43,7 +43,6 @@ typedef struct GpuDesc
 	char                              mDeviceId[MAX_GPU_VENDOR_STRING_LENGTH] = {};
 	char                              mRevisionId[MAX_GPU_VENDOR_STRING_LENGTH] = {};
 	char                              mName[MAX_GPU_VENDOR_STRING_LENGTH] = {};
-	GPUPresetLevel                    mPreset = {};
 } GpuDesc;
 
 extern HMODULE hook_get_d3d12_module_handle();

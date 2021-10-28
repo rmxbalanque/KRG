@@ -24,7 +24,6 @@
 #include "RendererConfig.h"
 #include "../Interfaces/ILog.h"
 #include "IRenderer.h"
-#include "IRay.h"
 
 // API functions
 addFenceFn						addFence;
@@ -144,21 +143,6 @@ setTextureNameFn				setTextureName;
 setRenderTargetNameFn			setRenderTargetName;
 setPipelineNameFn				setPipelineName;
 
-/************************************************************************/
-// IRay Interface
-/************************************************************************/
-isRaytracingSupportedFn			isRaytracingSupported;
-initRaytracingFn				initRaytracing;
-removeRaytracingFn				removeRaytracing;
-addAccelerationStructureFn		addAccelerationStructure;
-removeAccelerationStructureFn	removeAccelerationStructure;
-removeAccelerationStructureScratchFn	removeAccelerationStructureScratch;
-addRaytracingShaderTableFn		addRaytracingShaderTable;
-removeRaytracingShaderTableFn	removeRaytracingShaderTable;
-
-cmdBuildAccelerationStructureFn	cmdBuildAccelerationStructure;
-cmdDispatchRaysFn				cmdDispatchRays;
-
 #if defined(METAL)
 addSSVGFDenoiserFn					addSSVGFDenoiser;
 removeSSVGFDenoiserFn				removeSSVGFDenoiser;
@@ -173,17 +157,17 @@ cmdSSVGFDenoiseFn					cmdSSVGFDenoise;
 typedef API_INTERFACE ret(FORGE_CALLCONV *name##Fn)(__VA_ARGS__); \
 name##Fn name; \
 
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, addBuffer, Renderer* pRenderer, const BufferDesc* pDesc, Buffer** pp_buffer)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, removeBuffer, Renderer* pRenderer, Buffer* pBuffer)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, mapBuffer, Renderer* pRenderer, Buffer* pBuffer, ReadRange* pRange)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, unmapBuffer, Renderer* pRenderer, Buffer* pBuffer)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, cmdUpdateBuffer, Cmd* pCmd, Buffer* pBuffer, uint64_t dstOffset, Buffer* pSrcBuffer, uint64_t srcOffset, uint64_t size)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, cmdUpdateSubresource, Cmd* pCmd, Texture* pTexture, Buffer* pSrcBuffer, const struct SubresourceDataDesc* pSubresourceDesc)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, cmdCopySubresource, Cmd* pCmd, Buffer* pDstBuffer, Texture* pTexture, const struct SubresourceDataDesc* pSubresourceDesc)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, addTexture, Renderer* pRenderer, const TextureDesc* pDesc, Texture** ppTexture)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, removeTexture, Renderer* pRenderer, Texture* pTexture)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, addVirtualTexture, Cmd* pCmd, const TextureDesc* pDesc, Texture** ppTexture, void* pImageData)
-DECLARE_INTERNAL_RENDERER_FUNCTION(void, removeVirtualTexture, Renderer* pRenderer, VirtualTexture* pTexture)
+addBufferFn					addBuffer;
+removeBufferFn				removeBuffer;
+mapBufferFn					mapBuffer;
+unmapBufferFn				unmapBuffer;
+cmdUpdateBufferFn			cmdUpdateBuffer;
+cmdUpdateSubresourceFn		cmdUpdateSubresource;
+cmdCopySubresourceFn		cmdCopySubresource;
+addTextureFn				addTexture;
+removeTextureFn				removeTexture;
+addVirtualTextureFn			addVirtualTexture;
+removeVirtualTextureFn		removeVirtualTexture;
 
 /************************************************************************/
 // Internal initialization settings
@@ -197,13 +181,11 @@ bool        gGLESUnsupported = false;
 /************************************************************************/
 #if defined(DIRECT3D11)
 extern void initD3D11Renderer(const char* appName, const RendererDesc* pSettings, Renderer** ppRenderer);
-extern void initD3D11RaytracingFunctions();
 extern void exitD3D11Renderer(Renderer* pRenderer); 
 #endif
 
 #if defined(DIRECT3D12)
 extern void initD3D12Renderer(const char* appName, const RendererDesc* pSettings, Renderer** ppRenderer);
-extern void initD3D12RaytracingFunctions();
 extern void exitD3D12Renderer(Renderer* pRenderer);
 extern void initD3D12RendererContext(const char* appName, const RendererContextDesc* pSettings, RendererContext** ppContext);
 extern void exitD3D12RendererContext(RendererContext* pContext);
@@ -211,7 +193,6 @@ extern void exitD3D12RendererContext(RendererContext* pContext);
 
 #if defined(VULKAN)
 extern void initVulkanRenderer(const char* appName, const RendererDesc* pSettings, Renderer** ppRenderer);
-extern void initVulkanRaytracingFunctions();
 extern void exitVulkanRenderer(Renderer* pRenderer);
 extern void initVulkanRendererContext(const char* appName, const RendererContextDesc* pSettings, RendererContext** ppContext);
 extern void exitVulkanRendererContext(RendererContext* pContext);
@@ -219,7 +200,6 @@ extern void exitVulkanRendererContext(RendererContext* pContext);
 
 #if defined(METAL)
 extern void initMetalRenderer(const char* appName, const RendererDesc* pSettings, Renderer** ppRenderer);
-extern void initMetalRaytracingFunctions();
 extern void exitMetalRenderer(Renderer* pRenderer);
 #endif
 
@@ -265,19 +245,16 @@ static void initRendererAPI(const char* appName, const RendererDesc* pSettings, 
 #endif
 #if defined(DIRECT3D12)
 	case RENDERER_API_D3D12:
-		initD3D12RaytracingFunctions();
 		initD3D12Renderer(appName, pSettings, ppRenderer);
 		break;
 #endif
 #if defined(VULKAN)
 	case RENDERER_API_VULKAN:
-		initVulkanRaytracingFunctions();
 		initVulkanRenderer(appName, pSettings, ppRenderer);
 		break;
 #endif
 #if defined(METAL)
 	case RENDERER_API_METAL:
-		initMetalRaytracingFunctions();
 		initMetalRenderer(appName, pSettings, ppRenderer);
 		break;
 #endif

@@ -80,7 +80,6 @@ static inline size_t tf_mem_hash( const T* mem, size_t size, size_t prev = 21661
 
 #include "../../Interfaces/ILog.h"
 #include "../../Core/Atomics.h"
-#include "../../Core/GPUConfig.h"
 
 #include "Direct3D12CapBuilder.h"
 #include "Direct3D12Hooks.h"
@@ -118,21 +117,6 @@ extern void cmdBindRaytracingPipeline(Cmd* pCmd, Pipeline* pPipeline);
 #if defined(_WIN32) && defined(_DEBUG) && defined(DRED)
 #define USE_DRED 1
 #endif
-
-DECLARE_RENDERER_FUNCTION(void, addBuffer, Renderer* pRenderer, const BufferDesc* pDesc, Buffer** pp_buffer)
-DECLARE_RENDERER_FUNCTION(void, removeBuffer, Renderer* pRenderer, Buffer* pBuffer)
-DECLARE_RENDERER_FUNCTION(void, mapBuffer, Renderer* pRenderer, Buffer* pBuffer, ReadRange* pRange)
-DECLARE_RENDERER_FUNCTION(void, unmapBuffer, Renderer* pRenderer, Buffer* pBuffer)
-DECLARE_RENDERER_FUNCTION(
-	void, cmdUpdateBuffer, Cmd* pCmd, Buffer* pBuffer, uint64_t dstOffset, Buffer* pSrcBuffer, uint64_t srcOffset, uint64_t size)
-DECLARE_RENDERER_FUNCTION(
-	void, cmdUpdateSubresource, Cmd* pCmd, Texture* pTexture, Buffer* pSrcBuffer, const struct SubresourceDataDesc* pSubresourceDesc)
-DECLARE_RENDERER_FUNCTION(
-	void, cmdCopySubresource, Cmd* pCmd, Buffer* pDstBuffer, Texture* pTexture, const struct SubresourceDataDesc* pSubresourceDesc)
-DECLARE_RENDERER_FUNCTION(void, addTexture, Renderer* pRenderer, const TextureDesc* pDesc, Texture** ppTexture)
-DECLARE_RENDERER_FUNCTION(void, removeTexture, Renderer* pRenderer, Texture* pTexture)
-DECLARE_RENDERER_FUNCTION(void, addVirtualTexture, Cmd* pCmd, const TextureDesc* pDesc, Texture** ppTexture, void* pImageData)
-DECLARE_RENDERER_FUNCTION(void, removeVirtualTexture, Renderer* pRenderer, VirtualTexture* pTexture)
 
 // clang-format off
 D3D12_BLEND_OP gDx12BlendOpTranslator[BlendMode::MAX_BLEND_MODES] =
@@ -1453,9 +1437,6 @@ void util_enumerate_gpus(IDXGIFactory6* dxgiFactory, uint32_t* pGpuCount, GpuDes
 							Renderer renderer = {};
 							D3D12CreateDevice(adapter, feature_levels[level], IID_PPV_ARGS(&renderer.mD3D12.pDxDevice));
 							hook_fill_gpu_desc(&renderer, feature_levels[level], pGpuDesc);
-							//get preset for current gpu description
-							pGpuDesc->mPreset =
-								getGPUPresetLevel(pGpuDesc->mVendorId, pGpuDesc->mDeviceId, pGpuDesc->mRevisionId);
 							SAFE_RELEASE(renderer.mD3D12.pDxDevice);
 						}
 						else
@@ -1502,7 +1483,6 @@ GPUSettings util_to_GpuSettings(const GpuDesc* pGpuDesc)
 	//get name from api
 	strncpy(gpuSettings.mGpuVendorPreset.mGpuName, pGpuDesc->mName, MAX_GPU_VENDOR_STRING_LENGTH);
 	//get preset
-	gpuSettings.mGpuVendorPreset.mPresetLevel = pGpuDesc->mPreset;
 	//get wave lane count
 	gpuSettings.mWaveLaneCount = pGpuDesc->mFeatureDataOptions1.WaveLaneCountMin;
 	gpuSettings.mROVsSupported = pGpuDesc->mFeatureDataOptions.ROVsSupported ? true : false;
@@ -1709,12 +1689,6 @@ static bool SelectBestGpu(Renderer* pRenderer, D3D_FEATURE_LEVEL* pFeatureLevel)
 				return gpu1.mFeatureDataOptions1.WaveOps;
 		}
 
-		// Next check for higher preset
-		if ((int)gpu1.mPreset != (int)gpu2.mPreset)
-		{
-			return gpu1.mPreset > gpu2.mPreset;
-		}
-
 		// Check feature level first, sort the greatest feature level gpu to the front
 		if ((int)gpu1.mMaxSupportedFeatureLevel != (int)gpu2.mMaxSupportedFeatureLevel)
 		{
@@ -1733,9 +1707,9 @@ static bool SelectBestGpu(Renderer* pRenderer, D3D_FEATURE_LEVEL* pFeatureLevel)
 	{
 		gpuSettings[i] = util_to_GpuSettings(&gpuDesc[i]);
 		LOGF(
-			LogLevel::eINFO, "GPU[%i] detected. Vendor ID: %s, Model ID: %s, Revision ID: %s, Preset: %s, GPU Name: %S", i,
+			LogLevel::eINFO, "GPU[%i] detected. Vendor ID: %s, Model ID: %s, Revision ID: %s, GPU Name: %S", i,
 			gpuSettings[i].mGpuVendorPreset.mVendorId, gpuSettings[i].mGpuVendorPreset.mModelId, gpuSettings[i].mGpuVendorPreset.mRevisionId,
-			presetLevelToString(gpuSettings[i].mGpuVendorPreset.mPresetLevel), gpuSettings[i].mGpuVendorPreset.mGpuName);
+			gpuSettings[i].mGpuVendorPreset.mGpuName);
 
 		// Check that gpu supports at least graphics
 		if (gpuIndex == UINT32_MAX || isDeviceBetter(gpuDesc, i, gpuIndex))
@@ -1765,7 +1739,6 @@ static bool SelectBestGpu(Renderer* pRenderer, D3D_FEATURE_LEVEL* pFeatureLevel)
 	LOGF(LogLevel::eINFO, "Vendor id of selected gpu: %s", pRenderer->pActiveGpuSettings->mGpuVendorPreset.mVendorId);
 	LOGF(LogLevel::eINFO, "Model id of selected gpu: %s", pRenderer->pActiveGpuSettings->mGpuVendorPreset.mModelId);
 	LOGF(LogLevel::eINFO, "Revision id of selected gpu: %s", pRenderer->pActiveGpuSettings->mGpuVendorPreset.mRevisionId);
-	LOGF(LogLevel::eINFO, "Preset of selected gpu: %s", presetLevelToString(pRenderer->pActiveGpuSettings->mGpuVendorPreset.mPresetLevel));
 
 	if (pFeatureLevel)
 		*pFeatureLevel = gpuDesc[gpuIndex].mMaxSupportedFeatureLevel;
@@ -3544,203 +3517,6 @@ void d3d12_removeSampler(Renderer* pRenderer, Sampler* pSampler)
 /************************************************************************/
 // Shader Functions
 /************************************************************************/
-void d3d12_compileShader(
-	Renderer* pRenderer, ShaderTarget shaderTarget, ShaderStage stage, const char* fileName, uint32_t codeSize, const char* code,
-	bool enablePrimitiveId, uint32_t macroCount, ShaderMacro* pMacros, BinaryShaderStageDesc* pOut, const char* pEntryPoint)
-{
-	if ((uint32_t)shaderTarget > pRenderer->mShaderTarget)
-	{
-		LOGF(
-			LogLevel::eERROR,
-			"Requested shader target (%u) is higher than the shader target that the renderer supports (%u). Shader wont be compiled",
-			(uint32_t)shaderTarget, (uint32_t)pRenderer->mShaderTarget);
-		return;
-	}
-	{
-		IDxcLibrary*  pLibrary;
-		IDxcCompiler* pCompiler;
-		CHECK_HRESULT(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
-		CHECK_HRESULT(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
-
-		/************************************************************************/
-		// Determine shader target
-		/************************************************************************/
-		int major;
-		int minor;
-		switch (shaderTarget)
-		{
-			default:
-			case shader_target_6_0:
-			{
-				major = 6;
-				minor = 0;
-				break;
-			}
-			case shader_target_6_1:
-			{
-				major = 6;
-				minor = 1;
-				break;
-			}
-			case shader_target_6_2:
-			{
-				major = 6;
-				minor = 2;
-				break;
-			}
-			case shader_target_6_3:
-			{
-				major = 6;
-				minor = 3;
-				break;
-			}
-			case shader_target_6_4:
-			{
-				major = 6;
-				minor = 4;
-				break;
-			}
-		}
-		wchar_t target[16] = {};
-		switch (stage)
-		{
-			case SHADER_STAGE_VERT: swprintf(target, L"vs_%d_%d", major, minor); break;
-			case SHADER_STAGE_TESC: swprintf(target, L"hs_%d_%d", major, minor); break;
-			case SHADER_STAGE_TESE: swprintf(target, L"ds_%d_%d", major, minor); break;
-			case SHADER_STAGE_GEOM: swprintf(target, L"gs_%d_%d", major, minor); break;
-			case SHADER_STAGE_FRAG: swprintf(target, L"ps_%d_%d", major, minor); break;
-			case SHADER_STAGE_COMP: swprintf(target, L"cs_%d_%d", major, minor); break;
-#ifdef ENABLE_RAYTRACING
-			case SHADER_STAGE_RAYTRACING:
-			{
-				swprintf(target, L"lib_%d_%d", major, minor);
-				ASSERT(shaderTarget >= shader_target_6_3);
-				break;
-			}
-#else
-				return;
-#endif
-			default: break;
-		}
-		/************************************************************************/
-		// Collect macros
-		/************************************************************************/
-		uint32_t namePoolSize = 0;
-		for (uint32_t i = 0; i < macroCount; ++i)
-		{
-			namePoolSize += (uint32_t)strlen(pMacros[i].definition) + 1;
-			namePoolSize += (uint32_t)strlen(pMacros[i].value) + 1;
-		}
-		WCHAR* namePool = NULL;
-		if (namePoolSize)
-			namePool = (WCHAR*)alloca(namePoolSize * sizeof(WCHAR));
-
-		// Extract shader macro definitions into D3D_SHADER_MACRO scruct
-		// Allocate Size+2 structs: one for D3D12 1 definition and one for null termination
-		DxcDefine* macros = (DxcDefine*)alloca((macroCount + 1) * sizeof(DxcDefine));
-		macros[0] = { L"D3D12", L"1" };
-		WCHAR* pCurrent = namePool;
-		for (uint32_t j = 0; j < macroCount; ++j)
-		{
-			uint32_t len = (uint32_t)strlen(pMacros[j].definition);
-			mbstowcs(pCurrent, pMacros[j].definition, len);
-			pCurrent[len] = L'\0';    //-V522
-			macros[j + 1].Name = pCurrent;
-			pCurrent += (len + 1);
-
-			len = (uint32_t)strlen(pMacros[j].value);
-			mbstowcs(pCurrent, pMacros[j].value, len);
-			pCurrent[len] = L'\0';
-			macros[j + 1].Value = pCurrent;
-			pCurrent += (len + 1);
-		}
-		/************************************************************************/
-		// Create blob from the string
-		/************************************************************************/
-		IDxcBlobEncoding* pTextBlob;
-		CHECK_HRESULT(pLibrary->CreateBlobWithEncodingFromPinned((LPBYTE)code, (UINT32)codeSize, 0, &pTextBlob));
-		IDxcOperationResult* pResult;
-		WCHAR                filename[FS_MAX_PATH] = {};
-		char                 pathStr[FS_MAX_PATH] = { 0 };
-		fsAppendPathComponent(fsGetResourceDirectory(RD_SHADER_SOURCES), fileName, pathStr);
-		mbstowcs(filename, fileName, strlen(fileName));
-		IDxcIncludeHandler* pInclude = NULL;
-		pLibrary->CreateIncludeHandler(&pInclude);
-
-		WCHAR* entryName = L"main";
-		if (pEntryPoint != NULL)
-		{
-			entryName = (WCHAR*)tf_calloc(strlen(pEntryPoint) + 1, sizeof(WCHAR));
-			mbstowcs(entryName, pEntryPoint, strlen(pEntryPoint));
-		}
-
-		/************************************************************************/
-		// Compiler args
-		/************************************************************************/
-
-		uint32_t numCompileFlags = 0;
-		char     directoryStr[FS_MAX_PATH] = { 0 };
-		fsGetParentPath(pathStr, directoryStr);
-		eastl::vector<const wchar_t*> compilerArgs;
-		hook_modify_shader_compile_flags(stage, enablePrimitiveId, NULL, &numCompileFlags);
-		compilerArgs.resize(compilerArgs.size() + numCompileFlags);
-		hook_modify_shader_compile_flags(stage, enablePrimitiveId, compilerArgs.end() - numCompileFlags, &numCompileFlags);
-
-		compilerArgs.push_back(L"-Zi");
-		compilerArgs.push_back(L"-all_resources_bound");
-#if defined(ENABLE_GRAPHICS_DEBUG)
-		compilerArgs.push_back(L"-Od");
-#else
-		compilerArgs.push_back(L"-O3");
-#endif
-
-		// specify the parent directory as include path
-		wchar_t directory[FS_MAX_PATH + 2] = L"-I";
-		mbstowcs(directory + 2, directoryStr, strlen(directoryStr));
-		compilerArgs.push_back(directory);
-
-		CHECK_HRESULT(pCompiler->Compile(
-			pTextBlob, filename, entryName, target, compilerArgs.data(), (UINT32)compilerArgs.size(), macros, macroCount + 1, pInclude,
-			&pResult));
-
-		if (pEntryPoint != NULL)
-		{
-			tf_free(entryName);
-			entryName = NULL;
-		}
-
-		pInclude->Release();
-		pLibrary->Release();
-		pCompiler->Release();
-		/************************************************************************/
-		// Verify the result
-		/************************************************************************/
-		HRESULT resultCode;
-		CHECK_HRESULT(pResult->GetStatus(&resultCode));
-		if (FAILED(resultCode))
-		{
-			IDxcBlobEncoding* pError;
-			CHECK_HRESULT(pResult->GetErrorBuffer(&pError));
-			LOGF(LogLevel::eERROR, "%s", (char*)pError->GetBufferPointer());
-			pError->Release();
-			return;
-		}
-		/************************************************************************/
-		// Collect blob
-		/************************************************************************/
-		IDxcBlob* pBlob;
-		CHECK_HRESULT(pResult->GetResult(&pBlob));
-
-		char* pByteCode = (char*)tf_malloc(pBlob->GetBufferSize());
-		memcpy(pByteCode, pBlob->GetBufferPointer(), pBlob->GetBufferSize());
-		pOut->mByteCodeSize = (uint32_t)pBlob->GetBufferSize();
-		pOut->pByteCode = pByteCode;
-
-		pBlob->Release();
-		/************************************************************************/
-		/************************************************************************/
-	}
-}
 
 void d3d12_addShaderBinary(Renderer* pRenderer, const BinaryShaderDesc* pDesc, Shader** ppShaderProgram)
 {

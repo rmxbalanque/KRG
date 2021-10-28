@@ -600,7 +600,7 @@ static void wipeWithPattern(sAllocUnit* allocUnit, uint32_t pattern, const unsig
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
-static void dumpLine(FileStream* fileToWrite, const char* format, ...)
+static void dumpLine(const char* format, ...)
 {
 	va_list args;
 	char    buffer[BUFFER_SIZE] = { 0 };
@@ -610,20 +610,13 @@ static void dumpLine(FileStream* fileToWrite, const char* format, ...)
 
 	_OutputDebugString(buffer);
 	_OutputDebugString("\n");
-	if (fileToWrite != NULL)
-	{
-		fsWriteToStream(fileToWrite, buffer, strlen(buffer));
-		fsWriteToStream(fileToWrite, "\n", 1);
-		fsFlushStream(fileToWrite);
-	}
 }
 
-static void dumpAllocations(FileStream* fh)
+static void dumpAllocations()
 {
-	dumpLine(fh, "Alloc.        Addr           Size           Addr           Size                        BreakOn BreakOn");
-	dumpLine(fh, "Number      Reported       Reported        Actual         Actual     Unused    Method  Dealloc Realloc  Allocated by");
+	dumpLine("Alloc.        Addr           Size           Addr           Size                        BreakOn BreakOn");
+	dumpLine("Number      Reported       Reported        Actual         Actual     Unused    Method  Dealloc Realloc  Allocated by");
 	dumpLine(
-		fh,
 		"------ ------------------ ---------- ------------------ ---------- ---------- -------- ------- ------- "
 		"---------------------------------------------------");
 
@@ -633,7 +626,7 @@ static void dumpAllocations(FileStream* fh)
 		while (ptr)
 		{
 			dumpLine(
-				fh, "% 6d 0x%016zX 0x%08zX 0x%016zX 0x%08zX 0x%08X %-8s    %c       %c    %s", ptr->allocationNumber,
+				"% 6d 0x%016zX 0x%08zX 0x%016zX 0x%08zX 0x%08X %-8s    %c       %c    %s", ptr->allocationNumber,
 				(size_t)(ptr->reportedAddress), ptr->reportedSize, (size_t)(ptr->actualAddress), ptr->actualSize, mmgrCalcUnused(ptr),
 				allocationTypes[ptr->allocationType], ptr->breakOnDealloc ? 'Y' : 'N', ptr->breakOnRealloc ? 'Y' : 'N',
 				ownerString(ptr->sourceFile, ptr->sourceLine, ptr->sourceFunc));
@@ -663,9 +656,6 @@ static void dumpLeakReport()
 		}
 		strcat(outputFileName, extension);
 
-		FileStream fh = { 0 };
-		bool       success = fsOpenStreamFromPath(RD_LOG, outputFileName, FM_WRITE, NULL, &fh);
-
 		/*if (!fh)
 			return;*/
 		// Header
@@ -676,19 +666,19 @@ static void dumpLeakReport()
 #else
         localtime_s(&t, &tme);
 #endif
-		dumpLine(&fh, " ------------------------------------------------------------------------------");
+		dumpLine(" ------------------------------------------------------------------------------");
 		dumpLine(
-			&fh, "|                Memory leak report for:  %02d/%02d/%04d %02d:%02d:%02d                  |", tme.tm_mon + 1, tme.tm_mday,
+			"|                Memory leak report for:  %02d/%02d/%04d %02d:%02d:%02d                  |", tme.tm_mon + 1, tme.tm_mday,
 			tme.tm_year + 1900, tme.tm_hour, tme.tm_min, tme.tm_sec);
 		// use LF instead of CRLF
-		dumpLine(&fh, " ------------------------------------------------------------------------------");
+		dumpLine(" ------------------------------------------------------------------------------");
 		if (stats.totalAllocUnitCount)
 		{
-			dumpLine(&fh, "%d memory leak%s found:\n", stats.totalAllocUnitCount, stats.totalAllocUnitCount == 1 ? "" : "s");
+			dumpLine("%d memory leak%s found:\n", stats.totalAllocUnitCount, stats.totalAllocUnitCount == 1 ? "" : "s");
 		}
 		else
 		{
-			dumpLine(&fh, "Congratulations! No memory leaks found!");
+			dumpLine("Congratulations! No memory leaks found!");
 
 			// We can finally free up our own memory allocations
 
@@ -707,22 +697,18 @@ static void dumpLeakReport()
 
 		if (stats.totalAllocUnitCount)
 		{
-			dumpAllocations(&fh);
+			dumpAllocations();
 		}
 
 		char* allMemoryLog = Log("----All Allocations and Deallocations----");
 
-		dumpLine(&fh, allMemoryLog);
+		dumpLine(allMemoryLog);
 
 		if (!stats.totalAllocUnitCount)
 		{
-			dumpLine(&fh, " ------------------------------------------------------------------------------");
-			dumpLine(&fh, "Congratulations! No memory leaks found!");
-			dumpLine(&fh, " ------------------------------------------------------------------------------");
-		}
-		if (success)
-		{
-			fsCloseStream(&fh);
+			dumpLine(" ------------------------------------------------------------------------------");
+			dumpLine("Congratulations! No memory leaks found!");
+			dumpLine(" ------------------------------------------------------------------------------");
 		}
 
 		m_assert(stats.totalAllocUnitCount == 0 && "Memory leaks found");
@@ -1623,129 +1609,6 @@ void mmgrDumpAllocUnit(const sAllocUnit* allocUnit, const char* prefix)
 	Log("[I] %sOwner             : %s(%d)::%s", prefix, allocUnit->sourceFile, allocUnit->sourceLine, allocUnit->sourceFunc);
 	Log("[I] %sAllocation type   : %s", prefix, allocationTypes[allocUnit->allocationType]);
 	Log("[I] %sAllocation number : %d", prefix, allocUnit->allocationNumber);
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------
-static void fsPrintf(FileStream* fileStream, const char* format, ...)
-{
-	va_list args;
-	char    buffer[BUFFER_SIZE] = { 0 };
-	va_start(args, format);
-	vsnprintf(buffer, BUFFER_SIZE, format, args);
-	va_end(args);
-	fsWriteToStream(fileStream, buffer, strlen(buffer));
-}
-
-void mmgrDumpMemoryReport(const char* filename, const bool overwrite)
-{
-	{
-		FileStream fh = { 0 };
-		bool       success = fsOpenStreamFromPath(RD_LOG, filename, overwrite ? FM_WRITE : FM_APPEND, NULL, &fh);
-
-		// If you hit this assert, then the memory report generator is unable to log information to a file (can't open the file for
-		// some reason.)
-		if (!success)
-			return;
-
-		// Header
-		static char timeString[25];
-		memset(timeString, 0, sizeof(timeString));
-		time_t    t = time(NULL);
-		struct tm tme;
-#ifdef _WIN32
-		localtime_s(&tme, &t);
-#else
-        localtime_s(&t, &tme);
-#endif
-
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"-----\n");
-		fsPrintf(
-			&fh,
-			"|                                             Memory report for: %02d/%02d/%04d %02d:%02d:%02d                                "
-			"          |\n",
-			tme.tm_mon + 1, tme.tm_mday, tme.tm_year + 1900, tme.tm_hour, tme.tm_min, tme.tm_sec);
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"-----\n");
-		fsPrintf(&fh, "\n");
-
-		// Report summary
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"----- \n");
-		fsPrintf(
-			&fh,
-			"|                                                           T O T A L S                                                       "
-			"     |\n");
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"----- \n");
-		fsPrintf(&fh, "              Allocation unit count: %10s\n", insertCommas(stats.totalAllocUnitCount));
-		fsPrintf(&fh, "            Reported to application: %s\n", memorySizeString(stats.totalReportedMemory));
-		fsPrintf(&fh, "         Actual total memory in use: %s\n", memorySizeString(stats.totalActualMemory));
-		fsPrintf(&fh, "           Memory tracking overhead: %s\n", memorySizeString(stats.totalActualMemory - stats.totalReportedMemory));
-		fsPrintf(&fh, "\n");
-
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"----- \n");
-		fsPrintf(
-			&fh,
-			"|                                                            P E A K S                                                        "
-			"     |\n");
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"----- \n");
-		fsPrintf(&fh, "              Allocation unit count: %10s\n", insertCommas(stats.peakAllocUnitCount));
-		fsPrintf(&fh, "            Reported to application: %s\n", memorySizeString(stats.peakReportedMemory));
-		fsPrintf(&fh, "                             Actual: %s\n", memorySizeString(stats.peakActualMemory));
-		fsPrintf(&fh, "           Memory tracking overhead: %s\n", memorySizeString(stats.peakActualMemory - stats.peakReportedMemory));
-		fsPrintf(&fh, "\n");
-
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"----- \n");
-		fsPrintf(
-			&fh,
-			"|                                                      A C C U M U L A T E D                                                  "
-			"     |\n");
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"----- \n");
-		fsPrintf(&fh, "              Allocation unit count: %s\n", memorySizeString(stats.accumulatedAllocUnitCount));
-		fsPrintf(&fh, "            Reported to application: %s\n", memorySizeString(stats.accumulatedReportedMemory));
-		fsPrintf(&fh, "                             Actual: %s\n", memorySizeString(stats.accumulatedActualMemory));
-		fsPrintf(&fh, "\n");
-
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"----- \n");
-		fsPrintf(
-			&fh,
-			"|                                                           U N U S E D                                                       "
-			"     |\n");
-		fsPrintf(
-			&fh,
-			" -----------------------------------------------------------------------------------------------------------------------------"
-			"----- \n");
-		fsPrintf(&fh, "Memory allocated but not in use: %s\n", memorySizeString(mmgrCalcAllUnused()));
-		fsPrintf(&fh, "\n");
-
-		dumpAllocations(&fh);
-
-		fsCloseStream(&fh);
-	}
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------

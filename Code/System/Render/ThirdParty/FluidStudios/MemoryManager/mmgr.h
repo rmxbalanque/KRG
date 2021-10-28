@@ -152,7 +152,6 @@ extern "C"
 	void mmgrSetLogFileDirectory(const char* directory);
 	void mmgrDumpAllocUnit(const sAllocUnit* allocUnit, const char* prefix);
 	// the filename and override were defaulted to "memreport.log" and true
-	void    mmgrDumpMemoryReport(const char* filename, const bool overwrite);
 	sMStats mmgrGetMemoryStatistics(void);
 
 #ifdef __cplusplus

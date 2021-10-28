@@ -25,7 +25,6 @@
 #include "../Interfaces/IOperatingSystem.h"
 #include "../Interfaces/ILog.h"
 #include "../Interfaces/IThread.h"
-#include "../Interfaces/IFileSystem.h"
 
 #include "wchar.h"
 

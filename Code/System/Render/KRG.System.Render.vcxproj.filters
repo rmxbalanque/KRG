@@ -95,15 +95,11 @@
     <ClCompile Include="TheForge\Renderer\ResourceLoader.cpp" />
     <ClCompile Include="TheForge\Renderer\Direct3D12\Direct3D12.cpp" />
     <ClCompile Include="TheForge\Renderer\Direct3D12\Direct3D12Hooks.cpp" />
-    <ClCompile Include="TheForge\Renderer\Direct3D12\Direct3D12Raytracing.cpp" />
     <ClCompile Include="TheForge\Renderer\Direct3D12\Direct3D12ShaderReflection.cpp" />
     <ClCompile Include="TheForge\Windows\WindowsLog.c" />
     <ClCompile Include="TheForge\Windows\WindowsThread.c" />
     <ClCompile Include="TheForge\MemoryTracking\MemoryTracking.c" />
     <ClCompile Include="TheForge\Logging\Log.c" />
-    <ClCompile Include="TheForge\FileSystem\FileSystem.cpp" />
-    <ClCompile Include="TheForge\Windows\WindowsFileSystem.cpp" />
-    <ClCompile Include="ThirdParty\basis_universal\transcoder\basisu_transcoder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fonts\FontData_SegoeBold.h">
@@ -164,7 +160,6 @@
     <ClInclude Include="Imgui\ImguiSystem.h" />
     <ClInclude Include="Imgui\ImguiTheme.h" />
     <ClInclude Include="Imgui\ImguiX.h" />
-    <ClInclude Include="TheForge\Renderer\IRay.h" />
     <ClInclude Include="TheForge\Renderer\IRenderer.h" />
     <ClInclude Include="TheForge\Renderer\IResourceLoader.h" />
     <ClInclude Include="TheForge\Renderer\IShaderReflection.h" />
@@ -180,15 +175,6 @@
     <ClInclude Include="TheForge\Interfaces\IThread.h" />
     <ClInclude Include="TheForge\Core\Atomics.h" />
     <ClInclude Include="TheForge\Core\Config.h" />
-    <ClInclude Include="TheForge\Core\DLL.h" />
-    <ClInclude Include="TheForge\Core\TextureContainers.h" />
-    <ClInclude Include="TheForge\Interfaces\IFileSystem.h" />
-    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu.h" />
-    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_file_headers.h" />
-    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_global_selector_cb.h" />
-    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_global_selector_palette.h" />
-    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_transcoder.h" />
-    <ClInclude Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_internal.h" />
     <ClInclude Include="ThirdParty\D3D12MemoryAllocator\Direct3D12MemoryAllocator.h" />
     <ClInclude Include="ThirdParty\DirectXShaderCompiler\inc\d3d12shader.h" />
     <ClInclude Include="ThirdParty\DirectXShaderCompiler\inc\dxcapi.h" />
@@ -197,17 +183,6 @@
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
       <Filter>DebugRenderer\Debug\HLSL</Filter>
     </None>
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_astc.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_astc_0_255.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_atc_55.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_atc_56.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_bc7_m5_alpha.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_bc7_m5_color.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_bc7_m6.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_dxt1_5.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_dxt1_6.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_pvrtc2_45.inc" />
-    <None Include="ThirdParty\basis_universal\transcoder\basisu_transcoder_tables_pvrtc2_alpha_33.inc" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis" />
