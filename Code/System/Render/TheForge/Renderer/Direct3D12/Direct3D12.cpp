@@ -1812,7 +1812,7 @@ static bool AddDevice(const RendererDesc* pDesc, Renderer* pRenderer)
 	SetAftermathDevice(pRenderer->mD3D12.pDxDevice);
 #endif
 
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) && defined(ENABLE_DX12_VALIDATION)
 	HRESULT hr = pRenderer->mD3D12.pDxDevice->QueryInterface(IID_ARGS(&pRenderer->mD3D12.pDxDebugValidation));
 	if (SUCCEEDED(hr))
 	{
@@ -2040,28 +2040,6 @@ void d3d12_initRenderer(const char* appName, const RendererDesc* pDesc, Renderer
 		}
 
 #if !defined(XBOX)
-		//anything below LOW preset is not supported and we will exit
-		if (pRenderer->pActiveGpuSettings->mGpuVendorPreset.mPresetLevel < GPU_PRESET_LOW)
-		{
-			//have the condition in the assert as well so its cleared when the assert message box appears
-
-			ASSERT(pRenderer->pActiveGpuSettings->mGpuVendorPreset.mPresetLevel >= GPU_PRESET_LOW);    //-V547
-
-			SAFE_FREE(pRenderer->pName);
-
-			//remove device and any memory we allocated in just above as this is the first function called
-			//when initializing the forge
-			RemoveDevice(pRenderer);
-			SAFE_FREE(pRenderer);
-			LOGF(LogLevel::eERROR, "Selected GPU has an Office Preset in gpu.cfg.");
-			LOGF(LogLevel::eERROR, "Office preset is not supported by The Forge.");
-
-			//return NULL pRenderer so that client can gracefully handle exit
-			//This is better than exiting from here in case client has allocated memory or has fallbacks
-			*ppRenderer = NULL;
-			return;
-		}
-
 		d3d12_utils_caps_builder(pRenderer);
 
 		if (pRenderer->mShaderTarget >= shader_target_6_0)
