@@ -77,8 +77,7 @@ namespace KRG::Network
                 case k_ESteamNetworkingConnectionState_ClosedByPeer:
                 case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
                 {
-                    // Ignore if they were not previously connected.  (If they disconnected
-                    // before we accepted the connection.)
+                    // Ignore if they were not previously connected.  (If they disconnected before we accepted the connection.)
                     if ( pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connected )
                     {
                         // Locate the client.  Note that it should have been found, because this is the only code path where we remove clients (except on shutdown), and connection change callbacks are dispatched in queue order.
@@ -196,6 +195,9 @@ namespace KRG::Network
                     // so we just pass 0's.
                     pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
                     pClientConnection->m_connectionHandle = k_HSteamNetConnection_Invalid;
+
+                    // Try restore connection
+                    pClientConnection->m_status = ClientConnection::Status::Reconnecting;
                     break;
                 }
 
@@ -237,9 +239,6 @@ namespace KRG::Network
         ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
         KRG_ASSERT( pInterface != nullptr );
 
-        SteamNetConnectionInfo_t info;
-        pInterface->GetConnectionInfo( m_connectionHandle, &info );
-
         //-------------------------------------------------------------------------
 
         if ( m_status == Status::Reconnecting )
@@ -263,6 +262,10 @@ namespace KRG::Network
 
         //-------------------------------------------------------------------------
 
+        KRG_ASSERT( m_connectionHandle != k_HSteamNetConnection_Invalid );
+        SteamNetConnectionInfo_t info;
+        pInterface->GetConnectionInfo( m_connectionHandle, &info );
+
         switch ( info.m_eState )
         {
             case k_ESteamNetworkingConnectionState_Connecting:
@@ -282,19 +285,7 @@ namespace KRG::Network
             case k_ESteamNetworkingConnectionState_ClosedByPeer:
             case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
             {
-                if ( m_reconnectionAttemptsRemaining > 0 )
-                {
-                    m_reconnectionAttemptsRemaining--;
-                    Threading::Sleep( 100 );
-                    if ( !TryStartConnection() )
-                    {
-                        m_status = Status::Reconnecting;
-                    }
-                }
-                else
-                {
-                    m_status = Status::ConnectionFailed;
-                }
+                KRG_UNREACHABLE_CODE();
             }
             break;
         }
@@ -410,7 +401,7 @@ namespace KRG::Network
 
             if ( numMsgs < 0 )
             {
-                KRG_LOG_FATAL_ERROR( "Network", "Error checking for messages" );
+                //KRG_LOG_FATAL_ERROR( "Network", "Error checking for messages" );
                 break;
             }
 
@@ -450,7 +441,7 @@ namespace KRG::Network
                 // Handle invalid connection handle
                 if ( numMsgs < 0 )
                 {
-                    KRG_LOG_FATAL_ERROR( "Network", "Client connection handle is invalid, we've likely lost connection to the server" );
+                    //KRG_LOG_FATAL_ERROR( "Network", "Client connection handle is invalid, we've likely lost connection to the server" );
                     break;
                 }
 
