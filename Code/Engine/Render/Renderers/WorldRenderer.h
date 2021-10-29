@@ -31,7 +31,7 @@ namespace KRG::Render
         bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
 
-        virtual void RenderWorld( EntityWorld* pWorld ) override final;
+        virtual void RenderWorld( Viewport const& viewport, EntityWorld* pWorld ) override final;
 
     private:
 

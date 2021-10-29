@@ -173,12 +173,6 @@ namespace KRG
         return nullptr;
     }
 
-    void EntityWorld::UpdateViewportSize( Int2 const& topLeft, Int2 const& dimensions )
-    {
-        KRG_ASSERT( Threading::IsMainThread() );
-        m_viewport.Resize( topLeft, dimensions );
-    }
-
     //-------------------------------------------------------------------------
     // Frame Update
     //-------------------------------------------------------------------------

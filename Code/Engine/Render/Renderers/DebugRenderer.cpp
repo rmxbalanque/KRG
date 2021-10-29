@@ -387,12 +387,11 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void DebugRenderer::RenderWorld( EntityWorld* pWorld )
+    void DebugRenderer::RenderWorld( Viewport const& viewport, EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
 
-        auto const& viewport = pWorld->GetViewport();
         if ( !viewport.IsValid() )
         {
             return;

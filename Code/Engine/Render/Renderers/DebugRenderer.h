@@ -21,7 +21,7 @@ namespace KRG::Render
         bool IsInitialized() const { return m_initialized; }
         bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
-        void RenderWorld( EntityWorld* pWorld ) override final;
+        void RenderWorld( Viewport const& viewport, EntityWorld* pWorld ) override final;
 
     private:
 

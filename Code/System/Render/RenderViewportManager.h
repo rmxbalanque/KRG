@@ -40,6 +40,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         inline Viewport const* GetPrimaryViewport() const { return m_viewports[0]; }
+        inline Viewport* GetPrimaryViewport() { return m_viewports[0]; }
         void ResizePrimaryViewport( Math::Rectangle const& viewportDimensions );
 
         inline int32 GetNumViewports() const { return (int32) m_viewports.size(); }

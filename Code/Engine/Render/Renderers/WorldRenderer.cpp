@@ -322,12 +322,11 @@ namespace KRG::Render
         }
     }
 
-    void WorldRenderer::RenderWorld( EntityWorld* pWorld )
+    void WorldRenderer::RenderWorld( Viewport const& viewport, EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
 
-        auto const& viewport = pWorld->GetViewport();
         if ( !viewport.IsValid() )
         {
             return;
@@ -338,8 +337,7 @@ namespace KRG::Render
         auto pWorldSystem = pWorld->GetWorldSystem<WorldRendererSystem>();
         KRG_ASSERT( pWorldSystem != nullptr );
 
-        Viewport const& worldViewport = pWorld->GetViewport();
-        RenderStaticMeshes( worldViewport, pWorldSystem->m_visibleStaticMeshComponents );
-        RenderSkeletalMeshes( worldViewport, pWorldSystem->m_visibleSkeletalMeshComponents );
+        RenderStaticMeshes( viewport, pWorldSystem->m_visibleStaticMeshComponents );
+        RenderSkeletalMeshes( viewport, pWorldSystem->m_visibleSkeletalMeshComponents );
     }
 }

@@ -419,11 +419,6 @@ namespace KRG
                 m_pDevelopmentUI->Update( m_updateContext, *m_pViewportManager );
                 #endif
 
-                // HACK
-                auto pPrimaryWorld = m_pEntityWorldManager->GetPrimaryWorld();
-                auto primaryViewport = m_pViewportManager->GetPrimaryViewport();
-                pPrimaryWorld->UpdateViewportSize( primaryViewport->GetTopLeftPosition(), primaryViewport->GetDimensions() );
-
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 

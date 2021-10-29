@@ -54,15 +54,6 @@ namespace KRG
         #endif
 
         //-------------------------------------------------------------------------
-        // Viewport
-        //-------------------------------------------------------------------------
-
-        inline Render::Viewport const& GetViewport() const { return m_viewport; }
-
-        // Update the viewport dimensions - threadsafe
-        void UpdateViewportSize( Int2 const& topLeft, Int2 const& dimensions );
-
-        //-------------------------------------------------------------------------
         // Map Management
         //-------------------------------------------------------------------------
 
@@ -116,7 +107,6 @@ namespace KRG
         EntityModel::LoadingContext                                 m_loadingContext;
         EntityModel::ActivationContext                              m_activationContext;
         TVector<IWorldEntitySystem*>                                m_worldSystems;
-        Render::Viewport                                            m_viewport;
 
         // Maps
         TInlineVector<EntityModel::EntityMap,3>                     m_maps;

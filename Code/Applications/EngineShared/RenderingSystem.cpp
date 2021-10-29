@@ -93,6 +93,11 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
+        // HACK: todo proper viewport management
+        m_pWorldManager->SetViewportForPrimaryWorld( m_pViewportManager->GetPrimaryViewport() );
+
+        //-------------------------------------------------------------------------
+
         UpdateStage const updateStage = ctx.GetUpdateStage();
         KRG_ASSERT( updateStage != UpdateStage::FrameStart );
 
@@ -125,17 +130,17 @@ namespace KRG::Render
 
                     // Draw world
                     auto pWorld = m_pWorldManager->GetPrimaryWorld();
-                    m_pWorldRenderer->RenderWorld( pWorld );
+                    m_pWorldRenderer->RenderWorld( *pViewport, pWorld );
 
                     // Custom renderers
                     for ( auto const& pCustomRenderer : m_customRenderers )
                     {
-                        pCustomRenderer->RenderWorld( pWorld );
+                        pCustomRenderer->RenderWorld( *pViewport, pWorld );
                         pCustomRenderer->RenderViewport( *pViewport );
                     }
 
                     // Debug renderer
-                    m_pDebugRenderer->RenderWorld( pWorld );
+                    m_pDebugRenderer->RenderWorld( *pViewport, pWorld );
                     m_pDebugRenderer->RenderViewport( *pViewport );
                 }
 

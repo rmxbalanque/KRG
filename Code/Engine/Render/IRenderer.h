@@ -35,7 +35,7 @@ namespace KRG::Render
         virtual uint32 GetRendererID() const = 0;
         virtual int32 GetPriority() const = 0;
 
-        virtual void RenderWorld( EntityWorld* pWorld ) {};
+        virtual void RenderWorld( Viewport const& viewport, EntityWorld* pWorld ) {};
         virtual void RenderViewport( Viewport const& viewport ) {};
     };
 }

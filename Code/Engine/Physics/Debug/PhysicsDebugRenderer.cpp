@@ -210,10 +210,12 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    void PhysicsRenderer::RenderWorld( EntityWorld* pWorld )
+    void PhysicsRenderer::RenderWorld( Render::Viewport const& viewport, EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
+
+        //-------------------------------------------------------------------------
 
         auto pPhysicsSystem = pWorld->GetWorldSystem<PhysicsWorldSystem>();
         if ( !pPhysicsSystem->IsDebugDrawingEnabled() )
@@ -221,7 +223,13 @@ namespace KRG::Physics
             return;
         }
 
-        auto const& viewport = pWorld->GetViewport();
+        //-------------------------------------------------------------------------
+
+        if ( !viewport.IsValid() )
+        {
+            return;
+        }
+
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
         renderContext.SetViewport( Float2( viewport.GetDimensions() ), Float2( viewport.GetTopLeftPosition() ) );
 
