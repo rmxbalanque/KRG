@@ -54,6 +54,14 @@ namespace KRG
         #endif
 
         //-------------------------------------------------------------------------
+        // Viewport
+        //-------------------------------------------------------------------------
+
+        inline void SetViewport( Render::Viewport* pViewport ) { m_pViewport = pViewport; }
+        inline Render::Viewport* GetViewport() { return m_pViewport; }
+        inline Render::Viewport const* GetViewport() const { return m_pViewport; }
+
+        //-------------------------------------------------------------------------
         // Map Management
         //-------------------------------------------------------------------------
 
@@ -107,6 +115,8 @@ namespace KRG
         EntityModel::LoadingContext                                 m_loadingContext;
         EntityModel::ActivationContext                              m_activationContext;
         TVector<IWorldEntitySystem*>                                m_worldSystems;
+
+        Render::Viewport*                                           m_pViewport = nullptr;
 
         // Maps
         TInlineVector<EntityModel::EntityMap,3>                     m_maps;

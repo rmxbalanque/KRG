@@ -30,7 +30,7 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    struct SystemFonts
+    struct KRG_SYSTEM_RENDER_API SystemFonts
     {
         static ImFont* GetFont( Font font ) { return s_fonts[(int32) font]; }
 

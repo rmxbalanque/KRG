@@ -111,10 +111,6 @@
     <ClInclude Include="TypeSystem\Serialization\TypeReader.h" />
     <ClInclude Include="TypeSystem\Serialization\TypeWriter.h" />
     <ClInclude Include="TypeSystem\Serialization\TypeSerialization.h" />
-    <ClInclude Include="Widgets\Gizmos\Gizmo.h" />
-    <ClInclude Include="Widgets\Gizmos\RotationGizmo.h" />
-    <ClInclude Include="Widgets\Gizmos\ScaleGizmo.h" />
-    <ClInclude Include="Widgets\Gizmos\TranslationGizmo.h" />
     <ClInclude Include="Widgets\InterfaceHelpers.h" />
     <ClInclude Include="Widgets\NumericEditors.h" />
     <ClInclude Include="_Module\API.h" />
@@ -160,10 +156,6 @@
     <ClCompile Include="TypeSystem\Serialization\TypeReader.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeWriter.cpp" />
     <ClCompile Include="TypeSystem\Serialization\TypeSerialization.cpp" />
-    <ClCompile Include="Widgets\Gizmos\Gizmo.cpp" />
-    <ClCompile Include="Widgets\Gizmos\RotationGizmo.cpp" />
-    <ClCompile Include="Widgets\Gizmos\ScaleGizmo.cpp" />
-    <ClCompile Include="Widgets\Gizmos\TranslationGizmo.cpp" />
     <ClCompile Include="Widgets\InterfaceHelpers.cpp" />
     <ClCompile Include="Widgets\NumericEditors.cpp" />
     <ClCompile Include="_Module\Module.cpp" />

@@ -78,6 +78,7 @@ namespace KRG
 
         inline Vector const& GetTranslation() const { return m_translation; }
         inline void SetTranslation( Vector const& translation ) { m_translation = translation.GetWithW0(); }
+        inline void AddTranslationOffset( Vector const& offset ) { m_translation += offset; }
 
         // Scale
         //-------------------------------------------------------------------------

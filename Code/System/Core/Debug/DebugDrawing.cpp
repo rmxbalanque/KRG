@@ -185,9 +185,20 @@ namespace KRG::Debug
 
         switch ( upAxis )
         {
-            case Axis::X: pCircleVerts = g_circleVerticesXUp; break;
-            case Axis::Y: pCircleVerts = g_circleVerticesYUp; break;
-            case Axis::Z: pCircleVerts = g_circleVerticesZUp; break;
+            case Axis::X:
+            case Axis::NegX:
+            pCircleVerts = g_circleVerticesXUp;
+            break;
+            
+            case Axis::Y:
+            case Axis::NegY:
+            pCircleVerts = g_circleVerticesYUp;
+            break;
+            
+            case Axis::Z:
+            case Axis::NegZ:
+            pCircleVerts = g_circleVerticesZUp;
+            break;
         }
 
         KRG_ASSERT( pCircleVerts != nullptr );
@@ -199,7 +210,7 @@ namespace KRG::Debug
             verts[i] = transform.TransformPoint( pCircleVerts[i] );
         }
 
-        // Register line commands            
+        // Register line commands
         for ( auto i = 1; i < g_numCircleVertices; i++ )
         {
             InternalDrawLine( m_commandBuffer, verts[i - 1], verts[i], color, lineThickness, depthTestState );
@@ -394,6 +405,35 @@ namespace KRG::Debug
 
         InternalDrawLine( m_commandBuffer, startPoint, arrowHeadStartPoint, color, thickness, depthTestState );
         InternalDrawLine( m_commandBuffer, arrowHeadStartPoint, endPoint, color, arrowHeadThickness, 2.0f, depthTestState );
+    }
+
+    void DrawingContext::DrawCone( Transform const& transform, Radians coneAngle, float length, Float4 const& color, float thickness, DepthTestState depthTestState )
+    {
+        Vector const capOffset = ( transform.GetForwardVector() * length );
+        float const coneCapRadius = Math::Tan( coneAngle.ToFloat() ) * length;
+
+        Transform capTransform = transform;
+        capTransform.SetScale( coneCapRadius );
+        capTransform.AddTranslationOffset( capOffset );
+
+        // Draw cone cap
+        //-------------------------------------------------------------------------
+
+        auto verts = KRG_STACK_ARRAY_ALLOC( Vector, g_numCircleVertices );
+        for ( auto i = 0; i < g_numCircleVertices; i++ )
+        {
+            verts[i] = capTransform.TransformPoint( g_circleVerticesYUp[i] );
+        }
+
+        // Register line commands
+        for ( auto i = 1; i < g_numCircleVertices; i++ )
+        {
+            InternalDrawLine( m_commandBuffer, transform.GetTranslation(), verts[i], color, thickness, depthTestState );
+            InternalDrawLine( m_commandBuffer, verts[i - 1], verts[i], color, thickness, depthTestState );
+        }
+
+        InternalDrawLine( m_commandBuffer, transform.GetTranslation(), verts[0], color, thickness, depthTestState );
+        InternalDrawLine( m_commandBuffer, verts[0], verts[g_numCircleVertices-1], color, thickness, depthTestState );
     }
 }
 #endif

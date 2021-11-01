@@ -45,6 +45,7 @@ namespace KRG::Render
 
         inline Float2 const& GetDimensions() const { return m_size; }
         inline Float2 const& GetTopLeftPosition() const { return m_topLeftPosition; }
+        inline Float2 GetBottomRightPosition() const { return m_topLeftPosition + m_size; }
         inline float GetAspectRatio() const { return m_size.m_x / m_size.m_y; }
 
         // View Volume
@@ -57,6 +58,15 @@ namespace KRG::Render
         inline Vector GetViewForwardDirection() const { return m_viewVolume.GetForwardVector(); }
         inline Vector GetViewRightDirection() const { return m_viewVolume.GetRightVector(); }
         inline Vector GetViewUpDirection() const { return m_viewVolume.GetUpVector(); }
+
+        // Queries
+        //-------------------------------------------------------------------------
+
+        inline bool ContainsPointScreenSpace( Float2 const& point ) const 
+        {
+            Float2 const bottomRightPosition = GetBottomRightPosition();
+            return Math::IsInRangeInclusive( point.m_x, m_topLeftPosition.m_x, bottomRightPosition.m_x ) && Math::IsInRangeInclusive( point.m_y, m_topLeftPosition.m_y, bottomRightPosition.m_y );
+        }
 
         // Space conversions
         //-------------------------------------------------------------------------

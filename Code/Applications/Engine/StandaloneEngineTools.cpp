@@ -10,10 +10,10 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
-    namespace StatusBar
-    {
-        constexpr static float const g_height = 19.0f;
-    }
+    constexpr static float const g_menuHeight = 19.0f;
+    constexpr static float const g_statusBarHeight = 19.0f;
+
+    //-------------------------------------------------------------------------
 
     static void DrawDebugSetting( DebugSetting* pDebugSetting )
     {
@@ -129,11 +129,24 @@ namespace KRG
 
             case UpdateStage::FrameEnd:
             {
+                ImGui::SetNextWindowPos( ImVec2( 0, g_menuHeight ) );
+                ImGui::SetNextWindowSize( viewportSystem.GetPrimaryViewport()->GetDimensions() - Float2( 0, g_statusBarHeight + g_menuHeight ) );
+                ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
+                ImGui::SetNextWindowBgAlpha( 0.0f );
+                if ( ImGui::Begin( "ViewportOverlay", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus ) )
+                {
+                    // The overlay elements should always be drawn
+                    DrawOverlayElements( context, viewportSystem );
+                }
+                ImGui::End();
+                ImGui::PopStyleVar();
+
+                //-------------------------------------------------------------------------
+
                 if ( m_debugOverlayEnabled )
                 {
                     DrawMenu( context );
                     DrawStatusBar( context );
-                    ImGuiX::OrientationGuide::DrawAsStandaloneWindow( *viewportSystem.GetPrimaryViewport(), ImVec2( 3.0f, 4.0f + StatusBar::g_height ) );
                 }
 
                 // The debug windows should be always be drawn if enabled
@@ -265,6 +278,16 @@ namespace KRG
         }
     }
 
+    void StandaloneEngineTools::DrawOverlayElements( UpdateContext const& context, Render::ViewportManager& viewportSystem )
+    {
+        m_pWorldDebugger->DrawOverlayElements( context );
+
+        if ( m_debugOverlayEnabled )
+        {
+            ImGuiX::OrientationGuide::Draw( *viewportSystem.GetPrimaryViewport(), ImVec2( 3.0f, 4.0f + g_statusBarHeight ) );
+        }
+    }
+
     void StandaloneEngineTools::DrawWindows( UpdateContext const& context )
     {
         m_pWorldDebugger->DrawWindows( context );
@@ -288,12 +311,13 @@ namespace KRG
         uint32 flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
 
         ImGuiIO& io = ImGui::GetIO();
-        ImGui::SetNextWindowPos( ImVec2( 0, io.DisplaySize.y - StatusBar::g_height ) );
+        ImGui::SetNextWindowPos( ImVec2( 0, io.DisplaySize.y - g_statusBarHeight ) );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 2.0f ) );
         ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 4.0f, 1.0f ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
 
-        ImGui::SetNextWindowBgAlpha( 0.75f );
-        ImGui::SetNextWindowSize( ImVec2( io.DisplaySize.x, StatusBar::g_height ) );
+        ImGui::SetNextWindowBgAlpha( 0.85f );
+        ImGui::SetNextWindowSize( ImVec2( io.DisplaySize.x, g_statusBarHeight ) );
         if ( ImGui::Begin( "Stats", &showAlways, flags ) )
         {
             InlineString<100> tempStr;
@@ -326,7 +350,7 @@ namespace KRG
             }
         }
         ImGui::End();
-        ImGui::PopStyleVar( 2 );
+        ImGui::PopStyleVar( 3 );
     }
 
     void StandaloneEngineTools::DrawLogWindow( UpdateContext const& context )
@@ -447,7 +471,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ImGui::SetNextWindowBgAlpha( 0.75f );
-        if ( ImGui::Begin( "Debug Settings", &m_isLogWindowOpen ) )
+        if ( ImGui::Begin( "Debug Settings", &m_isDebugSettingsWindowOpen ) )
         {
             if ( ImGui::BeginTable( "Settings Table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
             {

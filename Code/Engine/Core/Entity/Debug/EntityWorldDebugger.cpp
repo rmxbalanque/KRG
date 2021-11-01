@@ -239,5 +239,16 @@ namespace KRG
             pDebugView->DrawWindows( entityUpdateContext );
         }
     }
+
+    void EntityWorldDebugger::DrawOverlayElements( UpdateContext const& context )
+    {
+        KRG_ASSERT( context.GetUpdateStage() == UpdateStage::FrameEnd );
+
+        EntityUpdateContext entityUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
+        for ( auto pDebugView : m_pWorld->GetDebugViews() )
+        {
+            pDebugView->DrawOverlayElements( entityUpdateContext );
+        }
+    }
 }
 #endif

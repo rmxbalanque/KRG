@@ -21,14 +21,6 @@ namespace KRG
     {
         friend class EntityDebugView;
 
-        struct WorldRecord
-        {
-            WorldRecord( EntityWorld* pWorld ) : m_pWorld( pWorld ) { KRG_ASSERT( pWorld != nullptr ); }
-
-            EntityWorld*            m_pWorld = nullptr;
-            Render::Viewport*       m_pViewport = nullptr;
-        };
-
     public:
 
         KRG_SYSTEM_ID( EntityWorldManager );
@@ -50,8 +42,8 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // TEMP HACK
-        inline EntityWorld* GetPrimaryWorld() { return m_worldRecords[0].m_pWorld; }
-        void SetViewportForPrimaryWorld( Render::Viewport* pViewport ) { m_worldRecords[0].m_pViewport = pViewport; }
+        inline EntityWorld* GetPrimaryWorld() { return m_worlds[0]; }
+        void SetViewportForPrimaryWorld( Render::Viewport* pViewport );
 
         inline TMultiUserEvent<EntityWorld*> OnCreateNewWorld() { return m_createNewWorldEvent; }
         void UpdateWorlds( UpdateContext const& context );
@@ -72,7 +64,7 @@ namespace KRG
     private:
 
         SystemRegistry const*                               m_pSystemsRegistry = nullptr;
-        TInlineVector<WorldRecord, 5>                       m_worldRecords;
+        TInlineVector<EntityWorld*, 5>                      m_worlds;
         TMultiUserEventInternal<EntityWorld*>               m_createNewWorldEvent;
         TVector<TypeSystem::TypeInfo const*>                m_worldSystemTypeInfos;
 

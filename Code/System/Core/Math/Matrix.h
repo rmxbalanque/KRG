@@ -14,7 +14,7 @@ namespace KRG
     enum class CoordinateSpace : uint8
     {
         World,
-        Object,
+        Local,
     };
 
     // Notes:

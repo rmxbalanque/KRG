@@ -2,6 +2,7 @@
 
 #include "../_Module/API.h"
 #include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
+#include "Engine/Core/Imgui/Gizmo.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,6 +10,7 @@
 namespace KRG::Render
 {
     class WorldRendererSystem;
+    class LightComponent;
 
     //-------------------------------------------------------------------------
 
@@ -25,14 +27,22 @@ namespace KRG::Render
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
         virtual void DrawWindows( EntityUpdateContext const& context ) override;
+        virtual void DrawOverlayElements( EntityUpdateContext const& context ) override;
 
         void DrawRenderMenu( EntityUpdateContext const& context );
-        void DrawLightDebuggerWindow( EntityUpdateContext const& context );
+        void DrawLightDebuggerWindow( EntityUpdateContext const& context);
+
+        void DrawDirectionalLightOptions( EntityUpdateContext const& context );
+        void DrawSpotLightOptions( EntityUpdateContext const& context );
+        void DrawPointLightOptions( EntityUpdateContext const& context );
 
     private:
 
-        WorldRendererSystem*    m_pWorldRendererSystem = nullptr;
-        bool                    m_isLightDebuggerWindowOpen = false;
+        WorldRendererSystem*            m_pWorldRendererSystem = nullptr;
+        bool                            m_isLightDebuggerWindowOpen = false;
+        LightComponent*                 m_pSelectedComponent = nullptr;
+        Transform                       m_componentTransform;
+        ImGuiX::Gizmo                   m_gizmo;
     };
 }
 #endif

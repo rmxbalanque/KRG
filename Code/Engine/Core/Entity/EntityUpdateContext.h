@@ -32,6 +32,9 @@ namespace KRG
             return Cast<T>( GetWorldSystem( T::s_entitySystemID ) );
         }
 
+        // Get the viewport for this world
+        Render::Viewport const* GetViewport() const;
+
         // Get the debug drawing context for this world - threadsafe
         #if KRG_DEVELOPMENT_TOOLS
         Debug::DrawingContext GetDrawingContext() const;
@@ -50,6 +53,6 @@ namespace KRG
 
     private:
 
-        EntityWorld* m_pWorld = nullptr;
+        EntityWorld*                    m_pWorld = nullptr;
     };
 }

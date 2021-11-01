@@ -14,11 +14,18 @@ namespace KRG::Render
 
         inline bool IsValid() const
         {
-            return m_diffuseTexture.GetResourceID().IsValid();
+            return m_albedoTexture.GetResourceID().IsValid();
         }
 
     public:
 
-        KRG_EXPOSE TResourcePtr<Texture>       m_diffuseTexture;
+        KRG_EXPOSE TResourcePtr<Texture>       m_albedoTexture;
+        KRG_EXPOSE TResourcePtr<Texture>       m_metalnessTexture;
+        KRG_EXPOSE TResourcePtr<Texture>       m_roughnessTexture;
+        KRG_EXPOSE TResourcePtr<Texture>       m_normalMapTexture;
+        KRG_EXPOSE TResourcePtr<Texture>       m_specularMapTexture;
+        KRG_EXPOSE float                       m_metalness = 0.0f;
+        KRG_EXPOSE float                       m_roughness = 1.0f;
+        KRG_EXPOSE float                       m_specular = 0.5f;
     };
 }

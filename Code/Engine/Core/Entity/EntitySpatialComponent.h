@@ -43,6 +43,21 @@ namespace KRG
         inline Transform const& GetWorldTransform() const { return m_worldTransform; }
         inline OBB const& GetWorldBounds() const { return m_worldBounds; }
 
+        // Get world space position
+        inline Vector const& GetPosition() const { return m_worldTransform.GetTranslation(); }
+
+        // Get world space position
+        inline Quaternion const& GetOrientation() const { return m_worldTransform.GetRotation(); }
+        
+        // Get world space forward vector
+        inline Vector GetForwardVector() const { return m_worldTransform.GetForwardVector(); }
+
+        // Get world space up vector
+        inline Vector GetUpVector() const { return m_worldTransform.GetUpVector(); }
+
+        // Get world space right vector
+        inline Vector GetRightVector() const { return m_worldTransform.GetRightVector(); }
+
         // Call to update the local transform - this will also update the world transform for this component and all children
         inline void SetLocalTransform( Transform const& newTransform )
         {

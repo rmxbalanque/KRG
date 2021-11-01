@@ -68,7 +68,11 @@ namespace KRG
 
     protected:
 
+        // Called to draw all imgui windows
         virtual void DrawWindows( EntityUpdateContext const& context ) = 0;
+
+        // Called within the context of a large overlay window allowing you to draw helpers and widgets over a viewport
+        virtual void DrawOverlayElements( EntityUpdateContext const& context ) {}
 
     protected:
 

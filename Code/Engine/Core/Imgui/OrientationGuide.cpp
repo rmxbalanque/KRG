@@ -8,15 +8,15 @@ namespace KRG::ImGuiX::OrientationGuide
 {
     constexpr static float const g_windowPadding = 4.0f;
     constexpr static float const g_windowRounding = 2.0f;
-    constexpr static float const g_windowDimension = 55.0f;
+    constexpr static float const g_guideDimension = 55.0f;
     constexpr static float const g_axisHeadRadius = 3.0f;
-    constexpr static float const g_axisHalfLength = ( g_windowDimension / 2 ) - g_axisHeadRadius - 4.0f;
+    constexpr static float const g_axisHalfLength = ( g_guideDimension / 2 ) - g_axisHeadRadius - 4.0f;
     constexpr static float const g_worldRenderDistanceZ = 5.0f;
     constexpr static float const g_axisThickness = 2.0f;
 
     //-------------------------------------------------------------------------
 
-    static void DrawOrientationGuide( Float2 const& windowCenter, Render::Viewport const& viewport )
+    static void DrawOrientationGuide( Float2 const& guideOrigin, Render::Viewport const& viewport )
     {
         // Project world space axis positions to screen space
         //-------------------------------------------------------------------------
@@ -84,32 +84,32 @@ namespace KRG::ImGuiX::OrientationGuide
             // X
             if ( request.m_axis == Axis::X && request.m_isInForwardDirection )
             {
-                pDrawList->AddLine( windowCenter, windowCenter + axisDirX * ( axisScaleX - g_axisHeadRadius + 1.0f ), 0xBB0000FF, g_axisThickness );
-                pDrawList->AddCircleFilled( windowCenter + axisDirX * axisScaleX, g_axisHeadRadius, 0xBB0000FF );
+                pDrawList->AddLine( guideOrigin, guideOrigin + axisDirX * ( axisScaleX - g_axisHeadRadius + 1.0f ), 0xBB0000FF, g_axisThickness );
+                pDrawList->AddCircleFilled( guideOrigin + axisDirX * axisScaleX, g_axisHeadRadius, 0xBB0000FF );
             }
             else if ( request.m_axis == Axis::X && !request.m_isInForwardDirection )
             {
-                pDrawList->AddCircleFilled( windowCenter - axisDirX * axisScaleX, g_axisHeadRadius, 0x660000FF );
+                pDrawList->AddCircleFilled( guideOrigin - axisDirX * axisScaleX, g_axisHeadRadius, 0x660000FF );
             }
             //Y
             else if ( request.m_axis == Axis::Y && request.m_isInForwardDirection )
             {
-                pDrawList->AddLine( windowCenter, windowCenter + axisDirY * ( axisScaleY - g_axisHeadRadius + 1.0f ), 0xBB00FF00, g_axisThickness );
-                pDrawList->AddCircleFilled( windowCenter + axisDirY * axisScaleY, g_axisHeadRadius, 0xBB00FF00 );
+                pDrawList->AddLine( guideOrigin, guideOrigin + axisDirY * ( axisScaleY - g_axisHeadRadius + 1.0f ), 0xBB00FF00, g_axisThickness );
+                pDrawList->AddCircleFilled( guideOrigin + axisDirY * axisScaleY, g_axisHeadRadius, 0xBB00FF00 );
             }
             else if ( request.m_axis == Axis::Y && !request.m_isInForwardDirection )
             {
-                pDrawList->AddCircleFilled( windowCenter - axisDirY * axisScaleY, g_axisHeadRadius, 0x6600FF00 );
+                pDrawList->AddCircleFilled( guideOrigin - axisDirY * axisScaleY, g_axisHeadRadius, 0x6600FF00 );
             }
             // Z
             else if ( request.m_axis == Axis::Z && request.m_isInForwardDirection )
             {
-                pDrawList->AddLine( windowCenter, windowCenter + axisDirZ * ( axisScaleZ - g_axisHeadRadius + 1.0f ), 0xBBFF0000, g_axisThickness );
-                pDrawList->AddCircleFilled( windowCenter + axisDirZ * axisScaleZ, g_axisHeadRadius, 0xBBFF0000 );
+                pDrawList->AddLine( guideOrigin, guideOrigin + axisDirZ * ( axisScaleZ - g_axisHeadRadius + 1.0f ), 0xBBFF0000, g_axisThickness );
+                pDrawList->AddCircleFilled( guideOrigin + axisDirZ * axisScaleZ, g_axisHeadRadius, 0xBBFF0000 );
             }
             else if ( request.m_axis == Axis::Z && !request.m_isInForwardDirection )
             {
-                pDrawList->AddCircleFilled( windowCenter - axisDirZ * axisScaleZ, g_axisHeadRadius, 0x66FF0000 );
+                pDrawList->AddCircleFilled( guideOrigin - axisDirZ * axisScaleZ, g_axisHeadRadius, 0x66FF0000 );
             }
         }
     }
@@ -118,37 +118,21 @@ namespace KRG::ImGuiX::OrientationGuide
 
     Float2 GetRequiredDimensions()
     {
-        return Float2( g_windowDimension, g_windowDimension );
+        return Float2( g_guideDimension, g_guideDimension );
     }
 
-    void DrawAsStandaloneWindow( Render::Viewport const& viewport, ImVec2 const& offset )
+    void Draw( Render::Viewport const& viewport, ImVec2 const& offset )
     {
-        Float2 const viewportBottomLeft = viewport.GetTopLeftPosition() + viewport.GetDimensions();
-
-        Float2 const windowDimensions( g_windowDimension, g_windowDimension );
-        Float2 const windowPosition = ImVec2( viewport.GetTopLeftPosition().m_x + offset.x, viewportBottomLeft.m_y - windowDimensions.m_y - offset.y );
-        Float2 const windowCenter = Float2( windowPosition.m_x + windowDimensions.m_x / 2, windowPosition.m_y + windowDimensions.m_y / 2 );
-
-        ImGui::SetNextWindowSize( windowDimensions );
-        ImGui::SetNextWindowPos( windowPosition );
-        ImGui::SetNextWindowBgAlpha( 0.0f );
-
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowMinSize, ImVec2( 0.0f, 0.0f ) );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( g_windowPadding, g_windowPadding ) );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, g_windowRounding );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
-        uint32 const flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
-        if ( ImGui::Begin( "DebugUI_OrientationGuide", nullptr, flags ) )
-        {
-            DrawOrientationGuide( windowCenter, viewport );
-        }
-        ImGui::End();
-        ImGui::PopStyleVar( 4 );
+        Float2 const viewportBottomRight = viewport.GetBottomRightPosition();
+        Float2 const guideDimensions( g_guideDimension, g_guideDimension );
+        Float2 const guidePositionTopLeft = ImVec2( viewport.GetTopLeftPosition().m_x + offset.x, viewportBottomRight.m_y - guideDimensions.m_y - offset.y );
+        Float2 const guideCenter = Float2( guidePositionTopLeft.m_x + guideDimensions.m_x / 2, guidePositionTopLeft.m_y + guideDimensions.m_y / 2 );      
+        DrawOrientationGuide( guideCenter, viewport );
     }
 
     void DrawAsChildWindow( Render::Viewport const& viewport )
     {
-        Float2 const windowDimensions( g_windowDimension, g_windowDimension );
+        Float2 const windowDimensions( g_guideDimension, g_guideDimension );
 
         ImGui::SetNextWindowBgAlpha( 0.0f );
         if ( ImGui::BeginChild( "DebugUI_OrientationGuide", windowDimensions, false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize ) )

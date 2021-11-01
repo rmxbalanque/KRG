@@ -83,6 +83,7 @@
     <ClInclude Include="Entity\EntityWorldSystem.h" />
     <ClInclude Include="Entity\Map\EntityMap.h" />
     <ClInclude Include="Entity\Map\EntityMapDescriptor.h" />
+    <ClInclude Include="Imgui\Gizmo.h" />
     <ClInclude Include="Imgui\OrientationGuide.h" />
     <ClInclude Include="ResourceLoaders\ResourceLoader_EntityMap.h" />
     <ClInclude Include="Math\Easing.h" />
@@ -114,6 +115,7 @@
     <ClCompile Include="Entity\EntityWorldSystem.cpp" />
     <ClCompile Include="Entity\Map\EntityMap.cpp" />
     <ClCompile Include="Entity\Map\EntityMapDescriptor.cpp" />
+    <ClCompile Include="Imgui\Gizmo.cpp" />
     <ClCompile Include="Imgui\OrientationGuide.cpp" />
     <ClCompile Include="ResourceLoaders\ResourceLoader_EntityMap.cpp" />
     <ClCompile Include="Math\Easing.cpp" />

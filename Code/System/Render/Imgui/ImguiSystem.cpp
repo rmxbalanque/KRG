@@ -176,7 +176,7 @@ namespace KRG::ImGuiX
         SystemFonts::s_fonts[(uint8) Font::ExtraLarge] = pExtraLargeFont;
 
         iconFontConfig.GlyphOffset = ImVec2( 0, 1 );
-        io.Fonts->AddFontFromMemoryTTF( iconFontData.data(), (int32) iconFontData.size(), 18.0f, &iconFontConfig, icons_ranges );
+        io.Fonts->AddFontFromMemoryTTF( iconFontData.data(), (int32) iconFontData.size(), 48.0f, &iconFontConfig, icons_ranges );
 
         // Build font atlas
         //-------------------------------------------------------------------------

@@ -11,6 +11,7 @@ namespace KRG::Render
     class KRG_ENGINE_RENDER_API LightComponent : public SpatialEntityComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( LightComponent );
+        friend class RenderDebugView;
 
     public:
 
@@ -20,8 +21,8 @@ namespace KRG::Render
 
     private:
 
-        KRG_EXPOSE Color                m_color;
-        KRG_EXPOSE float                m_intensity;
+        KRG_EXPOSE Color                m_color = Colors::White;
+        KRG_EXPOSE float                m_intensity = 1.0f;
     };
 
     //-------------------------------------------------------------------------
@@ -29,6 +30,7 @@ namespace KRG::Render
     class KRG_ENGINE_RENDER_API DirectionalLightComponent: public LightComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( DirectionalLightComponent );
+        friend class RenderDebugView;
 
     public:
 
@@ -40,6 +42,7 @@ namespace KRG::Render
     class KRG_ENGINE_RENDER_API PointLightComponent : public LightComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( PointLightComponent );
+        friend class RenderDebugView;
 
     private:
 
@@ -51,6 +54,7 @@ namespace KRG::Render
     class KRG_ENGINE_RENDER_API SpotLightComponent : public LightComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( SpotLightComponent );
+        friend class RenderDebugView;
 
     public:
 

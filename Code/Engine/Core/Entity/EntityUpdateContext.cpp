@@ -17,6 +17,11 @@ namespace KRG
         return m_pWorld->GetWorldSystem( worldSystemID );
     }
 
+    Render::Viewport const* EntityUpdateContext::GetViewport() const
+    {
+        return m_pWorld->GetViewport();
+    }
+
     Debug::DrawingContext EntityUpdateContext::GetDrawingContext() const
     {
         return m_pWorld->m_debugDrawingSystem.GetDrawingContext();

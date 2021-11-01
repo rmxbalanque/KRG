@@ -12,7 +12,7 @@ namespace KRG
 {
     EntityWorldManager::~EntityWorldManager()
     {
-        KRG_ASSERT( m_worldRecords.empty() && m_worldSystemTypeInfos.empty() );
+        KRG_ASSERT( m_worlds.empty() && m_worldSystemTypeInfos.empty() );
         KRG_ASSERT( !m_createNewWorldEvent.HasBoundUsers() );
     }
 
@@ -40,16 +40,16 @@ namespace KRG
 
     void EntityWorldManager::Shutdown()
     {
-        for ( auto& worldRecord : m_worldRecords )
+        for ( auto& pWorld : m_worlds )
         {
             #if KRG_DEVELOPMENT_TOOLS
-            worldRecord.m_pWorld->ShutdownDebugViews();
+            pWorld->ShutdownDebugViews();
             #endif
 
-            worldRecord.m_pWorld->Shutdown();
-            KRG::Delete( worldRecord.m_pWorld );
+            pWorld->Shutdown();
+            KRG::Delete( pWorld );
         }
-        m_worldRecords.clear();
+        m_worlds.clear();
 
         //-------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ namespace KRG
         auto pNewWorld = KRG::New<EntityWorld>();
         pNewWorld->Initialize( *m_pSystemsRegistry, m_worldSystemTypeInfos );
         m_createNewWorldEvent.Execute( pNewWorld );
-        m_worldRecords.emplace_back( pNewWorld );
+        m_worlds.emplace_back( pNewWorld );
 
         //-------------------------------------------------------------------------
 
@@ -84,11 +84,18 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    void EntityWorldManager::SetViewportForPrimaryWorld( Render::Viewport* pViewport )
+    {
+        m_worlds[0]->SetViewport( pViewport );
+    }
+
+    //-------------------------------------------------------------------------
+
     bool EntityWorldManager::IsBusyLoading() const
     {
-        for ( auto const& worldRecord : m_worldRecords )
+        for ( auto const& pWorld : m_worlds )
         {
-            if ( worldRecord.m_pWorld->IsBusyLoading() )
+            if ( pWorld->IsBusyLoading() )
             {
                 return true;
             }
@@ -99,37 +106,38 @@ namespace KRG
 
     void EntityWorldManager::UpdateLoading()
     {
-        for ( auto const& worldRecord : m_worldRecords )
+        for ( auto const& pWorld : m_worlds )
         {
-            worldRecord.m_pWorld->UpdateLoading();
+            pWorld->UpdateLoading();
         }
     }
 
     void EntityWorldManager::UpdateWorlds( UpdateContext const& context )
     {
-        for ( auto const& worldRecord : m_worldRecords )
+        for ( auto const& pWorld : m_worlds )
         {
-            worldRecord.m_pWorld->Update( context );
+            pWorld->Update( context );
 
             // Update world view
             //-------------------------------------------------------------------------
             // We explicitly reflect the camera at the end of the pre-physics stage as we assume it has been updated at that point
 
-            if ( context.GetUpdateStage() == UpdateStage::PrePhysics && worldRecord.m_pViewport != nullptr )
+            if ( context.GetUpdateStage() == UpdateStage::PrePhysics && pWorld->GetViewport() != nullptr )
             {
-                auto pCameraSystem = worldRecord.m_pWorld->GetWorldSystem<CameraWorldSystem>();
+                auto pViewport = pWorld->GetViewport();
+                auto pCameraSystem = pWorld->GetWorldSystem<CameraWorldSystem>();
                 if ( pCameraSystem->HasActiveCamera() )
                 {
                     auto pActiveCamera = pCameraSystem->GetActiveCamera();
 
                     // Update camera view dimensions if needed
-                    if ( worldRecord.m_pViewport->GetDimensions() != pActiveCamera->GetViewVolume().GetViewDimensions() )
+                    if ( pViewport->GetDimensions() != pActiveCamera->GetViewVolume().GetViewDimensions() )
                     {
-                        pActiveCamera->UpdateViewDimensions( worldRecord.m_pViewport->GetDimensions() );
+                        pActiveCamera->UpdateViewDimensions( pViewport->GetDimensions() );
                     }
 
                     // Update world viewport
-                    worldRecord.m_pViewport->SetViewVolume( pActiveCamera->GetViewVolume() );
+                    pViewport->SetViewVolume( pActiveCamera->GetViewVolume() );
                 }
             }
         }
@@ -140,17 +148,17 @@ namespace KRG
     #if KRG_DEVELOPMENT_TOOLS
     void EntityWorldManager::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload )
     {
-        for ( auto const& worldRecord : m_worldRecords )
+        for ( auto const& pWorld : m_worlds )
         {
-            worldRecord.m_pWorld->BeginHotReload( usersToReload );
+            pWorld->BeginHotReload( usersToReload );
         }
     }
 
     void EntityWorldManager::EndHotReload()
     {
-        for ( auto const& worldRecord : m_worldRecords )
+        for ( auto const& pWorld : m_worlds )
         {
-            worldRecord.m_pWorld->EndHotReload();
+            pWorld->EndHotReload();
         }
     }
     #endif

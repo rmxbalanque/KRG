@@ -52,7 +52,8 @@ namespace KRG
         EntityWorldDebugger( EntityWorld const* pWorld );
 
         void DrawMenu( UpdateContext const& context );
-        void DrawWindows( UpdateContext const& context );
+        void DrawWindows( UpdateContext const& context);
+        void DrawOverlayElements( UpdateContext const& context );
 
     private:
 

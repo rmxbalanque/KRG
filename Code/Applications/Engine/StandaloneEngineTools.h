@@ -8,6 +8,10 @@
 
 //-------------------------------------------------------------------------
 
+struct ImDrawList;
+
+//-------------------------------------------------------------------------
+
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
@@ -37,6 +41,7 @@ namespace KRG
 
         void DrawPopups( UpdateContext const& context );
         void DrawMenu( UpdateContext const& context );
+        void DrawOverlayElements( UpdateContext const& context, Render::ViewportManager& viewportSystem );
         void DrawWindows( UpdateContext const& context );
         void DrawStatusBar( UpdateContext const& context );
 

@@ -18,12 +18,21 @@ namespace KRG
 
         static Quaternion const Identity;
 
-        inline static Quaternion FromRotationBetweenNormalizedVectors( Vector const sourceVector, Vector const targetVector );
-        KRG_FORCE_INLINE static Quaternion FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return FromRotationBetweenNormalizedVectors( sourceVector.GetNormalized3(), targetVector.GetNormalized3() ); }
+        // Calculate the rotation require to align the source vector to the target vector
+        inline static Quaternion FromRotationBetweenNormalizedVectors( Vector const& sourceVector, Vector const& targetVector );
+        
+        // Calculate the rotation require to align the source vector to the target vector
+        KRG_FORCE_INLINE static Quaternion FromRotationBetweenVectors( Vector const& sourceVector, Vector const& targetVector ) { return FromRotationBetweenNormalizedVectors( sourceVector.GetNormalized3(), targetVector.GetNormalized3() ); }
+        
+        // // Calculate the rotation require to align the forward vector (-Y) to the target vector
+        inline static Quaternion FromNormalizedOrientationVector( Vector const& targetVector ) { return FromRotationBetweenNormalizedVectors( Vector::WorldForward, targetVector ); }
 
-        inline static Quaternion NLerp( Quaternion from, Quaternion to, float t );
-        inline static Quaternion SLerp( Quaternion from, Quaternion to, float t );
-        inline static Quaternion SQuad( Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, float t );
+        // // Calculate the rotation require to align the forward vector (-Y) to the target vector
+        inline static Quaternion FromOrientationVector( Vector const& targetVector ) { return FromRotationBetweenNormalizedVectors( Vector::WorldForward, targetVector.GetNormalized3() ); }
+
+        inline static Quaternion NLerp( Quaternion from, Quaternion const& to, float t );
+        inline static Quaternion SLerp( Quaternion const& from, Quaternion const& to, float t );
+        inline static Quaternion SQuad( Quaternion const& q0, Quaternion const& q1, Quaternion const& q2, Quaternion const& q3, float t );
 
         inline static Vector Dot( Quaternion const& q0, Quaternion const& q1 ) { return Vector::Dot4( q0.AsVector(), q1.AsVector() ); }
         inline static Radians Distance( Quaternion const& q0, Quaternion const& q1 );
@@ -31,11 +40,11 @@ namespace KRG
 
         inline Quaternion() = default;
         inline explicit Quaternion( IdentityInit ) : m_data( Vector::UnitW.m_data ) {}
-        inline explicit Quaternion( Vector const v ) : m_data( v.m_data ) {}
+        inline explicit Quaternion( Vector const& v ) : m_data( v.m_data ) {}
         inline explicit Quaternion( float ix, float iy, float iz, float iw ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
         inline explicit Quaternion( Float4 const& v ) : Quaternion( v.m_x, v.m_y, v.m_z, v.m_w ) {}
 
-        inline explicit Quaternion( Vector const axis, Radians angle );
+        inline explicit Quaternion( Vector const& axis, Radians angle );
         inline explicit Quaternion( AxisAngle axisAngle ) : Quaternion( Vector( axisAngle.m_axis ), axisAngle.m_angle ) {}
 
         inline explicit Quaternion( EulerAngles const& eulerAngles );
@@ -49,8 +58,8 @@ namespace KRG
         inline AxisAngle ToAxisAngle() const;
         EulerAngles ToEulerAngles() const;
 
-        inline Vector RotateVector( Vector const vector ) const;
-        inline Vector RotateVectorInverse( Vector const vector ) const;
+        inline Vector RotateVector( Vector const& vector ) const;
+        inline Vector RotateVectorInverse( Vector const& vector ) const;
 
         // Operations
         inline Quaternion& Conjugate();
@@ -81,7 +90,7 @@ namespace KRG
         inline Vector& AsVector() { return reinterpret_cast<Vector&>( *this ); }
         inline Vector const& AsVector() const { return reinterpret_cast<Vector const&>( *this ); }
 
-        Quaternion& operator=( Vector const v ) = delete;
+        Quaternion& operator=( Vector const& v ) = delete;
 
     public:
 
@@ -160,7 +169,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    inline Quaternion::Quaternion( Vector const axis, Radians angle )
+    inline Quaternion::Quaternion( Vector const& axis, Radians angle )
     {
         KRG_ASSERT( axis.IsNormalized3() );
 
@@ -189,7 +198,7 @@ namespace KRG
         m_data = ( rotationX * rotationY * rotationZ ).GetNormalized().m_data;
     }
 
-    inline Quaternion Quaternion::FromRotationBetweenNormalizedVectors( Vector const v0, Vector const v1 )
+    inline Quaternion Quaternion::FromRotationBetweenNormalizedVectors( Vector const& v0, Vector const& v1 )
     {
         KRG_ASSERT( v0.IsNormalized3() && v1.IsNormalized3() );
 
@@ -226,14 +235,14 @@ namespace KRG
         return AxisAngle( AsVector(), 2.0f * Math::ACos( m_w ) );
     }
 
-    inline Vector Quaternion::RotateVector( Vector const vector ) const
+    inline Vector Quaternion::RotateVector( Vector const& vector ) const
     {
         Quaternion const A( Vector::Select( Vector::Select1110, vector, Vector::Select1110 ) );
         Quaternion const Result = GetConjugate() * A;
         return ( Result * *this ).AsVector();
     }
 
-    inline Vector Quaternion::RotateVectorInverse( Vector const vector ) const
+    inline Vector Quaternion::RotateVectorInverse( Vector const& vector ) const
     {
         Quaternion const A( Vector::Select( Vector::Select1110, vector, Vector::Select1110 ) );
         Quaternion const Result = *this * A;
@@ -284,7 +293,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    inline Quaternion Quaternion::NLerp( Quaternion from, Quaternion to, float T )
+    inline Quaternion Quaternion::NLerp( Quaternion from, Quaternion const& to, float T )
     {
         KRG_ASSERT( T >= 0.0f && T <= 1.0f );
 
@@ -299,7 +308,7 @@ namespace KRG
         return result;
     }
 
-    inline Quaternion Quaternion::SLerp( Quaternion from, Quaternion to, float T )
+    inline Quaternion Quaternion::SLerp( Quaternion const& from, Quaternion const& to, float T )
     {
         KRG_ASSERT( T >= 0.0f && T <= 1.0f );
 
@@ -343,7 +352,7 @@ namespace KRG
         return Quaternion( result );
     }
 
-    inline Quaternion Quaternion::SQuad( Quaternion q0, Quaternion q1, Quaternion q2, Quaternion q3, float t )
+    inline Quaternion Quaternion::SQuad( Quaternion const& q0, Quaternion const& q1, Quaternion const& q2, Quaternion const& q3, float t )
     {
         KRG_ASSERT( t >= 0.0f && t <= 1.0f );
 

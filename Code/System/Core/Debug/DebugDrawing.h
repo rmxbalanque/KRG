@@ -274,6 +274,15 @@ namespace KRG::Debug
             DrawArrow( startPoint, endPoint.ToFloat3(), color, thickness, depthTestState );
         }
 
+        // Draw a cone, originating at the transform, aligned to the -Y axis of the transform
+        void DrawCone( Transform const& transform, Radians coneAngle, float length, Float4 const& color, float thickness = DefaultLineThickness, DepthTestState depthTestState = DepthTestState::Off );
+
+        inline void DrawCone( Float3 const& startPoint, Float3 const& direction, Radians coneAngle, float length, Float4 const& color, float thickness = DefaultLineThickness, DepthTestState depthTestState = DepthTestState::Off )
+        {
+            Transform const coneTransform( Quaternion::FromOrientationVector( direction ), startPoint );
+            DrawCone( coneTransform, coneAngle, length, color, thickness, depthTestState );
+        }
+
     private:
 
         KRG_FORCE_INLINE void InternalDrawPoint( Drawing::ThreadCommandBuffer& cmdList, Float3 const& position, Float4 const& color, float thickness, DepthTestState depthTestState = DepthTestState::Off )

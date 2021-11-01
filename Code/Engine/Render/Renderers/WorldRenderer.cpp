@@ -196,7 +196,7 @@ namespace KRG::Render
             {
                 if ( materials[i] != nullptr )
                 {
-                    renderContext.SetShaderResource( PipelineStage::Pixel, 0, materials[i]->GetDiffuseTexture()->GetShaderResourceView() );
+                    renderContext.SetShaderResource( PipelineStage::Pixel, 0, materials[i]->GetAlbedoTexture()->GetShaderResourceView() );
                 }
                 else
                 {
@@ -302,7 +302,7 @@ namespace KRG::Render
 
                 if ( i < materials.size() && materials[i] != nullptr )
                 {
-                    pTextureToSet = materials[i]->GetDiffuseTexture();
+                    pTextureToSet = materials[i]->GetAlbedoTexture();
                 }
                 else
                 {

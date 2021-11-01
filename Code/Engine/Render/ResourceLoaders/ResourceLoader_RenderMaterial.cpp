@@ -28,8 +28,33 @@ namespace KRG::Render
     {
         Material* pMaterial = pResourceRecord->GetResourceData<Material>();
 
-        KRG_ASSERT( pMaterial->m_pDiffuseTexture.GetResourceID().IsValid() );
-        pMaterial->m_pDiffuseTexture = GetInstallDependency( installDependencies, pMaterial->m_pDiffuseTexture.GetResourceID() );
+        KRG_ASSERT( pMaterial->m_pAlbedoTexture.GetResourceID().IsValid() );
+        pMaterial->m_pAlbedoTexture = GetInstallDependency( installDependencies, pMaterial->m_pAlbedoTexture.GetResourceID() );
+
+        // Optional textures
+        //-------------------------------------------------------------------------
+
+        if ( pMaterial->HasMetalnessTexture() )
+        {
+            pMaterial->m_pMetalnessTexture = GetInstallDependency( installDependencies, pMaterial->m_pMetalnessTexture.GetResourceID() );
+        }
+        
+        if ( pMaterial->HasRoughnessTexture() )
+        {
+            pMaterial->m_pRoughnessTexture = GetInstallDependency( installDependencies, pMaterial->m_pRoughnessTexture.GetResourceID() );
+        }
+
+        if ( pMaterial->HasNormalMapTexture() )
+        {
+            pMaterial->m_pNormalMapTexture = GetInstallDependency( installDependencies, pMaterial->m_pNormalMapTexture.GetResourceID() );
+        }
+
+        if ( pMaterial->HasSpecularMapTexture() )
+        {
+            pMaterial->m_pSpecularMapTexture = GetInstallDependency( installDependencies, pMaterial->m_pSpecularMapTexture.GetResourceID() );
+        }
+
+        //-------------------------------------------------------------------------
 
         if ( !pMaterial->IsValid() )
         {
