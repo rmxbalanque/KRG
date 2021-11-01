@@ -43,6 +43,9 @@ namespace KRG
         void DrawLogWindow( UpdateContext const& context );
         void DrawDebugSettingsWindow( UpdateContext const& context );
 
+        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override {}
+        virtual void EndHotReload() {}
+
     protected:
 
         EntityWorldManager*                                 m_pWorldManager = nullptr;

@@ -15,62 +15,54 @@ namespace KRG::Render
         m_loadableTypes.push_back( SkeletalMesh::GetStaticResourceTypeID() );
     }
 
-    void MeshLoader::CreateRenderBuffers( Mesh* pMesh ) const
-    {
-        KRG_ASSERT( pMesh != nullptr && !pMesh->m_vertexBuffer.IsValid() && !pMesh->m_indexBuffer.IsValid() );
-
-        if ( pMesh->m_vertices.empty() )
-        {
-            return;
-        }
-
-        KRG_ASSERT( !pMesh->m_indices.empty() );
-
-        //-------------------------------------------------------------------------
-
-        m_pRenderDevice->CreateBuffer( pMesh->m_vertexBuffer, pMesh->m_vertices.data() );
-        KRG_ASSERT( pMesh->m_vertexBuffer.IsValid() );
-
-        m_pRenderDevice->CreateBuffer( pMesh->m_indexBuffer, pMesh->m_indices.data() );
-        KRG_ASSERT( pMesh->m_indexBuffer.IsValid() );
-    }
-
     bool MeshLoader::LoadInternal( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
     {
         KRG_ASSERT( m_pRenderDevice != nullptr );
         KRG_ASSERT( archive.IsValid() );
 
-        Resource::IResource* pResource = nullptr;
+        Mesh* pMeshResource = nullptr;
 
         // Static Mesh
         if ( resourceID.GetResourceTypeID() == StaticMesh::GetStaticResourceTypeID() )
         {
             StaticMesh* pStaticMesh = KRG::New<StaticMesh>();
             archive >> *pStaticMesh;
-            pResource = pStaticMesh;
+            pMeshResource = pStaticMesh;
         }
         else // Skeletal Mesh
         {
             SkeletalMesh* pSkeletalMesh = KRG::New<SkeletalMesh>();
             archive >> *pSkeletalMesh;
-            pResource = pSkeletalMesh;
+            pMeshResource = pSkeletalMesh;
         }
+
+        KRG_ASSERT( !pMeshResource->m_vertices.empty() );
+        KRG_ASSERT( !pMeshResource->m_indices.empty() );
 
         //-------------------------------------------------------------------------
 
-        pResourceRecord->SetResourceData( pResource );
+        pResourceRecord->SetResourceData( pMeshResource );
 
         return true;
     }
 
     Resource::InstallResult MeshLoader::Install( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
     {
+        auto pMesh = pResourceRecord->GetResourceData<Mesh>();
+
         // Create GPU buffers
         //-------------------------------------------------------------------------
-
         // BLOCKING FOR NOW! TODO: request the load and return Resource::InstallResult::InProgress
-        auto pMesh = pResourceRecord->GetResourceData<Mesh>();
-        CreateRenderBuffers( pMesh );
+
+        m_pRenderDevice->LockDevice();
+        {
+            m_pRenderDevice->CreateBuffer( pMesh->m_vertexBuffer, pMesh->m_vertices.data() );
+            KRG_ASSERT( pMesh->m_vertexBuffer.IsValid() );
+
+            m_pRenderDevice->CreateBuffer( pMesh->m_indexBuffer, pMesh->m_indices.data() );
+            KRG_ASSERT( pMesh->m_indexBuffer.IsValid() );
+        }
+        m_pRenderDevice->UnlockDevice();
 
         // Set materials
         //-------------------------------------------------------------------------
@@ -103,8 +95,10 @@ namespace KRG::Render
         auto pMesh = pResourceRecord->GetResourceData<Mesh>();
         if ( pMesh != nullptr )
         {
+            m_pRenderDevice->LockDevice();
             m_pRenderDevice->DestroyBuffer( pMesh->m_vertexBuffer );
             m_pRenderDevice->DestroyBuffer( pMesh->m_indexBuffer );
+            m_pRenderDevice->UnlockDevice();
         }
     }
 

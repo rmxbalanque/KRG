@@ -40,7 +40,7 @@ namespace KRG::GraphEditor
         KRG_ASSERT( pNode != nullptr );
 
         ImGui::BeginGroup();
-        ImGuiX::ScopedFont fontOverride( ImGuiX::Font::Small, ImColor( SM::VisualSettings::s_nodeTitleColor ) );
+        ImGuiX::ScopedFont fontOverride( ImGuiX::Font::Small );
         ImGui::Text( pNode->GetDisplayName() ); 
         ImGui::EndGroup();
 
@@ -63,25 +63,24 @@ namespace KRG::GraphEditor
         // Colors
         //-------------------------------------------------------------------------
 
-        ImColor nodeTitleColor( pNode->GetNodeColor() );
-        ImColor const nodeBackgroundColor( VisualSettings::s_genericNodeBackgroundColor );
-
-        // Border
-        //-------------------------------------------------------------------------
-
         bool drawBorder = false;
+        ImColor const nodeBackgroundColor( VisualSettings::s_genericNodeBackgroundColor );
+        ImColor nodeTitleColor( pNode->GetNodeColor() );
         ImColor nodeBorderColor( pNode->GetNodeColor() );
 
         if ( pNode->m_ID == m_pGraph->m_entryStateID )
         {
-            nodeBorderColor = SM::VisualSettings::s_defaultStateColor;
-            nodeTitleColor = SM::VisualSettings::s_defaultStateColor;
-            drawBorder = true;
+            nodeTitleColor = ImGuiX::ConvertColor( Colors::Green );
         }
-        
-        if ( IsNodeSelected( pNode ) || pNode->m_isHovered )
+
+        if ( IsNodeSelected( pNode ) )
         {
             nodeBorderColor = VisualSettings::s_genericSelectionColor;
+            drawBorder = true;
+        }
+        else if( pNode->m_isHovered )
+        {
+            nodeBorderColor = VisualSettings::s_genericHoverColor;
             drawBorder = true;
         }
 
@@ -95,7 +94,7 @@ namespace KRG::GraphEditor
             
             if ( drawBorder )
             {
-                ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 1.0f );
+                ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 2.0f );
             }
         }
         else // Non-state node
@@ -402,7 +401,7 @@ namespace KRG::GraphEditor
         {
             case DragMode::None:
             {
-                if ( ImGui::IsMouseDragging( ImGuiMouseButton_Left, 1 ) )
+                if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left, 1 ) )
                 {
                     if ( m_pHoveredNode != nullptr )
                     {
@@ -420,7 +419,7 @@ namespace KRG::GraphEditor
                         StartDraggingSelection( ctx );
                     }
                 }
-                else if ( ImGui::IsMouseDragging( ImGuiMouseButton_Middle ) )
+                else if ( ImGui::IsMouseClicked( ImGuiMouseButton_Middle ) )
                 {
                     StartDraggingView( ctx );
                 }
@@ -512,7 +511,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::View );
 
-        if ( !ImGui::IsMouseDragging( ImGuiMouseButton_Middle ) )
+        if ( !ImGui::IsMouseDown( ImGuiMouseButton_Middle ) )
         {
             StopDraggingView( ctx );
             return;
@@ -540,7 +539,7 @@ namespace KRG::GraphEditor
 
     void StateMachineGraphView::OnDragSelection( DrawingContext const& ctx )
     {
-        if ( !ImGui::IsMouseDragging( ImGuiMouseButton_Left ) )
+        if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
         {
             StopDraggingSelection( ctx );
             return;
@@ -552,7 +551,10 @@ namespace KRG::GraphEditor
 
     void StateMachineGraphView::StopDraggingSelection( DrawingContext const& ctx )
     {
-        ImRect const selectionWindowRect( m_dragState.m_startValue - ctx.m_windowRect.Min, ImGui::GetMousePos() - ctx.m_windowRect.Min );
+        ImVec2 const mousePos = ImGui::GetMousePos();
+        ImVec2 const min( Math::Min( m_dragState.m_startValue.x, mousePos.x ), Math::Min( m_dragState.m_startValue.y, mousePos.y ) );
+        ImVec2 const max( Math::Max( m_dragState.m_startValue.x, mousePos.x ), Math::Max( m_dragState.m_startValue.y, mousePos.y ) );
+        ImRect const selectionWindowRect( min - ctx.m_windowRect.Min, max - ctx.m_windowRect.Min );
 
         TVector<BaseNode*> newSelection;
         for ( auto pNode : m_pGraph->m_nodes )
@@ -582,7 +584,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::Node );
 
-        if ( !ImGui::IsMouseDragging( ImGuiMouseButton_Left, 1 ) )
+        if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
         {
             StopDraggingNode( ctx );
             return;
@@ -620,7 +622,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::Connection );
 
-        if ( !ImGui::IsMouseDragging( ImGuiMouseButton_Left, 1 ) )
+        if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
         {
             StopDraggingConnection( ctx );
             return;

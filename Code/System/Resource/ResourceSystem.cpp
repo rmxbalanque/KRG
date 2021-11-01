@@ -403,6 +403,15 @@ namespace KRG::Resource
         // Generate a list of users for this resource
         ResourceRecord* pRecord = recordIter->second;
         GetUsersForResource( pRecord, m_usersThatRequireReload );
+
+        // Add to list of resources to be reloaded
+        m_externallyUpdatedResources.emplace_back( resourceID );
+    }
+
+    void ResourceSystem::ClearHotReloadRequests()
+    {
+        m_usersThatRequireReload.clear(); 
+        m_externallyUpdatedResources.clear();
     }
     #endif
 }

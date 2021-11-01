@@ -44,7 +44,7 @@ namespace KRG
 
     protected:
 
-        ResourceEditorModel*                                m_pModel = nullptr;
+        ResourceEditorModel*                        m_pModel = nullptr;
         PropertyGrid                                m_propertyGrid;
         FileSystem::Path                            m_inspectedFile;
         Mode                                        m_mode = Mode::None;

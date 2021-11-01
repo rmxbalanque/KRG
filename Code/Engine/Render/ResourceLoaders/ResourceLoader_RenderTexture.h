@@ -16,6 +16,7 @@ namespace KRG::Render
         TextureLoader() : m_pRenderDevice( nullptr )
         {
             m_loadableTypes.push_back( Texture::GetStaticResourceTypeID() );
+            m_loadableTypes.push_back( CubemapTexture::GetStaticResourceTypeID() );
         }
 
         inline void SetRenderDevice( RenderDevice* pRenderDevice )

@@ -71,10 +71,7 @@ namespace KRG::GraphEditor
     String BaseNode::GetPathFromRoot() const
     {
         TVector<GraphEditor::BaseNode const*> path;
-        if ( HasParentGraph() && !GetParentGraph()->IsRootGraph() )
-        {
-            TraverseHierarchy( this, path );
-        }
+        TraverseHierarchy( this, path );
 
         //-------------------------------------------------------------------------
 

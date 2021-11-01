@@ -98,7 +98,8 @@ namespace KRG::RawAssets
                             {
                                 Float3 position;
                                 cgltf_accessor_read_float( primitive.attributes[a].data, i, &position.m_x, 3 );
-                                geometrySection.m_vertices[i].m_position = ctx.ApplyUpAxisCorrection( Vector( position ) ).ToFloat4();
+                                geometrySection.m_vertices[i].m_position = ctx.ApplyUpAxisCorrection( Vector( position ) );
+                                geometrySection.m_vertices[i].m_position.m_w = 1.0f;
                             }
                         }
                         break;
@@ -118,13 +119,11 @@ namespace KRG::RawAssets
 
                         case cgltf_attribute_type_tangent:
                         {
-                            KRG_ASSERT( primitive.attributes[a].data->type == cgltf_type_vec3 );
+                            KRG_ASSERT( primitive.attributes[a].data->type == cgltf_type_vec4 );
 
                             for ( auto i = 0; i < numVertices; i++ )
                             {
-                                Float3 tangent;
-                                cgltf_accessor_read_float( primitive.attributes[a].data, i, &tangent.m_x, 3 );
-                                geometrySection.m_vertices[i].m_tangent = Float4( tangent, 1.0f );
+                                cgltf_accessor_read_float( primitive.attributes[a].data, i, &geometrySection.m_vertices[i].m_tangent.m_x, 4 );
                             }
                         }
                         break;

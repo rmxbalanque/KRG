@@ -14,12 +14,16 @@ namespace KRG::Render
     class StaticMeshComponent;
     class SkeletalMeshComponent;
     class SkeletalMesh;
+    class DirectionalLightComponent;
+    class PointLightComponent;
+    class SpotLightComponent;
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_RENDER_API WorldRendererSystem final : public IWorldEntitySystem
     {
         friend class WorldRenderer;
+        friend class RenderDebugView;
 
     public:
 
@@ -27,6 +31,9 @@ namespace KRG::Render
         KRG_ENTITY_WORLD_SYSTEM( WorldRendererSystem, RequiresUpdate( UpdateStage::FrameEnd ) );
 
     private:
+
+        // Mesh Components
+        //-------------------------------------------------------------------------
 
         struct RegisteredStaticMesh : public EntityRegistryRecord
         {
@@ -38,6 +45,27 @@ namespace KRG::Render
         {
             TInlineVector<SkeletalMeshComponent*, 2>            m_components;
         };
+
+        // Light Components
+        //-------------------------------------------------------------------------
+
+        struct RegisteredDirectionalLight : public EntityRegistryRecord
+        {
+            DirectionalLightComponent*                          m_pComponent = nullptr;
+        };
+
+        struct RegisteredPointLight : public EntityRegistryRecord
+        {
+            PointLightComponent*                                m_pComponent = nullptr;
+        };
+
+        struct RegisteredSpotLight : public EntityRegistryRecord
+        {
+            SpotLightComponent*                                 m_pComponent = nullptr;
+        };
+
+        // Helpers
+        //-------------------------------------------------------------------------
 
         // Track all instances of a given mesh together - to limit the number of vertex buffer changes
         struct SkeletalMeshGroup
@@ -90,6 +118,8 @@ namespace KRG::Render
         TVector<SkeletalMeshComponent const*>                   m_visibleSkeletalMeshComponents;
 
         // Lights
-
+        EntityRegistry<RegisteredDirectionalLight>              m_registeredDirectionLightComponents;
+        EntityRegistry<RegisteredPointLight>                    m_registeredPointLightComponents;
+        EntityRegistry<RegisteredSpotLight>                     m_registeredSpotLightComponents;
     };
 }

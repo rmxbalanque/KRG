@@ -394,10 +394,12 @@ namespace KRG
                 #if KRG_DEVELOPMENT_TOOLS
                 if ( m_pResourceSystem->RequiresHotReloading() )
                 {
-                    m_pEntityWorldManager->BeginHotReload( m_pResourceSystem->GetHotReloadRequests() );
+                    m_pEntityWorldManager->BeginHotReload( m_pResourceSystem->GetUsersToBeReloaded() );
+                    m_pDevelopmentUI->BeginHotReload( m_pResourceSystem->GetResourcesToBeReloaded() );
                     m_pResourceSystem->ClearHotReloadRequests();
                     m_pResourceSystem->Update( true );
                     m_pEntityWorldManager->EndHotReload();
+                    m_pDevelopmentUI->EndHotReload();
                 }
                 #endif
 

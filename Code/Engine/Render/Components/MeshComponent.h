@@ -40,6 +40,6 @@ namespace KRG::Render
         KRG_EXPOSE TVector<TResourcePtr<Material>>                          m_materialOverrides;
 
         // The final set of materials to use for this component
-        TVector<Material const*>                                        m_materials;
+        TVector<Material const*>                                            m_materials;
     };
 }

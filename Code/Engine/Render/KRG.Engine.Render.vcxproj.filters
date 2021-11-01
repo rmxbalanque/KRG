@@ -77,6 +77,8 @@
     <ClCompile Include="Renderers\DebugRenderStates.cpp" />
     <ClCompile Include="WorldSystems\WorldRendererSystem.cpp" />
     <ClCompile Include="RendererRegistry.cpp" />
+    <ClCompile Include="Components\LightComponents.cpp" />
+    <ClCompile Include="Debug\DebugView_Render.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -132,6 +134,8 @@
     <ClInclude Include="WorldSystems\WorldRendererSystem.h" />
     <ClInclude Include="IRenderer.h" />
     <ClInclude Include="RendererRegistry.h" />
+    <ClInclude Include="Components\LightComponents.h" />
+    <ClInclude Include="Debug\DebugView_Render.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Engine\PS_Textured.hlsl">

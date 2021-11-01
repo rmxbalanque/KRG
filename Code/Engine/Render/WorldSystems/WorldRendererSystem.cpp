@@ -3,6 +3,7 @@
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "Engine/Render/Components/StaticMeshComponent.h"
 #include "Engine/Render/Components/SkeletalMeshComponent.h"
+#include "Engine/Render/Components/LightComponents.h"
 #include "Engine/Render/Shaders/EngineShaders.h"
 #include "System/Render/RenderDefaultResources.h"
 #include "System/Render/RenderViewport.h"
@@ -35,6 +36,9 @@ namespace KRG::Render
 
     void WorldRendererSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
+        // Meshes
+        //-------------------------------------------------------------------------
+
         if ( auto pStaticMeshComponent = ComponentCast<StaticMeshComponent>( pComponent ) )
         {
             RegisterStaticMeshComponent( pEntity, pStaticMeshComponent );
@@ -43,10 +47,35 @@ namespace KRG::Render
         {
             RegisterSkeletalMeshComponent( pEntity, pSkeletalMeshComponent );
         }
+        
+        // Lights
+        //-------------------------------------------------------------------------
+
+        else if ( auto pLightComponent = ComponentCast<LightComponent>( pComponent ) )
+        {
+            if ( auto pDirectionalLightComponent = ComponentCast<DirectionalLightComponent>( pComponent ) )
+            {
+                auto& registeredComponent = m_registeredDirectionLightComponents.AddRecord( pEntity->GetID() );
+                registeredComponent.m_pComponent = pDirectionalLightComponent;
+            }
+            else if ( auto pPointLightComponent = ComponentCast<PointLightComponent>( pComponent ) )
+            {
+                auto& registeredComponent = m_registeredPointLightComponents.AddRecord( pEntity->GetID() );
+                registeredComponent.m_pComponent = pPointLightComponent;
+            }
+            else if ( auto pSpotLightComponent = ComponentCast<SpotLightComponent>( pComponent ) )
+            {
+                auto& registeredComponent = m_registeredSpotLightComponents.AddRecord( pEntity->GetID() );
+                registeredComponent.m_pComponent = pSpotLightComponent;
+            }
+        }
     }
 
     void WorldRendererSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
+        // Meshes
+        //-------------------------------------------------------------------------
+
         if ( auto pStaticMeshComponent = ComponentCast<StaticMeshComponent>( pComponent ) )
         {
             UnregisterStaticMeshComponent( pEntity, pStaticMeshComponent );
@@ -54,6 +83,25 @@ namespace KRG::Render
         else if ( auto pSkeletalMeshComponent = ComponentCast<SkeletalMeshComponent>( pComponent ) )
         {
             UnregisterSkeletalMeshComponent( pEntity, pSkeletalMeshComponent );
+        }
+
+        // Lights
+        //-------------------------------------------------------------------------
+
+        else if ( auto pLightComponent = ComponentCast<LightComponent>( pComponent ) )
+        {
+            if ( auto pDirectionalLightComponent = ComponentCast<DirectionalLightComponent>( pComponent ) )
+            {
+                m_registeredDirectionLightComponents.RemoveRecord( pEntity->GetID() );
+            }
+            else if ( auto pPointLightComponent = ComponentCast<PointLightComponent>( pComponent ) )
+            {
+                m_registeredPointLightComponents.RemoveRecord( pEntity->GetID() );
+            }
+            else if ( auto pSpotLightComponent = ComponentCast<SpotLightComponent>( pComponent ) )
+            {
+                m_registeredSpotLightComponents.RemoveRecord( pEntity->GetID() );
+            }
         }
     }
 

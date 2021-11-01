@@ -107,8 +107,9 @@ namespace KRG::Resource
 
         #if KRG_DEVELOPMENT_TOOLS
         inline bool RequiresHotReloading() const { return !m_usersThatRequireReload.empty(); }
-        inline TVector<ResourceRequesterID> const& GetHotReloadRequests() const { return m_usersThatRequireReload; }
-        void ClearHotReloadRequests() { m_usersThatRequireReload.clear(); }
+        inline TVector<ResourceRequesterID> const& GetUsersToBeReloaded() const { return m_usersThatRequireReload; }
+        inline TVector<ResourceID> const& GetResourcesToBeReloaded() const { return m_externallyUpdatedResources; }
+        void ClearHotReloadRequests();
         #endif
 
     private:
@@ -156,6 +157,7 @@ namespace KRG::Resource
         #if KRG_DEVELOPMENT_TOOLS
         // Hot reload
         TVector<ResourceRequesterID>                            m_usersThatRequireReload;
+        TVector<ResourceID>                                     m_externallyUpdatedResources;
         EventBindingID                                          m_resourceExternalUpdateEventBinding;
 
         TVector<CompletedRequestLog>                            m_history;

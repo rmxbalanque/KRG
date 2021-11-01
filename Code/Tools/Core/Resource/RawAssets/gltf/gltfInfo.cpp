@@ -8,7 +8,7 @@ namespace KRG::gltf
 {
     static void ReadMeshInfo( gltfSceneContext const& sceneCtx, RawAssets::RawAssetInfo& outInfo )
     {
-        auto pSceneData = sceneCtx.GetSceneData();
+        cgltf_data const* pSceneData = sceneCtx.GetSceneData();
         for ( auto m = 0; m < pSceneData->meshes_count; m++ )
         {
             RawAssets::RawMeshInfo meshInfo;
@@ -21,7 +21,7 @@ namespace KRG::gltf
 
     static void ReadAnimationInfo( gltfSceneContext const& sceneCtx, RawAssets::RawAssetInfo& outInfo )
     {
-        auto pSceneData = sceneCtx.GetSceneData();
+        cgltf_data const* pSceneData = sceneCtx.GetSceneData();
         for ( auto i = 0; i < pSceneData->animations_count; i++ )
         {
             RawAssets::RawAnimationInfo animInfo;
@@ -46,7 +46,7 @@ namespace KRG::gltf
 
     static void ReadSkeletonInfo( gltfSceneContext const& sceneCtx, RawAssets::RawAssetInfo& outInfo )
     {
-        auto pSceneData = sceneCtx.GetSceneData();
+        cgltf_data const* pSceneData = sceneCtx.GetSceneData();
         for ( int32 i = 0; i < pSceneData->skins_count; i++ )
         {
             RawAssets::RawSkeletonInfo skeletonInfo;

@@ -61,9 +61,11 @@
     <PreBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Components\LightComponents.h" />
     <ClInclude Include="Components\MeshComponent.h" />
     <ClInclude Include="Components\StaticMeshComponent.h" />
     <ClInclude Include="Components\SkeletalMeshComponent.h" />
+    <ClInclude Include="Debug\DebugView_Render.h" />
     <ClInclude Include="IRenderer.h" />
     <ClInclude Include="Material\RenderMaterial.h" />
     <ClInclude Include="Mesh\RenderMesh.h" />
@@ -86,9 +88,11 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Components\LightComponents.cpp" />
     <ClCompile Include="Components\MeshComponent.cpp" />
     <ClCompile Include="Components\StaticMeshComponent.cpp" />
     <ClCompile Include="Components\SkeletalMeshComponent.cpp" />
+    <ClCompile Include="Debug\DebugView_Render.cpp" />
     <ClCompile Include="Material\RenderMaterial.cpp" />
     <ClCompile Include="Mesh\RenderMesh.cpp" />
     <ClCompile Include="Mesh\SkeletalMesh.cpp" />

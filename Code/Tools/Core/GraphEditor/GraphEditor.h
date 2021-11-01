@@ -70,7 +70,7 @@ namespace KRG::GraphEditor
         inline void SetCanvasPosition( ImVec2 const& newPosition ) { m_canvasPosition = newPosition; }
 
         // Get node highlight color
-        virtual ImColor GetNodeColor() const { return VisualSettings::s_genericNodeHighlightColor; }
+        virtual ImColor GetNodeColor() const { return VisualSettings::s_genericNodeTitleColor; }
 
         // Get the margin between the node contents and the outer border
         virtual ImVec2 GetNodeMargin() const { return ImVec2( 8, 4 ); }

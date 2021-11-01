@@ -90,7 +90,7 @@ namespace KRG::Render
     };
 
     //-------------------------------------------------------------------------
-    // Texture View
+    // Texture
     //-------------------------------------------------------------------------
     // Abstraction for a render texture resource
 
@@ -101,7 +101,7 @@ namespace KRG::Render
         friend class TextureLoader;
 
         KRG_REGISTER_RESOURCE( 'TXTR', "Render Texture" );
-        KRG_SERIALIZE_MEMBERS( m_dimensions, m_format, m_rawData );
+        KRG_SERIALIZE_MEMBERS( m_format, m_rawData );
 
     public:
 
@@ -120,8 +120,28 @@ namespace KRG::Render
     protected:
 
         ShaderResourceView      m_shaderResourceView;
-        Int2                    m_dimensions;
+        Int2                    m_dimensions = Int2(0, 0);
         TextureFormat           m_format;
         TVector<Byte>           m_rawData; // Temporary storage for the raw data used during installation, cleared when installation completes
+    };
+
+    //-------------------------------------------------------------------------
+    // Cubemap Texture
+    //-------------------------------------------------------------------------
+    // Abstraction for a cubemap render texture resource
+    // Needed to define a new resource type
+
+    class KRG_SYSTEM_RENDER_API CubemapTexture : public Texture
+    {
+        friend class RenderDevice;
+        friend class TextureCompiler;
+        friend class TextureLoader;
+
+        KRG_REGISTER_RESOURCE( 'CBMP', "Render Cubemap Texture" );
+        KRG_SERIALIZE_MEMBERS( KRG_SERIALIZE_BASE( Texture ) );
+
+    public:
+
+        CubemapTexture() = default;
     };
 }

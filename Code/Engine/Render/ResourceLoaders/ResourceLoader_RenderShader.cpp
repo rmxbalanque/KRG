@@ -33,7 +33,9 @@ namespace KRG::Render
         KRG_ASSERT( pShaderResource != nullptr );
 
         // Create shader
+        m_pRenderDevice->LockDevice();
         m_pRenderDevice->CreateShader( *pShaderResource );
+        m_pRenderDevice->UnlockDevice();
         pResourceRecord->SetResourceData( pShaderResource );
         return true;
     }
@@ -45,7 +47,9 @@ namespace KRG::Render
         auto pShaderResource = pResourceRecord->GetResourceData<Shader>();
         if ( pShaderResource != nullptr )
         {
+            m_pRenderDevice->LockDevice();
             m_pRenderDevice->DestroyShader( *pShaderResource );
+            m_pRenderDevice->UnlockDevice();
         }
 
         ResourceLoader::UnloadInternal( resID, pResourceRecord );

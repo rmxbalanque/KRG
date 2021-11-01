@@ -42,7 +42,7 @@ namespace KRG::GraphEditor
         KRG_ASSERT( pNode != nullptr );
 
         ImGui::BeginGroup();
-        ImGuiX::ScopedFont fontOverride( ImGuiX::Font::Small, ImColor( VisualSettings::s_genericNodeTitleColor ) );
+        ImGuiX::ScopedFont fontOverride( ImGuiX::Font::Small, ImColor( VisualSettings::s_genericNodeTitleTextColor ) );
         ImGui::Text( pNode->GetDisplayName() );
         ImGui::EndGroup();
 
@@ -486,7 +486,7 @@ namespace KRG::GraphEditor
         {
             case DragMode::None:
             {
-                if ( ImGui::IsMouseDragging( ImGuiMouseButton_Left, 1 ) )
+                if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left, 1 ) )
                 {
                     if ( m_pHoveredNode != nullptr )
                     {
@@ -504,7 +504,7 @@ namespace KRG::GraphEditor
                         StartDraggingSelection( ctx );
                     }
                 }
-                else if ( ImGui::IsMouseDragging( ImGuiMouseButton_Middle ) )
+                else if ( ImGui::IsMouseClicked( ImGuiMouseButton_Middle ) )
                 {
                     StartDraggingView( ctx );
                 }
@@ -616,7 +616,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::View );
 
-        if ( !ImGui::IsMouseDragging( ImGuiMouseButton_Middle ) )
+        if ( !ImGui::IsMouseDown( ImGuiMouseButton_Middle ) )
         {
             StopDraggingView( ctx );
             return;
@@ -644,7 +644,7 @@ namespace KRG::GraphEditor
 
     void FlowGraphView::OnDragSelection( DrawingContext const& ctx )
     {
-        if ( !ImGui::IsMouseDragging( ImGuiMouseButton_Left ) )
+        if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
         {
             StopDraggingSelection( ctx );
             return;
@@ -656,7 +656,10 @@ namespace KRG::GraphEditor
 
     void FlowGraphView::StopDraggingSelection( DrawingContext const& ctx )
     {
-        ImRect const selectionWindowRect( m_dragState.m_startValue - ctx.m_windowRect.Min, ImGui::GetMousePos() - ctx.m_windowRect.Min );
+        ImVec2 const mousePos = ImGui::GetMousePos();
+        ImVec2 const min( Math::Min( m_dragState.m_startValue.x, mousePos.x ), Math::Min( m_dragState.m_startValue.y, mousePos.y ) );
+        ImVec2 const max( Math::Max( m_dragState.m_startValue.x, mousePos.x ), Math::Max( m_dragState.m_startValue.y, mousePos.y ) );
+        ImRect const selectionWindowRect( min - ctx.m_windowRect.Min, max - ctx.m_windowRect.Min );
 
         TVector<BaseNode*> newSelection;
         for ( auto pNode : m_pGraph->m_nodes )
@@ -686,7 +689,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::Node );
 
-        if ( !ImGui::IsMouseDragging( ImGuiMouseButton_Left, 1 ) )
+        if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
         {
             StopDraggingNode( ctx );
             return;
@@ -725,7 +728,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::Connection );
 
-        if ( !ImGui::IsMouseDragging( ImGuiMouseButton_Left, 1 ) )
+        if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
         {
             StopDraggingConnection( ctx );
             return;

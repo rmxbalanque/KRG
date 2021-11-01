@@ -181,12 +181,20 @@ namespace KRG::Animation::Graph
         auto const stateNodes = pToolsGraph->FindAllNodesOfType<Tools_StateBaseNode>( GraphEditor::SearchMode::Localized, GraphEditor::SearchTypeMatch::Derived );
         for ( auto pStateNode : stateNodes )
         {
+            ImRect const nodeRect = GetNodeWindowRect( pStateNode );
+            ImVec2 const iconSize = ImGui::CalcTextSize( KRG_ICON_ASTERISK );
+            ImVec2 iconOffset( 0, iconSize.y + 4.0f );
+
+            // Draw entry state marker
+            if ( pStateNode->GetID() == pToolsGraph->GetDefaultEntryStateID() )
+            {
+                ctx.m_pDrawList->AddText( nodeRect.Min + ctx.m_windowRect.Min - iconOffset, ImGuiX::ConvertColor( Colors::LimeGreen ), KRG_ICON_ASTERISK );
+                iconOffset.x -= iconSize.x + 4.0f;
+            }
+
+            // Draw global transition marker
             if ( pGlobalTransitionsNode->HasGlobalTransitionForState( pStateNode->GetID() ) )
             {
-                auto const nodeRect = GetNodeWindowRect( pStateNode );
-                ImVec2 const iconSize = ImGui::CalcTextSize( KRG_ICON_BOLT );
-                ImVec2 const iconOffset( 0, iconSize.y + 4.0f );
-                
                 ctx.m_pDrawList->AddText( nodeRect.Min + ctx.m_windowRect.Min - iconOffset, ImGuiX::ConvertColor( Colors::OrangeRed ), KRG_ICON_BOLT );
             }
         }
@@ -264,6 +272,19 @@ namespace KRG::Animation::Graph
             //-------------------------------------------------------------------------
 
             UpdatePrimaryViewState();
+
+            auto pPrimaryGraph = m_pPrimaryGraphView->GetViewedGraph();
+            auto pParentNode = pPrimaryGraph->GetParentNode();
+            if ( pParentNode != nullptr )
+            {
+                auto path = pParentNode->GetPathFromRoot();
+                ImGui::Text( path.c_str() );
+            }
+            else
+            {
+                ImGui::Text( "root" );
+            }
+
             m_pPrimaryGraphView->Draw( m_primaryGraphViewHeight, m_graphModel.GetDebugContext() );
 
             // Splitter
@@ -330,17 +351,15 @@ namespace KRG::Animation::Graph
         // Has the focus within the graph editor tool changed?
         //-------------------------------------------------------------------------
 
-        bool hasUpdatedFocus = false;
         if ( pCurrentlyFocusedGraphView != nullptr && pCurrentlyFocusedGraphView != m_pFocusedGraphView )
         {
             m_pFocusedGraphView = pCurrentlyFocusedGraphView;
-            hasUpdatedFocus = true;
         }
 
         // Update selection (if necessary)
         //-------------------------------------------------------------------------
 
-        if ( pCurrentlyFocusedGraphView != nullptr && ( hasUpdatedFocus || pCurrentlyFocusedGraphView->HasSelectionChanged() ) )
+        if ( pCurrentlyFocusedGraphView != nullptr )
         {
             m_graphModel.ClearSelection();
 

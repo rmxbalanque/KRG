@@ -33,8 +33,6 @@ namespace KRG::Render
         virtual Resource::InstallResult UpdateInstall( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord ) const override;
         virtual void Uninstall( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord ) const override;
 
-        void CreateRenderBuffers( Mesh* pMesh ) const;
-
     private:
 
         RenderDevice* m_pRenderDevice = nullptr;

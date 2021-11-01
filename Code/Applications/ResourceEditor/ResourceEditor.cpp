@@ -168,6 +168,22 @@ namespace KRG
         }
     }
 
+    void ResourceEditor::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
+    {
+        for ( auto pWorkspace : m_model.GetOpenWorkspaces() )
+        {
+            pWorkspace->BeginHotReload( resourcesToBeReloaded );
+        }
+    }
+
+    void ResourceEditor::EndHotReload()
+    {
+        for ( auto pWorkspace : m_model.GetOpenWorkspaces() )
+        {
+            pWorkspace->EndHotReload();
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     void ResourceEditor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )

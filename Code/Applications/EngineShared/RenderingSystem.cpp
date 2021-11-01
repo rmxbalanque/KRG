@@ -98,6 +98,8 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
+        m_pRenderDevice->LockDevice();
+
         UpdateStage const updateStage = ctx.GetUpdateStage();
         KRG_ASSERT( updateStage != UpdateStage::FrameStart );
 
@@ -164,5 +166,7 @@ namespace KRG::Render
             }
             break;
         }
+
+        m_pRenderDevice->UnlockDevice();
     }
 }

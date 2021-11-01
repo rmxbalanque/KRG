@@ -6,8 +6,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //--------------------------------------------------------------------------------------
 
-#include "TextureConverter.h"
-
+#include "TextureTools.h"
 
 #include <wrl\client.h>
 
@@ -613,7 +612,7 @@ void FitPowerOf2( size_t origx, size_t origy, size_t& targetx, size_t& targety, 
 //--------------------------------------------------------------------------------------
 #pragma prefast(disable : 28198, "Command-line tool, frees all memory on exit")
 
-int main(_In_ int argc, _In_z_count_(argc) wchar_t* argv[], Blob& ddsFile )
+int texconv_main(_In_ int argc, _In_z_count_(argc) wchar_t* argv[], Blob& ddsFile )
 {
     // Parameters and defaults
     size_t width = 0;
@@ -1742,35 +1741,35 @@ int main(_In_ int argc, _In_z_count_(argc) wchar_t* argv[], Blob& ddsFile )
     return 0;
 }
 
-namespace KRG
+//-------------------------------------------------------------------------
+
+namespace KRG::Render
 {
-    namespace Render
+    bool ConvertTexture( FileSystem::Path const& texturePath, TVector<Byte>& rawData )
     {
-        bool ConvertTexture( char const* pFilename, TVector<Byte>& rawData )
+        // Get wchar version of filename
+        auto len = strlen( texturePath.c_str() ) + 1;
+        std::wstring wcFilename( len, 0 );
+        mbstowcs( wcFilename.data(), texturePath.c_str(), len );
+        wcFilename.back() = 0;
+
+        // Call texconv
+        wchar_t* args[] = { L"", wcFilename.data(), L"-nologo" };
+        Blob textureBlob;
+        if ( texconv_main( 3, args, textureBlob ) == 0 )
         {
-            // Get wchar version of filename
-            auto len = strlen( pFilename ) + 1;
-            wchar_t* wc = new wchar_t[len];
-            mbstowcs( wc, pFilename, len );
-
-            // Call texconv
-            wchar_t* args[] = { L"", wc, L"-nologo" };
-            Blob textureBlob;
-            if ( main( 3, args, textureBlob ) == 0 )
+            // Error occurred
+            if ( textureBlob.GetBufferSize() == 0 )
             {
-                // Error occurred
-                if ( textureBlob.GetBufferSize() == 0 )
-                {
-                    return false;
-                }
-
-                rawData.resize( textureBlob.GetBufferSize() );
-                memcpy( rawData.data(), textureBlob.GetBufferPointer(), textureBlob.GetBufferSize() );
-                textureBlob.Release();
-                return true;
+                return false;
             }
 
-            return false;
+            rawData.resize( textureBlob.GetBufferSize() );
+            memcpy( rawData.data(), textureBlob.GetBufferPointer(), textureBlob.GetBufferSize() );
+            textureBlob.Release();
+            return true;
         }
+
+        return false;
     }
 }

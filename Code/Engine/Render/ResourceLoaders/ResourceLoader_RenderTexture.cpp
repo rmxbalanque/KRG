@@ -10,9 +10,26 @@ namespace KRG::Render
     {
         KRG_ASSERT( m_pRenderDevice != nullptr && archive.IsValid() );
 
-        Texture* pTextureResource = KRG::New<Texture>();
-        KRG_ASSERT( pTextureResource != nullptr );
-        archive >> *pTextureResource;
+        Texture* pTextureResource = nullptr;
+
+        if ( resID.GetResourceTypeID() == Texture::GetStaticResourceTypeID() )
+        {
+            pTextureResource = KRG::New<Texture>();
+            archive >> *pTextureResource;
+        }
+        else if ( resID.GetResourceTypeID() == CubemapTexture::GetStaticResourceTypeID() )
+        {
+            auto pCubemapTextureResource = KRG::New<CubemapTexture>();
+            archive >> *pCubemapTextureResource;
+            KRG_ASSERT( pCubemapTextureResource->m_format == TextureFormat::DDS );
+            pTextureResource = pCubemapTextureResource;
+        }
+        else // Unknown type
+        {
+            KRG_UNREACHABLE_CODE();
+        }
+
+        //-------------------------------------------------------------------------
 
         if ( pTextureResource->m_rawData.empty() )
         {
@@ -27,9 +44,10 @@ namespace KRG::Render
     Resource::InstallResult TextureLoader::Install( ResourceID const& resourceID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
     {
         auto pTextureResource = pResourceRecord->GetResourceData<Texture>();
-
-        // BLOCKING FOR NOW! TODO: request the load and return Resource::InstallResult::InProgress
+        
+        m_pRenderDevice->LockDevice();
         m_pRenderDevice->CreateTexture( *pTextureResource, pTextureResource->m_format, pTextureResource->m_rawData );
+        m_pRenderDevice->UnlockDevice();
 
         ResourceLoader::Install( resourceID, pResourceRecord, installDependencies );
         return Resource::InstallResult::Succeeded;
@@ -40,7 +58,9 @@ namespace KRG::Render
         auto pTextureResource = pResourceRecord->GetResourceData<Texture>();
         if ( pTextureResource != nullptr && pTextureResource->IsValid() )
         {
+            m_pRenderDevice->LockDevice();
             m_pRenderDevice->DestroyTexture( *pTextureResource );
+            m_pRenderDevice->UnlockDevice();
         }
     }
 

@@ -70,7 +70,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="RawFileInspectors\FbxFileInspector.cpp" />
+    <ClCompile Include="RawFileInspectors\RawFileInspector_MeshFormats.cpp" />
     <ClCompile Include="RawFileInspectors\RawFileInspector.cpp" />
     <ClCompile Include="Win32\ResourceEditorApplication_Win32.cpp" />
     <ClCompile Include="ResourceEditor_DataBrowserTreeView.cpp" />
@@ -80,7 +80,7 @@
     <ClCompile Include="ResourceEditor_Model.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="RawFileInspectors\FbxFileInspector.h" />
+    <ClInclude Include="RawFileInspectors\RawFileInspector_MeshFormats.h" />
     <ClInclude Include="RawFileInspectors\RawFileInspector.h" />
     <ClInclude Include="Win32\ResourceEditorApplication_Win32.h" />
     <ClInclude Include="ResourceEditor_DataBrowserTreeView.h" />

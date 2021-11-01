@@ -8,11 +8,16 @@ namespace KRG::Render
 {
     class TextureCompiler : public Resource::Compiler
     {
-        static const int32 s_version = 2;
+        static const int32 s_version = 3;
 
     public:
 
         TextureCompiler();
         virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
+
+    private:
+
+        Resource::CompilationResult CompileTexture( Resource::CompileContext const& ctx ) const;
+        Resource::CompilationResult CompileCubemapTexture( Resource::CompileContext const& ctx ) const;
     };
 }

@@ -13,14 +13,6 @@ namespace KRG::GraphEditor
 
     namespace SM
     {
-        struct VisualSettings
-        {
-            constexpr static uint32 const   s_nodeTitleColor = IM_COL32( 255, 255, 255, 255 );
-            constexpr static uint32 const   s_defaultStateColor = IM_COL32( 128, 128, 0, 255 );
-        };
-
-        //-------------------------------------------------------------------------
-
         class KRG_TOOLS_CORE_API Node : public BaseNode
         {
             friend StateMachineGraph;
@@ -68,6 +60,7 @@ namespace KRG::GraphEditor
 
     public:
 
+        inline UUID const& GetDefaultEntryStateID() const { return m_entryStateID; }
         void SetDefaultEntryState( UUID const& newDefaultEntryStateID );
 
         // Transitions

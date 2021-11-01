@@ -52,6 +52,10 @@ namespace KRG
         bool DrawWorkspaceWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ResourceEditorWorkspace* pWorkspace );
         void DrawPopups( UpdateContext const& context );
 
+        // Hot Reload
+        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;
+        virtual void EndHotReload() override;
+
     private:
 
         ResourceEditorModel                 m_model;

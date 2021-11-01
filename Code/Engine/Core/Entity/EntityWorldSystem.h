@@ -150,10 +150,11 @@ namespace KRG
         KRG_FORCE_INLINE void RemoveRecord( UUID entityID )
         {
             KRG_ASSERT( entityID.IsValid() );
-            auto foundIdx = m_recordIndices.find( entityID );
-            m_records[foundIdx->second].m_isSet = false;
-            m_firstFreeIdx = Math::Min( m_firstFreeIdx, foundIdx->second );
-            m_recordIndices.erase( foundIdx );
+            auto foundIter = m_recordIndices.find( entityID );
+            KRG_ASSERT( foundIter != m_recordIndices.end() );
+            m_records[foundIter->second].m_isSet = false;
+            m_firstFreeIdx = Math::Min( m_firstFreeIdx, foundIter->second );
+            m_recordIndices.erase( foundIter );
         }
 
         KRG_FORCE_INLINE RecordType* operator[]( UUID entityID )

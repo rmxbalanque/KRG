@@ -110,6 +110,10 @@ namespace KRG
         inline bool IsWaitingForResource() const { return IsLoading() || IsUnloaded(); }
         inline bool HasLoadingFailed() const { return m_pBaseResource.HasLoadingFailed(); }
 
+        // Hot-reload
+        void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded );
+        void EndHotReload();
+
     protected:
 
         // Specify whether to initially load the resource, this is not necessary for all editors
@@ -142,6 +146,7 @@ namespace KRG
 
     private:
 
+        bool                                m_isHotReloading = false;
         bool                                m_isActive = false;
     };
 

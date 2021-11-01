@@ -43,7 +43,7 @@
       <Filter>ResourceEditor</Filter>
     </ClCompile>
     <ClCompile Include="RawFileInspectors\RawFileInspector.cpp" />
-    <ClCompile Include="RawFileInspectors\FbxFileInspector.cpp" />
+    <ClCompile Include="RawFileInspectors\RawFileInspector_MeshFormats.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Win32\ResourceEditorApplication_Win32.h">
@@ -68,7 +68,7 @@
       <Filter>ResourceEditor</Filter>
     </ClInclude>
     <ClInclude Include="RawFileInspectors\RawFileInspector.h" />
-    <ClInclude Include="RawFileInspectors\FbxFileInspector.h" />
+    <ClInclude Include="RawFileInspectors\RawFileInspector_MeshFormats.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc">

@@ -38,6 +38,24 @@ namespace KRG
         return m_viewportName.c_str();
     }
 
+    void ResourceEditorWorkspace::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
+    {
+        if ( VectorContains( resourcesToBeReloaded, m_pBaseResource.GetResourceID() ) )
+        {
+            m_editorContext.m_pResourceSystem->UnloadResource( m_pBaseResource );
+            m_isHotReloading = true;
+        }
+    }
+
+    void ResourceEditorWorkspace::EndHotReload()
+    {
+        if ( m_isHotReloading )
+        {
+            m_editorContext.m_pResourceSystem->LoadResource( m_pBaseResource );
+            m_isHotReloading = false;
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     KRG_DEFINE_GLOBAL_REGISTRY( ResourceEditorWorkspaceFactory );

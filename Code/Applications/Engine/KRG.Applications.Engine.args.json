@@ -3,6 +3,10 @@
   "Id": "8778c386-a74a-4545-8297-ce68639d4ade",
   "Items": [
     {
+      "Id": "9029e973-a1ed-442e-b652-a3cdea056d6a",
+      "Command": "-map data://testscenes/ClothMesh.map"
+    },
+    {
       "Id": "9f4e3eb2-43a5-4d5b-b8d2-42f2115be8f9",
       "Command": "-map data://maps/br_minimal.map"
     },

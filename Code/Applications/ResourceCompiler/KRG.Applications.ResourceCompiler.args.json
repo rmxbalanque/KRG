@@ -51,6 +51,14 @@
       "Command": "Render",
       "Items": [
         {
+          "Id": "bb8f2925-7afd-4e3a-a8cf-7070d4da51a8",
+          "Command": "-compile data://testscenes/flighthelmet/flighthelmet_img12.txtr"
+        },
+        {
+          "Id": "1a480c3c-0ba4-4f13-92fd-65926da38a4a",
+          "Command": "-compile data://testscenes/flighthelmet/flighthelmet.msh"
+        },
+        {
           "Id": "afa6c43d-eb4c-45c3-bf2a-b277c08570c7",
           "Command": "-compile data://mannequin.smsh"
         },
@@ -61,6 +69,10 @@
         {
           "Id": "43330e5f-5d0e-4711-8040-48b47946f12c",
           "Command": "-compile data://amplifycharacter.smsh"
+        },
+        {
+          "Id": "2464fa86-53b9-4f1e-832a-21d36c275665",
+          "Command": "-compile data://cubemaps/yokohama/yokohama.cbmp"
         }
       ]
     },
