@@ -47,15 +47,15 @@ namespace KRG::Animation
         virtual void Deactivate( EntityWorld* pPreviewWorld ) override;
 
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
+        virtual void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         virtual bool HasViewportToolbar() const override { return true; }
-        virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
 
     private:
 
-        void DrawInfoWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
-        void DrawSkeletonHierarchyWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
+        void DrawInfoWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass );
+        void DrawSkeletonHierarchyWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass );
 
         void CreateSkeletonTree();
         void DestroySkeletonTree();

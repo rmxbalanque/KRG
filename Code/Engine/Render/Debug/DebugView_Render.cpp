@@ -112,9 +112,12 @@ namespace KRG::Render
         }
 
         // Draw editing gizmo
-        m_componentTransform = m_pSelectedComponent->GetWorldTransform();
-        m_gizmo.Draw( *pViewport );
-        m_pSelectedComponent->SetWorldTransform( m_componentTransform );
+        if ( m_pSelectedComponent != nullptr )
+        {
+            m_componentTransform = m_pSelectedComponent->GetWorldTransform();
+            m_gizmo.Draw( *pViewport );
+            m_pSelectedComponent->SetWorldTransform( m_componentTransform );
+        }
     }
 
     //-------------------------------------------------------------------------

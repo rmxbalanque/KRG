@@ -4,56 +4,19 @@
 
 namespace KRG
 {
-    ResourceEditorWorkspace::ResourceEditorWorkspace( ResourceEditorContext const& context, ResourceID const& resourceID, bool shouldLoadResource )
+    ResourceEditorWorkspace::ResourceEditorWorkspace( ResourceEditorContext const& context )
         : m_editorContext( context )
-        , m_pBaseResource( resourceID )
-    {
-        KRG_ASSERT( resourceID.IsValid() );
-        m_filePath = resourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
-
-        m_resourceDisplayName = m_filePath.GetFileNameWithoutExtension();
-        m_windowName.sprintf( "%s##%u", m_resourceDisplayName.c_str(), resourceID.GetPath().GetID() );
-
-        if ( shouldLoadResource )
-        {
-            m_editorContext.m_pResourceSystem->LoadResource( m_pBaseResource );
-        }
-    }
-
-    ResourceEditorWorkspace::~ResourceEditorWorkspace()
-    {
-        if ( !m_pBaseResource.IsUnloaded() )
-        {
-            m_editorContext.m_pResourceSystem->UnloadResource( m_pBaseResource );
-        }
-    }
+    {}
 
     char const* ResourceEditorWorkspace::GetViewportWindowName() const
     {
+        // Lazy initialization of the viewport window name since the GetWorkspaceName is a virtual function and cant be called from the constructor
         if ( m_viewportName.empty() )
         {
             const_cast<String&>( m_viewportName ).sprintf( "Viewport##%s", GetWorkspaceName() );
         }
 
         return m_viewportName.c_str();
-    }
-
-    void ResourceEditorWorkspace::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
-    {
-        if ( VectorContains( resourcesToBeReloaded, m_pBaseResource.GetResourceID() ) )
-        {
-            m_editorContext.m_pResourceSystem->UnloadResource( m_pBaseResource );
-            m_isHotReloading = true;
-        }
-    }
-
-    void ResourceEditorWorkspace::EndHotReload()
-    {
-        if ( m_isHotReloading )
-        {
-            m_editorContext.m_pResourceSystem->LoadResource( m_pBaseResource );
-            m_isHotReloading = false;
-        }
     }
 
     //-------------------------------------------------------------------------

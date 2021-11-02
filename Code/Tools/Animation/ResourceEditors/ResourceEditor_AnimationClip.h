@@ -30,10 +30,10 @@ namespace KRG::Animation
         virtual void Deactivate( EntityWorld* pPreviewWorld ) override;
 
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
+        virtual void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         virtual bool HasViewportToolbar() const override { return true; }
-        virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
 
         virtual bool IsDirty() const override;
 
@@ -41,8 +41,8 @@ namespace KRG::Animation
 
         virtual bool OnSave() override;
 
-        void DrawTimelineAndPropertGridsWindows( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
-        void DrawTrackDataWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
+        void DrawTimelineWindow( UpdateContext const& context );
+        void DrawTrackDataWindow( UpdateContext const& context );
 
     private:
 

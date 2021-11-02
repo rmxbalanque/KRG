@@ -38,10 +38,10 @@ namespace KRG::Render
         virtual void Deactivate( EntityWorld* pPreviewWorld ) override;
 
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) override;
+        virtual void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         virtual bool HasViewportToolbar() const override { return true; }
-        virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) override;
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
 
     private:
 
@@ -49,8 +49,8 @@ namespace KRG::Render
         void DestroySkeletonTree();
         ImRect RenderSkeletonTree( BoneInfo* pBone ) const;
 
-        void DrawInfoWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
-        void DrawSkeletonTreeWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass );
+        void DrawInfoWindow( UpdateContext const& context );
+        void DrawSkeletonTreeWindow( UpdateContext const& context );
 
     private:
 

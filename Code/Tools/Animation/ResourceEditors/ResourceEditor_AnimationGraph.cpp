@@ -60,7 +60,7 @@ namespace KRG::Animation::Graph
         //    ImGui::DockBuilderDockWindow( s_detailsWindowName, bottomRightDockID );
     }
 
-    void AnimationGraphResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void AnimationGraphResourceEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         m_controlParameterEditor.UpdateAndDraw( context, pWindowClass, s_controlParametersWindowName );
         m_graphView.UpdateAndDraw( context, pWindowClass, s_graphViewWindowName );
@@ -68,7 +68,7 @@ namespace KRG::Animation::Graph
         m_variationEditor.UpdateAndDraw( context, pWindowClass, s_variationEditorWindowName );
     }
 
-    void AnimationGraphResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void AnimationGraphResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         if ( m_graphEditorModel.IsPreviewing() )
         {

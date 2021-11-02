@@ -88,7 +88,7 @@ namespace KRG::Animation
         ImGui::DockBuilderDockWindow( s_infoWindowName, bottomDockID );
     }
 
-    void SkeletonResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void SkeletonResourceEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         // Debug drawing in Viewport
         //-------------------------------------------------------------------------
@@ -134,16 +134,16 @@ namespace KRG::Animation
         // UI
         //-------------------------------------------------------------------------
 
-        DrawInfoWindow( context, viewportManager, pWindowClass );
-        DrawSkeletonHierarchyWindow( context, viewportManager, pWindowClass );
+        DrawInfoWindow( context, pWindowClass );
+        DrawSkeletonHierarchyWindow( context, pWindowClass );
     }
 
-    void SkeletonResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void SkeletonResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         ImGui::Checkbox( "Show Preview Mesh", &m_showPreviewMesh );
     }
 
-    void SkeletonResourceEditor::DrawInfoWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void SkeletonResourceEditor::DrawInfoWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 8 ) );
         ImGui::SetNextWindowClass( pWindowClass );
@@ -201,7 +201,7 @@ namespace KRG::Animation
         ImGui::PopStyleVar();
     }
 
-    void SkeletonResourceEditor::DrawSkeletonHierarchyWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void SkeletonResourceEditor::DrawSkeletonHierarchyWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( s_skeletonTreeWindowName ) )

@@ -54,7 +54,7 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( s_infoWindowName, bottomDockID );
     }
 
-    void StaticMeshResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void StaticMeshResourceEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         auto DrawWindowContents = [this] ()
         {

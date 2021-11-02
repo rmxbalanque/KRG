@@ -16,7 +16,7 @@ namespace KRG::ImGuiX::OrientationGuide
 
     //-------------------------------------------------------------------------
 
-    static void DrawOrientationGuide( Float2 const& guideOrigin, Render::Viewport const& viewport )
+    void Draw( Float2 const& guideOrigin, Render::Viewport const& viewport )
     {
         // Project world space axis positions to screen space
         //-------------------------------------------------------------------------
@@ -116,31 +116,13 @@ namespace KRG::ImGuiX::OrientationGuide
 
     //-------------------------------------------------------------------------
 
-    Float2 GetRequiredDimensions()
+    Float2 GetSize()
     {
         return Float2( g_guideDimension, g_guideDimension );
     }
 
-    void Draw( Render::Viewport const& viewport, ImVec2 const& offset )
+    float GetWidth()
     {
-        Float2 const viewportBottomRight = viewport.GetBottomRightPosition();
-        Float2 const guideDimensions( g_guideDimension, g_guideDimension );
-        Float2 const guidePositionTopLeft = ImVec2( viewport.GetTopLeftPosition().m_x + offset.x, viewportBottomRight.m_y - guideDimensions.m_y - offset.y );
-        Float2 const guideCenter = Float2( guidePositionTopLeft.m_x + guideDimensions.m_x / 2, guidePositionTopLeft.m_y + guideDimensions.m_y / 2 );      
-        DrawOrientationGuide( guideCenter, viewport );
-    }
-
-    void DrawAsChildWindow( Render::Viewport const& viewport )
-    {
-        Float2 const windowDimensions( g_guideDimension, g_guideDimension );
-
-        ImGui::SetNextWindowBgAlpha( 0.0f );
-        if ( ImGui::BeginChild( "DebugUI_OrientationGuide", windowDimensions, false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize ) )
-        {
-            Float2 const windowPos = ImGui::GetWindowPos();
-            Float2 const windowCenterSS = Float2( windowDimensions.m_x / 2, windowDimensions.m_y / 2 ) + windowPos;
-            DrawOrientationGuide( windowCenterSS, viewport );
-        }
-        ImGui::EndChild();
+        return g_guideDimension / 2;
     }
 }

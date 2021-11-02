@@ -10,7 +10,7 @@ namespace KRG
     {
     public:
 
-        FileInspectorMeshFormats( ResourceEditorModel* pModel, FileSystem::Path const& filePath );
+        FileInspectorMeshFormats( EditorModel* pModel, FileSystem::Path const& filePath );
 
     private:
 

@@ -73,7 +73,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Tester", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Scripts.Reflect", "Code\Scripts\Reflect\KRG.Scripts.Reflect.vcxproj", "{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.ResourceEditor", "Code\Applications\ResourceEditor\KRG.Applications.ResourceEditor.vcxproj", "{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.Applications.Editor", "Code\Applications\Editor\KRG.Applications.Editor.vcxproj", "{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Property Sheets", "6. Property Sheets", "{CE2201AC-CE64-4BD9-8317-4E4E5B370CD9}"
 	ProjectSection(SolutionItems) = preProject

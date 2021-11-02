@@ -133,7 +133,7 @@ namespace KRG
                 ImGui::SetNextWindowSize( viewportSystem.GetPrimaryViewport()->GetDimensions() - Float2( 0, g_statusBarHeight + g_menuHeight ) );
                 ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
                 ImGui::SetNextWindowBgAlpha( 0.0f );
-                if ( ImGui::Begin( "ViewportOverlay", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus ) )
+                if ( ImGui::Begin( "ViewportOverlay", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus ) )
                 {
                     // The overlay elements should always be drawn
                     DrawOverlayElements( context, viewportSystem );
@@ -284,7 +284,8 @@ namespace KRG
 
         if ( m_debugOverlayEnabled )
         {
-            ImGuiX::OrientationGuide::Draw( *viewportSystem.GetPrimaryViewport(), ImVec2( 3.0f, 4.0f + g_statusBarHeight ) );
+            ImVec2 const guidePosition = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax() - ( ImGuiX::OrientationGuide::GetSize() / 2 );
+            ImGuiX::OrientationGuide::Draw( guidePosition, *viewportSystem.GetPrimaryViewport() );
         }
     }
 

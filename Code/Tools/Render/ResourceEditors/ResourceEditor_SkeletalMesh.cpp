@@ -85,7 +85,7 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( s_infoWindowName, bottomDockID );
     }
 
-    void SkeletalMeshResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void SkeletalMeshResourceEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( IsLoaded() )
         {
@@ -112,15 +112,18 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        DrawInfoWindow( context, viewportManager, pWindowClass );
-        DrawSkeletonTreeWindow( context, viewportManager, pWindowClass );
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawInfoWindow( context );
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawSkeletonTreeWindow( context );
     }
 
     //-------------------------------------------------------------------------
 
-    void SkeletalMeshResourceEditor::DrawInfoWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void SkeletalMeshResourceEditor::DrawInfoWindow( UpdateContext const& context )
     {
-        ImGui::SetNextWindowClass( pWindowClass );
+        
         if ( ImGui::Begin( s_infoWindowName ) )
         {
             if ( IsWaitingForResource() )
@@ -234,9 +237,8 @@ namespace KRG::Render
         ImGui::End();
     }
 
-    void SkeletalMeshResourceEditor::DrawSkeletonTreeWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void SkeletalMeshResourceEditor::DrawSkeletonTreeWindow( UpdateContext const& context )
     {
-        ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( s_skeletonWindowName ) )
         {
             if ( IsLoaded() )
@@ -333,7 +335,7 @@ namespace KRG::Render
         return nodeRect;
     }
 
-    void SkeletalMeshResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void SkeletalMeshResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         if ( !IsLoaded() )
         {

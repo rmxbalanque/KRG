@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tools/Core/Helpers/GlobalRegistryBase.h"
-#include "Applications/ResourceEditor/ResourceEditor_Model.h"
+#include "Applications/Editor/Editor_Model.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ namespace KRG
 
     public:
 
-        RawFileInspector( ResourceEditorModel* pModel, FileSystem::Path const& filePath );
+        RawFileInspector( EditorModel* pModel, FileSystem::Path const& filePath );
         virtual ~RawFileInspector() = default;
 
         // Get the actual file-path for the file
@@ -35,7 +35,7 @@ namespace KRG
     protected:
 
         FileSystem::Path                    m_filePath;
-        ResourceEditorModel*                m_pModel = nullptr;
+        EditorModel*                m_pModel = nullptr;
     };
 
     //-------------------------------------------------------------------------
@@ -50,7 +50,7 @@ namespace KRG
     public:
 
         static bool CanCreateInspector( FileSystem::Path const& filePath );
-        static RawFileInspector* TryCreateInspector( ResourceEditorModel* pModel, FileSystem::Path const& filePath );
+        static RawFileInspector* TryCreateInspector( EditorModel* pModel, FileSystem::Path const& filePath );
 
     protected:
 
@@ -58,7 +58,7 @@ namespace KRG
         virtual bool IsSupportedFile( FileSystem::Path const& filePath ) const = 0;
 
         // Virtual method that will create a workspace if the resource ID matches the appropriate types
-        virtual RawFileInspector* CreateInspector( ResourceEditorModel* pModel, FileSystem::Path const& filePath ) const = 0;
+        virtual RawFileInspector* CreateInspector( EditorModel* pModel, FileSystem::Path const& filePath ) const = 0;
     };
 }
 
@@ -72,7 +72,7 @@ namespace KRG
 class FactoryName final : public RawFileInspectorFactory\
 {\
     virtual bool IsSupportedFile( FileSystem::Path const& filePath) const override { return filePath.GetLowercaseExtensionAsString() == RawFileExtension; }\
-    virtual RawFileInspector* CreateInspector( ResourceEditorModel* pModel, FileSystem::Path const& filePath ) const override\
+    virtual RawFileInspector* CreateInspector( EditorModel* pModel, FileSystem::Path const& filePath ) const override\
     {\
         KRG_ASSERT( IsSupportedFile( filePath ) );\
         return KRG::New<EditorClass>( pModel, filePath );\

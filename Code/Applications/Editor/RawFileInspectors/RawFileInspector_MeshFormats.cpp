@@ -22,7 +22,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    FileInspectorMeshFormats::FileInspectorMeshFormats( ResourceEditorModel* pModel, FileSystem::Path const& filePath )
+    FileInspectorMeshFormats::FileInspectorMeshFormats( EditorModel* pModel, FileSystem::Path const& filePath )
         : RawFileInspector( pModel, filePath )
     {
         KRG_ASSERT( FileSystem::Exists( filePath ) );

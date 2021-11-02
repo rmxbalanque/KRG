@@ -82,7 +82,7 @@ namespace KRG::Animation
         ImGui::DockBuilderDockWindow( s_detailsWindowName, bottomRightDockID );
     }
 
-    void AnimationClipResourceEditor::UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void AnimationClipResourceEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( IsLoaded() )
         {
@@ -141,11 +141,21 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        DrawTrackDataWindow( context, viewportManager, pWindowClass );
-        DrawTimelineAndPropertGridsWindows( context, viewportManager, pWindowClass );
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawTrackDataWindow( context );
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawTimelineWindow( context );
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( s_detailsWindowName ) )
+        {
+            m_propertyGrid.DrawGrid();
+        }
+        ImGui::End();
     }
 
-    void AnimationClipResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void AnimationClipResourceEditor::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         if ( !IsLoaded() )
         {
@@ -180,12 +190,11 @@ namespace KRG::Animation
         ImGuiX::VerticalSeparator();
     }
 
-    void AnimationClipResourceEditor::DrawTimelineAndPropertGridsWindows( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void AnimationClipResourceEditor::DrawTimelineWindow( UpdateContext const& context )
     {
         // Draw timeline window
         //-------------------------------------------------------------------------
 
-        ImGui::SetNextWindowClass( pWindowClass );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
         if ( ImGui::Begin( s_timelineWindowName ) )
         {
@@ -227,21 +236,10 @@ namespace KRG::Animation
         }
         ImGui::End();
         ImGui::PopStyleVar();
-
-        // Draw property grid window
-        //-------------------------------------------------------------------------
-
-        ImGui::SetNextWindowClass( pWindowClass );
-        if ( ImGui::Begin( s_detailsWindowName ) )
-        {
-            m_propertyGrid.DrawGrid();
-        }
-        ImGui::End();
     }
 
-    void AnimationClipResourceEditor::DrawTrackDataWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass )
+    void AnimationClipResourceEditor::DrawTrackDataWindow( UpdateContext const& context )
     {
-        ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( s_trackDataWindowName ) )
         {
             if ( IsLoaded() )

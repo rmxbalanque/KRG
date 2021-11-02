@@ -14,7 +14,7 @@ namespace KRG
     class EntityWorld;
     class UpdateContext;
 
-    namespace Render { class ViewportManager; }
+    namespace Render { class Viewport; }
 }
 
 //-------------------------------------------------------------------------
@@ -40,16 +40,13 @@ namespace KRG
 
     public:
 
-        virtual ~ResourceEditorWorkspace();
+        virtual ~ResourceEditorWorkspace() = default;
 
         // Get the shared workspace name
         virtual char const* GetWorkspaceName() const = 0;
 
         // Get the shared viewport name for this workspace
         char const* GetViewportWindowName() const;
-
-        // Get a unique shorter, display friendly name for the resource shown in the workspace
-        inline char const* GetResourceDisplayName() const { return m_resourceDisplayName.c_str(); }
 
         // Get a unique window name for this workspace
         inline char const* GetWindowName() const { return m_windowName.c_str(); }
@@ -86,7 +83,10 @@ namespace KRG
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const = 0;
 
         // Draw any UI required for this file within the already allocated window
-        virtual void UpdateAndDraw( UpdateContext const& context, Render::ViewportManager& viewportManager, ImGuiWindowClass* pWindowClass ) = 0;
+        virtual void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) = 0;
+
+        // Called within the context of a large overlay window allowing you to draw helpers and widgets over a viewport
+        virtual void DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) {}
 
         // Should this workspace display a viewport?
         virtual bool RequiresViewportWindow() const { return true; }
@@ -95,7 +95,7 @@ namespace KRG
         virtual bool HasViewportToolbar() const { return false; }
         
         // Draw the viewport toolbar
-        virtual void DrawViewportToolbar( UpdateContext const& context, Render::ViewportManager& viewportManager ) {};
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) {};
 
         // Has any modifications been made to this file?
         virtual bool IsDirty() const { return false; }
@@ -104,20 +104,19 @@ namespace KRG
         inline bool Save() { return OnSave(); }
 
         // Resource Status
-        inline bool IsLoading() const { return m_pBaseResource.IsLoading(); }
-        inline bool IsUnloaded() const { return m_pBaseResource.IsUnloaded(); }
-        inline bool IsLoaded() const { return m_pBaseResource.IsLoaded(); }
-        inline bool IsWaitingForResource() const { return IsLoading() || IsUnloaded(); }
-        inline bool HasLoadingFailed() const { return m_pBaseResource.HasLoadingFailed(); }
+        virtual bool IsLoading() const { return false; }
+        virtual bool IsUnloaded() const { return false; }
+        virtual bool IsLoaded() const { return false; }
+        virtual bool IsWaitingForResource() const { return false; }
+        virtual bool HasLoadingFailed() const { return false; }
 
         // Hot-reload
-        void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded );
-        void EndHotReload();
+        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) {}
+        virtual void EndHotReload() {}
 
     protected:
 
-        // Specify whether to initially load the resource, this is not necessary for all editors
-        ResourceEditorWorkspace( ResourceEditorContext const& context, ResourceID const& resourceID, bool shouldLoadResource );
+        ResourceEditorWorkspace( ResourceEditorContext const& context );
 
         // Disable copies
         ResourceEditorWorkspace& operator=( ResourceEditorWorkspace const& ) = delete;
@@ -136,17 +135,12 @@ namespace KRG
         ResourceEditorContext const&        m_editorContext;
 
         // UI Info
-        String                              m_resourceDisplayName;
         String                              m_windowName;
         String                              m_viewportName;
         FileSystem::Path                    m_filePath;
 
-        // Resource ptr
-        Resource::ResourcePtr               m_pBaseResource; // Optionally loaded by derived editors
-
     private:
 
-        bool                                m_isHotReloading = false;
         bool                                m_isActive = false;
     };
 
@@ -161,12 +155,58 @@ namespace KRG
 
         // Specify whether to initially load the resource, this is not necessary for all editors
         TResourceEditorWorkspace( ResourceEditorContext const& context, ResourceID const& resourceID, bool shouldLoadResource = true )
-            : ResourceEditorWorkspace( context, resourceID, shouldLoadResource )
-            , m_pResource( m_pBaseResource )
-        {}
+            : ResourceEditorWorkspace( context )
+            , m_pResource( resourceID )
+        {
+            KRG_ASSERT( resourceID.IsValid() );
+            m_filePath = resourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+
+            String const displayName = m_filePath.GetFileNameWithoutExtension();
+            m_windowName.sprintf( "%s##%u", displayName.c_str(), resourceID.GetPath().GetID() );
+
+            if ( shouldLoadResource )
+            {
+                m_editorContext.m_pResourceSystem->LoadResource( m_pResource );
+            }
+        }
+
+        ~TResourceEditorWorkspace()
+        {
+            if ( !m_pResource.IsUnloaded() )
+            {
+                m_editorContext.m_pResourceSystem->UnloadResource( m_pResource );
+            }
+        }
 
         virtual ResourceTypeID GetResourceTypeID() const override { return T::GetStaticResourceTypeID(); }
         virtual char const* GetResourceTypeFriendlyName() const override { return ""; }
+
+        // Resource Status
+        virtual bool IsLoading() const override { return m_pResource.IsLoading(); }
+        virtual bool IsUnloaded() const override { return m_pResource.IsUnloaded(); }
+        virtual bool IsLoaded() const override { return m_pResource.IsLoaded(); }
+        virtual bool IsWaitingForResource() const override { return IsLoading() || IsUnloaded(); }
+        virtual bool HasLoadingFailed() const override { return m_pResource.HasLoadingFailed(); }
+
+        // Hot-reload
+        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override
+        {
+            bool const shouldReload = ( m_pResource.IsLoaded() || m_pResource.IsLoading() );
+            if ( shouldReload && VectorContains( resourcesToBeReloaded, m_pResource.GetResourceID() ) )
+            {
+                m_editorContext.m_pResourceSystem->UnloadResource( m_pResource );
+                m_isHotReloading = true;
+            }
+        }
+
+        virtual void EndHotReload() override 
+        {
+            if ( m_isHotReloading )
+            {
+                m_editorContext.m_pResourceSystem->LoadResource( m_pResource );
+                m_isHotReloading = false;
+            }
+        }
 
     private:
 
@@ -177,6 +217,10 @@ namespace KRG
     protected:
 
         TResourcePtr<T>                     m_pResource;
+
+    private:
+
+        bool                                m_isHotReloading = false;
     };
 
     //-------------------------------------------------------------------------
