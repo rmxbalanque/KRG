@@ -35,7 +35,7 @@ namespace KRG::Render
 
     class StaticMeshCompiler : public MeshCompiler
     {
-        static const int32 s_version = 3;
+        static const int32 s_version = 4;
 
     public:
 
@@ -47,7 +47,7 @@ namespace KRG::Render
 
     class SkeletalMeshCompiler : public MeshCompiler
     {
-        static const int32 s_version = 4;
+        static const int32 s_version = 5;
 
     public:
 
