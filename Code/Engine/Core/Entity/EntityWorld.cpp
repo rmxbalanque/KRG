@@ -131,6 +131,10 @@ namespace KRG
         m_initialized = false;
     }
 
+    //-------------------------------------------------------------------------
+    // Debug Views
+    //-------------------------------------------------------------------------
+
     #if KRG_DEVELOPMENT_TOOLS
     void EntityWorld::InitializeDebugViews( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> debugViewTypeInfos )
     {

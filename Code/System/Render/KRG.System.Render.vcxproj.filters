@@ -77,7 +77,6 @@
     <ClCompile Include="RenderShader.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="RenderVertexFormats.cpp" />
-    <ClCompile Include="RenderViewportManager.cpp" />
     <ClCompile Include="RenderViewport.cpp" />
     <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
@@ -138,7 +137,6 @@
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="RenderVertexFormats.h" />
-    <ClInclude Include="RenderViewportManager.h" />
     <ClInclude Include="RenderViewport.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h" />

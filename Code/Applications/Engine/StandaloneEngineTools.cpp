@@ -4,8 +4,10 @@
 #include "Engine/Core/Entity/Debug/EntityWorldDebugger.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Input/InputSystem.h"
-#include "System/Render/RenderViewportManager.h"
 #include "System/Core/Settings/SettingsRegistry.h"
+#include "Engine/Core/Entity/EntityWorld.h"
+
+//-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
@@ -97,74 +99,60 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void StandaloneEngineTools::Update( UpdateContext const& context, Render::ViewportManager& viewportSystem )
+    void StandaloneEngineTools::Update( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
+        KRG_ASSERT( updateStage == UpdateStage::FrameEnd );
 
-        switch ( updateStage )
+        //-------------------------------------------------------------------------
+
+        auto pInputSystem = context.GetSystem<Input::InputSystem>();
+        KRG_ASSERT( pInputSystem != nullptr );
+
+        // Update internal state
+        //-------------------------------------------------------------------------
+
+        float const k = 2.0f / ( context.GetFrameID() + 1 );
+        m_avgTimeDelta = context.GetRawDeltaTime() * k + m_avgTimeDelta * ( 1.0f - k );
+
+        // Enable/disable debug overlay
+        //-------------------------------------------------------------------------
+
+        auto const pKeyboardState = pInputSystem->GetKeyboardState();
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Tilde ) )
         {
-            case UpdateStage::FrameStart:
-            {
-                auto pInputSystem = context.GetSystem<Input::InputSystem>();
-                KRG_ASSERT( pInputSystem != nullptr );
-
-                // Update internal state
-                //-------------------------------------------------------------------------
-
-                float const k = 2.0f / ( context.GetFrameID() + 1 );
-                m_avgTimeDelta = context.GetRawDeltaTime() * k + m_avgTimeDelta * ( 1.0f - k );
-
-                // Enable/disable debug overlay
-                //-------------------------------------------------------------------------
-
-                auto const pKeyboardState = pInputSystem->GetKeyboardState();
-                if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Tilde ) )
-                {
-                    m_debugOverlayEnabled = !m_debugOverlayEnabled;
-                }
-            }
-            break;
-
-            //-------------------------------------------------------------------------
-
-            case UpdateStage::FrameEnd:
-            {
-                ImGui::SetNextWindowPos( ImVec2( 0, g_menuHeight ) );
-                ImGui::SetNextWindowSize( viewportSystem.GetPrimaryViewport()->GetDimensions() - Float2( 0, g_statusBarHeight + g_menuHeight ) );
-                ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
-                ImGui::SetNextWindowBgAlpha( 0.0f );
-                if ( ImGui::Begin( "ViewportOverlay", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus ) )
-                {
-                    // The overlay elements should always be drawn
-                    DrawOverlayElements( context, viewportSystem );
-                }
-                ImGui::End();
-                ImGui::PopStyleVar();
-
-                //-------------------------------------------------------------------------
-
-                if ( m_debugOverlayEnabled )
-                {
-                    DrawMenu( context );
-                    DrawStatusBar( context );
-                }
-
-                // The debug windows should be always be drawn if enabled
-                DrawWindows( context );
-
-                // The pop-ups should be always be drawn if enabled
-                DrawPopups( context );
-            }
-            break;
-
-            //-------------------------------------------------------------------------
-
-            default:
-            {
-                KRG_HALT(); // Not allowed to run at this stage
-            }
-            break;
+            m_debugOverlayEnabled = !m_debugOverlayEnabled;
         }
+
+        //-------------------------------------------------------------------------
+
+        Render::Viewport const* pViewport = m_pWorldManager->GetPrimaryWorld()->GetViewport();
+
+        ImGui::SetNextWindowPos( ImVec2( 0, g_menuHeight ) );
+        ImGui::SetNextWindowSize( pViewport->GetDimensions() - Float2( 0, g_statusBarHeight + g_menuHeight ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
+        ImGui::SetNextWindowBgAlpha( 0.0f );
+        if ( ImGui::Begin( "ViewportOverlay", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus ) )
+        {
+            // The overlay elements should always be drawn
+            DrawOverlayElements( context, pViewport );
+        }
+        ImGui::End();
+        ImGui::PopStyleVar();
+
+        //-------------------------------------------------------------------------
+
+        if ( m_debugOverlayEnabled )
+        {
+            DrawMenu( context );
+            DrawStatusBar( context );
+        }
+
+        // The debug windows should be always be drawn if enabled
+        DrawWindows( context );
+
+        // The pop-ups should be always be drawn if enabled
+        DrawPopups( context );
     }
 
     //-------------------------------------------------------------------------
@@ -278,14 +266,14 @@ namespace KRG
         }
     }
 
-    void StandaloneEngineTools::DrawOverlayElements( UpdateContext const& context, Render::ViewportManager& viewportSystem )
+    void StandaloneEngineTools::DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         m_pWorldDebugger->DrawOverlayElements( context );
 
         if ( m_debugOverlayEnabled )
         {
             ImVec2 const guidePosition = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax() - ( ImGuiX::OrientationGuide::GetSize() / 2 );
-            ImGuiX::OrientationGuide::Draw( guidePosition, *viewportSystem.GetPrimaryViewport() );
+            ImGuiX::OrientationGuide::Draw( guidePosition, *pViewport );
         }
     }
 

@@ -78,7 +78,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             sqlite3_stmt* pStatement = nullptr;
-            FillStatementBuffer( "SELECT * FROM `CompiledResources` WHERE `ResourcePath` = \"%s\" AND `ResourceType` = %d;", resourceID.GetPath().c_str(), (uint32) resourceID.GetResourceTypeID() );
+            FillStatementBuffer( "SELECT * FROM `CompiledResources` WHERE `ResourcePath` = \"%s\" AND `ResourceType` = %d;", resourceID.GetResourcePath().c_str(), (uint32) resourceID.GetResourceTypeID() );
             if ( IsValidSQLiteResult( sqlite3_prepare_v2( m_pDatabase, m_statementBuffer, -1, &pStatement, nullptr ) ) )
             {
                 while ( sqlite3_step( pStatement ) == SQLITE_ROW )
@@ -100,7 +100,7 @@ namespace KRG
 
         bool CompiledResourceDatabase::WriteRecord( CompiledResourceRecord const& record )
         {
-            return ExecuteSimpleQuery( "INSERT OR REPLACE INTO `CompiledResources` ( `ResourcePath`, `ResourceType`, `CompilerVersion`, `FileTimestamp`, `SourceTimestampHash` ) VALUES ( \"%s\", %d, %d, %llu, %llu );", record.m_resourceID.GetPath().c_str(), (uint32) record.m_resourceID.GetResourceTypeID(), record.m_compilerVersion, record.m_fileTimestamp, record.m_sourceTimestampHash  );
+            return ExecuteSimpleQuery( "INSERT OR REPLACE INTO `CompiledResources` ( `ResourcePath`, `ResourceType`, `CompilerVersion`, `FileTimestamp`, `SourceTimestampHash` ) VALUES ( \"%s\", %d, %d, %llu, %llu );", record.m_resourceID.GetResourcePath().c_str(), (uint32) record.m_resourceID.GetResourceTypeID(), record.m_compilerVersion, record.m_fileTimestamp, record.m_sourceTimestampHash  );
         }
     }
 }

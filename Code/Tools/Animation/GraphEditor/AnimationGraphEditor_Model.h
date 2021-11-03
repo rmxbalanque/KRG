@@ -1,7 +1,7 @@
 #pragma once
 #include "ToolsGraph/AnimationToolsGraph.h"
 #include "Tools/Core/Trees/CategoryTree.h"
-#include "Tools/Core/Resource/ResourceEditorWorkspace.h"
+#include "Tools/Core/Editor/EditorWorkspace.h"
 #include "Engine/Animation/Components/AnimationGraphComponent.h"
 #include "System/Core/Types/Containers.h"
 
@@ -21,7 +21,7 @@ namespace KRG::Animation::Graph
     {
     public:
 
-        GraphEditorModel( ResourceEditorContext const& editorContext, ResourceID const& graphResourceID );
+        GraphEditorModel( EditorContext const& editorContext, ResourceID const& graphResourceID );
         ~GraphEditorModel();
 
         inline FileSystem::Path const& GetSourceDataDirectory() const { return m_editorContext.m_sourceResourceDirectory; }
@@ -110,7 +110,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        ResourceEditorContext const&                m_editorContext;
+        EditorContext const&                        m_editorContext;
 
         AnimationToolsGraph*                        m_pGraph = nullptr;
         FileSystem::Path                            m_graphFilePath;

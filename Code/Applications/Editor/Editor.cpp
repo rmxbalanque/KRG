@@ -1,9 +1,9 @@
 #include "Editor.h"
-#include "Tools/Core/Resource/ResourceEditorWorkspace.h"
+#include "MapEditor/Workspace_MapEditor.h"
+#include "Tools/Core/Editor/EditorWorkspace.h"
 #include "Engine/Core/Imgui/OrientationGuide.h"
-#include "System/Render/RenderViewportManager.h"
 #include "System/Input/InputSystem.h"
-#include "MapEditor/ResourceEditor_Map.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
 
@@ -28,49 +28,134 @@ namespace KRG
         m_model.Shutdown( context );
     }
 
-    void Editor::Update( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void Editor::Update( UpdateContext const& context )
     {
-        // Request that game is rendered to texture
-        viewportManager.SetUseCustomRenderTargetForViewport( 0, true );
+        UpdateStage const updateStage = context.GetUpdateStage();
+        KRG_ASSERT( updateStage == UpdateStage::FrameEnd );
 
         //-------------------------------------------------------------------------
 
-        UpdateStage const updateStage = context.GetUpdateStage();
+        m_db.Update();
 
-        switch ( updateStage )
+        if ( ImGui::BeginMainMenuBar() )
         {
-            case UpdateStage::FrameStart:
-            {
-                m_db.Update();
+            DrawMainMenu( context );
 
-                if ( ImGui::BeginMainMenuBar() )
-                {
-                    DrawMainMenu( context, viewportManager );
+            // Draw Performance Stats
+            //-------------------------------------------------------------------------
 
-                    // Draw Performance Stats
-                    //-------------------------------------------------------------------------
+            ImGuiViewport const* viewport = ImGui::GetMainViewport();
+            ImGui::SameLine( viewport->WorkSize.x - 165 );
 
-                    ImGuiViewport const* viewport = ImGui::GetMainViewport();
-                    ImGui::SameLine( viewport->WorkSize.x - 165 );
+            float const currentFPS = 1.0f / context.GetDeltaTime();
+            float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
+            ImGui::Text( "FPS: %3.0f | MEM: %.2fMB", currentFPS, allocatedMemory );
 
-                    float const currentFPS = 1.0f / context.GetDeltaTime();
-                    float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
-                    ImGui::Text( "FPS: %3.0f | Mem: %.2fMB", currentFPS, allocatedMemory );
-
-                    ImGui::EndMainMenuBar();
-                }
-
-                FrameStartUpdate( context, viewportManager );
-            }
-            break;
-
-            case UpdateStage::FrameEnd:
-            {
-                FrameEndUpdate( context, viewportManager );
-                DrawPopups( context );
-            }
-            break;
+            ImGui::EndMainMenuBar();
         }
+
+        //-------------------------------------------------------------------------
+        // Create main dock window
+        //-------------------------------------------------------------------------
+
+        ImGuiWindowClass mainEditorWindowClass;
+        mainEditorWindowClass.ClassId = ImGui::GetID( "EditorWindowClass" );
+        mainEditorWindowClass.DockingAllowUnclassed = false;
+
+        ImGuiID const dockspaceID = ImGui::GetID( "EditorDockSpace" );
+        ImGuiID dockRightID = 0, dockLeftID = 0;
+
+        ImGuiWindowFlags const windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        ImGuiViewport const* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos( viewport->WorkPos );
+        ImGui::SetNextWindowSize( viewport->WorkSize );
+        ImGui::SetNextWindowViewport( viewport->ID );
+
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
+        bool const shouldDrawEditorDockspace = ImGui::Begin( "EditorDockSpaceWindow", nullptr, windowFlags );
+        ImGui::PopStyleVar( 3 );
+
+        if ( shouldDrawEditorDockspace )
+        {
+            // Initial Layout
+            if ( !ImGui::DockBuilderGetNode( dockspaceID ) )
+            {
+                ImGui::DockBuilderAddNode( dockspaceID, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton );
+                ImGui::DockBuilderSetNodeSize( dockspaceID, viewport->Size );
+
+                dockLeftID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Left, 0.25f, nullptr, &dockRightID );
+
+                // Disable tab bars for left node
+                ImGuiDockNode* pLeftNode = ImGui::DockBuilderGetNode( dockLeftID );
+                pLeftNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplitMe;
+
+                // Flag right node as the central one
+                ImGuiDockNode* pRightNode = ImGui::DockBuilderGetNode( dockRightID );
+                pRightNode->LocalFlags |= ImGuiDockNodeFlags_CentralNode | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
+
+                ImGui::DockBuilderFinish( dockspaceID );
+            }
+            else // look up the correct IDs (this is okay to do since we have fixed dock node and dont allow further splitting)
+            {
+                if ( dockLeftID == 0 && dockRightID == 0 )
+                {
+                    auto pDockRootNode = ImGui::DockBuilderGetNode( dockspaceID );
+                    dockLeftID = pDockRootNode->ChildNodes[0]->ID;
+                    dockRightID = pDockRootNode->ChildNodes[1]->ID;
+                }
+            }
+
+            // Create the actual dock space
+            ImGui::DockSpace( dockspaceID, viewport->WorkSize, ImGuiDockNodeFlags_None, &mainEditorWindowClass );
+        }
+        ImGui::End();
+
+        //-------------------------------------------------------------------------
+        // Draw Data Browser
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextWindowClass( &mainEditorWindowClass );
+        ImGui::SetNextWindowDockID( dockLeftID );
+        m_pDataBrowser->Draw( context );
+
+        //-------------------------------------------------------------------------
+        // Draw open workspaces
+        //-------------------------------------------------------------------------
+
+        EditorWorkspace* pWorkspaceToClose = nullptr;
+
+        // Draw all workspaces
+        for ( auto pWorkspace : m_model.GetWorkspaces() )
+        {
+            ImGui::SetNextWindowDockID( dockRightID );
+            if ( !DrawWorkspace( context, pWorkspace ) )
+            {
+                pWorkspaceToClose = pWorkspace;
+            }
+        }
+
+        // Did we get a close request?
+        if ( pWorkspaceToClose != nullptr )
+        {
+            m_model.DestroyWorkspace( pWorkspaceToClose );
+        }
+
+        //-------------------------------------------------------------------------
+        // Handle saving
+        //-------------------------------------------------------------------------
+
+        /*if ( m_model.GetActiveWorkspace() != nullptr )
+        {
+            if ( ( ImGui::GetIO().KeyMods & ImGuiKeyModFlags_Ctrl ) && ImGui::IsKeyDown( 'S' ) )
+            {
+                m_model.GetActiveWorkspace()->Save();
+            }
+        }*/
+
+        DrawPopups( context );
 
         //-------------------------------------------------------------------------
 
@@ -80,7 +165,7 @@ namespace KRG
         pInputSystem->SetEnabled( m_mouseWithinEditorViewport );
     }
 
-    void Editor::DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager )
+    void Editor::DrawMainMenu( UpdateContext const& context )
     {
         if ( ImGui::BeginMenu( "Map" ) )
         {
@@ -204,129 +289,19 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Editor::FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
-    {
-        //-------------------------------------------------------------------------
-        // Create main dock window
-        //-------------------------------------------------------------------------
-
-        ImGuiWindowClass mainEditorWindowClass;
-        mainEditorWindowClass.ClassId = ImGui::GetID( "EditorWindowClass" );
-        mainEditorWindowClass.DockingAllowUnclassed = false;
-
-        ImGuiID const dockspaceID = ImGui::GetID( "EditorDockSpace" );
-        ImGuiID dockRightID = 0, dockLeftID = 0;
-
-        ImGuiWindowFlags const windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-        ImGuiViewport const* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos( viewport->WorkPos );
-        ImGui::SetNextWindowSize( viewport->WorkSize );
-        ImGui::SetNextWindowViewport( viewport->ID );
-
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0.0f );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
-        bool const shouldDrawEditorDockspace = ImGui::Begin( "EditorDockSpaceWindow", nullptr, windowFlags );
-        ImGui::PopStyleVar( 3 );
-
-        if ( shouldDrawEditorDockspace )
-        {
-            // Initial Layout
-            if ( !ImGui::DockBuilderGetNode( dockspaceID ) )
-            {
-                ImGui::DockBuilderAddNode( dockspaceID, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton );
-                ImGui::DockBuilderSetNodeSize( dockspaceID, viewport->Size );
-
-                dockLeftID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Left, 0.25f, nullptr, &dockRightID );
-
-                // Disable tab bars for left node
-                ImGuiDockNode* pLeftNode = ImGui::DockBuilderGetNode( dockLeftID );
-                pLeftNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplitMe;
-
-                // Flag right node as the central one
-                ImGuiDockNode* pRightNode = ImGui::DockBuilderGetNode( dockRightID );
-                pRightNode->LocalFlags |= ImGuiDockNodeFlags_CentralNode | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
-
-                ImGui::DockBuilderFinish( dockspaceID );
-            }
-            else // look up the correct IDs (this is okay to do since we have fixed dock node and dont allow further splitting)
-            {
-                if ( dockLeftID == 0 && dockRightID == 0 )
-                {
-                    auto pDockRootNode = ImGui::DockBuilderGetNode( dockspaceID );
-                    dockLeftID = pDockRootNode->ChildNodes[0]->ID;
-                    dockRightID = pDockRootNode->ChildNodes[1]->ID;
-                }
-            }
-
-            // Create the actual dock space
-            ImGui::DockSpace( dockspaceID, viewport->WorkSize, ImGuiDockNodeFlags_None, &mainEditorWindowClass );
-        }
-        ImGui::End();
-
-        //-------------------------------------------------------------------------
-        // Draw Data Browser
-        //-------------------------------------------------------------------------
-
-        ImGui::SetNextWindowClass( &mainEditorWindowClass );
-        ImGui::SetNextWindowDockID( dockLeftID );
-        m_pDataBrowser->Draw( context );
-
-        //-------------------------------------------------------------------------
-        // Draw open workspaces
-        //-------------------------------------------------------------------------
-
-        ResourceEditorWorkspace* pWorkspaceToClose = nullptr;
-
-        // Draw all workspaces
-        for ( auto pWorkspace : m_model.GetWorkspaces() )
-        {
-            ImGui::SetNextWindowDockID( dockRightID );
-            if ( !DrawWorkspaceWindow( context, viewportManager, pWorkspace ) )
-            {
-                pWorkspaceToClose = pWorkspace;
-            }
-        }
-
-        // Did we get a close request?
-        if ( pWorkspaceToClose != nullptr )
-        {
-            m_model.DestroyWorkspace( pWorkspaceToClose );
-            ImGui::SetWindowFocus( m_model.GetActiveWorkspace()->GetWindowName() );
-        }
-
-        //-------------------------------------------------------------------------
-        // Handle saving
-        //-------------------------------------------------------------------------
-
-        if ( m_model.GetActiveWorkspace() != nullptr )
-        {
-            if ( ( ImGui::GetIO().KeyMods & ImGuiKeyModFlags_Ctrl ) && ImGui::IsKeyDown( 'S' ) )
-            {
-                m_model.GetActiveWorkspace()->Save();
-            }
-        }
-    }
-
-    void Editor::FrameEndUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager )
-    {
-
-    }
-
-    bool Editor::DrawWorkspaceWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ResourceEditorWorkspace* pWorkspace )
+    bool Editor::DrawWorkspace( UpdateContext const& context, EditorWorkspace* pWorkspace )
     {
         KRG_ASSERT( pWorkspace != nullptr );
 
         bool const isMapEditorWorkspace = ( pWorkspace == m_model.GetMapEditorWorkspace() );
-        bool const isActiveWorkspace = m_model.IsActiveWorkspace( pWorkspace );
         bool const isDirty = pWorkspace->IsDirty();
         bool isTabOpen = true;
         bool isFocused = false;
 
         //-------------------------------------------------------------------------
 
-        ImGuiID const dockspaceID = ImGui::GetID( pWorkspace->GetWorkspaceName() );
+        ImGui::PushID( pWorkspace );
+        ImGuiID const dockspaceID = ImGui::GetID( pWorkspace->GetDisplayName() );
 
         ImGuiWindowClass workspaceWindowClass;
         workspaceWindowClass.ClassId = dockspaceID;
@@ -336,7 +311,7 @@ namespace KRG
         bool* pIsTabOpen = isMapEditorWorkspace ? nullptr : &isTabOpen;
 
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
-        bool const shouldDrawWindowContents = ImGui::Begin( pWorkspace->GetWindowName(), pIsTabOpen, windowFlags );
+        bool const shouldDrawWindowContents = ImGui::Begin( pWorkspace->GetDisplayName(), pIsTabOpen, windowFlags );
         ImGui::PopStyleVar();
 
         if ( shouldDrawWindowContents )
@@ -357,102 +332,83 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             // Since we share the dock ID across all open workspaces of the same type we dont want to display multiple dockspaces on the frame when we switch tab
-            ImGuiDockNodeFlags const dockFlags = isActiveWorkspace ? ImGuiDockNodeFlags_None : ImGuiDockNodeFlags_KeepAliveOnly;
+            ImGuiDockNodeFlags const dockFlags = ImGuiDockNodeFlags_None;
             ImGui::DockSpace( dockspaceID, ImGui::GetContentRegionAvail(), dockFlags, &workspaceWindowClass );
-
-            // Activate the workspace, if it isnt already active
-            if ( !isActiveWorkspace )
-            {
-                m_model.SetActiveWorkspace( pWorkspace );
-            }
 
             // Draw workspace windows
             //-------------------------------------------------------------------------
 
-            pWorkspace->UpdateAndDraw( context, &workspaceWindowClass );
+            pWorkspace->UpdateAndDrawWindows( context, &workspaceWindowClass );
 
             // Does the active workspace require a viewport?
-            if ( isActiveWorkspace && pWorkspace->RequiresViewportWindow() )
+            if ( pWorkspace->HasViewportWindow() )
             {
+                auto pViewport = pWorkspace->GetWorld()->GetViewport();
+
+                // Create viewport window
                 ImGui::SetNextWindowClass( &workspaceWindowClass );
-                DrawViewportWindow( context, viewportManager, pWorkspace->GetViewportWindowName() );
+                ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
+                ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
+                if ( ImGui::Begin( EditorWorkspace::s_viewportWindowName, nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar ) )
+                {
+                    ImGuiStyle const& style = ImGui::GetStyle();
+                    ImVec2 const viewportSize( Math::Max( ImGui::GetContentRegionAvail().x, 64.0f ), Math::Max( ImGui::GetContentRegionAvail().y, 64.0f ) );
+
+                    // Update engine viewport dimensions
+                    //-------------------------------------------------------------------------
+
+                    Math::Rectangle const viewportRect( Float2::Zero, viewportSize );
+                    pViewport->Resize( viewportRect );
+                    m_mouseWithinEditorViewport = ImGui::IsWindowHovered();
+
+                    // Draw 3D scene
+                    //-------------------------------------------------------------------------
+
+                    ImTextureID const vpTextureID = m_model.GetViewportTextureForWorkspace( pWorkspace );
+                    ImGui::Image( vpTextureID, viewportSize );
+
+                    // Draw overlay elements
+                    //-------------------------------------------------------------------------
+
+                    ImGui::SetCursorPos( style.WindowPadding );
+                    pWorkspace->DrawViewportOverlayElements( context, pViewport );
+                    ImGuiX::OrientationGuide::Draw( ImGui::GetWindowPos() + viewportSize - ImVec2( ImGuiX::OrientationGuide::GetWidth() + 4, ImGuiX::OrientationGuide::GetWidth() + 4 ), *pViewport );
+
+                    // Draw viewport toolbar
+                    //-------------------------------------------------------------------------
+
+                    if( pWorkspace->HasViewportWindowToolbar() )
+                    {
+                        ImGui::SetCursorPos( style.WindowPadding );
+
+                        ImGui::SetNextWindowBgAlpha( 0.2f );
+                        ImGui::SetNextWindowSizeConstraints( ImVec2( 0, 0 ), ImVec2( -1, 24 ) );
+                        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 2 ) );
+                        if ( ImGui::BeginChild( "EditorViewportToolbar", ImVec2( -1, -1 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar ) )
+                        {
+                            pWorkspace->DrawViewportToolbar( context, pViewport );
+                        }
+                        ImGui::EndChild();
+                        ImGui::PopStyleVar();
+                    }
+
+                    // Handle being docked
+                    //-------------------------------------------------------------------------
+
+                    if ( auto pDockNode = ImGui::GetWindowDockNode() )
+                    {
+                        pDockNode->LocalFlags = 0;
+                        pDockNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingOverMe;
+                        pDockNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+                    }
+                }
+                ImGui::PopStyleVar();
+                ImGui::End();
             }
         }
         ImGui::End();
+        ImGui::PopID();
 
         return isTabOpen;
-    }
-
-    //-------------------------------------------------------------------------
-
-    void Editor::DrawViewportWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, char const* const pEditorViewportName )
-    {
-        // Create viewport window
-        ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
-        if ( ImGui::Begin( pEditorViewportName, nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar ) )
-        {
-            ImGuiStyle const& style = ImGui::GetStyle();
-            ImVec2 const viewportSize( Math::Max( ImGui::GetContentRegionAvail().x, 64.0f ), Math::Max( ImGui::GetContentRegionAvail().y, 64.0f ) );
-
-            // Update engine viewport dimensions
-            //-------------------------------------------------------------------------
-
-            Math::Rectangle const viewportRect( Float2::Zero, viewportSize );
-            viewportManager.ResizePrimaryViewport( viewportRect );
-            m_mouseWithinEditorViewport = ImGui::IsWindowHovered();
-
-            // Draw 3D scene
-            //-------------------------------------------------------------------------
-
-            ImTextureID vpTextureID = (void*) &viewportManager.GetViewportRenderTargetTextureSRV( 0 );
-            ImGui::Image( vpTextureID, viewportSize );
-
-            // Draw overlay elements
-            //-------------------------------------------------------------------------
-
-            auto pActiveWorkspace = m_model.GetActiveWorkspace();
-            auto pViewport = viewportManager.GetPrimaryViewport();
-
-            ImGui::SetCursorPos( style.WindowPadding );
-            pActiveWorkspace->DrawOverlayElements( context, pViewport );
-            ImGuiX::OrientationGuide::Draw( ImGui::GetWindowPos() + viewportSize - ImVec2( ImGuiX::OrientationGuide::GetWidth() + 4, ImGuiX::OrientationGuide::GetWidth() + 4 ), *pViewport );
-
-            // Draw viewport toolbar
-            //-------------------------------------------------------------------------
-
-            if ( pActiveWorkspace != nullptr && pActiveWorkspace->HasViewportToolbar() )
-            {
-                ImGui::SetCursorPos( style.WindowPadding );
-
-                ImGui::SetNextWindowBgAlpha( 0.2f );
-                ImGui::SetNextWindowSizeConstraints( ImVec2( 0, 0 ), ImVec2( -1, 24 ) );
-                ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 2 ) );
-                if ( ImGui::BeginChild( "EditorViewportToolbar", ImVec2( -1, -1 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar ) )
-                {
-                    pActiveWorkspace->DrawViewportToolbar( context, pViewport );
-                }
-                ImGui::EndChild();
-                ImGui::PopStyleVar();
-            }
-
-            // Handle being docked
-            if ( auto pDockNode = ImGui::GetWindowDockNode() )
-            {
-                pDockNode->LocalFlags = 0;
-
-                if ( !m_viewportSettings.m_allowDockingOverViewport )
-                {
-                    pDockNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingOverMe;
-                }
-
-                if ( m_viewportSettings.m_hideViewportTabBar )
-                {
-                    pDockNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-                }
-            }
-        }
-        ImGui::PopStyleVar();
-        ImGui::End();
     }
 }

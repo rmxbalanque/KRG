@@ -42,7 +42,7 @@ namespace KRG::Animation
             return Error( "Invalid skeleton resource ID" );
         }
 
-        ResourcePath const& skeletonPath = resourceDescriptor.m_pSkeleton.GetResourceID().GetPath();
+        ResourcePath const& skeletonPath = resourceDescriptor.m_pSkeleton.GetResourceID().GetResourcePath();
         FileSystem::Path skeletonDescriptorFilePath;
         if ( !ctx.ConvertResourcePathToFilePath( skeletonPath, skeletonDescriptorFilePath ) )
         {

@@ -1,11 +1,13 @@
 #pragma once
-#include "Tools/Core/Resource/ResourceEditorWorkspace.h"
+#include "Tools/Core/Editor/EditorWorkspace.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     class MapEditor;
+    class EntityWorldManager;
+    namespace Render{ class RenderingSystem; }
 
     //-------------------------------------------------------------------------
 
@@ -22,6 +24,7 @@ namespace KRG
         inline FileSystem::Path const& GetCompiledResourceDirectory() const { return m_editorContext.m_compiledResourceDirectory; }
         inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_editorContext.m_pTypeRegistry; }
         inline Resource::ResourceSystem* GetResourceSystem() const { return m_editorContext.m_pResourceSystem; }
+        inline Render::RenderingSystem* GetRenderingSystem() const { return m_pRenderingSystem; }
 
         // Map Editor
         //-------------------------------------------------------------------------
@@ -30,25 +33,28 @@ namespace KRG
 
         // Workspaces
         //-------------------------------------------------------------------------
+        
+        inline TVector<EditorWorkspace*> const& GetWorkspaces() const { return m_workspaces; }
+        inline bool IsWorkspaceOpen( ResourceID const& resourceID ) const { return FindResourceWorkspace( resourceID ) != nullptr; }
+        inline bool IsWorkspaceOpen( uint32 workspaceID ) const { return FindResourceWorkspace( workspaceID ) != nullptr; }
 
-        bool CanCreateWorkspaceForResourceType( ResourceTypeID typeID );
-
+        bool CanCreateWorkspaceForResourceType( ResourceTypeID typeID ) const;
         void CreateWorkspace( ResourceID const& resourceID );
-        void DestroyWorkspace( ResourceEditorWorkspace* pWorkspace );
-        inline TVector<ResourceEditorWorkspace*> const& GetWorkspaces() const { return m_workspaces; }
-        inline bool IsWorkspaceOpen( FileSystem::Path const& path ) const;
+        void DestroyWorkspace( EditorWorkspace* pWorkspace );
 
-        // The active workspace is the one that has "focus" and is currently being worked on.
-        inline bool IsActiveWorkspace( ResourceEditorWorkspace const* pWorkspace ) const { return m_pActiveWorkspace == pWorkspace; }
-        inline ResourceEditorWorkspace* GetActiveWorkspace() const { return m_pActiveWorkspace; }
-        void SetActiveWorkspace( ResourceEditorWorkspace* pWorkspace );
-        void ClearActiveWorkspace();
+        void* GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const;
 
     private:
 
-        MapEditor*                                  m_pMapEditor = nullptr;
-        ResourceEditorContext                       m_editorContext;
-        TVector<ResourceEditorWorkspace*>           m_workspaces;
-        ResourceEditorWorkspace*                    m_pActiveWorkspace = nullptr;
+        EditorWorkspace* FindResourceWorkspace( ResourceID const& resourceID ) const;
+        EditorWorkspace* FindResourceWorkspace( uint32 workspaceID ) const;
+
+    private:
+
+        MapEditor*                          m_pMapEditor = nullptr;
+        EntityWorldManager*                 m_worldManager = nullptr;
+        Render::RenderingSystem*            m_pRenderingSystem = nullptr;
+        EditorContext                       m_editorContext;
+        TVector<EditorWorkspace*>           m_workspaces;
     };
 }

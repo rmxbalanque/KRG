@@ -7,7 +7,6 @@
 #include "Engine/Core/ResourceLoaders/ResourceLoader_EntityMap.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Render/RenderDevice.h"
-#include "System/Render/RenderViewportManager.h"
 #include "System/Input/InputSystem.h"
 #include "System/Render/Imgui/ImguiSystem.h"
 #include "System/Resource/ResourceProvider.h"
@@ -38,7 +37,6 @@ namespace KRG::EngineCore
         inline Resource::ResourceSystem* GetResourceSystem() { return &m_resourceSystem; }
 
         inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
-        inline Render::ViewportManager* GetViewportManager() { return &m_viewportManager; }
         inline ImGuiX::ImguiSystem* GetImguiSystem() { return &m_imguiSystem; }
 
         inline EntityWorldManager* GetEntityWorldManager() { return &m_entityWorldManager; }
@@ -58,7 +56,6 @@ namespace KRG::EngineCore
 
         // Rendering
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
-        Render::ViewportManager                         m_viewportManager;
 
         // ImGui
         ImGuiX::ImguiSystem                             m_imguiSystem;

@@ -4,23 +4,6 @@
 
 namespace KRG
 {
-    ResourceEditorWorkspace::ResourceEditorWorkspace( ResourceEditorContext const& context )
-        : m_editorContext( context )
-    {}
-
-    char const* ResourceEditorWorkspace::GetViewportWindowName() const
-    {
-        // Lazy initialization of the viewport window name since the GetWorkspaceName is a virtual function and cant be called from the constructor
-        if ( m_viewportName.empty() )
-        {
-            const_cast<String&>( m_viewportName ).sprintf( "Viewport##%s", GetWorkspaceName() );
-        }
-
-        return m_viewportName.c_str();
-    }
-
-    //-------------------------------------------------------------------------
-
     KRG_DEFINE_GLOBAL_REGISTRY( ResourceEditorWorkspaceFactory );
 
     //-------------------------------------------------------------------------
@@ -41,7 +24,7 @@ namespace KRG
         return false;
     }
 
-    ResourceEditorWorkspace* ResourceEditorWorkspaceFactory::TryCreateWorkspace( ResourceEditorContext const& context, ResourceID const& resourceID )
+    EditorWorkspace* ResourceEditorWorkspaceFactory::TryCreateWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
     {
         KRG_ASSERT( resourceID.IsValid() );
         auto resourceTypeID = resourceID.GetResourceTypeID();
@@ -52,7 +35,7 @@ namespace KRG
         {
             if ( resourceTypeID == pCurrentFactory->GetSupportedResourceTypeID() )
             {
-                return pCurrentFactory->CreateWorkspace( context, resourceID );
+                return pCurrentFactory->CreateWorkspace( context, pWorld, resourceID );
             }
 
             pCurrentFactory = pCurrentFactory->GetNextItem();

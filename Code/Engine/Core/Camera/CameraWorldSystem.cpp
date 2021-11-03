@@ -2,7 +2,6 @@
 #include "Engine/Core/Camera/CameraComponent.h"
 #include "Engine/Core/Entity/Entity.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
-#include "System/Render/RenderViewportManager.h"
 
 //-------------------------------------------------------------------------
 

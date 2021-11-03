@@ -17,6 +17,7 @@ namespace KRG
 {
     class EntityWorldManager;
     class EntityWorldDebugger;
+    namespace Render { class Viewport; }
 
     //-------------------------------------------------------------------------
 
@@ -35,13 +36,13 @@ namespace KRG
 
         virtual void Initialize( UpdateContext const& context ) override final;
         virtual void Shutdown( UpdateContext const& context ) override final;
-        virtual void Update( UpdateContext const& context, Render::ViewportManager & viewportSystem ) override final;
+        virtual void Update( UpdateContext const& context ) override final;
 
     private:
 
         void DrawPopups( UpdateContext const& context );
         void DrawMenu( UpdateContext const& context );
-        void DrawOverlayElements( UpdateContext const& context, Render::ViewportManager& viewportSystem );
+        void DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport );
         void DrawWindows( UpdateContext const& context );
         void DrawStatusBar( UpdateContext const& context );
 

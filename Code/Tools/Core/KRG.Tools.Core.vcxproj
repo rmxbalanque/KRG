@@ -64,13 +64,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Editor\ResourceEditorWorkspace.h" />
+    <ClInclude Include="GraphEditor\GraphEditor.h" />
     <ClInclude Include="Resource\DataFilePicker.h" />
     <ClInclude Include="FileSystem\FileSystemHelpers.h" />
     <ClInclude Include="FileSystem\FileSystemWatcher.h" />
     <ClInclude Include="Helpers\GlobalRegistryBase.h" />
     <ClInclude Include="GraphEditor\Flow\FlowGraph.h" />
     <ClInclude Include="GraphEditor\Flow\FlowGraphView.h" />
-    <ClInclude Include="GraphEditor\GraphEditor.h" />
     <ClInclude Include="GraphEditor\GraphEditorDrawingContext.h" />
     <ClInclude Include="GraphEditor\GraphEditorView.h" />
     <ClInclude Include="GraphEditor\StateMachine\StateMachineGraph.h" />
@@ -96,7 +97,7 @@
     <ClInclude Include="Resource\RawAssets\RawAssetReader.h" />
     <ClInclude Include="Resource\RawAssets\RawMesh.h" />
     <ClInclude Include="Resource\RawAssets\RawSkeleton.h" />
-    <ClInclude Include="Resource\ResourceEditorWorkspace.h" />
+    <ClInclude Include="Editor\EditorWorkspace.h" />
     <ClInclude Include="Resource\ResourceDatabase.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
@@ -117,12 +118,13 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Editor\ResourceEditorWorkspace.cpp" />
+    <ClCompile Include="GraphEditor\GraphEditor.cpp" />
     <ClCompile Include="Resource\DataFilePicker.cpp" />
     <ClCompile Include="FileSystem\FileSystemHelpers.cpp" />
     <ClCompile Include="FileSystem\FileSystemWatcher.cpp" />
     <ClCompile Include="GraphEditor\Flow\FlowGraph.cpp" />
     <ClCompile Include="GraphEditor\Flow\FlowGraphView.cpp" />
-    <ClCompile Include="GraphEditor\GraphEditor.cpp" />
     <ClCompile Include="GraphEditor\GraphEditorDrawingContext.cpp" />
     <ClCompile Include="GraphEditor\GraphEditorView.cpp" />
     <ClCompile Include="GraphEditor\StateMachine\StateMachineGraph.cpp" />
@@ -146,7 +148,7 @@
     <ClCompile Include="Resource\RawAssets\RawAssetReader.cpp" />
     <ClCompile Include="Resource\RawAssets\RawMesh.cpp" />
     <ClCompile Include="Resource\RawAssets\RawSkeleton.cpp" />
-    <ClCompile Include="Resource\ResourceEditorWorkspace.cpp" />
+    <ClCompile Include="Editor\EditorWorkspace.cpp" />
     <ClCompile Include="Resource\ResourceDatabase.cpp" />
     <ClCompile Include="ThirdParty\KRG_RapidJson.cpp" />
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp" />

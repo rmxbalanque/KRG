@@ -110,9 +110,10 @@ namespace KRG::RawAssets
 
                             for ( auto i = 0; i < numVertices; i++ )
                             {
-                                Float3 position;
-                                cgltf_accessor_read_float( primitive.attributes[a].data, i, &position.m_x, 3 );
-                                geometrySection.m_vertices[i].m_normal = Float4( position, 1.0f );
+                                Float3 normal;
+                                cgltf_accessor_read_float( primitive.attributes[a].data, i, &normal.m_x, 3 );
+                                geometrySection.m_vertices[i].m_normal = ctx.ApplyUpAxisCorrection( Vector( normal ) );
+                                geometrySection.m_vertices[i].m_position.m_w = 1.0f;
                             }
                         }
                         break;
@@ -123,7 +124,10 @@ namespace KRG::RawAssets
 
                             for ( auto i = 0; i < numVertices; i++ )
                             {
-                                cgltf_accessor_read_float( primitive.attributes[a].data, i, &geometrySection.m_vertices[i].m_tangent.m_x, 4 );
+                                Float4 tangent;
+                                cgltf_accessor_read_float( primitive.attributes[a].data, i, &tangent.m_x, 4 );
+                                geometrySection.m_vertices[i].m_tangent = ctx.ApplyUpAxisCorrection( Vector( tangent ) );
+                                geometrySection.m_vertices[i].m_position.m_w = tangent.m_w;
                             }
                         }
                         break;

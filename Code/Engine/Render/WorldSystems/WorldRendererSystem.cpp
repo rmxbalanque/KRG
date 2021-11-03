@@ -4,6 +4,7 @@
 #include "Engine/Render/Components/StaticMeshComponent.h"
 #include "Engine/Render/Components/SkeletalMeshComponent.h"
 #include "Engine/Render/Components/LightComponents.h"
+#include "Engine/Render/Components/EnvironmentMapComponents.h"
 #include "Engine/Render/Shaders/EngineShaders.h"
 #include "System/Render/RenderDefaultResources.h"
 #include "System/Render/RenderViewport.h"
@@ -32,6 +33,13 @@ namespace KRG::Render
         KRG_ASSERT( m_registeredStaticMeshComponents.IsEmpty() );
         KRG_ASSERT( m_registeredSkeletalMeshComponents.IsEmpty() );
         KRG_ASSERT( m_skeletalMeshGroups.empty() );
+
+        KRG_ASSERT( m_registeredDirectionLightComponents.IsEmpty() );
+        KRG_ASSERT( m_registeredPointLightComponents.IsEmpty() );
+        KRG_ASSERT( m_registeredSpotLightComponents.IsEmpty() );
+
+        KRG_ASSERT( m_registeredLocalEnvironmentMaps.IsEmpty() );
+        KRG_ASSERT( m_registeredGlobalEnvironmentMaps.IsEmpty() );
     }
 
     void WorldRendererSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
@@ -69,6 +77,20 @@ namespace KRG::Render
                 registeredComponent.m_pComponent = pSpotLightComponent;
             }
         }
+
+        // Environment Maps
+        //-------------------------------------------------------------------------
+
+        else if ( auto pLocalEnvMapComponent = ComponentCast<LocalEnvironmentMapComponent>( pComponent ) )
+        {
+            auto& registeredComponent = m_registeredLocalEnvironmentMaps.AddRecord( pEntity->GetID() );
+            registeredComponent.m_pComponent = pLocalEnvMapComponent;
+        }
+        else if ( auto pGlobalEnvMapComponent = ComponentCast<GlobalEnvironmentMapComponent>( pComponent ) )
+        {
+            auto& registeredComponent = m_registeredGlobalEnvironmentMaps.AddRecord( pEntity->GetID() );
+            registeredComponent.m_pComponent = pGlobalEnvMapComponent;
+        }
     }
 
     void WorldRendererSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
@@ -102,6 +124,18 @@ namespace KRG::Render
             {
                 m_registeredSpotLightComponents.RemoveRecord( pEntity->GetID() );
             }
+        }
+
+        // Environment Maps
+        //-------------------------------------------------------------------------
+
+        else if ( auto pLocalEnvMapComponent = ComponentCast<LocalEnvironmentMapComponent>( pComponent ) )
+        {
+            m_registeredLocalEnvironmentMaps.RemoveRecord( pEntity->GetID() );
+        }
+        else if ( auto pGlobalEnvMapComponent = ComponentCast<GlobalEnvironmentMapComponent>( pComponent ) )
+        {
+            m_registeredGlobalEnvironmentMaps.RemoveRecord( pEntity->GetID() );
         }
     }
 

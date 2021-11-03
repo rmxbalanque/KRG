@@ -850,7 +850,7 @@ namespace KRG::PG
 
         ImGui::SameLine( 0, itemSpacing );
         ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonAreaWidth * 2 ) - childWindowWidth );
-        ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->c_str() ), pValue->GetPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
+        ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->c_str() ), pValue->GetResourcePath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
@@ -907,7 +907,7 @@ namespace KRG::PG
 
         ImGui::SameLine( 0, itemSpacing );
         ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonAreaWidth * 2 ) - childWindowWidth );
-        ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->GetResourceID().c_str() ), pValue->GetResourceID().GetPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
+        ImGui::InputText( g_emptyLabel, const_cast<char*>( pValue->GetResourceID().c_str() ), pValue->GetResourceID().GetResourcePath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )

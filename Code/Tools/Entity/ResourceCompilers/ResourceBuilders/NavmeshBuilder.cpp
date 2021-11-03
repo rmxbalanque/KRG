@@ -109,7 +109,7 @@ namespace KRG::Navmesh
             Resource::ResourcePtr geometryPtr = pProperty->GetValue<Resource::ResourcePtr>();
             if ( geometryPtr.IsValid() )
             {
-                collisionPrimitives[geometryPtr.GetResourceID().GetPath()].emplace_back( pPhysicsComponent->GetWorldTransform() );
+                collisionPrimitives[geometryPtr.GetResourceID().GetResourcePath()].emplace_back( pPhysicsComponent->GetWorldTransform() );
             }
         }
 

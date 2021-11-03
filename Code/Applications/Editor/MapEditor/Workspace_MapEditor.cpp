@@ -1,4 +1,4 @@
-#include "ResourceEditor_Map.h"
+#include "Workspace_MapEditor.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 
@@ -6,24 +6,6 @@
 
 namespace KRG
 {
-    MapEditor::MapEditor( ResourceEditorContext const& context )
-        : ResourceEditorWorkspace( context )
-    {
-        m_windowName = "Map Editor";
-    }
-
-    void MapEditor::Activate( EntityWorld* pPreviewWorld )
-    {
-        m_pPreviewWorld = pPreviewWorld;
-    }
-
-    void MapEditor::Deactivate( EntityWorld* pPreviewWorld )
-    {
-        m_pPreviewWorld = nullptr;
-    }
-
-    //-------------------------------------------------------------------------
-
     void MapEditor::OnNewMap()
     {
 
@@ -52,13 +34,13 @@ namespace KRG
             }
 
             // Unload current map
-            if ( m_loadedMap.IsValid() && m_pPreviewWorld->IsMapLoaded( m_loadedMap ) )
+            if ( m_loadedMap.IsValid() && m_pWorld->IsMapLoaded( m_loadedMap ) )
             {
-                m_pPreviewWorld->UnloadMap( m_loadedMap );
+                m_pWorld->UnloadMap( m_loadedMap );
             }
 
             // Load map
-            m_pPreviewWorld->LoadMap( mapToLoad );
+            m_pWorld->LoadMap( mapToLoad );
             m_loadedMap = mapToLoad;
         }
     }
@@ -73,7 +55,7 @@ namespace KRG
 
     }
 
-    bool MapEditor::OnSave()
+    bool MapEditor::Save()
     {
         return false;
     }
@@ -88,16 +70,16 @@ namespace KRG
         // Dock viewport
         ImGuiDockNode* pTopNode = ImGui::DockBuilderGetNode( topDockID );
         pTopNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
-        ImGui::DockBuilderDockWindow( GetViewportWindowName(), topDockID );
+        ImGui::DockBuilderDockWindow( s_viewportWindowName, topDockID );
     }
 
-    void MapEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void MapEditor::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
-        /*ImGui::SetNextWindowClass( pWindowClass );
-        if ( ImGui::Begin( s_infoWindowName ) )
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( "Test" ) )
         {
-            DrawWindowContents();
+            ImGui::Text( "DASDAS" );
         }
-        ImGui::End();*/
+        ImGui::End();
     }
 }

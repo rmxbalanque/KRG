@@ -20,10 +20,7 @@ namespace KRG
     EditorApplication::EditorApplication( HINSTANCE hInstance )
         : Win32Application( hInstance, "Kruger Resource Editor", IDI_EDITOR_ICON )
         , m_editorEngine( TFunction<bool( String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
-    {
-        // This is hard-coded since this is always the default map for the editor. There is no need for this to change.
-        m_editorEngine.m_startupMap = ResourcePath( "data://Editor/EditorMap.map" );
-    }
+    {}
 
     bool EditorApplication::ReadSettings( int32 argc, char** argv )
     {
@@ -66,7 +63,7 @@ namespace KRG
     bool EditorApplication::ApplicationLoop()
     {
         // Uncomment for live editing of ImguiTheme
-        ImGuiX::Theme::ApplyTheme();
+        //ImGuiX::Theme::ApplyTheme();
         return m_editorEngine.Update();
     }
 

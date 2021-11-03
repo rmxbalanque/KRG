@@ -79,6 +79,7 @@
     <ClCompile Include="RendererRegistry.cpp" />
     <ClCompile Include="Components\LightComponents.cpp" />
     <ClCompile Include="Debug\DebugView_Render.cpp" />
+    <ClCompile Include="Components\EnvironmentMapComponents.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -136,6 +137,7 @@
     <ClInclude Include="RendererRegistry.h" />
     <ClInclude Include="Components\LightComponents.h" />
     <ClInclude Include="Debug\DebugView_Render.h" />
+    <ClInclude Include="Components\EnvironmentMapComponents.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Engine\PS_Textured.hlsl">

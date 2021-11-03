@@ -41,9 +41,11 @@ namespace KRG
         // Worlds
         //-------------------------------------------------------------------------
 
-        // TEMP HACK
         inline EntityWorld* GetPrimaryWorld() { return m_worlds[0]; }
-        void SetViewportForPrimaryWorld( Render::Viewport* pViewport );
+        TInlineVector<EntityWorld*, 5> const& GetWorlds() const { return m_worlds; }
+
+        EntityWorld* CreateWorld();
+        void DestroyWorld( EntityWorld* pWorld );
 
         inline TMultiUserEvent<EntityWorld*> OnCreateNewWorld() { return m_createNewWorldEvent; }
         void UpdateWorlds( UpdateContext const& context );
@@ -55,11 +57,6 @@ namespace KRG
         void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload );
         void EndHotReload();
         #endif
-
-    private:
-
-        void CreateWorld();
-        void DestroyWorld( EntityWorld* pWorld );
 
     private:
 

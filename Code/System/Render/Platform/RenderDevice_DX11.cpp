@@ -1031,6 +1031,7 @@ namespace KRG::Render
     void RenderDevice::CreateRenderTarget( RenderTarget& renderTarget, Int2 const& dimensions )
     {
         KRG_ASSERT( IsInitialized() && !renderTarget.m_resourceHandle.IsValid() );
+        KRG_ASSERT( dimensions.m_x >= 0 && dimensions.m_y >= 0 );
 
         // Create render target texture and SRV
         //-------------------------------------------------------------------------

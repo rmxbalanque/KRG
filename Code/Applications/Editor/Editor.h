@@ -20,34 +20,18 @@ namespace KRG
             bool                                        m_isOpen = true;
         };
 
-        struct ViewportSettings
-        {
-            bool                                        m_allowDockingOverViewport = false;
-            bool                                        m_hideViewportTabBar = true;
-        };
-
     public:
 
         ~Editor();
 
         void Initialize( UpdateContext const& context ) override;
         void Shutdown( UpdateContext const& context ) override;
-        virtual void Update( UpdateContext const& context, Render::ViewportManager& viewportManager ) override final;
+        virtual void Update( UpdateContext const& context ) override final;
 
     private:
 
-        // Frame updates
-        void FrameStartUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager );
-        void FrameEndUpdate( UpdateContext const& context, Render::ViewportManager& viewportManager );
-
-        // Menus and Toolbars
-        void DrawMainMenu( UpdateContext const& context, Render::ViewportManager& viewportManager );
-
-        // Viewport
-        void DrawViewportWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, char const* const pEditorViewportName = "Editor Viewport" );
-
-        // Workspaces
-        bool DrawWorkspaceWindow( UpdateContext const& context, Render::ViewportManager& viewportManager, ResourceEditorWorkspace* pWorkspace );
+        void DrawMainMenu( UpdateContext const& context );
+        bool DrawWorkspace( UpdateContext const& context, EditorWorkspace* pWorkspace );
         void DrawPopups( UpdateContext const& context );
 
         // Hot Reload
@@ -57,7 +41,6 @@ namespace KRG
     private:
 
         EditorModel                         m_model;
-        ViewportSettings                    m_viewportSettings;
         bool                                m_mouseWithinEditorViewport = false;
         TVector<ModalPopupMessage>          m_modalPopups;
 

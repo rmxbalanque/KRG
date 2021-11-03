@@ -51,7 +51,6 @@ namespace KRG::EngineCore
 
         m_taskSystem.Initialize();
         m_resourceSystem.Initialize( m_pResourceProvider );
-        m_viewportManager.Initialize( m_pRenderDevice );
         m_inputSystem.Initialize();
         m_imguiSystem.Initialize( context.GetApplicationName() + ".imgui.ini", m_pRenderDevice );
 
@@ -65,7 +64,6 @@ namespace KRG::EngineCore
         m_systemRegistry.RegisterSystem( &m_taskSystem );
         m_systemRegistry.RegisterSystem( &m_resourceSystem );
         m_systemRegistry.RegisterSystem( &m_inputSystem );
-        m_systemRegistry.RegisterSystem( &m_viewportManager );
         m_systemRegistry.RegisterSystem( &m_entityWorldManager );
 
         // Register Misc
@@ -95,7 +93,6 @@ namespace KRG::EngineCore
             //-------------------------------------------------------------------------
 
             m_systemRegistry.UnregisterSystem( &m_entityWorldManager );
-            m_systemRegistry.UnregisterSystem( &m_viewportManager );
             m_systemRegistry.UnregisterSystem( &m_inputSystem );
             m_systemRegistry.UnregisterSystem( &m_resourceSystem );
             m_systemRegistry.UnregisterSystem( &m_taskSystem );
@@ -107,7 +104,6 @@ namespace KRG::EngineCore
 
             m_imguiSystem.Shutdown();
             m_inputSystem.Shutdown();
-            m_viewportManager.Shutdown();
             m_resourceSystem.Shutdown();
             m_taskSystem.Shutdown();
         }

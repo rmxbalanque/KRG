@@ -14,7 +14,7 @@ namespace KRG::Resource
 
         // Install dependency reference
         ResourceRequesterID( ResourceID const& resourceID )
-            : m_ID( UUID( 0, 0, 0, resourceID.GetPath().GetID() ) )
+            : m_ID( UUID( 0, 0, 0, resourceID.GetResourcePath().GetID() ) )
         {}
 
         // Explicit ID - generally refers to an entity

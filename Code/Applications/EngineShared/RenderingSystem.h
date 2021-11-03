@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Render/RendererRegistry.h"
+#include "System/Render/RenderViewport.h"
+#include "System/Core/Systems/ISystem.h"
 
 //-------------------------------------------------------------------------
 // KRG Renderer System
@@ -17,36 +19,59 @@ namespace KRG
     namespace Render
     {
         class RenderDevice;
-        class ViewportManager;
         class WorldRenderer;
         class DebugRenderer;
         class ImguiRenderer;
+        class RenderTarget;
 
         //-------------------------------------------------------------------------
 
-        class RenderingSystem
+        class RenderingSystem : public ISystem
         {
+            struct ViewportRenderTarget
+            {
+                UUID                    m_viewportID;
+                RenderTarget*           m_pRenderTarget = nullptr;
+            };
 
         public:
 
-            void Initialize( RenderDevice* pRenderDevice, ViewportManager* pViewportManager, RendererRegistry* pRegistry, EntityWorldManager* pWorldManager );
+            KRG_SYSTEM_ID( RenderingSystem );
+
+        public:
+
+            void Initialize( RenderDevice* pRenderDevice, Float2 primaryWindowDimensions, RendererRegistry* pRegistry, EntityWorldManager* pWorldManager );
             void Shutdown();
 
+            void ResizePrimaryRenderTarget( Int2 newMainWindowDimensions );
             void Update( UpdateContext const& ctx );
+
+            //-------------------------------------------------------------------------
+
+            void CreateCustomRenderTargetForViewport( Viewport const* pViewport );
+            void DestroyCustomRenderTargetForViewport( Viewport const* pViewport );
+            ShaderResourceView const& GetRenderTargetTextureForViewport( Viewport const* pViewport ) const;
+
+        private:
+
+            ViewportRenderTarget* FindRenderTargetForViewport( Viewport const* pViewport );
+            inline ViewportRenderTarget const* FindRenderTargetForViewport( Viewport const* pViewport ) const { return const_cast<RenderingSystem*>( this )->FindRenderTargetForViewport( pViewport ); }
 
         private:
 
             RenderDevice*                                   m_pRenderDevice = nullptr;
-
-            ViewportManager*                                m_pViewportManager = nullptr;
             EntityWorldManager*                             m_pWorldManager = nullptr;
-
             WorldRenderer*                                  m_pWorldRenderer = nullptr;
             TVector<IRenderer*>                             m_customRenderers;
+
+            TInlineVector<ViewportRenderTarget, 5>          m_viewportRenderTargets;
+
+            //-------------------------------------------------------------------------
 
             #if KRG_DEVELOPMENT_TOOLS
             DebugRenderer*                                  m_pDebugRenderer = nullptr;
             ImguiRenderer*                                  m_pImguiRenderer = nullptr;
+            Viewport                                        m_toolsViewport;
             #endif
         };
     }

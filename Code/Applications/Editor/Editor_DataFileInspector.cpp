@@ -57,7 +57,7 @@ namespace KRG
         {
             m_mode = Mode::InspectingResourceFile;
             m_isDirty = false;
-            m_descriptorPath = m_descriptorID.GetPath().ToFileSystemPath( m_pModel->GetRawResourceDirectory() );
+            m_descriptorPath = m_descriptorID.GetResourcePath().ToFileSystemPath( m_pModel->GetRawResourceDirectory() );
 
             if ( LoadResourceDescriptor() )
             {

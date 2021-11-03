@@ -39,8 +39,8 @@ namespace KRG
         bool Update();
 
         // Needed for window processor access
-        void UpdateMainWindowSize( Int2 const& windowDimensions );
-        Input::InputSystem* GetInputSystem() const { return m_pInputSystem; }
+        Render::RenderingSystem* GetRenderingSystem() { return &m_renderingSystem; }
+        Input::InputSystem* GetInputSystem() { return m_pInputSystem; }
 
     protected:
 
@@ -98,7 +98,6 @@ namespace KRG
         TypeSystem::TypeRegistry*                       m_pTypeRegistry = nullptr;
         Resource::ResourceSystem*                       m_pResourceSystem = nullptr;
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
-        Render::ViewportManager*                        m_pViewportManager = nullptr;
         Render::RenderingSystem                         m_renderingSystem;
         EntityWorldManager*                             m_pEntityWorldManager = nullptr;
         ImGuiX::ImguiSystem*                            m_pImguiSystem = nullptr;

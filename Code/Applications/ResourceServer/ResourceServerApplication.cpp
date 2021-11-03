@@ -58,7 +58,8 @@ namespace KRG
                 Int2 const newDimensions( LOWORD( lParam ), HIWORD( lParam ) );
                 if ( newDimensions.m_x > 0 && newDimensions.m_y > 0 )
                 {
-                    m_viewportManager.UpdateMainWindowSize( newDimensions );
+                    m_pRenderDevice->ResizePrimaryWindowRenderTarget( newDimensions );
+                    m_viewport.Resize( Int2::Zero, newDimensions );
 
                     // Hack to fix client area offset bug
                     RECT rect;
@@ -240,10 +241,9 @@ namespace KRG
             return FatalError( "Failed to create render device!" );
         }
 
-        m_viewportManager.Initialize( m_pRenderDevice );
-
         Int2 const windowDimensions( ( m_windowRect.right - m_windowRect.left ), ( m_windowRect.bottom - m_windowRect.top ) );
-        m_viewportManager.UpdateMainWindowSize( windowDimensions );
+        m_pRenderDevice->ResizePrimaryWindowRenderTarget( windowDimensions );
+        m_viewport = Render::Viewport( Int2( 0, 0 ), windowDimensions, Math::ViewVolume( Float2( windowDimensions ), FloatRange( 0.1f, 100.0f ) ) );
 
         //-------------------------------------------------------------------------
 
@@ -275,8 +275,6 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         m_resourceServer.Shutdown();
-
-        m_viewportManager.Shutdown();
 
         if ( m_pRenderDevice != nullptr )
         {
@@ -324,7 +322,7 @@ namespace KRG
                 m_resourceServerUI.Draw();
 
                 m_imguiSystem.EndFrame();
-                m_imguiRenderer.RenderViewport( m_viewportManager.GetDevelopmentToolsViewport() );
+                m_imguiRenderer.RenderViewport( m_viewport );
                 m_pRenderDevice->PresentFrame();
             }
         }

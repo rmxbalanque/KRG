@@ -4,10 +4,10 @@
 #include "EntityWorldSystem.h"
 #include "Entity.h"
 #include "Map/EntityMap.h"
+#include "System/Render/RenderViewport.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Debug/DebugDrawingSystem.h"
-#include "System/Render/RenderViewport.h"
 
 //-------------------------------------------------------------------------
 
@@ -21,7 +21,6 @@ namespace KRG
 
     class KRG_ENGINE_CORE_API EntityWorld
     {
-        friend class EntityWorldManager; // HACK - remove when we move the viewport out of the world
         friend class EntityDebugView;
         friend class EntityUpdateContext;
 
@@ -57,9 +56,8 @@ namespace KRG
         // Viewport
         //-------------------------------------------------------------------------
 
-        inline void SetViewport( Render::Viewport* pViewport ) { m_pViewport = pViewport; }
-        inline Render::Viewport* GetViewport() { return m_pViewport; }
-        inline Render::Viewport const* GetViewport() const { return m_pViewport; }
+        inline Render::Viewport* GetViewport() { return &m_viewport; }
+        inline Render::Viewport const* GetViewport() const { return &m_viewport; }
 
         //-------------------------------------------------------------------------
         // Map Management
@@ -115,8 +113,7 @@ namespace KRG
         EntityModel::LoadingContext                                 m_loadingContext;
         EntityModel::ActivationContext                              m_activationContext;
         TVector<IWorldEntitySystem*>                                m_worldSystems;
-
-        Render::Viewport*                                           m_pViewport = nullptr;
+        Render::Viewport                                            m_viewport = Render::Viewport( Int2::Zero, Int2( 640, 480 ), Math::ViewVolume( Float2( 640, 480 ), FloatRange( 0.1f, 100.0f ) ) );
 
         // Maps
         TInlineVector<EntityModel::EntityMap,3>                     m_maps;

@@ -30,7 +30,7 @@ namespace KRG
                 Int2 const newDimensions( LOWORD( lParam ), HIWORD( lParam ) );
                 if ( newDimensions.m_x > 0 && newDimensions.m_y > 0 )
                 {
-                    pEngine->UpdateMainWindowSize( newDimensions );
+                    pEngine->GetRenderingSystem()->ResizePrimaryRenderTarget( newDimensions );
 
                     // Hack to fix client area offset bug
                     RECT rect;

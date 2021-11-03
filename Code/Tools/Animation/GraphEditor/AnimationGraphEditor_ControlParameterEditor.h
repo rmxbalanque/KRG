@@ -3,10 +3,6 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render { class ViewportManager; }
-
-//-------------------------------------------------------------------------
-
 namespace KRG::Animation::Graph
 {
     class GraphControlParameterEditor

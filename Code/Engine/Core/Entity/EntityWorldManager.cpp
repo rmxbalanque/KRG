@@ -59,7 +59,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void EntityWorldManager::CreateWorld()
+    EntityWorld* EntityWorldManager::CreateWorld()
     {
         KRG_ASSERT( m_pSystemsRegistry != nullptr );
 
@@ -75,18 +75,28 @@ namespace KRG
         #if KRG_DEVELOPMENT_TOOLS
         pNewWorld->InitializeDebugViews( *m_pSystemsRegistry, m_debugViewTypeInfos );
         #endif
+
+        return pNewWorld;
     }
 
     void EntityWorldManager::DestroyWorld( EntityWorld* pWorld )
     {
-        KRG_UNIMPLEMENTED_FUNCTION();
-    }
+        KRG_ASSERT( Threading::IsMainThread() );
 
-    //-------------------------------------------------------------------------
+        // Remove world from worlds list
+        auto foundWorldIter = eastl::find( m_worlds.begin(), m_worlds.end(), pWorld );
+        KRG_ASSERT( foundWorldIter != m_worlds.end() );
+        m_worlds.erase( foundWorldIter );
 
-    void EntityWorldManager::SetViewportForPrimaryWorld( Render::Viewport* pViewport )
-    {
-        m_worlds[0]->SetViewport( pViewport );
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        pWorld->ShutdownDebugViews();
+        #endif
+
+        // Shutdown and destroy world
+        pWorld->Shutdown();
+        KRG::Delete( pWorld );
     }
 
     //-------------------------------------------------------------------------

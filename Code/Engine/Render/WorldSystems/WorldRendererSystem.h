@@ -17,6 +17,8 @@ namespace KRG::Render
     class DirectionalLightComponent;
     class PointLightComponent;
     class SpotLightComponent;
+    class GlobalEnvironmentMapComponent;
+    class LocalEnvironmentMapComponent;
 
     //-------------------------------------------------------------------------
 
@@ -62,6 +64,19 @@ namespace KRG::Render
         struct RegisteredSpotLight : public EntityRegistryRecord
         {
             SpotLightComponent*                                 m_pComponent = nullptr;
+        };
+
+        // Environment Maps
+        //-------------------------------------------------------------------------
+
+        struct RegisteredLocalEnvMap : public EntityRegistryRecord
+        {
+            LocalEnvironmentMapComponent*                       m_pComponent = nullptr;
+        };
+
+        struct RegisteredGlobalEnvMap : public EntityRegistryRecord
+        {
+            GlobalEnvironmentMapComponent*                      m_pComponent = nullptr;
         };
 
         // Helpers
@@ -121,5 +136,7 @@ namespace KRG::Render
         EntityRegistry<RegisteredDirectionalLight>              m_registeredDirectionLightComponents;
         EntityRegistry<RegisteredPointLight>                    m_registeredPointLightComponents;
         EntityRegistry<RegisteredSpotLight>                     m_registeredSpotLightComponents;
+        EntityRegistry<RegisteredLocalEnvMap>                   m_registeredLocalEnvironmentMaps;
+        EntityRegistry<RegisteredGlobalEnvMap>                  m_registeredGlobalEnvironmentMaps;
     };
 }

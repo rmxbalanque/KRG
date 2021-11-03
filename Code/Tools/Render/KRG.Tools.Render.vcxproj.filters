@@ -39,13 +39,8 @@
     <ClCompile Include="TextureTools\TextureConverter.cpp">
       <Filter>TextureTools</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceEditors\ResourceEditor_SkeletalMesh.cpp">
-      <Filter>ResourceEditors</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceEditors\ResourceEditor_StaticMesh.cpp">
-      <Filter>ResourceEditors</Filter>
-    </ClCompile>
     <ClCompile Include="TextureTools\CubemapGenerator.cpp" />
+    <ClCompile Include="ResourceEditors\Workspace_StaticMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -69,15 +64,10 @@
     <ClInclude Include="TextureTools\TextureTools.h">
       <Filter>TextureTools</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceEditors\ResourceEditor_SkeletalMesh.h">
-      <Filter>ResourceEditors</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceEditors\ResourceEditor_StaticMesh.h">
-      <Filter>ResourceEditors</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderMaterial.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderMesh.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderShader.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderTexture.h" />
+    <ClInclude Include="ResourceEditors\Workspace_StaticMesh.h" />
   </ItemGroup>
 </Project>

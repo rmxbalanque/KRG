@@ -22,7 +22,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    GraphEditorModel::GraphEditorModel( ResourceEditorContext const& editorContext, ResourceID const& graphResourceID )
+    GraphEditorModel::GraphEditorModel( EditorContext const& editorContext, ResourceID const& graphResourceID )
         : m_editorContext( editorContext )
     {
         // Create DB of all node types
@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
         // Load graph from descriptor
         //-------------------------------------------------------------------------
 
-        m_graphFilePath = graphResourceID.GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+        m_graphFilePath = graphResourceID.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
         if ( m_graphFilePath.IsValid() )
         {
             bool graphLoadFailed = false;
@@ -188,7 +188,7 @@ namespace KRG::Animation::Graph
         if ( pVariation->m_pSkeleton.IsValid() )
         {
             // Load resource descriptor for skeleton to get the preview mesh
-            FileSystem::Path const resourceDescPath = pVariation->m_pSkeleton.GetResourceID().GetPath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+            FileSystem::Path const resourceDescPath = pVariation->m_pSkeleton.GetResourceID().GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
             SkeletonResourceDescriptor resourceDesc;
             if ( TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc ) )
             {

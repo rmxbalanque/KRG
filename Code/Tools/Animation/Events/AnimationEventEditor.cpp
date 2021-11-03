@@ -131,7 +131,7 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetPath().ToFileSystemPath( m_sourceDataDirectory );
+        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetResourcePath().ToFileSystemPath( m_sourceDataDirectory );
         JsonReader typeReader;
         if ( !typeReader.ReadFromFile( resourceDescriptorPath ) )
         {
@@ -189,7 +189,7 @@ namespace KRG::Animation
 
     bool EventEditor::RequestSave()
     {
-        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetPath().ToFileSystemPath( m_sourceDataDirectory );
+        auto const resourceDescriptorPath = m_pAnimation->GetResourceID().GetResourcePath().ToFileSystemPath( m_sourceDataDirectory );
         JsonReader jsonReader;
         if ( !jsonReader.ReadFromFile( resourceDescriptorPath ) )
         {

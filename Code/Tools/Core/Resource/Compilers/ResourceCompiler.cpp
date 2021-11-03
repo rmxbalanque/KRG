@@ -14,7 +14,7 @@ namespace KRG::Resource
         KRG_ASSERT( m_rawResourceDirectoryPath.IsDirectory() && FileSystem::Exists( m_rawResourceDirectoryPath ) && resourceToCompile.IsValid() );
 
         // Resolve paths
-        ResourcePath const& resourceToCompilePath = resourceToCompile.GetPath();
+        ResourcePath const& resourceToCompilePath = resourceToCompile.GetResourcePath();
         const_cast<FileSystem::Path&>( m_inputFilePath ) = ResourcePath::ToFileSystemPath( m_rawResourceDirectoryPath, resourceToCompilePath );
         const_cast<FileSystem::Path&>( m_outputFilePath ) = ResourcePath::ToFileSystemPath( m_compiledResourceDirectoryPath, resourceToCompilePath );
     }

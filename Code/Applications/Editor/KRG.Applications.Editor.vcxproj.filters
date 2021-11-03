@@ -9,7 +9,7 @@
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
     <ClCompile Include="RawFileInspectors\RawFileInspector.cpp" />
     <ClCompile Include="RawFileInspectors\RawFileInspector_MeshFormats.cpp" />
-    <ClCompile Include="MapEditor\ResourceEditor_Map.cpp" />
+    <ClCompile Include="MapEditor\Workspace_MapEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor.h" />
@@ -21,7 +21,7 @@
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
     <ClInclude Include="RawFileInspectors\RawFileInspector.h" />
     <ClInclude Include="RawFileInspectors\RawFileInspector_MeshFormats.h" />
-    <ClInclude Include="MapEditor\ResourceEditor_Map.h" />
+    <ClInclude Include="MapEditor\Workspace_MapEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc" />

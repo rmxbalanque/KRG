@@ -46,7 +46,7 @@ namespace KRG
 
         inline bool IsValid() const { return m_path.IsValid(); }
         inline uint32 GetID() const { return m_path.GetID(); }
-        inline ResourcePath const& GetPath() const { return m_path; }
+        inline ResourcePath const& GetResourcePath() const { return m_path; }
         inline ResourceTypeID GetResourceTypeID() const { return m_type; }
 
         //-------------------------------------------------------------------------

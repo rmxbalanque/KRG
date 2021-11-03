@@ -117,9 +117,6 @@
     <ClInclude Include="GraphEditor\Flow\FlowGraphView.h">
       <Filter>GraphEditor\Flow</Filter>
     </ClInclude>
-    <ClInclude Include="GraphEditor\GraphEditor.h">
-      <Filter>GraphEditor</Filter>
-    </ClInclude>
     <ClInclude Include="GraphEditor\GraphEditorDrawingContext.h">
       <Filter>GraphEditor</Filter>
     </ClInclude>
@@ -195,7 +192,7 @@
     <ClInclude Include="Resource\RawAssets\RawSkeleton.h">
       <Filter>Resource\RawAssets</Filter>
     </ClInclude>
-    <ClInclude Include="Resource\ResourceEditorWorkspace.h">
+    <ClInclude Include="Editor\EditorWorkspace.h">
       <Filter>Editors</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\cgltf\cgltf.h">
@@ -222,6 +219,8 @@
     <ClInclude Include="Resource\ResourceDatabase.h" />
     <ClInclude Include="Widgets\InterfaceHelpers.h" />
     <ClInclude Include="Widgets\NumericEditors.h" />
+    <ClInclude Include="GraphEditor\GraphEditor.h" />
+    <ClInclude Include="Editor\ResourceEditorWorkspace.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\KRG_RapidJson.cpp">
@@ -253,9 +252,6 @@
     </ClCompile>
     <ClCompile Include="GraphEditor\Flow\FlowGraphView.cpp">
       <Filter>GraphEditor\Flow</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\GraphEditor.cpp">
-      <Filter>GraphEditor</Filter>
     </ClCompile>
     <ClCompile Include="GraphEditor\GraphEditorDrawingContext.cpp">
       <Filter>GraphEditor</Filter>
@@ -326,7 +322,7 @@
     <ClCompile Include="Resource\RawAssets\RawSkeleton.cpp">
       <Filter>Resource\RawAssets</Filter>
     </ClCompile>
-    <ClCompile Include="Resource\ResourceEditorWorkspace.cpp">
+    <ClCompile Include="Editor\EditorWorkspace.cpp">
       <Filter>Editors</Filter>
     </ClCompile>
     <ClCompile Include="TimelineEditor\TimelineData.cpp">
@@ -347,6 +343,8 @@
     <ClCompile Include="Resource\ResourceDatabase.cpp" />
     <ClCompile Include="Widgets\InterfaceHelpers.cpp" />
     <ClCompile Include="Widgets\NumericEditors.cpp" />
+    <ClCompile Include="GraphEditor\GraphEditor.cpp" />
+    <ClCompile Include="Editor\ResourceEditorWorkspace.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\subprocess\LICENSE">

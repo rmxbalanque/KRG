@@ -61,6 +61,7 @@
     <PreBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Components\EnvironmentMapComponents.h" />
     <ClInclude Include="Components\LightComponents.h" />
     <ClInclude Include="Components\MeshComponent.h" />
     <ClInclude Include="Components\StaticMeshComponent.h" />
@@ -88,6 +89,7 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Components\EnvironmentMapComponents.cpp" />
     <ClCompile Include="Components\LightComponents.cpp" />
     <ClCompile Include="Components\MeshComponent.cpp" />
     <ClCompile Include="Components\StaticMeshComponent.cpp" />

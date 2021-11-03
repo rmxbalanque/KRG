@@ -3,26 +3,103 @@
 #include "Engine/Render/Renderers/DebugRenderer.h"
 #include "Engine/Render/Renderers/ImguiRenderer.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
-#include "System/Render/RenderViewportManager.h"
 #include "System/Render/RenderDevice.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Math/ViewVolume.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Render
 {
-    void RenderingSystem::Initialize( RenderDevice* pRenderDevice, ViewportManager* pViewportManager, RendererRegistry* pRegistry, EntityWorldManager* pWorldManager )
+    void RenderingSystem::CreateCustomRenderTargetForViewport( Viewport const* pViewport )
     {
-        KRG_ASSERT( m_pRenderDevice == nullptr && m_pViewportManager == nullptr );
-        KRG_ASSERT( pRenderDevice != nullptr && pViewportManager != nullptr && pRegistry != nullptr );
+        KRG_ASSERT( pViewport != nullptr && pViewport->IsValid() );
+        KRG_ASSERT( FindRenderTargetForViewport( pViewport ) == nullptr );
+
+        auto& vrt = m_viewportRenderTargets.emplace_back();
+        vrt.m_viewportID = pViewport->GetID();
+        vrt.m_pRenderTarget = KRG::New<RenderTarget>();
+        m_pRenderDevice->CreateRenderTarget( *vrt.m_pRenderTarget, pViewport->GetDimensions() );
+        KRG_ASSERT( vrt.m_pRenderTarget->IsValid() );
+    }
+
+    void RenderingSystem::DestroyCustomRenderTargetForViewport( Viewport const* pViewport )
+    {
+        KRG_ASSERT( pViewport != nullptr && pViewport->GetID().IsValid() );
+
+        auto pViewportRenderTarget = FindRenderTargetForViewport( pViewport );
+        KRG_ASSERT( pViewportRenderTarget != nullptr );
+        KRG_ASSERT( pViewportRenderTarget->m_pRenderTarget != nullptr && pViewportRenderTarget->m_pRenderTarget->IsValid() );
+
+        m_pRenderDevice->LockDevice();
+        {
+            m_pRenderDevice->DestroyRenderTarget( *pViewportRenderTarget->m_pRenderTarget );
+            KRG::Delete( pViewportRenderTarget->m_pRenderTarget );
+        }
+        m_pRenderDevice->UnlockDevice();
+
+        m_viewportRenderTargets.erase( pViewportRenderTarget );
+    }
+
+    ShaderResourceView const& RenderingSystem::GetRenderTargetTextureForViewport( Viewport const* pViewport ) const
+    {
+        KRG_ASSERT( pViewport != nullptr && pViewport->GetID().IsValid() );
+
+        auto pViewportRenderTarget = FindRenderTargetForViewport( pViewport );
+        KRG_ASSERT( pViewportRenderTarget != nullptr );
+        KRG_ASSERT( pViewportRenderTarget->m_pRenderTarget != nullptr && pViewportRenderTarget->m_pRenderTarget->IsValid() );
+
+        return pViewportRenderTarget->m_pRenderTarget->GetRenderTargetShaderResourceView();
+    }
+
+    RenderingSystem::ViewportRenderTarget* RenderingSystem::FindRenderTargetForViewport( Viewport const* pViewport )
+    {
+        auto SearchPredicate = [] ( ViewportRenderTarget const& viewportRenderTarget, UUID const& ID ) { return viewportRenderTarget.m_viewportID == ID; };
+        auto viewportRenderTargetIter = eastl::find( m_viewportRenderTargets.begin(), m_viewportRenderTargets.end(), pViewport->GetID(), SearchPredicate );
+        if ( viewportRenderTargetIter != m_viewportRenderTargets.end() )
+        {
+            return viewportRenderTargetIter;
+        }
+
+        return nullptr;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void RenderingSystem::Initialize( RenderDevice* pRenderDevice, Float2 primaryWindowDimensions, RendererRegistry* pRegistry, EntityWorldManager* pWorldManager )
+    {
+        KRG_ASSERT( m_pRenderDevice == nullptr );
+        KRG_ASSERT( pRenderDevice != nullptr && pRegistry != nullptr );
         KRG_ASSERT( pWorldManager != nullptr );
 
         m_pRenderDevice = pRenderDevice;
-        m_pViewportManager = pViewportManager;
         m_pWorldManager = pWorldManager;
 
+        // Set initial render device size
+        //-------------------------------------------------------------------------
+
+        m_pRenderDevice->LockDevice();
+        m_pRenderDevice->ResizePrimaryWindowRenderTarget( primaryWindowDimensions );
+        m_pRenderDevice->UnlockDevice();
+
+        // Initialize viewports
+        //-------------------------------------------------------------------------
+
+        Math::ViewVolume const orthographicVolume( primaryWindowDimensions, FloatRange( 0.1f, 100.0f ) );
+
+        for ( auto pWorld : m_pWorldManager->GetWorlds() )
+        {
+            Render::Viewport* pViewport = pWorld->GetViewport();
+            *pViewport = Viewport( Int2::Zero, primaryWindowDimensions, orthographicVolume );
+        }
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_toolsViewport = Viewport( Int2::Zero, primaryWindowDimensions, orthographicVolume );
+        #endif
+
+        // Get renderers
         //-------------------------------------------------------------------------
 
         for ( auto pRenderer : pRegistry->GetRegisteredRenderers() )
@@ -74,6 +151,22 @@ namespace KRG::Render
 
     void RenderingSystem::Shutdown()
     {
+        // Destroy any viewport render targets created
+        //-------------------------------------------------------------------------
+
+        m_pRenderDevice->LockDevice();
+        for ( auto& viewportRenderTarget : m_viewportRenderTargets )
+        {
+            m_pRenderDevice->DestroyRenderTarget( *viewportRenderTarget.m_pRenderTarget );
+            KRG::Delete( viewportRenderTarget.m_pRenderTarget );
+        }
+        m_pRenderDevice->UnlockDevice();
+
+        m_viewportRenderTargets.clear();
+
+        // Clear ptrs
+        //-------------------------------------------------------------------------
+
         m_pWorldRenderer = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
@@ -81,91 +174,109 @@ namespace KRG::Render
         #endif
 
         m_pWorldManager = nullptr;
-        m_pViewportManager = nullptr;
         m_pRenderDevice = nullptr;
+    }
+
+    void RenderingSystem::ResizePrimaryRenderTarget( Int2 newMainWindowDimensions )
+    {
+        Float2 const newWindowDimensions = Float2( newMainWindowDimensions );
+        Float2 const oldWindowDimensions = Float2( m_pRenderDevice->GetPrimaryWindowDimensions() );
+
+        //-------------------------------------------------------------------------
+
+        m_pRenderDevice->LockDevice();
+        m_pRenderDevice->ResizePrimaryWindowRenderTarget( newMainWindowDimensions );
+        m_pRenderDevice->UnlockDevice();
+
+        //-------------------------------------------------------------------------
+
+        // TODO: add info whether viewports are in absolute size or proportional, right now it's all proportional
+        for ( auto pWorld : m_pWorldManager->GetWorlds() )
+        {
+            Render::Viewport* pViewport = pWorld->GetViewport();
+            Float2 const viewportPosition = pViewport->GetTopLeftPosition();
+            Float2 const viewportSize = pViewport->GetDimensions();
+            Float2 const newViewportPosition = ( viewportPosition / oldWindowDimensions ) * newWindowDimensions;
+            Float2 const newViewportSize = ( viewportSize / oldWindowDimensions ) * newWindowDimensions;
+            pViewport->Resize( newViewportPosition, newViewportSize );
+        }
     }
 
     void RenderingSystem::Update( UpdateContext const& ctx )
     {
-        KRG_ASSERT( m_pRenderDevice != nullptr && m_pViewportManager != nullptr );
+        KRG_ASSERT( m_pRenderDevice != nullptr );
+        KRG_ASSERT( ctx.GetUpdateStage() == UpdateStage::FrameEnd );
+        KRG_PROFILE_SCOPE_RENDER( "Rendering Post-Physics" );
 
         auto const& immediateContext = m_pRenderDevice->GetImmediateContext();
 
         //-------------------------------------------------------------------------
 
-        // HACK: todo proper viewport management
-        m_pWorldManager->SetViewportForPrimaryWorld( m_pViewportManager->GetPrimaryViewport() );
-
-        //-------------------------------------------------------------------------
-
         m_pRenderDevice->LockDevice();
 
-        UpdateStage const updateStage = ctx.GetUpdateStage();
-        KRG_ASSERT( updateStage != UpdateStage::FrameStart );
+        // Render into active viewports
+        //-------------------------------------------------------------------------
 
-        switch ( updateStage )
+        for ( auto pWorld : m_pWorldManager->GetWorlds() )
         {
-            case UpdateStage::PrePhysics:
-            {
-                KRG_PROFILE_SCOPE_RENDER( "Rendering Pre-Physics" );
+            Render::Viewport* pViewport = pWorld->GetViewport();
+            ViewportRenderTarget* pVRT = FindRenderTargetForViewport( pViewport );
 
-                m_pViewportManager->UpdateCustomRenderTargets();
-            }
-            break;
-
+            // Update and set render target
             //-------------------------------------------------------------------------
 
-            case UpdateStage::FrameEnd:
+            // If we are rendering to texture resize and clear the render target
+            if ( pVRT != nullptr )
             {
-                KRG_PROFILE_SCOPE_RENDER( "Rendering Post-Physics" );
+                auto pViewportRenderTarget = pVRT->m_pRenderTarget;
 
-                // Render into active viewports
-                //-------------------------------------------------------------------------
-
-                int32 const numViewports = m_pViewportManager->GetNumViewports();
-                for ( int32 i = 0; i < numViewports; i++ )
+                // Resize render target if needed
+                if ( Int2( pViewport->GetDimensions() ) != pViewportRenderTarget->GetDimensions() )
                 {
-                    Render::Viewport const* pViewport = m_pViewportManager->GetActiveViewports()[i];
-                    immediateContext.SetRenderTarget( m_pViewportManager->GetRenderTargetForViewport( i ) );
-
-                    //-------------------------------------------------------------------------
-
-                    // Draw world
-                    auto pWorld = m_pWorldManager->GetPrimaryWorld();
-                    m_pWorldRenderer->RenderWorld( *pViewport, pWorld );
-
-                    // Custom renderers
-                    for ( auto const& pCustomRenderer : m_customRenderers )
-                    {
-                        pCustomRenderer->RenderWorld( *pViewport, pWorld );
-                        pCustomRenderer->RenderViewport( *pViewport );
-                    }
-
-                    // Debug renderer
-                    m_pDebugRenderer->RenderWorld( *pViewport, pWorld );
-                    m_pDebugRenderer->RenderViewport( *pViewport );
+                    m_pRenderDevice->ResizeRenderTarget( *pViewportRenderTarget, pViewport->GetDimensions() );
                 }
 
-                // Draw development UI
-                //-------------------------------------------------------------------------
-
-                #if KRG_DEVELOPMENT_TOOLS
-                if ( m_pImguiRenderer != nullptr )
-                {
-                    immediateContext.SetRenderTarget( m_pRenderDevice->GetPrimaryWindowRenderTarget() );
-
-                    auto const& devToolsViewport = m_pViewportManager->GetDevelopmentToolsViewport();
-                    m_pImguiRenderer->RenderViewport( devToolsViewport );
-                }
-                #endif
-
-                // Present frame
-                //-------------------------------------------------------------------------
-
-                m_pRenderDevice->PresentFrame();
+                // Clear render target and depth stencil textures
+                m_pRenderDevice->GetImmediateContext().ClearRenderTargetViews( *pViewportRenderTarget );
+                immediateContext.SetRenderTarget( *pViewportRenderTarget );
             }
-            break;
+            else
+            {
+                immediateContext.SetRenderTarget( m_pRenderDevice->GetPrimaryWindowRenderTarget() );
+            }
+
+            // Draw
+            //-------------------------------------------------------------------------
+
+            m_pWorldRenderer->RenderWorld( *pViewport, pWorld );
+
+            for ( auto const& pCustomRenderer : m_customRenderers )
+            {
+                pCustomRenderer->RenderWorld( *pViewport, pWorld );
+                pCustomRenderer->RenderViewport( *pViewport );
+            }
+
+            #if KRG_DEVELOPMENT_TOOLS
+            m_pDebugRenderer->RenderWorld( *pViewport, pWorld );
+            m_pDebugRenderer->RenderViewport( *pViewport );
+            #endif
         }
+
+        // Draw development UI
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        if ( m_pImguiRenderer != nullptr )
+        {
+            immediateContext.SetRenderTarget( m_pRenderDevice->GetPrimaryWindowRenderTarget() );
+            m_pImguiRenderer->RenderViewport( m_toolsViewport );
+        }
+        #endif
+
+        // Present frame
+        //-------------------------------------------------------------------------
+
+        m_pRenderDevice->PresentFrame();
 
         m_pRenderDevice->UnlockDevice();
     }

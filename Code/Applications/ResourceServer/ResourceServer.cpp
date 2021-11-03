@@ -274,9 +274,9 @@ namespace KRG::Resource
             pRequest->m_clientID = clientID;
             pRequest->m_isHotReloadRequest = ( clientID == 0 );
             pRequest->m_resourceID = resourceID;
-            pRequest->m_sourceFile = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, pRequest->m_resourceID.GetPath() );
-            pRequest->m_destinationFile = ResourcePath::ToFileSystemPath( m_pSettings->m_compiledResourcePath, pRequest->m_resourceID.GetPath() );
-            pRequest->m_compilerArgs = pRequest->m_resourceID.GetPath().c_str();
+            pRequest->m_sourceFile = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, pRequest->m_resourceID.GetResourcePath() );
+            pRequest->m_destinationFile = ResourcePath::ToFileSystemPath( m_pSettings->m_compiledResourcePath, pRequest->m_resourceID.GetResourcePath() );
+            pRequest->m_compilerArgs = pRequest->m_resourceID.GetResourcePath().c_str();
 
             // Resource type validity check
             ResourceTypeID const resourceTypeID = pRequest->m_resourceID.GetResourceTypeID();
@@ -538,7 +538,7 @@ namespace KRG::Resource
         // Check that the target file exists
         //-------------------------------------------------------------------------
 
-        if ( !FileSystem::Exists( ResourcePath::ToFileSystemPath( m_pSettings->m_compiledResourcePath, resourceID.GetPath() ) ) )
+        if ( !FileSystem::Exists( ResourcePath::ToFileSystemPath( m_pSettings->m_compiledResourcePath, resourceID.GetResourcePath() ) ) )
         {
             return false;
         }
@@ -549,7 +549,7 @@ namespace KRG::Resource
         int32 const compilerVersion = m_compilerRegistry.GetVersionForType( resourceID.GetResourceTypeID() );
         KRG_ASSERT( compilerVersion >= 0 );
 
-        FileSystem::Path const sourceFilePath = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, resourceID.GetPath() );
+        FileSystem::Path const sourceFilePath = ResourcePath::ToFileSystemPath( m_pSettings->m_rawResourcePath, resourceID.GetResourcePath() );
         if ( !FileSystem::Exists( sourceFilePath ) )
         {
             return false;

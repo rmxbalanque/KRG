@@ -40,7 +40,7 @@ namespace KRG
 
         ImGui::SameLine( 0, itemSpacing );
         ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonAreaWidth * 2 ) - childWindowWidth );
-        ImGui::InputText( "##DataPath", const_cast<char*>( pResourceID->c_str() ), pResourceID->GetPath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
+        ImGui::InputText( "##DataPath", const_cast<char*>( pResourceID->c_str() ), pResourceID->GetResourcePath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
