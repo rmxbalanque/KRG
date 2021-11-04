@@ -268,6 +268,10 @@ namespace KRG
 
                 ImGui::EndPopup();
             }
+            else
+            {
+                ImGui::PopStyleColor( 2 );
+            }
         }
     }
 
