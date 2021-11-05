@@ -44,6 +44,21 @@ namespace KRG::TypeSystem
 
         inline bool IsValid() const { return m_path.IsValid() && !m_byteValue.empty(); }
 
+        // Value Access
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        template<typename T>
+        inline T GetValue( TypeRegistry const& typeRegistry ) const
+        {
+            TypeID const coreTypeID = GetCoreTypeID<T>();
+
+            T value;
+            ConvertStringToNativeType( typeRegistry, coreTypeID, TypeID(), m_stringValue, value );
+            return value;
+        }
+        #endif
+
         // Tools only constructors
         //-------------------------------------------------------------------------
 
@@ -84,15 +99,12 @@ namespace KRG::TypeSystem
         TypeID                                                      m_templatedArgumentTypeID;
         #endif
     };
-}
 
-//-------------------------------------------------------------------------
-// Type Descriptor
-//-------------------------------------------------------------------------
-// A serialized description of a KRG type with all property overrides
+    //-------------------------------------------------------------------------
+    // Type Descriptor
+    //-------------------------------------------------------------------------
+    // A serialized description of a KRG type with all property overrides
 
-namespace KRG::TypeSystem
-{
     struct KRG_SYSTEM_TYPESYSTEM_API TypeDescriptor
     {
         KRG_SERIALIZE_MEMBERS( m_typeID, m_properties );
@@ -102,6 +114,10 @@ namespace KRG::TypeSystem
         inline bool IsValid() const { return m_typeID.IsValid(); }
 
         // Properties
+        //-------------------------------------------------------------------------
+
+        PropertyDescriptor* GetProperty( PropertyPath const& path );
+        inline PropertyDescriptor const* GetProperty( PropertyPath const& path ) const { return const_cast<TypeDescriptor*>( this )->GetProperty( path ); }
         void RemovePropertyValue( PropertyPath const& path );
 
     public:
@@ -109,14 +125,11 @@ namespace KRG::TypeSystem
         TypeID                                                      m_typeID;
         TInlineVector<PropertyDescriptor, 6>                        m_properties;
     };
-}
 
-//-------------------------------------------------------------------------
-// Type Creator
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Type Creator
+    //-------------------------------------------------------------------------
 
-namespace KRG::TypeSystem
-{
     class KRG_SYSTEM_TYPESYSTEM_API TypeCreator
     {
     public:
@@ -179,18 +192,15 @@ namespace KRG::TypeSystem
 
         static void* SetPropertyValues( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, TypeDescriptor const& typeDesc, void* pTypeInstance );
     };
-}
 
-//-------------------------------------------------------------------------
-// Type Descriptor Collection
-//-------------------------------------------------------------------------
-// Generally only useful for when serializing a set of types all derived from the same base type
-// This collection can be instantiate in one of two ways
-// * Statically - all types are created in a single contiguous array of memory, this is immutable
-// * Dynamically - each type is individually allocated, these types can be destroyed individually at runtime
+    //-------------------------------------------------------------------------
+    // Type Descriptor Collection
+    //-------------------------------------------------------------------------
+    // Generally only useful for when serializing a set of types all derived from the same base type
+    // This collection can be instantiate in one of two ways
+    // * Statically - all types are created in a single contiguous array of memory, this is immutable
+    // * Dynamically - each type is individually allocated, these types can be destroyed individually at runtime
 
-namespace KRG::TypeSystem
-{
     struct KRG_SYSTEM_TYPESYSTEM_API TypeDescriptorCollection
     {
         KRG_SERIALIZE_MEMBERS( m_descriptors );

@@ -35,36 +35,32 @@ namespace KRG
 
         ClearFileToInspect();
 
-        // Check if the file is a raw file or a resource file
+        // Start inspecting file
         //-------------------------------------------------------------------------
 
         m_inspectedFile = inFile;
 
-        m_descriptorID = ResourceID( ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_inspectedFile ) );
-        if ( m_descriptorID.IsValid() )
+        ResourceID const fileResourceID( ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_inspectedFile ) );
+        if ( fileResourceID.IsValid() )
         {
-            // Ensure the resource type ID is a registered resource type
-            if ( !m_pModel->GetTypeRegistry()->IsRegisteredResourceType( m_descriptorID.GetResourceTypeID() ) )
+            if ( m_pModel->HasDescriptorForResourceType( fileResourceID.GetResourceTypeID() ) )
+            {
+                m_mode = Mode::InspectingResourceFile;
+                m_isDirty = false;
+                m_descriptorID = fileResourceID;
+                m_descriptorPath = m_inspectedFile;
+
+                if ( LoadResourceDescriptor() )
+                {
+                    m_propertyGrid.SetTypeToEdit( m_pDescriptor );
+                }
+            }
+            else
             {
                 m_descriptorID = ResourceID();
             }
         }
-
-        // Start inspecting
-        //-------------------------------------------------------------------------
-
-        if ( m_descriptorID.IsValid() )
-        {
-            m_mode = Mode::InspectingResourceFile;
-            m_isDirty = false;
-            m_descriptorPath = m_descriptorID.GetResourcePath().ToFileSystemPath( m_pModel->GetRawResourceDirectory() );
-
-            if ( LoadResourceDescriptor() )
-            {
-                m_propertyGrid.SetTypeToEdit( m_pDescriptor );
-            }
-        }
-        else
+        else // Raw file
         {
             KRG_ASSERT( m_pRawFileInspector == nullptr );
             m_mode = Mode::InspectingRawFile;

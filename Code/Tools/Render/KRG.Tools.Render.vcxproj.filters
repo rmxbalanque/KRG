@@ -39,8 +39,8 @@
     <ClCompile Include="TextureTools\TextureConverter.cpp">
       <Filter>TextureTools</Filter>
     </ClCompile>
-    <ClCompile Include="TextureTools\CubemapGenerator.cpp" />
-    <ClCompile Include="ResourceEditors\Workspace_StaticMesh.cpp" />
+    <ClCompile Include="Workspaces\Workspace_StaticMesh.cpp" />
+    <ClCompile Include="Workspaces\Workspace_SkeletalMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -68,6 +68,7 @@
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderMesh.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderShader.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderTexture.h" />
-    <ClInclude Include="ResourceEditors\Workspace_StaticMesh.h" />
+    <ClInclude Include="Workspaces\Workspace_StaticMesh.h" />
+    <ClInclude Include="Workspaces\Workspace_SkeletalMesh.h" />
   </ItemGroup>
 </Project>

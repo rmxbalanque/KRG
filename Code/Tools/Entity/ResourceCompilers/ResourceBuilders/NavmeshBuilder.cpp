@@ -2,10 +2,11 @@
 #include "Tools/Physics/ResourceDescriptors/ResourceDescriptor_PhysicsMesh.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Core/Resource/RawAssets/RawMesh.h"
-#include "Tools/Entity/EntityCollectionModel.h"
+#include "Tools/Entity/EntityToolAccessor.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/NavmeshData.h"
 #include "Engine/Physics/Components/PhysicsMeshComponent.h"
+#include "Engine/Core/Entity/Collections/EntityCollection.h"
 #include "Engine/Core/Entity/Collections/EntityCollectionDescriptor.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
@@ -13,6 +14,25 @@
 #if KRG_ENABLE_NAVPOWER
 #include <bfxSystem.h>
 #endif
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    template<>
+    struct TEntityToolAccessor<Physics::PhysicsMeshComponent>
+    {
+        TEntityToolAccessor( Physics::PhysicsMeshComponent* pType )
+            : m_pType( pType )
+        {}
+
+        inline ResourceID const& GetMeshResourceID() { return m_pType->m_pPhysicsMesh.GetResourceID(); }
+
+    protected:
+
+        Physics::PhysicsMeshComponent* m_pType = nullptr;
+    };
+}
 
 //-------------------------------------------------------------------------
 
@@ -87,29 +107,25 @@ namespace KRG::Navmesh
 
     bool NavmeshBuilder::CollectCollisionPrimitives( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, THashMap<ResourcePath, TVector<Transform>>& collisionPrimitives )
     {
-        EntityModel::EntityCollectionModel entityCollectionModel( ctx.m_typeRegistry );
-        if ( !EntityModel::EntityCollectionModel::FromDescriptor( entityCollectionDesc, entityCollectionModel ) )
-        {
-            return false;
-        }
+        EntityModel::EntityCollection const collectionInstance( ctx.m_typeRegistry, UUID::GenerateID(), entityCollectionDesc );
 
         // Collect all collision geometry
         //-------------------------------------------------------------------------
 
-        auto foundPhysicsComponents = entityCollectionModel.GetAllComponentsOfType( Physics::PhysicsMeshComponent::GetStaticTypeID() );
-        for ( auto pPhysicsComponent : foundPhysicsComponents )
+        auto foundPhysicsComponents = entityCollectionDesc.GetComponentsOfType( ctx.m_typeRegistry, Physics::PhysicsMeshComponent::GetStaticTypeID() );
+        for ( auto const& searchResult : foundPhysicsComponents )
         {
-            // TODO: see if there is a smart way to avoid using strings for property access
-            auto pProperty = pPhysicsComponent->GetProperty( TypeSystem::PropertyPath( "m_pPhysicsMesh" ) );
-            if ( pProperty == nullptr )
-            {
-                return Error( "Cant find 'm_pPhysicsMesh' property on physics mesh component: %s", ctx.m_inputFilePath.c_str() );
-            }
+            auto pEntity = collectionInstance.FindEntity( searchResult.m_pEntity->m_ID );
+            KRG_ASSERT( pEntity != nullptr );
 
-            Resource::ResourcePtr geometryPtr = pProperty->GetValue<Resource::ResourcePtr>();
-            if ( geometryPtr.IsValid() )
+            auto pPhysicsComponent = ComponentCast<Physics::PhysicsMeshComponent>( pEntity->FindComponent( searchResult.m_pComponent->m_ID ) );
+            KRG_ASSERT( pPhysicsComponent != nullptr );
+
+            TEntityToolAccessor<Physics::PhysicsMeshComponent> accessor( pPhysicsComponent );
+            ResourceID geometryResourceID = accessor.GetMeshResourceID();
+            if ( geometryResourceID.IsValid() )
             {
-                collisionPrimitives[geometryPtr.GetResourceID().GetResourcePath()].emplace_back( pPhysicsComponent->GetWorldTransform() );
+                 collisionPrimitives[geometryResourceID.GetResourcePath()].emplace_back( pPhysicsComponent->GetWorldTransform() );
             }
         }
 

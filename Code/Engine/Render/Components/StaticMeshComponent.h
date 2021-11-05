@@ -46,19 +46,9 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         inline TSingleUserEvent<void( StaticMeshComponent* )> OnMobilityChanged() { return m_mobilityChangedEvent; }
+        inline TSingleUserEvent<void( StaticMeshComponent* )> OnStaticMobilityTransformUpdated() { return m_staticMobilityTransformUpdatedEvent; }
         inline Mobility GetMobility() const { return m_mobility; }
-
-        inline void ChangeMobility( Mobility newMobility )
-        {
-            if ( newMobility != m_mobility )
-            {
-                m_mobility = newMobility;
-                if ( m_mobilityChangedEvent.HasBoundUser() )
-                {
-                    m_mobilityChangedEvent.Execute( this );
-                }
-            }
-        }
+        void ChangeMobility( Mobility newMobility );
 
         virtual TVector<TResourcePtr<Material>> const& GetDefaultMaterials() const override;
 
@@ -71,6 +61,7 @@ namespace KRG::Render
 
         KRG_EXPOSE TResourcePtr<StaticMesh>                                 m_pMesh;
         KRG_EXPOSE Mobility                                                 m_mobility = Mobility::Static;
-        TSingleUserEventInternal<void( StaticMeshComponent* )>          m_mobilityChangedEvent;
+        TSingleUserEventInternal<void( StaticMeshComponent* )>              m_mobilityChangedEvent; // Fired whenever we switch mobility 
+        TSingleUserEventInternal<void( StaticMeshComponent* )>              m_staticMobilityTransformUpdatedEvent; // Fired whenever a "static" component is moved
     };
 }

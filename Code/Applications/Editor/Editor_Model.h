@@ -5,8 +5,8 @@
 
 namespace KRG
 {
-    class MapEditor;
     class EntityWorldManager;
+    namespace EntityModel { class EntityMapEditor; }
     namespace Render{ class RenderingSystem; }
 
     //-------------------------------------------------------------------------
@@ -26,23 +26,23 @@ namespace KRG
         inline Resource::ResourceSystem* GetResourceSystem() const { return m_editorContext.m_pResourceSystem; }
         inline Render::RenderingSystem* GetRenderingSystem() const { return m_pRenderingSystem; }
 
+        bool HasDescriptorForResourceType( ResourceTypeID resourceTypeID ) const;
+
         // Map Editor
         //-------------------------------------------------------------------------
 
-        MapEditor* GetMapEditorWorkspace() { return m_pMapEditor; }
+        EntityModel::EntityMapEditor* GetMapEditorWorkspace() { return m_pMapEditor; }
 
         // Workspaces
         //-------------------------------------------------------------------------
         
         inline TVector<EditorWorkspace*> const& GetWorkspaces() const { return m_workspaces; }
-        inline bool IsWorkspaceOpen( ResourceID const& resourceID ) const { return FindResourceWorkspace( resourceID ) != nullptr; }
-        inline bool IsWorkspaceOpen( uint32 workspaceID ) const { return FindResourceWorkspace( workspaceID ) != nullptr; }
-
-        bool CanCreateWorkspaceForResourceType( ResourceTypeID typeID ) const;
-        void CreateWorkspace( ResourceID const& resourceID );
+        void* GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const;
         void DestroyWorkspace( EditorWorkspace* pWorkspace );
 
-        void* GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const;
+        inline bool IsWorkspaceOpen( uint32 workspaceID ) const { return FindResourceWorkspace( workspaceID ) != nullptr; }
+        inline bool IsWorkspaceOpen( ResourceID const& resourceID ) const { return FindResourceWorkspace( resourceID ) != nullptr; }
+        bool TryCreateWorkspace( ResourceID const& resourceID );
 
     private:
 
@@ -51,7 +51,7 @@ namespace KRG
 
     private:
 
-        MapEditor*                          m_pMapEditor = nullptr;
+        EntityModel::EntityMapEditor*       m_pMapEditor = nullptr;
         EntityWorldManager*                 m_worldManager = nullptr;
         Render::RenderingSystem*            m_pRenderingSystem = nullptr;
         EditorContext                       m_editorContext;

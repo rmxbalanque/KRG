@@ -64,7 +64,7 @@ namespace KRG::Render
         Float2 pointSS;
         pointSS.m_x = m_x * m_size.m_x;
         pointSS.m_y = m_y * m_size.m_y;
-        return pointSS;
+        return pointSS + m_topLeftPosition;
     }
 
     Vector Viewport::ScreenSpaceToClipSpace( Float2 const& pointSS ) const
@@ -72,8 +72,8 @@ namespace KRG::Render
         Float4 pointCS( 0.0f, 0.0f, 0.0f, 1.0f );
 
         // To Normalized pixel space
-        pointCS.m_x = pointSS.m_x / m_size.m_x;
-        pointCS.m_y = pointSS.m_y / m_size.m_y;
+        pointCS.m_x = ( pointSS.m_x - m_topLeftPosition.m_x ) / m_size.m_x;
+        pointCS.m_y = ( pointSS.m_y - m_topLeftPosition.m_y ) / m_size.m_y;
 
         // Invert Y
         pointCS.m_y = 1.0f - pointCS.m_y;

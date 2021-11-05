@@ -108,12 +108,12 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionTemplate )
+    EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionDesc )
         : m_ID( ID )
     {
         KRG_ASSERT( ID.IsValid() );
-        CreateAllEntitiesSequential( typeRegistry, entityCollectionTemplate );
-        ResolveEntitySpatialAttachments( entityCollectionTemplate );
+        CreateAllEntitiesSequential( typeRegistry, entityCollectionDesc );
+        ResolveEntitySpatialAttachments( entityCollectionDesc );
     }
 
     EntityCollection::~EntityCollection()
@@ -245,4 +245,86 @@ namespace KRG::EntityModel
         m_entities.clear();
         m_entityLookupMap.clear();
     }
+
+    //-------------------------------------------------------------------------
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void EntityCollection::CreateDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionDescriptor& outEntityCollectionDesc ) const
+    {
+        auto CreateEntityDesc = [] ( Entity* pEntity )
+        {
+            EntityDescriptor entityDesc;
+            entityDesc.m_ID = pEntity->GetID();
+            entityDesc.m_name = pEntity->GetName();
+
+            if ( pEntity->HasSpatialParent() )
+            {
+                entityDesc.m_spatialParentID = pEntity->GetSpatialParentID();
+                entityDesc.m_attachmentSocketID = pEntity->GetAttachmentSocketID();
+            }
+
+            // Components
+            //-------------------------------------------------------------------------
+
+            for ( auto pComponent : pEntity->GetComponents() )
+            {
+                ComponentDescriptor componentDesc;
+                componentDesc.m_ID = pComponent->GetID();
+                componentDesc.m_name = pComponent->GetName();
+
+                // Spatial info
+                auto pSpatialEntityComponent = ComponentCast<SpatialEntityComponent>( pComponent );
+                if ( pSpatialEntityComponent != nullptr )
+                {
+                    if ( pSpatialEntityComponent->HasSpatialParent() )
+                    {
+                        componentDesc.m_spatialParentID = pSpatialEntityComponent->GetSpatialParentID();
+                        componentDesc.m_attachmentSocketID = pSpatialEntityComponent->GetAttachmentSocketID();
+                    }
+
+                    componentDesc.m_isSpatialComponent = true;
+                }
+
+                // Properties
+                for ( auto pPropertyInfo : pComponent->GetTypeInfo()->m_properties )
+                {
+
+
+                    //pComponent->GetTypeInfo()->m_pTypeHelper->Is
+
+                    //TypeSystem::PropertyDescriptor propertyDesc( typeRegistry, pPropertyInfo;
+                    //componentDesc.m_properties.emplace_back( propertyDesc );
+                }
+
+                // Add component
+                entityDesc.m_components.emplace_back( componentDesc );
+                if ( componentDesc.m_isSpatialComponent )
+                {
+                    entityDesc.m_numSpatialComponents++;
+                }
+            }
+
+            // Systems
+            //-------------------------------------------------------------------------
+
+            for ( auto pSystem : pEntity->GetSystems() )
+            {
+                SystemDescriptor systemDesc;
+                entityDesc.m_systems.emplace_back( systemDesc );
+            }
+
+            return entityDesc;
+        };
+
+        //-------------------------------------------------------------------------
+
+        for ( auto pEntity : m_entities )
+        {
+            EntityDescriptor entityDesc = CreateEntityDesc( pEntity );
+            outEntityCollectionDesc.AddEntity( entityDesc );
+        }
+
+        outEntityCollectionDesc.GenerateSpatialAttachmentInfo();
+    }
+    #endif
 }

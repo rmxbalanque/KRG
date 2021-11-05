@@ -36,7 +36,7 @@ namespace KRG
 
         virtual void Initialize( UpdateContext const& context ) override final;
         virtual void Shutdown( UpdateContext const& context ) override final;
-        virtual void Update( UpdateContext const& context ) override final;
+        virtual void UpdateAndDraw( UpdateContext const& context ) override final;
 
     private:
 

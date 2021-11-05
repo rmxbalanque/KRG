@@ -1,10 +1,14 @@
 #include "EditorWorkspace.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    char const* const EditorWorkspace::s_viewportWindowName = "Viewport";
+    Debug::DrawingContext EditorWorkspace::GetDrawingContext()
+    {
+        return m_pWorld->GetDebugDrawingSystem()->GetDrawingContext();
+    }
 
     //-------------------------------------------------------------------------
 
@@ -13,5 +17,12 @@ namespace KRG
         , m_pWorld( pWorld )
     {
         KRG_ASSERT( m_pWorld != nullptr );
+    }
+
+    void EditorWorkspace::Initialize()
+    {
+        m_workspaceWindowID.sprintf( "%s##%u", GetTitle(), GetID() );
+        m_viewportWindowID.sprintf( "Viewport##%u", GetID() );
+        m_dockspaceID.sprintf( "Dockspace##%u", GetID() );
     }
 }

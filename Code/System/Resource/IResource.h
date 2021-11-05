@@ -23,6 +23,7 @@ namespace KRG::Resource
         virtual ~IResource() {}
 
         inline ResourceID const& GetResourceID() const { return m_resourceID; }
+        inline ResourcePath const& GetResourcePath() const { return m_resourceID.GetResourcePath(); }
 
         virtual bool IsValid() const = 0;
         virtual ResourceTypeID GetResourceType() const = 0;

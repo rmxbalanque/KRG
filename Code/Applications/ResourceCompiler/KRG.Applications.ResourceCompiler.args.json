@@ -72,7 +72,7 @@
         },
         {
           "Id": "2464fa86-53b9-4f1e-832a-21d36c275665",
-          "Command": "-compile data://cubemaps/yokohama/yokohama.cbmp"
+          "Command": "-compile data://cubemaps/cubemap.cbmp"
         }
       ]
     },

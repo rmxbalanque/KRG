@@ -3,6 +3,7 @@
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Resource/ResourceID.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
+#include "System/Core/Debug/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -38,15 +39,20 @@ namespace KRG
     {
     public:
 
-        static char const* const s_viewportWindowName;
-
-    public:
-
         EditorWorkspace( EditorContext const& context, EntityWorld* pWorld );
         virtual ~EditorWorkspace() = default;
 
-        // Get the display name for this workspace
-        virtual char const* GetDisplayName() const = 0;
+        // Get the display title for this workspace (shown on tab, dialogs, etc...)
+        virtual char const* GetTitle() const = 0;
+
+        // Get the main workspace window ID - Needs to be unique per workspace instance!
+        inline char const* GetWorkspaceWindowID() const { KRG_ASSERT( !m_workspaceWindowID.empty() ); return m_workspaceWindowID.c_str(); }
+
+        // Get the viewport window name/ID - Needs to be unique per workspace instance!
+        inline  char const* GetViewportWindowID() const { KRG_ASSERT( !m_viewportWindowID.empty() ); return m_viewportWindowID.c_str(); }
+
+        // Get the main workspace window ID - Needs to be unique per workspace instance!
+        inline char const* GetDockspaceID() const { KRG_ASSERT( !m_dockspaceID.empty() ); return m_dockspaceID.c_str(); }
 
         // Get a unique ID for this workspace
         virtual uint32 GetID() const = 0;
@@ -55,7 +61,7 @@ namespace KRG
         virtual bool HasViewportWindow() const { return true; }
 
         // Does this workspace's viewport have a toolbar?
-        virtual bool HasViewportWindowToolbar() const { return false; }
+        virtual bool HasViewportToolbar() const { return false; }
 
         // Get the world associated with this workspace
         inline EntityWorld* GetWorld() const { return m_pWorld; }
@@ -63,7 +69,8 @@ namespace KRG
         // Lifetime Functions
         //-------------------------------------------------------------------------
 
-        virtual void Initialize() {}
+        // Initialize the workspace: initialize window IDs, create preview entities, etc... - Base implementation must be called!
+        virtual void Initialize();
         virtual void Shutdown() {}
 
         // Drawing Functions
@@ -98,6 +105,8 @@ namespace KRG
 
     protected:
 
+        inline Debug::DrawingContext GetDrawingContext();
+
         // Disable copies
         EditorWorkspace& operator=( EditorWorkspace const& ) = delete;
         EditorWorkspace( EditorWorkspace const& ) = delete;
@@ -106,5 +115,8 @@ namespace KRG
 
         EditorContext const&                m_editorContext;
         EntityWorld*                        m_pWorld = nullptr;
+        String                              m_workspaceWindowID;
+        String                              m_viewportWindowID;
+        String                              m_dockspaceID;
     };
 }

@@ -271,12 +271,6 @@ namespace KRG
             return;
         }
 
-        //-------------------------------------------------------------------------
-
-        auto const resourceID = pDataFileItem->GetResourceID();
-        if ( m_model.CanCreateWorkspaceForResourceType( resourceID.GetResourceTypeID() ) )
-        {
-            m_model.CreateWorkspace( resourceID );
-        }
+        m_model.TryCreateWorkspace( pDataFileItem->GetResourceID() );
     }
 }

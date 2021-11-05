@@ -64,7 +64,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Editor\ResourceEditorWorkspace.h" />
+    <ClInclude Include="Editor\ResourceWorkspace.h" />
     <ClInclude Include="GraphEditor\GraphEditor.h" />
     <ClInclude Include="Resource\DataFilePicker.h" />
     <ClInclude Include="FileSystem\FileSystemHelpers.h" />
@@ -118,7 +118,7 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Editor\ResourceEditorWorkspace.cpp" />
+    <ClCompile Include="Editor\ResourceWorkspace.cpp" />
     <ClCompile Include="GraphEditor\GraphEditor.cpp" />
     <ClCompile Include="Resource\DataFilePicker.cpp" />
     <ClCompile Include="FileSystem\FileSystemHelpers.cpp" />

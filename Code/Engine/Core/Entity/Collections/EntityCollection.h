@@ -29,7 +29,7 @@ namespace KRG::EntityModel
     public:
 
         EntityCollection() : m_ID( UUID::GenerateID() ) {}
-        EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionTemplate );
+        EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionDesc );
         
         ~EntityCollection();
 
@@ -53,6 +53,12 @@ namespace KRG::EntityModel
 
         // Remove an entity from this collection
         void RemoveEntity( UUID entityID );
+
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void CreateDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionDescriptor& outEntityCollectionDesc ) const;
+        #endif
 
     protected:
 

@@ -27,20 +27,15 @@
     <ClCompile Include="ResourceCompilers\ResourceBuilders\NavmeshBuilder.cpp">
       <Filter>ResourceCompilers\ResourceBuilders</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization\EntityCollectionModelReader.cpp">
+    <ClCompile Include="Serialization\EntityCollectionDescriptorReader.cpp">
       <Filter>Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization\EntityCollectionModelWriter.cpp">
+    <ClCompile Include="Serialization\EntityCollectionDescriptorWriter.cpp">
       <Filter>Serialization</Filter>
     </ClCompile>
     <ClCompile Include="ResourceCompilers\ResourceCompiler_EntityMap.cpp">
       <Filter>ResourceCompilers</Filter>
     </ClCompile>
-    <ClCompile Include="EntityInstanceModel.cpp" />
-    <ClCompile Include="EntityCollectionModel.cpp" />
-    <ClCompile Include="EntityComponentModel.cpp" />
-    <ClCompile Include="EntitySystemModel.cpp" />
-    <ClCompile Include="EntityPropertyInstanceModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -52,19 +47,15 @@
     <ClInclude Include="ResourceCompilers\ResourceBuilders\NavmeshBuilder.h">
       <Filter>ResourceCompilers\ResourceBuilders</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\EntityCollectionModelReader.h">
+    <ClInclude Include="Serialization\EntityCollectionDescriptorReader.h">
       <Filter>Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\EntityCollectionModelWriter.h">
+    <ClInclude Include="Serialization\EntityCollectionDescriptorWriter.h">
       <Filter>Serialization</Filter>
     </ClInclude>
     <ClInclude Include="ResourceCompilers\ResourceCompiler_EntityMap.h">
       <Filter>ResourceCompilers</Filter>
     </ClInclude>
-    <ClInclude Include="EntityInstanceModel.h" />
-    <ClInclude Include="EntityCollectionModel.h" />
-    <ClInclude Include="EntityComponentModel.h" />
-    <ClInclude Include="EntitySystemModel.h" />
-    <ClInclude Include="EntityPropertyInstanceModel.h" />
+    <ClInclude Include="EntityToolAccessor.h" />
   </ItemGroup>
 </Project>

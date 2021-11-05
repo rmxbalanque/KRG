@@ -10,7 +10,7 @@
 
 namespace KRG::EntityModel
 {
-    struct KRG_ENGINE_CORE_API EntityComponentDescriptor : public TypeSystem::TypeDescriptor
+    struct KRG_ENGINE_CORE_API ComponentDescriptor : public TypeSystem::TypeDescriptor
     {
         KRG_SERIALIZE_MEMBERS( KRG_SERIALIZE_BASE( TypeSystem::TypeDescriptor ), m_ID, m_spatialParentID, m_attachmentSocketID, m_name, m_isSpatialComponent );
 
@@ -31,13 +31,10 @@ namespace KRG::EntityModel
         StringID                                                    m_name;
         bool                                                        m_isSpatialComponent = false;
     };
-}
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-namespace KRG::EntityModel
-{
-    struct KRG_ENGINE_CORE_API EntitySystemDescriptor
+    struct KRG_ENGINE_CORE_API SystemDescriptor
     {
         KRG_SERIALIZE_MEMBERS( m_typeID );
 
@@ -49,12 +46,9 @@ namespace KRG::EntityModel
 
         TypeSystem::TypeID                                          m_typeID;
     };
-}
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-namespace KRG::EntityModel
-{
     struct KRG_ENGINE_CORE_API EntityDescriptor
     {
         KRG_SERIALIZE_MEMBERS( m_ID, m_spatialParentID, m_name, m_attachmentSocketID, m_systems, m_components, m_numSpatialComponents );
@@ -67,13 +61,13 @@ namespace KRG::EntityModel
 
         int32 FindComponentIndex( UUID const& componentID ) const;
 
-        inline EntityComponentDescriptor const* FindComponent( UUID const& componentID ) const 
+        inline ComponentDescriptor const* FindComponent( UUID const& componentID ) const 
         {
             int32 const componentIdx = FindComponentIndex( componentID );
             return ( componentIdx != InvalidIndex ) ? &m_components[componentIdx] : nullptr;
         }
 
-        inline EntityComponentDescriptor* FindMutableComponent( UUID const& componentID ) { return const_cast<EntityComponentDescriptor*>( FindComponent( componentID ) ); }
+        inline ComponentDescriptor* FindMutableComponent( UUID const& componentID ) { return const_cast<ComponentDescriptor*>( FindComponent( componentID ) ); }
 
     public:
 
@@ -81,8 +75,8 @@ namespace KRG::EntityModel
         UUID                                                        m_spatialParentID;
         StringID                                                    m_name;
         StringID                                                    m_attachmentSocketID;
-        TInlineVector<EntitySystemDescriptor,5>                     m_systems;
-        TVector<EntityComponentDescriptor>                          m_components; // Ordered list of components: spatial components are first, followed by regular components
+        TInlineVector<SystemDescriptor,5>                           m_systems;
+        TVector<ComponentDescriptor>                                m_components; // Ordered list of components: spatial components are first, followed by regular components
         int32                                                       m_numSpatialComponents = 0;
     };
 }

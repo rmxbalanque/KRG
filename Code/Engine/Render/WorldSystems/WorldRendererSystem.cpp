@@ -144,6 +144,7 @@ namespace KRG::Render
         auto& registeredComponent = m_registeredStaticMeshComponents.AddRecord( pEntity->GetID() );
         registeredComponent.m_pComponent = pMeshComponent;
         registeredComponent.m_mobilityChangedEventBinding = pMeshComponent->OnMobilityChanged().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMeshMobilityUpdated( pMeshComponent ); } );
+        registeredComponent.m_staticMobilityTransformUpdatedEventBinding = pMeshComponent->OnStaticMobilityTransformUpdated().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMobilityComponentTransformUpdated( pMeshComponent ); } );
 
         // Add to appropriate sub-list
         if ( pMeshComponent->GetMobility() == Mobility::Dynamic )
@@ -165,6 +166,7 @@ namespace KRG::Render
             auto const pMesh = pRecord->m_pComponent->GetMesh();
 
             // Unbind mobility change handler and remove from various lists
+            pRecord->m_pComponent->OnStaticMobilityTransformUpdated().Unbind( pRecord->m_staticMobilityTransformUpdatedEventBinding );
             pRecord->m_pComponent->OnMobilityChanged().Unbind( pRecord->m_mobilityChangedEventBinding );
 
             // Get the real mobility of the component
@@ -289,6 +291,13 @@ namespace KRG::Render
         m_mobilityUpdateList.clear();
 
         //-------------------------------------------------------------------------
+
+        for ( auto pMeshComponent : m_staticMobilityTransformUpdateList )
+        {
+            // Right now there is nothing to do, in future we need to remove from the AABB and re-add to the AABB
+        }
+
+        //-------------------------------------------------------------------------
         // Culling
         //-------------------------------------------------------------------------
         // TODO: Broad phase culling
@@ -376,5 +385,17 @@ namespace KRG::Render
         Threading::ScopeLock lock( m_mobilityUpdateListLock );
         KRG_ASSERT( !VectorContains( m_mobilityUpdateList, pComponent ) );
         m_mobilityUpdateList.emplace_back( pComponent );
+    }
+
+    void WorldRendererSystem::OnStaticMobilityComponentTransformUpdated( StaticMeshComponent* pComponent )
+    {
+        KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
+        KRG_ASSERT( pComponent->GetMobility() == Mobility::Static );
+
+        Threading::ScopeLock lock( m_mobilityUpdateListLock );
+        if ( !VectorContains( m_staticMobilityTransformUpdateList, pComponent ) )
+        {
+            m_staticMobilityTransformUpdateList.emplace_back( pComponent );
+        }
     }
 }

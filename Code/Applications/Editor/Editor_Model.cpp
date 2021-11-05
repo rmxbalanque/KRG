@@ -1,10 +1,11 @@
 #include "Editor_Model.h"
 #include "RenderingSystem.h"
 #include "MapEditor/Workspace_MapEditor.h"
-#include "Tools/Core/Editor/ResourceEditorWorkspace.h"
+#include "Tools/Core/Editor/ResourceWorkspace.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
+#include "Engine/Core/Entity/Map/EntityMapDescriptor.h"
 #include "System/Resource/ResourceSettings.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
@@ -41,7 +42,7 @@ namespace KRG
 
         auto pPrimaryWorld = m_worldManager->GetPrimaryWorld();
         m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPrimaryWorld->GetViewport() );
-        m_pMapEditor = KRG::New<MapEditor>( m_editorContext, pPrimaryWorld );
+        m_pMapEditor = KRG::New<EntityModel::EntityMapEditor>( m_editorContext, pPrimaryWorld );
         m_pMapEditor->Initialize();
         m_workspaces.emplace_back( m_pMapEditor );
     }
@@ -53,7 +54,7 @@ namespace KRG
             if ( pOpenWorkspace->IsDirty() )
             {
                 InlineString<255> messageTitle;
-                messageTitle.sprintf( "Unsaved Changes for %s", pOpenWorkspace->GetDisplayName() );
+                messageTitle.sprintf( "Unsaved Changes for %s", pOpenWorkspace->GetTitle() );
 
                 auto messageDialog = pfd::message( messageTitle.c_str(), "You have unsaved changes!\nDo you wish to save these changes before closing?", pfd::choice::yes_no_cancel );
                 switch ( messageDialog.result() )
@@ -83,10 +84,30 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void EditorModel::CreateWorkspace( ResourceID const & resourceID )
+    bool EditorModel::TryCreateWorkspace( ResourceID const& resourceID )
     {
+        ResourceTypeID const resourceTypeID = resourceID.GetResourceTypeID();
+
+        // Handle maps explicitly
+        //-------------------------------------------------------------------------
+
+        if ( resourceTypeID == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() )
+        {
+            m_pMapEditor->LoadMap( resourceID );
+            //FocusWorkspace( *foundWorkspaceIter );
+            return true;
+        }
+
+        // Other resource types
+        //-------------------------------------------------------------------------
+
+        if ( !ResourceWorkspaceFactory::CanCreateWorkspace( resourceTypeID ) )
+        {
+            return false;
+        }
+
         auto pExistingWorkspace = FindResourceWorkspace( resourceID );
-        if( pExistingWorkspace == nullptr )
+        if ( pExistingWorkspace == nullptr )
         {
             // Create preview world
             auto pPreviewWorld = m_worldManager->CreateWorld();
@@ -94,7 +115,7 @@ namespace KRG
             m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPreviewWorld->GetViewport() );
 
             // Create workspace
-            auto pCreatedWorkspace = ResourceEditorWorkspaceFactory::TryCreateWorkspace( m_editorContext, pPreviewWorld, resourceID );
+            auto pCreatedWorkspace = ResourceWorkspaceFactory::TryCreateWorkspace( m_editorContext, pPreviewWorld, resourceID );
             KRG_ASSERT( pCreatedWorkspace != nullptr );
             pCreatedWorkspace->Initialize();
             m_workspaces.emplace_back( pCreatedWorkspace );
@@ -103,6 +124,8 @@ namespace KRG
         {
             //FocusWorkspace( *foundWorkspaceIter );
         }
+
+        return true;
     }
 
     void EditorModel::DestroyWorkspace( EditorWorkspace* pWorkspace )
@@ -145,6 +168,16 @@ namespace KRG
         m_worldManager->DestroyWorld( pPreviewWorld );
     }
 
+    bool EditorModel::HasDescriptorForResourceType( ResourceTypeID resourceTypeID ) const
+    {
+        if ( resourceTypeID == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() )
+        {
+            return false;
+        }
+
+        return m_editorContext.m_pTypeRegistry->IsRegisteredResourceType( resourceTypeID );
+    }
+
     void* EditorModel::GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const
     {
         KRG_ASSERT( pWorkspace != nullptr );
@@ -153,12 +186,6 @@ namespace KRG
     }
 
     //-------------------------------------------------------------------------
-
-    bool EditorModel::CanCreateWorkspaceForResourceType( ResourceTypeID typeID ) const
-    {
-        KRG_ASSERT( typeID.IsValid() );
-        return ResourceEditorWorkspaceFactory::CanCreateWorkspace( typeID );
-    }
 
     EditorWorkspace* EditorModel::FindResourceWorkspace( ResourceID const& resourceID ) const
     {

@@ -38,9 +38,9 @@ namespace KRG::EntityModel
         }
     }
 
-    TVector<EntityComponentDescriptor*> EntityCollectionDescriptor::GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes )
+    TVector<EntityCollectionDescriptor::SearchResult> EntityCollectionDescriptor::GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes )
     {
-        TVector<EntityComponentDescriptor*> foundComponents;
+        TVector<SearchResult> foundComponents;
 
         for ( auto& entityDesc : m_entityDescriptors )
         {
@@ -48,7 +48,9 @@ namespace KRG::EntityModel
             {
                 if ( componentDesc.m_typeID == typeID )
                 {
-                    foundComponents.emplace_back( &componentDesc );
+                    auto& result = foundComponents.emplace_back( SearchResult() );
+                    result.m_pEntity = &entityDesc;
+                    result.m_pComponent = &componentDesc;
                 }
                 else if ( allowDerivedTypes )
                 {
@@ -57,7 +59,9 @@ namespace KRG::EntityModel
 
                     if ( pTypeInfo->IsDerivedFrom( typeID ) )
                     {
-                        foundComponents.emplace_back( &componentDesc );
+                        auto& result = foundComponents.emplace_back( SearchResult() );
+                        result.m_pEntity = &entityDesc;
+                        result.m_pComponent = &componentDesc;
                     }
                 }
             }

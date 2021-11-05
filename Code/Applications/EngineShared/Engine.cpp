@@ -463,7 +463,7 @@ namespace KRG
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDevelopmentUI->Update( m_updateContext );
+                m_pDevelopmentUI->UpdateAndDraw( m_updateContext );
                 m_pImguiSystem->EndFrame();
                 #endif
 

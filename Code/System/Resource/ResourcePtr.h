@@ -31,6 +31,7 @@ namespace KRG
 
             inline bool IsValid() const { return m_resourceID.IsValid(); }
             inline ResourceID const& GetResourceID() const { return m_resourceID; }
+            inline ResourcePath const& GetResourcePath() const { return m_resourceID.GetResourcePath(); }
             inline ResourceTypeID GetResourceTypeID() const { return m_resourceID.GetResourceTypeID(); }
 
             template<typename T>

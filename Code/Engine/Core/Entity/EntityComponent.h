@@ -15,6 +15,7 @@ namespace KRG
     class Entity;
     class EntityComponent;
     class EntityWorld;
+    template<typename T> struct TEntityToolAccessor;
 
     //-------------------------------------------------------------------------
 
@@ -155,6 +156,7 @@ namespace KRG
 
 #define KRG_REGISTER_ENTITY_COMPONENT( TypeName ) \
         KRG_REGISTER_TYPE( TypeName );\
+        template<typename T> friend struct TEntityToolAccessor;\
         protected:\
         virtual void Load( EntityModel::LoadingContext const& context, UUID requesterID ) override;\
         virtual void Unload( EntityModel::LoadingContext const& context, UUID requesterID ) override;\

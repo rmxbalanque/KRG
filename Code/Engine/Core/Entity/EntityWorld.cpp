@@ -136,6 +136,7 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
+
     void EntityWorld::InitializeDebugViews( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> debugViewTypeInfos )
     {
         for ( auto pTypeInfo : debugViewTypeInfos )
@@ -181,9 +182,40 @@ namespace KRG
     // Frame Update
     //-------------------------------------------------------------------------
 
+    void EntityWorld::UpdateLoading()
+    {
+        KRG_PROFILE_SCOPE_SCENE( "World Loading" );
+
+        // Update all maps internal loading state
+        //-------------------------------------------------------------------------
+        // This will fill the world activation/registration lists used below
+        // This will also handle all hot-reload unload/load requests
+
+        for ( int32 i = (int32) m_maps.size() - 1; i >= 0; i-- )
+        {
+            if ( m_maps[i].UpdateState( m_loadingContext, m_activationContext ) )
+            {
+                if ( m_maps[i].IsLoaded() )
+                {
+                    m_maps[i].Activate( m_loadingContext, m_activationContext );
+                }
+                else if ( m_maps[i].IsUnloaded() )
+                {
+                    m_maps.erase_unsorted( m_maps.begin() + i );
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        ProcessEntityRegistrationRequests();
+        ProcessComponentRegistrationRequests();
+    }
+
     void EntityWorld::Update( UpdateContext const& context )
     {
         KRG_ASSERT( Threading::IsMainThread() );
+        KRG_ASSERT( !m_isSuspended );
 
         struct EntityUpdateTask : public IAsyncTask
         {
@@ -271,87 +303,6 @@ namespace KRG
         }
     }
 
-    //-------------------------------------------------------------------------
-    // Loading
-    //-------------------------------------------------------------------------
-
-    bool EntityWorld::IsBusyLoading() const
-    {
-        for ( auto const& map : m_maps )
-        {
-            if( map.IsLoading() ) 
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool EntityWorld::IsMapLoaded( ResourceID const& mapResourceID ) const
-    {
-        // Make sure the map isn't already loaded or loading, since duplicate loads are not allowed
-        for ( auto const& map : m_maps )
-        {
-            if ( map.GetMapResourceID() == mapResourceID )
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    void EntityWorld::LoadMap( ResourceID const& mapResourceID )
-    {
-        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
-
-        KRG_ASSERT( !IsMapLoaded( mapResourceID ) );
-        auto& map = m_maps.emplace_back( EntityModel::EntityMap( mapResourceID ) );
-        map.Load( m_loadingContext );
-    }
-
-    void EntityWorld::UnloadMap( ResourceID const& mapResourceID )
-    {
-        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
-
-        auto const foundMapIter = VectorFind( m_maps, mapResourceID, [] ( EntityModel::EntityMap const& map, ResourceID const& mapResourceID ) { return map.GetMapResourceID() == mapResourceID; } );
-        KRG_ASSERT( foundMapIter != m_maps.end() );
-        foundMapIter->Unload( m_loadingContext );
-    }
-
-    //-------------------------------------------------------------------------
-
-    void EntityWorld::UpdateLoading()
-    {
-        KRG_PROFILE_SCOPE_SCENE( "World Loading" );
-
-        // Update all maps internal loading state
-        //-------------------------------------------------------------------------
-        // This will fill the world activation/registration lists used below
-        // This will also handle all hot-reload unload/load requests
-
-        for ( int32 i = (int32) m_maps.size() - 1; i >= 0; i-- )
-        {
-            if ( m_maps[i].UpdateState( m_loadingContext, m_activationContext ) )
-            {
-                if ( m_maps[i].IsLoaded() )
-                {
-                    m_maps[i].Activate( m_loadingContext, m_activationContext );
-                }
-                else if ( m_maps[i].IsUnloaded() )
-                {
-                    m_maps.erase_unsorted( m_maps.begin() + i );
-                }
-            }
-        }
-
-        //-------------------------------------------------------------------------
-
-        ProcessEntityRegistrationRequests();
-        ProcessComponentRegistrationRequests();
-    }
-
     void EntityWorld::ProcessEntityRegistrationRequests()
     {
         {
@@ -405,7 +356,7 @@ namespace KRG
 
                     // Unregister components
                     //-------------------------------------------------------------------------
- 
+
                     size_t const numComponentsToUnregister = m_componentsToUnregister.size();
                     for ( auto c = 0u; c < numComponentsToUnregister; c++ )
                     {
@@ -486,6 +437,65 @@ namespace KRG
             }
         }
     }
+
+    //-------------------------------------------------------------------------
+    // Maps
+    //-------------------------------------------------------------------------
+
+    bool EntityWorld::IsBusyLoading() const
+    {
+        for ( auto const& map : m_maps )
+        {
+            if( map.IsLoading() ) 
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool EntityWorld::IsMapLoaded( ResourceID const& mapResourceID ) const
+    {
+        // Make sure the map isn't already loaded or loading, since duplicate loads are not allowed
+        for ( auto const& map : m_maps )
+        {
+            if ( map.GetMapResourceID() == mapResourceID )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void EntityWorld::LoadMap( ResourceID const& mapResourceID )
+    {
+        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
+
+        KRG_ASSERT( !IsMapLoaded( mapResourceID ) );
+        auto& map = m_maps.emplace_back( EntityModel::EntityMap( mapResourceID ) );
+        map.Load( m_loadingContext );
+    }
+
+    void EntityWorld::UnloadMap( ResourceID const& mapResourceID )
+    {
+        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
+
+        auto const foundMapIter = VectorFind( m_maps, mapResourceID, [] ( EntityModel::EntityMap const& map, ResourceID const& mapResourceID ) { return map.GetMapResourceID() == mapResourceID; } );
+        KRG_ASSERT( foundMapIter != m_maps.end() );
+        foundMapIter->Unload( m_loadingContext );
+    }
+
+    #if KRG_DEVELOPMENT_TOOLS
+    EntityModel::EntityMap* EntityWorld::GetMap( ResourceID const& mapResourceID )
+    {
+        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
+        auto const foundMapIter = VectorFind( m_maps, mapResourceID, [] ( EntityModel::EntityMap const& map, ResourceID const& mapResourceID ) { return map.GetMapResourceID() == mapResourceID; } );
+        KRG_ASSERT( foundMapIter != m_maps.end() );
+        return foundMapIter;
+    }
+    #endif
 
     //-------------------------------------------------------------------------
     // Hot Reload

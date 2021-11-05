@@ -34,6 +34,8 @@ namespace KRG
 
         class KRG_ENGINE_CORE_API EntityMap : EntityCollection
         {
+            friend class EntityMapEditor;
+
             enum class Status
             {
                 LoadFailed = -1,

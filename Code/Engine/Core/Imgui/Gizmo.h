@@ -47,6 +47,7 @@ namespace KRG::ImGuiX
         void Draw( Render::Viewport const& viewport );
         inline Transform const& GetTransform() const { return *m_pTargetTransform; }
 
+        inline GizmoMode GetMode() const { return m_gizmoMode; }
         void SwitchMode( GizmoMode newMode );
         void SwitchToNextMode();
 

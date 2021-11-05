@@ -18,7 +18,7 @@ namespace KRG::Physics
         KRG_REGISTER_ENTITY_COMPONENT( PhysicsMeshComponent );
 
         friend class PhysicsWorldSystem;
-    
+
     private:
 
         virtual void Initialize() override;

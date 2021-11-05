@@ -18,7 +18,7 @@
 namespace KRG
 {
     EditorApplication::EditorApplication( HINSTANCE hInstance )
-        : Win32Application( hInstance, "Kruger Resource Editor", IDI_EDITOR_ICON )
+        : Win32Application( hInstance, "Kruger Editor", IDI_EDITOR_ICON )
         , m_editorEngine( TFunction<bool( String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )
     {}
 

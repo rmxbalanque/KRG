@@ -80,51 +80,21 @@ namespace KRG::Render
             return Error( "Failed to read resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        // Cubemap textures ( +x, -x, +y, -y, +z, -z )
-        //-------------------------------------------------------------------------
-
-        TVector<FileSystem::Path> texturePaths;
-        texturePaths.resize( 6 );
-
-        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_texturePathPositiveX, texturePaths[0] ) )
-        {
-            return Error( "Invalid texture data path: %s", resourceDescriptor.m_texturePathPositiveX.c_str() );
-        }
-
-        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_texturePathNegativeX, texturePaths[1] ) )
-        {
-            return Error( "Invalid texture data path: %s", resourceDescriptor.m_texturePathNegativeX.c_str() );
-        }
-
-        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_texturePathPositiveY, texturePaths[2] ) )
-        {
-            return Error( "Invalid texture data path: %s", resourceDescriptor.m_texturePathPositiveY.c_str() );
-        }
-
-        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_texturePathNegativeY, texturePaths[3] ) )
-        {
-            return Error( "Invalid texture data path: %s", resourceDescriptor.m_texturePathNegativeY.c_str() );
-        }
-
-        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_texturePathPositiveZ, texturePaths[4] ) )
-        {
-            return Error( "Invalid texture data path: %s", resourceDescriptor.m_texturePathPositiveZ.c_str() );
-        }
-
-        if ( !ctx.ConvertResourcePathToFilePath( resourceDescriptor.m_texturePathNegativeZ, texturePaths[5] ) )
-        {
-            return Error( "Invalid texture data path: %s", resourceDescriptor.m_texturePathNegativeZ.c_str() );
-        }
-
         // Create cubemap
         //-------------------------------------------------------------------------
 
         CubemapTexture texture;
         texture.m_format = TextureFormat::DDS;
 
-        if ( !CreateCubemapTexture( texturePaths, texture.m_rawData ) )
+        FileSystem::Path const sourceTexturePath = resourceDescriptor.m_path.ToFileSystemPath( ctx.m_rawResourceDirectoryPath );
+        if ( !FileSystem::Exists( sourceTexturePath ) )
         {
-            return Error( "Failed to convert texture!" );
+            return Error( "Failed to open specified source file: %s", sourceTexturePath.c_str() );
+        }
+
+        if ( !FileSystem::LoadFile( sourceTexturePath, texture.m_rawData ) )
+        {
+            return Error( "Failed to read specified source file: %s", sourceTexturePath.c_str() );
         }
 
         //-------------------------------------------------------------------------

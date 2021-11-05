@@ -33,6 +33,20 @@ namespace KRG
         void Initialize( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> worldSystemTypeInfos );
         void Shutdown();
 
+        //-------------------------------------------------------------------------
+        // Updates
+        //-------------------------------------------------------------------------
+
+        // Has the world updates been suspended?
+        inline bool IsSuspended() const { return m_isSuspended; }
+
+        // Put this world to sleep, no entity/system updates will be run
+        void SuspendUpdates() { m_isSuspended = true; }
+
+        // Wake this world, resumes execution of entity/system updates
+        void ResumeUpdates() { m_isSuspended = false; }
+
+        // Run entity and system updates
         void Update( UpdateContext const& context );
 
         // This function will handle all actual loading/unloading operations for the world/maps.
@@ -79,6 +93,10 @@ namespace KRG
         void LoadMap( ResourceID const& mapResourceID );
         void UnloadMap( ResourceID const& mapResourceID );
 
+        #if KRG_DEVELOPMENT_TOOLS
+        EntityModel::EntityMap* GetMap( ResourceID const& mapResourceID );
+        #endif
+
         //-------------------------------------------------------------------------
         // Debug Views
         //-------------------------------------------------------------------------
@@ -123,6 +141,7 @@ namespace KRG
         TVector<Entity*>                                            m_entityUpdateList;
         TVector<IWorldEntitySystem*>                                m_systemUpdateLists[(int8) UpdateStage::NumStages];
         bool                                                        m_initialized = false;
+        bool                                                        m_isSuspended = false;
 
         #if KRG_DEVELOPMENT_TOOLS
         Debug::DrawingSystem                                        m_debugDrawingSystem;

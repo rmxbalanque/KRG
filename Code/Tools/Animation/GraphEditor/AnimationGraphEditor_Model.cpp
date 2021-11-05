@@ -188,7 +188,7 @@ namespace KRG::Animation::Graph
         if ( pVariation->m_pSkeleton.IsValid() )
         {
             // Load resource descriptor for skeleton to get the preview mesh
-            FileSystem::Path const resourceDescPath = pVariation->m_pSkeleton.GetResourceID().GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+            FileSystem::Path const resourceDescPath = pVariation->m_pSkeleton.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
             SkeletonResourceDescriptor resourceDesc;
             if ( TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc ) )
             {

@@ -1,11 +1,12 @@
 #include "ResourceCompiler_EntityMap.h"
 #include "ResourceBuilders/NavmeshBuilder.h"
-#include "Tools/Entity/Serialization/EntityCollectionModelReader.h"
+#include "Tools/Entity/Serialization/EntityCollectionDescriptorReader.h"
 #include "Engine/Core/Entity/Map/EntityMapDescriptor.h"
 #include "Engine/Navmesh/Components/NavmeshComponent.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Time/Timers.h"
+#include "Engine/Core/Entity/Collections/EntityCollection.h"
 
 //-------------------------------------------------------------------------
 
@@ -30,7 +31,8 @@ namespace KRG::EntityModel
         Milliseconds elapsedTime = 0.0f;
         {
             ScopedSystemTimer timer( elapsedTime );
-            if ( !EntityCollectionModelReader::ReadCollection( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionDescriptor ) )
+
+            if ( !EntityCollectionDescriptorReader::Read( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionDescriptor ) )
             {
                 return Resource::CompilationResult::Failure;
             }
@@ -60,13 +62,13 @@ namespace KRG::EntityModel
                 TypeSystem::PropertyPath const navmeshResourcePropertyPath( "m_pNavmeshData" );
                 for ( auto i = navmeshComponents.size(); i > 0; i-- )
                 {
-                    navmeshComponents[0]->RemovePropertyValue( navmeshResourcePropertyPath );
+                    navmeshComponents[0].m_pComponent->RemovePropertyValue( navmeshResourcePropertyPath );
                 }
 
                 // Set navmesh resource ptr
                 ResourcePath navmeshResourcePath = ctx.m_resourceID.GetResourcePath();
                 navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
-                navmeshComponents[0]->m_properties.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourcePath.GetString() ) );
+                navmeshComponents[0].m_pComponent->m_properties.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypes::TResourcePtr ), TypeSystem::TypeID(), navmeshResourcePath.GetString() ) );
 
                 // Generate navmesh
                 FileSystem::Path navmeshFilePath = ctx.m_outputFilePath;

@@ -12,6 +12,7 @@ namespace KRG
     class SystemRegistry;
     class EntityUpdateContext;
     class EntityComponent;
+    template<typename T> struct TEntityToolAccessor;
 
     //-------------------------------------------------------------------------
 
@@ -44,5 +45,6 @@ namespace KRG
 
 #define KRG_REGISTER_ENTITY_SYSTEM( TypeName, ... )\
         KRG_REGISTER_TYPE( TypeName );\
+        template<typename T> friend struct TEntityToolAccessor;\
         virtual UpdatePriorityList const& GetRequiredUpdatePriorities() override { static UpdatePriorityList const priorityList = UpdatePriorityList( __VA_ARGS__ ); return priorityList; };\
         virtual char const* GetName() const override { return #TypeName; }

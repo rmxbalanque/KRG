@@ -219,6 +219,11 @@ namespace KRG::Render
 
         for ( auto pWorld : m_pWorldManager->GetWorlds() )
         {
+            if ( pWorld->IsSuspended() )
+            {
+                continue;
+            }
+
             Render::Viewport* pViewport = pWorld->GetViewport();
             ViewportRenderTarget* pVRT = FindRenderTargetForViewport( pViewport );
 

@@ -9,7 +9,11 @@
 
 namespace KRG
 {
-    namespace EntityModel { class EntityCollection; }
+    namespace EntityModel
+    { 
+        class EntityCollection;
+        class EntityMapEditor;
+    }
 
     //-------------------------------------------------------------------------
 
@@ -19,6 +23,7 @@ namespace KRG
 
         friend class Entity;
         friend class EntityDebugView;
+        friend class EntityModel::EntityMapEditor;
         friend class EntityModel::EntityCollection;
 
         struct AttachmentSocketTransformResult
@@ -78,6 +83,9 @@ namespace KRG
             Transform const newWorldTransform = deltaTransform * GetWorldTransform();
             SetWorldTransform( newWorldTransform );
         }
+
+        inline bool HasSpatialParent() const { return m_pSpatialParent != nullptr; }
+        inline UUID GetSpatialParentID() const { KRG_ASSERT( HasSpatialParent() ); return m_pSpatialParent->GetID(); }
 
         // The socket that this component is attached to
         inline StringID GetAttachmentSocketID() const { return m_parentAttachmentSocketID; }
@@ -179,7 +187,7 @@ namespace KRG
 
     private:
 
-        KRG_EXPOSE Transform                                                    m_transform;                            // Local space transform
+        KRG_EXPOSE Transform                                                m_transform;                            // Local space transform
         OBB                                                                 m_bounds;                               // Local space bounding box
         Transform                                                           m_worldTransform;                       // World space transform (left uninitialized to catch initialization errors)
         OBB                                                                 m_worldBounds;                          // World space bounding box

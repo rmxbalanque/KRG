@@ -89,12 +89,15 @@ namespace KRG::ImGuiX
         m_isAxisNegatedZ = false;
     }
 
-    void Gizmo::Draw( Render::Viewport const& viewport )
+    void Gizmo::Draw( Render::Viewport const& originalViewport )
     {
         if ( m_pTargetTransform == nullptr )
         {
             return;
         }
+
+        Render::Viewport viewport = originalViewport;
+        viewport.Resize( Float2( ImGui::GetWindowPos() ), originalViewport.GetDimensions() );
 
         //-------------------------------------------------------------------------
 
@@ -1000,6 +1003,12 @@ namespace KRG::ImGuiX
         KRG_ASSERT( m_gizmoMode == GizmoMode::Scale );
 
         ImGuiIO& io = ImGui::GetIO();
+        if ( !viewport.ContainsPointScreenSpace( io.MousePos ) )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
 
         Vector const& origin = m_manipulationTransform.GetTranslation();
         Vector const mousePos( io.MousePos.x, io.MousePos.y, 0, 1.0f );

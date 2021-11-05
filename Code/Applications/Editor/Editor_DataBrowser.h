@@ -28,12 +28,12 @@ namespace KRG
     private:
 
         EditorModel&                                        m_model;
-        char                                                        m_nameFilterBuffer[256];
-        TVector<ResourceTypeID>                                     m_typeFilter;
-        DataBrowserTreeView                                         m_dataBrowserTreeView;
-        DataFileInspector                                           m_dataFileInspector;
-        EventBindingID                                              m_onDoubleClickEventID;
-        bool                                                        m_showRawFiles = false;
-        float                                                       m_dataBrowserViewHeight = 300;
+        char                                                m_nameFilterBuffer[256];
+        TVector<ResourceTypeID>                             m_typeFilter;
+        DataBrowserTreeView                                 m_dataBrowserTreeView;
+        DataFileInspector                                   m_dataFileInspector;
+        EventBindingID                                      m_onDoubleClickEventID;
+        bool                                                m_showRawFiles = false;
+        float                                               m_dataBrowserViewHeight = 300;
     };
 }

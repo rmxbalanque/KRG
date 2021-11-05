@@ -21,6 +21,9 @@ namespace KRG::Render
     class LocalEnvironmentMapComponent;
 
     //-------------------------------------------------------------------------
+    // TODO: There's a huge flaw how we use the entity registration records in this system
+    // Right now this will horribly break when we have more than a single component of the same type on the same entity!!!
+    // FIX THIS SHIT!
 
     class KRG_ENGINE_RENDER_API WorldRendererSystem final : public IWorldEntitySystem
     {
@@ -41,6 +44,7 @@ namespace KRG::Render
         {
             StaticMeshComponent*                                m_pComponent = nullptr;
             EventBindingID                                      m_mobilityChangedEventBinding;
+            EventBindingID                                      m_staticMobilityTransformUpdatedEventBinding;
         };
 
         struct RegisteredSkeletalMesh : public EntityRegistryRecord
@@ -110,6 +114,7 @@ namespace KRG::Render
         void RegisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent );
         void UnregisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent );
         void OnStaticMeshMobilityUpdated( StaticMeshComponent* pComponent );
+        void OnStaticMobilityComponentTransformUpdated( StaticMeshComponent* pComponent );
 
         // Skeletal Meshes
         //-------------------------------------------------------------------------
@@ -124,8 +129,9 @@ namespace KRG::Render
         TVector<StaticMeshComponent*>                           m_staticStaticMeshComponents;
         TVector<StaticMeshComponent*>                           m_dynamicStaticMeshComponents;
         TVector<StaticMeshComponent const*>                     m_visibleStaticMeshComponents;
-        TVector<StaticMeshComponent*>                           m_mobilityUpdateList;           // A list of all components that switched mobility during this frame, will results in an update of the various spatial data structures next frame
-        Threading::Mutex                                        m_mobilityUpdateListLock;       // Mobility switches can occur on any thread so the list needs to be threadsafe. We use a simple lock for now since we dont expect too many switches
+        Threading::Mutex                                        m_mobilityUpdateListLock;               // Mobility switches can occur on any thread so the list needs to be threadsafe. We use a simple lock for now since we dont expect too many switches
+        TVector<StaticMeshComponent*>                           m_mobilityUpdateList;                   // A list of all components that switched mobility during this frame, will results in an update of the various spatial data structures next frame
+        TVector<StaticMeshComponent*>                           m_staticMobilityTransformUpdateList;    // A list of all static mobility components that have moved during this frame, will results in an update of the various spatial data structures next frame
 
         // Skeletal meshes
         EntityRegistry<RegisteredSkeletalMesh>                  m_registeredSkeletalMeshComponents;

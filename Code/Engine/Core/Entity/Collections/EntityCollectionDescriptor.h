@@ -22,6 +22,14 @@ namespace KRG::EntityModel
 
         friend class EntityCollection;
 
+    public:
+
+        struct SearchResult
+        {
+            EntityDescriptor*       m_pEntity = nullptr;
+            ComponentDescriptor*    m_pComponent = nullptr;
+        };
+
     protected:
 
         struct SpatialAttachmentInfo
@@ -98,17 +106,32 @@ namespace KRG::EntityModel
             }
         }
 
-        TVector<EntityComponentDescriptor*> GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes = true );
-        bool HasComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes = true ) { return !GetComponentsOfType( typeRegistry, typeID, allowDerivedTypes ).empty(); }
+        // Component Access
+        //-------------------------------------------------------------------------
+
+        TVector<SearchResult> GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes = true );
+
+        inline TVector<SearchResult> GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes = true ) const
+        {
+            return const_cast<EntityCollectionDescriptor*>( this )->GetComponentsOfType( typeRegistry, typeID, allowDerivedTypes );
+        }
 
         template<typename T>
-        inline TVector<EntityComponentDescriptor*> GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, bool allowDerivedTypes = true )
+        inline TVector<SearchResult> GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, bool allowDerivedTypes = true )
         {
             return GetComponentsOfType( typeRegistry, T::GetStaticTypeID(), allowDerivedTypes );
         }
 
         template<typename T>
-        inline TVector<EntityComponentDescriptor*> HasComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, bool allowDerivedTypes = true )
+        inline TVector<SearchResult> GetComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, bool allowDerivedTypes = true ) const
+        {
+            return const_cast<EntityCollectionDescriptor*>( this )->GetComponentsOfType( typeRegistry, T::GetStaticTypeID(), allowDerivedTypes );
+        }
+
+        bool HasComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, TypeSystem::TypeID typeID, bool allowDerivedTypes = true ) const { return !const_cast<EntityCollectionDescriptor*>( this )->GetComponentsOfType( typeRegistry, typeID, allowDerivedTypes ).empty(); }
+
+        template<typename T>
+        inline bool HasComponentsOfType( TypeSystem::TypeRegistry const& typeRegistry, bool allowDerivedTypes = true ) const
         {
             return HasComponentsOfType( typeRegistry, T::GetStaticTypeID(), allowDerivedTypes );
         }

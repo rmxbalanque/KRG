@@ -28,7 +28,7 @@ namespace KRG::ImGuiX
         virtual void Shutdown( UpdateContext const& context ) = 0;
 
         // The development tools will be updated at the start and the end of the frame, before and after all the world updates so it will be safe to modify entity state.
-        virtual void Update( UpdateContext const& context ) = 0;
+        virtual void UpdateAndDraw( UpdateContext const& context ) = 0;
 
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) = 0;
         virtual void EndHotReload() = 0;

@@ -21,6 +21,7 @@ namespace KRG
         struct LoadingContext;
         class EntityMap;
         class EntityCollection;
+        class EntityMapEditor;
 
         //-------------------------------------------------------------------------
 
@@ -59,6 +60,8 @@ namespace KRG
         friend class EntityWorld;
         friend EntityModel::EntityMap;
         friend EntityModel::EntityCollection;
+        friend EntityModel::EntityMapEditor;
+        template<typename T> friend struct TEntityToolAccessor;
 
         using SystemUpdateList = TInlineVector<IEntitySystem*, 5>;
 
@@ -119,6 +122,8 @@ namespace KRG
         inline void SetWorldTransform( Transform const& worldTransform ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->SetLocalTransform( worldTransform ); }
         inline OBB const& GetWorldBounds() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetWorldBounds(); }
         inline bool HasSpatialParent() const { return m_pParentSpatialEntity != nullptr; }
+        inline UUID GetSpatialParentID() const { KRG_ASSERT( HasSpatialParent() ); return m_pParentSpatialEntity->GetID(); }
+        inline StringID const& GetAttachmentSocketID() const { KRG_ASSERT( HasSpatialParent() ); return m_parentAttachmentSocketID; }
         inline bool HasAttachedEntities() const { return !m_attachedEntities.empty(); }
         inline Transform GetAttachmentSocketTransform( StringID socketID ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetAttachmentSocketTransform( socketID ); }
 
@@ -136,6 +141,12 @@ namespace KRG
         // NB!!! Add and remove operations execute immediately for unloaded entities BUT will be deferred to the next loading phase for loaded entities
 
         inline TVector<EntityComponent*> const& GetComponents() const { return m_components; }
+
+        inline EntityComponent* FindComponent( UUID const& componentID ) 
+        {
+            auto foundIter = eastl::find( m_components.begin(), m_components.end(), componentID, [] ( EntityComponent* pComponent, UUID const& ID ) { return pComponent->GetID() == ID; } );
+            return ( foundIter != m_components.end() ) ? *foundIter : nullptr;
+        }
 
         // Add a new component. For spatial component, you can optionally specify a component to attach to. 
         // If this is unset, the component will be attached to the root component (or will become the root component if one doesnt exist)

@@ -153,6 +153,9 @@
     <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_StateMachineNode.cpp">
       <Filter>GraphEditor\ToolsGraph</Filter>
     </ClCompile>
+    <ClCompile Include="Workspaces\Workspace_AnimationClip.cpp" />
+    <ClCompile Include="Workspaces\Workspace_AnimationGraph.cpp" />
+    <ClCompile Include="Workspaces\Workspace_Skeleton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ResourceCompilers\ResourceCompiler_AnimationClip.h">
@@ -284,5 +287,8 @@
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_AnimationClip.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_AnimationGraph.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_AnimationSkeleton.h" />
+    <ClInclude Include="Workspaces\Workspace_AnimationClip.h" />
+    <ClInclude Include="Workspaces\Workspace_AnimationGraph.h" />
+    <ClInclude Include="Workspaces\Workspace_Skeleton.h" />
   </ItemGroup>
 </Project>

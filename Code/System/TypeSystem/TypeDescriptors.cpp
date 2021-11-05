@@ -6,6 +6,19 @@
 
 namespace KRG::TypeSystem
 {
+    PropertyDescriptor* TypeDescriptor::GetProperty( PropertyPath const& path )
+    {
+        for ( auto& prop : m_properties )
+        {
+            if ( prop.m_path == path )
+            {
+                return &prop;
+            }
+        }
+
+        return nullptr;
+    }
+
     void TypeDescriptor::RemovePropertyValue( TypeSystem::PropertyPath const& path )
     {
         for ( int32 i = (int32) m_properties.size() - 1; i >= 0; i-- )
@@ -16,12 +29,9 @@ namespace KRG::TypeSystem
             }
         }
     }
-}
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-namespace KRG::TypeSystem
-{
     struct ResolvedPathElement
     {
         StringID                m_propertyID;
@@ -117,12 +127,9 @@ namespace KRG::TypeSystem
 
         return pTypeInstance;
     }
-}
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-namespace KRG::TypeSystem
-{
     void TypeDescriptorCollection::Reset()
     {
         m_descriptors.clear();

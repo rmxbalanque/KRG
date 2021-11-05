@@ -21,11 +21,6 @@ namespace KRG::Render
     {
         KRG_REGISTER_TYPE( CubemapTextureResourceDescriptor );
 
-        KRG_EXPOSE ResourcePath     m_texturePathPositiveX;
-        KRG_EXPOSE ResourcePath     m_texturePathNegativeX;
-        KRG_EXPOSE ResourcePath     m_texturePathPositiveY;
-        KRG_EXPOSE ResourcePath     m_texturePathNegativeY;
-        KRG_EXPOSE ResourcePath     m_texturePathPositiveZ;
-        KRG_EXPOSE ResourcePath     m_texturePathNegativeZ;
+        KRG_EXPOSE ResourcePath     m_path;
     };
 }

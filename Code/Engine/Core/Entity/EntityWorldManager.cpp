@@ -126,6 +126,13 @@ namespace KRG
     {
         for ( auto const& pWorld : m_worlds )
         {
+            if ( pWorld->IsSuspended() )
+            {
+                continue;
+            }
+
+            //-------------------------------------------------------------------------
+
             pWorld->Update( context );
 
             // Update world view
