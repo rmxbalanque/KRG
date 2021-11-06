@@ -1,9 +1,12 @@
 #include "EntityCollectionDescriptorWriter.h"
 #include "Tools/Core/ThirdParty/KRG_RapidJson.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
 #include "Engine/Core/Entity/Collections/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/Collections/EntityCollection.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Logging/Log.h"
+#include "Engine/Core/Entity/Entity.h"
 
 //-------------------------------------------------------------------------
 
@@ -128,7 +131,83 @@ namespace KRG::EntityModel
             writer.EndObject();
             return true;
         }
+
+        //-------------------------------------------------------------------------
+
+        static void CreateDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityCollection const& collection, EntityCollectionDescriptor& outCollectionDesc )
+        {
+            auto CreateEntityDesc = [&typeRegistry] ( Entity* pEntity )
+            {
+                EntityDescriptor entityDesc;
+                entityDesc.m_ID = pEntity->GetID();
+                entityDesc.m_name = pEntity->GetName();
+
+                if ( pEntity->HasSpatialParent() )
+                {
+                    entityDesc.m_spatialParentID = pEntity->GetSpatialParentID();
+                    entityDesc.m_attachmentSocketID = pEntity->GetAttachmentSocketID();
+                }
+
+                // Components
+                //-------------------------------------------------------------------------
+
+                for ( auto pComponent : pEntity->GetComponents() )
+                {
+                    ComponentDescriptor componentDesc;
+                    componentDesc.m_ID = pComponent->GetID();
+                    componentDesc.m_name = pComponent->GetName();
+
+                    // Spatial info
+                    auto pSpatialEntityComponent = ComponentCast<SpatialEntityComponent>( pComponent );
+                    if ( pSpatialEntityComponent != nullptr )
+                    {
+                        if ( pSpatialEntityComponent->HasSpatialParent() )
+                        {
+                            componentDesc.m_spatialParentID = pSpatialEntityComponent->GetSpatialParentID();
+                            componentDesc.m_attachmentSocketID = pSpatialEntityComponent->GetAttachmentSocketID();
+                        }
+
+                        componentDesc.m_isSpatialComponent = true;
+                    }
+
+                    // Properties
+                    TypeSystem::Serialization::CreateTypeDescriptorFromNativeType( typeRegistry, pComponent, componentDesc, true );
+
+                    // Add component
+                    entityDesc.m_components.emplace_back( componentDesc );
+                    if ( componentDesc.m_isSpatialComponent )
+                    {
+                        entityDesc.m_numSpatialComponents++;
+                    }
+                }
+
+                // Systems
+                //-------------------------------------------------------------------------
+
+                for ( auto pSystem : pEntity->GetSystems() )
+                {
+                    SystemDescriptor systemDesc;
+                    entityDesc.m_systems.emplace_back( systemDesc );
+                }
+
+                return entityDesc;
+            };
+
+            //-------------------------------------------------------------------------
+
+            outCollectionDesc.Clear();
+
+            for ( auto pEntity : collection.GetEntities() )
+            {
+                EntityDescriptor entityDesc = CreateEntityDesc( pEntity );
+                outCollectionDesc.AddEntity( entityDesc );
+            }
+
+            outCollectionDesc.GenerateSpatialAttachmentInfo();
+        }
     }
+
+    //-------------------------------------------------------------------------
 
     bool EntityCollectionDescriptorWriter::WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& outFilePath, EntityCollectionDescriptor const& collection )
     {
@@ -169,5 +248,12 @@ namespace KRG::EntityModel
         fwrite( stringBuffer.GetString(), sizeof( char ), stringBuffer.GetSize(), fp );
         fclose( fp );
         return true;
+    }
+
+    bool EntityCollectionDescriptorWriter::WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& outFilePath, EntityCollection const& collection )
+    {
+        EntityCollectionDescriptor ecd;
+        CreateDescriptor( typeRegistry, collection, ecd );
+        return WriteCollection( typeRegistry, outFilePath, ecd );
     }
 }

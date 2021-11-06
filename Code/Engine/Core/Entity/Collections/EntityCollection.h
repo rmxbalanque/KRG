@@ -54,12 +54,6 @@ namespace KRG::EntityModel
         // Remove an entity from this collection
         void RemoveEntity( UUID entityID );
 
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        void CreateDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionDescriptor& outEntityCollectionDesc ) const;
-        #endif
-
     protected:
 
         // Creates all entities from a descriptor on a single thread.

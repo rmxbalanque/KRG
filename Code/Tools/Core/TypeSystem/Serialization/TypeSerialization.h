@@ -30,7 +30,7 @@ namespace KRG::TypeSystem::Serialization
 
     KRG_TOOLS_CORE_API bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, TypeDescriptor& outDesc );
     KRG_TOOLS_CORE_API void WriteTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeDescriptor const& type );
-    KRG_TOOLS_CORE_API void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, TypeDescriptor& outDesc );
+    KRG_TOOLS_CORE_API void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, TypeDescriptor& outDesc, bool setStringValues = false );
 
     // Native Type
     //-------------------------------------------------------------------------

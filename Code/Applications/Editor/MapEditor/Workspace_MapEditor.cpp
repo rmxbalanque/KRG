@@ -62,13 +62,7 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::SaveMap()
     {
-        auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
-        if ( pEditedMap == nullptr || !pEditedMap->IsLoaded() )
-        {
-            return;
-        }
-
-        FileSystem::Path filePath = m_loadedMap.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+        Save();
     }
 
     void EntityMapEditor::SaveMapAs()
@@ -78,7 +72,15 @@ namespace KRG::EntityModel
 
     bool EntityMapEditor::Save()
     {
-        return false;
+        auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
+        if ( pEditedMap == nullptr || !( pEditedMap->IsLoaded() || pEditedMap->IsActivated() ) )
+        {
+            return false;
+        }
+
+        FileSystem::Path const filePath = m_loadedMap.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+        EntityCollectionDescriptorWriter writer;
+        return writer.WriteCollection( *m_editorContext.m_pTypeRegistry, filePath, *pEditedMap );
     }
 
     //-------------------------------------------------------------------------

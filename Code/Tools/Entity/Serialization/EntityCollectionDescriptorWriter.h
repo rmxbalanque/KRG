@@ -13,6 +13,7 @@ namespace KRG
 
     namespace EntityModel
     {
+        class EntityCollection;
         class EntityCollectionDescriptor;
 
         //-------------------------------------------------------------------------
@@ -22,6 +23,7 @@ namespace KRG
         public:
 
             static bool WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& outFilePath, EntityCollectionDescriptor const& collection );
+            static bool WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& outFilePath, EntityCollection const& collection );
         };
     }
 }

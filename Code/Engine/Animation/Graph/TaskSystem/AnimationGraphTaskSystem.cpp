@@ -90,7 +90,6 @@ namespace KRG::Animation::Graph
         // Conditionally execute all pre-physics tasks
         //-------------------------------------------------------------------------
 
-        // If we have no physics dependent tasks, execute all tasks now
         if ( m_hasPhysicsDependency )
         {
             // Go backwards through the registered task and execute all task chains with a pre-physics requirement
@@ -107,7 +106,7 @@ namespace KRG::Animation::Graph
                 }
             }
 
-            // If we've detected a co-dependent task, ignore all registered tasks by just pushing a new task and immediately executing it
+            // If we've detected a co-dependent physics task, ignore all registered tasks by just pushing a new task and immediately executing it
             if ( m_hasCodependentPhysicsTasks )
             {
                 KRG_LOG_WARNING( "Animation", "Co-dependent physics tasks detected!" );
@@ -130,7 +129,7 @@ namespace KRG::Animation::Graph
                 }
             }
         }
-        else // Run all tasks
+        else // If we have no physics dependent tasks, execute all tasks now
         {
             ExecuteTasks();
         }

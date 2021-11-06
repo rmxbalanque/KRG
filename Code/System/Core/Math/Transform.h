@@ -115,12 +115,12 @@ namespace KRG
 
         inline bool operator==( Transform const& rhs ) const
         {
-            return m_translation == rhs.m_translation && m_scale == rhs.m_translation && m_rotation == rhs.m_rotation;
+            return m_translation.IsNearEqual3( rhs.m_translation ) && m_scale.IsNearEqual3( rhs.m_scale ) && m_rotation == rhs.m_rotation;
         }
 
         inline bool operator!=( Transform const& rhs ) const
         {
-            return m_translation != rhs.m_translation || m_scale != rhs.m_translation || m_rotation != rhs.m_rotation;
+            return !operator==( rhs);
         }
 
     private:

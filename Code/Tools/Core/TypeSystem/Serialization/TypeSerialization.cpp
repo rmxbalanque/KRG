@@ -165,7 +165,7 @@ namespace KRG::TypeSystem::Serialization
 
     struct NativeTypeDescriber
     {
-        static void DescribeType( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeID typeID, IRegisteredType const* pTypeInstance, PropertyPath& path )
+        static void DescribeType( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeID typeID, IRegisteredType const* pTypeInstance, PropertyPath& path, bool setStringValues )
         {
             KRG_ASSERT( !IsCoreType( typeID ) );
             auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
@@ -185,7 +185,7 @@ namespace KRG::TypeSystem::Serialization
                     for ( auto i = 0; i < numArrayElements; i++ )
                     {
                         path.Append( propInfo.m_ID, i );
-                        DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, pArrayElementAddress, path, i );
+                        DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, setStringValues, pArrayElementAddress, path, i );
                         pArrayElementAddress += elementByteSize;
                         path.RemoveLastElement();
                     }
@@ -194,13 +194,13 @@ namespace KRG::TypeSystem::Serialization
                 {
                     path.Append( propInfo.m_ID );
                     auto pPropertyInstance = propInfo.GetPropertyAddress( pTypeInstance );
-                    DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, pPropertyInstance, path );
+                    DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance,propInfo, setStringValues, pPropertyInstance, path );
                     path.RemoveLastElement();
                 }
             }
         }
 
-        static void DescribeProperty( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeInfo const* pParentTypeInfo, IRegisteredType const* pParentInstance, PropertyInfo const& propertyInfo, void const* pPropertyInstance, PropertyPath& path, int32 arrayElementIdx = InvalidIndex )
+        static void DescribeProperty( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeInfo const* pParentTypeInfo, IRegisteredType const* pParentInstance, PropertyInfo const& propertyInfo, bool setStringValues, void const* pPropertyInstance, PropertyPath& path, int32 arrayElementIdx = InvalidIndex )
         {
             if ( IsCoreType( propertyInfo.m_typeID ) || propertyInfo.IsEnumProperty() )
             {
@@ -210,21 +210,26 @@ namespace KRG::TypeSystem::Serialization
                     PropertyDescriptor& propertyDesc = typeDesc.m_properties.emplace_back( PropertyDescriptor() );
                     propertyDesc.m_path = path;
                     Conversion::ConvertNativeTypeToBinary( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_byteValue );
+
+                    if ( setStringValues )
+                    {
+                        Conversion::ConvertNativeTypeToString( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_stringValue );
+                    }
                 }
             }
             else
             {
-                DescribeType( typeRegistry, typeDesc, propertyInfo.m_typeID, (IRegisteredType*) pPropertyInstance, path );
+                DescribeType( typeRegistry, typeDesc, propertyInfo.m_typeID, (IRegisteredType*) pPropertyInstance, path, setStringValues );
             }
         }
     };
 
-    void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, TypeDescriptor& outDesc )
+    void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, TypeDescriptor& outDesc, bool setStringValues )
     {
         outDesc.m_typeID = pTypeInstance->GetTypeID();
         outDesc.m_properties.clear();
         PropertyPath path;
-        NativeTypeDescriber::DescribeType( typeRegistry, outDesc, outDesc.m_typeID, pTypeInstance, path );
+        NativeTypeDescriber::DescribeType( typeRegistry, outDesc, outDesc.m_typeID, pTypeInstance, path, setStringValues );
     }
 }
 
