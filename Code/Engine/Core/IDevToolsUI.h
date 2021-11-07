@@ -18,18 +18,22 @@ namespace KRG
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
-    class KRG_ENGINE_CORE_API DevelopmentUI
+    class KRG_ENGINE_CORE_API IDevToolsUI
     {
     public:
 
-        virtual ~DevelopmentUI() = default;
+        virtual ~IDevToolsUI() = default;
 
         virtual void Initialize( UpdateContext const& context ) = 0;
         virtual void Shutdown( UpdateContext const& context ) = 0;
 
-        // The development tools will be updated at the start and the end of the frame, before and after all the world updates so it will be safe to modify entity state.
-        virtual void UpdateAndDraw( UpdateContext const& context ) = 0;
+        // This is called at the start of the frame before we start updating any entities. Any entity/world/map state changes need to be done via this update!
+        virtual void FrameStartUpdate( UpdateContext const& context ) {}
 
+        // This is called after all entity updates and just before we kick off rendering. It is generally NOT safe to modify any world/map during this update!
+        virtual void FrameEndUpdate( UpdateContext const& context ) {}
+
+        // Hot Reload Support
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) = 0;
         virtual void EndHotReload() = 0;
     };

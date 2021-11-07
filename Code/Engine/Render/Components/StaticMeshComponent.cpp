@@ -26,7 +26,10 @@ namespace KRG::Render
     {
         if ( m_mobility == Mobility::Static )
         {
-            m_staticMobilityTransformUpdatedEvent.Execute( this );
+            if ( m_staticMobilityTransformUpdatedEvent.HasBoundUser() )
+            {
+                m_staticMobilityTransformUpdatedEvent.Execute( this );
+            }
         }
     }
 

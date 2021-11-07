@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/DevelopmentUI.h"
+#include "Engine/Core/IDevToolsUI.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Types/Containers.h"
@@ -21,7 +21,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class StandaloneEngineTools final : public ImGuiX::DevelopmentUI
+    class StandaloneEngineTools final : public ImGuiX::IDevToolsUI
     {
         struct ModalPopupMessage
         {
@@ -36,7 +36,7 @@ namespace KRG
 
         virtual void Initialize( UpdateContext const& context ) override final;
         virtual void Shutdown( UpdateContext const& context ) override final;
-        virtual void UpdateAndDraw( UpdateContext const& context ) override final;
+        virtual void FrameEndUpdate( UpdateContext const& context ) override final;
 
     private:
 

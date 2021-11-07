@@ -44,7 +44,8 @@ namespace KRG::ImGuiX
 
     public:
 
-        void Draw( Render::Viewport const& viewport );
+        // Draw the gizmo, returns true if any manipulation was performed
+        bool Draw( Render::Viewport const& viewport );
         inline Transform const& GetTransform() const { return *m_pTargetTransform; }
 
         inline GizmoMode GetMode() const { return m_gizmoMode; }

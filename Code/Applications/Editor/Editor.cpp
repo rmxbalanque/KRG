@@ -28,10 +28,10 @@ namespace KRG
         m_model.Shutdown( context );
     }
 
-    void Editor::UpdateAndDraw( UpdateContext const& context )
+    void Editor::FrameStartUpdate( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
-        KRG_ASSERT( updateStage == UpdateStage::FrameEnd );
+        KRG_ASSERT( updateStage == UpdateStage::FrameStart );
 
         m_db.Update();
 
@@ -173,6 +173,11 @@ namespace KRG
     {
         if ( ImGui::BeginMenu( "Map" ) )
         {
+            if ( ImGui::MenuItem( "Create New Map" ) )
+            {
+                m_model.GetMapEditorWorkspace()->CreateNewMap();
+            }
+
             if ( ImGui::MenuItem( "Load Map" ) )
             {
                 m_model.GetMapEditorWorkspace()->SelectAndLoadMap();
@@ -355,11 +360,18 @@ namespace KRG
             {
                 auto pViewport = pWorkspace->GetWorld()->GetViewport();
 
+                // Viewport flags
+                ImGuiWindowFlags viewportWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
+                if ( pWorkspace->HasViewportToolbar() )
+                {
+                    viewportWindowFlags |= ImGuiWindowFlags_MenuBar;
+                }
+
                 // Create viewport window
                 ImGui::SetNextWindowClass( &workspaceWindowClass );
                 ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
                 ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
-                if ( ImGui::Begin( pWorkspace->GetViewportWindowID(), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar) )
+                if ( ImGui::Begin( pWorkspace->GetViewportWindowID(), nullptr, viewportWindowFlags ) )
                 {
                     ImGuiStyle const& style = ImGui::GetStyle();
                     ImVec2 const viewportSize( Math::Max( ImGui::GetContentRegionAvail().x, 64.0f ), Math::Max( ImGui::GetContentRegionAvail().y, 64.0f ) );
@@ -389,17 +401,11 @@ namespace KRG
 
                     if( pWorkspace->HasViewportToolbar() )
                     {
-                        ImGui::SetCursorPos( style.WindowPadding );
-
-                        ImGui::SetNextWindowBgAlpha( 0.2f );
-                        ImGui::SetNextWindowSizeConstraints( ImVec2( 0, 0 ), ImVec2( -1, 24 ) );
-                        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 2 ) );
-                        if ( ImGui::BeginChild( "EditorViewportToolbar", ImVec2( -1, -1 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar ) )
+                        if ( ImGui::BeginMenuBar() )
                         {
                             pWorkspace->DrawViewportToolbar( context, pViewport );
+                            ImGui::EndMenuBar();
                         }
-                        ImGui::EndChild();
-                        ImGui::PopStyleVar();
                     }
 
                     // Handle being docked

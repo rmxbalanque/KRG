@@ -35,6 +35,7 @@ namespace KRG
         class KRG_ENGINE_CORE_API EntityMap : EntityCollection
         {
             friend class EntityMapEditor;
+            friend class EntityWorld;
 
             enum class Status
             {
@@ -93,6 +94,7 @@ namespace KRG
             inline bool HasLoadingFailed() const { return m_status == Status::LoadFailed; }
             inline bool IsActivated() const { return m_status == Status::Activated; }
 
+            //-------------------------------------------------------------------------
             // Entity API
             //-------------------------------------------------------------------------
 
@@ -112,26 +114,38 @@ namespace KRG
             // May take multiple frame to be fully destroyed, as the removal occurs during the loading update
             void DestroyEntity( UUID entityID );
 
-            // Hot-reloading
-            //-------------------------------------------------------------------------
-            // Hot reloading is a blocking process that runs in stages
-
-            #if KRG_DEVELOPMENT_TOOLS
-            // 1st Stage: Fills the hot-reload list and request deactivation for any entities that require a hot-reload
-            void HotReloadPrepareEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Resource::ResourceRequesterID> const& usersToReload );
-
-            // 2nd Stage: Requests unload of all entities required hot-reload
-            void HotReloadUnloadEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-
-            // 3rd Stage: Requests load of all entities required hot-reload
-            void HotReloadLoadEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-            #endif
-
         private:
 
-            void OnEntityStateUpdated( Entity* pEntity );
+            //-------------------------------------------------------------------------
+            // Editing / Hot-reloading
+            //-------------------------------------------------------------------------
+
+            // Editing is a blocking process that runs in stage
+
+            #if KRG_DEVELOPMENT_TOOLS
+            // This function will deactivate and unload the specified component, allowing its properties to be edited safely!
+            void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& entityID, UUID const& componentID );
+
+            // This function will deactivate and unload the specified component, allowing its properties to be edited safely!
+            void ComponentEditingUnload( LoadingContext const& loadingContext, UUID const& entityID, UUID const& componentID );
+
+            // Hot reloading is a blocking process that runs in stages
+            //-------------------------------------------------------------------------
+
+            // 1st Stage: Fills the hot-reload list and request deactivation for any entities that require a hot-reload
+            void HotReloadDeactivateEntities( EntityModel::ActivationContext& activationContext, TVector<Resource::ResourceRequesterID> const& usersToReload );
+
+            // 2nd Stage: Requests unload of all entities required hot-reload
+            void HotReloadUnloadEntities( LoadingContext const& loadingContext );
+
+            // 3rd Stage: Requests load of all entities required hot-reload
+            void HotReloadLoadEntities( LoadingContext const& loadingContext );
+            #endif
 
             //-------------------------------------------------------------------------
+
+            // Called whenever the internal state of an entity changes, schedules the entity for loading
+            void OnEntityStateUpdated( Entity* pEntity );
 
             bool ProcessMapUnloadRequest( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
             bool ProcessMapLoading( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
@@ -142,7 +156,7 @@ namespace KRG
 
             Threading::RecursiveMutex                   m_mutex;
             TResourcePtr<EntityMapDescriptor>           m_pMapDesc;
-            TVector<Entity*>                            m_entitiesToLoad;
+            TVector<Entity*>                            m_entitiesCurrentlyLoading;
             TInlineVector<Entity*, 5>                   m_entitiesToAdd;
             TInlineVector<RemovalRequest, 5>            m_entitiesToRemove;
             TVector<Entity*>                            m_entitiesToHotReload;
@@ -151,6 +165,10 @@ namespace KRG
             bool                                        m_isUnloadRequested = false;
             bool                                        m_isCollectionInstantiated = false;
             bool const                                  m_isTransientMap = false; // If this is set, then this is a transient map i.e.created and managed at runtime and not loaded from disk
+
+            #if KRG_DEVELOPMENT_TOOLS
+            TVector<Entity*>                            m_editedEntities;
+            #endif
         };
     }
 }

@@ -77,7 +77,6 @@
     <ClInclude Include="GraphEditor\StateMachine\StateMachineGraph.h" />
     <ClInclude Include="GraphEditor\StateMachine\StateMachineGraphView.h" />
     <ClInclude Include="PropertyGrid\PropertyGrid.h" />
-    <ClInclude Include="PropertyGrid\PropertyGridEditors.h" />
     <ClInclude Include="Resource\Compilers\ResourceCompiler.h" />
     <ClInclude Include="Resource\Compilers\ResourceCompilerRegistry.h" />
     <ClInclude Include="Resource\Compilers\ResourceDescriptor.h" />
@@ -130,7 +129,6 @@
     <ClCompile Include="GraphEditor\StateMachine\StateMachineGraph.cpp" />
     <ClCompile Include="GraphEditor\StateMachine\StateMachineGraphView.cpp" />
     <ClCompile Include="PropertyGrid\PropertyGrid.cpp" />
-    <ClCompile Include="PropertyGrid\PropertyGridEditors.cpp" />
     <ClCompile Include="Resource\Compilers\ResourceCompiler.cpp" />
     <ClCompile Include="Resource\Compilers\ResourceCompilerRegistry.cpp" />
     <ClCompile Include="Resource\Compilers\ResourceDescriptor.cpp" />

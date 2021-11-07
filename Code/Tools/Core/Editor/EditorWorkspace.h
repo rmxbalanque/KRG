@@ -39,11 +39,11 @@ namespace KRG
     {
     public:
 
-        EditorWorkspace( EditorContext const& context, EntityWorld* pWorld );
+        EditorWorkspace( EditorContext const& context, EntityWorld* pWorld, String const& displayName = "Workspace" );
         virtual ~EditorWorkspace() = default;
 
-        // Get the display title for this workspace (shown on tab, dialogs, etc...)
-        virtual char const* GetTitle() const = 0;
+        // Get the display name for this workspace (shown on tab, dialogs, etc...)
+        virtual char const* GetDisplayName() const { return m_displayName.c_str(); }
 
         // Get the main workspace window ID - Needs to be unique per workspace instance!
         inline char const* GetWorkspaceWindowID() const { KRG_ASSERT( !m_workspaceWindowID.empty() ); return m_workspaceWindowID.c_str(); }
@@ -106,6 +106,7 @@ namespace KRG
     protected:
 
         inline Debug::DrawingContext GetDrawingContext();
+        void SetDisplayName( String const& name );
 
         // Disable copies
         EditorWorkspace& operator=( EditorWorkspace const& ) = delete;
@@ -115,6 +116,7 @@ namespace KRG
 
         EditorContext const&                m_editorContext;
         EntityWorld*                        m_pWorld = nullptr;
+        String                              m_displayName;
         String                              m_workspaceWindowID;
         String                              m_viewportWindowID;
         String                              m_dockspaceID;

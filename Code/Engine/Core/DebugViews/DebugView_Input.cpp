@@ -36,7 +36,7 @@ namespace KRG
 
             if ( IsHeldDown )
             {
-                pDrawList->AddRectFilled( buttonTopLeft + g_buttonBorderOffset, buttonTopLeft + dimensions - g_buttonBorderOffset, pressedColor, g_buttonBorderRounding - 1, ~0 );
+                pDrawList->AddRectFilled( buttonTopLeft + g_buttonBorderOffset, buttonTopLeft + dimensions - g_buttonBorderOffset, pressedColor, g_buttonBorderRounding - 1, ImDrawFlags_RoundCornersAll );
             }
 
             if ( pLabel != nullptr )

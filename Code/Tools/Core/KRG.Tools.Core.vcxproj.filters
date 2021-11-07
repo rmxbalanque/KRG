@@ -132,9 +132,6 @@
     <ClInclude Include="PropertyGrid\PropertyGrid.h">
       <Filter>PropertyGrid</Filter>
     </ClInclude>
-    <ClInclude Include="PropertyGrid\PropertyGridEditors.h">
-      <Filter>PropertyGrid</Filter>
-    </ClInclude>
     <ClInclude Include="Resource\Compilers\ResourceCompiler.h">
       <Filter>Resource\Compilers</Filter>
     </ClInclude>
@@ -266,9 +263,6 @@
       <Filter>GraphEditor\StateMachine</Filter>
     </ClCompile>
     <ClCompile Include="PropertyGrid\PropertyGrid.cpp">
-      <Filter>PropertyGrid</Filter>
-    </ClCompile>
-    <ClCompile Include="PropertyGrid\PropertyGridEditors.cpp">
       <Filter>PropertyGrid</Filter>
     </ClCompile>
     <ClCompile Include="Resource\Compilers\ResourceCompiler.cpp">

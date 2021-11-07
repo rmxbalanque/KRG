@@ -233,9 +233,9 @@ namespace KRG
 
         // Create development tools
         #if KRG_DEVELOPMENT_TOOLS
-        CreateDevelopmentUI();
-        KRG_ASSERT( m_pDevelopmentUI != nullptr );
-        m_pDevelopmentUI->Initialize( m_updateContext );
+        CreateDevelopmentToolsUI();
+        KRG_ASSERT( m_pDevToolsUI != nullptr );
+        m_pDevToolsUI->Initialize( m_updateContext );
         #endif
 
         m_initialized = true;
@@ -259,10 +259,10 @@ namespace KRG
         {
             // Destroy development tools
             #if KRG_DEVELOPMENT_TOOLS
-            KRG_ASSERT( m_pDevelopmentUI != nullptr );
-            m_pDevelopmentUI->Shutdown( m_updateContext );
-            DestroyDevelopmentToolset();
-            KRG_ASSERT( m_pDevelopmentUI == nullptr );
+            KRG_ASSERT( m_pDevToolsUI != nullptr );
+            m_pDevToolsUI->Shutdown( m_updateContext );
+            DestroyDevelopmentToolsUI();
+            KRG_ASSERT( m_pDevToolsUI == nullptr );
             #endif
 
             // Shutdown rendering system
@@ -372,35 +372,6 @@ namespace KRG
         {
             ScopedSystemTimer frameTimer( deltaTime );
 
-            // Networking
-            //-------------------------------------------------------------------------
-            {
-                KRG_PROFILE_SCOPE_NETWORK( "Networking" );
-                Network::NetworkSystem::Update();
-            }
-
-            // Streaming / Loading
-            //-------------------------------------------------------------------------
-            {
-                KRG_PROFILE_SCOPE_RESOURCE( "Loading/Streaming" );
-                m_pResourceSystem->Update();
-
-                // Handle hot-reloading of entities
-                #if KRG_DEVELOPMENT_TOOLS
-                if ( m_pResourceSystem->RequiresHotReloading() )
-                {
-                    m_pEntityWorldManager->BeginHotReload( m_pResourceSystem->GetUsersToBeReloaded() );
-                    m_pDevelopmentUI->BeginHotReload( m_pResourceSystem->GetResourcesToBeReloaded() );
-                    m_pResourceSystem->ClearHotReloadRequests();
-                    m_pResourceSystem->Update( true );
-                    m_pEntityWorldManager->EndHotReload();
-                    m_pDevelopmentUI->EndHotReload();
-                }
-                #endif
-
-                m_pEntityWorldManager->UpdateLoading();
-            }
-
             // Frame Start
             //-------------------------------------------------------------------------
             {
@@ -409,9 +380,41 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
+                {
+                    KRG_PROFILE_SCOPE_NETWORK( "Networking" );
+                    Network::NetworkSystem::Update();
+                }
+
+                //-------------------------------------------------------------------------
+
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
+                m_pDevToolsUI->FrameStartUpdate( m_updateContext );
                 #endif
+
+                //-------------------------------------------------------------------------
+
+                {
+                    KRG_PROFILE_SCOPE_RESOURCE( "Loading/Streaming" );
+                    m_pResourceSystem->Update();
+
+                    // Handle hot-reloading of entities
+                    #if KRG_DEVELOPMENT_TOOLS
+                    if ( m_pResourceSystem->RequiresHotReloading() )
+                    {
+                        m_pEntityWorldManager->BeginHotReload( m_pResourceSystem->GetUsersToBeReloaded() );
+                        m_pDevToolsUI->BeginHotReload( m_pResourceSystem->GetResourcesToBeReloaded() );
+                        m_pResourceSystem->ClearHotReloadRequests();
+                        m_pResourceSystem->Update( true );
+                        m_pEntityWorldManager->EndHotReload();
+                        m_pDevToolsUI->EndHotReload();
+                    }
+                    #endif
+
+                    m_pEntityWorldManager->UpdateLoading();
+                }
+
+                //-------------------------------------------------------------------------
 
                 m_pInputSystem->Update();
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
@@ -463,7 +466,7 @@ namespace KRG
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDevelopmentUI->UpdateAndDraw( m_updateContext );
+                m_pDevToolsUI->FrameEndUpdate( m_updateContext );
                 m_pImguiSystem->EndFrame();
                 #endif
 
@@ -476,7 +479,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Ensure we dont get crazy time delta's when we hit breakpoints
-        #if !KRG_DEVELOPMENT_TOOLS
+        #if KRG_DEVELOPMENT_TOOLS
         if ( deltaTime.ToSeconds() > 1.0f )
         {
             deltaTime = m_updateContext.GetDeltaTime(); // Keep last frame delta

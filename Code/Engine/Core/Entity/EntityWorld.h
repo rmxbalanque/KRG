@@ -108,11 +108,17 @@ namespace KRG
         #endif
 
         //-------------------------------------------------------------------------
-        // Hot Reload
+        // Editing / Hot Reload
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
+        // This function will immediately unload the specified component so that its properties can be edited
+        void PrepareComponentForEditing( ResourceID const& mapID, UUID const& entityID, UUID const& componentID );
+
+        // Starts the hot-reload process - deactivates and unloads all specified entities
         void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload );
+
+        // Ends the hot-reload process - starts re-loading of unloaded entities
         void EndHotReload();
         #endif
 
@@ -137,7 +143,6 @@ namespace KRG
         TInlineVector<EntityModel::EntityMap,3>                     m_maps;
 
         // Entities
-        THashMap<UUID, Entity*>                                     m_entityLookupMap;
         TVector<Entity*>                                            m_entityUpdateList;
         TVector<IWorldEntitySystem*>                                m_systemUpdateLists[(int8) UpdateStage::NumStages];
         bool                                                        m_initialized = false;

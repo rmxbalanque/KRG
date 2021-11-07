@@ -54,7 +54,7 @@ namespace KRG
             if ( pOpenWorkspace->IsDirty() )
             {
                 InlineString<255> messageTitle;
-                messageTitle.sprintf( "Unsaved Changes for %s", pOpenWorkspace->GetTitle() );
+                messageTitle.sprintf( "Unsaved Changes for %s", pOpenWorkspace->GetDisplayName() );
 
                 auto messageDialog = pfd::message( messageTitle.c_str(), "You have unsaved changes!\nDo you wish to save these changes before closing?", pfd::choice::yes_no_cancel );
                 switch ( messageDialog.result() )

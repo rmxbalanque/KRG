@@ -40,6 +40,11 @@ namespace KRG::EntityModel
         KRG_ASSERT( IsUnloaded() && !m_isCollectionInstantiated );
         KRG_ASSERT( m_entities.empty() && m_entityLookupMap.empty() );
         KRG_ASSERT( m_entitiesToHotReload.empty() );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        KRG_ASSERT( m_editedEntities.empty() );
+        #endif
+
         Entity::OnEntityStateUpdated().Unbind( m_entityUpdateEventBindingID );
     }
 
@@ -64,7 +69,7 @@ namespace KRG::EntityModel
         m_entities.swap( map.m_entities );
         m_entityLookupMap.swap( map.m_entityLookupMap );
         m_pMapDesc = eastl::move( map.m_pMapDesc );
-        m_entitiesToLoad = eastl::move( map.m_entitiesToLoad );
+        m_entitiesCurrentlyLoading = eastl::move( map.m_entitiesCurrentlyLoading );
         m_status = map.m_status;
         m_isUnloadRequested = map.m_isUnloadRequested;
         m_isCollectionInstantiated = map.m_isCollectionInstantiated;
@@ -191,9 +196,8 @@ namespace KRG::EntityModel
 
         struct EntityActivationTask : public IAsyncTask
         {
-            EntityActivationTask( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Entity*>& entities )
-                : m_loadingContext( loadingContext )
-                , m_activationContext( activationContext )
+            EntityActivationTask( EntityModel::ActivationContext& activationContext, TVector<Entity*>& entities )
+                : m_activationContext( activationContext )
                 , m_entities( entities )
             {
                 m_SetSize = (uint32) m_entities.size();
@@ -211,7 +215,7 @@ namespace KRG::EntityModel
                         // Only activate non-spatial and root spatial entities
                         if ( !pEntity->IsSpatialEntity() || !pEntity->HasSpatialParent() )
                         {
-                            pEntity->Activate( m_loadingContext, m_activationContext );
+                            pEntity->Activate( m_activationContext );
                         }
                     }
                 }
@@ -219,7 +223,6 @@ namespace KRG::EntityModel
 
         private:
 
-            LoadingContext const&                   m_loadingContext;
             EntityModel::ActivationContext&         m_activationContext;
             TVector<Entity*>&                       m_entities;
         };
@@ -228,7 +231,7 @@ namespace KRG::EntityModel
 
         Threading::RecursiveScopeLock lock( m_mutex );
 
-        EntityActivationTask activationTask( loadingContext, activationContext, m_entities );
+        EntityActivationTask activationTask( activationContext, m_entities );
         loadingContext.m_pTaskSystem->ScheduleTask( &activationTask );
         loadingContext.m_pTaskSystem->WaitForTask( &activationTask );
 
@@ -244,9 +247,8 @@ namespace KRG::EntityModel
 
         struct EntityDeactivationTask : public IAsyncTask
         {
-            EntityDeactivationTask( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Entity*>& entities )
-                : m_loadingContext( loadingContext )
-                , m_activationContext( activationContext )
+            EntityDeactivationTask( EntityModel::ActivationContext& activationContext, TVector<Entity*>& entities )
+                : m_activationContext( activationContext )
                 , m_entities( entities )
             {
                 m_SetSize = (uint32) m_entities.size();
@@ -263,7 +265,7 @@ namespace KRG::EntityModel
                     {
                         if ( !pEntity->IsSpatialEntity() || !pEntity->HasSpatialParent() )
                         {
-                            pEntity->Deactivate( m_loadingContext, m_activationContext );
+                            pEntity->Deactivate( m_activationContext );
                         }
                     }
                 }
@@ -271,7 +273,6 @@ namespace KRG::EntityModel
 
         private:
 
-            LoadingContext const&                   m_loadingContext;
             EntityModel::ActivationContext&         m_activationContext;
             TVector<Entity*>&                       m_entities;
         };
@@ -280,7 +281,7 @@ namespace KRG::EntityModel
 
         Threading::RecursiveScopeLock lock( m_mutex );
 
-        EntityDeactivationTask deactivationTask( loadingContext, activationContext, m_entities );
+        EntityDeactivationTask deactivationTask( activationContext, m_entities );
         loadingContext.m_pTaskSystem->ScheduleTask( &deactivationTask );
         loadingContext.m_pTaskSystem->WaitForTask( &deactivationTask );
 
@@ -295,7 +296,7 @@ namespace KRG::EntityModel
         {
             KRG_ASSERT( FindEntity( pEntity->GetID() ) );
             Threading::RecursiveScopeLock lock( m_mutex );
-            m_entitiesToLoad.emplace_back( pEntity );
+            m_entitiesCurrentlyLoading.emplace_back( pEntity );
         }
     }
 
@@ -339,7 +340,7 @@ namespace KRG::EntityModel
                 m_entitiesToAdd.clear();
 
                 // Clear all internal entity lists
-                m_entitiesToLoad.clear();
+                m_entitiesCurrentlyLoading.clear();
                 m_entitiesToRemove.clear();
             }
 
@@ -380,7 +381,7 @@ namespace KRG::EntityModel
                     auto const& collectionDesc = m_pMapDesc->GetCollectionDescriptor();
 
                     m_ID = m_pMapDesc->GetID();
-                    m_entitiesToLoad.reserve( collectionDesc.GetNumEntityDescriptors() );
+                    m_entitiesCurrentlyLoading.reserve( collectionDesc.GetNumEntityDescriptors() );
                     EntityCollection::CreateAllEntitiesParallel( *loadingContext.m_pTaskSystem, *loadingContext.m_pTypeRegistry, collectionDesc );
                     EntityCollection::ResolveEntitySpatialAttachments( collectionDesc );
                     m_isCollectionInstantiated = true;
@@ -390,7 +391,7 @@ namespace KRG::EntityModel
                 for ( auto pEntity : m_entities )
                 {
                     pEntity->LoadComponents( loadingContext );
-                    m_entitiesToLoad.emplace_back( pEntity );
+                    m_entitiesCurrentlyLoading.emplace_back( pEntity );
                 }
 
                 m_status = Status::EntitiesLoading;
@@ -406,6 +407,18 @@ namespace KRG::EntityModel
 
     void EntityMap::ProcessEntityAdditionAndRemoval( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
+        // Edited Entities
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        for ( auto pEntity : m_editedEntities )
+        {
+            pEntity->EndComponentEditing( loadingContext );
+            m_entitiesCurrentlyLoading.emplace_back( pEntity );
+        }
+        m_editedEntities.clear();
+        #endif
+
         // Addition
         //-------------------------------------------------------------------------
 
@@ -417,7 +430,7 @@ namespace KRG::EntityModel
             {
                 EntityCollection::AddEntity( pEntityToAdd );
                 pEntityToAdd->LoadComponents( loadingContext );
-                m_entitiesToLoad.emplace_back( pEntityToAdd );
+                m_entitiesCurrentlyLoading.emplace_back( pEntityToAdd );
             }
 
             m_entitiesToAdd.clear();
@@ -435,12 +448,12 @@ namespace KRG::EntityModel
             // Deactivate if activated
             if ( pEntityToRemove->IsActivated() )
             {
-                pEntityToRemove->Deactivate( loadingContext, activationContext );
+                pEntityToRemove->Deactivate( activationContext );
                 continue;
             }
             else // Remove from loading list as we might still be loaded this entity
             {
-                m_entitiesToLoad.erase_first_unsorted( pEntityToRemove );
+                m_entitiesCurrentlyLoading.erase_first_unsorted( pEntityToRemove );
 
                 // Unload components and remove from collection
                 pEntityToRemove->UnloadComponents( loadingContext );
@@ -492,7 +505,7 @@ namespace KRG::EntityModel
                             // Prevent us from activating entities whose parents are not yet activated, this ensures that our attachment chain have a consistent activation state
                             if ( !pEntity->HasSpatialParent() || pEntity->GetSpatialParent()->IsActivated() )
                             {
-                                pEntity->Activate( m_loadingContext, m_activationContext );
+                                pEntity->Activate( m_activationContext );
                             }
                         }
                     }
@@ -521,7 +534,9 @@ namespace KRG::EntityModel
         {
             KRG_PROFILE_SCOPE_SCENE( "Load and Activate Entities" );
 
-            EntityLoadingTask loadingTask( loadingContext, activationContext, m_entitiesToLoad, IsActivated() );
+            //-------------------------------------------------------------------------
+
+            EntityLoadingTask loadingTask( loadingContext, activationContext, m_entitiesCurrentlyLoading, IsActivated() );
             loadingContext.m_pTaskSystem->ScheduleTask( &loadingTask );
             loadingContext.m_pTaskSystem->WaitForTask( &loadingTask );
 
@@ -529,15 +544,15 @@ namespace KRG::EntityModel
 
             // Track the number of entities that still need loading
             size_t const numEntitiesStillLoading = loadingTask.m_stillLoadingEntities.size_approx();
-            m_entitiesToLoad.resize( numEntitiesStillLoading );
-            size_t numDequeued = loadingTask.m_stillLoadingEntities.try_dequeue_bulk( m_entitiesToLoad.data(), numEntitiesStillLoading );
+            m_entitiesCurrentlyLoading.resize( numEntitiesStillLoading );
+            size_t numDequeued = loadingTask.m_stillLoadingEntities.try_dequeue_bulk( m_entitiesCurrentlyLoading.data(), numEntitiesStillLoading );
             KRG_ASSERT( numEntitiesStillLoading == numDequeued );
         }
 
         //-------------------------------------------------------------------------
 
         // Ensure that we set the status to loaded, if we were in the entity loading stage and all loads completed
-        if ( m_status == Status::EntitiesLoading && m_entitiesToLoad.empty() )
+        if ( m_status == Status::EntitiesLoading && m_entitiesCurrentlyLoading.empty() )
         {
             KRG_ASSERT( !m_isTransientMap );
             m_status = Status::Loaded;
@@ -545,7 +560,7 @@ namespace KRG::EntityModel
 
         //-------------------------------------------------------------------------
 
-        return m_entitiesToLoad.empty();
+        return m_entitiesCurrentlyLoading.empty();
     }
 
     //-------------------------------------------------------------------------
@@ -591,8 +606,38 @@ namespace KRG::EntityModel
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void EntityMap::HotReloadPrepareEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Resource::ResourceRequesterID> const& usersToReload )
+    void EntityMap::ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& entityID, UUID const& componentID )
     {
+        KRG_ASSERT( Threading::IsMainThread() );
+
+        auto pEntity = FindEntity( entityID );
+        KRG_ASSERT( pEntity != nullptr );
+        pEntity->ComponentEditingDeactivate( activationContext, componentID );
+
+        {
+            Threading::RecursiveScopeLock lock( m_mutex );
+            if ( std::find( m_editedEntities.begin(), m_editedEntities.end(), pEntity ) == m_editedEntities.end() )
+            {
+                m_editedEntities.emplace_back( pEntity );
+            }
+        }
+    }
+
+    void EntityMap::ComponentEditingUnload( LoadingContext const& loadingContext, UUID const& entityID, UUID const& componentID )
+    {
+        KRG_ASSERT( Threading::IsMainThread() );
+
+        auto pEntity = FindEntity( entityID );
+        KRG_ASSERT( pEntity != nullptr );
+        KRG_ASSERT( VectorContains( m_editedEntities, pEntity ) );
+        pEntity->ComponentEditingUnload( loadingContext, componentID );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EntityMap::HotReloadDeactivateEntities( EntityModel::ActivationContext& activationContext, TVector<Resource::ResourceRequesterID> const& usersToReload )
+    {
+        KRG_ASSERT( Threading::IsMainThread() );
         KRG_ASSERT( !usersToReload.empty() );
         KRG_ASSERT( m_entitiesToHotReload.empty() );
 
@@ -612,35 +657,43 @@ namespace KRG::EntityModel
         {
             if ( pEntityToHotReload->IsActivated() )
             {
-                pEntityToHotReload->Deactivate( loadingContext, activationContext );
+                pEntityToHotReload->Deactivate( activationContext );
             }
         }
     }
 
-    void EntityMap::HotReloadUnloadEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void EntityMap::HotReloadUnloadEntities( LoadingContext const& loadingContext )
     {
+        KRG_ASSERT( Threading::IsMainThread() );
+
+        Threading::RecursiveScopeLock lock( m_mutex );
+
         for ( auto pEntityToHotReload : m_entitiesToHotReload )
         {
             KRG_ASSERT( !pEntityToHotReload->IsActivated() );
 
             // We might still be loading this entity so remove it from the loading requests
-            m_entitiesToLoad.erase_first_unsorted( pEntityToHotReload );
+            m_entitiesCurrentlyLoading.erase_first_unsorted( pEntityToHotReload );
 
             // Request unload of the components (client system needs to ensure that all resource requests are processed)
             pEntityToHotReload->UnloadComponents( loadingContext );
         }
     }
 
-    void EntityMap::HotReloadLoadEntities( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void EntityMap::HotReloadLoadEntities( LoadingContext const& loadingContext )
     {
+        KRG_ASSERT( Threading::IsMainThread() );
+
+        Threading::RecursiveScopeLock lock( m_mutex );
+
         for ( auto pEntityToHotReload : m_entitiesToHotReload )
         {
             KRG_ASSERT( pEntityToHotReload->IsUnloaded() );
             pEntityToHotReload->LoadComponents( loadingContext );
-            m_entitiesToLoad.emplace_back( pEntityToHotReload );
+            m_entitiesCurrentlyLoading.emplace_back( pEntityToHotReload );
         }
 
         m_entitiesToHotReload.clear();
     }
-    #endif
+#endif
 }

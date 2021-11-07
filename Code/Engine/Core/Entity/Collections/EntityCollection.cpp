@@ -206,6 +206,7 @@ namespace KRG::EntityModel
         m_entityLookupMap.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
         for ( auto pEntity : m_entities )
         {
+            pEntity->m_collectionID = m_ID;
             m_entityLookupMap.insert( TPair<UUID, Entity*>( pEntity->m_ID, pEntity ) );
         }
     }

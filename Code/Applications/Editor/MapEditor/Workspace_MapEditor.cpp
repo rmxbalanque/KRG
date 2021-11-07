@@ -4,6 +4,7 @@
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
+#include "System/Core/FileSystem/FileSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -14,18 +15,80 @@ namespace KRG::EntityModel
         , m_propertyGrid( *context.m_pTypeRegistry, context.m_sourceResourceDirectory )
     {
         m_gizmo.SetTargetTransform( &m_editedTransform );
+
+        m_preEditBindingID = m_propertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& eventInfo ) { PreEdit( eventInfo ); } );
+        m_postEditBindingID = m_propertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& eventInfo ) { PostEdit( eventInfo ); } );
+    }
+
+    EntityMapEditor::~EntityMapEditor()
+    {
+        m_propertyGrid.OnPreEdit().Unbind( m_preEditBindingID );
+        m_propertyGrid.OnPostEdit().Unbind( m_postEditBindingID );
     }
 
     //-------------------------------------------------------------------------
 
     void EntityMapEditor::CreateNewMap()
     {
+        // Should we save the current map before unloading?
+        if ( IsDirty() )
+        {
+            pfd::message saveChangesMsg( m_editorContext.m_sourceResourceDirectory.c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
+            if ( saveChangesMsg.result() == pfd::button::yes )
+            {
+                Save();
+            }
+        }
 
+        // Get new map filename
+        //-------------------------------------------------------------------------
+
+        auto const mapFilename = pfd::save_file( "Create New Map", m_editorContext.m_sourceResourceDirectory.c_str(), { "Map Files", "*.map" } ).result();
+        if ( mapFilename.empty() )
+        {
+            return;
+        }
+
+        FileSystem::Path const mapFilePath( mapFilename.c_str() );
+        if ( FileSystem::Exists( mapFilePath ) )
+        {
+            if ( pfd::message( "Confirm Overwrite", "Map file exists, should we overwrite it?", pfd::choice::yes_no, pfd::icon::error ).result() == pfd::button::no )
+            {
+                return;
+            }
+        }
+
+        ResourceID const mapResourceID = ResourcePath::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, mapFilePath );
+        if ( mapResourceID == m_loadedMap )
+        {
+            pfd::message( "Error", "Cant override currently loaded map!", pfd::choice::ok, pfd::icon::error ).result();
+            return;
+        }
+
+        if ( mapResourceID.GetResourceTypeID() != EntityMapDescriptor::GetStaticResourceTypeID() )
+        {
+            pfd::message( "Error", "Invalid map extension provided! Maps need to have the .map extension!", pfd::choice::ok, pfd::icon::error ).result();
+            return;
+        }
+
+        // Write the map out to a new path and load it
+        //-------------------------------------------------------------------------
+
+        EntityCollectionDescriptorWriter writer;
+        EntityCollectionDescriptor emptyMap;
+        if ( writer.WriteCollection( *m_editorContext.m_pTypeRegistry, mapFilePath, emptyMap ) )
+        {
+            LoadMap( mapResourceID );
+        }
+        else
+        {
+            pfd::message( "Error", "Failed to create new map!", pfd::choice::ok, pfd::icon::error ).result();
+        }
     }
 
     void EntityMapEditor::SelectAndLoadMap()
     {
-        auto const selectedMap = pfd::open_file( "Choose Map", m_editorContext.m_sourceResourceDirectory.c_str(), { "Map Files", "*.map" }, pfd::opt::none ).result();
+        auto const selectedMap = pfd::open_file( "Load Map", m_editorContext.m_sourceResourceDirectory.c_str(), { "Map Files", "*.map" }, pfd::opt::none ).result();
         if ( selectedMap.empty() )
         {
             return;
@@ -45,7 +108,11 @@ namespace KRG::EntityModel
             // Should we save the current map before unloading?
             if ( IsDirty() )
             {
-                // Save?
+                pfd::message saveChangesMsg( m_editorContext.m_sourceResourceDirectory.c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
+                if ( saveChangesMsg.result() == pfd::button::yes )
+                {
+                    Save();
+                }
             }
 
             // Unload current map
@@ -57,6 +124,7 @@ namespace KRG::EntityModel
             // Load map
             m_loadedMap = mapToLoad.GetResourceID();
             m_pWorld->LoadMap( m_loadedMap );
+            SetDisplayName( m_loadedMap.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory ).GetFileNameWithoutExtension() );
         }
     }
 
@@ -67,7 +135,42 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::SaveMapAs()
     {
+        auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
+        if ( pEditedMap == nullptr || !( pEditedMap->IsLoaded() || pEditedMap->IsActivated() ) )
+        {
+            return;
+        }
 
+        // Get new map filename
+        //-------------------------------------------------------------------------
+
+        auto const mapFilename = pfd::save_file( "Save Map", m_editorContext.m_sourceResourceDirectory.c_str(), { "Map Files", "*.map" } ).result();
+        if ( mapFilename.empty() )
+        {
+            return;
+        }
+
+        FileSystem::Path const mapFilePath( mapFilename.c_str() );
+        ResourceID const mapResourceID = ResourcePath::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, mapFilePath );
+
+        if ( mapResourceID.GetResourceTypeID() != EntityMapDescriptor::GetStaticResourceTypeID() )
+        {
+            pfd::message( "Error", "Invalid map extension provided! Maps need to have the .map extension!", pfd::choice::ok, pfd::icon::error ).result();
+            return;
+        }
+
+        // Write the map out to a new path and load it
+        //-------------------------------------------------------------------------
+
+        EntityCollectionDescriptorWriter writer;
+        if ( writer.WriteCollection( *m_editorContext.m_pTypeRegistry, mapFilePath, *pEditedMap ) )
+        {
+            LoadMap( mapResourceID );
+        }
+        else
+        {
+            pfd::message( "Error", "Failed to save file!", pfd::choice::ok, pfd::icon::error ).result();
+        }
     }
 
     bool EntityMapEditor::Save()
@@ -90,6 +193,22 @@ namespace KRG::EntityModel
         m_pSelectedEntity = nullptr;
         m_pSelectedComponent = nullptr;
         m_propertyGrid.SetTypeToEdit( nullptr );
+    }
+
+    void EntityMapEditor::PreEdit( PropertyEditInfo const& eventInfo )
+    {
+        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
+        {
+            m_pWorld->PrepareComponentForEditing( m_loadedMap, pComponent->GetEntityID(), pComponent->GetID() );
+        }
+    }
+
+    void EntityMapEditor::PostEdit( PropertyEditInfo const& eventInfo )
+    {
+        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
+        {
+            
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -155,21 +274,26 @@ namespace KRG::EntityModel
             drawingCtx.DrawWireBox( m_pSelectedEntity->GetWorldBounds(), Colors::LimeGreen, 2.0f );
 
             // If we have a component selected, manipulate it
-            if ( m_pSelectedComponent != nullptr )
+            if ( m_pSelectedComponent != nullptr && m_pSelectedComponent->IsInitialized() )
             {
                 auto pSpatialComponent = TryCast<SpatialEntityComponent>( m_pSelectedComponent );
-                if ( pSpatialComponent != nullptr )
+                if ( pSpatialComponent != nullptr && pSpatialComponent->IsInitialized() )
                 {
+                    Transform originalTransform = m_editedTransform;
                     m_editedTransform = pSpatialComponent->GetWorldTransform();
-                    m_gizmo.Draw( *m_pWorld->GetViewport() );
-                    pSpatialComponent->SetWorldTransform( m_editedTransform );
+                    if ( m_gizmo.Draw( *m_pWorld->GetViewport() ) )
+                    {
+                        pSpatialComponent->SetWorldTransform( m_editedTransform );
+                    }
                 }
             }
             else // Directly manipulated entity
             {
                 m_editedTransform = m_pSelectedEntity->GetWorldTransform();
-                m_gizmo.Draw( *m_pWorld->GetViewport() );
-                m_pSelectedEntity->SetWorldTransform( m_editedTransform );
+                if ( m_gizmo.Draw( *m_pWorld->GetViewport() ) )
+                {
+                    m_pSelectedEntity->SetWorldTransform( m_editedTransform );
+                }
             }
         }
     }

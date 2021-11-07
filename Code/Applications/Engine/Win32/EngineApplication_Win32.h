@@ -19,7 +19,7 @@ namespace KRG
         using Engine::Engine;
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void CreateDevelopmentUI() { m_pDevelopmentUI = KRG::New<StandaloneEngineTools>(); }
+        virtual void CreateDevelopmentToolsUI() { m_pDevToolsUI = KRG::New<StandaloneEngineTools>(); }
         #endif
     };
 

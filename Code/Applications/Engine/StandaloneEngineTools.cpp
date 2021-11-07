@@ -99,7 +99,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void StandaloneEngineTools::UpdateAndDraw( UpdateContext const& context )
+    void StandaloneEngineTools::FrameEndUpdate( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameEnd );

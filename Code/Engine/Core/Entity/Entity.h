@@ -95,6 +95,7 @@ namespace KRG
             Activated,
         };
 
+        // Event that's fired whenever a component/system is added or removed
         static TMultiUserEvent<Entity*> OnEntityStateUpdated() { return EntityStateUpdatedEvent; }
 
     public:
@@ -275,10 +276,10 @@ namespace KRG
         void UnloadComponents( EntityModel::LoadingContext const& loadingContext );
 
         // Called when an entity finishes Loading successfully - Registers components with system, creates spatial attachments. Will attempt to activate all attached entities
-        void Activate( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+        void Activate( EntityModel::ActivationContext& activationContext );
 
         // Called just before an entity fully unloads - Unregisters components from systems, breaks spatial attachments. Will attempt to deactivate all attached entities
-        void Deactivate( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+        void Deactivate( EntityModel::ActivationContext& activationContext );
 
         // Immediate functions can be executed immediately for unloaded entities allowing us to skip the deferral of the operation
         void CreateSystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo );
@@ -291,6 +292,17 @@ namespace KRG
         void DestroySystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
         void AddComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent );
         void DestroyComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        // This will deactivate the specified component to allow for its property state to be edited safely. Can be called multiple times (once per component edited)
+        void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& componentID );
+
+        // This will unload the specified component to allow for its property state to be edited safely. Can be called multiple times (once per component edited)
+        void ComponentEditingUnload( EntityModel::LoadingContext const& loadingContext, UUID const& componentID );
+
+        // This will end any component editing for this frame and load all unloaded components, should only be called once per frame when needed!
+        void EndComponentEditing( EntityModel::LoadingContext const& loadingContext );
+        #endif
 
     protected:
 

@@ -14,6 +14,8 @@ namespace KRG::TypeSystem
 {
     enum class CoreTypes
     {
+        Invalid = -1,
+
         Bool = 0,
         Uint8,
         Int8,

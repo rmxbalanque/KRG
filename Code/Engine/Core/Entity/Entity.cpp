@@ -103,9 +103,55 @@ namespace KRG
         m_status = Status::Unloaded;
     }
     
+    #if KRG_DEVELOPMENT_TOOLS
+    void Entity::ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& componentID )
+    {
+        auto pComponent = FindComponent( componentID );
+        KRG_ASSERT( pComponent != nullptr );
+
+        if ( pComponent->m_isRegisteredWithWorld )
+        {
+            activationContext.m_componentsToUnregister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
+        }
+
+        if ( pComponent->m_isRegisteredWithEntity )
+        {
+            UnregisterComponentFromLocalSystems( pComponent );
+        }
+    }
+
+    void Entity::ComponentEditingUnload( EntityModel::LoadingContext const& loadingContext, UUID const& componentID )
+    {
+        auto pComponent = FindComponent( componentID );
+        KRG_ASSERT( pComponent != nullptr );
+
+        if ( !pComponent->IsUnloaded() )
+        {
+            if ( pComponent->IsInitialized() )
+            {
+                pComponent->Shutdown();
+                KRG_ASSERT( !pComponent->IsInitialized() ); // Did you forget to call the parent class shutdown?
+            }
+
+            pComponent->Unload( loadingContext, m_ID );
+        }
+    }
+
+    void Entity::EndComponentEditing( EntityModel::LoadingContext const& loadingContext )
+    {
+        for ( auto pComponent : m_components )
+        {
+            if ( pComponent->IsUnloaded() )
+            {
+                pComponent->Load( loadingContext, m_ID );
+            }
+        }
+    }
+    #endif
+
     //-------------------------------------------------------------------------
 
-    void Entity::Activate( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void Entity::Activate( EntityModel::ActivationContext& activationContext )
     {
         KRG_ASSERT( m_status == Status::Loaded );
 
@@ -174,12 +220,12 @@ namespace KRG
             KRG_ASSERT( !pAttachedEntity->IsActivated() );
             if ( pAttachedEntity->IsLoaded() )
             {
-                pAttachedEntity->Activate( loadingContext, activationContext );
+                pAttachedEntity->Activate( activationContext );
             }
         }
     }
 
-    void Entity::Deactivate( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void Entity::Deactivate( EntityModel::ActivationContext& activationContext )
     {
         KRG_ASSERT( m_status == Status::Activated );
 
@@ -196,7 +242,7 @@ namespace KRG
         {
             if ( pAttachedEntity->IsActivated() )
             {
-                pAttachedEntity->Deactivate( loadingContext, activationContext );
+                pAttachedEntity->Deactivate( activationContext );
             }
         }
 

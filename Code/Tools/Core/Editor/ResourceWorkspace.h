@@ -21,13 +21,10 @@ namespace KRG
 
         // Specify whether to initially load the resource, this is not necessary for all editors
         TResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID, bool shouldLoadResource = true )
-            : EditorWorkspace( context, pWorld )
+            : EditorWorkspace( context, pWorld, resourceID.GetResourcePath().ToFileSystemPath( context.m_sourceResourceDirectory ).GetFileNameWithoutExtension() )
             , m_pResource( resourceID )
         {
             KRG_ASSERT( resourceID.IsValid() );
-
-            FileSystem::Path const filePath = resourceID.GetResourcePath().ToFileSystemPath( context.m_sourceResourceDirectory );
-            m_title = filePath.GetFileNameWithoutExtension().c_str();
 
             if ( shouldLoadResource )
             {
@@ -43,7 +40,6 @@ namespace KRG
             }
         }
 
-        virtual char const* GetTitle() const override { return m_title.c_str(); }
         virtual uint32 GetID() const override{ return m_pResource.GetResourceID().GetID(); }
 
         // Resource Status

@@ -29,7 +29,7 @@ namespace KRG
         }
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void CreateDevelopmentUI() { m_pDevelopmentUI = KRG::New<Editor>(); }
+        virtual void CreateDevelopmentToolsUI() { m_pDevToolsUI = KRG::New<Editor>(); }
         #endif
     };
 

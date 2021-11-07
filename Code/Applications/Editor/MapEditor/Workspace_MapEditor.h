@@ -27,6 +27,7 @@ namespace KRG::EntityModel
     public:
 
         EntityMapEditor( EditorContext const& context, EntityWorld* pWorld );
+        ~EntityMapEditor();
 
         void CreateNewMap();
         void SelectAndLoadMap();
@@ -36,7 +37,6 @@ namespace KRG::EntityModel
 
     private:
 
-        virtual char const* GetTitle() const override { return "Map Editor"; }
         virtual uint32 GetID() const override { return 0xFFFFFFFF; }
 
         virtual bool HasViewportToolbar() const override { return true; }
@@ -55,6 +55,9 @@ namespace KRG::EntityModel
         void DrawComponentEntry( EntityComponent* pComponent );
         void DrawSpatialComponentTree( SpatialEntityComponent* pComponent );
 
+        void PreEdit( PropertyEditInfo const& eventInfo );
+        void PostEdit( PropertyEditInfo const& eventInfo );
+
     private:
 
         PropertyGrid                    m_propertyGrid;
@@ -64,5 +67,8 @@ namespace KRG::EntityModel
 
         Transform                       m_editedTransform;
         ImGuiX::Gizmo                   m_gizmo;
+
+        EventBindingID                  m_preEditBindingID;
+        EventBindingID                  m_postEditBindingID;
     };
 }

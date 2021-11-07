@@ -111,8 +111,7 @@ namespace KRG::TypeSystem
             }
         }
 
-        KRG_UNREACHABLE_CODE();
-        return CoreTypes::NumTypes;
+        return CoreTypes::Invalid;
     }
 
     size_t CoreTypeRegistry::GetTypeSize( TypeID typeID )

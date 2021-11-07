@@ -89,11 +89,11 @@ namespace KRG::ImGuiX
         m_isAxisNegatedZ = false;
     }
 
-    void Gizmo::Draw( Render::Viewport const& originalViewport )
+    bool Gizmo::Draw( Render::Viewport const& originalViewport )
     {
         if ( m_pTargetTransform == nullptr )
         {
-            return;
+            return false;
         }
 
         Render::Viewport viewport = originalViewport;
@@ -138,6 +138,8 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
+        Transform const originalTransform = *m_pTargetTransform;
+
         if ( m_gizmoMode == GizmoMode::Rotation )
         {
             Rotation_Update( viewport );
@@ -150,6 +152,8 @@ namespace KRG::ImGuiX
         {
             Scale_Update( viewport );
         }
+
+        return *m_pTargetTransform != originalTransform;
     }
 
     //-------------------------------------------------------------------------

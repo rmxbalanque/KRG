@@ -2,14 +2,14 @@
 
 #include "Editor_Model.h"
 #include "Editor_DataBrowser.h"
-#include "Engine/Core/DevelopmentUI.h"
+#include "Engine/Core/IDevToolsUI.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    class Editor final : public ImGuiX::DevelopmentUI
+    class Editor final : public ImGuiX::IDevToolsUI
     {
         struct ModalPopupMessage
         {
@@ -26,7 +26,7 @@ namespace KRG
 
         void Initialize( UpdateContext const& context ) override;
         void Shutdown( UpdateContext const& context ) override;
-        virtual void UpdateAndDraw( UpdateContext const& context ) override final;
+        virtual void FrameStartUpdate( UpdateContext const& context ) override final;
 
     private:
 

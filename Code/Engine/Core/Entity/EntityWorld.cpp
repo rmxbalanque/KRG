@@ -386,9 +386,9 @@ namespace KRG
 
         private:
 
-            TVector<IWorldEntitySystem*> const&                       m_worldSystems;
-            TVector< TPair<Entity*, EntityComponent*> > const&         m_componentsToRegister;
-            TVector< TPair<Entity*, EntityComponent*> > const&         m_componentsToUnregister;
+            TVector<IWorldEntitySystem*> const&                         m_worldSystems;
+            TVector< TPair<Entity*, EntityComponent*> > const&          m_componentsToRegister;
+            TVector< TPair<Entity*, EntityComponent*> > const&          m_componentsToUnregister;
         };
 
         //-------------------------------------------------------------------------
@@ -419,7 +419,6 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             ComponentRegistrationTask componentRegistrationTask( m_worldSystems, componentsToRegister, componentsToUnregister );
-            //componentRegistrationTask.Run();
             m_loadingContext.m_pTaskSystem->ScheduleTask( &componentRegistrationTask );
             m_loadingContext.m_pTaskSystem->WaitForTask( &componentRegistrationTask );
 
@@ -498,10 +497,25 @@ namespace KRG
     #endif
 
     //-------------------------------------------------------------------------
-    // Hot Reload
+    // Editing / Hot Reload
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
+    void EntityWorld::PrepareComponentForEditing( ResourceID const& mapID, UUID const& entityID, UUID const& componentID )
+    {
+        auto pMap = GetMap( mapID );
+        KRG_ASSERT( pMap != nullptr );
+        pMap->ComponentEditingDeactivate( m_activationContext, entityID, componentID );
+
+        // Process all deactivation requests
+        ProcessEntityRegistrationRequests();
+        ProcessComponentRegistrationRequests();
+
+        pMap->ComponentEditingUnload( m_loadingContext, entityID, componentID );
+    }
+
+    //-------------------------------------------------------------------------
+
     void EntityWorld::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload )
     {
         KRG_ASSERT( !usersToReload.empty() );
@@ -509,7 +523,7 @@ namespace KRG
         // Fill the hot-reload lists per map and deactivate any active entities
         for ( auto& map : m_maps )
         {
-            map.HotReloadPrepareEntities( m_loadingContext, m_activationContext, usersToReload );
+            map.HotReloadDeactivateEntities( m_activationContext, usersToReload );
         }
 
         // Process all deactivation requests
@@ -519,7 +533,7 @@ namespace KRG
         // Unload all entities that require hot reload
         for ( auto& map : m_maps )
         {
-            map.HotReloadUnloadEntities( m_loadingContext, m_activationContext );
+            map.HotReloadUnloadEntities( m_loadingContext );
         }
     }
 
@@ -528,7 +542,7 @@ namespace KRG
         // Load all entities that require hot reload
         for ( auto& map : m_maps )
         {
-            map.HotReloadLoadEntities( m_loadingContext, m_activationContext );
+            map.HotReloadLoadEntities( m_loadingContext );
         }
     }
     #endif
