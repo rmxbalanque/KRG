@@ -98,13 +98,15 @@ namespace KRG
         #endif
 
         //-------------------------------------------------------------------------
-        // Debug Views
+        // Debug
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
         inline TVector<EntityWorldDebugView*> const& GetDebugViews() const { return m_debugViews; }
         void InitializeDebugViews( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> debugViewTypeInfos );
         void ShutdownDebugViews();
+
+        inline void ResetDebugDrawingSystem() { m_debugDrawingSystem.Reset(); }
         #endif
 
         //-------------------------------------------------------------------------

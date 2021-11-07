@@ -275,16 +275,6 @@ namespace KRG
         EntityUpdateContext entityUpdateContext( context, this );
         UpdateStage const updateStage =  entityUpdateContext.GetUpdateStage();
 
-        // Clear debug drawing
-        //-------------------------------------------------------------------------
-
-        if ( updateStage == UpdateStage::FrameStart )
-        {
-            #if KRG_DEVELOPMENT_TOOLS
-            m_debugDrawingSystem.Reset();
-            #endif
-        }
-
         // Update entities
         //-------------------------------------------------------------------------
 

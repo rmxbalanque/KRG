@@ -59,6 +59,23 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    void EntityWorldManager::StartFrame()
+    {
+        for ( auto& pWorld : m_worlds )
+        {
+            #if KRG_DEVELOPMENT_TOOLS
+            pWorld->ResetDebugDrawingSystem();
+            #endif
+        }
+    }
+
+    void EntityWorldManager::EndFrame()
+    {
+
+    }
+
+    //-------------------------------------------------------------------------
+
     EntityWorld* EntityWorldManager::CreateWorld()
     {
         KRG_ASSERT( m_pSystemsRegistry != nullptr );

@@ -387,6 +387,8 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
+                m_pEntityWorldManager->StartFrame();
+
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
                 m_pDevToolsUI->FrameStartUpdate( m_updateContext );
@@ -469,6 +471,8 @@ namespace KRG
                 m_pDevToolsUI->FrameEndUpdate( m_updateContext );
                 m_pImguiSystem->EndFrame();
                 #endif
+
+                m_pEntityWorldManager->EndFrame();
 
                 m_renderingSystem.Update( m_updateContext );
                 m_pInputSystem->ClearFrameState();

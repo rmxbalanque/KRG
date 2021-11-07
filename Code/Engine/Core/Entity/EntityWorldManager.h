@@ -32,6 +32,14 @@ namespace KRG
         void Initialize( SystemRegistry const& systemsRegistry );
         void Shutdown();
 
+        //-------------------------------------------------------------------------
+
+        // Called at the start of the frame
+        void StartFrame();
+
+        // Called at the end of the frame, just before rendering
+        void EndFrame();
+
         // Loading
         //-------------------------------------------------------------------------
 
