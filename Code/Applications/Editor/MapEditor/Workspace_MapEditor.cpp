@@ -5,6 +5,7 @@
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
+#include "Engine/Render/Components/LightComponents.h"
 
 //-------------------------------------------------------------------------
 
@@ -24,6 +25,24 @@ namespace KRG::EntityModel
     {
         m_propertyGrid.OnPreEdit().Unbind( m_preEditBindingID );
         m_propertyGrid.OnPostEdit().Unbind( m_postEditBindingID );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EntityMapEditor::PreEdit( PropertyEditInfo const& eventInfo )
+    {
+        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
+        {
+            m_pWorld->PrepareComponentForEditing( m_loadedMap, pComponent->GetEntityID(), pComponent->GetID() );
+        }
+    }
+
+    void EntityMapEditor::PostEdit( PropertyEditInfo const& eventInfo )
+    {
+        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
+        {
+
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -188,27 +207,27 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
+    void EntityMapEditor::SelectEntity( Entity* pEntity )
+    {
+        KRG_ASSERT( pEntity != nullptr );
+        m_pSelectedEntity = pEntity;
+        m_pSelectedComponent = nullptr;
+        m_propertyGrid.SetTypeToEdit( nullptr );
+    }
+
+    void EntityMapEditor::SelectComponent( EntityComponent* pComponent )
+    {
+        KRG_ASSERT( m_pSelectedEntity != nullptr && pComponent != nullptr );
+        KRG_ASSERT( m_pSelectedEntity->GetID() == pComponent->GetEntityID() );
+        m_pSelectedComponent = pComponent;
+        m_propertyGrid.SetTypeToEdit( pComponent );
+    }
+
     void EntityMapEditor::ClearSelection()
     {
         m_pSelectedEntity = nullptr;
         m_pSelectedComponent = nullptr;
         m_propertyGrid.SetTypeToEdit( nullptr );
-    }
-
-    void EntityMapEditor::PreEdit( PropertyEditInfo const& eventInfo )
-    {
-        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
-        {
-            m_pWorld->PrepareComponentForEditing( m_loadedMap, pComponent->GetEntityID(), pComponent->GetID() );
-        }
-    }
-
-    void EntityMapEditor::PostEdit( PropertyEditInfo const& eventInfo )
-    {
-        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
-        {
-            
-        }
     }
 
     //-------------------------------------------------------------------------
@@ -241,7 +260,7 @@ namespace KRG::EntityModel
         bool a = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Translation;
         bool b = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Rotation;
         bool c = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Scale;
-        
+
         if ( ImGui::Selectable( KRG_ICON_ARROWS, &a, 0, ImVec2( 16, 0 ) ) )
         {
             m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Translation );
@@ -264,6 +283,8 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
     {
+        auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
+
         // Manage Gizmo State
         //-------------------------------------------------------------------------
 
@@ -295,6 +316,88 @@ namespace KRG::EntityModel
                     m_pSelectedEntity->SetWorldTransform( m_editedTransform );
                 }
             }
+
+            // Ensure that we always show a gizmo, when selecting a spatial entity
+            if ( m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::None )
+            {
+                m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Translation );
+            }
+        }
+
+        // Overlay Widgets
+        //-------------------------------------------------------------------------
+
+        auto pOverlayDrawList = ImGui::GetWindowDrawList();
+
+        auto DrawLightButton = [this, pEditedMap, &pViewport, &pOverlayDrawList] ( Render::LightComponent* pLightComponent )
+        {
+            ImVec2 const iconSize( 48, 48 );
+            ImVec2 const buttonOffset( iconSize.x / 2, iconSize.y / 2 );
+            ImVec2 const lightPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pLightComponent->GetPosition() );
+
+            ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
+            ImVec2 const textSize = ImGui::CalcTextSize( KRG_ICON_LIGHTBULB_O );
+            ImGui::SetCursorPos( lightPositionScreenSpace - buttonOffset );
+            ImGui::PushID( pLightComponent );
+            ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 0 ) );
+            ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
+            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImVec4( 0, 0, 0, 0 ) );
+            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImVec4( 0, 0, 0, 0 ) );
+            if ( ImGui::Button( KRG_ICON_LIGHTBULB_O, iconSize ) )
+            {
+                auto pEntity = pEditedMap->FindEntity( pLightComponent->GetEntityID() );
+                SelectEntity( pEntity );
+                SelectComponent( pLightComponent );
+            }
+            ImGui::PopStyleColor( 3 );
+            ImGui::PopStyleVar( 1 );
+            ImGui::PopID();
+        };
+
+        auto const& registeredLights = m_pWorld->GetAllRegisteredComponentsOfType<Render::LightComponent>();
+        for ( auto pComponent : registeredLights )
+        {
+            if ( pComponent != m_pSelectedComponent )
+            {
+                auto pLightComponent = Cast<Render::LightComponent>( pComponent );
+                DrawLightButton( const_cast<Render::LightComponent*>( pLightComponent ) );
+            }
+        }
+
+        // Draw light debug widgets
+        //-------------------------------------------------------------------------
+        // TODO: generalized component visualizers
+
+        if ( m_pSelectedComponent != nullptr )
+        {
+            if ( IsOfType<Render::DirectionalLightComponent>( m_pSelectedComponent ) )
+            {
+                auto pLightComponent = Cast<Render::DirectionalLightComponent>( m_pSelectedComponent );
+                auto forwardDir = pLightComponent->GetForwardVector();
+                //drawingCtx.DrawSphere( pLightComponent->GetPosition(), Float3( 0.1f ), pLightComponent->GetLightColor(), 2.0f );
+                drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() + forwardDir, pLightComponent->GetLightColor(), 3.0f );
+            }
+            else if ( IsOfType<Render::SpotLightComponent>( m_pSelectedComponent ) )
+            {
+                auto pLightComponent = Cast<Render::SpotLightComponent>( m_pSelectedComponent );
+                //drawingCtx.DrawSphere( pLightComponent->GetPosition(), Float3( 0.1f ), pLightComponent->GetLightColor(), 2.0f );
+                drawingCtx.DrawCone( pLightComponent->GetWorldTransform(), pLightComponent->GetLightUmbraAngle(), 1.5f, pLightComponent->GetLightColor(), 3.0f );
+            }
+            else if ( IsOfType<Render::PointLightComponent>( m_pSelectedComponent ) )
+            {
+                auto pLightComponent = Cast<Render::PointLightComponent>( m_pSelectedComponent );
+                auto forwardDir = pLightComponent->GetForwardVector();
+                auto upDir = pLightComponent->GetUpVector();
+                auto rightDir = pLightComponent->GetRightVector();
+
+                //drawingCtx.DrawSphere( pLightComponent->GetPosition(), Float3( 0.1f ), pLightComponent->GetLightColor(), 2.0f );
+                drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() + ( forwardDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
+                drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() - ( forwardDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
+                drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() + ( upDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
+                drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() - ( upDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
+                drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() + ( rightDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
+                drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() - ( rightDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
+            }
         }
     }
 
@@ -315,7 +418,7 @@ namespace KRG::EntityModel
                     String const buttonLabel = String().sprintf( "%s##%d", pEntity->GetName().c_str(), i );
                     if ( ImGui::Button( buttonLabel.c_str() ) )
                     {
-                        m_pSelectedEntity = pEntity;
+                        SelectEntity( pEntity );
                     }
 
                     if ( ImGui::IsItemHovered() )
@@ -425,8 +528,7 @@ namespace KRG::EntityModel
 
         if ( ImGui::Button( pComponent->GetName().c_str() ) )
         {
-            m_pSelectedComponent = pComponent;
-            m_propertyGrid.SetTypeToEdit( m_pSelectedComponent );
+            SelectComponent( pComponent );
         }
         ImGui::SameLine();
         ImGui::Text( " - %s - ", pComponent->GetID().ToString().c_str() );

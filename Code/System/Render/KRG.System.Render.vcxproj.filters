@@ -42,19 +42,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Fonts\FontData_SegoeBold.cpp">
-      <Filter>Fonts</Filter>
-    </ClCompile>
-    <ClCompile Include="Fonts\FontData_Segoe.cpp">
-      <Filter>Fonts</Filter>
-    </ClCompile>
     <ClCompile Include="Fonts\FontData_FontAwesome4.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="Fonts\FontData_ProggyClean.cpp">
-      <Filter>Fonts</Filter>
-    </ClCompile>
-    <ClCompile Include="Fonts\FontData_ProggyTiny.cpp">
+    <ClCompile Include="Fonts\FontData_Proggy.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
     <ClCompile Include="Fonts\FontDecompressor.cpp">
@@ -89,21 +80,13 @@
     <ClCompile Include="Imgui\ImguiSystem.cpp" />
     <ClCompile Include="Imgui\ImguiTheme.cpp" />
     <ClCompile Include="Imgui\ImguiX.cpp" />
+    <ClCompile Include="Fonts\FontData_Roboto.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Fonts\FontData_SegoeBold.h">
-      <Filter>Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="Fonts\FontData_Segoe.h">
-      <Filter>Fonts</Filter>
-    </ClInclude>
     <ClInclude Include="Fonts\FontData_FontAwesome4.h">
       <Filter>Fonts</Filter>
     </ClInclude>
-    <ClInclude Include="Fonts\FontData_ProggyClean.h">
-      <Filter>Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="Fonts\FontData_ProggyTiny.h">
+    <ClInclude Include="Fonts\FontData_Proggy.h">
       <Filter>Fonts</Filter>
     </ClInclude>
     <ClInclude Include="Fonts\FontDecompressor.h">
@@ -151,6 +134,7 @@
     <ClInclude Include="Imgui\ImguiSystem.h" />
     <ClInclude Include="Imgui\ImguiTheme.h" />
     <ClInclude Include="Imgui\ImguiX.h" />
+    <ClInclude Include="Fonts\FontData_Roboto.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">

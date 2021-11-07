@@ -16,13 +16,16 @@ namespace KRG::ImGuiX
 {
     enum class Font : uint8
     {
-        ExtraSmall = 0, // Mostly for smaller icon size
+        Tiny = 0,
+        TinyBold = 0,
         Small,
         SmallBold,
         Medium,
         MediumBold,
         Large,
-        ExtraLarge,
+        LargeBold,
+        Huge,
+        HugeBold,
 
         NumFonts,
         Default = Medium,
@@ -32,10 +35,10 @@ namespace KRG::ImGuiX
 
     struct KRG_SYSTEM_RENDER_API SystemFonts
     {
-        static ImFont* GetFont( Font font ) { return s_fonts[(int32) font]; }
-
         static ImFont* s_fonts[(int32) Font::NumFonts];
     };
+
+    KRG_FORCE_INLINE ImFont* GetFont( Font font ) { return SystemFonts::s_fonts[(int32) font]; }
 
     //-------------------------------------------------------------------------
 

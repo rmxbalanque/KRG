@@ -248,7 +248,7 @@ namespace KRG
                 ImGui::BeginGroup();
                 {
                     ImGui::PushStyleColor( ImGuiCol_Text, titleBarColor );
-                    ImGuiX::ScopedFont font( ImGuiX::Font::ExtraLarge );
+                    ImGuiX::ScopedFont font( ImGuiX::Font::LargeBold );
                     ImGui::Text( KRG_ICON_EXCLAMATION_TRIANGLE );
                     ImGui::PopStyleColor( 1 );
                 }

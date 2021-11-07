@@ -46,7 +46,7 @@ namespace KRG::GraphEditor
             auto pViewedGraph = GetViewedGraph();
             if ( pViewedGraph != nullptr )
             {
-                ImGuiX::ScopedFont font( ImGuiX::Font::ExtraLarge );
+                ImGuiX::ScopedFont font( ImGuiX::Font::LargeBold );
                 pDrawList->AddText( windowRect.Min + VisualSettings::s_graphTitleMargin, VisualSettings::s_graphTitleColor, pViewedGraph->GetTitle() );
             }
         }

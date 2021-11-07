@@ -225,7 +225,7 @@ int main( int argc, char* argv[] )
             std::string const headerFile = FileSystemHelpers::GetParentDirectoryPath( inputFullPath ) + outputName + ".h";
 
             stream << "#pragma once" << std::endl;
-            stream << "#include \"<stdint.h>\"" << std::endl << std::endl;
+            stream << "#include <stdint.h>" << std::endl << std::endl;
             stream << "//-------------------------------------------------------------------------" << std::endl << std::endl;
 
             if ( !namespaceName.empty() )
@@ -240,11 +240,11 @@ int main( int argc, char* argv[] )
             stream << "{" << std::endl;
             if ( dllExportMacro.empty() )
             {
-                stream << "    " << "uint8_t* GetData();" << std::endl;
+                stream << "    " << "uint8_t const* GetData();" << std::endl;
             }
             else
             {
-                stream << "    " << dllExportMacro << " uint8_t* GetData();" << std::endl;
+                stream << "    " << dllExportMacro << " uint8_t const* GetData();" << std::endl;
             }
             stream << "    inline size_t GetDataSize() { return " << encodedDataSize << "; }" << std::endl;
             stream << "};";
@@ -285,7 +285,7 @@ int main( int argc, char* argv[] )
 
             stream << "};" << std::endl << std::endl;
 
-            stream << "    " << "uint8_t* GetData() { return g_encodedData; }" << std::endl;
+            stream << "    " << "uint8_t const* GetData() { return g_encodedData; }" << std::endl;
 
             stream << "};";
 

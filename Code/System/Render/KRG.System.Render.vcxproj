@@ -11,11 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Fonts\FontData_SegoeBold.h" />
-    <ClInclude Include="Fonts\FontData_Segoe.h" />
     <ClInclude Include="Fonts\FontData_FontAwesome4.h" />
-    <ClInclude Include="Fonts\FontData_ProggyClean.h" />
-    <ClInclude Include="Fonts\FontData_ProggyTiny.h" />
+    <ClInclude Include="Fonts\FontData_Proggy.h" />
+    <ClInclude Include="Fonts\FontData_Roboto.h" />
     <ClInclude Include="Fonts\FontDecompressor.h" />
     <ClInclude Include="Imgui\ImguiFont.h" />
     <ClInclude Include="Imgui\ImguiSystem.h" />
@@ -57,11 +55,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Fonts\FontData_SegoeBold.cpp" />
-    <ClCompile Include="Fonts\FontData_Segoe.cpp" />
     <ClCompile Include="Fonts\FontData_FontAwesome4.cpp" />
-    <ClCompile Include="Fonts\FontData_ProggyClean.cpp" />
-    <ClCompile Include="Fonts\FontData_ProggyTiny.cpp" />
+    <ClCompile Include="Fonts\FontData_Proggy.cpp" />
+    <ClCompile Include="Fonts\FontData_Roboto.cpp" />
     <ClCompile Include="Fonts\FontDecompressor.cpp" />
     <ClCompile Include="Imgui\ImguiFont.cpp" />
     <ClCompile Include="Imgui\ImguiSystem.cpp" />

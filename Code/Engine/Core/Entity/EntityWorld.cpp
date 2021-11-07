@@ -29,8 +29,15 @@ namespace KRG
             KRG_ASSERT( m_systemUpdateLists[i].empty() );
         }
 
+        //-------------------------------------------------------------------------
+
         #if KRG_DEVELOPMENT_TOOLS
         KRG_ASSERT( m_debugViews.empty() );
+
+        for ( auto& v : m_componentTypeLookup )
+        {
+            KRG_ASSERT( v.second.empty() );
+        }
         #endif
     }
 
@@ -412,17 +419,37 @@ namespace KRG
             m_loadingContext.m_pTaskSystem->ScheduleTask( &componentRegistrationTask );
             m_loadingContext.m_pTaskSystem->WaitForTask( &componentRegistrationTask );
 
-            // Update component registration flags
+            // Finalize component registration
             //-------------------------------------------------------------------------
+            // Update component registration flags
+            // Add to type tracking table
 
             for ( auto const& unregisteredComponent : componentsToUnregister )
             {
-                unregisteredComponent.second->m_isRegisteredWithWorld = false;
+                auto pComponent = unregisteredComponent.second;
+                pComponent->m_isRegisteredWithWorld = false;
+
+                #if KRG_DEVELOPMENT_TOOLS
+                auto const castableTypeIDs = m_loadingContext.m_pTypeRegistry->GetAllCastableTypes( pComponent );
+                for ( auto castableTypeID : castableTypeIDs )
+                {
+                    m_componentTypeLookup[castableTypeID].erase_first_unsorted( pComponent );
+                }
+                #endif
             }
 
             for ( auto const& registeredComponent : componentsToRegister )
             {
-                registeredComponent.second->m_isRegisteredWithWorld = true;
+                auto pComponent = registeredComponent.second;
+                pComponent->m_isRegisteredWithWorld = true;
+
+                #if KRG_DEVELOPMENT_TOOLS
+                auto const castableTypeIDs = m_loadingContext.m_pTypeRegistry->GetAllCastableTypes( pComponent );
+                for ( auto castableTypeID : castableTypeIDs )
+                {
+                    m_componentTypeLookup[castableTypeID].emplace_back( pComponent );
+                }
+                #endif
             }
         }
     }

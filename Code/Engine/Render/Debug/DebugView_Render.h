@@ -30,19 +30,10 @@ namespace KRG::Render
         virtual void DrawOverlayElements( EntityUpdateContext const& context ) override;
 
         void DrawRenderMenu( EntityUpdateContext const& context );
-        void DrawLightDebuggerWindow( EntityUpdateContext const& context);
-
-        void DrawDirectionalLightOptions( EntityUpdateContext const& context );
-        void DrawSpotLightOptions( EntityUpdateContext const& context );
-        void DrawPointLightOptions( EntityUpdateContext const& context );
 
     private:
 
         WorldRendererSystem*            m_pWorldRendererSystem = nullptr;
-        bool                            m_isLightDebuggerWindowOpen = false;
-        LightComponent*                 m_pSelectedComponent = nullptr;
-        Transform                       m_componentTransform;
-        ImGuiX::Gizmo                   m_gizmo;
     };
 }
 #endif

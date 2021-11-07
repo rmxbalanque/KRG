@@ -117,8 +117,8 @@ namespace KRG::Render
 
         struct FontDesc
         {
-            Byte const*                 m_compressedFontData = nullptr;
-            float                       m_fontSize = 10.0f;
+            Byte const*                 m_compressedFontData;
+            float                       m_fontSize;
         };
 
     private:
@@ -149,7 +149,7 @@ namespace KRG::Render
         bool Generate( FontDesc* pFonts, int32 numFonts );
 
         // Returns the 2D dimensions of the atlas data
-        inline Int2 GetDimensions() const { return Int2( 256 ); }
+        inline Int2 GetDimensions() const { return Int2( 512 ); }
 
         // Returns the raw font atlas bitmap data
         inline Byte const* GetAtlasData() const { return m_atlasData.data(); }

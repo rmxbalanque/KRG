@@ -46,6 +46,8 @@ namespace KRG::EntityModel
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) override;
         virtual bool Save() override;
 
+        void SelectEntity( Entity* pEntity );
+        void SelectComponent( EntityComponent* pComponent );
         void ClearSelection();
 
         void DrawEntityOutliner( UpdateContext const& context );

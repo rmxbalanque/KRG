@@ -54,6 +54,9 @@ namespace KRG::TypeSystem
         // Return all types that derived from a specified type
         TVector<TypeInfo const*> GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults = false, bool includeAbstractTypes = true ) const;
 
+        // Get all the types that this type is allowed to be cast to
+        TInlineVector<TypeID, 5> GetAllCastableTypes( IRegisteredType const* pType ) const;
+
         //-------------------------------------------------------------------------
         // Enums
         //-------------------------------------------------------------------------

@@ -142,6 +142,29 @@ namespace KRG::TypeSystem
         return matchingTypes;
     }
 
+    TInlineVector<KRG::TypeSystem::TypeID, 5> TypeRegistry::GetAllCastableTypes( IRegisteredType const* pType ) const
+    {
+        struct Helper
+        {
+            static void RecursivelyFindAllParents( TypeInfo const* pTypeInfo, TInlineVector<KRG::TypeSystem::TypeID, 5>& outParentTypeIDs )
+            {
+                outParentTypeIDs.emplace_back( pTypeInfo->m_ID );
+
+                for ( auto pParentTypeInfo : pTypeInfo->m_parentTypes )
+                {
+                    RecursivelyFindAllParents( pParentTypeInfo, outParentTypeIDs );
+                }
+            }
+        };
+
+        //-------------------------------------------------------------------------
+
+        KRG_ASSERT( pType != nullptr );
+        TInlineVector<KRG::TypeSystem::TypeID, 5> parentTypeIDs;
+        Helper::RecursivelyFindAllParents( pType->GetTypeInfo(), parentTypeIDs );
+        return parentTypeIDs;
+    }
+
     //-------------------------------------------------------------------------
 
     EnumInfo const* TypeRegistry::RegisterEnum( EnumInfo const& type )

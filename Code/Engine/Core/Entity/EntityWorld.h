@@ -54,17 +54,13 @@ namespace KRG
         void UpdateLoading();
 
         //-------------------------------------------------------------------------
-        // Misc
+        // Systems
         //-------------------------------------------------------------------------
 
         IWorldEntitySystem* GetWorldSystem( uint32 worldSystemID ) const;
 
         template<typename T>
         inline T* GetWorldSystem() const { return static_cast<T*>( GetWorldSystem( T::s_entitySystemID ) ); }
-
-        #if KRG_DEVELOPMENT_TOOLS
-        inline Debug::DrawingSystem* GetDebugDrawingSystem() { return &m_debugDrawingSystem; }
-        #endif
 
         //-------------------------------------------------------------------------
         // Viewport
@@ -98,6 +94,22 @@ namespace KRG
         #endif
 
         //-------------------------------------------------------------------------
+        // Editor
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        // This function will immediately unload the specified component so that its properties can be edited
+        void PrepareComponentForEditing( ResourceID const& mapID, UUID const& entityID, UUID const& componentID );
+
+        // Get all the registered components of the specified type
+        inline TVector<EntityComponent const*> const& GetAllRegisteredComponentsOfType( TypeSystem::TypeID typeID ) { return m_componentTypeLookup[typeID]; }
+
+        // Get all the registered components of the specified type
+        template<typename T>
+        inline TVector<EntityComponent const*> const& GetAllRegisteredComponentsOfType() { return m_componentTypeLookup[T::GetStaticTypeID()]; }
+        #endif
+
+        //-------------------------------------------------------------------------
         // Debug
         //-------------------------------------------------------------------------
 
@@ -106,17 +118,15 @@ namespace KRG
         void InitializeDebugViews( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> debugViewTypeInfos );
         void ShutdownDebugViews();
 
+        inline Debug::DrawingSystem* GetDebugDrawingSystem() { return &m_debugDrawingSystem; }
         inline void ResetDebugDrawingSystem() { m_debugDrawingSystem.Reset(); }
         #endif
 
         //-------------------------------------------------------------------------
-        // Editing / Hot Reload
+        // Hot Reload
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        // This function will immediately unload the specified component so that its properties can be edited
-        void PrepareComponentForEditing( ResourceID const& mapID, UUID const& entityID, UUID const& componentID );
-
         // Starts the hot-reload process - deactivates and unloads all specified entities
         void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload );
 
@@ -134,25 +144,26 @@ namespace KRG
 
     private:
 
-        UUID                                                        m_worldID = UUID::GenerateID();
-        TaskSystem*                                                 m_pTaskSystem = nullptr;
-        EntityModel::LoadingContext                                 m_loadingContext;
-        EntityModel::ActivationContext                              m_activationContext;
-        TVector<IWorldEntitySystem*>                                m_worldSystems;
-        Render::Viewport                                            m_viewport = Render::Viewport( Int2::Zero, Int2( 640, 480 ), Math::ViewVolume( Float2( 640, 480 ), FloatRange( 0.1f, 100.0f ) ) );
+        UUID                                                                    m_worldID = UUID::GenerateID();
+        TaskSystem*                                                             m_pTaskSystem = nullptr;
+        EntityModel::LoadingContext                                             m_loadingContext;
+        EntityModel::ActivationContext                                          m_activationContext;
+        TVector<IWorldEntitySystem*>                                            m_worldSystems;
+        Render::Viewport                                                        m_viewport = Render::Viewport( Int2::Zero, Int2( 640, 480 ), Math::ViewVolume( Float2( 640, 480 ), FloatRange( 0.1f, 100.0f ) ) );
 
         // Maps
-        TInlineVector<EntityModel::EntityMap,3>                     m_maps;
+        TInlineVector<EntityModel::EntityMap, 3>                                 m_maps;
 
         // Entities
-        TVector<Entity*>                                            m_entityUpdateList;
-        TVector<IWorldEntitySystem*>                                m_systemUpdateLists[(int8) UpdateStage::NumStages];
-        bool                                                        m_initialized = false;
-        bool                                                        m_isSuspended = false;
+        TVector<Entity*>                                                        m_entityUpdateList;
+        TVector<IWorldEntitySystem*>                                            m_systemUpdateLists[(int8) UpdateStage::NumStages];
+        bool                                                                    m_initialized = false;
+        bool                                                                    m_isSuspended = false;
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DrawingSystem                                        m_debugDrawingSystem;
-        TVector<EntityWorldDebugView*>                              m_debugViews;
+        THashMap<TypeSystem::TypeID, TVector<EntityComponent const*>>           m_componentTypeLookup;
+        Debug::DrawingSystem                                                    m_debugDrawingSystem;
+        TVector<EntityWorldDebugView*>                                          m_debugViews;
         #endif
     };
 }

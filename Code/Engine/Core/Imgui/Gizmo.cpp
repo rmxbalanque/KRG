@@ -7,23 +7,23 @@
 namespace KRG::ImGuiX
 {
     // Rotation
-    static uint32 const     g_halfCircleSegmentCount = 64;
-    static float const      g_widgetRadius = 40.0f;
-    static float const      g_gizmoPickingSelectionBuffer = 3.0f;
-    static Color const      g_selectedColor = Colors::Yellow;
+    constexpr static uint32 const       g_halfCircleSegmentCount = 64;
+    constexpr static float const        g_widgetRadius = 40.0f;
+    constexpr static float const        g_gizmoPickingSelectionBuffer = 3.0f;
+    static Color const                  g_selectedColor = Colors::Yellow;
 
     // Scale
-    static float const      g_axisLength = 75.0f;
-    static float const      g_axisThickness = 5.0f;
-    static float const      g_originSphereRadius = 8.0f;
-    static float const      g_selectedOriginSphereRadius = 12.0f;
-    static float const      g_originSphereAxisOffset = g_originSphereRadius + 8.0f;
-    static Color const      g_planeColor = Colors::Gray;
+    constexpr static float const        g_axisLength = 75.0f;
+    constexpr static float const        g_axisThickness = 5.0f;
+    constexpr static float const        g_originSphereRadius = 4.0f;
+    constexpr static float const        g_selectedOriginSphereRadius = 12.0f;
+    constexpr static float const        g_originSphereAxisOffset = g_originSphereRadius + 8.0f;
+    static Color const                  g_planeColor = Colors::Gray;
 
     // Translation
-    static float const      g_axisGuideThickness = 3.0f;
-    static float const      g_planeWidgetLength = 20.0f;
-    static float const      g_planeWidgetOffset = 15.0f;
+    constexpr static float const        g_axisGuideThickness = 3.0f;
+    constexpr static float const        g_planeWidgetLength = 20.0f;
+    constexpr static float const        g_planeWidgetOffset = 15.0f;
 
     //-------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ namespace KRG::ImGuiX
         }
 
         Render::Viewport viewport = originalViewport;
-        viewport.Resize( Float2( ImGui::GetWindowPos() ), originalViewport.GetDimensions() );
+        viewport.Resize( Float2( ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin() ), originalViewport.GetDimensions() );
 
         //-------------------------------------------------------------------------
 
@@ -172,8 +172,7 @@ namespace KRG::ImGuiX
         // Draw current Rotation Covered
         //-------------------------------------------------------------------------
 
-        pDrawList->AddCircleFilled( m_origin_SS.ToFloat2(), 3.0f, imguiInnerColor, 20 );
-        pDrawList->AddCircle( m_origin_SS.ToFloat2(), 8.0f, imguiInnerColor, 20, 2.0f );
+        pDrawList->AddCircleFilled( m_origin_SS.ToFloat2(), g_originSphereRadius, imguiInnerColor, 20 );
         pDrawList->AddCircle( m_origin_SS.ToFloat2(), g_widgetRadius, imguiOuterColor, 50, 3.0f );
 
         // Hover test
