@@ -35,7 +35,7 @@ namespace KRG
         class KRG_ENGINE_CORE_API EntityMap : EntityCollection
         {
             friend class EntityMapEditor;
-            friend class KRG::EntityWorld;
+            friend EntityWorld;
 
             enum class Status
             {

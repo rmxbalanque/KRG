@@ -179,15 +179,18 @@ namespace KRG::TypeSystem::Serialization
                 {
                     size_t const elementByteSize = propInfo.m_arrayElementSize;
                     size_t const numArrayElements = propInfo.IsStaticArrayProperty() ? propInfo.m_arraySize : pTypeInfo->m_pTypeHelper->GetArraySize( pTypeInstance, propInfo.m_ID );
-                    Byte const* pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( const_cast<IRegisteredType*>( pTypeInstance ), propInfo.m_ID, 0 );
-
-                    // Write array elements
-                    for ( auto i = 0; i < numArrayElements; i++ )
+                    if ( numArrayElements > 0 )
                     {
-                        path.Append( propInfo.m_ID, i );
-                        DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, setStringValues, pArrayElementAddress, path, i );
-                        pArrayElementAddress += elementByteSize;
-                        path.RemoveLastElement();
+                        Byte const* pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( const_cast<IRegisteredType*>( pTypeInstance ), propInfo.m_ID, 0 );
+
+                        // Write array elements
+                        for ( auto i = 0; i < numArrayElements; i++ )
+                        {
+                            path.Append( propInfo.m_ID, i );
+                            DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, setStringValues, pArrayElementAddress, path, i );
+                            pArrayElementAddress += elementByteSize;
+                            path.RemoveLastElement();
+                        }
                     }
                 }
                 else
