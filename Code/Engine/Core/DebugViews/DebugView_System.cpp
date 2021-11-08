@@ -26,6 +26,11 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    SystemLogView::SystemLogView()
+    {
+        m_logFilter.resize( 255 );
+    }
+
     bool SystemLogView::Draw( UpdateContext const& context )
     {
         bool isLogWindowOpen = true;

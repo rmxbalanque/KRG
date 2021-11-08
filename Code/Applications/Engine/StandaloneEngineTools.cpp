@@ -21,7 +21,6 @@ namespace KRG
     {
         m_pWorldManager = context.GetSystem<EntityWorldManager>();
         m_pWorldDebugger = KRG::New<EntityWorldDebugger>( m_pWorldManager->GetPrimaryWorld() );
-        m_logFilter.resize( 255 );
     }
 
     void StandaloneEngineTools::Shutdown( UpdateContext const& context )
@@ -260,9 +259,9 @@ namespace KRG
             if ( ImGui::Button( tempStr.c_str() ) )
             {
                 m_isLogWindowOpen = true;
-                m_showLogMessages = false;
-                m_showLogWarnings = true;
-                m_showLogErrors = false;
+                m_systemLogView.m_showLogMessages = false;
+                m_systemLogView.m_showLogWarnings = true;
+                m_systemLogView.m_showLogErrors = false;
             }
             
             ImGuiX::VerticalSeparator();
@@ -271,9 +270,9 @@ namespace KRG
             if ( ImGui::Button( tempStr.c_str() ) )
             {
                 m_isLogWindowOpen = true;
-                m_showLogMessages = false;
-                m_showLogWarnings = false;
-                m_showLogErrors = true;
+                m_systemLogView.m_showLogMessages = false;
+                m_systemLogView.m_showLogWarnings = false;
+                m_systemLogView.m_showLogErrors = true;
             }
         }
         ImGui::End();

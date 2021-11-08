@@ -32,14 +32,18 @@ namespace KRG
     {
     public:
 
+        SystemLogView();
         bool Draw( UpdateContext const& context );
+
+    public:
+
+        bool                                                m_showLogMessages = true;
+        bool                                                m_showLogWarnings = true;
+        bool                                                m_showLogErrors = true;
 
     private:
 
         InlineString<255>                                   m_logFilter;
-        bool                                                m_showLogMessages = true;
-        bool                                                m_showLogWarnings = true;
-        bool                                                m_showLogErrors = true;
     };
 
     //-------------------------------------------------------------------------
