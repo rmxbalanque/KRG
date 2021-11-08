@@ -24,7 +24,7 @@ namespace KRG::CPP
     private:
 
         // File specific functions
-        void GenerateHeaderFileHeader( HeaderInfo const& hdr, String const& headerID );
+        void GenerateHeaderFileHeader( HeaderInfo const& hdr );
         void GenerateCodeFileHeader( String const& generatedHeaderFilePath );
         void GenerateModuleCodeFile( ProjectInfo const& prj, TVector<ReflectedType> const& typesInModule );
 

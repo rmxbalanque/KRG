@@ -27,12 +27,14 @@ namespace KRG::Resource
     {
         if ( m_isHistoryWindowOpen )
         {
-            DrawHistoryWindow( context );
+            ImGui::SetNextWindowBgAlpha( 0.75f );
+            DrawResourceLogWindow( m_pResourceSystem, &m_isHistoryWindowOpen );
         }
 
         if ( m_isReferenceTrackerWindowOpen )
         {
-            DrawReferenceTrackerWindow( context );
+            ImGui::SetNextWindowBgAlpha( 0.75f );
+            DrawReferenceTrackerWindow( m_pResourceSystem, &m_isReferenceTrackerWindowOpen );
         }
     }
 
@@ -49,83 +51,18 @@ namespace KRG::Resource
         }
     }
 
-    void ResourceDebugView::DrawHistoryWindow( EntityUpdateContext const& context )
+    //-------------------------------------------------------------------------
+
+    void ResourceDebugView::DrawReferenceTrackerWindow( ResourceSystem* pResourceSystem, bool* pIsOpen )
     {
-        KRG_ASSERT( m_isHistoryWindowOpen );
+        KRG_ASSERT( pResourceSystem != nullptr );
 
-        ImGui::SetNextWindowBgAlpha( 0.75f );
-        if ( ImGui::Begin( "Resource Request History", &m_isHistoryWindowOpen ) )
-        {
-            if ( ImGui::BeginTable( "Resource Request History Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
-            {
-                ImGui::TableSetupColumn( "Time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 50 );
-                ImGui::TableSetupColumn( "Request", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 45 );
-                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 30 );
-                ImGui::TableSetupColumn( "ID", ImGuiTableColumnFlags_WidthStretch );
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableHeadersRow();
-
-                //-------------------------------------------------------------------------
-
-                for ( auto i = (int32) m_pResourceSystem->m_history.size() - 1; i >= 0; i-- )
-                {
-                    auto const& entry = m_pResourceSystem->m_history[i];
-
-                    ImGui::TableNextRow();
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( entry.m_time.GetTimeDetailed().c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 1 );
-                    switch ( entry.m_type )
-                    {
-                        case ResourceSystem::PendingRequest::Type::Load:
-                        {
-                            ImGui::TextColored( Colors::LimeGreen.ToFloat4(), "Load" );
-                        }
-                        break;
-
-                        case ResourceSystem::PendingRequest::Type::Unload:
-                        {
-                            ImGui::TextColored( Colors::OrangeRed.ToFloat4(), "Unload" );
-                        }
-                        break;
-                    }
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 2 );
-                    ImGui::Text( entry.m_ID.GetResourceTypeID().ToString().c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 3 );
-                    ImGui::Text( entry.m_ID.c_str() );
-                }
-
-                ImGui::EndTable();
-            }
-        }
-        ImGui::End();
-    }
-
-    void ResourceDebugView::DrawReferenceTrackerWindow( EntityUpdateContext const& context )
-    {
-        KRG_ASSERT( m_isReferenceTrackerWindowOpen );
-
-        ImGui::SetNextWindowBgAlpha( 0.75f );
-        if ( ImGui::Begin( "Resource Reference Tracker", &m_isReferenceTrackerWindowOpen ) )
+        if ( ImGui::Begin( "Resource Reference Tracker", pIsOpen ) )
         {
             if ( ImGui::BeginTable( "Resource Reference Tracker Table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
             {
                 ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 30 );
-                ImGui::TableSetupColumn( "Refs", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 24);
+                ImGui::TableSetupColumn( "Refs", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 24 );
                 ImGui::TableSetupColumn( "ID", ImGuiTableColumnFlags_WidthStretch );
 
                 //-------------------------------------------------------------------------
@@ -134,7 +71,7 @@ namespace KRG::Resource
 
                 //-------------------------------------------------------------------------
 
-                for ( auto const& recordTuple : m_pResourceSystem->m_resourceRecords )
+                for ( auto const& recordTuple : pResourceSystem->m_resourceRecords )
                 {
                     ResourceRecord const* pRecord = recordTuple.second;
 
@@ -173,6 +110,69 @@ namespace KRG::Resource
 
                         ImGui::TreePop();
                     }
+                }
+
+                ImGui::EndTable();
+            }
+        }
+        ImGui::End();
+    }
+
+    void ResourceDebugView::DrawResourceLogWindow( ResourceSystem* pResourceSystem, bool* pIsOpen )
+    {
+        if ( ImGui::Begin( "Resource Request History", pIsOpen ) )
+        {
+            if ( ImGui::BeginTable( "Resource Request History Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
+            {
+                ImGui::TableSetupColumn( "Time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 50 );
+                ImGui::TableSetupColumn( "Request", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 45 );
+                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 30 );
+                ImGui::TableSetupColumn( "ID", ImGuiTableColumnFlags_WidthStretch );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableHeadersRow();
+
+                //-------------------------------------------------------------------------
+
+                for ( auto i = (int32) pResourceSystem->m_history.size() - 1; i >= 0; i-- )
+                {
+                    auto const& entry = pResourceSystem->m_history[i];
+
+                    ImGui::TableNextRow();
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 0 );
+                    ImGui::Text( entry.m_time.GetTimeDetailed().c_str() );
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 1 );
+                    switch ( entry.m_type )
+                    {
+                        case ResourceSystem::PendingRequest::Type::Load:
+                        {
+                            ImGui::TextColored( Colors::LimeGreen.ToFloat4(), "Load" );
+                        }
+                        break;
+
+                        case ResourceSystem::PendingRequest::Type::Unload:
+                        {
+                            ImGui::TextColored( Colors::OrangeRed.ToFloat4(), "Unload" );
+                        }
+                        break;
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 2 );
+                    ImGui::Text( entry.m_ID.GetResourceTypeID().ToString().c_str() );
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 3 );
+                    ImGui::Text( entry.m_ID.c_str() );
                 }
 
                 ImGui::EndTable();

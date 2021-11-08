@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/IDevToolsUI.h"
+#include "Engine/Core/DebugViews/DebugView_System.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Types/Containers.h"
@@ -46,9 +47,6 @@ namespace KRG
         void DrawWindows( UpdateContext const& context );
         void DrawStatusBar( UpdateContext const& context );
 
-        void DrawLogWindow( UpdateContext const& context );
-        void DrawDebugSettingsWindow( UpdateContext const& context );
-
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override {}
         virtual void EndHotReload() {}
 
@@ -61,12 +59,10 @@ namespace KRG
         Seconds                                             m_avgTimeDelta = 0.0f;
         bool                                                m_debugOverlayEnabled = false;
 
+        SystemLogView                                       m_systemLogView;
         bool                                                m_isLogWindowOpen = false;
-        InlineString<255>                                   m_logFilter;
-        bool                                                m_showLogMessages = true;
-        bool                                                m_showLogWarnings = true;
-        bool                                                m_showLogErrors = true;
 
+        DebugSettingsView                                   m_debugSettingsView;
         bool                                                m_isDebugSettingsWindowOpen = false;
     };
 }

@@ -36,7 +36,7 @@ namespace KRG
                 for ( HeaderInfo const* pHeader : headers )
                 {
                     m_context.m_headersToVisit.push_back( pHeader->m_ID );
-                    includeStr += "#include \"" + pHeader->m_filePath + "\"\n";
+                    includeStr += "#include \"" + pHeader->m_filePath.GetString() + "\"\n";
                 }
 
                 reflectorFileStream.write( includeStr.c_str(), includeStr.size() );

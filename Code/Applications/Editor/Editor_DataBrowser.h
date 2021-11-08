@@ -16,7 +16,7 @@ namespace KRG
         ~DataBrowser();
 
         virtual char const * const GetName() { return "Data Browser"; }
-        void Draw( UpdateContext const& context );
+        bool Draw( UpdateContext const& context );
 
     private:
 

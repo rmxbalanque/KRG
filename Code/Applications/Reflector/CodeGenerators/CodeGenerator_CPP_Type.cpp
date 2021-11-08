@@ -595,11 +595,11 @@ namespace KRG::CPP
                     {
                         file << "                    for ( auto const& resourcePtr : pActualType->" << propertyDesc.m_name.c_str() << " )\n";
                         file << "                    {\n";
-                        file << "                        if ( !resourcePtr.IsValid() || resourcePtr.HasLoadingFailed() )\n";
+                        file << "                        if ( resourcePtr.HasLoadingFailed() )\n";
                         file << "                        {\n";
                         file << "                            status = LoadingStatus::Failed;\n";
                         file << "                        }\n";
-                        file << "                        else if ( !resourcePtr.IsLoaded() )\n";
+                        file << "                        else if ( resourcePtr.IsValid() && !resourcePtr.IsLoaded() )\n";
                         file << "                        {\n";
                         file << "                            return LoadingStatus::Loading;\n";
                         file << "                        }\n";
@@ -609,11 +609,11 @@ namespace KRG::CPP
                     {
                         for ( auto i = 0; i < propertyDesc.m_arraySize; i++ )
                         {
-                            file << "                    if ( !pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].IsValid() || pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].HasLoadingFailed() )\n";
+                            file << "                    if ( pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].HasLoadingFailed() )\n";
                             file << "                    {\n";
                             file << "                        status = LoadingStatus::Failed;\n";
                             file << "                    }\n";
-                            file << "                    else if ( !pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].IsLoaded() )\n";
+                            file << "                    else if ( pActualType->" << propertyDesc.m_name.c_str() << ".IsValid() && !pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].IsLoaded() )\n";
                             file << "                    {\n";
                             file << "                        return LoadingStatus::Loading;\n";
                             file << "                    }\n\n";
@@ -622,11 +622,11 @@ namespace KRG::CPP
                 }
                 else
                 {
-                    file << "                    if ( !pActualType->" << propertyDesc.m_name.c_str() << ".IsValid() || pActualType->" << propertyDesc.m_name.c_str() << ".HasLoadingFailed() )\n";
+                    file << "                    if ( pActualType->" << propertyDesc.m_name.c_str() << ".HasLoadingFailed() )\n";
                     file << "                    {\n";
                     file << "                        status = LoadingStatus::Failed;\n";
                     file << "                    }\n";
-                    file << "                    else if ( !pActualType->" << propertyDesc.m_name.c_str() << ".IsLoaded() )\n";
+                    file << "                    else if ( pActualType->" << propertyDesc.m_name.c_str() << ".IsValid() && !pActualType->" << propertyDesc.m_name.c_str() << ".IsLoaded() )\n";
                     file << "                    {\n";
                     file << "                        return LoadingStatus::Loading;\n";
                     file << "                    }\n\n";

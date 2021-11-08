@@ -3,6 +3,7 @@
 #include "Editor_Model.h"
 #include "Editor_DataBrowser.h"
 #include "Engine/Core/IDevToolsUI.h"
+#include "Engine/Core/DebugViews/DebugView_System.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 
 //-------------------------------------------------------------------------
@@ -47,5 +48,15 @@ namespace KRG
         Resource::ResourceDatabase          m_db;
         DataBrowser*                        m_pDataBrowser = nullptr;
         float                               m_dataBrowserViewWidth = 150;
+
+        SystemLogView                       m_systemLogView;
+        bool                                m_isSystemLogWindowOpen = false;
+
+        DebugSettingsView                   m_debugSettingsView;
+        bool                                m_isDebugSettingsWindowOpen = false;
+
+        bool                                m_isResourceBrowserWindowOpen = true;
+        bool                                m_isResourceLogWindowOpen = false;
+        bool                                m_isResourceReferenceTrackerWindowOpen = false;
     };
 }

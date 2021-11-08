@@ -42,6 +42,7 @@ namespace KRG::Resource
         // Raw resource failed to load
         if ( filePath.empty() )
         {
+            KRG_LOG_ERROR( "Resource", "Failed to find/compile resource file (%s)", m_pResourceRecord->GetResourceID().c_str() );
             m_stage = ResourceRequest::Stage::Complete;
             m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
         }
@@ -365,6 +366,8 @@ namespace KRG::Resource
         // If dependency has failed, the resource has failed to load so immediately unload and set status to failed
         if ( status == InstallStatus::ShouldFail )
         {
+            KRG_LOG_ERROR( "Resource", "Failed to load resource file due to failed dependency (%s)", m_pResourceRecord->GetResourceID().c_str() );
+
             // Do not use the user ID for install dependencies! Since they are not explicitly loaded by a specific user!
             // Instead we create a ResourceRequesterID from the depending resource's resourceID
             ResourceRequesterID const installDependencyRequesterID( m_pResourceRecord->GetResourceID() );
@@ -425,6 +428,8 @@ namespace KRG::Resource
             // Install operation failed, unload resource and set status to failed
             case InstallResult::Failed:
             {
+                KRG_LOG_ERROR( "Resource", "Failed to install resource (%s)", m_pResourceRecord->GetResourceID().c_str() );
+
                 m_stage = ResourceRequest::Stage::UnloadResource;
                 UnloadResource( requestContext );
                 m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );
@@ -468,6 +473,8 @@ namespace KRG::Resource
             // Install operation failed, unload resource and set status to failed
             case InstallResult::Failed:
             {
+                KRG_LOG_ERROR( "Resource", "Failed to install resource (%s)", m_pResourceRecord->GetResourceID().c_str() );
+
                 m_stage = ResourceRequest::Stage::UnloadResource;
                 UnloadResource( requestContext );
                 m_pResourceRecord->SetLoadingStatus( LoadingStatus::Failed );

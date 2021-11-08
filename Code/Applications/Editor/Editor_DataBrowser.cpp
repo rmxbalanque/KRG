@@ -24,13 +24,14 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void DataBrowser::Draw( UpdateContext const& context )
+    bool DataBrowser::Draw( UpdateContext const& context )
     {
         m_dataBrowserTreeView.Update( context );
 
         //-------------------------------------------------------------------------
 
-        if ( ImGui::Begin( "Data Browser", nullptr ) )
+        bool isOpen = true;
+        if ( ImGui::Begin( "Data Browser", &isOpen ) )
         {
             // Filters and controls
             //-------------------------------------------------------------------------
@@ -91,6 +92,8 @@ namespace KRG
             ImGui::EndChild();
         }
         ImGui::End();
+
+        return isOpen;
     }
 
     //-------------------------------------------------------------------------

@@ -7,24 +7,29 @@ namespace KRG::Debug
 {
     Drawing::ThreadCommandBuffer& DrawingSystem::GetThreadCommandBuffer()
     {
-        static thread_local Drawing::ThreadCommandBuffer* pThreadCommandBuffer = nullptr;
+        Threading::ScopeLock Lock( m_commandBufferMutex );
 
-        Threading::ScopeLock Lock( m_acquireCommandBufferMutex );
+        auto const threadID = Threading::GetCurrentThreadID();
 
-        if ( pThreadCommandBuffer == nullptr )
+        // Check for an already created buffer for this thread
+        for ( auto& pThreadBuffer : m_threadCommandBuffers )
         {
-            pThreadCommandBuffer = KRG::New<Drawing::ThreadCommandBuffer>( Threading::GetCurrentThreadID() );
-            m_threadCommandBuffers.emplace_back( pThreadCommandBuffer );
+            if ( pThreadBuffer->GetThreadID() == threadID )
+            {
+                return *pThreadBuffer;
+            }
         }
 
-        return *pThreadCommandBuffer;
+        // Create a new buffer
+        auto& pThreadBuffer = m_threadCommandBuffers.emplace_back( KRG::New<Drawing::ThreadCommandBuffer>( threadID ) );
+        return *pThreadBuffer;
     }
 
     DrawingSystem::~DrawingSystem()
     {
-        for ( auto pCommandBuffer : m_threadCommandBuffers )
+        for ( auto& pBuffer : m_threadCommandBuffers )
         {
-            KRG::Delete( pCommandBuffer );
+            KRG::Delete( pBuffer );
         }
     }
 
@@ -32,20 +37,20 @@ namespace KRG::Debug
     {
         reflectedFrameCommands.Clear();
 
-        Threading::ScopeLock Lock( m_acquireCommandBufferMutex );
-        for ( auto pCommandBuffer : m_threadCommandBuffers )
+        Threading::ScopeLock Lock( m_commandBufferMutex );
+        for ( auto& pThreadBuffer : m_threadCommandBuffers )
         {
-            reflectedFrameCommands.AddThreadCommands( *pCommandBuffer );
-            pCommandBuffer->Clear();
+            reflectedFrameCommands.AddThreadCommands( *pThreadBuffer );
+            pThreadBuffer->Clear();
         }
     }
 
     void DrawingSystem::Reset()
     {
-        Threading::ScopeLock Lock( m_acquireCommandBufferMutex );
-        for ( auto pCommandBuffer : m_threadCommandBuffers )
+        Threading::ScopeLock Lock( m_commandBufferMutex );
+        for ( auto& pThreadBuffer : m_threadCommandBuffers )
         {
-            pCommandBuffer->Clear();
+            pThreadBuffer->Clear();
         }
     }
 }

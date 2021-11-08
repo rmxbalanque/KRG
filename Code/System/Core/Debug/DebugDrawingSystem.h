@@ -11,6 +11,7 @@ namespace KRG::Debug
 {
     class KRG_SYSTEM_CORE_API DrawingSystem
     {
+
     public:
 
         DrawingSystem() = default;
@@ -32,7 +33,7 @@ namespace KRG::Debug
     private:
 
         TVector<Drawing::ThreadCommandBuffer*>      m_threadCommandBuffers;
-        Threading::Mutex                            m_acquireCommandBufferMutex;
+        Threading::Mutex                            m_commandBufferMutex;
     };
 }
 #endif

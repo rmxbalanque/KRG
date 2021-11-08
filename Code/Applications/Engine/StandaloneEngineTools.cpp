@@ -17,73 +17,6 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    static void DrawDebugSetting( DebugSetting* pDebugSetting )
-    {
-        KRG_ASSERT( pDebugSetting != nullptr );
-
-        //-------------------------------------------------------------------------
-
-        switch ( pDebugSetting->GetType() )
-        {
-            case DebugSetting::Type::Bool:
-            {
-                auto pSetting = static_cast<DebugSettingBool*>( pDebugSetting );
-                bool value = *pSetting;
-                if ( ImGui::Checkbox( pDebugSetting->GetName(), &value ) )
-                {
-                    *pSetting = value;
-                }
-            }
-            break;
-
-            case DebugSetting::Type::Int:
-            {
-                auto pSetting = static_cast<DebugSettingInt*>( pDebugSetting );
-                int32 value = *pSetting;
-
-                if ( pSetting->HasLimits() )
-                {
-                    if ( ImGui::SliderInt( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
-                    {
-                        *pSetting = value;
-                    }
-                }
-                else
-                {
-                    if ( ImGui::InputInt( pDebugSetting->GetName(), &value ) )
-                    {
-                        *pSetting = value;
-                    }
-                }
-            }
-            break;
-
-            case DebugSetting::Type::Float:
-            {
-                auto pSetting = static_cast<DebugSettingFloat*>( pDebugSetting );
-                float value = *pSetting;
-
-                if ( pSetting->HasLimits() )
-                {
-                    if ( ImGui::SliderFloat( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
-                    {
-                        *pSetting = value;
-                    }
-                }
-                else
-                {
-                    if ( ImGui::InputFloat( pDebugSetting->GetName(), &value, 0.1f, 1.0f ) )
-                    {
-                        *pSetting = value;
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
     void StandaloneEngineTools::Initialize( UpdateContext const& context )
     {
         m_pWorldManager = context.GetSystem<EntityWorldManager>();
@@ -255,13 +188,16 @@ namespace KRG
             // Draw Performance Stats
             //-------------------------------------------------------------------------
 
-            ImGuiViewport const* viewport = ImGui::GetMainViewport();
-            ImGui::SameLine( viewport->WorkSize.x - 155 );
-
             float const currentFPS = 1.0f / context.GetDeltaTime();
             float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
-            ImGui::Text( "FPS: %3.0f  Mem: %.2fMB", currentFPS, allocatedMemory );
+            InlineString<200> perfStatStr;
+            perfStatStr.sprintf( "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
 
+            ImGuiViewport const* viewport = ImGui::GetMainViewport();
+            ImVec2 const textSize = ImGui::CalcTextSize( perfStatStr.c_str() );
+            ImGui::SameLine( viewport->WorkSize.x - textSize.x - 8.0f );
+
+            ImGui::Text( perfStatStr.c_str() );
             ImGui::EndMainMenuBar();
         }
     }
@@ -285,12 +221,14 @@ namespace KRG
 
         if ( m_isLogWindowOpen )
         {
-            DrawLogWindow( context );
+            ImGui::SetNextWindowBgAlpha( 0.75f );
+            m_isLogWindowOpen = m_systemLogView.Draw( context );
         }
 
         if ( m_isDebugSettingsWindowOpen )
         {
-            DrawDebugSettingsWindow( context );
+            ImGui::SetNextWindowBgAlpha( 0.75f );
+            m_isDebugSettingsWindowOpen = m_debugSettingsView.Draw( context );
         }
     }
 
@@ -340,154 +278,6 @@ namespace KRG
         }
         ImGui::End();
         ImGui::PopStyleVar( 3 );
-    }
-
-    void StandaloneEngineTools::DrawLogWindow( UpdateContext const& context )
-    {
-        ImGui::SetNextWindowBgAlpha( 0.75f );
-        if ( ImGui::Begin( "System Log", &m_isLogWindowOpen ) )
-        {
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text( "Filter:" );
-            ImGui::SameLine();
-            ImGui::BeginDisabled();
-            if ( ImGui::InputText( "##Filter", m_logFilter.data(), 255 ) )
-            {
-                // TODO
-            }
-            ImGui::EndDisabled();
-
-            //-------------------------------------------------------------------------
-
-            ImGui::SameLine();
-            ImGui::Checkbox( "Messages", &m_showLogMessages );
-            ImGui::SameLine();
-            ImGui::Checkbox( "Warnings", &m_showLogWarnings );
-            ImGui::SameLine();
-            ImGui::Checkbox( "Errors", &m_showLogErrors );
-
-            //-------------------------------------------------------------------------
-
-            if ( ImGui::BeginTable( "System Log Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
-            {
-                ImGui::TableSetupColumn( "Time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 55 );
-                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 55 );
-                ImGui::TableSetupColumn( "Channel", ImGuiTableColumnFlags_WidthFixed, 60 );
-                ImGui::TableSetupColumn( "Message", ImGuiTableColumnFlags_WidthStretch );
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableHeadersRow();
-
-                //-------------------------------------------------------------------------
-
-                auto const& logEntries = Log::GetLogEntries();
-                for ( auto const& entry : logEntries )
-                {
-                    switch ( entry.m_severity )
-                    {
-                        case Log::Severity::Warning:
-                        if ( !m_showLogWarnings )
-                        {
-                            continue;
-                        }
-                        break;
-
-                        case Log::Severity::Error:
-                        if ( !m_showLogErrors )
-                        {
-                            continue;
-                        }
-                        break;
-
-                        case Log::Severity::Message:
-                        if ( !m_showLogMessages )
-                        {
-                            continue;
-                        }
-                        break;
-                    }
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableNextRow();
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( entry.m_timestamp.c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 1 );
-                    switch ( entry.m_severity )
-                    {
-                        case Log::Severity::Warning:
-                        ImGui::TextColored( Colors::Yellow.ToFloat4(), "Warning" );
-                        break;
-
-                        case Log::Severity::Error:
-                        ImGui::TextColored( Colors::Red.ToFloat4(), "Error" );
-                        break;
-
-                        case Log::Severity::Message:
-                        ImGui::Text( "Message" );
-                        break;
-                    }
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 2 );
-                    ImGui::Text( entry.m_channel.c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 3 );
-                    ImGui::Text( entry.m_message.c_str() );
-                }
-
-                ImGui::EndTable();
-            }
-        }
-        ImGui::End();
-    }
-
-    void StandaloneEngineTools::DrawDebugSettingsWindow( UpdateContext const& context )
-    {
-        auto pSettingsRegistry = context.GetSystem<SettingsRegistry>();
-        auto const& debugSettings = pSettingsRegistry->GetAllDebugSettings();
-
-        //-------------------------------------------------------------------------
-
-        ImGui::SetNextWindowBgAlpha( 0.75f );
-        if ( ImGui::Begin( "Debug Settings", &m_isDebugSettingsWindowOpen ) )
-        {
-            if ( ImGui::BeginTable( "Settings Table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
-            {
-                ImGui::TableSetupColumn( "Channel", ImGuiTableColumnFlags_WidthFixed, 200 );
-                ImGui::TableSetupColumn( "Setting", ImGuiTableColumnFlags_WidthStretch );
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableHeadersRow();
-
-                //-------------------------------------------------------------------------
-
-                for ( auto const& settingPair : debugSettings )
-                {
-                    ImGui::TableNextRow();
-
-                    ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( settingPair.second->GetCategory() );
-
-                    ImGui::TableSetColumnIndex( 1 );
-                    DrawDebugSetting( settingPair.second );
-                }
-
-                ImGui::EndTable();
-            }
-        }
-        ImGui::End();
     }
 }
 #endif

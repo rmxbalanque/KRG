@@ -30,11 +30,13 @@ namespace KRG::ImGuiX
 
     void Theme::ApplyTheme()
     {
+        ImGuiStyle& style = ImGui::GetStyle();
+
         //-------------------------------------------------------------------------
         // Colors
         //-------------------------------------------------------------------------
 
-        ImVec4* colors = ImGui::GetStyle().Colors;
+        ImVec4* colors = style.Colors;
 
         colors[ImGuiCol_Text] = s_textColor;
         colors[ImGuiCol_TextDisabled] = s_textColorDisabled;
@@ -100,8 +102,6 @@ namespace KRG::ImGuiX
         //-------------------------------------------------------------------------
         // Style
         //-------------------------------------------------------------------------
-
-        ImGuiStyle& style = ImGui::GetStyle();
 
         style.FramePadding = ImVec2( 4, 3 );
         style.WindowPadding = ImVec2( 4, 4 );

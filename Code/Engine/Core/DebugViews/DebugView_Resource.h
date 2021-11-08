@@ -11,9 +11,14 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    class ResourceDebugView : public EntityWorldDebugView
+    class KRG_ENGINE_CORE_API ResourceDebugView : public EntityWorldDebugView
     {
         KRG_REGISTER_TYPE( ResourceDebugView );
+
+    public:
+
+        static void DrawResourceLogWindow( ResourceSystem* pResourceSystem, bool* pIsOpen );
+        static void DrawReferenceTrackerWindow( ResourceSystem* pResourceSystem, bool* pIsOpen );
 
     public:
 
@@ -27,7 +32,6 @@ namespace KRG::Resource
 
         void DrawResourceMenu( EntityUpdateContext const& context );
         void DrawHistoryWindow( EntityUpdateContext const& context );
-        void DrawReferenceTrackerWindow( EntityUpdateContext const& context );
 
     private:
 
