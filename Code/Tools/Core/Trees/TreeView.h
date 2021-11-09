@@ -42,9 +42,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         virtual ImVec4 const& GetLabelColor( bool isActive = false ) const { static const ImVec4 activeColor = Colors::GreenYellow.ToFloat4(); return isActive ? activeColor : ImGuiX::Theme::s_textColor; }
-        virtual void DrawControls() {}
         virtual bool SupportsContextMenu() const { return false; }
-        virtual void DrawContextMenu() {}
         virtual bool CanBeSetActive() const { return true; }
 
         // Children
@@ -284,6 +282,15 @@ namespace KRG
             KRG_ASSERT( width >= 0 );
             m_itemControlColumnWidth = width; 
         }
+
+        // User overrideable function to draw any addition windows/dialogs that might be needed
+        virtual void DrawExtra() {}
+
+        // Draw any custom item controls you might need
+        virtual void DrawItemControls( TreeViewItem* pItem ) {}
+
+        // Draw any custom item context menus you might need
+        virtual void DrawItemContextMenu( TreeViewItem* pItem ) {}
 
     private:
 

@@ -16,7 +16,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class DataFileInspector
+    class ResourceInspector
     {
         enum class Mode
         {
@@ -27,8 +27,8 @@ namespace KRG
 
     public:
 
-        DataFileInspector( EditorModel* pModel );
-        virtual ~DataFileInspector();
+        ResourceInspector( EditorModel* pModel );
+        virtual ~ResourceInspector();
 
         inline FileSystem::Path const& GetInspectedFilePath() const { return m_inspectedFile; }
         void SetFileToInspect( FileSystem::Path const& inFile );

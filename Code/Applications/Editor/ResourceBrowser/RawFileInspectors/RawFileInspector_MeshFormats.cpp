@@ -41,7 +41,7 @@ namespace KRG
             if ( ImGui::Button( KRG_ICON_CUBE " Create Static Mesh", ImVec2( -1, 24 ) ) )
             {
                 Render::StaticMeshResourceDescriptor resourceDesc;
-                resourceDesc.m_meshPath = ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_filePath );
+                resourceDesc.m_meshPath = ResourcePath::FromFileSystemPath( m_pModel->GetSourceResourceDirectory(), m_filePath );
                 CreateNewDescriptor( Render::StaticMesh::GetStaticResourceTypeID(), resourceDesc );
             }
 
@@ -204,7 +204,7 @@ namespace KRG
         if ( ImGui::Button( KRG_ICON_PLUS "##CreateStaticMesh", ImVec2( 19, 0 ) ) )
         {
             Render::StaticMeshResourceDescriptor resourceDesc;
-            resourceDesc.m_meshPath = ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_filePath );
+            resourceDesc.m_meshPath = ResourcePath::FromFileSystemPath( m_pModel->GetSourceResourceDirectory(), m_filePath );
             resourceDesc.m_meshName = mesh.m_name;
             CreateNewDescriptor( Render::StaticMesh::GetStaticResourceTypeID(), resourceDesc );
         }
@@ -219,7 +219,7 @@ namespace KRG
         if ( ImGui::Button( KRG_ICON_PLUS "##CreateSkeletalMesh", ImVec2( 20, 0 ) ) )
         {
             Render::SkeletalMeshResourceDescriptor resourceDesc;
-            resourceDesc.m_meshPath = ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_filePath );
+            resourceDesc.m_meshPath = ResourcePath::FromFileSystemPath( m_pModel->GetSourceResourceDirectory(), m_filePath );
             resourceDesc.m_meshName = mesh.m_name;
             CreateNewDescriptor( Render::SkeletalMesh::GetStaticResourceTypeID(), resourceDesc );
         }
@@ -232,7 +232,7 @@ namespace KRG
         if ( ImGui::Button( KRG_ICON_PLUS "##CreateSkeleton", ImVec2( 19, 0 ) ) )
         {
             Animation::SkeletonResourceDescriptor resourceDesc;
-            resourceDesc.m_skeletonPath = ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_filePath );
+            resourceDesc.m_skeletonPath = ResourcePath::FromFileSystemPath( m_pModel->GetSourceResourceDirectory(), m_filePath );
             resourceDesc.m_skeletonRootBoneName = skeleton.m_name;
             CreateNewDescriptor( Animation::Skeleton::GetStaticResourceTypeID(), resourceDesc );
         }
@@ -245,7 +245,7 @@ namespace KRG
         if ( ImGui::Button( KRG_ICON_PLUS "##CreateAnimation", ImVec2( 19, 0 ) ) )
         {
             Animation::AnimationClipResourceDescriptor resourceDesc;
-            resourceDesc.m_animationPath = ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_filePath );
+            resourceDesc.m_animationPath = ResourcePath::FromFileSystemPath( m_pModel->GetSourceResourceDirectory(), m_filePath );
             resourceDesc.m_animationName = animation.m_name;
             CreateNewDescriptor( Animation::AnimationClip::GetStaticResourceTypeID(), resourceDesc );
         }

@@ -1,11 +1,11 @@
-#include "Editor_DataBrowser.h"
+#include "ResourceBrowser.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    DataBrowser::DataBrowser( EditorModel& model )
+    ResourceBrowser::ResourceBrowser( EditorModel& model )
         : m_model( model )
         , m_dataBrowserTreeView( &model )
         , m_dataFileInspector( &model )
@@ -17,19 +17,15 @@ namespace KRG
         UpdateVisibility();
     }
 
-    DataBrowser::~DataBrowser()
+    ResourceBrowser::~ResourceBrowser()
     {
         m_dataBrowserTreeView.OnItemDoubleClicked().Unbind( m_onDoubleClickEventID );
     }
 
     //-------------------------------------------------------------------------
 
-    bool DataBrowser::Draw( UpdateContext const& context )
+    bool ResourceBrowser::Draw( UpdateContext const& context )
     {
-        m_dataBrowserTreeView.Update( context );
-
-        //-------------------------------------------------------------------------
-
         bool isOpen = true;
         if ( ImGui::Begin( "Data Browser", &isOpen ) )
         {
@@ -45,7 +41,7 @@ namespace KRG
             {
                 m_dataBrowserTreeView.Draw();
 
-                auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<DataBrowserTreeItem>();
+                auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<ResourceBrowserTreeItem>();
                 if ( pSelectedItem != nullptr && pSelectedItem->IsFile() )
                 {
                     if ( pSelectedItem->GetFilePath() != m_dataFileInspector.GetInspectedFilePath() )
@@ -98,7 +94,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void DataBrowser::UpdateVisibility()
+    void ResourceBrowser::UpdateVisibility()
     {
         auto VisibilityFunc = [this] ( TreeViewItem const* pItem )
         {
@@ -107,7 +103,7 @@ namespace KRG
             // Type filter
             //-------------------------------------------------------------------------
 
-            auto pDataFileItem = static_cast<DataBrowserTreeItem const*>( pItem );
+            auto pDataFileItem = static_cast<ResourceBrowserTreeItem const*>( pItem );
             if ( pDataFileItem->IsFile() )
             {
                 if ( pDataFileItem->IsRawFile() )
@@ -155,7 +151,7 @@ namespace KRG
         m_dataBrowserTreeView.UpdateItemVisibility( VisibilityFunc );
     }
 
-    void DataBrowser::UpdateAndDrawBrowserFilters( UpdateContext const& context )
+    void ResourceBrowser::UpdateAndDrawBrowserFilters( UpdateContext const& context )
     {
         KRG_PROFILE_FUNCTION();
 
@@ -227,7 +223,7 @@ namespace KRG
         }
     }
 
-    bool DataBrowser::DrawResourceTypeFilterMenu()
+    bool ResourceBrowser::DrawResourceTypeFilterMenu()
     {
         bool requiresVisibilityUpdate = false;
 
@@ -266,9 +262,9 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void DataBrowser::OnBrowserItemDoubleClicked( TreeViewItem* pItem )
+    void ResourceBrowser::OnBrowserItemDoubleClicked( TreeViewItem* pItem )
     {
-        auto pDataFileItem = static_cast<DataBrowserTreeItem const*>( pItem );
+        auto pDataFileItem = static_cast<ResourceBrowserTreeItem const*>( pItem );
         if ( pDataFileItem->IsDirectory() || pDataFileItem->IsRawFile() )
         {
             return;

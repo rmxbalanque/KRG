@@ -22,8 +22,10 @@ namespace KRG
             idx = path.rfind( '.', idx - 1 );
         }
 
-        KRG_ASSERT( prevIdx != String::npos );
-        prevIdx++;
+        if ( prevIdx != String::npos )
+        {
+            prevIdx++;
+        }
 
         return prevIdx;
     }
@@ -145,16 +147,33 @@ namespace KRG
     String ResourcePath::GetExtension() const
     {
         KRG_ASSERT( IsValid() );
+        String ext;
+
         size_t const extIdx = FindExtensionStartIdx( m_path.c_str() );
-        return m_path.substr( extIdx, m_path.length() - extIdx );
+        if ( extIdx != String::npos )
+        {
+            ext = m_path.substr( extIdx, m_path.length() - extIdx );
+        }
+
+        return ext;
     }
 
     void ResourcePath::ReplaceExtension( const char* pExtension )
     {
         KRG_ASSERT( IsValid() && pExtension != nullptr );
         KRG_ASSERT( pExtension[0] != 0 && pExtension[0] != '.' );
+
         size_t const extIdx = FindExtensionStartIdx( m_path.c_str() );
-        m_path = m_path.substr( 0, extIdx ) + pExtension;
+        if ( extIdx != String::npos )
+        {
+            m_path = m_path.substr( 0, extIdx ) + pExtension;
+        }
+        else // No extension, so just append
+        {
+            m_path.append( "." );
+            m_path.append( pExtension );
+        }
+
         OnPathMemberChanged();
     }
 }

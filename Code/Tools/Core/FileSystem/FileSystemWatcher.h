@@ -55,7 +55,8 @@ namespace KRG::FileSystem
         bool IsWatching() const { return m_pDirectoryHandle != nullptr; }
         void StopWatching();
 
-        void Update();
+        // Returns true if any filesystem changes detected!
+        bool Update();
 
     private:
 

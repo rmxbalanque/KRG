@@ -210,7 +210,7 @@ namespace KRG
                 OnSelectedChangedInternal();
 
                 ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( ImGui::GetStyle().ItemSpacing.x, ImGui::GetStyle().ItemSpacing.x ) ); // Undo the table item spacing changes
-                pItem->DrawContextMenu();
+                DrawItemContextMenu( pItem );
                 ImGui::PopStyleVar();
 
                 ImGui::EndPopup();
@@ -235,7 +235,7 @@ namespace KRG
 
         if ( m_itemControlColumnWidth > 0.0f )
         {
-            pItem->DrawControls();
+            DrawItemControls( pItem );
         }
         ImGui::PopID();
     }
@@ -355,5 +355,9 @@ namespace KRG
         ImGui::EndChild();
         ImGui::PopStyleVar();
         ImGui::PopID();
+
+        //-------------------------------------------------------------------------
+
+        DrawExtra();
     }
 }

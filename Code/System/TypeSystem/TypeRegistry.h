@@ -74,6 +74,7 @@ namespace KRG::TypeSystem
         void UnregisterResourceTypeID( TypeID typeID );
         bool IsRegisteredResourceType( ResourceTypeID resourceTypeID ) const;
         ResourceInfo const* GetResourceInfoForType( TypeID typeID ) const;
+        ResourceInfo const* GetResourceInfoForResourceType( ResourceTypeID resourceTypeID ) const;
 
     private:
 

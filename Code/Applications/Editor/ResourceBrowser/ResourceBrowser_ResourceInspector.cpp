@@ -1,6 +1,6 @@
-#include "Editor_DataFileInspector.h"
+#include "ResourceBrowser_ResourceInspector.h"
 #include "RawFileInspectors/RawFileInspector.h"
-#include "Editor_Model.h"
+#include "Applications/Editor/Editor_Model.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
@@ -13,20 +13,20 @@
 
 namespace KRG
 {
-    DataFileInspector::DataFileInspector( EditorModel* pModel )
+    ResourceInspector::ResourceInspector( EditorModel* pModel )
         : m_pModel( pModel )
-        , m_propertyGrid( *pModel->GetTypeRegistry(), pModel->GetRawResourceDirectory() )
+        , m_propertyGrid( *pModel->GetTypeRegistry(), pModel->GetSourceResourceDirectory() )
     {
         KRG_ASSERT( m_pModel != nullptr );
     }
 
-    DataFileInspector::~DataFileInspector()
+    ResourceInspector::~ResourceInspector()
     {
         ClearFileToInspect();
         KRG_ASSERT( m_pDescriptor == nullptr && m_pRawFileInspector == nullptr );
     }
 
-    void DataFileInspector::SetFileToInspect( FileSystem::Path const& inFile )
+    void ResourceInspector::SetFileToInspect( FileSystem::Path const& inFile )
     {
         KRG_ASSERT( inFile.IsValid() );
 
@@ -40,7 +40,7 @@ namespace KRG
 
         m_inspectedFile = inFile;
 
-        ResourceID const fileResourceID( ResourcePath::FromFileSystemPath( m_pModel->GetRawResourceDirectory(), m_inspectedFile ) );
+        ResourceID const fileResourceID( ResourcePath::FromFileSystemPath( m_pModel->GetSourceResourceDirectory(), m_inspectedFile ) );
         if ( fileResourceID.IsValid() )
         {
             if ( m_pModel->HasDescriptorForResourceType( fileResourceID.GetResourceTypeID() ) )
@@ -68,7 +68,7 @@ namespace KRG
         }
     }
 
-    void DataFileInspector::ClearFileToInspect()
+    void ResourceInspector::ClearFileToInspect()
     {
         if ( m_mode == Mode::InspectingResourceFile )
         {
@@ -90,7 +90,7 @@ namespace KRG
         m_inspectedFile = FileSystem::Path();
     }
 
-    void DataFileInspector::Draw()
+    void ResourceInspector::Draw()
     {
         if ( !m_inspectedFile.IsValid() )
         {
@@ -102,7 +102,7 @@ namespace KRG
 
         switch ( m_mode )
         {
-            case DataFileInspector::Mode::InspectingRawFile:
+            case ResourceInspector::Mode::InspectingRawFile:
             {
                 if ( m_pRawFileInspector != nullptr )
                 {
@@ -115,7 +115,7 @@ namespace KRG
             }
             break;
 
-            case DataFileInspector::Mode::InspectingResourceFile:
+            case ResourceInspector::Mode::InspectingResourceFile:
             {
                 DrawResourceFileInfo();
             }
@@ -125,7 +125,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void DataFileInspector::DrawResourceFileInfo()
+    void ResourceInspector::DrawResourceFileInfo()
     {
         KRG_ASSERT( m_mode == Mode::InspectingResourceFile );
 
@@ -173,7 +173,7 @@ namespace KRG
         m_isDirty = m_propertyGrid.IsDirty();
     }
 
-    bool DataFileInspector::LoadResourceDescriptor()
+    bool ResourceInspector::LoadResourceDescriptor()
     {
         KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFile() );
         KRG_ASSERT( m_pDescriptor == nullptr );
@@ -192,7 +192,7 @@ namespace KRG
         return false;
     }
 
-    bool DataFileInspector::SaveLoadedResourceDescriptor()
+    bool ResourceInspector::SaveLoadedResourceDescriptor()
     {
         KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFile() );
         KRG_ASSERT( m_pDescriptor != nullptr );

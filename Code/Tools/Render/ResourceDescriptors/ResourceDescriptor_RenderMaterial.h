@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
+#include "Engine/Render/Material/RenderMaterial.h"
 #include "System/Render/RenderTexture.h"
 #include "System/Resource/ResourcePtr.h"
 
@@ -16,6 +17,9 @@ namespace KRG::Render
         {
             return m_albedoTexture.GetResourceID().IsValid();
         }
+
+        virtual bool IsUserCreateableDescriptor() const { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const { return Material::GetStaticResourceTypeID(); }
 
     public:
 

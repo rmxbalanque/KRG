@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Editor_Model.h"
-#include "Editor_DataBrowser.h"
+#include "ResourceBrowser/ResourceBrowser.h"
 #include "Engine/Core/IDevToolsUI.h"
 #include "Engine/Core/DebugViews/DebugView_System.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
@@ -46,7 +46,7 @@ namespace KRG
         TVector<ModalPopupMessage>          m_modalPopups;
 
         Resource::ResourceDatabase          m_db;
-        DataBrowser*                        m_pDataBrowser = nullptr;
+        ResourceBrowser*                    m_pResourceBrowser = nullptr;
         float                               m_dataBrowserViewWidth = 150;
 
         SystemLogView                       m_systemLogView;

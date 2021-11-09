@@ -3,6 +3,8 @@
 #include "Tools/Render/_Module/API.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
 #include "Engine/Render/Material/RenderMaterial.h"
+#include "Engine/Render/Mesh/StaticMesh.h"
+#include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "System/Resource/ResourcePtr.h"
 
 //-------------------------------------------------------------------------
@@ -36,6 +38,9 @@ namespace KRG::Render
     struct KRG_TOOLS_RENDER_API StaticMeshResourceDescriptor : public MeshResourceDescriptor
     {
         KRG_REGISTER_TYPE( StaticMeshResourceDescriptor );
+
+        virtual bool IsUserCreateableDescriptor() const { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const { return StaticMesh::GetStaticResourceTypeID(); }
     };
 
     //-------------------------------------------------------------------------
@@ -43,5 +48,8 @@ namespace KRG::Render
     struct KRG_TOOLS_RENDER_API SkeletalMeshResourceDescriptor : public MeshResourceDescriptor
     {
         KRG_REGISTER_TYPE( SkeletalMeshResourceDescriptor );
+
+        virtual bool IsUserCreateableDescriptor() const { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const { return SkeletalMesh::GetStaticResourceTypeID(); }
     };
 }

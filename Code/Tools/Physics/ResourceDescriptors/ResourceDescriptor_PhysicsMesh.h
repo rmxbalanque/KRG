@@ -2,6 +2,7 @@
 
 #include "Tools/Physics/_Module/API.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
+#include "Engine/Physics/PhysicsMesh.h"
 
 //-------------------------------------------------------------------------
 
@@ -10,6 +11,11 @@ namespace KRG::Physics
     struct KRG_TOOLS_PHYSICS_API PhysicsMeshResourceDescriptor : public Resource::ResourceDescriptor
     {
         KRG_REGISTER_TYPE( PhysicsMeshResourceDescriptor );
+
+        virtual bool IsUserCreateableDescriptor() const { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const { return PhysicsMesh::GetStaticResourceTypeID(); }
+
+    public:
 
         KRG_EXPOSE ResourcePath     m_meshPath;
 

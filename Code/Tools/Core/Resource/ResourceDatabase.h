@@ -44,11 +44,11 @@ namespace KRG::Resource
         inline bool IsInitialized() const { return m_pTypeRegistry != nullptr; }
         void Initialize( TypeSystem::TypeRegistry const* pTypeRegistry, FileSystem::Path const& rawResourceDirPath );
         void Shutdown();
-        void Update();
 
-        // Query interface
-        //-------------------------------------------------------------------------
+        // Process any filesystem updates, returns true if any changes were detected!
+        bool Update();
 
+        // Get a list of all known resource of the specified type
         void GetAllResourcesOfType( ResourceTypeID typeID, TVector<ResourceRecord*>& outResources ) const;
 
     private:

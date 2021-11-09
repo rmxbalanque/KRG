@@ -2,6 +2,7 @@
 
 #include "Tools/Animation/_Module/API.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
+#include "Engine/Animation/AnimationSkeleton.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
 
 //-------------------------------------------------------------------------
@@ -11,6 +12,11 @@ namespace KRG::Animation
     struct KRG_TOOLS_ANIMATION_API SkeletonResourceDescriptor final : public Resource::ResourceDescriptor
     {
         KRG_REGISTER_TYPE( SkeletonResourceDescriptor );
+    
+        virtual bool IsUserCreateableDescriptor() const { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const { return Skeleton::GetStaticResourceTypeID(); }
+
+    public:
 
         KRG_EXPOSE ResourcePath                             m_skeletonPath;
 

@@ -20,7 +20,7 @@ namespace KRG
         void Initialize( UpdateContext const& context );
         void Shutdown( UpdateContext const& context );
 
-        inline FileSystem::Path const& GetRawResourceDirectory() const { return m_editorContext.m_sourceResourceDirectory; }
+        inline FileSystem::Path const& GetSourceResourceDirectory() const { return m_editorContext.m_sourceResourceDirectory; }
         inline FileSystem::Path const& GetCompiledResourceDirectory() const { return m_editorContext.m_compiledResourceDirectory; }
         inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_editorContext.m_pTypeRegistry; }
         inline Resource::ResourceSystem* GetResourceSystem() const { return m_editorContext.m_pResourceSystem; }

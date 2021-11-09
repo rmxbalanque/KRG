@@ -11,10 +11,11 @@
 namespace KRG
 {
     class EditorModel;
+    class ResourceDescriptorCreator;
 
     //-------------------------------------------------------------------------
 
-    class DataBrowserTreeItem : public TreeViewItem
+    class ResourceBrowserTreeItem : public TreeViewItem
     {
     public:
 
@@ -26,11 +27,9 @@ namespace KRG
 
     public:
 
-        DataBrowserTreeItem( char const* pName, int32 hierarchyLevel, FileSystem::Path const& path, ResourcePath const& resourcePath, ResourceTypeID resourceTypeID = ResourceTypeID() );
+        ResourceBrowserTreeItem( char const* pName, int32 hierarchyLevel, FileSystem::Path const& path, ResourcePath const& resourcePath, ResourceTypeID resourceTypeID = ResourceTypeID() );
 
-        virtual void DrawControls() override;
         virtual bool SupportsContextMenu() const override { return true; }
-        virtual void DrawContextMenu() override;
         virtual bool CanBeSetActive() const override { return false; }
 
         // File Info
@@ -66,35 +65,33 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class DataBrowserTreeView final : public TreeView, public FileSystem::IFileSystemChangeListener
+    class ResourceBrowserTreeView final : public TreeView, public FileSystem::IFileSystemChangeListener
     {
 
     public:
 
-        DataBrowserTreeView( EditorModel* pModel );
-        virtual ~DataBrowserTreeView();
+        ResourceBrowserTreeView( EditorModel* pModel );
+        virtual ~ResourceBrowserTreeView();
 
         void RebuildBrowserTree();
-        void Update( UpdateContext const& context );
 
     private:
-
-        // File system listener
-        virtual void OnFileCreated( FileSystem::Path const& path ) override final { RebuildBrowserTree(); }
-        virtual void OnFileDeleted( FileSystem::Path const& path ) override final { RebuildBrowserTree(); }
-        virtual void OnFileRenamed( FileSystem::Path const& oldPath, FileSystem::Path const& newPath ) override final { RebuildBrowserTree(); }
-        virtual void OnDirectoryCreated( FileSystem::Path const& path ) override final{ RebuildBrowserTree(); }
-        virtual void OnDirectoryDeleted( FileSystem::Path const& path ) override final { RebuildBrowserTree(); }
-        virtual void OnDirectoryRenamed( FileSystem::Path const& oldPath, FileSystem::Path const& newPath ) override final { RebuildBrowserTree(); }
 
         TreeViewItem& FindOrCreateParentForItem( FileSystem::Path const& path );
 
+        virtual void DrawExtra() override;
+        virtual void DrawItemControls( TreeViewItem* pItem ) override;
+        virtual void DrawItemContextMenu( TreeViewItem* pItem ) override;
+
+        void DrawCreateNewDescriptorMenu( FileSystem::Path const& path );
+
     private:
 
-        EditorModel*                        m_pModel = nullptr;
+        EditorModel*                                m_pModel = nullptr;
         FileSystem::Path                            m_dataDirectoryPath;
         int32                                       m_dataDirectoryPathDepth;
-        FileSystem::FileSystemWatcher               m_fileSystemWatcher;
         TVector<FileSystem::Path>                   m_foundPaths;
+
+        ResourceDescriptorCreator*                  m_pResourceDescriptorCreator = nullptr;
     };
 }

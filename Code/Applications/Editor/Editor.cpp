@@ -12,20 +12,20 @@ namespace KRG
 {
     Editor::~Editor()
     {
-        KRG_ASSERT( m_pDataBrowser == nullptr );
+        KRG_ASSERT( m_pResourceBrowser == nullptr );
     }
 
     void Editor::Initialize( UpdateContext const& context )
     {
         m_model.Initialize( context );
-        m_pDataBrowser = KRG::New<DataBrowser>( m_model );
-        m_db.Initialize( m_model.GetTypeRegistry(), m_model.GetRawResourceDirectory() );
+        m_pResourceBrowser = KRG::New<ResourceBrowser>( m_model );
+        m_db.Initialize( m_model.GetTypeRegistry(), m_model.GetSourceResourceDirectory() );
     }
 
     void Editor::Shutdown( UpdateContext const& context )
     {
         m_db.Shutdown();
-        KRG::Delete( m_pDataBrowser );
+        KRG::Delete( m_pResourceBrowser );
         m_model.Shutdown( context );
     }
 
@@ -34,7 +34,10 @@ namespace KRG
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameStart );
 
-        m_db.Update();
+        if ( m_db.Update() )
+        {
+            m_pResourceBrowser->RebuildBrowserTree();
+        }
 
         //-------------------------------------------------------------------------
         // Main Menu
@@ -94,7 +97,7 @@ namespace KRG
         if ( m_isResourceBrowserWindowOpen )
         {
             ImGui::SetNextWindowClass( &editorWindowClass );
-            m_isResourceBrowserWindowOpen = m_pDataBrowser->Draw( context );
+            m_isResourceBrowserWindowOpen = m_pResourceBrowser->Draw( context );
         }
 
         if ( m_isResourceLogWindowOpen )
@@ -201,14 +204,14 @@ namespace KRG
 
         if ( ImGui::BeginMenu( "Tools" ) )
         {
-            ImGui::Checkbox( "Resource Browser", &m_isResourceBrowserWindowOpen );
-            ImGui::Checkbox( "Resource Log", &m_isResourceLogWindowOpen );
-            ImGui::Checkbox( "Resource Reference Tracker", &m_isResourceReferenceTrackerWindowOpen );
+            ImGui::MenuItem( "Resource Browser", nullptr, &m_isResourceBrowserWindowOpen );
+            ImGui::MenuItem( "Resource Log", nullptr, &m_isResourceLogWindowOpen );
+            ImGui::MenuItem( "Resource Reference Tracker", nullptr, &m_isResourceReferenceTrackerWindowOpen );
 
             ImGui::Separator();
 
-            ImGui::Checkbox( "Debug Settings", &m_isDebugSettingsWindowOpen );
-            ImGui::Checkbox( "System Log", &m_isSystemLogWindowOpen );
+            ImGui::MenuItem( "Debug Settings", nullptr, &m_isDebugSettingsWindowOpen );
+            ImGui::MenuItem( "System Log", nullptr, &m_isSystemLogWindowOpen );
 
             ImGui::EndMenu();
         }

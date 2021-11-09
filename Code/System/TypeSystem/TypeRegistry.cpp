@@ -242,6 +242,22 @@ namespace KRG::TypeSystem
         return nullptr;
     }
 
+    ResourceInfo const* TypeRegistry::GetResourceInfoForResourceType( ResourceTypeID resourceTypeID ) const
+    {
+        for ( auto const& resourceInfo : m_registeredResourceTypes )
+        {
+            if ( resourceInfo.second.m_resourceTypeID == resourceTypeID )
+            {
+                return &resourceInfo.second;
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        KRG_HALT();
+        return nullptr;
+    }
+
     //-------------------------------------------------------------------------
 
     size_t TypeRegistry::GetTypeByteSize( TypeID typeID ) const

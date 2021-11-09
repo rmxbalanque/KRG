@@ -1,22 +1,24 @@
 #pragma once
 
-#include "Editor_DataBrowserTreeView.h"
-#include "Editor_DataFileInspector.h"
-#include "Editor_Model.h"
+#include "ResourceBrowser_TreeView.h"
+#include "ResourceBrowser_ResourceInspector.h"
+#include "Applications/Editor/Editor_Model.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    class DataBrowser
+    class ResourceBrowser
     {
     public:
 
-        DataBrowser( EditorModel& model );
-        ~DataBrowser();
+        ResourceBrowser( EditorModel& model );
+        ~ResourceBrowser();
 
         virtual char const * const GetName() { return "Data Browser"; }
         bool Draw( UpdateContext const& context );
+
+        inline void RebuildBrowserTree() { m_dataBrowserTreeView.RebuildBrowserTree(); }
 
     private:
 
@@ -30,10 +32,11 @@ namespace KRG
         EditorModel&                                        m_model;
         char                                                m_nameFilterBuffer[256];
         TVector<ResourceTypeID>                             m_typeFilter;
-        DataBrowserTreeView                                 m_dataBrowserTreeView;
-        DataFileInspector                                   m_dataFileInspector;
-        EventBindingID                                      m_onDoubleClickEventID;
         bool                                                m_showRawFiles = false;
         float                                               m_dataBrowserViewHeight = 300;
+
+        ResourceBrowserTreeView                             m_dataBrowserTreeView;
+        ResourceInspector                                   m_dataFileInspector;
+        EventBindingID                                      m_onDoubleClickEventID;
     };
 }

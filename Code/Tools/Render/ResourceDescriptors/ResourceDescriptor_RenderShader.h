@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
+#include "System/Render/RenderShader.h"
 
 //-------------------------------------------------------------------------
 
@@ -20,6 +21,11 @@ namespace KRG::Render
     struct ShaderResourceDescriptor : public Resource::ResourceDescriptor
     {
         KRG_REGISTER_TYPE( ShaderResourceDescriptor );
+
+        virtual bool IsUserCreateableDescriptor() const { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const { return Shader::GetStaticResourceTypeID(); }
+
+    public:
 
         KRG_EXPOSE ShaderType           m_shaderType = ShaderType::Vertex;
         KRG_EXPOSE ResourcePath         m_shaderPath;

@@ -99,10 +99,10 @@ namespace KRG::Resource
         m_pTypeRegistry = nullptr;
     }
 
-    void ResourceDatabase::Update()
+    bool ResourceDatabase::Update()
     {
         KRG_ASSERT( m_fileSystemWatcher.IsWatching() );
-        m_fileSystemWatcher.Update();
+        return m_fileSystemWatcher.Update();
     }
 
     //-------------------------------------------------------------------------

@@ -91,9 +91,11 @@ namespace KRG::FileSystem
         m_pDirectoryHandle = nullptr;
     }
 
-    void FileSystemWatcher::Update()
+    bool FileSystemWatcher::Update()
     {
         KRG_ASSERT( IsWatching() );
+
+        bool changeDetected = false;
 
         if ( !m_requestPending )
         {
@@ -122,6 +124,7 @@ namespace KRG::FileSystem
                 }
 
                 m_requestPending = false;
+                changeDetected = true;
             }
             else // Error occurred or request not complete
             {
@@ -136,6 +139,7 @@ namespace KRG::FileSystem
         //-------------------------------------------------------------------------
 
         ProcessPendingModificationEvents();
+        return changeDetected;
     }
 
     //-------------------------------------------------------------------------
@@ -147,7 +151,7 @@ namespace KRG::FileSystem
             KRG_ASSERT( pNotifyInformation != nullptr );
 
             char strBuffer[256] = { 0 };
-            wcstombs( strBuffer, pNotifyInformation->FileName, pNotifyInformation->FileNameLength );
+            wcstombs( strBuffer, pNotifyInformation->FileName, pNotifyInformation->FileNameLength / 2 );
 
             Path filePath = dirPath;
             filePath.Append( strBuffer );

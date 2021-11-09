@@ -16,8 +16,15 @@ namespace KRG::Resource
     {
         KRG_REGISTER_TYPE( ResourceDescriptor );
 
-        virtual ~ResourceDescriptor() = default;
         static void ReadCompileDependencies( String const& descriptorFileContents, TVector<ResourcePath>& outDependencies );
+
+        virtual ~ResourceDescriptor() = default;
+
+        // Can this descriptor be created by a user in the editor?
+        virtual bool IsUserCreateableDescriptor() const { return false; }
+
+        // What is the compiled resource type for this descriptor - Only needed for user createable descriptors
+        virtual ResourceTypeID GetCompiledResourceTypeID() const { return ResourceTypeID::Unknown; }
     };
 
     // Tools only deserialization function
