@@ -41,6 +41,8 @@
     </ClCompile>
     <ClCompile Include="Workspaces\Workspace_StaticMesh.cpp" />
     <ClCompile Include="Workspaces\Workspace_SkeletalMesh.cpp" />
+    <ClCompile Include="TextureTools\ExtendedFormats\PortablePixMap.cpp" />
+    <ClCompile Include="TextureTools\ExtendedFormats\ExtendedBMP.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">

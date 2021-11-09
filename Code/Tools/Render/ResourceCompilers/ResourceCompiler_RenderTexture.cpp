@@ -51,7 +51,7 @@ namespace KRG::Render
         Texture texture;
         texture.m_format = TextureFormat::DDS;
 
-        if ( !ConvertTexture( textureFilePath, texture.m_rawData ) )
+        if ( !ConvertTexture( textureFilePath, resourceDescriptor.m_type, texture.m_rawData ) )
         {
             return Error( "Failed to convert texture!" );
         }

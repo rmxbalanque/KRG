@@ -30,6 +30,8 @@
     <ClCompile Include="ResourceCompilers\ResourceCompiler_RenderMesh.cpp" />
     <ClCompile Include="ResourceCompilers\ResourceCompiler_RenderShader.cpp" />
     <ClCompile Include="ResourceCompilers\ResourceCompiler_RenderTexture.cpp" />
+    <ClCompile Include="TextureTools\ExtendedFormats\ExtendedBMP.cpp" />
+    <ClCompile Include="TextureTools\ExtendedFormats\PortablePixMap.cpp" />
     <ClCompile Include="Workspaces\Workspace_SkeletalMesh.cpp" />
     <ClCompile Include="Workspaces\Workspace_StaticMesh.cpp" />
     <ClCompile Include="TextureTools\TextureConverter.cpp" />

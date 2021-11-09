@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <DIRECTXTEX_DIR>$(SolutionDir)External/DirectXTex/</DIRECTXTEX_DIR>
-    <DIRECTXTEX_LIB_DIR Condition="$(Configuration) == 'Debug'">$(DIRECTXTEX_DIR)lib\x64\Release\</DIRECTXTEX_LIB_DIR>
-    <DIRECTXTEX_LIB_DIR Condition="$(Configuration) == 'Release'">$(DIRECTXTEX_DIR)lib\x64\Profile\</DIRECTXTEX_LIB_DIR>
+    <DIRECTXTEX_LIB_DIR Condition="$(Configuration) == 'Debug'">$(DIRECTXTEX_DIR)DirectXTex\Bin\Desktop_2019\x64\Release\</DIRECTXTEX_LIB_DIR>
+    <DIRECTXTEX_LIB_DIR Condition="$(Configuration) == 'Release'">$(DIRECTXTEX_DIR)DirectXTex\Bin\Desktop_2019\x64\Release\</DIRECTXTEX_LIB_DIR>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
