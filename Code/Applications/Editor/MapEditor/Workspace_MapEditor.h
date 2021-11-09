@@ -51,7 +51,7 @@ namespace KRG::EntityModel
         void ClearSelection();
 
         void DrawEntityOutliner( UpdateContext const& context );
-        void DrawComponentsView( UpdateContext const& context );
+        void DrawEntityView( UpdateContext const& context );
         void DrawPropertyGrid( UpdateContext const& context );
 
         void DrawComponentEntry( EntityComponent* pComponent );

@@ -18,8 +18,8 @@ namespace KRG::Render
             return m_albedoTexture.GetResourceID().IsValid();
         }
 
-        virtual bool IsUserCreateableDescriptor() const { return true; }
-        virtual ResourceTypeID GetCompiledResourceTypeID() const { return Material::GetStaticResourceTypeID(); }
+        virtual bool IsUserCreateableDescriptor() const override { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const override { return Material::GetStaticResourceTypeID(); }
 
     public:
 

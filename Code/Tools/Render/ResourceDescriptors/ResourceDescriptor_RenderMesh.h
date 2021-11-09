@@ -39,8 +39,8 @@ namespace KRG::Render
     {
         KRG_REGISTER_TYPE( StaticMeshResourceDescriptor );
 
-        virtual bool IsUserCreateableDescriptor() const { return true; }
-        virtual ResourceTypeID GetCompiledResourceTypeID() const { return StaticMesh::GetStaticResourceTypeID(); }
+        virtual bool IsUserCreateableDescriptor() const override { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const override { return StaticMesh::GetStaticResourceTypeID(); }
     };
 
     //-------------------------------------------------------------------------
@@ -49,7 +49,7 @@ namespace KRG::Render
     {
         KRG_REGISTER_TYPE( SkeletalMeshResourceDescriptor );
 
-        virtual bool IsUserCreateableDescriptor() const { return true; }
-        virtual ResourceTypeID GetCompiledResourceTypeID() const { return SkeletalMesh::GetStaticResourceTypeID(); }
+        virtual bool IsUserCreateableDescriptor() const override { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const override { return SkeletalMesh::GetStaticResourceTypeID(); }
     };
 }

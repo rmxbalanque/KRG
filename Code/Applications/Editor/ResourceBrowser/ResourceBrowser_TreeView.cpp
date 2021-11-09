@@ -210,11 +210,6 @@ namespace KRG
     {
         auto pResourceItem = (ResourceBrowserTreeItem*) pItem;
 
-        if ( pResourceItem->GetFilePath().IsDirectory() )
-        {
-            DrawCreateNewDescriptorMenu( pResourceItem->GetFilePath() );
-        }
-
         //-------------------------------------------------------------------------
 
         if ( ImGui::MenuItem( "Open In Explorer" ) )
@@ -230,6 +225,49 @@ namespace KRG
         if ( ImGui::MenuItem( "Copy Data Path" ) )
         {
             ImGui::SetClipboardText( pResourceItem->GetFilePath().c_str() );
+        }
+
+        // Directory options
+        //-------------------------------------------------------------------------
+
+        if ( pResourceItem->GetFilePath().IsDirectory() )
+        {
+            ImGui::Separator();
+
+            DrawCreateNewDescriptorMenu( pResourceItem->GetFilePath() );
+        }
+
+        // File options
+        //-------------------------------------------------------------------------
+
+        if ( pResourceItem->GetFilePath().IsFile() )
+        {
+            ImGui::Separator();
+
+            if ( ImGui::MenuItem( KRG_ICON_EXCLAMATION_TRIANGLE" Delete" ) )
+            {
+                ImGui::OpenPopup( "Del" );
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( ImGui::BeginPopupModal( "Del" ) )
+        {
+            if ( ImGui::Button( "Ok", ImVec2( 120, 0 ) ) )
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if ( ImGui::Button( "Cancel", ImVec2( 120, 0 ) ) )
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SetItemDefaultFocus();
+
+            ImGui::EndPopup();
         }
     }
 

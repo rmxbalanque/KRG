@@ -20,8 +20,8 @@ namespace KRG::Animation
     {
         KRG_REGISTER_TYPE( AnimationGraphResourceDescriptor );
 
-        virtual bool IsUserCreateableDescriptor() const { return true; }
-        virtual ResourceTypeID GetCompiledResourceTypeID() const { return AnimationGraphDefinition::GetStaticResourceTypeID(); }
+        virtual bool IsUserCreateableDescriptor() const override { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const override { return AnimationGraphDefinition::GetStaticResourceTypeID(); }
     };
 
     //-------------------------------------------------------------------------

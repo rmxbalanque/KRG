@@ -13,8 +13,8 @@ namespace KRG::Animation
     {
         KRG_REGISTER_TYPE( SkeletonResourceDescriptor );
     
-        virtual bool IsUserCreateableDescriptor() const { return true; }
-        virtual ResourceTypeID GetCompiledResourceTypeID() const { return Skeleton::GetStaticResourceTypeID(); }
+        virtual bool IsUserCreateableDescriptor() const override { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const override{ return Skeleton::GetStaticResourceTypeID(); }
 
     public:
 

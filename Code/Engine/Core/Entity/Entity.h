@@ -308,7 +308,7 @@ namespace KRG
 
         UUID                                            m_ID;                                   // The unique ID of this entity
         UUID                                            m_collectionID;                         // The ID of the collection/map that this entity is part of
-        StringID                                        m_name;
+        KRG_EXPOSE StringID                             m_name;
         Status                                          m_status = Status::Unloaded;
         bool                                            m_isRegisteredForUpdates = false;       // Is this entity registered for frame updates
 
@@ -319,7 +319,7 @@ namespace KRG
         SpatialEntityComponent*                         m_pRootSpatialComponent = nullptr;      // This spatial component defines our world position
         TVector<Entity*>                                m_attachedEntities;                     // The list of entities that are attached to this entity
         Entity*                                         m_pParentSpatialEntity = nullptr;       // The parent entity we are attached to
-        StringID                                        m_parentAttachmentSocketID;             // The socket that we are attached to on the parent
+        KRG_EXPOSE StringID                             m_parentAttachmentSocketID;             // The socket that we are attached to on the parent
         bool                                            m_isSpatialAttachmentCreated = false;   // Has the actual component-to-component attachment been created
 
         TVector<EntityInternalStateAction>              m_deferredActions;                      // The set of internal entity state changes that need to be executed

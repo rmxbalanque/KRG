@@ -22,8 +22,8 @@ namespace KRG::Render
     {
         KRG_REGISTER_TYPE( ShaderResourceDescriptor );
 
-        virtual bool IsUserCreateableDescriptor() const { return true; }
-        virtual ResourceTypeID GetCompiledResourceTypeID() const { return Shader::GetStaticResourceTypeID(); }
+        virtual bool IsUserCreateableDescriptor() const override { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const override { return Shader::GetStaticResourceTypeID(); }
 
     public:
 

@@ -212,7 +212,7 @@ namespace KRG::EntityModel
         KRG_ASSERT( pEntity != nullptr );
         m_pSelectedEntity = pEntity;
         m_pSelectedComponent = nullptr;
-        m_propertyGrid.SetTypeToEdit( nullptr );
+        m_propertyGrid.SetTypeToEdit( pEntity );
     }
 
     void EntityMapEditor::SelectComponent( EntityComponent* pComponent )
@@ -249,7 +249,7 @@ namespace KRG::EntityModel
         DrawEntityOutliner( context );
 
         ImGui::SetNextWindowClass( pWindowClass );
-        DrawComponentsView( context );
+        DrawEntityView( context );
 
         ImGui::SetNextWindowClass( pWindowClass );
         DrawPropertyGrid( context );
@@ -405,7 +405,7 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawEntityOutliner( UpdateContext const& context )
     {
-        if ( ImGui::Begin( "Entities" ) )
+        if ( ImGui::Begin( "Entity Outliner" ) )
         {
             auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
             if ( pEditedMap != nullptr )
@@ -435,9 +435,9 @@ namespace KRG::EntityModel
         ImGui::End();
     }
 
-    void EntityMapEditor::DrawComponentsView( UpdateContext const& context )
+    void EntityMapEditor::DrawEntityView( UpdateContext const& context )
     {
-        if ( ImGui::Begin( "Components" ) )
+        if ( ImGui::Begin( "Entity View" ) )
         {
             if ( m_pSelectedEntity != nullptr )
             {

@@ -12,8 +12,8 @@ namespace KRG::Physics
     {
         KRG_REGISTER_TYPE( PhysicsMaterialDatabaseResourceDescriptor );
 
-        virtual bool IsUserCreateableDescriptor() const { return true; }
-        virtual ResourceTypeID GetCompiledResourceTypeID() const { return PhysicsMaterialDatabase::GetStaticResourceTypeID(); }
+        virtual bool IsUserCreateableDescriptor() const override { return true; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const override { return PhysicsMaterialDatabase::GetStaticResourceTypeID(); }
 
     public:
 
