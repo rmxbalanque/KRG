@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Tools/Core/Editor/EditorWorkspace.h"
+#include "Tools/Core/Workspaces/EditorWorkspace.h"
 #include "Tools/Core/PropertyGrid/PropertyGrid.h"
 #include "Engine/Core/Entity/Map/EntityMapDescriptor.h"
 #include "System/Render/Imgui/ImguiX.h"
@@ -39,8 +39,10 @@ namespace KRG::EntityModel
 
         virtual uint32 GetID() const override { return 0xFFFFFFFF; }
 
+        virtual bool ShouldDrawFileMenu() const { return false; }
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
+        virtual void DrawWorkspaceToolbar( UpdateContext const& context ) override;
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) override;

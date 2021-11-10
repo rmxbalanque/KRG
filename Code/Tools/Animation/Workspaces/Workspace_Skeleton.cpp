@@ -60,6 +60,8 @@ namespace KRG::Animation
         KRG_ASSERT( m_pPreviewEntity != nullptr );
         m_pPreviewEntity = nullptr;
         m_pMeshComponent = nullptr;
+
+        TResourceWorkspace<Skeleton>::Shutdown();
     }
 
     void SkeletonWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

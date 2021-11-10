@@ -189,7 +189,7 @@
     <ClInclude Include="Resource\RawAssets\RawSkeleton.h">
       <Filter>Resource\RawAssets</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\EditorWorkspace.h">
+    <ClInclude Include="Workspaces\EditorWorkspace.h">
       <Filter>Editors</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\cgltf\cgltf.h">
@@ -217,7 +217,8 @@
     <ClInclude Include="Widgets\InterfaceHelpers.h" />
     <ClInclude Include="Widgets\NumericEditors.h" />
     <ClInclude Include="GraphEditor\GraphEditor.h" />
-    <ClInclude Include="Editor\ResourceWorkspace.h" />
+    <ClInclude Include="Workspaces\ResourceWorkspace.h" />
+    <ClInclude Include="Helpers\Dialogs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\KRG_RapidJson.cpp">
@@ -316,7 +317,7 @@
     <ClCompile Include="Resource\RawAssets\RawSkeleton.cpp">
       <Filter>Resource\RawAssets</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\EditorWorkspace.cpp">
+    <ClCompile Include="Workspaces\EditorWorkspace.cpp">
       <Filter>Editors</Filter>
     </ClCompile>
     <ClCompile Include="TimelineEditor\TimelineData.cpp">
@@ -338,7 +339,8 @@
     <ClCompile Include="Widgets\InterfaceHelpers.cpp" />
     <ClCompile Include="Widgets\NumericEditors.cpp" />
     <ClCompile Include="GraphEditor\GraphEditor.cpp" />
-    <ClCompile Include="Editor\ResourceWorkspace.cpp" />
+    <ClCompile Include="Workspaces\ResourceWorkspace.cpp" />
+    <ClCompile Include="Helpers\Dialogs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\subprocess\LICENSE">

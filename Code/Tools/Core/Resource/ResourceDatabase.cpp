@@ -95,7 +95,7 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
-        m_rawResourceDirPath.Reset();
+        m_rawResourceDirPath.Clear();
         m_pTypeRegistry = nullptr;
     }
 

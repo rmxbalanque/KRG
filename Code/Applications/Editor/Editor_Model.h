@@ -1,5 +1,5 @@
 #pragma once
-#include "Tools/Core/Editor/EditorWorkspace.h"
+#include "Tools/Core/Workspaces/EditorWorkspace.h"
 
 //-------------------------------------------------------------------------
 
@@ -28,14 +28,10 @@ namespace KRG
 
         bool HasDescriptorForResourceType( ResourceTypeID resourceTypeID ) const;
 
-        // Map Editor
-        //-------------------------------------------------------------------------
-
-        EntityModel::EntityMapEditor* GetMapEditorWorkspace() { return m_pMapEditor; }
-
         // Workspaces
         //-------------------------------------------------------------------------
-        
+
+        bool IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const;
         inline TVector<EditorWorkspace*> const& GetWorkspaces() const { return m_workspaces; }
         void* GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const;
         void DestroyWorkspace( EditorWorkspace* pWorkspace );

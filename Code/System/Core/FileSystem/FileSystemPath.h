@@ -42,7 +42,7 @@ namespace KRG::FileSystem
         inline bool IsValid() const { return !m_fullpath.empty(); }
         inline size_t Length() const { return m_fullpath.length(); }
         inline String const& GetFullPath() const { return m_fullpath; }
-        inline void Reset() { m_fullpath.clear(); m_hashCode = 0; }
+        inline void Clear() { m_fullpath.clear(); m_hashCode = 0; }
 
         // Basic Operations
         //-------------------------------------------------------------------------

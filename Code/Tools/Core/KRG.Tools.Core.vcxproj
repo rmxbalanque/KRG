@@ -64,7 +64,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Editor\ResourceWorkspace.h" />
+    <ClInclude Include="Helpers\Dialogs.h" />
+    <ClInclude Include="Workspaces\ResourceWorkspace.h" />
     <ClInclude Include="GraphEditor\GraphEditor.h" />
     <ClInclude Include="Resource\DataFilePicker.h" />
     <ClInclude Include="FileSystem\FileSystemHelpers.h" />
@@ -96,7 +97,7 @@
     <ClInclude Include="Resource\RawAssets\RawAssetReader.h" />
     <ClInclude Include="Resource\RawAssets\RawMesh.h" />
     <ClInclude Include="Resource\RawAssets\RawSkeleton.h" />
-    <ClInclude Include="Editor\EditorWorkspace.h" />
+    <ClInclude Include="Workspaces\EditorWorkspace.h" />
     <ClInclude Include="Resource\ResourceDatabase.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf.h" />
     <ClInclude Include="ThirdParty\cgltf\cgltf_write.h" />
@@ -117,7 +118,7 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Editor\ResourceWorkspace.cpp" />
+    <ClCompile Include="Workspaces\ResourceWorkspace.cpp" />
     <ClCompile Include="GraphEditor\GraphEditor.cpp" />
     <ClCompile Include="Resource\DataFilePicker.cpp" />
     <ClCompile Include="FileSystem\FileSystemHelpers.cpp" />
@@ -146,8 +147,9 @@
     <ClCompile Include="Resource\RawAssets\RawAssetReader.cpp" />
     <ClCompile Include="Resource\RawAssets\RawMesh.cpp" />
     <ClCompile Include="Resource\RawAssets\RawSkeleton.cpp" />
-    <ClCompile Include="Editor\EditorWorkspace.cpp" />
+    <ClCompile Include="Workspaces\EditorWorkspace.cpp" />
     <ClCompile Include="Resource\ResourceDatabase.cpp" />
+    <ClCompile Include="Helpers\Dialogs.cpp" />
     <ClCompile Include="ThirdParty\KRG_RapidJson.cpp" />
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp" />
     <ClCompile Include="TimelineEditor\TimelineData.cpp" />

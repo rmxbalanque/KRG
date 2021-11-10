@@ -23,7 +23,7 @@ namespace KRG
         inline FileSystem::Path const& GetFilePath() const { return m_filePath; }
 
         // Draw the inspector UI
-        virtual void Draw() = 0;
+        virtual bool DrawDialog() = 0;
 
     protected:
 
@@ -35,7 +35,7 @@ namespace KRG
     protected:
 
         FileSystem::Path                    m_filePath;
-        EditorModel*                m_pModel = nullptr;
+        EditorModel*                        m_pModel = nullptr;
     };
 
     //-------------------------------------------------------------------------

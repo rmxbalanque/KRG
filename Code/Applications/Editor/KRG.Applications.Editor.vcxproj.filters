@@ -4,26 +4,26 @@
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_TreeView.cpp" />
-    <ClCompile Include="ResourceBrowser\ResourceBrowser_ResourceInspector.cpp" />
     <ClCompile Include="Editor_Model.cpp" />
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
     <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector.cpp" />
-    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_MeshFormats.cpp" />
+    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_FBXAndGLTF.cpp" />
     <ClCompile Include="MapEditor\Workspace_MapEditor.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp" />
+    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_TreeView.h" />
-    <ClInclude Include="ResourceBrowser\ResourceBrowser_ResourceInspector.h" />
     <ClInclude Include="Editor_Model.h" />
     <ClInclude Include="Win32\Resource.h" />
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
     <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector.h" />
-    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_MeshFormats.h" />
+    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_FBXAndGLTF.h" />
     <ClInclude Include="MapEditor\Workspace_MapEditor.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h" />
+    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc" />

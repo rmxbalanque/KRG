@@ -2,16 +2,21 @@
 
 #include "EditorWorkspace.h"
 #include "Tools/Core/Helpers/GlobalRegistryBase.h"
+#include "Tools/Core/PropertyGrid/PropertyGrid.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Resource/ResourceSystem.h"
 
 //-------------------------------------------------------------------------
-// Resource Editor Workspace
-//-------------------------------------------------------------------------
-// This is a base class to create a sub-editor for a given resource type that runs within the resource editor
 
 namespace KRG
 {
+    namespace Resource { struct ResourceDescriptor; }
+
+    //-------------------------------------------------------------------------
+    // Resource Editor Workspace
+    //-------------------------------------------------------------------------
+    // This is a base class to create a sub-editor for a given resource type that runs within the resource editor
+
     template<typename T>
     class TResourceWorkspace : public EditorWorkspace
     {
@@ -80,6 +85,38 @@ namespace KRG
     };
 
     //-------------------------------------------------------------------------
+    // Generic Resource Workspace
+    //-------------------------------------------------------------------------
+    // Created for any resources without a custom workspace associated
+
+    class GenericResourceWorkspace final : public EditorWorkspace
+    {
+    public:
+
+        GenericResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
+        ~GenericResourceWorkspace();
+
+    private:
+
+        virtual uint32 GetID() const override{ return m_descriptorID.GetID(); }
+        virtual bool HasViewportWindow() const { return false; }
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
+        virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
+        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual bool IsDirty() const override { return m_propertyGrid.IsDirty(); }
+        virtual bool Save() override;
+
+    private:
+
+        String                              m_descriptorWindowName;
+        ResourceID                          m_descriptorID;
+        FileSystem::Path                    m_descriptorPath;
+        PropertyGrid                        m_propertyGrid;
+        Resource::ResourceDescriptor*       m_pDescriptor = nullptr;
+    };
+
+    //-------------------------------------------------------------------------
     // Resource Workspace Factory
     //-------------------------------------------------------------------------
     // Used to spawn the appropriate factory
@@ -90,7 +127,7 @@ namespace KRG
 
     public:
 
-        static bool CanCreateWorkspace( ResourceTypeID const& resourceTypeID );
+        static bool HasCustomWorkspace( ResourceTypeID const& resourceTypeID );
         static EditorWorkspace* TryCreateWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
 
     protected:

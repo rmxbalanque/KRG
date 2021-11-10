@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Tools/Core/Editor/ResourceWorkspace.h"
+#include "Tools/Core/Workspaces/ResourceWorkspace.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "System/Render/Imgui/ImguiX.h"
 

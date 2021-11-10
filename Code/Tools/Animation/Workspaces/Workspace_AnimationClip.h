@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tools/Core/PropertyGrid/PropertyGrid.h"
-#include "Tools/Core/Editor/ResourceWorkspace.h"
+#include "Tools/Core/Workspaces/ResourceWorkspace.h"
 #include "Engine/Animation/AnimationClip.h"
 
 //-------------------------------------------------------------------------

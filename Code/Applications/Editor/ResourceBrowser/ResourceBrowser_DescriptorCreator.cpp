@@ -4,6 +4,7 @@
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
+#include "Tools/Core/Helpers/Dialogs.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "System/Core/Logging/Log.h"
 
@@ -87,34 +88,11 @@ namespace KRG
         InlineString<5> const resourceTypeIDString = resourceTypeID.ToString();
         TypeSystem::ResourceInfo const* pResourceInfo = pTypeRegistry->GetResourceInfoForResourceType( resourceTypeID );
 
-        // Get filename
-        //-------------------------------------------------------------------------
-
-        InlineString<10> filterString;
-        filterString.sprintf( "*.%s", resourceTypeIDString.c_str() );
-
-        auto const selectedFilePath = pfd::save_file( "Save Descriptor", m_startingPath.c_str(), { pResourceInfo->m_friendlyName.c_str(), filterString.c_str() } ).result();
-        if ( selectedFilePath.empty() )
+        FileSystem::Path const outPath = SaveDialog( resourceTypeID, m_startingPath, pResourceInfo->m_friendlyName );
+        if ( !outPath.IsValid() )
         {
             return false;
         }
-
-        FileSystem::Path const outPath( selectedFilePath.c_str() );
-
-        // Validate filename
-        //-------------------------------------------------------------------------
-
-        ResourceID const resourceID = ResourcePath::FromFileSystemPath( m_pModel->GetSourceResourceDirectory(), outPath );
-        if ( resourceID.GetResourceTypeID() != pResourceInfo->m_resourceTypeID )
-        {
-            InlineString<150> errorString;
-            errorString.sprintf( "Invalid extension provided! You need to have the .%s extension!", resourceTypeIDString.c_str() );
-            pfd::message( "Error", errorString.c_str(), pfd::choice::ok, pfd::icon::error ).result();
-            return false;
-        }
-
-        // Save descriptor
-        //-------------------------------------------------------------------------
 
         KRG_ASSERT( m_pDescriptor != nullptr );
         return Resource::WriteResourceDescriptorToFile( *pTypeRegistry, outPath, m_pDescriptor );

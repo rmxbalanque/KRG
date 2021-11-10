@@ -34,6 +34,7 @@ namespace KRG
 
         static bool IsValidResourceIDString( char const* pStr );
         inline static bool IsValidResourceIDString( String const& str ) { return IsValidResourceIDString( str.c_str() ); }
+        inline static ResourceID FromFileSystemPath( FileSystem::Path const& rawResourceDirectoryPath, FileSystem::Path const& filePath ) { return ResourceID( ResourcePath::FromFileSystemPath( rawResourceDirectoryPath, filePath ) ); }
 
     public:
 

@@ -60,6 +60,8 @@ namespace KRG::Animation
         m_pPreviewEntity = nullptr;
         m_pAnimationComponent = nullptr;
         m_pMeshComponent = nullptr;
+
+        TResourceWorkspace<AnimationClip>::Shutdown();
     }
 
     void AnimationClipWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

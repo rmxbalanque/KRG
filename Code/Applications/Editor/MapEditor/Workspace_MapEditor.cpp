@@ -1,7 +1,7 @@
 #include "Workspace_MapEditor.h"
 #include "Tools/Entity/Serialization/EntityCollectionDescriptorWriter.h"
-#include "Tools/Core/Editor/EditorWorkspace.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
+#include "Tools/Core/Helpers/Dialogs.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -163,18 +163,9 @@ namespace KRG::EntityModel
         // Get new map filename
         //-------------------------------------------------------------------------
 
-        auto const mapFilename = pfd::save_file( "Save Map", m_editorContext.m_sourceResourceDirectory.c_str(), { "Map Files", "*.map" } ).result();
-        if ( mapFilename.empty() )
+        FileSystem::Path const mapFilePath = SaveDialog( "MAp", m_editorContext.m_sourceResourceDirectory.c_str(), "Map File" );
+        if ( !mapFilePath.IsValid() )
         {
-            return;
-        }
-
-        FileSystem::Path const mapFilePath( mapFilename.c_str() );
-        ResourceID const mapResourceID = ResourcePath::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, mapFilePath );
-
-        if ( mapResourceID.GetResourceTypeID() != EntityMapDescriptor::GetStaticResourceTypeID() )
-        {
-            pfd::message( "Error", "Invalid map extension provided! Maps need to have the .map extension!", pfd::choice::ok, pfd::icon::error ).result();
             return;
         }
 
@@ -184,7 +175,8 @@ namespace KRG::EntityModel
         EntityCollectionDescriptorWriter writer;
         if ( writer.WriteCollection( *m_editorContext.m_pTypeRegistry, mapFilePath, *pEditedMap ) )
         {
-            LoadMap( mapResourceID );
+            ResourceID const mapResourcePath = ResourceID::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, mapFilePath );
+            LoadMap( mapResourcePath );
         }
         else
         {
@@ -241,6 +233,34 @@ namespace KRG::EntityModel
         ImGuiDockNode* pTopNode = ImGui::DockBuilderGetNode( topDockID );
         pTopNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
         ImGui::DockBuilderDockWindow( GetViewportWindowID(), topDockID );
+    }
+
+    void EntityMapEditor::DrawWorkspaceToolbar( UpdateContext const& context )
+    {
+        if ( ImGui::BeginMenu( "File" ) )
+        {
+            if ( ImGui::MenuItem( "Create New Map" ) )
+            {
+                CreateNewMap();
+            }
+
+            if ( ImGui::MenuItem( "Load Map" ) )
+            {
+                SelectAndLoadMap();
+            }
+
+            if ( ImGui::MenuItem( "Save Map" ) )
+            {
+                SaveMap();
+            }
+
+            if ( ImGui::MenuItem( "Save Map As" ) )
+            {
+                SaveMapAs();
+            }
+
+            ImGui::EndMenu();
+        }
     }
 
     void EntityMapEditor::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )

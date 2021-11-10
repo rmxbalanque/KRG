@@ -34,6 +34,7 @@ namespace KRG::Render
     void StaticMeshWorkspace::Shutdown()
     {
         m_pPreviewEntity = nullptr;
+        TResourceWorkspace<StaticMesh>::Shutdown();
     }
 
     void StaticMeshWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

@@ -1,5 +1,6 @@
 #include "ResourceBrowser.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "RawFileInspectors/RawFileInspector.h"
 
 //-------------------------------------------------------------------------
 
@@ -7,89 +8,57 @@ namespace KRG
 {
     ResourceBrowser::ResourceBrowser( EditorModel& model )
         : m_model( model )
-        , m_dataBrowserTreeView( &model )
-        , m_dataFileInspector( &model )
+        , m_treeView( &model )
     {
         Memory::MemsetZero( m_nameFilterBuffer, 256 * sizeof( char ) );
 
-        m_onDoubleClickEventID = m_dataBrowserTreeView.OnItemDoubleClicked().Bind( [this] ( TreeViewItem* pItem ) { OnBrowserItemDoubleClicked( pItem ); } );
-        m_dataBrowserTreeView.RebuildBrowserTree();
+        m_onDoubleClickEventID = m_treeView.OnItemDoubleClicked().Bind( [this] ( TreeViewItem* pItem ) { OnBrowserItemDoubleClicked( pItem ); } );
+        m_treeView.RebuildBrowserTree();
         UpdateVisibility();
     }
 
     ResourceBrowser::~ResourceBrowser()
     {
-        m_dataBrowserTreeView.OnItemDoubleClicked().Unbind( m_onDoubleClickEventID );
+        m_treeView.OnItemDoubleClicked().Unbind( m_onDoubleClickEventID );
+
+        KRG::Delete( m_pRawFileInspector );
     }
 
     //-------------------------------------------------------------------------
 
     bool ResourceBrowser::Draw( UpdateContext const& context )
     {
+        // Tree View
+        //-------------------------------------------------------------------------
+
         bool isOpen = true;
         if ( ImGui::Begin( "Data Browser", &isOpen ) )
         {
-            // Filters and controls
-            //-------------------------------------------------------------------------
-
             UpdateAndDrawBrowserFilters( context );
-
-            // Data Browser
-            //-------------------------------------------------------------------------
-
-            if ( ImGui::BeginChild( "DataBrowser", ImVec2( 0.f, m_dataBrowserViewHeight ), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse ) )
-            {
-                m_dataBrowserTreeView.Draw();
-
-                auto pSelectedItem = m_dataBrowserTreeView.GetSelectedItem<ResourceBrowserTreeItem>();
-                if ( pSelectedItem != nullptr && pSelectedItem->IsFile() )
-                {
-                    if ( pSelectedItem->GetFilePath() != m_dataFileInspector.GetInspectedFilePath() )
-                    {
-                        m_dataFileInspector.SetFileToInspect( pSelectedItem->GetFilePath() );
-                    }
-                }
-                else // Clear inspected file
-                {
-                    m_dataFileInspector.ClearFileToInspect();
-                }
-            }
-            ImGui::EndChild();
-
-            // Splitter
-            //-------------------------------------------------------------------------
-
-            ImGui::PushStyleColor( ImGuiCol_Button, ImGuiX::Theme::s_backgroundColorSemiDark );
-            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImGuiX::Theme::s_backgroundColorSemiLight );
-            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImGuiX::Theme::s_backgroundColorSemiLight );
-            ImGui::PushStyleVar( ImGuiStyleVar_FrameRounding, 0.0f );
-            ImGui::Button( "##ViewSplitter", ImVec2( -1, 3 ) );
-            ImGui::PopStyleColor( 3 );
-            ImGui::PopStyleVar();
-
-            if ( ImGui::IsItemHovered() )
-            {
-                ImGui::SetMouseCursor( ImGuiMouseCursor_ResizeNS );
-            }
-
-            if ( ImGui::IsItemActive() )
-            {
-                m_dataBrowserViewHeight += ImGui::GetIO().MouseDelta.y;
-                m_dataBrowserViewHeight = Math::Max( 25.0f, m_dataBrowserViewHeight );
-            }
-
-            // Data Inspector
-            //-------------------------------------------------------------------------
-
-            if ( ImGui::BeginChild( "DataInspector", ImVec2( 0.f, 0.0f ), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse ) )
-            {
-                m_dataFileInspector.Draw();
-            }
-            ImGui::EndChild();
+            m_treeView.Draw();
         }
         ImGui::End();
 
+        // File Inspector dialog
+        //-------------------------------------------------------------------------
+
+        if ( m_pRawFileInspector != nullptr )
+        {
+            if ( !m_pRawFileInspector->DrawDialog() )
+            {
+                KRG::Delete( m_pRawFileInspector );
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
         return isOpen;
+    }
+
+    void ResourceBrowser::RebuildBrowserTree()
+    {
+        m_treeView.RebuildBrowserTree();
+        UpdateVisibility();
     }
 
     //-------------------------------------------------------------------------
@@ -148,7 +117,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        m_dataBrowserTreeView.UpdateItemVisibility( VisibilityFunc );
+        m_treeView.UpdateItemVisibility( VisibilityFunc );
     }
 
     void ResourceBrowser::UpdateAndDrawBrowserFilters( UpdateContext const& context )
@@ -182,7 +151,7 @@ namespace KRG
                 }
             };
 
-            m_dataBrowserTreeView.ForEachItem( SetExpansion );
+            m_treeView.ForEachItem( SetExpansion );
         }
 
         ImGui::SameLine( windowContentRegion.m_x + ImGui::GetStyle().WindowPadding.x - 20 );
@@ -206,13 +175,13 @@ namespace KRG
         ImGui::SameLine( windowContentRegion.m_x + ImGui::GetStyle().WindowPadding.x - 42 );
         if ( ImGui::Button( KRG_ICON_PLUS "##Expand All", ImVec2( 19, 0 ) ) )
         {
-            m_dataBrowserTreeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( true ); } );
+            m_treeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( true ); } );
         }
 
         ImGui::SameLine( windowContentRegion.m_x + ImGui::GetStyle().WindowPadding.x - 20 );
         if ( ImGui::Button( KRG_ICON_MINUS "##Collapse ALL", ImVec2( 19, 0 ) ) )
         {
-            m_dataBrowserTreeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( false ); } );
+            m_treeView.ForEachItem( [] ( TreeViewItem* pItem ) { pItem->SetExpanded( false ); } );
         }
 
         //-------------------------------------------------------------------------
@@ -264,12 +233,24 @@ namespace KRG
 
     void ResourceBrowser::OnBrowserItemDoubleClicked( TreeViewItem* pItem )
     {
-        auto pDataFileItem = static_cast<ResourceBrowserTreeItem const*>( pItem );
-        if ( pDataFileItem->IsDirectory() || pDataFileItem->IsRawFile() )
+        auto pResourceFileItem = static_cast<ResourceBrowserTreeItem const*>( pItem );
+        if ( pResourceFileItem->IsDirectory() )
         {
             return;
         }
 
-        m_model.TryCreateWorkspace( pDataFileItem->GetResourceID() );
+        //-------------------------------------------------------------------------
+
+        if ( pResourceFileItem->IsResourceFile() )
+        {
+            m_model.TryCreateWorkspace( pResourceFileItem->GetResourceID() );
+        }
+        else // Try create file inspector
+        {
+            if ( RawFileInspectorFactory::CanCreateInspector( pResourceFileItem->GetFilePath() ) )
+            {
+                m_pRawFileInspector = RawFileInspectorFactory::TryCreateInspector( &m_model, pResourceFileItem->GetFilePath() );
+            }
+        }
     }
 }

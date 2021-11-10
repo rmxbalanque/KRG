@@ -57,6 +57,9 @@ namespace KRG
         // Get a unique ID for this workspace
         virtual uint32 GetID() const = 0;
 
+        // Should we draw the default workspace file menu
+        virtual bool ShouldDrawFileMenu() const { return true; }
+
         // Should this workspace display a viewport?
         virtual bool HasViewportWindow() const { return true; }
 
@@ -82,11 +85,14 @@ namespace KRG
         // Frame update and draw any tool windows needed for the workspace
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) = 0;
 
+        // Draw any toolbar buttons that this workspace needs
+        virtual void DrawWorkspaceToolbar( UpdateContext const& context ) {}
+
         // Called within the context of a large overlay window allowing you to draw helpers and widgets over a viewport
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) {}
 
         // Draw the viewport toolbar
-        virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) {};
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) {}
 
         // Saving and Dirty state
         //-------------------------------------------------------------------------

@@ -287,16 +287,28 @@ namespace KRG::FileSystem
     {
         KRG_ASSERT( IsValid() && IsFile() );
         size_t const extIdx = FindExtensionStartIdx( m_fullpath );
-        KRG_ASSERT( extIdx != String::npos );
-        return &m_fullpath[extIdx];
+        if ( extIdx != String::npos )
+        {
+            return &m_fullpath[extIdx];
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
     void Path::ReplaceExtension( const char* pExtension )
     {
         KRG_ASSERT( IsValid() && IsFile() && pExtension != nullptr && pExtension[0] != 0 );
         size_t const extIdx = FindExtensionStartIdx( m_fullpath );
-        KRG_ASSERT( extIdx != String::npos );
-        m_fullpath = m_fullpath.substr( 0, extIdx ) + pExtension;
+        if ( extIdx != String::npos )
+        {
+            m_fullpath = m_fullpath.substr( 0, extIdx ) + pExtension;
+        }
+        else // No extension so just append
+        {
+            m_fullpath.append( pExtension );
+        }
     }
 
     char const* Path::GetFileNameSubstr() const
@@ -319,10 +331,13 @@ namespace KRG::FileSystem
         //-------------------------------------------------------------------------
 
         size_t extStartIdx = FindExtensionStartIdx( m_fullpath );
-        KRG_ASSERT( extStartIdx != String::npos );
-
-        //-------------------------------------------------------------------------
-
-        return m_fullpath.substr( filenameStartIdx, extStartIdx - filenameStartIdx - 1 );
+        if ( extStartIdx != String::npos )
+        {
+            return m_fullpath.substr( filenameStartIdx, extStartIdx - filenameStartIdx - 1 );
+        }
+        else
+        {
+            return String( &m_fullpath[filenameStartIdx] );
+        }
     }
 }

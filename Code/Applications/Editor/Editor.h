@@ -55,6 +55,8 @@ namespace KRG
         DebugSettingsView                   m_debugSettingsView;
         bool                                m_isDebugSettingsWindowOpen = false;
 
+        TVector<EditorWorkspace*>           m_workspacesToDestroy;
+
         bool                                m_isResourceBrowserWindowOpen = true;
         bool                                m_isResourceLogWindowOpen = false;
         bool                                m_isResourceReferenceTrackerWindowOpen = false;

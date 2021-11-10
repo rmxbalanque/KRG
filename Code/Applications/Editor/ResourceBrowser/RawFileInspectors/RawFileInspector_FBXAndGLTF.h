@@ -6,15 +6,17 @@
 
 namespace KRG
 {
-    class FileInspectorMeshFormats : public RawFileInspector
+    class FileInspectorFBXAndGLTF : public RawFileInspector
     {
+        constexpr static char const* s_title = "FBX/GLTF Inspector";
+
     public:
 
-        FileInspectorMeshFormats( EditorModel* pModel, FileSystem::Path const& filePath );
+        FileInspectorFBXAndGLTF( EditorModel* pModel, FileSystem::Path const& filePath );
 
     private:
 
-        virtual void Draw() override;
+        virtual bool DrawDialog() override;
 
         void DrawStaticMeshControls( RawAssets::RawMeshInfo const& mesh );
         void DrawSkeletalMeshControls( RawAssets::RawMeshInfo const& mesh );

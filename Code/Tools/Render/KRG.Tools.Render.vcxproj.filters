@@ -43,6 +43,7 @@
     <ClCompile Include="Workspaces\Workspace_SkeletalMesh.cpp" />
     <ClCompile Include="TextureTools\ExtendedFormats\PortablePixMap.cpp" />
     <ClCompile Include="TextureTools\ExtendedFormats\ExtendedBMP.cpp" />
+    <ClCompile Include="Workspaces\Workspace_Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -72,5 +73,6 @@
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderTexture.h" />
     <ClInclude Include="Workspaces\Workspace_StaticMesh.h" />
     <ClInclude Include="Workspaces\Workspace_SkeletalMesh.h" />
+    <ClInclude Include="Workspaces\Workspace_Texture.h" />
   </ItemGroup>
 </Project>

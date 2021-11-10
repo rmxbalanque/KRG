@@ -1,7 +1,7 @@
 #include "Editor_Model.h"
 #include "RenderingSystem.h"
 #include "MapEditor/Workspace_MapEditor.h"
-#include "Tools/Core/Editor/ResourceWorkspace.h"
+#include "Tools/Core/Workspaces/ResourceWorkspace.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
@@ -101,11 +101,6 @@ namespace KRG
         // Other resource types
         //-------------------------------------------------------------------------
 
-        if ( !ResourceWorkspaceFactory::CanCreateWorkspace( resourceTypeID ) )
-        {
-            return false;
-        }
-
         auto pExistingWorkspace = FindResourceWorkspace( resourceID );
         if ( pExistingWorkspace == nullptr )
         {
@@ -161,6 +156,7 @@ namespace KRG
         auto pPreviewWorld = ( *foundWorkspaceIter )->GetWorld();
 
         // Destroy workspace
+        pWorkspace->Shutdown();
         KRG::Delete( *foundWorkspaceIter );
         m_workspaces.erase( foundWorkspaceIter );
 
@@ -186,6 +182,11 @@ namespace KRG
     }
 
     //-------------------------------------------------------------------------
+
+    bool EditorModel::IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const
+    {
+        return pWorkspace == m_pMapEditor;
+    }
 
     EditorWorkspace* EditorModel::FindResourceWorkspace( ResourceID const& resourceID ) const
     {

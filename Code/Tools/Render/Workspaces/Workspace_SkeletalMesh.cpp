@@ -57,6 +57,8 @@ namespace KRG::Render
     {
         m_pPreviewEntity = nullptr;
         m_pMeshComponent = nullptr;
+
+        TResourceWorkspace<SkeletalMesh>::Shutdown();
     }
 
     void SkeletalMeshWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

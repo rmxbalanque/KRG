@@ -1,6 +1,6 @@
 #include "Editor.h"
 #include "MapEditor/Workspace_MapEditor.h"
-#include "Tools/Core/Editor/EditorWorkspace.h"
+#include "Tools/Core/Workspaces/EditorWorkspace.h"
 #include "Engine/Core/Imgui/OrientationGuide.h"
 #include "System/Input/InputSystem.h"
 #include "Engine/Core/Entity/EntityWorld.h"
@@ -34,10 +34,19 @@ namespace KRG
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameStart );
 
+        // Update the resource database and potentially refresh the browser
         if ( m_db.Update() )
         {
             m_pResourceBrowser->RebuildBrowserTree();
         }
+
+        // Destroy all required workspaces
+        // We need to defer this to the start of the update since we may have references resources that we might unload (i.e. textures)
+        for ( auto pWorkspaceToDestroy : m_workspacesToDestroy )
+        {
+            m_model.DestroyWorkspace( pWorkspaceToDestroy );
+        }
+        m_workspacesToDestroy.clear();
 
         //-------------------------------------------------------------------------
         // Main Menu
@@ -142,7 +151,8 @@ namespace KRG
         // Did we get a close request?
         if ( pWorkspaceToClose != nullptr )
         {
-            m_model.DestroyWorkspace( pWorkspaceToClose );
+            // We need to defer this to the start of the update since we may have references resources that we might unload (i.e. textures)
+            m_workspacesToDestroy.emplace_back( pWorkspaceToClose );
         }
 
         //-------------------------------------------------------------------------
@@ -169,35 +179,6 @@ namespace KRG
 
     void Editor::DrawMainMenu( UpdateContext const& context )
     {
-        //-------------------------------------------------------------------------
-        // Map
-        //-------------------------------------------------------------------------
-
-        if ( ImGui::BeginMenu( "Map" ) )
-        {
-            if ( ImGui::MenuItem( "Create New Map" ) )
-            {
-                m_model.GetMapEditorWorkspace()->CreateNewMap();
-            }
-
-            if ( ImGui::MenuItem( "Load Map" ) )
-            {
-                m_model.GetMapEditorWorkspace()->SelectAndLoadMap();
-            }
-
-            if ( ImGui::MenuItem( "Save Map" ) )
-            {
-                m_model.GetMapEditorWorkspace()->SaveMap();
-            }
-            
-            if ( ImGui::MenuItem( "Save Map As" ) )
-            {
-                m_model.GetMapEditorWorkspace()->SaveMapAs();
-            }
-
-            ImGui::EndMenu();
-        }
-
         //-------------------------------------------------------------------------
         // Tools
         //-------------------------------------------------------------------------
@@ -326,19 +307,21 @@ namespace KRG
     {
         KRG_ASSERT( pWorkspace != nullptr );
 
-        bool const isMapEditorWorkspace = ( pWorkspace == m_model.GetMapEditorWorkspace() );
-        bool const isDirty = pWorkspace->IsDirty();
-
         //-------------------------------------------------------------------------
         // Draw Workspace Window
         //-------------------------------------------------------------------------
         // This is an empty window that just contains the dockspace for the workspace
 
         bool isTabOpen = true;
-        bool* pIsTabOpen = isMapEditorWorkspace ? nullptr : &isTabOpen;
+        bool* pIsTabOpen = m_model.IsMapEditorWorkspace( pWorkspace ) ? nullptr : &isTabOpen;
+
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar;
+        if ( pWorkspace->IsDirty() )
+        {
+            windowFlags |= ImGuiWindowFlags_UnsavedDocument;
+        }
 
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
-        ImGuiWindowFlags windowFlags = isDirty ? windowFlags |= ImGuiWindowFlags_UnsavedDocument : 0;
         ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
         ImGui::SetNextWindowSize( ImVec2( 640, 480 ), ImGuiCond_FirstUseEver );
         bool const shouldDrawWindowContents = ImGui::Begin( pWorkspace->GetWorkspaceWindowID(), pIsTabOpen, windowFlags );
@@ -346,6 +329,48 @@ namespace KRG
 
         bool const isFocused = ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows | ImGuiFocusedFlags_DockHierarchy );
 
+        // Draw Workspace Menu
+        //-------------------------------------------------------------------------
+
+        if ( ImGui::BeginMenuBar() )
+        {
+            if ( pWorkspace->ShouldDrawFileMenu() )
+            {
+                if ( ImGui::BeginMenu( "File" ) )
+                {
+                    ImGui::BeginDisabled( !pWorkspace->IsDirty() );
+                    if ( ImGui::MenuItem( KRG_ICON_FLOPPY_O" Save" ) )
+                    {
+                        pWorkspace->Save();
+                    }
+                    ImGui::EndDisabled();
+
+
+                    ImGui::BeginDisabled( true );
+                    if ( ImGui::MenuItem( KRG_ICON_UNDO" Undo" ) )
+                    {
+                        // Undo
+                    }
+                    ImGui::EndDisabled();
+
+                    ImGui::BeginDisabled( true );
+                    if ( ImGui::MenuItem( KRG_ICON_REPEAT" Redo" ) )
+                    {
+                        // Redo
+                    }
+                    ImGui::EndDisabled();
+
+                    ImGui::EndMenu();
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            pWorkspace->DrawWorkspaceToolbar( context );
+            ImGui::EndMenuBar();
+        }
+
+        // Create dockspace
         //-------------------------------------------------------------------------
 
         ImGuiID const dockspaceID = ImGui::GetID( pWorkspace->GetDockspaceID() );

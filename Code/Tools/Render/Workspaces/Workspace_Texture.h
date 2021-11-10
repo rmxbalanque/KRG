@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Tools/Core/Workspaces/ResourceWorkspace.h"
-#include "Engine/Render/Mesh/StaticMesh.h"
+#include "System/Render/RenderTexture.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Render
 {
-    class StaticMeshWorkspace final : public TResourceWorkspace<StaticMesh>
+    class TextureWorkspace final : public TResourceWorkspace<Texture>
     {
 
     public:
@@ -17,6 +17,7 @@ namespace KRG::Render
 
     private:
 
+        virtual bool HasViewportWindow() const { return false; }
         virtual void Initialize() override;
         virtual void Shutdown() override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
@@ -24,7 +25,7 @@ namespace KRG::Render
 
     private:
 
-        Entity*         m_pPreviewEntity = nullptr;
+        String          m_previewWindowName;
         String          m_infoWindowName;
     };
 }

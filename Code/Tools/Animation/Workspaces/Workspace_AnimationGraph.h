@@ -5,7 +5,7 @@
 #include "Tools/Animation/GraphEditor/AnimationGraphEditor_GraphView.h"
 #include "Tools/Animation/GraphEditor/AnimationGraphEditor_PropertyGrid.h"
 #include "Tools/Animation/GraphEditor/AnimationGraphEditor_VariationEditor.h"
-#include "Tools/Core/Editor/ResourceWorkspace.h"
+#include "Tools/Core/Workspaces/ResourceWorkspace.h"
 #include "Engine/Animation/Graph/AnimationGraphResources.h"
 
 //-------------------------------------------------------------------------
