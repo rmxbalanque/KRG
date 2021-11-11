@@ -1,7 +1,7 @@
 #include "Workspace_MapEditor.h"
 #include "Tools/Entity/Serialization/EntityCollectionDescriptorWriter.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
-#include "Tools/Core/Helpers/Dialogs.h"
+#include "Tools/Core/Helpers/CommonDialogs.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -277,25 +277,45 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
-        bool a = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Translation;
-        bool b = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Rotation;
-        bool c = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Scale;
+        bool isInWorldSpace = m_gizmo.IsInWorldSpace();
 
-        if ( ImGui::Selectable( KRG_ICON_ARROWS, &a, 0, ImVec2( 16, 0 ) ) )
+        InlineString<10> coordinateSpaceSwitcherLabel;
+        coordinateSpaceSwitcherLabel.sprintf( "%s###CoordinateSpace", isInWorldSpace ? KRG_ICON_GLOBE : KRG_ICON_LIGHTBULB_O );
+
+        if ( ImGui::Selectable( coordinateSpaceSwitcherLabel.c_str(), false, 0, ImVec2( 16, 0 ) ) )
+        {
+            isInWorldSpace = !isInWorldSpace;
+            if ( isInWorldSpace )
+            {
+                m_gizmo.SwitchToWorldSpace();
+            }
+            else
+            {
+                m_gizmo.SwitchToLocalSpace();
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        bool t = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Translation;
+        bool r = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Rotation;
+        bool s = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Scale;
+
+        if ( ImGui::Selectable( KRG_ICON_ARROWS, &t, 0, ImVec2( 16, 0 ) ) )
         {
             m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Translation );
         }
 
         ImGui::SameLine();
 
-        if ( ImGui::Selectable( KRG_ICON_REPEAT, &b, 0, ImVec2( 16, 0 ) ) )
+        if ( ImGui::Selectable( KRG_ICON_REPEAT, &r, 0, ImVec2( 16, 0 ) ) )
         {
             m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Rotation );
         }
 
         ImGui::SameLine();
 
-        if ( ImGui::Selectable( KRG_ICON_EXPAND, &c, 0, ImVec2( 16, 0 ) ) )
+        if ( ImGui::Selectable( KRG_ICON_EXPAND, &s, 0, ImVec2( 16, 0 ) ) )
         {
             m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Scale );
         }

@@ -154,7 +154,7 @@ namespace KRG::Animation::Graph
         int32 const numVariations = (int32) m_variations.size();
         for ( int32 i = 0; i < numVariations; i++ )
         {
-            TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, &m_variations[i] );
+            TypeSystem::Serialization::WriteNativeType( typeRegistry, &m_variations[i], writer );
         }
 
         writer.EndArray();

@@ -173,7 +173,7 @@ namespace KRG::Timeline
             //-------------------------------------------------------------------------
 
             writer.Key( "TrackData" );
-            TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, pTrack );
+            TypeSystem::Serialization::WriteNativeType( typeRegistry, pTrack, writer );
 
             pTrack->SerializeCustom( typeRegistry, writer );
 
@@ -188,7 +188,7 @@ namespace KRG::Timeline
                     writer.StartObject();
                     {
                         writer.Key( "ItemData" );
-                        TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, pItem );
+                        TypeSystem::Serialization::WriteNativeType( typeRegistry, pItem, writer );
 
                         auto const& itemTimeRange = pItem->GetTimeRange();
                         writer.Key( "StartTime" );

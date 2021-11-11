@@ -91,6 +91,7 @@ namespace KRG
 
     class GenericResourceWorkspace final : public EditorWorkspace
     {
+
     public:
 
         GenericResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
@@ -107,6 +108,9 @@ namespace KRG
         virtual bool IsDirty() const override { return m_propertyGrid.IsDirty(); }
         virtual bool Save() override;
 
+        void PreEdit( PropertyEditInfo const& info );
+        void PostEdit( PropertyEditInfo const& info );
+
     private:
 
         String                              m_descriptorWindowName;
@@ -114,6 +118,9 @@ namespace KRG
         FileSystem::Path                    m_descriptorPath;
         PropertyGrid                        m_propertyGrid;
         Resource::ResourceDescriptor*       m_pDescriptor = nullptr;
+        EventBindingID                      m_preEditEventBindingID;
+        EventBindingID                      m_postEditEventBindingID;
+        IUndoableAction*                    m_pActiveUndoableAction = nullptr;
     };
 
     //-------------------------------------------------------------------------

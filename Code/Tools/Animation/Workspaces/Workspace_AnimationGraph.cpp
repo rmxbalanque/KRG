@@ -83,7 +83,7 @@ namespace KRG::Animation::Graph
 
     bool AnimationGraphWorkspace::IsDirty() const
     {
-        return false;
+        return true;
     }
 
     bool AnimationGraphWorkspace::Save()

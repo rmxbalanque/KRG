@@ -425,10 +425,7 @@ namespace KRG::Animation
 
         for ( auto const& pEvent : events )
         {
-            TypeSystem::TypeDescriptor desc;
-            TypeSystem::Serialization::CreateTypeDescriptorFromNativeType( ctx.m_typeRegistry, pEvent, desc );
-
-            outEventData.m_collection.m_descriptors.emplace_back( desc );
+            outEventData.m_collection.m_descriptors.emplace_back( TypeSystem::TypeDescriptor( ctx.m_typeRegistry, pEvent ) );
         }
 
         eastl::sort( outEventData.m_syncEventMarkers.begin(), outEventData.m_syncEventMarkers.end() );

@@ -934,6 +934,11 @@ namespace KRG
                     pComponent->Initialize();
                     KRG_ASSERT( pComponent->IsInitialized() ); // Did you forget to call the parent class initialize?
 
+                    if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
+                    {
+                        pSpatialComponent->CalculateWorldTransform( false );
+                    }
+
                     // If we are already activated, then register with entity systems
                     if ( IsActivated() )
                     {

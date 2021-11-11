@@ -4,7 +4,7 @@
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
-#include "Tools/Core/Helpers/Dialogs.h"
+#include "Tools/Core/Helpers/CommonDialogs.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "System/Core/Logging/Log.h"
 

@@ -13,6 +13,13 @@
 
 namespace KRG
 {
+    //-------------------------------------------------------------------------
+    //  Color Abstraction
+    //-------------------------------------------------------------------------
+    // This is a simply helper to manage colors and the various formats
+    // It assumes little endian systems and a uint32 format as follows: 0xRRGGBBAA
+    // If you need a different uint32 format, there are conversion functions provided
+
     struct Color
     {
         KRG_SERIALIZE_MEMBERS( m_color );
@@ -21,18 +28,20 @@ namespace KRG
         {
             struct ByteColor
             {
-                uint8       m_r;
-                uint8       m_g;
-                uint8       m_b;
                 uint8       m_a;
+                uint8       m_b;
+                uint8       m_g;
+                uint8       m_r;
             };
 
             ByteColor       m_byteColor;
             uint32          m_color;
         };
 
+        // Default color is white
         inline Color() : m_color( 0xFFFFFFFF ) {}
 
+        // The format is as follows: 0xRRGGBBAA
         inline Color( uint32 c ) : m_color( c ) {}
 
         inline Color( uint8 r, uint8 g, uint8 b, uint8 a = 255 )
@@ -51,6 +60,8 @@ namespace KRG
             m_byteColor.m_a = uint8( c[3] * 255 );
         }
 
+        //-------------------------------------------------------------------------
+
         inline Color GetAlphaVersion( uint8 newAlpha ) const
         {
             Color newColor = *this;
@@ -60,14 +71,38 @@ namespace KRG
 
         inline Color GetAlphaVersion( float alpha ) const
         {
-            auto floatAlpha = Math::Clamp( alpha * 255, 0.0f, 255.0f );
+            float const floatAlpha = Math::Clamp( alpha * 255, 0.0f, 255.0f );
             return GetAlphaVersion( (uint8) floatAlpha );
         }
 
-        inline uint32 ToU32() const { return m_color; }
+        //-------------------------------------------------------------------------
+
+        // Returns a uint32 color with this byte format: 0xRRGGBBAA
+        inline uint32 ToUInt32() const { return m_color; }
+        
+        // Returns a uint32 color with this byte format: 0xAABBGGRR
+        inline uint32 ToUInt32_ABGR() const
+        {
+            uint32 outColor = 0;
+            outColor |= m_byteColor.m_a;
+            outColor |= m_byteColor.m_b << 8;
+            outColor |= m_byteColor.m_g << 16;
+            outColor |= m_byteColor.m_r << 24;
+            return outColor; 
+        }
+
+        // Returns a uint32 color with this byte format: 0xRRGGBBAA
+        inline operator uint32() const { return ToUInt32(); }
+
+        //-------------------------------------------------------------------------
+
+        // Returns a float4 color where x=R, y=G, z=B, w=A
         inline Float4 ToFloat4() const { return Float4( (float) m_byteColor.m_r / 255, (float) m_byteColor.m_g / 255, (float) m_byteColor.m_b / 255, (float) m_byteColor.m_a / 255 ); }
 
-        inline operator uint32() const { return ToU32(); }
+        // Returns a float4 color where x=A, y=B, z=G, w=R
+        inline Float4 ToFloat4_ABGR() const { return Float4( (float) m_byteColor.m_a / 255, (float) m_byteColor.m_b / 255, (float) m_byteColor.m_g / 255, (float) m_byteColor.m_r / 255 ); }
+
+        // Returns a float4 color where x=R, y=G, z=B, w=A
         inline operator Float4() const { return ToFloat4(); }
     };
 }
@@ -79,9 +114,9 @@ namespace eastl
     template <>
     struct hash<KRG::Color>
     {
-        eastl_size_t operator()( const KRG::Color& color ) const
+        eastl_size_t operator()( KRG::Color const& color ) const
         {
-            return color.operator KRG::uint32();
+            return color.m_color;
         }
     };
 }

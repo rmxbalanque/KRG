@@ -218,7 +218,8 @@
     <ClInclude Include="Widgets\NumericEditors.h" />
     <ClInclude Include="GraphEditor\GraphEditor.h" />
     <ClInclude Include="Workspaces\ResourceWorkspace.h" />
-    <ClInclude Include="Helpers\Dialogs.h" />
+    <ClInclude Include="Helpers\CommonDialogs.h" />
+    <ClInclude Include="UndoStack.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\KRG_RapidJson.cpp">
@@ -340,7 +341,8 @@
     <ClCompile Include="Widgets\NumericEditors.cpp" />
     <ClCompile Include="GraphEditor\GraphEditor.cpp" />
     <ClCompile Include="Workspaces\ResourceWorkspace.cpp" />
-    <ClCompile Include="Helpers\Dialogs.cpp" />
+    <ClCompile Include="Helpers\CommonDialogs.cpp" />
+    <ClCompile Include="UndoStack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\subprocess\LICENSE">

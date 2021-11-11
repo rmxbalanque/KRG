@@ -26,7 +26,7 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    bool InputFloat2( Float2& value, float width, bool readOnly )
+    bool InputFloat2( char const* pID, Float2& value, float width, bool readOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
@@ -36,13 +36,15 @@ namespace KRG::ImGuiX
 
         bool valueUpdated = false;
 
-        ImGui::PushID( &value );
+        ImGui::PushID( pID );
         {
             DrawElementLabel( " X", Colors::Red.ToFloat4() );
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -54,7 +56,9 @@ namespace KRG::ImGuiX
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -64,7 +68,7 @@ namespace KRG::ImGuiX
         return valueUpdated;
     }
 
-    bool InputFloat3( Float3& value, float width, bool readOnly )
+    bool InputFloat3( char const* pID, Float3& value, float width, bool readOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
@@ -74,13 +78,15 @@ namespace KRG::ImGuiX
 
         bool valueUpdated = false;
 
-        ImGui::PushID( &value );
+        ImGui::PushID( pID );
         {
             DrawElementLabel( " X", Colors::Red.ToFloat4() );
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -92,7 +98,9 @@ namespace KRG::ImGuiX
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -104,7 +112,9 @@ namespace KRG::ImGuiX
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##z", &value.m_z, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##z", &value.m_z, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -114,7 +124,7 @@ namespace KRG::ImGuiX
         return valueUpdated;
     }
 
-    bool InputFloat4( Float4& value, float width, bool readOnly )
+    bool InputFloat4( char const* pID, Float4& value, float width, bool readOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
@@ -124,13 +134,15 @@ namespace KRG::ImGuiX
 
         bool valueUpdated = false;
 
-        ImGui::PushID( &value );
+        ImGui::PushID( pID );
         {
             DrawElementLabel( " X", Colors::Red.ToFloat4() );
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##f4x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -142,7 +154,9 @@ namespace KRG::ImGuiX
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##f4y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -154,7 +168,9 @@ namespace KRG::ImGuiX
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##z", &value.m_z, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##f4z", &value.m_z, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -166,7 +182,9 @@ namespace KRG::ImGuiX
 
             ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##w", &value.m_w, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 ) )
+            ImGui::InputFloat( "##f4w", &value.m_w, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }

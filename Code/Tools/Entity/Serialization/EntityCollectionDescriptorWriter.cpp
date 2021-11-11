@@ -170,8 +170,8 @@ namespace KRG::EntityModel
                         componentDesc.m_isSpatialComponent = true;
                     }
 
-                    // Properties
-                    TypeSystem::Serialization::CreateTypeDescriptorFromNativeType( typeRegistry, pComponent, componentDesc, true );
+                    // Type descriptor - Properties
+                    componentDesc.DescribeTypeInstance( typeRegistry, pComponent, true );
 
                     // Add component
                     entityDesc.m_components.emplace_back( componentDesc );

@@ -130,7 +130,7 @@ namespace KRG::GraphEditor
         writer.StartObject();
 
         writer.Key( "TypeData" );
-        TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, this );
+        TypeSystem::Serialization::WriteNativeType( typeRegistry, this, writer );
 
         //-------------------------------------------------------------------------
 
@@ -296,7 +296,7 @@ namespace KRG::GraphEditor
         writer.StartObject();
 
         writer.Key( "TypeData" );
-        TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, this );
+        TypeSystem::Serialization::WriteNativeType( typeRegistry, this, writer );
 
         // Nodes
         //-------------------------------------------------------------------------

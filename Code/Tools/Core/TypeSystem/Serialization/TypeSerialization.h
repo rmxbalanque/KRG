@@ -25,20 +25,31 @@ namespace KRG::TypeSystem::Serialization
         constexpr static char const* const s_typeID = "TypeID";
     };
 
-    // Type Descriptor
+    // Descriptors
     //-------------------------------------------------------------------------
 
-    KRG_TOOLS_CORE_API bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, TypeDescriptor& outDesc );
-    KRG_TOOLS_CORE_API void WriteTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeDescriptor const& type );
-    KRG_TOOLS_CORE_API void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, TypeDescriptor& outDesc, bool setStringValues = false );
+    KRG_TOOLS_CORE_API bool ReadTypeDescriptorFromJSON( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, TypeDescriptor& outDesc );
+    KRG_TOOLS_CORE_API void WriteTypeDescriptorToJSON( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeDescriptor const& type );
 
-    // Native Type
+    // Type Instances
     //-------------------------------------------------------------------------
 
+    // Read the data for a native type from JSON - expect a fully created type to be supplied and will override the values
     KRG_TOOLS_CORE_API bool ReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, IRegisteredType* pTypeInstance );
-    KRG_TOOLS_CORE_API void WriteNativeType( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, IRegisteredType const* pTypeInstance );
+
+    // Read the data for a native type from JSON - expect a fully created type to be supplied and will override the values
+    KRG_TOOLS_CORE_API bool ReadNativeTypeFromString( TypeRegistry const& typeRegistry, String const& jsonString, IRegisteredType* pTypeInstance );
+
+    // Write the property data for a supplied native type to JSON
+    KRG_TOOLS_CORE_API void WriteNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, RapidJsonWriter& writer );
+
+    // Write the property data for a supplied native type to JSON
+    KRG_TOOLS_CORE_API void WriteNativeTypeToString( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, String& outString );
+
+    // Create a new instance of a type from a supplied JSON version
     KRG_TOOLS_CORE_API IRegisteredType* CreateAndReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue );
 
+    // Create a new instance of a type from a supplied JSON version
     template<typename T>
     T* CreateAndReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue )
     {

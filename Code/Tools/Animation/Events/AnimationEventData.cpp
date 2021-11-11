@@ -68,7 +68,7 @@ namespace KRG::Animation
     void EventItem::SerializeCustom( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
     {
         writer.Key( s_eventDataKey );
-        TypeSystem::Serialization::WriteNativeType( typeRegistry, writer, m_pEvent );
+        TypeSystem::Serialization::WriteNativeType( typeRegistry, m_pEvent, writer );
     }
 
     //-------------------------------------------------------------------------

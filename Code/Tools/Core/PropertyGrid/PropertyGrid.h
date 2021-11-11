@@ -47,28 +47,13 @@ namespace KRG
     public:
 
         PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath );
+        ~PropertyGrid();
 
         // Set the type instance to edit, will reset dirty status
-        inline void SetTypeToEdit( IRegisteredType* pTypeInstance )
-        {
-            if ( pTypeInstance == m_pTypeInstance )
-            {
-                return;
-            }
-
-            KRG_ASSERT( pTypeInstance != nullptr );
-            m_pTypeInfo = pTypeInstance->GetTypeInfo();
-            m_pTypeInstance = pTypeInstance;
-            m_isDirty = false;
-        }
+        void SetTypeToEdit( IRegisteredType* pTypeInstance );
 
         // Set the type instance to edit, will reset dirty status
-        inline void SetTypeToEdit( nullptr_t )
-        {
-            m_pTypeInfo = nullptr;
-            m_pTypeInstance = nullptr;
-            m_isDirty = false;
-        }
+        void SetTypeToEdit( nullptr_t );
 
         // Display the grid
         void DrawGrid();
@@ -137,6 +122,13 @@ namespace KRG
         void CreateEditorGenericFlags( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
         void CreateEditorSpecificFlags( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
 
+        // Caches
+        //-------------------------------------------------------------------------
+
+        Float3* GetCachedRotation( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
+        void ResetCachedRotation( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
+        void ClearCache();
+
     private:
 
         TypeSystem::TypeRegistry const&                             m_typeRegistry;
@@ -147,5 +139,7 @@ namespace KRG
 
         TSingleUserEventInternal<void( PropertyEditInfo const& )>   m_preEditEvent; // Fired just before we change a property value
         TSingleUserEventInternal<void( PropertyEditInfo const& )>   m_postEditEvent; // Fired just after we change a property value
+
+        TVector<TPair<void*, Float3*>>                              m_rotationCache;
     };
 }

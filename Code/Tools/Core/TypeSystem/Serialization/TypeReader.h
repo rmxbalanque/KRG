@@ -26,7 +26,7 @@ namespace KRG::TypeSystem::Serialization
 
         inline bool ReadType( TypeDescriptor& typeDesc )
         {
-            return ReadTypeDescriptor( m_typeRegistry, GetObjectValueToBeDeserialized(), typeDesc );
+            return ReadTypeDescriptorFromJSON( m_typeRegistry, GetObjectValueToBeDeserialized(), typeDesc );
         }
 
         inline TypeReader const& operator>>( TypeDescriptor& typeDesc )

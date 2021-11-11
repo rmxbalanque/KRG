@@ -105,13 +105,85 @@ namespace KRG::TypeSystem
     //-------------------------------------------------------------------------
     // A serialized description of a KRG type with all property overrides
 
-    struct KRG_SYSTEM_TYPESYSTEM_API TypeDescriptor
+    class KRG_SYSTEM_TYPESYSTEM_API TypeDescriptor
     {
         KRG_SERIALIZE_MEMBERS( m_typeID, m_properties );
 
     public:
 
+        TypeDescriptor() = default;
+        TypeDescriptor( TypeID typeID ) : m_typeID( typeID ) { KRG_ASSERT( m_typeID.IsValid() ); }
+        TypeDescriptor( TypeRegistry const& typeRegistry, IRegisteredType* pTypeInstance, bool shouldSetPropertyStringValues = false );
+
         inline bool IsValid() const { return m_typeID.IsValid(); }
+
+        // Descriptor Creation
+        //-------------------------------------------------------------------------
+
+        void DescribeTypeInstance( TypeRegistry const& typeRegistry, IRegisteredType* pTypeInstance, bool shouldSetPropertyStringValues );
+
+        // Type Creation
+        //-------------------------------------------------------------------------
+
+        // Create a new instance of the described type!
+        template<typename T>
+        [[nodiscard]] inline T* CreateTypeInstance( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo ) const
+        {
+            KRG_ASSERT( pTypeInfo != nullptr && pTypeInfo->m_ID == m_typeID );
+            KRG_ASSERT( pTypeInfo->IsDerivedFrom<T>() );
+
+            // Create new instance
+            void* pTypeInstance = pTypeInfo->m_pTypeHelper->CreateType();
+            KRG_ASSERT( pTypeInstance != nullptr );
+
+            // Set properties
+            SetPropertyValues( typeRegistry, *pTypeInfo, pTypeInstance );
+            return reinterpret_cast<T*>( pTypeInstance );
+        }
+
+        // Create a new instance of the described type! This function is slower since it has to look up the type info first, if you can prefer using the version above!
+        template<typename T>
+        [[nodiscard]] inline T* CreateTypeInstance( TypeRegistry const& typeRegistry ) const
+        {
+            TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( m_typeID );
+            return CreateTypeInstance<T>( typeRegistry, pTypeInfo );
+        }
+
+        // This will create a new instance of the described type in the memory block provided
+        // WARNING! Do not use this function on an existing type instance of type T since it will not call the destructor and so will leak, only use on uninitialized memory
+        template<typename T>
+        [[nodiscard]] inline T* CreateTypeInstanceInPlace( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, IRegisteredType* pAllocatedMemoryForInstance ) const
+        {
+            KRG_ASSERT( pTypeInfo != nullptr && pTypeInfo->m_ID == m_typeID );
+            KRG_ASSERT( pTypeInfo->IsDerivedFrom<T>() );
+
+            // Create new instance
+            KRG_ASSERT( pAllocatedMemoryForInstance != nullptr );
+            pTypeInfo->m_pTypeHelper->CreateTypeInPlace( pAllocatedMemoryForInstance );
+
+            // Set properties
+            SetPropertyValues( typeRegistry, *pTypeInfo, pAllocatedMemoryForInstance );
+            return reinterpret_cast<T*>( pAllocatedMemoryForInstance );
+        }
+
+        // This will create a new instance of the described type in the memory block provided
+        // WARNING! Do not use this function on an existing type instance of type T since it will not call the destructor and so will leak, only use on uninitialized memory
+        template<typename T>
+        [[nodiscard]] inline T* CreateTypeInstanceInPlace( TypeRegistry const& typeRegistry, void* pAllocatedMemoryForInstance ) const
+        {
+            TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( m_typeID );
+            return CreateTypeInstanceInPlace<T>( typeRegistry, pTypeInfo, pAllocatedMemoryForInstance );
+        }
+
+        // This will create a new instance of the described type in the memory block provided
+        // WARNING! Do not use this function on an existing type instance of type T since it will not call the destructor and so will leak, only use on uninitialized memory
+        template<typename T>
+        inline void CreateTypeInstanceInPlace( TypeRegistry const& typeRegistry, T* pTypeInstance ) const
+        {
+            pTypeInstance->~T();
+            TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( m_typeID );
+            T* pCreatedType = CreateTypeInstanceInPlace<T>( typeRegistry, pTypeInfo, pTypeInstance );
+        }
 
         // Properties
         //-------------------------------------------------------------------------
@@ -120,77 +192,14 @@ namespace KRG::TypeSystem
         inline PropertyDescriptor const* GetProperty( PropertyPath const& path ) const { return const_cast<TypeDescriptor*>( this )->GetProperty( path ); }
         void RemovePropertyValue( PropertyPath const& path );
 
+    private:
+
+        void* SetPropertyValues( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, void* pTypeInstance ) const;
+
     public:
 
         TypeID                                                      m_typeID;
         TInlineVector<PropertyDescriptor, 6>                        m_properties;
-    };
-
-    //-------------------------------------------------------------------------
-    // Type Creator
-    //-------------------------------------------------------------------------
-
-    class KRG_SYSTEM_TYPESYSTEM_API TypeCreator
-    {
-    public:
-
-        template<typename T>
-        [[nodiscard]] inline static T* CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, TypeDescriptor const& typeDesc )
-        {
-            KRG_ASSERT( pTypeInfo != nullptr && pTypeInfo->m_ID == typeDesc.m_typeID );
-            KRG_ASSERT( pTypeInfo->IsDerivedFrom<T>() );
-
-            // Create new instance
-            void* pTypeInstance = pTypeInfo->m_pTypeHelper->CreateType();
-            KRG_ASSERT( pTypeInstance != nullptr );
-
-            // Set properties
-            SetPropertyValues( typeRegistry, *pTypeInfo, typeDesc, pTypeInstance );
-            return reinterpret_cast<T*>( pTypeInstance );
-        }
-
-        template<typename T>
-        [[nodiscard]] inline static T* CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeDescriptor const& typeDesc )
-        {
-            TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( typeDesc.m_typeID );
-            return CreateTypeFromDescriptor<T>( typeRegistry, pTypeInfo, typeDesc );
-        }
-
-        // Warning! Do not use this function on an existing type instance of type T since it will not call the destructor and so will leak, only use on uninitialized memory
-        template<typename T>
-        [[nodiscard]] inline static T* CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, TypeDescriptor const& typeDesc, IRegisteredType* pAllocatedMemoryForInstance )
-        {
-            KRG_ASSERT( pTypeInfo != nullptr && pTypeInfo->m_ID == typeDesc.m_typeID );
-            KRG_ASSERT( pTypeInfo->IsDerivedFrom<T>() );
-
-            // Create new instance
-            KRG_ASSERT( pAllocatedMemoryForInstance != nullptr );
-            pTypeInfo->m_pTypeHelper->CreateTypeInPlace( pAllocatedMemoryForInstance );
-
-            // Set properties
-            SetPropertyValues( typeRegistry, *pTypeInfo, typeDesc, pAllocatedMemoryForInstance );
-            return reinterpret_cast<T*>( pAllocatedMemoryForInstance );
-        }
-
-        // Warning! Do not use this function on an existing type instance of type T since it will not call the destructor and so will leak, only use on uninitialized memory
-        template<typename T>
-        [[nodiscard]] inline static T* CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeDescriptor const& typeDesc, void* pAllocatedMemoryForInstance )
-        {
-            TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( typeDesc.m_typeID );
-            return CreateTypeFromDescriptor<T>( typeRegistry, pTypeInfo, typeDesc, pAllocatedMemoryForInstance );
-        }
-
-        template<typename T>
-        inline static void CreateTypeFromDescriptor( TypeRegistry const& typeRegistry, TypeDescriptor const& typeDesc, T* pTypeInstance )
-        {
-            pTypeInstance->~T();
-            TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( typeDesc.m_typeID );
-            T* pCreatedType = CreateTypeFromDescriptor<T>( typeRegistry, pTypeInfo, typeDesc, pTypeInstance );
-        }
-
-    private:
-
-        static void* SetPropertyValues( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, TypeDescriptor const& typeDesc, void* pTypeInstance );
     };
 
     //-------------------------------------------------------------------------
@@ -219,7 +228,7 @@ namespace KRG::TypeSystem
             for ( int32 i = 0; i < numDescs; i++ )
             {
                 pTypeMemory += collection.m_typePaddings[i];
-                outTypes.emplace_back( TypeCreator::CreateTypeFromDescriptor<T>( typeRegistry, collection.m_typeInfos[i], collection.m_descriptors[i], (IRegisteredType*) pTypeMemory ) );
+                outTypes.emplace_back( collection.m_descriptors[i].CreateTypeInstanceInPlace<T>( typeRegistry, collection.m_typeInfos[i], (IRegisteredType*) pTypeMemory ) );
                 pTypeMemory += collection.m_typeSizes[i];
             }
 
@@ -244,7 +253,7 @@ namespace KRG::TypeSystem
             int32 const numDescs = (int32) collection.m_descriptors.size();
             for ( int32 i = 0; i < numDescs; i++ )
             {
-                outTypes.emplace_back( TypeCreator::CreateTypeFromDescriptor<T>( typeRegistry, collection.m_typeInfos[i], collection.m_descriptors[i] ) );
+                outTypes.emplace_back( collection.m_descriptors[i].CreateTypeInstance<T>( typeRegistry, collection.m_typeInfos[i] ) );
             }
         }
 

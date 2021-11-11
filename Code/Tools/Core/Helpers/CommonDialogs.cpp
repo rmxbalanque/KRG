@@ -1,4 +1,4 @@
-#include "Dialogs.h"
+#include "CommonDialogs.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 
 //-------------------------------------------------------------------------

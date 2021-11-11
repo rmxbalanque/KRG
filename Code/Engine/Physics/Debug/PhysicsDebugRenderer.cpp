@@ -79,7 +79,7 @@ namespace KRG::Physics
             {
                 physx::PxDebugPoint const& point = pPoints[currentPointIdx + p];
                 pData[bufferVertexIdx++] = Float4( point.pos.x, point.pos.y, point.pos.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( point.color ).ToFloat4();
+                pData[bufferVertexIdx++] = Physics::FromPxColor( point.color );
             }
 
             currentPointIdx += numPointsToDraw;
@@ -109,9 +109,9 @@ namespace KRG::Physics
             {
                 physx::PxDebugLine const& line = pLines[currentLineIdx + l];
                 pData[bufferVertexIdx++] = Float4( line.pos0.x, line.pos0.y, line.pos0.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( line.color0 ).ToFloat4();
+                pData[bufferVertexIdx++] = Physics::FromPxColor( line.color0 );
                 pData[bufferVertexIdx++] = Float4( line.pos1.x, line.pos1.y, line.pos1.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( line.color1 ).ToFloat4();
+                pData[bufferVertexIdx++] = Physics::FromPxColor( line.color1 );
             }
 
             currentLineIdx += numLinesToDraw;
@@ -141,11 +141,11 @@ namespace KRG::Physics
             {
                 physx::PxDebugTriangle const& tri = pTriangles[currentTriangleIdx + t];
                 pData[bufferVertexIdx++] = Float4( tri.pos0.x, tri.pos0.y, tri.pos0.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color0 ).ToFloat4();
+                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color0 );
                 pData[bufferVertexIdx++] = Float4( tri.pos1.x, tri.pos1.y, tri.pos1.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color1 ).ToFloat4();
+                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color1 );
                 pData[bufferVertexIdx++] = Float4( tri.pos2.x, tri.pos2.y, tri.pos2.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color2 ).ToFloat4();
+                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color2 );
             }
 
             currentTriangleIdx += numTrianglesToDraw;
@@ -195,7 +195,7 @@ namespace KRG::Physics
             //-------------------------------------------------------------------------
 
             Float2 const textPosTopLeft = viewport.WorldSpaceToScreenSpace( Physics::FromPx( debugText.position ) ) + 0.5f;
-            Float4 const color = Physics::FromPxColor( debugText.color ).ToFloat4();
+            Float4 const color = Physics::FromPxColor( debugText.color );
             numGlyphsDrawn += m_textRS.m_fontAtlas.WriteGlyphsToBuffer( &pVertexData[numGlyphsDrawn * 4], uint16( numGlyphsDrawn * 4 ), &pIndexData[numGlyphsDrawn * 6], 0, glyphIndices, textPosTopLeft, color );
         }
 

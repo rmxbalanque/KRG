@@ -29,7 +29,7 @@ namespace KRG::TypeSystem::Serialization
         inline TypeWriter& operator<<( T const* pType )
         {
             PreSerializeType();
-            WriteNativeType( m_typeRegistry, m_writer, pType );
+            WriteNativeType( m_typeRegistry, pType, m_writer );
             m_numTypesSerialized++;
             return *this;
         }
@@ -40,7 +40,7 @@ namespace KRG::TypeSystem::Serialization
         inline TypeWriter& operator<< ( TypeDescriptor const& typeDesc )
         {
             PreSerializeType();
-            WriteTypeDescriptor( m_typeRegistry, m_writer, typeDesc );
+            WriteTypeDescriptorToJSON( m_typeRegistry, m_writer, typeDesc );
             m_numTypesSerialized++;
             return *this;
         }

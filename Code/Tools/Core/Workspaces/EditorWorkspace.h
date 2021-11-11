@@ -1,5 +1,5 @@
 #pragma once
-#include "Tools/Core/_Module/API.h"
+#include "Tools/Core/UndoStack.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Resource/ResourceID.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
@@ -94,6 +94,14 @@ namespace KRG
         // Draw the viewport toolbar
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) {}
 
+        // Undo/Redo
+        //-------------------------------------------------------------------------
+
+        inline bool CanUndo() { return m_undoStack.CanUndo(); }
+        inline void Undo() { return m_undoStack.Undo(); }
+        inline bool CanRedo() { return m_undoStack.CanRedo(); }
+        inline void Redo() { return m_undoStack.Redo(); }
+
         // Saving and Dirty state
         //-------------------------------------------------------------------------
 
@@ -122,6 +130,7 @@ namespace KRG
 
         EditorContext const&                m_editorContext;
         EntityWorld*                        m_pWorld = nullptr;
+        UndoStack                           m_undoStack;
         String                              m_displayName;
         String                              m_workspaceWindowID;
         String                              m_viewportWindowID;

@@ -90,8 +90,7 @@ namespace KRG::Animation
             TypeSystem::TypeDescriptorCollection settingsTypeDescriptors;
             for ( auto pSettings : context.m_nodeSettings )
             {
-                auto& desc = settingsTypeDescriptors.m_descriptors.emplace_back();
-                TypeSystem::Serialization::CreateTypeDescriptorFromNativeType( ctx.m_typeRegistry, pSettings, desc );
+                settingsTypeDescriptors.m_descriptors.emplace_back( TypeSystem::TypeDescriptor( ctx.m_typeRegistry, pSettings ) );
             }
             archive << settingsTypeDescriptors;
 

@@ -32,8 +32,9 @@ namespace KRG
     private:
 
         void DrawMainMenu( UpdateContext const& context );
-        bool DrawWorkspace( UpdateContext const& context, EditorWorkspace* pWorkspace );
         void DrawPopups( UpdateContext const& context );
+        bool DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace );
+        void DrawWorkspaceContents( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass );
 
         // Hot Reload
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;
@@ -60,5 +61,6 @@ namespace KRG
         bool                                m_isResourceBrowserWindowOpen = true;
         bool                                m_isResourceLogWindowOpen = false;
         bool                                m_isResourceReferenceTrackerWindowOpen = false;
+        bool                                m_isImguiDemoWindowOpen = false;
     };
 }

@@ -6,6 +6,167 @@
 
 namespace KRG::TypeSystem
 {
+    namespace
+    {
+        struct ResolvedPathElement
+        {
+            StringID                m_propertyID;
+            int32                   m_arrayElementIdx;
+            PropertyInfo const*     m_pPropertyInfo;
+            Byte*                   m_pAddress;
+        };
+
+        struct ResolvedPath
+        {
+            inline bool IsValid() const { return !m_pathElements.empty(); }
+            inline void Reset() { m_pathElements.clear(); }
+
+            TInlineVector<ResolvedPathElement, 6> m_pathElements;
+        };
+
+        // Resolves a given property path with a given type instance to calculate the final address of the property this path refers to
+        static ResolvedPath ResolvePropertyPath( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, Byte* const pTypeInstanceAddress, PropertyPath const& path )
+        {
+            ResolvedPath resolvedPath;
+
+            Byte* pResolvedTypeInstance = pTypeInstanceAddress;
+            TypeInfo const* pResolvedTypeInfo = pTypeInfo;
+            PropertyInfo const* pFoundPropertyInfo = nullptr;
+
+            // Resolve property path
+            size_t const numPathElements = path.GetNumElements();
+            size_t const lastElementIdx = numPathElements - 1;
+            for ( size_t i = 0; i < numPathElements; i++ )
+            {
+                KRG_ASSERT( pResolvedTypeInfo != nullptr );
+
+                // Get the property info for the path element
+                pFoundPropertyInfo = pResolvedTypeInfo->GetPropertyInfo( path[i].m_propertyID );
+                if ( pFoundPropertyInfo == nullptr )
+                {
+                    resolvedPath.Reset();
+                    break;
+                }
+
+                ResolvedPathElement& resolvedPathElement = resolvedPath.m_pathElements.emplace_back();
+                resolvedPathElement.m_propertyID = path[i].m_propertyID;
+                resolvedPathElement.m_arrayElementIdx = path[i].m_arrayElementIdx;
+                resolvedPathElement.m_pPropertyInfo = pFoundPropertyInfo;
+
+                // Calculate the address of the resolved property
+                if ( pFoundPropertyInfo->IsArrayProperty() )
+                {
+                    resolvedPathElement.m_pAddress = pResolvedTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( reinterpret_cast<IRegisteredType*>( pResolvedTypeInstance ), path[i].m_propertyID, path[i].m_arrayElementIdx );
+                }
+                else // Structure/Type
+                {
+                    resolvedPathElement.m_pAddress = pResolvedTypeInstance + pFoundPropertyInfo->m_offset;
+                }
+
+                // Update the resolved type instance and type info
+                pResolvedTypeInstance = resolvedPathElement.m_pAddress;
+                if ( !IsCoreType( resolvedPathElement.m_pPropertyInfo->m_typeID ) )
+                {
+                    pResolvedTypeInfo = typeRegistry.GetTypeInfo( resolvedPathElement.m_pPropertyInfo->m_typeID );
+                }
+                else
+                {
+                    pResolvedTypeInfo = nullptr;
+                }
+            }
+
+            return resolvedPath;
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    namespace
+    {
+        struct TypeDescriber
+        {
+            static void DescribeType( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeID typeID, IRegisteredType const* pTypeInstance, PropertyPath& path, bool shouldSetPropertyStringValues )
+            {
+                KRG_ASSERT( !IsCoreType( typeID ) );
+                auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
+                KRG_ASSERT( pTypeInfo != nullptr );
+
+                //-------------------------------------------------------------------------
+
+                for ( auto const& propInfo : pTypeInfo->m_properties )
+                {
+                    if ( propInfo.IsArrayProperty() )
+                    {
+                        size_t const elementByteSize = propInfo.m_arrayElementSize;
+                        size_t const numArrayElements = propInfo.IsStaticArrayProperty() ? propInfo.m_arraySize : pTypeInfo->m_pTypeHelper->GetArraySize( pTypeInstance, propInfo.m_ID );
+                        if ( numArrayElements > 0 )
+                        {
+                            Byte const* pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( const_cast<IRegisteredType*>( pTypeInstance ), propInfo.m_ID, 0 );
+
+                            // Write array elements
+                            for ( auto i = 0; i < numArrayElements; i++ )
+                            {
+                                path.Append( propInfo.m_ID, i );
+                                DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, shouldSetPropertyStringValues, pArrayElementAddress, path, i );
+                                pArrayElementAddress += elementByteSize;
+                                path.RemoveLastElement();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        path.Append( propInfo.m_ID );
+                        auto pPropertyInstance = propInfo.GetPropertyAddress( pTypeInstance );
+                        DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, shouldSetPropertyStringValues, pPropertyInstance, path );
+                        path.RemoveLastElement();
+                    }
+                }
+            }
+
+            static void DescribeProperty( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeInfo const* pParentTypeInfo, IRegisteredType const* pParentInstance, PropertyInfo const& propertyInfo, bool shouldSetPropertyStringValues, void const* pPropertyInstance, PropertyPath& path, int32 arrayElementIdx = InvalidIndex )
+            {
+                if ( IsCoreType( propertyInfo.m_typeID ) || propertyInfo.IsEnumProperty() )
+                {
+                    // Only describe non-default properties
+                    if ( !pParentTypeInfo->m_pTypeHelper->IsPropertyValueSetToDefault( pParentInstance, propertyInfo.m_ID, arrayElementIdx ) )
+                    {
+                        PropertyDescriptor& propertyDesc = typeDesc.m_properties.emplace_back( PropertyDescriptor() );
+                        propertyDesc.m_path = path;
+                        Conversion::ConvertNativeTypeToBinary( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_byteValue );
+
+                        if ( shouldSetPropertyStringValues )
+                        {
+                            Conversion::ConvertNativeTypeToString( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_stringValue );
+                        }
+                    }
+                }
+                else
+                {
+                    DescribeType( typeRegistry, typeDesc, propertyInfo.m_typeID, (IRegisteredType*) pPropertyInstance, path, shouldSetPropertyStringValues );
+                }
+            }
+        };
+    }
+
+    //-------------------------------------------------------------------------
+
+    TypeDescriptor::TypeDescriptor( TypeRegistry const& typeRegistry, IRegisteredType* pTypeInstance, bool shouldSetPropertyStringValues )
+    {
+        KRG_ASSERT( pTypeInstance != nullptr );
+        DescribeTypeInstance( typeRegistry, pTypeInstance, shouldSetPropertyStringValues );
+    }
+
+    void TypeDescriptor::DescribeTypeInstance( TypeRegistry const& typeRegistry, IRegisteredType* pTypeInstance, bool shouldSetPropertyStringValues )
+    {
+        // Reset descriptor
+        m_typeID = pTypeInstance->GetTypeID();
+        m_properties.clear();
+
+        // Fill property values
+        PropertyPath path;
+        TypeDescriber::DescribeType( typeRegistry, *this, m_typeID, pTypeInstance, path, shouldSetPropertyStringValues );
+    }
+
     PropertyDescriptor* TypeDescriptor::GetProperty( PropertyPath const& path )
     {
         for ( auto& prop : m_properties )
@@ -30,85 +191,11 @@ namespace KRG::TypeSystem
         }
     }
 
-    //-------------------------------------------------------------------------
-
-    struct ResolvedPathElement
+    void* TypeDescriptor::SetPropertyValues( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, void* pTypeInstance ) const
     {
-        StringID                m_propertyID;
-        int32                   m_arrayElementIdx;
-        PropertyInfo const*     m_pPropertyInfo;
-        Byte*                   m_pAddress;
-    };
+        KRG_ASSERT( IsValid() && typeInfo.m_ID == m_typeID );
 
-    struct ResolvedPath
-    {
-        inline bool IsValid() const { return !m_pathElements.empty(); }
-        inline void Reset() { m_pathElements.clear(); }
-
-        TInlineVector<ResolvedPathElement, 6> m_pathElements;
-    };
-
-    // Resolves a given property path with a given type instance to calculate the final address of the property this path refers to
-    ResolvedPath ResolvePropertyPath( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, Byte* const pTypeInstanceAddress, PropertyPath const& path )
-    {
-        ResolvedPath resolvedPath;
-
-        Byte* pResolvedTypeInstance = pTypeInstanceAddress;
-        TypeInfo const* pResolvedTypeInfo = pTypeInfo;
-        PropertyInfo const* pFoundPropertyInfo = nullptr;
-        
-        // Resolve property path
-        size_t const numPathElements = path.GetNumElements();
-        size_t const lastElementIdx = numPathElements - 1;
-        for ( size_t i = 0; i < numPathElements; i++ )
-        {
-            KRG_ASSERT( pResolvedTypeInfo != nullptr );
-
-            // Get the property info for the path element
-            pFoundPropertyInfo = pResolvedTypeInfo->GetPropertyInfo( path[i].m_propertyID );
-            if ( pFoundPropertyInfo == nullptr )
-            {
-                resolvedPath.Reset();
-                break;
-            }
-
-            ResolvedPathElement& resolvedPathElement = resolvedPath.m_pathElements.emplace_back();
-            resolvedPathElement.m_propertyID = path[i].m_propertyID;
-            resolvedPathElement.m_arrayElementIdx = path[i].m_arrayElementIdx;
-            resolvedPathElement.m_pPropertyInfo = pFoundPropertyInfo;
-
-            // Calculate the address of the resolved property
-            if ( pFoundPropertyInfo->IsArrayProperty() )
-            {
-                resolvedPathElement.m_pAddress = pResolvedTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( reinterpret_cast<IRegisteredType*>( pResolvedTypeInstance ), path[i].m_propertyID, path[i].m_arrayElementIdx );
-            }
-            else // Structure/Type
-            {
-                resolvedPathElement.m_pAddress = pResolvedTypeInstance + pFoundPropertyInfo->m_offset;
-            }
-
-            // Update the resolved type instance and type info
-            pResolvedTypeInstance = resolvedPathElement.m_pAddress;
-            if ( !IsCoreType( resolvedPathElement.m_pPropertyInfo->m_typeID ) )
-            {
-                pResolvedTypeInfo = typeRegistry.GetTypeInfo( resolvedPathElement.m_pPropertyInfo->m_typeID );
-            }
-            else
-            {
-                pResolvedTypeInfo = nullptr;
-            }
-        }
-
-        return resolvedPath;
-    }
-
-    //-------------------------------------------------------------------------
-
-    void* TypeCreator::SetPropertyValues( TypeRegistry const& typeRegistry, TypeInfo const& typeInfo, TypeDescriptor const& typeDesc, void* pTypeInstance )
-    {
-        KRG_ASSERT( typeDesc.IsValid() && typeInfo.m_ID == typeDesc.m_typeID );
-
-        for ( auto const& propertyValue : typeDesc.m_properties )
+        for ( auto const& propertyValue : m_properties )
         {
             KRG_ASSERT( propertyValue.IsValid() );
 

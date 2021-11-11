@@ -49,6 +49,37 @@ namespace KRG
         , m_rawResourceDirectoryPath( rawResourceDirectoryPath )
     {}
 
+    PropertyGrid::~PropertyGrid()
+    {
+        ClearCache();
+    }
+
+    //-------------------------------------------------------------------------
+
+    // Set the type instance to edit, will reset dirty status
+    void PropertyGrid::SetTypeToEdit( IRegisteredType* pTypeInstance )
+    {
+        if ( pTypeInstance == m_pTypeInstance )
+        {
+            return;
+        }
+
+        KRG_ASSERT( pTypeInstance != nullptr );
+        m_pTypeInfo = pTypeInstance->GetTypeInfo();
+        m_pTypeInstance = pTypeInstance;
+        ClearCache();
+        m_isDirty = false;
+    }
+
+    // Set the type instance to edit, will reset dirty status
+    void PropertyGrid::SetTypeToEdit( nullptr_t )
+    {
+        m_pTypeInfo = nullptr;
+        m_pTypeInstance = nullptr;
+        ClearCache();
+        m_isDirty = false;
+    }
+
     //-------------------------------------------------------------------------
 
     void PropertyGrid::DrawGrid()
@@ -219,6 +250,12 @@ namespace KRG
             {
                 ScopedChangeNotifier cn( this, &propertyInfo );
                 typeInfo.m_pTypeHelper->ResetToDefault( pTypeInstance, propertyInfo.m_ID );
+
+                CoreTypes const coreType = GetCoreType( propertyInfo.m_typeID );
+                if ( coreType == CoreTypes::Matrix || coreType == CoreTypes::Transform )
+                {
+                    ResetCachedRotation( propertyInfo, pPropertyInstance );
+                }
             }
             break;
         }
@@ -567,7 +604,9 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S8, &tmpValue ) )
+        ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S8, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -580,7 +619,9 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S16, &tmpValue ) )
+        ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S16, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -593,7 +634,8 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S32, &tmpValue ) )
+        ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S32, &tmpValue );
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -606,7 +648,8 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S64, &tmpValue ) )
+        ImGui::InputScalar( g_emptyLabel, ImGuiDataType_S64, &tmpValue );
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -619,7 +662,9 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U8, &tmpValue ) )
+        ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U8, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -632,7 +677,9 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U16, &tmpValue ) )
+        ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U16, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -645,7 +692,9 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U32, &tmpValue ) )
+        ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U32, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -658,7 +707,9 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U64, &tmpValue ) )
+        ImGui::InputScalar( g_emptyLabel, ImGuiDataType_U64, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -673,7 +724,9 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputFloat( g_emptyLabel, &tmpValue ) )
+        ImGui::InputFloat( g_emptyLabel, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -686,13 +739,16 @@ namespace KRG
         auto tmpValue = *pValue;
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputDouble( g_emptyLabel, &tmpValue ) )
+        ImGui::InputDouble( g_emptyLabel, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
         }
     }
 
+    // TODO: This spams change notifiers!!!!!
     void PropertyGrid::CreateEditorColor( PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
     {
         auto pValue = reinterpret_cast<Color*>( pPropertyInstance );
@@ -714,7 +770,9 @@ namespace KRG
         float floatValue = pValue->ToFloat();
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputFloat( g_emptyLabel, &floatValue ) )
+        ImGui::InputFloat( g_emptyLabel, &floatValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = Microseconds( floatValue );
@@ -727,7 +785,9 @@ namespace KRG
         float floatValue = pValue->ToFloat();
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputFloat( g_emptyLabel, &floatValue ) )
+        ImGui::InputFloat( g_emptyLabel, &floatValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = Milliseconds( floatValue );
@@ -740,7 +800,9 @@ namespace KRG
         float floatValue = pValue->ToFloat();
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputFloat( g_emptyLabel, &floatValue ) )
+        ImGui::InputFloat( g_emptyLabel, &floatValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = Seconds( floatValue );
@@ -753,7 +815,9 @@ namespace KRG
         float floatValue = pValue->ToFloat();
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputFloat( g_emptyLabel, &floatValue ) )
+        ImGui::InputFloat( g_emptyLabel, &floatValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = Percentage( floatValue );
@@ -775,11 +839,15 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ImGui::SetNextItemWidth( textAreaWidth );
-        if ( ImGui::InputFloat( g_emptyLabel, &tmpValue ) )
+        ImGui::InputFloat( g_emptyLabel, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = Degrees( tmpValue );
         }
+
+        //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_COMPRESS "##Clamp" ) )
@@ -804,11 +872,15 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ImGui::SetNextItemWidth( textAreaWidth );
-        if ( ImGui::InputFloat( g_emptyLabel, &tmpValue ) )
+        ImGui::InputFloat( g_emptyLabel, &tmpValue );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = Radians( Degrees( tmpValue ) );
         }
+
+        //-------------------------------------------------------------------------
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_COMPRESS "##Clamp" ) )
@@ -825,7 +897,7 @@ namespace KRG
         auto pValue = reinterpret_cast<Float2*>( pPropertyInstance );
         auto tmpValue = *pValue;
 
-        if ( ImGuiX::InputFloat2( tmpValue ) )
+        if ( ImGuiX::InputFloat2( "EF2", tmpValue) )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -837,7 +909,7 @@ namespace KRG
         auto pValue = reinterpret_cast<Float3*>( pPropertyInstance );
         auto tmpValue = *pValue;
 
-        if ( ImGuiX::InputFloat3( tmpValue ) )
+        if ( ImGuiX::InputFloat3( "EF3", tmpValue ) )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -849,7 +921,7 @@ namespace KRG
         auto pValue = reinterpret_cast<Float4*>( pPropertyInstance );
         auto tmpValue = *pValue;
 
-        if ( ImGuiX::InputFloat4( tmpValue ) )
+        if ( ImGuiX::InputFloat4( "EF4", tmpValue ) )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = tmpValue;
@@ -861,7 +933,7 @@ namespace KRG
         auto pValue = reinterpret_cast<Vector*>( pPropertyInstance );
         auto tmpValue = pValue->ToFloat4();
 
-        if ( ImGuiX::InputFloat4( tmpValue ) )
+        if ( ImGuiX::InputFloat4( "EV", tmpValue ) )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = Vector( tmpValue );
@@ -873,7 +945,7 @@ namespace KRG
         auto pValue = reinterpret_cast<EulerAngles*>( pPropertyInstance );
         Float3 tmpValue = pValue->GetAsDegrees();
 
-        if ( ImGuiX::InputFloat3( tmpValue ) )
+        if ( ImGuiX::InputFloat3( "EEA", tmpValue ) )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             EulerAngles const newRotation( Degrees( tmpValue.m_x ).GetClampedToSmallest(), Degrees( tmpValue.m_y ).GetClampedToSmallest(), Degrees( tmpValue.m_z ).GetClampedToSmallest() );
@@ -895,7 +967,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         Float4 quatValues = pValue->ToFloat4();
-        ImGuiX::InputFloat4( quatValues, inputWidth, true );
+        ImGuiX::InputFloat4( "EQ", quatValues, inputWidth, true );
 
         //-------------------------------------------------------------------------
 
@@ -915,7 +987,7 @@ namespace KRG
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 8 ) );
         if ( ImGui::BeginPopupModal( "RotationBuilder", nullptr, ImGuiWindowFlags_AlwaysAutoResize ) )
         {
-            ImGuiX::InputFloat3( degrees );
+            ImGuiX::InputFloat3( "R3", degrees );
 
             // Set new rotation
             if ( ImGui::Button( "Apply", ImVec2( 143, 0 ) ) )
@@ -942,7 +1014,7 @@ namespace KRG
     {
         auto pValue = reinterpret_cast<Matrix*>( pPropertyInstance );
         Float3 translation = pValue->GetTranslation().ToFloat3();
-        Float3 rotation = Float3::Zero;// pValue->GetRotation().ToEulerAngles().GetAsDegrees();
+        Float3* pRotation = GetCachedRotation( propertyInfo, pPropertyInstance );
         Float3 scale = pValue->GetScale().ToFloat3();
 
         bool transformUpdated = false;
@@ -962,7 +1034,7 @@ namespace KRG
                 ImGui::Text( "Pos" );
 
                 ImGui::TableNextColumn();
-                if ( ImGuiX::InputFloat3( translation ) )
+                if ( ImGuiX::InputFloat3( "EMT", translation ) )
                 {
                     transformUpdated = true;
                 }
@@ -975,11 +1047,11 @@ namespace KRG
                 ImGui::Text( "Rot" );
 
                 ImGui::TableNextColumn();
-                if ( ImGuiX::InputFloat3( rotation ) )
+                if ( ImGuiX::InputFloat3( "EMR", *pRotation ) )
                 {
-                    rotation.m_x = Degrees( rotation.m_x ).GetClampedToSmallest().ToFloat();
-                    rotation.m_y = Degrees( rotation.m_y ).GetClampedToSmallest().ToFloat();
-                    rotation.m_z = Degrees( rotation.m_z ).GetClampedToSmallest().ToFloat();
+                    pRotation->m_x = Degrees( pRotation->m_x ).GetClampedToSmallest().ToFloat();
+                    pRotation->m_y = Degrees( pRotation->m_y ).GetClampedToSmallest().ToFloat();
+                    pRotation->m_z = Degrees( pRotation->m_z ).GetClampedToSmallest().ToFloat();
                     transformUpdated = true;
                 }
             }
@@ -991,7 +1063,7 @@ namespace KRG
                 ImGui::Text( "Scl" );
 
                 ImGui::TableNextColumn();
-                if ( ImGuiX::InputFloat3( scale ) )
+                if ( ImGuiX::InputFloat3( "EMS", scale ) )
                 {
                     transformUpdated = true;
                 }
@@ -1006,7 +1078,7 @@ namespace KRG
         if ( transformUpdated )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
-            *pValue = Matrix( Quaternion( EulerAngles( rotation ) ), translation, scale );
+            *pValue = Matrix( Quaternion( EulerAngles( *pRotation ) ), translation, scale );
         }
     }
 
@@ -1014,7 +1086,7 @@ namespace KRG
     {
         auto pValue = reinterpret_cast<Transform*>( pPropertyInstance );
         Float3 translation = pValue->GetTranslation().ToFloat3();
-        Float3 rotation = pValue->GetRotation().ToEulerAngles().GetAsDegrees();
+        Float3* pRotation = GetCachedRotation( propertyInfo, pPropertyInstance );
         Float3 scale = pValue->GetScale().ToFloat3();
 
         bool transformUpdated = false;
@@ -1034,7 +1106,7 @@ namespace KRG
                 ImGui::Text( "Pos" );
 
                 ImGui::TableNextColumn();
-                if ( ImGuiX::InputFloat3( translation ) )
+                if ( ImGuiX::InputFloat3( "ETT", translation ) )
                 {
                     transformUpdated = true;
                 }
@@ -1047,11 +1119,11 @@ namespace KRG
                 ImGui::Text( "Rot" );
 
                 ImGui::TableNextColumn();
-                if ( ImGuiX::InputFloat3( rotation ) )
+                if ( ImGuiX::InputFloat3( "ETR", *pRotation ) )
                 {
-                    rotation.m_x = Degrees( rotation.m_x ).GetClampedToSmallest().ToFloat();
-                    rotation.m_y = Degrees( rotation.m_y ).GetClampedToSmallest().ToFloat();
-                    rotation.m_z = Degrees( rotation.m_z ).GetClampedToSmallest().ToFloat();
+                    pRotation->m_x = Degrees( pRotation->m_x ).GetClampedToSmallest().ToFloat();
+                    pRotation->m_y = Degrees( pRotation->m_y ).GetClampedToSmallest().ToFloat();
+                    pRotation->m_z = Degrees( pRotation->m_z ).GetClampedToSmallest().ToFloat();
                     transformUpdated = true;
                 }
             }
@@ -1063,7 +1135,7 @@ namespace KRG
                 ImGui::Text( "Scl" );
 
                 ImGui::TableNextColumn();
-                if ( ImGuiX::InputFloat3( scale ) )
+                if ( ImGuiX::InputFloat3( "ETS", scale ) )
                 {
                     transformUpdated = true;
                 }
@@ -1078,7 +1150,7 @@ namespace KRG
         if ( transformUpdated )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
-            *pValue = Transform( Quaternion( EulerAngles( rotation ) ), translation, scale );
+            *pValue = Transform( Quaternion( EulerAngles( *pRotation ) ), translation, scale );
         }
     }
 
@@ -1086,8 +1158,8 @@ namespace KRG
 
     void PropertyGrid::CreateEditorIntRange( PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
     {
-        auto pValue = reinterpret_cast<IntRange*>( pPropertyInstance );
-        auto tmpValue = *pValue;
+        IntRange* pValue = reinterpret_cast<IntRange*>( pPropertyInstance );
+        IntRange tmpValue = *pValue;
 
         float const contentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
@@ -1099,9 +1171,10 @@ namespace KRG
 
         ImGui::PushID( pValue );
         {
-            ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputScalar( "##min", ImGuiDataType_S32, &tmpValue.m_start, 0, 0 ) )
+            ImGui::InputScalar( "##min", ImGuiDataType_S32, &tmpValue.m_start, 0, 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -1110,9 +1183,10 @@ namespace KRG
 
             ImGui::SameLine( 0, itemSpacing );
 
-            ImGui::SameLine( 0, 0 );
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputScalar( "##max", ImGuiDataType_S32, &tmpValue.m_end, 0, 0 ) )
+            ImGui::InputScalar( "##max", ImGuiDataType_S32, &tmpValue.m_end, 0, 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -1130,8 +1204,8 @@ namespace KRG
 
     void PropertyGrid::CreateEditorFloatRange( PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
     {
-        auto pValue = reinterpret_cast<FloatRange*>( pPropertyInstance );
-        auto tmpValue = *pValue;
+        FloatRange* pValue = reinterpret_cast<FloatRange*>( pPropertyInstance );
+        FloatRange tmpValue = *pValue;
 
         float const contentWidth = ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
@@ -1144,7 +1218,9 @@ namespace KRG
         ImGui::PushID( pValue );
         {
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##min", &tmpValue.m_start, 0, 0, "%.3f", 0 ) )
+            ImGui::InputFloat( "##min", &tmpValue.m_start, 0, 0, "%.3f", 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -1154,7 +1230,9 @@ namespace KRG
             ImGui::SameLine( 0, itemSpacing );
 
             ImGui::SetNextItemWidth( inputWidth );
-            if ( ImGui::InputFloat( "##max", &tmpValue.m_end, 0, 0, "%.3f", 0 ) )
+            ImGui::InputFloat( "##max", &tmpValue.m_end, 0, 0, "%.3f", 0 );
+
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
                 valueUpdated = true;
             }
@@ -1179,7 +1257,9 @@ namespace KRG
         strcpy_s( buffer, 256, pValue->c_str() );
 
         ImGui::SetNextItemWidth( -1 );
-        if ( ImGui::InputText( g_emptyLabel, buffer, 256 ) )
+        ImGui::InputText( g_emptyLabel, buffer, 256 );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = String( buffer );
@@ -1214,7 +1294,9 @@ namespace KRG
 
         ImGui::SetNextItemWidth( textAreaWidth );
         ImGui::SameLine( 0, itemSpacing );
-        if ( ImGui::InputText( g_emptyLabel, buffer, 256 ) )
+        ImGui::InputText( g_emptyLabel, buffer, 256 );
+
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
             ScopedChangeNotifier notifier( this, &propertyInfo );
             *pValue = StringID( buffer );
@@ -1290,7 +1372,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         char currentResourceTypeStr[5];
-        auto pValue = reinterpret_cast<ResourceTypeID*>( pPropertyInstance );
+        ResourceTypeID* pValue = reinterpret_cast<ResourceTypeID*>( pPropertyInstance );
         pValue->GetString( currentResourceTypeStr );
 
         ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
@@ -1313,8 +1395,11 @@ namespace KRG
                 bool const isSelected = ( pValue->m_ID == resourceInfo.m_resourceTypeID );
                 if ( ImGui::Selectable( resourceInfo.m_friendlyName.c_str(), isSelected ) )
                 {
-                    ScopedChangeNotifier notifier( this, &propertyInfo );
-                    *pValue = resourceInfo.m_resourceTypeID;
+                    if ( resourceInfo.m_resourceTypeID != *pValue )
+                    {
+                        ScopedChangeNotifier notifier( this, &propertyInfo );
+                        *pValue = resourceInfo.m_resourceTypeID;
+                    }
                 }
 
                 // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -1668,5 +1753,99 @@ namespace KRG
 
             ImGui::EndTable();
         }
+    }
+
+    //-------------------------------------------------------------------------
+
+    Float3* PropertyGrid::GetCachedRotation( PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
+    {
+        Float3* pCachedValue = nullptr;
+
+        // Try find existing value
+        for ( auto& cachedItem : m_rotationCache )
+        {
+            if ( cachedItem.first == pPropertyInstance )
+            {
+                pCachedValue = cachedItem.second;
+            }
+        }
+
+        // Create new cached value
+        if ( pCachedValue == nullptr )
+        {
+            pCachedValue = KRG::New<Float3>( InitToZero );
+            m_rotationCache.emplace_back( TPair<void*, Float3*>( pPropertyInstance, pCachedValue ) );
+        }
+
+        // Check with actual instance value
+        //-------------------------------------------------------------------------
+
+        Quaternion currentQuat;
+
+        CoreTypes const coreType = GetCoreType( propertyInfo.m_typeID );
+        if ( coreType == CoreTypes::Transform )
+        {
+            currentQuat = reinterpret_cast<Transform*>( pPropertyInstance )->GetRotation();
+        }
+        else  if ( coreType == CoreTypes::Matrix )
+        {
+            currentQuat = reinterpret_cast<Matrix*>( pPropertyInstance )->GetRotation();
+        }
+        else
+        {
+            KRG_UNREACHABLE_CODE();
+        }
+
+        EulerAngles const cachedEulerAngles( *pCachedValue );
+        Quaternion const cachedQuat = Quaternion( cachedEulerAngles );
+        Radians const distance = Quaternion::Distance( cachedQuat, currentQuat );
+
+        if ( distance > Degrees( 1.0f ) )
+        {
+            *pCachedValue = currentQuat.ToEulerAngles().GetAsDegrees();
+        }
+
+        //-------------------------------------------------------------------------
+
+        return pCachedValue;
+    }
+
+    void PropertyGrid::ResetCachedRotation( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance )
+    {
+        for ( auto& cachedItem : m_rotationCache )
+        {
+            if ( cachedItem.first == pPropertyInstance )
+            {
+                CoreTypes const coreType = GetCoreType( propertyInfo.m_typeID );
+                if ( coreType == CoreTypes::Transform )
+                {
+                    auto pValue = reinterpret_cast<Transform*>( pPropertyInstance );
+                    *cachedItem.second = pValue->GetRotation().ToEulerAngles().GetAsDegrees();
+                    return;
+                }
+                else  if ( coreType == CoreTypes::Matrix )
+                {
+                    auto pValue = reinterpret_cast<Matrix*>( pPropertyInstance );
+                    *cachedItem.second = pValue->GetRotation().ToEulerAngles().GetAsDegrees();
+                    return;
+                }
+                else
+                {
+                    KRG_UNREACHABLE_CODE();
+                }
+            }
+        }
+
+        KRG_UNREACHABLE_CODE();
+    }
+
+    void PropertyGrid::ClearCache()
+    {
+        for ( auto& cachedItem : m_rotationCache )
+        {
+            KRG::Delete( cachedItem.second );
+        }
+
+        m_rotationCache.clear();
     }
 }

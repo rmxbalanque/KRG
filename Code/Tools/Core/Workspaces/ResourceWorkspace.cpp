@@ -10,6 +10,47 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    class DescriptorUndoableAction : public IUndoableAction
+    {
+    public:
+
+        DescriptorUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, IRegisteredType* pTypeInstance )
+            : m_typeRegistry( typeRegistry ) 
+            , m_pEditedType( pTypeInstance )
+        {
+            KRG_ASSERT( m_pEditedType != nullptr );
+        }
+
+        void SerializeBeforeState()
+        {
+            TypeSystem::Serialization::WriteNativeTypeToString( m_typeRegistry, m_pEditedType, m_valueBefore );
+        }
+
+        void SerializeAfterState()
+        {
+            TypeSystem::Serialization::WriteNativeTypeToString( m_typeRegistry, m_pEditedType, m_valueAfter );
+        }
+
+        virtual void Undo()
+        {
+            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueBefore, m_pEditedType );
+        }
+
+        virtual void Redo()
+        {
+            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueAfter, m_pEditedType );
+        }
+
+    private:
+
+        TypeSystem::TypeRegistry const&     m_typeRegistry;
+        IRegisteredType*                    m_pEditedType = nullptr;
+        String                              m_valueBefore;
+        String                              m_valueAfter;
+    };
+
+    //-------------------------------------------------------------------------
+
     GenericResourceWorkspace::GenericResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
         : EditorWorkspace( context, pWorld, resourceID.GetResourcePath().ToFileSystemPath( context.m_sourceResourceDirectory ).GetFileNameWithoutExtension() )
         , m_descriptorID( resourceID )
@@ -17,11 +58,18 @@ namespace KRG
         , m_propertyGrid( *context.m_pTypeRegistry, context.m_sourceResourceDirectory )
     {
         KRG_ASSERT( resourceID.IsValid() );
+
+        m_preEditEventBindingID = m_propertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& info ) { PreEdit( info ); } );
+        m_postEditEventBindingID = m_propertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& info ) { PostEdit( info ); } );
     }
 
     GenericResourceWorkspace::~GenericResourceWorkspace()
     {
         KRG_ASSERT( m_pDescriptor == nullptr );
+        KRG_ASSERT( m_pActiveUndoableAction == nullptr );
+
+        m_propertyGrid.OnPreEdit().Unbind( m_preEditEventBindingID );
+        m_propertyGrid.OnPostEdit().Unbind( m_postEditEventBindingID );
     }
 
     void GenericResourceWorkspace::Initialize()
@@ -36,7 +84,7 @@ namespace KRG
             TypeSystem::TypeDescriptor typeDesc;
             if ( typeReader.ReadType( typeDesc ) )
             {
-                m_pDescriptor = TypeSystem::TypeCreator::CreateTypeFromDescriptor<Resource::ResourceDescriptor>( *m_editorContext.m_pTypeRegistry, typeDesc );
+                m_pDescriptor = typeDesc.CreateTypeInstance<Resource::ResourceDescriptor>( *m_editorContext.m_pTypeRegistry );
                 m_propertyGrid.SetTypeToEdit( m_pDescriptor );
             }
         }
@@ -101,6 +149,23 @@ namespace KRG
         }
 
         return false;
+    }
+
+    void GenericResourceWorkspace::PreEdit( PropertyEditInfo const& info )
+    {
+        KRG_ASSERT( m_pActiveUndoableAction == nullptr );
+        auto pUndoableAction = KRG::New<DescriptorUndoableAction>( *m_editorContext.m_pTypeRegistry, m_pDescriptor );
+        pUndoableAction->SerializeBeforeState();
+        m_pActiveUndoableAction = pUndoableAction;
+    }
+
+    void GenericResourceWorkspace::PostEdit( PropertyEditInfo const& info )
+    {
+        KRG_ASSERT( m_pActiveUndoableAction != nullptr );
+        auto pUndoableAction = static_cast<DescriptorUndoableAction*>( m_pActiveUndoableAction );
+        pUndoableAction->SerializeAfterState();
+        m_undoStack.RegisterAction( pUndoableAction );
+        m_pActiveUndoableAction = nullptr;
     }
 
     //-------------------------------------------------------------------------

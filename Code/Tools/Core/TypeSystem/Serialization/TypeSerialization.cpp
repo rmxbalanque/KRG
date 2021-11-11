@@ -93,7 +93,7 @@ namespace KRG::TypeSystem::Serialization
         }
     };
 
-    bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, TypeDescriptor& outDesc )
+    bool ReadTypeDescriptorFromJSON( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue, TypeDescriptor& outDesc )
     {
         if ( !typeObjectValue.IsObject() )
         {
@@ -155,84 +155,10 @@ namespace KRG::TypeSystem::Serialization
         }
     };
 
-    void WriteTypeDescriptor( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeDescriptor const& typeDesc )
+    void WriteTypeDescriptorToJSON( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, TypeDescriptor const& typeDesc )
     {
         KRG_ASSERT( typeDesc.IsValid() );
         TypeDescriptorWriter::WriteStructure( writer, typeDesc );
-    }
-
-    //-------------------------------------------------------------------------
-
-    struct NativeTypeDescriber
-    {
-        static void DescribeType( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeID typeID, IRegisteredType const* pTypeInstance, PropertyPath& path, bool setStringValues )
-        {
-            KRG_ASSERT( !IsCoreType( typeID ) );
-            auto const pTypeInfo = typeRegistry.GetTypeInfo( typeID );
-            KRG_ASSERT( pTypeInfo != nullptr );
-
-            //-------------------------------------------------------------------------
-
-            for ( auto const& propInfo : pTypeInfo->m_properties )
-            {
-                if ( propInfo.IsArrayProperty() )
-                {
-                    size_t const elementByteSize = propInfo.m_arrayElementSize;
-                    size_t const numArrayElements = propInfo.IsStaticArrayProperty() ? propInfo.m_arraySize : pTypeInfo->m_pTypeHelper->GetArraySize( pTypeInstance, propInfo.m_ID );
-                    if ( numArrayElements > 0 )
-                    {
-                        Byte const* pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( const_cast<IRegisteredType*>( pTypeInstance ), propInfo.m_ID, 0 );
-
-                        // Write array elements
-                        for ( auto i = 0; i < numArrayElements; i++ )
-                        {
-                            path.Append( propInfo.m_ID, i );
-                            DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance, propInfo, setStringValues, pArrayElementAddress, path, i );
-                            pArrayElementAddress += elementByteSize;
-                            path.RemoveLastElement();
-                        }
-                    }
-                }
-                else
-                {
-                    path.Append( propInfo.m_ID );
-                    auto pPropertyInstance = propInfo.GetPropertyAddress( pTypeInstance );
-                    DescribeProperty( typeRegistry, typeDesc, pTypeInfo, pTypeInstance,propInfo, setStringValues, pPropertyInstance, path );
-                    path.RemoveLastElement();
-                }
-            }
-        }
-
-        static void DescribeProperty( TypeRegistry const& typeRegistry, TypeDescriptor& typeDesc, TypeInfo const* pParentTypeInfo, IRegisteredType const* pParentInstance, PropertyInfo const& propertyInfo, bool setStringValues, void const* pPropertyInstance, PropertyPath& path, int32 arrayElementIdx = InvalidIndex )
-        {
-            if ( IsCoreType( propertyInfo.m_typeID ) || propertyInfo.IsEnumProperty() )
-            {
-                // Only describe non-default properties
-                if ( !pParentTypeInfo->m_pTypeHelper->IsPropertyValueSetToDefault( pParentInstance, propertyInfo.m_ID, arrayElementIdx ) )
-                {
-                    PropertyDescriptor& propertyDesc = typeDesc.m_properties.emplace_back( PropertyDescriptor() );
-                    propertyDesc.m_path = path;
-                    Conversion::ConvertNativeTypeToBinary( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_byteValue );
-
-                    if ( setStringValues )
-                    {
-                        Conversion::ConvertNativeTypeToString( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_stringValue );
-                    }
-                }
-            }
-            else
-            {
-                DescribeType( typeRegistry, typeDesc, propertyInfo.m_typeID, (IRegisteredType*) pPropertyInstance, path, setStringValues );
-            }
-        }
-    };
-
-    void CreateTypeDescriptorFromNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, TypeDescriptor& outDesc, bool setStringValues )
-    {
-        outDesc.m_typeID = pTypeInstance->GetTypeID();
-        outDesc.m_properties.clear();
-        PropertyPath path;
-        NativeTypeDescriber::DescribeType( typeRegistry, outDesc, outDesc.m_typeID, pTypeInstance, path, setStringValues );
     }
 }
 
@@ -372,25 +298,19 @@ namespace KRG::TypeSystem::Serialization
 
                     KRG_ASSERT( propertyNameIter->value.IsArray() );
                     auto jsonArrayValue = propertyNameIter->value.GetArray();
-
-                    // Skip empty arrays
-                    size_t const numArrayElements = jsonArrayValue.Size();
-                    if ( numArrayElements == 0 )
-                    {
-                        continue;
-                    }
+                    size_t const numJSONArrayElements = jsonArrayValue.Size();
 
                     // Static array
                     if ( propInfo.IsStaticArrayProperty() )
                     {
-                        if ( propInfo.m_size < numArrayElements )
+                        if ( propInfo.m_arraySize < numJSONArrayElements )
                         {
-                            KRG_LOG_ERROR( "TypeSystem", "Static array size mismatch for %s, expected maximum %d elements, encountered %d elements", propInfo.m_size, propInfo.m_size, (int32) numArrayElements );
+                            KRG_LOG_ERROR( "TypeSystem", "Static array size mismatch for %s, expected maximum %d elements, encountered %d elements", propInfo.m_size, propInfo.m_size, (int32) numJSONArrayElements );
                             return false;
                         }
 
                         Byte* pArrayElementAddress = reinterpret_cast<Byte*>( pPropertyDataAddress );
-                        for ( auto i = 0; i < numArrayElements; i++ )
+                        for ( auto i = 0; i < numJSONArrayElements; i++ )
                         {
                             if ( !ReadProperty( typeRegistry, jsonArrayValue[i], propInfo, pArrayElementAddress ) )
                             {
@@ -401,8 +321,15 @@ namespace KRG::TypeSystem::Serialization
                     }
                     else // Dynamic array
                     {
+                        // If we have less elements in the json array than in the current type, clear the array as we will resize the array appropriately as part of reading the values
+                        size_t const currentArraySize = pTypeInfo->m_pTypeHelper->GetArraySize( pTypeData, propInfo.m_ID );
+                        if ( numJSONArrayElements < currentArraySize )
+                        {
+                            pTypeInfo->m_pTypeHelper->ClearArray( pTypeData, propInfo.m_ID );
+                        }
+
                         // Do the traversal backwards to only allocate once
-                        for ( int32 i = (int32) ( numArrayElements - 1 ); i >= 0; i-- )
+                        for ( int32 i = (int32) ( numJSONArrayElements - 1 ); i >= 0; i-- )
                         {
                             auto pArrayElementAddress = pTypeInfo->m_pTypeHelper->GetArrayElementDataPtr( pTypeData, propInfo.m_ID, i );
                             if ( !ReadProperty( typeRegistry, jsonArrayValue[i], propInfo, pArrayElementAddress ) )
@@ -461,6 +388,15 @@ namespace KRG::TypeSystem::Serialization
         }
 
         return NativeTypeReader::ReadType( typeRegistry, typeObjectValue, pTypeInstance->GetTypeID(), pTypeInstance );
+    }
+
+    bool ReadNativeTypeFromString( TypeRegistry const& typeRegistry, String const& jsonString, IRegisteredType* pTypeInstance )
+    {
+        KRG_ASSERT( !jsonString.empty() && pTypeInstance != nullptr );
+
+        JsonReader reader;
+        reader.ReadFromString( jsonString.c_str() );
+        return ReadNativeType( typeRegistry, reader.GetDocument(), pTypeInstance );
     }
 
     //-------------------------------------------------------------------------
@@ -546,11 +482,18 @@ namespace KRG::TypeSystem::Serialization
         }
     };
 
-    void WriteNativeType( TypeRegistry const& typeRegistry, RapidJsonWriter& writer, IRegisteredType const* pTypeInstance )
+    void WriteNativeType( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, RapidJsonWriter& writer )
     {
         String scratchBuffer;
         scratchBuffer.reserve( 255 );
         NativeTypeWriter::WriteType( typeRegistry, writer, scratchBuffer, pTypeInstance->GetTypeID(), pTypeInstance );
+    }
+
+    void WriteNativeTypeToString( TypeRegistry const& typeRegistry, IRegisteredType const* pTypeInstance, String& outString )
+    {
+        JsonWriter writer;
+        WriteNativeType( typeRegistry, pTypeInstance, *writer.GetWriter() );
+        outString = writer.GetStringBuffer().GetString();
     }
 
     IRegisteredType* CreateAndReadNativeType( TypeRegistry const& typeRegistry, RapidJsonValue const& typeObjectValue )

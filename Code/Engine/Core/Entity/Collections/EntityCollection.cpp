@@ -30,7 +30,7 @@ namespace KRG::EntityModel
 
         for ( auto const& componentDesc : entityDesc.m_components )
         {
-            auto pEntityComponent = TypeSystem::TypeCreator::CreateTypeFromDescriptor<EntityComponent>( typeRegistry, componentDesc );
+            auto pEntityComponent = componentDesc.CreateTypeInstance<EntityComponent>( typeRegistry );
             KRG_ASSERT( pEntityComponent != nullptr );
 
             TypeSystem::TypeInfo const* pTypeInfo = pEntityComponent->GetTypeInfo();
