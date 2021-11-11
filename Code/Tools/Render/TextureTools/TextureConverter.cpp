@@ -3760,6 +3760,12 @@ namespace KRG::Render
             }
             break;
 
+            case TextureType::AmbientOcclusion:
+            {
+                args[2] = L"BC4_UNORM";
+            }
+            break;
+
             default:
             {
                 args[2] = L"B8G8R8A8_UNORM_SRGB";

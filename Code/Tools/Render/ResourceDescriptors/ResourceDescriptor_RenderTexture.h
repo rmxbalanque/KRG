@@ -13,6 +13,7 @@ namespace KRG::Render
         KRG_REGISTER_ENUM
 
         Default,
+        AmbientOcclusion,
         TangentSpaceNormals,
     };
 
