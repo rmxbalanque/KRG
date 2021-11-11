@@ -13,7 +13,6 @@
 
 #include <windows.h>
 
-#define KRG_LITTLE_ENDIAN
 #define KRG_FORCE_INLINE __forceinline
 
 //-------------------------------------------------------------------------

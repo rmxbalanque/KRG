@@ -21,21 +21,14 @@ namespace KRG
         {
             struct ByteColor
             {
-                #ifdef KRG_LITTLE_ENDIAN
-                uint8 m_a;
-                uint8 m_b;
-                uint8 m_g;
-                uint8 m_r;
-                #elif
-                uint8 m_r;
-                uint8 m_g;
-                uint8 m_b;
-                uint8 m_a;
-                #endif
+                uint8       m_r;
+                uint8       m_g;
+                uint8       m_b;
+                uint8       m_a;
             };
 
-            ByteColor   m_byteColor;
-            uint32         m_color;
+            ByteColor       m_byteColor;
+            uint32          m_color;
         };
 
         inline Color() : m_color( 0xFFFFFFFF ) {}
