@@ -280,7 +280,7 @@ namespace KRG::EntityModel
         bool isInWorldSpace = m_gizmo.IsInWorldSpace();
 
         InlineString<10> coordinateSpaceSwitcherLabel;
-        coordinateSpaceSwitcherLabel.sprintf( "%s###CoordinateSpace", isInWorldSpace ? KRG_ICON_GLOBE : KRG_ICON_LIGHTBULB_O );
+        coordinateSpaceSwitcherLabel.sprintf( "%s###CoordinateSpace", isInWorldSpace ? KRG_ICON_GLOBE : KRG_ICON_DOT_CIRCLE_O );
 
         if ( ImGui::Selectable( coordinateSpaceSwitcherLabel.c_str(), false, 0, ImVec2( 16, 0 ) ) )
         {
@@ -294,6 +294,7 @@ namespace KRG::EntityModel
                 m_gizmo.SwitchToLocalSpace();
             }
         }
+        ImGuiX::ItemTooltip( "Current Mode: %s", isInWorldSpace ? "World Space" : "Local Space" );
 
         //-------------------------------------------------------------------------
 
@@ -305,6 +306,7 @@ namespace KRG::EntityModel
         {
             m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Translation );
         }
+        ImGuiX::ItemTooltip( "Translate" );
 
         ImGui::SameLine();
 
@@ -312,6 +314,7 @@ namespace KRG::EntityModel
         {
             m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Rotation );
         }
+        ImGuiX::ItemTooltip( "Rotate" );
 
         ImGui::SameLine();
 
@@ -319,6 +322,7 @@ namespace KRG::EntityModel
         {
             m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Scale );
         }
+        ImGuiX::ItemTooltip( "Scale" );
     }
 
     void EntityMapEditor::DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )

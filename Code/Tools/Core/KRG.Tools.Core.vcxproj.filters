@@ -220,6 +220,9 @@
     <ClInclude Include="Workspaces\ResourceWorkspace.h" />
     <ClInclude Include="Helpers\CommonDialogs.h" />
     <ClInclude Include="UndoStack.h" />
+    <ClInclude Include="PropertyGrid\PropertyGridEditors.h">
+      <Filter>PropertyGrid</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\KRG_RapidJson.cpp">
@@ -343,6 +346,7 @@
     <ClCompile Include="Workspaces\ResourceWorkspace.cpp" />
     <ClCompile Include="Helpers\CommonDialogs.cpp" />
     <ClCompile Include="UndoStack.cpp" />
+    <ClCompile Include="PropertyGrid\PropertyGridEditors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\subprocess\LICENSE">

@@ -72,7 +72,7 @@ namespace KRG
         public:
 
             TypeID                                              m_ID;
-            CoreTypes                                           m_underlyingType;
+            CoreTypeID                                           m_underlyingType;
             THashMap<StringID, int64>                           m_constants;
         };
     }

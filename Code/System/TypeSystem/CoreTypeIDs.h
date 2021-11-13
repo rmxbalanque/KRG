@@ -12,7 +12,7 @@
 
 namespace KRG::TypeSystem
 {
-    enum class CoreTypes
+    enum class CoreTypeID
     {
         Invalid = -1,
 
@@ -80,7 +80,7 @@ namespace KRG::TypeSystem
 
     private:
 
-        static TArray<CoreTypeRecord, (uint8) CoreTypes::NumTypes>  s_coreTypeRecords;
+        static TArray<CoreTypeRecord, (uint8) CoreTypeID::NumTypes>  s_coreTypeRecords;
         static bool                                                 s_areCoreTypeRecordsInitialized;
 
     public:
@@ -89,21 +89,21 @@ namespace KRG::TypeSystem
         static void Shutdown();
 
         static bool IsCoreType( TypeID typeID );
-        static CoreTypes GetType( TypeID typeID );
+        static CoreTypeID GetType( TypeID typeID );
         static size_t GetTypeSize( TypeID typeID );
         static size_t GetTypeAlignment( TypeID typeID );
 
-        KRG_FORCE_INLINE static TypeID GetTypeID( CoreTypes coreType )
+        KRG_FORCE_INLINE static TypeID GetTypeID( CoreTypeID coreType )
         {
             return s_coreTypeRecords[(uint8) coreType].m_ID;
         }
 
-        KRG_FORCE_INLINE static size_t GetTypeSize( CoreTypes coreType )
+        KRG_FORCE_INLINE static size_t GetTypeSize( CoreTypeID coreType )
         {
             return s_coreTypeRecords[(uint8) coreType].m_typeSize;
         }
 
-        KRG_FORCE_INLINE static size_t GetTypeAlignment( CoreTypes coreType )
+        KRG_FORCE_INLINE static size_t GetTypeAlignment( CoreTypeID coreType )
         {
             return s_coreTypeRecords[(uint8) coreType].m_typeAlignment;
         }
@@ -113,8 +113,8 @@ namespace KRG::TypeSystem
     // Query
     //-------------------------------------------------------------------------
 
-    KRG_FORCE_INLINE TypeID GetCoreTypeID( CoreTypes coreType ) { return CoreTypeRegistry::GetTypeID( coreType ); }
-    KRG_FORCE_INLINE CoreTypes GetCoreType( TypeID typeID ) { return CoreTypeRegistry::GetType( typeID ); }
+    KRG_FORCE_INLINE TypeID GetCoreTypeID( CoreTypeID coreType ) { return CoreTypeRegistry::GetTypeID( coreType ); }
+    KRG_FORCE_INLINE CoreTypeID GetCoreType( TypeID typeID ) { return CoreTypeRegistry::GetType( typeID ); }
     KRG_FORCE_INLINE bool IsCoreType( TypeID typeID ){ return CoreTypeRegistry::IsCoreType( typeID ); }
 
     template<typename T> inline bool IsCoreType() { return false; }
@@ -168,46 +168,46 @@ namespace KRG::TypeSystem
     template<typename T> inline TypeID GetCoreTypeID() { return TypeID(); }
     template<template<typename> typename C> inline TypeID GetCoreTypeID() { return TypeID(); }
 
-    template<> inline TypeID GetCoreTypeID<bool>() { return GetCoreTypeID( CoreTypes::Bool ); }
-    template<> inline TypeID GetCoreTypeID<int8>() { return GetCoreTypeID( CoreTypes::Int8 ); }
-    template<> inline TypeID GetCoreTypeID<int16>() { return GetCoreTypeID( CoreTypes::Int16 ); }
-    template<> inline TypeID GetCoreTypeID<int32>() { return GetCoreTypeID( CoreTypes::Int32 ); }
-    template<> inline TypeID GetCoreTypeID<int64>() { return GetCoreTypeID( CoreTypes::Int64 ); }
-    template<> inline TypeID GetCoreTypeID<uint8>() { return GetCoreTypeID( CoreTypes::Uint8 ); }
-    template<> inline TypeID GetCoreTypeID<uint16>() { return GetCoreTypeID( CoreTypes::Uint16 ); }
-    template<> inline TypeID GetCoreTypeID<uint32>() { return GetCoreTypeID( CoreTypes::Uint32 ); }
-    template<> inline TypeID GetCoreTypeID<uint64>() { return GetCoreTypeID( CoreTypes::Uint64 ); }
-    template<> inline TypeID GetCoreTypeID<float>() { return GetCoreTypeID( CoreTypes::Float ); }
-    template<> inline TypeID GetCoreTypeID<double>() { return GetCoreTypeID( CoreTypes::Double ); }
-    template<> inline TypeID GetCoreTypeID<UUID>() { return GetCoreTypeID( CoreTypes::UUID ); }
-    template<> inline TypeID GetCoreTypeID<StringID>() { return GetCoreTypeID( CoreTypes::StringID ); }
-    template<> inline TypeID GetCoreTypeID<TypeID>() { return GetCoreTypeID( CoreTypes::TypeID ); }
-    template<> inline TypeID GetCoreTypeID<String>() { return GetCoreTypeID( CoreTypes::String ); }
-    template<> inline TypeID GetCoreTypeID<Color>() { return GetCoreTypeID( CoreTypes::Color ); }
-    template<> inline TypeID GetCoreTypeID<Float2>() { return GetCoreTypeID( CoreTypes::Float2 ); }
-    template<> inline TypeID GetCoreTypeID<Float3>() { return GetCoreTypeID( CoreTypes::Float3 ); }
-    template<> inline TypeID GetCoreTypeID<Float4>() { return GetCoreTypeID( CoreTypes::Float4 ); }
-    template<> inline TypeID GetCoreTypeID<Vector>() { return GetCoreTypeID( CoreTypes::Vector ); }
-    template<> inline TypeID GetCoreTypeID<Quaternion>() { return GetCoreTypeID( CoreTypes::Quaternion ); }
-    template<> inline TypeID GetCoreTypeID<Matrix>() { return GetCoreTypeID( CoreTypes::Matrix ); }
-    template<> inline TypeID GetCoreTypeID<Transform>() { return GetCoreTypeID( CoreTypes::Transform ); }
-    template<> inline TypeID GetCoreTypeID<Microseconds>() { return GetCoreTypeID( CoreTypes::Microseconds ); }
-    template<> inline TypeID GetCoreTypeID<Milliseconds>() { return GetCoreTypeID( CoreTypes::Milliseconds ); }
-    template<> inline TypeID GetCoreTypeID<Seconds>() { return GetCoreTypeID( CoreTypes::Seconds ); }
-    template<> inline TypeID GetCoreTypeID<Percentage>() { return GetCoreTypeID( CoreTypes::Percentage ); }
-    template<> inline TypeID GetCoreTypeID<Degrees>() { return GetCoreTypeID( CoreTypes::Degrees ); }
-    template<> inline TypeID GetCoreTypeID<Radians>() { return GetCoreTypeID( CoreTypes::Radians ); }
-    template<> inline TypeID GetCoreTypeID<EulerAngles >() { return GetCoreTypeID( CoreTypes::EulerAngles ); }
-    template<> inline TypeID GetCoreTypeID<IntRange>() { return GetCoreTypeID( CoreTypes::IntRange ); }
-    template<> inline TypeID GetCoreTypeID<FloatRange>() { return GetCoreTypeID( CoreTypes::FloatRange ); }
-    template<> inline TypeID GetCoreTypeID<BitFlags>() { return GetCoreTypeID( CoreTypes::BitFlags ); }
-    template<> inline TypeID GetCoreTypeID<TBitFlags>() { return GetCoreTypeID( CoreTypes::TBitFlags ); }
-    template<> inline TypeID GetCoreTypeID<TVector>() { return GetCoreTypeID( CoreTypes::TVector ); }
-    template<> inline TypeID GetCoreTypeID<ResourcePath>() { return GetCoreTypeID( CoreTypes::ResourcePath ); }
-    template<> inline TypeID GetCoreTypeID<ResourceTypeID>() { return GetCoreTypeID( CoreTypes::ResourceTypeID ); }
-    template<> inline TypeID GetCoreTypeID<ResourceID>() { return GetCoreTypeID( CoreTypes::ResourceID ); }
-    template<> inline TypeID GetCoreTypeID<Resource::ResourcePtr>() { return GetCoreTypeID( CoreTypes::ResourcePtr ); }
-    template<> inline TypeID GetCoreTypeID<TResourcePtr>() { return GetCoreTypeID( CoreTypes::TResourcePtr ); }
+    template<> inline TypeID GetCoreTypeID<bool>() { return GetCoreTypeID( CoreTypeID::Bool ); }
+    template<> inline TypeID GetCoreTypeID<int8>() { return GetCoreTypeID( CoreTypeID::Int8 ); }
+    template<> inline TypeID GetCoreTypeID<int16>() { return GetCoreTypeID( CoreTypeID::Int16 ); }
+    template<> inline TypeID GetCoreTypeID<int32>() { return GetCoreTypeID( CoreTypeID::Int32 ); }
+    template<> inline TypeID GetCoreTypeID<int64>() { return GetCoreTypeID( CoreTypeID::Int64 ); }
+    template<> inline TypeID GetCoreTypeID<uint8>() { return GetCoreTypeID( CoreTypeID::Uint8 ); }
+    template<> inline TypeID GetCoreTypeID<uint16>() { return GetCoreTypeID( CoreTypeID::Uint16 ); }
+    template<> inline TypeID GetCoreTypeID<uint32>() { return GetCoreTypeID( CoreTypeID::Uint32 ); }
+    template<> inline TypeID GetCoreTypeID<uint64>() { return GetCoreTypeID( CoreTypeID::Uint64 ); }
+    template<> inline TypeID GetCoreTypeID<float>() { return GetCoreTypeID( CoreTypeID::Float ); }
+    template<> inline TypeID GetCoreTypeID<double>() { return GetCoreTypeID( CoreTypeID::Double ); }
+    template<> inline TypeID GetCoreTypeID<UUID>() { return GetCoreTypeID( CoreTypeID::UUID ); }
+    template<> inline TypeID GetCoreTypeID<StringID>() { return GetCoreTypeID( CoreTypeID::StringID ); }
+    template<> inline TypeID GetCoreTypeID<TypeID>() { return GetCoreTypeID( CoreTypeID::TypeID ); }
+    template<> inline TypeID GetCoreTypeID<String>() { return GetCoreTypeID( CoreTypeID::String ); }
+    template<> inline TypeID GetCoreTypeID<Color>() { return GetCoreTypeID( CoreTypeID::Color ); }
+    template<> inline TypeID GetCoreTypeID<Float2>() { return GetCoreTypeID( CoreTypeID::Float2 ); }
+    template<> inline TypeID GetCoreTypeID<Float3>() { return GetCoreTypeID( CoreTypeID::Float3 ); }
+    template<> inline TypeID GetCoreTypeID<Float4>() { return GetCoreTypeID( CoreTypeID::Float4 ); }
+    template<> inline TypeID GetCoreTypeID<Vector>() { return GetCoreTypeID( CoreTypeID::Vector ); }
+    template<> inline TypeID GetCoreTypeID<Quaternion>() { return GetCoreTypeID( CoreTypeID::Quaternion ); }
+    template<> inline TypeID GetCoreTypeID<Matrix>() { return GetCoreTypeID( CoreTypeID::Matrix ); }
+    template<> inline TypeID GetCoreTypeID<Transform>() { return GetCoreTypeID( CoreTypeID::Transform ); }
+    template<> inline TypeID GetCoreTypeID<Microseconds>() { return GetCoreTypeID( CoreTypeID::Microseconds ); }
+    template<> inline TypeID GetCoreTypeID<Milliseconds>() { return GetCoreTypeID( CoreTypeID::Milliseconds ); }
+    template<> inline TypeID GetCoreTypeID<Seconds>() { return GetCoreTypeID( CoreTypeID::Seconds ); }
+    template<> inline TypeID GetCoreTypeID<Percentage>() { return GetCoreTypeID( CoreTypeID::Percentage ); }
+    template<> inline TypeID GetCoreTypeID<Degrees>() { return GetCoreTypeID( CoreTypeID::Degrees ); }
+    template<> inline TypeID GetCoreTypeID<Radians>() { return GetCoreTypeID( CoreTypeID::Radians ); }
+    template<> inline TypeID GetCoreTypeID<EulerAngles >() { return GetCoreTypeID( CoreTypeID::EulerAngles ); }
+    template<> inline TypeID GetCoreTypeID<IntRange>() { return GetCoreTypeID( CoreTypeID::IntRange ); }
+    template<> inline TypeID GetCoreTypeID<FloatRange>() { return GetCoreTypeID( CoreTypeID::FloatRange ); }
+    template<> inline TypeID GetCoreTypeID<BitFlags>() { return GetCoreTypeID( CoreTypeID::BitFlags ); }
+    template<> inline TypeID GetCoreTypeID<TBitFlags>() { return GetCoreTypeID( CoreTypeID::TBitFlags ); }
+    template<> inline TypeID GetCoreTypeID<TVector>() { return GetCoreTypeID( CoreTypeID::TVector ); }
+    template<> inline TypeID GetCoreTypeID<ResourcePath>() { return GetCoreTypeID( CoreTypeID::ResourcePath ); }
+    template<> inline TypeID GetCoreTypeID<ResourceTypeID>() { return GetCoreTypeID( CoreTypeID::ResourceTypeID ); }
+    template<> inline TypeID GetCoreTypeID<ResourceID>() { return GetCoreTypeID( CoreTypeID::ResourceID ); }
+    template<> inline TypeID GetCoreTypeID<Resource::ResourcePtr>() { return GetCoreTypeID( CoreTypeID::ResourcePtr ); }
+    template<> inline TypeID GetCoreTypeID<TResourcePtr>() { return GetCoreTypeID( CoreTypeID::TResourcePtr ); }
 
     //-------------------------------------------------------------------------
     // Validation for getters/setters
@@ -219,15 +219,15 @@ namespace KRG::TypeSystem
         TypeID const nativeTypeID = GetCoreTypeID<T>();
 
         // Handle derivation of ResourcePtr to TResourcePtr
-        if ( nativeTypeID == GetCoreTypeID( CoreTypes::ResourcePtr ) )
+        if ( nativeTypeID == GetCoreTypeID( CoreTypeID::ResourcePtr ) )
         {
-            return typeID == GetCoreTypeID( CoreTypes::ResourcePtr ) || typeID == GetCoreTypeID( CoreTypes::TResourcePtr );
+            return typeID == GetCoreTypeID( CoreTypeID::ResourcePtr ) || typeID == GetCoreTypeID( CoreTypeID::TResourcePtr );
         }
 
         // Handle derivation of BitFlags to TBitFlags
-        if ( nativeTypeID == GetCoreTypeID( CoreTypes::BitFlags ) )
+        if ( nativeTypeID == GetCoreTypeID( CoreTypeID::BitFlags ) )
         {
-            return typeID == GetCoreTypeID( CoreTypes::BitFlags ) || typeID == GetCoreTypeID( CoreTypes::TBitFlags );
+            return typeID == GetCoreTypeID( CoreTypeID::BitFlags ) || typeID == GetCoreTypeID( CoreTypeID::TBitFlags );
         }
 
         //-------------------------------------------------------------------------
@@ -240,22 +240,22 @@ namespace KRG::TypeSystem
 // Global conversion operators
 //-------------------------------------------------------------------------
 
-inline bool operator==( KRG::TypeSystem::TypeID const& typeID, KRG::TypeSystem::CoreTypes coreType )
+inline bool operator==( KRG::TypeSystem::TypeID const& typeID, KRG::TypeSystem::CoreTypeID coreType )
 {
     return typeID == KRG::TypeSystem::GetCoreTypeID( coreType );
 }
 
-inline bool operator!=( KRG::TypeSystem::TypeID const& typeID, KRG::TypeSystem::CoreTypes coreType )
+inline bool operator!=( KRG::TypeSystem::TypeID const& typeID, KRG::TypeSystem::CoreTypeID coreType )
 {
     return typeID != KRG::TypeSystem::GetCoreTypeID( coreType );
 }
 
-inline bool operator==( KRG::TypeSystem::CoreTypes coreType, KRG::TypeSystem::TypeID const& typeID )
+inline bool operator==( KRG::TypeSystem::CoreTypeID coreType, KRG::TypeSystem::TypeID const& typeID )
 {
     return typeID == KRG::TypeSystem::GetCoreTypeID( coreType );
 }
 
-inline bool operator!=( KRG::TypeSystem::CoreTypes coreType, KRG::TypeSystem::TypeID const& typeID )
+inline bool operator!=( KRG::TypeSystem::CoreTypeID coreType, KRG::TypeSystem::TypeID const& typeID )
 {
     return typeID != KRG::TypeSystem::GetCoreTypeID( coreType );
 }

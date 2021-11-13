@@ -111,7 +111,7 @@
     <ClCompile Include="DebugViews\DebugView_Camera.cpp">
       <Filter>DebugViews</Filter>
     </ClCompile>
-    <ClCompile Include="Imgui\OrientationGuide.cpp">
+    <ClCompile Include="DevUI\OrientationGuide.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
     <ClCompile Include="Camera\CameraComponent.cpp">
@@ -120,8 +120,9 @@
     <ClCompile Include="Entity\EntityWorldManager.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
-    <ClCompile Include="IDevToolsUI.cpp" />
-    <ClCompile Include="Imgui\Gizmo.cpp" />
+    <ClCompile Include="DevUI\IDevUI.cpp" />
+    <ClCompile Include="DevUI\Gizmo.cpp" />
+    <ClCompile Include="DevUI\EngineDevUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Easing.h">
@@ -199,7 +200,7 @@
     <ClInclude Include="Entity\EntityWorldManager.h">
       <Filter>Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Imgui\OrientationGuide.h">
+    <ClInclude Include="DevUI\OrientationGuide.h">
       <Filter>Imgui</Filter>
     </ClInclude>
     <ClInclude Include="Camera\CameraComponent.h">
@@ -211,7 +212,8 @@
     <ClInclude Include="Camera\CameraWorldSystem.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="IDevToolsUI.h" />
-    <ClInclude Include="Imgui\Gizmo.h" />
+    <ClInclude Include="DevUI\IDevUI.h" />
+    <ClInclude Include="DevUI\Gizmo.h" />
+    <ClInclude Include="DevUI\EngineDevUI.h" />
   </ItemGroup>
 </Project>

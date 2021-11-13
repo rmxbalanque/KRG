@@ -1,7 +1,7 @@
-#include "Editor.h"
+#include "EditorDevUI.h"
 #include "MapEditor/Workspace_MapEditor.h"
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
-#include "Engine/Core/Imgui/OrientationGuide.h"
+#include "Engine/Core/DevUI/OrientationGuide.h"
 #include "System/Input/InputSystem.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/DebugViews/DebugView_Resource.h"
@@ -10,19 +10,19 @@
 
 namespace KRG
 {
-    Editor::~Editor()
+    EditorDevUI::~EditorDevUI()
     {
         KRG_ASSERT( m_pResourceBrowser == nullptr );
     }
 
-    void Editor::Initialize( UpdateContext const& context )
+    void EditorDevUI::Initialize( UpdateContext const& context )
     {
         m_model.Initialize( context );
         m_pResourceBrowser = KRG::New<ResourceBrowser>( m_model );
         m_db.Initialize( m_model.GetTypeRegistry(), m_model.GetSourceResourceDirectory() );
     }
 
-    void Editor::Shutdown( UpdateContext const& context )
+    void EditorDevUI::Shutdown( UpdateContext const& context )
     {
         m_db.Shutdown();
         KRG::Delete( m_pResourceBrowser );
@@ -31,7 +31,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Editor::FrameStartUpdate( UpdateContext const& context )
+    void EditorDevUI::FrameStartUpdate( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameStart );
@@ -186,7 +186,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Editor::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
+    void EditorDevUI::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
     {
         for ( auto pWorkspace : m_model.GetWorkspaces() )
         {
@@ -194,7 +194,7 @@ namespace KRG
         }
     }
 
-    void Editor::EndHotReload()
+    void EditorDevUI::EndHotReload()
     {
         for ( auto pWorkspace : m_model.GetWorkspaces() )
         {
@@ -204,7 +204,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Editor::DrawMainMenu( UpdateContext const& context )
+    void EditorDevUI::DrawMainMenu( UpdateContext const& context )
     {
         //-------------------------------------------------------------------------
         // Tools
@@ -229,7 +229,7 @@ namespace KRG
         }
     }
 
-    void Editor::DrawPopups( UpdateContext const& context )
+    void EditorDevUI::DrawPopups( UpdateContext const& context )
     {
         // Get any new warnings/errors and create pop-ups for them
         //-------------------------------------------------------------------------
@@ -316,7 +316,7 @@ namespace KRG
         }
     }
 
-    bool Editor::DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace )
+    bool EditorDevUI::DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace )
     {
         KRG_ASSERT( pWorkspace != nullptr );
 
@@ -333,11 +333,12 @@ namespace KRG
             windowFlags |= ImGuiWindowFlags_UnsavedDocument;
         }
 
-        
         ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
         ImGui::SetNextWindowSize( ImVec2( 640, 480 ), ImGuiCond_FirstUseEver );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
         bool const shouldDrawWindowContents = ImGui::Begin( pWorkspace->GetWorkspaceWindowID(), pIsTabOpen, windowFlags );
         bool const isFocused = ImGui::IsWindowFocused( ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_DockHierarchy );
+        ImGui::PopStyleVar();
 
         // Draw Workspace Menu
         //-------------------------------------------------------------------------
@@ -407,15 +408,7 @@ namespace KRG
 
         if ( shouldDrawWindowContents )
         {
-            if ( isFocused )
-            {
-                pWorld->ResumeUpdates();
-            }
-            else
-            {
-                pWorld->SuspendUpdates();
-            }
-
+            pWorld->ResumeUpdates();
             DrawWorkspaceContents( context, pWorkspace, &workspaceWindowClass );
         }
         else
@@ -449,7 +442,7 @@ namespace KRG
         return isTabOpen;
     }
 
-    void Editor::DrawWorkspaceContents( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass )
+    void EditorDevUI::DrawWorkspaceContents( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass )
     {
         auto pWorld = pWorkspace->GetWorld();
 

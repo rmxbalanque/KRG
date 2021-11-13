@@ -123,7 +123,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Editor.cpp" />
+    <ClCompile Include="EditorDevUI.cpp" />
     <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_TreeView.cpp" />
@@ -135,7 +135,7 @@
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Editor.h" />
+    <ClInclude Include="EditorDevUI.h" />
     <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_TreeView.h" />

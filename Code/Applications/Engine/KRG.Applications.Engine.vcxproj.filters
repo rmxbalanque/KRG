@@ -27,7 +27,6 @@
     <ClCompile Include="Win32\EngineApplication_Win32.cpp">
       <Filter>Engine\Win32</Filter>
     </ClCompile>
-    <ClCompile Include="StandaloneEngineTools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Win32\EngineApplication_Win32.h">
@@ -36,7 +35,6 @@
     <ClInclude Include="Win32\Resource.h">
       <Filter>Engine\Win32</Filter>
     </ClInclude>
-    <ClInclude Include="StandaloneEngineTools.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Engine.rc">

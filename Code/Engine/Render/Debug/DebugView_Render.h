@@ -2,7 +2,6 @@
 
 #include "../_Module/API.h"
 #include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
-#include "Engine/Core/Imgui/Gizmo.h"
 
 //-------------------------------------------------------------------------
 

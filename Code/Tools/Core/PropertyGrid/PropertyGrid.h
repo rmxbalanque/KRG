@@ -11,7 +11,7 @@
 namespace KRG::TypeSystem 
 {
     class TypeRegistry; 
-    struct TypeSystem::PropertyInfo;
+    struct PropertyInfo;
 }
 
 //-------------------------------------------------------------------------
@@ -21,6 +21,10 @@ namespace KRG::TypeSystem
 
 namespace KRG
 {
+    namespace TypeSystem{ class PropertyEditor; }
+
+    //-------------------------------------------------------------------------
+
     struct PropertyEditInfo
     {
         enum class Action
@@ -78,56 +82,8 @@ namespace KRG
         void DrawValuePropertyRow( TypeSystem::TypeInfo const& typeInfo, IRegisteredType* pTypeInstance, TypeSystem::PropertyInfo const& propertyInfo, Byte* propertyInstance, int32 arrayIdx = InvalidIndex );
         void DrawArrayPropertyRow( TypeSystem::TypeInfo const& typeInfo, IRegisteredType* pTypeInstance, TypeSystem::PropertyInfo const& propertyInfo, Byte* propertyInstance );
 
-        void CreatePropertyEditor( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-
-        // Editors
-        //-------------------------------------------------------------------------
-
-        void CreateEditorBool( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorInt8( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorInt16( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorInt32( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorInt64( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorUInt8( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorUInt16( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorUInt32( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorUInt64( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorFloat( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorDouble( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorColor( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorMicroseconds( TypeSystem::PropertyInfo const & propertyInfo, Byte * pPropertyInstance );
-        void CreateEditorMilliseconds( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorSeconds( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorPercentage( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorDegrees( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorRadians( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorFloat2( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorFloat3( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorFloat4( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorVector( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorEulerAngles( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorQuaternion( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorMatrix( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorTransform( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorIntRange( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorFloatRange( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorString( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorStringID( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorUUID( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorResourcePath( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorResourceTypeID( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorResourceID( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorResourcePtr( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorEnum( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorGenericFlags( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void CreateEditorSpecificFlags( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-
-        // Caches
-        //-------------------------------------------------------------------------
-
-        Float3* GetCachedRotation( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void ResetCachedRotation( TypeSystem::PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
-        void ClearCache();
+        TypeSystem::PropertyEditor* GetPropertyEditor( TypeSystem::PropertyInfo const& propertyInfo, Byte* pActualPropertyInstance );
+        void DestroyPropertyEditors();
 
     private:
 
@@ -139,7 +95,6 @@ namespace KRG
 
         TSingleUserEventInternal<void( PropertyEditInfo const& )>   m_preEditEvent; // Fired just before we change a property value
         TSingleUserEventInternal<void( PropertyEditInfo const& )>   m_postEditEvent; // Fired just after we change a property value
-
-        TVector<TPair<void*, Float3*>>                              m_rotationCache;
+        THashMap<void*, TypeSystem::PropertyEditor*>                m_propertyEditors;
     };
 }

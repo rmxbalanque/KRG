@@ -75,28 +75,28 @@ namespace KRG::CPP
 
         switch ( type.m_underlyingType )
         {
-            case TypeSystem::CoreTypes::Uint8:
-            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Uint8;\n";
+            case TypeSystem::CoreTypeID::Uint8:
+            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypeID::Uint8;\n";
             break;
 
-            case TypeSystem::CoreTypes::Int8:
-            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int8;\n";
+            case TypeSystem::CoreTypeID::Int8:
+            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypeID::Int8;\n";
             break;
 
-            case TypeSystem::CoreTypes::Uint16:
-            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Uint16;\n";
+            case TypeSystem::CoreTypeID::Uint16:
+            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypeID::Uint16;\n";
             break;
 
-            case TypeSystem::CoreTypes::Int16:
-            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int16;\n";
+            case TypeSystem::CoreTypeID::Int16:
+            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypeID::Int16;\n";
             break;
 
-            case TypeSystem::CoreTypes::Uint32:
-            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Uint32;\n";
+            case TypeSystem::CoreTypeID::Uint32:
+            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypeID::Uint32;\n";
             break;
 
-            case TypeSystem::CoreTypes::Int32:
-            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypes::Int32;\n";
+            case TypeSystem::CoreTypeID::Int32:
+            file << "                enumInfo.m_underlyingType = TypeSystem::CoreTypeID::Int32;\n";
             break;
 
             default:

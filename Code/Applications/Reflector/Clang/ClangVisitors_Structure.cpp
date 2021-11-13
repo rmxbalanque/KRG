@@ -188,7 +188,7 @@ namespace KRG
                             // Additional processing for special types
                             //-------------------------------------------------------------------------
 
-                            if ( fieldTypeID == GetCoreTypeID( CoreTypes::TVector ) )
+                            if ( fieldTypeID == GetCoreTypeID( CoreTypeID::TVector ) )
                             {
                                 // We need to flag this in advance as we are about to change the field type ID
                                 propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsDynamicArray );
@@ -204,7 +204,7 @@ namespace KRG
                                     return CXChildVisit_Break;
                                 }
                             }
-                            else if ( fieldTypeID == GetCoreTypeID( CoreTypes::String ) )
+                            else if ( fieldTypeID == GetCoreTypeID( CoreTypeID::String ) )
                             {
                                 // We need to clear the template args since we have a type alias and clang is detected the template args for eastl::basic_string
                                 fieldTypeInfo.m_templateArgs.clear();
@@ -231,24 +231,24 @@ namespace KRG
                             if ( IsCoreType( propertyDesc.m_typeID ) )
                             {
                                 // Check if this field is a generic resource ptr
-                                if ( propertyDesc.m_typeID == CoreTypes::ResourcePtr )
+                                if ( propertyDesc.m_typeID == CoreTypeID::ResourcePtr )
                                 {
                                     pContext->LogError( "Generic resource pointers are not allowed to be exposed, please use a TResourcePtr instead! ( property: %s in class: %s )", propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
                                     return CXChildVisit_Break;
                                 }
 
-                                if ( propertyDesc.m_typeID == CoreTypes::TResourcePtr && propertyDesc.m_templateArgTypeName == "KRG::Resource::IResource" )
+                                if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr && propertyDesc.m_templateArgTypeName == "KRG::Resource::IResource" )
                                 {
                                     pContext->LogError( "Generic resource pointers ( TResourcePtr<IResource> ) are not allowed to be exposed, please use a specific resource type instead! ( property: %s in class: %s )", propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
                                     return CXChildVisit_Break;
                                 }
 
                                 // Bit flags
-                                if ( propertyDesc.m_typeID == CoreTypes::BitFlags )
+                                if ( propertyDesc.m_typeID == CoreTypeID::BitFlags )
                                 {
                                     propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsBitFlags );
                                 }
-                                else if ( propertyDesc.m_typeID == CoreTypes::TBitFlags )
+                                else if ( propertyDesc.m_typeID == CoreTypeID::TBitFlags )
                                 {
                                     propertyDesc.m_flags.SetFlag( PropertyInfo::Flags::IsBitFlags );
 
@@ -262,7 +262,7 @@ namespace KRG
                                 }
 
                                 // Arrays
-                                if ( propertyDesc.m_typeID == CoreTypes::TVector )
+                                if ( propertyDesc.m_typeID == CoreTypeID::TVector )
                                 {
                                     pContext->LogError( "We dont support arrays of arrays. Property: %s in class: %s", propertyDesc.m_name.c_str(), pClass->m_name.c_str() );
                                     return CXChildVisit_Break;

@@ -109,7 +109,7 @@ namespace KRG::TypeSystem::Reflection
         TVector<ReflectedProperty>                      m_properties;
 
         // Enums
-        CoreTypes                                       m_underlyingType = CoreTypes::Uint8;
+        CoreTypeID                                       m_underlyingType = CoreTypeID::Uint8;
         THashMap<StringID, ReflectedEnumConstant>       m_enumConstants;
     };
 

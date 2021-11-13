@@ -1,11 +1,11 @@
-#include "StandaloneEngineTools.h"
-#include "Engine/Core/Imgui/OrientationGuide.h"
+#include "EngineDevUI.h"
+#include "OrientationGuide.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
 #include "Engine/Core/Entity/Debug/EntityWorldDebugger.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
-#include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
 
@@ -17,13 +17,13 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void StandaloneEngineTools::Initialize( UpdateContext const& context )
+    void EngineDevUI::Initialize( UpdateContext const& context )
     {
         m_pWorldManager = context.GetSystem<EntityWorldManager>();
         m_pWorldDebugger = KRG::New<EntityWorldDebugger>( m_pWorldManager->GetPrimaryWorld() );
     }
 
-    void StandaloneEngineTools::Shutdown( UpdateContext const& context )
+    void EngineDevUI::Shutdown( UpdateContext const& context )
     {
         KRG::Delete( m_pWorldDebugger );
         m_pWorldManager = nullptr;
@@ -31,7 +31,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void StandaloneEngineTools::FrameEndUpdate( UpdateContext const& context )
+    void EngineDevUI::FrameEndUpdate( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameEnd );
@@ -91,7 +91,7 @@ namespace KRG
     // Drawing
     //-------------------------------------------------------------------------
 
-    void StandaloneEngineTools::DrawPopups( UpdateContext const& context )
+    void EngineDevUI::DrawPopups( UpdateContext const& context )
     {
         // Get any new warnings/errors and create pop-ups for them
         //-------------------------------------------------------------------------
@@ -174,7 +174,7 @@ namespace KRG
         }
     }
 
-    void StandaloneEngineTools::DrawMenu( UpdateContext const& context )
+    void EngineDevUI::DrawMenu( UpdateContext const& context )
     {
         if ( ImGui::BeginMainMenuBar() )
         {
@@ -201,7 +201,7 @@ namespace KRG
         }
     }
 
-    void StandaloneEngineTools::DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
+    void EngineDevUI::DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         m_pWorldDebugger->DrawOverlayElements( context );
 
@@ -212,7 +212,7 @@ namespace KRG
         }
     }
 
-    void StandaloneEngineTools::DrawWindows( UpdateContext const& context )
+    void EngineDevUI::DrawWindows( UpdateContext const& context )
     {
         m_pWorldDebugger->DrawWindows( context );
 
@@ -231,7 +231,7 @@ namespace KRG
         }
     }
 
-    void StandaloneEngineTools::DrawStatusBar( UpdateContext const& context )
+    void EngineDevUI::DrawStatusBar( UpdateContext const& context )
     {
         bool showAlways = true;
         uint32 flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;

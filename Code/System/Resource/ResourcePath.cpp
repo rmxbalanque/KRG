@@ -135,13 +135,16 @@ namespace KRG
 
     void ResourcePath::OnPathMemberChanged()
     {
-        if ( !IsValidPath( m_path ) )
+        if ( IsValidPath( m_path ) )
+        {
+            m_path.make_lower();
+            m_ID = Hash::GetHash32( m_path );
+        }
+        else
         {
             m_path.clear();
+            m_ID = 0;
         }
-
-        m_path.make_lower();
-        m_ID = Hash::GetHash32( m_path );
     }
 
     String ResourcePath::GetExtension() const

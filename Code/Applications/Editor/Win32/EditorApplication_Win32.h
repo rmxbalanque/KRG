@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Applications/Editor/Editor.h"
+#include "Applications/Editor/EditorDevUI.h"
 #include "Engine.h"
 #include "Win32/Application_Win32.h"
 
@@ -29,7 +29,7 @@ namespace KRG
         }
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void CreateDevelopmentToolsUI() { m_pDevToolsUI = KRG::New<Editor>(); }
+        virtual void CreateDevelopmentToolsUI() { m_pDevToolsUI = KRG::New<EditorDevUI>(); }
         #endif
     };
 

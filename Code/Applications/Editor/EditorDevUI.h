@@ -2,7 +2,7 @@
 
 #include "Editor_Model.h"
 #include "ResourceBrowser/ResourceBrowser.h"
-#include "Engine/Core/IDevToolsUI.h"
+#include "Engine/Core/DevUI/IDevUI.h"
 #include "Engine/Core/DebugViews/DebugView_System.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 
@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    class Editor final : public ImGuiX::IDevToolsUI
+    class EditorDevUI final : public ImGuiX::IDevUI
     {
         struct ModalPopupMessage
         {
@@ -23,7 +23,7 @@ namespace KRG
 
     public:
 
-        ~Editor();
+        ~EditorDevUI();
 
         void Initialize( UpdateContext const& context ) override;
         void Shutdown( UpdateContext const& context ) override;

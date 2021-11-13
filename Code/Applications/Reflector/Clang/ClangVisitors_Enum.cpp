@@ -53,33 +53,33 @@ namespace KRG
                     return CXChildVisit_Break;
                 }
 
-                CoreTypes underlyingCoreType;
+                CoreTypeID underlyingCoreType;
 
                 auto const* pBT = integerType.getTypePtr()->getAs<clang::BuiltinType>();
                 switch ( pBT->getKind() )
                 {
                     case clang::BuiltinType::UChar:
-                    underlyingCoreType = CoreTypes::Uint8;
+                    underlyingCoreType = CoreTypeID::Uint8;
                     break;
 
                     case clang::BuiltinType::SChar:
-                    underlyingCoreType = CoreTypes::Int8;
+                    underlyingCoreType = CoreTypeID::Int8;
                     break;
 
                     case clang::BuiltinType::UShort:
-                    underlyingCoreType = CoreTypes::Uint16;
+                    underlyingCoreType = CoreTypeID::Uint16;
                     break;
 
                     case clang::BuiltinType::Short:
-                    underlyingCoreType = CoreTypes::Int16;
+                    underlyingCoreType = CoreTypeID::Int16;
                     break;
 
                     case clang::BuiltinType::UInt:
-                    underlyingCoreType = CoreTypes::Uint32;
+                    underlyingCoreType = CoreTypeID::Uint32;
                     break;
 
                     case clang::BuiltinType::Int:
-                    underlyingCoreType = CoreTypes::Int32;
+                    underlyingCoreType = CoreTypeID::Int32;
                     break;
 
                     case clang::BuiltinType::ULongLong:

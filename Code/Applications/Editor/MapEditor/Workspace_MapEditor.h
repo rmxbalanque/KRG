@@ -4,7 +4,7 @@
 #include "Tools/Core/PropertyGrid/PropertyGrid.h"
 #include "Engine/Core/Entity/Map/EntityMapDescriptor.h"
 #include "System/Render/Imgui/ImguiX.h"
-#include "Engine/Core/Imgui/Gizmo.h"
+#include "Engine/Core/DevUI/Gizmo.h"
 
 //-------------------------------------------------------------------------
 

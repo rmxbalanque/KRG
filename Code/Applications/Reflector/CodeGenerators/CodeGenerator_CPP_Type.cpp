@@ -414,14 +414,14 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
-            if ( propertyDesc.m_typeID == CoreTypes::TResourcePtr )
+            if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
                 file << "                    if ( propertyID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        return " << propertyDesc.m_templateArgTypeName.c_str() << "::GetStaticResourceTypeID();\n";
                 file << "                    }\n\n";
             }
-            else if ( propertyDesc.m_typeID == CoreTypes::ResourcePtr )
+            else if ( propertyDesc.m_typeID == CoreTypeID::ResourcePtr )
             {
                 file << "                    if ( propertyID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
@@ -445,7 +445,7 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
-            if ( propertyDesc.m_typeID == CoreTypes::TResourcePtr )
+            if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
                 if ( propertyDesc.IsArrayProperty() )
                 {
@@ -516,7 +516,7 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
-            if ( propertyDesc.m_typeID == CoreTypes::TResourcePtr )
+            if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
                 if ( propertyDesc.IsArrayProperty() )
                 {
@@ -587,7 +587,7 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
-            if ( propertyDesc.m_typeID == CoreTypes::TResourcePtr )
+            if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
                 if ( propertyDesc.IsArrayProperty() )
                 {
@@ -683,7 +683,7 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
-            if ( propertyDesc.m_typeID == CoreTypes::TResourcePtr )
+            if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
                 if ( propertyDesc.IsArrayProperty() )
                 {

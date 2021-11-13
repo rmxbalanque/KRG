@@ -187,40 +187,40 @@ namespace KRG::TypeSystem::Serialization
             }
             else if ( typeValue.IsBool() )
             {
-                KRG_ASSERT( propInfo.m_typeID == CoreTypes::Bool );
+                KRG_ASSERT( propInfo.m_typeID == CoreTypeID::Bool );
                 SetPropertyValue( pPropertyDataAddress, typeValue.GetBool() );
             }
             else if ( typeValue.IsInt64() || typeValue.IsUint64() )
             {
-                if ( propInfo.m_typeID == CoreTypes::Uint8 )
+                if ( propInfo.m_typeID == CoreTypeID::Uint8 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (uint8) typeValue.GetUint64() );
                 }
-                else if ( propInfo.m_typeID == CoreTypes::Int8 )
+                else if ( propInfo.m_typeID == CoreTypeID::Int8 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (int8) typeValue.GetInt64() );
                 }
-                else if ( propInfo.m_typeID == CoreTypes::Uint16 )
+                else if ( propInfo.m_typeID == CoreTypeID::Uint16 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (uint16) typeValue.GetUint64() );
                 }
-                else if ( propInfo.m_typeID == CoreTypes::Int16 )
+                else if ( propInfo.m_typeID == CoreTypeID::Int16 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (int16) typeValue.GetInt64() );
                 }
-                else if ( propInfo.m_typeID == CoreTypes::Uint32 )
+                else if ( propInfo.m_typeID == CoreTypeID::Uint32 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (uint32) typeValue.GetUint64() );
                 }
-                else if ( propInfo.m_typeID == CoreTypes::Int32 )
+                else if ( propInfo.m_typeID == CoreTypeID::Int32 )
                 {
                     SetPropertyValue( pPropertyDataAddress, (int32) typeValue.GetInt64() );
                 }
-                else if ( propInfo.m_typeID == CoreTypes::Uint64 )
+                else if ( propInfo.m_typeID == CoreTypeID::Uint64 )
                 {
                     SetPropertyValue( pPropertyDataAddress, typeValue.GetUint64() );
                 }
-                else if ( propInfo.m_typeID == CoreTypes::Int64 )
+                else if ( propInfo.m_typeID == CoreTypeID::Int64 )
                 {
                     SetPropertyValue( pPropertyDataAddress, typeValue.GetInt64() );
                 }
@@ -232,11 +232,11 @@ namespace KRG::TypeSystem::Serialization
             }
             else if ( typeValue.IsDouble() )
             {
-                if ( propInfo.m_typeID == CoreTypes::Float )
+                if ( propInfo.m_typeID == CoreTypeID::Float )
                 {
                     SetPropertyValue( pPropertyDataAddress, typeValue.GetFloat() );
                 }
-                else if ( propInfo.m_typeID == CoreTypes::Double )
+                else if ( propInfo.m_typeID == CoreTypeID::Double )
                 {
                     SetPropertyValue( pPropertyDataAddress, typeValue.GetDouble() );
                 }

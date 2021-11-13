@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/IDevToolsUI.h"
+#include "IDevUI.h"
 #include "Engine/Core/DebugViews/DebugView_System.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Settings/DebugSettings.h"
@@ -22,7 +22,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class StandaloneEngineTools final : public ImGuiX::IDevToolsUI
+    class KRG_ENGINE_CORE_API EngineDevUI final : public ImGuiX::IDevUI
     {
         struct ModalPopupMessage
         {

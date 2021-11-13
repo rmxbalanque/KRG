@@ -84,10 +84,10 @@ namespace KRG
         inline uint32 ToUInt32_ABGR() const
         {
             uint32 outColor = 0;
-            outColor |= m_byteColor.m_a;
-            outColor |= m_byteColor.m_b << 8;
-            outColor |= m_byteColor.m_g << 16;
-            outColor |= m_byteColor.m_r << 24;
+            outColor |= m_byteColor.m_r;
+            outColor |= m_byteColor.m_g << 8;
+            outColor |= m_byteColor.m_b << 16;
+            outColor |= m_byteColor.m_a << 24;
             return outColor; 
         }
 

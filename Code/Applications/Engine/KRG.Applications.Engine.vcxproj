@@ -70,11 +70,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="StandaloneEngineTools.cpp" />
     <ClCompile Include="Win32\EngineApplication_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="StandaloneEngineTools.h" />
     <ClInclude Include="Win32\EngineApplication_Win32.h" />
     <ClInclude Include="Win32\Resource.h" />
   </ItemGroup>

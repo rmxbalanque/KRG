@@ -5,32 +5,52 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
-    static float const g_labelWidth = 16;
-
-    static void DrawElementLabel( char const* pText, ImVec4 backgroundColor )
+    static bool DrawVectorElement( char const* pID, char const* pLabel, float const& width, ImVec4 backgroundColor, float* pValue, bool isReadOnly = false )
     {
-        ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 0.0f );
+        constexpr static float const labelWidth = 16.0f;
+        constexpr static float const labelHeight = 22.0f;
+
+        //-------------------------------------------------------------------------
+
+        bool result = false;
+
+        ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
         ImGui::PushStyleVar( ImGuiStyleVar_ChildBorderSize, 0.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
         ImGui::PushStyleColor( ImGuiCol_ChildBg, backgroundColor );
 
-        ImGui::BeginChild( pText, ImVec2( g_labelWidth, 18 ), true, ImGuiWindowFlags_None | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
+        ImGui::BeginChild( pLabel, ImVec2( width, labelHeight ), true, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
         {
             ImGui::AlignTextToFramePadding();
-            ImGui::Text( pText );
+            ImGui::SetCursorPosX( 4 );
+            {
+                ImGuiX::ScopedFont sf( Font::MediumBold );
+                ImGui::Text( pLabel );
+            }
+
+            ImGui::SameLine( 0, 0 );
+            ImGui::SetCursorPosX( labelWidth );
+            ImGui::SetCursorPosY( ImGui::GetCursorPosY() + 1 );
+
+            ImGui::SetNextItemWidth( width - labelWidth - 1 );
+            ImGui::InputFloat( pID, pValue, 0, 0, "%.3f", isReadOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+            result = ImGui::IsItemDeactivatedAfterEdit();
         }
         ImGui::EndChild();
 
-        ImGui::PopStyleVar( 2 );
+        ImGui::PopStyleVar( 3 );
         ImGui::PopStyleColor();
+
+        return result;
     }
 
     //-------------------------------------------------------------------------
 
-    bool InputFloat2( char const* pID, Float2& value, float width, bool readOnly )
+    bool InputFloat2( char const* pID, Float2& value, float width, bool isReadOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
-        float const inputWidth = ( contentWidth - ( g_labelWidth * 2 ) - ( itemSpacing * 1 ) ) / 2;
+        float const inputWidth = ( contentWidth - itemSpacing ) / 2;
 
         //-------------------------------------------------------------------------
 
@@ -38,27 +58,13 @@ namespace KRG::ImGuiX
 
         ImGui::PushID( pID );
         {
-            DrawElementLabel( " X", Colors::Red.ToFloat4() );
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
-
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::Red.ToFloat4(), &value.m_x, isReadOnly ) )
             {
                 valueUpdated = true;
             }
 
-            //-------------------------------------------------------------------------
-
             ImGui::SameLine( 0, itemSpacing );
-            DrawElementLabel( " Y", Colors::Green.ToFloat4() );
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
-
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            if ( DrawVectorElement( "##y", "Y", inputWidth, Colors::Green.ToFloat4(), &value.m_y, isReadOnly ) )
             {
                 valueUpdated = true;
             }
@@ -68,11 +74,11 @@ namespace KRG::ImGuiX
         return valueUpdated;
     }
 
-    bool InputFloat3( char const* pID, Float3& value, float width, bool readOnly )
+    bool InputFloat3( char const* pID, Float3& value, float width, bool isReadOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
-        float const inputWidth = ( contentWidth - ( g_labelWidth * 3 ) - ( itemSpacing * 2 ) ) / 3;
+        float const inputWidth = ( contentWidth - ( itemSpacing * 2 ) ) / 3;
 
         //-------------------------------------------------------------------------
 
@@ -80,41 +86,19 @@ namespace KRG::ImGuiX
 
         ImGui::PushID( pID );
         {
-            DrawElementLabel( " X", Colors::Red.ToFloat4() );
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
-
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::Red.ToFloat4(), &value.m_x, isReadOnly ) )
             {
                 valueUpdated = true;
             }
 
-            //-------------------------------------------------------------------------
-
             ImGui::SameLine( 0, itemSpacing );
-            DrawElementLabel( " Y", Colors::Green.ToFloat4() );
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
-
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            if ( DrawVectorElement( "##y", "Y", inputWidth, Colors::Green.ToFloat4(), &value.m_y, isReadOnly ) )
             {
                 valueUpdated = true;
             }
 
-            //-------------------------------------------------------------------------
-
             ImGui::SameLine( 0, itemSpacing );
-            DrawElementLabel( " Z", Colors::CornflowerBlue.ToFloat4() );
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##z", &value.m_z, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
-
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            if ( DrawVectorElement( "##z", "Z", inputWidth, Colors::RoyalBlue.ToFloat4(), &value.m_z, isReadOnly ) )
             {
                 valueUpdated = true;
             }
@@ -124,11 +108,11 @@ namespace KRG::ImGuiX
         return valueUpdated;
     }
 
-    bool InputFloat4( char const* pID, Float4& value, float width, bool readOnly )
+    bool InputFloat4( char const* pID, Float4& value, float width, bool isReadOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
-        float const inputWidth = ( contentWidth - ( g_labelWidth * 4 ) - ( itemSpacing * 3 ) ) / 4;
+        float const inputWidth = ( contentWidth - ( itemSpacing * 3 ) ) / 4;
 
         //-------------------------------------------------------------------------
 
@@ -136,55 +120,65 @@ namespace KRG::ImGuiX
 
         ImGui::PushID( pID );
         {
-            DrawElementLabel( " X", Colors::Red.ToFloat4() );
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##f4x", &value.m_x, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
-
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::Red.ToFloat4(), &value.m_x, isReadOnly ) )
             {
                 valueUpdated = true;
             }
 
-            //-------------------------------------------------------------------------
-
             ImGui::SameLine( 0, itemSpacing );
-            DrawElementLabel( " Y", Colors::Green.ToFloat4() );
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##f4y", &value.m_y, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
-
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            if ( DrawVectorElement( "##y", "Y", inputWidth, Colors::Green.ToFloat4(), &value.m_y, isReadOnly ) )
             {
                 valueUpdated = true;
             }
 
-            //-------------------------------------------------------------------------
-
             ImGui::SameLine( 0, itemSpacing );
-            DrawElementLabel( " Z", Colors::CornflowerBlue.ToFloat4() );
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##f4z", &value.m_z, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
-
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            if ( DrawVectorElement( "##z", "Z", inputWidth, Colors::RoyalBlue.ToFloat4(), &value.m_z, isReadOnly ) )
             {
                 valueUpdated = true;
             }
 
-            //-------------------------------------------------------------------------
+            ImGui::SameLine( 0, itemSpacing );
+            if ( DrawVectorElement( "##w", "W", inputWidth, Colors::DarkOrange.ToFloat4(), &value.m_w, isReadOnly ) )
+            {
+                valueUpdated = true;
+            }
+        }
+        ImGui::PopID();
+
+        return valueUpdated;
+    }
+
+    bool InputFloat4( char const* pID, Vector& value, float width, bool isReadOnly )
+    {
+        float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const inputWidth = ( contentWidth - ( itemSpacing * 3 ) ) / 4;
+
+        //-------------------------------------------------------------------------
+
+        bool valueUpdated = false;
+
+        ImGui::PushID( pID );
+        {
+            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::Red.ToFloat4(), &value.m_x, isReadOnly ) )
+            {
+                valueUpdated = true;
+            }
 
             ImGui::SameLine( 0, itemSpacing );
-            DrawElementLabel( " W", Colors::Orange.ToFloat4() );
+            if ( DrawVectorElement( "##y", "Y", inputWidth, Colors::Green.ToFloat4(), &value.m_y, isReadOnly ) )
+            {
+                valueUpdated = true;
+            }
 
-            ImGui::SameLine( 0, 0 );
-            ImGui::SetNextItemWidth( inputWidth );
-            ImGui::InputFloat( "##f4w", &value.m_w, 0, 0, "%.3f", readOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
+            ImGui::SameLine( 0, itemSpacing );
+            if ( DrawVectorElement( "##z", "Z", inputWidth, Colors::RoyalBlue.ToFloat4(), &value.m_z, isReadOnly ) )
+            {
+                valueUpdated = true;
+            }
 
-            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            ImGui::SameLine( 0, itemSpacing );
+            if ( DrawVectorElement( "##w", "W", inputWidth, Colors::DarkOrange.ToFloat4(), &value.m_w, isReadOnly ) )
             {
                 valueUpdated = true;
             }

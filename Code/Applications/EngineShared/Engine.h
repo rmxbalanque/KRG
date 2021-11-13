@@ -2,7 +2,7 @@
 
 #include "RenderingSystem.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
-#include "Engine/Core/IDevToolsUI.h"
+#include "Engine/Core/DevUI/IDevUI.h"
 #include "Engine/Physics/PhysicsSettings.h"
 #include "System/Render/RenderSettings.h"
 #include "System/Resource/ResourceSettings.h"
@@ -106,7 +106,7 @@ namespace KRG
         Physics::PhysicsSystem*                         m_pPhysicsSystem = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        ImGuiX::IDevToolsUI*                            m_pDevToolsUI = nullptr;
+        ImGuiX::IDevUI*                                 m_pDevToolsUI = nullptr;
         #endif
 
         // Application data

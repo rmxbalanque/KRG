@@ -1,5 +1,5 @@
 #pragma once
-#include "_Module/API.h"
+#include "Engine/Core/_Module/API.h"
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Types/Containers.h"
 
@@ -18,11 +18,11 @@ namespace KRG
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
-    class KRG_ENGINE_CORE_API IDevToolsUI
+    class KRG_ENGINE_CORE_API IDevUI
     {
     public:
 
-        virtual ~IDevToolsUI() = default;
+        virtual ~IDevUI() = default;
 
         virtual void Initialize( UpdateContext const& context ) = 0;
         virtual void Shutdown( UpdateContext const& context ) = 0;
