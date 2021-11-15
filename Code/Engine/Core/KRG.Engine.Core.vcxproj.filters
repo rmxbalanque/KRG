@@ -42,19 +42,19 @@
     <ClCompile Include="Math\Easing.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\Map\EntityMap.cpp">
+    <ClCompile Include="Entity\EntityMap.cpp">
       <Filter>Entity\Map</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\Map\EntityMapDescriptor.cpp">
+    <ClCompile Include="Entity\EntityMapDescriptor.cpp">
       <Filter>Entity\Map</Filter>
     </ClCompile>
     <ClCompile Include="DebugViews\DebugView_EntityWorld.cpp">
       <Filter>DebugViews</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\Collections\EntityCollection.cpp">
+    <ClCompile Include="Entity\EntityCollection.cpp">
       <Filter>Entity\Collections</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\Collections\EntityCollectionDescriptor.cpp">
+    <ClCompile Include="Entity\EntityCollectionDescriptor.cpp">
       <Filter>Entity\Collections</Filter>
     </ClCompile>
     <ClCompile Include="ResourceLoaders\ResourceLoader_EntityMap.cpp">
@@ -72,9 +72,6 @@
     <ClCompile Include="Entity\EntitySpatialComponent.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\EntitySystem.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
     <ClCompile Include="Entity\EntityWorld.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
@@ -90,7 +87,7 @@
     <ClCompile Include="_Module\Module.cpp">
       <Filter>_Module</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\Debug\EntityWorldDebugger.cpp">
+    <ClCompile Include="Entity\EntityWorldDebugger.cpp">
       <Filter>Entity\Debug</Filter>
     </ClCompile>
     <ClCompile Include="DebugViews\DebugView_Input.cpp">
@@ -123,24 +120,27 @@
     <ClCompile Include="DevUI\IDevUI.cpp" />
     <ClCompile Include="DevUI\Gizmo.cpp" />
     <ClCompile Include="DevUI\EngineDevUI.cpp" />
+    <ClCompile Include="Player\PlayerComponent.cpp" />
+    <ClCompile Include="Player\PlayerManagerWorldSystem.cpp" />
+    <ClCompile Include="Player\DefaultPlayerController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Easing.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\Map\EntityMap.h">
+    <ClInclude Include="Entity\EntityMap.h">
       <Filter>Entity\Map</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\Map\EntityMapDescriptor.h">
+    <ClInclude Include="Entity\EntityMapDescriptor.h">
       <Filter>Entity\Map</Filter>
     </ClInclude>
     <ClInclude Include="DebugViews\DebugView_EntityWorld.h">
       <Filter>DebugViews</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\Collections\EntityCollection.h">
+    <ClInclude Include="Entity\EntityCollection.h">
       <Filter>Entity\Collections</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\Collections\EntityCollectionDescriptor.h">
+    <ClInclude Include="Entity\EntityCollectionDescriptor.h">
       <Filter>Entity\Collections</Filter>
     </ClInclude>
     <ClInclude Include="ResourceLoaders\ResourceLoader_EntityMap.h">
@@ -182,10 +182,10 @@
     <ClInclude Include="_Module\Module.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\Debug\EntityWorldDebugView.h">
+    <ClInclude Include="Entity\EntityWorldDebugView.h">
       <Filter>Entity\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\Debug\EntityWorldDebugger.h">
+    <ClInclude Include="Entity\EntityWorldDebugger.h">
       <Filter>Entity\Debug</Filter>
     </ClInclude>
     <ClInclude Include="DebugViews\DebugView_Input.h">
@@ -215,5 +215,10 @@
     <ClInclude Include="DevUI\IDevUI.h" />
     <ClInclude Include="DevUI\Gizmo.h" />
     <ClInclude Include="DevUI\EngineDevUI.h" />
+    <ClInclude Include="Entity\EntityLoadingContext.h" />
+    <ClInclude Include="Entity\EntityActivationContext.h" />
+    <ClInclude Include="Player\PlayerComponent.h" />
+    <ClInclude Include="Player\PlayerManagerWorldSystem.h" />
+    <ClInclude Include="Player\DefaultPlayerController.h" />
   </ItemGroup>
 </Project>

@@ -133,6 +133,7 @@
     <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_FBXAndGLTF.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp" />
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
+    <ClCompile Include="MapEditor\Workspace_GamePreviewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditorDevUI.h" />
@@ -146,6 +147,7 @@
     <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h" />
     <ClInclude Include="Win32\Resource.h" />
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
+    <ClInclude Include="MapEditor\Workspace_GamePreviewer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc" />

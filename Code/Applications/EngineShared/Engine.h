@@ -100,12 +100,12 @@ namespace KRG
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
         Render::RenderingSystem                         m_renderingSystem;
         EntityWorldManager*                             m_pEntityWorldManager = nullptr;
-        ImGuiX::ImguiSystem*                            m_pImguiSystem = nullptr;
         Input::InputSystem*                             m_pInputSystem = nullptr;
         Navmesh::NavmeshSystem*                         m_pNavmeshSystem = nullptr;
         Physics::PhysicsSystem*                         m_pPhysicsSystem = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
+        ImGuiX::ImguiSystem*                            m_pImguiSystem = nullptr;
         ImGuiX::IDevUI*                                 m_pDevToolsUI = nullptr;
         #endif
 

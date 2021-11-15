@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
+#include "Engine/Core/Entity/EntityWorldDebugView.h"
 
 //-------------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ namespace KRG
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context ) override;
+        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         void DrawMenu( EntityUpdateContext const& context );
         void DrawWorldBrowser( EntityUpdateContext const& context );

@@ -49,7 +49,7 @@ namespace KRG
         inline char const* GetWorkspaceWindowID() const { KRG_ASSERT( !m_workspaceWindowID.empty() ); return m_workspaceWindowID.c_str(); }
 
         // Get the viewport window name/ID - Needs to be unique per workspace instance!
-        inline  char const* GetViewportWindowID() const { KRG_ASSERT( !m_viewportWindowID.empty() ); return m_viewportWindowID.c_str(); }
+        inline char const* GetViewportWindowID() const { KRG_ASSERT( !m_viewportWindowID.empty() ); return m_viewportWindowID.c_str(); }
 
         // Get the main workspace window ID - Needs to be unique per workspace instance!
         inline char const* GetDockspaceID() const { KRG_ASSERT( !m_dockspaceID.empty() ); return m_dockspaceID.c_str(); }
@@ -63,8 +63,14 @@ namespace KRG
         // Should this workspace display a viewport?
         virtual bool HasViewportWindow() const { return true; }
 
+        // Does this workspace have a toolbar?
+        virtual bool HasWorkspaceToolbar() const { return true; }
+
         // Does this workspace's viewport have a toolbar?
         virtual bool HasViewportToolbar() const { return false; }
+
+        // Does this workspace's viewport have a orientation guide drawn?
+        virtual bool HasViewportOrientationGuide() const { return true; }
 
         // Get the world associated with this workspace
         inline EntityWorld* GetWorld() const { return m_pWorld; }
@@ -73,8 +79,8 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Initialize the workspace: initialize window IDs, create preview entities, etc... - Base implementation must be called!
-        virtual void Initialize();
-        virtual void Shutdown() {}
+        virtual void Initialize( UpdateContext const& context );
+        virtual void Shutdown( UpdateContext const& context ) {}
 
         // Drawing Functions
         //-------------------------------------------------------------------------

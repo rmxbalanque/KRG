@@ -101,8 +101,8 @@ namespace KRG
 
         virtual uint32 GetID() const override{ return m_descriptorID.GetID(); }
         virtual bool HasViewportWindow() const { return false; }
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
+        virtual void Initialize( UpdateContext const& context ) override;
+        virtual void Shutdown( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual bool IsDirty() const override { return m_propertyGrid.IsDirty(); }

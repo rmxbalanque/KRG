@@ -2,8 +2,7 @@
 
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
 #include "Tools/Core/PropertyGrid/PropertyGrid.h"
-#include "Engine/Core/Entity/Map/EntityMapDescriptor.h"
-#include "System/Render/Imgui/ImguiX.h"
+#include "Engine/Core/Entity/EntityMapDescriptor.h"
 #include "Engine/Core/DevUI/Gizmo.h"
 
 //-------------------------------------------------------------------------
@@ -29,6 +28,9 @@ namespace KRG::EntityModel
         EntityMapEditor( EditorContext const& context, EntityWorld* pWorld );
         ~EntityMapEditor();
 
+        inline bool HasLoadedMap() const { return m_loadedMap.IsValid(); }
+        inline ResourceID GetLoadedMap() const { return m_loadedMap; }
+
         void CreateNewMap();
         void SelectAndLoadMap();
         void LoadMap( TResourcePtr<EntityModel::EntityMapDescriptor> const& mapToLoad );
@@ -46,6 +48,7 @@ namespace KRG::EntityModel
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) override;
+        virtual bool IsDirty() const override{ return false; } // TODO
         virtual bool Save() override;
 
         void SelectEntity( Entity* pEntity );

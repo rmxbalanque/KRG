@@ -161,8 +161,11 @@ namespace KRG
         m_pInputSystem = m_module_engine_core.GetInputSystem();
         m_pResourceSystem = m_module_engine_core.GetResourceSystem();
         m_pRenderDevice = m_module_engine_core.GetRenderDevice();
-        m_pImguiSystem = m_module_engine_core.GetImguiSystem();
         m_pEntityWorldManager = m_module_engine_core.GetEntityWorldManager();
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_pImguiSystem = m_module_engine_core.GetImguiSystem();
+        #endif
 
         //-------------------------------------------------------------------------
         // Register Types
@@ -340,8 +343,11 @@ namespace KRG
         m_pInputSystem = nullptr;
         m_pResourceSystem = nullptr;
         m_pRenderDevice = nullptr;
-        m_pImguiSystem = nullptr;
         m_pEntityWorldManager = nullptr;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_pImguiSystem = nullptr;
+        #endif
 
         //-------------------------------------------------------------------------
 

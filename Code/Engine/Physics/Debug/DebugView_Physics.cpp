@@ -104,15 +104,17 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsDebugView::DrawWindows( EntityUpdateContext const& context )
+    void PhysicsDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( m_isComponentWindowOpen )
         {
+            if ( pWindowClass != nullptr ) ImGui::SetNextWindowClass( pWindowClass );
             DrawComponentsWindow( context );
         }
 
         if ( m_isMaterialDatabaseWindowOpen )
         {
+            if ( pWindowClass != nullptr ) ImGui::SetNextWindowClass( pWindowClass );
             DrawMaterialDatabaseWindow( context );
         }
     }
@@ -172,8 +174,24 @@ namespace KRG::Physics
 
     void PhysicsDebugView::DrawMaterialDatabaseWindow( EntityUpdateContext const& context )
     {
-        ImGui::SetNextWindowBgAlpha( 0.5f );
-        if ( ImGui::Begin( "Physics Material Database", &m_isMaterialDatabaseWindowOpen ) )
+        if ( m_isMaterialDatabaseWindowOpen )
+        {
+            m_isMaterialDatabaseWindowOpen = PhysicsMaterialDatabaseDebugView::Draw( context );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool PhysicsMaterialDatabaseDebugView::Draw( UpdateContext const& context )
+    {
+        auto pPhysicsSystem = context.GetSystem<PhysicsSystem>();
+
+        //-------------------------------------------------------------------------
+
+        bool isMaterialDatabaseWindowOpen = true;
+
+        ImGui::SetNextWindowBgAlpha( 0.75f );
+        if ( ImGui::Begin( "Physics Material Database", &isMaterialDatabaseWindowOpen ) )
         {
             if ( ImGui::BeginTable( "Resource Request History Table", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
             {
@@ -190,7 +208,7 @@ namespace KRG::Physics
 
                 //-------------------------------------------------------------------------
 
-                for ( auto const& materialPair : m_pPhysicsSystem->m_materials )
+                for ( auto const& materialPair : pPhysicsSystem->m_materials )
                 {
                     PxMaterial const* pMaterial = materialPair.second.m_pMaterial;
 
@@ -231,6 +249,10 @@ namespace KRG::Physics
             }
         }
         ImGui::End();
+
+        //-------------------------------------------------------------------------
+
+        return isMaterialDatabaseWindowOpen;
     }
 }
 #endif

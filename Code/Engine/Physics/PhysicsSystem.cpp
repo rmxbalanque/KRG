@@ -78,6 +78,12 @@ namespace KRG::Physics
     {
         KRG_ASSERT( m_pFoundation == nullptr && m_pPhysics == nullptr && m_pDispatcher == nullptr );
 
+        PxTolerancesScale tolerancesScale;
+        tolerancesScale.length = Constants::s_lengthScale;
+        tolerancesScale.speed = Constants::s_speedScale;
+
+        //-------------------------------------------------------------------------
+
         m_pAllocatorCallback = KRG::New<PhysXAllocator>();
         m_pErrorCallback = KRG::New<PhysXUserErrorCallback>();
 
@@ -87,12 +93,11 @@ namespace KRG::Physics
         #if KRG_DEVELOPMENT_TOOLS
         m_pPVD = PxCreatePvd( *m_pFoundation );
         m_pPVDTransport = PxDefaultPvdSocketTransportCreate( "127.0.0.1", 5425, 10 );
+        m_pPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *m_pFoundation, tolerancesScale, true, m_pPVD );
+        #else
+        m_pPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *m_pFoundation, tolerancesScale, true, nullptr );
         #endif
 
-        PxTolerancesScale tolerancesScale;
-        tolerancesScale.length = Constants::s_lengthScale;
-        tolerancesScale.speed = Constants::s_speedScale;
-        m_pPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *m_pFoundation, tolerancesScale, true, m_pPVD );
         m_pCooking = PxCreateCooking( PX_PHYSICS_VERSION, *m_pFoundation, PxCookingParams( tolerancesScale ) );
 
         // Create shared resources

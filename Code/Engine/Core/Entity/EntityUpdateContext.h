@@ -32,6 +32,9 @@ namespace KRG
             return Cast<T>( GetWorldSystem( T::s_entitySystemID ) );
         }
 
+        // Get the world type - threadsafe since this never changes
+        KRG_FORCE_INLINE bool IsGameWorld() const { return m_isGameWorld; }
+
         // Get the viewport for this world
         Render::Viewport const* GetViewport() const;
 
@@ -54,5 +57,6 @@ namespace KRG
     private:
 
         EntityWorld*                    m_pWorld = nullptr;
+        bool                            m_isGameWorld = true;
     };
 }

@@ -1,4 +1,3 @@
-#ifndef KRG_CONFIGURATION_FINAL
 #include "NetworkResourceProvider.h"
 #include "System/Resource/ResourceHeader.h"
 #include "System/Resource/ResourceRequest.h"
@@ -11,6 +10,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Resource
 {
     NetworkResourceProvider::NetworkResourceProvider( Settings const* pSettings )

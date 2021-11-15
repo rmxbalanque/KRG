@@ -98,7 +98,7 @@ namespace KRG::Navmesh
         #endif
     }
 
-    void NavmeshDebugView::DrawWindows( EntityUpdateContext const& context )
+    void NavmeshDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {}
 }
 #endif

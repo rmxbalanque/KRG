@@ -10,16 +10,16 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void TextureWorkspace::Initialize()
+    void TextureWorkspace::Initialize( UpdateContext const& context )
     {
-        TResourceWorkspace<Texture>::Initialize();
+        TResourceWorkspace<Texture>::Initialize( context );
         m_previewWindowName.sprintf( "Preview##%u", GetID() );
         m_infoWindowName.sprintf( "Info##%u", GetID() );
     }
 
-    void TextureWorkspace::Shutdown()
+    void TextureWorkspace::Shutdown( UpdateContext const& context )
     {
-        TResourceWorkspace<Texture>::Shutdown();
+        TResourceWorkspace<Texture>::Shutdown( context );
     }
 
     void TextureWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

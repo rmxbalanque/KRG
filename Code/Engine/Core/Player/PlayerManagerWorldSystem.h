@@ -9,31 +9,30 @@
 
 namespace KRG
 {
-    class CameraComponent;
+    class PlayerComponent;
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_CORE_API CameraWorldSystem : public IWorldEntitySystem
+    class KRG_ENGINE_CORE_API PlayerManagerSystem : public IWorldEntitySystem
     {
-        struct RegisteredCamera
+        struct RegisteredPlayer
         {
-            RegisteredCamera( UUID entityID, CameraComponent* pComponent );
+            RegisteredPlayer( UUID entityID, PlayerComponent* pComponent );
 
         public:
 
             UUID                                m_entityID;
-            CameraComponent*                    m_pComponent = nullptr;
+            PlayerComponent*                    m_pComponent = nullptr;
         };
 
     public:
 
-        KRG_REGISTER_TYPE( CameraWorldSystem );
-        KRG_ENTITY_WORLD_SYSTEM( CameraWorldSystem, RequiresUpdate( UpdateStage::PrePhysics ) );
+        KRG_REGISTER_TYPE( PlayerManagerSystem );
+        KRG_ENTITY_WORLD_SYSTEM( PlayerManagerSystem, RequiresUpdate( UpdateStage::PrePhysics ) );
 
-    public:
-
-        inline bool HasActiveCamera() const { return m_pActiveCamera != nullptr; }
-        inline CameraComponent* GetActiveCamera() const { return m_pActiveCamera; }
+        #if KRG_DEVELOPMENT_TOOLS
+        void SetPlayerControllerState( bool isEnabled );
+        #endif
 
     private:
 
@@ -43,7 +42,6 @@ namespace KRG
 
     private:
 
-        TVector<RegisteredCamera>               m_cameras;
-        CameraComponent*                        m_pActiveCamera = nullptr;
+        TVector<RegisteredPlayer>               m_players;
     };
 } 

@@ -12,11 +12,11 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void StaticMeshWorkspace::Initialize()
+    void StaticMeshWorkspace::Initialize( UpdateContext const& context )
     {
         KRG_ASSERT( m_pPreviewEntity == nullptr );
 
-        TResourceWorkspace<StaticMesh>::Initialize();
+        TResourceWorkspace<StaticMesh>::Initialize( context );
 
         m_infoWindowName.sprintf( "Info##%u", GetID() );
 
@@ -31,10 +31,10 @@ namespace KRG::Render
         m_pPreviewEntity->AddComponent( pStaticMeshComponent );
     }
 
-    void StaticMeshWorkspace::Shutdown()
+    void StaticMeshWorkspace::Shutdown( UpdateContext const& context )
     {
         m_pPreviewEntity = nullptr;
-        TResourceWorkspace<StaticMesh>::Shutdown();
+        TResourceWorkspace<StaticMesh>::Shutdown( context );
     }
 
     void StaticMeshWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

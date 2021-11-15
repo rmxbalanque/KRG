@@ -1,7 +1,7 @@
 #include "EntityCollectionDescriptorReader.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
 #include "Engine/Core/Entity/Entity.h"
-#include "Engine/Core/Entity/Collections/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/EntityCollectionDescriptor.h"
 #include "System/TypeSystem/CoreTypeConversions.h"
 #include "System/Core/ThirdParty/cereal/external/rapidjson/error/en.h"
 #include "System/Core/Logging/Log.h"

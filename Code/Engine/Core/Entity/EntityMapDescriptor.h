@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Engine/Core/Entity/Collections/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/EntityCollectionDescriptor.h"
 #include "System/Resource/IResource.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::EntityModel
 {
-    struct LoadingContext;
+    struct EntityLoadingContext;
 
     //-------------------------------------------------------------------------
     // A compiled entity map template

@@ -28,13 +28,14 @@ namespace KRG
         void Initialize( UpdateContext const& context ) override;
         void Shutdown( UpdateContext const& context ) override;
         virtual void FrameStartUpdate( UpdateContext const& context ) override final;
+        virtual void FrameEndUpdate( UpdateContext const& context ) override final;
 
     private:
 
         void DrawMainMenu( UpdateContext const& context );
         void DrawPopups( UpdateContext const& context );
         bool DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace );
-        void DrawWorkspaceContents( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass );
+        void DrawWorkspaceViewportWindow( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass );
 
         // Hot Reload
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;
@@ -43,7 +44,8 @@ namespace KRG
     private:
 
         EditorModel                         m_model;
-        bool                                m_mouseWithinEditorViewport = false;
+        bool                                m_mouseWithinWorkspaceViewport = false;
+        ImGuiWindowClass                    m_editorWindowClass;
         TVector<ModalPopupMessage>          m_modalPopups;
 
         Resource::ResourceDatabase          m_db;
@@ -56,11 +58,10 @@ namespace KRG
         DebugSettingsView                   m_debugSettingsView;
         bool                                m_isDebugSettingsWindowOpen = false;
 
-        TVector<EditorWorkspace*>           m_workspacesToDestroy;
-
         bool                                m_isResourceBrowserWindowOpen = true;
         bool                                m_isResourceLogWindowOpen = false;
         bool                                m_isResourceReferenceTrackerWindowOpen = false;
+        bool                                m_isPhysicsMaterialDatabaseWindowOpen = false;
         bool                                m_isImguiDemoWindowOpen = false;
     };
 }

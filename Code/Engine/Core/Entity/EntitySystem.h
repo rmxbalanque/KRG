@@ -3,7 +3,6 @@
 #include "Engine/Core/_Module/API.h"
 #include "System/Core/Update/UpdateStage.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
-#include "System/TypeSystem/ITypeHelper.h"
 
 //-------------------------------------------------------------------------
 

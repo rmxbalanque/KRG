@@ -4,6 +4,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
     // Rotation
@@ -1233,3 +1234,4 @@ namespace KRG::ImGuiX
         Scale_PerformManipulation( viewport );
     }
 }
+#endif

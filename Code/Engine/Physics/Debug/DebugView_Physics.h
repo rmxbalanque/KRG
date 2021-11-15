@@ -1,7 +1,11 @@
 #pragma once
 
 #include "../_Module/API.h"
-#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
+#include "Engine/Core/Entity/EntityWorldDebugView.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG { class UpdateContext; }
 
 //-------------------------------------------------------------------------
 
@@ -25,7 +29,7 @@ namespace KRG::Physics
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context ) override;
+        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         void DrawPhysicsMenu( EntityUpdateContext const& context );
         void DrawPVDMenu( EntityUpdateContext const& context );
@@ -39,6 +43,15 @@ namespace KRG::Physics
         float                   m_recordingTimeSeconds = 0.5f;
         bool                    m_isComponentWindowOpen = false;
         bool                    m_isMaterialDatabaseWindowOpen = false;
+    };
+
+    //-------------------------------------------------------------------------
+
+    class KRG_ENGINE_PHYSICS_API PhysicsMaterialDatabaseDebugView
+    {
+    public:
+
+        static bool Draw( UpdateContext const& context );
     };
 }
 #endif

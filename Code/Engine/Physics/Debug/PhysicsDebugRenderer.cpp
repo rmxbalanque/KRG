@@ -5,6 +5,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Physics
 {
     using namespace KRG::Render;
@@ -262,3 +263,4 @@ namespace KRG::Physics
         DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numStrings );
     }
 }
+#endif

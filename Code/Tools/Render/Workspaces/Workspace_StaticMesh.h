@@ -17,8 +17,8 @@ namespace KRG::Render
 
     private:
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
+        virtual void Initialize( UpdateContext const& context ) override;
+        virtual void Shutdown( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 

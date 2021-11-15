@@ -1,4 +1,5 @@
 #include "EntitySpatialComponent.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 

@@ -5,6 +5,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Render
 {
     bool DebugRenderer::Initialize( RenderDevice* pRenderDevice )
@@ -499,3 +500,4 @@ namespace KRG::Render
         m_drawCommands.Clear();
     }
 }
+#endif

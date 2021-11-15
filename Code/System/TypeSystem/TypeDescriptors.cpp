@@ -134,10 +134,12 @@ namespace KRG::TypeSystem
                         propertyDesc.m_path = path;
                         Conversion::ConvertNativeTypeToBinary( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_byteValue );
 
+                        #if KRG_DEVELOPMENT_TOOLS
                         if ( shouldSetPropertyStringValues )
                         {
                             Conversion::ConvertNativeTypeToString( typeRegistry, propertyInfo, pPropertyInstance, propertyDesc.m_stringValue );
                         }
+                        #endif
                     }
                 }
                 else

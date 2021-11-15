@@ -6,6 +6,10 @@
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
+
+struct ImGuiWindowClass;
+
+//-------------------------------------------------------------------------
 // Runtime Debug View
 //-------------------------------------------------------------------------
 // Provides debug info and tools for a given world
@@ -69,7 +73,7 @@ namespace KRG
     protected:
 
         // Called to draw all imgui windows
-        virtual void DrawWindows( EntityUpdateContext const& context ) = 0;
+        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) = 0;
 
         // Called within the context of a large overlay window allowing you to draw helpers and widgets over a viewport
         virtual void DrawOverlayElements( EntityUpdateContext const& context ) {}

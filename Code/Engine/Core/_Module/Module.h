@@ -35,11 +35,13 @@ namespace KRG::EngineCore
         inline TypeSystem::TypeRegistry* GetTypeRegistry() { return &m_typeRegistry; }
         inline Input::InputSystem* GetInputSystem() { return &m_inputSystem; }
         inline Resource::ResourceSystem* GetResourceSystem() { return &m_resourceSystem; }
-
         inline Render::RenderDevice* GetRenderDevice() { return m_pRenderDevice; }
-        inline ImGuiX::ImguiSystem* GetImguiSystem() { return &m_imguiSystem; }
-
         inline EntityWorldManager* GetEntityWorldManager() { return &m_entityWorldManager; }
+
+        #if KRG_DEVELOPMENT_TOOLS
+        inline ImGuiX::ImguiSystem* GetImguiSystem() { return &m_imguiSystem; }
+        void EnableImguiViewports() { m_imguiViewportsEnabled = true; }
+        #endif
 
     private:
 
@@ -58,7 +60,10 @@ namespace KRG::EngineCore
         Render::RenderDevice*                           m_pRenderDevice = nullptr;
 
         // ImGui
+        #if KRG_DEVELOPMENT_TOOLS
         ImGuiX::ImguiSystem                             m_imguiSystem;
+        bool                                            m_imguiViewportsEnabled = false;
+        #endif
 
         // Entity
         EntityWorldManager                              m_entityWorldManager;

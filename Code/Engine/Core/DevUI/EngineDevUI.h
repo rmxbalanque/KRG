@@ -10,6 +10,7 @@
 //-------------------------------------------------------------------------
 
 struct ImDrawList;
+struct ImGuiWindowClass;
 
 //-------------------------------------------------------------------------
 
@@ -24,6 +25,8 @@ namespace KRG
 
     class KRG_ENGINE_CORE_API EngineDevUI final : public ImGuiX::IDevUI
     {
+        friend class GamePreviewer;
+
         struct ModalPopupMessage
         {
             String                                          m_ID;
@@ -35,6 +38,8 @@ namespace KRG
 
     public:
 
+        void LockToWindow( String const& windowName ) { m_windowName = windowName; }
+
         virtual void Initialize( UpdateContext const& context ) override final;
         virtual void Shutdown( UpdateContext const& context ) override final;
         virtual void FrameEndUpdate( UpdateContext const& context ) override final;
@@ -44,7 +49,7 @@ namespace KRG
         void DrawPopups( UpdateContext const& context );
         void DrawMenu( UpdateContext const& context );
         void DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport );
-        void DrawWindows( UpdateContext const& context );
+        void DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass = nullptr );
         void DrawStatusBar( UpdateContext const& context );
 
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override {}
@@ -54,6 +59,7 @@ namespace KRG
 
         EntityWorldManager*                                 m_pWorldManager = nullptr;
         EntityWorldDebugger*                                m_pWorldDebugger = nullptr;
+        String                                              m_windowName;
 
         TVector<ModalPopupMessage>                          m_modalPopups;
         Seconds                                             m_avgTimeDelta = 0.0f;

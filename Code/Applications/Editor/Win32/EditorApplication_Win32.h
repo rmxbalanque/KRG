@@ -16,7 +16,7 @@ namespace KRG
 
     public:
 
-        using Engine::Engine;
+        EditorEngine( TFunction<bool( KRG::String const& error )>&& errorHandler );
 
         virtual void RegisterTypes() override
         {

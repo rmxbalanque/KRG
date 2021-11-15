@@ -3,20 +3,11 @@
 #include "EntityComponent.h"
 #include "System/Core/Math/BoundingVolumes.h"
 #include "System/Core/Math/Transform.h"
-#include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    namespace EntityModel
-    { 
-        class EntityCollection;
-        class EntityMapEditor;
-    }
-
-    //-------------------------------------------------------------------------
-
     class KRG_ENGINE_CORE_API SpatialEntityComponent : public EntityComponent
     {
         KRG_REGISTER_TYPE( SpatialEntityComponent );

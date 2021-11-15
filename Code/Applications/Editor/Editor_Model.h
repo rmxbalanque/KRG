@@ -6,6 +6,7 @@
 namespace KRG
 {
     class EntityWorldManager;
+    class GamePreviewer;
     namespace EntityModel { class EntityMapEditor; }
     namespace Render{ class RenderingSystem; }
 
@@ -19,6 +20,7 @@ namespace KRG
 
         void Initialize( UpdateContext const& context );
         void Shutdown( UpdateContext const& context );
+        void Update( UpdateContext const& context );
 
         inline FileSystem::Path const& GetSourceResourceDirectory() const { return m_editorContext.m_sourceResourceDirectory; }
         inline FileSystem::Path const& GetCompiledResourceDirectory() const { return m_editorContext.m_compiledResourceDirectory; }
@@ -28,17 +30,40 @@ namespace KRG
 
         bool HasDescriptorForResourceType( ResourceTypeID resourceTypeID ) const;
 
-        // Workspaces
+        // Map editor and game preview
         //-------------------------------------------------------------------------
 
         bool IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const;
+        
+        bool IsGamePreviewWorkspace( EditorWorkspace const* pWorkspace ) const;
+        inline GamePreviewer* GetGamePreviewWorkspace() const { return m_pGamePreviewer; }
+
+        inline bool IsGamePreviewRunning() const { return m_pGamePreviewer != nullptr; }
+        bool IsGamePreviewAllowed() const;
+
+        void StartGamePreview( UpdateContext const& context );
+        void StopGamePreview( UpdateContext const& context );
+
+        // Workspaces
+        //-------------------------------------------------------------------------
+
         inline TVector<EditorWorkspace*> const& GetWorkspaces() const { return m_workspaces; }
         void* GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const;
-        void DestroyWorkspace( EditorWorkspace* pWorkspace );
 
         inline bool IsWorkspaceOpen( uint32 workspaceID ) const { return FindResourceWorkspace( workspaceID ) != nullptr; }
         inline bool IsWorkspaceOpen( ResourceID const& resourceID ) const { return FindResourceWorkspace( resourceID ) != nullptr; }
-        bool TryCreateWorkspace( ResourceID const& resourceID );
+
+        // Immediately destroy a workspace
+        void DestroyWorkspace( UpdateContext const& context, EditorWorkspace* pWorkspace );
+
+        // Queues a workspace destruction request till the next update
+        void QueueDestroyWorkspace( EditorWorkspace* pWorkspace ) { m_workspaceDestructionRequests.emplace_back( pWorkspace ); }
+
+        // Tries to immediately create a workspace
+        bool TryCreateWorkspace( UpdateContext const& context, ResourceID const& resourceID );
+
+        // Queues a workspace creation request till the next update
+        void QueueCreateWorkspace( ResourceID const& resourceID ) { m_workspaceCreationRequests.emplace_back( resourceID ); }
 
     private:
 
@@ -48,9 +73,12 @@ namespace KRG
     private:
 
         EntityModel::EntityMapEditor*       m_pMapEditor = nullptr;
+        GamePreviewer*                      m_pGamePreviewer = nullptr;
         EntityWorldManager*                 m_worldManager = nullptr;
         Render::RenderingSystem*            m_pRenderingSystem = nullptr;
         EditorContext                       m_editorContext;
         TVector<EditorWorkspace*>           m_workspaces;
+        TVector<ResourceID>                 m_workspaceCreationRequests;
+        TVector<EditorWorkspace*>           m_workspaceDestructionRequests;
     };
 }

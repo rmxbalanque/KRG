@@ -216,8 +216,6 @@ namespace KRG
 
     void EntityWorldDebugger::DrawMenu( UpdateContext const& context )
     {
-        KRG_ASSERT( context.GetUpdateStage() == UpdateStage::FrameEnd );
-
         EntityUpdateContext entityUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
         if ( m_mainMenu.IsEmpty() )
         {
@@ -229,14 +227,14 @@ namespace KRG
         }
     }
 
-    void EntityWorldDebugger::DrawWindows( UpdateContext const& context )
+    void EntityWorldDebugger::DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         KRG_ASSERT( context.GetUpdateStage() == UpdateStage::FrameEnd );
 
         EntityUpdateContext entityUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
         for ( auto pDebugView : m_pWorld->GetDebugViews() )
         {
-            pDebugView->DrawWindows( entityUpdateContext );
+            pDebugView->DrawWindows( entityUpdateContext, pWindowClass );
         }
     }
 

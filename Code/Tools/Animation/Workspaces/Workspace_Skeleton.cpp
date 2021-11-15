@@ -21,11 +21,11 @@ namespace KRG::Animation
         KRG_ASSERT( m_pSkeletonTreeRoot == nullptr );
     }
 
-    void SkeletonWorkspace::Initialize()
+    void SkeletonWorkspace::Initialize( UpdateContext const& context )
     {
         KRG_ASSERT( m_pPreviewEntity == nullptr );
 
-        TResourceWorkspace<Skeleton>::Initialize();
+        TResourceWorkspace<Skeleton>::Initialize( context );
 
         m_skeletonTreeWindowName.sprintf( "Skeleton##%u", GetID() );
         m_infoWindowName.sprintf( "Info##%u", GetID() );
@@ -51,7 +51,7 @@ namespace KRG::Animation
         m_selectedBoneID = StringID();
     }
 
-    void SkeletonWorkspace::Shutdown()
+    void SkeletonWorkspace::Shutdown( UpdateContext const& context )
     {
         m_selectedBoneID = StringID();
 
@@ -61,7 +61,7 @@ namespace KRG::Animation
         m_pPreviewEntity = nullptr;
         m_pMeshComponent = nullptr;
 
-        TResourceWorkspace<Skeleton>::Shutdown();
+        TResourceWorkspace<Skeleton>::Shutdown( context );
     }
 
     void SkeletonWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

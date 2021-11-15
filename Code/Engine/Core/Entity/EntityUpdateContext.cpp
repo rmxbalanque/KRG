@@ -8,6 +8,7 @@ namespace KRG
     EntityUpdateContext::EntityUpdateContext( UpdateContext const& context, EntityWorld* pWorld )
         : UpdateContext( context )
         , m_pWorld( pWorld )
+        , m_isGameWorld( pWorld->IsGameWorld() )
     {
         KRG_ASSERT( m_pWorld != nullptr );
     }
@@ -22,13 +23,15 @@ namespace KRG
         return m_pWorld->GetViewport();
     }
 
-    Debug::DrawingContext EntityUpdateContext::GetDrawingContext() const
-    {
-        return m_pWorld->m_debugDrawingSystem.GetDrawingContext();
-    }
-
     UUID const& EntityUpdateContext::GetWorldID() const
     {
         return m_pWorld->GetID();
     }
+
+    #if KRG_DEVELOPMENT_TOOLS
+    Debug::DrawingContext EntityUpdateContext::GetDrawingContext() const
+    {
+        return m_pWorld->m_debugDrawingSystem.GetDrawingContext();
+    }
+    #endif
 }

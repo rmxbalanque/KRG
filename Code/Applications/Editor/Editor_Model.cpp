@@ -1,11 +1,12 @@
 #include "Editor_Model.h"
 #include "RenderingSystem.h"
 #include "MapEditor/Workspace_MapEditor.h"
+#include "MapEditor/Workspace_GamePreviewer.h"
 #include "Tools/Core/Workspaces/ResourceWorkspace.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
-#include "Engine/Core/Entity/Map/EntityMapDescriptor.h"
+#include "Engine/Core/Entity/EntityMapDescriptor.h"
 #include "System/Resource/ResourceSettings.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
@@ -40,10 +41,10 @@ namespace KRG
         // Create map editor workspace
         //-------------------------------------------------------------------------
 
-        auto pPrimaryWorld = m_worldManager->GetPrimaryWorld();
-        m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPrimaryWorld->GetViewport() );
-        m_pMapEditor = KRG::New<EntityModel::EntityMapEditor>( m_editorContext, pPrimaryWorld );
-        m_pMapEditor->Initialize();
+        auto pMapEditorWorld = m_worldManager->CreateWorld( EntityWorldType::Editor );
+        m_pRenderingSystem->CreateCustomRenderTargetForViewport( pMapEditorWorld->GetViewport() );
+        m_pMapEditor = KRG::New<EntityModel::EntityMapEditor>( m_editorContext, pMapEditorWorld );
+        m_pMapEditor->Initialize( context );
         m_workspaces.emplace_back( m_pMapEditor );
     }
 
@@ -67,7 +68,7 @@ namespace KRG
                 }
             }
 
-            pOpenWorkspace->Shutdown();
+            pOpenWorkspace->Shutdown( context );
             KRG::Delete( pOpenWorkspace );
         }
 
@@ -82,9 +83,27 @@ namespace KRG
         m_editorContext.m_compiledResourceDirectory = m_editorContext.m_sourceResourceDirectory = FileSystem::Path();
     }
 
+    void EditorModel::Update( UpdateContext const& context )
+    {
+        // Destroy all required workspaces
+        // We needed to defer this to the start of the update since we may have references resources that we might unload (i.e. textures)
+        for ( auto pWorkspaceToDestroy : m_workspaceDestructionRequests )
+        {
+            DestroyWorkspace( context, pWorkspaceToDestroy );
+        }
+        m_workspaceDestructionRequests.clear();
+
+        // Create all workspaces
+        for ( auto const& resourceID : m_workspaceCreationRequests )
+        {
+            TryCreateWorkspace( context, resourceID );
+        }
+        m_workspaceCreationRequests.clear();
+    }
+
     //-------------------------------------------------------------------------
 
-    bool EditorModel::TryCreateWorkspace( ResourceID const& resourceID )
+    bool EditorModel::TryCreateWorkspace( UpdateContext const& context, ResourceID const& resourceID )
     {
         ResourceTypeID const resourceTypeID = resourceID.GetResourceTypeID();
 
@@ -105,14 +124,14 @@ namespace KRG
         if ( pExistingWorkspace == nullptr )
         {
             // Create preview world
-            auto pPreviewWorld = m_worldManager->CreateWorld();
+            auto pPreviewWorld = m_worldManager->CreateWorld( EntityWorldType::Editor );
             pPreviewWorld->LoadMap( ResourcePath( "data://Editor/EditorMap.map" ) );
             m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPreviewWorld->GetViewport() );
 
             // Create workspace
             auto pCreatedWorkspace = ResourceWorkspaceFactory::TryCreateWorkspace( m_editorContext, pPreviewWorld, resourceID );
             KRG_ASSERT( pCreatedWorkspace != nullptr );
-            pCreatedWorkspace->Initialize();
+            pCreatedWorkspace->Initialize( context );
             m_workspaces.emplace_back( pCreatedWorkspace );
         }
         else
@@ -123,9 +142,13 @@ namespace KRG
         return true;
     }
 
-    void EditorModel::DestroyWorkspace( EditorWorkspace* pWorkspace )
+    void EditorModel::DestroyWorkspace( UpdateContext const& context, EditorWorkspace* pWorkspace )
     {
         KRG_ASSERT( pWorkspace != nullptr );
+        KRG_ASSERT( m_pMapEditor != pWorkspace );
+
+        auto foundWorkspaceIter = eastl::find( m_workspaces.begin(), m_workspaces.end(), pWorkspace );
+        KRG_ASSERT( foundWorkspaceIter != m_workspaces.end() );
 
         if ( pWorkspace->IsDirty() )
         {
@@ -151,17 +174,26 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        auto foundWorkspaceIter = eastl::find( m_workspaces.begin(), m_workspaces.end(), pWorkspace );
-        KRG_ASSERT( foundWorkspaceIter != m_workspaces.end() );
-        auto pPreviewWorld = ( *foundWorkspaceIter )->GetWorld();
+        bool const isGamePreviewerWorkspace = m_pGamePreviewer == pWorkspace;
+
+        // Destroy the custom viewport render target
+        auto pPreviewWorld = pWorkspace->GetWorld();
+        m_pRenderingSystem->DestroyCustomRenderTargetForViewport( pPreviewWorld->GetViewport() );
 
         // Destroy workspace
-        pWorkspace->Shutdown();
-        KRG::Delete( *foundWorkspaceIter );
+        pWorkspace->Shutdown( context );
+        KRG::Delete( pWorkspace );
         m_workspaces.erase( foundWorkspaceIter );
 
-        // Destroy preview world
-        m_worldManager->DestroyWorld( pPreviewWorld );
+        // Clear the game previewer workspace ptr if we just destroyed it
+        if ( isGamePreviewerWorkspace )
+        {
+            m_pGamePreviewer = nullptr;
+        }
+        else // Destroy preview world
+        {
+            m_worldManager->DestroyWorld( pPreviewWorld );
+        }
     }
 
     bool EditorModel::HasDescriptorForResourceType( ResourceTypeID resourceTypeID ) const
@@ -174,18 +206,21 @@ namespace KRG
         return m_editorContext.m_pTypeRegistry->IsRegisteredResourceType( resourceTypeID );
     }
 
+    bool EditorModel::IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const
+    {
+        return m_pMapEditor == pWorkspace;
+    }
+
+    bool EditorModel::IsGamePreviewWorkspace( EditorWorkspace const* pWorkspace ) const
+    {
+        return m_pGamePreviewer == pWorkspace;
+    }
+
     void* EditorModel::GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const
     {
         KRG_ASSERT( pWorkspace != nullptr );
         auto pWorld = pWorkspace->GetWorld();
         return (void*) &m_pRenderingSystem->GetRenderTargetTextureForViewport( pWorld->GetViewport() );
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool EditorModel::IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const
-    {
-        return pWorkspace == m_pMapEditor;
     }
 
     EditorWorkspace* EditorModel::FindResourceWorkspace( ResourceID const& resourceID ) const
@@ -211,5 +246,31 @@ namespace KRG
         }
 
         return nullptr;
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool EditorModel::IsGamePreviewAllowed() const
+    {
+        return m_pMapEditor->HasLoadedMap();
+    }
+
+    void EditorModel::StartGamePreview( UpdateContext const& context )
+    {
+        KRG_ASSERT( !IsGamePreviewRunning() );
+
+        auto pPreviewWorld = m_worldManager->GetPrimaryWorld();
+        m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPreviewWorld->GetViewport() );
+        m_pGamePreviewer = KRG::New<GamePreviewer>( m_editorContext, pPreviewWorld );
+        m_pGamePreviewer->Initialize( context );
+        m_pGamePreviewer->LoadMapToPreview( m_pMapEditor->GetLoadedMap() );
+        m_workspaces.emplace_back( m_pGamePreviewer );
+    }
+
+    void EditorModel::StopGamePreview( UpdateContext const& context )
+    {
+        KRG_ASSERT( IsGamePreviewRunning() );
+        DestroyWorkspace( context, m_pGamePreviewer );
+        m_pGamePreviewer = nullptr;
     }
 }

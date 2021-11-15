@@ -16,7 +16,7 @@ namespace KRG::Camera
         m_pCameraSystem = nullptr;
     }
 
-    void CameraDebugView::DrawWindows( EntityUpdateContext const& context )
+    void CameraDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         
     }

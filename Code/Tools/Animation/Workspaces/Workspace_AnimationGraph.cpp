@@ -25,9 +25,9 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void AnimationGraphWorkspace::Initialize()
+    void AnimationGraphWorkspace::Initialize( UpdateContext const& context )
     {
-        TResourceWorkspace<AnimationGraphDefinition>::Initialize();
+        TResourceWorkspace<AnimationGraphDefinition>::Initialize( context );
 
         m_controlParametersWindowName.sprintf( "Control Parameters##%u", GetID() );
         m_graphViewWindowName.sprintf( "Graph View##%u", GetID() );

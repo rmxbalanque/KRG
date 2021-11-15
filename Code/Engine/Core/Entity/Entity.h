@@ -1,11 +1,9 @@
 #pragma once
 
 #include "EntitySpatialComponent.h"
-#include "System/TypeSystem/TypeInfo.h"
-#include "System/TypeSystem/TypeRegistrationMacros.h"
-#include "System/Core/Types/UUID.h"
 #include "System/Core/Update/UpdateStage.h"
 #include "System/Core/Threading/Threading.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -14,31 +12,10 @@ namespace KRG
     class SystemRegistry;
     class IEntitySystem;
     class EntityUpdateContext;
-    class Entity;
 
     namespace EntityModel
     {
-        struct LoadingContext;
-        class EntityMap;
-        class EntityCollection;
-        class EntityMapEditor;
-
-        //-------------------------------------------------------------------------
-
-        struct ActivationContext
-        {
-            ActivationContext() = default;
-
-        public:
-
-            // World system registration
-            Threading::LockFreeQueue<TPair<Entity*, EntityComponent*>>  m_componentsToRegister;
-            Threading::LockFreeQueue<TPair<Entity*, EntityComponent*>>  m_componentsToUnregister;
-
-            // Entity update registration
-            Threading::LockFreeQueue<Entity*>                           m_registerForEntityUpdate;
-            Threading::LockFreeQueue<Entity*>                           m_unregisterForEntityUpdate;
-        };
+        struct ActivationContext;
     }
 
     //-------------------------------------------------------------------------
@@ -267,13 +244,13 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Update internal entity state and execute all deferred actions
-        bool UpdateEntityState( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+        bool UpdateEntityState( EntityModel::EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
 
         // Request initial load of all components
-        void LoadComponents( EntityModel::LoadingContext const& loadingContext );
+        void LoadComponents( EntityModel::EntityLoadingContext const& loadingContext );
 
         // Request final unload of all components
-        void UnloadComponents( EntityModel::LoadingContext const& loadingContext );
+        void UnloadComponents( EntityModel::EntityLoadingContext const& loadingContext );
 
         // Called when an entity finishes Loading successfully - Registers components with system, creates spatial attachments. Will attempt to activate all attached entities
         void Activate( EntityModel::ActivationContext& activationContext );
@@ -288,20 +265,20 @@ namespace KRG
         void DestroyComponentImmediate( EntityComponent* pComponent );
 
         // Deferred functions are execute as part of the internal state update and will execute the immediate version as well as perform additional operations ( e.g. load/unload/etc. )
-        void CreateSystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
-        void DestroySystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
-        void AddComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent );
-        void DestroyComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent );
+        void CreateSystemDeferred( EntityModel::EntityLoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
+        void DestroySystemDeferred( EntityModel::EntityLoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo );
+        void AddComponentDeferred( EntityModel::EntityLoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent );
+        void DestroyComponentDeferred( EntityModel::EntityLoadingContext const& loadingContext, EntityComponent* pComponent );
 
         #if KRG_DEVELOPMENT_TOOLS
         // This will deactivate the specified component to allow for its property state to be edited safely. Can be called multiple times (once per component edited)
         void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& componentID );
 
         // This will unload the specified component to allow for its property state to be edited safely. Can be called multiple times (once per component edited)
-        void ComponentEditingUnload( EntityModel::LoadingContext const& loadingContext, UUID const& componentID );
+        void ComponentEditingUnload( EntityModel::EntityLoadingContext const& loadingContext, UUID const& componentID );
 
         // This will end any component editing for this frame and load all unloaded components, should only be called once per frame when needed!
-        void EndComponentEditing( EntityModel::LoadingContext const& loadingContext );
+        void EndComponentEditing( EntityModel::EntityLoadingContext const& loadingContext );
         #endif
 
     protected:

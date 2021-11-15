@@ -3,14 +3,18 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG { class Entity; class TaskSystem; }
-namespace KRG::TypeSystem { class TypeRegistry; }
+namespace KRG 
+{ 
+    class Entity; 
+    class TaskSystem; 
+    namespace TypeSystem { class TypeRegistry; }
+}
 
 //-------------------------------------------------------------------------
 
 namespace KRG::EntityModel
 {
-    struct LoadingContext;
+    struct EntityLoadingContext;
     class EntityCollectionDescriptor;
 
     //-------------------------------------------------------------------------

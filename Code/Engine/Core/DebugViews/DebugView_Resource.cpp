@@ -23,7 +23,7 @@ namespace KRG::Resource
         m_pResourceSystem = nullptr;
     }
 
-    void ResourceDebugView::DrawWindows( EntityUpdateContext const& context )
+    void ResourceDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( m_isHistoryWindowOpen )
         {

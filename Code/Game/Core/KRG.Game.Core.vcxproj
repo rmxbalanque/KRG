@@ -60,7 +60,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="PlayerController\DefaultPlayerController.h" />
     <ClInclude Include="TestComponent.h" />
     <ClInclude Include="TestSystem.h" />
     <ClInclude Include="Test\CustomizerTestComponent.h" />
@@ -69,7 +68,6 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PlayerController\DefaultPlayerController.cpp" />
     <ClCompile Include="TestComponent.cpp" />
     <ClCompile Include="TestSystem.cpp" />
     <ClCompile Include="Test\CustomizerTestComponent.cpp" />

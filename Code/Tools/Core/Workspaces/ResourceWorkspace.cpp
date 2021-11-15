@@ -72,9 +72,9 @@ namespace KRG
         m_propertyGrid.OnPostEdit().Unbind( m_postEditEventBindingID );
     }
 
-    void GenericResourceWorkspace::Initialize()
+    void GenericResourceWorkspace::Initialize( UpdateContext const& context )
     {
-        EditorWorkspace::Initialize();
+        EditorWorkspace::Initialize( context );
 
         m_descriptorWindowName.sprintf( "Descriptor##%u", GetID() );
 
@@ -90,10 +90,10 @@ namespace KRG
         }
     }
 
-    void GenericResourceWorkspace::Shutdown()
+    void GenericResourceWorkspace::Shutdown( UpdateContext const& context )
     {
         KRG::Delete( m_pDescriptor );
-        EditorWorkspace::Shutdown();
+        EditorWorkspace::Shutdown( context );
     }
 
     void GenericResourceWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

@@ -1,5 +1,6 @@
 #include "AnimationEventEditor.h"
 #include "Engine/Animation/Components/AnimationPlayerComponent.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 

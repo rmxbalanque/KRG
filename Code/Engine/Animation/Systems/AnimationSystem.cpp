@@ -3,6 +3,7 @@
 #include "Engine/Animation/AnimationPose.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 

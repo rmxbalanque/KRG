@@ -1,10 +1,12 @@
 #include "EntityWorldManager.h"
 #include "EntityWorld.h"
-#include "Debug/EntityWorldDebugView.h"
+#include "EntityWorldDebugView.h"
 #include "Engine/Core/Camera/CameraWorldSystem.h"
+#include "Engine/Core/Player/PlayerManagerWorldSystem.h"
 #include "Engine/Core/Camera/CameraComponent.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Update/UpdateContext.h"
+#include "System/Core/Systems/SystemRegistry.h"
 
 //-------------------------------------------------------------------------
 
@@ -35,7 +37,7 @@ namespace KRG
         // Create the primary world
         //-------------------------------------------------------------------------
 
-        CreateWorld();
+        CreateWorld( EntityWorldType::Game );
     }
 
     void EntityWorldManager::Shutdown()
@@ -76,13 +78,13 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    EntityWorld* EntityWorldManager::CreateWorld()
+    EntityWorld* EntityWorldManager::CreateWorld( EntityWorldType worldType )
     {
         KRG_ASSERT( m_pSystemsRegistry != nullptr );
 
         //-------------------------------------------------------------------------
 
-        auto pNewWorld = KRG::New<EntityWorld>();
+        auto pNewWorld = KRG::New<EntityWorld>( worldType );
         pNewWorld->Initialize( *m_pSystemsRegistry, m_worldSystemTypeInfos );
         m_createNewWorldEvent.Execute( pNewWorld );
         m_worlds.emplace_back( pNewWorld );
@@ -180,6 +182,12 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
+    void EntityWorldManager::SetPlayerControllerState( EntityWorld* pWorld, bool isControllerEnabled )
+    {
+        auto pPlayerManagerSystem = pWorld->GetWorldSystem<PlayerManagerSystem>();
+        pPlayerManagerSystem->SetPlayerControllerState( isControllerEnabled );
+    }
+
     void EntityWorldManager::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload )
     {
         for ( auto const& pWorld : m_worlds )

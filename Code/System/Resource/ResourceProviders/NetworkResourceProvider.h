@@ -1,5 +1,4 @@
 #pragma once
-#ifndef KRG_CONFIGURATION_FINAL
 
 #include "../_Module/API.h"
 #include "ResourceNetworkMessages.h"
@@ -10,6 +9,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Resource
 {
     class Settings;
@@ -45,5 +45,4 @@ namespace KRG::Resource
         bool                                                m_networkFailureDetected = false;
     };
 }
-
 #endif

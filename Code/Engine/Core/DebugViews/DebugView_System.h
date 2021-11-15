@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
+#include "Engine/Core/Entity/EntityWorldDebugView.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ namespace KRG
 
     private:
 
-        virtual void DrawWindows( EntityUpdateContext const& context ) override {};
+        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override {};
         void DrawMenu( EntityUpdateContext const& context );
     };
 

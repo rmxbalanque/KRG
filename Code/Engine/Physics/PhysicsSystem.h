@@ -21,6 +21,7 @@ namespace KRG::Physics
     {
         friend class ScopeLock;
         friend class PhysicsDebugView;
+        friend class PhysicsMaterialDatabaseDebugView;
 
     public:
 

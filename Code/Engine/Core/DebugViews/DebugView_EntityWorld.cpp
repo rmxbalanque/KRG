@@ -26,17 +26,19 @@ namespace KRG
         m_pWorld = nullptr;
     }
 
-    void EntityDebugView::DrawWindows( EntityUpdateContext const& context )
+    void EntityDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         KRG_ASSERT( m_pWorld != nullptr );
 
         if ( m_isWorldBrowserOpen )
         {
+            if ( pWindowClass != nullptr ) ImGui::SetNextWindowClass( pWindowClass );
             DrawWorldBrowser( context );
         }
 
         if ( m_isMapLoaderOpen )
         {
+            if ( pWindowClass != nullptr ) ImGui::SetNextWindowClass( pWindowClass );
             DrawMapLoader( context );
         }
     }

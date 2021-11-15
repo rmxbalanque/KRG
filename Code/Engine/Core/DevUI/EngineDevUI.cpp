@@ -1,7 +1,7 @@
 #include "EngineDevUI.h"
 #include "OrientationGuide.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
-#include "Engine/Core/Entity/Debug/EntityWorldDebugger.h"
+#include "Engine/Core/Entity/EntityWorldDebugger.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Input/InputSystem.h"
@@ -13,7 +13,7 @@
 namespace KRG
 {
     constexpr static float const g_menuHeight = 19.0f;
-    constexpr static float const g_statusBarHeight = 19.0f;
+    constexpr static float const g_statusBarHeight = 21.0f;
 
     //-------------------------------------------------------------------------
 
@@ -60,25 +60,68 @@ namespace KRG
 
         Render::Viewport const* pViewport = m_pWorldManager->GetPrimaryWorld()->GetViewport();
 
-        ImGui::SetNextWindowPos( ImVec2( 0, g_menuHeight ) );
-        ImGui::SetNextWindowSize( pViewport->GetDimensions() - Float2( 0, g_statusBarHeight + g_menuHeight ) );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
-        ImGui::SetNextWindowBgAlpha( 0.0f );
-        if ( ImGui::Begin( "ViewportOverlay", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus ) )
-        {
-            // The overlay elements should always be drawn
-            DrawOverlayElements( context, pViewport );
-        }
-        ImGui::End();
-        ImGui::PopStyleVar();
-
-        //-------------------------------------------------------------------------
-
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus;
         if ( m_debugOverlayEnabled )
         {
-            DrawMenu( context );
-            DrawStatusBar( context );
+            windowFlags |= ImGuiWindowFlags_MenuBar;
         }
+        
+        ImVec2 windowPos, windowSize;
+
+        if ( !m_windowName.empty() )
+        {
+            auto pWindow = ImGui::FindWindowByName( m_windowName.c_str() );
+            KRG_ASSERT( pWindow != nullptr );
+            windowPos = pWindow->Pos;
+            windowSize = pWindow->Size;
+        }
+        else
+        {
+            windowPos = ImVec2( 0, 0 );
+            windowSize = ImVec2( pViewport->GetDimensions() );
+        }
+
+        ImGui::SetNextWindowPos( windowPos );
+        ImGui::SetNextWindowSize( windowSize );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
+        ImGui::SetNextWindowBgAlpha( 0.0f );
+        if ( ImGui::Begin( "ViewportOverlay", nullptr, windowFlags ) )
+        {
+            ImGui::PopStyleVar( 2 );
+
+            // The overlay elements should always be drawn
+            DrawOverlayElements( context, pViewport );
+
+            //-------------------------------------------------------------------------
+
+            if ( m_debugOverlayEnabled )
+            {
+                if ( ImGui::BeginMenuBar() )
+                {
+                    DrawMenu( context );
+
+                    // Draw Performance Stats
+                    //-------------------------------------------------------------------------
+
+                    float const currentFPS = 1.0f / context.GetDeltaTime();
+                    float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
+                    InlineString<200> perfStatStr;
+                    perfStatStr.sprintf( "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
+
+                    ImVec2 const availableSpace = ImGui::GetContentRegionAvail();
+                    ImVec2 const textSize = ImGui::CalcTextSize( perfStatStr.c_str() );
+
+                    ImGui::SameLine( 0, availableSpace.x - textSize.x - 8.0f );
+                    ImGui::Text( perfStatStr.c_str() );
+
+                    ImGui::EndMenuBar();
+                }
+
+                DrawStatusBar( context );
+            }
+        }
+        ImGui::End();
 
         // The debug windows should be always be drawn if enabled
         DrawWindows( context );
@@ -176,29 +219,8 @@ namespace KRG
 
     void EngineDevUI::DrawMenu( UpdateContext const& context )
     {
-        if ( ImGui::BeginMainMenuBar() )
-        {
-            // Draw Debug Menu
-            //-------------------------------------------------------------------------
-
-            ImGui::TextColored( ImGuiX::ConvertColor( Colors::LimeGreen ), KRG_ICON_BUG );
-            m_pWorldDebugger->DrawMenu( context );
-
-            // Draw Performance Stats
-            //-------------------------------------------------------------------------
-
-            float const currentFPS = 1.0f / context.GetDeltaTime();
-            float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
-            InlineString<200> perfStatStr;
-            perfStatStr.sprintf( "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
-
-            ImGuiViewport const* viewport = ImGui::GetMainViewport();
-            ImVec2 const textSize = ImGui::CalcTextSize( perfStatStr.c_str() );
-            ImGui::SameLine( viewport->WorkSize.x - textSize.x - 8.0f );
-
-            ImGui::Text( perfStatStr.c_str() );
-            ImGui::EndMainMenuBar();
-        }
+        ImGui::TextColored( ImGuiX::ConvertColor( Colors::LimeGreen ), KRG_ICON_BUG );
+        m_pWorldDebugger->DrawMenu( context );
     }
 
     void EngineDevUI::DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
@@ -207,14 +229,14 @@ namespace KRG
 
         if ( m_debugOverlayEnabled )
         {
-            ImVec2 const guidePosition = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax() - ( ImGuiX::OrientationGuide::GetSize() / 2 );
+            ImVec2 const guidePosition = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax() - ImVec2( 0, g_statusBarHeight ) - ( ImGuiX::OrientationGuide::GetSize() / 2 );
             ImGuiX::OrientationGuide::Draw( guidePosition, *pViewport );
         }
     }
 
-    void EngineDevUI::DrawWindows( UpdateContext const& context )
+    void EngineDevUI::DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
-        m_pWorldDebugger->DrawWindows( context );
+        m_pWorldDebugger->DrawWindows( context, pWindowClass );
 
         //-------------------------------------------------------------------------
 
@@ -233,18 +255,18 @@ namespace KRG
 
     void EngineDevUI::DrawStatusBar( UpdateContext const& context )
     {
-        bool showAlways = true;
-        uint32 flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
+        ImVec2 const parentWindowPos = ImGui::GetWindowPos();
+        ImVec2 const totalSpace = ImGui::GetContentRegionMax();
+        ImVec2 const windowPos( parentWindowPos.x, parentWindowPos.y + totalSpace.y - g_statusBarHeight );
+        ImVec2 const windowSize( totalSpace.x, g_statusBarHeight );
 
-        ImGuiIO& io = ImGui::GetIO();
-        ImGui::SetNextWindowPos( ImVec2( 0, io.DisplaySize.y - g_statusBarHeight ) );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 2.0f ) );
         ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 4.0f, 1.0f ) );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
 
         ImGui::SetNextWindowBgAlpha( 0.85f );
-        ImGui::SetNextWindowSize( ImVec2( io.DisplaySize.x, g_statusBarHeight ) );
-        if ( ImGui::Begin( "Stats", &showAlways, flags ) )
+        ImGui::SetNextWindowPos( windowPos );
+        if ( ImGui::BeginChild( "Stats", windowSize, false, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar ) )
         {
             InlineString<100> tempStr;
 
@@ -275,7 +297,7 @@ namespace KRG
                 m_systemLogView.m_showLogErrors = true;
             }
         }
-        ImGui::End();
+        ImGui::EndChild();
         ImGui::PopStyleVar( 3 );
     }
 }

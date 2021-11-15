@@ -11,6 +11,7 @@
     <ClCompile Include="MapEditor\Workspace_MapEditor.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp" />
     <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.cpp" />
+    <ClCompile Include="MapEditor\Workspace_GamePreviewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditorDevUI.h" />
@@ -24,6 +25,7 @@
     <ClInclude Include="MapEditor\Workspace_MapEditor.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h" />
     <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.h" />
+    <ClInclude Include="MapEditor\Workspace_GamePreviewer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc" />

@@ -2,6 +2,7 @@
 #include "Engine/Core/Entity/Entity.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "Engine/Core/Entity/EntityLoadingContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -160,7 +161,7 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    void EntityMap::Load( LoadingContext const& loadingContext )
+    void EntityMap::Load( EntityLoadingContext const& loadingContext )
     {
         KRG_ASSERT( Threading::IsMainThread() && loadingContext.IsValid() );
         KRG_ASSERT( m_status == Status::Unloaded );
@@ -180,14 +181,14 @@ namespace KRG::EntityModel
         }
     }
 
-    void EntityMap::Unload( LoadingContext const& loadingContext )
+    void EntityMap::Unload( EntityLoadingContext const& loadingContext )
     {
         KRG_ASSERT( m_status != Status::Unloaded );
         Threading::RecursiveScopeLock lock( m_mutex );
         m_isUnloadRequested = true;
     }
 
-    void EntityMap::Activate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void EntityMap::Activate( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         KRG_PROFILE_SCOPE_SCENE( "Map Activation" );
         KRG_ASSERT( m_status == Status::Loaded );
@@ -238,7 +239,7 @@ namespace KRG::EntityModel
         m_status = Status::Activated;
     }
 
-    void EntityMap::Deactivate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void EntityMap::Deactivate( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         KRG_PROFILE_SCOPE_SCENE( "Map Deactivation" );
         KRG_ASSERT( m_status == Status::Activated );
@@ -302,7 +303,7 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    bool EntityMap::ProcessMapUnloadRequest( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    bool EntityMap::ProcessMapUnloadRequest( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         KRG_ASSERT( m_isUnloadRequested );
 
@@ -358,7 +359,7 @@ namespace KRG::EntityModel
         return false;
     }
 
-    bool EntityMap::ProcessMapLoading( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    bool EntityMap::ProcessMapLoading( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         KRG_ASSERT( m_status == Status::MapLoading );
         KRG_ASSERT( !m_isTransientMap );
@@ -405,7 +406,7 @@ namespace KRG::EntityModel
         return true;
     }
 
-    void EntityMap::ProcessEntityAdditionAndRemoval( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void EntityMap::ProcessEntityAdditionAndRemoval( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         // Edited Entities
         //-------------------------------------------------------------------------
@@ -471,11 +472,11 @@ namespace KRG::EntityModel
         }
     }
 
-    bool EntityMap::ProcessEntityLoadingAndActivation( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    bool EntityMap::ProcessEntityLoadingAndActivation( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         struct EntityLoadingTask : public IAsyncTask
         {
-            EntityLoadingTask( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Entity*>& entitiesToLoad, bool isActivated )
+            EntityLoadingTask( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Entity*>& entitiesToLoad, bool isActivated )
                 : m_loadingContext( loadingContext )
                 , m_activationContext( activationContext )
                 , m_entitiesToLoad( entitiesToLoad )
@@ -523,7 +524,7 @@ namespace KRG::EntityModel
 
         private:
 
-            LoadingContext const&                   m_loadingContext;
+            EntityLoadingContext const&                   m_loadingContext;
             EntityModel::ActivationContext&         m_activationContext;
             TVector<Entity*>&                       m_entitiesToLoad;
             bool                                    m_isActivated = false;
@@ -565,7 +566,7 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    bool EntityMap::UpdateState( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    bool EntityMap::UpdateState( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         KRG_PROFILE_SCOPE_SCENE( "Map Loading" );
         KRG_ASSERT( Threading::IsMainThread() && loadingContext.IsValid() );
@@ -623,7 +624,7 @@ namespace KRG::EntityModel
         }
     }
 
-    void EntityMap::ComponentEditingUnload( LoadingContext const& loadingContext, UUID const& entityID, UUID const& componentID )
+    void EntityMap::ComponentEditingUnload( EntityLoadingContext const& loadingContext, UUID const& entityID, UUID const& componentID )
     {
         KRG_ASSERT( Threading::IsMainThread() );
 
@@ -662,7 +663,7 @@ namespace KRG::EntityModel
         }
     }
 
-    void EntityMap::HotReloadUnloadEntities( LoadingContext const& loadingContext )
+    void EntityMap::HotReloadUnloadEntities( EntityLoadingContext const& loadingContext )
     {
         KRG_ASSERT( Threading::IsMainThread() );
 
@@ -680,7 +681,7 @@ namespace KRG::EntityModel
         }
     }
 
-    void EntityMap::HotReloadLoadEntities( LoadingContext const& loadingContext )
+    void EntityMap::HotReloadLoadEntities( EntityLoadingContext const& loadingContext )
     {
         KRG_ASSERT( Threading::IsMainThread() );
 

@@ -39,7 +39,10 @@ namespace KRG::Network
         inline int32 GetNumConnectedClients() const { return (int32) m_connectedClients.size(); }
         inline TVector<uint32> const& GetConnectedClientIDs() const { return m_connectedClients; }
         inline uint32 GetClientID( int32 clientIdx ) const { return m_connectedClients[clientIdx]; }
+
+        #if KRG_DEVELOPMENT_TOOLS
         inline AddressString GetConnectedClientAddress( int32 clientIdx ) const { return m_connectedClientAddresses[clientIdx]; }
+        #endif
 
         // Messages
         //-------------------------------------------------------------------------

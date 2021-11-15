@@ -6,8 +6,8 @@
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/NavmeshData.h"
 #include "Engine/Physics/Components/PhysicsMeshComponent.h"
-#include "Engine/Core/Entity/Collections/EntityCollection.h"
-#include "Engine/Core/Entity/Collections/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/EntityCollection.h"
+#include "Engine/Core/Entity/EntityCollectionDescriptor.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 

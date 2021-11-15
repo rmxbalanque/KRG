@@ -6,6 +6,7 @@
 
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
     class KRG_ENGINE_CORE_API Gizmo
@@ -143,3 +144,4 @@ namespace KRG::ImGuiX
         bool                m_isAxisNegatedZ = false;
     };
 }
+#endif

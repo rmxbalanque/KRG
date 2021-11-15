@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
+#include "Engine/Core/Entity/EntityWorldDebugView.h"
 #include "System/Input/InputDevices/InputDevice_Controller.h"
 
 //-------------------------------------------------------------------------
@@ -25,7 +25,7 @@ namespace KRG::Input
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context ) override;
+        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         void DrawControllerMenu( EntityUpdateContext const& context );
         void DrawControllerState( ControllerInputDevice const& controllerState );

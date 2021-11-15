@@ -243,7 +243,7 @@ namespace KRG
 
         if ( pResourceFileItem->IsResourceFile() )
         {
-            m_model.TryCreateWorkspace( pResourceFileItem->GetResourceID() );
+            m_model.QueueCreateWorkspace( pResourceFileItem->GetResourceID() );
         }
         else // Try create file inspector
         {

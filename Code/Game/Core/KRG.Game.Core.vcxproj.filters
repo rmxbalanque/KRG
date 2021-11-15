@@ -12,9 +12,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PlayerController\DefaultPlayerController.cpp">
-      <Filter>PlayerController</Filter>
-    </ClCompile>
     <ClCompile Include="_Module\Module.cpp">
       <Filter>_Module</Filter>
     </ClCompile>
@@ -27,9 +24,6 @@
     <ClCompile Include="TestSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PlayerController\DefaultPlayerController.h">
-      <Filter>PlayerController</Filter>
-    </ClInclude>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>

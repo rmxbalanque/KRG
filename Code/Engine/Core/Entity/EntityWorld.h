@@ -1,11 +1,11 @@
 #pragma once
 
-#include "EntityComponent.h"
 #include "EntityWorldSystem.h"
+#include "EntityActivationContext.h"
+#include "EntityLoadingContext.h"
 #include "Entity.h"
-#include "Map/EntityMap.h"
+#include "EntityMap.h"
 #include "System/Render/RenderViewport.h"
-#include "System/Resource/ResourcePtr.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Debug/DebugDrawingSystem.h"
 
@@ -19,6 +19,14 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    enum class EntityWorldType : uint8
+    {
+        Game,
+        Editor
+    };
+
+    //-------------------------------------------------------------------------
+
     class KRG_ENGINE_CORE_API EntityWorld
     {
         friend class EntityDebugView;
@@ -26,9 +34,11 @@ namespace KRG
 
     public:
 
+        EntityWorld( EntityWorldType worldType = EntityWorldType::Game ) : m_worldType( worldType ) {}
         ~EntityWorld();
 
         inline UUID const& GetID() const { return m_worldID; }
+        inline bool IsGameWorld() const { return m_worldType == EntityWorldType::Game; }
 
         void Initialize( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> worldSystemTypeInfos );
         void Shutdown();
@@ -146,13 +156,14 @@ namespace KRG
 
         UUID                                                                    m_worldID = UUID::GenerateID();
         TaskSystem*                                                             m_pTaskSystem = nullptr;
-        EntityModel::LoadingContext                                             m_loadingContext;
+        EntityModel::EntityLoadingContext                                       m_loadingContext;
         EntityModel::ActivationContext                                          m_activationContext;
         TVector<IWorldEntitySystem*>                                            m_worldSystems;
+        EntityWorldType                                                         m_worldType = EntityWorldType::Game;
         Render::Viewport                                                        m_viewport = Render::Viewport( Int2::Zero, Int2( 640, 480 ), Math::ViewVolume( Float2( 640, 480 ), FloatRange( 0.1f, 100.0f ) ) );
 
         // Maps
-        TInlineVector<EntityModel::EntityMap, 3>                                 m_maps;
+        TInlineVector<EntityModel::EntityMap, 3>                                m_maps;
 
         // Entities
         TVector<Entity*>                                                        m_entityUpdateList;

@@ -2,7 +2,7 @@
 
 #include "../_Module/API.h"
 #include "Engine/Core/Camera/CameraWorldSystem.h"
-#include "Engine/Core/Entity/Debug/EntityWorldDebugView.h"
+#include "Engine/Core/Entity/EntityWorldDebugView.h"
 
 //-------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ namespace KRG::Camera
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context ) override;
+        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
     private:
 

@@ -30,11 +30,11 @@ namespace KRG::Animation
         }
     }
 
-    void AnimationClipWorkspace::Initialize()
+    void AnimationClipWorkspace::Initialize( UpdateContext const& context )
     {
         KRG_ASSERT( m_pPreviewEntity == nullptr );
 
-        TResourceWorkspace<AnimationClip>::Initialize();
+        TResourceWorkspace<AnimationClip>::Initialize( context );
 
         m_timelineWindowName.sprintf( "Timeline##%u", GetID() );
         m_detailsWindowName.sprintf( "Details##%u", GetID() );
@@ -53,7 +53,7 @@ namespace KRG::Animation
         m_pWorld->GetPersistentMap()->AddEntity( m_pPreviewEntity );
     }
 
-    void AnimationClipWorkspace::Shutdown()
+    void AnimationClipWorkspace::Shutdown( UpdateContext const& context )
     {
         KRG_ASSERT( m_pPreviewEntity != nullptr );
 
@@ -61,7 +61,7 @@ namespace KRG::Animation
         m_pAnimationComponent = nullptr;
         m_pMeshComponent = nullptr;
 
-        TResourceWorkspace<AnimationClip>::Shutdown();
+        TResourceWorkspace<AnimationClip>::Shutdown( context );
     }
 
     void AnimationClipWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "EntityMapDescriptor.h"
-#include "Engine/Core/Entity/Collections/EntityCollection.h"
-#include "System/Resource/ResourcePtr.h"
+#include "Engine/Core/Entity/EntityCollection.h"
 #include "System/Core/Types/Event.h"
 #include "System/Core/Threading/Threading.h"
 
@@ -17,7 +16,7 @@ namespace KRG
 
     namespace EntityModel
     {
-        struct LoadingContext;
+        struct EntityLoadingContext;
         struct ActivationContext;
         class EntityCollectionDescriptor;
 
@@ -76,17 +75,17 @@ namespace KRG
             // Loading and Activation
             //-------------------------------------------------------------------------
 
-            void Load( LoadingContext const& loadingContext );
-            void Unload( LoadingContext const& loadingContext );
+            void Load( EntityLoadingContext const& loadingContext );
+            void Unload( EntityLoadingContext const& loadingContext );
 
-            void Activate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-            void Deactivate( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            void Activate( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            void Deactivate( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
 
             // Map State
             //-------------------------------------------------------------------------
 
             // Updates map loading and entity state, returns true if all loading/state changes are complete, false otherwise
-            bool UpdateState( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            bool UpdateState( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
 
             bool IsLoading() const { return m_status == Status::MapLoading || m_status == Status::EntitiesLoading; }
             inline bool IsLoaded() const { return m_status == Status::Loaded; }
@@ -127,7 +126,7 @@ namespace KRG
             void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& entityID, UUID const& componentID );
 
             // This function will deactivate and unload the specified component, allowing its properties to be edited safely!
-            void ComponentEditingUnload( LoadingContext const& loadingContext, UUID const& entityID, UUID const& componentID );
+            void ComponentEditingUnload( EntityLoadingContext const& loadingContext, UUID const& entityID, UUID const& componentID );
 
             // Hot reloading is a blocking process that runs in stages
             //-------------------------------------------------------------------------
@@ -136,10 +135,10 @@ namespace KRG
             void HotReloadDeactivateEntities( EntityModel::ActivationContext& activationContext, TVector<Resource::ResourceRequesterID> const& usersToReload );
 
             // 2nd Stage: Requests unload of all entities required hot-reload
-            void HotReloadUnloadEntities( LoadingContext const& loadingContext );
+            void HotReloadUnloadEntities( EntityLoadingContext const& loadingContext );
 
             // 3rd Stage: Requests load of all entities required hot-reload
-            void HotReloadLoadEntities( LoadingContext const& loadingContext );
+            void HotReloadLoadEntities( EntityLoadingContext const& loadingContext );
             #endif
 
             //-------------------------------------------------------------------------
@@ -147,10 +146,10 @@ namespace KRG
             // Called whenever the internal state of an entity changes, schedules the entity for loading
             void OnEntityStateUpdated( Entity* pEntity );
 
-            bool ProcessMapUnloadRequest( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-            bool ProcessMapLoading( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-            void ProcessEntityAdditionAndRemoval( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-            bool ProcessEntityLoadingAndActivation( LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            bool ProcessMapUnloadRequest( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            bool ProcessMapLoading( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            void ProcessEntityAdditionAndRemoval( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            bool ProcessEntityLoadingAndActivation( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
 
         private:
 

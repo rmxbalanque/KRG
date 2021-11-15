@@ -1,53 +1,21 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
+#include "EntityLoadingContext.h"
 #include "System/Core/Types/UUID.h"
-#include "System/Core/Types/Event.h"
-#include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
-#include "System/TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
-    class TaskSystem;
-    class Entity;
-    class EntityComponent;
-    class EntityWorld;
-    template<typename T> struct TEntityToolAccessor;
-
-    //-------------------------------------------------------------------------
-
-    namespace EntityModel 
+    namespace EntityModel
     {
-        class EntityCollection;
-        class EntityMap;
-    
-        //-------------------------------------------------------------------------
-
-        struct LoadingContext
-        {
-            LoadingContext() = default;
-
-            LoadingContext( TaskSystem* pTaskSystem, TypeSystem::TypeRegistry const* pTypeRegistry, Resource::ResourceSystem* pResourceSystem )
-                : m_pTaskSystem( pTaskSystem )
-                , m_pTypeRegistry( pTypeRegistry )
-                , m_pResourceSystem( pResourceSystem )
-            {}
-
-            inline bool IsValid() const
-            {
-                return m_pTypeRegistry != nullptr && m_pResourceSystem != nullptr;
-            }
-
-        public:
-
-            TaskSystem*                                                     m_pTaskSystem = nullptr;
-            TypeSystem::TypeRegistry const*                                 m_pTypeRegistry = nullptr;
-            Resource::ResourceSystem*                                       m_pResourceSystem = nullptr;
-        };
+        class EntityMapEditor;
     }
+
+    // Used to provide access to component private internals in tools code
+    template<typename T> struct TEntityToolAccessor;
 
     //-------------------------------------------------------------------------
 
@@ -55,10 +23,10 @@ namespace KRG
     {
         KRG_REGISTER_TYPE( EntityComponent );
 
-        friend Entity;
+        friend class Entity;
+        friend class EntityWorld;
         friend EntityModel::EntityCollection;
         friend EntityModel::EntityMap;
-        friend EntityWorld;
 
     public:
 
@@ -93,10 +61,10 @@ namespace KRG
         EntityComponent( UUID ID, StringID name ) : m_ID( ID ), m_name( name ) {}
 
         // Request load of all component data - loading takes time
-        virtual void Load( EntityModel::LoadingContext const& context, UUID requesterID ) = 0;
+        virtual void Load( EntityModel::EntityLoadingContext const& context, UUID requesterID ) = 0;
 
         // Request unload of component data, unloading is instant
-        virtual void Unload( EntityModel::LoadingContext const& context, UUID requesterID ) = 0;
+        virtual void Unload( EntityModel::EntityLoadingContext const& context, UUID requesterID ) = 0;
 
         // Update loading state, this will check all dependencies
         virtual void UpdateLoading() = 0;
@@ -158,6 +126,6 @@ namespace KRG
         KRG_REGISTER_TYPE( TypeName );\
         template<typename T> friend struct TEntityToolAccessor;\
         protected:\
-        virtual void Load( EntityModel::LoadingContext const& context, UUID requesterID ) override;\
-        virtual void Unload( EntityModel::LoadingContext const& context, UUID requesterID ) override;\
+        virtual void Load( EntityModel::EntityLoadingContext const& context, UUID requesterID ) override;\
+        virtual void Unload( EntityModel::EntityLoadingContext const& context, UUID requesterID ) override;\
         virtual void UpdateLoading() override;

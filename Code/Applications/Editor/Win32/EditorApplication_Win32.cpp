@@ -12,11 +12,20 @@
 #if LIVEPP_ENABLED
 #include "LPP_API.h"
 #endif
+#include "EASTL/internal/move_help.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
+    EditorEngine::EditorEngine( TFunction<bool( KRG::String const& error )>&& errorHandler )
+        : Engine( eastl::forward<TFunction<bool( KRG::String const& error )>&&>( errorHandler ) )
+    {
+        //m_module_engine_core.EnableImguiViewports();
+    }
+
+    //-------------------------------------------------------------------------
+
     EditorApplication::EditorApplication( HINSTANCE hInstance )
         : Win32Application( hInstance, "Kruger Editor", IDI_EDITOR_ICON )
         , m_editorEngine( TFunction<bool( String const& error )>( [this] ( String const& error )-> bool  { return FatalError( error ); } ) )

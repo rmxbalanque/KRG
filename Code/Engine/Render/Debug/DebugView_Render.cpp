@@ -31,7 +31,7 @@ namespace KRG::Render
     {
     }
 
-    void RenderDebugView::DrawWindows( EntityUpdateContext const& context )
+    void RenderDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
     }
 

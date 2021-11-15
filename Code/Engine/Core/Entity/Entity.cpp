@@ -1,6 +1,8 @@
 #include "Entity.h"
 #include "EntitySystem.h"
 #include "EntityUpdateContext.h"
+#include "EntityActivationContext.h"
+#include "EntityLoadingContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -65,7 +67,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void Entity::LoadComponents( EntityModel::LoadingContext const& loadingContext )
+    void Entity::LoadComponents( EntityModel::EntityLoadingContext const& loadingContext )
     {
         KRG_ASSERT( m_status == Status::Unloaded );
 
@@ -78,7 +80,7 @@ namespace KRG
         m_status = Status::Loaded;
     }
 
-    void Entity::UnloadComponents( EntityModel::LoadingContext const& loadingContext )
+    void Entity::UnloadComponents( EntityModel::EntityLoadingContext const& loadingContext )
     {
         KRG_ASSERT( m_status == Status::Loaded );
 
@@ -120,7 +122,7 @@ namespace KRG
         }
     }
 
-    void Entity::ComponentEditingUnload( EntityModel::LoadingContext const& loadingContext, UUID const& componentID )
+    void Entity::ComponentEditingUnload( EntityModel::EntityLoadingContext const& loadingContext, UUID const& componentID )
     {
         auto pComponent = FindComponent( componentID );
         KRG_ASSERT( pComponent != nullptr );
@@ -137,7 +139,7 @@ namespace KRG
         }
     }
 
-    void Entity::EndComponentEditing( EntityModel::LoadingContext const& loadingContext )
+    void Entity::EndComponentEditing( EntityModel::EntityLoadingContext const& loadingContext )
     {
         for ( auto pComponent : m_components )
         {
@@ -608,7 +610,7 @@ namespace KRG
         }
     }
 
-    void Entity::CreateSystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
+    void Entity::CreateSystemDeferred( EntityModel::EntityLoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
         CreateSystemImmediate( pSystemTypeInfo );
         GenerateSystemUpdateList();
@@ -636,7 +638,7 @@ namespace KRG
         m_systems.erase_unsorted( m_systems.begin() + systemIdx );
     }
 
-    void Entity::DestroySystemDeferred( EntityModel::LoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
+    void Entity::DestroySystemDeferred( EntityModel::EntityLoadingContext const& loadingContext, TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
         DestroySystemImmediate( pSystemTypeInfo );
         GenerateSystemUpdateList();
@@ -766,7 +768,7 @@ namespace KRG
         pComponent->m_entityID = m_ID;
     }
 
-    void Entity::AddComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent )
+    void Entity::AddComponentDeferred( EntityModel::EntityLoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent )
     {
         KRG_ASSERT( loadingContext.IsValid() );
         AddComponentImmediate( pComponent, pParentSpatialComponent );
@@ -797,7 +799,7 @@ namespace KRG
         KRG::Delete( pComponent );
     }
 
-    void Entity::DestroyComponentDeferred( EntityModel::LoadingContext const& loadingContext, EntityComponent* pComponent )
+    void Entity::DestroyComponentDeferred( EntityModel::EntityLoadingContext const& loadingContext, EntityComponent* pComponent )
     {
         KRG_ASSERT( loadingContext.IsValid() );
 
@@ -819,7 +821,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    bool Entity::UpdateEntityState( EntityModel::LoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    bool Entity::UpdateEntityState( EntityModel::EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
         Threading::ScopeLock lock( m_internalStateMutex );
 
@@ -927,24 +929,24 @@ namespace KRG
                 {
                     return false;
                 }
+            }
 
-                // Once we finish loading a component immediately initialize it
-                if ( pComponent->IsLoaded() )
+            // Once we finish loading a component immediately initialize it
+            if ( pComponent->IsLoaded() )
+            {
+                pComponent->Initialize();
+                KRG_ASSERT( pComponent->IsInitialized() ); // Did you forget to call the parent class initialize?
+
+                if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
                 {
-                    pComponent->Initialize();
-                    KRG_ASSERT( pComponent->IsInitialized() ); // Did you forget to call the parent class initialize?
+                    pSpatialComponent->CalculateWorldTransform( false );
+                }
 
-                    if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
-                    {
-                        pSpatialComponent->CalculateWorldTransform( false );
-                    }
-
-                    // If we are already activated, then register with entity systems
-                    if ( IsActivated() )
-                    {
-                        RegisterComponentWithLocalSystems( pComponent );
-                        activationContext.m_componentsToRegister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
-                    }
+                // If we are already activated, then register with entity systems
+                if ( IsActivated() )
+                {
+                    RegisterComponentWithLocalSystems( pComponent );
+                    activationContext.m_componentsToRegister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
                 }
             }
         }

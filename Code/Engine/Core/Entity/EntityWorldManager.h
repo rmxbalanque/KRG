@@ -3,9 +3,7 @@
 #include "Engine/Core/_Module/API.h"
 #include "System/Resource/ResourceRequesterID.h"
 #include "System/Core/Systems/ISystem.h"
-#include "System/Core/Systems/SystemRegistry.h"
 #include "System/Core/Types/Event.h"
-#include "System/TypeSystem/TypeInfo.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,6 +11,9 @@ namespace KRG
 {
     class UpdateContext;
     class EntityWorld;
+    class SystemRegistry;
+    enum class EntityWorldType : uint8;
+    namespace TypeSystem { struct TypeInfo; }
     namespace Render { class Viewport; }
 
     //-------------------------------------------------------------------------
@@ -52,11 +53,18 @@ namespace KRG
         inline EntityWorld* GetPrimaryWorld() { return m_worlds[0]; }
         TInlineVector<EntityWorld*, 5> const& GetWorlds() const { return m_worlds; }
 
-        EntityWorld* CreateWorld();
+        EntityWorld* CreateWorld( EntityWorldType worldType );
         void DestroyWorld( EntityWorld* pWorld );
 
         inline TMultiUserEvent<EntityWorld*> OnCreateNewWorld() { return m_createNewWorldEvent; }
         void UpdateWorlds( UpdateContext const& context );
+
+        // Editor
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void SetPlayerControllerState( EntityWorld* pWorld, bool isControllerEnabled );
+        #endif
 
         // Hot Reload
         //-------------------------------------------------------------------------

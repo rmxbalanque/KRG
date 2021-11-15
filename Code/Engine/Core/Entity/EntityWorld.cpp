@@ -1,6 +1,6 @@
 #include "EntityWorld.h"
 #include "EntityUpdateContext.h"
-#include "Debug/EntityWorldDebugView.h"
+#include "EntityWorldDebugView.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Settings/DebugSettings.h"
@@ -46,7 +46,7 @@ namespace KRG
         m_pTaskSystem = systemsRegistry.GetSystem<TaskSystem>();
         KRG_ASSERT( m_pTaskSystem != nullptr );
 
-        m_loadingContext = EntityModel::LoadingContext( m_pTaskSystem, systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
+        m_loadingContext = EntityModel::EntityLoadingContext( m_pTaskSystem, systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
         KRG_ASSERT( m_loadingContext.IsValid() );
 
         // Create World Systems

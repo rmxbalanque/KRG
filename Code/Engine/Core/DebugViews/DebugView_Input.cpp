@@ -239,7 +239,7 @@ namespace KRG::Input
         m_pInputSystem = nullptr;
     }
 
-    void InputDebugView::DrawWindows( EntityUpdateContext const& context )
+    void InputDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         auto pInputSystem = context.GetSystem<InputSystem>();
         KRG_ASSERT( pInputSystem != nullptr );
@@ -255,6 +255,7 @@ namespace KRG::Input
 
             bool isWindowOpen = true;
             ImGui::SetNextWindowSize( ImVec2( 300, 210 ) );
+            if ( pWindowClass != nullptr ) ImGui::SetNextWindowClass( pWindowClass );
             if ( ImGui::Begin( buffer, &isWindowOpen, ImGuiWindowFlags_NoResize ) )
             {
                 DrawControllerState( *m_openControllerWindows[i] );

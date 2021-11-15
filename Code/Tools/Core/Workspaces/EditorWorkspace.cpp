@@ -26,7 +26,7 @@ namespace KRG
         m_workspaceWindowID.sprintf( "%s###window%u", m_displayName.c_str(), GetID() );
     }
 
-    void EditorWorkspace::Initialize()
+    void EditorWorkspace::Initialize( UpdateContext const& context )
     {
         SetDisplayName( m_displayName );
         m_viewportWindowID.sprintf( "Viewport##%u", GetID() );

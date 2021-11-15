@@ -33,9 +33,9 @@ namespace KRG::Render
         KRG_ASSERT( m_pSkeletonTreeRoot == nullptr );
     }
 
-    void SkeletalMeshWorkspace::Initialize()
+    void SkeletalMeshWorkspace::Initialize( UpdateContext const& context )
     {
-        TResourceWorkspace<SkeletalMesh>::Initialize();
+        TResourceWorkspace<SkeletalMesh>::Initialize( context );
 
         //-------------------------------------------------------------------------
 
@@ -53,12 +53,12 @@ namespace KRG::Render
         m_pPreviewEntity->AddComponent( m_pMeshComponent );
     }
 
-    void SkeletalMeshWorkspace::Shutdown()
+    void SkeletalMeshWorkspace::Shutdown( UpdateContext const& context )
     {
         m_pPreviewEntity = nullptr;
         m_pMeshComponent = nullptr;
 
-        TResourceWorkspace<SkeletalMesh>::Shutdown();
+        TResourceWorkspace<SkeletalMesh>::Shutdown( context );
     }
 
     void SkeletalMeshWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const

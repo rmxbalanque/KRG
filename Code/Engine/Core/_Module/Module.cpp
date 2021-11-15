@@ -30,7 +30,16 @@ namespace KRG::EngineCore
             return false;
         }
 
+        #if KRG_DEVELOPMENT_TOOLS
         m_pResourceProvider = KRG::New<Resource::NetworkResourceProvider>( pResourceSettings );
+        #endif
+
+        if ( m_pResourceProvider == nullptr )
+        {
+            KRG_LOG_ERROR( "Resource", "Failed to create resource provider" );
+            return false;
+        }
+
         if ( !m_pResourceProvider->Initialize() )
         {
             KRG_LOG_ERROR( "Resource", "Failed to intialize resource provider" );
@@ -52,7 +61,10 @@ namespace KRG::EngineCore
         m_taskSystem.Initialize();
         m_resourceSystem.Initialize( m_pResourceProvider );
         m_inputSystem.Initialize();
-        m_imguiSystem.Initialize( context.GetApplicationName() + ".imgui.ini", m_pRenderDevice );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_imguiSystem.Initialize( context.GetApplicationName() + ".imgui.ini", m_pRenderDevice, m_imguiViewportsEnabled );
+        #endif
 
         m_mapLoader.SetTypeRegistry( &m_typeRegistry );
 
@@ -102,7 +114,10 @@ namespace KRG::EngineCore
             // Shutdown
             //-------------------------------------------------------------------------
 
+            #if KRG_DEVELOPMENT_TOOLS
             m_imguiSystem.Shutdown();
+            #endif
+
             m_inputSystem.Shutdown();
             m_resourceSystem.Shutdown();
             m_taskSystem.Shutdown();
