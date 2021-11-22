@@ -39,7 +39,7 @@ namespace KRG::Animation::Graph
 
             // Transfer all cached pose IDs from the source transition and therefore the lifetime ownership of the cached buffers
             m_sourceCachedPoseBufferID = pSourceTransition->m_cachedPoseBufferID;
-            pSourceTransition->m_cachedPoseBufferID.Reset();
+            pSourceTransition->m_cachedPoseBufferID.Clear();
             pSourceTransition->TransferAdditionalPoseBufferIDs( m_inheritedCachedPoseBufferIDs );
 
             // Force stop existing transition and start a transition from state
@@ -303,13 +303,13 @@ namespace KRG::Animation::Graph
         if ( m_cachedPoseBufferID.IsValid() )
         {
             context.m_pTaskSystem->DestroyCachedPose( m_cachedPoseBufferID );
-            m_cachedPoseBufferID.Reset();
+            m_cachedPoseBufferID.Clear();
         }
 
         if ( m_sourceCachedPoseBufferID.IsValid() )
         {
             context.m_pTaskSystem->DestroyCachedPose( m_sourceCachedPoseBufferID );
-            m_sourceCachedPoseBufferID.Reset();
+            m_sourceCachedPoseBufferID.Clear();
         }
 
         for ( auto const& InheritedBufferID : m_inheritedCachedPoseBufferIDs )
@@ -422,7 +422,7 @@ namespace KRG::Animation::Graph
             if ( m_sourceCachedPoseBlendWeight >= 1.0f )
             {
                 context.m_pTaskSystem->DestroyCachedPose( m_sourceCachedPoseBufferID );
-                m_sourceCachedPoseBufferID.Reset();
+                m_sourceCachedPoseBufferID.Clear();
             }
         }
     }
@@ -433,14 +433,14 @@ namespace KRG::Animation::Graph
         if ( m_cachedPoseBufferID.IsValid() )
         {
             outInheritedCachedPoseBufferIDs.emplace_back( m_cachedPoseBufferID );
-            m_cachedPoseBufferID.Reset();
+            m_cachedPoseBufferID.Clear();
         }
 
         // Transfer my source cached pose buffer
         if ( m_sourceCachedPoseBufferID.IsValid() )
         {
             outInheritedCachedPoseBufferIDs.emplace_back( m_sourceCachedPoseBufferID );
-            m_sourceCachedPoseBufferID.Reset();
+            m_sourceCachedPoseBufferID.Clear();
         }
 
         // Transfer my inherited buffer IDS

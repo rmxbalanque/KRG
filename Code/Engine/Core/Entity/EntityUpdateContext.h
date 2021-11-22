@@ -5,14 +5,12 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Render { class Viewport; }
-
-//-------------------------------------------------------------------------
-
 namespace KRG
 {
     class IWorldEntitySystem;
     class EntityWorld;
+    namespace Render { class Viewport; }
+    namespace EntityModel{ class EntityMap; }
 
     //-------------------------------------------------------------------------
 
@@ -34,6 +32,9 @@ namespace KRG
 
         // Get the world type - threadsafe since this never changes
         KRG_FORCE_INLINE bool IsGameWorld() const { return m_isGameWorld; }
+
+        // Get the persistent map - threadsafe - all dynamic entity creation is done in this map
+        EntityModel::EntityMap* GetPersistentMap() const;
 
         // Get the viewport for this world
         Render::Viewport const* GetViewport() const;

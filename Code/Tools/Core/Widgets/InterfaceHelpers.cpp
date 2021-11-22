@@ -6,7 +6,7 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::ImGuiX
 {
-    bool DrawSpinner( const char* pLabel, ImVec4 color, float radius, float thickness )
+    bool DrawSpinner( const char* pLabel, ImColor const& color, float radius, float thickness )
     {
         static float const numSegments = 30.0f;
 
@@ -51,7 +51,7 @@ namespace KRG::ImGuiX
             pWindow->DrawList->PathLineTo( ImVec2( center.x + Math::Cos( b ) * radius, center.y + Math::Sin( b ) * radius ) );
         }
 
-        pWindow->DrawList->PathStroke( ImGui::ColorConvertFloat4ToU32( color ), false, thickness );
+        pWindow->DrawList->PathStroke( color, false, thickness );
 
         return true;
     }

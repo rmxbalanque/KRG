@@ -100,6 +100,12 @@ namespace KRG
             using EntityCollection::GetEntities;
             using EntityCollection::FindEntity;
             using EntityCollection::ContainsEntity;
+            using EntityCollection::TransferEntities;
+
+            // Spawns a collection of entities from the supplied entity collection
+            // Note! Will TRANSFER ownership of all entities from the supplied collection to the map
+            // Takes 1 frame to be fully added
+            void AddEntityCollection( Transform const& collectionTransform, EntityCollection& entityCollectionDesc );
 
             // Add a newly created entity to the map - Transfers ownership of the entity to the map
             // Will take 1 frame to be fully added, as the addition occurs during the loading update

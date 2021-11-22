@@ -227,7 +227,7 @@ namespace KRG::TypeSystem::Conversion
 
     //-------------------------------------------------------------------------
 
-    void ConvertStringToNativeType( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, String const& str, void* pValue )
+    bool ConvertStringToNativeType( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, String const& str, void* pValue )
     {
         // Enums
         if( !IsCoreType( typeID ) ) 
@@ -280,6 +280,7 @@ namespace KRG::TypeSystem::Conversion
                 default:
                 {
                     KRG_UNREACHABLE_CODE();
+                    return false;
                 }
                 break;
             }
@@ -524,7 +525,11 @@ namespace KRG::TypeSystem::Conversion
                     }
                     else
                     {
-                        KRG_ASSERT( ResourceID::IsValidResourceIDString( str ) );
+                        if ( !ResourceID::IsValidResourceIDString( str ) )
+                        {
+                            KRG_LOG_WARNING( "TypeSystem", "Invalid resource ID string encountered: %s", str.c_str() );
+                            return false;
+                        }
                         ResourceID const ID( str );
                         resourcePtr = Resource::ResourcePtr( ID );
                     }
@@ -539,7 +544,11 @@ namespace KRG::TypeSystem::Conversion
                     }
                     else
                     {
-                        KRG_ASSERT( ResourceID::IsValidResourceIDString( str ) );
+                        if ( !ResourceID::IsValidResourceIDString( str ) )
+                        {
+                            KRG_LOG_WARNING( "TypeSystem", "Invalid resource ID string encountered: %s", str.c_str() );
+                            return false;
+                        }
                         *reinterpret_cast<ResourceID*>( pValue ) = ResourceID( str );
                     }
                 }
@@ -557,12 +566,13 @@ namespace KRG::TypeSystem::Conversion
                     if ( pEnumInfo == nullptr )
                     {
                         KRG_LOG_WARNING( "TypeSystem", "Unknown enum class (%s) for TBitFlags", templateArgumentTypeID.ToStringID().c_str() );
-                        return;
+                        return false;
                     }
 
                     if ( !ConvertStringToBitFlags( *pEnumInfo, str, *reinterpret_cast<BitFlags*>( pValue ) ) )
                     {
                         KRG_LOG_WARNING( "TypeSystem", "Failed to convert string (%s) into valid TBitFlags<%s>", str.c_str(), templateArgumentTypeID.ToStringID().c_str() );
+                        return false;
                     }
                 }
                 break;
@@ -570,13 +580,16 @@ namespace KRG::TypeSystem::Conversion
                 default:
                 {
                     KRG_UNREACHABLE_CODE();
+                    return false;
                 }
                 break;
             }
         }
+
+        return true;
     }
 
-    void ConvertNativeTypeToString( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, void const* pValue, String & strValue )
+    bool ConvertNativeTypeToString( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, void const* pValue, String & strValue )
     {
         // Enums
         if ( !IsCoreType( typeID ) )
@@ -626,6 +639,7 @@ namespace KRG::TypeSystem::Conversion
                 default:
                 {
                     KRG_UNREACHABLE_CODE();
+                    return false;
                 }
                 break;
             }
@@ -908,12 +922,13 @@ namespace KRG::TypeSystem::Conversion
                     if ( pEnumInfo == nullptr )
                     {
                         KRG_LOG_WARNING( "TypeSystem", "Unknown enum class (%s) for TBitFlags", templateArgumentTypeID.ToStringID().c_str() );
-                        return;
+                        return false;
                     }
 
                     if ( !ConvertBitFlagsToString( *pEnumInfo, *reinterpret_cast<BitFlags const*>( pValue ), strValue ) )
                     {
                         KRG_LOG_WARNING( "TypeSystem", "Failed to convert string (%s) into valid TBitFlags<%s>", strValue.c_str(), templateArgumentTypeID.ToStringID().c_str() );
+                        return false;
                     }
                 }
                 break;
@@ -921,13 +936,16 @@ namespace KRG::TypeSystem::Conversion
                 default:
                 {
                     KRG_UNREACHABLE_CODE();
+                    return false;
                 }
                 break;
             }
         }
+
+        return false;
     }
 
-    void ConvertNativeTypeToBinary( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, void const* pValue, TVector<Byte>& byteArray )
+    bool ConvertNativeTypeToBinary( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, void const* pValue, TVector<Byte>& byteArray )
     {
         Serialization::BinaryMemoryArchive archive( Serialization::Mode::Write, byteArray );
 
@@ -979,6 +997,7 @@ namespace KRG::TypeSystem::Conversion
                 default:
                 {
                     KRG_UNREACHABLE_CODE();
+                    return false;
                 }
                 break;
             }
@@ -1215,13 +1234,16 @@ namespace KRG::TypeSystem::Conversion
                 default:
                 {
                     KRG_UNREACHABLE_CODE();
+                    return false;
                 }
                 break;
             }
         }
+
+        return true;
     }
 
-    void ConvertBinaryToNativeType( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, TVector<Byte> const& byteArray, void* pValue )
+    bool ConvertBinaryToNativeType( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, TVector<Byte> const& byteArray, void* pValue )
     {
         Serialization::BinaryMemoryArchive archive( Serialization::Mode::Read, const_cast<TVector<Byte>&>( byteArray ) );
 
@@ -1273,6 +1295,7 @@ namespace KRG::TypeSystem::Conversion
                 default:
                 {
                     KRG_UNREACHABLE_CODE();
+                    return false;
                 }
                 break;
             }
@@ -1511,13 +1534,16 @@ namespace KRG::TypeSystem::Conversion
                 default:
                 {
                     KRG_UNREACHABLE_CODE();
+                    return false;
                 }
                 break;
             }
         }
+
+        return true;
     }
 
-    void ConvertStringToBinary( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, String const& strValue, TVector<Byte>& byteArray )
+    bool ConvertStringToBinary( TypeRegistry const& typeRegistry, TypeID typeID, TypeID templateArgumentTypeID, String const& strValue, TVector<Byte>& byteArray )
     {
         byteArray.clear();
 
@@ -1535,48 +1561,73 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypeID::Uint8:
                 {
                     uint8 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+                    
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Int8:
                 {
                     int8 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Uint16:
                 {
                     uint16 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Int16:
                 {
                     int16 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Uint32:
                 {
                     uint32 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Int32:
                 {
                     int32 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
@@ -1595,272 +1646,408 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypeID::Bool:
                 {
                     bool value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Uint8:
                 {
                     uint8 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Int8:
                 {
                     int8 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Uint16:
                 {
                     uint16 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Int16:
                 {
                     int16 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Uint32:
                 {
                     uint32 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Int32:
                 {
                     int32 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Uint64:
                 {
                     uint64 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Int64:
                 {
                     int64 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Float:
                 {
                     float value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Double:
                 {
                     double value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::String:
                 {
                     String value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::StringID:
                 {
                     StringID value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::TypeID:
                 {
                     TypeID value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::UUID:
                 {
                     UUID value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Color:
                 {
                     Color value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Float2:
                 {
                     Float2 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Float3:
                 {
                     Float3 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Float4:
                 {
                     Float4 value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Vector:
                 {
                     Vector value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Quaternion:
                 {
                     Quaternion value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Matrix:
                 {
                     Matrix value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Transform:
                 {
                     Transform value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::EulerAngles:
                 {
                     EulerAngles value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Microseconds:
                 {
                     Microseconds value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Milliseconds:
                 {
                     Milliseconds value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Seconds:
                 {
                     Seconds value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Percentage:
                 {
                     Percentage value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Degrees:
                 {
                     Degrees value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::Radians:
                 {
                     Radians value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::ResourcePath:
                 {
                     ResourcePath value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::IntRange:
                 {
                     IntRange value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::FloatRange:
                 {
                     FloatRange value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::ResourceTypeID:
                 {
                     ResourceTypeID value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
@@ -1868,16 +2055,24 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypeID::TResourcePtr:
                 {
                     Resource::ResourcePtr value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
                 case CoreTypeID::ResourceID:
                 {
                     ResourceID value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
@@ -1885,8 +2080,12 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypeID::TBitFlags:
                 {
                     BitFlags value;
-                    ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value );
-                    ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
+                    if ( !ConvertStringToNativeType( typeRegistry, typeID, templateArgumentTypeID, strValue, &value ) )
+                    {
+                        return false;
+                    }
+
+                    return ConvertNativeTypeToBinary( typeRegistry, typeID, templateArgumentTypeID, &value, byteArray );
                 }
                 break;
 
@@ -1897,6 +2096,8 @@ namespace KRG::TypeSystem::Conversion
                 break;
             }
         }
+
+        return false;
     }
 
     //-------------------------------------------------------------------------

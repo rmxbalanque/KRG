@@ -16,6 +16,7 @@
     <ClInclude Include="Algorithm\TopologicalSort.h" />
     <ClInclude Include="Algorithm\Encoding.h" />
     <ClInclude Include="Defines.h" />
+    <ClInclude Include="Math\FloatCurve.h" />
     <ClInclude Include="Platform\PlatformDefines_Win32.h" />
     <ClInclude Include="Debug\DebugDrawingSystem.h" />
     <ClInclude Include="Math\MathStringHelpers.h" />
@@ -305,7 +306,7 @@
     <ClInclude Include="FileSystem\FileSystem.h" />
     <ClInclude Include="Logging\Log.h" />
     <ClInclude Include="Math\Transform.h" />
-    <ClInclude Include="Math\BezierCurve.h" />
+    <ClInclude Include="Math\Curves.h" />
     <ClInclude Include="Math\BoundingVolumes.h" />
     <ClInclude Include="Math\BVH\AABBTree.h" />
     <ClInclude Include="Math\Line.h" />
@@ -469,6 +470,7 @@
     <ClCompile Include="Algorithm\TopologicalSort.cpp" />
     <ClCompile Include="Algorithm\Encoding.cpp" />
     <ClCompile Include="Debug\DebugDrawingSystem.cpp" />
+    <ClCompile Include="Math\FloatCurve.cpp" />
     <ClCompile Include="Math\MathStringHelpers.cpp" />
     <ClCompile Include="Debug\DebugDrawingCommands.cpp" />
     <ClCompile Include="Debug\DebugDrawing.cpp" />

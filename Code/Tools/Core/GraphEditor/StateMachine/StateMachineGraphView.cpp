@@ -545,8 +545,8 @@ namespace KRG::GraphEditor
             return;
         }
 
-        ctx.m_pDrawList->AddRectFilled( m_dragState.m_startValue, ImGui::GetMousePos(), VisualSettings::s_selectionBoxFillColor );
-        ctx.m_pDrawList->AddRect( m_dragState.m_startValue, ImGui::GetMousePos(), VisualSettings::s_selectionBoxOutlineColor );
+        ctx.m_pDrawList->AddRectFilled( m_dragState.m_startValue, ImGui::GetMousePos(), ImGuiX::Style::s_selectionBoxFillColor );
+        ctx.m_pDrawList->AddRect( m_dragState.m_startValue, ImGui::GetMousePos(), ImGuiX::Style::s_selectionBoxOutlineColor );
     }
 
     void StateMachineGraphView::StopDraggingSelection( DrawingContext const& ctx )

@@ -60,11 +60,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Camera\CameraComponent.h" />
-    <ClInclude Include="Camera\CameraWorldSystem.h" />
+    <ClInclude Include="Components\CameraComponents.h" />
+    <ClInclude Include="DebugViews\DebugView_Camera.h" />
+    <ClInclude Include="Test\TestComponent.h" />
     <ClInclude Include="Entity\EntityWorldDebugView.h" />
     <ClInclude Include="Entity\EntityWorldDebugger.h" />
-    <ClInclude Include="DebugViews\DebugView_Camera.h" />
     <ClInclude Include="DebugViews\DebugView_Input.h" />
     <ClInclude Include="DebugViews\DebugView_System.h" />
     <ClInclude Include="DebugViews\DebugView_Resource.h" />
@@ -87,10 +87,11 @@
     <ClInclude Include="Entity\EntityMapDescriptor.h" />
     <ClInclude Include="DevUI\Gizmo.h" />
     <ClInclude Include="DevUI\OrientationGuide.h" />
-    <ClInclude Include="Player\DefaultPlayerController.h" />
-    <ClInclude Include="Player\PlayerManagerWorldSystem.h" />
-    <ClInclude Include="Player\PlayerComponent.h" />
-    <ClInclude Include="ResourceLoaders\ResourceLoader_EntityMap.h" />
+    <ClInclude Include="Systems\DevelopmentPlayerSystem.h" />
+    <ClInclude Include="Systems\WorldSystem.h" />
+    <ClInclude Include="Components\PlayerComponent.h" />
+    <ClInclude Include="Components\PlayerSpawnComponent.h" />
+    <ClInclude Include="ResourceLoaders\ResourceLoader_EntityCollection.h" />
     <ClInclude Include="Math\Easing.h" />
     <ClInclude Include="Modules\EngineModuleContext.h" />
     <ClInclude Include="Modules\IEngineModule.h" />
@@ -99,10 +100,10 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera\CameraComponent.cpp" />
-    <ClCompile Include="Camera\CameraWorldSystem.cpp" />
-    <ClCompile Include="Entity\EntityWorldDebugger.cpp" />
+    <ClCompile Include="Components\CameraComponents.cpp" />
     <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
+    <ClCompile Include="Test\TestComponent.cpp" />
+    <ClCompile Include="Entity\EntityWorldDebugger.cpp" />
     <ClCompile Include="DebugViews\DebugView_Input.cpp" />
     <ClCompile Include="DebugViews\DebugView_System.cpp" />
     <ClCompile Include="DebugViews\DebugView_Resource.cpp" />
@@ -122,10 +123,11 @@
     <ClCompile Include="Entity\EntityMapDescriptor.cpp" />
     <ClCompile Include="DevUI\Gizmo.cpp" />
     <ClCompile Include="DevUI\OrientationGuide.cpp" />
-    <ClCompile Include="Player\DefaultPlayerController.cpp" />
-    <ClCompile Include="Player\PlayerManagerWorldSystem.cpp" />
-    <ClCompile Include="Player\PlayerComponent.cpp" />
-    <ClCompile Include="ResourceLoaders\ResourceLoader_EntityMap.cpp" />
+    <ClCompile Include="Systems\DevelopmentPlayerSystem.cpp" />
+    <ClCompile Include="Systems\WorldSystem.cpp" />
+    <ClCompile Include="Components\PlayerComponent.cpp" />
+    <ClCompile Include="Components\PlayerSpawnComponent.cpp" />
+    <ClCompile Include="ResourceLoaders\ResourceLoader_EntityCollection.cpp" />
     <ClCompile Include="Math\Easing.cpp" />
     <ClCompile Include="Modules\EngineModuleContext.cpp" />
     <ClCompile Include="DevUI\EngineDevUI.cpp" />

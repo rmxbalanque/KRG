@@ -7,6 +7,10 @@
       "Command": "Entity",
       "Items": [
         {
+          "Id": "a8fe4a3c-fd67-4929-9ae3-66b1e588d828",
+          "Command": "-compile data://player.ec"
+        },
+        {
           "Id": "7d8391f1-5e52-4e7e-b49e-8c142d55b97f",
           "Command": "-compile data://maps/br_full.map"
         },
@@ -50,6 +54,10 @@
       "Id": "6d5842b6-fa07-4879-8e0d-f95505d6c16f",
       "Command": "Render",
       "Items": [
+        {
+          "Id": "7ffe5c6b-e064-4295-b083-fb850be34067",
+          "Command": "-compile data://ash_fbx.msh"
+        },
         {
           "Id": "bb8f2925-7afd-4e3a-a8cf-7070d4da51a8",
           "Command": "-compile data://testscenes/ClothMesh/cloth_mesh.txtr"

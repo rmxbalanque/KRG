@@ -114,7 +114,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Add a new record
-        RecordType& AddRecord( UUID entityID )
+        RecordType* AddRecord( UUID entityID )
         {
             KRG_ASSERT( entityID.IsValid() && m_recordIndices.find( entityID ) == m_recordIndices.end() );
 
@@ -137,12 +137,12 @@ namespace KRG
             {
                 auto& newRecord = m_records.emplace_back();
                 newRecord.m_isSet = true;
-                return newRecord;
+                return &newRecord;
             }
             else
             {
                 m_records[recordIdx].m_isSet = true;
-                return m_records[recordIdx];
+                return &m_records[recordIdx];
             }
         }
 
@@ -157,7 +157,7 @@ namespace KRG
             m_recordIndices.erase( foundIter );
         }
 
-        KRG_FORCE_INLINE RecordType* operator[]( UUID entityID )
+        KRG_FORCE_INLINE RecordType* FindRecord( UUID entityID )
         {
             RecordType* pFoundRecord = nullptr;
 
@@ -165,8 +165,27 @@ namespace KRG
             if ( foundIdx != m_recordIndices.end() )
             {
                 pFoundRecord = &m_records[foundIdx->second];
+                KRG_ASSERT( pFoundRecord->IsSet() );
             }
 
+            return pFoundRecord;
+        }
+
+        KRG_FORCE_INLINE RecordType* FindOrAddRecord( UUID entityID )
+        {
+            auto pFoundRecord = FindRecord( entityID );
+            if ( pFoundRecord == nullptr )
+            {
+                pFoundRecord = AddRecord( entityID );
+            }
+
+            return pFoundRecord;
+        }
+
+        KRG_FORCE_INLINE RecordType* GetRecord( UUID entityID )
+        {
+            auto pFoundRecord = FindRecord( entityID );
+            KRG_ASSERT( pFoundRecord != nullptr && pFoundRecord->IsSet() );
             return pFoundRecord;
         }
 

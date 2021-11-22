@@ -29,6 +29,7 @@ namespace KRG::TypeSystem::Reflection
         RegisterResource,
         RegisterVirtualResource,
         RegisterEntityComponent,
+        RegisterSingletonEntityComponent,
         RegisterEntitySystem,
         RegisterProperty,
         ExposeProperty,

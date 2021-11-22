@@ -12,11 +12,11 @@ namespace KRG::TypeSystem { class TypeRegistry; }
 
 namespace KRG::EntityModel
 {
-    class KRG_ENGINE_CORE_API EntityMapLoader : public Resource::ResourceLoader
+    class KRG_ENGINE_CORE_API EntityCollectionLoader : public Resource::ResourceLoader
     {
     public:
 
-        EntityMapLoader();
+        EntityCollectionLoader();
         void SetTypeRegistry( TypeSystem::TypeRegistry const* pTypeRegistry );
 
     private:

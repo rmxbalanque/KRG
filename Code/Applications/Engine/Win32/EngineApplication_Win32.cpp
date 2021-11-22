@@ -83,6 +83,8 @@ namespace KRG
 
     bool EngineApplication::ApplicationLoop()
     {
+        // Uncomment for live editing of ImguiTheme
+        //ImGuiX::Theme::ApplyTheme();
         return m_engine.Update();
     }
 

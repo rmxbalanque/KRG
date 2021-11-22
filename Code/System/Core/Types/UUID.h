@@ -44,7 +44,7 @@ namespace KRG
         }
 
         inline bool IsValid() const { return m_data.m_U64[0] != 0 && m_data.m_U64[1] != 0; }
-        inline void Reset() { Memory::MemsetZero( &m_data ); }
+        inline void Clear() { Memory::MemsetZero( &m_data ); }
 
         inline uint8 GetValueU8( uint32 idx ) const { KRG_ASSERT( idx < 16 ); return m_data.m_U8[idx]; }
         inline uint32 GetValueU32( uint32 idx ) const { KRG_ASSERT( idx < 4 ); return m_data.m_U32[idx]; }

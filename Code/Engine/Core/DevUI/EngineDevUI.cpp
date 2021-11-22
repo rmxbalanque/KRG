@@ -3,6 +3,7 @@
 #include "Engine/Core/Entity/EntityWorldManager.h"
 #include "Engine/Core/Entity/EntityWorldDebugger.h"
 #include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Core/Systems/WorldSystem.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
@@ -20,7 +21,14 @@ namespace KRG
     void EngineDevUI::Initialize( UpdateContext const& context )
     {
         m_pWorldManager = context.GetSystem<EntityWorldManager>();
-        m_pWorldDebugger = KRG::New<EntityWorldDebugger>( m_pWorldManager->GetPrimaryWorld() );
+        for ( auto pWorld : m_pWorldManager->GetWorlds() )
+        {
+            if ( pWorld->IsGameWorld() )
+            {
+                m_pWorldDebugger = KRG::New<EntityWorldDebugger>( pWorld );
+                break;
+            }
+        }
     }
 
     void EngineDevUI::Shutdown( UpdateContext const& context )
@@ -47,6 +55,24 @@ namespace KRG
         float const k = 2.0f / ( context.GetFrameID() + 1 );
         m_avgTimeDelta = context.GetRawDeltaTime() * k + m_avgTimeDelta * ( 1.0f - k );
 
+        // Get game world
+        //-------------------------------------------------------------------------
+
+        EntityWorld* pGameWorld = nullptr;
+        for ( auto pWorld : m_pWorldManager->GetWorlds() )
+        {
+            if ( pWorld->IsGameWorld() )
+            {
+                pGameWorld = pWorld;
+                break;
+            }
+        }
+
+        if ( pGameWorld == nullptr )
+        {
+            return;
+        }
+
         // Enable/disable debug overlay
         //-------------------------------------------------------------------------
 
@@ -54,11 +80,14 @@ namespace KRG
         if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Tilde ) )
         {
             m_debugOverlayEnabled = !m_debugOverlayEnabled;
+
+            auto pWorldSystem = pGameWorld->GetWorldSystem<WorldSystem>();
+            pWorldSystem->SetDevelopmentPlayerEnabled( m_debugOverlayEnabled );
         }
 
         //-------------------------------------------------------------------------
 
-        Render::Viewport const* pViewport = m_pWorldManager->GetPrimaryWorld()->GetViewport();
+        Render::Viewport const* pViewport = pGameWorld->GetViewport();
 
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus;
         if ( m_debugOverlayEnabled )

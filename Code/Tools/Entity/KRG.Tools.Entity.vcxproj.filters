@@ -33,7 +33,7 @@
     <ClCompile Include="Serialization\EntityCollectionDescriptorWriter.cpp">
       <Filter>Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceCompilers\ResourceCompiler_EntityMap.cpp">
+    <ClCompile Include="ResourceCompilers\ResourceCompiler_EntityCollection.cpp">
       <Filter>ResourceCompilers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClInclude Include="Serialization\EntityCollectionDescriptorWriter.h">
       <Filter>Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceCompilers\ResourceCompiler_EntityMap.h">
+    <ClInclude Include="ResourceCompilers\ResourceCompiler_EntityCollection.h">
       <Filter>ResourceCompilers</Filter>
     </ClInclude>
     <ClInclude Include="EntityToolAccessor.h" />

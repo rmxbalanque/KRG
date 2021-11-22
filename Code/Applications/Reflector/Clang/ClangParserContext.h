@@ -31,7 +31,7 @@ namespace KRG
 
                 inline bool IsValid() const { return m_type != ReflectionMacro::Unknown; }
                 inline bool IsModuleMacro() const { return m_type == ReflectionMacro::RegisterModule; }
-                inline bool IsEntityComponentMacro() const { return m_type == ReflectionMacro::RegisterEntityComponent; }
+                inline bool IsEntityComponentMacro() const { return m_type == ReflectionMacro::RegisterEntityComponent || m_type == ReflectionMacro::RegisterSingletonEntityComponent; }
                 inline bool IsEntitySystemMacro() const { return m_type == ReflectionMacro::RegisterEntitySystem; }
                 inline bool IsTypeMacro() const { return m_type == ReflectionMacro::RegisterType; }
                 inline bool IsResourceMacro() const { return m_type == ReflectionMacro::RegisterResource || m_type == ReflectionMacro::RegisterVirtualResource; }

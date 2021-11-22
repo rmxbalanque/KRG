@@ -333,7 +333,7 @@ namespace KRG::GraphEditor
 
             drawingContext.m_pDrawList->ChannelsSetCurrent( (uint8) DrawChannel::Connections );
 
-            m_hoveredConnectionID.Reset();
+            m_hoveredConnectionID.Clear();
             for ( auto const& connection : m_pGraph->m_connections )
             {
                 auto pStartPin = connection.m_pStartNode->GetOutputPin( connection.m_startPinID );
@@ -650,8 +650,8 @@ namespace KRG::GraphEditor
             return;
         }
 
-        ctx.m_pDrawList->AddRectFilled( m_dragState.m_startValue, ImGui::GetMousePos(), VisualSettings::s_selectionBoxFillColor );
-        ctx.m_pDrawList->AddRect( m_dragState.m_startValue, ImGui::GetMousePos(), VisualSettings::s_selectionBoxOutlineColor );
+        ctx.m_pDrawList->AddRectFilled( m_dragState.m_startValue, ImGui::GetMousePos(), ImGuiX::Style::s_selectionBoxFillColor );
+        ctx.m_pDrawList->AddRect( m_dragState.m_startValue, ImGui::GetMousePos(), ImGuiX::Style::s_selectionBoxOutlineColor );
     }
 
     void FlowGraphView::StopDraggingSelection( DrawingContext const& ctx )

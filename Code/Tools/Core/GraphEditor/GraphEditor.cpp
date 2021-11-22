@@ -47,7 +47,7 @@ namespace KRG::GraphEditor
         }
 
         m_pParentGraph = nullptr;
-        m_ID.Reset();
+        m_ID.Clear();
     }
 
     BaseNode* BaseNode::CreateNodeFromSerializedData( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& nodeObjectValue, BaseGraph* pParentGraph )
@@ -194,7 +194,7 @@ namespace KRG::GraphEditor
 
         m_nodes.clear();
         m_pParentNode = nullptr;
-        m_ID.Reset();
+        m_ID.Clear();
     }
 
     void BaseGraph::FindAllNodesOfType( TypeSystem::TypeID typeID, TInlineVector<BaseNode*, 20>& results, SearchMode mode, SearchTypeMatch typeMatch ) const

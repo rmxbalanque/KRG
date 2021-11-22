@@ -78,7 +78,7 @@
     <ClCompile Include="Imgui\Platform\ImguiPlatform_Win32.cpp" />
     <ClCompile Include="Imgui\ImguiFont.cpp" />
     <ClCompile Include="Imgui\ImguiSystem.cpp" />
-    <ClCompile Include="Imgui\ImguiTheme.cpp" />
+    <ClCompile Include="Imgui\ImguiStyle.cpp" />
     <ClCompile Include="Imgui\ImguiX.cpp" />
     <ClCompile Include="Fonts\FontData_Roboto.cpp" />
   </ItemGroup>
@@ -132,7 +132,7 @@
     <ClInclude Include="Imgui\Platform\ImguiPlatform_Win32.h" />
     <ClInclude Include="Imgui\ImguiFont.h" />
     <ClInclude Include="Imgui\ImguiSystem.h" />
-    <ClInclude Include="Imgui\ImguiTheme.h" />
+    <ClInclude Include="Imgui\ImguiStyle.h" />
     <ClInclude Include="Imgui\ImguiX.h" />
     <ClInclude Include="Fonts\FontData_Roboto.h" />
   </ItemGroup>

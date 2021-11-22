@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-compile data://testscenes/ClothMesh/cloth_mesh.txtr</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://testscenes/ClothMesh/cloth_mesh.txtr</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-compile data://ash_fbx.msh</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://ash_fbx.msh</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>

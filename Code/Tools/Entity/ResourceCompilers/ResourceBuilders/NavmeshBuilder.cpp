@@ -118,7 +118,7 @@ namespace KRG::Navmesh
             auto pEntity = collectionInstance.FindEntity( searchResult.m_pEntity->m_ID );
             KRG_ASSERT( pEntity != nullptr );
 
-            auto pPhysicsComponent = ComponentCast<Physics::PhysicsMeshComponent>( pEntity->FindComponent( searchResult.m_pComponent->m_ID ) );
+            auto pPhysicsComponent = TryCast<Physics::PhysicsMeshComponent>( pEntity->FindComponent( searchResult.m_pComponent->m_ID ) );
             KRG_ASSERT( pPhysicsComponent != nullptr );
 
             TEntityToolAccessor<Physics::PhysicsMeshComponent> accessor( pPhysicsComponent );

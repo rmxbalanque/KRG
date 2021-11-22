@@ -56,9 +56,9 @@ namespace KRG
         inline Vector GetAxisY() const { return m_rotation.RotateVector( Vector::UnitY ); }
         inline Vector GetAxisZ() const { return m_rotation.RotateVector( Vector::UnitZ ); }
 
-        inline Vector GetRightVector() const { return m_rotation.RotateVector( Vector::UnitX ); }
-        inline Vector GetForwardVector() const { return m_rotation.RotateVector( Vector::UnitY ); }
-        inline Vector GetUpVector() const { return m_rotation.RotateVector( Vector::UnitZ ); }
+        inline Vector GetRightVector() const { return m_rotation.RotateVector( Vector::WorldRight ); }
+        inline Vector GetForwardVector() const { return m_rotation.RotateVector( Vector::WorldForward ); }
+        inline Vector GetUpVector() const { return m_rotation.RotateVector( Vector::WorldUp ); }
 
         inline bool IsIdentity() const { return m_rotation.IsIdentity() && m_translation.IsZero4() && m_scale.IsEqual3( Vector::One ); }
         inline bool IsRigidTransform() const { return m_scale.IsEqual3( Vector::One ); }

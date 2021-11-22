@@ -77,6 +77,7 @@ namespace KRG
 
         inline bool HasSpatialParent() const { return m_pSpatialParent != nullptr; }
         inline UUID GetSpatialParentID() const { KRG_ASSERT( HasSpatialParent() ); return m_pSpatialParent->GetID(); }
+        inline Transform const& GetSpatialParentWorldTransform() const { KRG_ASSERT( HasSpatialParent() ); return m_pSpatialParent->GetWorldTransform(); }
 
         // The socket that this component is attached to
         inline StringID GetAttachmentSocketID() const { return m_parentAttachmentSocketID; }
@@ -85,6 +86,18 @@ namespace KRG
         // Returns the world transform for the specified attachment socket if it exists, if it doesnt this function returns the world transform
         // The search children parameter controls, whether to only search this component or to also search it's children
         Transform GetAttachmentSocketTransform( StringID socketID ) const;
+
+        // Conversion Functions
+        //-------------------------------------------------------------------------
+
+        // Convert a world transform to a component local transform 
+        inline Transform ConvertWorldTransformToLocalTransform( Transform const& worldTransform ) const { return worldTransform * m_worldTransform.GetInverse(); }
+
+        // Convert a world point to a component local point 
+        inline Vector ConvertWorldPointToLocalPoint( Vector const& worldPoint ) const { return m_worldTransform.GetInverse().TransformPoint( worldPoint ); }
+
+        // Convert a world direction to a component local direction 
+        inline Vector ConvertWorldVectorToLocalVector( Vector const& worldVector ) const { return m_worldTransform.GetInverse().RotateVector( worldVector ); }
 
     protected:
 

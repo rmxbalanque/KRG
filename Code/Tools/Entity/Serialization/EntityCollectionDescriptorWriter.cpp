@@ -158,7 +158,7 @@ namespace KRG::EntityModel
                     componentDesc.m_name = pComponent->GetName();
 
                     // Spatial info
-                    auto pSpatialEntityComponent = ComponentCast<SpatialEntityComponent>( pComponent );
+                    auto pSpatialEntityComponent = TryCast<SpatialEntityComponent>( pComponent );
                     if ( pSpatialEntityComponent != nullptr )
                     {
                         if ( pSpatialEntityComponent->HasSpatialParent() )

@@ -37,28 +37,25 @@ namespace KRG
         // Debug Menu
         //-------------------------------------------------------------------------
         // The draw function will be called once the debug UI menu is shown and the appropriate category menu has been opened
-        // The name is not displayed, but is used for sorting the various callbacks in the menu (e.g. if we have multiple callback within the render category)
-        // Categories are treated as paths and so are separated using '/' (e.g. "Input/Controller Utils")
+        // Paths define the name and placement of the menu and are separated using '/' (e.g. "Input/Controller Utils")
 
         class DebugMenu
         {
         public:
 
-            DebugMenu( String const& name, String const& category, TFunction<void( EntityUpdateContext const& )>&& drawFunction )
-                : m_name( name )
-                , m_category( category )
+            DebugMenu( String const& menuPath, TFunction<void( EntityUpdateContext const& )>&& drawFunction )
+                : m_path( menuPath )
                 , m_drawFunction( drawFunction )
             {
-                KRG_ASSERT( !m_name.empty() && !m_category.empty() && m_drawFunction != nullptr );
+                KRG_ASSERT( !m_path.empty() && m_drawFunction != nullptr );
             }
 
-            inline String const& GetName() const { return m_name; }
-            inline String const& GetCategory() const { return m_category; }
+            inline String const& GetPath() const { return m_path; }
             inline void Execute( EntityUpdateContext const& ctx ) const { m_drawFunction( ctx ); }
 
         private:
 
-            String                                              m_name;
+            String                                              m_path;
             String                                              m_category;
             TFunction<void( EntityUpdateContext const& )>       m_drawFunction;
         };

@@ -30,7 +30,7 @@ namespace KRG::Animation::Graph
             }
             else // Found the pin
             {
-                pinsToRemove[pinIdx].Reset();
+                pinsToRemove[pinIdx].Clear();
                 auto pInputPin = GetInputPin( pinIdx );
                 pInputPin->m_name = pState->GetDisplayName();
             }

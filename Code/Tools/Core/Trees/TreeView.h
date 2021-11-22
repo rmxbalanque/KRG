@@ -41,7 +41,7 @@ namespace KRG
         // Client API
         //-------------------------------------------------------------------------
 
-        virtual ImVec4 const& GetLabelColor( bool isActive = false ) const { static const ImVec4 activeColor = Colors::GreenYellow.ToFloat4(); return isActive ? activeColor : ImGuiX::Theme::s_textColor; }
+        virtual ImVec4 const& GetLabelColor( bool isActive = false ) const { static const ImVec4 activeColor = Colors::GreenYellow.ToFloat4(); return isActive ? activeColor : ImGuiX::Style::s_textColor; }
         virtual bool SupportsContextMenu() const { return false; }
         virtual bool CanBeSetActive() const { return true; }
 

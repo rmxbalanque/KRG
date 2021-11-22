@@ -3,23 +3,26 @@
 #include "Engine/Core/Entity/EntitySystem.h"
 
 //-------------------------------------------------------------------------
+// Development Player System
+//-------------------------------------------------------------------------
+// A free cam player controller - used for debug and in editor viewports
 
 namespace KRG
 {
     class PlayerComponent;
     class SpatialEntityComponent;
-    class CameraComponent;
+    class FreeLookCameraComponent;
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_CORE_API DefaultPlayerController : public IEntitySystem
+    class KRG_ENGINE_CORE_API DevelopmentPlayerSystem : public IEntitySystem
     {
-        KRG_REGISTER_ENTITY_SYSTEM( DefaultPlayerController, RequiresUpdate( UpdateStage::FrameStart ) );
+        KRG_REGISTER_ENTITY_SYSTEM( DevelopmentPlayerSystem, RequiresUpdate( UpdateStage::FrameStart ) );
 
     public:
 
-        DefaultPlayerController();
-        virtual ~DefaultPlayerController();
+        DevelopmentPlayerSystem();
+        virtual ~DevelopmentPlayerSystem();
 
     protected:
 
@@ -31,7 +34,7 @@ namespace KRG
 
         PlayerComponent*            m_pPlayerComponent = nullptr;
         SpatialEntityComponent*     m_pRootComponent = nullptr;
-        CameraComponent*            m_pCameraComponent = nullptr;
+        FreeLookCameraComponent*    m_pCameraComponent = nullptr;
         float                       m_currentMoveSpeed = 0;
     };
 }

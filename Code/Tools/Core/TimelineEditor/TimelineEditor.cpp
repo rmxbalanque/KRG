@@ -551,7 +551,7 @@ namespace KRG::Timeline
 
         ImGui::SameLine( 0, buttonSeperation );
 
-        if ( ImGuiX::ButtonColored( m_isFrameSnappingEnabled ? ImGuiX::Theme::s_textColor : ImGuiX::Theme::s_textColorDisabled, KRG_ICON_MAGNET "##Snap", buttonSize ) )
+        if ( ImGuiX::ButtonColored( m_isFrameSnappingEnabled ? ImGuiX::Style::s_textColor : ImGuiX::Style::s_textColorDisabled, KRG_ICON_MAGNET "##Snap", buttonSize ) )
         {
             m_isFrameSnappingEnabled = !m_isFrameSnappingEnabled;
         }
@@ -944,7 +944,7 @@ namespace KRG::Timeline
 
                     InlineString<100> const itemLabel = pItem->GetLabel();
                     pDrawList->AddText( itemStart + ImVec2( 5, 1 ), 0xFF000000, itemLabel.c_str() );
-                    pDrawList->AddText( itemStart + ImVec2( 4, 0 ), ImColor( ImGuiX::Theme::s_textColor ), itemLabel.c_str() );
+                    pDrawList->AddText( itemStart + ImVec2( 4, 0 ), ImColor( ImGuiX::Style::s_textColor ), itemLabel.c_str() );
                 }
 
                 ImGui::PopClipRect();

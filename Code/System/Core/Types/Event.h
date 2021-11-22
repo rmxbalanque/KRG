@@ -55,7 +55,7 @@ namespace KRG
 
         EventBindingID( UUID& newID ) : m_ID( newID ) {}
         EventBindingID( UUID&& newID ) : m_ID( newID ) {}
-        inline void Reset() { m_ID.Reset(); }
+        inline void Reset() { m_ID.Clear(); }
 
     private:
 
@@ -113,7 +113,7 @@ namespace KRG
         {
             KRG_ASSERT( HasBoundUser() && m_bindingID == handle.m_ID );
             m_function = nullptr;
-            m_bindingID.Reset();
+            m_bindingID.Clear();
             handle.Reset();
         }
 
@@ -168,7 +168,7 @@ namespace KRG
 
             void Reset()
             {
-                m_ID.Reset();
+                m_ID.Clear();
                 m_function = nullptr;
             }
 

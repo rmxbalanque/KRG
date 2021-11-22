@@ -35,7 +35,7 @@ namespace KRG
         void DrawMainMenu( UpdateContext const& context );
         void DrawPopups( UpdateContext const& context );
         bool DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace );
-        void DrawWorkspaceViewportWindow( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass );
+        bool DrawWorkspaceViewportWindow( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass );
 
         // Hot Reload
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;

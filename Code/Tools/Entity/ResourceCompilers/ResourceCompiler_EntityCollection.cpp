@@ -1,4 +1,4 @@
-#include "ResourceCompiler_EntityMap.h"
+#include "ResourceCompiler_EntityCollection.h"
 #include "ResourceBuilders/NavmeshBuilder.h"
 #include "Tools/Entity/Serialization/EntityCollectionDescriptorReader.h"
 #include "Engine/Core/Entity/EntityMapDescriptor.h"
@@ -12,14 +12,61 @@
 
 namespace KRG::EntityModel
 {
-    EntityMapCompiler::EntityMapCompiler()
+    EntityCollectionCompiler::EntityCollectionCompiler()
         : Resource::Compiler( "EntityMapCompiler", s_version )
     {
+        m_outputTypes.push_back( EntityCollectionDescriptor::GetStaticResourceTypeID() );
         m_outputTypes.push_back( EntityMapDescriptor::GetStaticResourceTypeID() );
         m_virtualTypes.push_back( Navmesh::NavmeshData::GetStaticResourceTypeID() );
     }
 
-    Resource::CompilationResult EntityMapCompiler::Compile( Resource::CompileContext const& ctx ) const
+    Resource::CompilationResult EntityCollectionCompiler::Compile( Resource::CompileContext const& ctx ) const
+    {
+        if ( ctx.m_resourceID.GetResourceTypeID() == EntityMapDescriptor::GetStaticResourceTypeID() )
+        {
+            return CompileMap( ctx );
+        }
+
+        return CompileCollection( ctx );
+    }
+
+    Resource::CompilationResult EntityCollectionCompiler::CompileCollection( Resource::CompileContext const& ctx ) const
+    {
+        EntityCollectionDescriptor collectionDesc;
+
+        //-------------------------------------------------------------------------
+        // Read collection
+        //-------------------------------------------------------------------------
+
+        Milliseconds elapsedTime = 0.0f;
+        {
+            ScopedSystemTimer timer( elapsedTime );
+
+            if ( !EntityCollectionDescriptorReader::Read( ctx.m_typeRegistry, ctx.m_inputFilePath, collectionDesc ) )
+            {
+                return Resource::CompilationResult::Failure;
+            }
+        }
+        Message( "Entity collection read in: %.2fms", elapsedTime.ToFloat() );
+
+        //-------------------------------------------------------------------------
+        // Serialize
+        //-------------------------------------------------------------------------
+
+        FileSystem::EnsurePathExists( ctx.m_outputFilePath );
+        Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
+        if ( archive.IsValid() )
+        {
+            archive << Resource::ResourceHeader( s_version, EntityCollectionDescriptor::GetStaticResourceTypeID() ) << collectionDesc;
+            return CompilationSucceeded( ctx );
+        }
+        else
+        {
+            return CompilationFailed( ctx );
+        }
+    }
+
+    Resource::CompilationResult EntityCollectionCompiler::CompileMap( Resource::CompileContext const& ctx ) const
     {
         EntityMapDescriptor map;
         map.m_ID = UUID::GenerateID();
@@ -32,7 +79,7 @@ namespace KRG::EntityModel
         {
             ScopedSystemTimer timer( elapsedTime );
 
-            if ( !EntityCollectionDescriptorReader::Read( ctx.m_typeRegistry, ctx.m_inputFilePath, map.m_collectionDescriptor ) )
+            if ( !EntityCollectionDescriptorReader::Read( ctx.m_typeRegistry, ctx.m_inputFilePath, map ) )
             {
                 return Resource::CompilationResult::Failure;
             }
@@ -43,7 +90,7 @@ namespace KRG::EntityModel
         // Additional Resources
         //-------------------------------------------------------------------------
 
-        auto const navmeshComponents = map.m_collectionDescriptor.GetComponentsOfType<Navmesh::NavmeshComponent>( ctx.m_typeRegistry, false );
+        auto const navmeshComponents = map.GetComponentsOfType<Navmesh::NavmeshComponent>( ctx.m_typeRegistry, false );
 
         // If we have a navmesh component 
         if ( !navmeshComponents.empty() )
@@ -75,7 +122,7 @@ namespace KRG::EntityModel
                 navmeshFilePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
 
                 Navmesh::NavmeshBuilder navmeshBuilder;
-                if ( !navmeshBuilder.Build( ctx, map.GetCollectionDescriptor(), navmeshFilePath ) )
+                if ( !navmeshBuilder.Build( ctx, map, navmeshFilePath ) )
                 {
                     return Resource::CompilationResult::Failure;
                 }

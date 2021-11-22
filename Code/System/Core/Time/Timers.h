@@ -10,6 +10,7 @@ namespace KRG
     // Timers
     //-------------------------------------------------------------------------
 
+    // The system timer uses the system clock for all timing (i.e. the actual platform/OS time)
     class SystemTimer
     {
     public:
@@ -31,6 +32,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    // The engine timer uses the manually updated engine time (i.e. the accumulated delta time)
     class EngineTimer
     {
     public:

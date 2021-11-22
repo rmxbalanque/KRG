@@ -633,24 +633,29 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        inline void Clamp( Degrees min, Degrees max )
+        {
+            m_value = Math::Clamp( m_value, min.m_value, max.m_value );
+        }
+
         // Clamps between -360 and 360
-        inline void Clamp()
+        inline void Clamp360()
         {
             m_value -= ( int32( m_value / 360.0f ) * 360.0f );
         }
 
         // Clamps between -360 and 360
-        inline Degrees GetClamped() const
+        inline Degrees GetClamped360() const
         {
             Degrees d( m_value );
-            d.Clamp();
+            d.Clamp360();
             return d;
         }
 
         // Clamps to -180 to 180
-        inline void ClampToSmallest()
+        inline void Clamp180()
         {
-            Clamp();
+            Clamp360();
 
             float delta = 180 - Math::Abs( m_value );
             if ( delta < 0 )
@@ -661,17 +666,17 @@ namespace KRG
         }
 
         // Clamps to -180 to 180
-        inline Degrees GetClampedToSmallest() const
+        inline Degrees GetClamped180() const
         {
             Degrees r( m_value );
-            r.ClampToSmallest();
+            r.Clamp180();
             return r;
         }
 
         // Clamps between 0 to 360
-        inline Degrees& ClampToPositive()
+        inline Degrees& ClampPositive360()
         {
-            Clamp();
+            Clamp360();
             if ( m_value < 0 )
             {
                 m_value += 360;
@@ -680,10 +685,10 @@ namespace KRG
         }
 
         // Clamps between 0 to 360
-        inline Degrees GetClampedToPositive() const
+        inline Degrees GetClampedPositive360() const
         {
             Degrees d( m_value );
-            d.ClampToPositive();
+            d.ClampPositive360();
             return d;
         }
 
@@ -781,24 +786,29 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        inline void Clamp( Radians min, Radians max )
+        {
+            m_value = Math::Clamp( m_value, min.m_value, max.m_value );
+        }
+
         // Clamps between -2Pi to 2Pi
-        inline void Clamp()
+        inline void Clamp360()
         {
             m_value -= int32( m_value / Math::TwoPi ) * Math::TwoPi;
         }
 
         // Clamps between -2Pi to 2Pi
-        inline Radians GetClamped() const
+        inline Radians GetClamped360() const
         {
             Radians r( m_value );
-            r.Clamp();
+            r.Clamp360();
             return r;
         }
 
         // Clamps between 0 to 2Pi
-        inline void ClampToPositive()
+        inline void ClampPositive360()
         {
-            Clamp();
+            Clamp360();
             if( m_value < 0 )
             {
                 m_value += Math::TwoPi;
@@ -806,17 +816,38 @@ namespace KRG
         }
 
         // Clamps between 0 to 2Pi
-        inline Radians GetClampedToPositive() const
+        inline Radians GetClampedToPositive360() const
         {
             Radians r( m_value );
-            r.ClampToPositive();
+            r.ClampPositive360();
+            return r;
+        }
+
+        // Clamps to -Pi to Pi
+        inline void Clamp180()
+        {
+            Clamp360();
+
+            float delta = Math::Pi - Math::Abs( m_value );
+            if ( delta < 0 )
+            {
+                delta += Math::Pi;
+                m_value = ( m_value < 0 ) ? delta : -delta;
+            }
+        }
+
+        // Clamps to -Pi to Pi
+        inline Radians GetClamped180() const
+        {
+            Radians r( m_value );
+            r.Clamp180();
             return r;
         }
 
         // Inverts angle between [0;2Pi] and [-2Pi;0]
         inline void Invert()
         {
-            Clamp();
+            Clamp360();
             float const delta = Math::TwoPi - Math::Abs( m_value );
             m_value = ( m_value < 0 ) ? delta : -delta;
         }
@@ -829,31 +860,10 @@ namespace KRG
             return r;
         }
 
-        // Clamps to -Pi to Pi
-        inline void ClampToSmallest()
-        {
-            Clamp();
-
-            float delta = Math::Pi - Math::Abs( m_value );
-            if ( delta < 0 )
-            {
-                delta += Math::Pi;
-                m_value = ( m_value < 0 ) ? delta : -delta;
-            }
-        }
-
-        // Clamps to -Pi to Pi
-        inline Radians GetClampedToSmallest() const
-        {
-            Radians r( m_value );
-            r.ClampToSmallest();
-            return r;
-        }
-
         // Flips the front and rear 180 degree arc i.e. 135 becomes -45, -90 becomes 90, etc.
         inline void Flip()
         {
-            ClampToSmallest();
+            Clamp180();
             float const delta = Math::Pi - Math::Abs( m_value );
             m_value = ( m_value < 0 ) ? delta : -delta;
         }
@@ -935,9 +945,9 @@ namespace KRG
 
         inline void Clamp()
         {
-            m_x.Clamp();
-            m_y.Clamp();
-            m_z.Clamp();
+            m_x.Clamp360();
+            m_y.Clamp360();
+            m_z.Clamp360();
         }
 
         inline EulerAngles GetClamped() const

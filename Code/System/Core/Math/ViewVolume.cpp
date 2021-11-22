@@ -9,28 +9,27 @@ namespace KRG::Math
     static Matrix CalculateViewMatrix( Matrix const& worldTransform )
     {
         Vector const& eyePos = worldTransform.GetTranslationWithW();
-        Vector const& eyeDir = worldTransform.GetAxisY();
+        Vector const& eyeDir = worldTransform.GetForwardVector();
         Vector const& upDir = worldTransform.GetAxisZ();
 
         KRG_ASSERT( eyePos.IsW1() && !eyeDir.IsZero3() && !eyeDir.IsInfinite3() && !upDir.IsZero3() && !upDir.IsInfinite3() );
 
-        Vector eyeDirectionLH = eyeDir.GetNegated();
-        Vector R2 = eyeDirectionLH.GetNormalized3();
-        Vector R0 = Vector::Cross3( upDir, R2 ).GetNormalized3();
-        Vector R1 = Vector::Cross3( R2, R0 );
+        Vector const forward = eyeDir.GetNormalized3().GetNegated();
+        Vector const right = Vector::Cross3( upDir, forward ).GetNormalized3();
+        Vector const up = Vector::Cross3( forward, right );
 
         Vector NegEyePosition = eyePos.GetNegated();
 
-        Vector D0 = Vector::Dot3( R0, NegEyePosition );
-        Vector D1 = Vector::Dot3( R1, NegEyePosition );
-        Vector D2 = Vector::Dot3( R2, NegEyePosition );
+        Vector const D0 = Vector::Dot3( right, NegEyePosition );
+        Vector const D1 = Vector::Dot3( up, NegEyePosition );
+        Vector const D2 = Vector::Dot3( forward, NegEyePosition );
 
         static Vector const mask( 1, 1, 1, 0 );
 
         Matrix M;
-        M[0] = Vector::Select( D0, R0, mask );
-        M[1] = Vector::Select( D1, R1, mask );
-        M[2] = Vector::Select( D2, R2, mask );
+        M[0] = Vector::Select( D0, right, mask );
+        M[1] = Vector::Select( D1, up, mask );
+        M[2] = Vector::Select( D2, forward, mask );
         M[3] = Vector::UnitW;
 
         M.Transpose();

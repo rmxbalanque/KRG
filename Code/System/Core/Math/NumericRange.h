@@ -51,6 +51,13 @@ namespace KRG
             return Math::Max( m_start, rhs.m_start ) <= Math::Min( m_end, rhs.m_end );
         }
 
+        // Shifts the range by the supplied delta
+        inline void ShiftRange( float delta )
+        {
+            m_start += delta;
+            m_end += delta;
+        }
+
         // Does the range [min, max] contain the specified range
         inline bool ContainsInclusive( FloatRange const& rhs ) const
         {
@@ -221,6 +228,13 @@ namespace KRG
         {
             KRG_ASSERT( IsSetAndValid() );
             return Math::Max( m_start, rhs.m_start ) <= Math::Min( m_end, rhs.m_end );
+        }
+
+        // Shifts the range by the supplied delta
+        inline void ShiftRange( int32 delta )
+        {
+            m_start += delta;
+            m_end += delta;
         }
 
         // Does the range [min, max] contain the specified range

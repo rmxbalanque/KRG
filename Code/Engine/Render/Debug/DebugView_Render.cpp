@@ -12,7 +12,7 @@ namespace KRG::Render
 {
     RenderDebugView::RenderDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Debug Options", "Render", [this] ( EntityUpdateContext const& context ) { DrawRenderMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Render", [this] ( EntityUpdateContext const& context ) { DrawRenderMenu( context ); } ) );
     }
 
     void RenderDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )

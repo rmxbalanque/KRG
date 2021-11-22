@@ -10,13 +10,18 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    class EntityMapCompiler final : public Resource::Compiler
+    class EntityCollectionCompiler final : public Resource::Compiler
     {
-        static const int32 s_version = 1;
+        static const int32 s_version = 2;
 
     public:
 
-        EntityMapCompiler();
+        EntityCollectionCompiler();
         virtual Resource::CompilationResult Compile( Resource::CompileContext const& ctx ) const override;
+
+    private:
+
+        Resource::CompilationResult CompileCollection( Resource::CompileContext const& ctx ) const;
+        Resource::CompilationResult CompileMap( Resource::CompileContext const& ctx ) const;
     };
 }

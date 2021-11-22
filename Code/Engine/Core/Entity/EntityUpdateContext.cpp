@@ -18,6 +18,11 @@ namespace KRG
         return m_pWorld->GetWorldSystem( worldSystemID );
     }
 
+    EntityModel::EntityMap* EntityUpdateContext::GetPersistentMap() const
+    {
+        return m_pWorld->GetPersistentMap();
+    }
+
     Render::Viewport const* EntityUpdateContext::GetViewport() const
     {
         return m_pWorld->GetViewport();

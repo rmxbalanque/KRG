@@ -45,7 +45,7 @@ namespace KRG::TypeSystem
         // Returns the resolved property info for a given path
         PropertyInfo const* ResolvePropertyPath( TypeInfo const* pTypeInfo, PropertyPath const& pathID ) const;
 
-        // Does a given type derived a given parent type
+        // Does a given type derive from a given parent type
         bool IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const;
 
         // Return all types matching specified type metadata

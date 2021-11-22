@@ -18,7 +18,7 @@ namespace KRG::Physics
 {
     PhysicsDebugView::PhysicsDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Debug Options", "Physics", [this] ( EntityUpdateContext const& context ) { DrawPhysicsMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Physics", [this] ( EntityUpdateContext const& context ) { DrawPhysicsMenu( context ); } ) );
     }
 
     void PhysicsDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )

@@ -122,7 +122,7 @@ namespace KRG::EntityModel
         DestroyAllEntities();
     }
 
-    void EntityCollection::AddEntity( Entity* pEntity )
+    void EntityCollection::AddEntityToCollection( Entity* pEntity )
     {
         // Ensure that the entity to add, is not already part of a collection and that it's deactivated
         KRG_ASSERT( pEntity != nullptr && !pEntity->IsInCollection() && !pEntity->IsActivated() );
@@ -133,7 +133,7 @@ namespace KRG::EntityModel
         m_entityLookupMap.insert( TPair<UUID, Entity*>( pEntity->m_ID, pEntity ) );
     }
 
-    void EntityCollection::RemoveEntity( UUID entityID )
+    void EntityCollection::RemoveEntityFromCollection( UUID entityID )
     {
         auto iter = m_entityLookupMap.find( entityID );
         KRG_ASSERT( iter != m_entityLookupMap.end() );
@@ -157,7 +157,7 @@ namespace KRG::EntityModel
         for ( auto const& entityDesc : entityCollectionTemplate.m_entityDescriptors )
         {
             auto pEntity = CreateEntityFromDescriptor( typeRegistry, entityDesc );
-            AddEntity( pEntity );
+            AddEntityToCollection( pEntity );
         }
     }
 
@@ -245,6 +245,20 @@ namespace KRG::EntityModel
         }
 
         m_entities.clear();
+        m_entityLookupMap.clear();
+    }
+
+    void EntityCollection::TransferEntities( TVector<Entity*>& outEntities )
+    {
+        // Clear collection ID
+        for ( auto pEntity : m_entities )
+        {
+            pEntity->m_collectionID.Clear();
+        }
+
+        //-------------------------------------------------------------------------
+
+        m_entities.swap( outEntities );
         m_entityLookupMap.clear();
     }
 }

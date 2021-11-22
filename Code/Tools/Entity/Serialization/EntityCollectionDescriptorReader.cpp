@@ -74,7 +74,10 @@ namespace KRG::EntityModel
 
             if ( TypeSystem::IsCoreType( pPropertyInfo->m_typeID ) || pPropertyInfo->IsEnumProperty() || pPropertyInfo->IsBitFlagsProperty() )
             {
-                TypeSystem::Conversion::ConvertStringToBinary( ctx.m_typeRegistry, *pPropertyInfo, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue );
+                if ( !TypeSystem::Conversion::ConvertStringToBinary( ctx.m_typeRegistry, *pPropertyInfo, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue ) )
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -167,6 +170,10 @@ namespace KRG::EntityModel
                 if ( ReadAndConvertPropertyValue( ctx, pTypeInfo, itr, outComponentDesc.m_properties.back() ) )
                 {
                     outComponentDesc.m_properties.push_back( TypeSystem::PropertyDescriptor() );
+                }
+                else
+                {
+                    return false;
                 }
             }
 
@@ -263,16 +270,57 @@ namespace KRG::EntityModel
                 KRG_ASSERT( outEntityDesc.m_components.empty() && outEntityDesc.m_numSpatialComponents == 0 );
                 outEntityDesc.m_components.resize( numComponents );
 
+                bool wasRootComponentFound = false;
+
                 for ( int32 i = 0; i < numComponents; i++ )
                 {
                     if ( !ReadComponent( ctx, componentsArrayIter->value[i], outEntityDesc.m_components[i] ) )
                     {
-                        return false;
+                        return Error( "Failed to read component definition %u for entity (%s)", i, outEntityDesc.m_ID.ToString().c_str() );
                     }
 
                     if ( outEntityDesc.m_components[i].IsSpatialComponent() )
                     {
+                        if ( outEntityDesc.m_components[i].IsRootComponent() )
+                        {
+                            if ( wasRootComponentFound )
+                            {
+                                return Error( "Multiple root components found on entity (%s)", outEntityDesc.m_ID.ToString().c_str() );
+                            }
+                            else
+                            {
+                                wasRootComponentFound = true;
+                            }
+                        }
+
                         outEntityDesc.m_numSpatialComponents++;
+                    }
+                }
+
+                // Validate singleton components
+                //-------------------------------------------------------------------------
+                // As soon as a given component is a singleton all components derived from it are singleton components
+
+                for ( int32 i = 0; i < numComponents; i++ )
+                {
+                    auto pComponentTypeInfo = ctx.m_typeRegistry.GetTypeInfo( outEntityDesc.m_components[i].m_typeID );
+                    auto pDefaultComponentInstance = Cast<EntityComponent>( pComponentTypeInfo->GetDefaultInstance() );
+                    if ( !pDefaultComponentInstance->IsSingletonComponent() )
+                    {
+                        continue;
+                    }
+
+                    for ( int32 j = 0; j < numComponents; j++ )
+                    {
+                        if ( i == j )
+                        {
+                            continue;
+                        }
+
+                        if ( ctx.m_typeRegistry.IsTypeDerivedFrom( outEntityDesc.m_components[j].m_typeID, outEntityDesc.m_components[i].m_typeID ) )
+                        {
+                            return Error( "Multiple singleton components of type (%s) found on the same entity (%s)", pComponentTypeInfo->GetTypeName(), outEntityDesc.m_ID.ToString().c_str() );
+                        }
                     }
                 }
 
@@ -281,20 +329,32 @@ namespace KRG::EntityModel
 
                 auto comparator = [] ( ComponentDescriptor const& componentDescA, ComponentDescriptor const& componentDescB )
                 {
-                    // If they are both spatial components, ensure that the root component is first
-                    if ( componentDescA.IsSpatialComponent() && componentDescB.IsSpatialComponent() )
+                    // Spatial components have precedence
+                    if ( componentDescA.IsSpatialComponent() && !componentDescB.IsSpatialComponent() )
                     {
-                        return componentDescA.IsRootComponent();
+                        return true;
                     }
 
-                    // Do not sort regular components
-                    if ( !componentDescA.IsSpatialComponent() && !componentDescB.IsSpatialComponent() )
+                    if ( !componentDescA.IsSpatialComponent() && componentDescB.IsSpatialComponent() )
                     {
                         return false;
                     }
 
-                    // If comparing a spatial and regular component, spatial components take precedence
-                    return componentDescA.IsSpatialComponent();
+                    // Handle spatial component compare - root component takes precedence
+                    if ( componentDescA.IsSpatialComponent() && componentDescB.IsSpatialComponent() )
+                    {
+                        if ( componentDescA.IsRootComponent() )
+                        {
+                            return true;
+                        }
+                        else if ( componentDescB.IsRootComponent() )
+                        {
+                            return false;
+                        }
+                    }
+
+                    // Arbitrary sort based on name ID
+                    return strcmp( componentDescA.m_name.c_str(), componentDescB.m_name.c_str() ) <= 0;
                 };
 
                 eastl::sort( outEntityDesc.m_components.begin(), outEntityDesc.m_components.end(), comparator );
@@ -315,14 +375,14 @@ namespace KRG::EntityModel
                 {
                     if ( !ReadSystemData( ctx, systemsArrayIter->value[i], outEntityDesc.m_systems[i] ) )
                     {
-                        return false;
+                        return Error( "Failed to read system definition %u on entity (%s)", i, outEntityDesc.m_ID.ToString().c_str() );
                     }
                 }
             }
 
             //-------------------------------------------------------------------------
 
-            ctx.m_parsingContextID.Reset();
+            ctx.m_parsingContextID.Clear();
 
             //-------------------------------------------------------------------------
 

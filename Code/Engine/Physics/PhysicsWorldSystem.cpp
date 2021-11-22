@@ -44,17 +44,12 @@ namespace KRG::Physics
 
     void PhysicsWorldSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        if ( auto pPhysicsComponent = ComponentCast<PhysicsComponent>( pComponent ) )
+        if ( auto pPhysicsComponent = TryCast<PhysicsComponent>( pComponent ) )
         {
             // Add component to entity record
             //-------------------------------------------------------------------------
 
-            EntityPhysicsRecord* pRecord = m_registeredEntities[pEntity->GetID()];
-            if ( pRecord == nullptr )
-            {
-                pRecord = &m_registeredEntities.AddRecord( pEntity->GetID() );
-            }
-
+            EntityPhysicsRecord* pRecord = m_registeredEntities.FindOrAddRecord( pEntity->GetID() );
             pRecord->m_components.emplace_back( pPhysicsComponent );
 
             //-------------------------------------------------------------------------
@@ -108,9 +103,9 @@ namespace KRG::Physics
 
     void PhysicsWorldSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        if ( auto pPhysicsComponent = ComponentCast<PhysicsComponent>( pComponent ) )
+        if ( auto pPhysicsComponent = TryCast<PhysicsComponent>( pComponent ) )
         {
-            auto const pRecord = m_registeredEntities[pEntity->GetID()];
+            auto const pRecord = m_registeredEntities.GetRecord( pEntity->GetID() );
             KRG_ASSERT( pRecord != nullptr );
 
             // Remove from dynamic components list
@@ -277,7 +272,7 @@ namespace KRG::Physics
 
         PxPhysics& physics = m_pPhysicsSystem->GetPxPhysics();
         OBB localBounds;
-        if ( auto pMeshComponent = ComponentCast<PhysicsMeshComponent>( pComponent ) )
+        if ( auto pMeshComponent = TryCast<PhysicsMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( pMeshComponent->m_pPhysicsMesh->IsValid() );
             Transform const& worldTransform = pComponent->GetWorldTransform();
@@ -303,19 +298,19 @@ namespace KRG::Physics
                 localBounds = OBB( FromPx( meshLocalBounds.getCenter() ), FromPx( meshLocalBounds.getExtents() ) * scale.GetAbs() );
             }
         }
-        else if ( auto pBoxComponent = ComponentCast<PhysicsBoxComponent>( pComponent ) )
+        else if ( auto pBoxComponent = TryCast<PhysicsBoxComponent>( pComponent ) )
         {
             PxBoxGeometry const boxGeo( ToPx( pBoxComponent->m_boxExtents ) );
             pPhysicsShape = physics.createShape( boxGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
             localBounds = OBB( Vector::Origin, pBoxComponent->m_boxExtents );
         }
-        else if ( auto pSphereComponent = ComponentCast<PhysicsSphereComponent>( pComponent ) )
+        else if ( auto pSphereComponent = TryCast<PhysicsSphereComponent>( pComponent ) )
         {
             PxSphereGeometry const sphereGeo( pSphereComponent->m_radius );
             pPhysicsShape = physics.createShape( sphereGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
             localBounds = OBB( Vector::Origin, Vector( pSphereComponent->m_radius ) );
         }
-        else if ( auto pCapsuleComponent = ComponentCast<PhysicsCapsuleComponent>( pComponent ) )
+        else if ( auto pCapsuleComponent = TryCast<PhysicsCapsuleComponent>( pComponent ) )
         {
             PxCapsuleGeometry const capsuleGeo( pCapsuleComponent->m_capsuleRadius, pCapsuleComponent->m_capsuleHalfHeight );
             pPhysicsShape = physics.createShape( capsuleGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
@@ -356,6 +351,8 @@ namespace KRG::Physics
         auto drawingContext = ctx.GetDrawingContext();
         #endif
 
+        AcquireReadLock();
+
         for ( auto const& registeredDynamicComponent : m_dynamicComponents )
         {
             PhysicsComponent* pComponent = registeredDynamicComponent.second;
@@ -384,6 +381,8 @@ namespace KRG::Physics
             }
             #endif
         }
+
+        ReleaseReadLock();
     }
 
     //-------------------------------------------------------------------------

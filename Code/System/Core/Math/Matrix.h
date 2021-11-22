@@ -69,8 +69,8 @@ namespace KRG
         inline Vector const& GetAxisY() const { return m_rows[1]; }
         inline Vector const& GetAxisZ() const { return m_rows[2]; }
 
-        KRG_FORCE_INLINE Float3 GetForwardVector() const { return GetAxisY(); }
-        KRG_FORCE_INLINE Float3 GetRightVector() const { return GetAxisX(); }
+        KRG_FORCE_INLINE Float3 GetForwardVector() const { return GetAxisY().GetNegated(); }
+        KRG_FORCE_INLINE Float3 GetRightVector() const { return GetAxisX().GetNegated(); }
         KRG_FORCE_INLINE Float3 GetUpVector() const { return GetAxisZ(); }
 
         inline Vector GetUnitAxisX() const { return m_rows[0].GetNormalized3(); }

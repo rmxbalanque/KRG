@@ -101,7 +101,7 @@ namespace KRG::GraphEditor
 
     void StateMachineGraph::UpdateEntryState()
     {
-        m_entryStateID.Reset();
+        m_entryStateID.Clear();
 
         // Set to the first state we find
         for ( auto pNode : m_nodes )

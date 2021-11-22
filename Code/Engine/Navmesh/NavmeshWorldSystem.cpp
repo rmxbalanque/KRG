@@ -16,11 +16,9 @@ namespace KRG::Navmesh
 
     void NavmeshWorldSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        auto pNavmeshComponent = ComponentCast<NavmeshComponent>( pComponent );
-        if ( pNavmeshComponent != nullptr )
+        if ( auto pNavmeshComponent = TryCast<NavmeshComponent>( pComponent ) )
         {
-            auto& registeredComponent = m_navmeshComponents.AddRecord( pEntity->GetID() );
-            registeredComponent.m_pComponent = pNavmeshComponent;
+            m_navmeshComponents.emplace_back( pNavmeshComponent );
 
             if ( pNavmeshComponent->m_pNavmeshData->HasNavmeshData() )
             {
@@ -31,19 +29,14 @@ namespace KRG::Navmesh
 
     void NavmeshWorldSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        auto const pRecord = m_navmeshComponents[pEntity->GetID()];
-        if ( pRecord != nullptr )
+        if ( auto pNavmeshComponent = TryCast<NavmeshComponent>( pComponent ) )
         {
-            auto pNavmeshComponent = pRecord->m_pComponent;
-            KRG_ASSERT( pNavmeshComponent != nullptr );
-
             if ( pNavmeshComponent->m_pNavmeshData->HasNavmeshData() )
             {
                 UnregisterNavmesh( pNavmeshComponent );
             }
 
-            // Remove record
-            m_navmeshComponents.RemoveRecord( pEntity->GetID() );
+            m_navmeshComponents.erase_first_unsorted( pNavmeshComponent );
         }
     }
 

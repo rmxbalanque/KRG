@@ -3,7 +3,6 @@
 #include "Engine/Core/_Module/API.h"
 #include "System/Resource/ResourceRequesterID.h"
 #include "System/Core/Systems/ISystem.h"
-#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -50,20 +49,30 @@ namespace KRG
         // Worlds
         //-------------------------------------------------------------------------
 
-        inline EntityWorld* GetPrimaryWorld() { return m_worlds[0]; }
-        TInlineVector<EntityWorld*, 5> const& GetWorlds() const { return m_worlds; }
+        // Returns the currently active game world, there should only be one at any given time
+        EntityWorld* GetGameWorld();
+        
+        // Returns the currently active game world, there should only be one at any given time
+        EntityWorld const* GetGameWorld() const { return const_cast<EntityWorldManager*>( this )->GetGameWorld(); }
 
+        // Create a new entity world - note only a single game world is allowed at any given time
         EntityWorld* CreateWorld( EntityWorldType worldType );
+
+        // Destroy an existing world
         void DestroyWorld( EntityWorld* pWorld );
 
-        inline TMultiUserEvent<EntityWorld*> OnCreateNewWorld() { return m_createNewWorldEvent; }
+        // Get all created worlds
+        TInlineVector<EntityWorld*, 5> const& GetWorlds() const { return m_worlds; }
+
+        // Run the world update - updates all entities, systems and camera
         void UpdateWorlds( UpdateContext const& context );
 
         // Editor
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        void SetPlayerControllerState( EntityWorld* pWorld, bool isControllerEnabled );
+        // Enable or disable the player for the specified world
+        void SetPlayerEnabled( EntityWorld* pWorld, bool isPlayerEnabled );
         #endif
 
         // Hot Reload
@@ -78,7 +87,6 @@ namespace KRG
 
         SystemRegistry const*                               m_pSystemsRegistry = nullptr;
         TInlineVector<EntityWorld*, 5>                      m_worlds;
-        TMultiUserEventInternal<EntityWorld*>               m_createNewWorldEvent;
         TVector<TypeSystem::TypeInfo const*>                m_worldSystemTypeInfos;
 
         #if KRG_DEVELOPMENT_TOOLS

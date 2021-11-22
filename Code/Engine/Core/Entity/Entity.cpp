@@ -654,7 +654,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        SpatialEntityComponent* pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent );
+        SpatialEntityComponent* pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent );
         
         // Parent ID can only be set when adding a spatial component
         if( pSpatialComponent == nullptr )
@@ -673,7 +673,7 @@ namespace KRG
                 int32 const componentIdx = VectorFindIndex( m_components, parentSpatialComponentID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
                 KRG_ASSERT( componentIdx != InvalidIndex );
 
-                pParentComponent = ComponentCast<SpatialEntityComponent>( m_components[componentIdx] );
+                pParentComponent = TryCast<SpatialEntityComponent>( m_components[componentIdx] );
                 KRG_ASSERT( pParentComponent != nullptr );
             }
 
@@ -738,7 +738,7 @@ namespace KRG
         // Update spatial hierarchy
         //-------------------------------------------------------------------------
 
-        SpatialEntityComponent* pSpatialEntityComponent = ComponentCast<SpatialEntityComponent>( pComponent );
+        SpatialEntityComponent* pSpatialEntityComponent = TryCast<SpatialEntityComponent>( pComponent );
         if ( pSpatialEntityComponent != nullptr )
         {
             // If the parent component is null, attach it to the root by default
@@ -786,7 +786,7 @@ namespace KRG
         // Update spatial hierarchy
         //-------------------------------------------------------------------------
 
-        SpatialEntityComponent* pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent );
+        SpatialEntityComponent* pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent );
         if ( pSpatialComponent != nullptr )
         {
             RemoveComponentFromSpatialHierarchy( pSpatialComponent );
@@ -862,7 +862,7 @@ namespace KRG
                         int32 const componentIdx = VectorFindIndex( m_components, action.m_ID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
                         KRG_ASSERT( componentIdx != InvalidIndex );
 
-                        pParentComponent = ComponentCast<SpatialEntityComponent>( m_components[componentIdx] );
+                        pParentComponent = TryCast<SpatialEntityComponent>( m_components[componentIdx] );
                         KRG_ASSERT( pParentComponent != nullptr );
                     }
 
@@ -877,7 +877,7 @@ namespace KRG
                     auto pComponentToDestroy = (EntityComponent*) action.m_ptr;
 
                     // Remove spatial components from the hierarchy immediately
-                    SpatialEntityComponent* pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponentToDestroy );
+                    SpatialEntityComponent* pSpatialComponent = TryCast<SpatialEntityComponent>( pComponentToDestroy );
                     if ( pSpatialComponent != nullptr )
                     {
                         RemoveComponentFromSpatialHierarchy( pSpatialComponent );

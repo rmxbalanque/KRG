@@ -290,9 +290,9 @@ namespace KRG::Animation::Graph
             // Splitter
             //-------------------------------------------------------------------------
             
-            ImGui::PushStyleColor( ImGuiCol_Button, ImGuiX::Theme::s_backgroundColorSemiDark );
-            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImGuiX::Theme::s_backgroundColorSemiLight );
-            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImGuiX::Theme::s_backgroundColorSemiLight );
+            ImGui::PushStyleColor( ImGuiCol_Button, ImGuiX::Style::s_backgroundColorSemiDark.Value );
+            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImGuiX::Style::s_backgroundColorSemiLight.Value );
+            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImGuiX::Style::s_backgroundColorSemiLight.Value );
             ImGui::PushStyleVar( ImGuiStyleVar_FrameRounding, 0.0f );
             ImGui::Button( "##GraphViewSplitter", ImVec2( -1, 3 ) );
             ImGui::PopStyleColor(3);

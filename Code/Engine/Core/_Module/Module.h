@@ -4,7 +4,7 @@
 #include "Engine/Core/Modules/IEngineModule.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
-#include "Engine/Core/ResourceLoaders/ResourceLoader_EntityMap.h"
+#include "Engine/Core/ResourceLoaders/ResourceLoader_EntityCollection.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Render/RenderDevice.h"
 #include "System/Input/InputSystem.h"
@@ -67,6 +67,6 @@ namespace KRG::EngineCore
 
         // Entity
         EntityWorldManager                              m_entityWorldManager;
-        EntityModel::EntityMapLoader                    m_mapLoader;
+        EntityModel::EntityCollectionLoader             m_entityCollectionLoader;
     };
 }

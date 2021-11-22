@@ -41,6 +41,10 @@ namespace KRG
         // Create map editor workspace
         //-------------------------------------------------------------------------
 
+        // Destroy the default created game world
+        m_worldManager->DestroyWorld( m_worldManager->GetWorlds()[0] );
+
+        // Create the map editor world
         auto pMapEditorWorld = m_worldManager->CreateWorld( EntityWorldType::Editor );
         m_pRenderingSystem->CreateCustomRenderTargetForViewport( pMapEditorWorld->GetViewport() );
         m_pMapEditor = KRG::New<EntityModel::EntityMapEditor>( m_editorContext, pMapEditorWorld );
@@ -190,10 +194,9 @@ namespace KRG
         {
             m_pGamePreviewer = nullptr;
         }
-        else // Destroy preview world
-        {
-            m_worldManager->DestroyWorld( pPreviewWorld );
-        }
+
+        // Destroy preview world
+        m_worldManager->DestroyWorld( pPreviewWorld );
     }
 
     bool EditorModel::HasDescriptorForResourceType( ResourceTypeID resourceTypeID ) const
@@ -259,7 +262,7 @@ namespace KRG
     {
         KRG_ASSERT( !IsGamePreviewRunning() );
 
-        auto pPreviewWorld = m_worldManager->GetPrimaryWorld();
+        auto pPreviewWorld = m_worldManager->CreateWorld( EntityWorldType::Game );
         m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPreviewWorld->GetViewport() );
         m_pGamePreviewer = KRG::New<GamePreviewer>( m_editorContext, pPreviewWorld );
         m_pGamePreviewer->Initialize( context );

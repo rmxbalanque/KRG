@@ -40,7 +40,7 @@ namespace KRG::Animation::Graph
         inline void Reset()
         {
             PoseBuffer::Reset();
-            m_ID.Reset();
+            m_ID.Clear();
             m_shouldBeDestroyed = false;
         }
 

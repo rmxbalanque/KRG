@@ -367,12 +367,13 @@
       <Filter>Serialization</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\stb\krg_stb.cpp" />
+    <ClCompile Include="Math\FloatCurve.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Transform.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Math\BezierCurve.h">
+    <ClInclude Include="Math\Curves.h">
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\BoundingVolumes.h">
@@ -1717,6 +1718,7 @@
     <ClInclude Include="ThirdParty\stb\stb_image.h" />
     <ClInclude Include="ThirdParty\stb\stb_rect_pack.h" />
     <ClInclude Include="ThirdParty\stb\stb_truetype.h" />
+    <ClInclude Include="Math\FloatCurve.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">

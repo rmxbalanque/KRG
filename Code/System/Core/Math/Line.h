@@ -78,6 +78,36 @@ namespace KRG
             return closestPointOnLine.GetDistance3( point );
         }
 
+        // Return the intersection point between two lines in 2D
+        inline Vector Intersect2D( Line const& other ) const
+        {
+            Vector V = m_startPoint - other.m_startPoint;
+            Vector C1 = Vector::Cross2( m_direction, other.m_direction );
+            Vector C2 = Vector::Cross2( other.m_direction, V );
+
+            Vector result;
+            if ( C1.IsNearZero2() )
+            {
+                // Coincident
+                if ( C2.IsNearZero2() )
+                {
+                    result = Vector::Infinity;
+                }
+                else // Parallel
+                {
+                    result = Vector::QNaN;
+                }
+            }
+            else // Intersection point = Line1Point1 + V1 * (C2 / C1)
+            {
+                Vector distance = C1.GetInverse();
+                distance = C2 * distance;
+                result = Vector::MultiplyAdd( m_direction, distance, m_startPoint );
+            }
+
+            return result;
+        }
+
     protected:
 
         Line() = default;

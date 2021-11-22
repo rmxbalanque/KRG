@@ -19,7 +19,7 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        ImColor const separatorColor = ( (int) color == 0 ) ? ImColor( ImGuiX::Theme::s_backgroundColorLight ) : ImColor( color );
+        ImColor const separatorColor = ( (int) color == 0 ) ? ImColor( ImGuiX::Style::s_backgroundColorLight ) : ImColor( color );
 
         float const startPosX = Math::Floor( canvasPos.x + ( seperatorSize.x / 2 ) );
         float const startPosY = canvasPos.y + 1;

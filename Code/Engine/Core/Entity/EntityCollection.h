@@ -39,7 +39,6 @@ namespace KRG::EntityModel
 
         inline UUID GetID() const { return m_ID; }
 
-        // Entity API
         //-------------------------------------------------------------------------
 
         TVector<Entity*> const& GetEntities() const { return m_entities; }
@@ -53,10 +52,13 @@ namespace KRG::EntityModel
         inline bool ContainsEntity( UUID entityID ) const { return FindEntity( entityID ) != nullptr; }
 
         // Add a newly created entity to this collection
-        void AddEntity( Entity* pEntity );
+        void AddEntityToCollection( Entity* pEntity );
 
         // Remove an entity from this collection
-        void RemoveEntity( UUID entityID );
+        void RemoveEntityFromCollection( UUID entityID );
+
+        // Transfers ownership of all entities
+        void TransferEntities( TVector<Entity*>& outEntities );
 
     protected:
 

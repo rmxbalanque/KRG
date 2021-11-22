@@ -67,7 +67,7 @@ namespace KRG
     bool EditorApplication::Shutdown()
     {
         return m_editorEngine.Shutdown();
-    }  
+    }
 
     bool EditorApplication::ApplicationLoop()
     {

@@ -51,13 +51,13 @@ namespace KRG::Animation::Graph
 
             case Info::AngleHorizontal:
             {
-                m_value = Math::CalculateHorizontalAngleBetweenVectors( Vector::WorldForward, inputVector ).ToFloat();
+                m_value = Math::GetYawAngleBetweenVectors( Vector::WorldForward, inputVector );
             }
             break;
 
             case Info::AngleVertical:
             {
-                m_value = Math::CalculateVerticalAngleBetweenVectors( Vector::WorldForward, inputVector ).ToFloat();
+                m_value = Quaternion::FromRotationBetweenVectors( Vector::WorldForward, inputVector ).ToEulerAngles().GetPitch();
             }
             break;
 

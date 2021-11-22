@@ -5,6 +5,7 @@
 #include "System/Core/Update/UpdateContext.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Components/CameraComponents.h"
 
 //-------------------------------------------------------------------------
 
@@ -13,7 +14,7 @@ namespace KRG
 {
     EntityDebugView::EntityDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "MapStats", "Entity", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "World", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
     }
 
     void EntityDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
@@ -45,19 +46,19 @@ namespace KRG
 
     void EntityDebugView::DrawMenu( EntityUpdateContext const& context )
     {
-        if ( ImGui::Button( "Show World Browser" ) )
+        if ( ImGui::MenuItem( "Show World Browser" ) )
         {
             m_isWorldBrowserOpen = true;
         }
 
-        if ( ImGui::Button( "Show Map Loader" ) )
+        if ( ImGui::MenuItem( "Show Map Loader" ) )
         {
             m_isMapLoaderOpen = true;
         }
     }
 
     //-------------------------------------------------------------------------
-    // MAP LOADER
+    // Map Loader
     //-------------------------------------------------------------------------
 
     void EntityDebugView::DrawMapLoader( EntityUpdateContext const& context )
@@ -101,7 +102,7 @@ namespace KRG
     }
 
     //-------------------------------------------------------------------------
-    // WORLD BROWSER
+    // World Browser
     //-------------------------------------------------------------------------
 
     void EntityDebugView::DrawComponentEntry( EntityComponent const* pComponent )
@@ -334,7 +335,7 @@ namespace KRG
                     TInlineVector<EntityComponent*, 10> components;
                     for ( auto pComponent : m_pSelectedEntity->GetComponents() )
                     {
-                        if ( auto pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent ) )
+                        if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
                         {
                             continue;
                         }

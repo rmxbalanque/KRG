@@ -23,8 +23,8 @@ namespace KRG::Animation::Graph
 
             //-------------------------------------------------------------------------
 
-            ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Theme::s_backgroundColorLight );
-            ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Theme::s_backgroundColorLight );
+            ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Style::s_backgroundColorLight.Value );
+            ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Style::s_backgroundColorLight.Value );
             ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
 
             if ( ImGui::BeginTable( "Parameters", 3, 0 ) )

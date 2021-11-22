@@ -6,6 +6,7 @@
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "Engine/Render/Components/LightComponents.h"
+#include "Engine/Core/Components/PlayerSpawnComponent.h"
 
 //-------------------------------------------------------------------------
 
@@ -398,14 +399,53 @@ namespace KRG::EntityModel
             ImGui::PopID();
         };
 
+        auto DrawComponentButton = [this, pEditedMap, &pViewport, &pOverlayDrawList] ( SpatialEntityComponent* pComponent, char icon[4] )
+        {
+            ImVec2 const iconSize( 48, 48 );
+            ImVec2 const buttonOffset( iconSize.x / 2, iconSize.y / 2 );
+            ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
+
+            ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
+            ImVec2 const textSize = ImGui::CalcTextSize( icon );
+            ImGui::SetCursorPos( componentPositionScreenSpace - buttonOffset );
+            ImGui::PushID( pComponent );
+            ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 0 ) );
+            ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
+            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImVec4( 0, 0, 0, 0 ) );
+            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImVec4( 0, 0, 0, 0 ) );
+            if ( ImGui::Button( icon, iconSize ) )
+            {
+                auto pEntity = pEditedMap->FindEntity( pComponent->GetEntityID() );
+                SelectEntity( pEntity );
+                SelectComponent( pComponent );
+            }
+            ImGui::PopStyleColor( 3 );
+            ImGui::PopStyleVar( 1 );
+            ImGui::PopID();
+        };
+
         auto const& registeredLights = m_pWorld->GetAllRegisteredComponentsOfType<Render::LightComponent>();
         for ( auto pComponent : registeredLights )
         {
             if ( pComponent != m_pSelectedComponent )
             {
                 auto pLightComponent = Cast<Render::LightComponent>( pComponent );
-                DrawLightButton( const_cast<Render::LightComponent*>( pLightComponent ) );
+                DrawComponentButton( const_cast<Render::LightComponent*>( pLightComponent ), KRG_ICON_LIGHTBULB_O );
             }
+        }
+
+        auto const& registeredSpawns = m_pWorld->GetAllRegisteredComponentsOfType<PlayerSpawnComponent>();
+        for ( auto pComponent : registeredSpawns )
+        {
+            auto pSpawnComponent = Cast<PlayerSpawnComponent>( pComponent );
+
+            if ( pComponent != m_pSelectedComponent )
+            {
+                DrawComponentButton( const_cast<PlayerSpawnComponent*>( pSpawnComponent ), KRG_ICON_GAMEPAD );
+            }
+
+            auto const& spawnTransform = pSpawnComponent->GetWorldTransform();
+            drawingCtx.DrawArrow( spawnTransform.GetTranslation(), spawnTransform.GetForwardVector(), 0.5f, Colors::Yellow, 3.0f );
         }
 
         // Draw light debug widgets
@@ -522,7 +562,7 @@ namespace KRG::EntityModel
                 TInlineVector<EntityComponent*, 10> components;
                 for ( auto pComponent : m_pSelectedEntity->GetComponents() )
                 {
-                    if ( auto pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent ) )
+                    if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
                     {
                         continue;
                     }

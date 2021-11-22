@@ -2,7 +2,7 @@
 
 #if KRG_DEVELOPMENT_TOOLS
 #include "ImguiFont.h"
-#include "ImguiTheme.h"
+#include "ImguiStyle.h"
 #include "System/Render/Fonts/FontDecompressor.h"
 #include "System/Render/Fonts/FontData_Roboto.h"
 #include "System/Render/Fonts/FontData_FontAwesome4.h"
@@ -53,7 +53,7 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        Theme::ApplyTheme();
+        Style::Apply();
 
         return true;
     }

@@ -57,7 +57,7 @@
     <ClCompile Include="Entity\EntityCollectionDescriptor.cpp">
       <Filter>Entity\Collections</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceLoaders\ResourceLoader_EntityMap.cpp">
+    <ClCompile Include="ResourceLoaders\ResourceLoader_EntityCollection.cpp">
       <Filter>ResourceLoaders</Filter>
     </ClCompile>
     <ClCompile Include="Entity\Entity.cpp">
@@ -99,19 +99,13 @@
     <ClCompile Include="DebugViews\DebugView_Resource.cpp">
       <Filter>DebugViews</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\CameraWorldSystem.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
     <ClCompile Include="Entity\EntityUpdateContext.cpp">
       <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugViews\DebugView_Camera.cpp">
-      <Filter>DebugViews</Filter>
     </ClCompile>
     <ClCompile Include="DevUI\OrientationGuide.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\CameraComponent.cpp">
+    <ClCompile Include="Components\CameraComponents.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
     <ClCompile Include="Entity\EntityWorldManager.cpp">
@@ -120,9 +114,12 @@
     <ClCompile Include="DevUI\IDevUI.cpp" />
     <ClCompile Include="DevUI\Gizmo.cpp" />
     <ClCompile Include="DevUI\EngineDevUI.cpp" />
-    <ClCompile Include="Player\PlayerComponent.cpp" />
-    <ClCompile Include="Player\PlayerManagerWorldSystem.cpp" />
-    <ClCompile Include="Player\DefaultPlayerController.cpp" />
+    <ClCompile Include="Components\PlayerComponent.cpp" />
+    <ClCompile Include="Systems\WorldSystem.cpp" />
+    <ClCompile Include="Systems\DevelopmentPlayerSystem.cpp" />
+    <ClCompile Include="Components\PlayerSpawnComponent.cpp" />
+    <ClCompile Include="Test\TestComponent.cpp" />
+    <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Easing.h">
@@ -143,7 +140,7 @@
     <ClInclude Include="Entity\EntityCollectionDescriptor.h">
       <Filter>Entity\Collections</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceLoaders\ResourceLoader_EntityMap.h">
+    <ClInclude Include="ResourceLoaders\ResourceLoader_EntityCollection.h">
       <Filter>ResourceLoaders</Filter>
     </ClInclude>
     <ClInclude Include="Entity\EntityUpdateContext.h">
@@ -203,13 +200,7 @@
     <ClInclude Include="DevUI\OrientationGuide.h">
       <Filter>Imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Camera\CameraComponent.h">
-      <Filter>Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugViews\DebugView_Camera.h">
-      <Filter>DebugViews</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera\CameraWorldSystem.h">
+    <ClInclude Include="Components\CameraComponents.h">
       <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="DevUI\IDevUI.h" />
@@ -217,8 +208,11 @@
     <ClInclude Include="DevUI\EngineDevUI.h" />
     <ClInclude Include="Entity\EntityLoadingContext.h" />
     <ClInclude Include="Entity\EntityActivationContext.h" />
-    <ClInclude Include="Player\PlayerComponent.h" />
-    <ClInclude Include="Player\PlayerManagerWorldSystem.h" />
-    <ClInclude Include="Player\DefaultPlayerController.h" />
+    <ClInclude Include="Components\PlayerComponent.h" />
+    <ClInclude Include="Systems\WorldSystem.h" />
+    <ClInclude Include="Systems\DevelopmentPlayerSystem.h" />
+    <ClInclude Include="Components\PlayerSpawnComponent.h" />
+    <ClInclude Include="Test\TestComponent.h" />
+    <ClInclude Include="DebugViews\DebugView_Camera.h" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../_Module/API.h"
+#include "Engine/Core/_Module/API.h"
 #include "Engine/Core/Entity/EntitySpatialComponent.h"
 
 //-------------------------------------------------------------------------
@@ -12,18 +12,18 @@ namespace KRG
 {
     class KRG_ENGINE_CORE_API PlayerComponent : public EntityComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT( PlayerComponent );
+        KRG_REGISTER_SINGLETON_ENTITY_COMPONENT( PlayerComponent );
 
     public:
 
         inline PlayerComponent() = default;
         inline PlayerComponent( StringID name ) : EntityComponent( UUID::GenerateID(), name ) {}
 
-        inline bool IsPlayerInputEnabled() const { return m_isInputEnabled; }
-        inline void SetPlayerInputState( bool isInputEnabled ) { m_isInputEnabled = isInputEnabled; }
+        inline bool IsPlayerEnabled() const { return m_isEnabled; }
+        inline void SetPlayerEnabled( bool isEnabled ) { m_isEnabled = isEnabled; }
 
     private:
 
-        bool m_isInputEnabled = true;
+        bool m_isEnabled = true;
     };
 }

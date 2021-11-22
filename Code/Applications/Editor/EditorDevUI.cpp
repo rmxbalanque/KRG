@@ -447,10 +447,9 @@ namespace KRG
         // Draw workspace contents
         //-------------------------------------------------------------------------
 
+        bool enableInputForWorld = false;
         auto pWorldManager = context.GetSystem<EntityWorldManager>();
         auto pWorld = pWorkspace->GetWorld();
-
-        pWorldManager->SetPlayerControllerState( pWorld, isFocused );
 
         if ( shouldDrawWindowContents )
         {
@@ -460,13 +459,15 @@ namespace KRG
 
             if ( pWorkspace->HasViewportWindow() )
             {
-                DrawWorkspaceViewportWindow( context, pWorkspace, &workspaceWindowClass );
+                enableInputForWorld = DrawWorkspaceViewportWindow( context, pWorkspace, &workspaceWindowClass );
             }
         }
         else // If the workspace window is hidden suspend world updates
         {
             pWorld->SuspendUpdates();
         }
+
+        pWorldManager->SetPlayerEnabled( pWorld, enableInputForWorld );
 
         // Handle input
         //-------------------------------------------------------------------------
@@ -494,7 +495,7 @@ namespace KRG
         return isTabOpen;
     }
 
-    void EditorDevUI::DrawWorkspaceViewportWindow( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass )
+    bool EditorDevUI::DrawWorkspaceViewportWindow( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass )
     {
         auto pWorld = pWorkspace->GetWorld();
         auto pViewport = pWorld->GetViewport();
@@ -506,6 +507,8 @@ namespace KRG
             viewportWindowFlags |= ImGuiWindowFlags_MenuBar;
         }
 
+        bool isViewportFocused = false;
+
         // Create viewport window
         ImGui::SetNextWindowClass( pWindowClass );
         ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
@@ -514,6 +517,7 @@ namespace KRG
         {
             ImGuiStyle const& style = ImGui::GetStyle();
             ImVec2 const viewportSize( Math::Max( ImGui::GetContentRegionAvail().x, 64.0f ), Math::Max( ImGui::GetContentRegionAvail().y, 64.0f ) );
+            isViewportFocused = ImGui::IsWindowFocused();
 
             // Update engine viewport dimensions
             //-------------------------------------------------------------------------
@@ -563,5 +567,7 @@ namespace KRG
         }
         ImGui::PopStyleVar();
         ImGui::End();
+
+        return isViewportFocused;
     }
 }

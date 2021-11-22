@@ -17,7 +17,7 @@
     <ClInclude Include="Fonts\FontDecompressor.h" />
     <ClInclude Include="Imgui\ImguiFont.h" />
     <ClInclude Include="Imgui\ImguiSystem.h" />
-    <ClInclude Include="Imgui\ImguiTheme.h" />
+    <ClInclude Include="Imgui\ImguiStyle.h" />
     <ClInclude Include="Imgui\ImguiX.h" />
     <ClInclude Include="Imgui\Platform\ImguiPlatform_Win32.h" />
     <ClInclude Include="RenderShaderResource.h" />
@@ -61,7 +61,7 @@
     <ClCompile Include="Fonts\FontDecompressor.cpp" />
     <ClCompile Include="Imgui\ImguiFont.cpp" />
     <ClCompile Include="Imgui\ImguiSystem.cpp" />
-    <ClCompile Include="Imgui\ImguiTheme.cpp" />
+    <ClCompile Include="Imgui\ImguiStyle.cpp" />
     <ClCompile Include="Imgui\ImguiX.cpp" />
     <ClCompile Include="Imgui\Platform\ImguiPlatform_Win32.cpp" />
     <ClCompile Include="Platform\RenderContext_DX11.cpp" />

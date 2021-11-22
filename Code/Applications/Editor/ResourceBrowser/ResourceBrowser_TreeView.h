@@ -88,7 +88,7 @@ namespace KRG
     private:
 
         EditorModel*                                m_pModel = nullptr;
-        FileSystem::Path                            m_dataDirectoryPath;
+        FileSystem::Path                            m_sourceDirectoryPath;
         int32                                       m_dataDirectoryPathDepth;
         TVector<FileSystem::Path>                   m_foundPaths;
 

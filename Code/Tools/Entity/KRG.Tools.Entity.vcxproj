@@ -63,7 +63,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ResourceCompilers\ResourceBuilders\NavmeshBuilder.cpp" />
-    <ClCompile Include="ResourceCompilers\ResourceCompiler_EntityMap.cpp" />
+    <ClCompile Include="ResourceCompilers\ResourceCompiler_EntityCollection.cpp" />
     <ClCompile Include="Serialization\EntityCollectionDescriptorReader.cpp" />
     <ClCompile Include="Serialization\EntityCollectionDescriptorWriter.cpp" />
     <ClCompile Include="_Module\Module.cpp" />
@@ -72,7 +72,7 @@
   <ItemGroup>
     <ClInclude Include="EntityToolAccessor.h" />
     <ClInclude Include="ResourceCompilers\ResourceBuilders\NavmeshBuilder.h" />
-    <ClInclude Include="ResourceCompilers\ResourceCompiler_EntityMap.h" />
+    <ClInclude Include="ResourceCompilers\ResourceCompiler_EntityCollection.h" />
     <ClInclude Include="Serialization\EntityCollectionDescriptorReader.h" />
     <ClInclude Include="Serialization\EntityCollectionDescriptorWriter.h" />
     <ClInclude Include="_Module\API.h" />

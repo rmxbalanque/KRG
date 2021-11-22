@@ -66,6 +66,7 @@
   <ItemGroup>
     <ClInclude Include="Helpers\CommonDialogs.h" />
     <ClInclude Include="PropertyGrid\PropertyGridEditors.h" />
+    <ClInclude Include="Widgets\CurveEditor.h" />
     <ClInclude Include="Workspaces\ResourceWorkspace.h" />
     <ClInclude Include="GraphEditor\GraphEditor.h" />
     <ClInclude Include="Resource\DataFilePicker.h" />
@@ -121,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PropertyGrid\PropertyGridEditors.cpp" />
+    <ClCompile Include="Widgets\CurveEditor.cpp" />
     <ClCompile Include="Workspaces\ResourceWorkspace.cpp" />
     <ClCompile Include="GraphEditor\GraphEditor.cpp" />
     <ClCompile Include="Resource\DataFilePicker.cpp" />

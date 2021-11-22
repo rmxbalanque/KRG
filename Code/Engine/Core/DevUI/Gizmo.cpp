@@ -1,6 +1,7 @@
 #include "Gizmo.h"
 #include "imgui.h"
 #include "System/Render/Imgui/ImguiX.h"
+#include "System/Core/Math/MathHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -103,6 +104,13 @@ namespace KRG::ImGuiX
         //-------------------------------------------------------------------------
 
         m_manipulationTransform = *m_pTargetTransform;
+        m_origin_WS = m_manipulationTransform.GetTranslation();
+
+        if ( !viewport.GetViewVolume().Contains( m_origin_WS ) )
+        {
+            return false;
+        }
+
         if ( m_coordinateSpace == CoordinateSpace::World )
         {
             m_manipulationTransform.SetRotation( Quaternion::Identity );
@@ -111,7 +119,6 @@ namespace KRG::ImGuiX
         // Calculate shared data
         //-------------------------------------------------------------------------
 
-        m_origin_WS = m_manipulationTransform.GetTranslation();
         m_axisDir_WS_X = m_manipulationTransform.GetAxisX();
         m_axisDir_WS_Y = m_manipulationTransform.GetAxisY();
         m_axisDir_WS_Z = m_manipulationTransform.GetAxisZ();
@@ -133,9 +140,9 @@ namespace KRG::ImGuiX
         Vector const viewForwardDir_WS = viewport.GetViewForwardDirection();
         Vector const viewRightDir_WS = viewport.GetViewRightDirection();
 
-        m_offsetBetweenViewFwdAndAxis_WS_X = Math::Min( viewForwardDir_WS.GetAngleBetween( m_axisDir_WS_X ), viewForwardDir_WS.GetAngleBetween( m_axisDir_WS_X.GetNegated() ) );
-        m_offsetBetweenViewFwdAndAxis_WS_Y = Math::Min( viewForwardDir_WS.GetAngleBetween( m_axisDir_WS_Y ), viewForwardDir_WS.GetAngleBetween( m_axisDir_WS_Y.GetNegated() ) );
-        m_offsetBetweenViewFwdAndAxis_WS_Z = Math::Min( viewForwardDir_WS.GetAngleBetween( m_axisDir_WS_Z ), viewForwardDir_WS.GetAngleBetween( m_axisDir_WS_Z.GetNegated() ) );
+        m_offsetBetweenViewFwdAndAxis_WS_X = Math::Min( Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_X ), Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_X.GetNegated() ) );
+        m_offsetBetweenViewFwdAndAxis_WS_Y = Math::Min( Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_Y ), Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_Y.GetNegated() ) );
+        m_offsetBetweenViewFwdAndAxis_WS_Z = Math::Min( Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_Z ), Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_Z.GetNegated() ) );
 
         //-------------------------------------------------------------------------
 
@@ -234,7 +241,7 @@ namespace KRG::ImGuiX
         Vector const widgetMidPoint = Vector( circlePointsSS[numPoints / 2] );
         Vector const widgetEndPoint = Vector( circlePointsSS[numPoints - 1] );
 
-        Radians const angleBetweenMidAndEnd = ( widgetEndPoint - widgetStartPoint ).GetAngleBetween( widgetMidPoint - widgetStartPoint );
+        Radians const angleBetweenMidAndEnd = Math::GetAngleBetweenVectors( ( widgetEndPoint - widgetStartPoint ), ( widgetMidPoint - widgetStartPoint ) );
         bool const isDisabled = angleBetweenMidAndEnd < Degrees( 10.0f );
         if ( isDisabled )
         {
@@ -419,7 +426,7 @@ namespace KRG::ImGuiX
                 // Calculate rotation angle
                 Vector const originalScreenDir = Vector( m_rotationStartMousePosition - m_origin_SS ).GetNormalized2();
                 Vector const desiredRotationScreenDir = ( mousePos - m_origin_SS ).GetNormalized2();
-                m_rotationDeltaAngle = originalScreenDir.GetAngleBetween( desiredRotationScreenDir );
+                m_rotationDeltaAngle = Math::GetAngleBetweenVectors( originalScreenDir, desiredRotationScreenDir );
 
                 // Adjust direction of rotation
                 bool isRotationDirectionPositive = Vector::Cross3( originalScreenDir, desiredRotationScreenDir ).m_z > 0.0f;
@@ -447,7 +454,7 @@ namespace KRG::ImGuiX
                 Vector const originalVector_WS = startIntersectionPoint - m_origin_WS;
                 Vector const newVector_WS = newIntersectionPoint - m_origin_WS;
 
-                m_rotationDeltaAngle = originalVector_WS.GetAngleBetween( newVector_WS );
+                m_rotationDeltaAngle = Math::GetAngleBetweenVectors( originalVector_WS, newVector_WS );
                 bool isRotationDirectionPositive = Vector::Dot3( Vector::Cross3( originalVector_WS, newVector_WS ).GetNormalized3(), m_rotationAxis ).ToFloat() > 0.0f;
                 if ( !isRotationDirectionPositive )
                 {

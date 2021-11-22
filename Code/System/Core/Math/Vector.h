@@ -67,6 +67,7 @@ namespace KRG
 
         static Vector const BoxCorners[8];
 
+        KRG_FORCE_INLINE static Vector Cross2( Vector const& v0, Vector const& v1 ) { return v0.Cross2( v1 ); }
         KRG_FORCE_INLINE static Vector Cross3( Vector const& v0, Vector const& v1 ) { return v0.Cross3( v1 ); }
         KRG_FORCE_INLINE static Vector Dot2( Vector const& v0, Vector const& v1 ) { return v0.Dot2( v1 ); }
         KRG_FORCE_INLINE static Vector Dot3( Vector const& v0, Vector const& v1 ) { return v0.Dot3( v1 ); }
@@ -102,8 +103,6 @@ namespace KRG
         KRG_FORCE_INLINE static void SinCos( Vector& sin, Vector& cos, Vector const& angle );
 
         KRG_FORCE_INLINE static Vector AngleMod2Pi( Vector const& angles );
-        KRG_FORCE_INLINE static Vector AngleBetweenVectors( Vector const& v0, Vector const& v1 ) { return v0.AngleBetween( v1 ); }
-        KRG_FORCE_INLINE static Radians GetAngleBetweenVectors( Vector const& v0, Vector const& v1 ) { return v0.GetAngleBetween( v1 ); }
 
         KRG_FORCE_INLINE static Vector Lerp( Vector const& from, Vector const& to, float t ); // Linear interpolation
         KRG_FORCE_INLINE static Vector NLerp( Vector const& from, Vector const& to, float t ); // Normalized linear interpolation of a vector
@@ -192,6 +191,7 @@ namespace KRG
         KRG_FORCE_INLINE Vector& operator-() { Negate(); return *this; }
 
         KRG_FORCE_INLINE Vector Orthogonal2D() const;
+        KRG_FORCE_INLINE Vector Cross2( Vector const& other ) const;
         KRG_FORCE_INLINE Vector Cross3( Vector const& other ) const;
         KRG_FORCE_INLINE Vector Dot2( Vector const& other ) const;
         KRG_FORCE_INLINE Vector Dot3( Vector const& other ) const;
@@ -207,6 +207,7 @@ namespace KRG
         // Transformations
         KRG_FORCE_INLINE Vector& Invert() { m_data = _mm_div_ps( Vector::One, m_data ); return *this; }
         KRG_FORCE_INLINE Vector GetInverse() const { return _mm_div_ps( Vector::One, m_data ); }
+        KRG_FORCE_INLINE Vector GetReciprocal() const { return GetInverse(); }
 
         KRG_FORCE_INLINE Vector& InvertEst() { m_data = _mm_rcp_ps( m_data ); return *this; }
         KRG_FORCE_INLINE Vector GetInverseEst() const { return _mm_rcp_ps( m_data ); }
@@ -378,8 +379,6 @@ namespace KRG
         KRG_FORCE_INLINE bool IsNaN3() const { return ( _mm_movemask_ps( EqualsNaN() ) & 7 ) != 0; }
         KRG_FORCE_INLINE bool IsNaN4() const { return ( _mm_movemask_ps( EqualsNaN() ) != 0 ); }
 
-        KRG_FORCE_INLINE Vector AngleBetween( Vector const& other ) const;
-        KRG_FORCE_INLINE Radians GetAngleBetween( Vector const& other ) const { return AngleBetween( other ).ToFloat(); }
         KRG_FORCE_INLINE bool IsParallelTo( Vector const& v ) const;
 
         KRG_FORCE_INLINE void ToDirectionAndLength2( Vector& direction, Vector& length );
@@ -486,6 +485,8 @@ namespace KRG
         auto vTemp2 = _mm_and_ps( vResult, vLengthSq );
         m_data = _mm_or_ps( vTemp1, vTemp2 );
 
+        *this = Select( *this, Vector::Zero, Select0011 );
+
         return *this;
     }
 
@@ -522,6 +523,8 @@ namespace KRG
         auto vTemp1 = _mm_andnot_ps( vLengthSq, Vector::QNaN );
         auto vTemp2 = _mm_and_ps( vResult, vLengthSq );
         m_data = _mm_or_ps( vTemp1, vTemp2 );
+
+        *this = Select( *this, Vector::Zero, Select0001 );
 
         return *this;
     }
@@ -814,8 +817,8 @@ namespace KRG
 
     KRG_FORCE_INLINE bool Vector::IsParallelTo( Vector const& v ) const
     {
-        Vector const& vAbsDot = Vector::Dot3( *this, v ).GetAbs();
-        Vector const& vAbsDelta = Vector::One - vAbsDot;
+        Vector const vAbsDot = Vector::Dot3( *this, v ).GetAbs();
+        Vector const vAbsDelta = Vector::One - vAbsDot;
         return vAbsDelta.IsLessThanEqual4( Vector::Epsilon );
     }
 
@@ -842,25 +845,26 @@ namespace KRG
         return result;
     }
 
+    KRG_FORCE_INLINE Vector Vector::Cross2( Vector const& other ) const
+    {
+        Vector vResult = _mm_shuffle_ps( other.m_data, other.m_data, _MM_SHUFFLE( 0, 1, 0, 1 ) );
+        vResult = _mm_mul_ps( vResult, m_data );
+        Vector vTemp = vResult.GetSplatY();
+        vResult = _mm_sub_ss( vResult, vTemp );
+        vResult = vResult.GetSplatX();
+        return vResult;
+    }
+
     KRG_FORCE_INLINE Vector Vector::Cross3( Vector const& other ) const
     {
-        // y1,z1,x1,w1
         auto vTemp1 = _mm_shuffle_ps( m_data, m_data, _MM_SHUFFLE( 3, 0, 2, 1 ) );
-        // z2,x2,y2,w2
         auto vTemp2 = _mm_shuffle_ps( other, other, _MM_SHUFFLE( 3, 1, 0, 2 ) );
-        // Perform the left operation
         Vector result = _mm_mul_ps( vTemp1, vTemp2 );
-        // z1,x1,y1,w1
         vTemp1 = _mm_shuffle_ps( vTemp1, vTemp1, _MM_SHUFFLE( 3, 0, 2, 1 ) );
-        // y2,z2,x2,w2
         vTemp2 = _mm_shuffle_ps( vTemp2, vTemp2, _MM_SHUFFLE( 3, 1, 0, 2 ) );
-        // Perform the right operation
         vTemp1 = _mm_mul_ps( vTemp1, vTemp2 );
-        // Subtract the right from left, and return answer
         result = _mm_sub_ps( result, vTemp1 );
-        // Set m_w to zero
         result = _mm_and_ps( result, SIMD::g_maskXYZ0 );
-
         return result;
     }
 
@@ -1698,14 +1702,6 @@ namespace KRG
         result = _mm_mul_ps( result, Vector::TwoPi );
         result = _mm_sub_ps( angles, result );
         return result;
-    }
-
-    Vector Vector::AngleBetween( Vector const& other ) const
-    {
-        Vector const dot = Vector::Dot3( *this, other );
-        Vector const reciprocal = this->InverseLength3() * other.InverseLength3();
-        Vector const CosAngle = Vector::Clamp( dot * reciprocal, Vector::NegativeOne, Vector::One );
-        return Vector::ACos( CosAngle );
     }
 
     //-------------------------------------------------------------------------

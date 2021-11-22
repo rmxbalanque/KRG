@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine/Core/Entity/EntityCollectionDescriptor.h"
-#include "System/Resource/IResource.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,24 +15,20 @@ namespace KRG::EntityModel
     // This is not directly used in the game, instead we create an entity map instance from this map
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_CORE_API EntityMapDescriptor final : public Resource::IResource
+    class KRG_ENGINE_CORE_API EntityMapDescriptor final : public EntityCollectionDescriptor
     {
         KRG_REGISTER_RESOURCE( 'MAP', "Map" );
-        KRG_SERIALIZE_MEMBERS( KRG_NVP( m_ID ), KRG_NVP( m_collectionDescriptor ) );
+        KRG_SERIALIZE_MEMBERS( KRG_SERIALIZE_BASE( EntityCollectionDescriptor ), KRG_NVP( m_ID ) );
 
-        friend class EntityMapCompiler;
-        friend class EntityMapLoader;
+        friend class EntityCollectionCompiler;
+        friend class EntityCollectionLoader;
 
     public:
 
         inline UUID GetID() const { return m_ID; }
-        virtual bool IsValid() const override;
-
-        EntityCollectionDescriptor const& GetCollectionDescriptor() const { return m_collectionDescriptor; }
 
     private:
 
         UUID                                m_ID;
-        EntityCollectionDescriptor          m_collectionDescriptor;
     };
 }

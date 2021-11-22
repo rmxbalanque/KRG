@@ -227,7 +227,7 @@ namespace KRG
         if ( m_startupMap.IsValid() )
         {
             auto const sceneResourceID = KRG::ResourceID( m_startupMap );
-            m_pEntityWorldManager->GetPrimaryWorld()->LoadMap( sceneResourceID );
+            m_pEntityWorldManager->GetWorlds()[0]->LoadMap( sceneResourceID );
         }
 
         // Initialize rendering system

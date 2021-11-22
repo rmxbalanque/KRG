@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/Entity/EntityDescriptors.h"
+#include "System/Resource/IResource.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,11 +17,13 @@ namespace KRG::EntityModel
     // We used this to instantiate a collection of entities
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_CORE_API EntityCollectionDescriptor
+    class KRG_ENGINE_CORE_API EntityCollectionDescriptor : public Resource::IResource
     {
+        KRG_REGISTER_RESOURCE( 'EC', "Entity Collection" );
         KRG_SERIALIZE_MEMBERS( m_entityDescriptors, m_entityLookupMap, m_entitySpatialAttachmentInfo );
 
         friend class EntityCollection;
+        friend class EntityCollectionLoader;
 
     public:
 
@@ -42,7 +45,7 @@ namespace KRG::EntityModel
 
     public:
 
-        inline bool IsValid() const 
+        virtual bool IsValid() const override
         {
             return m_entityDescriptors.size() > 0 && m_entityDescriptors.size() == m_entityLookupMap.size();
         }

@@ -30,10 +30,10 @@ namespace KRG
 
         void DrawMenu( EntityUpdateContext const& context );
         void DrawWorldBrowser( EntityUpdateContext const& context );
+        void DrawMapLoader( EntityUpdateContext const& context );
+
         void DrawComponentEntry( EntityComponent const* pComponent );
         void DrawSpatialComponentTree( SpatialEntityComponent const* pComponent );
-
-        void DrawMapLoader( EntityUpdateContext const& context );
 
     private:
 

@@ -19,11 +19,6 @@ namespace KRG::Navmesh
 
         //-------------------------------------------------------------------------
 
-        struct RegisteredNavmeshComponent : public EntityRegistryRecord
-        {
-            NavmeshComponent*               m_pComponent = nullptr;
-        };
-
         struct RegisteredNavmesh
         {
             RegisteredNavmesh( UUID ID, char* pNavmesh ) : m_componentID( ID ), m_pNavmesh( pNavmesh ) { KRG_ASSERT( ID.IsValid() && pNavmesh != nullptr ); }
@@ -53,7 +48,7 @@ namespace KRG::Navmesh
 
     private:
 
-        EntityRegistry<RegisteredNavmeshComponent>      m_navmeshComponents;
+        TVector<NavmeshComponent*>                      m_navmeshComponents;
         TVector<RegisteredNavmesh>                      m_registeredNavmeshes;
 
         #if KRG_DEVELOPMENT_TOOLS

@@ -223,6 +223,7 @@
     <ClInclude Include="PropertyGrid\PropertyGridEditors.h">
       <Filter>PropertyGrid</Filter>
     </ClInclude>
+    <ClInclude Include="Widgets\CurveEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\KRG_RapidJson.cpp">
@@ -347,6 +348,7 @@
     <ClCompile Include="Helpers\CommonDialogs.cpp" />
     <ClCompile Include="UndoStack.cpp" />
     <ClCompile Include="PropertyGrid\PropertyGridEditors.cpp" />
+    <ClCompile Include="Widgets\CurveEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\subprocess\LICENSE">

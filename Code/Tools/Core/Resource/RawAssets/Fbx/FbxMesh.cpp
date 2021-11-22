@@ -350,6 +350,12 @@ namespace KRG
                             vert.m_texCoords.push_back( Float2( (float) texCoord[0], 1.0f - (float) texCoord[1] ) );
                         }
 
+                        // Ensure we always have UV's set
+                        if ( vert.m_texCoords.empty() )
+                        {
+                            vert.m_texCoords.emplace_back( Float2::Zero );
+                        }
+
                         // Add vertex to mesh data
                         //-------------------------------------------------------------------------
 

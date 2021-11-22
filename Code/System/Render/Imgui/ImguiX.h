@@ -2,7 +2,7 @@
 
 #include "../_Module/API.h"
 #include "ImguiFont.h"
-#include "ImguiTheme.h"
+#include "ImguiStyle.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "System/Core/Types/Color.h"
@@ -68,7 +68,7 @@ namespace KRG::ImGuiX
     inline void ItemTooltip( const char* fmt, ... )
     {
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
-        if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > Theme::s_toolTipDelay )
+        if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > Style::s_toolTipDelay )
         {
             va_list args;
             va_start( args, fmt );

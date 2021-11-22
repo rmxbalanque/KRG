@@ -18,12 +18,12 @@ namespace KRG::Animation
 
     void AnimationSystem::RegisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pMeshComponent = ComponentCast<AnimatedMeshComponent>( pComponent ) )
+        if ( auto pMeshComponent = TryCast<AnimatedMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( !VectorContains( m_meshComponents, pMeshComponent ) );
             m_meshComponents.push_back( pMeshComponent );
         }
-        else if ( auto pAnimComponent = ComponentCast<AnimationComponent>( pComponent ) )
+        else if ( auto pAnimComponent = TryCast<AnimationComponent>( pComponent ) )
         {
             if ( m_pAnimComponent == nullptr )
             {
@@ -38,12 +38,12 @@ namespace KRG::Animation
 
     void AnimationSystem::UnregisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pMeshComponent = ComponentCast<AnimatedMeshComponent>( pComponent ) )
+        if ( auto pMeshComponent = TryCast<AnimatedMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( VectorContains( m_meshComponents, pMeshComponent ) );
             m_meshComponents.erase_first( pMeshComponent );
         }
-        else if ( auto pAnimComponent = ComponentCast<AnimationComponent>( pComponent ) )
+        else if ( auto pAnimComponent = TryCast<AnimationComponent>( pComponent ) )
         {
             if ( pAnimComponent == m_pAnimComponent )
             {

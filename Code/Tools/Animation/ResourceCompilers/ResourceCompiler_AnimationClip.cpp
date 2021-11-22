@@ -7,6 +7,7 @@
 #include "Engine/Animation/AnimationClip.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
+#include "System/Core/Math/MathHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -169,7 +170,7 @@ namespace KRG::Animation
 
                 // We use the negative world forward since deltas are relative to the identity transform
                 Vector const deltaForward2D = deltaRoot.GetForwardVector().GetNormalized2();
-                Radians const deltaAngle = Vector::GetAngleBetweenVectors( deltaForward2D, Vector::WorldBackward ).GetClamped();
+                Radians const deltaAngle = Math::GetYawAngleBetweenVectors( deltaForward2D, Vector::WorldBackward ).GetClamped360();
                 totalRotation += Math::Abs( deltaAngle );
             }
         }

@@ -1,7 +1,7 @@
-#include "DefaultPlayerController.h"
-#include "Engine/Core/Camera/CameraComponent.h"
+#include "DevelopmentPlayerSystem.h"
+#include "Engine/Core/Components/CameraComponents.h"
+#include "Engine/Core/Components/PlayerComponent.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
-#include "Engine/Core/Player/PlayerComponent.h"
 #include "System/Input/InputSystem.h"
 
 //-------------------------------------------------------------------------
@@ -17,18 +17,18 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    DefaultPlayerController::DefaultPlayerController()
+    DevelopmentPlayerSystem::DevelopmentPlayerSystem()
         : m_currentMoveSpeed( g_moveSpeed )
     {}
 
-    DefaultPlayerController::~DefaultPlayerController()
+    DevelopmentPlayerSystem::~DevelopmentPlayerSystem()
     {
         KRG_ASSERT( m_pRootComponent == nullptr && m_pCameraComponent == nullptr );
     }
 
-    void DefaultPlayerController::RegisterComponent( EntityComponent* pComponent )
+    void DevelopmentPlayerSystem::RegisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent ) )
+        if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
         {
             if ( pSpatialComponent->IsRootComponent() )
             {
@@ -37,20 +37,20 @@ namespace KRG
             }
         }
 
-        if ( auto pCameraComponent = ComponentCast<CameraComponent>( pComponent ) )
+        if ( auto pCameraComponent = TryCast<FreeLookCameraComponent>( pComponent ) )
         {
             m_pCameraComponent = pCameraComponent;
         }
 
-        if ( auto pPlayerComponent = ComponentCast<PlayerComponent>( pComponent ) )
+        if ( auto pPlayerComponent = TryCast<PlayerComponent>( pComponent ) )
         {
             m_pPlayerComponent = pPlayerComponent;
         }
     }
 
-    void DefaultPlayerController::UnregisterComponent( EntityComponent* pComponent )
+    void DevelopmentPlayerSystem::UnregisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pSpatialComponent = ComponentCast<SpatialEntityComponent>( pComponent ) )
+        if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
         {
             if ( pSpatialComponent->IsRootComponent() && m_pRootComponent == pSpatialComponent )
             {
@@ -58,7 +58,7 @@ namespace KRG
             }
         }
 
-        if ( auto pCameraComponent = ComponentCast<CameraComponent>( pComponent ) )
+        if ( auto pCameraComponent = TryCast<FreeLookCameraComponent>( pComponent ) )
         {
             if ( m_pCameraComponent == pCameraComponent )
             {
@@ -66,7 +66,7 @@ namespace KRG
             }
         }
 
-        if ( auto pPlayerComponent = ComponentCast<PlayerComponent>( pComponent ) )
+        if ( auto pPlayerComponent = TryCast<PlayerComponent>( pComponent ) )
         {
             if ( m_pPlayerComponent == pPlayerComponent )
             {
@@ -75,14 +75,14 @@ namespace KRG
         }
     }
 
-    void DefaultPlayerController::Update( EntityUpdateContext const& ctx )
+    void DevelopmentPlayerSystem::Update( EntityUpdateContext const& ctx )
     {
         if ( m_pCameraComponent == nullptr || m_pRootComponent == nullptr || m_pPlayerComponent == nullptr )
         {
             return;
         }
 
-        if ( !m_pPlayerComponent->IsPlayerInputEnabled() )
+        if ( !m_pPlayerComponent->IsPlayerEnabled() )
         {
             return;
         }
@@ -120,7 +120,15 @@ namespace KRG
 
         if( needsPositionUpdate )
         {
-            Vector const spatialInput( leftButton ? -1.0f : rightButton ? 1.0f : 0, fwdButton ? 1.0f : backButton ? -1.0f : 0, 0, 0 );
+            float LR = 0;
+            if ( leftButton ) { LR -= 1.0f; }
+            if ( rightButton ) { LR += 1.0f; }
+
+            float FB = 0;
+            if ( fwdButton ) { FB += 1.0f; }
+            if ( backButton ) { FB -= 1.0f; }
+
+            Vector const spatialInput( LR, FB, 0, 0 );
 
             Transform const& entityTransform = m_pRootComponent->GetWorldTransform();
             Vector const forwardDirection = entityTransform.GetForwardVector();

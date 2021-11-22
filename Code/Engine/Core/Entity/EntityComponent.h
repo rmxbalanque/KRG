@@ -55,6 +55,9 @@ namespace KRG
         inline bool IsInitialized() const { return m_status == Status::Initialized; }
         inline Status GetStatus() const { return m_status; }
 
+        // Do we allow multiple components of the same type per entity?
+        virtual bool IsSingletonComponent() const { return false; }
+
     protected:
 
         EntityComponent() = default;
@@ -85,39 +88,6 @@ namespace KRG
         bool                        m_isRegisteredWithEntity = false;   // Registered with its parent entity's local systems
         bool                        m_isRegisteredWithWorld = false;    // Registered with the global systems in it's parent world
     };
-
-    //-------------------------------------------------------------------------
-
-    template <typename To, typename From>
-    inline To const* ComponentCast( From const* pFromComponent )
-    {
-        static_assert( std::is_base_of<KRG::EntityComponent, From>::value, "Invalid component cast detected, you may only cast from classes derived from EntityComponent" );
-        static_assert( std::is_base_of<KRG::EntityComponent, To>::value, "Invalid component cast detected, you may only cast to classes derived from EntityComponent" );
-
-        To const* pCastComponent = nullptr;
-
-        if ( pFromComponent != nullptr )
-        {
-            // Get TypeInfo for the From component
-            auto pFromTypeInfo = pFromComponent->GetTypeInfo();
-            KRG_ASSERT( pFromTypeInfo != nullptr );
-
-            // Check up-cast
-            if ( pFromTypeInfo->IsDerivedFrom( To::s_pTypeInfo->m_ID ) )
-            {
-                pCastComponent = static_cast<To const*>( pFromComponent );
-            }
-        }
-
-        return pCastComponent;
-    }
-
-    template <typename To, typename From>
-    KRG_FORCE_INLINE To* ComponentCast( From* pComponent )
-    {
-        To const* pConstCastComponent = ComponentCast<To>( const_cast<From const*>( pComponent ) );
-        return const_cast<To*>( pConstCastComponent );
-    }
 }
 
 //-------------------------------------------------------------------------
@@ -126,6 +96,16 @@ namespace KRG
         KRG_REGISTER_TYPE( TypeName );\
         template<typename T> friend struct TEntityToolAccessor;\
         protected:\
+        virtual void Load( EntityModel::EntityLoadingContext const& context, UUID requesterID ) override;\
+        virtual void Unload( EntityModel::EntityLoadingContext const& context, UUID requesterID ) override;\
+        virtual void UpdateLoading() override;
+
+// Use this macro to create a singleton component (and hierarchy) - Note: All derived types must use the regular registration macro
+#define KRG_REGISTER_SINGLETON_ENTITY_COMPONENT( TypeName ) \
+        KRG_REGISTER_TYPE( TypeName );\
+        template<typename T> friend struct TEntityToolAccessor;\
+        protected:\
+        virtual bool IsSingletonComponent() const override final { return true; }\
         virtual void Load( EntityModel::EntityLoadingContext const& context, UUID requesterID ) override;\
         virtual void Unload( EntityModel::EntityLoadingContext const& context, UUID requesterID ) override;\
         virtual void UpdateLoading() override;

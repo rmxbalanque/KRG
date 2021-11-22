@@ -47,7 +47,7 @@ namespace KRG::Animation::Graph
 
         bool const isSelected = m_graphModel.GetSelectedVariationID() == variationID;
 
-        ImGuiX::PushFontAndColor( isSelected ? ImGuiX::Font::SmallBold : ImGuiX::Font::Small, isSelected ? ImGuiX::ConvertColor( Colors::LimeGreen ) : ImGuiX::Theme::s_textColor );
+        ImGuiX::PushFontAndColor( isSelected ? ImGuiX::Font::SmallBold : ImGuiX::Font::Small, isSelected ? ImGuiX::ConvertColor( Colors::LimeGreen ) : ImGuiX::Style::s_textColor );
         bool const isTreeNodeOpen = ImGui::TreeNode( variationID.c_str() );
         ImGui::PopFont();
         ImGui::PopStyleColor();
@@ -261,7 +261,7 @@ namespace KRG::Animation::Graph
             {
                 bool nameChangeConfirmed = false;
 
-                ImGui::PushStyleColor( ImGuiCol_Text, pGraph->IsValidVariation( StringID( m_buffer ) ) ? ImGuiX::ConvertColor( Colors::Red ).Value : ImGuiX::Theme::s_textColor );
+                ImGui::PushStyleColor( ImGuiCol_Text, pGraph->IsValidVariation( StringID( m_buffer ) ) ? ImGuiX::ConvertColor( Colors::Red ).Value : ImGuiX::Style::s_textColor );
                 if ( ImGui::InputText( "##VariationName", m_buffer, 255, ImGuiInputTextFlags_EnterReturnsTrue ) )
                 {
                     nameChangeConfirmed = true;
@@ -304,7 +304,7 @@ namespace KRG::Animation::Graph
             {
                 bool nameChangeConfirmed = false;
 
-                ImGui::PushStyleColor( ImGuiCol_Text, pGraph->IsValidVariation( StringID( m_buffer ) ) ? ImGuiX::ConvertColor( Colors::Red ).Value : ImGuiX::Theme::s_textColor );
+                ImGui::PushStyleColor( ImGuiCol_Text, pGraph->IsValidVariation( StringID( m_buffer ) ) ? ImGuiX::ConvertColor( Colors::Red ).Value : ImGuiX::Style::s_textColor );
                 if ( ImGui::InputText( "##VariationName", m_buffer, 255, ImGuiInputTextFlags_EnterReturnsTrue ) )
                 {
                     nameChangeConfirmed = true;

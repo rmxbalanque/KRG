@@ -34,7 +34,7 @@ namespace KRG
     {
         KRG_ASSERT( !TryFindMenuCallback( pCallback ) );
 
-        auto const menuPath = CreatePathFromString( pCallback->GetCategory() );
+        MenuPath const menuPath = CreatePathFromString( pCallback->GetPath() );
         auto& subMenu = FindOrAddSubMenu( menuPath );
 
         // Add new callback and sort callback list
@@ -44,7 +44,7 @@ namespace KRG
 
         auto callbackSortPredicate = [] ( EntityWorldDebugView::DebugMenu const* const& pA, EntityWorldDebugView::DebugMenu const* const& pB )
         {
-            return pA->GetName() < pB->GetName();
+            return pA->GetPath() < pB->GetPath();
         };
 
         eastl::sort( subMenu.m_registeredMenus.begin(), subMenu.m_registeredMenus.end(), callbackSortPredicate );

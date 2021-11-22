@@ -1,34 +1,32 @@
-#include "ImguiTheme.h"
+#include "ImguiStyle.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::ImGuiX
 {
-    constexpr auto ColorFromBytes = [] ( uint8_t r, uint8_t g, uint8_t b )
-    {
-        return ImVec4( (float) r / 255.0f, (float) g / 255.0f, (float) b / 255.0f, 1.0f );
-    };
+    ImColor const Style::s_backgroundColorLight( 75, 75, 75 );
+    ImColor const Style::s_backgroundColorSemiLight( 60, 60, 60);
+    ImColor const Style::s_backgroundColorMedium( 40, 40, 40 );
+    ImColor const Style::s_backgroundColorSemiDark( 25, 25, 25 );
+    ImColor const Style::s_backgroundColorDark( 15, 15, 15 );
+
+    ImColor const Style::s_itemColorLight( 128, 128, 128 );
+    ImColor const Style::s_itemColorSemiLight( 105, 105, 105 );
+    ImColor const Style::s_itemColorMedium( 87, 87, 87 );
+    ImColor const Style::s_itemColorSemiDark( 58, 58, 58 );
+    ImColor const Style::s_itemColorDark( 46, 46, 46 );
+
+    ImColor const Style::s_textColor( 255, 255, 255 );
+    ImColor const Style::s_textColorDisabled( 130, 130, 130 );
+
+    ImColor const Style::s_gridBackgroundColor( 40, 40, 40, 200 );
+    ImColor const Style::s_gridLineColor( 200, 200, 200, 40 );
+    ImColor const Style::s_selectionBoxFillColor( 61, 133, 224, 150 );
+    ImColor const Style::s_selectionBoxOutlineColor( 61, 133, 224, 30 );
 
     //-------------------------------------------------------------------------
 
-    ImVec4 const Theme::s_backgroundColorLight = ColorFromBytes( 75, 75, 75 );
-    ImVec4 const Theme::s_backgroundColorSemiLight = ColorFromBytes( 60, 60, 60);
-    ImVec4 const Theme::s_backgroundColorMedium = ColorFromBytes( 40, 40, 40 );
-    ImVec4 const Theme::s_backgroundColorSemiDark = ColorFromBytes( 25, 25, 25 );
-    ImVec4 const Theme::s_backgroundColorDark = ColorFromBytes( 15, 15, 15 );
-
-    ImVec4 const Theme::s_itemColorLight = ColorFromBytes( 128, 128, 128 );
-    ImVec4 const Theme::s_itemColorSemiLight = ColorFromBytes( 105, 105, 105 );
-    ImVec4 const Theme::s_itemColorMedium = ColorFromBytes( 87, 87, 87 );
-    ImVec4 const Theme::s_itemColorSemiDark = ColorFromBytes( 58, 58, 58 );
-    ImVec4 const Theme::s_itemColorDark = ColorFromBytes( 46, 46, 46 );
-
-    ImVec4 const Theme::s_textColor = ColorFromBytes( 255, 255, 255 );
-    ImVec4 const Theme::s_textColorDisabled = ColorFromBytes( 130, 130, 130 );
-
-    //-------------------------------------------------------------------------
-
-    void Theme::ApplyTheme()
+    void Style::Apply()
     {
         ImGuiStyle& style = ImGui::GetStyle();
 
@@ -68,9 +66,9 @@ namespace KRG::ImGuiX
         colors[ImGuiCol_HeaderHovered] = s_backgroundColorLight;
         colors[ImGuiCol_HeaderActive] = s_backgroundColorSemiLight;
 
-        colors[ImGuiCol_Separator] = s_backgroundColorDark;
-        colors[ImGuiCol_SeparatorHovered] = s_backgroundColorSemiLight;
-        colors[ImGuiCol_SeparatorActive] = s_backgroundColorSemiLight;
+        colors[ImGuiCol_Separator] = s_itemColorMedium;
+        colors[ImGuiCol_SeparatorHovered] = s_itemColorSemiLight;
+        colors[ImGuiCol_SeparatorActive] = s_itemColorLight;
 
         colors[ImGuiCol_NavHighlight] = s_backgroundColorDark;
         colors[ImGuiCol_DockingPreview] = s_itemColorMedium;
@@ -103,7 +101,7 @@ namespace KRG::ImGuiX
         // Style
         //-------------------------------------------------------------------------
 
-        style.FramePadding = ImVec2( 4, 3 );
+        style.FramePadding = ImVec2( 4, 4 );
         style.WindowPadding = ImVec2( 4, 4 );
         style.ChildBorderSize = 0.0f;
         style.GrabRounding = 2.0f;
@@ -111,6 +109,7 @@ namespace KRG::ImGuiX
         style.WindowRounding = 0.0f;
         style.FrameRounding = 3.0f;
         style.IndentSpacing = 8.0f;
+        style.ItemSpacing = ImVec2( 4, 4 );
         style.TabRounding = 4.0f;
     }
 }

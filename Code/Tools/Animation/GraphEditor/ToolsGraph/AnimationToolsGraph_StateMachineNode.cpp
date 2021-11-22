@@ -61,7 +61,7 @@ namespace KRG::Animation::Graph
         ImVec2 const originalCursorPos = ImGui::GetCursorScreenPos();
         float const width = Math::Max( GetSize().x, 40.0f );
         ImGui::InvisibleButton( "Spacer", ImVec2( width, 10 ) );
-        ctx.m_pDrawList->AddLine( originalCursorPos + ImVec2( 0, 4 ), originalCursorPos + ImVec2( GetSize().x, 4 ), ImColor( ImGuiX::Theme::s_itemColorLight ) );
+        ctx.m_pDrawList->AddLine( originalCursorPos + ImVec2( 0, 4 ), originalCursorPos + ImVec2( GetSize().x, 4 ), ImColor( ImGuiX::Style::s_itemColorLight ) );
 
         // Draw runtime debug info
         //-------------------------------------------------------------------------

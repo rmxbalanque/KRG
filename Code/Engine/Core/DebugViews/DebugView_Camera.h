@@ -1,17 +1,23 @@
 #pragma once
 
-#include "../_Module/API.h"
-#include "Engine/Core/Camera/CameraWorldSystem.h"
 #include "Engine/Core/Entity/EntityWorldDebugView.h"
 
 //-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
-namespace KRG::Camera
+namespace KRG
 {
-    class KRG_ENGINE_CORE_API CameraDebugView : public EntityWorldDebugView
+    class WorldSystem;
+
+    //-------------------------------------------------------------------------
+
+    class CameraDebugView : public EntityWorldDebugView
     {
         KRG_REGISTER_TYPE( CameraDebugView );
+
+    public:
+
+        CameraDebugView();
 
     private:
 
@@ -19,10 +25,14 @@ namespace KRG::Camera
         virtual void Shutdown() override;
         virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
+        void DrawMenu( EntityUpdateContext const& context );
+        void DrawCameraWindow( EntityUpdateContext const& context );
+
     private:
 
-        CameraWorldSystem*      m_pCameraSystem = nullptr;
-        float                   m_recordingTime = 0.1f;
+        EntityWorld const*      m_pWorld = nullptr;
+        WorldSystem const*      m_pWorldSystem = nullptr;
+        bool                    m_isCameraDebugWindowOpen = false;
     };
 }
 #endif

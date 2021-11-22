@@ -32,15 +32,15 @@ namespace KRG
 
     ResourceBrowserTreeView::ResourceBrowserTreeView( EditorModel* pModel )
         : m_pModel( pModel )
-        , m_dataDirectoryPath( pModel->GetSourceResourceDirectory() )
+        , m_sourceDirectoryPath( pModel->GetSourceResourceDirectory() )
         , m_dataDirectoryPathDepth( pModel->GetSourceResourceDirectory().GetPathDepth() )
     {
         KRG_ASSERT( m_pModel != nullptr );
-        KRG_ASSERT( FileSystem::Exists( m_dataDirectoryPath ) );
+        KRG_ASSERT( FileSystem::Exists( m_sourceDirectoryPath ) );
 
         // Create root node
         KRG_ASSERT( m_pRoot == nullptr );
-        m_pRoot = KRG::New<ResourceBrowserTreeItem>( "Data", -1, m_dataDirectoryPath, ResourcePath::FromFileSystemPath( m_dataDirectoryPath, m_dataDirectoryPath ) );
+        m_pRoot = KRG::New<ResourceBrowserTreeItem>( "Data", -1, m_sourceDirectoryPath, ResourcePath::FromFileSystemPath( m_sourceDirectoryPath, m_sourceDirectoryPath ) );
         m_pRoot->SetExpanded( true );
 
         //-------------------------------------------------------------------------
@@ -55,7 +55,7 @@ namespace KRG
         KRG::Delete( m_pResourceDescriptorCreator );
 
         // Clean params
-        m_dataDirectoryPath = FileSystem::Path();
+        m_sourceDirectoryPath = FileSystem::Path();
         m_dataDirectoryPathDepth = -1;
     }
 
@@ -90,7 +90,7 @@ namespace KRG
         m_pRoot->DestroyChildren();
         m_pRoot->SetExpanded( true );
 
-        if ( !FileSystem::GetDirectoryContents( m_dataDirectoryPath, m_foundPaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::Expand ) )
+        if ( !FileSystem::GetDirectoryContents( m_sourceDirectoryPath, m_foundPaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::Expand ) )
         {
             KRG_HALT();
         }
@@ -114,7 +114,7 @@ namespace KRG
             }
 
             // Create file item
-            parentItem.CreateChild<ResourceBrowserTreeItem>( path.GetFileName().c_str(), parentItem.GetHierarchyLevel() + 1, path, ResourcePath::FromFileSystemPath( m_dataDirectoryPath, path ), resourceTypeID );
+            parentItem.CreateChild<ResourceBrowserTreeItem>( path.GetFileName().c_str(), parentItem.GetHierarchyLevel() + 1, path, ResourcePath::FromFileSystemPath( m_sourceDirectoryPath, path ), resourceTypeID );
         }
 
         // Restore original state
@@ -144,7 +144,7 @@ namespace KRG
         KRG_ASSERT( path.IsFile() );
 
         TreeViewItem* pCurrentItem = m_pRoot;
-        FileSystem::Path directoryPath = m_dataDirectoryPath;
+        FileSystem::Path directoryPath = m_sourceDirectoryPath;
         TInlineVector<String, 10> splitPath = path.Split();
 
         //-------------------------------------------------------------------------
@@ -160,7 +160,7 @@ namespace KRG
             auto pFoundChildItem = pCurrentItem->FindChild( searchPredicate );
             if ( pFoundChildItem == nullptr )
             {
-                auto pItem = pCurrentItem->CreateChild<ResourceBrowserTreeItem>( splitPath[i].c_str(), pCurrentItem->GetHierarchyLevel() + 1, directoryPath, ResourcePath::FromFileSystemPath( m_dataDirectoryPath, directoryPath ) );
+                auto pItem = pCurrentItem->CreateChild<ResourceBrowserTreeItem>( splitPath[i].c_str(), pCurrentItem->GetHierarchyLevel() + 1, directoryPath, ResourcePath::FromFileSystemPath( m_sourceDirectoryPath, directoryPath ) );
                 pCurrentItem = pItem;
             }
             else
@@ -222,9 +222,9 @@ namespace KRG
             ImGui::SetClipboardText( pResourceItem->GetFilePath().c_str() );
         }
 
-        if ( ImGui::MenuItem( "Copy Data Path" ) )
+        if ( ImGui::MenuItem( "Copy Resource Path" ) )
         {
-            ImGui::SetClipboardText( pResourceItem->GetFilePath().c_str() );
+            ImGui::SetClipboardText( pResourceItem->GetResourcePath().c_str() );
         }
 
         // Directory options

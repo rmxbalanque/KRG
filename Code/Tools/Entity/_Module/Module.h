@@ -1,7 +1,7 @@
 #pragma once
 
 #include "API.h"
-#include "Tools/Entity/ResourceCompilers/ResourceCompiler_EntityMap.h"
+#include "Tools/Entity/ResourceCompilers/ResourceCompiler_EntityCollection.h"
 #include "Tools/Core/Resource/Compilers/ResourceCompilerRegistry.h"
 
 //-------------------------------------------------------------------------
@@ -14,18 +14,11 @@ namespace KRG::EntityModel
 
     public:
 
-        void RegisterCompilers( Resource::CompilerRegistry& compilerRegistry )
-        {
-            compilerRegistry.RegisterCompiler( &m_mapCompiler );
-        }
-
-        void UnregisterCompilers( Resource::CompilerRegistry& compilerRegistry )
-        {
-            compilerRegistry.UnregisterCompiler( &m_mapCompiler );
-        }
+        void RegisterCompilers( Resource::CompilerRegistry& compilerRegistry );
+        void UnregisterCompilers( Resource::CompilerRegistry& compilerRegistry );
 
     private:
 
-        EntityMapCompiler   m_mapCompiler;
+        EntityCollectionCompiler    m_collectionCompiler;
     };
 }

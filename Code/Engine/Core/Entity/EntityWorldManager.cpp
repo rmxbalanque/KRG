@@ -1,9 +1,8 @@
 #include "EntityWorldManager.h"
 #include "EntityWorld.h"
 #include "EntityWorldDebugView.h"
-#include "Engine/Core/Camera/CameraWorldSystem.h"
-#include "Engine/Core/Player/PlayerManagerWorldSystem.h"
-#include "Engine/Core/Camera/CameraComponent.h"
+#include "Engine/Core/Systems/WorldSystem.h"
+#include "Engine/Core/Components/CameraComponents.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/SystemRegistry.h"
@@ -15,7 +14,6 @@ namespace KRG
     EntityWorldManager::~EntityWorldManager()
     {
         KRG_ASSERT( m_worlds.empty() && m_worldSystemTypeInfos.empty() );
-        KRG_ASSERT( !m_createNewWorldEvent.HasBoundUsers() );
     }
 
     void EntityWorldManager::Initialize( SystemRegistry const& systemsRegistry )
@@ -34,7 +32,7 @@ namespace KRG
         m_debugViewTypeInfos = pTypeRegistry->GetAllDerivedTypes( EntityWorldDebugView::GetStaticTypeID(), false, false );
         #endif
 
-        // Create the primary world
+        // Create a game world
         //-------------------------------------------------------------------------
 
         CreateWorld( EntityWorldType::Game );
@@ -78,15 +76,39 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    EntityWorld* EntityWorldManager::GetGameWorld()
+    {
+        for ( auto const& pWorld : m_worlds )
+        {
+            if ( pWorld->IsGameWorld() )
+            {
+                return pWorld;
+            }
+        }
+
+        return nullptr;
+    }
+
     EntityWorld* EntityWorldManager::CreateWorld( EntityWorldType worldType )
     {
         KRG_ASSERT( m_pSystemsRegistry != nullptr );
 
         //-------------------------------------------------------------------------
 
+        // Only a single game world is allowed
+        if ( worldType == EntityWorldType::Game )
+        {
+            if ( GetGameWorld() != nullptr )
+            {
+                KRG_UNREACHABLE_CODE();
+                return nullptr;
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
         auto pNewWorld = KRG::New<EntityWorld>( worldType );
         pNewWorld->Initialize( *m_pSystemsRegistry, m_worldSystemTypeInfos );
-        m_createNewWorldEvent.Execute( pNewWorld );
         m_worlds.emplace_back( pNewWorld );
 
         //-------------------------------------------------------------------------
@@ -161,10 +183,10 @@ namespace KRG
             if ( context.GetUpdateStage() == UpdateStage::PrePhysics && pWorld->GetViewport() != nullptr )
             {
                 auto pViewport = pWorld->GetViewport();
-                auto pCameraSystem = pWorld->GetWorldSystem<CameraWorldSystem>();
-                if ( pCameraSystem->HasActiveCamera() )
+                auto pWorldSystem = pWorld->GetWorldSystem<WorldSystem>();
+                if ( pWorldSystem->HasActiveCamera() )
                 {
-                    auto pActiveCamera = pCameraSystem->GetActiveCamera();
+                    auto pActiveCamera = pWorldSystem->GetActiveCamera();
 
                     // Update camera view dimensions if needed
                     if ( pViewport->GetDimensions() != pActiveCamera->GetViewVolume().GetViewDimensions() )
@@ -182,10 +204,10 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void EntityWorldManager::SetPlayerControllerState( EntityWorld* pWorld, bool isControllerEnabled )
+    void EntityWorldManager::SetPlayerEnabled( EntityWorld* pWorld, bool isPlayerEnabled )
     {
-        auto pPlayerManagerSystem = pWorld->GetWorldSystem<PlayerManagerSystem>();
-        pPlayerManagerSystem->SetPlayerControllerState( isControllerEnabled );
+        auto pPlayerManagerSystem = pWorld->GetWorldSystem<WorldSystem>();
+        pPlayerManagerSystem->SetPlayerEnabled( isPlayerEnabled );
     }
 
     void EntityWorldManager::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload )

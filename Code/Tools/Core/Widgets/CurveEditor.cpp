@@ -1,0 +1,560 @@
+#include "CurveEditor.h"
+#include "System/Render/Imgui/ImguiX.h"
+#include "System/Core/Math/Curves.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    ImColor const CurveEditor::s_curveColor( 255, 255, 255, 255 );
+    ImColor const CurveEditor::s_curvePointHandleColor( 0xFFFFFFFF );
+    ImColor const CurveEditor::s_curveSelectedPointHandleColor( 0xFF00FFFF );
+    ImColor const CurveEditor::s_curveInTangentHandleColor( 0xFF90EE90 );
+    ImColor const CurveEditor::s_curveOutTangentHandleColor( 0xFF32CD32 );
+
+    //-------------------------------------------------------------------------
+
+    CurveEditor::CurveEditor( FloatCurve& curve )
+        : m_curve( curve )
+    {
+        ViewEntireCurve();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void CurveEditor::CreatePoint( float parameter, float value )
+    {
+        m_curve.AddPoint( parameter, value );
+        m_selectedPointIdx = InvalidIndex;
+    }
+
+    void CurveEditor::DeletePoint( int32 pointIdx )
+    {
+        KRG_ASSERT( pointIdx >= 0 && pointIdx < m_curve.GetNumPoints() );
+        m_curve.RemovePoint( pointIdx );
+        m_selectedPointIdx = InvalidIndex;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void CurveEditor::InitializeFrameState()
+    {
+        m_pDrawList = ImGui::GetWindowDrawList();
+        m_windowPos = ImGui::GetWindowPos();
+        m_canvasStart = m_windowPos + Float2( ImGui::GetCursorPos() );
+        m_canvasEnd = m_windowPos + Float2( ImGui::GetWindowContentRegionMax() );
+        m_canvasWidth = m_canvasEnd.m_x - m_canvasStart.m_x;
+        m_canvasHeight = m_canvasEnd.m_y - m_canvasEnd.m_y;
+
+        m_curveCanvasStart = m_canvasStart;
+        m_curveCanvasEnd = m_canvasEnd - Float2( s_gridLegendWidth, s_gridLegendHeight );
+        m_curveCanvasWidth = m_curveCanvasEnd.m_x - m_curveCanvasStart.m_x;
+        m_curveCanvasHeight = m_curveCanvasEnd.m_y - m_curveCanvasStart.m_y;
+
+        m_horizontalRangeLength = m_horizontalViewRange.GetLength();
+        m_verticalRangeLength = m_verticalViewRange.GetLength();
+        m_pixelsPerUnitHorizontal = m_curveCanvasWidth / m_horizontalRangeLength;
+        m_pixelsPerUnitVertical = m_curveCanvasHeight / m_verticalRangeLength;
+
+        m_wasPointClicked = false;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void CurveEditor::ViewEntireCurve()
+    {
+        ViewEntireHorizontalRange();
+        ViewEntireVerticalRange();
+    }
+
+    void CurveEditor::ViewEntireHorizontalRange()
+    {
+        if ( m_curve.GetNumPoints() == 0 )
+        {
+            m_horizontalViewRange = FloatRange( -s_fitViewExtraMarginPercentage, 1.0f + s_fitViewExtraMarginPercentage );
+        }
+
+        m_horizontalViewRange = m_curve.GetParameterRange();
+        float const parameterRangeLength = m_horizontalViewRange.GetLength();
+        m_horizontalViewRange.m_start -= parameterRangeLength * s_fitViewExtraMarginPercentage;
+        m_horizontalViewRange.m_end += parameterRangeLength * s_fitViewExtraMarginPercentage;
+    }
+
+    void CurveEditor::ViewEntireVerticalRange()
+    {
+        if ( m_curve.GetNumPoints() == 0 )
+        {
+            m_verticalViewRange = FloatRange( -s_fitViewExtraMarginPercentage, 1.0f + s_fitViewExtraMarginPercentage );
+        }
+
+        // Evaluate curve
+        float const stepT = m_horizontalViewRange.GetLength() / 250;
+        m_verticalViewRange = FloatRange( m_curve.Evaluate( 0.0f ) );
+        for ( auto i = 1; i < 250; i++ )
+        {
+            float const t = ( i * stepT );
+            m_verticalViewRange.GrowRange( m_curve.Evaluate( t ) );
+        }
+
+        // Set range
+        float const valueRangeLength = m_verticalViewRange.GetLength();
+        m_verticalViewRange.m_start -= valueRangeLength * s_fitViewExtraMarginPercentage;
+        m_verticalViewRange.m_end += valueRangeLength * s_fitViewExtraMarginPercentage;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void CurveEditor::DrawToolbar()
+    {
+        // View Controls
+        //-------------------------------------------------------------------------
+
+        if ( ImGui::Button( KRG_ICON_ARROWS ) )
+        {
+            ViewEntireCurve();
+        }
+        ImGuiX::ItemTooltip( "Fit entire curve" );
+
+        ImGui::SameLine();
+
+        if ( ImGui::Button( KRG_ICON_ARROWS_H ) )
+        {
+            ViewEntireHorizontalRange();
+        }
+        ImGuiX::ItemTooltip( "Fit curve horizontally" );
+
+        ImGui::SameLine();
+
+        if ( ImGui::Button( KRG_ICON_ARROWS_V ) )
+        {
+            ViewEntireVerticalRange();
+        }
+        ImGuiX::ItemTooltip( "Fit curve vertically" );
+
+        // Point Editor
+        //-------------------------------------------------------------------------
+
+        ImGui::SameLine( ImGui::GetContentRegionAvail().x - 244, 0 );
+        ImGui::Text( "Point:" );
+        ImGui::SameLine();
+
+        Float2 pointValues( 0, 0 );
+        if ( m_selectedPointIdx != InvalidIndex )
+        {
+            pointValues.m_x = m_curve.GetPoint( m_selectedPointIdx ).m_parameter;
+            pointValues.m_y = m_curve.GetPoint( m_selectedPointIdx ).m_value;
+        }
+
+        ImGui::BeginDisabled( m_selectedPointIdx == InvalidIndex );
+        ImGui::SetNextItemWidth( 200 );
+        if ( ImGui::InputFloat2( "##PointEditor", &pointValues.m_x ) )
+        {
+            m_curve.EditPoint( m_selectedPointIdx, pointValues.m_x, pointValues.m_y );
+            ViewEntireCurve();
+        }
+        ImGui::EndDisabled();
+    }
+
+    void CurveEditor::DrawGrid()
+    {
+        m_pDrawList->PushClipRect( m_canvasStart, m_canvasEnd );
+
+        InlineString<10> legendString;
+        m_pDrawList->AddRectFilled( m_canvasStart, m_canvasEnd, ImGuiX::Style::s_gridBackgroundColor );
+
+        int32 const numVerticalLines = Math::FloorToInt( m_curveCanvasWidth / s_pixelsPerGridBlock );
+        for ( auto i = 0; i <= numVerticalLines; i++ )
+        {
+            Float2 const lineStart( m_canvasStart.m_x + ( i * s_pixelsPerGridBlock ), m_canvasStart.m_y );
+            Float2 const lineEnd( lineStart.m_x, m_canvasEnd.m_y - s_gridLegendHeight );
+            m_pDrawList->AddLine( lineStart, lineEnd, ImGuiX::Style::s_gridLineColor );
+
+            float const legendValue = m_horizontalViewRange.GetValueForPercentageThrough( ( lineStart.m_x - m_canvasStart.m_x ) / m_curveCanvasWidth );
+            legendString.sprintf( "%.2f", legendValue );
+
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+                Float2 const textSize = ImGui::CalcTextSize( legendString.c_str() );
+                m_pDrawList->AddText( ImVec2( lineStart.m_x - ( textSize.m_x / 2 ), lineEnd.m_y ), 0xFFFFFFFF, legendString.c_str() );
+            }
+        }
+
+        int32 const numHorizontalLines = Math::FloorToInt( m_curveCanvasHeight / s_pixelsPerGridBlock );
+        for ( auto i = 0; i <= numHorizontalLines; i++ )
+        {
+            Float2 const lineStart( m_canvasStart.m_x, m_canvasStart.m_y + ( i * s_pixelsPerGridBlock ) );
+            Float2 const lineEnd( m_canvasEnd.m_x - s_gridLegendWidth, lineStart.m_y );
+            m_pDrawList->AddLine( lineStart, lineEnd, ImGuiX::Style::s_gridLineColor );
+
+            float const legendValue = m_verticalViewRange.GetValueForPercentageThrough( 1.0f - ( ( lineEnd.m_y - m_canvasStart.m_y ) / m_curveCanvasHeight ) );
+            legendString.sprintf( "%.2f", legendValue );
+
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+                Float2 const textSize = ImGui::CalcTextSize( legendString.c_str() );
+                m_pDrawList->AddText( ImVec2( lineEnd.m_x, lineEnd.m_y - ( textSize.m_y / 2 ) ), 0xFFFFFFFF, legendString.c_str() );
+            }
+        }
+
+        m_pDrawList->PopClipRect();
+    }
+
+    void CurveEditor::DrawCurve()
+    {
+        int32 const numPointsToDraw = Math::RoundToInt( m_curveCanvasWidth / 2 ) + 1;
+        float const stepT = m_horizontalRangeLength / ( numPointsToDraw - 1 );
+
+        TVector<ImVec2> curvePoints;
+        for ( auto i = 0; i < numPointsToDraw; i++ )
+        {
+            float const t = m_horizontalViewRange.m_start + ( i * stepT );
+            Float2 curvePoint( t, m_curve.Evaluate( t ) );
+            curvePoint.m_x = m_curveCanvasStart.m_x + ( m_horizontalViewRange.GetPercentageThrough( curvePoint.m_x ) * m_curveCanvasWidth );
+            curvePoint.m_y = m_curveCanvasEnd.m_y - ( m_verticalViewRange.GetPercentageThrough( curvePoint.m_y ) * m_curveCanvasHeight );
+            curvePoints.emplace_back( curvePoint );
+        }
+
+        m_pDrawList->AddPolyline( curvePoints.data(), numPointsToDraw, s_curveColor, 0, 2.0f );
+    }
+
+    void CurveEditor::DrawInTangentHandle( int32 pointIdx )
+    {
+        KRG_ASSERT( pointIdx >= 0 && pointIdx < m_curve.GetNumPoints() );
+        FloatCurve::Point const& point = m_curve.GetPoint( pointIdx );
+        Float2 const pointCenter = GetScreenPosFromCurvePos( point );
+
+        //-------------------------------------------------------------------------
+
+        // Calculate the tangent offset based on the current slope (invert it since it's incoming)
+        Vector tangentOffset( -m_pixelsPerUnitHorizontal, -point.m_inTangent * m_pixelsPerUnitVertical, 0 );
+        tangentOffset.Normalize2();
+        tangentOffset *= s_slopeHandleLength;
+
+        Float2 tangentHandleCenter;
+        tangentHandleCenter.m_x = ( pointCenter.m_x + tangentOffset.m_x );
+        tangentHandleCenter.m_y = ( pointCenter.m_y - tangentOffset.m_y );
+
+        // Draw handle button
+        InlineString<50> tangentHandleID;
+        tangentHandleID.sprintf( "in_%u", point.m_ID );
+        ImGui::SetCursorScreenPos( tangentHandleCenter - Float2( s_handleRadius, s_handleRadius ) );
+        ImGui::InvisibleButton( tangentHandleID.c_str(), ImVec2( 2 * s_handleRadius, 2 * s_handleRadius ) );
+
+        // Is editing
+        if ( ImGui::IsItemActive() && ImGui::IsMouseDragging( 0 ) )
+        {
+            // Get visual tangent offset
+            auto const& io = ImGui::GetIO();
+            Vector tangentCanvasOffset( io.MousePos.x - pointCenter.m_x, io.MousePos.y - pointCenter.m_y, 0.0f );
+            tangentCanvasOffset.m_x = Math::Min( tangentCanvasOffset.m_x, 0.0f ); // Lock outgoing tangents to the left hemisphere
+            tangentCanvasOffset.m_y = -tangentCanvasOffset.m_y; // Handle y flip here
+
+            // Convert to curve units (invert direction here)
+            tangentCanvasOffset.m_x = -tangentCanvasOffset.m_x / m_pixelsPerUnitHorizontal;
+            tangentCanvasOffset.m_y = -tangentCanvasOffset.m_y / m_pixelsPerUnitVertical;
+            tangentCanvasOffset.Normalize2();
+
+            // Calculate and clamp tangent
+            float newTangentSlope;
+            if ( Math::IsNearZero( tangentCanvasOffset.m_x ) )
+            {
+                newTangentSlope = ( tangentCanvasOffset.m_y < 0 ) ? -30.0f : 30.0f;
+            }
+            else
+            {
+                newTangentSlope = tangentCanvasOffset.m_y / tangentCanvasOffset.m_x;
+            }
+
+            m_curve.SetPointInTangent( pointIdx, newTangentSlope );
+        }
+
+        // Draw visual handle
+        m_pDrawList->AddLine( pointCenter, tangentHandleCenter, s_curveInTangentHandleColor );
+        m_pDrawList->AddCircleFilled( tangentHandleCenter, s_handleRadius, s_curveInTangentHandleColor );
+    }
+
+    void CurveEditor::DrawOutTangentHandle( int32 pointIdx )
+    {
+        KRG_ASSERT( pointIdx >= 0 && pointIdx < m_curve.GetNumPoints() );
+        FloatCurve::Point const& point = m_curve.GetPoint( pointIdx );
+        Float2 const pointCenter = GetScreenPosFromCurvePos( point );
+
+        //-------------------------------------------------------------------------
+
+        // Calculate the tangent offset based on the current slope
+        Vector tangentOffset( m_pixelsPerUnitHorizontal, point.m_outTangent * m_pixelsPerUnitVertical, 0 );
+        tangentOffset.Normalize2();
+        tangentOffset *= s_slopeHandleLength;
+        
+        Float2 tangentHandleCenter;
+        tangentHandleCenter.m_x = ( pointCenter.m_x + tangentOffset.m_x );
+        tangentHandleCenter.m_y = ( pointCenter.m_y - tangentOffset.m_y );
+
+        // Draw handle button
+        InlineString<50> tangentHandleID;
+        tangentHandleID.sprintf( "out_%u", point.m_ID );
+        ImGui::SetCursorScreenPos( tangentHandleCenter - Float2( s_handleRadius, s_handleRadius ) );
+        ImGui::InvisibleButton( tangentHandleID.c_str(), ImVec2( 2 * s_handleRadius, 2 * s_handleRadius ) );
+
+        // Is editing
+        if ( ImGui::IsItemActive() && ImGui::IsMouseDragging( 0 ) )
+        {
+            // Get visual tangent offset
+            auto const& io = ImGui::GetIO();
+            Vector tangentCanvasOffset( io.MousePos.x - pointCenter.m_x, io.MousePos.y - pointCenter.m_y, 0.0f );
+            tangentCanvasOffset.m_x = Math::Max( 0.0f, tangentCanvasOffset.m_x ); // Lock outgoing tangents to the right hemisphere
+            tangentCanvasOffset.m_y = -tangentCanvasOffset.m_y; // Handle y flip here
+
+            // Convert to curve units
+            tangentCanvasOffset.m_x = tangentCanvasOffset.m_x / m_pixelsPerUnitHorizontal;
+            tangentCanvasOffset.m_y = tangentCanvasOffset.m_y / m_pixelsPerUnitVertical;
+            tangentCanvasOffset.Normalize2();
+
+            // Calculate and clamp tangent
+            float newTangentSlope;
+            if ( Math::IsNearZero( tangentCanvasOffset.m_x ) )
+            {
+                newTangentSlope = ( tangentCanvasOffset.m_y < 0 ) ? -30.0f : 30.0f;
+            }
+            else
+            {
+                newTangentSlope = tangentCanvasOffset.m_y / tangentCanvasOffset.m_x;
+            }
+
+            m_curve.SetPointOutTangent( pointIdx, newTangentSlope );
+
+            if ( point.m_tangentMode == FloatCurve::Locked )
+            {
+                m_curve.SetPointInTangent( pointIdx, newTangentSlope );
+            }
+        }
+
+        // Draw visual handle
+        m_pDrawList->AddLine( pointCenter, tangentHandleCenter, s_curveOutTangentHandleColor );
+        m_pDrawList->AddCircleFilled( tangentHandleCenter, s_handleRadius, s_curveOutTangentHandleColor );
+    }
+
+    void CurveEditor::DrawPointHandle( int32 pointIdx )
+    {
+        FloatCurve::Point const& point = m_curve.GetPoint( pointIdx );
+        Float2 const pointCenter = GetScreenPosFromCurvePos( point );
+
+        //-------------------------------------------------------------------------
+
+        InlineString<50> pointHandleID;
+        pointHandleID.sprintf( "point_%u", point.m_ID );
+
+        ImGui::SetCursorScreenPos( pointCenter - Float2( s_handleRadius, s_handleRadius ) );
+        if ( ImGui::InvisibleButton( pointHandleID.c_str(), Float2( 2 * s_handleRadius, 2 * s_handleRadius ) ) )
+        {
+            m_selectedPointIdx = pointIdx;
+            m_wasPointClicked = true;
+        }
+
+        if ( ImGui::IsItemActive() || ImGui::IsItemHovered() )
+        {
+            ImGui::SetTooltip( "%4.3f, %4.3f", point.m_parameter, point.m_value );
+        }
+
+        if ( ImGui::IsItemActive() && ImGui::IsMouseDragging( 0 ) )
+        {
+            m_selectedPointIdx = pointIdx;
+            m_wasPointClicked = true;
+
+            float const updatedParameter = point.m_parameter + ImGui::GetIO().MouseDelta.x / m_pixelsPerUnitHorizontal;
+            float const updatedValue = point.m_value - ImGui::GetIO().MouseDelta.y / m_pixelsPerUnitVertical;
+            m_curve.EditPoint( pointIdx, updatedParameter, updatedValue );
+        }
+
+        if ( ImGui::IsItemHovered() && ImGui::IsMouseClicked( ImGuiMouseButton_Right ) )
+        {
+            m_selectedPointIdx = pointIdx;
+            m_wasPointClicked = true;
+            ImGui::OpenPopup( s_pointContextMenuName );
+        }
+
+        m_pDrawList->AddCircleFilled( pointCenter, s_handleRadius, ( pointIdx == m_selectedPointIdx ) ? s_curveSelectedPointHandleColor : s_curvePointHandleColor );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void CurveEditor::DrawContextMenus()
+    {
+        if ( ImGui::BeginPopup( s_gridContextMenuName ) )
+        {
+            if ( ImGui::MenuItem( "Create Point" ) )
+            {
+                Float2 const mouseCurvePos = GetCurvePosFromScreenPos( ImGui::GetWindowPos() );
+                CreatePoint( mouseCurvePos.m_x, mouseCurvePos.m_y );
+            }
+            ImGui::EndPopup();
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( ImGui::BeginPopup( s_pointContextMenuName ) )
+        {
+            KRG_ASSERT( m_selectedPointIdx != InvalidIndex );
+
+            auto const& point = m_curve.GetPoint( m_selectedPointIdx );
+
+            if ( point.m_tangentMode == FloatCurve::Free )
+            {
+                if ( ImGui::MenuItem( "Lock Tangents" ) )
+                {
+                    m_curve.SetPointTangentMode( m_selectedPointIdx, FloatCurve::Locked );
+                }
+            }
+
+            if ( point.m_tangentMode == FloatCurve::Locked )
+            {
+                if ( ImGui::MenuItem( "Unlock Tangents" ) )
+                {
+                    m_curve.SetPointTangentMode( m_selectedPointIdx, FloatCurve::Free );
+                }
+            }
+
+            ImGui::Separator();
+
+            if ( ImGui::MenuItem( "Delete Point" ) )
+            {
+                DeletePoint( m_selectedPointIdx );
+            }
+            ImGui::EndPopup();
+        }
+    }
+
+    void CurveEditor::HandleFrameInput()
+    {
+        auto const& io = ImGui::GetIO();
+        if ( ImGui::IsWindowHovered() )
+        {
+            // Position tooltip
+            //-------------------------------------------------------------------------
+            
+            if ( io.KeyShift )
+            {
+                Float2 const mouseCurvePos = GetCurvePosFromScreenPos( io.MousePos );
+                ImGui::SetTooltip( "%4.3f, %4.3f", mouseCurvePos.m_x, mouseCurvePos.m_y );
+            }
+
+            // Pan view 
+            //-------------------------------------------------------------------------
+
+            if ( ImGui::IsMouseDragging( ImGuiMouseButton_Middle ) )
+            {
+                m_horizontalViewRange.ShiftRange( -io.MouseDelta.x / m_pixelsPerUnitHorizontal );
+                m_verticalViewRange.ShiftRange( io.MouseDelta.y / m_pixelsPerUnitVertical );
+            }
+
+            // Zoom View
+            //-------------------------------------------------------------------------
+
+            if ( io.MouseWheel != 0 )
+            {
+                float const scale = io.MouseWheel * s_zoomScaleStep;
+                bool const zoomHorizontal = ( !io.KeyAlt && io.KeyCtrl ) || ( !io.KeyAlt && !io.KeyCtrl );
+                bool const zoomVertical = ( io.KeyAlt && !io.KeyCtrl ) || ( !io.KeyAlt && !io.KeyCtrl );
+
+                // Horizontal zoom
+                if ( zoomHorizontal )
+                {
+                    float const mp = m_horizontalViewRange.GetMidpoint();
+                    float const rl = m_horizontalViewRange.GetLength();
+                    float const nhl = ( rl * ( 1 - scale ) ) / 2;
+                    m_horizontalViewRange.m_start = mp - nhl;
+                    m_horizontalViewRange.m_end = mp + nhl;
+                }
+
+                // Vertical zoom
+                if ( zoomVertical )
+                {
+                    float const mp = m_verticalViewRange.GetMidpoint();
+                    float const rl = m_verticalViewRange.GetLength();
+                    float const nhl = ( rl * ( 1 - scale ) ) / 2;
+                    m_verticalViewRange.m_start = mp - nhl;
+                    m_verticalViewRange.m_end = mp + nhl;
+                }
+            }
+
+            // Mouse Actions
+            //-------------------------------------------------------------------------
+
+            // Clear point selection
+            if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) || ImGui::IsMouseClicked( ImGuiMouseButton_Right ) )
+            {
+                if ( !ImGui::IsPopupOpen( s_pointContextMenuName ) && !m_wasPointClicked )
+                {
+                    m_selectedPointIdx = InvalidIndex;
+                }
+            }
+
+            // Key actions
+            //-------------------------------------------------------------------------
+
+            if ( m_selectedPointIdx != InvalidIndex && ImGui::IsKeyPressedMap( ImGuiKey_Delete ) )
+            {
+                DeletePoint( m_selectedPointIdx );
+            }
+
+            if ( ImGui::IsKeyPressedMap( ImGuiKey_Space ) )
+            {
+                Float2 const mouseCurvePos = GetCurvePosFromScreenPos( io.MousePos );
+                CreatePoint( mouseCurvePos.m_x, mouseCurvePos.m_y );
+            }
+
+            // Context Menu
+            //-------------------------------------------------------------------------
+
+            if ( !ImGui::IsPopupOpen( s_pointContextMenuName ) && ImGui::IsMouseClicked( ImGuiMouseButton_Right ) )
+            {
+                ImGui::OpenPopup( s_gridContextMenuName );
+            }
+        }
+    }
+
+    void CurveEditor::UpdateAndDraw()
+    {
+        KRG_ASSERT( !Math::IsNearZero( m_horizontalViewRange.GetLength() ) && !Math::IsNearZero( m_verticalViewRange.GetLength() ) );
+
+        //-------------------------------------------------------------------------
+
+        // Toolbar has to be drawn first before resetting the frame state since we need to shift the cursor position
+        DrawToolbar();
+        InitializeFrameState();
+
+        //-------------------------------------------------------------------------
+
+        m_pDrawList->PushClipRect( m_curveCanvasStart, m_curveCanvasEnd );
+        if ( ImGui::BeginChild( "CurveView", m_canvasEnd - m_canvasStart, false, ImGuiWindowFlags_NoScrollbar ) )
+        {
+            DrawGrid();
+            DrawCurve();
+
+            //-------------------------------------------------------------------------
+
+            int32 const numPoints = m_curve.GetNumPoints();
+            for ( int32 i = 0; i < numPoints; i++ )
+            {
+                if ( i != 0 && m_curve.GetPoint(i).m_tangentMode == FloatCurve::Free )
+                {
+                    DrawInTangentHandle( i );
+                }
+
+                if ( i != numPoints - 1 )
+                {
+                    DrawOutTangentHandle( i );
+                }
+                
+                DrawPointHandle( i );
+            }
+
+            //-------------------------------------------------------------------------
+
+            HandleFrameInput();
+            DrawContextMenus();
+        }
+        ImGui::EndChild();
+        m_pDrawList->PopClipRect();
+    }
+}

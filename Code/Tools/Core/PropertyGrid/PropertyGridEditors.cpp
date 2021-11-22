@@ -562,7 +562,7 @@ namespace KRG::TypeSystem
         virtual void UpdateInstanceValue() override
         {
             m_anglesInDegrees_cached = m_anglesInDegrees_imgui;
-            EulerAngles const newRotation( Degrees( m_anglesInDegrees_cached.m_x ).GetClampedToSmallest(), Degrees( m_anglesInDegrees_cached.m_y ).GetClampedToSmallest(), Degrees( m_anglesInDegrees_cached.m_z ).GetClampedToSmallest() );
+            EulerAngles const newRotation( Degrees( m_anglesInDegrees_cached.m_x ).GetClamped180(), Degrees( m_anglesInDegrees_cached.m_y ).GetClamped180(), Degrees( m_anglesInDegrees_cached.m_z ).GetClamped180() );
 
             if ( m_coreType == CoreTypeID::EulerAngles )
             {
@@ -637,7 +637,7 @@ namespace KRG::TypeSystem
             ImGui::SameLine( 0, g_itemSpacing );
             if ( ImGui::Button( KRG_ICON_ANGLE_DOWN "##ClampShortest" ) )
             {
-                m_valueInDegrees_imgui = Degrees( m_valueInDegrees_imgui ).GetClampedToSmallest().ToFloat();
+                m_valueInDegrees_imgui = Degrees( m_valueInDegrees_imgui ).GetClamped180().ToFloat();
                 valueChanged = true;
             }
             ImGuiX::ItemTooltip( "Clamp to Shortest Rotation [-180 : 180]" );
@@ -645,7 +645,7 @@ namespace KRG::TypeSystem
             ImGui::SameLine( 0, g_itemSpacing );
             if ( ImGui::Button( KRG_ICON_ANGLE_DOUBLE_DOWN "##ClampFull" ) )
             {
-                m_valueInDegrees_imgui = Degrees( m_valueInDegrees_imgui ).GetClamped().ToFloat();
+                m_valueInDegrees_imgui = Degrees( m_valueInDegrees_imgui ).GetClamped360().ToFloat();
                 valueChanged = true;
             }
             ImGuiX::ItemTooltip( "Clamp to full rotation [-360 : 360]" );
@@ -952,9 +952,9 @@ namespace KRG::TypeSystem
                     ImGui::TableNextColumn();
                     if ( ImGuiX::InputFloat3( "R", m_rotation_imgui ) )
                     {
-                        m_rotation_imgui.m_x = Degrees( m_rotation_imgui.m_x ).GetClampedToSmallest().ToFloat();
-                        m_rotation_imgui.m_y = Degrees( m_rotation_imgui.m_y ).GetClampedToSmallest().ToFloat();
-                        m_rotation_imgui.m_z = Degrees( m_rotation_imgui.m_z ).GetClampedToSmallest().ToFloat();
+                        m_rotation_imgui.m_x = Degrees( m_rotation_imgui.m_x ).GetClamped180().ToFloat();
+                        m_rotation_imgui.m_y = Degrees( m_rotation_imgui.m_y ).GetClamped180().ToFloat();
+                        m_rotation_imgui.m_z = Degrees( m_rotation_imgui.m_z ).GetClamped180().ToFloat();
                         m_rotation_cached = m_rotation_imgui;
                         transformUpdated = true;
                     }
