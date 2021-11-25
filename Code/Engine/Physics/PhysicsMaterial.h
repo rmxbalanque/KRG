@@ -3,6 +3,7 @@
 #include "_Module/API.h"
 #include "PhysX.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
+#include "System/Resource/IResource.h"
 
 //-------------------------------------------------------------------------
 
@@ -69,5 +70,23 @@ namespace KRG::Physics
         // How material properties will be combined on collision
         KRG_EXPOSE PhysicsCombineMode               m_frictionCombineMode = PhysicsCombineMode::Average;
         KRG_EXPOSE PhysicsCombineMode               m_restitutionCombineMode = PhysicsCombineMode::Average;
+    };
+
+    //-------------------------------------------------------------------------
+    // Physics Material Database
+    //-------------------------------------------------------------------------
+    // Empty resource - acts as a placeholder for the actual data being loaded - see PhysicsMaterialDatabaseLoader for details
+
+    class KRG_ENGINE_PHYSICS_API PhysicsMaterialDatabase final : public Resource::IResource
+    {
+        KRG_REGISTER_RESOURCE( 'PMDB', "Physics Material DB" );
+        friend class PhysicsMaterialDatabaseCompiler;
+        friend class PhysicsMaterialDatabaseLoader;
+
+        KRG_SERIALIZE_NONE();
+
+    public:
+
+        bool IsValid() const override final { return true; }
     };
 }

@@ -73,8 +73,8 @@ namespace KRG::TypeSystem
                 // If this occurs, we have an invalid path as each element must contain other properties
                 if ( CoreTypeRegistry::IsCoreType( pFoundPropertyInfo->m_typeID ) && !pFoundPropertyInfo->IsArrayProperty() )
                 {
-                    KRG_LOG_WARNING( "TypeSystem", "Cant resolve malformed property path" ); \
-                        pFoundPropertyInfo = nullptr;
+                    KRG_LOG_WARNING( "TypeSystem", "Cant resolve malformed property path" );
+                    pFoundPropertyInfo = nullptr;
                     break;
                 }
 

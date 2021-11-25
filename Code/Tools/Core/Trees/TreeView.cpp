@@ -4,6 +4,13 @@
 
 namespace KRG
 {
+    ImVec4 TreeViewItem::GetLabelColor( bool isActive ) const
+    {
+        return isActive ? Colors::GreenYellow.ToFloat4() : (ImVec4) ImGuiX::Style::s_textColor;
+    }
+
+    //-------------------------------------------------------------------------
+
     TreeView::~TreeView()
     {
         if ( m_pRoot != nullptr )

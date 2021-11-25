@@ -49,11 +49,6 @@ namespace KRG::Render
             pMaterial->m_pNormalMapTexture = GetInstallDependency( installDependencies, pMaterial->m_pNormalMapTexture.GetResourceID() );
         }
 
-        if ( pMaterial->HasSpecularMapTexture() )
-        {
-            pMaterial->m_pSpecularMapTexture = GetInstallDependency( installDependencies, pMaterial->m_pSpecularMapTexture.GetResourceID() );
-        }
-
         //-------------------------------------------------------------------------
 
         if ( !pMaterial->IsValid() )

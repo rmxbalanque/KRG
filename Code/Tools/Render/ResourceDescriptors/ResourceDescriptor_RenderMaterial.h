@@ -27,9 +27,10 @@ namespace KRG::Render
         KRG_EXPOSE TResourcePtr<Texture>       m_metalnessTexture;
         KRG_EXPOSE TResourcePtr<Texture>       m_roughnessTexture;
         KRG_EXPOSE TResourcePtr<Texture>       m_normalMapTexture;
-        KRG_EXPOSE TResourcePtr<Texture>       m_specularMapTexture;
+        KRG_EXPOSE TResourcePtr<Texture>       m_aoTexture;
+        KRG_EXPOSE Color                       m_albedo = Colors::Black;
         KRG_EXPOSE float                       m_metalness = 0.0f;
         KRG_EXPOSE float                       m_roughness = 1.0f;
-        KRG_EXPOSE float                       m_specular = 0.5f;
+        KRG_EXPOSE float                       m_normalScaler = 1.0f;
     };
 }

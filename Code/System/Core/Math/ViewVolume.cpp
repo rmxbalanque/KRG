@@ -109,7 +109,7 @@ namespace KRG::Math
 
     bool ViewVolume::IsValid() const
     {
-        if ( m_viewDimensions.m_x <= 0.0f || m_viewDimensions.m_y <= 0.0f || m_depthRange.m_start <= 0.0f || !m_depthRange.IsValid() )
+        if ( m_viewDimensions.m_x <= 0.0f || m_viewDimensions.m_y <= 0.0f || m_depthRange.m_start < 0.0f || !m_depthRange.IsValid() )
         {
             return false;
         }

@@ -134,18 +134,17 @@ namespace KRG
         }
 
         //-------------------------------------------------------------------------
-
-        void RenderContext::SetShaderInputBinding( ResourceHandle const& inputBinding ) const
+        void RenderContext::SetShaderInputBinding( ShaderInputBindingHandle const& inputBinding ) const
         {
-            KRG_ASSERT( IsValid() && inputBinding.m_type == ResourceHandle::Type::ShaderInputBinding && inputBinding.IsValid() );
-            m_pDeviceContext->IASetInputLayout( (ID3D11InputLayout*) inputBinding.m_pData0 );
+            KRG_ASSERT( IsValid() );
+            m_pDeviceContext->IASetInputLayout( inputBinding.IsValid() ? (ID3D11InputLayout*) inputBinding.m_pData0 : nullptr );
         }
 
-        void RenderContext::SetShaderResource( PipelineStage stage, uint32 slot, ShaderResourceView const& shaderResourceView ) const
+        void RenderContext::SetShaderResource( PipelineStage stage, uint32 slot, ViewSRVHandle const& shaderResourceView ) const
         {
-            KRG_ASSERT( IsValid() && shaderResourceView.IsValid() );
+            KRG_ASSERT( IsValid() );
 
-            auto pSRV = (ID3D11ShaderResourceView*) shaderResourceView.GetResourceHandle().m_pData0;
+            auto pSRV = shaderResourceView.IsValid() ? (ID3D11ShaderResourceView*) shaderResourceView.m_pData0 : nullptr;
 
             switch ( stage )
             {
@@ -204,6 +203,42 @@ namespace KRG
                 break;
 
                 case PipelineStage::None:
+                KRG_HALT();
+                break;
+            }
+        }
+
+        void RenderContext::SetUnorderedAccess( PipelineStage stage, uint32 slot, ViewUAVHandle const& unorderedAccessView ) const
+        {
+            KRG_ASSERT( IsValid() && unorderedAccessView.IsValid() );
+
+            auto pUAV = (ID3D11UnorderedAccessView*) unorderedAccessView.m_pData0;
+
+            switch ( stage )
+            {
+            case PipelineStage::Compute:
+                m_pDeviceContext->CSSetUnorderedAccessViews( slot, 1, (ID3D11UnorderedAccessView* const*) &pUAV, nullptr );
+                break;
+
+            default:
+                KRG_HALT();
+                break;
+            }
+        }
+
+        void RenderContext::ClearUnorderedAccess( PipelineStage stage, uint32 slot ) const
+        {
+            KRG_ASSERT( IsValid() );
+
+            ID3D11UnorderedAccessView* noUAV[] = { nullptr };
+
+            switch ( stage )
+            {
+            case PipelineStage::Compute:
+                m_pDeviceContext->CSSetUnorderedAccessViews( slot, 1, noUAV, nullptr );
+                break;
+
+            default:
                 KRG_HALT();
                 break;
             }
@@ -287,15 +322,15 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        void RenderContext::SetViewport( Float2 dimensions, Float2 topLeft ) const
+        void RenderContext::SetViewport( Float2 dimensions, Float2 topLeft, Float2 rangeZ ) const
         {
             D3D11_VIEWPORT dxViewport;
             dxViewport.Width = dimensions.m_x;
             dxViewport.Height = dimensions.m_y;
             dxViewport.TopLeftX = topLeft.m_x;
             dxViewport.TopLeftY = topLeft.m_y;
-            dxViewport.MinDepth = 0;
-            dxViewport.MaxDepth = 1;
+            dxViewport.MinDepth = rangeZ.m_x;
+            dxViewport.MaxDepth = rangeZ.m_y;
             m_pDeviceContext->RSSetViewports( 1, &dxViewport );
         }
 
@@ -352,7 +387,7 @@ namespace KRG
         {
             KRG_ASSERT( IsValid() && renderTarget.IsValid() );
 
-            ResourceHandle const& resourceHandle = renderTarget.GetRenderTargetHandle();
+            ViewRTHandle const& resourceHandle = renderTarget.GetRenderTargetHandle();
             m_pDeviceContext->OMSetRenderTargets( 1, (ID3D11RenderTargetView**) &resourceHandle.m_pData0, (ID3D11DepthStencilView*) resourceHandle.m_pData1 );
 
             if ( clearOnSet )
@@ -361,13 +396,33 @@ namespace KRG
             }
         }
 
+        void RenderContext::SetRenderTargetViews( ViewRTHandle const& rtView, ViewDSHandle const& dsView ) const
+        {
+            KRG_ASSERT( IsValid() );
+            m_pDeviceContext->OMSetRenderTargets( rtView.IsValid() ? 1 : 0, rtView.IsValid() ? (ID3D11RenderTargetView**) &rtView.m_pData0 : nullptr, dsView.IsValid() ? (ID3D11DepthStencilView*) dsView.m_pData0 : 0);
+        }
+
+        void RenderContext::ClearRenderTargetView( ViewRTHandle const& rtView, Float4 clearColor ) const
+        {
+            KRG_ASSERT( IsValid() && rtView.IsValid() );
+
+            m_pDeviceContext->ClearRenderTargetView( (ID3D11RenderTargetView*) rtView.m_pData0, &clearColor.m_x );
+        }
+
+        void RenderContext::ClearDepthStencilView( ViewDSHandle const& dsView, float depth, uint8 stencil ) const
+        {
+            KRG_ASSERT( IsValid() && dsView.IsValid() );
+
+            m_pDeviceContext->ClearDepthStencilView( (ID3D11DepthStencilView*) dsView.m_pData0, D3D10_CLEAR_DEPTH, depth, stencil );
+        }
+
         void RenderContext::ClearRenderTargetViews( RenderTarget const& renderTarget ) const
         {
             KRG_ASSERT( IsValid() && renderTarget.IsValid() );
 
             static Float4 const clearColor = Color( 96, 96, 96 ).ToFloat4();
 
-            ResourceHandle const& resourceHandle = renderTarget.GetRenderTargetHandle();
+            ViewRTHandle const& resourceHandle = renderTarget.GetRenderTargetHandle();
             m_pDeviceContext->ClearRenderTargetView( (ID3D11RenderTargetView*) resourceHandle.m_pData0, &clearColor.m_x );
             m_pDeviceContext->ClearDepthStencilView( (ID3D11DepthStencilView*) resourceHandle.m_pData1, D3D10_CLEAR_DEPTH, 1.0f, 0 );
         }
@@ -421,6 +476,12 @@ namespace KRG
         {
             KRG_ASSERT( IsValid() );
             m_pDeviceContext->DrawIndexed( vertexCount, indexStartIndex, vertexStartIndex );
+        }
+
+        void RenderContext::Dispatch( uint32 numGroupsX, uint32 numGroupsY, uint32 numGroupsZ ) const
+        {
+            KRG_ASSERT( IsValid() );
+            m_pDeviceContext->Dispatch( numGroupsX, numGroupsY, numGroupsZ );
         }
 
         void RenderContext::Present( RenderWindow& window ) const

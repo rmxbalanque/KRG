@@ -38,7 +38,7 @@ namespace KRG::TypeSystem
         TypeRegistry const&     m_typeRegistry;
         PropertyInfo const&     m_propertyInfo;
         Byte*                   m_pPropertyInstance;
-        CoreTypeID const         m_coreType;
+        CoreTypeID const        m_coreType;
     };
 
     //-------------------------------------------------------------------------

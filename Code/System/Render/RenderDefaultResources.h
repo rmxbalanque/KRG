@@ -5,19 +5,16 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace Render
+    class RenderDevice;
+    class Texture;
+
+    namespace DefaultResources
     {
-        class RenderDevice;
-        class Texture;
+        void Initialize( RenderDevice* pRenderDevice );
+        void Shutdown( RenderDevice* pRenderDevice );
 
-        namespace DefaultResources
-        {
-            void Initialize( RenderDevice* pRenderDevice );
-            void Shutdown( RenderDevice* pRenderDevice );
-
-            KRG_SYSTEM_RENDER_API Texture const* GetDefaultTexture();
-        };
-    }
+        KRG_SYSTEM_RENDER_API Texture const* GetDefaultTexture();
+    };
 }

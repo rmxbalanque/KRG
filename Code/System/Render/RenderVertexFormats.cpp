@@ -8,18 +8,15 @@ namespace KRG
     {
         static uint32 const g_dataTypeSizes[] =
         {
-            1,
-            2,
-            4,
+            0,
 
             1,
             2,
             4,
 
+            1,
+            2,
             4,
-            8,
-            12,
-            16,
 
             4,
             8,
@@ -30,14 +27,25 @@ namespace KRG
             8,
             12,
             16,
+
+            2,
+            4,
+            8,
+
+            4,
+            8,
+            12,
+            16,
+
+            4
         };
 
-        static_assert( sizeof( g_dataTypeSizes ) / sizeof( uint32 ) == (uint32) DataTypeFormat::Unknown, "Mismatched data type and size arrays" );
+        static_assert( sizeof( g_dataTypeSizes ) / sizeof( uint32 ) == (uint32) DataTypeFormat::Count, "Mismatched data type and size arrays" );
 
         uint32 GetDataTypeFormatByteSize( DataTypeFormat format )
         {
             uint32 const formatIdx = (uint32) format;
-            KRG_ASSERT( formatIdx < (uint32) DataTypeFormat::Unknown );
+            KRG_ASSERT( formatIdx < (uint32) DataTypeFormat::Count );
             uint32 const size = g_dataTypeSizes[formatIdx];
             return size;
         }

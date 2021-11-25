@@ -5,32 +5,29 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace Render
+    struct PipelineState
     {
-        struct PipelineState
+        inline void Clear()
         {
-            inline void Clear()
-            {
-                m_pVertexShader = nullptr;
-                m_pGeometryShader = nullptr;
-                m_pHullShader = nullptr;
-                m_pComputeShader = nullptr;
-                m_pPixelShader = nullptr;
-                m_pBlendState = nullptr;
-                m_pRasterizerState = nullptr;
-            }
+            m_pVertexShader = nullptr;
+            m_pGeometryShader = nullptr;
+            m_pHullShader = nullptr;
+            m_pComputeShader = nullptr;
+            m_pPixelShader = nullptr;
+            m_pBlendState = nullptr;
+            m_pRasterizerState = nullptr;
+        }
 
-        public:
+    public:
 
-            VertexShader*                   m_pVertexShader = nullptr;
-            GeometryShader*                 m_pGeometryShader = nullptr;
-            Shader*                         m_pHullShader = nullptr;
-            Shader*                         m_pComputeShader = nullptr;
-            PixelShader*                    m_pPixelShader = nullptr;
-            BlendState*                     m_pBlendState = nullptr;
-            RasterizerState*                m_pRasterizerState = nullptr;
-        };
-    }
+        VertexShader*                   m_pVertexShader = nullptr;
+        GeometryShader*                 m_pGeometryShader = nullptr;
+        Shader*                         m_pHullShader = nullptr;
+        Shader*                         m_pComputeShader = nullptr;
+        PixelShader*                    m_pPixelShader = nullptr;
+        BlendState*                     m_pBlendState = nullptr;
+        RasterizerState*                m_pRasterizerState = nullptr;
+    };
 }

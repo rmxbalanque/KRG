@@ -38,8 +38,10 @@ namespace KRG
         VertexShader::VertexShader( uint8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers, VertexLayoutDescriptor const& vertexLayoutDesc )
             : Shader( PipelineStage::Vertex, pByteCode, byteCodeSize, constBuffers )
             , m_vertexLayoutDesc( vertexLayoutDesc )
-        {
-            KRG_ASSERT( m_vertexLayoutDesc.IsValid() );
-        }
+        {}
+
+        ComputeShader::ComputeShader( uint8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers )
+            : Shader( PipelineStage::Compute, pByteCode, byteCodeSize, constBuffers )
+        {}
     }
 }

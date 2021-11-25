@@ -36,9 +36,11 @@ namespace KRG
             void SetPipelineState( PipelineState const& pipelineState ) const;
 
             // Shaders
-            void SetShaderInputBinding( ResourceHandle const& inputBinding ) const;
-            void SetShaderResource( PipelineStage stage, uint32 slot, ShaderResourceView const& shaderResourceView ) const;
+            void SetShaderInputBinding( ShaderInputBindingHandle const& inputBinding ) const;
+            void SetShaderResource( PipelineStage stage, uint32 slot, ViewSRVHandle const& shaderResourceView ) const;
             void ClearShaderResource( PipelineStage stage, uint32 slot ) const;
+            void SetUnorderedAccess( PipelineStage stage, uint32 slot, ViewUAVHandle const& shaderResourceView ) const;
+            void ClearUnorderedAccess( PipelineStage stage, uint32 slot ) const;
             void SetSampler( PipelineStage stage, uint32 slot, SamplerState const& state ) const;
 
             // Buffers
@@ -49,12 +51,17 @@ namespace KRG
             void SetIndexBuffer( RenderBuffer const& buffer, uint32 offset = 0 ) const;
 
             // Rasterizer
-            void SetViewport( Float2 dimensions, Float2 topLeft ) const;
+            void SetViewport( Float2 dimensions, Float2 topLeft, Float2 zRange=Float2(0, 1) ) const;
             void SetDepthTestMode( DepthTestMode mode ) const;
             void SetRasterizerScissorRectangles( ScissorRect const* pScissorRects, uint32 numRects = 0 ) const;
             void SetBlendState( BlendState const& blendState ) const;
 
             // Render Targets
+            void SetRenderTargetViews( ViewRTHandle const& rtView, ViewDSHandle const& dsView ) const;
+            void ClearRenderTargetView( ViewRTHandle const& rtView,  Float4 clearColor ) const;
+            void ClearDepthStencilView( ViewDSHandle const& dsView, float depth, uint8 stencil ) const;
+
+            // TODO: remove
             void SetRenderTarget( RenderTarget const& renderTarget, bool clearOnSet = false ) const;
             void ClearRenderTargetViews( RenderTarget const& renderTarget ) const;
             void ClearRenderTargets() const;
@@ -63,6 +70,8 @@ namespace KRG
             void SetPrimitiveTopology( Topology topology ) const;
             void Draw( uint32 vertexCount, uint32 vertexStartIndex = 0 ) const;
             void DrawIndexed( uint32 vertexCount, uint32 indexStartIndex = 0, uint32 vertexStartIndex = 0 ) const;
+
+            void Dispatch( uint32 numGroupsX, uint32 numGroupsY, uint32 numGroupsZ ) const;
 
             // Window
             void Present( RenderWindow& window ) const;

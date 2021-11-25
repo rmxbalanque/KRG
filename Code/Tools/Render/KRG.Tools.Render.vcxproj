@@ -19,6 +19,7 @@
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderMesh.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderShader.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_RenderTexture.h" />
+    <ClInclude Include="Workspaces\Workspace_Material.h" />
     <ClInclude Include="Workspaces\Workspace_Texture.h" />
     <ClInclude Include="Workspaces\Workspace_SkeletalMesh.h" />
     <ClInclude Include="Workspaces\Workspace_StaticMesh.h" />
@@ -33,6 +34,7 @@
     <ClCompile Include="ResourceCompilers\ResourceCompiler_RenderTexture.cpp" />
     <ClCompile Include="TextureTools\ExtendedFormats\ExtendedBMP.cpp" />
     <ClCompile Include="TextureTools\ExtendedFormats\PortablePixMap.cpp" />
+    <ClCompile Include="Workspaces\Workspace_Material.cpp" />
     <ClCompile Include="Workspaces\Workspace_Texture.cpp" />
     <ClCompile Include="Workspaces\Workspace_SkeletalMesh.cpp" />
     <ClCompile Include="Workspaces\Workspace_StaticMesh.cpp" />

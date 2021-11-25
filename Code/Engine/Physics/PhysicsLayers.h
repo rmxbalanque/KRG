@@ -1,4 +1,5 @@
 #pragma once
+
 #include "System/Core/Types/IntegralTypes.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 
@@ -7,8 +8,12 @@
 //-------------------------------------------------------------------------
 // The layers that we can add our physics objects to
 // We allow a max of 32 layers
-// The layers are synonymous with object types. 
+// The layers are synonymous with object types.
 // When we perform any scene queries, we will specify the layers that those queries can interact with
+// e.g., QueryRules rules( CreateLayerMask( Layers::Environment, Layers::Camera ) );
+//-------------------------------------------------------------------------
+// This enum is kept separate from the rest of the filtering code since it will be changed more often and 
+// we want to limit compile time impacts of these changes
 
 namespace KRG::Physics
 {

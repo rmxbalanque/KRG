@@ -10,17 +10,6 @@ namespace KRG
 {
     namespace Render
     {
-        enum class PipelineStage : uint8
-        {
-            Vertex = 0,
-            Geometry,
-            Pixel,
-            Hull,
-            Compute,
-
-            None,
-        };
-
         //-------------------------------------------------------------------------
 
         class KRG_SYSTEM_RENDER_API Shader : public Resource::IResource
@@ -51,7 +40,7 @@ namespace KRG
 
             inline PipelineStage GetPipelineStage() const { return m_pipelineStage; }
 
-            inline ResourceHandle const& GetShaderHandle() const { return m_shaderHandle; }
+            inline ShaderHandle const& GetShaderHandle() const { return m_shaderHandle; }
             inline uint32 GetNumConstBuffers() const { return (uint32) m_cbuffers.size(); }
             inline RenderBuffer const& GetConstBuffer( uint32 i ) const { KRG_ASSERT( i < m_cbuffers.size() ); return m_cbuffers[i]; }
 
@@ -65,7 +54,7 @@ namespace KRG
 
         protected:
 
-            ResourceHandle                      m_shaderHandle;
+            ShaderHandle                        m_shaderHandle;
             TVector<uint8>                      m_byteCode;
             TVector<RenderBuffer>               m_cbuffers;
             TVector<ResourceBinding>            m_resourceBindings;
@@ -122,6 +111,22 @@ namespace KRG
         private:
 
             VertexLayoutDescriptor m_vertexLayoutDesc;
+        };
+
+        class KRG_SYSTEM_RENDER_API ComputeShader : public Shader
+        {
+            KRG_REGISTER_RESOURCE( 'CSDR', "Compute Shader" );
+
+            friend class RenderDevice;
+            friend class ShaderCompiler;
+            friend class ShaderLoader;
+
+        public:
+
+            ComputeShader() : Shader( PipelineStage::Compute ) {}
+            ComputeShader( uint8 const* pByteCode, size_t const byteCodeSize, TVector<RenderBuffer> const& constBuffers );
+
+            virtual bool IsValid() const override { return m_shaderHandle.IsValid(); }
         };
     }
 }

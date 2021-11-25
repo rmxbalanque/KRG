@@ -17,7 +17,7 @@ namespace KRG::Render
         friend class MaterialCompiler;
         friend class MaterialLoader;
 
-        KRG_SERIALIZE_MEMBERS( m_pAlbedoTexture, m_pMetalnessTexture, m_pRoughnessTexture, m_pNormalMapTexture, m_pSpecularMapTexture, m_metalness, m_roughness, m_specular );
+        KRG_SERIALIZE_MEMBERS( m_pAlbedoTexture, m_pMetalnessTexture, m_pRoughnessTexture, m_pNormalMapTexture, m_pAOTexture, m_albedo, m_metalness, m_roughness, m_normalScaler );
 
     public:
 
@@ -27,16 +27,18 @@ namespace KRG::Render
         inline Texture const* GetMetalnessTexture() const { KRG_ASSERT( IsValid() ); return m_pMetalnessTexture.GetPtr(); }
         inline Texture const* GetRoughnessTexture() const { KRG_ASSERT( IsValid() ); return m_pRoughnessTexture.GetPtr(); }
         inline Texture const* GetNormalMapTexture() const { KRG_ASSERT( IsValid() ); return m_pNormalMapTexture.GetPtr(); }
-        inline Texture const* GetSpecularMapTexture() const { KRG_ASSERT( IsValid() ); return m_pSpecularMapTexture.GetPtr(); }
+        inline Texture const* GetAOTexture() const { KRG_ASSERT( IsValid() ); return m_pAOTexture.GetPtr(); }
 
+        KRG_FORCE_INLINE bool HasAlbedoTexture() const { return m_pAlbedoTexture.IsValid(); }
         KRG_FORCE_INLINE bool HasMetalnessTexture() const { return m_pMetalnessTexture.IsValid(); }
         KRG_FORCE_INLINE bool HasRoughnessTexture() const { return m_pRoughnessTexture.IsValid(); }
         KRG_FORCE_INLINE bool HasNormalMapTexture() const { return m_pNormalMapTexture.IsValid(); }
-        KRG_FORCE_INLINE bool HasSpecularMapTexture() const { return m_pSpecularMapTexture.IsValid(); }
+        KRG_FORCE_INLINE bool HasAOTexture() const { return m_pAOTexture.IsValid(); }
 
+        KRG_FORCE_INLINE Color GetAlbedoValue() const { return m_albedo; }
         KRG_FORCE_INLINE float GetMetalnessValue() const { return m_metalness; }
         KRG_FORCE_INLINE float GetRoughnessValue() const { return m_roughness; }
-        KRG_FORCE_INLINE float GetSpecularValue() const { return m_specular; }
+        KRG_FORCE_INLINE float GetNormalScalerValue() const { return m_normalScaler; }
 
     private:
 
@@ -44,9 +46,10 @@ namespace KRG::Render
         TResourcePtr<Texture>   m_pMetalnessTexture;
         TResourcePtr<Texture>   m_pRoughnessTexture;
         TResourcePtr<Texture>   m_pNormalMapTexture;
-        TResourcePtr<Texture>   m_pSpecularMapTexture;
+        TResourcePtr<Texture>   m_pAOTexture;
+        Color                   m_albedo = Colors::Black;
         float                   m_metalness = 0.0f;
         float                   m_roughness = 0.0f;
-        float                   m_specular = 0.5f;
+        float                   m_normalScaler = 1.0f;
     };
 }

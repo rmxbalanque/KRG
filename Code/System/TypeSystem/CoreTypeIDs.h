@@ -7,6 +7,7 @@
 #include "System/Core/Time/Time.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Math/NumericRange.h"
+#include "System/Core/Math/FloatCurve.h"
 
 //-------------------------------------------------------------------------
 
@@ -48,6 +49,7 @@ namespace KRG::TypeSystem
         EulerAngles,
         IntRange,
         FloatRange,
+        FloatCurve,
 
         BitFlags,
         TBitFlags,
@@ -154,6 +156,7 @@ namespace KRG::TypeSystem
     template<> inline bool IsCoreType<EulerAngles >() { return true; }
     template<> inline bool IsCoreType<IntRange>() { return true; }
     template<> inline bool IsCoreType<FloatRange>() { return true; }
+    template<> inline bool IsCoreType<FloatCurve>() { return true; }
     template<> inline bool IsCoreType<BitFlags>() { return true; }
     template<> inline bool IsCoreType<TBitFlags>() { return true; }
     template<> inline bool IsCoreType<TVector>() { return true; }
@@ -200,6 +203,7 @@ namespace KRG::TypeSystem
     template<> inline TypeID GetCoreTypeID<EulerAngles >() { return GetCoreTypeID( CoreTypeID::EulerAngles ); }
     template<> inline TypeID GetCoreTypeID<IntRange>() { return GetCoreTypeID( CoreTypeID::IntRange ); }
     template<> inline TypeID GetCoreTypeID<FloatRange>() { return GetCoreTypeID( CoreTypeID::FloatRange ); }
+    template<> inline TypeID GetCoreTypeID<FloatCurve>() { return GetCoreTypeID( CoreTypeID::FloatCurve ); }
     template<> inline TypeID GetCoreTypeID<BitFlags>() { return GetCoreTypeID( CoreTypeID::BitFlags ); }
     template<> inline TypeID GetCoreTypeID<TBitFlags>() { return GetCoreTypeID( CoreTypeID::TBitFlags ); }
     template<> inline TypeID GetCoreTypeID<TVector>() { return GetCoreTypeID( CoreTypeID::TVector ); }

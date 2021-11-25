@@ -20,7 +20,7 @@
     <ClInclude Include="Imgui\ImguiStyle.h" />
     <ClInclude Include="Imgui\ImguiX.h" />
     <ClInclude Include="Imgui\Platform\ImguiPlatform_Win32.h" />
-    <ClInclude Include="RenderShaderResource.h" />
+    <ClInclude Include="RenderAPI.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RenderSettings.h" />
@@ -31,7 +31,6 @@
     <ClInclude Include="RenderDevice.h" />
     <ClInclude Include="RenderBuffer.h" />
     <ClInclude Include="RenderPipelineState.h" />
-    <ClInclude Include="RenderResourceHandle.h" />
     <ClInclude Include="RenderShader.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="RenderTexture.h" />

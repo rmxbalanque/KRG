@@ -1,6 +1,7 @@
 ﻿#include "PropertyGridEditors.h"
 #include "Tools/Core/Widgets/NumericEditors.h"
 #include "Tools/Core/Resource/DataFilePicker.h"
+#include "Tools/Core/Widgets/CurveEditor.h"
 #include "System/TypeSystem/PropertyInfo.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/TypeSystem/TypeRegistry.h"
@@ -750,7 +751,7 @@ namespace KRG::TypeSystem
 
         virtual void HandleExternalUpdate() override
         {
-            auto actualValue = *reinterpret_cast<UUID*>( m_pPropertyInstance );
+            auto& actualValue = *reinterpret_cast<UUID*>( m_pPropertyInstance );
             if ( actualValue != m_value_cached )
             {
                 m_value_cached = m_value_imgui = actualValue;
@@ -1695,7 +1696,7 @@ namespace KRG::TypeSystem
 
         virtual void HandleExternalUpdate() override
         {
-            auto actualValue = *reinterpret_cast<IntRange*>( m_pPropertyInstance );
+            auto& actualValue = *reinterpret_cast<IntRange*>( m_pPropertyInstance );
             if ( actualValue != m_value_cached )
             {
                 m_value_cached = m_value_imgui = actualValue;
@@ -1765,7 +1766,7 @@ namespace KRG::TypeSystem
 
         virtual void HandleExternalUpdate() override
         {
-            auto actualValue = *reinterpret_cast<FloatRange*>( m_pPropertyInstance );
+            auto& actualValue = *reinterpret_cast<FloatRange*>( m_pPropertyInstance );
             if ( actualValue != m_value_cached )
             {
                 m_value_cached = m_value_imgui = actualValue;
@@ -1776,6 +1777,80 @@ namespace KRG::TypeSystem
 
         FloatRange m_value_imgui;
         FloatRange m_value_cached;
+    };
+
+    //-------------------------------------------------------------------------
+
+    class FloatCurveEditor final : public PropertyEditor
+    {
+    public:
+
+        FloatCurveEditor( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
+            : PropertyEditor( typeRegistry, propertyInfo, m_pPropertyInstance )
+            , m_editor( m_value_imgui )
+        {
+            FloatCurveEditor::ResetWorkingCopy();
+        }
+
+        virtual bool InternalUpdateAndDraw() override
+        {
+            float const cellContentWidth = ImGui::GetContentRegionAvail().x;
+            float const previewWidth = cellContentWidth - g_iconButtonWidth - ( g_itemSpacing * 2 );
+
+            bool valueChanged = false;
+
+            if ( ImGui::BeginChild( "##Preview", ImVec2( previewWidth, 140 ) ) )
+            {
+                valueChanged = m_editor.UpdateAndDraw();
+            }
+            ImGui::EndChild();
+
+            ImGui::SameLine( 0, g_itemSpacing );
+            if ( ImGui::Button( KRG_ICON_PENCIL "##OpenCurveEditor" ) )
+            {
+                ImGui::OpenPopup( "CurveEditor" );
+            }
+            ImGuiX::ItemTooltip( "Open Full Curve Editor" );
+
+            //-------------------------------------------------------------------------
+
+            bool isOpen = true;
+            ImGui::SetNextWindowSize( ImVec2( 800, 600 ), ImGuiCond_FirstUseEver );
+            if ( ImGui::BeginPopupModal( "CurveEditor", &isOpen ) )
+            {
+                valueChanged = m_editor.UpdateAndDraw();
+                ImGui::EndPopup();
+            }
+
+            return valueChanged;
+        }
+
+        virtual void UpdateInstanceValue() override
+        {
+            m_value_cached = m_value_imgui;
+            *reinterpret_cast<FloatCurve*>( m_pPropertyInstance ) = m_value_cached;
+        }
+
+        virtual void ResetWorkingCopy() override
+        {
+            m_value_cached = m_value_imgui = *reinterpret_cast<FloatCurve*>( m_pPropertyInstance );
+            m_editor.ResetView();
+        }
+
+        virtual void HandleExternalUpdate() override
+        {
+            auto& actualValue = *reinterpret_cast<FloatCurve*>( m_pPropertyInstance );
+            if ( actualValue != m_value_cached )
+            {
+                m_value_cached = m_value_imgui = actualValue;
+            }
+        }
+
+    private:
+
+        FloatCurve      m_value_imgui;
+        FloatCurve      m_value_cached;
+        CurveEditor     m_editor;
     };
 
     //-------------------------------------------------------------------------
@@ -1973,6 +2048,12 @@ namespace KRG::TypeSystem
                 case CoreTypeID::FloatRange:
                 {
                     return KRG::New<FloatRangeEditor>( typeRegistry, propertyInfo, m_pPropertyInstance );
+                }
+                break;
+
+                case CoreTypeID::FloatCurve:
+                {
+                    return KRG::New<FloatCurveEditor>( typeRegistry, propertyInfo, m_pPropertyInstance );
                 }
                 break;
             }

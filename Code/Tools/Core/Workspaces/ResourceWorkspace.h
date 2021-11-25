@@ -11,6 +11,48 @@
 namespace KRG
 {
     namespace Resource { struct ResourceDescriptor; }
+    class ResourceDescriptorUndoableAction;
+
+    //-------------------------------------------------------------------------
+    // Generic Resource Workspace
+    //-------------------------------------------------------------------------
+    // Created for any resources without a custom workspace associated
+
+    class KRG_TOOLS_CORE_API GenericResourceWorkspace : public EditorWorkspace
+    {
+
+    public:
+
+        GenericResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
+        ~GenericResourceWorkspace();
+
+    protected:
+
+        virtual uint32 GetID() const override { return m_descriptorID.GetID(); }
+        virtual bool HasViewportWindow() const override { return false; }
+        virtual void Initialize( UpdateContext const& context ) override;
+        virtual void Shutdown( UpdateContext const& context ) override;
+        virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
+        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual bool IsDirty() const override { return m_propertyGrid.IsDirty(); }
+        virtual bool Save() override;
+
+        void PreEdit( PropertyEditInfo const& info );
+        void PostEdit( PropertyEditInfo const& info );
+
+        void DrawDescriptorWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass );
+
+    protected:
+
+        String                                  m_descriptorWindowName;
+        ResourceID                              m_descriptorID;
+        FileSystem::Path                        m_descriptorPath;
+        PropertyGrid                            m_propertyGrid;
+        Resource::ResourceDescriptor*           m_pDescriptor = nullptr;
+        EventBindingID                          m_preEditEventBindingID;
+        EventBindingID                          m_postEditEventBindingID;
+        ResourceDescriptorUndoableAction*       m_pActiveUndoableAction = nullptr;
+    };
 
     //-------------------------------------------------------------------------
     // Resource Editor Workspace
@@ -18,7 +60,7 @@ namespace KRG
     // This is a base class to create a sub-editor for a given resource type that runs within the resource editor
 
     template<typename T>
-    class TResourceWorkspace : public EditorWorkspace
+    class TResourceWorkspace : public GenericResourceWorkspace
     {
         static_assert( std::is_base_of<Resource::IResource, T>::value, "T must derived from IResource" );
 
@@ -26,7 +68,7 @@ namespace KRG
 
         // Specify whether to initially load the resource, this is not necessary for all editors
         TResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID, bool shouldLoadResource = true )
-            : EditorWorkspace( context, pWorld, resourceID.GetResourcePath().ToFileSystemPath( context.m_sourceResourceDirectory ).GetFileNameWithoutExtension() )
+            : GenericResourceWorkspace( context, pWorld, resourceID )
             , m_pResource( resourceID )
         {
             KRG_ASSERT( resourceID.IsValid() );
@@ -45,7 +87,8 @@ namespace KRG
             }
         }
 
-        virtual uint32 GetID() const override{ return m_pResource.GetResourceID().GetID(); }
+        virtual uint32 GetID() const override { return m_pResource.GetResourceID().GetID(); }
+        virtual bool HasViewportWindow() const override { return true; }
 
         // Resource Status
         inline bool IsLoading() const { return m_pResource.IsLoading(); }
@@ -82,45 +125,6 @@ namespace KRG
     private:
 
         bool                                m_isHotReloading = false;
-    };
-
-    //-------------------------------------------------------------------------
-    // Generic Resource Workspace
-    //-------------------------------------------------------------------------
-    // Created for any resources without a custom workspace associated
-
-    class GenericResourceWorkspace final : public EditorWorkspace
-    {
-
-    public:
-
-        GenericResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
-        ~GenericResourceWorkspace();
-
-    private:
-
-        virtual uint32 GetID() const override{ return m_descriptorID.GetID(); }
-        virtual bool HasViewportWindow() const { return false; }
-        virtual void Initialize( UpdateContext const& context ) override;
-        virtual void Shutdown( UpdateContext const& context ) override;
-        virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
-        virtual bool IsDirty() const override { return m_propertyGrid.IsDirty(); }
-        virtual bool Save() override;
-
-        void PreEdit( PropertyEditInfo const& info );
-        void PostEdit( PropertyEditInfo const& info );
-
-    private:
-
-        String                              m_descriptorWindowName;
-        ResourceID                          m_descriptorID;
-        FileSystem::Path                    m_descriptorPath;
-        PropertyGrid                        m_propertyGrid;
-        Resource::ResourceDescriptor*       m_pDescriptor = nullptr;
-        EventBindingID                      m_preEditEventBindingID;
-        EventBindingID                      m_postEditEventBindingID;
-        IUndoableAction*                    m_pActiveUndoableAction = nullptr;
     };
 
     //-------------------------------------------------------------------------

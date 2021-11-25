@@ -186,7 +186,7 @@ namespace KRG::Render
         KRG_ASSERT( pPixels != nullptr );
         m_pRenderDevice->CreateTexture( m_fontTexture, TextureFormat::Raw, pPixels, textureDataSize );
 
-        io.Fonts->TexID = const_cast<ShaderResourceView*>( &m_fontTexture.GetShaderResourceView() );
+        io.Fonts->TexID = const_cast<ViewSRVHandle*>( &m_fontTexture.GetShaderResourceView() );
 
         //-------------------------------------------------------------------------
 
@@ -256,7 +256,7 @@ namespace KRG::Render
         m_initialized = false;
     }
 
-    void ImguiRenderer::RenderViewport( Render::Viewport const& viewport )
+    void ImguiRenderer::RenderViewport( RenderTarget const& target, Render::Viewport const& viewport )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
@@ -269,6 +269,8 @@ namespace KRG::Render
         ImGui::Render();
 
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
+        renderContext.SetRenderTarget( target );
+
         ImDrawData const* pData = ImGui::GetDrawData();
         if ( pData != nullptr )
         {
@@ -406,7 +408,7 @@ namespace KRG::Render
                     ScissorRect scissorRect = { (LONG) clip_min.x, (LONG) clip_min.y, (LONG) clip_max.x, (LONG) clip_max.y };
                     renderContext.SetRasterizerScissorRectangles( &scissorRect, 1 );
 
-                    ShaderResourceView const* pSRV = reinterpret_cast<ShaderResourceView const*>( pCmd->TextureId );
+                    ViewSRVHandle const* pSRV = reinterpret_cast<ViewSRVHandle const*>( pCmd->TextureId );
                     renderContext.SetShaderResource( PipelineStage::Pixel, 0, *pSRV );
 
                     renderContext.DrawIndexed( pCmd->ElemCount, indexOffset, vertexOffset );

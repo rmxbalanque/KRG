@@ -96,8 +96,11 @@ namespace KRG
 
         if ( pInputSystem->GetNumConnectedControllers() == 0 )
         {
+            m_pCameraComponent->FinalizeCameraPosition();
             return;
         }
+
+        //-------------------------------------------------------------------------
 
         auto const pControllerState = pInputSystem->GetControllerState();
         KRG_ASSERT( pControllerState != nullptr );

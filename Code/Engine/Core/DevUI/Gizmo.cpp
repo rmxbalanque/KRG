@@ -853,13 +853,9 @@ namespace KRG::ImGuiX
 
         // If any axes face away from the camera negate them before drawing
         Vector const viewForwardDir_WS = viewport.GetViewForwardDirection();
-        bool const negateAxisX = Vector::Dot3( viewForwardDir_WS, m_axisDir_WS_X ).ToFloat() > 0.0f;
-        bool const negateAxisY = Vector::Dot3( viewForwardDir_WS, m_axisDir_WS_Y ).ToFloat() > 0.0f;
-        bool const negateAxisZ = Vector::Dot3( viewForwardDir_WS, m_axisDir_WS_Z ).ToFloat() > 0.0f;
-
-        Vector const drawAxisDir_SS_X = negateAxisX ? -m_axisDir_SS_X : m_axisDir_SS_X;
-        Vector const drawAxisDir_SS_Y = negateAxisY ? -m_axisDir_SS_Y : m_axisDir_SS_Y;
-        Vector const drawAxisDir_SS_Z = negateAxisZ ? -m_axisDir_SS_Z : m_axisDir_SS_Z;
+        Vector const drawAxisDir_SS_X = m_axisDir_SS_X;
+        Vector const drawAxisDir_SS_Y = m_axisDir_SS_Y;
+        Vector const drawAxisDir_SS_Z = m_axisDir_SS_Z;
 
         // Ensure that gizmo is alway uniform size
         Vector const axisEndPoint_SS_X = m_origin_SS + drawAxisDir_SS_X * g_axisLength;
@@ -1195,13 +1191,10 @@ namespace KRG::ImGuiX
 
         // If any axes face away from the camera negate them before drawing
         Vector const viewForwardDir_WS = viewport.GetViewForwardDirection();
-        m_isAxisNegatedX = Vector::Dot3( viewForwardDir_WS, m_axisDir_WS_X ).ToFloat() > 0.0f;
-        m_isAxisNegatedY = Vector::Dot3( viewForwardDir_WS, m_axisDir_WS_Y ).ToFloat() > 0.0f;
-        m_isAxisNegatedZ = Vector::Dot3( viewForwardDir_WS, m_axisDir_WS_Z ).ToFloat() > 0.0f;
 
-        Vector const drawAxisDir_SS_X = m_isAxisNegatedX ? -m_axisDir_SS_X : m_axisDir_SS_X;
-        Vector const drawAxisDir_SS_Y = m_isAxisNegatedY ? -m_axisDir_SS_Y : m_axisDir_SS_Y;
-        Vector const drawAxisDir_SS_Z = m_isAxisNegatedZ ? -m_axisDir_SS_Z : m_axisDir_SS_Z;
+        Vector const drawAxisDir_SS_X = m_axisDir_SS_X;
+        Vector const drawAxisDir_SS_Y = m_axisDir_SS_Y;
+        Vector const drawAxisDir_SS_Z = m_axisDir_SS_Z;
 
         // Ensure that gizmo is alway uniform size
         Vector const axisEndPoint_SS_X = m_origin_SS + drawAxisDir_SS_X * g_axisLength;

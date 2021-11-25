@@ -122,7 +122,7 @@ namespace KRG
 
             Matrix                  m_worldMatrix;                          // The actual world transform of the volume
             Matrix                  m_viewMatrix;                           // The conversion from KRG space ( KRG Z-up space to rendering Y-up space )
-            Matrix                  m_projectionMatrix;                     // The projection conversion for this volume
+            Matrix                  m_projectionMatrix;                     // The projection conversion for this volume // TODO: infinite perspective, inverse Z
             Matrix                  m_viewProjectionMatrix;                 // Cached view projection matrix
             Matrix                  m_inverseViewProjectionMatrix;          // Inverse of the cached view projection matrix
             Plane                   m_viewPlanes[6];                        // Cached view planes for this volume

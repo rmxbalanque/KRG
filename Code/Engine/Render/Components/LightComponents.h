@@ -18,11 +18,13 @@ namespace KRG::Render
         KRG_FORCE_INLINE float GetLightIntensity() const { return m_intensity; }
         KRG_FORCE_INLINE Color const& GetLightColor() const { return m_color; }
         KRG_FORCE_INLINE Vector const& GetLightPosition() const { return GetWorldTransform().GetTranslation(); }
+        KRG_FORCE_INLINE bool GetShadowed() const { return m_shadowed; }
 
     private:
 
         KRG_EXPOSE Color                m_color = Colors::White;
         KRG_EXPOSE float                m_intensity = 1.0f;
+        KRG_EXPOSE bool                 m_shadowed = false;
     };
 
     //-------------------------------------------------------------------------
@@ -35,6 +37,7 @@ namespace KRG::Render
     public:
 
         KRG_FORCE_INLINE Vector GetLightDirection() const { return GetWorldTransform().GetForwardVector(); }
+
     };
 
     //-------------------------------------------------------------------------
@@ -44,9 +47,13 @@ namespace KRG::Render
         KRG_REGISTER_ENTITY_COMPONENT( PointLightComponent );
         friend class RenderDebugView;
 
+    public:
+
+        KRG_FORCE_INLINE float GetLightRadius() const { return m_radius; }
+
     private:
 
-        // TODO: Fall-off parameters
+        KRG_EXPOSE float                m_radius = 1.0f;
     };
 
     //-------------------------------------------------------------------------
@@ -58,12 +65,16 @@ namespace KRG::Render
 
     public:
 
-        KRG_FORCE_INLINE float GetLightUmbraAngle() const { return m_umbraAngle; }
+        KRG_FORCE_INLINE float GetLightRadius() const { return m_radius; }
+        KRG_FORCE_INLINE Degrees GetLightInnerUmbraAngle() const { return m_innerUmbraAngle; }
+        KRG_FORCE_INLINE Degrees GetLightOuterUmbraAngle() const { return m_outerUmbraAngle; }
         KRG_FORCE_INLINE Vector GetLightDirection() const { return GetWorldTransform().GetForwardVector(); }
 
     private:
 
-        KRG_EXPOSE Degrees              m_umbraAngle = 45.0f;
+        KRG_EXPOSE Degrees              m_innerUmbraAngle = 0.0f;
+        KRG_EXPOSE Degrees              m_outerUmbraAngle = 45.0f;
+        KRG_EXPOSE float                m_radius = 1.0f;
 
         // TODO: Fall-off parameters
     };

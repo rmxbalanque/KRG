@@ -1,6 +1,6 @@
 #include "ResourceWorkspace.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
+#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 
 //-------------------------------------------------------------------------
 
@@ -10,15 +10,25 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class DescriptorUndoableAction : public IUndoableAction
+    class ResourceDescriptorUndoableAction final : public IUndoableAction
     {
     public:
 
-        DescriptorUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, IRegisteredType* pTypeInstance )
-            : m_typeRegistry( typeRegistry ) 
+        ResourceDescriptorUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, IRegisteredType* pTypeInstance )
+            : m_typeRegistry( typeRegistry )
             , m_pEditedType( pTypeInstance )
         {
             KRG_ASSERT( m_pEditedType != nullptr );
+        }
+
+        virtual void Undo() override
+        {
+            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueBefore, m_pEditedType );
+        }
+
+        virtual void Redo() override
+        {
+            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueAfter, m_pEditedType );
         }
 
         void SerializeBeforeState()
@@ -29,16 +39,6 @@ namespace KRG
         void SerializeAfterState()
         {
             TypeSystem::Serialization::WriteNativeTypeToString( m_typeRegistry, m_pEditedType, m_valueAfter );
-        }
-
-        virtual void Undo()
-        {
-            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueBefore, m_pEditedType );
-        }
-
-        virtual void Redo()
-        {
-            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueAfter, m_pEditedType );
         }
 
     private:
@@ -103,6 +103,7 @@ namespace KRG
 
     void GenericResourceWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
+        ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( m_descriptorWindowName.c_str() ) )
         {
             if ( auto pDockNode = ImGui::GetWindowDockNode() )
@@ -127,10 +128,26 @@ namespace KRG
                 if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_FLOPPY_O " Save", ImVec2( -1, 0 ) ) )
                 {
                     Save();
-                    m_propertyGrid.ClearDirty();
                 }
                 ImGui::EndDisabled();
 
+                m_propertyGrid.DrawGrid();
+            }
+        }
+        ImGui::End();
+    }
+
+    void GenericResourceWorkspace::DrawDescriptorWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    {
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( m_descriptorWindowName.c_str() ) )
+        {
+            if ( m_pDescriptor == nullptr )
+            {
+                ImGui::Text( "Failed to load descriptor!" );
+            }
+            else
+            {
                 m_propertyGrid.DrawGrid();
             }
         }
@@ -154,7 +171,7 @@ namespace KRG
     void GenericResourceWorkspace::PreEdit( PropertyEditInfo const& info )
     {
         KRG_ASSERT( m_pActiveUndoableAction == nullptr );
-        auto pUndoableAction = KRG::New<DescriptorUndoableAction>( *m_editorContext.m_pTypeRegistry, m_pDescriptor );
+        auto pUndoableAction = KRG::New<ResourceDescriptorUndoableAction>( *m_editorContext.m_pTypeRegistry, m_pDescriptor );
         pUndoableAction->SerializeBeforeState();
         m_pActiveUndoableAction = pUndoableAction;
     }
@@ -162,7 +179,7 @@ namespace KRG
     void GenericResourceWorkspace::PostEdit( PropertyEditInfo const& info )
     {
         KRG_ASSERT( m_pActiveUndoableAction != nullptr );
-        auto pUndoableAction = static_cast<DescriptorUndoableAction*>( m_pActiveUndoableAction );
+        auto pUndoableAction = static_cast<ResourceDescriptorUndoableAction*>( m_pActiveUndoableAction );
         pUndoableAction->SerializeAfterState();
         m_undoStack.RegisterAction( pUndoableAction );
         m_pActiveUndoableAction = nullptr;

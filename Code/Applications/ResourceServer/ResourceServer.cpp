@@ -263,7 +263,7 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    CompilationRequest const* ResourceServer::ProcessResourceRequest( ResourceID const& resourceID, uint32 clientID )
+    void ResourceServer::ProcessResourceRequest( ResourceID const& resourceID, uint32 clientID, bool forceRecompile )
     {
         KRG_ASSERT( m_compiledResourceDatabase.IsConnected() );
 
@@ -337,7 +337,7 @@ namespace KRG::Resource
                 }
 
                 // Run Up-to-date check
-                if ( pRequest->m_status != CompilationRequest::Status::Failed )
+                if ( pRequest->m_status != CompilationRequest::Status::Failed && !forceRecompile )
                 {
                     PerformResourceUpToDateCheck( pRequest, compileDependencies );
                 }
@@ -362,8 +362,6 @@ namespace KRG::Resource
             KRG_ASSERT( pRequest->IsComplete() );
             NotifyClientOnCompletedRequest( pRequest );
         }
-
-        return pRequest;
     }
 
     void ResourceServer::NotifyClientOnCompletedRequest( CompilationRequest* pRequest )

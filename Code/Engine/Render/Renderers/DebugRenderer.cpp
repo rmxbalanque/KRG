@@ -388,7 +388,7 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void DebugRenderer::RenderWorld( Viewport const& viewport, EntityWorld* pWorld )
+    void DebugRenderer::RenderWorld( RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
@@ -405,6 +405,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
+        renderContext.SetRenderTarget( target );
         renderContext.SetViewport( Float2( viewport.GetDimensions() ), Float2( viewport.GetTopLeftPosition() ) );
 
         //-------------------------------------------------------------------------

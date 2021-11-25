@@ -1,6 +1,7 @@
 #pragma once
 
-#include "RenderShaderResource.h"
+#include "_Module/API.h"
+#include "RenderAPI.h"
 #include "System/Resource/IResource.h"
 #include "System/Core/Serialization/Serialization.h"
 #include "System/Core/Math/Math.h"
@@ -9,54 +10,6 @@
 
 namespace KRG::Render
 {
-    enum class TextureFiltering : uint8
-    {
-        MinMagMipPoint = 0,
-        MinMagPointMipLinear,
-        MinPointMagLinearMipPoint,
-        MinPointMagMipLinear,
-        MinLinearMagMipPoint,
-        MinLinearMagPointMipLinear,
-        MinMagLinearMipPoint,
-        MinMagMipLinear,
-        Anisotropic,
-        ComparisonMinMagMipPoint,
-        ComparisonMinMagPointMipLinear,
-        ComparisonMinPointMagLinearMipPoint,
-        ComparisonMinPointMagMipLinear,
-        ComparisonMinLinearMagMipPoint,
-        ComparisonMinLinearMagPointMipLinear,
-        ComparisonMinMagLinearMipPoint,
-        ComparisonMinMagMipLinear,
-        ComparisonAnisotropic,
-        MinimumMinMagMipPoint,
-        MinimumMinMagPointMipLinear,
-        MinimumMinPointMagLinearMipPoint,
-        MinimumMinPointMagMipLinear,
-        MinimumMinLinearMagMipPoint,
-        MinimumMinLinearMagPointMipLinear,
-        MinimumMinMagLinearMipPoint,
-        MinimumMinMagMipLinear,
-        MinimumAnisotropic,
-        MaximumMinMagMipPoint,
-        MaximumMinMagPointMipLinear,
-        MaximumMinPointMagLinearMipPoint,
-        MaximumMinPointMagMipLinear,
-        MaximumMinLinearMagMipPoint,
-        MaximumMinLinearMagPointMipLinear,
-        MaximumMinMagLinearMipPoint,
-        MaximumMinMagMipLinear,
-        MaximumAnisotropic,
-    };
-
-    enum class TextureAddressMode : uint8
-    {
-        Wrap = 0,
-        Mirror,
-        Clamp,
-        Border,
-    };
-
     enum class TextureFormat : uint8
     {
         Raw,
@@ -71,7 +24,7 @@ namespace KRG::Render
 
         inline bool IsValid() const { return m_resourceHandle.IsValid(); }
 
-        ResourceHandle const& GetResourceHandle() const { return m_resourceHandle; }
+        SamplerStateHandle const& GetResourceHandle() const { return m_resourceHandle; }
 
     public:
 
@@ -79,6 +32,7 @@ namespace KRG::Render
         TextureAddressMode      m_addressModeU = TextureAddressMode::Wrap;
         TextureAddressMode      m_addressModeV = TextureAddressMode::Wrap;
         TextureAddressMode      m_addressModeW = TextureAddressMode::Wrap;
+        Float4                  m_borderColor = Float4(0.0f);
         uint32                  m_maxAnisotropyValue = 1;
         float                   m_LODBias = 0;
         float                   m_minLOD = -FLT_MAX;
@@ -86,7 +40,7 @@ namespace KRG::Render
 
     private:
 
-        ResourceHandle          m_resourceHandle;
+        SamplerStateHandle      m_resourceHandle;
     };
 
     //-------------------------------------------------------------------------
@@ -111,15 +65,20 @@ namespace KRG::Render
         virtual bool IsValid() const override { return m_shaderResourceView.IsValid(); }
 
         inline Int2 const& GetDimensions() const { return m_dimensions; }
-        inline ResourceHandle const& GetResourceHandle() const { return m_shaderResourceView.GetResourceHandle(); }
-        inline ShaderResourceView const& GetShaderResourceView() const { return m_shaderResourceView; }
+        inline ViewSRVHandle const& GetShaderResourceView() const { return m_shaderResourceView; }
+        inline ViewUAVHandle const& GetUnorderedAccessView() const { return m_unorderedAccessView; }
+        inline ViewRTHandle const& GetRenderTargetView() const { return m_renderTargetView; }
+        inline ViewDSHandle const& GetDepthStencilView() const { return m_depthStencilView; }
 
         inline bool operator==( Texture const& rhs ) const { return m_shaderResourceView == m_shaderResourceView; }
         inline bool operator!=( Texture const& rhs ) const { return m_shaderResourceView != m_shaderResourceView; }
 
     protected:
 
-        ShaderResourceView      m_shaderResourceView;
+        ViewSRVHandle           m_shaderResourceView;
+        ViewUAVHandle           m_unorderedAccessView;
+        ViewRTHandle            m_renderTargetView;
+        ViewDSHandle            m_depthStencilView;
         Int2                    m_dimensions = Int2(0, 0);
         TextureFormat           m_format;
         TVector<Byte>           m_rawData; // Temporary storage for the raw data used during installation, cleared when installation completes

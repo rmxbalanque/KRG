@@ -134,6 +134,7 @@ namespace KRG
 
         KRG_EXPOSE IntRange                                                     m_intRange;
         KRG_EXPOSE FloatRange                                                   m_floatRange;
+        KRG_EXPOSE FloatCurve                                                   m_floatCurve;
 
         // Enums
         KRG_EXPOSE InternalEnum                                                 m_internalEnum = InternalEnum::Cow;

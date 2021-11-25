@@ -2,43 +2,43 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Fonts">
-      <UniqueIdentifier>{6989e52c-6afa-4a89-9168-278bb92e0936}</UniqueIdentifier>
+      <UniqueIdentifier>{b2b67485-b5d1-4b15-8d55-67559d2b59f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderers\DebugRenderer">
-      <UniqueIdentifier>{c031897f-3bd2-4520-bed5-48727002500f}</UniqueIdentifier>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{59a9549f-da53-470d-85ee-43023afb1095}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderers">
-      <UniqueIdentifier>{362cdcfe-0342-4c34-a023-96ea3c30b090}</UniqueIdentifier>
+    <Filter Include="Imgui">
+      <UniqueIdentifier>{a20cb1d8-123e-485a-8a48-d48613d12d9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ThirdParty\stb">
-      <UniqueIdentifier>{62374f2e-87f4-4aa6-ac39-4da46a7a347e}</UniqueIdentifier>
+    <Filter Include="Imgui\Platform">
+      <UniqueIdentifier>{32137871-b47d-4daf-988c-00810379e44b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\imgui">
+      <UniqueIdentifier>{a67eeb1e-9908-4650-89bd-ca3abb4e64ab}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{707f6278-afb8-4e81-a156-334a04c3d5b3}</UniqueIdentifier>
+      <UniqueIdentifier>{1ef6d7c9-8f3d-4c84-bf4e-5e121ea33495}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RenderDevice\Platform">
-      <UniqueIdentifier>{a37ff9a3-53f8-42f0-9179-86bbf801b71c}</UniqueIdentifier>
+    <Filter Include="ThirdParty\imgui\misc\freetype">
+      <UniqueIdentifier>{def5eb05-387c-49a1-ac94-ed5f052c7051}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RenderDevice">
-      <UniqueIdentifier>{19935f60-e6c5-408f-b085-c3128f662507}</UniqueIdentifier>
+    <Filter Include="ThirdParty\imgui\misc">
+      <UniqueIdentifier>{9fa41727-c38f-4559-87e9-5724d19d463e}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Module">
-      <UniqueIdentifier>{c5c35560-b150-400d-b760-a08a3b7b5653}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderers\DebugRenderer\Shaders">
-      <UniqueIdentifier>{6df5d2e6-c8b8-4b4e-b926-fd8c3acf2466}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderers\DebugRenderer\Shaders\HLSL">
-      <UniqueIdentifier>{f1f3a221-d76c-4c75-b35b-f7b0a60ae176}</UniqueIdentifier>
+      <UniqueIdentifier>{c326cbf3-bb5d-4b77-a352-88fb3d76108e}</UniqueIdentifier>
     </Filter>
     <Filter Include="DebugRenderer\Debug\HLSL">
-      <UniqueIdentifier>{9880e5ce-2454-4b31-9a9f-c531c938c2b8}</UniqueIdentifier>
+      <UniqueIdentifier>{d4157076-8dd6-4bbc-a7af-3d28d783acd9}</UniqueIdentifier>
     </Filter>
     <Filter Include="DebugRenderer\Debug">
-      <UniqueIdentifier>{0f6d68db-d04d-4a49-9357-3b5695351545}</UniqueIdentifier>
+      <UniqueIdentifier>{15de42df-3741-4164-be97-7842d26c387c}</UniqueIdentifier>
     </Filter>
     <Filter Include="DebugRenderer">
-      <UniqueIdentifier>{645bb3fc-554f-4c36-be14-9e35f83c771a}</UniqueIdentifier>
+      <UniqueIdentifier>{b590668e-0144-4197-a61b-b84e44269938}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\imgui\misc\debuggers">
+      <UniqueIdentifier>{d2b4934f-f244-4285-8d0f-6daef9746acb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -52,35 +52,50 @@
       <Filter>Fonts</Filter>
     </ClCompile>
     <ClCompile Include="Platform\RenderContext_DX11.cpp">
-      <Filter>RenderDevice\Platform</Filter>
+      <Filter>Platform</Filter>
     </ClCompile>
     <ClCompile Include="Platform\RenderDevice_DX11.cpp">
-      <Filter>RenderDevice\Platform</Filter>
+      <Filter>Platform</Filter>
     </ClCompile>
     <ClCompile Include="Platform\TextureLoader_Win32.cpp">
-      <Filter>RenderDevice\Platform</Filter>
+      <Filter>Platform</Filter>
     </ClCompile>
-    <ClCompile Include="RenderDefaultResources.cpp">
-      <Filter>RenderDevice</Filter>
+    <ClCompile Include="Fonts\FontData_Roboto.cpp">
+      <Filter>Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTarget.cpp" />
-    <ClCompile Include="RenderSettings.cpp" />
-    <ClCompile Include="RenderShader.cpp" />
-    <ClCompile Include="RenderTexture.cpp" />
-    <ClCompile Include="RenderVertexFormats.cpp" />
-    <ClCompile Include="RenderViewport.cpp" />
-    <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Imgui\Platform\ImguiPlatform_Win32.cpp" />
-    <ClCompile Include="Imgui\ImguiFont.cpp" />
-    <ClCompile Include="Imgui\ImguiSystem.cpp" />
-    <ClCompile Include="Imgui\ImguiStyle.cpp" />
-    <ClCompile Include="Imgui\ImguiX.cpp" />
-    <ClCompile Include="Fonts\FontData_Roboto.cpp" />
+    <ClCompile Include="Imgui\ImguiFont.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiSystem.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiStyle.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiX.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\Platform\ImguiPlatform_Win32.cpp">
+      <Filter>Imgui\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp">
+      <Filter>ThirdParty\imgui\misc\freetype</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fonts\FontData_FontAwesome4.h">
@@ -92,49 +107,57 @@
     <ClInclude Include="Fonts\FontDecompressor.h">
       <Filter>Fonts</Filter>
     </ClInclude>
+    <ClInclude Include="Platform\RenderContext_DX11.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\RenderDevice_DX11.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\TextureLoader_Win32.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\RenderContext_DX11.h">
-      <Filter>RenderDevice\Platform</Filter>
+    <ClInclude Include="Fonts\FontData_Roboto.h">
+      <Filter>Fonts</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\RenderDevice_DX11.h">
-      <Filter>RenderDevice\Platform</Filter>
+    <ClInclude Include="Imgui\ImguiFont.h">
+      <Filter>Imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\TextureLoader_Win32.h">
-      <Filter>RenderDevice\Platform</Filter>
+    <ClInclude Include="Imgui\ImguiSystem.h">
+      <Filter>Imgui</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDefaultResources.h">
-      <Filter>RenderDevice</Filter>
+    <ClInclude Include="Imgui\ImguiStyle.h">
+      <Filter>Imgui</Filter>
     </ClInclude>
-    <ClInclude Include="RenderDevice.h">
-      <Filter>RenderDevice</Filter>
+    <ClInclude Include="Imgui\ImguiX.h">
+      <Filter>Imgui</Filter>
     </ClInclude>
-    <ClInclude Include="RenderShaderResource.h" />
-    <ClInclude Include="RenderTarget.h" />
-    <ClInclude Include="RenderSettings.h" />
-    <ClInclude Include="RenderBuffer.h" />
-    <ClInclude Include="RenderPipelineState.h" />
-    <ClInclude Include="RenderResourceHandle.h" />
-    <ClInclude Include="RenderShader.h" />
-    <ClInclude Include="RenderStates.h" />
-    <ClInclude Include="RenderTexture.h" />
-    <ClInclude Include="RenderVertexFormats.h" />
-    <ClInclude Include="RenderViewport.h" />
-    <ClInclude Include="RenderWindow.h" />
-    <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h" />
-    <ClInclude Include="ThirdParty\imgui\imconfig.h" />
-    <ClInclude Include="ThirdParty\imgui\imgui.h" />
-    <ClInclude Include="ThirdParty\imgui\imgui_internal.h" />
-    <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h" />
-    <ClInclude Include="ThirdParty\imgui\imstb_textedit.h" />
-    <ClInclude Include="ThirdParty\imgui\imstb_truetype.h" />
-    <ClInclude Include="Imgui\Platform\ImguiPlatform_Win32.h" />
-    <ClInclude Include="Imgui\ImguiFont.h" />
-    <ClInclude Include="Imgui\ImguiSystem.h" />
-    <ClInclude Include="Imgui\ImguiStyle.h" />
-    <ClInclude Include="Imgui\ImguiX.h" />
-    <ClInclude Include="Fonts\FontData_Roboto.h" />
+    <ClInclude Include="Imgui\Platform\ImguiPlatform_Win32.h">
+      <Filter>Imgui\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imconfig.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_internal.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_textedit.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_truetype.h">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h">
+      <Filter>ThirdParty\imgui\misc\freetype</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
@@ -142,9 +165,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis" />
+    <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis">
+      <Filter>ThirdParty\imgui\misc\debuggers</Filter>
+    </Natvis>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ThirdParty\imgui\LICENSE.txt" />
+    <Text Include="ThirdParty\imgui\LICENSE.txt">
+      <Filter>ThirdParty\imgui</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ namespace KRG::ImGuiX
     static bool DrawVectorElement( char const* pID, char const* pLabel, float const& width, ImVec4 backgroundColor, float* pValue, bool isReadOnly = false )
     {
         constexpr static float const labelWidth = 16.0f;
-        constexpr static float const labelHeight = 22.0f;
+        constexpr static float const labelHeight = 24.0f;
 
         //-------------------------------------------------------------------------
 

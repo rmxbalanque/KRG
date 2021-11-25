@@ -50,7 +50,7 @@ namespace KRG
 
             void CreateCustomRenderTargetForViewport( Viewport const* pViewport );
             void DestroyCustomRenderTargetForViewport( Viewport const* pViewport );
-            ShaderResourceView const& GetRenderTargetTextureForViewport( Viewport const* pViewport ) const;
+            ViewSRVHandle const& GetRenderTargetTextureForViewport( Viewport const* pViewport ) const;
 
         private:
 

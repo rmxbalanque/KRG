@@ -28,10 +28,14 @@ namespace KRG::Render
 
     public:
 
-        inline CubemapTexture const* GetEnvironmentMapTexture() const { return m_environmentMapTexture.GetPtr(); }
+        inline CubemapTexture const* GetSkyboxTexture() const { return m_skyboxTexture.GetPtr(); }
+        inline CubemapTexture const* GetSkyboxRadianceTexture() const { return m_skyboxRadianceTexture.GetPtr(); }
+        inline float  GetSkyboxIntensity() const { return m_skyboxIntensity; }
 
     private:
 
-        KRG_EXPOSE TResourcePtr<CubemapTexture> m_environmentMapTexture;
+        KRG_EXPOSE TResourcePtr<CubemapTexture> m_skyboxTexture;
+        KRG_EXPOSE TResourcePtr<CubemapTexture> m_skyboxRadianceTexture;
+        KRG_EXPOSE float m_skyboxIntensity = 1.0;
     };
 }

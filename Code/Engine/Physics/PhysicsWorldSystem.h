@@ -1,8 +1,7 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "PhysicsQueryTypes.h"
-#include "PhysicsQueryFilter.h"
+#include "PhysicsQuery.h"
 #include "Engine/Core/Entity/EntityWorldSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
@@ -68,36 +67,58 @@ namespace KRG::Physics
 
         // Queries
         //-------------------------------------------------------------------------
-        // None of these function acquire read locks, the user is expected to manually lock/unlock the scene, since they are often doing more than one query
+        // The Custom versions of the queries allow you to provide your own result container, generally only useful if you hit the 32 hit limit the default results provides
+        // WARNING!!! None of these function acquire read locks, the user is expected to manually lock/unlock the scene, since they are often doing more than one query
 
-        // Rays
-        bool RayCast( Vector const& start, Vector const& end, QueryRules const& rules, physx::PxRaycastCallback& outResults );
-        bool RayCast( Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, physx::PxRaycastCallback& outResults );
+        bool RayCastCustom( Vector const& start, Vector const& end, QueryFilter& filter, physx::PxRaycastCallback& outResults );
+        bool RayCastCustom( Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, physx::PxRaycastCallback& outResults );
+        KRG_FORCE_INLINE bool RayCast( Vector const& start, Vector const& end, QueryFilter& filter, RayCastResults& outResults ) { return RayCastCustom( start, end, filter, outResults ); }
+        KRG_FORCE_INLINE bool RayCast( Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, RayCastResults& outResults ) { return RayCastCustom( start, unitDirection, distance, filter, outResults ); }
 
         // Spheres
-        bool SphereCast( float radius, Vector const& start, Vector const& end, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool SphereCast( float radius, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool SphereOverlap( float radius, Vector const& position, QueryRules const& rules, physx::PxOverlapCallback& outResults );
+        bool SphereCastCustom( float radius, Vector const& start, Vector const& end, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool SphereCastCustom( float radius, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool SphereOverlapCustom( float radius, Vector const& position, QueryFilter& filter, physx::PxOverlapCallback& outResults );
+
+        KRG_FORCE_INLINE bool SphereCast( float radius, Vector const& start, Vector const& end, QueryFilter& filter, ShapeCastResults& outResults ) { return SphereCastCustom( radius, start, end, filter, outResults ); }
+        KRG_FORCE_INLINE bool SphereCast( float radius, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, ShapeCastResults& outResults ) { return SphereCastCustom( radius, start, unitDirection, distance, filter, outResults ); }
+        KRG_FORCE_INLINE bool SphereOverlap( float radius, Vector const& position, QueryFilter& filter, OverlapResults& outResults ) { return SphereOverlapCustom( radius, position, filter, outResults ); }
 
         // Capsules - Half-height is always along Z axis
-        bool CapsuleCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool CapsuleCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool CapsuleOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules, physx::PxOverlapCallback& outResults );
+        bool CapsuleCastCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool CapsuleCastCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool CapsuleOverlapCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, physx::PxOverlapCallback& outResults );
+
+        KRG_FORCE_INLINE bool CapsuleCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, ShapeCastResults& outResults ) { return CapsuleCastCustom( halfHeight, radius, orientation, start, end, filter, outResults ); }
+        KRG_FORCE_INLINE bool CapsuleCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, ShapeCastResults& outResults ) { return CapsuleCastCustom( halfHeight, radius, orientation, start, unitDirection, distance, filter, outResults ); }
+        KRG_FORCE_INLINE bool CapsuleOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResults& outResults ) { return CapsuleOverlapCustom( halfHeight, radius, orientation, position, filter, outResults ); }
 
         // Cylinders - Half-height is always along Z axis
-        bool CylinderCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool CylinderCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool CylinderOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryRules const& rules, physx::PxOverlapCallback& outResults );
+        bool CylinderCastCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool CylinderCastCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool CylinderOverlapCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, physx::PxOverlapCallback& outResults );
+
+        KRG_FORCE_INLINE bool CylinderCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, ShapeCastResults& outResults ) { return CylinderCastCustom( halfHeight, radius, orientation, start, end, filter, outResults ); }
+        KRG_FORCE_INLINE bool CylinderCast( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, ShapeCastResults& outResults ) { return CylinderCastCustom( halfHeight, radius, orientation, start, unitDirection, distance, filter, outResults ); }
+        KRG_FORCE_INLINE bool CylinderOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResults& outResults ) { return CylinderOverlapCustom( halfHeight, radius, orientation, position, filter, outResults ); }
 
         // Boxes
-        bool BoxCast( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& end, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool BoxCast( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool BoxOverlap( Vector halfExtents, Vector const& position, Quaternion const& orientation, QueryRules const& rules, physx::PxOverlapCallback& outResults );
+        bool BoxCastCustom( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool BoxCastCustom( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool BoxOverlapCustom( Vector halfExtents, Vector const& position, Quaternion const& orientation, QueryFilter& filter, physx::PxOverlapCallback& outResults );
+
+        KRG_FORCE_INLINE bool BoxCast( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, ShapeCastResults& outResults ) { return BoxCastCustom( halfExtents, position, orientation, start, end, filter, outResults ); }
+        KRG_FORCE_INLINE bool BoxCast( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, ShapeCastResults& outResults ) { return BoxCastCustom( halfExtents, position, orientation, start, unitDirection, distance, filter, outResults ); }
+        KRG_FORCE_INLINE bool BoxOverlap( Vector halfExtents, Vector const& position, Quaternion const& orientation, QueryFilter& filter, OverlapResults& outResults ) { return BoxOverlapCustom( halfExtents, position, orientation, filter, outResults ); }
 
         // Shapes
-        bool ShapeCast( physx::PxShape* pShape, Transform const& startTransform, Vector const& desiredEndPosition, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool ShapeCast( physx::PxShape* pShape, Transform const& startTransform, Vector const& unitDirection, float distance, QueryRules const& rules, physx::PxSweepCallback& outResults );
-        bool ShapeOverlap( physx::PxShape* pShape, Transform const& transform, QueryRules const& rules, physx::PxOverlapCallback& outResults );
+        bool ShapeCastCustom( physx::PxShape* pShape, Transform const& startTransform, Vector const& desiredEndPosition, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool ShapeCastCustom( physx::PxShape* pShape, Transform const& startTransform, Vector const& unitDirection, float distance, QueryFilter& filter, physx::PxSweepCallback& outResults );
+        bool ShapeOverlapCustom( physx::PxShape* pShape, Transform const& transform, QueryFilter& filter, physx::PxOverlapCallback& outResults );
+
+        KRG_FORCE_INLINE bool ShapeCast( physx::PxShape* pShape, Transform const& startTransform, Vector const& desiredEndPosition, QueryFilter& filter, ShapeCastResults& outResults ) { return ShapeCastCustom( pShape, startTransform, desiredEndPosition, filter, outResults ); }
+        KRG_FORCE_INLINE bool ShapeCast( physx::PxShape* pShape, Transform const& startTransform, Vector const& unitDirection, float distance, QueryFilter& filter, ShapeCastResults& outResults ) { return ShapeCastCustom( pShape, startTransform, unitDirection, distance, filter, outResults ); }
+        KRG_FORCE_INLINE bool ShapeOverlap( physx::PxShape* pShape, Transform const& transform, QueryFilter& filter, OverlapResults& outResults ) { return ShapeOverlapCustom( pShape, transform, filter, outResults ); }
 
         // Debug
         //-------------------------------------------------------------------------
@@ -126,7 +147,6 @@ namespace KRG::Physics
 
         PhysicsSystem*                                  m_pPhysicsSystem = nullptr;
         physx::PxScene*                                 m_pScene = nullptr;
-        QueryFilter                                     m_queryFilter;
 
         EntityRegistry<EntityPhysicsRecord>             m_registeredEntities;
         THashMap<UUID, PhysicsComponent*>               m_dynamicComponents; // TODO: profile and see if we need to use a dynamic pool

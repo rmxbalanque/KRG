@@ -2,7 +2,7 @@
 
 #include "Tools/Physics/_Module/API.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
-#include "Engine/Physics/PhysicsMaterialDatabase.h"
+#include "Engine/Physics/PhysicsMaterial.h"
 
 //-------------------------------------------------------------------------
 

@@ -380,6 +380,12 @@ namespace KRG::EntityModel
             ImVec2 const buttonOffset( iconSize.x / 2, iconSize.y / 2 );
             ImVec2 const lightPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pLightComponent->GetPosition() );
 
+            ImRect const windowExtents( ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize() );
+            if ( !windowExtents.Contains( lightPositionScreenSpace ) )
+            {
+                return;
+            }
+
             ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
             ImVec2 const textSize = ImGui::CalcTextSize( KRG_ICON_LIGHTBULB_O );
             ImGui::SetCursorPos( lightPositionScreenSpace - buttonOffset );
@@ -404,6 +410,12 @@ namespace KRG::EntityModel
             ImVec2 const iconSize( 48, 48 );
             ImVec2 const buttonOffset( iconSize.x / 2, iconSize.y / 2 );
             ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
+
+            ImRect const windowExtents( ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize() );
+            if ( !windowExtents.Contains( componentPositionScreenSpace ) )
+            {
+                return;
+            }
 
             ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
             ImVec2 const textSize = ImGui::CalcTextSize( icon );
@@ -465,7 +477,8 @@ namespace KRG::EntityModel
             {
                 auto pLightComponent = Cast<Render::SpotLightComponent>( m_pSelectedComponent );
                 //drawingCtx.DrawSphere( pLightComponent->GetPosition(), Float3( 0.1f ), pLightComponent->GetLightColor(), 2.0f );
-                drawingCtx.DrawCone( pLightComponent->GetWorldTransform(), pLightComponent->GetLightUmbraAngle(), 1.5f, pLightComponent->GetLightColor(), 3.0f );
+                drawingCtx.DrawCone( pLightComponent->GetWorldTransform(), pLightComponent->GetLightInnerUmbraAngle(), 1.5f, pLightComponent->GetLightColor(), 3.0f );
+                drawingCtx.DrawCone( pLightComponent->GetWorldTransform(), pLightComponent->GetLightOuterUmbraAngle(), 1.5f, pLightComponent->GetLightColor(), 3.0f );
             }
             else if ( IsOfType<Render::PointLightComponent>( m_pSelectedComponent ) )
             {

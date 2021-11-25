@@ -119,6 +119,10 @@ namespace KRG::Render
 
         ImGui::SetNextWindowClass( pWindowClass );
         DrawSkeletonTreeWindow( context );
+
+        //-------------------------------------------------------------------------
+
+        DrawDescriptorWindow( context, pWindowClass );
     }
 
     //-------------------------------------------------------------------------

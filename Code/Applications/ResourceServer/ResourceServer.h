@@ -42,8 +42,9 @@ namespace KRG::Resource
         inline FileSystem::Path const& GetRawResourceDir() const { return m_pSettings->m_rawResourcePath; }
         inline FileSystem::Path const& GetCompiledResourceDir() const { return m_pSettings->m_compiledResourcePath; }
 
-        // Compilers
+        // Compilers and Compilation
         inline CompilerRegistry const* GetCompilerRegistry() const { return &m_compilerRegistry; }
+        inline void RecompileResource( ResourceID const& resourceID ) { ProcessResourceRequest( resourceID, 0, true ); }
 
         // Requests
         TVector<CompilationRequest const*> const& GetActiveRequests() const { return ( TVector<CompilationRequest const*>& ) m_activeRequests; }
@@ -66,7 +67,7 @@ namespace KRG::Resource
         void CleanupCompletedRequests();
 
         // Request Actions
-        CompilationRequest const* ProcessResourceRequest( ResourceID const& resourceID, uint32 clientID = 0 );
+        void ProcessResourceRequest( ResourceID const& resourceID, uint32 clientID = 0, bool forceRecompile = false );
         void NotifyClientOnCompletedRequest( CompilationRequest* pRequest );
 
         // Up-to-date system

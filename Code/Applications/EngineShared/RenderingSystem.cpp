@@ -43,7 +43,7 @@ namespace KRG::Render
         m_viewportRenderTargets.erase( pViewportRenderTarget );
     }
 
-    ShaderResourceView const& RenderingSystem::GetRenderTargetTextureForViewport( Viewport const* pViewport ) const
+    ViewSRVHandle const& RenderingSystem::GetRenderTargetTextureForViewport( Viewport const* pViewport ) const
     {
         KRG_ASSERT( pViewport != nullptr && pViewport->GetID().IsValid() );
 
@@ -208,8 +208,6 @@ namespace KRG::Render
         KRG_ASSERT( ctx.GetUpdateStage() == UpdateStage::FrameEnd );
         KRG_PROFILE_SCOPE_RENDER( "Rendering Post-Physics" );
 
-        auto const& immediateContext = m_pRenderDevice->GetImmediateContext();
-
         //-------------------------------------------------------------------------
 
         m_pRenderDevice->LockDevice();
@@ -231,6 +229,7 @@ namespace KRG::Render
             //-------------------------------------------------------------------------
 
             // If we are rendering to texture resize and clear the render target
+            const RenderTarget* mainRT = &m_pRenderDevice->GetPrimaryWindowRenderTarget();
             if ( pVRT != nullptr )
             {
                 auto pViewportRenderTarget = pVRT->m_pRenderTarget;
@@ -243,27 +242,23 @@ namespace KRG::Render
 
                 // Clear render target and depth stencil textures
                 m_pRenderDevice->GetImmediateContext().ClearRenderTargetViews( *pViewportRenderTarget );
-                immediateContext.SetRenderTarget( *pViewportRenderTarget );
-            }
-            else
-            {
-                immediateContext.SetRenderTarget( m_pRenderDevice->GetPrimaryWindowRenderTarget() );
+                mainRT = pViewportRenderTarget;
             }
 
             // Draw
             //-------------------------------------------------------------------------
 
-            m_pWorldRenderer->RenderWorld( *pViewport, pWorld );
+            m_pWorldRenderer->RenderWorld( *mainRT, *pViewport, pWorld );
 
             for ( auto const& pCustomRenderer : m_customRenderers )
             {
-                pCustomRenderer->RenderWorld( *pViewport, pWorld );
-                pCustomRenderer->RenderViewport( *pViewport );
+                pCustomRenderer->RenderWorld( *mainRT, *pViewport, pWorld );
+                pCustomRenderer->RenderViewport( *mainRT, *pViewport );
             }
 
             #if KRG_DEVELOPMENT_TOOLS
-            m_pDebugRenderer->RenderWorld( *pViewport, pWorld );
-            m_pDebugRenderer->RenderViewport( *pViewport );
+            m_pDebugRenderer->RenderWorld( *mainRT, *pViewport, pWorld );
+            m_pDebugRenderer->RenderViewport( *mainRT, *pViewport );
             #endif
         }
 
@@ -273,8 +268,7 @@ namespace KRG::Render
         #if KRG_DEVELOPMENT_TOOLS
         if ( m_pImguiRenderer != nullptr )
         {
-            immediateContext.SetRenderTarget( m_pRenderDevice->GetPrimaryWindowRenderTarget() );
-            m_pImguiRenderer->RenderViewport( m_toolsViewport );
+            m_pImguiRenderer->RenderViewport( m_pRenderDevice->GetPrimaryWindowRenderTarget(), m_toolsViewport );
         }
         #endif
 

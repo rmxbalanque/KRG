@@ -133,5 +133,9 @@ namespace KRG::Render
             DrawWindowContents();
         }
         ImGui::End();
+
+        //-------------------------------------------------------------------------
+
+        DrawDescriptorWindow( context, pWindowClass );
     }
 }

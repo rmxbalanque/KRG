@@ -28,11 +28,11 @@ namespace KRG::Render
         VertexShader                    m_vertexShader;
         GeometryShader                  m_geometryShader;
         PixelShader                     m_pixelShader;
-        ResourceHandle                  m_inputBinding;
+        ShaderInputBindingHandle        m_inputBinding;
         VertexBuffer                    m_vertexBuffer;
         BlendState                      m_blendState;
         RasterizerState                 m_rasterizerState;
-        TVector<uint8>                     m_stagingVertexData;
+        TVector<uint8>                  m_stagingVertexData;
 
         PipelineState                   m_PSO;
     };
@@ -54,11 +54,11 @@ namespace KRG::Render
         VertexShader                    m_vertexShader;
         GeometryShader                  m_geometryShader;
         PixelShader                     m_pixelShader;
-        ResourceHandle                  m_inputBinding;
+        ShaderInputBindingHandle        m_inputBinding;
         VertexBuffer                    m_vertexBuffer;
         BlendState                      m_blendState;
         RasterizerState                 m_rasterizerState;
-        TVector<uint8>                     m_stagingVertexData;
+        TVector<uint8>                  m_stagingVertexData;
 
         PipelineState                   m_PSO;
     };
@@ -79,11 +79,11 @@ namespace KRG::Render
 
         VertexShader                    m_vertexShader;
         PixelShader                     m_pixelShader;
-        ResourceHandle                  m_inputBinding;
+        ShaderInputBindingHandle        m_inputBinding;
         VertexBuffer                    m_vertexBuffer;
         BlendState                      m_blendState;
         RasterizerState                 m_rasterizerState;
-        TVector<uint8>                     m_stagingVertexData;
+        TVector<uint8>                  m_stagingVertexData;
 
         PipelineState                   m_PSO;
     };
@@ -98,7 +98,7 @@ namespace KRG::Render
         Float2                          m_positionBR;
         Float2                          m_texCoordsTL;
         Float2                          m_texCoordsBR;
-        float                             m_advanceX;
+        float                           m_advanceX;
     };
 
     struct DebugFontGlyphVertex
@@ -192,7 +192,7 @@ namespace KRG::Render
 
         VertexShader                    m_vertexShader;
         PixelShader                     m_pixelShader;
-        ResourceHandle                  m_inputBinding;
+        ShaderInputBindingHandle        m_inputBinding;
         VertexBuffer                    m_vertexBuffer;
         VertexBuffer                    m_indexBuffer;
         SamplerState                    m_samplerState;

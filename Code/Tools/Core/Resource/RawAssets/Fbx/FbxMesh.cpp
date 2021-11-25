@@ -137,11 +137,16 @@ namespace KRG
                     if ( !pMesh->IsTriangleMesh() )
                     {
                         pMesh = ( fbxsdk::FbxMesh* ) geomConverter.Triangulate( pMesh, true );
+                        geomConverter.EmulateNormalsByPolygonVertex( pMesh );
                         KRG_ASSERT( pMesh != nullptr && pMesh->IsTriangleMesh() );
                     }
 
+                    // Generate smoothing if it doesnt exist
+                    geomConverter.ComputeEdgeSmoothingFromNormals( pMesh );
+                    geomConverter.ComputePolygonSmoothingFromEdgeSmoothing( pMesh );
+
                     // Generate normals if they're not available or not in the right format
-                    bool const hasNormals = pMesh->GetElementNormalCount() > 0 && pMesh->GetElementNormal( 0 )->GetMappingMode() != FbxLayerElement::eByPolygonVertex;
+                    bool const hasNormals = pMesh->GetElementNormalCount() > 0 && pMesh->GetElementNormal()->GetMappingMode() != FbxLayerElement::eByPolygonVertex;
                     if ( !hasNormals )
                     {
                         if ( !pMesh->GenerateNormals( true ) )
@@ -220,7 +225,7 @@ namespace KRG
                         //-------------------------------------------------------------------------
 
                         FbxVector4 meshNormal;
-                        FbxGeometryElementNormal* pNormalElement = pMesh->GetElementNormal( 0 );
+                        FbxGeometryElementNormal* pNormalElement = pMesh->GetElementNormal();
                         switch ( pNormalElement->GetMappingMode() )
                         {
                             case FbxGeometryElement::eByControlPoint:
@@ -260,7 +265,6 @@ namespace KRG
                             break;
                         }
 
-                        meshNormal = meshNodeGlobalTransform.MultT( meshNormal );
                         vert.m_normal = sceneCtx.ConvertVector3( meshNormal ).GetNormalized3();
 
                         // Get vertex tangent
@@ -291,8 +295,7 @@ namespace KRG
                             }
                         }
 
-                        meshTangent = meshNodeGlobalTransform.MultT( meshTangent );
-                        vert.m_tangent = sceneCtx.ConvertVector3( meshNormal ).GetNormalized3();
+                        vert.m_tangent = sceneCtx.ConvertVector3( meshTangent ).GetNormalized3();
 
                         // Get vertex UV
                         //-------------------------------------------------------------------------

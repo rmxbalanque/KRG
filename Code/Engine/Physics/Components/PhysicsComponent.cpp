@@ -37,4 +37,10 @@ namespace KRG::Physics
         KRG_ASSERT( m_pPhysicsActor != nullptr && IsKinematic() );
         SetWorldTransform( newWorldTransform ); // The callback will update the kinematic target
     }
+
+    void PhysicsComponent::SetVelocity( Float3 newVelocity )
+    {
+        KRG_ASSERT( m_pPhysicsActor != nullptr && IsDynamic() );
+        KRG_UNIMPLEMENTED_FUNCTION();
+    }
 }

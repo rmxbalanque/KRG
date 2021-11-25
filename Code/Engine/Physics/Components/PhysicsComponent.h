@@ -97,15 +97,15 @@ namespace KRG::Physics
         KRG_EXPOSE ShapeType                            m_shapeType = ShapeType::SimulationAndQuery;
 
         // What layers does this shape belong to?
-        KRG_EXPOSE TBitFlags<Layers>                    m_layers;
+        KRG_EXPOSE TBitFlags<Layers>                    m_layers = Layers::Environment;
 
     private:
 
-        physx::PxRigidActor*                        m_pPhysicsActor = nullptr;
-        physx::PxShape*                             m_pPhysicsShape = nullptr;
+        physx::PxRigidActor*                            m_pPhysicsActor = nullptr;
+        physx::PxShape*                                 m_pPhysicsShape = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS
-        String                                      m_debugName; // Keep a debug name here since the physx SDK doesnt store the name data
+        String                                          m_debugName; // Keep a debug name here since the physx SDK doesnt store the name data
         #endif
     };
 }

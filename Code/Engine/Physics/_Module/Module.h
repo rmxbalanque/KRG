@@ -2,7 +2,7 @@
 
 #include "API.h"
 #include "Engine/Physics/PhysicsSystem.h"
-#include "Engine/Physics/PhysicsMaterialDatabase.h"
+#include "Engine/Physics/PhysicsMaterial.h"
 #include "Engine/Physics/Debug/PhysicsDebugRenderer.h"
 #include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsMaterialDatabase.h"
 #include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsMesh.h"

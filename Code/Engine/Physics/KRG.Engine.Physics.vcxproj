@@ -66,19 +66,17 @@
   <ItemGroup>
     <ClInclude Include="Components\PhysicsMeshComponent.h" />
     <ClInclude Include="Debug\DebugView_Physics.h" />
+    <ClInclude Include="PhysicsLayers.h" />
     <ClInclude Include="PhysicsSettings.h" />
     <ClInclude Include="PhysicsMaterial.h" />
     <ClInclude Include="PhysicsSimulationFilter.h" />
     <ClInclude Include="Debug\PhysicsDebugRenderer.h" />
     <ClInclude Include="Components\PhysicsComponent.h" />
-    <ClInclude Include="PhysicsMaterialDatabase.h" />
     <ClInclude Include="PhysicsMesh.h" />
     <ClInclude Include="Components\PhysicsCapsuleComponent.h" />
     <ClInclude Include="Components\PhysicsBoxComponent.h" />
-    <ClInclude Include="PhysicsQueryFilter.h" />
-    <ClInclude Include="PhysicsQueryTypes.h" />
+    <ClInclude Include="PhysicsQuery.h" />
     <ClInclude Include="PhysicsSystem.h" />
-    <ClInclude Include="PhysicsLayers.h" />
     <ClInclude Include="PhysX.h" />
     <ClInclude Include="ResourceLoaders\ResourceLoader_PhysicsMaterialDatabase.h" />
     <ClInclude Include="ResourceLoaders\ResourceLoader_PhysicsMesh.h" />
@@ -95,11 +93,10 @@
     <ClCompile Include="PhysicsSimulationFilter.cpp" />
     <ClCompile Include="Debug\PhysicsDebugRenderer.cpp" />
     <ClCompile Include="Components\PhysicsComponent.cpp" />
-    <ClCompile Include="PhysicsMaterialDatabase.cpp" />
     <ClCompile Include="PhysicsMesh.cpp" />
     <ClCompile Include="Components\PhysicsCapsuleComponent.cpp" />
     <ClCompile Include="Components\PhysicsBoxComponent.cpp" />
-    <ClCompile Include="PhysicsQueryFilter.cpp" />
+    <ClCompile Include="PhysicsQuery.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PhysX.cpp" />
     <ClCompile Include="ResourceLoaders\ResourceLoader_PhysicsMaterialDatabase.cpp" />

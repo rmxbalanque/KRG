@@ -33,7 +33,7 @@ namespace KRG::Physics
         bool IsInitialized() const { return m_initialized; }
         bool Initialize( Render::RenderDevice* pRenderDevice );
         void Shutdown();
-        void RenderWorld( Render::Viewport const& viewport, EntityWorld* pWorld ) override final;
+        void RenderWorld( Render::RenderTarget const& target, Render::Viewport const& viewport, EntityWorld* pWorld ) override final;
 
     private:
 

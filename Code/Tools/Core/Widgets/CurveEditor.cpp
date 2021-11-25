@@ -24,20 +24,24 @@ namespace KRG
 
     void CurveEditor::CreatePoint( float parameter, float value )
     {
+        StartEditing();
         m_curve.AddPoint( parameter, value );
-        m_selectedPointIdx = InvalidIndex;
+        ClearSelectedPoint();
+        StopEditing();
     }
 
     void CurveEditor::DeletePoint( int32 pointIdx )
     {
         KRG_ASSERT( pointIdx >= 0 && pointIdx < m_curve.GetNumPoints() );
+        StartEditing();
         m_curve.RemovePoint( pointIdx );
-        m_selectedPointIdx = InvalidIndex;
+        ClearSelectedPoint();
+        StopEditing();
     }
 
     //-------------------------------------------------------------------------
 
-    void CurveEditor::InitializeFrameState()
+    void CurveEditor::InitializeDrawingState()
     {
         m_pDrawList = ImGui::GetWindowDrawList();
         m_windowPos = ImGui::GetWindowPos();
@@ -55,8 +59,6 @@ namespace KRG
         m_verticalRangeLength = m_verticalViewRange.GetLength();
         m_pixelsPerUnitHorizontal = m_curveCanvasWidth / m_horizontalRangeLength;
         m_pixelsPerUnitVertical = m_curveCanvasHeight / m_verticalRangeLength;
-
-        m_wasPointClicked = false;
     }
 
     //-------------------------------------------------------------------------
@@ -73,11 +75,23 @@ namespace KRG
         {
             m_horizontalViewRange = FloatRange( -s_fitViewExtraMarginPercentage, 1.0f + s_fitViewExtraMarginPercentage );
         }
+        else
+        {
+            m_horizontalViewRange = m_curve.GetParameterRange();
+            float const parameterRangeLength = m_horizontalViewRange.GetLength();
+            if ( Math::IsNearZero( parameterRangeLength ) )
+            {
+                m_horizontalViewRange.m_start -= s_fitViewExtraMarginPercentage * m_horizontalViewRange.m_start;
+                m_horizontalViewRange.m_end += s_fitViewExtraMarginPercentage * m_horizontalViewRange.m_start;
+            }
+            else
+            {
+                m_horizontalViewRange.m_start -= parameterRangeLength * s_fitViewExtraMarginPercentage;
+                m_horizontalViewRange.m_end += parameterRangeLength * s_fitViewExtraMarginPercentage;
+            }
+        }
 
-        m_horizontalViewRange = m_curve.GetParameterRange();
-        float const parameterRangeLength = m_horizontalViewRange.GetLength();
-        m_horizontalViewRange.m_start -= parameterRangeLength * s_fitViewExtraMarginPercentage;
-        m_horizontalViewRange.m_end += parameterRangeLength * s_fitViewExtraMarginPercentage;
+        KRG_ASSERT( !Math::IsNearZero( m_horizontalViewRange.GetLength() ) );
     }
 
     void CurveEditor::ViewEntireVerticalRange()
@@ -86,20 +100,34 @@ namespace KRG
         {
             m_verticalViewRange = FloatRange( -s_fitViewExtraMarginPercentage, 1.0f + s_fitViewExtraMarginPercentage );
         }
-
-        // Evaluate curve
-        float const stepT = m_horizontalViewRange.GetLength() / 250;
-        m_verticalViewRange = FloatRange( m_curve.Evaluate( 0.0f ) );
-        for ( auto i = 1; i < 250; i++ )
+        else
         {
-            float const t = ( i * stepT );
-            m_verticalViewRange.GrowRange( m_curve.Evaluate( t ) );
+            // Evaluate curve
+            constexpr static float const numPointsToEvaluate = 150;
+            FloatRange const parameterRange = m_curve.GetParameterRange();
+            float const stepT = parameterRange.GetLength() / numPointsToEvaluate;
+            m_verticalViewRange = FloatRange( m_curve.Evaluate( 0.0f ) );
+            for ( auto i = 1; i < numPointsToEvaluate; i++ )
+            {
+                float const t = parameterRange.m_start + ( i * stepT );
+                m_verticalViewRange.GrowRange( m_curve.Evaluate( t ) );
+            }
+
+            // Set range
+            float const valueRangeLength = m_verticalViewRange.GetLength();
+            if ( Math::IsNearZero( valueRangeLength ) )
+            {
+                m_verticalViewRange.m_start -= s_fitViewExtraMarginPercentage * m_verticalViewRange.m_start;
+                m_verticalViewRange.m_end += s_fitViewExtraMarginPercentage * m_verticalViewRange.m_start;
+            }
+            else
+            {
+                m_verticalViewRange.m_start -= valueRangeLength * s_fitViewExtraMarginPercentage;
+                m_verticalViewRange.m_end += valueRangeLength * s_fitViewExtraMarginPercentage;
+            }
         }
 
-        // Set range
-        float const valueRangeLength = m_verticalViewRange.GetLength();
-        m_verticalViewRange.m_start -= valueRangeLength * s_fitViewExtraMarginPercentage;
-        m_verticalViewRange.m_end += valueRangeLength * s_fitViewExtraMarginPercentage;
+        KRG_ASSERT( !Math::IsNearZero( m_verticalViewRange.GetLength() ) );
     }
 
     //-------------------------------------------------------------------------
@@ -134,22 +162,18 @@ namespace KRG
         // Point Editor
         //-------------------------------------------------------------------------
 
-        ImGui::SameLine( ImGui::GetContentRegionAvail().x - 244, 0 );
+        ImGui::SameLine( ImGui::GetContentRegionAvail().x - 194, 0 );
         ImGui::Text( "Point:" );
         ImGui::SameLine();
 
-        Float2 pointValues( 0, 0 );
-        if ( m_selectedPointIdx != InvalidIndex )
-        {
-            pointValues.m_x = m_curve.GetPoint( m_selectedPointIdx ).m_parameter;
-            pointValues.m_y = m_curve.GetPoint( m_selectedPointIdx ).m_value;
-        }
-
         ImGui::BeginDisabled( m_selectedPointIdx == InvalidIndex );
-        ImGui::SetNextItemWidth( 200 );
-        if ( ImGui::InputFloat2( "##PointEditor", &pointValues.m_x ) )
+        ImGui::SetNextItemWidth( 150 );
+        ImGui::InputFloat2( "##PointEditor", &m_selectedPointValue.m_x, "%.2f" );
+        if ( ImGui::IsItemDeactivatedAfterEdit() )
         {
-            m_curve.EditPoint( m_selectedPointIdx, pointValues.m_x, pointValues.m_y );
+            StartEditing();
+            m_curve.EditPoint( m_selectedPointIdx, m_selectedPointValue.m_x, m_selectedPointValue.m_y );
+            StopEditing();
             ViewEntireCurve();
         }
         ImGui::EndDisabled();
@@ -217,7 +241,7 @@ namespace KRG
         m_pDrawList->AddPolyline( curvePoints.data(), numPointsToDraw, s_curveColor, 0, 2.0f );
     }
 
-    void CurveEditor::DrawInTangentHandle( int32 pointIdx )
+    bool CurveEditor::DrawInTangentHandle( int32 pointIdx )
     {
         KRG_ASSERT( pointIdx >= 0 && pointIdx < m_curve.GetNumPoints() );
         FloatCurve::Point const& point = m_curve.GetPoint( pointIdx );
@@ -234,15 +258,26 @@ namespace KRG
         tangentHandleCenter.m_x = ( pointCenter.m_x + tangentOffset.m_x );
         tangentHandleCenter.m_y = ( pointCenter.m_y - tangentOffset.m_y );
 
+        // Draw visual handle
+        m_pDrawList->AddLine( pointCenter, tangentHandleCenter, s_curveInTangentHandleColor );
+        m_pDrawList->AddCircleFilled( tangentHandleCenter, s_handleRadius, s_curveInTangentHandleColor );
+
         // Draw handle button
         InlineString<50> tangentHandleID;
         tangentHandleID.sprintf( "in_%u", point.m_ID );
         ImGui::SetCursorScreenPos( tangentHandleCenter - Float2( s_handleRadius, s_handleRadius ) );
         ImGui::InvisibleButton( tangentHandleID.c_str(), ImVec2( 2 * s_handleRadius, 2 * s_handleRadius ) );
 
-        // Is editing
+        //-------------------------------------------------------------------------
+
+        bool isCurrentlyEditing = false;
         if ( ImGui::IsItemActive() && ImGui::IsMouseDragging( 0 ) )
         {
+            if ( !m_isEditing )
+            {
+                StartEditing();
+            }
+
             // Get visual tangent offset
             auto const& io = ImGui::GetIO();
             Vector tangentCanvasOffset( io.MousePos.x - pointCenter.m_x, io.MousePos.y - pointCenter.m_y, 0.0f );
@@ -266,14 +301,12 @@ namespace KRG
             }
 
             m_curve.SetPointInTangent( pointIdx, newTangentSlope );
+            isCurrentlyEditing = true;
         }
-
-        // Draw visual handle
-        m_pDrawList->AddLine( pointCenter, tangentHandleCenter, s_curveInTangentHandleColor );
-        m_pDrawList->AddCircleFilled( tangentHandleCenter, s_handleRadius, s_curveInTangentHandleColor );
+        return isCurrentlyEditing;
     }
 
-    void CurveEditor::DrawOutTangentHandle( int32 pointIdx )
+    bool CurveEditor::DrawOutTangentHandle( int32 pointIdx )
     {
         KRG_ASSERT( pointIdx >= 0 && pointIdx < m_curve.GetNumPoints() );
         FloatCurve::Point const& point = m_curve.GetPoint( pointIdx );
@@ -290,15 +323,26 @@ namespace KRG
         tangentHandleCenter.m_x = ( pointCenter.m_x + tangentOffset.m_x );
         tangentHandleCenter.m_y = ( pointCenter.m_y - tangentOffset.m_y );
 
+        // Draw visual handle
+        m_pDrawList->AddLine( pointCenter, tangentHandleCenter, s_curveOutTangentHandleColor );
+        m_pDrawList->AddCircleFilled( tangentHandleCenter, s_handleRadius, s_curveOutTangentHandleColor );
+
         // Draw handle button
         InlineString<50> tangentHandleID;
         tangentHandleID.sprintf( "out_%u", point.m_ID );
         ImGui::SetCursorScreenPos( tangentHandleCenter - Float2( s_handleRadius, s_handleRadius ) );
         ImGui::InvisibleButton( tangentHandleID.c_str(), ImVec2( 2 * s_handleRadius, 2 * s_handleRadius ) );
 
-        // Is editing
+        //-------------------------------------------------------------------------
+
+        bool isCurrentlyEditing = false;
         if ( ImGui::IsItemActive() && ImGui::IsMouseDragging( 0 ) )
         {
+            if ( !m_isEditing )
+            {
+                StartEditing();
+            }
+
             // Get visual tangent offset
             auto const& io = ImGui::GetIO();
             Vector tangentCanvasOffset( io.MousePos.x - pointCenter.m_x, io.MousePos.y - pointCenter.m_y, 0.0f );
@@ -327,17 +371,17 @@ namespace KRG
             {
                 m_curve.SetPointInTangent( pointIdx, newTangentSlope );
             }
-        }
 
-        // Draw visual handle
-        m_pDrawList->AddLine( pointCenter, tangentHandleCenter, s_curveOutTangentHandleColor );
-        m_pDrawList->AddCircleFilled( tangentHandleCenter, s_handleRadius, s_curveOutTangentHandleColor );
+            isCurrentlyEditing = true;
+        }
+        return isCurrentlyEditing;
     }
 
-    void CurveEditor::DrawPointHandle( int32 pointIdx )
+    bool CurveEditor::DrawPointHandle( int32 pointIdx )
     {
         FloatCurve::Point const& point = m_curve.GetPoint( pointIdx );
         Float2 const pointCenter = GetScreenPosFromCurvePos( point );
+        m_pDrawList->AddCircleFilled( pointCenter, s_handleRadius, ( pointIdx == m_selectedPointIdx ) ? s_curveSelectedPointHandleColor : s_curvePointHandleColor );
 
         //-------------------------------------------------------------------------
 
@@ -347,8 +391,7 @@ namespace KRG
         ImGui::SetCursorScreenPos( pointCenter - Float2( s_handleRadius, s_handleRadius ) );
         if ( ImGui::InvisibleButton( pointHandleID.c_str(), Float2( 2 * s_handleRadius, 2 * s_handleRadius ) ) )
         {
-            m_selectedPointIdx = pointIdx;
-            m_wasPointClicked = true;
+            SelectPoint( pointIdx );
         }
 
         if ( ImGui::IsItemActive() || ImGui::IsItemHovered() )
@@ -356,24 +399,60 @@ namespace KRG
             ImGui::SetTooltip( "%4.3f, %4.3f", point.m_parameter, point.m_value );
         }
 
+        if ( ImGui::IsItemHovered() && ImGui::IsMouseClicked( ImGuiMouseButton_Right ) )
+        {
+            SelectPoint( pointIdx );
+            ImGui::OpenPopup( s_pointContextMenuName );
+        }
+
+        //-------------------------------------------------------------------------
+
+        bool isCurrentlyEditing = false;
         if ( ImGui::IsItemActive() && ImGui::IsMouseDragging( 0 ) )
         {
-            m_selectedPointIdx = pointIdx;
-            m_wasPointClicked = true;
+            if ( !m_isEditing )
+            {
+                StartEditing();
+            }
+
+            SelectPoint( pointIdx );
 
             float const updatedParameter = point.m_parameter + ImGui::GetIO().MouseDelta.x / m_pixelsPerUnitHorizontal;
             float const updatedValue = point.m_value - ImGui::GetIO().MouseDelta.y / m_pixelsPerUnitVertical;
             m_curve.EditPoint( pointIdx, updatedParameter, updatedValue );
+            isCurrentlyEditing = true;
         }
+        return isCurrentlyEditing;
+    }
 
-        if ( ImGui::IsItemHovered() && ImGui::IsMouseClicked( ImGuiMouseButton_Right ) )
-        {
-            m_selectedPointIdx = pointIdx;
-            m_wasPointClicked = true;
-            ImGui::OpenPopup( s_pointContextMenuName );
-        }
+    //-------------------------------------------------------------------------
 
-        m_pDrawList->AddCircleFilled( pointCenter, s_handleRadius, ( pointIdx == m_selectedPointIdx ) ? s_curveSelectedPointHandleColor : s_curvePointHandleColor );
+    void CurveEditor::StartEditing()
+    {
+        KRG_ASSERT( !m_isEditing );
+        m_isEditing = true;
+        m_valueBeforeEdit = m_curve.ToString();
+    }
+
+    void CurveEditor::StopEditing()
+    {
+        KRG_ASSERT( m_isEditing );
+        m_isEditing = false;
+        m_wasCurveEdited = true;
+    }
+
+    void CurveEditor::SelectPoint( int32 pointIdx )
+    {
+        KRG_ASSERT( pointIdx >= 0 && pointIdx < m_curve.GetNumPoints() );
+        m_selectedPointIdx = pointIdx;
+        m_selectedPointValue = Float2( m_curve.GetPoint( pointIdx ).m_parameter, m_curve.GetPoint( pointIdx ).m_value );
+        m_wasPointSelected = true;
+    }
+
+    void CurveEditor::ClearSelectedPoint()
+    {
+        m_selectedPointIdx = InvalidIndex;
+        m_selectedPointValue = Float2::Zero;
     }
 
     //-------------------------------------------------------------------------
@@ -402,7 +481,9 @@ namespace KRG
             {
                 if ( ImGui::MenuItem( "Lock Tangents" ) )
                 {
+                    StartEditing();
                     m_curve.SetPointTangentMode( m_selectedPointIdx, FloatCurve::Locked );
+                    StopEditing();
                 }
             }
 
@@ -410,7 +491,9 @@ namespace KRG
             {
                 if ( ImGui::MenuItem( "Unlock Tangents" ) )
                 {
+                    StartEditing();
                     m_curve.SetPointTangentMode( m_selectedPointIdx, FloatCurve::Free );
+                    StopEditing();
                 }
             }
 
@@ -483,9 +566,9 @@ namespace KRG
             // Clear point selection
             if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) || ImGui::IsMouseClicked( ImGuiMouseButton_Right ) )
             {
-                if ( !ImGui::IsPopupOpen( s_pointContextMenuName ) && !m_wasPointClicked )
+                if ( !ImGui::IsPopupOpen( s_pointContextMenuName ) && !m_wasPointSelected )
                 {
-                    m_selectedPointIdx = InvalidIndex;
+                    ClearSelectedPoint();
                 }
             }
 
@@ -513,15 +596,31 @@ namespace KRG
         }
     }
 
-    void CurveEditor::UpdateAndDraw()
+    bool CurveEditor::UpdateAndDraw()
     {
         KRG_ASSERT( !Math::IsNearZero( m_horizontalViewRange.GetLength() ) && !Math::IsNearZero( m_verticalViewRange.GetLength() ) );
 
         //-------------------------------------------------------------------------
 
+        // Ensure selected point index is always valid since the curve could be externally edited too
+        if ( m_selectedPointIdx >= m_curve.GetNumPoints() )
+        {
+            ClearSelectedPoint();
+        }
+
+        // Clear the PreEditState if we're not editing and it is set
+        if ( !m_isEditing && m_valueBeforeEdit.empty() )
+        {
+            m_valueBeforeEdit.clear();
+        }
+
+        // Clear selection/edit frame state
+        m_wasPointSelected = false;
+        m_wasCurveEdited = false;
+
         // Toolbar has to be drawn first before resetting the frame state since we need to shift the cursor position
         DrawToolbar();
-        InitializeFrameState();
+        InitializeDrawingState();
 
         //-------------------------------------------------------------------------
 
@@ -533,20 +632,27 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
+            bool stillEditing = false;
             int32 const numPoints = m_curve.GetNumPoints();
             for ( int32 i = 0; i < numPoints; i++ )
             {
                 if ( i != 0 && m_curve.GetPoint(i).m_tangentMode == FloatCurve::Free )
                 {
-                    DrawInTangentHandle( i );
+                    stillEditing |= DrawInTangentHandle( i );
                 }
 
                 if ( i != numPoints - 1 )
                 {
-                    DrawOutTangentHandle( i );
+                    stillEditing |= DrawOutTangentHandle( i );
                 }
                 
-                DrawPointHandle( i );
+                stillEditing |= DrawPointHandle( i );
+            }
+
+            // If we completed an edit operation
+            if ( m_isEditing && !stillEditing )
+            {
+                StopEditing();
             }
 
             //-------------------------------------------------------------------------
@@ -556,5 +662,9 @@ namespace KRG
         }
         ImGui::EndChild();
         m_pDrawList->PopClipRect();
+
+        //-------------------------------------------------------------------------
+
+        return m_wasCurveEdited;
     }
 }

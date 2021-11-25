@@ -13,7 +13,7 @@ namespace KRG { class EntityWorld; }
 namespace KRG::Render
 {
     class Viewport;
-
+    class RenderTarget;
     //-------------------------------------------------------------------------
 
     // This is a basic set of priority values to help order any registered renderers
@@ -35,8 +35,8 @@ namespace KRG::Render
         virtual uint32 GetRendererID() const = 0;
         virtual int32 GetPriority() const = 0;
 
-        virtual void RenderWorld( Viewport const& viewport, EntityWorld* pWorld ) {};
-        virtual void RenderViewport( Viewport const& viewport ) {};
+        virtual void RenderWorld( RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) {};
+        virtual void RenderViewport( RenderTarget const& target, Viewport const& viewport ) {};
     };
 }
 

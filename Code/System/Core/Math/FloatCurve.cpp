@@ -1,6 +1,7 @@
 #include "FloatCurve.h"
 #include "Curves.h"
 #include "Vector.h"
+#include "System/Core/Types/String.h"
 
 //-------------------------------------------------------------------------
 
@@ -8,7 +9,7 @@ namespace KRG
 {
     #if KRG_DEVELOPMENT_TOOLS
     // ID generator needed for curve editor
-    uint16 FloatCurve::m_pointIdentifierGenerator = 0;
+    uint16 FloatCurve::s_pointIdentifierGenerator = 0;
     #endif
 
     //-------------------------------------------------------------------------
@@ -64,13 +65,9 @@ namespace KRG
         return result;
     }
 
-    void FloatCurve::AddPoint( float parameter, float value )
+    void FloatCurve::AddPoint( float parameter, float value, float inTangent, float outTangent )
     {
-        #if KRG_DEVELOPMENT_TOOLS
-        static uint16 s_pointIdentifierGenerator;
-        #endif
-
-        m_points.push_back( { parameter, value } );
+        m_points.push_back( { parameter, value, inTangent, outTangent } );
 
         #if KRG_DEVELOPMENT_TOOLS
         // We need a unique ID for the curve editor
@@ -110,5 +107,94 @@ namespace KRG
         KRG_ASSERT( pointIdx >= 0 && pointIdx < GetNumPoints() );
 
         m_points.erase( m_points.begin() + pointIdx );
+    }
+
+    //-------------------------------------------------------------------------
+    // Core Type Requirements
+    //-------------------------------------------------------------------------
+
+    bool FloatCurve::operator==( FloatCurve const& rhs ) const
+    {
+        if ( m_points.size() != rhs.m_points.size() )
+        {
+            return false;
+        }
+
+        int32 numPoints = GetNumPoints();
+        for ( int32 i = 0; i < numPoints; i++ )
+        {
+            if ( m_points[i] != rhs.m_points[i] )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool FloatCurve::FromString( String const& inStr, FloatCurve& outCurve )
+    {
+        outCurve.Clear();
+
+        // Read number of points
+        //-------------------------------------------------------------------------
+
+        size_t startIdx = 0;
+        size_t endIdx = inStr.find_first_of( ',', startIdx );
+        if ( endIdx == String::npos )
+        {
+            return false;
+        }
+
+        char* pCaret = nullptr;
+        uint64 numPoints = std::strtoul( &inStr.c_str()[startIdx], &pCaret, 0 );
+
+        //-------------------------------------------------------------------------
+
+        for ( auto i = 0u; i < numPoints; i++ )
+        {
+            Point& p = outCurve.m_points.emplace_back();
+
+            if ( pCaret[0] != ',' ) { return false; }
+            p.m_parameter = std::strtof( ++pCaret, &pCaret );
+
+            if ( pCaret[0] != ',' ) { return false; }
+            p.m_value = std::strtof( ++pCaret, &pCaret );
+
+            if ( pCaret[0] != ',' ) { return false; }
+            p.m_inTangent = std::strtof( ++pCaret, &pCaret );
+
+            if ( pCaret[0] != ',' ) { return false; }
+            p.m_outTangent = std::strtof( ++pCaret, &pCaret );
+
+            if ( pCaret[0] != ',' ) { return false; }
+            p.m_tangentMode = (TangentMode) std::strtoul( ++pCaret, &pCaret, 0 );
+
+            //-------------------------------------------------------------------------
+
+            #if KRG_DEVELOPMENT_TOOLS
+            p.m_ID = ++s_pointIdentifierGenerator;
+            #endif
+        }
+
+        outCurve.SortPoints();
+        return true;
+    }
+
+    String FloatCurve::ToString() const
+    {
+        InlineString<100> pointStr;
+
+        String curveStr;
+        curveStr.reserve( GetNumPoints() * 30 ); // rough over-estimate of 30 characters per point
+        curveStr.sprintf( "%u", (uint32) GetNumPoints() );
+
+        for ( auto& point : m_points )
+        {
+            pointStr.sprintf( ",%f,%f,%f,%f,%u", point.m_parameter, point.m_value, point.m_inTangent, point.m_outTangent, (uint8) point.m_tangentMode );
+            curveStr.append( pointStr.c_str() );
+        }
+
+        return curveStr;
     }
 }

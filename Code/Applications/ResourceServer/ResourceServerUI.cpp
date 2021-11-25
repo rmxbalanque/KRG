@@ -120,7 +120,7 @@ namespace KRG::Resource
             constexpr static float const buttonWidth = 120;
             float const tableHeight = ImGui::GetContentRegionAvail().y - compilationLogFieldHeight - 32;
             float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-            float const textfieldWidth = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x - ( ( buttonWidth + itemSpacing ) * 4 );
+            float const textfieldWidth = ( ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin() ).x - ( ( buttonWidth + itemSpacing ) * 5 );
 
             //-------------------------------------------------------------------------
             // Table
@@ -266,6 +266,15 @@ namespace KRG::Resource
                         String path( "-compile " );
                         path += m_pSelectedCompletedRequest->GetCompilerArgs();
                         ImGui::SetClipboardText( path.c_str() );
+                    }
+                }
+
+                ImGui::SameLine();
+                if ( ImGui::Button( KRG_ICON_COG " Recompile", ImVec2( buttonWidth, 0 ) ) )
+                {
+                    if ( hasSelectedItem )
+                    {
+                        m_pResourceServer->RecompileResource( m_pSelectedCompletedRequest->GetResourceID() );
                     }
                 }
 

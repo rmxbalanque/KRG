@@ -54,17 +54,6 @@ namespace KRG
         if ( ImGui::BeginMainMenuBar() )
         {
             DrawMainMenu( context );
-
-            // Draw Performance Stats
-            //-------------------------------------------------------------------------
-
-            ImGuiViewport const* viewport = ImGui::GetMainViewport();
-            ImGui::SameLine( viewport->WorkSize.x - 165 );
-
-            float const currentFPS = 1.0f / context.GetDeltaTime();
-            float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
-            ImGui::Text( "FPS: %3.0f | MEM: %.2fMB", currentFPS, allocatedMemory );
-
             ImGui::EndMainMenuBar();
         }
 
@@ -211,6 +200,8 @@ namespace KRG
 
     void EditorDevUI::DrawMainMenu( UpdateContext const& context )
     {
+        ImVec2 const menuDimensions = ImGui::GetContentRegionMax();
+
         //-------------------------------------------------------------------------
         // Engine
         //-------------------------------------------------------------------------
@@ -248,19 +239,36 @@ namespace KRG
         ImGui::BeginDisabled( !m_model.IsGamePreviewAllowed() );
         if ( m_model.IsGamePreviewRunning() )
         {
-            if ( ImGui::MenuItem( "Stop Game Preview" ) )
+            char const * const stopPreviewStr = KRG_ICON_STOP" Stop Game Preview";
+            ImGui::SameLine( menuDimensions.x / 2 - ImGui::CalcTextSize( stopPreviewStr ).x / 2 );
+            if ( ImGui::MenuItem( stopPreviewStr ) )
             {
                 m_model.StopGamePreview( context );
             }
         }
         else
         {
-            if ( ImGui::MenuItem( "Preview Game" ) )
+            char const * const startPreviewStr = KRG_ICON_PLAY" Preview Game";
+            ImGui::SameLine( menuDimensions.x / 2 - ImGui::CalcTextSize( startPreviewStr ).x / 2 );
+            if ( ImGui::MenuItem( startPreviewStr ) )
             {
                 m_model.StartGamePreview( context );
             }
         }
         ImGui::EndDisabled();
+
+        //-------------------------------------------------------------------------
+        // Draw Performance Stats
+        //-------------------------------------------------------------------------
+
+        float const currentFPS = 1.0f / context.GetDeltaTime();
+        float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
+
+        InlineString<100> perfStats;
+        perfStats.sprintf( "FPS: %3.0f | MEM: %.2fMB", currentFPS, allocatedMemory );
+
+        ImGui::SameLine( menuDimensions.x - 8 - ImGui::CalcTextSize( perfStats.c_str() ).x );
+        ImGui::Text( perfStats.c_str() );
     }
 
     void EditorDevUI::DrawPopups( UpdateContext const& context )
@@ -389,32 +397,26 @@ namespace KRG
             {
                 if ( pWorkspace->ShouldDrawFileMenu() )
                 {
-                    if ( ImGui::BeginMenu( "File" ) )
+                    ImGui::BeginDisabled( !pWorkspace->IsDirty() );
+                    if ( ImGui::MenuItem( KRG_ICON_FLOPPY_O" Save" ) )
                     {
-                        ImGui::BeginDisabled( !pWorkspace->IsDirty() );
-                        if ( ImGui::MenuItem( KRG_ICON_FLOPPY_O" Save" ) )
-                        {
-                            pWorkspace->Save();
-                        }
-                        ImGui::EndDisabled();
-
-
-                        ImGui::BeginDisabled( !pWorkspace->CanUndo() );
-                        if ( ImGui::MenuItem( KRG_ICON_UNDO" Undo" ) )
-                        {
-                            pWorkspace->Undo();
-                        }
-                        ImGui::EndDisabled();
-
-                        ImGui::BeginDisabled( !pWorkspace->CanRedo() );
-                        if ( ImGui::MenuItem( KRG_ICON_REPEAT" Redo" ) )
-                        {
-                            pWorkspace->Redo();
-                        }
-                        ImGui::EndDisabled();
-
-                        ImGui::EndMenu();
+                        pWorkspace->Save();
                     }
+                    ImGui::EndDisabled();
+
+                    ImGui::BeginDisabled( !pWorkspace->CanUndo() );
+                    if ( ImGui::MenuItem( KRG_ICON_UNDO" Undo" ) )
+                    {
+                        pWorkspace->Undo();
+                    }
+                    ImGui::EndDisabled();
+
+                    ImGui::BeginDisabled( !pWorkspace->CanRedo() );
+                    if ( ImGui::MenuItem( KRG_ICON_REPEAT" Redo" ) )
+                    {
+                        pWorkspace->Redo();
+                    }
+                    ImGui::EndDisabled();
                 }
 
                 //-------------------------------------------------------------------------
@@ -501,7 +503,7 @@ namespace KRG
         auto pViewport = pWorld->GetViewport();
 
         // Viewport flags
-        ImGuiWindowFlags viewportWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags viewportWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         if ( pWorkspace->HasViewportToolbar() )
         {
             viewportWindowFlags |= ImGuiWindowFlags_MenuBar;
@@ -518,6 +520,17 @@ namespace KRG
             ImGuiStyle const& style = ImGui::GetStyle();
             ImVec2 const viewportSize( Math::Max( ImGui::GetContentRegionAvail().x, 64.0f ), Math::Max( ImGui::GetContentRegionAvail().y, 64.0f ) );
             isViewportFocused = ImGui::IsWindowFocused();
+
+            // Switch focus based on mouse input
+            //-------------------------------------------------------------------------
+
+            if ( ImGui::IsWindowHovered() )
+            {
+                if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) || ImGui::IsMouseClicked( ImGuiMouseButton_Right ) || ImGui::IsMouseClicked( ImGuiMouseButton_Middle ) )
+                {
+                    ImGui::SetWindowFocus();
+                }
+            }
 
             // Update engine viewport dimensions
             //-------------------------------------------------------------------------

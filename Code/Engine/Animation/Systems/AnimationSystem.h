@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../_Module/API.h"
+#include "Engine/Animation/_Module/API.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "Engine/Animation/Components/AnimatedMeshComponent.h"
 

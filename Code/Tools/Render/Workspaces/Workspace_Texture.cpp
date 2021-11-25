@@ -66,9 +66,13 @@ namespace KRG::Render
             }
             else
             {
-                ImGui::Text( "Dimensions: %.0f x %.0f", m_pResource->GetDimensions().m_x, m_pResource->GetDimensions().m_y );
+                ImGui::Text( "Dimensions: %d x %d", m_pResource->GetDimensions().m_x, m_pResource->GetDimensions().m_y );
             }
         }
         ImGui::End();
+
+        //-------------------------------------------------------------------------
+
+        DrawDescriptorWindow( context, pWindowClass );
     }
 }

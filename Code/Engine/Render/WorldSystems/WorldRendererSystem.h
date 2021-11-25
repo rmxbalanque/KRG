@@ -37,6 +37,19 @@ namespace KRG::Render
 
     private:
 
+        // TODO: disable in ship, sync with shader
+        enum VisualizationMode
+        {
+            VIS_MODE_LIGHTING  = 0,
+            VIS_MODE_ALBEDO    = 1,
+            VIS_MODE_NORMALS   = 2,
+            VIS_MODE_METALNESS = 3,
+            VIS_MODE_ROUGHNESS = 4,
+            VIS_MODE_AO        = 5,
+
+            VIS_MODE_BITS_SHIFT = 32 - 3,
+        };
+
         // Mesh Components
         //-------------------------------------------------------------------------
 
@@ -122,6 +135,14 @@ namespace KRG::Render
         void RegisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent );
         void UnregisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent );
 
+        // Debug
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void SetVisualizationMode( uint32 mode ) { m_visualizationMode = mode; }
+        uint32 GetVisualizationMode() { return m_visualizationMode; }
+        #endif
+
     private:
 
         // Static meshes
@@ -144,5 +165,9 @@ namespace KRG::Render
         EntityRegistry<RegisteredSpotLight>                     m_registeredSpotLightComponents;
         EntityRegistry<RegisteredLocalEnvMap>                   m_registeredLocalEnvironmentMaps;
         EntityRegistry<RegisteredGlobalEnvMap>                  m_registeredGlobalEnvironmentMaps;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        uint32                                                  m_visualizationMode = 0;
+        #endif
     };
 }

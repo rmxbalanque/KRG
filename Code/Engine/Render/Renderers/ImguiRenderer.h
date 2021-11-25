@@ -33,7 +33,7 @@ namespace KRG::Render
         bool IsInitialized() const { return m_initialized; }
         bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
-        void RenderViewport( Viewport const& viewport ) override final;
+        void RenderViewport( RenderTarget const& target, Viewport const& viewport ) override final;
 
     private:
 
@@ -45,7 +45,7 @@ namespace KRG::Render
 
         VertexShader                    m_vertexShader;
         PixelShader                     m_pixelShader;
-        ResourceHandle                  m_inputBinding;
+        ShaderInputBindingHandle        m_inputBinding;
         BlendState                      m_blendState;
         SamplerState                    m_samplerState;
         RasterizerState                 m_rasterizerState;

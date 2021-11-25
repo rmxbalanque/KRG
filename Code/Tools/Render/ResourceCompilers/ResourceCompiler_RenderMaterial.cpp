@@ -35,10 +35,11 @@ namespace KRG::Render
         material.m_pMetalnessTexture = resourceDescriptor.m_metalnessTexture;
         material.m_pRoughnessTexture = resourceDescriptor.m_roughnessTexture;
         material.m_pNormalMapTexture = resourceDescriptor.m_normalMapTexture;
-        material.m_pSpecularMapTexture = resourceDescriptor.m_specularMapTexture;
+        material.m_pAOTexture = resourceDescriptor.m_aoTexture;
+        material.m_albedo = resourceDescriptor.m_albedo;
         material.m_metalness = Math::Clamp( resourceDescriptor.m_metalness, 0.0f, 1.0f );
         material.m_roughness = Math::Clamp( resourceDescriptor.m_roughness, 0.0f, 1.0f );
-        material.m_specular = Math::Clamp( resourceDescriptor.m_specular, 0.0f, 1.0f );
+        material.m_normalScaler = resourceDescriptor.m_normalScaler;
 
         // Install dependencies
         //-------------------------------------------------------------------------
@@ -59,11 +60,6 @@ namespace KRG::Render
         if ( material.HasNormalMapTexture() )
         {
             hdr.m_installDependencies.push_back( material.m_pNormalMapTexture.GetResourceID() );
-        }
-
-        if ( material.HasSpecularMapTexture() )
-        {
-            hdr.m_installDependencies.push_back( material.m_pSpecularMapTexture.GetResourceID() );
         }
 
         // Serialize

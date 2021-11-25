@@ -63,8 +63,8 @@ namespace KRG::Render
         void DestroyBuffer( RenderBuffer& buffer );
 
         // Vertex shader input mappings
-        void CreateShaderInputBinding( VertexShader const& shader, VertexLayoutDescriptor const& vertexLayoutDesc, ResourceHandle& inputBinding );
-        void DestroyShaderInputBinding( ResourceHandle& inputBinding );
+        void CreateShaderInputBinding( VertexShader const& shader, VertexLayoutDescriptor const& vertexLayoutDesc, ShaderInputBindingHandle& inputBinding );
+        void DestroyShaderInputBinding( ShaderInputBindingHandle& inputBinding );
 
         // Rasterizer
         void CreateRasterizerState( RasterizerState& stateDesc );
@@ -76,6 +76,7 @@ namespace KRG::Render
         // Textures and Sampling
         void CreateTexture( Texture& texture, TextureFormat format, Byte const* rawData, size_t size );
         inline void CreateTexture( Texture& texture, TextureFormat format, TVector<Byte> const& rawData ) { CreateTexture( texture, format, rawData.data(), rawData.size() ); }
+        void CreateTexture( Texture& texture, DataTypeFormat format, Int2 Dim, uint32 usage );
         void DestroyTexture( Texture& texture );
 
         void CreateSamplerState( SamplerState& state );
