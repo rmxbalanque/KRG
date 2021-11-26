@@ -51,6 +51,11 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( m_infoWindowName.c_str(), bottomDockID );
     }
 
+    void StaticMeshWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
+    {
+        ImGui::MenuItem( "Show Normals", nullptr, &m_showNormals );
+    }
+
     void StaticMeshWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         auto DrawWindowContents = [this] ()
@@ -137,5 +142,18 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         DrawDescriptorWindow( context, pWindowClass );
+
+        //-------------------------------------------------------------------------
+
+        if ( m_showNormals && IsLoaded() )
+        {
+            auto drawingContext = GetDrawingContext();
+            auto pVertex = reinterpret_cast<StaticMeshVertex const*>( m_pResource->GetVertexData().data() );
+            for ( auto i = 0; i < m_pResource->GetNumVertices(); i++ )
+            {
+                drawingContext.DrawLine( pVertex->m_position, pVertex->m_position + ( pVertex->m_normal * 0.15f ), Colors::Yellow );
+                pVertex++;
+            }
+        }
     }
 }

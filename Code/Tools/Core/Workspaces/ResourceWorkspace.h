@@ -89,6 +89,7 @@ namespace KRG
 
         virtual uint32 GetID() const override { return m_pResource.GetResourceID().GetID(); }
         virtual bool HasViewportWindow() const override { return true; }
+        virtual bool HasViewportToolbar() const { return true; }
 
         // Resource Status
         inline bool IsLoading() const { return m_pResource.IsLoading(); }

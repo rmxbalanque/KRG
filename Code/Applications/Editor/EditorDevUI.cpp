@@ -2,11 +2,13 @@
 #include "MapEditor/Workspace_MapEditor.h"
 #include "MapEditor/Workspace_GamePreviewer.h"
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
+#include "Engine/Render/WorldSystems/WorldRendererSystem.h"
 #include "Engine/Physics/Debug/DebugView_Physics.h"
 #include "Engine/Core/DevUI/OrientationGuide.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/DebugViews/DebugView_Resource.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
+#include "Engine/Render/Debug/DebugView_Render.h"
 
 //-------------------------------------------------------------------------
 
@@ -500,7 +502,7 @@ namespace KRG
     bool EditorDevUI::DrawWorkspaceViewportWindow( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass )
     {
         auto pWorld = pWorkspace->GetWorld();
-        auto pViewport = pWorld->GetViewport();
+        Render::Viewport* pViewport = pWorld->GetViewport();
 
         // Viewport flags
         ImGuiWindowFlags viewportWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
@@ -561,11 +563,7 @@ namespace KRG
 
             if ( pWorkspace->HasViewportToolbar() )
             {
-                if ( ImGui::BeginMenuBar() )
-                {
-                    pWorkspace->DrawViewportToolbar( context, pViewport );
-                    ImGui::EndMenuBar();
-                }
+                DrawWorkspaceViewportToolbar( context, pWorkspace, pViewport );
             }
 
             // Handle being docked
@@ -582,5 +580,25 @@ namespace KRG
         ImGui::End();
 
         return isViewportFocused;
+    }
+
+    void EditorDevUI::DrawWorkspaceViewportToolbar( UpdateContext const& context, EditorWorkspace* pWorkspace, Render::Viewport* pViewport )
+    {
+        KRG_ASSERT( pWorkspace != nullptr && pViewport != nullptr );
+        KRG_ASSERT( pWorkspace->HasViewportToolbar() );
+
+        if ( ImGui::BeginMenuBar() )
+        {
+            auto pRenderWorldSystem = pWorkspace->GetWorld()->GetWorldSystem<Render::WorldRendererSystem>();
+
+            if ( ImGui::BeginMenu( "Render" ) )
+            {
+                Render::RenderDebugView::DrawRenderVisualizationModesMenu( pRenderWorldSystem );
+                ImGui::EndMenu();
+            }
+
+            pWorkspace->DrawViewportToolbar( context, pViewport );
+            ImGui::EndMenuBar();
+        }
     }
 }

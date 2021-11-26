@@ -87,6 +87,26 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( m_infoWindowName.c_str(), bottomDockID );
     }
 
+    void SkeletalMeshWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
+    {
+        if ( !IsLoaded() )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::MenuItem( "Show Normals", nullptr, &m_showNormals );
+
+        ImGuiX::VerticalSeparator();
+
+        ImGui::Checkbox( "Show Bind Pose", &m_showBindPose );
+
+        ImGuiX::VerticalSeparator();
+
+        ImGui::Checkbox( "Show Bounds", &m_showBounds );
+    }
+
     void SkeletalMeshWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( IsLoaded() )
@@ -123,6 +143,19 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         DrawDescriptorWindow( context, pWindowClass );
+
+        //-------------------------------------------------------------------------
+
+        if ( m_showNormals && IsLoaded() )
+        {
+            auto drawingContext = GetDrawingContext();
+            auto pVertex = reinterpret_cast<StaticMeshVertex const*>( m_pResource->GetVertexData().data() );
+            for ( auto i = 0; i < m_pResource->GetNumVertices(); i++ )
+            {
+                drawingContext.DrawLine( pVertex->m_position, pVertex->m_position + ( pVertex->m_normal * 0.15f ), Colors::Yellow );
+                pVertex++;
+            }
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -338,21 +371,5 @@ namespace KRG::Render
         }
 
         return nodeRect;
-    }
-
-    void SkeletalMeshWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
-    {
-        if ( !IsLoaded() )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        ImGui::Checkbox( "Show Bind Pose", &m_showBindPose );
-
-        ImGuiX::VerticalSeparator();
-
-        ImGui::Checkbox( "Show Bounds", &m_showBounds );
     }
 }

@@ -2,99 +2,96 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Render
 {
-    namespace Render
+    static uint32 const g_dataTypeSizes[] =
     {
-        static uint32 const g_dataTypeSizes[] =
+        0,
+
+        1,
+        2,
+        4,
+
+        1,
+        2,
+        4,
+
+        4,
+        8,
+        12,
+        16,
+
+        4,
+        8,
+        12,
+        16,
+
+        2,
+        4,
+        8,
+
+        4,
+        8,
+        12,
+        16,
+
+        4
+    };
+
+    static_assert( sizeof( g_dataTypeSizes ) / sizeof( uint32 ) == (uint32) DataTypeFormat::Count, "Mismatched data type and size arrays" );
+
+    uint32 GetDataTypeFormatByteSize( DataTypeFormat format )
+    {
+        uint32 const formatIdx = (uint32) format;
+        KRG_ASSERT( formatIdx < (uint32) DataTypeFormat::Count );
+        uint32 const size = g_dataTypeSizes[formatIdx];
+        return size;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void VertexLayoutDescriptor::CalculateByteSize()
+    {
+        m_byteSize = 0;
+        for ( auto const& vertexElementDesc : m_elementDescriptors )
         {
-            0,
-
-            1,
-            2,
-            4,
-
-            1,
-            2,
-            4,
-
-            4,
-            8,
-            12,
-            16,
-
-            4,
-            8,
-            12,
-            16,
-
-            2,
-            4,
-            8,
-
-            4,
-            8,
-            12,
-            16,
-
-            4
-        };
-
-        static_assert( sizeof( g_dataTypeSizes ) / sizeof( uint32 ) == (uint32) DataTypeFormat::Count, "Mismatched data type and size arrays" );
-
-        uint32 GetDataTypeFormatByteSize( DataTypeFormat format )
-        {
-            uint32 const formatIdx = (uint32) format;
-            KRG_ASSERT( formatIdx < (uint32) DataTypeFormat::Count );
-            uint32 const size = g_dataTypeSizes[formatIdx];
-            return size;
+            m_byteSize += GetDataTypeFormatByteSize( vertexElementDesc.m_format );
         }
+    }
 
-        //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-        void VertexLayoutDescriptor::CalculateByteSize()
+    namespace VertexLayoutRegistry
+    {
+        VertexLayoutDescriptor GetDescriptorForFormat( VertexFormat format )
         {
-            m_byteSize = 0;
-            for ( auto const& vertexElementDesc : m_elementDescriptors )
+            KRG_ASSERT( format != VertexFormat::Unknown );
+
+            VertexLayoutDescriptor layoutDesc;
+
+            if ( format == VertexFormat::StaticMesh )
             {
-                m_byteSize += GetDataTypeFormatByteSize( vertexElementDesc.m_format );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Normal, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 0, 32 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 1, 40 ) );
+
             }
-        }
-
-        //-------------------------------------------------------------------------
-
-        namespace VertexLayoutRegistry
-        {
-            VertexLayoutDescriptor GetDescriptorForFormat( VertexFormat format )
+            else if ( format == VertexFormat::SkeletalMesh )
             {
-                KRG_ASSERT( format != VertexFormat::Unknown );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Normal, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 0, 32 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 1, 40 ) );
 
-                VertexLayoutDescriptor layoutDesc;
-               
-                if ( format == VertexFormat::StaticMesh )
-                {
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Normal, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 0, 32 ) );
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 1, 40 ) );
-
-                }
-                else if ( format == VertexFormat::SkeletalMesh )
-                {
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Normal, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 0, 32 ) );
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 1, 40 ) );
-
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::BlendIndex, DataTypeFormat::SInt_R32G32B32A32, 0, 48 ) );
-                    layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::BlendWeight, DataTypeFormat::Float_R32G32B32A32, 0, 64 ) );
-                }
-
-                //-------------------------------------------------------------------------
-
-                layoutDesc.CalculateByteSize();
-                return layoutDesc;
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::BlendIndex, DataTypeFormat::SInt_R32G32B32A32, 0, 48 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::BlendWeight, DataTypeFormat::Float_R32G32B32A32, 0, 64 ) );
             }
+
+            //-------------------------------------------------------------------------
+
+            layoutDesc.CalculateByteSize();
+            return layoutDesc;
         }
     }
 }

@@ -10,6 +10,26 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Render
 {
+    void RenderDebugView::DrawRenderVisualizationModesMenu( WorldRendererSystem* pWorldRendererSystem )
+    {
+        int32 debugMode = (int32) pWorldRendererSystem->GetVisualizationMode();
+
+        bool stateUpdated = false;
+        stateUpdated |= ImGui::RadioButton( "Render Lighting", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Lighting );
+        stateUpdated |= ImGui::RadioButton( "Render Albedo", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Albedo );
+        stateUpdated |= ImGui::RadioButton( "Render Normals", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Normals );
+        stateUpdated |= ImGui::RadioButton( "Render Metalness", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Metalness );
+        stateUpdated |= ImGui::RadioButton( "Render Roughness", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Roughness );
+        stateUpdated |= ImGui::RadioButton( "Render Ambient Occlusion", &debugMode, (int32) WorldRendererSystem::VisualizationMode::AmbientOcclusion );
+
+        if ( stateUpdated )
+        {
+            pWorldRendererSystem->SetVisualizationMode( (WorldRendererSystem::VisualizationMode) debugMode );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
     RenderDebugView::RenderDebugView()
     {
         m_menus.emplace_back( DebugMenu( "Render", [this] ( EntityUpdateContext const& context ) { DrawRenderMenu( context ); } ) );
@@ -25,23 +45,9 @@ namespace KRG::Render
         m_pWorldRendererSystem = nullptr;
     }
 
-    //-------------------------------------------------------------------------
-
     void RenderDebugView::DrawRenderMenu( EntityUpdateContext const& context )
     {
-        bool stateUpdated = false;
-
-        stateUpdated |= ImGui::RadioButton( "Render Lighting", &m_debugMode, WorldRendererSystem::VIS_MODE_LIGHTING );
-        stateUpdated |= ImGui::RadioButton( "Render Albedo", &m_debugMode, WorldRendererSystem::VIS_MODE_ALBEDO );
-        stateUpdated |= ImGui::RadioButton( "Render Normals", &m_debugMode, WorldRendererSystem::VIS_MODE_NORMALS );
-        stateUpdated |= ImGui::RadioButton( "Render Metalness", &m_debugMode, WorldRendererSystem::VIS_MODE_METALNESS );
-        stateUpdated |= ImGui::RadioButton( "Render Roughness", &m_debugMode, WorldRendererSystem::VIS_MODE_ROUGHNESS );
-        stateUpdated |= ImGui::RadioButton( "Render AO", &m_debugMode, WorldRendererSystem::VIS_MODE_AO );
-
-        if ( stateUpdated )
-        {
-            m_pWorldRendererSystem->SetVisualizationMode( m_debugMode );
-        }
+        DrawRenderVisualizationModesMenu( m_pWorldRendererSystem );
     }
 
     void RenderDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
@@ -50,7 +56,6 @@ namespace KRG::Render
 
     void RenderDebugView::DrawOverlayElements( EntityUpdateContext const& context )
     {
-        
     }
 }
 #endif

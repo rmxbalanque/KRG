@@ -21,10 +21,12 @@ namespace KRG::Render
         virtual void Shutdown( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
 
     private:
 
         Entity*         m_pPreviewEntity = nullptr;
         String          m_infoWindowName;
+        bool            m_showNormals = false;
     };
 }

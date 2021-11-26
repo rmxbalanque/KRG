@@ -13,22 +13,6 @@
 
 namespace KRG::Render
 {
-    struct StaticMeshVertex
-    {
-        Float4  m_position;
-        Float4  m_normal;
-        Float2  m_UV0;
-        Float2  m_UV1;
-    };
-
-    struct SkeletalMeshVertex : public StaticMeshVertex
-    {
-        Int4    m_boneIndices;
-        Float4  m_boneWeights;
-    };
-
-    //-------------------------------------------------------------------------
-
     void MeshCompiler::TransferMeshGeometry( RawAssets::RawMesh const& rawMesh, Mesh& mesh ) const
     {
         // Merge all mesh geometries into the main vertex and index buffers

@@ -56,6 +56,7 @@ namespace KRG::Render
         String                  m_skeletonTreeWindowName;
         String                  m_infoWindowName;
 
+        bool                    m_showNormals = false;
         bool                    m_showBindPose = true;
         bool                    m_showBounds = true;
     };

@@ -16,7 +16,7 @@
 
 namespace KRG::Render
 {
-    float sqr(float x) {return x* x;}
+    float sqr( float x ) { return x * x; }
 
     bool WorldRenderer::Initialize( RenderDevice* pRenderDevice )
     {
@@ -85,7 +85,7 @@ namespace KRG::Render
         cbuffers.clear();
 
         // Picel shader constant buffer - contains light info
-        buffer.m_byteSize = sizeof(LightData);
+        buffer.m_byteSize = sizeof( LightData );
         buffer.m_byteStride = sizeof( Vector );
         buffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
         buffer.m_type = RenderBuffer::Type::Constant;
@@ -137,7 +137,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
         cbuffers.clear();
 
-        m_precomputeDFGComputeShader = ComputeShader( g_byteCode_CS_PrecomputeDFG, sizeof(g_byteCode_CS_PrecomputeDFG), cbuffers);
+        m_precomputeDFGComputeShader = ComputeShader( g_byteCode_CS_PrecomputeDFG, sizeof( g_byteCode_CS_PrecomputeDFG ), cbuffers );
 
         m_pRenderDevice->CreateShader( m_precomputeDFGComputeShader );
         if ( !m_precomputeDFGComputeShader.IsValid() )
@@ -192,7 +192,7 @@ namespace KRG::Render
         m_shadowSampler.m_addressModeU = TextureAddressMode::Border;
         m_shadowSampler.m_addressModeV = TextureAddressMode::Border;
         m_shadowSampler.m_addressModeW = TextureAddressMode::Border;
-        m_shadowSampler.m_borderColor = Float4(1.0f);
+        m_shadowSampler.m_borderColor = Float4( 1.0f );
         m_pRenderDevice->CreateSamplerState( m_shadowSampler );
         if ( !m_shadowSampler.IsValid() )
         {
@@ -237,17 +237,17 @@ namespace KRG::Render
         m_pipelineSkybox.m_pVertexShader = &m_vertexShaderSkybox;
         m_pipelineSkybox.m_pPixelShader = &m_pixelShaderSkybox;
 
-        m_pRenderDevice->CreateTexture(m_precomputedBRDF, DataTypeFormat::Float_R16G16, Float2(512, 512), USAGE_UAV|USAGE_SRV); // TODO: load from memory?
+        m_pRenderDevice->CreateTexture( m_precomputedBRDF, DataTypeFormat::Float_R16G16, Float2( 512, 512 ), USAGE_UAV | USAGE_SRV ); // TODO: load from memory?
         m_pipelinePrecomputeBRDF.m_pComputeShader = &m_precomputeDFGComputeShader;
 
         // TODO create on directional light add and destroy on remove
-        m_pRenderDevice->CreateTexture(m_shadowMap, DataTypeFormat::Float_D32, Float2(1536, 1536), USAGE_SRV|USAGE_RT_DS);
+        m_pRenderDevice->CreateTexture( m_shadowMap, DataTypeFormat::Float_D32, Float2( 1536, 1536 ), USAGE_SRV | USAGE_RT_DS );
 
         {
             auto const& renderContext = m_pRenderDevice->GetImmediateContext();
             renderContext.SetPipelineState( m_pipelinePrecomputeBRDF );
             renderContext.SetUnorderedAccess( PipelineStage::Compute, 0, m_precomputedBRDF.GetUnorderedAccessView() );
-            renderContext.Dispatch(512/16, 512/16, 1);
+            renderContext.Dispatch( 512 / 16, 512 / 16, 1 );
             renderContext.ClearUnorderedAccess( PipelineStage::Compute, 0 );
         }
 
@@ -359,15 +359,15 @@ namespace KRG::Render
         materialData.m_metalness = material->GetMetalnessValue();
         materialData.m_roughness = material->GetRoughnessValue();
         materialData.m_normalScaler = material->GetNormalScalerValue();
-        materialData.m_albedo = (Float4)material->GetAlbedoValue();
+        materialData.m_albedo = (Float4) material->GetAlbedoValue();
 
         renderContext.WriteToBuffer( pixelShader.GetConstBuffer( 1 ), &materialData, sizeof( materialData ) );
 
-        renderContext.SetShaderResource( PipelineStage::Pixel, 0, (materialData.m_surfaceFlags & MATERIAL_USE_ALBEDO_TEXTURE) ? material->GetAlbedoTexture()->GetShaderResourceView() : defaultSRV);
-        renderContext.SetShaderResource( PipelineStage::Pixel, 1, (materialData.m_surfaceFlags & MATERIAL_USE_NORMAL_TEXTURE) ? material->GetNormalMapTexture()->GetShaderResourceView() : defaultSRV);
-        renderContext.SetShaderResource( PipelineStage::Pixel, 2, (materialData.m_surfaceFlags & MATERIAL_USE_METALNESS_TEXTURE) ? material->GetMetalnessTexture()->GetShaderResourceView() : defaultSRV);
-        renderContext.SetShaderResource( PipelineStage::Pixel, 3, (materialData.m_surfaceFlags & MATERIAL_USE_ROUGHNESS_TEXTURE) ? material->GetRoughnessTexture()->GetShaderResourceView() : defaultSRV);
-        renderContext.SetShaderResource( PipelineStage::Pixel, 4, (materialData.m_surfaceFlags & MATERIAL_USE_AO_TEXTURE) ? material->GetAOTexture()->GetShaderResourceView() : defaultSRV);
+        renderContext.SetShaderResource( PipelineStage::Pixel, 0, ( materialData.m_surfaceFlags & MATERIAL_USE_ALBEDO_TEXTURE ) ? material->GetAlbedoTexture()->GetShaderResourceView() : defaultSRV );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 1, ( materialData.m_surfaceFlags & MATERIAL_USE_NORMAL_TEXTURE ) ? material->GetNormalMapTexture()->GetShaderResourceView() : defaultSRV );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 2, ( materialData.m_surfaceFlags & MATERIAL_USE_METALNESS_TEXTURE ) ? material->GetMetalnessTexture()->GetShaderResourceView() : defaultSRV );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 3, ( materialData.m_surfaceFlags & MATERIAL_USE_ROUGHNESS_TEXTURE ) ? material->GetRoughnessTexture()->GetShaderResourceView() : defaultSRV );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 4, ( materialData.m_surfaceFlags & MATERIAL_USE_AO_TEXTURE ) ? material->GetAOTexture()->GetShaderResourceView() : defaultSRV );
     }
 
 
@@ -384,9 +384,9 @@ namespace KRG::Render
 
         renderContext.WriteToBuffer( m_pixelShader.GetConstBuffer( 0 ), &data.m_lightData, sizeof( data.m_lightData ) );
 
-        renderContext.SetShaderResource( PipelineStage::Pixel, 10, (data.m_lightData.m_lightingFlags & LIGHTING_ENABLE_SUN_SHADOW) ? m_shadowMap.GetShaderResourceView() : DefaultResources::GetDefaultTexture()->GetShaderResourceView() );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 10, ( data.m_lightData.m_lightingFlags & LIGHTING_ENABLE_SUN_SHADOW ) ? m_shadowMap.GetShaderResourceView() : DefaultResources::GetDefaultTexture()->GetShaderResourceView() );
 
-        if (data.m_pSkyboxRadianceTexture)
+        if ( data.m_pSkyboxRadianceTexture )
         {
             renderContext.SetShaderResource( PipelineStage::Pixel, 11, m_precomputedBRDF.GetShaderResourceView() );
             renderContext.SetShaderResource( PipelineStage::Pixel, 12, data.m_pSkyboxRadianceTexture->GetShaderResourceView() );
@@ -420,7 +420,7 @@ namespace KRG::Render
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
             Transforms transforms = data.m_transforms;
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation(worldTransform.GetTranslation() - camPosition);
+            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() - camPosition );
             transforms.m_normalTransform = transforms.m_worldTransform.GetInverse().Transpose();
             renderContext.WriteToBuffer( m_vertexShaderStatic.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
@@ -432,9 +432,9 @@ namespace KRG::Render
             auto const numSubMeshes = pMesh->GetNumSections();
             for ( auto i = 0u; i < numSubMeshes; i++ )
             {
-                if ( i < materials.size() && materials[i])
+                if ( i < materials.size() && materials[i] )
                 {
-                    SetupMaterial(renderContext, m_pixelShader, materials[i]);
+                    SetupMaterial( renderContext, m_pixelShader, materials[i] );
                 }
 
                 auto const& subMesh = pMesh->GetSection( i );
@@ -481,7 +481,7 @@ namespace KRG::Render
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
             Transforms transforms = data.m_transforms;
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation(worldTransform.GetTranslation() - camPosition);
+            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() - camPosition );
             transforms.m_normalTransform = transforms.m_worldTransform.GetInverse().Transpose();
             renderContext.WriteToBuffer( m_vertexShaderSkeletal.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
@@ -499,9 +499,9 @@ namespace KRG::Render
             auto const numSubMeshes = pCurrentMesh->GetNumSections();
             for ( auto i = 0u; i < numSubMeshes; i++ )
             {
-                if ( i < materials.size() && materials[i])
+                if ( i < materials.size() && materials[i] )
                 {
-                    SetupMaterial(renderContext, m_pixelShader, materials[i]);
+                    SetupMaterial( renderContext, m_pixelShader, materials[i] );
                 }
 
                 // Draw mesh
@@ -515,9 +515,9 @@ namespace KRG::Render
     void WorldRenderer::RenderSkybox( Viewport const& viewport, const RenderData& data )
     {
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
-        if (data.m_pSkyboxTexture)
+        if ( data.m_pSkyboxTexture )
         {
-            renderContext.SetViewport( Float2( viewport.GetDimensions() ), Float2( viewport.GetTopLeftPosition() ), Float2(1, 1)/*TODO: fix for inv z*/ );
+            renderContext.SetViewport( Float2( viewport.GetDimensions() ), Float2( viewport.GetTopLeftPosition() ), Float2( 1, 1 )/*TODO: fix for inv z*/ );
             renderContext.SetPipelineState( m_pipelineSkybox );
             renderContext.SetShaderInputBinding( ShaderInputBindingHandle() );
             renderContext.SetPrimitiveTopology( Topology::TriangleStrip );
@@ -528,51 +528,51 @@ namespace KRG::Render
         }
     }
 
-    Matrix ComputeShadowMatrix(Viewport const& viewport, const Transform& lightWorldTransform, float shadowDistance, float guardFactor = 0.01f)
+    Matrix ComputeShadowMatrix( Viewport const& viewport, const Transform& lightWorldTransform, float shadowDistance, float guardFactor = 0.01f )
     {
         Vector const& camPosition = viewport.GetViewVolume().GetViewPosition();
         Transform lightTransform = lightWorldTransform;
-        lightTransform.SetTranslation(Vector(0.0));
+        lightTransform.SetTranslation( Vector( 0.0 ) );
         lightTransform.Inverse();
 
         Vector corners[8];
-        viewport.GetViewVolume().GetCorners(corners);
+        viewport.GetViewVolume().GetCorners( corners );
         Vector nearCorners[4];
 
-        nearCorners[0] = lightTransform.ApplyTransform(corners[0] - camPosition);
-        nearCorners[1] = lightTransform.ApplyTransform(corners[1] - camPosition);
-        nearCorners[2] = lightTransform.ApplyTransform(corners[2] - camPosition);
-        nearCorners[3] = lightTransform.ApplyTransform(corners[3] - camPosition);
+        nearCorners[0] = lightTransform.ApplyTransform( corners[0] - camPosition );
+        nearCorners[1] = lightTransform.ApplyTransform( corners[1] - camPosition );
+        nearCorners[2] = lightTransform.ApplyTransform( corners[2] - camPosition );
+        nearCorners[3] = lightTransform.ApplyTransform( corners[3] - camPosition );
 
-        float const distScale = shadowDistance/viewport.GetViewVolume().GetDepthRange().m_start;
+        float const distScale = shadowDistance / viewport.GetViewVolume().GetDepthRange().m_start;
 
         // TODO: optimize - can be done with 4 min + 4 max
-        Vector vmin = Vector::Min(nearCorners[0], nearCorners[0] * distScale);
-        vmin = Vector::Min(vmin, nearCorners[1]);
-        vmin = Vector::Min(vmin, nearCorners[1] * distScale);
-        vmin = Vector::Min(vmin, nearCorners[2]);
-        vmin = Vector::Min(vmin, nearCorners[2] * distScale);
-        vmin = Vector::Min(vmin, nearCorners[3]);
-        vmin = Vector::Min(vmin, nearCorners[3] * distScale);
+        Vector vmin = Vector::Min( nearCorners[0], nearCorners[0] * distScale );
+        vmin = Vector::Min( vmin, nearCorners[1] );
+        vmin = Vector::Min( vmin, nearCorners[1] * distScale );
+        vmin = Vector::Min( vmin, nearCorners[2] );
+        vmin = Vector::Min( vmin, nearCorners[2] * distScale );
+        vmin = Vector::Min( vmin, nearCorners[3] );
+        vmin = Vector::Min( vmin, nearCorners[3] * distScale );
 
-        Vector vmax = Vector::Max(nearCorners[0], nearCorners[0] * distScale);
-        vmax = Vector::Max(vmax, nearCorners[1]);
-        vmax = Vector::Max(vmax, nearCorners[1] * distScale);
-        vmax = Vector::Max(vmax, nearCorners[2]);
-        vmax = Vector::Max(vmax, nearCorners[2] * distScale);
-        vmax = Vector::Max(vmax, nearCorners[3]);
-        vmax = Vector::Max(vmax, nearCorners[3] * distScale);
+        Vector vmax = Vector::Max( nearCorners[0], nearCorners[0] * distScale );
+        vmax = Vector::Max( vmax, nearCorners[1] );
+        vmax = Vector::Max( vmax, nearCorners[1] * distScale );
+        vmax = Vector::Max( vmax, nearCorners[2] );
+        vmax = Vector::Max( vmax, nearCorners[2] * distScale );
+        vmax = Vector::Max( vmax, nearCorners[3] );
+        vmax = Vector::Max( vmax, nearCorners[3] * distScale );
 
         // TODO: safe guards should be derived from pixel space, configurable?
-        vmin -= Vector(shadowDistance * guardFactor, 1000.0f/*TODO: should be based on world/shadow frustum intersection*/, shadowDistance * guardFactor);
-        vmax += Vector(shadowDistance * guardFactor, 1000.0f/*TODO: should be based on world/shadow frustum intersection*/, shadowDistance * guardFactor);
+        vmin -= Vector( shadowDistance * guardFactor, 1000.0f/*TODO: should be based on world/shadow frustum intersection*/, shadowDistance * guardFactor );
+        vmax += Vector( shadowDistance * guardFactor, 1000.0f/*TODO: should be based on world/shadow frustum intersection*/, shadowDistance * guardFactor );
 
         Vector delta = vmax - vmin;
-        float dim = std::max(delta.m_x, delta.m_z);
+        float dim = std::max( delta.m_x, delta.m_z );
         Matrix offsetMatrix{};
-        offsetMatrix.SetTranslation(Float3(0.5f*(vmin.m_x+vmax.m_x), -vmax.m_y, 0.5f*(vmin.m_z+vmax.m_z)));
+        offsetMatrix.SetTranslation( Float3( 0.5f * ( vmin.m_x + vmax.m_x ), -vmax.m_y, 0.5f * ( vmin.m_z + vmax.m_z ) ) );
         Matrix lightWorldMatrix = offsetMatrix.GetInverse() * lightTransform.GetInverse().ToMatrix();
-        Math::ViewVolume lightViewVolume(Float2(dim), FloatRange(0, delta.m_y), lightWorldMatrix);
+        Math::ViewVolume lightViewVolume( Float2( dim ), FloatRange( 0, delta.m_y ), lightWorldMatrix );
 
         Matrix viewProjMatrix = lightViewVolume.GetViewProjectionMatrix();
         Matrix viewMatrix = lightViewVolume.GetViewMatrix();
@@ -580,46 +580,46 @@ namespace KRG::Render
 
         Matrix viewProj = lightViewVolume.GetViewProjectionMatrix(); // TODO: inverse z???
 
-#if 0
-        Vector result0 = viewProj.ApplyTransform(Vector(0, 0, 0));
-        Vector result1 = viewProj.ApplyTransform(Vector(0, -vmin.m_y, 0));
-        Vector result2 = viewProj.ApplyTransform(Vector(0, -vmax.m_y, 0));
+        #if 0
+        Vector result0 = viewProj.ApplyTransform( Vector( 0, 0, 0 ) );
+        Vector result1 = viewProj.ApplyTransform( Vector( 0, -vmin.m_y, 0 ) );
+        Vector result2 = viewProj.ApplyTransform( Vector( 0, -vmax.m_y, 0 ) );
 
         Vector testCorners[8];
 
-        testCorners[0] = (corners[0] - camPosition);
-        testCorners[1] = (corners[1] - camPosition);
-        testCorners[2] = (corners[2] - camPosition);
-        testCorners[3] = (corners[3] - camPosition);
+        testCorners[0] = ( corners[0] - camPosition );
+        testCorners[1] = ( corners[1] - camPosition );
+        testCorners[2] = ( corners[2] - camPosition );
+        testCorners[3] = ( corners[3] - camPosition );
 
-        testCorners[4] = ((corners[0] - camPosition) * distScale);
-        testCorners[5] = ((corners[1] - camPosition) * distScale);
-        testCorners[6] = ((corners[2] - camPosition) * distScale);
-        testCorners[7] = ((corners[3] - camPosition) * distScale);
-
-
-        testCorners[0] = viewMatrix.ApplyTransform((corners[0] - camPosition).SetW1());
-        testCorners[1] = viewMatrix.ApplyTransform((corners[1] - camPosition).SetW1());
-        testCorners[2] = viewMatrix.ApplyTransform((corners[2] - camPosition).SetW1());
-        testCorners[3] = viewMatrix.ApplyTransform((corners[3] - camPosition).SetW1());
-
-        testCorners[4] = viewMatrix.ApplyTransform(((corners[0] - camPosition) * distScale).SetW1());
-        testCorners[5] = viewMatrix.ApplyTransform(((corners[1] - camPosition) * distScale).SetW1());
-        testCorners[6] = viewMatrix.ApplyTransform(((corners[2] - camPosition) * distScale).SetW1());
-        testCorners[7] = viewMatrix.ApplyTransform(((corners[3] - camPosition) * distScale).SetW1());
+        testCorners[4] = ( ( corners[0] - camPosition ) * distScale );
+        testCorners[5] = ( ( corners[1] - camPosition ) * distScale );
+        testCorners[6] = ( ( corners[2] - camPosition ) * distScale );
+        testCorners[7] = ( ( corners[3] - camPosition ) * distScale );
 
 
+        testCorners[0] = viewMatrix.ApplyTransform( ( corners[0] - camPosition ).SetW1() );
+        testCorners[1] = viewMatrix.ApplyTransform( ( corners[1] - camPosition ).SetW1() );
+        testCorners[2] = viewMatrix.ApplyTransform( ( corners[2] - camPosition ).SetW1() );
+        testCorners[3] = viewMatrix.ApplyTransform( ( corners[3] - camPosition ).SetW1() );
 
-        testCorners[0] = viewProj.ApplyTransform((corners[0] - camPosition).SetW1());
-        testCorners[1] = viewProj.ApplyTransform((corners[1] - camPosition).SetW1());
-        testCorners[2] = viewProj.ApplyTransform((corners[2] - camPosition).SetW1());
-        testCorners[3] = viewProj.ApplyTransform((corners[3] - camPosition).SetW1());
+        testCorners[4] = viewMatrix.ApplyTransform( ( ( corners[0] - camPosition ) * distScale ).SetW1() );
+        testCorners[5] = viewMatrix.ApplyTransform( ( ( corners[1] - camPosition ) * distScale ).SetW1() );
+        testCorners[6] = viewMatrix.ApplyTransform( ( ( corners[2] - camPosition ) * distScale ).SetW1() );
+        testCorners[7] = viewMatrix.ApplyTransform( ( ( corners[3] - camPosition ) * distScale ).SetW1() );
 
-        testCorners[4] = viewProj.ApplyTransform(((corners[0] - camPosition) * distScale).SetW1());
-        testCorners[5] = viewProj.ApplyTransform(((corners[1] - camPosition) * distScale).SetW1());
-        testCorners[6] = viewProj.ApplyTransform(((corners[2] - camPosition) * distScale).SetW1());
-        testCorners[7] = viewProj.ApplyTransform(((corners[3] - camPosition) * distScale).SetW1());
-#endif
+
+
+        testCorners[0] = viewProj.ApplyTransform( ( corners[0] - camPosition ).SetW1() );
+        testCorners[1] = viewProj.ApplyTransform( ( corners[1] - camPosition ).SetW1() );
+        testCorners[2] = viewProj.ApplyTransform( ( corners[2] - camPosition ).SetW1() );
+        testCorners[3] = viewProj.ApplyTransform( ( corners[3] - camPosition ).SetW1() );
+
+        testCorners[4] = viewProj.ApplyTransform( ( ( corners[0] - camPosition ) * distScale ).SetW1() );
+        testCorners[5] = viewProj.ApplyTransform( ( ( corners[1] - camPosition ) * distScale ).SetW1() );
+        testCorners[6] = viewProj.ApplyTransform( ( ( corners[2] - camPosition ) * distScale ).SetW1() );
+        testCorners[7] = viewProj.ApplyTransform( ( ( corners[3] - camPosition ) * distScale ).SetW1() );
+        #endif
 
         return viewProj;
     }
@@ -630,18 +630,18 @@ namespace KRG::Render
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
         Vector const& camPosition = viewport.GetViewVolume().GetViewPosition();
 
-        if (!pDirectionalLightComponent || !pDirectionalLightComponent->GetShadowed()) return;
+        if ( !pDirectionalLightComponent || !pDirectionalLightComponent->GetShadowed() ) return;
 
-       //-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
 
-        // Set primary render state and clear the render buffer
+         // Set primary render state and clear the render buffer
 
-        renderContext.ClearDepthStencilView(m_shadowMap.GetDepthStencilView(), 1.0f/*TODO: inverse z*/, 0);
-        renderContext.SetRenderTargetViews({}, m_shadowMap.GetDepthStencilView());
-        renderContext.SetViewport( Float2((float)m_shadowMap.GetDimensions().m_x, (float)m_shadowMap.GetDimensions().m_y), Float2( 0.0f, 0.0f ) );
+        renderContext.ClearDepthStencilView( m_shadowMap.GetDepthStencilView(), 1.0f/*TODO: inverse z*/, 0 );
+        renderContext.SetRenderTargetViews( {}, m_shadowMap.GetDepthStencilView() );
+        renderContext.SetViewport( Float2( (float) m_shadowMap.GetDimensions().m_x, (float) m_shadowMap.GetDimensions().m_y ), Float2( 0.0f, 0.0f ) );
         renderContext.SetDepthTestMode( DepthTestMode::On );
 
-        Transforms transforms{Matrix{ZeroInit{}}, Matrix{ZeroInit{}}, Matrix{ZeroInit{}}};
+        Transforms transforms{ Matrix{ZeroInit{}}, Matrix{ZeroInit{}}, Matrix{ZeroInit{}} };
         transforms.m_viewprojTransform = data.m_lightData.m_sunShadowMapMatrix;
 
         //-------------------------------------------------------------------------
@@ -653,7 +653,7 @@ namespace KRG::Render
             auto pMesh = pMeshComponent->GetMesh();
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation(worldTransform.GetTranslation() - camPosition); // TODO: move to shader
+            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() - camPosition ); // TODO: move to shader
             renderContext.WriteToBuffer( m_vertexShaderStatic.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
             renderContext.SetVertexBuffer( pMesh->GetVertexBuffer() );
@@ -679,7 +679,7 @@ namespace KRG::Render
 
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation(worldTransform.GetTranslation() - camPosition);
+            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() - camPosition );
             renderContext.WriteToBuffer( m_vertexShaderSkeletal.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
 
@@ -732,12 +732,12 @@ namespace KRG::Render
         Matrix viewMatrix = viewport.GetViewVolume().GetViewMatrix();
         Matrix projMatrix = viewport.GetViewVolume().GetProjectionMatrix();
         Vector const& camPosition = viewport.GetViewVolume().GetViewPosition();
-        viewMatrix.SetTranslation(Float3(0.0f));
+        viewMatrix.SetTranslation( Float3( 0.0f ) );
         renderData.m_transforms.m_viewprojTransform = viewMatrix * projMatrix;
         uint32 lightingFlags = 0;
 
         DirectionalLightComponent* pDirectionalLightComponent = nullptr;
-        if (!pWorldSystem->m_registeredDirectionLightComponents.empty())
+        if ( !pWorldSystem->m_registeredDirectionLightComponents.empty() )
         {
             pDirectionalLightComponent = pWorldSystem->m_registeredDirectionLightComponents[0];
             lightingFlags |= LIGHTING_ENABLE_SUN;
@@ -746,58 +746,61 @@ namespace KRG::Render
             Float4 colorIntensity = pDirectionalLightComponent->GetLightColor();
             renderData.m_lightData.m_SunColorRoughnessOneLevel = colorIntensity * pDirectionalLightComponent->GetLightIntensity();
             // TODO: conditional
-            renderData.m_lightData.m_sunShadowMapMatrix = ComputeShadowMatrix(viewport, pDirectionalLightComponent->GetWorldTransform(), 50.0f/*TODO: configure*/);
+            renderData.m_lightData.m_sunShadowMapMatrix = ComputeShadowMatrix( viewport, pDirectionalLightComponent->GetWorldTransform(), 50.0f/*TODO: configure*/ );
         }
 
         renderData.m_lightData.m_SunColorRoughnessOneLevel.m_w = 0;
-        if (!pWorldSystem->m_registeredGlobalEnvironmentMaps.empty())
+        if ( !pWorldSystem->m_registeredGlobalEnvironmentMaps.empty() )
         {
             GlobalEnvironmentMapComponent* pGlobalEnvironmentMapComponent = pWorldSystem->m_registeredGlobalEnvironmentMaps[0];
             lightingFlags |= LIGHTING_ENABLE_SKYLIGHT;
             renderData.m_pSkyboxRadianceTexture = pGlobalEnvironmentMapComponent->GetSkyboxRadianceTexture();
             renderData.m_pSkyboxTexture = pGlobalEnvironmentMapComponent->GetSkyboxTexture();
-            renderData.m_lightData.m_SunColorRoughnessOneLevel.m_w = std::max(floor(log2f((float)renderData.m_pSkyboxRadianceTexture->GetDimensions().m_x)) - 1.0f, 0.0f);
+            renderData.m_lightData.m_SunColorRoughnessOneLevel.m_w = std::max( floor( log2f( (float) renderData.m_pSkyboxRadianceTexture->GetDimensions().m_x ) ) - 1.0f, 0.0f );
             renderData.m_lightData.m_SunDirIndirectIntensity.m_w = pGlobalEnvironmentMapComponent->GetSkyboxIntensity();
         }
 
-        uint32_t numPointLights = (uint32)std::min<size_t>(pWorldSystem->m_registeredPointLightComponents.size(), MAX_PUNCTUAL_LIGHTS);
+        uint32_t numPointLights = (uint32) std::min<size_t>( pWorldSystem->m_registeredPointLightComponents.size(), MAX_PUNCTUAL_LIGHTS );
         uint32_t lightIndex = 0;
-        for (uint32_t i = 0; i <  numPointLights; ++i)
+        for ( uint32_t i = 0; i < numPointLights; ++i )
         {
-            KRG_ASSERT(lightIndex < MAX_PUNCTUAL_LIGHTS);
+            KRG_ASSERT( lightIndex < MAX_PUNCTUAL_LIGHTS );
             PointLightComponent* pPointLightComponent = pWorldSystem->m_registeredPointLightComponents[i];
             renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr = pPointLightComponent->GetLightPosition() - camPosition;
-            renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr.m_w = sqr(1.0f/pPointLightComponent->GetLightRadius());
-            renderData.m_lightData.m_punctualLights[lightIndex].m_dir = Vector(0.0f);
-            renderData.m_lightData.m_punctualLights[lightIndex].m_color = (Vector)pPointLightComponent->GetLightColor() * pPointLightComponent->GetLightIntensity();
-            renderData.m_lightData.m_punctualLights[lightIndex].m_spotAngles = Vector(-1.0f, 1.0f, 0.0f);
+            renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr.m_w = sqr( 1.0f / pPointLightComponent->GetLightRadius() );
+            renderData.m_lightData.m_punctualLights[lightIndex].m_dir = Vector( 0.0f );
+            renderData.m_lightData.m_punctualLights[lightIndex].m_color = (Vector) pPointLightComponent->GetLightColor() * pPointLightComponent->GetLightIntensity();
+            renderData.m_lightData.m_punctualLights[lightIndex].m_spotAngles = Vector( -1.0f, 1.0f, 0.0f );
             ++lightIndex;
         }
 
-        uint32_t numSpotLights = (uint32)std::min<size_t>(pWorldSystem->m_registeredSpotLightComponents.size(), MAX_PUNCTUAL_LIGHTS - numPointLights);
-        for (uint32_t i = 0; i <  numSpotLights; ++i)
+        uint32_t numSpotLights = (uint32) std::min<size_t>( pWorldSystem->m_registeredSpotLightComponents.size(), MAX_PUNCTUAL_LIGHTS - numPointLights );
+        for ( uint32_t i = 0; i < numSpotLights; ++i )
         {
-            KRG_ASSERT(lightIndex < MAX_PUNCTUAL_LIGHTS);
+            KRG_ASSERT( lightIndex < MAX_PUNCTUAL_LIGHTS );
             SpotLightComponent* pSpotLightComponent = pWorldSystem->m_registeredSpotLightComponents[i];
             renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr = pSpotLightComponent->GetLightPosition() - camPosition;
-            renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr.m_w = sqr(1.0f/pSpotLightComponent->GetLightRadius());
+            renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr.m_w = sqr( 1.0f / pSpotLightComponent->GetLightRadius() );
             renderData.m_lightData.m_punctualLights[lightIndex].m_dir = -pSpotLightComponent->GetLightDirection();
-            renderData.m_lightData.m_punctualLights[lightIndex].m_color = (Vector)pSpotLightComponent->GetLightColor() * pSpotLightComponent->GetLightIntensity();
+            renderData.m_lightData.m_punctualLights[lightIndex].m_color = (Vector) pSpotLightComponent->GetLightColor() * pSpotLightComponent->GetLightIntensity();
             Degrees innerAngle = pSpotLightComponent->GetLightInnerUmbraAngle().ToRadians();
             Degrees outerAngle = pSpotLightComponent->GetLightOuterUmbraAngle().ToRadians();
-            innerAngle.Clamp(0, 90);
-            outerAngle.Clamp(0, 90);
+            innerAngle.Clamp( 0, 90 );
+            outerAngle.Clamp( 0, 90 );
 
-            float cosInner = cos(innerAngle.ToRadians());
-            float cosOuter = cos(outerAngle.ToRadians());
-            renderData.m_lightData.m_punctualLights[lightIndex].m_spotAngles = Vector(cosOuter, 1.0f/std::max(cosInner - cosOuter, 0.001f), 0.0f);
+            float cosInner = cos( innerAngle.ToRadians() );
+            float cosOuter = cos( outerAngle.ToRadians() );
+            renderData.m_lightData.m_punctualLights[lightIndex].m_spotAngles = Vector( cosOuter, 1.0f / std::max( cosInner - cosOuter, 0.001f ), 0.0f );
             ++lightIndex;
         }
 
-        renderData.m_lightData.m_lightingFlags = lightingFlags | (pWorldSystem->GetVisualizationMode() << WorldRendererSystem::VIS_MODE_BITS_SHIFT);
+        #if KRG_DEVELOPMENT_TOOLS
+        renderData.m_lightData.m_lightingFlags = lightingFlags | ( (int32) pWorldSystem->GetVisualizationMode() << (int32) WorldRendererSystem::VisualizationMode::BitShift );
+        #endif
+
         renderData.m_lightData.m_numPunctualLights = lightIndex;
 
-        RenderSunShadows(viewport, pDirectionalLightComponent, renderData);
+        RenderSunShadows( viewport, pDirectionalLightComponent, renderData );
         immediateContext.SetRenderTarget( target );
         {
             RenderStaticMeshes( viewport, renderData );

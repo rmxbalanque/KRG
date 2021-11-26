@@ -22,9 +22,6 @@ namespace KRG::Render
     class LocalEnvironmentMapComponent;
 
     //-------------------------------------------------------------------------
-    // TODO: There's a huge flaw how we use the entity registration records in this system
-    // Right now this will horribly break when we have more than a single component of the same type on the same entity!!!
-    // FIX THIS SHIT!
 
     class KRG_ENGINE_RENDER_API WorldRendererSystem final : public IWorldEntitySystem
     {
@@ -36,22 +33,21 @@ namespace KRG::Render
         KRG_REGISTER_TYPE( WorldRendererSystem );
         KRG_ENTITY_WORLD_SYSTEM( WorldRendererSystem, RequiresUpdate( UpdateStage::FrameEnd ) );
 
-    private:
-
-        // TODO: disable in ship, sync with shader
-        enum VisualizationMode
+        #if KRG_DEVELOPMENT_TOOLS
+        enum class VisualizationMode : int8
         {
-            VIS_MODE_LIGHTING  = 0,
-            VIS_MODE_ALBEDO    = 1,
-            VIS_MODE_NORMALS   = 2,
-            VIS_MODE_METALNESS = 3,
-            VIS_MODE_ROUGHNESS = 4,
-            VIS_MODE_AO        = 5,
+            Lighting            = 0,
+            Albedo              = 1,
+            Normals             = 2,
+            Metalness           = 3,
+            Roughness           = 4,
+            AmbientOcclusion    = 5,
 
-            VIS_MODE_BITS_SHIFT = 32 - 3,
+            BitShift            = 32 - 3,
         };
+        #endif
 
-        //-------------------------------------------------------------------------
+    private:
 
         // Static meshes need special handling for mobility changes
         struct RegisteredStaticMesh
@@ -75,6 +71,16 @@ namespace KRG::Render
             SkeletalMesh const*                                 m_pMesh = nullptr;
             TVector<SkeletalMeshComponent*>                     m_components;
         };
+
+    public:
+
+        // Debug
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void SetVisualizationMode( VisualizationMode mode ) { m_visualizationMode = mode; }
+        VisualizationMode GetVisualizationMode() { return m_visualizationMode; }
+        #endif
 
     private:
 
@@ -101,14 +107,6 @@ namespace KRG::Render
         void RegisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent );
         void UnregisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent );
 
-        // Debug
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        void SetVisualizationMode( uint32 mode ) { m_visualizationMode = mode; }
-        uint32 GetVisualizationMode() { return m_visualizationMode; }
-        #endif
-
     private:
 
         // Static meshes
@@ -133,7 +131,7 @@ namespace KRG::Render
         TIDVector<UUID, GlobalEnvironmentMapComponent*>         m_registeredGlobalEnvironmentMaps;
 
         #if KRG_DEVELOPMENT_TOOLS
-        uint32                                                  m_visualizationMode = 0;
+        VisualizationMode                                       m_visualizationMode = VisualizationMode::Lighting;
         #endif
     };
 }

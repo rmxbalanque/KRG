@@ -19,6 +19,10 @@ namespace KRG::Render
 
     public:
 
+        static void DrawRenderVisualizationModesMenu( WorldRendererSystem* pWorldRendererSystem );
+
+    public:
+
         RenderDebugView();
 
     private:
@@ -33,7 +37,6 @@ namespace KRG::Render
     private:
 
         WorldRendererSystem*            m_pWorldRendererSystem = nullptr;
-        int                             m_debugMode = 0;
     };
 }
 #endif
