@@ -115,5 +115,8 @@ namespace KRG::ImGuiX
 
     // Draw an arrow between two points
     KRG_SYSTEM_RENDER_API void DrawArrow( ImDrawList* pDrawList, ImVec2 const& arrowStart, ImVec2 const& arrowEnd, ImU32 col, float arrowWidth, float arrowHeadWidth = 5.0f );
+
+    // Draw an overlaid icon in a window, returns true if clicked
+    KRG_SYSTEM_RENDER_API bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID );
 }
 #endif

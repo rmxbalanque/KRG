@@ -5,13 +5,13 @@
 namespace KRG::Physics
 {
     // This constructor only exists to lazy initialize the static default material ID
-    PhysicsBoxComponent::PhysicsBoxComponent()
+    BoxComponent::BoxComponent()
     {
         static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
         m_physicsMaterialID = defaultMaterialID;
     }
 
-    bool PhysicsBoxComponent::HasValidPhysicsSetup() const
+    bool BoxComponent::HasValidPhysicsSetup() const
     {
         if ( m_boxExtents.m_x <= 0.0f || m_boxExtents.m_y <= 0.0f || m_boxExtents.m_z <= 0.0f )
         {

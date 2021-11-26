@@ -2,11 +2,11 @@
 #include "Tools/Entity/Serialization/EntityCollectionDescriptorWriter.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Core/Helpers/CommonDialogs.h"
+#include "Engine/Render/Components/LightComponents.h"
+#include "Engine/Core/Components/PlayerSpawnComponent.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
-#include "Engine/Render/Components/LightComponents.h"
-#include "Engine/Core/Components/PlayerSpawnComponent.h"
 
 //-------------------------------------------------------------------------
 
@@ -374,89 +374,38 @@ namespace KRG::EntityModel
 
         auto pOverlayDrawList = ImGui::GetWindowDrawList();
 
-        auto DrawLightButton = [this, pEditedMap, &pViewport, &pOverlayDrawList] ( Render::LightComponent* pLightComponent )
-        {
-            ImVec2 const iconSize( 48, 48 );
-            ImVec2 const buttonOffset( iconSize.x / 2, iconSize.y / 2 );
-            ImVec2 const lightPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pLightComponent->GetPosition() );
-
-            ImRect const windowExtents( ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize() );
-            if ( !windowExtents.Contains( lightPositionScreenSpace ) )
-            {
-                return;
-            }
-
-            ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
-            ImVec2 const textSize = ImGui::CalcTextSize( KRG_ICON_LIGHTBULB_O );
-            ImGui::SetCursorPos( lightPositionScreenSpace - buttonOffset );
-            ImGui::PushID( pLightComponent );
-            ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 0 ) );
-            ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
-            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImVec4( 0, 0, 0, 0 ) );
-            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImVec4( 0, 0, 0, 0 ) );
-            if ( ImGui::Button( KRG_ICON_LIGHTBULB_O, iconSize ) )
-            {
-                auto pEntity = pEditedMap->FindEntity( pLightComponent->GetEntityID() );
-                SelectEntity( pEntity );
-                SelectComponent( pLightComponent );
-            }
-            ImGui::PopStyleColor( 3 );
-            ImGui::PopStyleVar( 1 );
-            ImGui::PopID();
-        };
-
-        auto DrawComponentButton = [this, pEditedMap, &pViewport, &pOverlayDrawList] ( SpatialEntityComponent* pComponent, char icon[4] )
-        {
-            ImVec2 const iconSize( 48, 48 );
-            ImVec2 const buttonOffset( iconSize.x / 2, iconSize.y / 2 );
-            ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
-
-            ImRect const windowExtents( ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize() );
-            if ( !windowExtents.Contains( componentPositionScreenSpace ) )
-            {
-                return;
-            }
-
-            ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
-            ImVec2 const textSize = ImGui::CalcTextSize( icon );
-            ImGui::SetCursorPos( componentPositionScreenSpace - buttonOffset );
-            ImGui::PushID( pComponent );
-            ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 0 ) );
-            ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
-            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImVec4( 0, 0, 0, 0 ) );
-            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImVec4( 0, 0, 0, 0 ) );
-            if ( ImGui::Button( icon, iconSize ) )
-            {
-                auto pEntity = pEditedMap->FindEntity( pComponent->GetEntityID() );
-                SelectEntity( pEntity );
-                SelectComponent( pComponent );
-            }
-            ImGui::PopStyleColor( 3 );
-            ImGui::PopStyleVar( 1 );
-            ImGui::PopID();
-        };
-
         auto const& registeredLights = m_pWorld->GetAllRegisteredComponentsOfType<Render::LightComponent>();
         for ( auto pComponent : registeredLights )
         {
             if ( pComponent != m_pSelectedComponent )
             {
-                auto pLightComponent = Cast<Render::LightComponent>( pComponent );
-                DrawComponentButton( const_cast<Render::LightComponent*>( pLightComponent ), KRG_ICON_LIGHTBULB_O );
+                auto pLightComponent = const_cast<Render::LightComponent*>( pComponent );
+                ImVec2 const lightPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pLightComponent->GetPosition() );
+                if ( ImGuiX::DrawOverlayIcon( lightPositionScreenSpace, KRG_ICON_LIGHTBULB_O, pLightComponent ) )
+                {
+                    auto pEntity = pEditedMap->FindEntity( pLightComponent->GetEntityID() );
+                    SelectEntity( pEntity );
+                    SelectComponent( pLightComponent );
+                }
             }
         }
 
         auto const& registeredSpawns = m_pWorld->GetAllRegisteredComponentsOfType<PlayerSpawnComponent>();
         for ( auto pComponent : registeredSpawns )
         {
-            auto pSpawnComponent = Cast<PlayerSpawnComponent>( pComponent );
-
             if ( pComponent != m_pSelectedComponent )
             {
-                DrawComponentButton( const_cast<PlayerSpawnComponent*>( pSpawnComponent ), KRG_ICON_GAMEPAD );
+                auto pSpawnComponent = const_cast<PlayerSpawnComponent*>( pComponent );
+                ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
+                if ( ImGuiX::DrawOverlayIcon( componentPositionScreenSpace, KRG_ICON_GAMEPAD, pSpawnComponent ) )
+                {
+                    auto pEntity = pEditedMap->FindEntity( pSpawnComponent->GetEntityID() );
+                    SelectEntity( pEntity );
+                    SelectComponent( pSpawnComponent );
+                }
             }
 
-            auto const& spawnTransform = pSpawnComponent->GetWorldTransform();
+            auto const& spawnTransform = pComponent->GetWorldTransform();
             drawingCtx.DrawArrow( spawnTransform.GetTranslation(), spawnTransform.GetForwardVector(), 0.5f, Colors::Yellow, 3.0f );
         }
 

@@ -49,6 +49,7 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( GetViewportWindowID(), topDockID );
 
         // Dock windows
+        ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomDockID );
         ImGui::DockBuilderDockWindow( m_materialDetailsWindowName.c_str(), bottomDockID );
     }
 

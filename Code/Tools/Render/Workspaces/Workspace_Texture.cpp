@@ -33,6 +33,7 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( m_previewWindowName.c_str(), topDockID );
 
         // Dock windows
+        ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomDockID );
         ImGui::DockBuilderDockWindow( m_infoWindowName.c_str(), bottomDockID );
     }
 

@@ -5,15 +5,16 @@
 namespace KRG::Physics
 {
     // This constructor only exists to lazy initialize the static default material ID
-    PhysicsCapsuleComponent::PhysicsCapsuleComponent()
+    CapsuleComponent::CapsuleComponent()
     {
         static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
         m_physicsMaterialID = defaultMaterialID;
+        SetLocalTransform( Transform( Quaternion( AxisAngle( Vector::UnitY, Math::PiDivTwo ) ) ) );
     }
 
-    bool PhysicsCapsuleComponent::HasValidPhysicsSetup() const
+    bool CapsuleComponent::HasValidPhysicsSetup() const
     {
-        if ( m_capsuleRadius <= 0 || m_capsuleHalfHeight <= 0 )
+        if ( m_radius <= 0 || m_cylinderPortionHalfHeight <= 0 )
         {
             KRG_LOG_ERROR( "Physics", "Invalid radius or half height on Physics Capsule Component: %s (%s). Negative or zero values are not allowed!", GetName().c_str(), GetID().ToString().c_str() );
             return false;

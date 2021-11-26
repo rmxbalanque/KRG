@@ -84,6 +84,7 @@ namespace KRG::Render
 
         ImGui::DockBuilderDockWindow( GetViewportWindowID(), viewportDockID );
         ImGui::DockBuilderDockWindow( m_skeletonTreeWindowName.c_str(), leftDockID );
+        ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomDockID );
         ImGui::DockBuilderDockWindow( m_infoWindowName.c_str(), bottomDockID );
     }
 

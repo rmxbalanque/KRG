@@ -7,15 +7,15 @@
 
 namespace KRG::Physics
 {
-    class KRG_ENGINE_PHYSICS_API PhysicsSphereComponent : public PhysicsComponent
+    class KRG_ENGINE_PHYSICS_API SphereComponent : public PhysicsComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT( PhysicsSphereComponent );
+        KRG_REGISTER_ENTITY_COMPONENT( SphereComponent );
 
         friend class PhysicsWorldSystem;
 
     public:
 
-        PhysicsSphereComponent();
+        SphereComponent();
 
     private:
 

@@ -78,4 +78,40 @@ namespace KRG::ImGuiX
         pDrawList->AddLine( arrowStart, triBase, col, arrowWidth );
         pDrawList->AddTriangleFilled( arrowEnd, tri1, tri2, col );
     }
+
+    bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID )
+    {
+        bool result = false;
+
+        //-------------------------------------------------------------------------
+
+        static ImVec2 const iconSize( 48, 48 );
+        ImVec2 const iconHalfSize( iconSize.x / 2, iconSize.y / 2 );
+        ImRect const iconRect( iconPos - iconHalfSize, iconPos + iconHalfSize );
+        ImRect const windowRect( ImVec2( 0, 0 ), ImGui::GetWindowSize() );
+        if ( !windowRect.Overlaps( iconRect ) )
+        {
+            return result;
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
+        ImVec2 const textSize = ImGui::CalcTextSize( icon );
+        ImGui::SetCursorPos( iconPos - iconHalfSize );
+        ImGui::PushID( iconID );
+        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 0 ) );
+        ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
+        ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImVec4( 0, 0, 0, 0 ) );
+        ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImVec4( 0, 0, 0, 0 ) );
+        if ( ImGui::Button( icon, iconSize ) )
+        {
+            result = true;
+        }
+        ImGui::PopStyleColor( 3 );
+        ImGui::PopStyleVar( 1 );
+        ImGui::PopID();
+
+        return result;
+    }
 }

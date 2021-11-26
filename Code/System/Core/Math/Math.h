@@ -34,21 +34,22 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE float Sin( float m_x ) { return sinf( m_x ); }
-        KRG_FORCE_INLINE float Cos( float m_x ) { return cosf( m_x ); }
-        KRG_FORCE_INLINE float Tan( float m_x ) { return tanf( m_x ); }
+        KRG_FORCE_INLINE float Sin( float value ) { return sinf( value ); }
+        KRG_FORCE_INLINE float Cos( float value ) { return cosf( value ); }
+        KRG_FORCE_INLINE float Tan( float value ) { return tanf( value ); }
 
-        KRG_FORCE_INLINE float ASin( float m_x ) { return asinf( m_x ); }
-        KRG_FORCE_INLINE float ACos( float m_x ) { return acosf( m_x ); }
-        KRG_FORCE_INLINE float ATan( float m_x ) { return atanf( m_x ); }
-        KRG_FORCE_INLINE float ATan2( float m_y, float m_x ) { return atan2f( m_y, m_x ); }
+        KRG_FORCE_INLINE float ASin( float value ) { return asinf( value ); }
+        KRG_FORCE_INLINE float ACos( float value ) { return acosf( value ); }
+        KRG_FORCE_INLINE float ATan( float value ) { return atanf( value ); }
+        KRG_FORCE_INLINE float ATan2( float y, float x ) { return atan2f( y, x ); }
 
-        KRG_FORCE_INLINE float Cosec( float m_x ) { return 1.0f / sinf( m_x ); }
-        KRG_FORCE_INLINE float Sec( float m_x ) { return 1.0f / cosf( m_x ); }
-        KRG_FORCE_INLINE float Cot( float m_x ) { return 1.0f / tanf( PiDivTwo - m_x ); }
+        KRG_FORCE_INLINE float Cosec( float value ) { return 1.0f / sinf( value ); }
+        KRG_FORCE_INLINE float Sec( float value ) { return 1.0f / cosf( value ); }
+        KRG_FORCE_INLINE float Cot( float value ) { return 1.0f / tanf( PiDivTwo - value ); }
 
-        KRG_FORCE_INLINE float Pow( float m_x, float m_y ) { return pow( m_x, m_y ); }
-        KRG_FORCE_INLINE float Sqrt( float v ) { return sqrtf( v ); }
+        KRG_FORCE_INLINE float Pow( float x, float y ) { return pow( x, y ); }
+        KRG_FORCE_INLINE float Sqr( float value ) { return value * value; }
+        KRG_FORCE_INLINE float Sqrt( float value ) { return sqrtf( value ); }
 
         KRG_FORCE_INLINE float AddToMovingAverage( float currentAverage, uint64 numCurrentSamples, float newValue )
         {
@@ -102,9 +103,9 @@ namespace KRG
             return modff( value, pIntegerPortion );
         }
 
-        KRG_FORCE_INLINE float FModF( float m_x, float m_y )
+        KRG_FORCE_INLINE float FModF( float x, float y )
         {
-            return fmodf( m_x, m_y );
+            return fmodf( x, y );
         }
 
         template<typename T>
@@ -180,11 +181,11 @@ namespace KRG
             return lcm;
         }
 
-        inline float RemapRange( float m_x, float fromRangeMin, float fromRangeMax, float toRangeMin, float toRangeMax )
+        inline float RemapRange( float value, float fromRangeMin, float fromRangeMax, float toRangeMin, float toRangeMax )
         {
             float const fromRangeLength = fromRangeMax - fromRangeMin;
             float const toRangeLength = toRangeMax - toRangeMin;
-            float const percentageThroughFromRange = ( m_x - fromRangeMin ) / fromRangeLength;
+            float const percentageThroughFromRange = ( value - fromRangeMin ) / fromRangeLength;
             float const result = toRangeMin + ( percentageThroughFromRange * toRangeLength );
 
             return result;

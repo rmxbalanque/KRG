@@ -49,6 +49,7 @@ namespace KRG::Render
 
         // Dock windows
         ImGui::DockBuilderDockWindow( m_infoWindowName.c_str(), bottomDockID );
+        ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomDockID );
     }
 
     void StaticMeshWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )

@@ -255,13 +255,14 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
         // We also calculate and set the component local bounds
 
+        Transform const& worldTransform = pComponent->GetWorldTransform();
+        Vector const& scale = worldTransform.GetScale();
+
         PxPhysics& physics = m_pPhysicsSystem->GetPxPhysics();
         OBB localBounds;
         if ( auto pMeshComponent = TryCast<PhysicsMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( pMeshComponent->m_pPhysicsMesh->IsValid() );
-            Transform const& worldTransform = pComponent->GetWorldTransform();
-            Vector const& scale = worldTransform.GetScale();
 
             // Calculate bounds
             if ( pMeshComponent->m_pPhysicsMesh->IsTriangleMesh() )
@@ -283,23 +284,26 @@ namespace KRG::Physics
                 localBounds = OBB( FromPx( meshLocalBounds.getCenter() ), FromPx( meshLocalBounds.getExtents() ) * scale.GetAbs() );
             }
         }
-        else if ( auto pBoxComponent = TryCast<PhysicsBoxComponent>( pComponent ) )
+        else if ( auto pBoxComponent = TryCast<BoxComponent>( pComponent ) )
         {
+            // TODO: handle scale
             PxBoxGeometry const boxGeo( ToPx( pBoxComponent->m_boxExtents ) );
             pPhysicsShape = physics.createShape( boxGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
             localBounds = OBB( Vector::Origin, pBoxComponent->m_boxExtents );
         }
-        else if ( auto pSphereComponent = TryCast<PhysicsSphereComponent>( pComponent ) )
+        else if ( auto pSphereComponent = TryCast<SphereComponent>( pComponent ) )
         {
+            // TODO: handle scale
             PxSphereGeometry const sphereGeo( pSphereComponent->m_radius );
             pPhysicsShape = physics.createShape( sphereGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
             localBounds = OBB( Vector::Origin, Vector( pSphereComponent->m_radius ) );
         }
-        else if ( auto pCapsuleComponent = TryCast<PhysicsCapsuleComponent>( pComponent ) )
+        else if ( auto pCapsuleComponent = TryCast<CapsuleComponent>( pComponent ) )
         {
-            PxCapsuleGeometry const capsuleGeo( pCapsuleComponent->m_capsuleRadius, pCapsuleComponent->m_capsuleHalfHeight );
+            // TODO: handle scale
+            PxCapsuleGeometry const capsuleGeo( pCapsuleComponent->m_radius, pCapsuleComponent->m_cylinderPortionHalfHeight );
             pPhysicsShape = physics.createShape( capsuleGeo, physicsMaterials.data(), (uint16) physicsMaterials.size(), true, shapeFlags );
-            localBounds = OBB( Vector::Origin, Vector( pCapsuleComponent->m_capsuleHalfHeight + pCapsuleComponent->m_capsuleRadius, pCapsuleComponent->m_capsuleRadius, pCapsuleComponent->m_capsuleRadius ) );
+            localBounds = OBB( Vector::Origin, Vector( pCapsuleComponent->m_cylinderPortionHalfHeight + pCapsuleComponent->m_radius, pCapsuleComponent->m_radius, pCapsuleComponent->m_radius ) );
         }
 
         pComponent->SetLocalBounds( localBounds );
@@ -366,170 +370,6 @@ namespace KRG::Physics
         }
 
         ReleaseReadLock();
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsWorldSystem::RayCastCustom( Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, PxRaycastCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-
-        bool const result = m_pScene->raycast( ToPx( start ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, filter.m_filterData, &filter );
-        return result;
-    }
-
-    bool PhysicsWorldSystem::RayCastCustom( Vector const& start, Vector const& end, QueryFilter& filter, PxRaycastCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return RayCastCustom( start, dir, length.m_x, filter, outResults );
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsWorldSystem::SphereCastCustom( float radius, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-
-        PxSphereGeometry const sphereGeo( radius );
-        bool const result = m_pScene->sweep( sphereGeo, PxTransform( ToPx( start ) ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, filter.m_filterData, &filter );
-        return result;
-    }
-
-    bool PhysicsWorldSystem::SphereCastCustom( float radius, Vector const& start, Vector const& end, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return SphereCastCustom( radius, start, dir, length.m_x, filter, outResults );
-    }
-
-    bool PhysicsWorldSystem::SphereOverlapCustom( float radius, Vector const& position, QueryFilter& filter, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        PxSphereGeometry const sphereGeo( radius );
-        filter.m_filterData.flags |= PxQueryFlag::eNO_BLOCK;
-        bool const result = m_pScene->overlap( sphereGeo, PxTransform( ToPx( position ) ), outResults, filter.m_filterData, &filter );
-        return result;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsWorldSystem::CapsuleCastCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-
-        PxCapsuleGeometry const capsuleGeo( radius, halfHeight );
-        bool const result = m_pScene->sweep( capsuleGeo, PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, filter.m_filterData, &filter );
-        return result;
-    }
-
-    bool PhysicsWorldSystem::CapsuleCastCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return CapsuleCastCustom( halfHeight, radius, orientation, start, dir, length.m_x, filter, outResults );
-    }
-
-    bool PhysicsWorldSystem::CapsuleOverlapCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, PxMeshScale( PxVec3( radius, radius, halfHeight ) ) );
-        bool result = m_pScene->overlap( cylinderGeo, PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, filter.m_filterData, &filter );
-        return result;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsWorldSystem::CylinderCastCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-        KRG_ASSERT( SharedMeshes::s_pUnitCylinderMesh != nullptr );
-
-        PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, PxMeshScale( PxVec3( radius, radius, halfHeight ) ) );
-        bool const result = m_pScene->sweep( cylinderGeo, PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, filter.m_filterData, &filter );
-        return result;
-    }
-
-    bool PhysicsWorldSystem::CylinderCastCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return CylinderCastCustom( halfHeight, radius, orientation, start, dir, length.m_x, filter, outResults );
-    }
-
-    bool PhysicsWorldSystem::CylinderOverlapCustom( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        PxCapsuleGeometry const capsuleGeo( radius, halfHeight );
-        bool const result = m_pScene->overlap( capsuleGeo, PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, filter.m_filterData, &filter );
-        return result;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsWorldSystem::BoxCastCustom( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-
-        PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
-        bool const result = m_pScene->sweep( boxGeo, PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, filter.m_filterData, &filter );
-        return result;
-    }
-
-    bool PhysicsWorldSystem::BoxCastCustom( Vector halfExtents, Vector const& position, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        Vector dir, length;
-        ( end - start ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return BoxCastCustom( halfExtents, position, orientation, start, dir, length.m_x, filter, outResults );
-    }
-
-    bool PhysicsWorldSystem::BoxOverlapCustom( Vector halfExtents, Vector const& position, Quaternion const& orientation, QueryFilter& filter, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
-        bool const result = m_pScene->overlap( boxGeo, PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, filter.m_filterData, &filter );
-        return result;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsWorldSystem::ShapeCastCustom( physx::PxShape* pShape, Transform const& startTransform, Vector const& unitDirection, float distance, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
-        bool const result = m_pScene->sweep( pShape->getGeometry().any(), ToPx( startTransform ), ToPx( unitDirection ), distance, outResults, PxHitFlag::eDEFAULT, filter.m_filterData, &filter );
-        return result;
-    }
-
-    bool PhysicsWorldSystem::ShapeCastCustom( physx::PxShape* pShape, Transform const& startTransform, Vector const& desiredEndPosition, QueryFilter& filter, PxSweepCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        Vector dir, length;
-        ( desiredEndPosition - startTransform.GetTranslation() ).ToDirectionAndLength3( dir, length );
-        KRG_ASSERT( !dir.IsNearZero3() );
-
-        return ShapeCastCustom( pShape, startTransform, dir, length.m_x, filter, outResults );
-    }
-
-    bool PhysicsWorldSystem::ShapeOverlapCustom( physx::PxShape* pShape, Transform const& transform, QueryFilter& filter, PxOverlapCallback& outResults )
-    {
-        KRG_ASSERT( m_readLockAcquired );
-        bool const result = m_pScene->overlap( pShape->getGeometry().any(), ToPx( transform ), outResults, filter.m_filterData, &filter );
-        return result;
     }
 
     //------------------------------------------------------------------------- 

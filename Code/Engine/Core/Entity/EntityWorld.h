@@ -116,7 +116,15 @@ namespace KRG
 
         // Get all the registered components of the specified type
         template<typename T>
-        inline TVector<EntityComponent const*> const& GetAllRegisteredComponentsOfType() { return m_componentTypeLookup[T::GetStaticTypeID()]; }
+        inline TInlineVector<T const*, 20> GetAllRegisteredComponentsOfType() 
+        {
+            TInlineVector<T const*, 20> results;
+            for ( auto pComponent : m_componentTypeLookup[T::GetStaticTypeID()] )
+            {
+                results.emplace_back( static_cast<T const*>( pComponent ) );
+            }
+            return results;
+        }
         #endif
 
         //-------------------------------------------------------------------------

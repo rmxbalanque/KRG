@@ -10,6 +10,7 @@ namespace KRG
     class PlayerComponent;
     class SpatialEntityComponent;
     class OrbitCameraComponent;
+    namespace Physics { class CapsuleComponent; }
 
     //-------------------------------------------------------------------------
 
@@ -31,6 +32,7 @@ namespace KRG
     private:
 
         PlayerComponent*                        m_pPlayerComponent = nullptr;
+        Physics::CapsuleComponent*              m_pCapsuleComponent = nullptr;
         SpatialEntityComponent*                 m_pRootComponent = nullptr;
         OrbitCameraComponent*                   m_pCameraComponent = nullptr;
         float                                   m_currentMoveSpeed = 0;

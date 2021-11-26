@@ -1,5 +1,8 @@
 #pragma once
 
+#include "_Module/API.h"
+#include "Engine/Core/Entity/EntityComponent.h"
+#include "System/Core/Types/UUID.h"
 #include "PhysX.h"
 
 //-------------------------------------------------------------------------
@@ -10,9 +13,46 @@ namespace KRG::Physics
     // Results from a given query
     //-------------------------------------------------------------------------
 
-    struct RayCastResults : public physx::PxRaycastBufferN<32> {};
-    struct ShapeCastResults : public physx::PxSweepBufferN<32> {};
-    struct OverlapResults : public physx::PxOverlapBufferN<32> {};
+    template<int N>
+    struct RayCastResultBuffer : public physx::PxHitBuffer<physx::PxRaycastHit>
+    {
+        RayCastResultBuffer() : physx::PxHitBuffer<physx::PxRaycastHit>( m_hits, N ) {}
+
+        Vector                  m_start;
+        Vector                  m_end;
+        physx::PxRaycastHit     m_hits[N];
+    };
+
+    using RayCastResults = RayCastResultBuffer<32>;
+
+    //-------------------------------------------------------------------------
+
+    template<int N>
+    struct SweepResultBuffer : public physx::PxHitBuffer<physx::PxSweepHit>
+    {
+        SweepResultBuffer() : physx::PxHitBuffer<physx::PxSweepHit>( m_hits, N ) {}
+
+        Quaternion              m_orientation = Quaternion::Identity;
+        Vector                  m_start;
+        Vector                  m_end;
+        physx::PxSweepHit       m_hits[N];
+    };
+
+    using SweepResults = SweepResultBuffer<32>;
+
+    //-------------------------------------------------------------------------
+    
+    template<int N>
+    struct OverlapResultBuffer : public physx::PxHitBuffer<physx::PxOverlapHit>
+    {
+        OverlapResultBuffer() : physx::PxHitBuffer<physx::PxOverlapHit>( m_hits, N ) {}
+
+        Vector                  m_position;
+        Quaternion              m_orientation = Quaternion::Identity;
+        physx::PxOverlapHit     m_hits[N];
+    };
+
+    using OverlapResults = OverlapResultBuffer<32>;
 
     //-------------------------------------------------------------------------
     // PhysX Query Filter
@@ -89,14 +129,61 @@ namespace KRG::Physics
             }
         }
 
+        // Ignore 
+        //-------------------------------------------------------------------------
+
+        void AddIgnoredComponent( UUID const& componentID )
+        {
+            KRG_ASSERT( componentID.IsValid() );
+            m_ignoredComponents.emplace_back( componentID );
+        }
+
+        void AddIgnoredEntity( UUID const& entityID )
+        {
+            KRG_ASSERT( entityID.IsValid() );
+            m_ignoredEntities.emplace_back( entityID );
+        }
+
     private:
 
-        virtual physx::PxQueryHitType::Enum preFilter( physx::PxFilterData const& filterData, physx::PxShape const* pShape, physx::PxRigidActor const* pActor, physx::PxHitFlags& queryFlags ) override;
-        virtual physx::PxQueryHitType::Enum postFilter( physx::PxFilterData const& filterData, physx::PxQueryHit const& hit ) override;
+        virtual physx::PxQueryHitType::Enum preFilter( physx::PxFilterData const& filterData, physx::PxShape const* pShape, physx::PxRigidActor const* pActor, physx::PxHitFlags& queryFlags ) override
+        {
+            for ( auto const& ignoredComponentID : m_ignoredComponents )
+            {
+                auto pOwnerComponent = reinterpret_cast<EntityComponent const*>( pActor->userData );
+                if ( pOwnerComponent->GetID() == ignoredComponentID )
+                {
+                    return physx::PxQueryHitType::eNONE;
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            for ( auto const& ignoredEntityID : m_ignoredEntities )
+            {
+                auto pOwnerComponent = reinterpret_cast<EntityComponent const*>( pActor->userData );
+                if ( pOwnerComponent->GetEntityID() == ignoredEntityID )
+                {
+                    return physx::PxQueryHitType::eNONE;
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            return physx::PxQueryHitType::eBLOCK;
+        }
+
+        virtual physx::PxQueryHitType::Enum postFilter( physx::PxFilterData const& filterData, physx::PxQueryHit const& hit ) override
+        {
+            KRG_UNREACHABLE_CODE(); // Not currently used
+            return physx::PxQueryHitType::eBLOCK;
+        }
 
     public:
 
-        physx::PxQueryFilterData                    m_filterData;
-        TInlineVector<physx::PxRigidActor*,4>       m_ignoredActors;
+        physx::PxQueryFilterData                            m_filterData;
+        physx::PxHitFlags                                   m_hitFlags = physx::PxHitFlag::eDEFAULT;
+        TInlineVector<UUID, 2>                              m_ignoredComponents;
+        TInlineVector<UUID, 2>                              m_ignoredEntities;
     };
 }

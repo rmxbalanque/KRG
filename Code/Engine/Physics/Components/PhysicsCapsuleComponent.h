@@ -7,15 +7,27 @@
 
 namespace KRG::Physics
 {
-    class KRG_ENGINE_PHYSICS_API PhysicsCapsuleComponent : public PhysicsComponent
+    class KRG_ENGINE_PHYSICS_API CapsuleComponent : public PhysicsComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT( PhysicsCapsuleComponent );
+        KRG_REGISTER_ENTITY_COMPONENT( CapsuleComponent );
 
         friend class PhysicsWorldSystem;
 
     public:
 
-        PhysicsCapsuleComponent();
+        CapsuleComponent();
+
+        // The capsule radius
+        inline float GetRadius() const { return m_radius; }
+
+        // The half-height of the cylinder portion of the capsule
+        inline float GetCylinderPortionHalfHeight() const { return m_cylinderPortionHalfHeight; }
+
+        // Get the full height of the capsule
+        inline float GetCapsuleHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ) * 2; }
+
+        // Get the half-height of the capsule
+        inline float GetCapsuleHalfHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ); }
 
     private:
 
@@ -25,7 +37,9 @@ namespace KRG::Physics
     protected:
 
         KRG_EXPOSE StringID                                 m_physicsMaterialID;
-        KRG_EXPOSE float                                    m_capsuleHalfHeight = 1.0f;
-        KRG_EXPOSE float                                    m_capsuleRadius = 0.5f;
+
+        KRG_EXPOSE float                                    m_radius = 0.5f;
+
+        KRG_EXPOSE float                                    m_cylinderPortionHalfHeight = 1.0f;
     };
 }

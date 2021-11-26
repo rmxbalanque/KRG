@@ -5,13 +5,13 @@
 namespace KRG::Physics
 {
     // This constructor only exists to lazy initialize the static default material ID
-    PhysicsSphereComponent::PhysicsSphereComponent()
+    SphereComponent::SphereComponent()
     {
         static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
         m_physicsMaterialID = defaultMaterialID;
     }
 
-    bool PhysicsSphereComponent::HasValidPhysicsSetup() const
+    bool SphereComponent::HasValidPhysicsSetup() const
     {
         if ( m_radius <= 0.0f )
         {

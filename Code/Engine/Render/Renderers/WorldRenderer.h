@@ -26,33 +26,20 @@ namespace KRG::Render
 
     class KRG_ENGINE_RENDER_API WorldRenderer : public IRenderer
     {
-    public:
-
-        KRG_RENDERER_ID( WorldRenderer, Render::RendererPriorityLevel::Game );
-
-    public:
-
-        inline bool IsInitialized() const { return m_initialized; }
-        bool Initialize( RenderDevice* pRenderDevice );
-        void Shutdown();
-
-        virtual void RenderWorld( RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) override final;
-
-    private:
         enum
         {
-            LIGHTING_ENABLE_SUN = (1 << 0),
-            LIGHTING_ENABLE_SUN_SHADOW = (1 << 1),
-            LIGHTING_ENABLE_SKYLIGHT = (1 << 2),
+            LIGHTING_ENABLE_SUN = ( 1 << 0 ),
+            LIGHTING_ENABLE_SUN_SHADOW = ( 1 << 1 ),
+            LIGHTING_ENABLE_SKYLIGHT = ( 1 << 2 ),
         };
 
         enum
         {
-            MATERIAL_USE_ALBEDO_TEXTURE = (1 << 0),
-            MATERIAL_USE_NORMAL_TEXTURE = (1 << 1),
-            MATERIAL_USE_METALNESS_TEXTURE = (1 << 2),
-            MATERIAL_USE_ROUGHNESS_TEXTURE = (1 << 3),
-            MATERIAL_USE_AO_TEXTURE = (1 << 4),
+            MATERIAL_USE_ALBEDO_TEXTURE = ( 1 << 0 ),
+            MATERIAL_USE_NORMAL_TEXTURE = ( 1 << 1 ),
+            MATERIAL_USE_METALNESS_TEXTURE = ( 1 << 2 ),
+            MATERIAL_USE_ROUGHNESS_TEXTURE = ( 1 << 3 ),
+            MATERIAL_USE_AO_TEXTURE = ( 1 << 4 ),
         };
 
         enum
@@ -104,14 +91,28 @@ namespace KRG::Render
             TVector<SkeletalMeshComponent const*>& m_skeletalMeshComponents;
         };
 
-        void RenderSunShadows( Viewport const& viewport, DirectionalLightComponent* pDirectionalLightComponent, const RenderData& data );
-        void RenderStaticMeshes( Viewport const& viewport,  const RenderData& data );
-        void RenderSkeletalMeshes( Viewport const& viewport, const RenderData& data );
-        void RenderSkybox( Viewport const& viewport, const RenderData& data );
+    public:
 
-        void SetupRenderStates( Viewport const& viewport, const RenderData& data );
+        KRG_RENDERER_ID( WorldRenderer, Render::RendererPriorityLevel::Game );
 
-        static void SetupMaterial( RenderContext const& renderContext, PixelShader& pixelShader, const Material* material );
+        static void SetupMaterial( RenderContext const& renderContext, PixelShader& pixelShader, Material const* pMaterial );
+
+    public:
+
+        inline bool IsInitialized() const { return m_initialized; }
+        bool Initialize( RenderDevice* pRenderDevice );
+        void Shutdown();
+
+        virtual void RenderWorld( RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) override final;
+
+    private:
+
+        void RenderSunShadows( Viewport const& viewport, DirectionalLightComponent* pDirectionalLightComponent, RenderData const& data );
+        void RenderStaticMeshes( Viewport const& viewport,  RenderData const& data );
+        void RenderSkeletalMeshes( Viewport const& viewport, RenderData const& data );
+        void RenderSkybox( Viewport const& viewport, RenderData const& data );
+
+        void SetupRenderStates( Viewport const& viewport, RenderData const& data );
 
     private:
 

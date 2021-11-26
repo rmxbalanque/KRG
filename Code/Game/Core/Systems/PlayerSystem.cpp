@@ -1,4 +1,6 @@
 #include "PlayerSystem.h"
+#include "Engine/Physics/PhysicsWorldSystem.h"
+#include "Engine/Physics/Components/PhysicsCapsuleComponent.h"
 #include "Engine/Core/Components/CameraComponents.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "Engine/Core/Components/PlayerComponent.h"
@@ -37,6 +39,13 @@ namespace KRG
             }
         }
 
+        if ( auto pCapsuleComponent = TryCast<Physics::CapsuleComponent>( pComponent ) )
+        {
+            // TODO: handle multiple comps per player
+            KRG_ASSERT( m_pCapsuleComponent == nullptr );
+            m_pCapsuleComponent = pCapsuleComponent;
+        }
+
         if ( auto pCameraComponent = TryCast<OrbitCameraComponent>( pComponent ) )
         {
             m_pCameraComponent = pCameraComponent;
@@ -55,6 +64,14 @@ namespace KRG
             if ( pSpatialComponent->IsRootComponent() && m_pRootComponent == pSpatialComponent )
             {
                 m_pRootComponent = nullptr;
+            }
+        }
+
+        if ( auto pCapsuleComponent = TryCast<Physics::CapsuleComponent>( pComponent ) )
+        {
+            if ( m_pCapsuleComponent == pCapsuleComponent )
+            {
+                m_pCapsuleComponent = nullptr;
             }
         }
 
@@ -145,6 +162,42 @@ namespace KRG
 
         if ( speed > 0 )
         {
+            auto pPhysWorld = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
+
+            Physics::QueryFilter filter;
+            filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
+            filter.AddIgnoredEntity( m_pCapsuleComponent->GetEntityID() );
+
+            Physics::SweepResults results;
+            pPhysWorld->AcquireReadLock();
+
+            if ( pPhysWorld->CapsuleSweep( m_pCapsuleComponent->GetCylinderPortionHalfHeight(), m_pCapsuleComponent->GetRadius(), m_pCapsuleComponent->GetOrientation(), m_pCapsuleComponent->GetPosition(), m_pCapsuleComponent->GetPosition() + deltaMovement, filter, results ) )
+            {
+                if ( results.hasBlock )
+                {
+                    if ( results.block.hadInitialOverlap() )
+                    {
+                        KRG_LOG_MESSAGE( "Physics", "overlap: %s", results.block.actor->getName() );
+                    }
+
+                    KRG_LOG_MESSAGE( "Physics", "block: %s", results.block.actor->getName() );
+                }
+                else
+                {
+                    int32 numTouches = results.getNbTouches();
+                    for ( int32 i =0; i < numTouches; i++ )
+                    {
+                        if ( results.getTouch( i ).hadInitialOverlap() )
+                        {
+                            KRG_LOG_MESSAGE( "Physics", "initial overlap: %s", results.getTouch( i ).actor->getName() );
+                        }
+                        KRG_LOG_MESSAGE( "Physics", "touch: %s", results.getTouch(i).actor->getName() );
+                    }
+                }
+            }
+
+            pPhysWorld->ReleaseReadLock();
+
             Transform currentRootTransform = m_pRootComponent->GetWorldTransform();
             currentRootTransform.SetRotation( Quaternion::FromOrientationVector( deltaMovement.GetNormalized3() ) );
             currentRootTransform.AddTranslationOffset( deltaMovement );
