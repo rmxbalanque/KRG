@@ -38,6 +38,9 @@ namespace KRG::Physics
     {
         m_pPhysicsSystem->DestroyScene( m_pScene );
         m_pPhysicsSystem = nullptr;
+
+        KRG_ASSERT( m_registeredPhysicsComponents.empty() );
+        KRG_ASSERT( m_dynamicComponents.empty() );
     }
 
     //-------------------------------------------------------------------------
@@ -46,11 +49,7 @@ namespace KRG::Physics
     {
         if ( auto pPhysicsComponent = TryCast<PhysicsComponent>( pComponent ) )
         {
-            // Add component to entity record
-            //-------------------------------------------------------------------------
-
-            EntityPhysicsRecord* pRecord = m_registeredEntities.FindOrAddRecord( pEntity->GetID() );
-            pRecord->m_components.emplace_back( pPhysicsComponent );
+            m_registeredPhysicsComponents.Add( pPhysicsComponent );
 
             //-------------------------------------------------------------------------
 
@@ -95,8 +94,7 @@ namespace KRG::Physics
 
             if ( pPhysicsComponent->m_actorType != ActorType::Static )
             {
-                KRG_ASSERT( m_dynamicComponents.find( pPhysicsComponent->GetID() ) == m_dynamicComponents.end() );
-                m_dynamicComponents.insert( TPair<UUID, PhysicsComponent*>( pPhysicsComponent->GetID(), pPhysicsComponent ) );
+                m_dynamicComponents.Add( pPhysicsComponent );
             }
         }
     }
@@ -105,15 +103,12 @@ namespace KRG::Physics
     {
         if ( auto pPhysicsComponent = TryCast<PhysicsComponent>( pComponent ) )
         {
-            auto const pRecord = m_registeredEntities.GetRecord( pEntity->GetID() );
-            KRG_ASSERT( pRecord != nullptr );
-
             // Remove from dynamic components list
             //-------------------------------------------------------------------------
 
             if ( pPhysicsComponent->m_pPhysicsActor != nullptr && pPhysicsComponent->m_actorType != ActorType::Static )
             {
-                m_dynamicComponents.erase( pPhysicsComponent->GetID() );
+                m_dynamicComponents.Remove( pPhysicsComponent->GetID() );
             }
 
             // Destroy physics actor (if one exists)
@@ -139,19 +134,9 @@ namespace KRG::Physics
             pPhysicsComponent->m_debugName.clear();
             #endif
 
-            // Remove component
             //-------------------------------------------------------------------------
 
-            KRG_ASSERT( VectorContains( pRecord->m_components, pPhysicsComponent ) );
-            pRecord->m_components.erase_first( pPhysicsComponent );
-
-            // Remove record if empty
-            //-------------------------------------------------------------------------
-
-            if ( pRecord->IsEmpty() )
-            {
-                m_registeredEntities.RemoveRecord( pEntity->GetID() );
-            }
+            m_registeredPhysicsComponents.Remove( pComponent->GetID() );
         }
     }
 
@@ -353,31 +338,29 @@ namespace KRG::Physics
 
         AcquireReadLock();
 
-        for ( auto const& registeredDynamicComponent : m_dynamicComponents )
+        for ( auto const& pDynamicPhysicsComponent : m_dynamicComponents )
         {
-            PhysicsComponent* pComponent = registeredDynamicComponent.second;
-
             // Transfer physics pose back to component
-            if ( pComponent->m_pPhysicsActor != nullptr && pComponent->m_actorType == ActorType::Dynamic )
+            if ( pDynamicPhysicsComponent->m_pPhysicsActor != nullptr && pDynamicPhysicsComponent->m_actorType == ActorType::Dynamic )
             {
-                auto physicsPose = pComponent->m_pPhysicsActor->getGlobalPose();
-                pComponent->SetWorldTransform( FromPx( physicsPose ) );
+                auto physicsPose = pDynamicPhysicsComponent->m_pPhysicsActor->getGlobalPose();
+                pDynamicPhysicsComponent->SetWorldTransform( FromPx( physicsPose ) );
             }
 
             // Debug
             //-------------------------------------------------------------------------
 
             #if KRG_DEVELOPMENT_TOOLS
-            if ( m_drawDynamicActorBounds && pComponent->m_actorType == ActorType::Dynamic )
+            if ( m_drawDynamicActorBounds && pDynamicPhysicsComponent->m_actorType == ActorType::Dynamic )
             {
-                drawingContext.DrawBox( pComponent->GetWorldBounds(), Colors::Orange.GetAlphaVersion( 0.5f ) );
-                drawingContext.DrawWireBox( pComponent->GetWorldBounds(), Colors::Orange );
+                drawingContext.DrawBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::Orange.GetAlphaVersion( 0.5f ) );
+                drawingContext.DrawWireBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::Orange );
             }
 
-            if ( m_drawKinematicActorBounds && pComponent->m_actorType == ActorType::Kinematic )
+            if ( m_drawKinematicActorBounds && pDynamicPhysicsComponent->m_actorType == ActorType::Kinematic )
             {
-                drawingContext.DrawBox( pComponent->GetWorldBounds(), Colors::HotPink.GetAlphaVersion( 0.5f ) );
-                drawingContext.DrawWireBox( pComponent->GetWorldBounds(), Colors::HotPink );
+                drawingContext.DrawBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::HotPink.GetAlphaVersion( 0.5f ) );
+                drawingContext.DrawWireBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::HotPink );
             }
             #endif
         }

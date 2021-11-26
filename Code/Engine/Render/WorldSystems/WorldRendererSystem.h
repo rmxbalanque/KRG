@@ -2,18 +2,19 @@
 
 #include "Engine/Render/_Module/API.h"
 #include "Engine/Core/Entity/EntityWorldSystem.h"
+#include "Engine/Render/Components/StaticMeshComponent.h"
+#include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "System/Render/RenderDevice.h"
 #include "System/Core/Math/BVH/AABBTree.h"
 #include "System/Core/Types/Event.h"
 #include "System/Core/Systems/ISystem.h"
+#include "System/Core/Types/IDVector.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Render
 {
-    class StaticMeshComponent;
     class SkeletalMeshComponent;
-    class SkeletalMesh;
     class DirectionalLightComponent;
     class PointLightComponent;
     class SpotLightComponent;
@@ -50,59 +51,24 @@ namespace KRG::Render
             VIS_MODE_BITS_SHIFT = 32 - 3,
         };
 
-        // Mesh Components
         //-------------------------------------------------------------------------
 
-        struct RegisteredStaticMesh : public EntityRegistryRecord
+        // Static meshes need special handling for mobility changes
+        struct RegisteredStaticMesh
         {
+            inline UUID const& GetID() const { return m_pComponent->GetID(); }
+
             StaticMeshComponent*                                m_pComponent = nullptr;
             EventBindingID                                      m_mobilityChangedEventBinding;
             EventBindingID                                      m_staticMobilityTransformUpdatedEventBinding;
         };
 
-        struct RegisteredSkeletalMesh : public EntityRegistryRecord
-        {
-            TInlineVector<SkeletalMeshComponent*, 2>            m_components;
-        };
-
-        // Light Components
-        //-------------------------------------------------------------------------
-
-        struct RegisteredDirectionalLight : public EntityRegistryRecord
-        {
-            DirectionalLightComponent*                          m_pComponent = nullptr;
-        };
-
-        struct RegisteredPointLight : public EntityRegistryRecord
-        {
-            PointLightComponent*                                m_pComponent = nullptr;
-        };
-
-        struct RegisteredSpotLight : public EntityRegistryRecord
-        {
-            SpotLightComponent*                                 m_pComponent = nullptr;
-        };
-
-        // Environment Maps
-        //-------------------------------------------------------------------------
-
-        struct RegisteredLocalEnvMap : public EntityRegistryRecord
-        {
-            LocalEnvironmentMapComponent*                       m_pComponent = nullptr;
-        };
-
-        struct RegisteredGlobalEnvMap : public EntityRegistryRecord
-        {
-            GlobalEnvironmentMapComponent*                      m_pComponent = nullptr;
-        };
-
-        // Helpers
-        //-------------------------------------------------------------------------
-
         // Track all instances of a given mesh together - to limit the number of vertex buffer changes
         struct SkeletalMeshGroup
         {
             SkeletalMeshGroup( SkeletalMesh const* pInMesh ) : m_pMesh( pInMesh ) { KRG_ASSERT( pInMesh != nullptr ); }
+
+            inline uint32 GetID() const { return m_pMesh->GetResourceID().GetID(); }
 
         public:
 
@@ -146,25 +112,25 @@ namespace KRG::Render
     private:
 
         // Static meshes
-        EntityRegistry<RegisteredStaticMesh>                    m_registeredStaticMeshComponents;
-        TVector<StaticMeshComponent*>                           m_staticStaticMeshComponents;
-        TVector<StaticMeshComponent*>                           m_dynamicStaticMeshComponents;
+        TIDVector<UUID, RegisteredStaticMesh>                   m_registeredStaticMeshComponents;
+        TIDVector<UUID, StaticMeshComponent*>                   m_staticStaticMeshComponents;
+        TIDVector<UUID, StaticMeshComponent*>                   m_dynamicStaticMeshComponents;
         TVector<StaticMeshComponent const*>                     m_visibleStaticMeshComponents;
         Threading::Mutex                                        m_mobilityUpdateListLock;               // Mobility switches can occur on any thread so the list needs to be threadsafe. We use a simple lock for now since we dont expect too many switches
         TVector<StaticMeshComponent*>                           m_mobilityUpdateList;                   // A list of all components that switched mobility during this frame, will results in an update of the various spatial data structures next frame
         TVector<StaticMeshComponent*>                           m_staticMobilityTransformUpdateList;    // A list of all static mobility components that have moved during this frame, will results in an update of the various spatial data structures next frame
 
         // Skeletal meshes
-        EntityRegistry<RegisteredSkeletalMesh>                  m_registeredSkeletalMeshComponents;
-        TVector<SkeletalMeshGroup>                              m_skeletalMeshGroups;
+        TIDVector<UUID, SkeletalMeshComponent*>                 m_registeredSkeletalMeshComponents;
+        TIDVector<uint32, SkeletalMeshGroup>                    m_skeletalMeshGroups;
         TVector<SkeletalMeshComponent const*>                   m_visibleSkeletalMeshComponents;
 
         // Lights
-        EntityRegistry<RegisteredDirectionalLight>              m_registeredDirectionLightComponents;
-        EntityRegistry<RegisteredPointLight>                    m_registeredPointLightComponents;
-        EntityRegistry<RegisteredSpotLight>                     m_registeredSpotLightComponents;
-        EntityRegistry<RegisteredLocalEnvMap>                   m_registeredLocalEnvironmentMaps;
-        EntityRegistry<RegisteredGlobalEnvMap>                  m_registeredGlobalEnvironmentMaps;
+        TIDVector<UUID, DirectionalLightComponent*>             m_registeredDirectionLightComponents;
+        TIDVector<UUID, PointLightComponent*>                   m_registeredPointLightComponents;
+        TIDVector<UUID, SpotLightComponent*>                    m_registeredSpotLightComponents;
+        TIDVector<UUID, LocalEnvironmentMapComponent*>          m_registeredLocalEnvironmentMaps;
+        TIDVector<UUID, GlobalEnvironmentMapComponent*>         m_registeredGlobalEnvironmentMaps;
 
         #if KRG_DEVELOPMENT_TOOLS
         uint32                                                  m_visualizationMode = 0;

@@ -4,6 +4,7 @@
 #include "Engine/Core/Entity/EntityWorldSystem.h"
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Systems/ISystem.h"
+#include "System/Core/Types/IDVector.h"
 
 //-------------------------------------------------------------------------
 // World System
@@ -27,8 +28,12 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        struct RegisteredPlayer : public EntityRegistryRecord
+        struct RegisteredPlayer
         {
+            RegisteredPlayer( PlayerComponent* pComp ) : m_pPlayerComponent( pComp ) {};
+            RegisteredPlayer( CameraComponent* pComp ) : m_pCameraComponent( pComp ) {};
+
+            inline UUID const& GetID() const;
             inline bool IsValid() const { return m_pPlayerComponent != nullptr && m_pCameraComponent != nullptr; }
 
         public:
@@ -60,6 +65,7 @@ namespace KRG
 
     private:
 
+        virtual void ShutdownSystem() override final;
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UpdateSystem( EntityUpdateContext const& ctx ) override;
@@ -82,7 +88,7 @@ namespace KRG
 
     private:
 
-        EntityRegistry<RegisteredPlayer>        m_players;
+        TIDVector<UUID, RegisteredPlayer>       m_players;
         TVector<PlayerSpawnComponent*>          m_spawnPoints;
         CameraComponent*                        m_pActiveCamera = nullptr;
         UUID                                    m_activePlayerID;

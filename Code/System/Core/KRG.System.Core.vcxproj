@@ -446,6 +446,7 @@
     <ClInclude Include="ThirdParty\rpmalloc\rpmalloc.h" />
     <ClInclude Include="ThirdParty\xxhash\xxhash.h" />
     <ClInclude Include="Threading\Threading.h" />
+    <ClInclude Include="Types\IDVector.h" />
     <ClInclude Include="Types\IntegralTypes.h" />
     <ClInclude Include="Types\Function.h" />
     <ClInclude Include="Types\Pool.h" />

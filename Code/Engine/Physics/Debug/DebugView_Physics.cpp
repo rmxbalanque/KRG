@@ -155,17 +155,14 @@ namespace KRG::Physics
         ImGui::SetNextWindowBgAlpha( 0.5f );
         if ( ImGui::Begin( "Physics Components", &m_isComponentWindowOpen ) )
         {
-            for ( auto const& entityRecord : m_pPhysicsWorldSystem->m_registeredEntities )
+            for ( PhysicsComponent* pPhysicsComponent : m_pPhysicsWorldSystem->m_registeredPhysicsComponents )
             {
-                for ( PhysicsComponent* pPhysicsComponent : entityRecord.m_components )
+                ImGui::Text( "%s", pPhysicsComponent->GetName().c_str() );
+                if ( ImGui::IsItemHovered() )
                 {
-                    ImGui::Text( "%s", pPhysicsComponent->GetName().c_str() );
-                    if ( ImGui::IsItemHovered() )
-                    {
-                        auto drawingContext = context.GetDrawingContext();
-                        drawingContext.DrawBox( pPhysicsComponent->GetWorldBounds(), Colors::Cyan.GetAlphaVersion( 0.25f ) );
-                        drawingContext.DrawWireBox( pPhysicsComponent->GetWorldBounds(), Colors::Cyan );
-                    }
+                    auto drawingContext = context.GetDrawingContext();
+                    drawingContext.DrawBox( pPhysicsComponent->GetWorldBounds(), Colors::Cyan.GetAlphaVersion( 0.25f ) );
+                    drawingContext.DrawWireBox( pPhysicsComponent->GetWorldBounds(), Colors::Cyan );
                 }
             }
         }

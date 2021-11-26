@@ -5,6 +5,7 @@
 #include "Engine/Core/Entity/EntityWorldSystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
+#include "System/Core/Types/IDVector.h"
 #include "PhysX.h"
 
 //-------------------------------------------------------------------------
@@ -21,7 +22,7 @@ namespace KRG::Physics
         friend class PhysicsDebugView;
         friend class PhysicsRenderer;
 
-        struct EntityPhysicsRecord : public EntityRegistryRecord
+        struct EntityPhysicsRecord
         {
             inline bool IsEmpty() const { return m_components.empty(); }
 
@@ -148,8 +149,8 @@ namespace KRG::Physics
         PhysicsSystem*                                  m_pPhysicsSystem = nullptr;
         physx::PxScene*                                 m_pScene = nullptr;
 
-        EntityRegistry<EntityPhysicsRecord>             m_registeredEntities;
-        THashMap<UUID, PhysicsComponent*>               m_dynamicComponents; // TODO: profile and see if we need to use a dynamic pool
+        TIDVector<UUID, PhysicsComponent*>              m_registeredPhysicsComponents;
+        TIDVector<UUID, PhysicsComponent*>              m_dynamicComponents; // TODO: profile and see if we need to use a dynamic pool
 
         #if KRG_DEVELOPMENT_TOOLS
         std::atomic<bool>                               m_readLockAcquired = false;     // Assertion helper

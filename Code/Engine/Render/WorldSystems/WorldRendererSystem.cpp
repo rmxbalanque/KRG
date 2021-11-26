@@ -30,16 +30,16 @@ namespace KRG::Render
 
     void WorldRendererSystem::ShutdownSystem()
     {
-        KRG_ASSERT( m_registeredStaticMeshComponents.IsEmpty() );
-        KRG_ASSERT( m_registeredSkeletalMeshComponents.IsEmpty() );
+        KRG_ASSERT( m_registeredStaticMeshComponents.empty() );
+        KRG_ASSERT( m_registeredSkeletalMeshComponents.empty() );
         KRG_ASSERT( m_skeletalMeshGroups.empty() );
 
-        KRG_ASSERT( m_registeredDirectionLightComponents.IsEmpty() );
-        KRG_ASSERT( m_registeredPointLightComponents.IsEmpty() );
-        KRG_ASSERT( m_registeredSpotLightComponents.IsEmpty() );
+        KRG_ASSERT( m_registeredDirectionLightComponents.empty() );
+        KRG_ASSERT( m_registeredPointLightComponents.empty() );
+        KRG_ASSERT( m_registeredSpotLightComponents.empty() );
 
-        KRG_ASSERT( m_registeredLocalEnvironmentMaps.IsEmpty() );
-        KRG_ASSERT( m_registeredGlobalEnvironmentMaps.IsEmpty() );
+        KRG_ASSERT( m_registeredLocalEnvironmentMaps.empty() );
+        KRG_ASSERT( m_registeredGlobalEnvironmentMaps.empty() );
     }
 
     void WorldRendererSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
@@ -63,18 +63,15 @@ namespace KRG::Render
         {
             if ( auto pDirectionalLightComponent = TryCast<DirectionalLightComponent>( pComponent ) )
             {
-                auto pRegisteredComponent = m_registeredDirectionLightComponents.AddRecord( pEntity->GetID() );
-                pRegisteredComponent->m_pComponent = pDirectionalLightComponent;
+                m_registeredDirectionLightComponents.Add( pDirectionalLightComponent );
             }
             else if ( auto pPointLightComponent = TryCast<PointLightComponent>( pComponent ) )
             {
-                auto pRegisteredComponent = m_registeredPointLightComponents.AddRecord( pEntity->GetID() );
-                pRegisteredComponent->m_pComponent = pPointLightComponent;
+                m_registeredPointLightComponents.Add( pPointLightComponent );
             }
             else if ( auto pSpotLightComponent = TryCast<SpotLightComponent>( pComponent ) )
             {
-                auto pRegisteredComponent = m_registeredSpotLightComponents.AddRecord( pEntity->GetID() );
-                pRegisteredComponent->m_pComponent = pSpotLightComponent;
+                m_registeredSpotLightComponents.Add( pSpotLightComponent );
             }
         }
 
@@ -83,13 +80,11 @@ namespace KRG::Render
 
         else if ( auto pLocalEnvMapComponent = TryCast<LocalEnvironmentMapComponent>( pComponent ) )
         {
-            auto pRegisteredComponent = m_registeredLocalEnvironmentMaps.AddRecord( pEntity->GetID() );
-            pRegisteredComponent->m_pComponent = pLocalEnvMapComponent;
+            m_registeredLocalEnvironmentMaps.Add( pLocalEnvMapComponent );
         }
         else if ( auto pGlobalEnvMapComponent = TryCast<GlobalEnvironmentMapComponent>( pComponent ) )
         {
-            auto pRegisteredComponent = m_registeredGlobalEnvironmentMaps.AddRecord( pEntity->GetID() );
-            pRegisteredComponent->m_pComponent = pGlobalEnvMapComponent;
+            m_registeredGlobalEnvironmentMaps.Add( pGlobalEnvMapComponent );
         }
     }
 
@@ -114,15 +109,15 @@ namespace KRG::Render
         {
             if ( auto pDirectionalLightComponent = TryCast<DirectionalLightComponent>( pComponent ) )
             {
-                m_registeredDirectionLightComponents.RemoveRecord( pEntity->GetID() );
+                m_registeredDirectionLightComponents.Remove( pDirectionalLightComponent->GetID() );
             }
             else if ( auto pPointLightComponent = TryCast<PointLightComponent>( pComponent ) )
             {
-                m_registeredPointLightComponents.RemoveRecord( pEntity->GetID() );
+                m_registeredPointLightComponents.Remove( pPointLightComponent->GetID() );
             }
             else if ( auto pSpotLightComponent = TryCast<SpotLightComponent>( pComponent ) )
             {
-                m_registeredSpotLightComponents.RemoveRecord( pEntity->GetID() );
+                m_registeredSpotLightComponents.Remove( pSpotLightComponent->GetID() );
             }
         }
 
@@ -131,35 +126,38 @@ namespace KRG::Render
 
         else if ( auto pLocalEnvMapComponent = TryCast<LocalEnvironmentMapComponent>( pComponent ) )
         {
-            m_registeredLocalEnvironmentMaps.RemoveRecord( pEntity->GetID() );
+            m_registeredLocalEnvironmentMaps.Remove( pLocalEnvMapComponent->GetID() );
         }
         else if ( auto pGlobalEnvMapComponent = TryCast<GlobalEnvironmentMapComponent>( pComponent ) )
         {
-            m_registeredGlobalEnvironmentMaps.RemoveRecord( pEntity->GetID() );
+            m_registeredGlobalEnvironmentMaps.Remove( pGlobalEnvMapComponent->GetID() );
         }
     }
 
     void WorldRendererSystem::RegisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent )
     {
-        auto pRegisteredComponent = m_registeredStaticMeshComponents.FindOrAddRecord( pEntity->GetID() );
-        pRegisteredComponent->m_pComponent = pMeshComponent;
-        pRegisteredComponent->m_mobilityChangedEventBinding = pMeshComponent->OnMobilityChanged().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMeshMobilityUpdated( pMeshComponent ); } );
-        pRegisteredComponent->m_staticMobilityTransformUpdatedEventBinding = pMeshComponent->OnStaticMobilityTransformUpdated().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMobilityComponentTransformUpdated( pMeshComponent ); } );
+        RegisteredStaticMesh registeredComponent;
+        registeredComponent.m_pComponent = pMeshComponent;
+        registeredComponent.m_mobilityChangedEventBinding = pMeshComponent->OnMobilityChanged().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMeshMobilityUpdated( pMeshComponent ); } );
+        registeredComponent.m_staticMobilityTransformUpdatedEventBinding = pMeshComponent->OnStaticMobilityTransformUpdated().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMobilityComponentTransformUpdated( pMeshComponent ); } );
+        m_registeredStaticMeshComponents.Add( eastl::move( registeredComponent ) );
+
+        //-------------------------------------------------------------------------
 
         // Add to appropriate sub-list
         if ( pMeshComponent->GetMobility() == Mobility::Dynamic )
         {
-            m_dynamicStaticMeshComponents.push_back( pMeshComponent );
+            m_dynamicStaticMeshComponents.Add( pMeshComponent );
         }
         else
         {
-            m_staticStaticMeshComponents.push_back( pMeshComponent );
+            m_staticStaticMeshComponents.Add( pMeshComponent );
         }
     }
 
     void WorldRendererSystem::UnregisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent )
     {
-        auto const pRecord = m_registeredStaticMeshComponents.GetRecord( pEntity->GetID() );
+        auto const pRecord = m_registeredStaticMeshComponents.Get( pMeshComponent->GetID() );
         auto const pMesh = pRecord->m_pComponent->GetMesh();
 
         // Unbind mobility change handler and remove from various lists
@@ -178,73 +176,48 @@ namespace KRG::Render
         // Remove from the relevant runtime list
         if ( realMobility == Mobility::Dynamic )
         {
-            m_dynamicStaticMeshComponents.erase_first_unsorted( pRecord->m_pComponent );
+            m_dynamicStaticMeshComponents.Remove( pMeshComponent->GetID() );
         }
         else
         {
-            m_staticStaticMeshComponents.erase_first_unsorted( pRecord->m_pComponent );
+            m_staticStaticMeshComponents.Remove( pMeshComponent->GetID() );
         }
 
         // Remove record
-        m_registeredStaticMeshComponents.RemoveRecord( pEntity->GetID() );
+        m_registeredStaticMeshComponents.Remove( pMeshComponent->GetID() );
     }
 
     void WorldRendererSystem::RegisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent )
     {
-        auto pRecord = m_registeredSkeletalMeshComponents.FindOrAddRecord( pEntity->GetID() );
-        pRecord->m_components.emplace_back( pMeshComponent );
+        m_registeredSkeletalMeshComponents.Add( pMeshComponent );
 
+        // Add to mesh groups
         //-------------------------------------------------------------------------
 
         auto pMesh = pMeshComponent->GetMesh();
         KRG_ASSERT( pMesh != nullptr && pMesh->IsValid() );
+        uint32 const meshID = pMesh->GetResourceID().GetID();
 
-        // Add to mesh groups
-        auto predicate = [] ( SkeletalMeshGroup const& group, SkeletalMesh const* pMesh ) { return group.m_pMesh == pMesh; };
-        int32 const foundGroupIdx = VectorFindIndex( m_skeletalMeshGroups, pMesh, predicate );
-        if ( foundGroupIdx == InvalidIndex )
-        {
-            auto& foundGroup = m_skeletalMeshGroups.emplace_back( SkeletalMeshGroup( pMesh ) );
-            foundGroup.m_components.emplace_back( pMeshComponent );
-        }
-        else
-        {
-            m_skeletalMeshGroups[foundGroupIdx].m_components.emplace_back( pMeshComponent );
-        }
+        auto pMeshGroup = m_skeletalMeshGroups.FindOrAdd( meshID, pMesh );
+        pMeshGroup->m_components.emplace_back( pMeshComponent );
     }
 
     void WorldRendererSystem::UnregisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent )
     {
-        auto const pRecord = m_registeredSkeletalMeshComponents.GetRecord( pEntity->GetID() );
+        uint32 const meshID = pMeshComponent->GetMesh()->GetResourceID().GetID();
 
-        // Remove from record
-        //-------------------------------------------------------------------------
-
-        int32 const foundIdx = VectorFindIndex( pRecord->m_components, pMeshComponent );
-        KRG_ASSERT( foundIdx != InvalidIndex );
-        pRecord->m_components.erase_unsorted( pRecord->m_components.begin() + foundIdx );
-
-        // Remove empty records
-        if ( pRecord->m_components.empty() )
-        {
-            m_registeredSkeletalMeshComponents.RemoveRecord( pEntity->GetID() );
-        }
-
-        // Remove from mesh groups
-        //-------------------------------------------------------------------------
-
-        auto pMesh = pMeshComponent->GetMesh();
-
-        auto predicate = [] ( SkeletalMeshGroup const& group, SkeletalMesh const* pMesh ) { return group.m_pMesh == pMesh; };
-        int32 const foundGroupIdx = VectorFindIndex( m_skeletalMeshGroups, pMesh, predicate );
-        KRG_ASSERT( foundGroupIdx != InvalidIndex );
-        m_skeletalMeshGroups[foundGroupIdx].m_components.erase_first( pMeshComponent );
+        // Remove component from mesh group
+        auto pMeshGroup = m_skeletalMeshGroups.Get( meshID );
+        pMeshGroup->m_components.erase_first_unsorted( pMeshComponent );
 
         // Remove empty groups
-        if ( m_skeletalMeshGroups[foundGroupIdx].m_components.size() == 0 )
+        if ( pMeshGroup->m_components.empty() )
         {
-            m_skeletalMeshGroups.erase_unsorted( m_skeletalMeshGroups.begin() + foundGroupIdx );
+            m_skeletalMeshGroups.Remove( meshID );
         }
+
+        // Remove record
+        m_registeredSkeletalMeshComponents.Remove( pMeshComponent->GetID() );
     }
 
     //-------------------------------------------------------------------------
@@ -262,19 +235,13 @@ namespace KRG::Render
             Mobility const mobility = pMeshComponent->GetMobility();
             if ( mobility == Mobility::Dynamic )
             {
-                auto foundIter = VectorFind( m_staticStaticMeshComponents, pMeshComponent );
-                KRG_ASSERT( foundIter != m_staticStaticMeshComponents.end() );
-                m_staticStaticMeshComponents.erase( foundIter );
-
-                m_dynamicStaticMeshComponents.push_back( pMeshComponent );
+                m_staticStaticMeshComponents.Remove( pMeshComponent->GetID() );
+                m_dynamicStaticMeshComponents.Add( pMeshComponent );
             }
             else // Make static
             {
-                auto foundIter = VectorFind( m_dynamicStaticMeshComponents, pMeshComponent );
-                KRG_ASSERT( foundIter != m_dynamicStaticMeshComponents.end() );
-                m_dynamicStaticMeshComponents.erase( foundIter );
-
-                m_staticStaticMeshComponents.emplace_back( pMeshComponent );
+                m_dynamicStaticMeshComponents.Remove( pMeshComponent->GetID() );
+                m_staticStaticMeshComponents.Add( pMeshComponent );
             }
         }
 
@@ -327,40 +294,27 @@ namespace KRG::Render
         {
             for ( auto const& record : m_registeredStaticMeshComponents )
             {
-                if ( !record.IsSet() )
-                {
-                    continue;
-                }
-
                 drawCtx.DrawWireBox( record.m_pComponent->GetWorldBounds(), Colors::Cyan );
                 drawCtx.DrawWireBox( record.m_pComponent->GetWorldBounds().GetAABB(), Colors::LimeGreen );
             }
         }
 
-        for ( auto const& record : m_registeredSkeletalMeshComponents )
+        for ( auto const& pMeshComponent : m_registeredSkeletalMeshComponents )
         {
-            if ( !record.IsSet() )
+            if ( g_showSkeletalMeshBounds )
             {
-                continue;
+                drawCtx.DrawWireBox( pMeshComponent->GetWorldBounds(), Colors::Cyan );
+                drawCtx.DrawWireBox( pMeshComponent->GetWorldBounds().GetAABB(), Colors::LimeGreen );
             }
 
-            for ( auto pMeshComponent : record.m_components )
+            if ( g_showSkeletalMeshBones )
             {
-                if ( g_showSkeletalMeshBounds )
-                {
-                    drawCtx.DrawWireBox( pMeshComponent->GetWorldBounds(), Colors::Cyan );
-                    drawCtx.DrawWireBox( pMeshComponent->GetWorldBounds().GetAABB(), Colors::LimeGreen );
-                }
+                pMeshComponent->DrawPose( drawCtx );
+            }
 
-                if ( g_showSkeletalMeshBones )
-                {
-                    pMeshComponent->DrawPose( drawCtx );
-                }
-
-                if ( g_showSkeletalMeshBindPoses )
-                {
-                    pMeshComponent->GetMesh()->DrawBindPose( drawCtx, pMeshComponent->GetWorldTransform() );
-                }
+            if ( g_showSkeletalMeshBindPoses )
+            {
+                pMeshComponent->GetMesh()->DrawBindPose( drawCtx, pMeshComponent->GetWorldTransform() );
             }
         }
         #endif

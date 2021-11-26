@@ -13,21 +13,37 @@
 
 namespace KRG
 {
+    UUID const& WorldSystem::RegisteredPlayer::GetID() const
+    {
+        if ( m_pPlayerComponent != nullptr )
+        {
+            return m_pPlayerComponent->GetEntityID();
+        }
+
+        return m_pCameraComponent->GetEntityID();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void WorldSystem::ShutdownSystem()
+    {
+        KRG_ASSERT( m_players.empty() );
+        KRG_ASSERT( m_spawnPoints.empty() );
+    }
+
     void WorldSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
         if ( auto pPlayerComponent = TryCast<PlayerComponent>( pComponent ) )
         {
-            auto pPlayerRecord = m_players.FindOrAddRecord( pEntity->GetID() );
-            KRG_ASSERT( pPlayerRecord->m_pPlayerComponent == nullptr );
-            pPlayerRecord->m_pPlayerComponent = pPlayerComponent;
+            auto pPlayerRecord = m_players.FindOrAdd( pEntity->GetID(), pPlayerComponent );
+            pPlayerRecord->m_pPlayerComponent = pPlayerComponent; // We have to explicitly set it here since the record might have been created via the camera component registering first
             pPlayerRecord->m_pPlayerComponent->SetPlayerEnabled( false );
             m_registeredPlayerStateChanged = true;
         }
         else if ( auto pCameraComponent = TryCast<CameraComponent>( pComponent ) )
         {
-            auto pPlayerRecord = m_players.FindOrAddRecord( pEntity->GetID() );
-            KRG_ASSERT( pPlayerRecord->m_pCameraComponent == nullptr );
-            pPlayerRecord->m_pCameraComponent = pCameraComponent;
+            auto pPlayerRecord = m_players.FindOrAdd( pEntity->GetID(), pCameraComponent );
+            pPlayerRecord->m_pCameraComponent = pCameraComponent; // We have to explicitly set it here since the record might have been created via the player component registering first
             m_registeredPlayerStateChanged = true;
         }
         else if ( auto pSpawnComponent = TryCast<PlayerSpawnComponent>( pComponent ) )
@@ -40,24 +56,24 @@ namespace KRG
     {
         if ( auto pPlayerComponent = TryCast<PlayerComponent>( pComponent ) )
         {
-            auto pFoundRecord = m_players.GetRecord( pEntity->GetID() );
+            auto pFoundRecord = m_players.Get( pEntity->GetID() );
             pFoundRecord->m_pPlayerComponent = nullptr;
             m_registeredPlayerStateChanged = true;
 
             if ( pFoundRecord->m_pPlayerComponent == nullptr && pFoundRecord->m_pCameraComponent == nullptr )
             {
-                m_players.RemoveRecord( pEntity->GetID() );
+                m_players.Remove( pEntity->GetID() );
             }
         }
         else if ( auto pCameraComponent = TryCast<CameraComponent>( pComponent ) )
         {
-            auto pFoundRecord = m_players.GetRecord( pEntity->GetID() );
-            pFoundRecord->m_pPlayerComponent = nullptr;
+            auto pFoundRecord = m_players.Get( pEntity->GetID() );
+            pFoundRecord->m_pCameraComponent = nullptr;
             m_registeredPlayerStateChanged = true;
 
             if ( pFoundRecord->m_pPlayerComponent == nullptr && pFoundRecord->m_pCameraComponent == nullptr )
             {
-                m_players.RemoveRecord( pEntity->GetID() );
+                m_players.Remove( pEntity->GetID() );
             }
 
             if ( m_pActiveCamera == pComponent )
@@ -293,7 +309,7 @@ namespace KRG
     void WorldSystem::SpawnDevelopmentPlayer( EntityUpdateContext const& ctx )
     {
         auto pCameraComponent = KRG::New<FreeLookCameraComponent>( StringID( "Debug Camera Component" ) );
-        pCameraComponent->SetPositionAndLookatTarget( Vector( 0, 5, 5 ), Vector( 0, 0, 0 ) );
+        pCameraComponent->SetPositionAndLookatTarget( Vector( 0, -5, 5 ), Vector( 0, 0, 0 ) );
         auto pPlayerComponent = KRG::New<PlayerComponent>( StringID( "Debug Player Component" ) );
 
         auto pEntity = KRG::New<Entity>( StringID( "Debug Player" ) );

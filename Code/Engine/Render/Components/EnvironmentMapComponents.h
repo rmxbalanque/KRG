@@ -24,7 +24,7 @@ namespace KRG::Render
 
     class KRG_ENGINE_RENDER_API GlobalEnvironmentMapComponent : public EntityComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT( GlobalEnvironmentMapComponent );
+        KRG_REGISTER_SINGLETON_ENTITY_COMPONENT( GlobalEnvironmentMapComponent );
 
     public:
 

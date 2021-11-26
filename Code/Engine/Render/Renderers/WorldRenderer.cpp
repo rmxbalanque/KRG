@@ -737,9 +737,9 @@ namespace KRG::Render
         uint32 lightingFlags = 0;
 
         DirectionalLightComponent* pDirectionalLightComponent = nullptr;
-        if (!pWorldSystem->m_registeredDirectionLightComponents.IsEmpty())
+        if (!pWorldSystem->m_registeredDirectionLightComponents.empty())
         {
-            pDirectionalLightComponent = pWorldSystem->m_registeredDirectionLightComponents[0].m_pComponent;
+            pDirectionalLightComponent = pWorldSystem->m_registeredDirectionLightComponents[0];
             lightingFlags |= LIGHTING_ENABLE_SUN;
             lightingFlags |= pDirectionalLightComponent->GetShadowed() ? LIGHTING_ENABLE_SUN_SHADOW : 0;
             renderData.m_lightData.m_SunDirIndirectIntensity = -pDirectionalLightComponent->GetLightDirection();
@@ -750,9 +750,9 @@ namespace KRG::Render
         }
 
         renderData.m_lightData.m_SunColorRoughnessOneLevel.m_w = 0;
-        if (!pWorldSystem->m_registeredGlobalEnvironmentMaps.IsEmpty())
+        if (!pWorldSystem->m_registeredGlobalEnvironmentMaps.empty())
         {
-            GlobalEnvironmentMapComponent* pGlobalEnvironmentMapComponent = pWorldSystem->m_registeredGlobalEnvironmentMaps[0].m_pComponent;
+            GlobalEnvironmentMapComponent* pGlobalEnvironmentMapComponent = pWorldSystem->m_registeredGlobalEnvironmentMaps[0];
             lightingFlags |= LIGHTING_ENABLE_SKYLIGHT;
             renderData.m_pSkyboxRadianceTexture = pGlobalEnvironmentMapComponent->GetSkyboxRadianceTexture();
             renderData.m_pSkyboxTexture = pGlobalEnvironmentMapComponent->GetSkyboxTexture();
@@ -765,7 +765,7 @@ namespace KRG::Render
         for (uint32_t i = 0; i <  numPointLights; ++i)
         {
             KRG_ASSERT(lightIndex < MAX_PUNCTUAL_LIGHTS);
-            PointLightComponent* pPointLightComponent = pWorldSystem->m_registeredPointLightComponents[i].m_pComponent;
+            PointLightComponent* pPointLightComponent = pWorldSystem->m_registeredPointLightComponents[i];
             renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr = pPointLightComponent->GetLightPosition() - camPosition;
             renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr.m_w = sqr(1.0f/pPointLightComponent->GetLightRadius());
             renderData.m_lightData.m_punctualLights[lightIndex].m_dir = Vector(0.0f);
@@ -778,7 +778,7 @@ namespace KRG::Render
         for (uint32_t i = 0; i <  numSpotLights; ++i)
         {
             KRG_ASSERT(lightIndex < MAX_PUNCTUAL_LIGHTS);
-            SpotLightComponent* pSpotLightComponent = pWorldSystem->m_registeredSpotLightComponents[i].m_pComponent;
+            SpotLightComponent* pSpotLightComponent = pWorldSystem->m_registeredSpotLightComponents[i];
             renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr = pSpotLightComponent->GetLightPosition() - camPosition;
             renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr.m_w = sqr(1.0f/pSpotLightComponent->GetLightRadius());
             renderData.m_lightData.m_punctualLights[lightIndex].m_dir = -pSpotLightComponent->GetLightDirection();

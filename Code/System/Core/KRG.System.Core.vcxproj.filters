@@ -1719,6 +1719,7 @@
     <ClInclude Include="ThirdParty\stb\stb_rect_pack.h" />
     <ClInclude Include="ThirdParty\stb\stb_truetype.h" />
     <ClInclude Include="Math\FloatCurve.h" />
+    <ClInclude Include="Types\IDVector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">
