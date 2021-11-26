@@ -30,14 +30,13 @@ namespace KRG
 
         struct RegisteredPlayer
         {
-            RegisteredPlayer( PlayerComponent* pComp ) : m_pPlayerComponent( pComp ) {};
-            RegisteredPlayer( CameraComponent* pComp ) : m_pCameraComponent( pComp ) {};
-
-            inline UUID const& GetID() const;
+            RegisteredPlayer( UUID const& entityID ) : m_entityID( entityID ) {};
+            inline UUID const& GetID() const { return m_entityID; }
             inline bool IsValid() const { return m_pPlayerComponent != nullptr && m_pCameraComponent != nullptr; }
 
         public:
 
+            UUID                                m_entityID;
             PlayerComponent*                    m_pPlayerComponent = nullptr;
             CameraComponent*                    m_pCameraComponent = nullptr;
         };
