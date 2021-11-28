@@ -27,7 +27,7 @@ namespace KRG::Resource
 
         if ( !m_compiledResourceDatabase.TryConnect( settings.m_compiledResourceDatabasePath ) )
         {
-            m_errorMessage = String().sprintf( "Database connection error: %s", m_compiledResourceDatabase.GetError().c_str() );
+            m_errorMessage = String( String::CtorSprintf(), "Database connection error: %s", m_compiledResourceDatabase.GetError().c_str() );
             return false;
         }
 
@@ -282,14 +282,14 @@ namespace KRG::Resource
             ResourceTypeID const resourceTypeID = pRequest->m_resourceID.GetResourceTypeID();
             if ( m_compilerRegistry.IsVirtualType( resourceTypeID ) )
             {
-                pRequest->m_log = String().sprintf( "Virtual Resource - Nothing to do!", pRequest->m_sourceFile.GetFullPath().c_str() );
+                pRequest->m_log = String( String::CtorSprintf(), "Virtual Resource - Nothing to do!", pRequest->m_sourceFile.GetFullPath().c_str() );
                 pRequest->m_status = CompilationRequest::Status::Succeeded;
             }
             else
             {
                 if ( !m_compilerRegistry.HasCompilerForType( resourceTypeID ) )
                 {
-                    pRequest->m_log = String().sprintf( "Error: No compiler found for resource type ( %s )!", pRequest->m_resourceID.ToString().c_str() );
+                    pRequest->m_log = String( String::CtorSprintf(), "Error: No compiler found for resource type ( %s )!", pRequest->m_resourceID.ToString().c_str() );
                     pRequest->m_status = CompilationRequest::Status::Failed;
                 }
 
@@ -298,7 +298,7 @@ namespace KRG::Resource
                 {
                     if ( !FileSystem::Exists( pRequest->m_sourceFile ) )
                     {
-                        pRequest->m_log = String().sprintf( "Error: Source file ( %s ) doesnt exist!", pRequest->m_sourceFile.GetFullPath().c_str() );
+                        pRequest->m_log = String( String::CtorSprintf(), "Error: Source file ( %s ) doesnt exist!", pRequest->m_sourceFile.GetFullPath().c_str() );
                         pRequest->m_status = CompilationRequest::Status::Failed;
                     }
                 }
@@ -307,7 +307,7 @@ namespace KRG::Resource
                 {
                     if ( !FileSystem::EnsurePathExists( pRequest->m_destinationFile ) )
                     {
-                        pRequest->m_log = String().sprintf( "Error: Destination path ( %s ) doesnt exist!", pRequest->m_destinationFile.GetParentDirectory().c_str() );
+                        pRequest->m_log = String( String::CtorSprintf(), "Error: Destination path ( %s ) doesnt exist!", pRequest->m_destinationFile.GetParentDirectory().c_str() );
                         pRequest->m_status = CompilationRequest::Status::Failed;
                     }
                 }
@@ -316,7 +316,7 @@ namespace KRG::Resource
                 {
                     if ( FileSystem::Exists( pRequest->m_destinationFile ) && FileSystem::IsFileReadOnly( pRequest->m_destinationFile ) )
                     {
-                        pRequest->m_log = String().sprintf( "Error: Destination file ( %s ) is read-only!", pRequest->m_destinationFile.GetFullPath().c_str() );
+                        pRequest->m_log = String( String::CtorSprintf(), "Error: Destination file ( %s ) is read-only!", pRequest->m_destinationFile.GetFullPath().c_str() );
                         pRequest->m_status = CompilationRequest::Status::Failed;
                     }
                 }
@@ -381,10 +381,10 @@ namespace KRG::Resource
             // Only notify all clients is the request succeeded
             if ( pRequest->HasSucceeded() )
             {
-                for ( auto const& clientID : m_networkServer.GetConnectedClientIDs() )
+                for ( auto const& clientInfo : m_networkServer.GetConnectedClients() )
                 {
                     Network::IPC::Message message;
-                    message.SetClientConnectionID( clientID );
+                    message.SetClientConnectionID( clientInfo.m_ID );
                     message.SetData( (int32) NetworkMessageID::ResourceUpdated, response );
                     m_networkServer.SendMessage( eastl::move( message ) );
                 }
@@ -480,7 +480,7 @@ namespace KRG::Resource
 
         if ( isResourceUpToDate )
         {
-            pRequest->m_log = String().sprintf( "Resource up to date!", pRequest->m_sourceFile.GetFullPath().c_str() );
+            pRequest->m_log = String( String::CtorSprintf(), "Resource up to date!", pRequest->m_sourceFile.GetFullPath().c_str() );
             pRequest->m_status = CompilationRequest::Status::Succeeded;
         }
 

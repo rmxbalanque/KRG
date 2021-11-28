@@ -14,16 +14,12 @@ namespace KRG::Math
 
     inline InlineString<64> ToString( Vector vector )
     {
-        InlineString<64> s;
-        s.sprintf( "x=%.3f, y=%.3f, z=%.3f", vector.m_x, vector.m_y, vector.m_z );
-        return s;
+        return InlineString<64>( InlineString<64>::CtorSprintf(), "x=%.3f, y=%.3f, z=%.3f", vector.m_x, vector.m_y, vector.m_z );
     }
 
     inline InlineString<64> ToString( Quaternion q )
     {
-        InlineString<64> s;
-        EulerAngles angles = q.ToEulerAngles();
-        s.sprintf( "x=%.3f, y=%.3f, z=%.3f", angles.m_x, angles.m_y, angles.m_z );
-        return s;
+        EulerAngles const angles = q.ToEulerAngles();
+        return InlineString<64>( InlineString<64>::CtorSprintf(), "x=%.3f, y=%.3f, z=%.3f", angles.m_x, angles.m_y, angles.m_z );
     }
 }

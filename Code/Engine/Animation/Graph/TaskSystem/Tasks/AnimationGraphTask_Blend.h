@@ -17,7 +17,7 @@ namespace KRG::Animation::Graph::Tasks
         virtual void Execute( TaskContext const& context ) override;
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual String GetDebugText() const override { return String().sprintf( "Blend Task: %.2f", m_blendWeight ); }
+        virtual String GetDebugText() const override { return String( String::CtorSprintf(), "Blend Task: %.2f", m_blendWeight ); }
         virtual Color GetDebugColor() const { return Colors::Red; }
         #endif
 

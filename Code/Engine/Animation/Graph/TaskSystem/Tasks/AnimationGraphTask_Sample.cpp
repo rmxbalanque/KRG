@@ -26,11 +26,11 @@ namespace KRG::Animation::Graph::Tasks
     {
         if ( m_pAnimation->IsAdditive() )
         {
-            return String().sprintf( "Sample Task (Additive): %s at %.2f", m_pAnimation->GetResourceID().c_str(), (float) m_time );
+            return String( String::CtorSprintf(), "Sample Task (Additive): %s at %.2f", m_pAnimation->GetResourceID().c_str(), (float) m_time );
         }
         else
         {
-            return String().sprintf( "Sample Task: %s at %.2f", m_pAnimation->GetResourceID().c_str(), (float) m_time );
+            return String( String::CtorSprintf(), "Sample Task: %s at %.2f", m_pAnimation->GetResourceID().c_str(), (float) m_time );
         }
     }
     #endif

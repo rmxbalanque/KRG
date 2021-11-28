@@ -29,8 +29,10 @@ namespace KRG::RawAssets
         public:
 
             Float4                              m_position = Float4::Zero;
+            Float4                              m_color = Float4::Zero;
             Float4                              m_normal = Float4::Zero;
             Float4                              m_tangent = Float4::Zero;
+            Float4                              m_binormal = Float4::Zero;
             TInlineVector<Float2, 3>            m_texCoords;
 
             // Optional skinning data

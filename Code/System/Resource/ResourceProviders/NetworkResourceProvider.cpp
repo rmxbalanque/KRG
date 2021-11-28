@@ -15,10 +15,10 @@ namespace KRG::Resource
 {
     NetworkResourceProvider::NetworkResourceProvider( Settings const* pSettings )
         : ResourceProvider()
+        , m_address( String::CtorSprintf(), "%s:%d", pSettings->m_resourceServerNetworkAddress.c_str(), pSettings->m_resourceServerPort )
     {
         KRG_ASSERT( pSettings != nullptr );
         KRG_ASSERT( !pSettings->m_resourceServerNetworkAddress.empty() && pSettings->m_resourceServerPort < 9999 );
-        m_address.sprintf( "%s:%d", pSettings->m_resourceServerNetworkAddress.c_str(), pSettings->m_resourceServerPort );
     }
 
     bool NetworkResourceProvider::IsReady() const

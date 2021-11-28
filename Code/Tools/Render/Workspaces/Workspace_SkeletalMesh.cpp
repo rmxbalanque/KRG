@@ -97,13 +97,17 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        ImGui::MenuItem( "Show Normals", nullptr, &m_showNormals );
+        ImGui::Checkbox( "Show Normals", &m_showNormals );
 
-        ImGuiX::VerticalSeparator();
+        ImGui::SameLine();
+
+        ImGui::Checkbox( "Show Vertices", &m_showVertices );
+
+        ImGui::SameLine();
 
         ImGui::Checkbox( "Show Bind Pose", &m_showBindPose );
 
-        ImGuiX::VerticalSeparator();
+        ImGui::SameLine();
 
         ImGui::Checkbox( "Show Bounds", &m_showBounds );
     }
@@ -147,13 +151,21 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        if ( m_showNormals && IsLoaded() )
+        if ( IsLoaded() && ( m_showVertices || m_showNormals ) )
         {
             auto drawingContext = GetDrawingContext();
             auto pVertex = reinterpret_cast<StaticMeshVertex const*>( m_pResource->GetVertexData().data() );
             for ( auto i = 0; i < m_pResource->GetNumVertices(); i++ )
             {
-                drawingContext.DrawLine( pVertex->m_position, pVertex->m_position + ( pVertex->m_normal * 0.15f ), Colors::Yellow );
+                if ( m_showVertices )
+                {
+                    drawingContext.DrawPoint( pVertex->m_position, Colors::Cyan );
+                }
+
+                if ( m_showNormals )
+                {
+                    drawingContext.DrawLine( pVertex->m_position, pVertex->m_position + ( pVertex->m_normal * 0.15f ), Colors::Yellow );
+                }
                 pVertex++;
             }
         }

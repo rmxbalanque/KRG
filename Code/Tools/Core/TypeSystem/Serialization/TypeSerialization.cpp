@@ -25,7 +25,7 @@ namespace KRG::TypeSystem::Serialization
                 }
                 else if ( arrayValue[i].IsObject() )
                 {
-                    String const newPrefix = String().sprintf( "%s%d/", propertyPathPrefix.c_str(), i );
+                    String const newPrefix = String( String::CtorSprintf(), "%s%d/", propertyPathPrefix.c_str(), i );
                     if ( !ReadTypeDescriptor( typeRegistry, pTypeInfo, arrayValue[i], outPropertyValues, newPrefix ) )
                     {
                         return false;
@@ -33,7 +33,7 @@ namespace KRG::TypeSystem::Serialization
                 }
                 else // Add regular property value
                 {
-                    auto const propertyPath = PropertyPath( String().sprintf( "%s%d", propertyPathPrefix.c_str(), i ) );
+                    auto const propertyPath = PropertyPath( String( String::CtorSprintf(), "%s%d", propertyPathPrefix.c_str(), i ) );
                     auto pPropertyInfo = typeRegistry.ResolvePropertyPath( pTypeInfo, propertyPath );
                     if ( pPropertyInfo != nullptr )
                     {
@@ -60,12 +60,12 @@ namespace KRG::TypeSystem::Serialization
 
                 if ( itr->value.IsArray() )
                 {
-                    String const newPrefix = String().sprintf( "%s%s/", propertyPathPrefix.c_str(), itr->name.GetString() );
+                    String const newPrefix = String( String::CtorSprintf(), "%s%s/", propertyPathPrefix.c_str(), itr->name.GetString() );
                     ReadArrayDescriptor( typeRegistry, pTypeInfo, itr->value, outPropertyValues, newPrefix );
                 }
                 else if ( itr->value.IsObject() )
                 {
-                    String const newPrefix = String().sprintf( "%s%s/", propertyPathPrefix.c_str(), itr->name.GetString() );
+                    String const newPrefix = String( String::CtorSprintf(), "%s%s/", propertyPathPrefix.c_str(), itr->name.GetString() );
                     if ( !ReadTypeDescriptor( typeRegistry, pTypeInfo, itr->value, outPropertyValues, newPrefix ) )
                     {
                         return false;
@@ -79,7 +79,7 @@ namespace KRG::TypeSystem::Serialization
                         return false;
                     }
 
-                    PropertyPath const propertyPath( String().sprintf( "%s%s", propertyPathPrefix.c_str(), itr->name.GetString() ) );
+                    PropertyPath const propertyPath( String( String::CtorSprintf(), "%s%s", propertyPathPrefix.c_str(), itr->name.GetString() ) );
 
                     auto pPropertyInfo = typeRegistry.ResolvePropertyPath( pTypeInfo, propertyPath );
                     if ( pPropertyInfo != nullptr )

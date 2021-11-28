@@ -135,8 +135,7 @@ namespace KRG
 
                     float const currentFPS = 1.0f / context.GetDeltaTime();
                     float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
-                    InlineString<200> perfStatStr;
-                    perfStatStr.sprintf( "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
+                    InlineString<200> const perfStatStr( InlineString<200>::CtorSprintf(), "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
 
                     ImVec2 const availableSpace = ImGui::GetContentRegionAvail();
                     ImVec2 const textSize = ImGui::CalcTextSize( perfStatStr.c_str() );

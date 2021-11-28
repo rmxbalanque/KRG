@@ -280,9 +280,7 @@ namespace KRG::EntityModel
     {
         bool isInWorldSpace = m_gizmo.IsInWorldSpace();
 
-        InlineString<10> coordinateSpaceSwitcherLabel;
-        coordinateSpaceSwitcherLabel.sprintf( "%s###CoordinateSpace", isInWorldSpace ? KRG_ICON_GLOBE : KRG_ICON_DOT_CIRCLE_O );
-
+        InlineString<10> const coordinateSpaceSwitcherLabel( InlineString<10>::CtorSprintf(), "%s###CoordinateSpace", isInWorldSpace ? KRG_ICON_GLOBE : KRG_ICON_DOT_CIRCLE_O );
         if ( ImGui::Selectable( coordinateSpaceSwitcherLabel.c_str(), false, 0, ImVec2( 16, 0 ) ) )
         {
             isInWorldSpace = !isInWorldSpace;
@@ -296,6 +294,8 @@ namespace KRG::EntityModel
             }
         }
         ImGuiX::ItemTooltip( "Current Mode: %s", isInWorldSpace ? "World Space" : "Local Space" );
+
+        ImGui::SameLine();
 
         //-------------------------------------------------------------------------
 
@@ -329,6 +329,22 @@ namespace KRG::EntityModel
     void EntityMapEditor::DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
+
+        // Game Preview
+        //-------------------------------------------------------------------------
+
+        if ( m_isGamePreviewRunning )
+        {
+            constexpr static char const* const gamePreviewMsg = "Game Preview Running";
+
+            ImGuiX::ScopedFont const sf( ImGuiX::Font::Huge, Colors::Red );
+            ImVec2 const textSize = ImGui::CalcTextSize(  gamePreviewMsg );
+            ImVec2 const msgPos = ( ImGui::GetWindowSize() - textSize ) / 2;
+
+            ImGui::SetCursorPos( msgPos );
+            ImGui::Text( gamePreviewMsg );
+            return;
+        }
 
         // Manage Gizmo State
         //-------------------------------------------------------------------------
@@ -419,13 +435,11 @@ namespace KRG::EntityModel
             {
                 auto pLightComponent = Cast<Render::DirectionalLightComponent>( m_pSelectedComponent );
                 auto forwardDir = pLightComponent->GetForwardVector();
-                //drawingCtx.DrawSphere( pLightComponent->GetPosition(), Float3( 0.1f ), pLightComponent->GetLightColor(), 2.0f );
                 drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() + forwardDir, pLightComponent->GetLightColor(), 3.0f );
             }
             else if ( IsOfType<Render::SpotLightComponent>( m_pSelectedComponent ) )
             {
                 auto pLightComponent = Cast<Render::SpotLightComponent>( m_pSelectedComponent );
-                //drawingCtx.DrawSphere( pLightComponent->GetPosition(), Float3( 0.1f ), pLightComponent->GetLightColor(), 2.0f );
                 drawingCtx.DrawCone( pLightComponent->GetWorldTransform(), pLightComponent->GetLightInnerUmbraAngle(), 1.5f, pLightComponent->GetLightColor(), 3.0f );
                 drawingCtx.DrawCone( pLightComponent->GetWorldTransform(), pLightComponent->GetLightOuterUmbraAngle(), 1.5f, pLightComponent->GetLightColor(), 3.0f );
             }
@@ -436,7 +450,6 @@ namespace KRG::EntityModel
                 auto upDir = pLightComponent->GetUpVector();
                 auto rightDir = pLightComponent->GetRightVector();
 
-                //drawingCtx.DrawSphere( pLightComponent->GetPosition(), Float3( 0.1f ), pLightComponent->GetLightColor(), 2.0f );
                 drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() + ( forwardDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
                 drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() - ( forwardDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
                 drawingCtx.DrawArrow( pLightComponent->GetPosition(), pLightComponent->GetPosition() + ( upDir * 0.5f ), pLightComponent->GetLightColor(), 3.0f );
@@ -461,7 +474,7 @@ namespace KRG::EntityModel
                 {
                     Entity* pEntity = pEditedMap->GetEntities()[i];
 
-                    String const buttonLabel = String().sprintf( "%s##%d", pEntity->GetName().c_str(), i );
+                    String const buttonLabel = String( String::CtorSprintf(), "%s##%d", pEntity->GetName().c_str(), i );
                     if ( ImGui::Button( buttonLabel.c_str() ) )
                     {
                         SelectEntity( pEntity );
@@ -643,5 +656,17 @@ namespace KRG::EntityModel
 
             ImGui::TreePop();
         }
+    }
+
+    void EntityMapEditor::OnGamePreviewStarted()
+    {
+        m_pWorld->SuspendUpdates();
+        m_isGamePreviewRunning = true;
+    }
+
+    void EntityMapEditor::OnGamePreviewEnded()
+    {
+        m_isGamePreviewRunning = false;
+        m_pWorld->ResumeUpdates();
     }
 }

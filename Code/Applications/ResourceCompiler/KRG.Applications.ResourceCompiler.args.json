@@ -55,6 +55,14 @@
       "Command": "Render",
       "Items": [
         {
+          "Id": "d8672111-9c97-460e-a8d2-c8be98b7b7bb",
+          "Command": "-compile data://packs/city/characters/sk_character_businessman_suit.smsh"
+        },
+        {
+          "Id": "241ec993-981d-4c63-a9ec-e618265914c9",
+          "Command": "-compile data://packs/br/vehicles/sm_veh_armored_car_01.msh"
+        },
+        {
           "Id": "7ffe5c6b-e064-4295-b083-fb850be34067",
           "Command": "-compile data://ash_fbx.msh"
         },

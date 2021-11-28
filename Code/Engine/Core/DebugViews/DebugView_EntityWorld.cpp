@@ -264,7 +264,7 @@ namespace KRG
                     }
                     else
                     {
-                        String const buttonLabel = String().sprintf( "%s##%d", m_entities[i]->GetName().c_str(), i );
+                        String const buttonLabel = String( String::CtorSprintf(), "%s##%d", m_entities[i]->GetName().c_str(), i );
                         if ( ImGui::Button( buttonLabel.c_str() ) )
                         {
                             m_pSelectedEntity = m_entities[i];

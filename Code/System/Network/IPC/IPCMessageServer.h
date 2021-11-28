@@ -22,7 +22,7 @@ namespace KRG::Network::IPC
     private:
 
         virtual void ProcessMessage( uint32 connectionID, void* pData, size_t size ) override;
-        virtual void SendMessages( TFunction<void( ServerConnection::ClientConnectionHandle, void*, uint32 )> const& sendFunction ) override;
+        virtual void SendMessages( TFunction<void( ServerConnection::ClientConnectionID, void*, uint32 )> const& sendFunction ) override;
 
     private:
 

@@ -27,6 +27,7 @@ namespace KRG::Render
 
         Entity*         m_pPreviewEntity = nullptr;
         String          m_infoWindowName;
+        bool            m_showVertices = false;
         bool            m_showNormals = false;
     };
 }

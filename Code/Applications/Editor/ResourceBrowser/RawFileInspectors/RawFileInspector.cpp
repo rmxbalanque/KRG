@@ -27,11 +27,9 @@ namespace KRG
         FileSystem::Path newDescriptorPath = m_filePath;
         newDescriptorPath.ReplaceExtension( extension );
 
-        InlineString<10> filter;
-        filter.sprintf( "*.%s", extension.c_str() );
-
         //-------------------------------------------------------------------------
 
+        InlineString<10> const filter( InlineString<10>::CtorSprintf(), "*.%s", extension.c_str() );
         pfd::save_file saveDialog( "Save Resource Descriptor", newDescriptorPath.c_str(), { "Descriptor", filter.c_str() } );
         newDescriptorPath = saveDialog.result().c_str();
 

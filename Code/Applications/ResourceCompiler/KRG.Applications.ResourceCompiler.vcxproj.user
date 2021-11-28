@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-compile data://packs/br/environment/sm_bld_warehouse_01.msh</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://packs/br/environment/sm_bld_warehouse_01.msh</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-compile data://packs/br/vehicles/sm_veh_armored_car_01.msh</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://packs/br/vehicles/sm_veh_armored_car_01.msh</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>

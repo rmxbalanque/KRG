@@ -135,7 +135,6 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Reset mouse state, this is updated via the workspaces
-        m_mouseWithinWorkspaceViewport = false;
         EditorWorkspace* pWorkspaceToClose = nullptr;
 
         // Draw all workspaces
@@ -266,9 +265,7 @@ namespace KRG
         float const currentFPS = 1.0f / context.GetDeltaTime();
         float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
 
-        InlineString<100> perfStats;
-        perfStats.sprintf( "FPS: %3.0f | MEM: %.2fMB", currentFPS, allocatedMemory );
-
+        InlineString<100> const perfStats( InlineString<100>::CtorSprintf(), "FPS: %3.0f | MEM: %.2fMB", currentFPS, allocatedMemory );
         ImGui::SameLine( menuDimensions.x - 8 - ImGui::CalcTextSize( perfStats.c_str() ).x );
         ImGui::Text( perfStats.c_str() );
     }
@@ -364,7 +361,8 @@ namespace KRG
     {
         KRG_ASSERT( pWorkspace != nullptr );
 
-        // Draw Workspace Window
+        //-------------------------------------------------------------------------
+        // Create Workspace Window
         //-------------------------------------------------------------------------
         // This is an empty window that just contains the dockspace for the workspace
 
@@ -448,6 +446,7 @@ namespace KRG
 
         ImGui::End();
 
+        //-------------------------------------------------------------------------
         // Draw workspace contents
         //-------------------------------------------------------------------------
 
@@ -457,13 +456,17 @@ namespace KRG
 
         if ( shouldDrawWindowContents )
         {
-            pWorld->ResumeUpdates();
+            if ( !m_model.IsMapEditorWorkspace( pWorkspace ) || !m_model.IsGamePreviewRunning() )
+            {
+                pWorld->ResumeUpdates();
+            }
 
             pWorkspace->UpdateAndDrawWindows( context, &workspaceWindowClass );
 
             if ( pWorkspace->HasViewportWindow() )
             {
-                enableInputForWorld = DrawWorkspaceViewportWindow( context, pWorkspace, &workspaceWindowClass );
+                ImTextureID const pTextureID = m_model.GetViewportTextureForWorkspace( pWorkspace );
+                enableInputForWorld = pWorkspace->DrawViewport( context, pTextureID, &workspaceWindowClass );
             }
         }
         else // If the workspace window is hidden suspend world updates
@@ -497,108 +500,5 @@ namespace KRG
         }
 
         return isTabOpen;
-    }
-
-    bool EditorDevUI::DrawWorkspaceViewportWindow( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass )
-    {
-        auto pWorld = pWorkspace->GetWorld();
-        Render::Viewport* pViewport = pWorld->GetViewport();
-
-        // Viewport flags
-        ImGuiWindowFlags viewportWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-        if ( pWorkspace->HasViewportToolbar() )
-        {
-            viewportWindowFlags |= ImGuiWindowFlags_MenuBar;
-        }
-
-        bool isViewportFocused = false;
-
-        // Create viewport window
-        ImGui::SetNextWindowClass( pWindowClass );
-        ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
-        if ( ImGui::Begin( pWorkspace->GetViewportWindowID(), nullptr, viewportWindowFlags ) )
-        {
-            ImGuiStyle const& style = ImGui::GetStyle();
-            ImVec2 const viewportSize( Math::Max( ImGui::GetContentRegionAvail().x, 64.0f ), Math::Max( ImGui::GetContentRegionAvail().y, 64.0f ) );
-            isViewportFocused = ImGui::IsWindowFocused();
-
-            // Switch focus based on mouse input
-            //-------------------------------------------------------------------------
-
-            if ( ImGui::IsWindowHovered() )
-            {
-                if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) || ImGui::IsMouseClicked( ImGuiMouseButton_Right ) || ImGui::IsMouseClicked( ImGuiMouseButton_Middle ) )
-                {
-                    ImGui::SetWindowFocus();
-                }
-            }
-
-            // Update engine viewport dimensions
-            //-------------------------------------------------------------------------
-
-            Math::Rectangle const viewportRect( Float2::Zero, viewportSize );
-            pViewport->Resize( viewportRect );
-            m_mouseWithinWorkspaceViewport |= ImGui::IsWindowHovered();
-
-            // Draw 3D scene
-            //-------------------------------------------------------------------------
-
-            ImTextureID const vpTextureID = m_model.GetViewportTextureForWorkspace( pWorkspace );
-            ImGui::Image( vpTextureID, viewportSize );
-
-            // Draw overlay elements
-            //-------------------------------------------------------------------------
-
-            ImGui::SetCursorPos( style.WindowPadding );
-            pWorkspace->DrawViewportOverlayElements( context, pViewport );
-
-            if ( pWorkspace->HasViewportOrientationGuide() )
-            {
-                ImGuiX::OrientationGuide::Draw( ImGui::GetWindowPos() + viewportSize - ImVec2( ImGuiX::OrientationGuide::GetWidth() + 4, ImGuiX::OrientationGuide::GetWidth() + 4 ), *pViewport );
-            }
-
-            // Draw viewport toolbar
-            //-------------------------------------------------------------------------
-
-            if ( pWorkspace->HasViewportToolbar() )
-            {
-                DrawWorkspaceViewportToolbar( context, pWorkspace, pViewport );
-            }
-
-            // Handle being docked
-            //-------------------------------------------------------------------------
-
-            if ( auto pDockNode = ImGui::GetWindowDockNode() )
-            {
-                pDockNode->LocalFlags = 0;
-                pDockNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingOverMe;
-                pDockNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-            }
-        }
-        ImGui::PopStyleVar();
-        ImGui::End();
-
-        return isViewportFocused;
-    }
-
-    void EditorDevUI::DrawWorkspaceViewportToolbar( UpdateContext const& context, EditorWorkspace* pWorkspace, Render::Viewport* pViewport )
-    {
-        KRG_ASSERT( pWorkspace != nullptr && pViewport != nullptr );
-        KRG_ASSERT( pWorkspace->HasViewportToolbar() );
-
-        if ( ImGui::BeginMenuBar() )
-        {
-            auto pRenderWorldSystem = pWorkspace->GetWorld()->GetWorldSystem<Render::WorldRendererSystem>();
-
-            if ( ImGui::BeginMenu( "Render" ) )
-            {
-                Render::RenderDebugView::DrawRenderVisualizationModesMenu( pRenderWorldSystem );
-                ImGui::EndMenu();
-            }
-
-            pWorkspace->DrawViewportToolbar( context, pViewport );
-            ImGui::EndMenuBar();
-        }
     }
 }

@@ -59,8 +59,8 @@ namespace KRG::Resource
 
         // Clients
         inline int32 GetNumConnectedClients() const { return m_networkServer.GetNumConnectedClients(); }
-        inline uint32 GetClientID( int32 clientIdx ) const { return m_networkServer.GetClientID( clientIdx ); }
-        inline Network::AddressString GetConnectedClientAddress( int32 clientIdx ) const { return m_networkServer.GetConnectedClientAddress( clientIdx ); }
+        inline uint32 GetClientID( int32 clientIdx ) const { return m_networkServer.GetConnectedClientInfo( clientIdx ).m_ID; }
+        inline Network::AddressString const& GetConnectedClientAddress( int32 clientIdx ) const { return m_networkServer.GetConnectedClientInfo( clientIdx ).m_address; }
 
     private:
 

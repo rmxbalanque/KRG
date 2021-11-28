@@ -41,6 +41,8 @@ namespace KRG::Resource
             KRG_ASSERT( IsComplete() );
             KRG_ASSERT( m_pRequest != nullptr && m_pRequest->IsComplete() );
 
+            m_pTaskSystem->WaitForTask( this );
+
             auto pResult = m_pRequest;
             m_pRequest = nullptr;
             m_status = Status::Idle;

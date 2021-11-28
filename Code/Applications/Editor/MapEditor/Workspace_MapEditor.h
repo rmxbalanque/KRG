@@ -37,6 +37,9 @@ namespace KRG::EntityModel
         void SaveMap();
         void SaveMapAs();
 
+        void OnGamePreviewStarted();
+        void OnGamePreviewEnded();
+
     private:
 
         virtual uint32 GetID() const override { return 0xFFFFFFFF; }
@@ -77,5 +80,7 @@ namespace KRG::EntityModel
 
         EventBindingID                  m_preEditBindingID;
         EventBindingID                  m_postEditBindingID;
+
+        bool                            m_isGamePreviewRunning = false;
     };
 }

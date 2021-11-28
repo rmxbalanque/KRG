@@ -23,43 +23,68 @@ namespace KRG::Network
 
     public:
 
-        using ClientConnectionHandle = uint32;
+        using ClientConnectionID = uint32;
+
+        struct ClientInfo
+        {
+            ClientInfo( ClientConnectionID ID, AddressString const& address )
+                : m_ID( ID )
+                , m_address( address )
+            {
+                KRG_ASSERT( m_ID != 0 && !m_address.empty() );
+            }
+
+            ClientConnectionID      m_ID;
+            AddressString           m_address;
+        };
 
     public:
 
         virtual ~ServerConnection();
 
-        inline bool IsRunning() const { return m_socketHandle != 0 && m_pollingGroupHandle != 0; }
+        // Server Info
+        //-------------------------------------------------------------------------
 
+        inline bool IsRunning() const { return m_socketHandle != 0 && m_pollingGroupHandle != 0; }
         inline uint32 GetSocketHandle() const { return m_socketHandle; }
 
         // Client info
         //-------------------------------------------------------------------------
 
         inline int32 GetNumConnectedClients() const { return (int32) m_connectedClients.size(); }
-        inline TVector<uint32> const& GetConnectedClientIDs() const { return m_connectedClients; }
-        inline uint32 GetClientID( int32 clientIdx ) const { return m_connectedClients[clientIdx]; }
+        inline TVector<ClientInfo> const& GetConnectedClients() const { return m_connectedClients; }
 
-        #if KRG_DEVELOPMENT_TOOLS
-        inline AddressString GetConnectedClientAddress( int32 clientIdx ) const { return m_connectedClientAddresses[clientIdx]; }
-        #endif
+        inline ClientInfo const& GetConnectedClientInfo( int32 clientIdx ) const 
+        {
+            KRG_ASSERT( clientIdx >= 0 && clientIdx < m_connectedClients.size() );
+            return m_connectedClients[clientIdx]; 
+        }
+
+        inline bool HasConnectedClient( ClientConnectionID clientID ) const 
+        {
+            auto const SearchPredicate = [] ( ClientInfo const& info, ClientConnectionID const& clientID ) { return info.m_ID == clientID; };
+            return eastl::find( m_connectedClients.begin(), m_connectedClients.end(), clientID, SearchPredicate ) != m_connectedClients.end();
+        }
 
         // Messages
         //-------------------------------------------------------------------------
 
         virtual void ProcessMessage( uint32 connectionID, void* pData, size_t size ) = 0;
+        virtual void SendMessages( TFunction<void( ClientConnectionID, void*, uint32 )> const& sendFunction ) = 0;
 
-        virtual void SendMessages( TFunction<void( ClientConnectionHandle, void*, uint32 )> const& sendFunction ) = 0;
+    private:
+
+        bool TryStartConnection( uint16 portNumber );
+        void CloseConnection();
+
+        void AddConnectedClient( ClientConnectionID clientID, AddressString const& clientAddress );
+        void RemoveConnectedClient( ClientConnectionID clientID );
 
     protected:
 
         uint32                                          m_socketHandle = 0;
         uint32                                          m_pollingGroupHandle = 0;
-        TVector<ClientConnectionHandle>                 m_connectedClients;
-
-        #if KRG_DEVELOPMENT_TOOLS
-        TVector<AddressString>                          m_connectedClientAddresses;
-        #endif
+        TVector<ClientInfo>                             m_connectedClients;
     };
 
     //-------------------------------------------------------------------------
@@ -98,9 +123,9 @@ namespace KRG::Network
 
     private:
 
-        void Update();
         bool TryStartConnection();
         void CloseConnection();
+        void Update();
 
     private:
 

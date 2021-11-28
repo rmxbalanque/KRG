@@ -35,8 +35,6 @@ namespace KRG
         void DrawMainMenu( UpdateContext const& context );
         void DrawPopups( UpdateContext const& context );
         bool DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace );
-        bool DrawWorkspaceViewportWindow( UpdateContext const& context, EditorWorkspace* pWorkspace, ImGuiWindowClass* pWindowClass );
-        void DrawWorkspaceViewportToolbar( UpdateContext const& context, EditorWorkspace* pWorkspace, Render::Viewport* pViewport );
 
         // Hot Reload
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;
@@ -45,7 +43,6 @@ namespace KRG
     private:
 
         EditorModel                         m_model;
-        bool                                m_mouseWithinWorkspaceViewport = false;
         ImGuiWindowClass                    m_editorWindowClass;
         TVector<ModalPopupMessage>          m_modalPopups;
 

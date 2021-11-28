@@ -195,7 +195,7 @@ namespace enki
         void         OnDependenciesComplete( TaskScheduler* pTaskScheduler_, uint32_t threadNum_ ) override final;
     };
 
-    // A utility task set for creating tasks based on std::func.
+    // TaskSet - a utility task set for creating tasks based on std::func.
     typedef std::function<void (TaskSetPartition range, uint32_t threadnum  )> TaskSetFunction;
     class TaskSet : public ITaskSet
     {
@@ -204,13 +204,21 @@ namespace enki
         TaskSet( TaskSetFunction func_ ) : m_Function( func_ ) {}
         TaskSet( uint32_t setSize_, TaskSetFunction func_ ) : ITaskSet( setSize_ ), m_Function( func_ ) {}
 
-
-        virtual void ExecuteRange( TaskSetPartition range_, uint32_t threadnum_  )
-        {
-            m_Function( range_, threadnum_ );
-        }
-
+        void ExecuteRange( TaskSetPartition range_, uint32_t threadnum_  ) override { m_Function( range_, threadnum_ ); }
         TaskSetFunction m_Function;
+    };
+
+    // LambdaPinnedTask - a utility pinned task for creating tasks based on std::func.
+    typedef std::function<void ()> PinnedTaskFunction;
+    class LambdaPinnedTask : public IPinnedTask
+    {
+    public:
+        LambdaPinnedTask() = default;
+        LambdaPinnedTask( PinnedTaskFunction func_ ) : m_Function( func_ ) {}
+        LambdaPinnedTask( uint32_t threadNum_, PinnedTaskFunction func_ ) : IPinnedTask( threadNum_ ), m_Function( func_ ) {}
+
+        void Execute() override { m_Function(); }
+        PinnedTaskFunction m_Function;
     };
 
     class Dependency
@@ -304,6 +312,16 @@ namespace enki
         // Get config. Can be called before Initialize to get the defaults.
         ENKITS_API TaskSchedulerConfig GetConfig() const;
 
+        // while( GetIsRunning() ) {} can be used in tasks which loop, to check if enkiTS has been shutdown.
+        // If GetIsRunning() returns false should then exit. Not required for finite tasks
+        inline     bool            GetIsRunning() const { return m_bRunning.load( std::memory_order_acquire ); }
+
+        // while( !GetIsWaitforAllCalled() ) {} can be used in tasks which loop, to check if WaitforAll() has been called.
+        // If GetIsWaitforAllCalled() returns false should then exit. Not required for finite tasks
+        // This is intended to be used with code which calls WaitforAll() with flag WAITFORALLFLAGS_INC_WAIT_NEW_PINNED_TASKS set.
+        // This is also set when the the task manager is shutting down, so no need to have an additional check for GetIsRunning()
+        inline     bool            GetIsWaitforAllCalled() const { return m_bWaitforAllCalled.load( std::memory_order_acquire ); }
+
         // Adds the TaskSet to pipe and returns if the pipe is not full.
         // If the pipe is full, pTaskSet is run.
         // should only be called from main thread, or within a task
@@ -327,12 +345,20 @@ namespace enki
 
         // Waits for all task sets to complete - not guaranteed to work unless we know we
         // are in a situation where tasks aren't being continuously added.
+        // If you are running tasks which loop, make sure to check GetIsWaitforAllCalled() and exit
         ENKITS_API void            WaitforAll();
 
         // Waits for all task sets to complete and shutdown threads - not guaranteed to work unless we know we
         // are in a situation where tasks aren't being continuously added.
         // This function can be safely called even if TaskScheduler::Initialize() has not been called.
         ENKITS_API void            WaitforAllAndShutdown();
+
+        // Waits for the current thread to receive a PinnedTask
+        // Will not run any tasks - use with RunPinnedTasks()
+        // Can be used with both ExternalTaskThreads or with an enkiTS tasking thread to create
+        // a thread which only runs pinned tasks. If enkiTS threads are used can create
+        // extra enkiTS task threads to handle non blocking computation via normal tasks.
+        ENKITS_API void            WaitForNewPinnedTasks();
 
         // Returns the number of threads created for running tasks + number of external threads
         // plus 1 to account for the thread used to initialize the task scheduler.
@@ -355,12 +381,25 @@ namespace enki
         // at initialization time.
         ENKITS_API bool            RegisterExternalTaskThread();
 
+        // As RegisterExternalTaskThread() but explicitly requests a given thread number.
+        // threadNumToRegister_ must be  >= GetNumFirstExternalTaskThread()
+        // and < ( GetNumFirstExternalTaskThread() + numExternalTaskThreads )
+        ENKITS_API bool            RegisterExternalTaskThread( uint32_t threadNumToRegister_ );
+
         // Call on a thread on which RegisterExternalTaskThread has been called to deregister that thread.
         ENKITS_API void            DeRegisterExternalTaskThread();
 
         // Get the number of registered external task threads.
         ENKITS_API uint32_t        GetNumRegisteredExternalTaskThreads();
 
+        // Get the thread number of the first external task thread. This thread
+        // is not guaranteed to be registered, but threads are registered in order
+        // from GetNumFirstExternalTaskThread() up to ( GetNumFirstExternalTaskThread() + numExternalTaskThreads )
+        // Note that if numExternalTaskThreads == 0 a for loop using this will be valid:
+        // for( uint32_t externalThreadNum = GetNumFirstExternalTaskThread();
+        //      externalThreadNum < ( GetNumFirstExternalTaskThread() + numExternalTaskThreads
+        //      ++externalThreadNum ) { // do something with externalThreadNum }
+        inline static constexpr uint32_t  GetNumFirstExternalTaskThread() { return 1; }
 
         // ------------- Start DEPRECATED Functions -------------
         // DEPRECATED - WaitforTaskSet, deprecated interface use WaitforTask
@@ -407,7 +446,8 @@ namespace enki
         uint32_t               m_NumThreads;
         ThreadDataStore*       m_pThreadDataStore;
         std::thread*           m_pThreads;
-        std::atomic<int32_t>   m_bRunning;
+        std::atomic<bool>      m_bRunning;
+        std::atomic<bool>      m_bWaitforAllCalled;
         std::atomic<int32_t>   m_NumInternalTaskThreadsRunning;
         std::atomic<int32_t>   m_NumThreadsWaitingForNewTasks;
         std::atomic<int32_t>   m_NumThreadsWaitingForTaskCompletion;
@@ -450,6 +490,7 @@ namespace enki
 
     inline ICompletable::~ICompletable()
     {
+        ENKI_ASSERT( GetIsComplete() ); // this task is still waiting to run
         Dependency* pDependency = m_pDependents;
         while( pDependency )
         {
@@ -492,7 +533,7 @@ namespace enki
     }
     template<typename D, typename T, int SIZE>
     void ICompletable::SetDependenciesArr( D(&dependencyArray_)[SIZE], std::initializer_list<T*> taskpList_ ) {
-        assert( SIZE >= taskpList_.size() );
+        ENKI_ASSERT( SIZE >= taskpList_.size() );
         int i = 0;
         for( auto pTask : taskpList_ )
         {

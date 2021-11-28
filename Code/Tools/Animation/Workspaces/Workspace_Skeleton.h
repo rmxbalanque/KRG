@@ -66,6 +66,5 @@ namespace KRG::Animation
 
         Entity*                         m_pPreviewEntity = nullptr;
         AnimatedMeshComponent*          m_pMeshComponent = nullptr;
-        bool                            m_showPreviewMesh = true;
     };
 }

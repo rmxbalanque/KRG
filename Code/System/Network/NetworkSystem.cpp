@@ -80,15 +80,9 @@ namespace KRG::Network
                     // Ignore if they were not previously connected.  (If they disconnected before we accepted the connection.)
                     if ( pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connected )
                     {
-                        // Locate the client.  Note that it should have been found, because this is the only code path where we remove clients (except on shutdown), and connection change callbacks are dispatched in queue order.
-                        auto clientIter = eastl::find( pServerConnection->m_connectedClients.begin(), pServerConnection->m_connectedClients.end(), pInfo->m_hConn );
-                        KRG_ASSERT( clientIter != pServerConnection->m_connectedClients.end() );
-                        auto idx = eastl::distance( clientIter, pServerConnection->m_connectedClients.begin() );
-                        pServerConnection->m_connectedClients.erase( clientIter );
-
-                        #if KRG_DEVELOPMENT_TOOLS
-                        pServerConnection->m_connectedClientAddresses.erase( pServerConnection->m_connectedClientAddresses.begin() + idx );
-                        #endif
+                        // Note that clients should have been found, because this is the only code path where we remove clients( except on shutdown ), and connection change callbacks are dispatched in queue order.
+                        KRG_ASSERT( pServerConnection->HasConnectedClient( pInfo->m_hConn ) );
+                        pServerConnection->RemoveConnectedClient( pInfo->m_hConn );
                     }
                     else
                     {
@@ -108,7 +102,7 @@ namespace KRG::Network
                 case k_ESteamNetworkingConnectionState_Connecting:
                 {
                     // This must be a new connection
-                    KRG_ASSERT( eastl::find( pServerConnection->m_connectedClients.begin(), pServerConnection->m_connectedClients.end(), pInfo->m_hConn ) == pServerConnection->m_connectedClients.end() );
+                    KRG_ASSERT( !pServerConnection->HasConnectedClient( pInfo->m_hConn ) );
 
                     // A client is attempting to connect
                     // Try to accept the connection.
@@ -128,15 +122,9 @@ namespace KRG::Network
                         break;
                     }
 
-                    // Add them to the client list, using std::map wacky syntax
-                    pServerConnection->m_connectedClients.emplace_back( pInfo->m_hConn );
-
-                    #if KRG_DEVELOPMENT_TOOLS
-                    auto& addressStr = pServerConnection->m_connectedClientAddresses.emplace_back( AddressString() );
-                    addressStr.resize( AddressString::kMaxSize );
-                    pInfo->m_info.m_addrRemote.ToString( addressStr.data(), AddressString::kMaxSize, true );
-                    #endif
-
+                    AddressString clientAddress( AddressString::CtorDoNotInitialize(), AddressString::kMaxSize );
+                    pInfo->m_info.m_addrRemote.ToString( clientAddress.data(), AddressString::kMaxSize, true );
+                    pServerConnection->AddConnectedClient( pInfo->m_hConn, clientAddress );
                     break;
                 }
 
@@ -225,6 +213,78 @@ namespace KRG::Network
     ServerConnection::~ServerConnection()
     {
         KRG_ASSERT( m_pollingGroupHandle == k_HSteamNetPollGroup_Invalid && m_socketHandle == k_HSteamListenSocket_Invalid );
+    }
+
+    void ServerConnection::AddConnectedClient( ClientConnectionID clientHandle, AddressString const& clientAddress )
+    {
+        KRG_ASSERT( !HasConnectedClient( clientHandle ) );
+        m_connectedClients.emplace_back( clientHandle, clientAddress );
+    }
+
+    void ServerConnection::RemoveConnectedClient( ClientConnectionID clientHandle )
+    {
+        auto const SearchPredicate = [] ( ClientInfo const& info, ClientConnectionID const& clientHandle ) { return info.m_ID == clientHandle; };
+        auto clientIter = eastl::find( m_connectedClients.begin(), m_connectedClients.end(), clientHandle, SearchPredicate );
+        KRG_ASSERT( clientIter != m_connectedClients.end() );
+        m_connectedClients.erase_unsorted( clientIter );
+    }
+
+    bool ServerConnection::TryStartConnection( uint16 portNumber )
+    {
+        ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
+        KRG_ASSERT( pInterface != nullptr );
+
+        //-------------------------------------------------------------------------
+
+        SteamNetworkingIPAddr serverLocalAddr;
+        serverLocalAddr.Clear();
+        serverLocalAddr.m_port = portNumber;
+
+        SteamNetworkingConfigValue_t opt;
+        opt.SetPtr( k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*) NetworkCallbackHandler::ServerNetConnectionStatusChangedCallback );
+        m_socketHandle = pInterface->CreateListenSocketIP( serverLocalAddr, 1, &opt );
+        if ( m_socketHandle == k_HSteamListenSocket_Invalid )
+        {
+            KRG_LOG_ERROR( "Network", "Failed to listen on port %d", portNumber );
+            return false;
+        }
+
+        m_pollingGroupHandle = pInterface->CreatePollGroup();
+        if ( m_pollingGroupHandle == k_HSteamNetPollGroup_Invalid )
+        {
+            KRG_LOG_ERROR( "Network", "Failed to listen on port %d", portNumber );
+            return false;
+        }
+
+        return true;
+    }
+
+    void ServerConnection::CloseConnection()
+    {
+        ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
+        KRG_ASSERT( pInterface != nullptr );
+
+        //-------------------------------------------------------------------------
+
+        for ( auto const& clientInfo : m_connectedClients )
+        {
+            pInterface->CloseConnection( clientInfo.m_ID, 0, "Server Shutdown", true );
+        }
+        m_connectedClients.clear();
+
+        //-------------------------------------------------------------------------
+
+        if ( m_pollingGroupHandle != k_HSteamNetPollGroup_Invalid )
+        {
+            pInterface->DestroyPollGroup( m_pollingGroupHandle );
+            m_pollingGroupHandle = k_HSteamNetPollGroup_Invalid;
+        }
+
+        if ( m_socketHandle != k_HSteamListenSocket_Invalid )
+        {
+            pInterface->CloseListenSocket( m_socketHandle );
+            m_socketHandle = k_HSteamListenSocket_Invalid;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -470,72 +530,19 @@ namespace KRG::Network
     bool NetworkSystem::StartServerConnection( ServerConnection* pServerConnection, uint16 portNumber )
     {
         KRG_ASSERT( pServerConnection != nullptr && !pServerConnection->IsRunning() );
-        
-        ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
-        KRG_ASSERT( pInterface != nullptr );
-
-        //-------------------------------------------------------------------------
-
-        SteamNetworkingIPAddr serverLocalAddr;
-        serverLocalAddr.Clear();
-        serverLocalAddr.m_port = portNumber;
-
-        SteamNetworkingConfigValue_t opt;
-        opt.SetPtr( k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*) NetworkCallbackHandler::ServerNetConnectionStatusChangedCallback );
-        pServerConnection->m_socketHandle = pInterface->CreateListenSocketIP( serverLocalAddr, 1, &opt );
-        if ( pServerConnection->m_socketHandle == k_HSteamListenSocket_Invalid )
+        if ( pServerConnection->TryStartConnection( portNumber ) )
         {
-            KRG_LOG_ERROR( "Network", "Failed to listen on port %d", portNumber );
-            return false;
+            g_pNetworkState->m_serverConnections.emplace_back( pServerConnection );
+            return true;
         }
 
-        pServerConnection->m_pollingGroupHandle = pInterface->CreatePollGroup();
-        if ( pServerConnection->m_pollingGroupHandle == k_HSteamNetPollGroup_Invalid )
-        {
-            KRG_LOG_ERROR( "Network", "Failed to listen on port %d", portNumber );
-            return false;
-        }
-
-        //-------------------------------------------------------------------------
-
-        g_pNetworkState->m_serverConnections.emplace_back( pServerConnection );
-
-        return true;
+        return false;
     }
 
     void NetworkSystem::StopServerConnection( ServerConnection* pServerConnection )
     {
         KRG_ASSERT( pServerConnection != nullptr );
-
-        ISteamNetworkingSockets* pInterface = SteamNetworkingSockets();
-        KRG_ASSERT( pInterface != nullptr );
-
-        for ( auto const& it : pServerConnection->m_connectedClients )
-        {
-            pInterface->CloseConnection( it, 0, "Server Shutdown", true );
-        }
-        pServerConnection->m_connectedClients.clear();
-
-        #if KRG_DEVELOPMENT_TOOLS
-        pServerConnection->m_connectedClientAddresses.clear();
-        #endif
-
-        //-------------------------------------------------------------------------
-
-        if ( pServerConnection->m_pollingGroupHandle != k_HSteamNetPollGroup_Invalid )
-        {
-            pInterface->DestroyPollGroup( pServerConnection->m_pollingGroupHandle );
-            pServerConnection->m_pollingGroupHandle = k_HSteamNetPollGroup_Invalid;
-        }
-
-        if ( pServerConnection->m_socketHandle != k_HSteamListenSocket_Invalid )
-        {
-            pInterface->CloseListenSocket( pServerConnection->m_socketHandle );
-            pServerConnection->m_socketHandle = k_HSteamListenSocket_Invalid;
-        }
-
-        //-------------------------------------------------------------------------
-
+        pServerConnection->CloseConnection();
         g_pNetworkState->m_serverConnections.erase_first_unsorted( pServerConnection );
     }
 

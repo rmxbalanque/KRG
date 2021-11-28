@@ -28,7 +28,7 @@ namespace KRG::Network::IPC
         m_incomingMessages.clear();
     }
 
-    void Server::SendMessages( TFunction<void( ServerConnection::ClientConnectionHandle, void*, uint32 )> const& sendFunction )
+    void Server::SendMessages( TFunction<void( ServerConnection::ClientConnectionID, void*, uint32 )> const& sendFunction )
     {
         for ( auto& msg : m_outgoingMessages )
         {
@@ -40,7 +40,7 @@ namespace KRG::Network::IPC
             {
                 for ( auto const& client : m_connectedClients )
                 {
-                    sendFunction( client, msg.m_data.data(), (uint32) msg.m_data.size() );
+                    sendFunction( client.m_ID, msg.m_data.data(), (uint32) msg.m_data.size() );
                 }
             }
         }

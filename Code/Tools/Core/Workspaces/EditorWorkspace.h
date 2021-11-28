@@ -100,6 +100,8 @@ namespace KRG
         // Draw the viewport toolbar
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) {}
 
+        bool DrawViewport( UpdateContext const& context, ImTextureID pViewportRenderTargetTexture, ImGuiWindowClass* pWindowClass );
+
         // Undo/Redo
         //-------------------------------------------------------------------------
 

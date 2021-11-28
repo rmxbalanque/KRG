@@ -40,7 +40,7 @@ namespace KRG
 
         inline UUIDString ToString() const
         {
-            return UUIDString().sprintf( "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", m_data.m_U8[0], m_data.m_U8[1], m_data.m_U8[2], m_data.m_U8[3], m_data.m_U8[4], m_data.m_U8[5], m_data.m_U8[6], m_data.m_U8[7], m_data.m_U8[8], m_data.m_U8[9], m_data.m_U8[10], m_data.m_U8[11], m_data.m_U8[12], m_data.m_U8[13], m_data.m_U8[14], m_data.m_U8[15] );
+            return UUIDString( UUIDString::CtorSprintf(), "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", m_data.m_U8[0], m_data.m_U8[1], m_data.m_U8[2], m_data.m_U8[3], m_data.m_U8[4], m_data.m_U8[5], m_data.m_U8[6], m_data.m_U8[7], m_data.m_U8[8], m_data.m_U8[9], m_data.m_U8[10], m_data.m_U8[11], m_data.m_U8[12], m_data.m_U8[13], m_data.m_U8[14], m_data.m_U8[15] );
         }
 
         inline bool IsValid() const { return m_data.m_U64[0] != 0 && m_data.m_U64[1] != 0; }

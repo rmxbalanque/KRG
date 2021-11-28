@@ -217,11 +217,30 @@ float4 main(PixelShaderInput psInput): SV_TARGET0
 
 	switch(m_lightingFlags>>VISUALIZATION_MODE_BITS_SHIFT)
 	{
-	case VISUALIZATION_MODE_ALBEDO: return float4(surfaceParams.albedo, 1.0);
-	case VISUALIZATION_MODE_NORMALS:  return float4(surfaceParams.normal, 1.0);
-	case VISUALIZATION_MODE_METALNESS: return float4(surfaceParams.metalness.xxx, 1.0);
-	case VISUALIZATION_MODE_ROUGHNESS: return float4(surfaceParams.roughness.xxx, 1.0);
-	case VISUALIZATION_MODE_AO:  return float4(surfaceParams.ao.xxx, 1.0);
+		case VISUALIZATION_MODE_ALBEDO: 
+		{
+			return float4( surfaceParams.albedo, 1.0 );
+		}
+
+		case VISUALIZATION_MODE_NORMALS: 
+		{
+			return float4( abs( surfaceParams.normal ), 1.0 );
+		}
+
+		case VISUALIZATION_MODE_METALNESS: 
+		{
+			return float4(surfaceParams.metalness.xxx, 1.0);
+		}
+
+		case VISUALIZATION_MODE_ROUGHNESS:
+		{
+			return float4( surfaceParams.roughness.xxx, 1.0 );
+		}
+
+		case VISUALIZATION_MODE_AO:
+		{
+			return float4( surfaceParams.ao.xxx, 1.0 );
+		}
 	}
 
 	const float3 P = psInput.m_wpos;

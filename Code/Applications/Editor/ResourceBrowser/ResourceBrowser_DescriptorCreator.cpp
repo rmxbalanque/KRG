@@ -29,8 +29,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        InlineString<10> filenameStr;
-        filenameStr.sprintf( "NewResource.%s", m_pDescriptor->GetCompiledResourceTypeID().ToString().c_str() );
+        InlineString<10> const filenameStr( InlineString < 10>::CtorSprintf(), "NewResource.%s", m_pDescriptor->GetCompiledResourceTypeID().ToString().c_str() );
         m_startingPath += filenameStr.c_str();
     }
 

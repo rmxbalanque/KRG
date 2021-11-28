@@ -58,9 +58,7 @@ namespace KRG
         {
             if ( pOpenWorkspace->IsDirty() )
             {
-                InlineString<255> messageTitle;
-                messageTitle.sprintf( "Unsaved Changes for %s", pOpenWorkspace->GetDisplayName() );
-
+                InlineString<255> const messageTitle( InlineString<255>::CtorSprintf(), "Unsaved Changes for %s", pOpenWorkspace->GetDisplayName() );
                 auto messageDialog = pfd::message( messageTitle.c_str(), "You have unsaved changes!\nDo you wish to save these changes before closing?", pfd::choice::yes_no_cancel );
                 switch ( messageDialog.result() )
                 {
@@ -192,6 +190,7 @@ namespace KRG
         // Clear the game previewer workspace ptr if we just destroyed it
         if ( isGamePreviewerWorkspace )
         {
+            m_pMapEditor->OnGamePreviewEnded();
             m_pGamePreviewer = nullptr;
         }
 
@@ -268,6 +267,8 @@ namespace KRG
         m_pGamePreviewer->Initialize( context );
         m_pGamePreviewer->LoadMapToPreview( m_pMapEditor->GetLoadedMap() );
         m_workspaces.emplace_back( m_pGamePreviewer );
+
+        m_pMapEditor->OnGamePreviewStarted();
     }
 
     void EditorModel::StopGamePreview( UpdateContext const& context )

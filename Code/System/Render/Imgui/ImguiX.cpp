@@ -13,7 +13,7 @@ namespace KRG::ImGuiX
         auto const canvasPos = ImGui::GetCursorScreenPos();
         auto const availableRegion = ImGui::GetContentRegionAvail();
 
-        ImVec2 const seperatorSize( size.x <= 0 ? 1 : size.x, size.y <= 0 ? availableRegion.y : size.y );
+        ImVec2 const seperatorSize( size.x <= 0 ? 3 : size.x, size.y <= 0 ? ImGui::GetFrameHeight() : size.y );
         ImGui::Dummy( seperatorSize );
         ImGui::SameLine( 0, 0 );
 

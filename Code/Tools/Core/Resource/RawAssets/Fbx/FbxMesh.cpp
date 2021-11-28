@@ -24,6 +24,58 @@ namespace KRG
         {
         public:
 
+            template<typename ElementType, typename ElementDataType>
+            static ElementDataType GetElementData( ElementType* pElement, int32 const ctrlPointIdx, int32 const vertexIdx )
+            {
+                ElementDataType data;
+                switch ( pElement->GetMappingMode() )
+                {
+                    case FbxGeometryElement::eByControlPoint:
+                    {
+                        switch ( pElement->GetReferenceMode() )
+                        {
+                            case FbxGeometryElement::eDirect:
+                            {
+                                data = pElement->GetDirectArray().GetAt( ctrlPointIdx );
+                            }
+                            break;
+
+                            case FbxGeometryElement::eIndexToDirect:
+                            {
+                                int32 const dataElementIdx = pElement->GetIndexArray().GetAt( ctrlPointIdx );
+                                data = pElement->GetDirectArray().GetAt( dataElementIdx );
+                            }
+                            break;
+                        }
+                    }
+                    break;
+
+                    case FbxGeometryElement::eByPolygonVertex:
+                    {
+                        switch ( pElement->GetReferenceMode() )
+                        {
+                            case FbxGeometryElement::eDirect:
+                            {
+                                data = pElement->GetDirectArray().GetAt( vertexIdx );
+                            }
+                            break;
+
+                            case FbxGeometryElement::eIndexToDirect:
+                            {
+                                int32 const dataElementIdx = pElement->GetIndexArray().GetAt( vertexIdx );
+                                data = pElement->GetDirectArray().GetAt( dataElementIdx );
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+
+                return data;
+            }
+
+            //-------------------------------------------------------------------------
+
             static TUniquePtr<RawMesh> ReadStaticMesh( FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile )
             {
                 KRG_ASSERT( sourceFilePath.IsValid() );
@@ -129,31 +181,11 @@ namespace KRG
 
                     //-------------------------------------------------------------------------
 
+                    // Prepare the mesh for reading
                     meshFound = true;
-
-                    pMesh->RemoveBadPolygons();
-
-                    // Ensure that the mesh is triangulated
-                    if ( !pMesh->IsTriangleMesh() )
+                    if ( !PrepareMesh( sceneCtx, geomConverter, pMesh, rawMesh ) )
                     {
-                        pMesh = ( fbxsdk::FbxMesh* ) geomConverter.Triangulate( pMesh, true );
-                        geomConverter.EmulateNormalsByPolygonVertex( pMesh );
-                        KRG_ASSERT( pMesh != nullptr && pMesh->IsTriangleMesh() );
-                    }
-
-                    // Generate smoothing if it doesnt exist
-                    geomConverter.ComputeEdgeSmoothingFromNormals( pMesh );
-                    geomConverter.ComputePolygonSmoothingFromEdgeSmoothing( pMesh );
-
-                    // Generate normals if they're not available or not in the right format
-                    bool const hasNormals = pMesh->GetElementNormalCount() > 0 && pMesh->GetElementNormal()->GetMappingMode() != FbxLayerElement::eByPolygonVertex;
-                    if ( !hasNormals )
-                    {
-                        if ( !pMesh->GenerateNormals( true ) )
-                        {
-                            rawMesh.m_errors.push_back( String().sprintf( "Failed to regenerate mesh normals for mesh: %s", (char const*) pMesh->GetNameWithNameSpacePrefix() ) );
-                            return;
-                        }
+                        return;
                     }
 
                     // Allocate space for the control point mapping
@@ -179,10 +211,48 @@ namespace KRG
                     }
                 }
 
+                //-------------------------------------------------------------------------
+
                 if ( !meshFound )
                 {
-                    rawMesh.m_errors.push_back( String().sprintf( "Couldn't find specified mesh: %s", nameOfMeshToCompile.c_str() ) );
+                    rawMesh.m_errors.push_back( String( String::CtorSprintf(), "Couldn't find specified mesh: %s", nameOfMeshToCompile.c_str() ) );
                 }
+            }
+
+            //-------------------------------------------------------------------------
+
+            static bool PrepareMesh( Fbx::FbxSceneContext const& sceneCtx, FbxGeometryConverter& geomConverter, fbxsdk::FbxMesh*& pMesh, FbxRawMesh& rawMesh )
+            {
+                pMesh->RemoveBadPolygons();
+
+                // Ensure that the mesh is triangulated
+                if ( !pMesh->IsTriangleMesh() )
+                {
+                    pMesh = (fbxsdk::FbxMesh*) geomConverter.Triangulate( pMesh, true );
+                    KRG_ASSERT( pMesh != nullptr && pMesh->IsTriangleMesh() );
+                }
+
+                // Generate normals if they're not available or not in the right format
+                bool const hasNormals = pMesh->GetElementNormalCount() > 0;
+                bool const hasPerVertexNormals = hasNormals && pMesh->GetElementNormal()->GetMappingMode() == FbxLayerElement::eByPolygonVertex;
+                if ( !hasPerVertexNormals )
+                {
+                    if ( !pMesh->GenerateNormals( true, false, false ) )
+                    {
+                        rawMesh.m_errors.push_back( String( String::CtorSprintf(), "Failed to regenerate mesh normals for mesh: %s", (char const*) pMesh->GetNameWithNameSpacePrefix() ) );
+                        return false;
+                    }
+                }
+
+                // Generate smoothing groups if they doesnt exist
+                if ( pMesh->GetElementSmoothingCount() == 0 )
+                {
+                    geomConverter.ComputeEdgeSmoothingFromNormals( pMesh );
+                    geomConverter.ComputePolygonSmoothingFromEdgeSmoothing( pMesh );
+                }
+
+                KRG_ASSERT( pMesh->GetElementNormal()->GetMappingMode() == FbxLayerElement::eByPolygonVertex );
+                return true;
             }
 
             static bool ReadMeshData( Fbx::FbxSceneContext const& sceneCtx, fbxsdk::FbxMesh* pMesh, FbxRawMesh::GeometrySection& geometryData, TVector<TVector<uint32>>& controlPointVertexMapping )
@@ -207,9 +277,9 @@ namespace KRG
                 int32 const numVertices = numPolygons * 3;
                 geometryData.m_vertices.reserve( numVertices );
 
-                for ( auto polygonIdx = 0; polygonIdx < numPolygons; polygonIdx++ )
+                for ( int32 polygonIdx = 0; polygonIdx < numPolygons; polygonIdx++ )
                 {
-                    for ( auto vertexIdx = 0; vertexIdx < 3; vertexIdx++ )
+                    for ( int32 vertexIdx = 0; vertexIdx < 3; vertexIdx++ )
                     {
                         RawMesh::VertexData vert;
 
@@ -221,81 +291,40 @@ namespace KRG
                         vert.m_position = sceneCtx.ConvertVector3AndFixScale( meshVertex );
                         vert.m_position.m_w = 1.0f;
 
+                        // Get vertex color
+                        //-------------------------------------------------------------------------
+
+                        FbxLayerElementVertexColor* pColorElement = pMesh->GetElementVertexColor();
+                        if ( pColorElement != nullptr )
+                        {
+                            FbxColor const color = GetElementData<FbxLayerElementVertexColor, FbxColor>( pColorElement, ctrlPointIdx, vertexIdx );
+                            vert.m_color = Float4( (float) color.mRed, (float) color.mGreen, (float) color.mBlue, (float) color.mAlpha );
+                        }
+
                         // Get vertex normal
                         //-------------------------------------------------------------------------
 
+                        KRG_ASSERT( pMesh->GetElementNormal() != nullptr );
                         FbxVector4 meshNormal;
-                        FbxGeometryElementNormal* pNormalElement = pMesh->GetElementNormal();
-                        switch ( pNormalElement->GetMappingMode() )
-                        {
-                            case FbxGeometryElement::eByControlPoint:
-                            switch ( pNormalElement->GetReferenceMode() )
-                            {
-                                case FbxGeometryElement::eDirect:
-                                {
-                                    meshNormal = pNormalElement->GetDirectArray().GetAt( ctrlPointIdx );
-                                }
-                                break;
-
-                                case FbxGeometryElement::eIndexToDirect:
-                                {
-                                    int32 const normalIdx = pNormalElement->GetIndexArray().GetAt( ctrlPointIdx );
-                                    meshNormal = pNormalElement->GetDirectArray().GetAt( normalIdx );
-                                }
-                                break;
-                            }
-                            break;
-
-                            case FbxGeometryElement::eByPolygonVertex:
-                            switch ( pNormalElement->GetReferenceMode() )
-                            {
-                                case FbxGeometryElement::eDirect:
-                                {
-                                    meshNormal = pNormalElement->GetDirectArray().GetAt( vertexIdx );
-                                }
-                                break;
-
-                                case FbxGeometryElement::eIndexToDirect:
-                                {
-                                    int32 const normalIdx = pNormalElement->GetIndexArray().GetAt( vertexIdx );
-                                    meshNormal = pNormalElement->GetDirectArray().GetAt( normalIdx );
-                                }
-                                break;
-                            }
-                            break;
-                        }
-
+                        pMesh->GetPolygonVertexNormal( polygonIdx, vertexIdx, meshNormal );
                         vert.m_normal = sceneCtx.ConvertVector3( meshNormal ).GetNormalized3();
 
-                        // Get vertex tangent
+                        // Get vertex tangent and bi-normals
                         //-------------------------------------------------------------------------
 
-                        FbxVector4 meshTangent;
-                        for ( auto l = 0; l < pMesh->GetElementTangentCount(); ++l )
+                        FbxGeometryElementTangent* pTangentElement = pMesh->GetElementTangent();
+                        if ( pTangentElement != nullptr )
                         {
-                            FbxGeometryElementTangent* pTangent = pMesh->GetElementTangent( l );
-
-                            if ( pTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex )
-                            {
-                                switch ( pTangent->GetReferenceMode() )
-                                {
-                                    case FbxGeometryElement::eDirect:
-                                    {
-                                        meshTangent = pTangent->GetDirectArray().GetAt( vertexIdx );
-                                    }
-                                    break;
-
-                                    case FbxGeometryElement::eIndexToDirect:
-                                    {
-                                        int32 const tangentIdx = pTangent->GetIndexArray().GetAt( vertexIdx );
-                                        meshTangent = pTangent->GetDirectArray().GetAt( tangentIdx );
-                                    }
-                                    break;
-                                }
-                            }
+                            FbxVector4 const tangent = GetElementData<FbxGeometryElementTangent, FbxVector4>( pTangentElement, ctrlPointIdx, vertexIdx );
+                            vert.m_tangent = sceneCtx.ConvertVector3( tangent ).GetNormalized3();
                         }
 
-                        vert.m_tangent = sceneCtx.ConvertVector3( meshTangent ).GetNormalized3();
+                        FbxGeometryElementBinormal* pBinormalElement = pMesh->GetElementBinormal();
+                        if ( pBinormalElement != nullptr )
+                        {
+                            FbxVector4 const binormal = GetElementData<FbxGeometryElementBinormal, FbxVector4>( pBinormalElement, ctrlPointIdx, vertexIdx );
+                            vert.m_binormal = sceneCtx.ConvertVector3( binormal ).GetNormalized3();
+                        }
 
                         // Get vertex UV
                         //-------------------------------------------------------------------------
@@ -314,13 +343,13 @@ namespace KRG
                                     {
                                         case FbxLayerElementUV::eDirect:
                                         {
-                                            texCoord = pTexcoordElement->GetDirectArray().GetAt( vertexIdx );
+                                            texCoord = pTexcoordElement->GetDirectArray().GetAt( ctrlPointIdx );
                                         }
                                         break;
 
                                         case FbxLayerElementUV::eIndexToDirect:
                                         {
-                                            int32 const texCoordIdx = pTexcoordElement->GetIndexArray().GetAt( vertexIdx );
+                                            int32 const texCoordIdx = pTexcoordElement->GetIndexArray().GetAt( ctrlPointIdx );
                                             texCoord = pTexcoordElement->GetDirectArray().GetAt( texCoordIdx );
                                         }
                                         break;
@@ -328,17 +357,12 @@ namespace KRG
                                 }
                                 break;
 
+                                // This is special for UVs
                                 case FbxGeometryElement::eByPolygonVertex:
                                 {
                                     switch ( pTexcoordElement->GetReferenceMode() )
                                     {
                                         case FbxLayerElementUV::eDirect:
-                                        {
-                                            int32 const textureUVIndex = pMesh->GetTextureUVIndex( polygonIdx, vertexIdx );
-                                            texCoord = pTexcoordElement->GetDirectArray().GetAt( textureUVIndex );
-                                        }
-                                        break;
-
                                         case FbxLayerElementUV::eIndexToDirect:
                                         {
                                             int32 const textureUVIndex = pMesh->GetTextureUVIndex( polygonIdx, vertexIdx );
@@ -391,6 +415,8 @@ namespace KRG
 
                 return true;
             }
+
+            //-------------------------------------------------------------------------
 
             static FbxNode* FindSkeletonForSkin( FbxSkin* pSkin)
             {

@@ -57,6 +57,7 @@ namespace KRG::Render
         String                  m_infoWindowName;
 
         bool                    m_showNormals = false;
+        bool                    m_showVertices = false;
         bool                    m_showBindPose = true;
         bool                    m_showBounds = true;
     };

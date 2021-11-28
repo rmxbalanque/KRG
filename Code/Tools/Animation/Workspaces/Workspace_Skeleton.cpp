@@ -114,24 +114,6 @@ namespace KRG::Animation
                 drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
                 drawingCtx.DrawLine( textLineLocation, refGlobalTransform.GetTranslation(), Colors::Yellow, 2.0f );
             }
-
-            //-------------------------------------------------------------------------
-
-            if ( m_pMeshComponent != nullptr && m_pMeshComponent->IsInitialized() )
-            {
-                if ( m_showPreviewMesh )
-                {
-                    Pose referencePose( m_pResource.GetPtr() );
-                    referencePose.CalculateGlobalTransforms();
-
-                    m_pMeshComponent->SetPose( &referencePose );
-                    m_pMeshComponent->FinalizePose();
-                }
-                else
-                {
-                    //m_pMeshComponent->SetHidden();
-                }
-            }
         }
 
         // UI
@@ -143,7 +125,6 @@ namespace KRG::Animation
 
     void SkeletonWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
-        ImGui::Checkbox( "Show Preview Mesh", &m_showPreviewMesh );
     }
 
     void SkeletonWorkspace::DrawInfoWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass )

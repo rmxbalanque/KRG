@@ -42,7 +42,7 @@ namespace KRG
 
                     if ( pathElement.IsArrayElement() )
                     {
-                        pathString += String().sprintf( "/%d/", pathElement.m_arrayElementIdx );
+                        pathString += String( String::CtorSprintf(), "/%d/", pathElement.m_arrayElementIdx );
                     }
                     else
                     {
@@ -57,7 +57,7 @@ namespace KRG
                 pathString += pathElement.m_propertyID.c_str();
                 if ( pathElement.IsArrayElement() )
                 {
-                    pathString += String().sprintf( "/%d", pathElement.m_arrayElementIdx );
+                    pathString += String( String::CtorSprintf(), "/%d", pathElement.m_arrayElementIdx );
                 }
             }
 
