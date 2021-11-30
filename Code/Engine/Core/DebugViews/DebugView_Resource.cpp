@@ -104,7 +104,7 @@ namespace KRG::Resource
                             }
                             else // Normal request
                             {
-                                ImGui::TextColored( Colors::Lime.ToFloat4(), "Entity: %s", requesterID.ToString().c_str() );
+                                ImGui::TextColored( Colors::Lime.ToFloat4(), "Entity: %u", requesterID );
                             }
                         }
 

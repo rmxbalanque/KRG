@@ -11,5 +11,5 @@ struct VerteShaderOutput
 float4 main(VerteShaderOutput input) : SV_TARGET
 {
     float4 color = skybox.Sample(bilinearSampler, input.m_wpos);
-    return float4(tonemap(color.rgb * m_skyboxLightIntensity), color.a); 
+    return float4( ToneMap( color.rgb * m_skyboxLightIntensity ), color.a );
 }

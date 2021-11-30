@@ -1,6 +1,6 @@
 #include "DebugView_Render.h"
-#include "Engine/Render/WorldSystems/WorldRendererSystem.h"
-#include "Engine/Render/Components/LightComponents.h"
+#include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
+#include "Engine/Render/Components/Component_Lights.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"

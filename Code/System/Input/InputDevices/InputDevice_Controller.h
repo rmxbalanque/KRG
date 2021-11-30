@@ -45,6 +45,8 @@ namespace KRG
 
         protected:
 
+            virtual void UpdateState() override;
+
             // Update the controller button state
             inline void UpdateButtonState( ControllerButton buttonID, bool isDown )
             {

@@ -34,7 +34,7 @@ namespace KRG
         virtual void Shutdown( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
-        virtual bool IsDirty() const override { return m_propertyGrid.IsDirty(); }
+        virtual bool IsDirty() const override { return m_descriptorPropertyGrid.IsDirty(); }
         virtual bool Save() override;
 
         void PreEdit( PropertyEditInfo const& info );
@@ -47,7 +47,7 @@ namespace KRG
         String                                  m_descriptorWindowName;
         ResourceID                              m_descriptorID;
         FileSystem::Path                        m_descriptorPath;
-        PropertyGrid                            m_propertyGrid;
+        PropertyGrid                            m_descriptorPropertyGrid;
         Resource::ResourceDescriptor*           m_pDescriptor = nullptr;
         EventBindingID                          m_preEditEventBindingID;
         EventBindingID                          m_postEditEventBindingID;

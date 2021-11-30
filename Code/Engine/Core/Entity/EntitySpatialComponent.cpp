@@ -39,7 +39,7 @@ namespace KRG
         // Log warning only when we are loaded/initialized
         if ( m_status == EntityComponent::Status::Loaded || m_status == EntityComponent::Status::Initialized )
         {
-            KRG_LOG_WARNING( "Entity", "Failed to find socket %s on component %s (%s)", socketID.c_str(), GetName().c_str(), GetID().ToString().c_str() );
+            KRG_LOG_WARNING( "Entity", "Failed to find socket %s on component %s (%u)", socketID.c_str(), GetName().c_str(), GetID() );
         }
 
         // Fallback to the world transform

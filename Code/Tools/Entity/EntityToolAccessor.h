@@ -34,6 +34,6 @@ namespace KRG
     template<typename T>
     struct TEntityToolAccessor
     {
-        static_assert( std::is_base_of<KRG::Entity, T>::value || std::is_base_of<KRG::EntityComponent, T>::value || std::is_base_of<KRG::IEntitySystem, T>::value, "Invalid specialization - Only allowed to access Entity/Component/System." );
+        static_assert( std::is_base_of<KRG::Entity, T>::value || std::is_base_of<KRG::EntityComponent, T>::value || std::is_base_of<KRG::EntitySystem, T>::value, "Invalid specialization - Only allowed to access Entity/Component/System." );
     };
 }

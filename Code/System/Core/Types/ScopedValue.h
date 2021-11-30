@@ -5,11 +5,11 @@
 namespace KRG
 {
     template<typename T>
-    class TScopedValue
+    class [[nodiscard]] TScopedGuardValue
     {
     public:
 
-        TScopedValue( T& variable, T const& newValue )
+        TScopedGuardValue( T& variable, T const& newValue )
             : m_variable( variable )
             , m_originalValue( variable )
 
@@ -17,17 +17,17 @@ namespace KRG
             variable = newValue;
         }
 
-        ~TScopedValue()
+        ~TScopedGuardValue()
         {
             m_variable = m_originalValue;
         }
 
     private:
 
-        TScopedValue( TScopedValue const& ) = delete;
-        TScopedValue( TScopedValue const&& ) = delete;
-        TScopedValue& operator=( TScopedValue const& ) = delete;
-        TScopedValue& operator=( TScopedValue const&& ) = delete;
+        TScopedGuardValue( TScopedGuardValue const& ) = delete;
+        TScopedGuardValue( TScopedGuardValue const&& ) = delete;
+        TScopedGuardValue& operator=( TScopedGuardValue const& ) = delete;
+        TScopedGuardValue& operator=( TScopedGuardValue const&& ) = delete;
 
     private:
 

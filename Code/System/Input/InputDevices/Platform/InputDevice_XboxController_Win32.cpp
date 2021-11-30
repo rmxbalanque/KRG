@@ -62,6 +62,8 @@ namespace KRG
                 UpdateButtonState( Input::ControllerButton::FaceButtonRight, ( state.Gamepad.wButtons & XINPUT_GAMEPAD_B ) > 0 );
                 UpdateButtonState( Input::ControllerButton::FaceButtonLeft, ( state.Gamepad.wButtons & XINPUT_GAMEPAD_X ) > 0 );
                 UpdateButtonState( Input::ControllerButton::FaceButtonUp, ( state.Gamepad.wButtons & XINPUT_GAMEPAD_Y ) > 0 );
+
+                ControllerInputDevice::UpdateState();
             }
             else
             {

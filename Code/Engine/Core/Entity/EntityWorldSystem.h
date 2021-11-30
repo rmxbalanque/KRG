@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
+#include "Engine/Core/Entity/EntityIDs.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Update/UpdateStage.h"
 #include "System/Core/Types/Containers.h"
-#include "System/Core/Types/UUID.h"
 
 //-------------------------------------------------------------------------
 // World Entity System

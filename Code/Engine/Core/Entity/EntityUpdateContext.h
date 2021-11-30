@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Core/_Module/API.h"
+#include "EntityIDs.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "System/Core/Types/UUID.h"
 
 //-------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ namespace KRG
         EntityUpdateContext( UpdateContext const& context, EntityWorld* pWorld );
 
         // Get the world ID - threadsafe
-        UUID const& GetWorldID() const;
+        EntityWorldID const& GetWorldID() const;
 
         // Get an entity world system - threadsafe since these never changed during the lifetime of a world
         template<typename T> inline T* GetWorldSystem() const

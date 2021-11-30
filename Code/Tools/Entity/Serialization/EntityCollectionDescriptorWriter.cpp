@@ -29,16 +29,13 @@ namespace KRG::EntityModel
         {
             writer.StartObject();
 
-            writer.Key( "ID" );
-            writer.String( componentDesc.m_ID.ToString().c_str() );
-
             writer.Key( "Name" );
             writer.String( componentDesc.m_name.ToString() );
 
-            if ( componentDesc.m_spatialParentID.IsValid() )
+            if ( componentDesc.m_spatialParentName.IsValid() )
             {
                 writer.Key( "SpatialParent" );
-                writer.String( componentDesc.m_spatialParentID.ToString().c_str() );
+                writer.String( componentDesc.m_spatialParentName.c_str() );
             }
 
             if ( componentDesc.m_attachmentSocketID.IsValid() )
@@ -81,9 +78,6 @@ namespace KRG::EntityModel
         static bool WriteEntity( RapidJsonWriter& writer, TypeSystem::TypeRegistry const& typeRegistry, EntityDescriptor const& entityDesc )
         {
             writer.StartObject();
-
-            writer.Key( "ID" );
-            writer.String( entityDesc.m_ID.ToString().c_str() );
 
             writer.Key( "Name" );
             writer.String( entityDesc.m_name.ToString() );
@@ -134,28 +128,56 @@ namespace KRG::EntityModel
 
         //-------------------------------------------------------------------------
 
-        static void CreateDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityCollection const& collection, EntityCollectionDescriptor& outCollectionDesc )
+        static bool CreateDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityCollection const& collection, EntityCollectionDescriptor& outCollectionDesc )
         {
-            auto CreateEntityDesc = [&typeRegistry] ( Entity* pEntity )
+            TVector<StringID> entityNameList;
+            TVector<StringID> entityComponentList;
+
+            //-------------------------------------------------------------------------
+
+            auto CreateEntityDesc = [&typeRegistry, &collection, &entityNameList, &entityComponentList] ( Entity* pEntity, EntityDescriptor& entityDesc )
             {
-                EntityDescriptor entityDesc;
-                entityDesc.m_ID = pEntity->GetID();
+                KRG_ASSERT( !entityDesc.IsValid() );
                 entityDesc.m_name = pEntity->GetName();
 
+                // Check for unique names
+                if ( VectorContains( entityNameList, entityDesc.m_name ) )
+                {
+                    return false;  // Duplicate name detected!!
+                }
+                else
+                {
+                    entityNameList.emplace_back( entityDesc.m_name );
+                }
+
+                // Get spatial parent
                 if ( pEntity->HasSpatialParent() )
                 {
-                    entityDesc.m_spatialParentID = pEntity->GetSpatialParentID();
+                    Entity const* pSpatialParentEntity = collection.FindEntity( pEntity->GetSpatialParentID() );
+                    entityDesc.m_spatialParentName = pSpatialParentEntity->GetName();
                     entityDesc.m_attachmentSocketID = pEntity->GetAttachmentSocketID();
                 }
 
                 // Components
                 //-------------------------------------------------------------------------
 
+                entityComponentList.clear();
+
                 for ( auto pComponent : pEntity->GetComponents() )
                 {
                     ComponentDescriptor componentDesc;
-                    componentDesc.m_ID = pComponent->GetID();
                     componentDesc.m_name = pComponent->GetName();
+
+                    // Check for unique names
+                    if ( VectorContains( entityComponentList, componentDesc.m_name ) )
+                    {
+                        // Duplicate name detected!!
+                        return false;
+                    }
+                    else
+                    {
+                        entityComponentList.emplace_back( componentDesc.m_name );
+                    }
 
                     // Spatial info
                     auto pSpatialEntityComponent = TryCast<SpatialEntityComponent>( pComponent );
@@ -163,7 +185,8 @@ namespace KRG::EntityModel
                     {
                         if ( pSpatialEntityComponent->HasSpatialParent() )
                         {
-                            componentDesc.m_spatialParentID = pSpatialEntityComponent->GetSpatialParentID();
+                            EntityComponent const* pSpatialParentComponent = pEntity->FindComponent( pSpatialEntityComponent->GetSpatialParentID() );
+                            componentDesc.m_spatialParentName = pSpatialParentComponent->GetName();
                             componentDesc.m_attachmentSocketID = pSpatialEntityComponent->GetAttachmentSocketID();
                         }
 
@@ -190,7 +213,7 @@ namespace KRG::EntityModel
                     entityDesc.m_systems.emplace_back( systemDesc );
                 }
 
-                return entityDesc;
+                return true;
             };
 
             //-------------------------------------------------------------------------
@@ -199,11 +222,17 @@ namespace KRG::EntityModel
 
             for ( auto pEntity : collection.GetEntities() )
             {
-                EntityDescriptor entityDesc = CreateEntityDesc( pEntity );
+                EntityDescriptor entityDesc;
+                if ( !CreateEntityDesc( pEntity, entityDesc ) )
+                {
+                    return false;
+                }
                 outCollectionDesc.AddEntity( entityDesc );
             }
 
             outCollectionDesc.GenerateSpatialAttachmentInfo();
+
+            return true;
         }
     }
 
@@ -253,7 +282,11 @@ namespace KRG::EntityModel
     bool EntityCollectionDescriptorWriter::WriteCollection( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& outFilePath, EntityCollection const& collection )
     {
         EntityCollectionDescriptor ecd;
-        CreateDescriptor( typeRegistry, collection, ecd );
+        if ( !CreateDescriptor( typeRegistry, collection, ecd ) )
+        {
+            return false;
+        }
+
         return WriteCollection( typeRegistry, outFilePath, ecd );
     }
 }

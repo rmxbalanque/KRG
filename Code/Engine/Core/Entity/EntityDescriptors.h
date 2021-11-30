@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/_Module/API.h"
+#include "EntityIDs.h"
 #include "System/TypeSystem/TypeDescriptors.h"
 
 //-------------------------------------------------------------------------
@@ -12,23 +13,22 @@ namespace KRG::EntityModel
 {
     struct KRG_ENGINE_CORE_API ComponentDescriptor : public TypeSystem::TypeDescriptor
     {
-        KRG_SERIALIZE_MEMBERS( KRG_SERIALIZE_BASE( TypeSystem::TypeDescriptor ), m_ID, m_spatialParentID, m_attachmentSocketID, m_name, m_isSpatialComponent );
+        KRG_SERIALIZE_MEMBERS( KRG_SERIALIZE_BASE( TypeSystem::TypeDescriptor ), m_spatialParentName, m_attachmentSocketID, m_name, m_isSpatialComponent );
 
     public:
 
-        inline bool IsValid() const { return TypeSystem::TypeDescriptor::IsValid() && m_ID.IsValid() && m_name.IsValid(); }
+        inline bool IsValid() const { return TypeSystem::TypeDescriptor::IsValid() && m_name.IsValid(); }
 
         // Spatial Components
         inline bool IsSpatialComponent() const { return m_isSpatialComponent; }
-        inline bool IsRootComponent() const { KRG_ASSERT( m_isSpatialComponent ); return !m_spatialParentID.IsValid(); }
-        inline bool HasSpatialParent() const { KRG_ASSERT( m_isSpatialComponent ); return m_spatialParentID.IsValid(); }
+        inline bool IsRootComponent() const { KRG_ASSERT( m_isSpatialComponent ); return !m_spatialParentName.IsValid(); }
+        inline bool HasSpatialParent() const { KRG_ASSERT( m_isSpatialComponent ); return m_spatialParentName.IsValid(); }
 
     public:
 
-        UUID                                                        m_ID;
-        UUID                                                        m_spatialParentID;
-        StringID                                                    m_attachmentSocketID;
         StringID                                                    m_name;
+        StringID                                                    m_spatialParentName;
+        StringID                                                    m_attachmentSocketID;
         bool                                                        m_isSpatialComponent = false;
     };
 
@@ -51,29 +51,26 @@ namespace KRG::EntityModel
 
     struct KRG_ENGINE_CORE_API EntityDescriptor
     {
-        KRG_SERIALIZE_MEMBERS( m_ID, m_spatialParentID, m_name, m_attachmentSocketID, m_systems, m_components, m_numSpatialComponents );
+        KRG_SERIALIZE_MEMBERS( m_spatialParentName, m_name, m_attachmentSocketID, m_systems, m_components, m_numSpatialComponents );
 
     public:
 
-        inline bool IsValid() const { return m_ID.IsValid() && m_name.IsValid(); }
+        inline bool IsValid() const { return m_name.IsValid(); }
         inline bool IsSpatialEntity() const { return m_numSpatialComponents > 0; }
-        inline bool HasSpatialParent() const { return m_spatialParentID.IsValid(); }
+        inline bool HasSpatialParent() const { return m_spatialParentName.IsValid(); }
 
-        int32 FindComponentIndex( UUID const& componentID ) const;
+        int32 FindComponentIndex( StringID const& componentName ) const;
 
-        inline ComponentDescriptor const* FindComponent( UUID const& componentID ) const 
+        inline ComponentDescriptor const* FindComponent( StringID const& componentName ) const
         {
-            int32 const componentIdx = FindComponentIndex( componentID );
+            int32 const componentIdx = FindComponentIndex( componentName );
             return ( componentIdx != InvalidIndex ) ? &m_components[componentIdx] : nullptr;
         }
 
-        inline ComponentDescriptor* FindMutableComponent( UUID const& componentID ) { return const_cast<ComponentDescriptor*>( FindComponent( componentID ) ); }
-
     public:
 
-        UUID                                                        m_ID;
-        UUID                                                        m_spatialParentID;
         StringID                                                    m_name;
+        StringID                                                    m_spatialParentName;
         StringID                                                    m_attachmentSocketID;
         TInlineVector<SystemDescriptor,5>                           m_systems;
         TVector<ComponentDescriptor>                                m_components; // Ordered list of components: spatial components are first, followed by regular components

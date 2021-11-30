@@ -438,7 +438,7 @@ namespace KRG::CPP
 
     static void GenerateLoadResourcesMethod( ReflectionDatabase const& database, std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final\n";
+        file << "                virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, Resource::ResourceRequesterID const& requesterID, IRegisteredType* pType ) const override final\n";
         file << "                {\n";
         file << "                    KRG_ASSERT( pResourceSystem != nullptr );\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n\n";
@@ -509,7 +509,7 @@ namespace KRG::CPP
 
     static void GenerateUnloadResourcesMethod( ReflectionDatabase const& database, std::stringstream& file, ReflectedType const& type )
     {
-        file << "                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override final\n";
+        file << "                virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, Resource::ResourceRequesterID const& requesterID, IRegisteredType* pType ) const override final\n";
         file << "                {\n";
         file << "                    KRG_ASSERT( pResourceSystem != nullptr );\n";
         file << "                    auto pActualType = reinterpret_cast<" << type.m_namespace.c_str() << type.m_name.c_str() << "*>( pType );\n\n";
@@ -768,7 +768,7 @@ namespace KRG::CPP
     static void GenerateLoadMethod( std::stringstream& file, ReflectedType const& type )
     {
         file << "\n";
-        file << "    void " << type.m_namespace.c_str() << type.m_name.c_str() << "::Load( EntityModel::EntityLoadingContext const& context, UUID const& requesterID )\n";
+        file << "    void " << type.m_namespace.c_str() << type.m_name.c_str() << "::Load( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID )\n";
         file << "    {\n";
 
         if ( !type.m_properties.empty() )
@@ -787,7 +787,7 @@ namespace KRG::CPP
     static void GenerateUnloadMethod( std::stringstream& file, ReflectedType const& type )
     {
         file << "\n";
-        file << "    void " << type.m_namespace.c_str() << type.m_name.c_str() << "::Unload( EntityModel::EntityLoadingContext const& context, UUID const& requesterID )\n";
+        file << "    void " << type.m_namespace.c_str() << type.m_name.c_str() << "::Unload( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID )\n";
         file << "    {\n";
 
         if ( !type.m_properties.empty() )

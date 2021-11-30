@@ -1,6 +1,6 @@
 #include "AnimationToolsGraph_FlowNode.h"
 #include "AnimationToolsGraph_Variations.h"
-#include "Engine/Animation/Components/AnimationGraphComponent.h"
+#include "Engine/Animation/Components/Component_AnimationGraph.h"
 
 //-------------------------------------------------------------------------
 

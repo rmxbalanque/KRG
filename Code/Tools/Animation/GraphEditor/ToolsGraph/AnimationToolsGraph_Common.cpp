@@ -1,6 +1,6 @@
 #include "AnimationToolsGraph_Common.h"
 #include "Tools/Core/GraphEditor/GraphEditorDrawingContext.h"
-#include "Engine/Animation/Components/AnimationGraphComponent.h"
+#include "Engine/Animation/Components/Component_AnimationGraph.h"
 
 //-------------------------------------------------------------------------
 

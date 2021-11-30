@@ -7,6 +7,7 @@ namespace KRG
 {
     class Entity;
     class EntityComponent;
+    class TaskSystem;
 }
 
 //-------------------------------------------------------------------------
@@ -17,7 +18,15 @@ namespace KRG::EntityModel
     {
         ActivationContext() = default;
 
+        ActivationContext( TaskSystem* pTaskSystem )
+            : m_pTaskSystem( pTaskSystem )
+        {}
+
+        inline bool IsValid() const { return m_pTaskSystem != nullptr; }
+
     public:
+
+        TaskSystem*                                                 m_pTaskSystem = nullptr;
 
         // World system registration
         Threading::LockFreeQueue<TPair<Entity*, EntityComponent*>>  m_componentsToRegister;

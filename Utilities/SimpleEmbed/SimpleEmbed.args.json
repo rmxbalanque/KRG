@@ -1,0 +1,18 @@
+{
+  "FileVersion": 2,
+  "Id": "9e46203a-785a-41a3-bd18-2de2a7a7e4d7",
+  "Items": [
+    {
+      "Id": "8b403720-3885-4cc6-aa1f-edcc8382ecfd",
+      "Command": "-i BlueprintBackground.png -o bluebackground "
+    },
+    {
+      "Id": "49bc2f48-9cac-4202-82ca-51b27c39d899",
+      "Command": "-ns KRG::Blah"
+    },
+    {
+      "Id": "e1f58225-5e85-4734-b7b4-f41aecb0ebc6",
+      "Command": " -dll SOME_API"
+    }
+  ]
+}

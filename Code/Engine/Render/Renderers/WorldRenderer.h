@@ -60,6 +60,7 @@ namespace KRG::Render
             Vector        m_SunDirIndirectIntensity;// TODO: refactor to Float3 and float
             Vector        m_SunColorRoughnessOneLevel;// TODO: refactor to Float3 and float
             Matrix        m_sunShadowMapMatrix;
+            float         m_manualExposure;
             uint32        m_lightingFlags;
             uint32        m_numPunctualLights;
             PunctualLight m_punctualLights[MAX_PUNCTUAL_LIGHTS];
@@ -83,19 +84,20 @@ namespace KRG::Render
 
         struct RenderData //TODO: optimize - there should not be per frame updates
         {
-            Transforms m_transforms;
-            LightData m_lightData;
-            CubemapTexture const* m_pSkyboxRadianceTexture;
-            CubemapTexture const* m_pSkyboxTexture;
-            TVector<StaticMeshComponent const*>& m_staticMeshComponents;
-            TVector<SkeletalMeshComponent const*>& m_skeletalMeshComponents;
+            Transforms                              m_transforms;
+            LightData                               m_lightData;
+            CubemapTexture const*                   m_pSkyboxRadianceTexture;
+            CubemapTexture const*                   m_pSkyboxTexture;
+            TVector<StaticMeshComponent const*>&    m_staticMeshComponents;
+            TVector<SkeletalMeshComponent const*>&  m_skeletalMeshComponents;
         };
 
     public:
 
         KRG_RENDERER_ID( WorldRenderer, Render::RendererPriorityLevel::Game );
 
-        static void SetupMaterial( RenderContext const& renderContext, PixelShader& pixelShader, Material const* pMaterial );
+        static void SetMaterial( RenderContext const& renderContext, PixelShader& pixelShader, Material const* pMaterial );
+        static void SetDefaultMaterial( RenderContext const& renderContext, PixelShader& pixelShader );
 
     public:
 

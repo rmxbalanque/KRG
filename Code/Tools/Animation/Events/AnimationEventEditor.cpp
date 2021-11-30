@@ -1,5 +1,5 @@
 #include "AnimationEventEditor.h"
-#include "Engine/Animation/Components/AnimationPlayerComponent.h"
+#include "Engine/Animation/Components/Component_AnimationClipPlayer.h"
 #include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
@@ -20,7 +20,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    void EventEditor::UpdateAndDraw( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent )
+    void EventEditor::UpdateAndDraw( UpdateContext const& context, AnimationClipPlayerComponent* pPreviewAnimationComponent )
     {
         KRG_ASSERT( pPreviewAnimationComponent != nullptr );
 
@@ -29,12 +29,12 @@ namespace KRG::Animation
 
         if ( IsPlaying() && pPreviewAnimationComponent->IsPosed() )
         {
-            pPreviewAnimationComponent->SetPlayMode( IsLoopingEnabled() ? AnimationPlayerComponent::PlayMode::Loop : AnimationPlayerComponent::PlayMode::PlayOnce );
+            pPreviewAnimationComponent->SetPlayMode( IsLoopingEnabled() ? AnimationClipPlayerComponent::PlayMode::Loop : AnimationClipPlayerComponent::PlayMode::PlayOnce );
             pPreviewAnimationComponent->SetAnimTime( GetPlayheadPositionAsPercentage() );
         }
         else if ( IsPaused() && !pPreviewAnimationComponent->IsPosed() )
         {
-            pPreviewAnimationComponent->SetPlayMode( AnimationPlayerComponent::PlayMode::Posed );
+            pPreviewAnimationComponent->SetPlayMode( AnimationClipPlayerComponent::PlayMode::Posed );
         }
 
         // Draw track editor and manage playhead data

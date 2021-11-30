@@ -1,11 +1,11 @@
 #include "DebugView_EntityWorld.h"
 #include "System/Render/Imgui/ImguiX.h"
+#include "Engine/Core/Components/Component_Cameras.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
-#include "Engine/Core/Components/CameraComponents.h"
 
 //-------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ namespace KRG
 
         ImGui::Text( pComponent->GetName().c_str() );
         ImGui::SameLine();
-        ImGui::Text( " - %s - ", pComponent->GetID().ToString().c_str() );
+        ImGui::Text( " - %u - ", pComponent->GetID() );
         ImGui::SameLine();
 
         EntityComponent::Status const componentStatus = pComponent->GetStatus();
@@ -299,7 +299,7 @@ namespace KRG
                 if ( m_pSelectedEntity != nullptr )
                 {
                     ImGui::Text( "Entity Name: %s", m_pSelectedEntity->GetName().c_str() );
-                    ImGui::Text( "Entity ID: %s", m_pSelectedEntity->GetID().ToString().c_str() );
+                    ImGui::Text( "Entity ID: %u", m_pSelectedEntity->GetID() );
 
                     ImGui::Separator();
 

@@ -7,7 +7,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Resource { class ResourceSystem; }
+namespace KRG::Resource { class ResourceSystem; class ResourceRequesterID; }
 
 //-------------------------------------------------------------------------
 // Type Helper Interface
@@ -35,8 +35,8 @@ namespace KRG::TypeSystem
         // Resource Helpers
         //-------------------------------------------------------------------------
 
-        virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& userID, IRegisteredType* pType ) const = 0;
-        virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& userID, IRegisteredType* pType ) const = 0;
+        virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, Resource::ResourceRequesterID const& requesterID, IRegisteredType* pType ) const = 0;
+        virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, Resource::ResourceRequesterID const& requesterID, IRegisteredType* pType ) const = 0;
         virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const = 0;
         virtual LoadingStatus GetResourceUnloadingStatus( IRegisteredType* pType ) const = 0;
         virtual ResourceTypeID GetExpectedResourceTypeForProperty( IRegisteredType* pType, uint32 propertyID ) const = 0;

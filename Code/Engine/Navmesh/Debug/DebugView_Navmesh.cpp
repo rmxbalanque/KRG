@@ -1,6 +1,6 @@
 #include "DebugView_Navmesh.h"
 #include "Engine/Navmesh/NavmeshSystem.h"
-#include "Engine/Navmesh/NavmeshWorldSystem.h"
+#include "Engine/Navmesh/Systems/WorldSystem_Navmesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
@@ -31,7 +31,6 @@ namespace KRG::Navmesh
 
     void NavmeshDebugView::DrawMenu( EntityUpdateContext const& context )
     {
-        #if KRG_ENABLE_NAVPOWER
         auto CreateCheckboxForFlag = [] ( char const* pLabel, bfx::PlannerDebugFlag flag )
         {
             bool isEnabled = bfx::GetGlobalDebugFlag( flag );
@@ -95,7 +94,6 @@ namespace KRG::Navmesh
 
             ImGui::EndMenu();
         }
-        #endif
     }
 
     void NavmeshDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )

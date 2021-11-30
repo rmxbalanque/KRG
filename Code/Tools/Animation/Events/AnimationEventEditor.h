@@ -9,7 +9,7 @@
 //-------------------------------------------------------------------------
 
 namespace KRG { class UpdateContext; }
-namespace KRG::Animation { class AnimationPlayerComponent; }
+namespace KRG::Animation { class AnimationClipPlayerComponent; }
 
 //-------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ namespace KRG::Animation
 
         inline ResourceID const& GetAnimationID() const { return m_animationID; }
 
-        void UpdateAndDraw( UpdateContext const& context, AnimationPlayerComponent* pPreviewAnimationComponent );
+        void UpdateAndDraw( UpdateContext const& context, AnimationClipPlayerComponent* pPreviewAnimationComponent );
 
         virtual bool RequestSave() override;
 

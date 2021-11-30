@@ -3,7 +3,7 @@
 #include "Engine/Core/Entity/EntityWorldManager.h"
 #include "Engine/Core/Entity/EntityWorldDebugger.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/Systems/WorldSystem.h"
+#include "Engine/Core/Systems/WorldSystem_PlayerManager.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
@@ -81,8 +81,8 @@ namespace KRG
         {
             m_debugOverlayEnabled = !m_debugOverlayEnabled;
 
-            auto pWorldSystem = pGameWorld->GetWorldSystem<WorldSystem>();
-            pWorldSystem->SetDevelopmentPlayerEnabled( m_debugOverlayEnabled );
+            auto pPlayerWorldSystem = pGameWorld->GetWorldSystem<PlayerManager>();
+            pPlayerWorldSystem->SetDevelopmentPlayerEnabled( m_debugOverlayEnabled );
         }
 
         //-------------------------------------------------------------------------

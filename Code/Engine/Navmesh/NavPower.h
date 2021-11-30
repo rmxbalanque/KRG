@@ -1,5 +1,4 @@
 #pragma once
-#if KRG_ENABLE_NAVPOWER
 #include "_Module/API.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Types/Color.h"
@@ -81,4 +80,3 @@ namespace KRG::Navmesh
         virtual const char* GetName() const override { return "KRUGER"; }
     };
 }
-#endif

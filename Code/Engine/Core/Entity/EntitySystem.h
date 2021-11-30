@@ -15,15 +15,15 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_CORE_API IEntitySystem : public IRegisteredType
+    class KRG_ENGINE_CORE_API EntitySystem : public IRegisteredType
     {
-        KRG_REGISTER_TYPE( IEntitySystem );
+        KRG_REGISTER_TYPE( EntitySystem );
 
         friend class Entity;
 
     public:
 
-        virtual ~IEntitySystem() {}
+        virtual ~EntitySystem() {}
         virtual char const* GetName() const = 0;
 
     protected:

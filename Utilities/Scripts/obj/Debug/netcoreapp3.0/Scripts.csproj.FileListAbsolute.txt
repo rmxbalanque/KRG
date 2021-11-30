@@ -1,0 +1,30 @@
+E:\KRG Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.exe
+E:\KRG Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.deps.json
+E:\KRG Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.runtimeconfig.json
+E:\KRG Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.runtimeconfig.dev.json
+E:\KRG Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.dll
+E:\KRG Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.pdb
+E:\KRG Tools\Scripts\bin\Debug\netcoreapp3.0\Newtonsoft.Json.dll
+E:\KRG Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.csprojAssemblyReference.cache
+E:\KRG Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.AssemblyInfoInputs.cache
+E:\KRG Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.AssemblyInfo.cs
+E:\KRG Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.csproj.CopyComplete
+E:\KRG Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.dll
+E:\KRG Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.pdb
+E:\KRG Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.csproj.CoreCompileInputs.cache
+E:\KRG Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.genruntimeconfig.cache
+D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.exe
+D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.deps.json
+D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.runtimeconfig.json
+D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.runtimeconfig.dev.json
+D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.dll
+D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.0\Scripts.pdb
+D:\Kruger\Tools\Scripts\bin\Debug\netcoreapp3.0\Newtonsoft.Json.dll
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.csprojAssemblyReference.cache
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.csproj.CoreCompileInputs.cache
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.AssemblyInfoInputs.cache
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.AssemblyInfo.cs
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.csproj.CopyComplete
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.dll
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.pdb
+D:\Kruger\Tools\Scripts\obj\Debug\netcoreapp3.0\Scripts.genruntimeconfig.cache

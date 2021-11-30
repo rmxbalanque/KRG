@@ -4,9 +4,7 @@
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Math/Transform.h"
 
-#if KRG_ENABLE_NAVPOWER
 #include <bfxBuilder.h>
-#endif
 
 //-------------------------------------------------------------------------
 
@@ -41,9 +39,7 @@ namespace KRG::Navmesh
 
     private:
 
-        #if KRG_ENABLE_NAVPOWER
         TVector<bfx::BuildFace>         m_buildFaces;
         TVector<bfx::BuildParams>       m_buildParams;
-        #endif
     };
 }

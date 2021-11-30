@@ -12,7 +12,7 @@ namespace KRG::EntityModel
 
     class EntityCollectionCompiler final : public Resource::Compiler
     {
-        static const int32 s_version = 2;
+        static const int32 s_version = 5;
 
     public:
 

@@ -30,14 +30,19 @@ namespace KRG::EntityModel
         {
             ParsingContext( TypeSystem::TypeRegistry const& typeRegistry ) : m_typeRegistry( typeRegistry ) {}
 
-            inline bool DoesComponentExist( UUID componentID ) const
+            inline void ClearComponentNames()
             {
-                return m_componentIDs.find( componentID ) != m_componentIDs.end();
+                m_componentNames.clear();
             }
 
-            inline bool DoesEntityExist( UUID entityID ) const
+            inline bool DoesComponentExist( StringID componentName ) const
             {
-                return m_entityIDs.find( entityID ) != m_entityIDs.end();
+                return m_componentNames.find( componentName ) != m_componentNames.end();
+            }
+
+            inline bool DoesEntityExist( StringID entityName ) const
+            {
+                return m_entityNames.find( entityName ) != m_entityNames.end();
             }
 
         public:
@@ -45,11 +50,11 @@ namespace KRG::EntityModel
             TypeSystem::TypeRegistry const&             m_typeRegistry;
 
             // Parsing context ID - Entity/Component/etc...
-            UUID                                        m_parsingContextID;
+            StringID                                    m_parsingContextName;
 
-            // Maps to allow for fast lookups of entityIDs for validation
-            THashMap<UUID, bool>                        m_entityIDs;
-            THashMap<UUID, bool>                        m_componentIDs;
+            // Maps to allow for fast lookups of entity/component names for validation
+            THashMap<StringID, bool>                    m_entityNames;
+            THashMap<StringID, bool>                    m_componentNames;
         };
 
         //-------------------------------------------------------------------------
@@ -88,18 +93,10 @@ namespace KRG::EntityModel
             // Read name and ID
             //-------------------------------------------------------------------------
 
-            auto IDIter = componentObject.FindMember( "ID" );
-            if ( IDIter == componentObject.MemberEnd() || !IDIter->value.IsString() || !UUID::IsValidUUIDString( IDIter->value.GetString() ) )
-            {
-                return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
-            }
-
-            outComponentDesc.m_ID = UUID( IDIter->value.GetString() );
-
             auto nameIter = componentObject.FindMember( "Name" );
             if ( nameIter == componentObject.MemberEnd() || !nameIter->value.IsString() || nameIter->value.GetStringLength() == 0 )
             {
-                return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
+                return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextName.c_str() );
             }
 
             outComponentDesc.m_name = StringID( nameIter->value.GetString() );
@@ -110,7 +107,7 @@ namespace KRG::EntityModel
             auto typeDataIter = componentObject.FindMember( "TypeData" );
             if ( typeDataIter == componentObject.MemberEnd() || !typeDataIter->value.IsObject() )
             {
-                return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and Type Data values set", ctx.m_parsingContextID.ToString().c_str() );
+                return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and Type Data values set", ctx.m_parsingContextName.c_str() );
             }
 
             RapidJsonValue const& componentTypeDataObject = typeDataIter->value;
@@ -118,7 +115,7 @@ namespace KRG::EntityModel
             auto typeIDIter = componentTypeDataObject.FindMember( TypeSystem::Serialization::Constants::s_typeID );
             if ( typeIDIter == componentTypeDataObject.MemberEnd() || !typeIDIter->value.IsString() )
             {
-                Error( "Invalid type data found for component: '%s' on entity %s!", nameIter->value.GetString(), ctx.m_parsingContextID.ToString().c_str() );
+                Error( "Invalid type data found for component: '%s' on entity %s!", nameIter->value.GetString(), ctx.m_parsingContextName.c_str() );
                 return false;
             }
 
@@ -130,7 +127,7 @@ namespace KRG::EntityModel
             auto pTypeInfo = ctx.m_typeRegistry.GetTypeInfo( outComponentDesc.m_typeID );
             if ( pTypeInfo == nullptr )
             {
-                return Error( "Invalid entity component type ID detected for entity (%s): %s", ctx.m_parsingContextID.ToString().c_str(), outComponentDesc.m_typeID.c_str() );
+                return Error( "Invalid entity component type ID detected for entity (%s): %s", ctx.m_parsingContextName.c_str(), outComponentDesc.m_typeID.c_str() );
             }
 
             outComponentDesc.m_isSpatialComponent = pTypeInfo->IsDerivedFrom<SpatialEntityComponent>();
@@ -140,7 +137,7 @@ namespace KRG::EntityModel
                 auto spatialParentIter = componentObject.FindMember( "SpatialParent" );
                 if ( spatialParentIter != componentObject.MemberEnd() && spatialParentIter->value.IsString() )
                 {
-                    outComponentDesc.m_spatialParentID = UUID( spatialParentIter->value.GetString() );
+                    outComponentDesc.m_spatialParentName = StringID( spatialParentIter->value.GetString() );
                 }
 
                 auto attachmentSocketIter = componentObject.FindMember( "AttachmentSocketID" );
@@ -182,14 +179,14 @@ namespace KRG::EntityModel
 
             //-------------------------------------------------------------------------
 
-            if ( ctx.DoesComponentExist( outComponentDesc.m_ID ) )
+            if ( ctx.DoesComponentExist( outComponentDesc.m_name ) )
             {
-                Error( "Duplicate component UUID detected: '%s' on entity %s!", outComponentDesc.m_ID.ToString().c_str(), ctx.m_parsingContextID.ToString().c_str() );
+                Error( "Duplicate component UUID detected: '%s' on entity %s!", outComponentDesc.m_name.c_str(), ctx.m_parsingContextName.c_str() );
                 return false;
             }
             else
             {
-                ctx.m_componentIDs.insert( TPair<UUID, bool>( outComponentDesc.m_ID, true ) );
+                ctx.m_componentNames.insert( TPair<StringID, bool>( outComponentDesc.m_name, true ) );
                 return true;
             }
         }
@@ -201,12 +198,12 @@ namespace KRG::EntityModel
             auto typeIDIter = systemObject.FindMember( TypeSystem::Serialization::Constants::s_typeID );
             if ( typeIDIter == systemObject.MemberEnd() || !typeIDIter->value.IsString() )
             {
-                return Error( "Invalid entity system format (systems must have a TypeID string value set) on entity %s", ctx.m_parsingContextID.ToString().c_str() );
+                return Error( "Invalid entity system format (systems must have a TypeID string value set) on entity %s", ctx.m_parsingContextName.c_str() );
             }
 
             if ( typeIDIter->value.GetStringLength() == 0 )
             {
-                return Error( "Invalid entity system format (systems must have a TypeID string value set) on entity %s", ctx.m_parsingContextID.ToString().c_str() );
+                return Error( "Invalid entity system format (systems must have a TypeID string value set) on entity %s", ctx.m_parsingContextName.c_str() );
             }
 
             outSystemDesc.m_typeID = StringID( typeIDIter->value.GetString() );
@@ -220,18 +217,10 @@ namespace KRG::EntityModel
             // Read name and ID
             //-------------------------------------------------------------------------
 
-            auto IDIter = entityObject.FindMember( "ID" );
-            if ( IDIter == entityObject.MemberEnd() || !IDIter->value.IsString() || !UUID::IsValidUUIDString( IDIter->value.GetString() ) )
-            {
-                return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
-            }
-
-            outEntityDesc.m_ID = UUID( IDIter->value.GetString() );
-
             auto nameIter = entityObject.FindMember( "Name" );
             if ( nameIter == entityObject.MemberEnd() || !nameIter->value.IsString() || nameIter->value.GetStringLength() == 0 )
             {
-                return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextID.ToString().c_str() );
+                return Error( "Invalid entity component format detected for entity (%s): components must have ID, Name and TypeID string values set", ctx.m_parsingContextName.c_str() );
             }
 
             outEntityDesc.m_name = StringID( nameIter->value.GetString() );
@@ -242,7 +231,7 @@ namespace KRG::EntityModel
             auto spatialParentIter = entityObject.FindMember( "SpatialParent" );
             if ( spatialParentIter != entityObject.MemberEnd() && spatialParentIter->value.IsString() )
             {
-                outEntityDesc.m_spatialParentID = UUID( spatialParentIter->value.GetString() );
+                outEntityDesc.m_spatialParentName = StringID( spatialParentIter->value.GetString() );
             }
 
             auto attachmentSocketIter = entityObject.FindMember( "AttachmentSocketID" );
@@ -254,11 +243,13 @@ namespace KRG::EntityModel
             // Set parsing ctx ID
             //-------------------------------------------------------------------------
 
-            ctx.m_parsingContextID = outEntityDesc.m_ID;
+            ctx.m_parsingContextName = outEntityDesc.m_name;
 
             //-------------------------------------------------------------------------
             // Read components
             //-------------------------------------------------------------------------
+
+            ctx.ClearComponentNames();
 
             auto componentsArrayIter = entityObject.FindMember( "Components" );
             if ( componentsArrayIter != entityObject.MemberEnd() && componentsArrayIter->value.IsArray() )
@@ -276,7 +267,7 @@ namespace KRG::EntityModel
                 {
                     if ( !ReadComponent( ctx, componentsArrayIter->value[i], outEntityDesc.m_components[i] ) )
                     {
-                        return Error( "Failed to read component definition %u for entity (%s)", i, outEntityDesc.m_ID.ToString().c_str() );
+                        return Error( "Failed to read component definition %u for entity (%s)", i, outEntityDesc.m_name.c_str() );
                     }
 
                     if ( outEntityDesc.m_components[i].IsSpatialComponent() )
@@ -285,7 +276,7 @@ namespace KRG::EntityModel
                         {
                             if ( wasRootComponentFound )
                             {
-                                return Error( "Multiple root components found on entity (%s)", outEntityDesc.m_ID.ToString().c_str() );
+                                return Error( "Multiple root components found on entity (%s)", outEntityDesc.m_name.c_str() );
                             }
                             else
                             {
@@ -297,6 +288,20 @@ namespace KRG::EntityModel
                     }
                 }
 
+                // Validate spatial components
+                //-------------------------------------------------------------------------
+
+                for ( auto const& componentDesc : outEntityDesc.m_components )
+                {
+                    if ( componentDesc.IsSpatialComponent() && componentDesc.HasSpatialParent() )
+                    {
+                        if ( !ctx.DoesComponentExist( componentDesc.m_spatialParentName ) )
+                        {
+                            return Error( "Couldn't find spatial parent (%s) for component (%s) on entity (%s)", componentDesc.m_spatialParentName.c_str(), componentDesc.m_name.c_str(), outEntityDesc.m_name.c_str() );
+                        }
+                    }
+                }
+
                 // Validate singleton components
                 //-------------------------------------------------------------------------
                 // As soon as a given component is a singleton all components derived from it are singleton components
@@ -304,6 +309,11 @@ namespace KRG::EntityModel
                 for ( int32 i = 0; i < numComponents; i++ )
                 {
                     auto pComponentTypeInfo = ctx.m_typeRegistry.GetTypeInfo( outEntityDesc.m_components[i].m_typeID );
+                    if ( pComponentTypeInfo->IsAbstractType() )
+                    {
+                        return Error( "Abstract component type detected (%s) found on entity (%s)", pComponentTypeInfo->GetTypeName(), outEntityDesc.m_name.c_str() );
+                    }
+
                     auto pDefaultComponentInstance = Cast<EntityComponent>( pComponentTypeInfo->GetDefaultInstance() );
                     if ( !pDefaultComponentInstance->IsSingletonComponent() )
                     {
@@ -319,7 +329,7 @@ namespace KRG::EntityModel
 
                         if ( ctx.m_typeRegistry.IsTypeDerivedFrom( outEntityDesc.m_components[j].m_typeID, outEntityDesc.m_components[i].m_typeID ) )
                         {
-                            return Error( "Multiple singleton components of type (%s) found on the same entity (%s)", pComponentTypeInfo->GetTypeName(), outEntityDesc.m_ID.ToString().c_str() );
+                            return Error( "Multiple singleton components of type (%s) found on the same entity (%s)", pComponentTypeInfo->GetTypeName(), outEntityDesc.m_name.c_str() );
                         }
                     }
                 }
@@ -375,24 +385,24 @@ namespace KRG::EntityModel
                 {
                     if ( !ReadSystemData( ctx, systemsArrayIter->value[i], outEntityDesc.m_systems[i] ) )
                     {
-                        return Error( "Failed to read system definition %u on entity (%s)", i, outEntityDesc.m_ID.ToString().c_str() );
+                        return Error( "Failed to read system definition %u on entity (%s)", i, outEntityDesc.m_name.c_str() );
                     }
                 }
             }
 
             //-------------------------------------------------------------------------
 
-            ctx.m_parsingContextID.Clear();
+            ctx.m_parsingContextName.Clear();
 
             //-------------------------------------------------------------------------
 
-            if ( ctx.DoesEntityExist( outEntityDesc.m_ID ) )
+            if ( ctx.DoesEntityExist( outEntityDesc.m_name ) )
             {
-                return Error( "Duplicate entity ID detected: %s", outEntityDesc.m_ID.ToString().c_str() );
+                return Error( "Duplicate entity ID detected: %s", outEntityDesc.m_name.c_str() );
             }
             else
             {
-                ctx.m_entityIDs.insert( TPair<UUID, bool>( outEntityDesc.m_ID, true ) );
+                ctx.m_entityNames.insert( TPair<StringID, bool>( outEntityDesc.m_name, true ) );
                 return true;
             }
         }

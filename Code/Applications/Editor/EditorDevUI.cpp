@@ -2,7 +2,7 @@
 #include "MapEditor/Workspace_MapEditor.h"
 #include "MapEditor/Workspace_GamePreviewer.h"
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
-#include "Engine/Render/WorldSystems/WorldRendererSystem.h"
+#include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Physics/Debug/DebugView_Physics.h"
 #include "Engine/Core/DevUI/OrientationGuide.h"
 #include "Engine/Core/Entity/EntityWorld.h"

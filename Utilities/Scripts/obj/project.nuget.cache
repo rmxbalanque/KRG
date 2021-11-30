@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "s25fxM94x8wZSkROK+rDWORw4VwanNut3Xqey+DOsOwRGDtvOJKrY3EWBzasulEagdY1vtYZGfSw+fXYRmU6wA==",
+  "success": true,
+  "projectFilePath": "D:\\Kruger\\Utilities\\Scripts\\Scripts.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\bobby\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -21,14 +21,13 @@ namespace KRG::EntityModel
         //-------------------------------------------------------------------------
 
         auto pEntity = reinterpret_cast<Entity*>( pEntityTypeInfo->m_pTypeHelper->CreateType() );
-        pEntity->m_ID = entityDesc.m_ID;
         pEntity->m_name = entityDesc.m_name;
 
         // Create entity components
         //-------------------------------------------------------------------------
         // Component descriptors are sorted during compilation, spatial components are first, followed by regular components
 
-        for ( auto const& componentDesc : entityDesc.m_components )
+        for ( ComponentDescriptor const& componentDesc : entityDesc.m_components )
         {
             auto pEntityComponent = componentDesc.CreateTypeInstance<EntityComponent>( typeRegistry );
             KRG_ASSERT( pEntityComponent != nullptr );
@@ -37,7 +36,6 @@ namespace KRG::EntityModel
             KRG_ASSERT( pTypeInfo != nullptr );
 
             // Set IDs and add to component lists
-            pEntityComponent->m_ID = componentDesc.m_ID;
             pEntityComponent->m_name = componentDesc.m_name;
             pEntityComponent->m_entityID = pEntity->m_ID;
             pEntity->m_components.push_back( pEntityComponent );
@@ -65,22 +63,22 @@ namespace KRG::EntityModel
         int32 const numComponents = (int32) pEntity->m_components.size();
         for ( int32 spatialComponentIdx = 0; spatialComponentIdx < entityDesc.m_numSpatialComponents; spatialComponentIdx++ )
         {
-            auto const& spatialComponentDesc = entityDesc.m_components[spatialComponentIdx];
+            ComponentDescriptor const& spatialComponentDesc = entityDesc.m_components[spatialComponentIdx];
             KRG_ASSERT( spatialComponentDesc.IsSpatialComponent() );
 
             // Skip the root component
             if ( spatialComponentDesc.IsRootComponent() )
             {
-                KRG_ASSERT( pEntity->GetRootSpatialComponent()->GetID() == spatialComponentDesc.m_ID );
+                KRG_ASSERT( pEntity->GetRootSpatialComponent()->GetName() == spatialComponentDesc.m_name );
                 continue;
             }
 
             // Todo: profile this lookup and if it becomes too costly, pre-compute the parent indices and serialize them
-            int32 const parentComponentIdx = entityDesc.FindComponentIndex( spatialComponentDesc.m_spatialParentID );
+            int32 const parentComponentIdx = entityDesc.FindComponentIndex( spatialComponentDesc.m_spatialParentName );
             KRG_ASSERT( parentComponentIdx != InvalidIndex );
 
             auto pParentSpatialComponent = static_cast<SpatialEntityComponent*>( pEntity->m_components[parentComponentIdx] );
-            if ( spatialComponentDesc.m_spatialParentID == pParentSpatialComponent->GetID() )
+            if ( spatialComponentDesc.m_spatialParentName == pParentSpatialComponent->GetName() )
             {
                 auto pSpatialComponent = static_cast<SpatialEntityComponent*>( pEntity->m_components[spatialComponentIdx] );
                 pSpatialComponent->m_pSpatialParent = pParentSpatialComponent;
@@ -95,7 +93,7 @@ namespace KRG::EntityModel
         for ( auto const& systemDesc : entityDesc.m_systems )
         {
             TypeSystem::TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( systemDesc.m_typeID );
-            auto pEntitySystem = reinterpret_cast<IEntitySystem*>( pTypeInfo->m_pTypeHelper->CreateType() );
+            auto pEntitySystem = reinterpret_cast<EntitySystem*>( pTypeInfo->m_pTypeHelper->CreateType() );
             KRG_ASSERT( pEntitySystem != nullptr );
 
             pEntity->m_systems.push_back( pEntitySystem );
@@ -109,7 +107,7 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionDesc )
+    EntityCollection::EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionID const& ID, EntityCollectionDescriptor const& entityCollectionDesc )
         : m_ID( ID )
     {
         KRG_ASSERT( ID.IsValid() );
@@ -130,18 +128,18 @@ namespace KRG::EntityModel
 
         pEntity->m_collectionID = m_ID;
         m_entities.push_back( pEntity );
-        m_entityLookupMap.insert( TPair<UUID, Entity*>( pEntity->m_ID, pEntity ) );
+        m_entityIDLookupMap.insert( TPair<EntityID, Entity*>( pEntity->m_ID, pEntity ) );
     }
 
-    void EntityCollection::RemoveEntityFromCollection( UUID entityID )
+    void EntityCollection::RemoveEntityFromCollection( EntityID entityID )
     {
-        auto iter = m_entityLookupMap.find( entityID );
-        KRG_ASSERT( iter != m_entityLookupMap.end() );
+        auto iter = m_entityIDLookupMap.find( entityID );
+        KRG_ASSERT( iter != m_entityIDLookupMap.end() );
 
         auto pEntity = iter->second;
         KRG_ASSERT( !pEntity->IsActivated() );
 
-        m_entityLookupMap.erase( iter );
+        m_entityIDLookupMap.erase( iter );
         m_entities.erase_first( pEntity );
     }
 
@@ -152,7 +150,7 @@ namespace KRG::EntityModel
         KRG_PROFILE_FUNCTION_SCENE();
 
         m_entities.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
-        m_entityLookupMap.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
+        m_entityIDLookupMap.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
 
         for ( auto const& entityDesc : entityCollectionTemplate.m_entityDescriptors )
         {
@@ -203,11 +201,11 @@ namespace KRG::EntityModel
         taskSystem.WaitForTask( &updateTask );
 
         // Add all entities to lookup map
-        m_entityLookupMap.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
+        m_entityIDLookupMap.reserve( entityCollectionTemplate.m_entityDescriptors.size() );
         for ( auto pEntity : m_entities )
         {
             pEntity->m_collectionID = m_ID;
-            m_entityLookupMap.insert( TPair<UUID, Entity*>( pEntity->m_ID, pEntity ) );
+            m_entityIDLookupMap.insert( TPair<EntityID, Entity*>( pEntity->m_ID, pEntity ) );
         }
     }
 
@@ -245,7 +243,7 @@ namespace KRG::EntityModel
         }
 
         m_entities.clear();
-        m_entityLookupMap.clear();
+        m_entityIDLookupMap.clear();
     }
 
     void EntityCollection::TransferEntities( TVector<Entity*>& outEntities )
@@ -259,6 +257,6 @@ namespace KRG::EntityModel
         //-------------------------------------------------------------------------
 
         m_entities.swap( outEntities );
-        m_entityLookupMap.clear();
+        m_entityIDLookupMap.clear();
     }
 }

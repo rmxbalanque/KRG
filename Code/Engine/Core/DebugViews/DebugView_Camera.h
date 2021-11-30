@@ -7,7 +7,7 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
-    class WorldSystem;
+    class PlayerManager;
 
     //-------------------------------------------------------------------------
 
@@ -30,9 +30,9 @@ namespace KRG
 
     private:
 
-        EntityWorld const*      m_pWorld = nullptr;
-        WorldSystem const*      m_pWorldSystem = nullptr;
-        bool                    m_isCameraDebugWindowOpen = false;
+        EntityWorld const*              m_pWorld = nullptr;
+        PlayerManager const*        m_pPlayerWorldSystem = nullptr;
+        bool                            m_isCameraDebugWindowOpen = false;
     };
 }
 #endif

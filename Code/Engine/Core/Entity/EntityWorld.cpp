@@ -49,6 +49,9 @@ namespace KRG
         m_loadingContext = EntityModel::EntityLoadingContext( m_pTaskSystem, systemsRegistry.GetSystem<TypeSystem::TypeRegistry>(), systemsRegistry.GetSystem<Resource::ResourceSystem>() );
         KRG_ASSERT( m_loadingContext.IsValid() );
 
+        m_activationContext = EntityModel::ActivationContext( m_pTaskSystem );
+        KRG_ASSERT( m_activationContext.IsValid() );
+
         // Create World Systems
         //-------------------------------------------------------------------------
 
@@ -84,7 +87,7 @@ namespace KRG
 
         m_maps.emplace_back( EntityModel::EntityMap() );
         m_maps[0].Load( m_loadingContext );
-        m_maps[0].Activate( m_loadingContext, m_activationContext );
+        m_maps[0].Activate( m_activationContext );
 
         //-------------------------------------------------------------------------
 
@@ -204,7 +207,7 @@ namespace KRG
             {
                 if ( m_maps[i].IsLoaded() )
                 {
-                    m_maps[i].Activate( m_loadingContext, m_activationContext );
+                    m_maps[i].Activate( m_activationContext );
                 }
                 else if ( m_maps[i].IsUnloaded() )
                 {
@@ -308,9 +311,9 @@ namespace KRG
             Entity* pEntityToUnregister = nullptr;
             while ( m_activationContext.m_unregisterForEntityUpdate.try_dequeue( pEntityToUnregister ) )
             {
-                KRG_ASSERT( pEntityToUnregister != nullptr && pEntityToUnregister->m_isRegisteredForUpdates );
+                KRG_ASSERT( pEntityToUnregister != nullptr && pEntityToUnregister->m_updateRegistrationStatus == Entity::RegistrationStatus::QueuedForUnregister );
                 m_entityUpdateList.erase_first_unsorted( pEntityToUnregister );
-                pEntityToUnregister->m_isRegisteredForUpdates = false;
+                pEntityToUnregister->m_updateRegistrationStatus = Entity::RegistrationStatus::Unregistered;
             }
         }
 
@@ -322,10 +325,10 @@ namespace KRG
             Entity* pEntityToRegister = nullptr;
             while ( m_activationContext.m_registerForEntityUpdate.try_dequeue( pEntityToRegister ) )
             {
-                KRG_ASSERT( pEntityToRegister != nullptr && pEntityToRegister->IsActivated() && !pEntityToRegister->m_isRegisteredForUpdates );
+                KRG_ASSERT( pEntityToRegister != nullptr && pEntityToRegister->IsActivated() && pEntityToRegister->m_updateRegistrationStatus == Entity::RegistrationStatus::QueuedForRegister );
                 KRG_ASSERT( !pEntityToRegister->HasSpatialParent() ); // Attached entities are not allowed to be directly updated
                 m_entityUpdateList.push_back( pEntityToRegister );
-                pEntityToRegister->m_isRegisteredForUpdates = true;
+                pEntityToRegister->m_updateRegistrationStatus = Entity::RegistrationStatus::Registered;
             }
         }
     }
@@ -518,7 +521,7 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void EntityWorld::PrepareComponentForEditing( ResourceID const& mapID, UUID const& entityID, UUID const& componentID )
+    void EntityWorld::PrepareComponentForEditing( ResourceID const& mapID, EntityID const& entityID, ComponentID const& componentID )
     {
         auto pMap = GetMap( mapID );
         KRG_ASSERT( pMap != nullptr );

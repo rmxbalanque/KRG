@@ -16,7 +16,7 @@ namespace KRG
     {
         KRG_ASSERT( m_status == Status::Unloaded );
         KRG_ASSERT( !m_isSpatialAttachmentCreated );
-        KRG_ASSERT( !m_isRegisteredForUpdates );
+        KRG_ASSERT( m_updateRegistrationStatus == RegistrationStatus::Unregistered );
 
         // Break all inter-entity links
         if ( IsSpatialEntity() )
@@ -74,7 +74,7 @@ namespace KRG
         for ( auto pComponent : m_components )
         {
             KRG_ASSERT( pComponent->IsUnloaded() );
-            pComponent->Load( loadingContext, m_ID );
+            pComponent->Load( loadingContext, Resource::ResourceRequesterID( m_ID.ToUint64() ) );
         }
 
         m_status = Status::Loaded;
@@ -99,14 +99,14 @@ namespace KRG
                 KRG_ASSERT( !pComponent->IsInitialized() ); // Did you forget to call the parent class shutdown?
             }
 
-            pComponent->Unload( loadingContext, m_ID );
+            pComponent->Unload( loadingContext, Resource::ResourceRequesterID( m_ID.ToUint64() ) );
         }
 
         m_status = Status::Unloaded;
     }
     
     #if KRG_DEVELOPMENT_TOOLS
-    void Entity::ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& componentID )
+    void Entity::ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, ComponentID const& componentID )
     {
         auto pComponent = FindComponent( componentID );
         KRG_ASSERT( pComponent != nullptr );
@@ -122,7 +122,7 @@ namespace KRG
         }
     }
 
-    void Entity::ComponentEditingUnload( EntityModel::EntityLoadingContext const& loadingContext, UUID const& componentID )
+    void Entity::ComponentEditingUnload( EntityModel::EntityLoadingContext const& loadingContext, ComponentID const& componentID )
     {
         auto pComponent = FindComponent( componentID );
         KRG_ASSERT( pComponent != nullptr );
@@ -135,7 +135,7 @@ namespace KRG
                 KRG_ASSERT( !pComponent->IsInitialized() ); // Did you forget to call the parent class shutdown?
             }
 
-            pComponent->Unload( loadingContext, m_ID );
+            pComponent->Unload( loadingContext, Resource::ResourceRequesterID( m_ID.ToUint64() ) );
         }
     }
 
@@ -145,7 +145,7 @@ namespace KRG
         {
             if ( pComponent->IsUnloaded() )
             {
-                pComponent->Load( loadingContext, m_ID );
+                pComponent->Load( loadingContext, Resource::ResourceRequesterID( m_ID.ToUint64() ) );
             }
         }
     }
@@ -156,6 +156,7 @@ namespace KRG
     void Entity::Activate( EntityModel::ActivationContext& activationContext )
     {
         KRG_ASSERT( m_status == Status::Loaded );
+        KRG_ASSERT( m_updateRegistrationStatus == RegistrationStatus::Unregistered );
 
         // If we are attached to another entity we CANNOT be activated if our parent is not. This ensures that attachment chains have consistent activation state
         if ( HasSpatialParent() )
@@ -197,6 +198,7 @@ namespace KRG
         {
             GenerateSystemUpdateList();
             activationContext.m_registerForEntityUpdate.enqueue( this );
+            m_updateRegistrationStatus = RegistrationStatus::QueuedForRegister;
         }
 
         // Spatial Attachments
@@ -261,9 +263,10 @@ namespace KRG
 
         if ( !m_systems.empty() )
         {
-            if ( m_isRegisteredForUpdates )
+            if ( m_updateRegistrationStatus == RegistrationStatus::Registered )
             {
                 activationContext.m_unregisterForEntityUpdate.enqueue( this );
+                m_updateRegistrationStatus = RegistrationStatus::QueuedForUnregister;
             }
 
             for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
@@ -410,7 +413,7 @@ namespace KRG
             }
             else
             {
-                KRG_LOG_WARNING( "Entity", "Could not find attachment socket '%s' on entity '%s' (%s)", m_parentAttachmentSocketID.c_str(), pParentEntity->GetName().c_str(), pParentEntity->GetID().ToString().c_str() );
+                KRG_LOG_WARNING( "Entity", "Could not find attachment socket '%s' on entity '%s' (%u)", m_parentAttachmentSocketID.c_str(), pParentEntity->GetName().c_str(), pParentEntity->GetID() );
             }
         }
 
@@ -569,7 +572,7 @@ namespace KRG
             }
 
             // Sort update list
-            auto comparator = [i] ( IEntitySystem* const& pSystemA, IEntitySystem* const& pSystemB )
+            auto comparator = [i] ( EntitySystem* const& pSystemA, EntitySystem* const& pSystemB )
             {
                 uint8 const A = pSystemA->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
                 uint8 const B = pSystemB->GetRequiredUpdatePriorities().GetPriorityForStage( (UpdateStage) i );
@@ -582,7 +585,7 @@ namespace KRG
 
     void Entity::CreateSystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
-        KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom<IEntitySystem>() );
+        KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom<EntitySystem>() );
 
         #if KRG_DEVELOPMENT_TOOLS
         // Ensure that we only allow a single system of a specific family
@@ -597,7 +600,7 @@ namespace KRG
         #endif
 
         // Create the new system and add it
-        auto pSystem = (IEntitySystem*) pSystemTypeInfo->m_pTypeHelper->CreateType();
+        auto pSystem = (EntitySystem*) pSystemTypeInfo->m_pTypeHelper->CreateType();
         m_systems.emplace_back( pSystem );
 
         // Register all components with the new system
@@ -618,9 +621,9 @@ namespace KRG
 
     void Entity::DestroySystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
-        KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom<IEntitySystem>() );
+        KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom<EntitySystem>() );
 
-        int32 const systemIdx = VectorFindIndex( m_systems, pSystemTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } );
+        int32 const systemIdx = VectorFindIndex( m_systems, pSystemTypeInfo->m_ID, [] ( EntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } );
         KRG_ASSERT( systemIdx != InvalidIndex );
         auto pSystem = m_systems[systemIdx];
 
@@ -646,7 +649,7 @@ namespace KRG
     
     //-------------------------------------------------------------------------
 
-    void Entity::AddComponent( EntityComponent* pComponent, UUID const& parentSpatialComponentID )
+    void Entity::AddComponent( EntityComponent* pComponent, ComponentID const& parentSpatialComponentID )
     {
         KRG_ASSERT( pComponent != nullptr && pComponent->GetID().IsValid() );
         KRG_ASSERT( !pComponent->m_entityID.IsValid() && pComponent->IsUnloaded() );
@@ -670,7 +673,7 @@ namespace KRG
             if ( parentSpatialComponentID.IsValid() )
             {
                 KRG_ASSERT( pSpatialComponent != nullptr );
-                int32 const componentIdx = VectorFindIndex( m_components, parentSpatialComponentID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
+                int32 const componentIdx = VectorFindIndex( m_components, parentSpatialComponentID, [] ( EntityComponent* pComponent, ComponentID const& componentID ) { return pComponent->GetID() == componentID; } );
                 KRG_ASSERT( componentIdx != InvalidIndex );
 
                 pParentComponent = TryCast<SpatialEntityComponent>( m_components[componentIdx] );
@@ -683,19 +686,19 @@ namespace KRG
         {
             Threading::ScopeLock lock( m_internalStateMutex );
 
-            auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
+            EntityInternalStateAction& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
             action.m_type = EntityInternalStateAction::Type::AddComponent;
             action.m_ptr = pComponent;
-            action.m_ID = parentSpatialComponentID;
+            action.m_parentComponentID = parentSpatialComponentID;
 
             // Send notification that the internal state changed
             EntityStateUpdatedEvent.Execute( this );
         }
     }
 
-    void Entity::DestroyComponent( UUID const& componentID )
+    void Entity::DestroyComponent( ComponentID const& componentID )
     {
-        int32 const componentIdx = VectorFindIndex( m_components, componentID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
+        int32 const componentIdx = VectorFindIndex( m_components, componentID, [] ( EntityComponent* pComponent, ComponentID const& componentID ) { return pComponent->GetID() == componentID; } );
 
         // If you hit this assert either the component doesnt exist or this entity has still to process deferred actions and the component might be in that list
         // We dont support adding and destroying a component in the same frame, please avoid doing stupid things
@@ -772,7 +775,7 @@ namespace KRG
     {
         KRG_ASSERT( loadingContext.IsValid() );
         AddComponentImmediate( pComponent, pParentSpatialComponent );
-        pComponent->Load( loadingContext, m_ID );
+        pComponent->Load( loadingContext, Resource::ResourceRequesterID( m_ID.ToUint64() ) );
     }
 
     void Entity::DestroyComponentImmediate( EntityComponent* pComponent )
@@ -811,7 +814,7 @@ namespace KRG
             pComponent->Shutdown();
         }
 
-        pComponent->Unload( loadingContext, m_ID );
+        pComponent->Unload( loadingContext, Resource::ResourceRequesterID( m_ID.ToUint64() ) );
 
         // Destroy the component
         //-------------------------------------------------------------------------
@@ -857,9 +860,9 @@ namespace KRG
                     SpatialEntityComponent* pParentComponent = nullptr;
 
                     // Try to resolve the ID
-                    if ( action.m_ID.IsValid() )
+                    if ( action.m_parentComponentID.IsValid() )
                     {
-                        int32 const componentIdx = VectorFindIndex( m_components, action.m_ID, [] ( EntityComponent* pComponent, UUID const& componentID ) { return pComponent->GetID() == componentID; } );
+                        int32 const componentIdx = VectorFindIndex( m_components, action.m_parentComponentID, [] ( EntityComponent* pComponent, ComponentID const& componentID ) { return pComponent->GetID() == componentID; } );
                         KRG_ASSERT( componentIdx != InvalidIndex );
 
                         pParentComponent = TryCast<SpatialEntityComponent>( m_components[componentIdx] );
@@ -955,20 +958,24 @@ namespace KRG
         // Entity update registration
         //-------------------------------------------------------------------------
 
+        KRG_ASSERT( m_updateRegistrationStatus != RegistrationStatus::QueuedForRegister && m_updateRegistrationStatus != RegistrationStatus::QueuedForUnregister );
+
         bool const shouldBeRegisteredForUpdates = IsActivated() && !m_systems.empty() && !HasSpatialParent();
 
         if ( shouldBeRegisteredForUpdates )
         {
-            if ( !m_isRegisteredForUpdates )
+            if ( m_updateRegistrationStatus != RegistrationStatus::Registered )
             {
                 activationContext.m_registerForEntityUpdate.enqueue( this );
+                m_updateRegistrationStatus = RegistrationStatus::QueuedForRegister;
             }
         }
         else // Doesnt require an update
         {
-            if ( m_isRegisteredForUpdates )
+            if ( m_updateRegistrationStatus == RegistrationStatus::Registered )
             {
                 activationContext.m_unregisterForEntityUpdate.enqueue( this );
+                m_updateRegistrationStatus = RegistrationStatus::QueuedForUnregister;
             }
         }
 

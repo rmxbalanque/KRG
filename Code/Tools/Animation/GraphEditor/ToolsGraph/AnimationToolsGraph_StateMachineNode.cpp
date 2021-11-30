@@ -1,6 +1,6 @@
 #include "AnimationToolsGraph_StateMachineNode.h"
 #include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Common.h"
-#include "Engine/Animation/Components/AnimationGraphComponent.h"
+#include "Engine/Animation/Components/Component_AnimationGraph.h"
 
 //-------------------------------------------------------------------------
 

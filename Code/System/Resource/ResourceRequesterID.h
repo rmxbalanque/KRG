@@ -7,6 +7,7 @@ namespace KRG::Resource
 {
     class ResourceRequesterID
     {
+
     public:
 
         // No ID - manual request
@@ -14,14 +15,15 @@ namespace KRG::Resource
 
         // Install dependency reference
         ResourceRequesterID( ResourceID const& resourceID )
-            : m_ID( UUID( 0, 0, 0, resourceID.GetResourcePath().GetID() ) )
+            : m_ID( resourceID.GetResourcePath().GetID() )
+            , m_isInstallDependency( true )
         {}
 
-        // Explicit ID - generally refers to an entity
-        ResourceRequesterID( UUID ID )
+        // Explicit ID - generally refers to an entity ID
+        explicit ResourceRequesterID( uint64 ID )
             : m_ID( ID )
         {
-            KRG_ASSERT( ID.IsValid() );
+            KRG_ASSERT( ID > 0 );
         }
 
         //-------------------------------------------------------------------------
@@ -29,36 +31,32 @@ namespace KRG::Resource
         // This ID refers to a manual request outside of the default resource loading flow (usually only used for resources like maps)
         inline bool IsManualRequest() const
         {
-            return m_ID.GetValueU64( 0 ) == 0 && m_ID.GetValueU64( 1 ) == 0;
+            return m_ID == 0;
         }
 
         // A normal request via the entity system
         inline bool IsNormalRequest() const
         {
-            return ( m_ID.GetValueU32( 3 ) != 0 ) && ( m_ID.GetValueU64( 0 ) != 0 || m_ID.GetValueU32( 2 ) != 0 );
+            return m_ID > 0 && !m_isInstallDependency;
         }
 
         // A install dependency request, coming from the resource system as part of resource loading
         inline bool IsInstallDependencyRequest() const
         {
-            return m_ID.GetValueU64( 0 ) == 0 && m_ID.GetValueU32( 2 ) == 0 && m_ID.GetValueU32( 3 ) != 0;
+            return m_isInstallDependency;
         }
 
         //-------------------------------------------------------------------------
 
         // Get the requester ID
-        inline UUID GetID() const { return m_ID; }
+        inline uint64 GetID() const { return m_ID; }
 
         // Get the ID for the data path for install dependencies, used for reverse look ups
         inline uint32 GetInstallDependencyResourcePathID() const
         {
-            KRG_ASSERT( IsInstallDependencyRequest() );
-            return m_ID.GetValueU32( 3 );
+            KRG_ASSERT( m_isInstallDependency );
+            return (uint32) m_ID;
         }
-
-        //-------------------------------------------------------------------------
-
-        KRG_FORCE_INLINE UUIDString ToString() const { return m_ID.ToString(); }
 
         //-------------------------------------------------------------------------
 
@@ -67,6 +65,7 @@ namespace KRG::Resource
 
     private:
 
-        UUID m_ID;
+        uint64  m_ID = 0;
+        bool    m_isInstallDependency = false;
     };
 }

@@ -4,7 +4,7 @@
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Animation/Components/AnimatedMeshComponent.h"
+#include "Engine/Animation/Components/Component_AnimatedMesh.h"
 #include "Engine/Animation/AnimationPose.h"
 
 //-------------------------------------------------------------------------
@@ -41,7 +41,10 @@ namespace KRG::Animation
         m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
         m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
         m_pMeshComponent->SetSkeleton( m_pResource.GetResourceID() );
-        m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
+        if( resourceDesc.m_previewMesh.GetResourceID().IsValid() )
+        {
+            m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
+        }
         m_pPreviewEntity->AddComponent( m_pMeshComponent );
 
         m_pWorld->GetPersistentMap()->AddEntity( m_pPreviewEntity );
@@ -119,6 +122,7 @@ namespace KRG::Animation
         // UI
         //-------------------------------------------------------------------------
 
+        DrawDescriptorWindow( context, pWindowClass );
         DrawInfoWindow( context, pWindowClass );
         DrawSkeletonHierarchyWindow( context, pWindowClass );
     }

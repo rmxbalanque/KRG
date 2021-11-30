@@ -38,7 +38,7 @@ namespace KRG
 
         public:
 
-            inline Int2 GetMovementDelta() const { return m_movementDelta; }
+            inline Float2 GetMovementDelta() const { return m_movementDelta; }
             inline int16 GetWheelDelta( WheelType wheelType = WheelType::Vertical ) const { return ( wheelType == WheelType::Vertical ) ? m_verticalWheelDelta : m_horizontalWheelDelta; }
             inline Int2 GetCursorPosition() const { return m_position; }
 
@@ -54,7 +54,7 @@ namespace KRG
 
             inline void ResetFrameState( ResetType resetType )
             {
-                m_movementDelta = Int2::Zero;
+                m_movementDelta = Float2::Zero;
                 m_verticalWheelDelta = m_horizontalWheelDelta = 0;
 
                 if ( resetType == ResetType::Full )
@@ -65,7 +65,7 @@ namespace KRG
 
         private:
 
-            Int2                                    m_movementDelta;
+            Float2                                  m_movementDelta;
             Int2                                    m_position;
             int16                                   m_verticalWheelDelta = 0;
             int16                                   m_horizontalWheelDelta = 0;

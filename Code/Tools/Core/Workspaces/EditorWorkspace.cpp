@@ -1,5 +1,5 @@
 #include "EditorWorkspace.h"
-#include "Engine/Render/WorldSystems/WorldRendererSystem.h"
+#include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Render/Debug/DebugView_Render.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/DevUI/OrientationGuide.h"
@@ -92,7 +92,7 @@ namespace KRG
 
             if ( HasViewportToolbar() )
             {
-                ImGui::SetCursorPos( ImGui::GetStyle().ItemSpacing );
+                ImGui::SetCursorPos( ImGui::GetWindowContentRegionMin() + ImGui::GetStyle().ItemSpacing );
                 ImGui::SetNextItemWidth( 46 );
                 if ( ImGui::BeginCombo( "##Test", KRG_ICON_EYE, ImGuiComboFlags_HeightLarge ) )
                 {

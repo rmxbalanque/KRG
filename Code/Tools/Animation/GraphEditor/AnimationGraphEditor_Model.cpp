@@ -2,9 +2,9 @@
 #include "ToolsGraph/AnimationToolsGraph_Compilation.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
+#include "Engine/Animation/Systems/EntitySystem_Animation.h"
+#include "Engine/Animation/Components/Component_AnimatedMesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Animation/Systems/AnimationSystem.h"
-#include "Engine/Animation/Components/AnimatedMeshComponent.h"
 
 //-------------------------------------------------------------------------
 

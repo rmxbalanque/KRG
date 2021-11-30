@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
+#include "EntityIDs.h"
 #include "EntityLoadingContext.h"
-#include "System/Core/Types/UUID.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------
@@ -43,8 +43,8 @@ namespace KRG
 
         virtual ~EntityComponent();
 
-        inline UUID const& GetID() const { return m_ID; }
-        inline UUID const& GetEntityID() const { return m_entityID; }
+        inline ComponentID const& GetID() const { return m_ID; }
+        inline EntityID const& GetEntityID() const { return m_entityID; }
         inline StringID GetName() const { return m_name; }
 
         // Status
@@ -61,13 +61,13 @@ namespace KRG
     protected:
 
         EntityComponent() = default;
-        EntityComponent( UUID const& ID, StringID name ) : m_ID( ID ), m_name( name ) {}
+        EntityComponent( StringID name ) : m_name( name ) {}
 
         // Request load of all component data - loading takes time
-        virtual void Load( EntityModel::EntityLoadingContext const& context, UUID const& requesterID ) = 0;
+        virtual void Load( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) = 0;
 
         // Request unload of component data, unloading is instant
-        virtual void Unload( EntityModel::EntityLoadingContext const& context, UUID const& requesterID ) = 0;
+        virtual void Unload( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) = 0;
 
         // Update loading state, this will check all dependencies
         virtual void UpdateLoading() = 0;
@@ -81,12 +81,12 @@ namespace KRG
 
     protected:
 
-        UUID                        m_ID;                               // The unique ID for this component
-        UUID                        m_entityID;                         // The ID of the entity that contains this component
-        StringID                    m_name;                             // The name of the component
-        Status                      m_status = Status::Unloaded;        // Component status
-        bool                        m_isRegisteredWithEntity = false;   // Registered with its parent entity's local systems
-        bool                        m_isRegisteredWithWorld = false;    // Registered with the global systems in it's parent world
+        ComponentID                 m_ID = ComponentID( this );;                    // The unique ID for this component
+        EntityID                    m_entityID;                                     // The ID of the entity that contains this component
+        StringID                    m_name;                                         // The name of the component
+        Status                      m_status = Status::Unloaded;                    // Component status
+        bool                        m_isRegisteredWithEntity = false;               // Registered with its parent entity's local systems
+        bool                        m_isRegisteredWithWorld = false;                // Registered with the global systems in it's parent world
     };
 }
 
@@ -96,8 +96,8 @@ namespace KRG
         KRG_REGISTER_TYPE( TypeName );\
         template<typename T> friend struct TEntityToolAccessor;\
         protected:\
-        virtual void Load( EntityModel::EntityLoadingContext const& context, UUID const& requesterID ) override;\
-        virtual void Unload( EntityModel::EntityLoadingContext const& context, UUID const& requesterID ) override;\
+        virtual void Load( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) override;\
+        virtual void Unload( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) override;\
         virtual void UpdateLoading() override;
 
 // Use this macro to create a singleton component (and hierarchy) - Note: All derived types must use the regular registration macro
@@ -106,6 +106,6 @@ namespace KRG
         template<typename T> friend struct TEntityToolAccessor;\
         protected:\
         virtual bool IsSingletonComponent() const override final { return true; }\
-        virtual void Load( EntityModel::EntityLoadingContext const& context, UUID const& requesterID ) override;\
-        virtual void Unload( EntityModel::EntityLoadingContext const& context, UUID const& requesterID ) override;\
+        virtual void Load( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) override;\
+        virtual void Unload( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) override;\
         virtual void UpdateLoading() override;

@@ -51,13 +51,13 @@
     <ClCompile Include="Renderers\WorldRenderer.cpp">
       <Filter>Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="Components\MeshComponent.cpp">
+    <ClCompile Include="Components\Component_RenderMesh.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Components\StaticMeshComponent.cpp">
+    <ClCompile Include="Components\Component_StaticMesh.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Components\SkeletalMeshComponent.cpp">
+    <ClCompile Include="Components\Component_SkeletalMesh.cpp">
       <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="Material\RenderMaterial.cpp">
@@ -84,12 +84,6 @@
     <ClCompile Include="ResourceLoaders\ResourceLoader_RenderTexture.cpp">
       <Filter>ResourceLoaders</Filter>
     </ClCompile>
-    <ClCompile Include="Components\EnvironmentMapComponents.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\LightComponents.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
     <ClCompile Include="Debug\DebugView_Render.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
@@ -102,9 +96,10 @@
     <ClCompile Include="Renderers\ImguiRenderer.cpp">
       <Filter>Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="WorldSystems\WorldRendererSystem.cpp">
+    <ClCompile Include="Systems\WorldSystem_WorldRenderer.cpp">
       <Filter>WorldSystems</Filter>
     </ClCompile>
+    <ClCompile Include="RendererRegistry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -116,13 +111,13 @@
     <ClInclude Include="Renderers\WorldRenderer.h">
       <Filter>Renderers</Filter>
     </ClInclude>
-    <ClInclude Include="Components\MeshComponent.h">
+    <ClInclude Include="Components\Component_RenderMesh.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Components\StaticMeshComponent.h">
+    <ClInclude Include="Components\Component_StaticMesh.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Components\SkeletalMeshComponent.h">
+    <ClInclude Include="Components\Component_SkeletalMesh.h">
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Material\RenderMaterial.h">
@@ -152,10 +147,10 @@
     <ClInclude Include="Shaders\EngineShaders.h">
       <Filter>Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Components\EnvironmentMapComponents.h">
+    <ClInclude Include="Components\Component_EnvironmentMaps.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Components\LightComponents.h">
+    <ClInclude Include="Components\Component_Lights.h">
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Debug\DebugView_Render.h">
@@ -176,9 +171,11 @@
     <ClInclude Include="Shaders\ImguiShaders.h">
       <Filter>Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="WorldSystems\WorldRendererSystem.h">
+    <ClInclude Include="Systems\WorldSystem_WorldRenderer.h">
       <Filter>WorldSystems</Filter>
     </ClInclude>
+    <ClInclude Include="IRenderer.h" />
+    <ClInclude Include="RendererRegistry.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Engine\VS_StaticPrimitive.hlsl">

@@ -3,8 +3,9 @@
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Tools/Core/Widgets/InterfaceHelpers.h"
 #include "Engine/Animation/AnimationPose.h"
-#include "Engine/Animation/Components/AnimationPlayerComponent.h"
-#include "Engine/Animation/Systems/AnimationSystem.h"
+#include "Engine/Animation/Components/Component_AnimationClipPlayer.h"
+#include "Engine/Animation/Components/Component_AnimatedMesh.h"
+#include "Engine/Animation/Systems/EntitySystem_Animation.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
@@ -45,7 +46,7 @@ namespace KRG::Animation
         m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
         m_pPreviewEntity->CreateSystem<AnimationSystem>();
 
-        m_pAnimationComponent = KRG::New<AnimationPlayerComponent>( StringID( "Animation Component" ) );
+        m_pAnimationComponent = KRG::New<AnimationClipPlayerComponent>( StringID( "Animation Component" ) );
         m_pAnimationComponent->SetAnimation( m_pResource.GetResourceID() );
         m_pPreviewEntity->AddComponent( m_pAnimationComponent );
 
@@ -80,6 +81,7 @@ namespace KRG::Animation
         ImGui::DockBuilderDockWindow( m_timelineWindowName.c_str(), bottomLeftDockID );
         ImGui::DockBuilderDockWindow( m_trackDataWindowName.c_str(), bottomRightDockID );
         ImGui::DockBuilderDockWindow( m_detailsWindowName.c_str(), bottomRightDockID );
+        ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomRightDockID );
     }
 
     void AnimationClipWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
@@ -103,7 +105,10 @@ namespace KRG::Animation
                 // Create a preview mesh component
                 m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
                 m_pMeshComponent->SetSkeleton( m_pResource->GetSkeleton()->GetResourceID() );
-                m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
+                if ( resourceDesc.m_previewMesh.IsValid() )
+                {
+                    m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
+                }
                 m_pPreviewEntity->AddComponent( m_pMeshComponent );
             }
 
@@ -140,6 +145,8 @@ namespace KRG::Animation
         }
 
         //-------------------------------------------------------------------------
+
+        DrawDescriptorWindow( context, pWindowClass );
 
         ImGui::SetNextWindowClass( pWindowClass );
         DrawTrackDataWindow( context );
@@ -298,20 +305,32 @@ namespace KRG::Animation
 
     bool AnimationClipWorkspace::IsDirty() const
     {
-        return ( m_pEventEditor != nullptr ) ? m_pEventEditor->IsDirty() : false;
+        if ( TResourceWorkspace<AnimationClip>::IsDirty() )
+        {
+            return true;
+        }
+
+        if ( m_pEventEditor != nullptr && m_pEventEditor->IsDirty() )
+        {
+            return m_pEventEditor->IsDirty();
+        }
+
+        return false;
     }
 
     bool AnimationClipWorkspace::Save()
     {
-        if ( m_pEventEditor != nullptr )
+        if ( !TResourceWorkspace<AnimationClip>::Save() )
         {
-            if ( m_pEventEditor->RequestSave() )
-            {
-                m_propertyGrid.ClearDirty();
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        if ( m_pEventEditor != nullptr && !m_pEventEditor->RequestSave() )
+        {
+            return false;
+        }
+
+        m_propertyGrid.ClearDirty();
+        return true;
     }
 }

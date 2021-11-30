@@ -105,21 +105,17 @@
     <ClCompile Include="DevUI\OrientationGuide.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CameraComponents.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
     <ClCompile Include="Entity\EntityWorldManager.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
     <ClCompile Include="DevUI\IDevUI.cpp" />
     <ClCompile Include="DevUI\Gizmo.cpp" />
     <ClCompile Include="DevUI\EngineDevUI.cpp" />
-    <ClCompile Include="Components\PlayerComponent.cpp" />
-    <ClCompile Include="Systems\WorldSystem.cpp" />
-    <ClCompile Include="Systems\DevelopmentPlayerSystem.cpp" />
-    <ClCompile Include="Components\PlayerSpawnComponent.cpp" />
-    <ClCompile Include="Test\TestComponent.cpp" />
+    <ClCompile Include="Systems\WorldSystem_PlayerManager.cpp" />
+    <ClCompile Include="Systems\EntitySystem_DevelopmentPlayerController.cpp" />
+    <ClCompile Include="Components\Component_SerializationTest.cpp" />
     <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
+    <ClCompile Include="Components\Component_Cameras.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Easing.h">
@@ -200,19 +196,19 @@
     <ClInclude Include="DevUI\OrientationGuide.h">
       <Filter>Imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Components\CameraComponents.h">
-      <Filter>Camera</Filter>
-    </ClInclude>
     <ClInclude Include="DevUI\IDevUI.h" />
     <ClInclude Include="DevUI\Gizmo.h" />
     <ClInclude Include="DevUI\EngineDevUI.h" />
     <ClInclude Include="Entity\EntityLoadingContext.h" />
     <ClInclude Include="Entity\EntityActivationContext.h" />
-    <ClInclude Include="Components\PlayerComponent.h" />
-    <ClInclude Include="Systems\WorldSystem.h" />
-    <ClInclude Include="Systems\DevelopmentPlayerSystem.h" />
-    <ClInclude Include="Components\PlayerSpawnComponent.h" />
-    <ClInclude Include="Test\TestComponent.h" />
+    <ClInclude Include="Systems\WorldSystem_PlayerManager.h" />
+    <ClInclude Include="Systems\EntitySystem_DevelopmentPlayerController.h" />
+    <ClInclude Include="Components\Component_SerializationTest.h" />
     <ClInclude Include="DebugViews\DebugView_Camera.h" />
+    <ClInclude Include="Components\Component_PlayerSpawn.h" />
+    <ClInclude Include="Components\Component_Cameras.h" />
+    <ClInclude Include="Components\Component_Player.h" />
+    <ClInclude Include="Components\Component_Volumes.h" />
+    <ClInclude Include="Entity\EntityIDs.h" />
   </ItemGroup>
 </Project>

@@ -10,7 +10,7 @@ namespace KRG
 {
     class KRG_ENGINE_CORE_API SpatialEntityComponent : public EntityComponent
     {
-        KRG_REGISTER_TYPE( SpatialEntityComponent );
+        KRG_REGISTER_ENTITY_COMPONENT( SpatialEntityComponent );
 
         friend class Entity;
         friend class EntityDebugView;
@@ -76,7 +76,7 @@ namespace KRG
         }
 
         inline bool HasSpatialParent() const { return m_pSpatialParent != nullptr; }
-        inline UUID GetSpatialParentID() const { KRG_ASSERT( HasSpatialParent() ); return m_pSpatialParent->GetID(); }
+        inline ComponentID GetSpatialParentID() const { KRG_ASSERT( HasSpatialParent() ); return m_pSpatialParent->GetID(); }
         inline Transform const& GetSpatialParentWorldTransform() const { KRG_ASSERT( HasSpatialParent() ); return m_pSpatialParent->GetWorldTransform(); }
 
         // The socket that this component is attached to

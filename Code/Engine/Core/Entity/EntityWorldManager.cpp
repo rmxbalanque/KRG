@@ -1,8 +1,8 @@
 #include "EntityWorldManager.h"
 #include "EntityWorld.h"
 #include "EntityWorldDebugView.h"
-#include "Engine/Core/Systems/WorldSystem.h"
-#include "Engine/Core/Components/CameraComponents.h"
+#include "Engine/Core/Systems/WorldSystem_PlayerManager.h"
+#include "Engine/Core/Components/Component_Cameras.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/SystemRegistry.h"
@@ -183,10 +183,10 @@ namespace KRG
             if ( context.GetUpdateStage() == UpdateStage::PrePhysics && pWorld->GetViewport() != nullptr )
             {
                 auto pViewport = pWorld->GetViewport();
-                auto pWorldSystem = pWorld->GetWorldSystem<WorldSystem>();
-                if ( pWorldSystem->HasActiveCamera() )
+                auto pPlayerWorldSystem = pWorld->GetWorldSystem<PlayerManager>();
+                if ( pPlayerWorldSystem->HasActiveCamera() )
                 {
-                    auto pActiveCamera = pWorldSystem->GetActiveCamera();
+                    auto pActiveCamera = pPlayerWorldSystem->GetActiveCamera();
 
                     // Update camera view dimensions if needed
                     if ( pViewport->GetDimensions() != pActiveCamera->GetViewVolume().GetViewDimensions() )
@@ -206,7 +206,7 @@ namespace KRG
     #if KRG_DEVELOPMENT_TOOLS
     void EntityWorldManager::SetPlayerEnabled( EntityWorld* pWorld, bool isPlayerEnabled )
     {
-        auto pPlayerManagerSystem = pWorld->GetWorldSystem<WorldSystem>();
+        auto pPlayerManagerSystem = pWorld->GetWorldSystem<PlayerManager>();
         pPlayerManagerSystem->SetPlayerEnabled( isPlayerEnabled );
     }
 

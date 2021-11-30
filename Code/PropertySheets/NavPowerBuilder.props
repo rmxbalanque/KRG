@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies Condition="'$(NAVPOWER_INCLUDED)' == 'true'">bfxBuilder.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bfxBuilder.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>

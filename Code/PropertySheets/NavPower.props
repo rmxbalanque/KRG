@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <NAVPOWER_INCLUDED>false</NAVPOWER_INCLUDED>
     <NAVPOWER_DIR>$(SolutionDir)External\Navpower\</NAVPOWER_DIR>
     <NAVPOWER_LIB_DIR>$(NAVPOWER_DIR)lib\x64_vs2019\Release\</NAVPOWER_LIB_DIR>
     <NAVPOWER_BUILDER_LIB_DIR>$(NAVPOWER_DIR)lib\x64_vs2019\ReleaseMD\</NAVPOWER_BUILDER_LIB_DIR>
@@ -10,12 +9,11 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions Condition="'$(NAVPOWER_INCLUDED)' == 'true'">KRG_ENABLE_NAVPOWER=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(NAVPOWER_INCLUDED)' == 'true'" >$(NAVPOWER_DIR)include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(NAVPOWER_DIR)include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories Condition="'$(NAVPOWER_INCLUDED)' == 'true'">$(NAVPOWER_BUILDER_LIB_DIR);$(NAVPOWER_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies Condition="'$(NAVPOWER_INCLUDED)' == 'true'">bfxSystem.lib;bfxPlanner.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(NAVPOWER_BUILDER_LIB_DIR);$(NAVPOWER_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>bfxSystem.lib;bfxPlanner.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>

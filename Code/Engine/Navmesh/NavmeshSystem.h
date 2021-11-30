@@ -28,8 +28,6 @@ namespace KRG::Navmesh
      
     private:
 
-        #if KRG_ENABLE_NAVPOWER
         NavPowerAllocator                               m_allocator;
-        #endif
     };
 }

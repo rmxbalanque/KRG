@@ -69,7 +69,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             inline ResourceID const& GetMapResourceID() const { return m_pMapDesc.GetResourceID(); }
-            inline UUID GetMapID() const { return GetID(); }
+            inline EntityCollectionID GetMapID() const { return GetID(); }
             inline bool IsTransientMap() const { return m_isTransientMap; }
 
             // Loading and Activation
@@ -78,8 +78,8 @@ namespace KRG
             void Load( EntityLoadingContext const& loadingContext );
             void Unload( EntityLoadingContext const& loadingContext );
 
-            void Activate( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
-            void Deactivate( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext );
+            void Activate( EntityModel::ActivationContext& activationContext );
+            void Deactivate( EntityModel::ActivationContext& activationContext );
 
             // Map State
             //-------------------------------------------------------------------------
@@ -113,11 +113,11 @@ namespace KRG
 
             // Unload and remove an entity from the map - Transfer ownership of the entity to the calling code
             // May take multiple frame to be fully destroyed, as the removal occurs during the loading update
-            Entity* RemoveEntity( UUID entityID );
+            Entity* RemoveEntity( EntityID entityID );
 
             // Unload, remove and destroy entity in this map
             // May take multiple frame to be fully destroyed, as the removal occurs during the loading update
-            void DestroyEntity( UUID entityID );
+            void DestroyEntity( EntityID entityID );
 
         private:
 
@@ -129,10 +129,10 @@ namespace KRG
 
             #if KRG_DEVELOPMENT_TOOLS
             // This function will deactivate and unload the specified component, allowing its properties to be edited safely!
-            void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& entityID, UUID const& componentID );
+            void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, EntityID const& entityID, ComponentID const& componentID );
 
             // This function will deactivate and unload the specified component, allowing its properties to be edited safely!
-            void ComponentEditingUnload( EntityLoadingContext const& loadingContext, UUID const& entityID, UUID const& componentID );
+            void ComponentEditingUnload( EntityLoadingContext const& loadingContext, EntityID const& entityID, ComponentID const& componentID );
 
             // Hot reloading is a blocking process that runs in stages
             //-------------------------------------------------------------------------

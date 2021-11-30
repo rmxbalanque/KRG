@@ -31,6 +31,7 @@ namespace KRG::Physics
     struct SweepResultBuffer : public physx::PxHitBuffer<physx::PxSweepHit>
     {
         SweepResultBuffer() : physx::PxHitBuffer<physx::PxSweepHit>( m_hits, N ) {}
+        inline Vector GetCollisionPosition() const { KRG_ASSERT( hasBlock ); return Vector::MultiplyAdd( ( m_end - m_start ).GetNormalized3(), Float3( block.distance ), m_start ); }
 
         Quaternion              m_orientation = Quaternion::Identity;
         Vector                  m_start;
@@ -132,13 +133,13 @@ namespace KRG::Physics
         // Ignore 
         //-------------------------------------------------------------------------
 
-        void AddIgnoredComponent( UUID const& componentID )
+        void AddIgnoredComponent( ComponentID const& componentID )
         {
             KRG_ASSERT( componentID.IsValid() );
             m_ignoredComponents.emplace_back( componentID );
         }
 
-        void AddIgnoredEntity( UUID const& entityID )
+        void AddIgnoredEntity( EntityID const& entityID )
         {
             KRG_ASSERT( entityID.IsValid() );
             m_ignoredEntities.emplace_back( entityID );
@@ -183,7 +184,7 @@ namespace KRG::Physics
 
         physx::PxQueryFilterData                            m_filterData;
         physx::PxHitFlags                                   m_hitFlags = physx::PxHitFlag::eDEFAULT;
-        TInlineVector<UUID, 2>                              m_ignoredComponents;
-        TInlineVector<UUID, 2>                              m_ignoredEntities;
+        TInlineVector<ComponentID, 2>                       m_ignoredComponents;
+        TInlineVector<EntityID, 2>                          m_ignoredEntities;
     };
 }

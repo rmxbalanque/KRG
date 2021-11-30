@@ -5,15 +5,12 @@
 #include "Tools/Entity/EntityToolAccessor.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/NavmeshData.h"
-#include "Engine/Physics/Components/PhysicsMeshComponent.h"
+#include "Engine/Physics/Components/Component_PhysicsMesh.h"
 #include "Engine/Core/Entity/EntityCollection.h"
 #include "Engine/Core/Entity/EntityCollectionDescriptor.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
-
-#if KRG_ENABLE_NAVPOWER
 #include <bfxSystem.h>
-#endif
 
 //-------------------------------------------------------------------------
 
@@ -109,16 +106,34 @@ namespace KRG::Navmesh
     {
         EntityModel::EntityCollection const collectionInstance( ctx.m_typeRegistry, UUID::GenerateID(), entityCollectionDesc );
 
+        // Update all spatial transforms
+        //-------------------------------------------------------------------------
+        // We need to do this since we dont update world transforms when loading a collection
+
+        for ( auto pEntity : collectionInstance.GetEntities() )
+        {
+            if ( pEntity->IsSpatialEntity() )
+            {
+                pEntity->SetWorldTransform( pEntity->GetWorldTransform() );
+            }
+        }
+
         // Collect all collision geometry
         //-------------------------------------------------------------------------
 
         auto foundPhysicsComponents = entityCollectionDesc.GetComponentsOfType( ctx.m_typeRegistry, Physics::PhysicsMeshComponent::GetStaticTypeID() );
         for ( auto const& searchResult : foundPhysicsComponents )
         {
-            auto pEntity = collectionInstance.FindEntity( searchResult.m_pEntity->m_ID );
+            int32 const entityIdx = entityCollectionDesc.FindEntityIndex( searchResult.m_pEntity->m_name );
+            KRG_ASSERT( entityIdx != InvalidIndex );
+
+            int32 const componentIdx = entityCollectionDesc.GetEntityDescriptors()[entityIdx].FindComponentIndex( searchResult.m_pComponent->m_name );
+            KRG_ASSERT( componentIdx != InvalidIndex );
+
+            Entity const* pEntity = collectionInstance.GetEntities()[entityIdx];
             KRG_ASSERT( pEntity != nullptr );
 
-            auto pPhysicsComponent = TryCast<Physics::PhysicsMeshComponent>( pEntity->FindComponent( searchResult.m_pComponent->m_ID ) );
+            auto pPhysicsComponent = Cast<Physics::PhysicsMeshComponent>( pEntity->GetComponents()[componentIdx] );
             KRG_ASSERT( pPhysicsComponent != nullptr );
 
             TEntityToolAccessor<Physics::PhysicsMeshComponent> accessor( pPhysicsComponent );
@@ -208,13 +223,11 @@ namespace KRG::Navmesh
                         int32 const index2 = geometrySection.m_indices[flipWinding ? i : i + 2];
 
                         // Add triangle
-                        #if KRG_ENABLE_NAVPOWER
                         auto& buildFace = m_buildFaces.emplace_back( bfx::BuildFace() );
                         buildFace.m_type = bfx::WALKABLE_FACE;
                         buildFace.m_verts[0] = ToBfx( transform.TransformPoint( geometrySection.m_vertices[index0].m_position ) );
                         buildFace.m_verts[1] = ToBfx( transform.TransformPoint( geometrySection.m_vertices[index1].m_position ) );
                         buildFace.m_verts[2] = ToBfx( transform.TransformPoint( geometrySection.m_vertices[index2].m_position ) );
-                        #endif
                     }
                 }
             }
@@ -225,7 +238,6 @@ namespace KRG::Navmesh
 
     bool NavmeshBuilder::BuildNavmesh( Resource::CompileContext const& ctx, NavmeshData& navmeshData )
     {
-        #if KRG_ENABLE_NAVPOWER
         if ( m_buildFaces.empty() )
         {
             return true;
@@ -273,7 +285,7 @@ namespace KRG::Navmesh
 
         //-------------------------------------------------------------------------
 
-        //bfx::EnableBuildLog( "D:\\buildlog.bfx_log", true );
+        bfx::EnableBuildLog( "D:\\buildlog.bfx_log", true );
         bfx::NavGraphImage* pGraphImage = bfx::CreateNavGraphImage( surfaceInput, platformParams );
 
         // Copy graph image data into the resource
@@ -287,7 +299,6 @@ namespace KRG::Navmesh
         bfx::SystemStop();
         bfx::SystemDestroy();
         bfx::DestroyAllocator( pAllocator );
-        #endif
 
         return true;
     }

@@ -25,10 +25,10 @@ namespace KRG::EntityModel
 
     public:
 
-        inline UUID GetID() const { return m_ID; }
+        inline EntityCollectionID GetID() const { return m_ID; }
 
     private:
 
-        UUID                                m_ID;
+        EntityCollectionID          m_ID;
     };
 }

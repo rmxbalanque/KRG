@@ -18,10 +18,10 @@
     <ClInclude Include="AnimationPose.h" />
     <ClInclude Include="AnimationSkeleton.h" />
     <ClInclude Include="AnimationSyncTrack.h" />
-    <ClInclude Include="Components\AnimatedMeshComponent.h" />
-    <ClInclude Include="Components\AnimationGraphComponent.h" />
-    <ClInclude Include="Components\AnimationPlayerComponent.h" />
-    <ClInclude Include="Components\AnimationComponent.h" />
+    <ClInclude Include="Components\Component_AnimatedMesh.h" />
+    <ClInclude Include="Components\Component_Animation.h" />
+    <ClInclude Include="Components\Component_AnimationGraph.h" />
+    <ClInclude Include="Components\Component_AnimationClipPlayer.h" />
     <ClInclude Include="Events\AnimationEvent_ID.h" />
     <ClInclude Include="Events\AnimationEvent_Foot.h" />
     <ClInclude Include="AnimationTarget.h" />
@@ -62,7 +62,7 @@
     <ClInclude Include="ResourceLoaders\AnimationClipLoader.h" />
     <ClInclude Include="ResourceLoaders\AnimationSkeletonLoader.h" />
     <ClInclude Include="ResourceLoaders\AnimationGraphLoader.h" />
-    <ClInclude Include="Systems\AnimationSystem.h" />
+    <ClInclude Include="Systems\EntitySystem_Animation.h" />
     <ClInclude Include="Graph\TaskSystem\AnimationGraphTask.h" />
     <ClInclude Include="Graph\TaskSystem\AnimationGraphTaskPosePool.h" />
     <ClInclude Include="Graph\TaskSystem\AnimationGraphTaskSystem.h" />
@@ -76,11 +76,10 @@
     <ClCompile Include="AnimationPose.cpp" />
     <ClCompile Include="AnimationSkeleton.cpp" />
     <ClCompile Include="AnimationSyncTrack.cpp" />
-    <ClCompile Include="Components\AnimatedMeshComponent.cpp" />
-    <ClCompile Include="Components\AnimationGraphComponent.cpp" />
-    <ClCompile Include="Components\AnimationPlayerComponent.cpp" />
-    <ClCompile Include="Components\AnimationComponent.cpp" />
     <ClCompile Include="AnimationEvent.cpp" />
+    <ClCompile Include="Components\Component_AnimatedMesh.cpp" />
+    <ClCompile Include="Components\Component_AnimationGraph.cpp" />
+    <ClCompile Include="Components\Component_AnimationClipPlayer.cpp" />
     <ClCompile Include="Events\AnimationEvent_ID.cpp" />
     <ClCompile Include="Events\AnimationEvent_Foot.cpp" />
     <ClCompile Include="AnimationTarget.cpp" />
@@ -119,7 +118,7 @@
     <ClCompile Include="ResourceLoaders\AnimationClipLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationSkeletonLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationGraphLoader.cpp" />
-    <ClCompile Include="Systems\AnimationSystem.cpp" />
+    <ClCompile Include="Systems\EntitySystem_Animation.cpp" />
     <ClCompile Include="Graph\TaskSystem\AnimationGraphTaskPosePool.cpp" />
     <ClCompile Include="Graph\TaskSystem\AnimationGraphTask.cpp" />
     <ClCompile Include="Graph\TaskSystem\AnimationGraphTaskSystem.cpp" />

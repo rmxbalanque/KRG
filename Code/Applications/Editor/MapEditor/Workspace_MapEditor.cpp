@@ -2,8 +2,8 @@
 #include "Tools/Entity/Serialization/EntityCollectionDescriptorWriter.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Core/Helpers/CommonDialogs.h"
-#include "Engine/Render/Components/LightComponents.h"
-#include "Engine/Core/Components/PlayerSpawnComponent.h"
+#include "Engine/Render/Components/Component_Lights.h"
+#include "Engine/Core/Components/Component_PlayerSpawn.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -406,12 +406,12 @@ namespace KRG::EntityModel
             }
         }
 
-        auto const& registeredSpawns = m_pWorld->GetAllRegisteredComponentsOfType<PlayerSpawnComponent>();
+        auto const& registeredSpawns = m_pWorld->GetAllRegisteredComponentsOfType<Player::PlayerSpawnComponent>();
         for ( auto pComponent : registeredSpawns )
         {
             if ( pComponent != m_pSelectedComponent )
             {
-                auto pSpawnComponent = const_cast<PlayerSpawnComponent*>( pComponent );
+                auto pSpawnComponent = const_cast<Player::PlayerSpawnComponent*>( pComponent );
                 ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
                 if ( ImGuiX::DrawOverlayIcon( componentPositionScreenSpace, KRG_ICON_GAMEPAD, pSpawnComponent ) )
                 {
@@ -501,7 +501,7 @@ namespace KRG::EntityModel
             if ( m_pSelectedEntity != nullptr )
             {
                 ImGui::Text( "Entity Name: %s", m_pSelectedEntity->GetName().c_str() );
-                ImGui::Text( "Entity ID: %s", m_pSelectedEntity->GetID().ToString().c_str() );
+                ImGui::Text( "Entity ID: %u", m_pSelectedEntity->GetID() );
 
                 ImGui::Separator();
 
@@ -590,7 +590,7 @@ namespace KRG::EntityModel
             SelectComponent( pComponent );
         }
         ImGui::SameLine();
-        ImGui::Text( " - %s - ", pComponent->GetID().ToString().c_str() );
+        ImGui::Text( " - %u - ", pComponent->GetID() );
         ImGui::SameLine();
 
         EntityComponent::Status const componentStatus = pComponent->GetStatus();

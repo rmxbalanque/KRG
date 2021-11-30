@@ -49,10 +49,10 @@ namespace KRG::TypeSystem::TypeHelpers
             KRG_HALT();
         }
 
-        virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override
+        virtual void LoadResources( Resource::ResourceSystem* pResourceSystem, Resource::ResourceRequesterID const& requesterID, IRegisteredType* pType ) const override
         {}
 
-        virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, UUID const& requesterID, IRegisteredType* pType ) const override
+        virtual void UnloadResources( Resource::ResourceSystem* pResourceSystem, Resource::ResourceRequesterID const& requesterID, IRegisteredType* pType ) const override
         {}
 
         virtual LoadingStatus GetResourceLoadingStatus( IRegisteredType* pType ) const override

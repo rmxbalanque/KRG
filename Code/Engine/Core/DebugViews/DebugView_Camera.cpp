@@ -1,11 +1,11 @@
 #include "DebugView_Camera.h"
 #include "System/Render/Imgui/ImguiX.h"
-#include "Engine/Core/Systems/WorldSystem.h"
+#include "Engine/Core/Systems/WorldSystem_PlayerManager.h"
+#include "Engine/Core/Components/Component_Cameras.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/Update/UpdateContext.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
-#include "Engine/Core/Components/CameraComponents.h"
 #include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
@@ -21,12 +21,12 @@ namespace KRG
     void CameraDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
     {
         m_pWorld = pWorld;
-        m_pWorldSystem = pWorld->GetWorldSystem<WorldSystem>();
+        m_pPlayerWorldSystem = pWorld->GetWorldSystem<PlayerManager>();
     }
 
     void CameraDebugView::Shutdown()
     {
-        m_pWorldSystem = nullptr;
+        m_pPlayerWorldSystem = nullptr;
         m_pWorld = nullptr;
     }
 
@@ -55,7 +55,7 @@ namespace KRG
    
     void CameraDebugView::DrawCameraWindow( EntityUpdateContext const& context )
     {
-        auto pActivePlayer = m_pWorldSystem->GetActivePlayer();
+        auto pActivePlayer = m_pPlayerWorldSystem->GetActivePlayer();
         if ( pActivePlayer == nullptr )
         {
             return;

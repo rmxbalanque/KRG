@@ -381,8 +381,8 @@ namespace KRG
 
         KRG_FORCE_INLINE bool IsParallelTo( Vector const& v ) const;
 
-        KRG_FORCE_INLINE void ToDirectionAndLength2( Vector& direction, Vector& length );
-        KRG_FORCE_INLINE void ToDirectionAndLength3( Vector& direction, Vector& length );
+        KRG_FORCE_INLINE void ToDirectionAndLength2( Vector& direction, float& length ) const;
+        KRG_FORCE_INLINE void ToDirectionAndLength3( Vector& direction, float& length ) const;
 
         bool operator==( Vector const& rhs ) const { return IsEqual4( rhs ); }
         bool operator!=( Vector const& rhs ) const { return !IsEqual4( rhs ); }
@@ -1739,17 +1739,19 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    KRG_FORCE_INLINE void Vector::ToDirectionAndLength2( Vector& direction, Vector& length )
+    KRG_FORCE_INLINE void Vector::ToDirectionAndLength2( Vector& direction, float& length ) const
     {
-        length = Length2();
+        Vector const vLength = Length2();
         direction = Vector::Select( *this, Vector::Zero, Select0011 );
-        direction /= length;
+        direction /= vLength;
+        length = vLength.ToFloat();
     }
 
-    KRG_FORCE_INLINE void Vector::ToDirectionAndLength3( Vector& direction, Vector& length )
+    KRG_FORCE_INLINE void Vector::ToDirectionAndLength3( Vector& direction, float& length ) const
     {
-        length = Length3();
+        Vector const vLength = Length3();
         direction = Vector::Select( *this, Vector::Zero, Select0001 );
-        direction /= length;
+        direction /= vLength;
+        length = vLength.ToFloat();
     }
 }

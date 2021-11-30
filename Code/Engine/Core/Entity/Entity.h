@@ -10,7 +10,7 @@
 namespace KRG
 {
     class SystemRegistry;
-    class IEntitySystem;
+    class EntitySystem;
     class EntityUpdateContext;
 
     namespace EntityModel
@@ -40,7 +40,7 @@ namespace KRG
         friend EntityModel::EntityMapEditor;
         template<typename T> friend struct TEntityToolAccessor;
 
-        using SystemUpdateList = TInlineVector<IEntitySystem*, 5>;
+        using SystemUpdateList = TInlineVector<EntitySystem*, 5>;
 
         // Entity internal state change actions
         struct EntityInternalStateAction
@@ -56,16 +56,25 @@ namespace KRG
             };
 
             void const*                         m_ptr = nullptr;            // Can either be ptr to a system or a component
-            UUID                                m_ID;                       // Contains the ID of the parent spatial component
+            ComponentID                         m_parentComponentID;        // Contains the ID of the component
             Type                                m_type = Type::Unknown;     // Type of action
         };
 
         // Event that's fired whenever a component/system is added or removed
         static TMultiUserEventInternal<Entity*> EntityStateUpdatedEvent;
 
+        // Registration state
+        enum class RegistrationStatus : uint8
+        {
+            Unregistered = 0,
+            QueuedForRegister,
+            QueuedForUnregister,
+            Registered,
+        };
+
     public:
 
-        enum class Status
+        enum class Status : uint8
         {
             Unloaded = 0,
             Loaded,
@@ -78,15 +87,15 @@ namespace KRG
     public:
 
         Entity() = default;
-        Entity( StringID name ) : m_ID( UUID::GenerateID() ), m_name( name ) {}
+        Entity( StringID name ) : m_name( name ) {}
         ~Entity();
 
         // Entity Info
         //-------------------------------------------------------------------------
 
-        inline UUID GetID() const { return m_ID; }
+        inline EntityID const& GetID() const { return m_ID; }
         inline StringID GetName() const { return m_name; }
-        inline UUID GetCollectionID() const { return m_collectionID; }
+        inline EntityCollectionID const& GetCollectionID() const { return m_collectionID; }
         inline uint32 GetNumComponents() const { return (uint32) m_components.size(); }
         inline uint32 GetNumSystems() const { return (uint32) m_systems.size(); }
 
@@ -95,12 +104,12 @@ namespace KRG
 
         inline bool IsSpatialEntity() const { return m_pRootSpatialComponent != nullptr; }
         inline SpatialEntityComponent const* GetRootSpatialComponent() const { return m_pRootSpatialComponent; }
-        inline UUID GetRootSpatialComponentID() const { return m_pRootSpatialComponent->GetID(); }
+        inline ComponentID const& GetRootSpatialComponentID() const { return m_pRootSpatialComponent->GetID(); }
         inline Transform const& GetWorldTransform() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetLocalTransform(); }
         inline void SetWorldTransform( Transform const& worldTransform ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->SetLocalTransform( worldTransform ); }
         inline OBB const& GetWorldBounds() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetWorldBounds(); }
         inline bool HasSpatialParent() const { return m_pParentSpatialEntity != nullptr; }
-        inline UUID GetSpatialParentID() const { KRG_ASSERT( HasSpatialParent() ); return m_pParentSpatialEntity->GetID(); }
+        inline EntityID const& GetSpatialParentID() const { KRG_ASSERT( HasSpatialParent() ); return m_pParentSpatialEntity->GetID(); }
         inline StringID const& GetAttachmentSocketID() const { KRG_ASSERT( HasSpatialParent() ); return m_parentAttachmentSocketID; }
         inline bool HasAttachedEntities() const { return !m_attachedEntities.empty(); }
         inline Transform GetAttachmentSocketTransform( StringID socketID ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetAttachmentSocketTransform( socketID ); }
@@ -110,6 +119,7 @@ namespace KRG
 
         inline bool IsInCollection() const { return m_collectionID.IsValid(); }
         inline bool IsActivated() const { return m_status == Status::Activated; }
+        inline bool IsRegisteredForUpdates() const { return m_updateRegistrationStatus == RegistrationStatus::Registered; }
         inline bool HasRequestedComponentLoad() const { return m_status != Status::Unloaded; }
         inline bool IsLoaded() const { return m_status == Status::Loaded; }
         inline bool IsUnloaded() const { return m_status == Status::Unloaded; }
@@ -120,29 +130,29 @@ namespace KRG
 
         inline TVector<EntityComponent*> const& GetComponents() const { return m_components; }
 
-        inline EntityComponent* FindComponent( UUID const& componentID ) 
+        inline EntityComponent* FindComponent( ComponentID const& componentID )
         {
-            auto foundIter = eastl::find( m_components.begin(), m_components.end(), componentID, [] ( EntityComponent* pComponent, UUID const& ID ) { return pComponent->GetID() == ID; } );
+            auto foundIter = eastl::find( m_components.begin(), m_components.end(), componentID, [] ( EntityComponent* pComponent, ComponentID const& ID ) { return pComponent->GetID() == ID; } );
             return ( foundIter != m_components.end() ) ? *foundIter : nullptr;
         }
 
         // Add a new component. For spatial component, you can optionally specify a component to attach to. 
         // If this is unset, the component will be attached to the root component (or will become the root component if one doesnt exist)
-        void AddComponent( EntityComponent* pComponent, UUID const& parentSpatialComponentID = UUID() );
+        void AddComponent( EntityComponent* pComponent, ComponentID const& parentSpatialComponentID = ComponentID() );
 
         // Destroys a component on this entity
-        void DestroyComponent( UUID const& componentID );
+        void DestroyComponent( ComponentID const& componentID );
 
         // Systems
         //-------------------------------------------------------------------------
         // NB!!! Add and remove operations execute immediately for unloaded entities BUT will be deferred to the next loading phase for loaded entities
 
-        inline TVector<IEntitySystem*> const& GetSystems() const { return m_systems; }
+        inline TVector<EntitySystem*> const& GetSystems() const { return m_systems; }
 
         template<typename T>
         T* GetSystem()
         {
-            static_assert( std::is_base_of<IEntitySystem, T>::value, "T has to derive from IEntitySystem" );
+            static_assert( std::is_base_of<EntitySystem, T>::value, "T has to derive from IEntitySystem" );
             for ( auto pSystem : m_systems )
             {
                 if ( pSystem->GetTypeInfo()->m_ID == T::GetStaticTypeID() )
@@ -157,8 +167,8 @@ namespace KRG
         template<typename T> 
         inline void CreateSystem() 
         {
-            static_assert( std::is_base_of<KRG::IEntitySystem, T>::value, "Invalid system type detected" );
-            KRG_ASSERT( !VectorContains( m_systems, T::s_pTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
+            static_assert( std::is_base_of<KRG::EntitySystem, T>::value, "Invalid system type detected" );
+            KRG_ASSERT( !VectorContains( m_systems, T::s_pTypeInfo->m_ID, [] ( EntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
 
             if ( IsUnloaded() )
             {
@@ -180,8 +190,8 @@ namespace KRG
         template<typename T>
         inline void DestroySystem()
         {
-            static_assert( std::is_base_of<KRG::IEntitySystem, T>::value, "Invalid system type detected" );
-            KRG_ASSERT( VectorContains( m_systems, T::s_pTypeInfo->m_ID, [] ( IEntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
+            static_assert( std::is_base_of<KRG::EntitySystem, T>::value, "Invalid system type detected" );
+            KRG_ASSERT( VectorContains( m_systems, T::s_pTypeInfo->m_ID, [] ( EntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
 
             if ( IsUnloaded() )
             {
@@ -272,10 +282,10 @@ namespace KRG
 
         #if KRG_DEVELOPMENT_TOOLS
         // This will deactivate the specified component to allow for its property state to be edited safely. Can be called multiple times (once per component edited)
-        void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& componentID );
+        void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, ComponentID const& componentID );
 
         // This will unload the specified component to allow for its property state to be edited safely. Can be called multiple times (once per component edited)
-        void ComponentEditingUnload( EntityModel::EntityLoadingContext const& loadingContext, UUID const& componentID );
+        void ComponentEditingUnload( EntityModel::EntityLoadingContext const& loadingContext, ComponentID const& componentID );
 
         // This will end any component editing for this frame and load all unloaded components, should only be called once per frame when needed!
         void EndComponentEditing( EntityModel::EntityLoadingContext const& loadingContext );
@@ -283,23 +293,23 @@ namespace KRG
 
     protected:
 
-        UUID                                            m_ID;                                   // The unique ID of this entity
-        UUID                                            m_collectionID;                         // The ID of the collection/map that this entity is part of
+        EntityID                                        m_ID = EntityID( this );                                            // The unique ID of this entity
+        EntityCollectionID                              m_collectionID;                                                     // The ID of the collection/map that this entity is part of
         KRG_EXPOSE StringID                             m_name;
         Status                                          m_status = Status::Unloaded;
-        bool                                            m_isRegisteredForUpdates = false;       // Is this entity registered for frame updates
+        RegistrationStatus                              m_updateRegistrationStatus = RegistrationStatus::Unregistered;      // Is this entity registered for frame updates
 
-        TVector<IEntitySystem*>                         m_systems;
+        TVector<EntitySystem*>                          m_systems;
         TVector<EntityComponent*>                       m_components;
         SystemUpdateList                                m_systemUpdateLists[(int8) UpdateStage::NumStages];
 
-        SpatialEntityComponent*                         m_pRootSpatialComponent = nullptr;      // This spatial component defines our world position
-        TVector<Entity*>                                m_attachedEntities;                     // The list of entities that are attached to this entity
-        Entity*                                         m_pParentSpatialEntity = nullptr;       // The parent entity we are attached to
-        KRG_EXPOSE StringID                             m_parentAttachmentSocketID;             // The socket that we are attached to on the parent
-        bool                                            m_isSpatialAttachmentCreated = false;   // Has the actual component-to-component attachment been created
+        SpatialEntityComponent*                         m_pRootSpatialComponent = nullptr;                                  // This spatial component defines our world position
+        TVector<Entity*>                                m_attachedEntities;                                                 // The list of entities that are attached to this entity
+        Entity*                                         m_pParentSpatialEntity = nullptr;                                   // The parent entity we are attached to
+        KRG_EXPOSE StringID                             m_parentAttachmentSocketID;                                         // The socket that we are attached to on the parent
+        bool                                            m_isSpatialAttachmentCreated = false;                               // Has the actual component-to-component attachment been created
 
-        TVector<EntityInternalStateAction>              m_deferredActions;                      // The set of internal entity state changes that need to be executed
-        Threading::Mutex                                m_internalStateMutex;                   // A mutex that needs to be lock due to internal state changes
+        TVector<EntityInternalStateAction>              m_deferredActions;                                                  // The set of internal entity state changes that need to be executed
+        Threading::Mutex                                m_internalStateMutex;                                               // A mutex that needs to be lock due to internal state changes
     };
  }

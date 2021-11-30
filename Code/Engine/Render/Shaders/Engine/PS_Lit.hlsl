@@ -291,13 +291,8 @@ float4 main(PixelShaderInput psInput): SV_TARGET0
 		Lo += BRDF(NoL, NoV, NoH, VoH, surfaceParams) * m_sunColor.rgb * (NoL * shadowing);
 	}
 
-	// Gamma correction
-	float3 color = Lo;
 	// TODO: Tonemapper:)
-	color = tonemap(color);
-	// TODO: fix
-	float gammaCorr = 1.0f / 2.2f;
-	color = pow(color, gammaCorr);
-
-	return float4(color.r, color.g, color.b, 1.0f);
+	// Gamma correction - can be included in tonemapper
+	float3 color = ToneMap( Lo );
+	return float4( color, 1.0f );
 }

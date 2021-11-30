@@ -7,12 +7,20 @@
       "Command": "-map data://testscenes/ClothMesh.map"
     },
     {
+      "Id": "78593768-2e2e-4d7b-b920-55af6c2c2b81",
+      "Command": "-map data://maps/br_nav.map"
+    },
+    {
       "Id": "9f4e3eb2-43a5-4d5b-b8d2-42f2115be8f9",
       "Command": "-map data://maps/br_minimal.map"
     },
     {
       "Id": "f1c61e21-d551-4886-986d-fb4618797760",
       "Command": "-map data://maps/br_full.map"
+    },
+    {
+      "Id": "c2f1fe3e-d114-4e30-9e3e-a095381f0adc",
+      "Command": "-map data://maps/br_nav.map"
     },
     {
       "Id": "9ef46359-8556-47e4-bc19-4c6f47260537",

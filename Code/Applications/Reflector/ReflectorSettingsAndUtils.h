@@ -114,9 +114,7 @@ namespace KRG::TypeSystem::Reflection
             "Code\\System\\Render\\ThirdParty\\imgui\\",
             "External\\PhysX\\pxshared\\include\\",
             "External\\PhysX\\physx\\include\\",
-            #if KRG_ENABLE_NAVPOWER
             "External\\NavPower\\include\\"
-            #endif
         };
     }
 

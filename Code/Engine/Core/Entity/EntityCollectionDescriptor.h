@@ -29,8 +29,8 @@ namespace KRG::EntityModel
 
         struct SearchResult
         {
-            EntityDescriptor*       m_pEntity = nullptr;
-            ComponentDescriptor*    m_pComponent = nullptr;
+            EntityDescriptor*               m_pEntity = nullptr;
+            ComponentDescriptor*            m_pComponent = nullptr;
         };
 
     protected:
@@ -39,8 +39,8 @@ namespace KRG::EntityModel
         {
             KRG_SERIALIZE_MEMBERS( m_entityIdx, m_parentEntityIdx );
 
-            int32                                                         m_entityIdx = InvalidIndex;
-            int32                                                         m_parentEntityIdx = InvalidIndex;
+            int32                           m_entityIdx = InvalidIndex;
+            int32                           m_parentEntityIdx = InvalidIndex;
         };
 
     public:
@@ -58,7 +58,7 @@ namespace KRG::EntityModel
         inline void AddEntity( EntityDescriptor const& entityDesc )
         {
             KRG_ASSERT( entityDesc.IsValid() );
-            m_entityLookupMap.insert( TPair<UUID, int32>( entityDesc.m_ID, (int32) m_entityDescriptors.size() ) );
+            m_entityLookupMap.insert( TPair<StringID, int32>( entityDesc.m_name, (int32) m_entityDescriptors.size() ) );
             m_entityDescriptors.emplace_back( entityDesc );
         }
 
@@ -79,11 +79,11 @@ namespace KRG::EntityModel
             return m_entityDescriptors; 
         }
 
-        inline EntityDescriptor const* FindEntityDescriptor( UUID const& entityID ) const
+        inline EntityDescriptor const* FindEntityDescriptor( StringID const& entityName ) const
         {
-            KRG_ASSERT( entityID.IsValid() );
+            KRG_ASSERT( entityName.IsValid() );
 
-            auto const foundEntityIter = m_entityLookupMap.find( entityID );
+            auto const foundEntityIter = m_entityLookupMap.find( entityName );
             if ( foundEntityIter != m_entityLookupMap.end() )
             {
                 return &m_entityDescriptors[foundEntityIter->second];
@@ -94,11 +94,11 @@ namespace KRG::EntityModel
             }
         }
 
-        inline int32 FindEntityIndex( UUID const& entityID ) const
+        inline int32 FindEntityIndex( StringID const& entityName ) const
         {
-            KRG_ASSERT( entityID.IsValid() );
+            KRG_ASSERT( entityName.IsValid() );
 
-            auto const foundEntityIter = m_entityLookupMap.find( entityID );
+            auto const foundEntityIter = m_entityLookupMap.find( entityName );
             if ( foundEntityIter != m_entityLookupMap.end() )
             {
                 return foundEntityIter->second;
@@ -142,7 +142,7 @@ namespace KRG::EntityModel
     protected:
 
         TVector<EntityDescriptor>                                   m_entityDescriptors;
-        THashMap<UUID, int32>                                       m_entityLookupMap;
+        THashMap<StringID, int32>                                   m_entityLookupMap;
         TVector<SpatialAttachmentInfo>                              m_entitySpatialAttachmentInfo;
     };
 }

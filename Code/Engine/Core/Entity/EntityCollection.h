@@ -33,29 +33,29 @@ namespace KRG::EntityModel
     public:
 
         EntityCollection() : m_ID( UUID::GenerateID() ) {}
-        EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, UUID ID, EntityCollectionDescriptor const& entityCollectionDesc );
+        EntityCollection( TypeSystem::TypeRegistry const& typeRegistry, EntityCollectionID const& ID, EntityCollectionDescriptor const& entityCollectionDesc );
         
         ~EntityCollection();
 
-        inline UUID GetID() const { return m_ID; }
+        inline EntityCollectionID GetID() const { return m_ID; }
 
         //-------------------------------------------------------------------------
 
         TVector<Entity*> const& GetEntities() const { return m_entities; }
 
-        inline Entity* FindEntity( UUID entityID ) const
+        inline Entity* FindEntity( EntityID entityID ) const
         {
-            auto iter = m_entityLookupMap.find( entityID );
-            return ( iter != m_entityLookupMap.end() ) ? iter->second : nullptr;
+            auto iter = m_entityIDLookupMap.find( entityID );
+            return ( iter != m_entityIDLookupMap.end() ) ? iter->second : nullptr;
         }
 
-        inline bool ContainsEntity( UUID entityID ) const { return FindEntity( entityID ) != nullptr; }
+        inline bool ContainsEntity( EntityID entityID ) const { return FindEntity( entityID ) != nullptr; }
 
         // Add a newly created entity to this collection
         void AddEntityToCollection( Entity* pEntity );
 
         // Remove an entity from this collection
-        void RemoveEntityFromCollection( UUID entityID );
+        void RemoveEntityFromCollection( EntityID entityID );
 
         // Transfers ownership of all entities
         void TransferEntities( TVector<Entity*>& outEntities );
@@ -76,8 +76,8 @@ namespace KRG::EntityModel
 
     protected:
 
-        UUID                                                        m_ID;
+        EntityCollectionID                                          m_ID;
         TVector<Entity*>                                            m_entities;
-        THashMap<UUID, Entity*>                                     m_entityLookupMap;
+        THashMap<EntityID, Entity*>                                 m_entityIDLookupMap;
     };
 }

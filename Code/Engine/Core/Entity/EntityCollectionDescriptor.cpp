@@ -29,7 +29,7 @@ namespace KRG::EntityModel
 
             SpatialAttachmentInfo attachmentInfo;
             attachmentInfo.m_entityIdx = i;
-            attachmentInfo.m_parentEntityIdx = FindEntityIndex( entityDesc.m_spatialParentID );
+            attachmentInfo.m_parentEntityIdx = FindEntityIndex( entityDesc.m_spatialParentName );
 
             if ( attachmentInfo.m_parentEntityIdx != InvalidIndex )
             {

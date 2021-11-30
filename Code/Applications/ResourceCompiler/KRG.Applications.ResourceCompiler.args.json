@@ -8,7 +8,11 @@
       "Items": [
         {
           "Id": "a8fe4a3c-fd67-4929-9ae3-66b1e588d828",
-          "Command": "-compile data://player.ec"
+          "Command": "-compile data://player/player.ec"
+        },
+        {
+          "Id": "ad2d1983-6878-4258-afa3-81c0872a7d6b",
+          "Command": "-compile data://ai/grunt.ec"
         },
         {
           "Id": "7d8391f1-5e52-4e7e-b49e-8c142d55b97f",
@@ -17,6 +21,14 @@
         {
           "Id": "f70fcfe5-b416-417d-acbe-761d66b29ce2",
           "Command": "-compile data://maps/br_minimal.map"
+        },
+        {
+          "Id": "3a1d3634-59db-4632-8fab-d445fd8cd13a",
+          "Command": "-compile data://maps/br_nav.map"
+        },
+        {
+          "Id": "b715060d-66f7-4c58-90c0-48e6e05a390f",
+          "Command": "-compile data://maps/animTest_minimal.map"
         },
         {
           "Id": "3e350972-2b51-4550-9e06-be679782a3c3",

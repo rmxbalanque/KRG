@@ -55,12 +55,12 @@ namespace KRG
         : EditorWorkspace( context, pWorld, resourceID.GetResourcePath().ToFileSystemPath( context.m_sourceResourceDirectory ).GetFileNameWithoutExtension() )
         , m_descriptorID( resourceID )
         , m_descriptorPath( resourceID.GetResourcePath().ToFileSystemPath( context.m_sourceResourceDirectory ) )
-        , m_propertyGrid( *context.m_pTypeRegistry, context.m_sourceResourceDirectory )
+        , m_descriptorPropertyGrid( *context.m_pTypeRegistry, context.m_sourceResourceDirectory )
     {
         KRG_ASSERT( resourceID.IsValid() );
 
-        m_preEditEventBindingID = m_propertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& info ) { PreEdit( info ); } );
-        m_postEditEventBindingID = m_propertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& info ) { PostEdit( info ); } );
+        m_preEditEventBindingID = m_descriptorPropertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& info ) { PreEdit( info ); } );
+        m_postEditEventBindingID = m_descriptorPropertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& info ) { PostEdit( info ); } );
     }
 
     GenericResourceWorkspace::~GenericResourceWorkspace()
@@ -68,8 +68,8 @@ namespace KRG
         KRG_ASSERT( m_pDescriptor == nullptr );
         KRG_ASSERT( m_pActiveUndoableAction == nullptr );
 
-        m_propertyGrid.OnPreEdit().Unbind( m_preEditEventBindingID );
-        m_propertyGrid.OnPostEdit().Unbind( m_postEditEventBindingID );
+        m_descriptorPropertyGrid.OnPreEdit().Unbind( m_preEditEventBindingID );
+        m_descriptorPropertyGrid.OnPostEdit().Unbind( m_postEditEventBindingID );
     }
 
     void GenericResourceWorkspace::Initialize( UpdateContext const& context )
@@ -85,7 +85,7 @@ namespace KRG
             if ( typeReader.ReadType( typeDesc ) )
             {
                 m_pDescriptor = typeDesc.CreateTypeInstance<Resource::ResourceDescriptor>( *m_editorContext.m_pTypeRegistry );
-                m_propertyGrid.SetTypeToEdit( m_pDescriptor );
+                m_descriptorPropertyGrid.SetTypeToEdit( m_pDescriptor );
             }
         }
     }
@@ -124,14 +124,14 @@ namespace KRG
                     ImGui::Text( "Descriptor: %s", m_descriptorID.c_str() );
                 }
 
-                ImGui::BeginDisabled( !m_propertyGrid.IsDirty() );
+                ImGui::BeginDisabled( !m_descriptorPropertyGrid.IsDirty() );
                 if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_FLOPPY_O " Save", ImVec2( -1, 0 ) ) )
                 {
                     Save();
                 }
                 ImGui::EndDisabled();
 
-                m_propertyGrid.DrawGrid();
+                m_descriptorPropertyGrid.DrawGrid();
             }
         }
         ImGui::End();
@@ -148,7 +148,7 @@ namespace KRG
             }
             else
             {
-                m_propertyGrid.DrawGrid();
+                m_descriptorPropertyGrid.DrawGrid();
             }
         }
         ImGui::End();
@@ -161,7 +161,7 @@ namespace KRG
         
         if ( WriteResourceDescriptorToFile( *m_editorContext.m_pTypeRegistry, m_descriptorPath, m_pDescriptor ) )
         {
-            m_propertyGrid.ClearDirty();
+            m_descriptorPropertyGrid.ClearDirty();
             return true;
         }
 

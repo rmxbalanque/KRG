@@ -28,7 +28,7 @@ namespace KRG
         return m_pWorld->GetViewport();
     }
 
-    UUID const& EntityUpdateContext::GetWorldID() const
+    EntityWorldID const& EntityUpdateContext::GetWorldID() const
     {
         return m_pWorld->GetID();
     }

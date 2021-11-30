@@ -1,13 +1,13 @@
 #include "WorldRenderer.h"
-#include "Engine/Render/Components/EnvironmentMapComponents.h"
-#include "Engine/Render/Components/LightComponents.h"
-#include "Engine/Render/Components/StaticMeshComponent.h"
-#include "Engine/Render/Components/SkeletalMeshComponent.h"
+#include "Engine/Render/Components/Component_EnvironmentMaps.h"
+#include "Engine/Render/Components/Component_Lights.h"
+#include "Engine/Render/Components/Component_StaticMesh.h"
+#include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Render/Shaders/EngineShaders.h"
+#include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Core/Entity/Entity.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Render/WorldSystems/WorldRendererSystem.h"
 #include "System/Render/RenderDefaultResources.h"
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Profiling/Profiling.h"
@@ -440,7 +440,9 @@ namespace KRG::Render
         m_initialized = false;
     }
 
-    void WorldRenderer::SetupMaterial( RenderContext const& renderContext, PixelShader& pixelShader, Material const* pMaterial )
+    //-------------------------------------------------------------------------
+
+    void WorldRenderer::SetMaterial( RenderContext const& renderContext, PixelShader& pixelShader, Material const* pMaterial )
     {
         KRG_ASSERT( pMaterial != nullptr );
 
@@ -467,6 +469,27 @@ namespace KRG::Render
         renderContext.SetShaderResource( PipelineStage::Pixel, 3, ( materialData.m_surfaceFlags & MATERIAL_USE_ROUGHNESS_TEXTURE ) ? pMaterial->GetRoughnessTexture()->GetShaderResourceView() : defaultSRV );
         renderContext.SetShaderResource( PipelineStage::Pixel, 4, ( materialData.m_surfaceFlags & MATERIAL_USE_AO_TEXTURE ) ? pMaterial->GetAOTexture()->GetShaderResourceView() : defaultSRV );
     }
+
+    void WorldRenderer::SetDefaultMaterial( RenderContext const& renderContext, PixelShader& pixelShader )
+    {
+        ViewSRVHandle const& defaultSRV = DefaultResources::GetDefaultTexture()->GetShaderResourceView();
+
+        MaterialData materialData{};
+        materialData.m_surfaceFlags |= MATERIAL_USE_ALBEDO_TEXTURE;
+        materialData.m_metalness = 0.0f;
+        materialData.m_roughness = 1.0f;
+        materialData.m_normalScaler = 1.0f;
+        materialData.m_albedo = Float4::One;
+        renderContext.WriteToBuffer( pixelShader.GetConstBuffer( 1 ), &materialData, sizeof( materialData ) );
+
+        renderContext.SetShaderResource( PipelineStage::Pixel, 0, defaultSRV );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 1, defaultSRV );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 2, defaultSRV );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 3, defaultSRV );
+        renderContext.SetShaderResource( PipelineStage::Pixel, 4, defaultSRV );
+    }
+
+    //-------------------------------------------------------------------------
 
     void WorldRenderer::SetupRenderStates( Viewport const& viewport, RenderData const& data )
     {
@@ -529,7 +552,7 @@ namespace KRG::Render
             {
                 if ( i < materials.size() && materials[i] )
                 {
-                    SetupMaterial( renderContext, m_pixelShader, materials[i] );
+                    SetMaterial( renderContext, m_pixelShader, materials[i] );
                 }
 
                 auto const& subMesh = pMesh->GetSection( i );
@@ -580,7 +603,6 @@ namespace KRG::Render
             transforms.m_normalTransform = transforms.m_worldTransform.GetInverse().Transpose();
             renderContext.WriteToBuffer( m_vertexShaderSkeletal.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
-
             auto const& bonesConstBuffer = m_vertexShaderSkeletal.GetConstBuffer( 1 );
             auto const& boneTransforms = pMeshComponent->GetSkinningTransforms();
             KRG_ASSERT( boneTransforms.size() == pCurrentMesh->GetNumBones() );
@@ -596,7 +618,11 @@ namespace KRG::Render
             {
                 if ( i < materials.size() && materials[i] )
                 {
-                    SetupMaterial( renderContext, m_pixelShader, materials[i] );
+                    SetMaterial( renderContext, m_pixelShader, materials[i] );
+                }
+                else // Use default material
+                {
+                    SetDefaultMaterial( renderContext, m_pixelShader );
                 }
 
                 // Draw mesh
@@ -721,9 +747,10 @@ namespace KRG::Render
         auto pWorldSystem = pWorld->GetWorldSystem<WorldRendererSystem>();
         KRG_ASSERT( pWorldSystem != nullptr );
 
-        RenderData renderData{
-            Transforms{Matrix{ZeroInit{}}, Matrix{ZeroInit{}}, Matrix{ZeroInit{}}},
-            LightData{Vector{0.0f}, Vector{0.0f}, Matrix{ZeroInit{}}, 0, 0},
+        RenderData renderData
+        {
+            Transforms{ Matrix{ZeroInit{}}, Matrix{ZeroInit{}}, Matrix{ZeroInit{}} },
+            LightData{ Vector{0.0f}, Vector{0.0f}, Matrix{ZeroInit{}}, -1.0f, 0, 0 },
             nullptr,
             nullptr,
             pWorldSystem->m_visibleStaticMeshComponents,
@@ -760,6 +787,7 @@ namespace KRG::Render
             renderData.m_pSkyboxTexture = pGlobalEnvironmentMapComponent->GetSkyboxTexture();
             renderData.m_lightData.m_SunColorRoughnessOneLevel.m_w = std::max( floor( log2f( (float) renderData.m_pSkyboxRadianceTexture->GetDimensions().m_x ) ) - 1.0f, 0.0f );
             renderData.m_lightData.m_SunDirIndirectIntensity.m_w = pGlobalEnvironmentMapComponent->GetSkyboxIntensity();
+            renderData.m_lightData.m_manualExposure = pGlobalEnvironmentMapComponent->GetExposure();
         }
 
         uint32_t numPointLights = (uint32) std::min<size_t>( pWorldSystem->m_registeredPointLightComponents.size(), MAX_PUNCTUAL_LIGHTS );

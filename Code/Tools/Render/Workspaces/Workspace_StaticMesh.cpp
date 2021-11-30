@@ -1,8 +1,7 @@
 #include "Workspace_StaticMesh.h"
 #include "Tools/Core/Widgets/InterfaceHelpers.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Render/Components/StaticMeshComponent.h"
-#include "Engine/Render/Components/SkeletalMeshComponent.h"
+#include "Engine/Render/Components/Component_StaticMesh.h"
 
 //-------------------------------------------------------------------------
 

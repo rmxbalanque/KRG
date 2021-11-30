@@ -89,7 +89,7 @@ namespace KRG::Animation::Graph
 
         // Deactivate this branch and re-sample the state events
         {
-            TScopedValue<BranchState> const branchStateScopedValue( context.m_branchState, BranchState::Inactive );
+            TScopedGuardValue<BranchState> const branchStateScopedValue( context.m_branchState, BranchState::Inactive );
             SampleStateEvents( context );
             DeactivateBranch( context );
         }

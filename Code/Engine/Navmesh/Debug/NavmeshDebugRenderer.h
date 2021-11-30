@@ -1,5 +1,4 @@
 #pragma once
-#if KRG_ENABLE_NAVPOWER
 #include "../_Module/API.h"
 #include "Engine/Render/IRenderer.h"
 
@@ -22,7 +21,7 @@ namespace KRG::Navmesh
 
         void Initialize();
         void Shutdown();
-        void RenderWorld( EntityWorld* pWorld ) override final;
+        void RenderWorld( Render::RenderTarget const& target, Render::Viewport const& viewport, EntityWorld* pWorld ) override final;
 
     private:
 
@@ -35,5 +34,4 @@ namespace KRG::Navmesh
 {
     class NavmeshDebugRenderer {};
 }
-#endif
 #endif

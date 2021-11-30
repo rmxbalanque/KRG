@@ -34,15 +34,17 @@ namespace KRG
         explicit StringID( uint32 ID ) : m_ID( ID ) {}
         inline explicit StringID( String const& str ) : StringID( str.c_str() ) {}
 
-        inline bool operator==( StringID const& rhs ) const { return m_ID == rhs.m_ID; }
-        inline bool operator!=( StringID const& rhs ) const { return m_ID != rhs.m_ID; }
-
         inline bool IsValid() const { return m_ID != 0; }
         inline uint32 GetID() const { return m_ID; }
         inline operator uint32() const { return m_ID; }
 
+        inline void Clear() { m_ID = 0; }
+
         char const* ToString() const;
         inline char const* c_str() const { return ToString(); }
+
+        inline bool operator==( StringID const& rhs ) const { return m_ID == rhs.m_ID; }
+        inline bool operator!=( StringID const& rhs ) const { return m_ID != rhs.m_ID; }
 
     private:
 

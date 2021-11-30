@@ -37,7 +37,7 @@ namespace KRG
         EntityWorld( EntityWorldType worldType = EntityWorldType::Game ) : m_worldType( worldType ) {}
         ~EntityWorld();
 
-        inline UUID const& GetID() const { return m_worldID; }
+        inline EntityWorldID const& GetID() const { return m_worldID; }
         inline bool IsGameWorld() const { return m_worldType == EntityWorldType::Game; }
 
         void Initialize( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> worldSystemTypeInfos );
@@ -109,7 +109,7 @@ namespace KRG
 
         #if KRG_DEVELOPMENT_TOOLS
         // This function will immediately unload the specified component so that its properties can be edited
-        void PrepareComponentForEditing( ResourceID const& mapID, UUID const& entityID, UUID const& componentID );
+        void PrepareComponentForEditing( ResourceID const& mapID, EntityID const& entityID, ComponentID const& componentID );
 
         // Get all the registered components of the specified type
         inline TVector<EntityComponent const*> const& GetAllRegisteredComponentsOfType( TypeSystem::TypeID typeID ) { return m_componentTypeLookup[typeID]; }
@@ -162,7 +162,7 @@ namespace KRG
 
     private:
 
-        UUID                                                                    m_worldID = UUID::GenerateID();
+        EntityWorldID                                                           m_worldID = UUID::GenerateID();
         TaskSystem*                                                             m_pTaskSystem = nullptr;
         EntityModel::EntityLoadingContext                                       m_loadingContext;
         EntityModel::ActivationContext                                          m_activationContext;

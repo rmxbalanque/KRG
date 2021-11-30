@@ -1,5 +1,5 @@
 #include "PhysicsDebugRenderer.h"
-#include "Engine/Physics/PhysicsWorldSystem.h"
+#include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Core/Profiling/Profiling.h"
 

@@ -8,7 +8,7 @@
 
 namespace KRG::Animation
 {
-    class AnimationPlayerComponent;
+    class AnimationClipPlayerComponent;
     class AnimatedMeshComponent;
     class EventEditor;
 
@@ -44,7 +44,7 @@ namespace KRG::Animation
         String                          m_trackDataWindowName;
 
         Entity*                         m_pPreviewEntity = nullptr;
-        AnimationPlayerComponent*       m_pAnimationComponent = nullptr;
+        AnimationClipPlayerComponent*   m_pAnimationComponent = nullptr;
         AnimatedMeshComponent*          m_pMeshComponent = nullptr;
         EventEditor*                    m_pEventEditor = nullptr;
         PropertyGrid                    m_propertyGrid;

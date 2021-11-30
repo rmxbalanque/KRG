@@ -2,7 +2,7 @@
 #include "ToolsGraph/AnimationToolsGraph.h"
 #include "Tools/Core/Trees/CategoryTree.h"
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
-#include "Engine/Animation/Components/AnimationGraphComponent.h"
+#include "Engine/Animation/Components/Component_AnimationGraph.h"
 #include "System/Core/Types/Containers.h"
 
 //-------------------------------------------------------------------------

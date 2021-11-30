@@ -2,7 +2,7 @@
 #include "ResourceBuilders/NavmeshBuilder.h"
 #include "Tools/Entity/Serialization/EntityCollectionDescriptorReader.h"
 #include "Engine/Core/Entity/EntityMapDescriptor.h"
-#include "Engine/Navmesh/Components/NavmeshComponent.h"
+#include "Engine/Navmesh/Components/Component_Navmesh.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Time/Timers.h"

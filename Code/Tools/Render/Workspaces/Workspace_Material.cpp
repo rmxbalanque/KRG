@@ -1,6 +1,6 @@
 #include "Workspace_Material.h"
 #include "Tools/Core/Widgets/InterfaceHelpers.h"
-#include "Engine/Render/Components/StaticMeshComponent.h"
+#include "Engine/Render/Components/Component_StaticMesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
@@ -73,7 +73,7 @@ namespace KRG::Render
             {
                 if ( m_pDescriptor != nullptr )
                 {
-                    m_propertyGrid.DrawGrid();
+                    m_descriptorPropertyGrid.DrawGrid();
                 }
             }
         }

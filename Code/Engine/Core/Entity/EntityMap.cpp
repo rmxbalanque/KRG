@@ -1,4 +1,5 @@
 #include "EntityMap.h"
+#include "EntityActivationContext.h"
 #include "Engine/Core/Entity/Entity.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Profiling/Profiling.h"
@@ -39,7 +40,7 @@ namespace KRG::EntityModel
     EntityMap::~EntityMap()
     {
         KRG_ASSERT( IsUnloaded() && !m_isCollectionInstantiated );
-        KRG_ASSERT( m_entities.empty() && m_entityLookupMap.empty() );
+        KRG_ASSERT( m_entities.empty() && m_entityIDLookupMap.empty() );
         KRG_ASSERT( m_entitiesToHotReload.empty() );
 
         #if KRG_DEVELOPMENT_TOOLS
@@ -68,7 +69,7 @@ namespace KRG::EntityModel
 
         m_ID = map.m_ID;
         m_entities.swap( map.m_entities );
-        m_entityLookupMap.swap( map.m_entityLookupMap );
+        m_entityIDLookupMap.swap( map.m_entityIDLookupMap );
         m_pMapDesc = eastl::move( map.m_pMapDesc );
         m_entitiesCurrentlyLoading = eastl::move( map.m_entitiesCurrentlyLoading );
         m_status = map.m_status;
@@ -113,7 +114,7 @@ namespace KRG::EntityModel
         m_entitiesToAdd.emplace_back( pEntity );
     }
 
-    Entity* EntityMap::RemoveEntity( UUID entityID )
+    Entity* EntityMap::RemoveEntity( EntityID entityID )
     {
         Entity* pEntityToRemove = nullptr;
 
@@ -121,7 +122,7 @@ namespace KRG::EntityModel
         Threading::RecursiveScopeLock lock( m_mutex );
 
         // Check if the entity is in the add queue, if so just cancel the request
-        int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
+        int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, EntityID entityID ) { return pEntity->GetID() == entityID; } );
         if ( entityIdx != InvalidIndex )
         {
             pEntityToRemove = m_entitiesToAdd[entityIdx];
@@ -144,7 +145,7 @@ namespace KRG::EntityModel
         return pEntityToRemove;
     }
 
-    void EntityMap::DestroyEntity( UUID entityID )
+    void EntityMap::DestroyEntity( EntityID entityID )
     {
         Entity* pEntityToDestroy = nullptr;
 
@@ -152,7 +153,7 @@ namespace KRG::EntityModel
         Threading::RecursiveScopeLock lock( m_mutex );
 
         // Check if the entity is in the add queue, if so just cancel the request
-        int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, UUID entityID ) { return pEntity->GetID() == entityID; } );
+        int32 const entityIdx = VectorFindIndex( m_entitiesToAdd, entityID, [] ( Entity* pEntity, EntityID entityID ) { return pEntity->GetID() == entityID; } );
         if ( entityIdx != InvalidIndex )
         {
             pEntityToDestroy = m_entitiesToAdd[entityIdx];
@@ -204,7 +205,7 @@ namespace KRG::EntityModel
         m_isUnloadRequested = true;
     }
 
-    void EntityMap::Activate( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void EntityMap::Activate( EntityModel::ActivationContext& activationContext )
     {
         KRG_PROFILE_SCOPE_SCENE( "Map Activation" );
         KRG_ASSERT( m_status == Status::Loaded );
@@ -249,13 +250,13 @@ namespace KRG::EntityModel
         Threading::RecursiveScopeLock lock( m_mutex );
 
         EntityActivationTask activationTask( activationContext, m_entities );
-        loadingContext.m_pTaskSystem->ScheduleTask( &activationTask );
-        loadingContext.m_pTaskSystem->WaitForTask( &activationTask );
+        activationContext.m_pTaskSystem->ScheduleTask( &activationTask );
+        activationContext.m_pTaskSystem->WaitForTask( &activationTask );
 
         m_status = Status::Activated;
     }
 
-    void EntityMap::Deactivate( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
+    void EntityMap::Deactivate( EntityModel::ActivationContext& activationContext )
     {
         KRG_PROFILE_SCOPE_SCENE( "Map Deactivation" );
         KRG_ASSERT( m_status == Status::Activated );
@@ -299,8 +300,8 @@ namespace KRG::EntityModel
         Threading::RecursiveScopeLock lock( m_mutex );
 
         EntityDeactivationTask deactivationTask( activationContext, m_entities );
-        loadingContext.m_pTaskSystem->ScheduleTask( &deactivationTask );
-        loadingContext.m_pTaskSystem->WaitForTask( &deactivationTask );
+        activationContext.m_pTaskSystem->ScheduleTask( &deactivationTask );
+        activationContext.m_pTaskSystem->WaitForTask( &deactivationTask );
 
         m_status = Status::Loaded;
     }
@@ -313,6 +314,7 @@ namespace KRG::EntityModel
         {
             KRG_ASSERT( FindEntity( pEntity->GetID() ) );
             Threading::RecursiveScopeLock lock( m_mutex );
+            KRG_ASSERT( !VectorContains( m_entitiesCurrentlyLoading, pEntity ) );
             m_entitiesCurrentlyLoading.emplace_back( pEntity );
         }
     }
@@ -328,7 +330,7 @@ namespace KRG::EntityModel
         // Ensure that we also deactivate all entities properly
         if ( IsActivated() )
         {
-            Deactivate( loadingContext, activationContext );
+            Deactivate( activationContext );
         }
         else
         {
@@ -411,6 +413,7 @@ namespace KRG::EntityModel
                 for ( auto pEntity : m_entities )
                 {
                     pEntity->LoadComponents( loadingContext );
+                    KRG_ASSERT( !VectorContains( m_entitiesCurrentlyLoading, pEntity ) );
                     m_entitiesCurrentlyLoading.emplace_back( pEntity );
                 }
 
@@ -436,6 +439,7 @@ namespace KRG::EntityModel
         for ( auto pEntity : m_editedEntities )
         {
             pEntity->EndComponentEditing( loadingContext );
+            KRG_ASSERT( !VectorContains( m_entitiesCurrentlyLoading, pEntity ) );
             m_entitiesCurrentlyLoading.emplace_back( pEntity );
         }
         m_editedEntities.clear();
@@ -452,6 +456,7 @@ namespace KRG::EntityModel
             {
                 EntityCollection::AddEntityToCollection( pEntityToAdd );
                 pEntityToAdd->LoadComponents( loadingContext );
+                KRG_ASSERT( !VectorContains( m_entitiesCurrentlyLoading, pEntityToAdd ) );
                 m_entitiesCurrentlyLoading.emplace_back( pEntityToAdd );
             }
 
@@ -545,7 +550,7 @@ namespace KRG::EntityModel
 
         private:
 
-            EntityLoadingContext const&                   m_loadingContext;
+            EntityLoadingContext const&             m_loadingContext;
             EntityModel::ActivationContext&         m_activationContext;
             TVector<Entity*>&                       m_entitiesToLoad;
             bool                                    m_isActivated = false;
@@ -628,7 +633,7 @@ namespace KRG::EntityModel
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void EntityMap::ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, UUID const& entityID, UUID const& componentID )
+    void EntityMap::ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, EntityID const& entityID, ComponentID const& componentID )
     {
         KRG_ASSERT( Threading::IsMainThread() );
 
@@ -645,7 +650,7 @@ namespace KRG::EntityModel
         }
     }
 
-    void EntityMap::ComponentEditingUnload( EntityLoadingContext const& loadingContext, UUID const& entityID, UUID const& componentID )
+    void EntityMap::ComponentEditingUnload( EntityLoadingContext const& loadingContext, EntityID const& entityID, ComponentID const& componentID )
     {
         KRG_ASSERT( Threading::IsMainThread() );
 
@@ -667,7 +672,7 @@ namespace KRG::EntityModel
         for ( auto const& requesterID : usersToReload )
         {
             // See if the entity that needs a reload is in this map
-            Entity* pFoundEntity = FindEntity( requesterID.GetID() );
+            Entity* pFoundEntity = FindEntity( EntityID( requesterID.GetID() ) );
             if ( pFoundEntity != nullptr )
             {
                 m_entitiesToHotReload.emplace_back( pFoundEntity );

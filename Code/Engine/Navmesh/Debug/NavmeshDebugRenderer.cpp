@@ -1,6 +1,5 @@
-#if KRG_ENABLE_NAVPOWER
 #include "NavmeshDebugRenderer.h"
-#include "Engine/Navmesh/NavmeshWorldSystem.h"
+#include "Engine/Navmesh/Systems/WorldSystem_Navmesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "System/Core/Debug/DebugDrawingSystem.h"
@@ -86,7 +85,7 @@ namespace KRG::Navmesh
         KRG::Delete( m_pRenderer );
     }
 
-    void NavmeshDebugRenderer::RenderWorld( EntityWorld* pWorld )
+    void NavmeshDebugRenderer::RenderWorld( Render::RenderTarget const& target, Render::Viewport const& viewport, EntityWorld* pWorld )
     {
         KRG_ASSERT( m_pRenderer != nullptr && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
@@ -100,5 +99,4 @@ namespace KRG::Navmesh
         bfx::SystemDraw();
     }
 }
-#endif
 #endif

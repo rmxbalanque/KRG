@@ -14,7 +14,7 @@ namespace KRG::Navmesh
 
         //-------------------------------------------------------------------------
 
-        #if KRG_DEVELOPMENT_TOOLS && KRG_ENABLE_NAVPOWER
+        #if KRG_DEVELOPMENT_TOOLS
         m_navmeshRenderer.Initialize();
         auto pRendererRegistry = context.GetSystem<Render::RendererRegistry>();
         KRG_ASSERT( pRendererRegistry != nullptr );
@@ -31,7 +31,7 @@ namespace KRG::Navmesh
     {
         if ( m_initialized )
         {
-            #if KRG_DEVELOPMENT_TOOLS && KRG_ENABLE_NAVPOWER
+            #if KRG_DEVELOPMENT_TOOLS
             auto pRendererRegistry = context.GetSystem<Render::RendererRegistry>();
             KRG_ASSERT( pRendererRegistry != nullptr );
             pRendererRegistry->UnregisterRenderer( &m_navmeshRenderer );
