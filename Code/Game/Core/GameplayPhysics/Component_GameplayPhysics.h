@@ -31,7 +31,16 @@ namespace KRG::GameplayPhysics
         void DestroyPhysicsStates();
 
         // Get the currently active physics state
-        inline GameplayPhysics::PhysicsState* GetActivePhysicsState() { return m_pActiveState; }
+        inline GameplayPhysics::PhysicsState* GetActivePhysicsState() const { return m_pActiveState; }
+
+        // Get the currently active physics state
+        template<typename T>
+        inline T* GetActivePhysicsState() const
+        {
+            KRG_ASSERT( m_pActiveState != nullptr );
+            KRG_ASSERT( m_pActiveState->GetPhysicsStateID() == T::s_physicsStateID );
+            return static_cast<T*>( m_pActiveState );
+        }
 
         // Set new physics state
         template<typename T>

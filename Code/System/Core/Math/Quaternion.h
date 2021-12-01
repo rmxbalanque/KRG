@@ -53,6 +53,9 @@ namespace KRG
         KRG_FORCE_INLINE operator __m128&( ) { return m_data; }
         KRG_FORCE_INLINE operator __m128 const&() const { return m_data; }
 
+        inline Vector Length() { return ToVector().Length4(); }
+        inline float GetLength() const { return ToVector().GetLength4(); }
+
         inline Float4 ToFloat4() const { return Float4( m_x, m_y, m_z, m_w ); }
         inline Vector const& ToVector() const { return reinterpret_cast<Vector const&>( *this ); }
         inline AxisAngle ToAxisAngle() const;
@@ -73,6 +76,12 @@ namespace KRG
 
         inline Quaternion& Normalize();
         inline Quaternion GetNormalized() const;
+
+        // This function will return the estimated normalized quaternion, this is not super accurate but a lot faster (use with care)
+        inline Quaternion& NormalizeInaccurate();
+
+        // This function will return the estimated normalized quaternion, this is not super accurate but a lot faster (use with care)
+        inline Quaternion GetNormalizedInaccurate() const;
 
         inline bool IsNormalized() const { return AsVector().IsNormalized4(); }
         inline bool IsIdentity() const { return AsVector().IsEqual3( Vector::UnitW ); }
@@ -165,6 +174,29 @@ namespace KRG
         Quaternion q = *this;
         q.Normalize();
         return q;
+    }
+
+    inline Quaternion& Quaternion::NormalizeInaccurate()
+    {
+        *this = GetNormalizedInaccurate();
+        return *this;
+    }
+
+    inline Quaternion Quaternion::GetNormalizedInaccurate() const
+    {
+        __m128 vLengthSq = _mm_mul_ps( m_data, m_data );
+        __m128 vTemp = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+        vLengthSq = _mm_add_ps( vLengthSq, vTemp );
+        vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 1, 0, 0, 0 ) );
+        vTemp = _mm_shuffle_ps( vTemp, vLengthSq, _MM_SHUFFLE( 3, 3, 0, 0 ) );
+        vLengthSq = _mm_add_ps( vLengthSq, vTemp );
+        vLengthSq = _mm_shuffle_ps( vLengthSq, vLengthSq, _MM_SHUFFLE( 2, 2, 2, 2 ) );
+        
+        // Get the reciprocal and mul to perform the normalization
+        Quaternion result;
+        result.m_data = _mm_rsqrt_ps( vLengthSq );
+        result.m_data = _mm_mul_ps( result.m_data, m_data );
+        return result;
     }
 
     //-------------------------------------------------------------------------

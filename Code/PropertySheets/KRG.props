@@ -42,6 +42,7 @@
       <Optimization Condition="$(Configuration) == 'Debug'">Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <LinkIncremental>true</LinkIncremental>

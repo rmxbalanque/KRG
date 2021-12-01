@@ -291,6 +291,7 @@ namespace KRG
         else // Normal case
         {
             m_rotation = m_rotation * rhs.m_rotation;
+            m_rotation.Normalize();
             m_translation = rhs.m_rotation.RotateVector( m_translation * rhs.m_scale ) + rhs.m_translation;
             m_scale = m_scale * rhs.m_scale;
         }

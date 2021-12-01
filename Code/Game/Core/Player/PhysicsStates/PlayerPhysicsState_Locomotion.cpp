@@ -27,7 +27,7 @@ namespace KRG::Player
         //Vector gravityEndPosition = gravityStartPosition + gravityDelta;
         //Physics::SweepResults gravityResults;
 
-        //if ( pPhysicsWorld->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), gravityStartPosition, gravityEndPosition, filter, gravityResults ) )
+        //if ( pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), gravityStartPosition, gravityEndPosition, filter, gravityResults ) )
         //{
         //    if ( gravityResults.hasBlock )
         //    {
@@ -38,7 +38,7 @@ namespace KRG::Player
         //deltaMovement = gravityEndPosition - startPosition;
     }
 
-    Transform PlayerLocomotionPhysicsState::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& deltaRotation, Vector const& deltaTranslation )
+    Transform PlayerLocomotionPhysicsState::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& deltaRotation, Vector const& deltaTranslation )
     {
         Transform const currentWorldTransform = pCapsuleComponent->GetWorldTransform();
         Vector const startPosition = currentWorldTransform.GetTranslation();
@@ -61,12 +61,13 @@ namespace KRG::Player
         filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
         filter.AddIgnoredEntity( pCapsuleComponent->GetEntityID() );
 
-        pPhysicsWorld->AcquireReadLock();
+        pPhysicsSystem->AcquireReadLock();
         {
             Physics::SweepResults results;
 
             bool bInitialCollision = false;
-            if ( pPhysicsWorld->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), startPosition, desiredEndPosition, filter, results ) )
+            KRG_ASSERT( pCapsuleComponent->GetOrientation().IsNormalized() );
+            if ( pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), startPosition, desiredEndPosition, filter, results ) )
             {
                 if ( results.block.hadInitialOverlap() )
                 {
@@ -74,7 +75,7 @@ namespace KRG::Player
                     KRG_LOG_MESSAGE( "Physics", "Initial collision detected" );
                     Vector const normal = Physics::FromPx( results.block.normal );
                     Vector const newstartPosition = startPosition + normal * 0.01f;
-                    pPhysicsWorld->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), newstartPosition, desiredEndPosition, filter, results );
+                    pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), newstartPosition, desiredEndPosition, filter, results );
                 }
 
                 if ( results.block.hadInitialOverlap() )
@@ -100,9 +101,8 @@ namespace KRG::Player
                         Vector const newDeltaMovement = unitProjection * remainingDistance;
                         Vector const newEndPosition = collisionPosition + newDeltaMovement;
 
-
                         // Project only once for now, but this might need to be recursive
-                        if ( pPhysicsWorld->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), collisionPosition, newEndPosition, filter, results ) )
+                        if ( pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), collisionPosition, newEndPosition, filter, results ) )
                         {
                             // Basic wall collision
                             adjustedDeltaTranslation = results.GetCollisionPosition() - pCapsuleComponent->GetPosition() - ( unitProjection * 0.01f );
@@ -127,7 +127,7 @@ namespace KRG::Player
                 }
             }
         }
-        pPhysicsWorld->ReleaseReadLock();
+        pPhysicsSystem->ReleaseReadLock();
 
         //-------------------------------------------------------------------------
         

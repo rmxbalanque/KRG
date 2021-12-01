@@ -1,12 +1,12 @@
 #pragma once
 #include "System/Core/Algorithm/Hash.h"
+#include "Engine/Core/Entity/EntityUpdateContext.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
     class EntityComponent;
-    class EntityUpdateContext;
     class SpatialEntityComponent;
     class OrbitCameraComponent;
     namespace Physics { class CapsuleComponent; }
@@ -49,6 +49,13 @@ namespace KRG::Player
             return nullptr;
         }
 
+        // Forwarding helper functions
+        //-------------------------------------------------------------------------
+
+        KRG_FORCE_INLINE Seconds GetDeltaTime() const { return m_pEntityUpdateContext->GetDeltaTime(); }
+        template<typename T> inline T* GetWorldSystem() const { return m_pEntityUpdateContext->GetWorldSystem<T>(); }
+        template<typename T> inline T* GetSystem() const { return m_pEntityUpdateContext->GetSystem<T>(); }
+
     public:
 
         EntityUpdateContext const*              m_pEntityUpdateContext = nullptr;
@@ -66,22 +73,33 @@ namespace KRG::Player
     {
     public:
 
+        enum class Status : uint8
+        {
+            Running,
+            Completed
+        };
+
+        enum class StopReason : uint8
+        {
+            StateCompleted,
+            TransitionFired
+        };
+
+    public:
+
         virtual ~GameplayState() = default;
 
         // Get the ID for this gameplay state
         virtual uint32 GetGameplayStateID() const = 0;
 
-        // Try to start this state
+        // Try to start this state - this is where you handle all transition conditions
         virtual bool TryStart( GameplayStateContext const& ctx ) { return true; }
 
-        // Called whenever this state starts
-        virtual void Start( GameplayStateContext const& ctx ) = 0;
-
-        // Called to update this state
-        virtual bool Update( GameplayStateContext const& ctx ) = 0;
+        // Called to update this state, this will be called directly after the try start if it succeeds
+        virtual Status Update( GameplayStateContext const& ctx ) = 0;
 
         // Called to stop this state
-        virtual void Stop( GameplayStateContext const& ctx ) = 0;
+        virtual void Stop( GameplayStateContext const& ctx, StopReason reason ) = 0;
     };
 }
 

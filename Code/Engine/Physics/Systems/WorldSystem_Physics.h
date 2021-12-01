@@ -161,6 +161,8 @@ namespace KRG::Physics
             KRG_ASSERT( !unitDirection.IsNearZero3() );
 
             physx::PxCapsuleGeometry const capsuleGeo( radius, cylinderPortionHalfHeight );
+            physx::PxTransform Test( ToPx( start ), ToPx( orientation ) );
+            KRG_ASSERT( Test.isValid() );
             bool const result = m_pScene->sweep( capsuleGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
             return result;
         }
@@ -176,7 +178,9 @@ namespace KRG::Physics
             outResults.m_orientation = orientation;
 
             physx::PxCapsuleGeometry const capsuleGeo( radius, cylinderPortionHalfHeight );
-            bool const result = m_pScene->sweep( capsuleGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            physx::PxTransform Test( ToPx( start ), ToPx( orientation ) );
+            KRG_ASSERT( Test.isValid() );
+            bool const result = m_pScene->sweep( capsuleGeo, , ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
             return result;
         }
 

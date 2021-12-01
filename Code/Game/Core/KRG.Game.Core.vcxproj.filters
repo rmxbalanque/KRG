@@ -51,7 +51,7 @@
     <ClCompile Include="Player\PhysicsStates\PlayerPhysicsState_Locomotion.cpp" />
     <ClCompile Include="Player\Systems\EntitySystem_PlayerController.cpp" />
     <ClCompile Include="Player\GameplayStates\PlayerGameplayState_Locomotion.cpp" />
-    <ClCompile Include="Player\GameplayStates\PlayerGameplayStateMachine.cpp" />
+    <ClCompile Include="Player\GameplayStates\PlayerGameplayState_Jump.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -70,6 +70,6 @@
     <ClInclude Include="Player\PhysicsStates\PlayerPhysicsState_Locomotion.h" />
     <ClInclude Include="Player\Systems\EntitySystem_PlayerController.h" />
     <ClInclude Include="Player\GameplayStates\PlayerGameplayState_Locomotion.h" />
-    <ClInclude Include="Player\GameplayStates\PlayerGameplayStateMachine.h" />
+    <ClInclude Include="Player\GameplayStates\PlayerGameplayState_Jump.h" />
   </ItemGroup>
 </Project>

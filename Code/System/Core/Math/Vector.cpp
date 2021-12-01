@@ -30,6 +30,7 @@ namespace KRG
     Vector const Vector::LargeEpsilon( Math::LargeEpsilon );
     Vector const Vector::OneMinusEpsilon( 1.0f - Math::Epsilon );
     Vector const Vector::EpsilonMinusOne( Math::Epsilon - 1.0f );
+    Vector const Vector::NormalizeCheckThreshold( Math::LargeEpsilon );
 
     Vector const Vector::Pi( Math::Pi );
     Vector const Vector::PiDivTwo( Math::PiDivTwo );
