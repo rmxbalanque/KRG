@@ -25,7 +25,7 @@ PixelShaderInput main( VertexShaderInput vsInput )
         {
             matrix boneTransform = m_boneTransforms[vsInput.m_boneIndices[i]];
             blendPos += mul( boneTransform, float4(vsInput.m_pos, 1.0) ).xyz * vsInput.m_boneWeights[i];
-            blendNormal += mul( float4(vsInput.m_normal, 0.0), boneTransform ).xyz * vsInput.m_boneWeights[i]; // HACK: check idea, assumes orthonormal matrix, without scaling
+            blendNormal += mul( boneTransform, float4(vsInput.m_normal, 0.0) ).xyz * vsInput.m_boneWeights[i]; // HACK: check idea, assumes orthonormal matrix, without scaling
         }
     }
 
