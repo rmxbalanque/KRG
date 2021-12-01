@@ -43,23 +43,43 @@ namespace KRG::Input
             ClearState();
         }
 
-        // Get the filtered values once deadzones and trigger thresholds have been applied
+        // Get the filtered value of the left analog stick once the deadzone has been applied
         inline Float2 GetLeftAnalogStickValue() const { return m_analogInputFiltered[Left]; }
+
+        // Get the filtered value of the right analog stick once the deadzone has been applied
         inline Float2 GetRightAnalogStickValue() const { return m_analogInputFiltered[Right]; }
+
+        // Get the filtered value of the left trigger once the trigger thresholds has been applied
         inline float GetLeftTriggerValue() const { return m_triggerFiltered[Left]; }
+
+        // Get the filtered value of the right trigger once the trigger thresholds has been applied
         inline float GetRightTriggerValue() const { return m_triggerFiltered[Right]; }
 
-        // The raw hardware value from the controller
+        // Get the raw unfiltered value of the left analog stick
         inline Float2 GetLeftAnalogStickRawValue() const { return m_analogInputRaw[Left]; }
+
+        // Get the raw unfiltered value of the right analog stick
         inline Float2 GetRightAnalogStickRawValue() const { return m_analogInputRaw[Right]; }
+
+        // Get the raw unfiltered value of the left trigger
         inline float GetLeftTriggerRawValue() const { return m_triggerRaw[Left]; }
+
+        // Get the raw unfiltered value of the right trigger
         inline float GetRightTriggerRawValue() const { return m_triggerRaw[Right]; }
 
-        // Get the controller button states
+        //-------------------------------------------------------------------------
+
+        // Was the button just pressed (i.e. went from up to down this frame)
         KRG_FORCE_INLINE bool WasPressed( ControllerButton buttonID ) const { return ButtonStates::WasPressed( (uint32) buttonID ); }
+
+        // Was the button just release (i.e. went from down to up this frame). Also optionally returns how long the button was held for
         KRG_FORCE_INLINE bool WasReleased( ControllerButton buttonID, Seconds* pHeldDownDuration = nullptr ) const { return ButtonStates::WasReleased( (uint32) buttonID, pHeldDownDuration ); }
+
+        // Is the button being held down?
         KRG_FORCE_INLINE bool IsHeldDown( ControllerButton buttonID ) const { return ButtonStates::IsHeldDown( (uint32) buttonID ); }
-        KRG_FORCE_INLINE Milliseconds GetHeldDuration( ControllerButton buttonID ) const { return ButtonStates::GetHeldDuration( (uint32) buttonID ); }
+
+        // How long has the button been held down for?
+        KRG_FORCE_INLINE Seconds GetHeldDuration( ControllerButton buttonID ) const { return ButtonStates::GetHeldDuration( (uint32) buttonID ); }
 
     private:
 

@@ -25,10 +25,10 @@ namespace KRG::Input
         inline bool WasReleased() const { return m_state == State::Released; }
         inline bool IsHeldDown() const { return m_state == State::Held; }
 
-        inline Milliseconds GetTimeHeld() const
+        inline Seconds GetTimeHeld() const
         {
             KRG_ASSERT( IsHeldDown() || WasPressed() );
-            return m_holdTimer.GetElapsedTimeMilliseconds();
+            return m_holdTimer.GetElapsedTimeSeconds();
         }
 
     private:
@@ -98,7 +98,7 @@ namespace KRG::Input
             return WasPressed( buttonIdx ) || m_buttons[buttonIdx].IsHeldDown();
         }
 
-        inline Milliseconds GetHeldDuration( uint32 buttonIdx ) const
+        inline Seconds GetHeldDuration( uint32 buttonIdx ) const
         {
             KRG_ASSERT( buttonIdx < NumButtons );
             return WasPressed( buttonIdx ) ? m_buttons[buttonIdx].GetTimeHeld() : 0.0f;

@@ -4,20 +4,20 @@
 
 //-------------------------------------------------------------------------
 
+namespace KRG { class PlayerManager; }
+
+//-------------------------------------------------------------------------
+
 #if KRG_DEVELOPMENT_TOOLS
-namespace KRG
+namespace KRG::Player
 {
-    class PlayerManager;
-
-    //-------------------------------------------------------------------------
-
-    class CameraDebugView : public EntityWorldDebugView
+    class PlayerDebugView : public EntityWorldDebugView
     {
-        KRG_REGISTER_TYPE( CameraDebugView );
+        KRG_REGISTER_TYPE( PlayerDebugView );
 
     public:
 
-        CameraDebugView();
+        PlayerDebugView();
 
     private:
 
@@ -26,13 +26,13 @@ namespace KRG
         virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         void DrawMenu( EntityUpdateContext const& context );
-        void DrawCameraWindow( EntityUpdateContext const& context );
+        void DrawActionDebuggerWindow( EntityUpdateContext const& context );
 
     private:
 
         EntityWorld const*              m_pWorld = nullptr;
-        PlayerManager const*        m_pPlayerManager = nullptr;
-        bool                            m_isCameraDebugWindowOpen = false;
+        PlayerManager const*            m_pPlayerManager = nullptr;
+        bool                            m_isActionDebuggerWindowOpen = false;
     };
 }
 #endif

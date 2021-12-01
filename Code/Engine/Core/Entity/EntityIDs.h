@@ -14,6 +14,7 @@ namespace KRG
         explicit PointerID( uint64 v ) : m_ID( v ) {}
 
         inline bool IsValid() const { return m_ID != 0; }
+        inline void Clear() { m_ID = 0; }
         inline bool operator==( PointerID const& rhs ) const { return m_ID == rhs.m_ID; }
         inline bool operator!=( PointerID const& rhs ) const { return m_ID != rhs.m_ID; }
 

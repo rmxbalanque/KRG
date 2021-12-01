@@ -81,8 +81,8 @@ namespace KRG
         {
             m_debugOverlayEnabled = !m_debugOverlayEnabled;
 
-            auto pPlayerWorldSystem = pGameWorld->GetWorldSystem<PlayerManager>();
-            pPlayerWorldSystem->SetDevelopmentPlayerEnabled( m_debugOverlayEnabled );
+            auto pPlayerManager = pGameWorld->GetWorldSystem<PlayerManager>();
+            pPlayerManager->SetDebugMode( m_debugOverlayEnabled ? PlayerManager::DebugMode::FullDebug : PlayerManager::DebugMode::None );
         }
 
         //-------------------------------------------------------------------------
@@ -146,7 +146,7 @@ namespace KRG
                     ImGui::EndMenuBar();
                 }
 
-                DrawStatusBar( context );
+                DrawStatusBar( context, pGameWorld );
             }
         }
         ImGui::End();
@@ -281,8 +281,11 @@ namespace KRG
         }
     }
 
-    void EngineDevUI::DrawStatusBar( UpdateContext const& context )
+    void EngineDevUI::DrawStatusBar( UpdateContext const& context, EntityWorld* pGameWorld )
     {
+        KRG_ASSERT( pGameWorld != nullptr );
+        auto pPlayerManager = pGameWorld->GetWorldSystem<PlayerManager>();
+
         ImVec2 const parentWindowPos = ImGui::GetWindowPos();
         ImVec2 const totalSpace = ImGui::GetContentRegionMax();
         ImVec2 const windowPos( parentWindowPos.x, parentWindowPos.y + totalSpace.y - g_statusBarHeight );
@@ -297,6 +300,23 @@ namespace KRG
         if ( ImGui::BeginChild( "Stats", windowSize, false, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar ) )
         {
             InlineString<100> tempStr;
+
+            if ( pPlayerManager->GetDebugMode() != PlayerManager::DebugMode::UseDebugCamera )
+            {
+                if ( ImGui::Button( KRG_ICON_GAMEPAD" Player Control = Off" ) )
+                {
+                    pPlayerManager->SetDebugMode( PlayerManager::DebugMode::UseDebugCamera );
+                }
+            }
+            else
+            {
+                if ( ImGui::Button( KRG_ICON_GAMEPAD" Player Control = On" ) )
+                {
+                    pPlayerManager->SetDebugMode( PlayerManager::DebugMode::FullDebug );
+                }
+            }
+
+            ImGuiX::VerticalSeparator();
 
             if ( ImGui::Button( KRG_ICON_SLIDERS" Debug Settings" ) )
             {

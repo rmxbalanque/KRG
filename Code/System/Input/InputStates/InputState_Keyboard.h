@@ -127,34 +127,43 @@ namespace KRG::Input
 
     public:
 
+        // Get the char key pressed this frame. If no key pressed, this returns 0;
         inline uint8 GetCharKeyPressed() const { return m_charKeyPressed; }
 
-        // Get the controller button states
+        // Was the button just pressed (i.e. went from up to down this frame)
         KRG_FORCE_INLINE bool WasPressed( KeyboardButton buttonID ) const { return ButtonStates::WasPressed( (uint32) buttonID ); }
-        KRG_FORCE_INLINE bool WasReleased( KeyboardButton buttonID ) const { return ButtonStates::WasReleased( (uint32) buttonID ); }
+
+        // Was the button just release (i.e. went from down to up this frame). Also optionally returns how long the button was held for
+        KRG_FORCE_INLINE bool WasReleased( KeyboardButton buttonID, Seconds* pHeldDownDuration = nullptr ) const { return ButtonStates::WasReleased( (uint32) buttonID, pHeldDownDuration ); }
+
+        // Is the button being held down?
         KRG_FORCE_INLINE bool IsHeldDown( KeyboardButton buttonID ) const { return ButtonStates::IsHeldDown( (uint32) buttonID ); }
-        KRG_FORCE_INLINE Milliseconds GetHeldDuration( KeyboardButton buttonID ) const { return ButtonStates::GetHeldDuration( (uint32) buttonID ); }
+
+        // How long has the button been held down for?
+        KRG_FORCE_INLINE Seconds GetHeldDuration( KeyboardButton buttonID ) const { return ButtonStates::GetHeldDuration( (uint32) buttonID ); }
 
         // Syntactic Sugar
+        //-------------------------------------------------------------------------
+
         KRG_FORCE_INLINE bool WasEnterPressed() const { return WasPressed( KeyboardButton::Key_Enter ) || WasPressed( KeyboardButton::Key_NumpadEnter ); }
-        KRG_FORCE_INLINE bool WasEnterReleased() const { return WasReleased( KeyboardButton::Key_Enter ) || WasReleased( KeyboardButton::Key_NumpadEnter ); }
+        KRG_FORCE_INLINE bool WasEnterReleased( Seconds* pHeldDownDuration = nullptr ) const { return WasReleased( KeyboardButton::Key_Enter, pHeldDownDuration ) || WasReleased( KeyboardButton::Key_NumpadEnter, pHeldDownDuration ); }
         KRG_FORCE_INLINE bool IsEnterPressed() const { return IsHeldDown( KeyboardButton::Key_Enter ) || IsHeldDown( KeyboardButton::Key_NumpadEnter ); }
-        KRG_FORCE_INLINE Milliseconds GetEnterPressedDuration() const { return Math::Max( GetHeldDuration( KeyboardButton::Key_Enter ), GetHeldDuration( KeyboardButton::Key_NumpadEnter ) ); }
+        KRG_FORCE_INLINE Seconds GetEnterPressedDuration() const { return Math::Max( GetHeldDuration( KeyboardButton::Key_Enter ), GetHeldDuration( KeyboardButton::Key_NumpadEnter ) ); }
 
         KRG_FORCE_INLINE bool WasShiftPressed() const { return WasPressed( KeyboardButton::Key_LShift ) || WasPressed( KeyboardButton::Key_RShift ); }
-        KRG_FORCE_INLINE bool WasShiftReleased() const { return WasReleased( KeyboardButton::Key_LShift ) || WasReleased( KeyboardButton::Key_RShift ); }
+        KRG_FORCE_INLINE bool WasShiftReleased( Seconds* pHeldDownDuration = nullptr ) const { return WasReleased( KeyboardButton::Key_LShift, pHeldDownDuration ) || WasReleased( KeyboardButton::Key_RShift, pHeldDownDuration ); }
         KRG_FORCE_INLINE bool IsShiftHeldDown() const { return IsHeldDown( KeyboardButton::Key_LShift ) || IsHeldDown( KeyboardButton::Key_RShift ); }
-        KRG_FORCE_INLINE Milliseconds GetShiftPressedDuration() const { return Math::Max( GetHeldDuration( KeyboardButton::Key_LShift ), GetHeldDuration( KeyboardButton::Key_RShift ) ); }
+        KRG_FORCE_INLINE Seconds GetShiftPressedDuration() const { return Math::Max( GetHeldDuration( KeyboardButton::Key_LShift ), GetHeldDuration( KeyboardButton::Key_RShift ) ); }
 
         KRG_FORCE_INLINE bool WasCtrlPressed() const { return WasPressed( KeyboardButton::Key_LCtrl ) || WasPressed( KeyboardButton::Key_RCtrl ); }
-        KRG_FORCE_INLINE bool WasCtrlReleased() const { return WasReleased( KeyboardButton::Key_LCtrl ) || WasReleased( KeyboardButton::Key_RCtrl ); }
+        KRG_FORCE_INLINE bool WasCtrlReleased( Seconds* pHeldDownDuration = nullptr ) const { return WasReleased( KeyboardButton::Key_LCtrl, pHeldDownDuration ) || WasReleased( KeyboardButton::Key_RCtrl, pHeldDownDuration ); }
         KRG_FORCE_INLINE bool IsCtrlHeldDown() const { return IsHeldDown( KeyboardButton::Key_LCtrl ) || IsHeldDown( KeyboardButton::Key_RCtrl ); }
-        KRG_FORCE_INLINE Milliseconds GetCtrlPressedDuration() const { return Math::Max( GetHeldDuration( KeyboardButton::Key_LCtrl ), GetHeldDuration( KeyboardButton::Key_RCtrl ) ); }
+        KRG_FORCE_INLINE Seconds GetCtrlPressedDuration() const { return Math::Max( GetHeldDuration( KeyboardButton::Key_LCtrl ), GetHeldDuration( KeyboardButton::Key_RCtrl ) ); }
 
         KRG_FORCE_INLINE bool WasAltPressed() const { return WasPressed( KeyboardButton::Key_LAlt ) || WasPressed( KeyboardButton::Key_RAlt ); }
-        KRG_FORCE_INLINE bool WasAltReleased() const { return WasReleased( KeyboardButton::Key_LAlt ) || WasReleased( KeyboardButton::Key_RAlt ); }
+        KRG_FORCE_INLINE bool WasAltReleased( Seconds* pHeldDownDuration = nullptr ) const { return WasReleased( KeyboardButton::Key_LAlt, pHeldDownDuration ) || WasReleased( KeyboardButton::Key_RAlt, pHeldDownDuration ); }
         KRG_FORCE_INLINE bool IsAltHeldDown() const { return IsHeldDown( KeyboardButton::Key_LAlt ) || IsHeldDown( KeyboardButton::Key_RAlt ); }
-        KRG_FORCE_INLINE Milliseconds GetAltPressedDuration() const { return Math::Max( GetHeldDuration( KeyboardButton::Key_LAlt ), GetHeldDuration( KeyboardButton::Key_RAlt ) ); }
+        KRG_FORCE_INLINE Seconds GetAltPressedDuration() const { return Math::Max( GetHeldDuration( KeyboardButton::Key_LAlt ), GetHeldDuration( KeyboardButton::Key_RAlt ) ); }
 
     private:
 

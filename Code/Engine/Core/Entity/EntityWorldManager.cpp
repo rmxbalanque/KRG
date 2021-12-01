@@ -115,6 +115,11 @@ namespace KRG
 
         #if KRG_DEVELOPMENT_TOOLS
         pNewWorld->InitializeDebugViews( *m_pSystemsRegistry, m_debugViewTypeInfos );
+        
+        if ( !pNewWorld->IsGameWorld() )
+        {
+            pNewWorld->GetWorldSystem<PlayerManager>()->SetDebugMode( PlayerManager::DebugMode::FullDebug );
+        }
         #endif
 
         return pNewWorld;
@@ -178,9 +183,9 @@ namespace KRG
 
             // Update world view
             //-------------------------------------------------------------------------
-            // We explicitly reflect the camera at the end of the pre-physics stage as we assume it has been updated at that point
+            // We explicitly reflect the camera at the end of the post-physics stage as we assume it has been updated at that point
 
-            if ( context.GetUpdateStage() == UpdateStage::PrePhysics && pWorld->GetViewport() != nullptr )
+            if ( context.GetUpdateStage() == UpdateStage::PostPhysics && pWorld->GetViewport() != nullptr )
             {
                 auto pViewport = pWorld->GetViewport();
                 auto pPlayerWorldSystem = pWorld->GetWorldSystem<PlayerManager>();
@@ -207,7 +212,7 @@ namespace KRG
     void EntityWorldManager::SetPlayerEnabled( EntityWorld* pWorld, bool isPlayerEnabled )
     {
         auto pPlayerManagerSystem = pWorld->GetWorldSystem<PlayerManager>();
-        pPlayerManagerSystem->SetPlayerEnabled( isPlayerEnabled );
+        pPlayerManagerSystem->SetPlayerControllerState( isPlayerEnabled );
     }
 
     void EntityWorldManager::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload )

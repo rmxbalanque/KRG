@@ -112,7 +112,6 @@
     <ClCompile Include="DevUI\Gizmo.cpp" />
     <ClCompile Include="DevUI\EngineDevUI.cpp" />
     <ClCompile Include="Systems\WorldSystem_PlayerManager.cpp" />
-    <ClCompile Include="Systems\EntitySystem_DevelopmentPlayerController.cpp" />
     <ClCompile Include="Components\Component_SerializationTest.cpp" />
     <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
     <ClCompile Include="Components\Component_Cameras.cpp" />
@@ -202,7 +201,6 @@
     <ClInclude Include="Entity\EntityLoadingContext.h" />
     <ClInclude Include="Entity\EntityActivationContext.h" />
     <ClInclude Include="Systems\WorldSystem_PlayerManager.h" />
-    <ClInclude Include="Systems\EntitySystem_DevelopmentPlayerController.h" />
     <ClInclude Include="Components\Component_SerializationTest.h" />
     <ClInclude Include="DebugViews\DebugView_Camera.h" />
     <ClInclude Include="Components\Component_PlayerSpawn.h" />

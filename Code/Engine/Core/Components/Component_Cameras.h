@@ -37,6 +37,7 @@ namespace KRG
         inline void UpdateViewDimensions( Float2 const& viewDimensions ) { m_viewVolume.SetViewDimensions( viewDimensions ); }
         inline Math::ViewVolume const& GetViewVolume() const { return m_viewVolume; }
 
+        inline void GetDepthRange() const { m_viewVolume.GetDepthRange(); }
         inline void SetDepthRange( FloatRange depthRange ) { m_viewVolume.SetDepthRange( depthRange ); }
 
         // Set the horizontal field of view
@@ -51,9 +52,9 @@ namespace KRG
 
     protected:
 
-        // Camera Settings
+        // Initial Camera Settings - These do not change at runtime, if you want the actual settings, query the view volume
         KRG_EXPOSE Degrees              m_FOV = 90.0f;
-        KRG_EXPOSE float                m_depth = 500.0f;
+        KRG_EXPOSE FloatRange           m_depthRange = FloatRange( 0.1f, 500.0f );
         KRG_EXPOSE ProjectionType       m_projectionType = ProjectionType::Perspective;
 
         // Runtime Data
@@ -99,6 +100,7 @@ namespace KRG
 
         virtual void Initialize() override;
 
+        // Update camera position based on the orbit target
         void FinalizeCameraPosition();
 
         Vector GetCameraRelativeForwardVector() const { return GetWorldTransform().GetForwardVector(); }

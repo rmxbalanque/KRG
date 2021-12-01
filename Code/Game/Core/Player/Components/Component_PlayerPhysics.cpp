@@ -1,11 +1,11 @@
-#include "Component_PlayerGameplayPhysics.h"
+#include "Component_PlayerPhysics.h"
 #include "Game/Core/Player/PhysicsStates/PlayerPhysicsState_Locomotion.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Player
 {
-    void PlayerGameplayPhysicsComponent::CreatePhysicsStatesInternal()
+    void PlayerPhysicsComponent::CreatePhysicsStatesInternal()
     {
         m_registeredStates.emplace_back( KRG::New<PlayerLocomotionPhysicsState>() );
         m_pActiveState = m_registeredStates.back();

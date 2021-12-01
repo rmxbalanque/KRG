@@ -1,6 +1,5 @@
-#include "PlayerGameplayState_Locomotion.h"
-#include "PlayerGameplayState.h"
-#include "Game/Core/Player/Components/Component_PlayerGameplayPhysics.h"
+#include "PlayerAction_Locomotion.h"
+#include "Game/Core/Player/Components/Component_PlayerPhysics.h"
 #include "Game/Core/Player/PhysicsStates/PlayerPhysicsState_Locomotion.h"
 #include "Engine/Core/Components/Component_Cameras.h"
 #include "System/Input/InputSystem.h"
@@ -10,17 +9,9 @@
 
 namespace KRG::Player
 {
-    GameplayState::Status LocomotionGameplayState::Update( GameplayStateContext const& ctx )
+    Action::Status LocomotionAction::UpdateInternal( ActionContext const& ctx )
     {
-        auto pInputSystem = ctx.GetSystem<Input::InputSystem>();
-        KRG_ASSERT( pInputSystem != nullptr );
-
-        if ( pInputSystem->GetNumConnectedControllers() == 0 )
-        {
-            return Status::Running;
-        }
-
-        auto const pControllerState = pInputSystem->GetControllerState();
+        auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
         KRG_ASSERT( pControllerState != nullptr );
 
         // Update camera rotation
@@ -49,7 +40,7 @@ namespace KRG::Player
         auto forward = camFwd * movementInputs.m_y;
         auto right = camRight * movementInputs.m_x;
 
-        auto pLocomotionPhysicsState = ctx.m_pGameplayPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
+        auto pLocomotionPhysicsState = ctx.m_pPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
 
         pLocomotionPhysicsState->m_deltaMovementHack = ( forward * maxLinearVelocityForThisFrame ) + ( right * maxLinearVelocityForThisFrame );
 
@@ -61,7 +52,7 @@ namespace KRG::Player
         return Status::Running;
     }
 
-    void LocomotionGameplayState::Stop( GameplayStateContext const& ctx, StopReason reason )
+    void LocomotionAction::StopInternal( ActionContext const& ctx, StopReason reason )
     {
 
     }

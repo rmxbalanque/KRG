@@ -1,5 +1,4 @@
 #include "WorldSystem_PlayerManager.h"
-#include "EntitySystem_DevelopmentPlayerController.h"
 #include "Engine/Core/Components/Component_PlayerSpawn.h"
 #include "Engine/Core/Components/Component_Cameras.h"
 #include "Engine/Core/Components/Component_Player.h"
@@ -7,281 +6,108 @@
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "Engine/Core/Entity/EntityMap.h"
 #include "Engine/Core/Entity/EntityCollection.h"
+#include "System/Input/InputSystem.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
+    namespace
+    {
+        static float const g_lookSpeed = Math::Pi;
+        static float const g_moveSpeed = 10.0f; // 10 m/s
+        static FloatRange const g_moveSpeedLimits( 0.5f, 100 );
+    }
+
+    //-------------------------------------------------------------------------
+
     void PlayerManager::ShutdownSystem()
     {
-        KRG_ASSERT( m_players.empty() );
+        KRG_ASSERT( !m_player.m_entityID.IsValid() );
         KRG_ASSERT( m_spawnPoints.empty() );
+        m_pDebugCameraComponent = nullptr;
     }
 
     void PlayerManager::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        if ( auto pPlayerComponent = TryCast<Player::PlayerComponent>( pComponent ) )
+        if ( auto pSpawnComponent = TryCast<Player::PlayerSpawnComponent>( pComponent ) )
         {
-            auto pPlayerRecord = m_players.FindOrAdd( pEntity->GetID(), pEntity->GetID() );
-            KRG_ASSERT( pPlayerRecord->m_pPlayerComponent == nullptr );
-            pPlayerRecord->m_pPlayerComponent = pPlayerComponent;
-            pPlayerRecord->m_pPlayerComponent->SetPlayerEnabled( false );
-            m_registeredPlayerStateChanged = true;
+            m_spawnPoints.emplace_back( pSpawnComponent );
+        }
+        else if ( auto pPlayerComponent = TryCast<Player::PlayerComponent>( pComponent ) )
+        {
+            if ( m_player.m_entityID.IsValid() )
+            {
+                KRG_LOG_ERROR( "Player", "Multiple players spawned! this is not supported" );
+            }
+            else
+            {
+                m_player.m_entityID = pEntity->GetID();
+                KRG_ASSERT( m_player.m_pPlayerComponent == nullptr && m_player.m_pCameraComponent == nullptr );
+                m_player.m_pPlayerComponent = pPlayerComponent;
+
+                // Check if the camera for this player has already been registered
+                for ( auto pCamera : m_cameras )
+                {
+                    if ( pCamera->GetEntityID() == m_player.m_entityID )
+                    {
+                        m_player.m_pCameraComponent = pCamera;
+                    }
+                }
+
+                m_registeredPlayerStateChanged = true;
+            }
         }
         else if ( auto pCameraComponent = TryCast<CameraComponent>( pComponent ) )
         {
-            auto pPlayerRecord = m_players.FindOrAdd( pEntity->GetID(), pEntity->GetID() );
-            KRG_ASSERT( pPlayerRecord->m_pCameraComponent == nullptr );
-            pPlayerRecord->m_pCameraComponent = pCameraComponent; 
-            m_registeredPlayerStateChanged = true;
-        }
-        else if ( auto pSpawnComponent = TryCast<Player::PlayerSpawnComponent>( pComponent ) )
-        {
-            m_spawnPoints.emplace_back( pSpawnComponent );
+            m_cameras.emplace_back( pCameraComponent );
+
+            // If this is the camera for the player set it in the player struct
+            if ( m_player.m_entityID == pEntity->GetID() )
+            {
+                KRG_ASSERT( m_player.m_pCameraComponent == nullptr );
+                m_player.m_pCameraComponent = pCameraComponent;
+                m_registeredPlayerStateChanged = true;
+            }
         }
     }
 
     void PlayerManager::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        if ( auto pPlayerComponent = TryCast<Player::PlayerComponent>( pComponent ) )
+        if ( auto pSpawnComponent = TryCast<Player::PlayerSpawnComponent>( pComponent ) )
         {
-            auto pFoundRecord = m_players.Get( pEntity->GetID() );
-            pFoundRecord->m_pPlayerComponent = nullptr;
-            m_registeredPlayerStateChanged = true;
-
-            if ( pFoundRecord->m_pPlayerComponent == nullptr && pFoundRecord->m_pCameraComponent == nullptr )
+            m_spawnPoints.erase_first_unsorted( pSpawnComponent );
+        }
+        else if ( auto pPlayerComponent = TryCast<Player::PlayerComponent>( pComponent ) )
+        {
+            // Remove the player
+            if ( m_player.m_entityID == pEntity->GetID() )
             {
-                m_players.Remove( pEntity->GetID() );
+                KRG_ASSERT( m_player.m_pPlayerComponent == pPlayerComponent );
+                m_player.m_entityID.Clear();
+                m_player.m_pPlayerComponent = nullptr;
+                m_player.m_pCameraComponent = nullptr;
+                m_registeredPlayerStateChanged = true;
             }
         }
         else if ( auto pCameraComponent = TryCast<CameraComponent>( pComponent ) )
         {
-            auto pFoundRecord = m_players.Get( pEntity->GetID() );
-            pFoundRecord->m_pCameraComponent = nullptr;
-            m_registeredPlayerStateChanged = true;
-
-            if ( pFoundRecord->m_pPlayerComponent == nullptr && pFoundRecord->m_pCameraComponent == nullptr )
-            {
-                m_players.Remove( pEntity->GetID() );
-            }
-
-            if ( m_pActiveCamera == pComponent )
+            if ( m_pActiveCamera == pCameraComponent )
             {
                 m_pActiveCamera = nullptr;
             }
-        }
-        else if ( auto pSpawnComponent = TryCast<Player::PlayerSpawnComponent>( pComponent ) )
-        {
-            m_spawnPoints.erase_first_unsorted( pSpawnComponent );
-        }
-    }
 
-    //-------------------------------------------------------------------------
+            m_cameras.erase_first( pCameraComponent );
 
-    #if KRG_DEVELOPMENT_TOOLS
-    void PlayerManager::SetPlayerEnabled( bool isEnabled )
-    {
-        m_disableAllPlayers = !isEnabled;
-
-        if ( auto pActivePlayer = GetActivePlayer() )
-        {
-            if ( pActivePlayer->m_pPlayerComponent != nullptr )
+            // Remove camera from the player state
+            if ( m_player.IsValid() && m_player.m_entityID == pEntity->GetID() )
             {
-                pActivePlayer->m_pPlayerComponent->SetPlayerEnabled( !m_disableAllPlayers );
+                KRG_ASSERT( m_player.m_pCameraComponent == pCameraComponent );
+                m_player.m_pCameraComponent = nullptr;
+                m_registeredPlayerStateChanged = true;
             }
         }
-    }
-
-    void PlayerManager::SetDevelopmentPlayerEnabled( bool enableDevelopmentPlayer )
-    {
-        if ( enableDevelopmentPlayer != m_useDevelopmentPlayer )
-        {
-            // If we should use the development player
-            if ( enableDevelopmentPlayer )
-            {
-                SwitchToPlayer( m_developmentPlayerID );
-            }
-            else // Switch back to regular player if possible
-            {
-                if ( m_previouslyActivePlayerID.IsValid() )
-                {
-                    SwitchToPlayer( m_previouslyActivePlayerID );
-                }
-                else
-                {
-                    SwitchToLastValidPlayer();
-                }
-            }
-
-            m_useDevelopmentPlayer = enableDevelopmentPlayer;
-        }
-    }
-    #endif
-
-    //-------------------------------------------------------------------------
-
-    void PlayerManager::UpdateSystem( EntityUpdateContext const& ctx )
-    {
-        // Spawning
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        if ( !m_hasSpawnedDevelopmentPlayer )
-        {
-            SpawnDevelopmentPlayer( ctx );
-            m_hasSpawnedDevelopmentPlayer = true;
-        }
-        #endif
-
-        //-------------------------------------------------------------------------
-
-        if ( ctx.IsGameWorld() && !m_hasSpawnedPlayer )
-        {
-            m_hasSpawnedPlayer = TrySpawnPlayer( ctx );
-        }
-
-        // Handle players spawning / despawning
-        //-------------------------------------------------------------------------
-
-        if ( m_registeredPlayerStateChanged )
-        {
-            auto pActivePlayer = GetActivePlayer();
-            if ( pActivePlayer == nullptr || !pActivePlayer->IsValid() )
-            {
-                SwitchToLastValidPlayer();
-            }
-            else
-            {
-                #if KRG_DEVELOPMENT_TOOLS
-                if ( m_activePlayerID == m_developmentPlayerID && !m_useDevelopmentPlayer )
-                {
-                    SwitchToLastValidPlayer();
-                }
-                #endif
-            }
-
-            m_registeredPlayerStateChanged = false;
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
-    PlayerManager::RegisteredPlayer const* PlayerManager::GetActivePlayer() const
-    {
-        if ( !m_activePlayerID.IsValid() )
-        {
-            return nullptr;
-        }
-
-        for ( auto& player : m_players )
-        {
-            if ( player.m_pPlayerComponent == nullptr )
-            {
-                continue;
-            }
-
-            if ( player.m_pPlayerComponent->GetID() == m_activePlayerID )
-            {
-                return &player;
-            }
-        }
-
-        return nullptr;
-    }
-
-    PlayerManager::RegisteredPlayer const* PlayerManager::GetPlayer( ComponentID const& playerID ) const
-    {
-        for ( auto& player : m_players )
-        {
-            if ( !player.IsValid() )
-            {
-                continue;
-            }
-
-            if ( player.m_pPlayerComponent->GetID() == playerID )
-            {
-                return &player;
-            }
-        }
-
-        // Invalid player ID supplied
-        KRG_UNREACHABLE_CODE();
-        return nullptr;
-    }
-
-    void PlayerManager::SwitchToLastValidPlayer()
-    {
-        RegisteredPlayer* pValidPlayer = nullptr;
-        for ( auto& player : m_players )
-        {
-            if ( player.IsValid() )
-            {
-                pValidPlayer = &player;
-            }
-        }
-
-        //-------------------------------------------------------------------------
-
-        SetPlayerActive( *pValidPlayer );
-    }
-
-    void PlayerManager::SwitchToPlayer( ComponentID const& playerID )
-    {
-        KRG_ASSERT( playerID.IsValid() );
-
-        for ( auto& player : m_players )
-        {
-            if ( player.m_pPlayerComponent->GetID() != playerID )
-            {
-                continue;
-            }
-
-            //-------------------------------------------------------------------------
-
-            if ( player.IsValid() )
-            {
-                SetPlayerActive( player );
-            }
-            else
-            {
-                KRG_LOG_ERROR( "Player", "Cant switch to request player since they are in an invalid state!" );
-            }
-
-            return;
-        }
-
-        // Invalid player ID supplied
-        KRG_UNREACHABLE_CODE();
-    }
-
-    void PlayerManager::SetPlayerActive( RegisteredPlayer& newPlayer )
-    {
-        KRG_ASSERT( newPlayer.IsValid() );
-
-        m_previouslyActivePlayerID = m_activePlayerID;
-        if ( m_previouslyActivePlayerID.IsValid() )
-        {
-            auto pPreviousPlayer = GetPlayer( m_previouslyActivePlayerID );
-            if ( pPreviousPlayer->IsValid() )
-            {
-                pPreviousPlayer->m_pPlayerComponent->SetPlayerEnabled( false );
-            }
-
-            #if KRG_DEVELOPMENT_TOOLS
-            if ( newPlayer.m_pPlayerComponent->GetID() == m_developmentPlayerID )
-            {
-                // Transform camera position/orientation to dev player
-                newPlayer.m_pCameraComponent->SetWorldTransform( pPreviousPlayer->m_pCameraComponent->GetWorldTransform() );
-            }
-            #endif
-        }
-
-        //-------------------------------------------------------------------------
-
-        m_activePlayerID = newPlayer.m_pPlayerComponent->GetID();
-        m_pActiveCamera = newPlayer.m_pCameraComponent;
-        newPlayer.m_pPlayerComponent->SetPlayerEnabled( !m_disableAllPlayers );
     }
 
     //-------------------------------------------------------------------------
@@ -304,20 +130,210 @@ namespace KRG
         return true;
     }
 
-    #if KRG_DEVELOPMENT_TOOLS
-    void PlayerManager::SpawnDevelopmentPlayer( EntityUpdateContext const& ctx )
+    void PlayerManager::SetPlayerControllerState( bool isEnabled )
     {
-        auto pCameraComponent = KRG::New<FreeLookCameraComponent>( StringID( "Debug Camera Component" ) );
-        pCameraComponent->SetPositionAndLookatTarget( Vector( 0, -5, 5 ), Vector( 0, 0, 0 ) );
-        auto pPlayerComponent = KRG::New<Player::PlayerComponent>( StringID( "Debug Player Component" ) );
+        m_isControllerEnabled = isEnabled;
 
-        auto pEntity = KRG::New<Entity>( StringID( "Debug Player" ) );
-        pEntity->AddComponent( pCameraComponent );
-        pEntity->AddComponent( pPlayerComponent );
-        pEntity->CreateSystem<Player::DevelopmentPlayerController>();
+        if ( m_player.m_pPlayerComponent != nullptr )
+        {
+            m_player.m_pPlayerComponent->SetPlayerEnabled( m_isControllerEnabled );
+        }
+    }
 
+    //-------------------------------------------------------------------------
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void PlayerManager::SpawnDebugCamera( EntityUpdateContext const& ctx )
+    {
+        KRG_ASSERT( m_pDebugCameraComponent == nullptr );
+        m_pDebugCameraComponent = KRG::New<FreeLookCameraComponent>( StringID( "Debug Camera Component" ) );
+        m_pDebugCameraComponent->SetPositionAndLookatTarget( Vector( 0, -5, 5 ), Vector( 0, 0, 0 ) );
+        m_debugCameraMoveSpeed = g_moveSpeed;
+
+        auto pEntity = KRG::New<Entity>( StringID( "Debug Camera" ) );
+        pEntity->AddComponent( m_pDebugCameraComponent );
         ctx.GetPersistentMap()->AddEntity( pEntity );
-        m_developmentPlayerID = pPlayerComponent->GetID();
+    }
+
+    void PlayerManager::UpdateDebugCamera( EntityUpdateContext const& ctx )
+    {
+        KRG_ASSERT( m_pDebugCameraComponent != nullptr );
+        KRG_ASSERT( m_isControllerEnabled );
+
+        //-------------------------------------------------------------------------
+
+        Seconds const deltaTime = ctx.GetDeltaTime();
+        auto pInputSystem = ctx.GetSystem<Input::InputSystem>();
+        KRG_ASSERT( pInputSystem != nullptr );
+
+        auto const pMouseState = pInputSystem->GetMouseState();
+        auto const pKeyboardState = pInputSystem->GetKeyboardState();
+
+        // Speed Update
+        //-------------------------------------------------------------------------
+
+        if ( pMouseState->WasReleased( Input::MouseButton::Middle ) )
+        {
+            m_debugCameraMoveSpeed = g_moveSpeed;
+        }
+
+        int32 const wheelDelta = pMouseState->GetWheelDelta();
+        m_debugCameraMoveSpeed = g_moveSpeedLimits.GetClampedValue( m_debugCameraMoveSpeed + ( wheelDelta * 0.5f ) );
+
+        // Position update
+        //-------------------------------------------------------------------------
+
+        Vector positionDelta = Vector::Zero;
+
+        bool const fwdButton = pKeyboardState->IsHeldDown( Input::KeyboardButton::Key_W );
+        bool const backButton = pKeyboardState->IsHeldDown( Input::KeyboardButton::Key_S );
+        bool const leftButton = pKeyboardState->IsHeldDown( Input::KeyboardButton::Key_A );
+        bool const rightButton = pKeyboardState->IsHeldDown( Input::KeyboardButton::Key_D );
+        bool const needsPositionUpdate = fwdButton || backButton || leftButton || rightButton;
+
+        if ( needsPositionUpdate )
+        {
+            float LR = 0;
+            if ( leftButton ) { LR -= 1.0f; }
+            if ( rightButton ) { LR += 1.0f; }
+
+            float FB = 0;
+            if ( fwdButton ) { FB += 1.0f; }
+            if ( backButton ) { FB -= 1.0f; }
+
+            Vector const spatialInput( LR, FB, 0, 0 );
+
+            Transform const& entityTransform = m_pDebugCameraComponent->GetWorldTransform();
+            Vector const forwardDirection = entityTransform.GetForwardVector();
+            Vector const rightDirection = entityTransform.GetRightVector();
+
+            Vector const moveDelta = Vector( m_debugCameraMoveSpeed * deltaTime );
+            Vector const deltaForward = spatialInput.GetSplatY() * moveDelta;
+            Vector const deltaRight = spatialInput.GetSplatX() * moveDelta;
+
+            // Calculate position delta
+            positionDelta = deltaRight * rightDirection;
+            positionDelta += deltaForward * forwardDirection;
+            positionDelta.m_w = 0.0f;
+
+            // Update camera transform
+            Transform newEntityTransform = entityTransform;
+            newEntityTransform.SetTranslation( entityTransform.GetTranslation() + positionDelta );
+            m_pDebugCameraComponent->SetLocalTransform( newEntityTransform );
+        }
+
+        // Direction update
+        //-------------------------------------------------------------------------
+
+        Radians headingDelta = 0.0f, pitchDelta = 0.0f;
+
+        if ( pMouseState->IsHeldDown( Input::MouseButton::Right ) )
+        {
+            auto const directionDelta = pMouseState->GetMovementDelta();
+            if ( directionDelta.m_x != 0 || directionDelta.m_y != 0 )
+            {
+                // Adjust heading and pitch based on input
+                headingDelta = -directionDelta.m_x * g_lookSpeed * deltaTime;
+                pitchDelta = -directionDelta.m_y * g_lookSpeed * deltaTime;
+                m_pDebugCameraComponent->AdjustHeadingAndPitch( headingDelta, pitchDelta );
+            }
+        }
+    }
+
+    void PlayerManager::SetDebugMode( DebugMode newMode )
+    {
+        switch ( newMode )
+        {
+            case DebugMode::None:
+            {
+                if ( m_player.IsValid() )
+                {
+                    m_pActiveCamera = m_player.m_pCameraComponent;
+                    m_player.m_pPlayerComponent->SetPlayerEnabled( true );
+                }
+            }
+            break;
+
+            case DebugMode::UseDebugCamera:
+            {
+                m_pActiveCamera = m_pDebugCameraComponent;
+
+                if ( m_player.IsValid() )
+                {
+                    // Transform camera position/orientation to the debug camera
+                    if ( m_debugMode == DebugMode::None )
+                    {
+                        m_pDebugCameraComponent->SetWorldTransform( m_player.m_pCameraComponent->GetWorldTransform() );
+                    }
+
+                    m_player.m_pPlayerComponent->SetPlayerEnabled( true );
+                }
+            }
+            break;
+
+            case DebugMode::FullDebug:
+            {
+                m_pActiveCamera = m_pDebugCameraComponent;
+
+                if ( m_player.IsValid() )
+                {
+                    // Transform camera position/orientation to the debug camera
+                    if ( m_debugMode == DebugMode::None )
+                    {
+                        m_pDebugCameraComponent->SetWorldTransform( m_player.m_pCameraComponent->GetWorldTransform() );
+                    }
+
+                    m_player.m_pPlayerComponent->SetPlayerEnabled( false );
+                }
+            }
+            break;
+        }
+
+        m_debugMode = newMode;
     }
     #endif
+
+    //-------------------------------------------------------------------------
+
+    void PlayerManager::UpdateSystem( EntityUpdateContext const& ctx )
+    {
+        #if KRG_DEVELOPMENT_TOOLS
+        if ( m_pDebugCameraComponent == nullptr )
+        {
+            SpawnDebugCamera( ctx );
+        }
+
+        // Always ensure we have an active camera set
+        if ( m_pActiveCamera == nullptr && m_pDebugCameraComponent->IsInitialized() )
+        {
+            m_pActiveCamera = m_pDebugCameraComponent;
+        }
+
+        // If we are in full debug mode, update the camera position
+        if ( m_debugMode == DebugMode::FullDebug && m_isControllerEnabled )
+        {
+            UpdateDebugCamera( ctx );
+        }
+        #endif
+
+        //-------------------------------------------------------------------------
+
+        // Spawn players in game worlds
+        if ( ctx.IsGameWorld() && !m_hasSpawnedPlayer )
+        {
+            m_hasSpawnedPlayer = TrySpawnPlayer( ctx );
+        }
+
+        // Handle players state changes
+        if ( m_registeredPlayerStateChanged )
+        {
+            if ( m_player.IsValid() )
+            {
+                m_pActiveCamera = m_player.m_pCameraComponent;
+                m_player.m_pPlayerComponent->SetPlayerEnabled( m_isControllerEnabled );
+            }
+
+            m_registeredPlayerStateChanged = false;
+        }
+    }
 }

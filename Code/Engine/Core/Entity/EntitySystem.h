@@ -26,6 +26,12 @@ namespace KRG
         virtual ~EntitySystem() {}
         virtual char const* GetName() const = 0;
 
+        // Called whenever we activate the entity this system is attached to
+        virtual void Activate() {}
+
+        // Called whenever we deactivate the entity this system is attached to
+        virtual void Deactivate() {}
+
     protected:
 
         // Get the required update stages and priorities for this component

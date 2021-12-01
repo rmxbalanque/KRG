@@ -16,6 +16,9 @@
 namespace KRG
 {
     class CameraComponent;
+    class FreeLookCameraComponent;
+
+    //-------------------------------------------------------------------------
 
     namespace Player
     {
@@ -27,14 +30,8 @@ namespace KRG
 
     class KRG_ENGINE_CORE_API PlayerManager : public IWorldEntitySystem
     {
-        friend class CameraDebugView;
-
-        //-------------------------------------------------------------------------
-
         struct RegisteredPlayer
         {
-            RegisteredPlayer( EntityID const& entityID ) : m_entityID( entityID ) {};
-            inline EntityID const& GetID() const { return m_entityID; }
             inline bool IsValid() const { return m_pPlayerComponent != nullptr && m_pCameraComponent != nullptr; }
 
         public:
@@ -43,6 +40,17 @@ namespace KRG
             Player::PlayerComponent*            m_pPlayerComponent = nullptr;
             CameraComponent*                    m_pCameraComponent = nullptr;
         };
+
+    public:
+
+        #if KRG_DEVELOPMENT_TOOLS
+        enum class DebugMode
+        {
+            None,               // Default mode - game plays as normal
+            UseDebugCamera,     // Game plays as normal, but we use the debug camera to view it 
+            FullDebug,          // Player controller is disabled and we have full control of the debug camera
+        };
+        #endif
 
     public:
 
@@ -58,11 +66,16 @@ namespace KRG
         // Player
         //-------------------------------------------------------------------------
 
-        inline bool HasActivePlayer() const { return m_activePlayerID.IsValid(); }
+        inline bool HasPlayer() const { return m_player.IsValid(); }
+        inline EntityID GetPlayerEntityID() const { return m_player.m_entityID; }
+        inline CameraComponent* GetPlayerCamera() const { return m_player.m_pCameraComponent; }
+        void SetPlayerControllerState( bool isEnabled );
 
         #if KRG_DEVELOPMENT_TOOLS
-        void SetPlayerEnabled( bool isEnabled );
-        void SetDevelopmentPlayerEnabled( bool enableDevelopmentPlayer );
+        void SetDebugMode( DebugMode mode );
+        inline DebugMode GetDebugMode() const { return m_debugMode; }
+        inline FreeLookCameraComponent* GetDebugCamera() const { return m_pDebugCameraComponent; }
+        inline float GetDebugCameraMoveSpeed() const { return m_debugCameraMoveSpeed; }
         #endif
 
     private:
@@ -72,37 +85,28 @@ namespace KRG
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UpdateSystem( EntityUpdateContext const& ctx ) override;
 
-        // Player
-        //-------------------------------------------------------------------------
-        
-        RegisteredPlayer const* GetActivePlayer() const;
-        RegisteredPlayer const* GetPlayer( ComponentID const& playerID ) const;
-
-        void SwitchToLastValidPlayer();
-        void SwitchToPlayer( ComponentID const& playerID );
         bool TrySpawnPlayer( EntityUpdateContext const& ctx );
 
-        void SetPlayerActive( RegisteredPlayer& player );
-
         #if KRG_DEVELOPMENT_TOOLS
-        void SpawnDevelopmentPlayer( EntityUpdateContext const& ctx );
+        void SpawnDebugCamera( EntityUpdateContext const& ctx );
+        void UpdateDebugCamera( EntityUpdateContext const& ctx );
         #endif
 
     private:
 
-        TIDVector<EntityID, RegisteredPlayer>   m_players;
-        TVector<Player::PlayerSpawnComponent*>  m_spawnPoints;
-        CameraComponent*                        m_pActiveCamera = nullptr;
-        ComponentID                             m_activePlayerID;
-        ComponentID                             m_previouslyActivePlayerID;
-        bool                                    m_hasSpawnedPlayer = false;
-        bool                                    m_registeredPlayerStateChanged = false;
-        bool                                    m_disableAllPlayers = false;
+        RegisteredPlayer                            m_player;
+        TVector<Player::PlayerSpawnComponent*>      m_spawnPoints;
+        TVector<CameraComponent*>                   m_cameras;
+        CameraComponent*                            m_pActiveCamera = nullptr;
+        bool                                        m_hasSpawnedPlayer = false;
+        bool                                        m_registeredPlayerStateChanged = false;
+        bool                                        m_isControllerEnabled = true;
+
 
         #if KRG_DEVELOPMENT_TOOLS
-        bool                                    m_hasSpawnedDevelopmentPlayer = false;
-        bool                                    m_useDevelopmentPlayer = false;
-        ComponentID                             m_developmentPlayerID;
+        FreeLookCameraComponent*                    m_pDebugCameraComponent = nullptr;
+        float                                       m_debugCameraMoveSpeed = 0;
+        DebugMode                                   m_debugMode = DebugMode::None;
         #endif
     };
 } 

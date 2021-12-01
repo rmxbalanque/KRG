@@ -91,7 +91,6 @@
     <ClInclude Include="Entity\EntityMapDescriptor.h" />
     <ClInclude Include="DevUI\Gizmo.h" />
     <ClInclude Include="DevUI\OrientationGuide.h" />
-    <ClInclude Include="Systems\EntitySystem_DevelopmentPlayerController.h" />
     <ClInclude Include="Systems\WorldSystem_PlayerManager.h" />
     <ClInclude Include="ResourceLoaders\ResourceLoader_EntityCollection.h" />
     <ClInclude Include="Math\Easing.h" />
@@ -125,7 +124,6 @@
     <ClCompile Include="Entity\EntityMapDescriptor.cpp" />
     <ClCompile Include="DevUI\Gizmo.cpp" />
     <ClCompile Include="DevUI\OrientationGuide.cpp" />
-    <ClCompile Include="Systems\EntitySystem_DevelopmentPlayerController.cpp" />
     <ClCompile Include="Systems\WorldSystem_PlayerManager.cpp" />
     <ClCompile Include="ResourceLoaders\ResourceLoader_EntityCollection.cpp" />
     <ClCompile Include="Math\Easing.cpp" />

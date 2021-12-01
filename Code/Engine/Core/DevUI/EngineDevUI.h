@@ -17,6 +17,7 @@ struct ImGuiWindowClass;
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
+    class EntityWorld;
     class EntityWorldManager;
     class EntityWorldDebugger;
     namespace Render { class Viewport; }
@@ -50,7 +51,7 @@ namespace KRG
         void DrawMenu( UpdateContext const& context );
         void DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport );
         void DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass = nullptr );
-        void DrawStatusBar( UpdateContext const& context );
+        void DrawStatusBar( UpdateContext const& context, EntityWorld* pGameWorld );
 
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override {}
         virtual void EndHotReload() {}

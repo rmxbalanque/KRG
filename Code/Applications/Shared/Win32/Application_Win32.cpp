@@ -133,20 +133,25 @@ namespace KRG
         IniFile layoutIni;
         if ( layoutIni.IsValid() )
         {
-            // Save window rect
-            layoutIni.CreateSection( "WindowSettings" );
-            layoutIni.SetInt( "WindowSettings:Left", (int32) m_windowRect.left );
-            layoutIni.SetInt( "WindowSettings:Right", (int32) m_windowRect.right );
-            layoutIni.SetInt( "WindowSettings:Top", (int32) m_windowRect.top );
-            layoutIni.SetInt( "WindowSettings:Bottom", (int32) m_windowRect.bottom );
+            WINDOWPLACEMENT wndPlacement;
+            wndPlacement.length = sizeof( WINDOWPLACEMENT );
+            if ( GetWindowPlacement( m_windowHandle, &wndPlacement ) )
+            {
+                // Save window rect
+                layoutIni.CreateSection( "WindowSettings" );
+                layoutIni.SetInt( "WindowSettings:Left", (int32) wndPlacement.rcNormalPosition.left );
+                layoutIni.SetInt( "WindowSettings:Right", (int32) wndPlacement.rcNormalPosition.right );
+                layoutIni.SetInt( "WindowSettings:Top", (int32) wndPlacement.rcNormalPosition.top );
+                layoutIni.SetInt( "WindowSettings:Bottom", (int32) wndPlacement.rcNormalPosition.bottom );
 
-            // Save user flags
-            layoutIni.CreateSection( "Layout" );
-            layoutIni.SetInt( "Layout:UserFlags0", (uint32) m_userFlags );
-            layoutIni.SetInt( "Layout:UserFlags1", (uint32) ( m_userFlags >> 32 ) );
+                // Save user flags
+                layoutIni.CreateSection( "Layout" );
+                layoutIni.SetInt( "Layout:UserFlags0", (uint32) m_userFlags );
+                layoutIni.SetInt( "Layout:UserFlags1", (uint32) ( m_userFlags >> 32 ) );
 
-            FileSystem::Path const layoutIniFilePath = FileSystem::Path( m_applicationNameNoWhitespace + ".layout.ini" );
-            layoutIni.SaveToFile( layoutIniFilePath );
+                FileSystem::Path const layoutIniFilePath = FileSystem::Path( m_applicationNameNoWhitespace + ".layout.ini" );
+                layoutIni.SaveToFile( layoutIniFilePath );
+            }
         }
     }
 

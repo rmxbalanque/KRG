@@ -183,7 +183,7 @@ namespace KRG::Physics
     public:
 
         physx::PxQueryFilterData                            m_filterData;
-        physx::PxHitFlags                                   m_hitFlags = physx::PxHitFlag::eDEFAULT;
+        physx::PxHitFlags                                   m_hitFlags = physx::PxHitFlag::eDEFAULT | physx::PxHitFlag::eMTD;
         TInlineVector<ComponentID, 2>                       m_ignoredComponents;
         TInlineVector<EntityID, 2>                          m_ignoredEntities;
     };

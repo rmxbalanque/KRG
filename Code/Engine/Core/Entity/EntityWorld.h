@@ -85,6 +85,7 @@ namespace KRG
 
         // Get the persistent map
         EntityModel::EntityMap* GetPersistentMap() { return &m_maps[0]; }
+        EntityModel::EntityMap const* GetPersistentMap() const { return &m_maps[0]; }
 
         // Do we have any loaded maps (maps can be either loaded or still loading)
         inline bool HasLoadedMaps() const { return !m_maps.empty(); }

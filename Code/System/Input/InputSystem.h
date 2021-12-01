@@ -33,18 +33,24 @@ namespace KRG
 
             inline bool HasConnectedKeyboardAndMouse() { return GetKeyboardMouseDevice() != nullptr; }
 
-            inline MouseInputState const* GetMouseState() const 
+            inline MouseInputState const* GetMouseState() const
             {
-                auto pDevice = GetKeyboardMouseDevice();
-                KRG_ASSERT( pDevice != nullptr );
-                return &pDevice->GetMouseState(); 
+                if ( auto pDevice = GetKeyboardMouseDevice() )
+                {
+                    return &pDevice->GetMouseState();
+                }
+
+                return &m_emptyMouseState;
             }
 
             inline KeyboardInputState const* GetKeyboardState() const
             {
-                auto pDevice = GetKeyboardMouseDevice();
-                KRG_ASSERT( pDevice != nullptr );
-                return &pDevice->GetKeyboardState();
+                if ( auto pDevice = GetKeyboardMouseDevice() )
+                {
+                    return &pDevice->GetKeyboardState();
+                }
+
+                return &m_emptyKeyboardState;
             }
 
             // Controllers
@@ -54,9 +60,12 @@ namespace KRG
 
             inline ControllerInputState const* GetControllerState( uint32 controllerIdx = 0 ) const
             {
-                auto pDevice = GetControllerDevice( controllerIdx );
-                KRG_ASSERT( pDevice != nullptr );
-                return &pDevice->GetControllerState();
+                if ( auto pDevice = GetControllerDevice( controllerIdx ) )
+                {
+                    return &pDevice->GetControllerState();
+                }
+
+                return &m_emptyControllerState;
             }
 
         private:
@@ -66,7 +75,10 @@ namespace KRG
 
         private:
 
-            TVector<InputDevice*>   m_inputDevices;
+            TVector<InputDevice*>       m_inputDevices;
+            MouseInputState             m_emptyMouseState;
+            KeyboardInputState          m_emptyKeyboardState;
+            ControllerInputState        m_emptyControllerState;
         };
     }
 }

@@ -196,6 +196,11 @@ namespace KRG
 
         if ( !m_systems.empty() )
         {
+            for ( auto pSystem : m_systems )
+            {
+                pSystem->Activate();
+            }
+
             GenerateSystemUpdateList();
             activationContext.m_registerForEntityUpdate.enqueue( this );
             m_updateRegistrationStatus = RegistrationStatus::QueuedForRegister;
@@ -272,6 +277,11 @@ namespace KRG
             for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
             {
                 m_systemUpdateLists[i].clear();
+            }
+
+            for ( auto pSystem : m_systems )
+            {
+                pSystem->Deactivate();
             }
         }
 
@@ -603,6 +613,11 @@ namespace KRG
         auto pSystem = (EntitySystem*) pSystemTypeInfo->m_pTypeHelper->CreateType();
         m_systems.emplace_back( pSystem );
 
+        if ( IsActivated() )
+        {
+            pSystem->Activate();
+        }
+
         // Register all components with the new system
         for ( auto pComponent : m_components )
         {
@@ -634,6 +649,11 @@ namespace KRG
             {
                 pSystem->UnregisterComponent( pComponent );
             }
+        }
+
+        if ( IsActivated() )
+        {
+            pSystem->Deactivate();
         }
 
         // Destroy the system

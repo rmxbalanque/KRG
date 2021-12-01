@@ -2,7 +2,7 @@
 
 #include "Game/Core/_Module/API.h"
 #include "Engine/Core/Entity/EntitySystem.h"
-#include "Game/Core/Player/GameplayStates/PlayerGameplayState.h"
+#include "Game/Core/Player/Actions/PlayerAction.h"
 
 //-------------------------------------------------------------------------
 
@@ -10,25 +10,27 @@ namespace KRG::Player
 {
     class KRG_GAME_CORE_API PlayerController final : public EntitySystem
     {
+        friend class PlayerDebugView;
+
         KRG_REGISTER_ENTITY_SYSTEM( PlayerController, RequiresUpdate( UpdateStage::PrePhysics ), RequiresUpdate( UpdateStage::PostPhysics ) );
 
         // List of all the state machine states
         //-------------------------------------------------------------------------
 
-        enum GameplayStateID : int8
+        enum ActionID : int8
         {
-            InvalidState = -1,
-            LocomotionState = 0,
-            JumpState = 1,
+            InvalidAction = -1,
+            Locomotion = 0,
+            Jump = 1,
 
-            NumGameplayStates,
-            DefaultState = LocomotionState,
+            NumActions,
+            DefaultAction = Locomotion,
         };
 
         // Transitions in the state machine
         //-------------------------------------------------------------------------
 
-        struct StateTransition
+        struct Transition
         {
             enum class Availability : uint8
             {
@@ -36,26 +38,28 @@ namespace KRG::Player
                 OnlyOnCompleted
             };
 
-            StateTransition( GameplayStateID stateID, Availability availability = Availability::Always )
+            Transition( ActionID stateID, Availability availability = Availability::Always )
                 : m_targetStateID( stateID )
                 , m_availability( availability )
             {}
 
-            inline bool IsAvailable( GameplayState::Status stateUpdateResult ) const
+            inline bool IsAvailable( Action::Status stateUpdateResult ) const
             {
-                return ( m_availability == Availability::Always ) || ( stateUpdateResult == GameplayState::Status::Completed );
+                return ( m_availability == Availability::Always ) || ( stateUpdateResult == Action::Status::Completed );
             }
 
-            GameplayStateID     m_targetStateID;
+            ActionID     m_targetStateID;
             Availability        m_availability;
         };
 
     public:
 
-        PlayerController();
         virtual ~PlayerController();
 
     private:
+
+        virtual void Activate() override;
+        virtual void Deactivate() override;
 
         virtual void RegisterComponent( EntityComponent* pComponent ) override;
         virtual void UnregisterComponent( EntityComponent* pComponent ) override;
@@ -64,17 +68,20 @@ namespace KRG::Player
         // State Machine
         //-------------------------------------------------------------------------
 
-        void CreateStateMachineStates();
-        void DestroyStateMachineStates();
+        void InitializeStateMachine();
+        void ShutdownStateMachine();
         void UpdateStateMachine();
 
     private:
 
-        GameplayStateContext                                                m_stateMachineContext;
-        GameplayStateID                                                     m_activeStateID = InvalidState;
-        TArray<GameplayState*, NumGameplayStates>                           m_registeredStates;
-        TInlineVector<StateTransition, 6>                                   m_globalPreStateTransitions;
-        TArray<TInlineVector<StateTransition, 6>, NumGameplayStates>        m_perStateTransitions;
-        TInlineVector<StateTransition, 6>                                   m_globalPostStateTransitions;
+        ActionContext                                           m_actionContext;
+        ActionID                                                m_activeBaseActionID = InvalidAction;
+
+        TArray<Action*, NumActions>                             m_baseActions;
+        TArray<TInlineVector<Transition, 6>, NumActions>        m_actionTransitions;
+        TInlineVector<Transition, 6>                            m_highPriorityGlobalTransitions;
+        TInlineVector<Transition, 6>                            m_lowPriorityGlobalTransitions;
+
+        TInlineVector<OverlayAction*, 5>                        m_overlayActions;
     };
 }

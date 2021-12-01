@@ -1,12 +1,15 @@
 #include "EntitySystem_PlayerController.h"
-#include "Game/Core/Player/GameplayStates/PlayerGameplayState_Locomotion.h"
-#include "Game/Core/Player/GameplayStates/PlayerGameplayState_Jump.h"
-#include "Game/Core/Player/Components/Component_PlayerGameplayPhysics.h"
+#include "Game/Core/Player/Actions/PlayerAction_Locomotion.h"
+#include "Game/Core/Player/Actions/PlayerAction_Jump.h"
+#include "Game/Core/Player/Actions/PlayerOverlayAction_Shoot.h"
+#include "Game/Core/Player/Components/Component_PlayerPhysics.h"
+#include "Game/Core/Player/Components/Component_MainPlayer.h"
 #include "Game/Core/GameplayPhysics/GameplayPhysicsState.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCapsule.h"
 #include "Engine/Core/Components/Component_Cameras.h"
 #include "Engine/Core/Components/Component_Player.h"
+#include "System/Input/InputSystem.h"
 #include "System/Core/Types/ScopedValue.h"
 
 // HACK
@@ -16,14 +19,26 @@
 
 namespace KRG::Player
 {
-    PlayerController::PlayerController()
-    {
-        CreateStateMachineStates();
-    }
-
     PlayerController::~PlayerController()
     {
-        DestroyStateMachineStates();
+        for ( auto pBaseAction : m_baseActions )
+        {
+            KRG_ASSERT( pBaseAction == nullptr );
+        }
+
+        KRG_ASSERT( m_overlayActions.empty() );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void PlayerController::Activate()
+    {
+        InitializeStateMachine();
+    }
+
+    void PlayerController::Deactivate()
+    {
+        ShutdownStateMachine();
     }
 
     //-------------------------------------------------------------------------
@@ -34,82 +49,82 @@ namespace KRG::Player
         {
             if ( pSpatialComponent->IsRootComponent() )
             {
-                KRG_ASSERT( m_stateMachineContext.m_pRootComponent == nullptr );
-                m_stateMachineContext.m_pRootComponent = pSpatialComponent;
+                KRG_ASSERT( m_actionContext.m_pRootComponent == nullptr );
+                m_actionContext.m_pRootComponent = pSpatialComponent;
             }
         }
 
         if ( auto pCapsuleComponent = TryCast<Physics::CapsuleComponent>( pComponent ) )
         {
             // TODO: handle multiple comps per player
-            KRG_ASSERT( m_stateMachineContext.m_pCapsuleComponent == nullptr );
-            m_stateMachineContext.m_pCapsuleComponent = pCapsuleComponent;
+            KRG_ASSERT( m_actionContext.m_pCapsuleComponent == nullptr );
+            m_actionContext.m_pCapsuleComponent = pCapsuleComponent;
         }
 
         if ( auto pCameraComponent = TryCast<OrbitCameraComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_stateMachineContext.m_pCameraComponent == nullptr );
-            m_stateMachineContext.m_pCameraComponent = pCameraComponent;
+            KRG_ASSERT( m_actionContext.m_pCameraComponent == nullptr );
+            m_actionContext.m_pCameraComponent = pCameraComponent;
         }
 
-        if ( auto pPlayerComponent = TryCast<PlayerComponent>( pComponent ) )
+        if ( auto pPlayerComponent = TryCast<MainPlayerComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_stateMachineContext.m_pPlayerComponent == nullptr );
-            m_stateMachineContext.m_pPlayerComponent = pPlayerComponent;
+            KRG_ASSERT( m_actionContext.m_pPlayerComponent == nullptr );
+            m_actionContext.m_pPlayerComponent = pPlayerComponent;
         }
 
-        if ( auto pGameplayPhysicsComponent = TryCast<PlayerGameplayPhysicsComponent>( pComponent ) )
+        if ( auto pGameplayPhysicsComponent = TryCast<PlayerPhysicsComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_stateMachineContext.m_pGameplayPhysicsComponent == nullptr );
-            m_stateMachineContext.m_pGameplayPhysicsComponent = pGameplayPhysicsComponent;
+            KRG_ASSERT( m_actionContext.m_pPhysicsComponent == nullptr );
+            m_actionContext.m_pPhysicsComponent = pGameplayPhysicsComponent;
             pGameplayPhysicsComponent->CreatePhysicsStates();
             KRG_ASSERT( pGameplayPhysicsComponent->GetActivePhysicsState() != nullptr );
         }
 
         //-------------------------------------------------------------------------
 
-        m_stateMachineContext.m_components.emplace_back( pComponent );
+        m_actionContext.m_components.emplace_back( pComponent );
     }
 
     void PlayerController::UnregisterComponent( EntityComponent* pComponent )
     {
-        m_stateMachineContext.m_components.erase_first( pComponent );
+        m_actionContext.m_components.erase_first( pComponent );
 
         //-------------------------------------------------------------------------
 
         if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
         {
-            if ( pSpatialComponent->IsRootComponent() && m_stateMachineContext.m_pRootComponent == pSpatialComponent )
+            if ( pSpatialComponent->IsRootComponent() && m_actionContext.m_pRootComponent == pSpatialComponent )
             {
-                m_stateMachineContext.m_pRootComponent = nullptr;
+                m_actionContext.m_pRootComponent = nullptr;
             }
         }
 
         if ( auto pCapsuleComponent = TryCast<Physics::CapsuleComponent>( pComponent ) )
         {
-            if ( m_stateMachineContext.m_pCapsuleComponent == pCapsuleComponent )
+            if ( m_actionContext.m_pCapsuleComponent == pCapsuleComponent )
             {
-                m_stateMachineContext.m_pCapsuleComponent = nullptr;
+                m_actionContext.m_pCapsuleComponent = nullptr;
             }
         }
 
         if ( auto pCameraComponent = TryCast<OrbitCameraComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_stateMachineContext.m_pCameraComponent == pCameraComponent );
-            m_stateMachineContext.m_pCameraComponent = nullptr;
+            KRG_ASSERT( m_actionContext.m_pCameraComponent == pCameraComponent );
+            m_actionContext.m_pCameraComponent = nullptr;
         }
 
-        if ( auto pPlayerComponent = TryCast<PlayerComponent>( pComponent ) )
+        if ( auto pPlayerComponent = TryCast<MainPlayerComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_stateMachineContext.m_pPlayerComponent == pPlayerComponent );
-            m_stateMachineContext.m_pPlayerComponent = nullptr;
+            KRG_ASSERT( m_actionContext.m_pPlayerComponent == pPlayerComponent );
+            m_actionContext.m_pPlayerComponent = nullptr;
         }
 
-        if ( auto pGameplayPhysicsComponent = TryCast<PlayerGameplayPhysicsComponent>( pComponent ) )
+        if ( auto pGameplayPhysicsComponent = TryCast<PlayerPhysicsComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_stateMachineContext.m_pGameplayPhysicsComponent == pGameplayPhysicsComponent );
-            m_stateMachineContext.m_pGameplayPhysicsComponent->DestroyPhysicsStates();
-            m_stateMachineContext.m_pGameplayPhysicsComponent = nullptr;
+            KRG_ASSERT( m_actionContext.m_pPhysicsComponent == pGameplayPhysicsComponent );
+            m_actionContext.m_pPhysicsComponent->DestroyPhysicsStates();
+            m_actionContext.m_pPhysicsComponent = nullptr;
         }
     }
 
@@ -117,22 +132,15 @@ namespace KRG::Player
 
     void PlayerController::Update( EntityUpdateContext const& ctx )
     {
-        TScopedGuardValue const contextGuardValue( m_stateMachineContext.m_pEntityUpdateContext, &ctx );
+        TScopedGuardValue const contextGuardValue( m_actionContext.m_pEntityUpdateContext, &ctx );
+        TScopedGuardValue const inputSystemGuardValue( m_actionContext.m_pInputSystem, ctx.GetSystem<Input::InputSystem>() );
 
-        if ( !m_stateMachineContext.IsValid() )
+        if ( !m_actionContext.IsValid() )
         {
             return;
         }
 
-        if ( !m_stateMachineContext.m_pPlayerComponent->IsPlayerEnabled() )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        auto pPhysicsSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
-        if( pPhysicsSystem == nullptr  )
+        if ( !m_actionContext.m_pPlayerComponent->IsPlayerEnabled() )
         {
             return;
         }
@@ -142,23 +150,22 @@ namespace KRG::Player
         if ( ctx.GetUpdateStage() == UpdateStage::PrePhysics )
         {
             UpdateStateMachine();
-            //m_stateMachineContext.m_pCameraComponent->FinalizeCameraPosition();
         }
         else if ( ctx.GetUpdateStage() == UpdateStage::PostPhysics )
         {
             auto pPhysicsWorld = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
-            auto pLocomotionPhysicsState = m_stateMachineContext.m_pGameplayPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
+            auto pLocomotionPhysicsState = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
 
             // Move character
-            Transform const finalPosition = m_stateMachineContext.m_pGameplayPhysicsComponent->GetActivePhysicsState()->TryMoveCapsule( pPhysicsSystem, m_stateMachineContext.m_pCapsuleComponent, Quaternion::Identity, pLocomotionPhysicsState->m_deltaMovementHack );
-            Transform const fromCapsuleToRoot = m_stateMachineContext.m_pRootComponent->GetWorldTransform() * m_stateMachineContext.m_pCapsuleComponent->GetWorldTransform().GetInverse();
+            auto pPhysicsSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
+            Transform const finalPosition = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState()->TryMoveCapsule( pPhysicsSystem, m_actionContext.m_pCapsuleComponent, Quaternion::Identity, pLocomotionPhysicsState->m_deltaMovementHack );
+            Transform const fromCapsuleToRoot = m_actionContext.m_pRootComponent->GetWorldTransform() * m_actionContext.m_pCapsuleComponent->GetWorldTransform().GetInverse();
 
             Transform newTransform = fromCapsuleToRoot * finalPosition;
             newTransform.SetRotation( pLocomotionPhysicsState->m_deltaRotationHack );
             
-            m_stateMachineContext.m_pRootComponent->SetWorldTransform( newTransform );
-
-            m_stateMachineContext.m_pCameraComponent->FinalizeCameraPosition();
+            m_actionContext.m_pRootComponent->SetWorldTransform( newTransform );
+            m_actionContext.m_pCameraComponent->FinalizeCameraPosition();
         }
     }
 
@@ -166,30 +173,64 @@ namespace KRG::Player
     // State Machine
     //-------------------------------------------------------------------------    
 
-    void PlayerController::CreateStateMachineStates()
+    void PlayerController::InitializeStateMachine()
     {
-        m_registeredStates[LocomotionState] = KRG::New<LocomotionGameplayState>();
-        m_registeredStates[JumpState] = KRG::New<JumpGameplayState>();
+        //-------------------------------------------------------------------------
+        // Base Actions
+        //-------------------------------------------------------------------------
+
+        m_baseActions[Locomotion] = KRG::New<LocomotionAction>();
+        m_baseActions[Jump] = KRG::New<JumpAction>();
 
         //-------------------------------------------------------------------------
 
-        m_perStateTransitions[LocomotionState].emplace_back( JumpState, StateTransition::Availability::Always );
-        m_perStateTransitions[JumpState].emplace_back( LocomotionState, StateTransition::Availability::OnlyOnCompleted );
+        m_actionTransitions[Locomotion].emplace_back( Jump, Transition::Availability::Always );
+        m_actionTransitions[Jump].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
+
+        //-------------------------------------------------------------------------
+        // Overlay Actions
+        //-------------------------------------------------------------------------
+
+        m_overlayActions.emplace_back( KRG::New<ShootOverlayAction>() );
+
+        //-------------------------------------------------------------------------
+        // Initial State
+        //-------------------------------------------------------------------------
+
+        // Note: The context will be invalid at this point, so do not use it in the default state!
+        m_activeBaseActionID = DefaultAction;
+        m_baseActions[DefaultAction]->TryStart( m_actionContext );
     }
 
-    void PlayerController::DestroyStateMachineStates()
+    void PlayerController::ShutdownStateMachine()
     {
-        for ( auto& pState : m_registeredStates )
+        for ( auto& pAction : m_overlayActions )
         {
-            KRG::Delete( pState );
+            KRG::Delete( pAction );
+        }
+        m_overlayActions.clear();
+
+        for ( auto& pAction : m_baseActions )
+        {
+            KRG::Delete( pAction );
         }
 
-        m_activeStateID = InvalidState;
+        //-------------------------------------------------------------------------
+
+        for ( auto i = 0; i < NumActions; i++ )
+        {
+            m_actionTransitions[i].clear();
+        }
+
+        m_highPriorityGlobalTransitions.clear();
+        m_lowPriorityGlobalTransitions.clear();
+
+        m_activeBaseActionID = InvalidAction;
     }
 
     void PlayerController::UpdateStateMachine()
     {
-        auto EvaluateTransitions = [this] ( GameplayState::Status const activeStateStatus, TInlineVector<StateTransition, 6> const& transitions )
+        auto EvaluateTransitions = [this] ( Action::Status const activeStateStatus, TInlineVector<Transition, 6> const& transitions )
         {
             for ( auto const& transition : transitions )
             {
@@ -198,17 +239,17 @@ namespace KRG::Player
                     continue;
                 }
 
-                if ( m_registeredStates[transition.m_targetStateID]->TryStart( m_stateMachineContext ) )
+                if ( m_baseActions[transition.m_targetStateID]->TryStart( m_actionContext ) )
                 {
                     // Stop the currently active state
-                    GameplayState::StopReason const stopReason = ( activeStateStatus == GameplayState::Status::Completed ) ? GameplayState::StopReason::StateCompleted : GameplayState::StopReason::TransitionFired;
-                    m_registeredStates[m_activeStateID]->Stop( m_stateMachineContext, stopReason );
-                    m_activeStateID = InvalidState;
+                    Action::StopReason const stopReason = ( activeStateStatus == Action::Status::Completed ) ? Action::StopReason::ActionCompleted : Action::StopReason::TransitionFired;
+                    m_baseActions[m_activeBaseActionID]->Stop( m_actionContext, stopReason );
+                    m_activeBaseActionID = InvalidAction;
 
                     // Start the new state
-                    m_activeStateID = transition.m_targetStateID;
-                    GameplayState::Status const newStateResult = m_registeredStates[m_activeStateID]->Update( m_stateMachineContext );
-                    KRG_ASSERT( newStateResult == GameplayState::Status::Running ); // Why did you instantly completed the state you just started, this is likely a mistake!
+                    m_activeBaseActionID = transition.m_targetStateID;
+                    Action::Status const newActionStatus = m_baseActions[m_activeBaseActionID]->Update( m_actionContext );
+                    KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
                     return true;
                 }
             }
@@ -217,43 +258,67 @@ namespace KRG::Player
         };
 
         //-------------------------------------------------------------------------
+        // Evaluate active base action
+        //-------------------------------------------------------------------------
 
-        if ( m_activeStateID != InvalidState )
+        if ( m_activeBaseActionID != InvalidAction )
         {
             // Evaluate the current active state
-
-            GameplayStateID const initialStateID = m_activeStateID;
-            GameplayState::Status const status = m_registeredStates[m_activeStateID]->Update( m_stateMachineContext );
+            ActionID const initialStateID = m_activeBaseActionID;
+            Action::Status const status = m_baseActions[m_activeBaseActionID]->Update( m_actionContext );
 
             // Evaluate Transitions
-            bool transitionFired = EvaluateTransitions( status, m_globalPreStateTransitions );
+            bool transitionFired = EvaluateTransitions( status, m_highPriorityGlobalTransitions );
 
             if ( !transitionFired )
             {
-                transitionFired = EvaluateTransitions( status, m_perStateTransitions[initialStateID] );
+                transitionFired = EvaluateTransitions( status, m_actionTransitions[initialStateID] );
             }
 
             if ( !transitionFired )
             {
-                transitionFired = EvaluateTransitions( status, m_globalPostStateTransitions );
+                transitionFired = EvaluateTransitions( status, m_lowPriorityGlobalTransitions );
             }
 
             // Stop the current state if it completed and we didnt fire any transition
-            if ( !transitionFired && status == GameplayState::Status::Completed )
+            if ( !transitionFired && status == Action::Status::Completed )
             {
-                m_registeredStates[m_activeStateID]->Stop( m_stateMachineContext, GameplayState::StopReason::StateCompleted );
-                m_activeStateID = InvalidState;
+                m_baseActions[m_activeBaseActionID]->Stop( m_actionContext, Action::StopReason::ActionCompleted );
+                m_activeBaseActionID = InvalidAction;
             }
         }
 
+        // Handle the case where the state completed and we had no valid transition and end up in an invalid state
+
+        if ( m_activeBaseActionID == InvalidAction )
+        {
+            KRG_LOG_ERROR( "Player", "Ended up with no state, starting default state!" );
+
+            m_activeBaseActionID = DefaultAction;
+            bool const tryStartResult = m_baseActions[m_activeBaseActionID]->TryStart( m_actionContext );
+            KRG_ASSERT( tryStartResult ); // The default state MUST always be able to start
+        }
+
+        //-------------------------------------------------------------------------
+        // Evaluate overlay actions
         //-------------------------------------------------------------------------
 
-        // Handle the case where the state completed and we had no valid transition and end up in an invalid state
-        if ( m_activeStateID == InvalidState )
+        for ( auto pOverlayAction : m_overlayActions )
         {
-            m_activeStateID = DefaultState;
-            bool const tryStartResult = m_registeredStates[m_activeStateID]->TryStart( m_stateMachineContext );
-            KRG_ASSERT( tryStartResult ); // The default state MUST always be able to start
+            // Update running actions
+            if ( pOverlayAction->IsActive() )
+            {
+                if ( pOverlayAction->Update( m_actionContext ) == Action::Status::Completed )
+                {
+                    pOverlayAction->Stop( m_actionContext, Action::StopReason::ActionCompleted );
+                }
+            }
+            // Try to start action
+            else if( pOverlayAction->TryStart( m_actionContext ) )
+            {
+                Action::Status const newActionStatus = pOverlayAction->Update( m_actionContext );
+                KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
+            }
         }
     }
 }
