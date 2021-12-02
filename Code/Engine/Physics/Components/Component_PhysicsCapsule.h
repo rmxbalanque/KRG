@@ -18,16 +18,16 @@ namespace KRG::Physics
         CapsuleComponent();
 
         // The capsule radius
-        inline float GetRadius() const { return m_radius; }
+        KRG_FORCE_INLINE float GetRadius() const { return m_radius; }
 
         // The half-height of the cylinder portion of the capsule
-        inline float GetCylinderPortionHalfHeight() const { return m_cylinderPortionHalfHeight; }
+        KRG_FORCE_INLINE float GetCylinderPortionHalfHeight() const { return m_cylinderPortionHalfHeight; }
 
         // Get the full height of the capsule
-        inline float GetCapsuleHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ) * 2; }
+        KRG_FORCE_INLINE float GetCapsuleHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ) * 2; }
 
         // Get the half-height of the capsule
-        inline float GetCapsuleHalfHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ); }
+        KRG_FORCE_INLINE float GetCapsuleHalfHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ); }
 
     private:
 

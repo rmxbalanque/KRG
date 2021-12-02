@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <NAVPOWER_DIR>$(SolutionDir)External\Navpower\</NAVPOWER_DIR>
+    <NAVPOWER_BUILDER_LIB_DIR>$(NAVPOWER_DIR)lib\x64_vs2019\ReleaseMD\</NAVPOWER_BUILDER_LIB_DIR>
+  </PropertyGroup>
   <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(NAVPOWER_DIR)include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+    </ClCompile>
     <Link>
-      <AdditionalDependencies>bfxBuilder.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(NAVPOWER_BUILDER_LIB_DIR)\bfxSystem.lib;$(NAVPOWER_BUILDER_LIB_DIR)\bfxBuilder.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>

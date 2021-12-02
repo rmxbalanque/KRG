@@ -474,7 +474,7 @@ namespace KRG::EntityModel
                 {
                     Entity* pEntity = pEditedMap->GetEntities()[i];
 
-                    String const buttonLabel = String( String::CtorSprintf(), "%s##%d", pEntity->GetName().c_str(), i );
+                    String const buttonLabel( String::CtorSprintf(), "%s##%d", pEntity->GetName().c_str(), i );
                     if ( ImGui::Button( buttonLabel.c_str() ) )
                     {
                         SelectEntity( pEntity );

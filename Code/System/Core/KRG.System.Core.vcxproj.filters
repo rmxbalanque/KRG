@@ -368,6 +368,7 @@
     </ClCompile>
     <ClCompile Include="ThirdParty\stb\krg_stb.cpp" />
     <ClCompile Include="Math\FloatCurve.cpp" />
+    <ClCompile Include="Types\Tag.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Transform.h">
@@ -1720,6 +1721,7 @@
     <ClInclude Include="ThirdParty\stb\stb_truetype.h" />
     <ClInclude Include="Math\FloatCurve.h" />
     <ClInclude Include="Types\IDVector.h" />
+    <ClInclude Include="Types\Tag.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">

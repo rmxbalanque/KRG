@@ -7,6 +7,7 @@
 #include "System/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
 #include "System/Core/Types/IDVector.h"
+#include "System/Core/Types/ScopedValue.h"
 
 //-------------------------------------------------------------------------
 
@@ -106,8 +107,8 @@ namespace KRG::Physics
         {
             KRG_ASSERT( m_readLockAcquired );
 
-            outResults.m_start = start;
-            outResults.m_end = end;
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = end;
 
             Vector unitDirection, distance;
             ( end - start ).ToDirectionAndLength3( unitDirection, distance );
@@ -115,6 +116,7 @@ namespace KRG::Physics
 
             physx::PxSphereGeometry const sphereGeo( radius );
             bool const result = m_pScene->sweep( sphereGeo, physx::PxTransform( ToPx( start ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
@@ -124,14 +126,17 @@ namespace KRG::Physics
             KRG_ASSERT( m_readLockAcquired );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
-            outResults.m_start = start;
-            outResults.m_end = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
 
             physx::PxSphereGeometry const sphereGeo( radius );
             bool const result = m_pScene->sweep( sphereGeo, physx::PxTransform( ToPx( start ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
+        // Perform an overlap query. NOTE: This overlap may not agree with the results of a sweep query with regards to the initially overlapping state
+        // Note: Overlap results will never have the block hit set!
         template<int N>
         bool SphereOverlap( float radius, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
@@ -139,6 +144,8 @@ namespace KRG::Physics
 
             outResults.m_position = position;
 
+            // Set the no block value for overlaps
+            TScopedGuardValue guard( filter.m_filterData.flags, filter.m_filterData.flags | physx::PxQueryFlag::eNO_BLOCK );
             physx::PxSphereGeometry const sphereGeo( radius );
             bool const result = m_pScene->overlap( sphereGeo, physx::PxTransform( ToPx( position ) ), outResults, filter.m_filterData, &filter );
             return result;
@@ -151,8 +158,8 @@ namespace KRG::Physics
         {
             KRG_ASSERT( m_readLockAcquired );
 
-            outResults.m_start = start;
-            outResults.m_end = end;
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = end;
             outResults.m_orientation = orientation;
 
             Vector unitDirection;
@@ -164,6 +171,7 @@ namespace KRG::Physics
             physx::PxTransform Test( ToPx( start ), ToPx( orientation ) );
             KRG_ASSERT( Test.isValid() );
             bool const result = m_pScene->sweep( capsuleGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
@@ -173,17 +181,20 @@ namespace KRG::Physics
             KRG_ASSERT( m_readLockAcquired );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
-            outResults.m_start = start;
-            outResults.m_end = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
             outResults.m_orientation = orientation;
 
             physx::PxCapsuleGeometry const capsuleGeo( radius, cylinderPortionHalfHeight );
             physx::PxTransform Test( ToPx( start ), ToPx( orientation ) );
             KRG_ASSERT( Test.isValid() );
-            bool const result = m_pScene->sweep( capsuleGeo, , ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            bool const result = m_pScene->sweep( capsuleGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
+        // Perform an overlap query. NOTE: This overlap may not agree with the results of a sweep query with regards to the initially overlapping state
+        // Note: Overlap results will never have the block hit set!
         template<int N>
         bool CapsuleOverlap( float cylinderPortionHalfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
@@ -192,6 +203,8 @@ namespace KRG::Physics
             outResults.m_position = position;
             outResults.m_orientation = orientation;
 
+            // Set the no block value for overlaps
+            TScopedGuardValue guard( filter.m_filterData.flags, filter.m_filterData.flags | physx::PxQueryFlag::eNO_BLOCK );
             physx::PxCapsuleGeometry const capsuleGeo( radius, cylinderPortionHalfHeight );
             bool result = m_pScene->overlap( capsuleGeo, physx::PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, filter.m_filterData, &filter );
             return result;
@@ -203,8 +216,8 @@ namespace KRG::Physics
         bool CylinderSweep( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
             KRG_ASSERT( m_readLockAcquired );
-            outResults.m_start = start;
-            outResults.m_end = end;
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = end;
             outResults.m_orientation = orientation;
 
             Vector unitDirection, distance;
@@ -213,6 +226,7 @@ namespace KRG::Physics
 
             physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( radius, radius, halfHeight ) ) );
             bool const result = m_pScene->sweep( cylinderGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
@@ -223,15 +237,18 @@ namespace KRG::Physics
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
             KRG_ASSERT( SharedMeshes::s_pUnitCylinderMesh != nullptr );
 
-            outResults.m_start = start;
-            outResults.m_end = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
             outResults.m_orientation = orientation;
 
             physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( radius, radius, halfHeight ) ) );
             bool const result = m_pScene->sweep( cylinderGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
+        // Perform an overlap query. NOTE: This overlap may not agree with the results of a sweep query with regards to the initially overlapping state
+        // Note: Overlap results will never have the block hit set!
         template<int N>
         bool CylinderOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
@@ -240,6 +257,8 @@ namespace KRG::Physics
             outResults.m_position = position;
             outResults.m_orientation = orientation;
 
+            // Set the no block value for overlaps
+            TScopedGuardValue guard( filter.m_filterData.flags, filter.m_filterData.flags | physx::PxQueryFlag::eNO_BLOCK );
             physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( radius, radius, halfHeight ) ) );
             bool const result = m_pScene->overlap( cylinderGeo, physx::PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, filter.m_filterData, &filter );
             return result;
@@ -253,12 +272,13 @@ namespace KRG::Physics
             KRG_ASSERT( m_readLockAcquired );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
-            outResults.m_start = start;
-            outResults.m_end = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
             outResults.m_orientation = orientation;
 
             physx::PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
             bool const result = m_pScene->sweep( boxGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
@@ -271,15 +291,18 @@ namespace KRG::Physics
             ( end - start ).ToDirectionAndLength3( unitDirection, distance );
             KRG_ASSERT( !unitDirection.IsNearZero3() );
 
-            outResults.m_start = start;
-            outResults.m_end = end;
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = end;
             outResults.m_orientation = orientation;
 
             physx::PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
             bool const result = m_pScene->sweep( boxGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
+        // Perform an overlap query. NOTE: This overlap may not agree with the results of a sweep query with regards to the initially overlapping state
+        // Note: Overlap results will never have the block hit set!
         template<int N>
         bool BoxOverlap( Vector halfExtents, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
@@ -288,6 +311,8 @@ namespace KRG::Physics
             outResults.m_position = position;
             outResults.m_orientation = orientation;
 
+            // Set the no block value for overlaps
+            TScopedGuardValue guard( filter.m_filterData.flags, filter.m_filterData.flags | physx::PxQueryFlag::eNO_BLOCK );
             physx::PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
             bool const result = m_pScene->overlap( boxGeo, physx::PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, filter.m_filterData, &filter );
             return result;
@@ -301,11 +326,12 @@ namespace KRG::Physics
             KRG_ASSERT( m_readLockAcquired );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
-            outResults.m_start = start;
-            outResults.m_end = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
             outResults.m_orientation = orientation;
 
             bool const result = m_pScene->sweep( pShape->getGeometry().any(), ToPx( Transform( orientation, start ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
@@ -317,14 +343,17 @@ namespace KRG::Physics
             ( end - start ).ToDirectionAndLength3( unitDirection, distance );
             KRG_ASSERT( !unitDirection.IsNearZero3() );
 
-            outResults.m_start = start;
-            outResults.m_end = end;
+            outResults.m_sweepStart = start;
+            outResults.m_sweepEnd = end;
             outResults.m_orientation = orientation;
 
             bool const result = m_pScene->sweep( pShape->getGeometry().any(), ToPx( Transform( orientation, start ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
             return result;
         }
 
+        // Perform an overlap query. NOTE: This overlap may not agree with the results of a sweep query with regards to the initially overlapping state
+        // Note: Overlap results will never have the block hit set!
         template<int N>
         bool ShapeOverlap( physx::PxShape* pShape, Quaternion const& orientation, Vector const& start, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
@@ -333,6 +362,8 @@ namespace KRG::Physics
             outResults.m_position = start;
             outResults.m_orientation = orientation;
 
+            // Set the no block value for overlaps
+            TScopedGuardValue guard( filter.m_filterData.flags, filter.m_filterData.flags | physx::PxQueryFlag::eNO_BLOCK );
             bool const result = m_pScene->overlap( pShape->getGeometry().any(), ToPx( Transform( orientation, start ) ), outResults, filter.m_filterData, &filter );
             return result;
         }

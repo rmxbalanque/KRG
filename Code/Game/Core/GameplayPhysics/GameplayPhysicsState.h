@@ -30,7 +30,7 @@ namespace KRG::GameplayPhysics
         virtual void Deactivate() {}
 
         // Try to move the capsule in the physics world, returns the final valid transform for the capsule based on the desired physics collision rules
-        virtual Transform TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& deltaRotation, Vector const& deltaTranslation ) = 0;
+        virtual Transform TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CapsuleComponent const* pCapsuleComponent, float const deltaTime, Quaternion const& deltaRotation, Vector const& deltaTranslation ) = 0;
     };
 }
 

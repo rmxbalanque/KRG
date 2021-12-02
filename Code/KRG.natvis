@@ -25,6 +25,15 @@
     </Expand>
   </Type>
 
+  <Type Name="KRG::Tag">
+    <Expand>
+      <Item Name="0" Condition="m_c[0].m_ID != 0">m_c[0]</Item>
+      <Item Name="1" Condition="m_c[1].m_ID != 0">m_c[1]</Item>
+      <Item Name="2" Condition="m_c[2].m_ID != 0">m_c[2]</Item>
+      <Item Name="3" Condition="m_c[3].m_ID != 0">m_c[3]</Item>
+    </Expand>
+  </Type>
+  
   <Type Name="KRG::Degrees">
     <DisplayString>{m_value}</DisplayString>
     <Expand>

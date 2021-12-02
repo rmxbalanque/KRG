@@ -7,6 +7,10 @@
       "Command": "-map data://testscenes/ClothMesh.map"
     },
     {
+      "Id": "60c99349-8d60-4442-a2b5-e196ca4e83a7",
+      "Command": "-map data://maps/ai_test.map"
+    },
+    {
       "Id": "78593768-2e2e-4d7b-b920-55af6c2c2b81",
       "Command": "-map data://maps/br_nav.map"
     },

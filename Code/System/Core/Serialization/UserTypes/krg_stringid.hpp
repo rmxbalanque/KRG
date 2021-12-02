@@ -15,7 +15,7 @@ namespace cereal
         if ( ID.IsValid() )
         {
             // Save number of chars + the data
-            char const* pDebugString = ID.ToString();
+            char const* pDebugString = ID.c_str();
             size_type const length = strlen( pDebugString );
             ar( make_size_tag( static_cast<size_type>( length ) ) );
 

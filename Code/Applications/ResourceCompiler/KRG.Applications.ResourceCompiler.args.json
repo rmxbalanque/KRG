@@ -7,12 +7,16 @@
       "Command": "Entity",
       "Items": [
         {
+          "Id": "0cd1ba0c-fc90-4e98-a81f-9c143eb88bae",
+          "Command": "-compile data://maps/ai_test.map"
+        },
+        {
           "Id": "a8fe4a3c-fd67-4929-9ae3-66b1e588d828",
           "Command": "-compile data://player/player.ec"
         },
         {
           "Id": "ad2d1983-6878-4258-afa3-81c0872a7d6b",
-          "Command": "-compile data://ai/grunt.ec"
+          "Command": "-compile data://ai/ai.ec"
         },
         {
           "Id": "7d8391f1-5e52-4e7e-b49e-8c142d55b97f",
@@ -44,6 +48,10 @@
       "Id": "41041334-3dbe-4662-bccb-3ad9de1b9edb",
       "Command": "Physics",
       "Items": [
+        {
+          "Id": "e09ffa37-b199-4382-8fd4-4d9403e66358",
+          "Command": "-compile data://testscenes/floor/floor.pmsh"
+        },
         {
           "Id": "e2cea9c5-2906-4fc8-99a0-4f5e64e6e7b8",
           "Command": "-compile data://physics/PhysicsMaterials.pmdb"

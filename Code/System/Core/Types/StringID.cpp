@@ -101,26 +101,25 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     StringID::StringID( char const* pStr )
-        : m_ID( Hash::GetHash32( pStr ) )
     {
-        if ( m_ID == g_invalidStringHash )
+        if ( pStr != nullptr )
         {
-            m_ID = 0;
-        }
-        else
-        {
-            // Cache the string
-            Threading::ScopeLock lock( g_stringCacheMutex );
-            auto iter = StringID::s_stringCache.find( m_ID );
-            if ( iter == StringID::s_stringCache.end() )
+            m_ID = Hash::GetHash32( pStr );
+            if ( m_ID != g_invalidStringHash )
             {
-                auto& nonConstStringMap = const_cast<StringID::StringCache&>( StringID::s_stringCache );
-                nonConstStringMap[m_ID] = StringID::CachedString( pStr );
+                // Cache the string
+                Threading::ScopeLock lock( g_stringCacheMutex );
+                auto iter = StringID::s_stringCache.find( m_ID );
+                if ( iter == StringID::s_stringCache.end() )
+                {
+                    auto& nonConstStringMap = const_cast<StringID::StringCache&>( StringID::s_stringCache );
+                    nonConstStringMap[m_ID] = StringID::CachedString( pStr );
+                }
             }
         }
     }
 
-    char const* StringID::ToString() const
+    char const* StringID::c_str() const
     {
         if ( m_ID == 0 )
         {

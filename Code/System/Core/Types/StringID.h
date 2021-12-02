@@ -30,6 +30,7 @@ namespace KRG
     public:
 
         StringID() = default;
+        explicit StringID( nullptr_t ) : m_ID( 0 ) {}
         explicit StringID( char const* pStr );
         explicit StringID( uint32 ID ) : m_ID( ID ) {}
         inline explicit StringID( String const& str ) : StringID( str.c_str() ) {}
@@ -40,8 +41,7 @@ namespace KRG
 
         inline void Clear() { m_ID = 0; }
 
-        char const* ToString() const;
-        inline char const* c_str() const { return ToString(); }
+        char const* c_str() const;
 
         inline bool operator==( StringID const& rhs ) const { return m_ID == rhs.m_ID; }
         inline bool operator!=( StringID const& rhs ) const { return m_ID != rhs.m_ID; }

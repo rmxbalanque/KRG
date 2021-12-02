@@ -83,5 +83,6 @@
     <ClInclude Include="Components\Component_PhysicsBox.h" />
     <ClInclude Include="Components\Component_PhysicsCapsule.h" />
     <ClInclude Include="Components\Component_PhysicsMesh.h" />
+    <ClInclude Include="Helper\PhysicsHelper.h" />
   </ItemGroup>
 </Project>

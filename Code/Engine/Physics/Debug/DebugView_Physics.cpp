@@ -1,7 +1,9 @@
 #include "DebugView_Physics.h"
 #include "Engine/Physics/PhysicsSystem.h"
-#include "Engine/Physics/Components/Component_Physics.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
+#include "Engine/Physics/Components/Component_PhysicsCapsule.h"
+#include "Engine/Physics/Components/Component_PhysicsSphere.h"
+#include "Engine/Physics/Components/Component_PhysicsBox.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
@@ -152,12 +154,31 @@ namespace KRG::Physics
 
     void PhysicsDebugView::DrawComponentsWindow( EntityUpdateContext const& context )
     {
+        InlineString<50> componentID;
+        bool selectedComponentValid = false;
+
         ImGui::SetNextWindowBgAlpha( 0.5f );
         if ( ImGui::Begin( "Physics Components", &m_isComponentWindowOpen ) )
         {
             for ( PhysicsComponent* pPhysicsComponent : m_pPhysicsWorldSystem->m_registeredPhysicsComponents )
             {
-                ImGui::Text( "%s", pPhysicsComponent->GetName().c_str() );
+                bool isSelectedComponent = pPhysicsComponent == m_pSelectedComponent;
+                selectedComponentValid |= isSelectedComponent;
+
+                componentID.sprintf( "%s##%u", pPhysicsComponent->GetName().c_str(), pPhysicsComponent->GetID().ToUint64() );
+                if ( ImGui::Selectable( componentID.c_str(), isSelectedComponent ) )
+                {
+                    if ( m_pSelectedComponent != nullptr && isSelectedComponent )
+                    {
+                        m_pSelectedComponent = nullptr;
+                    }
+                    else
+                    {
+                        m_pSelectedComponent = pPhysicsComponent;
+                        selectedComponentValid = true;
+                    }
+                }
+
                 if ( ImGui::IsItemHovered() )
                 {
                     auto drawingContext = context.GetDrawingContext();
@@ -167,6 +188,40 @@ namespace KRG::Physics
             }
         }
         ImGui::End();
+
+        //-------------------------------------------------------------------------
+
+        if ( selectedComponentValid )
+        {
+            if ( m_pSelectedComponent != nullptr )
+            {
+                DrawComponentVisualization( context, reinterpret_cast<PhysicsComponent*>( m_pSelectedComponent ) );
+            }
+        }
+        else
+        {
+            m_pSelectedComponent = nullptr;
+        }
+    }
+
+    void PhysicsDebugView::DrawComponentVisualization( EntityUpdateContext const& context, PhysicsComponent const* pComponent ) const
+    {
+        auto drawingContext = context.GetDrawingContext();
+
+        drawingContext.DrawAxis( pComponent->GetWorldTransform(), 0.5f, 3.0f );
+
+        if ( auto pCapsuleComponent = TryCast<CapsuleComponent>( pComponent ) )
+        {
+            drawingContext.DrawCapsule( pComponent->GetWorldTransform(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetCapsuleHalfHeight(), Colors::Cyan );
+        }
+        else if ( auto pSphereComponent = TryCast<SphereComponent>( pComponent ) )
+        {
+            drawingContext.DrawSphere( pComponent->GetWorldTransform(), Float3( pSphereComponent->GetRadius() ), Colors::Cyan );
+        }
+        else if ( auto pBoxComponent = TryCast<BoxComponent>( pComponent ) )
+        {
+            drawingContext.DrawBox( pComponent->GetWorldTransform(), pBoxComponent->GetExtents(), Colors::Cyan );
+        }
     }
 
     void PhysicsDebugView::DrawMaterialDatabaseWindow( EntityUpdateContext const& context )

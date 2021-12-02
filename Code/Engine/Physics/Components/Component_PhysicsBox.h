@@ -17,6 +17,8 @@ namespace KRG::Physics
 
         BoxComponent();
 
+        KRG_FORCE_INLINE Float3 const& GetExtents() const { return m_boxExtents; }
+
     private:
 
         virtual bool HasValidPhysicsSetup() const override final;

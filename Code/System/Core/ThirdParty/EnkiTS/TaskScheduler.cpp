@@ -99,11 +99,12 @@ namespace enki
 
     struct alignas(enki::gc_CacheLineSize) ThreadDataStore 
     {
-        std::atomic<ThreadState> threadState = { ENKI_THREAD_STATE_NONE };
         semaphoreid_t*           pWaitNewPinnedTaskSemaphore = nullptr;
-        char prevent_false_Share[ enki::gc_CacheLineSize - sizeof(std::atomic<ThreadState>) ];
+        std::atomic<ThreadState> threadState = { ENKI_THREAD_STATE_NONE };
+        char prevent_false_Share[ enki::gc_CacheLineSize - sizeof(std::atomic<ThreadState>) - sizeof(semaphoreid_t*) ];
     };
-    static_assert( sizeof( ThreadDataStore ) >= enki::gc_CacheLineSize, "ThreadDataStore may exhibit false sharing" );
+    constexpr size_t SIZEOFTHREADDATASTORE = sizeof( ThreadDataStore ); // for easier inspection
+    static_assert( SIZEOFTHREADDATASTORE == enki::gc_CacheLineSize, "ThreadDataStore may exhibit false sharing" );
 
     class PinnedTaskList : public LocklessMultiWriteIntrusiveList<IPinnedTask> {};
 
@@ -1298,8 +1299,8 @@ void TaskScheduler::SetCustomAllocator( CustomAllocator customAllocator_ )
 }
 
 Dependency::Dependency( const ICompletable* pDependencyTask_, ICompletable* pTaskToRunOnCompletion_ ) 
-    : pDependencyTask( pDependencyTask_ )
-    , pTaskToRunOnCompletion( pTaskToRunOnCompletion_ )
+    : pTaskToRunOnCompletion( pTaskToRunOnCompletion_ )
+    , pDependencyTask( pDependencyTask_ )
     , pNext( pDependencyTask->m_pDependents )
 {
     ENKI_ASSERT( pDependencyTask->GetIsComplete() );

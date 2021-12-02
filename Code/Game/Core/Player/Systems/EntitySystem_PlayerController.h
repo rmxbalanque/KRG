@@ -12,7 +12,7 @@ namespace KRG::Player
     {
         friend class PlayerDebugView;
 
-        KRG_REGISTER_ENTITY_SYSTEM( PlayerController, RequiresUpdate( UpdateStage::PrePhysics ), RequiresUpdate( UpdateStage::PostPhysics ) );
+        KRG_REGISTER_ENTITY_SYSTEM( PlayerController, RequiresUpdate( UpdateStage::PrePhysics ) );
 
         // List of all the state machine states
         //-------------------------------------------------------------------------

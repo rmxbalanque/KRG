@@ -62,6 +62,10 @@
   <ItemGroup>
     <ClInclude Include="AI\Components\Component_AI.h" />
     <ClInclude Include="AI\Components\Component_AISpawn.h" />
+    <ClInclude Include="AI\Components\Component_AIPhysics.h" />
+    <ClInclude Include="AI\DebugViews\DebugView_AI.h" />
+    <ClInclude Include="AI\PhysicsStates\AIPhysicsState_AnimDriven.h" />
+    <ClInclude Include="AI\Systems\EntitySystem_AIController.h" />
     <ClInclude Include="AI\Systems\WorldSystem_AIManager.h" />
     <ClInclude Include="GameplayPhysics\Component_GameplayPhysics.h" />
     <ClInclude Include="GameplayPhysics\GameplayPhysicsState.h" />
@@ -78,6 +82,10 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AI\Components\Component_AIPhysics.cpp" />
+    <ClCompile Include="AI\DebugViews\DebugView_AI.cpp" />
+    <ClCompile Include="AI\PhysicsStates\AIPhysicsState_AnimDriven.cpp" />
+    <ClCompile Include="AI\Systems\EntitySystem_AIController.cpp" />
     <ClCompile Include="AI\Systems\WorldSystem_AIManager.cpp" />
     <ClCompile Include="GameplayPhysics\Component_GameplayPhysics.cpp" />
     <ClCompile Include="Player\Components\Component_PlayerPhysics.cpp" />

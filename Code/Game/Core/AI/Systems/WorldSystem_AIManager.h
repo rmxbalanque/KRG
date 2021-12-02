@@ -9,11 +9,13 @@
 namespace KRG::AI
 {
     class AISpawnComponent;
+    class AIComponent;
 
     //-------------------------------------------------------------------------
 
     class KRG_GAME_CORE_API AIManager : public IWorldEntitySystem
     {
+        friend class AIDebugView;
 
     public:
 
@@ -32,6 +34,7 @@ namespace KRG::AI
     private:
 
         TVector<AISpawnComponent*>          m_spawnPoints;
+        TVector<AIComponent*>               m_AIs;
         bool                                m_hasSpawnedAI = false;
     };
 } 

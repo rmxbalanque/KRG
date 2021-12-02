@@ -8,6 +8,8 @@ namespace KRG::Navmesh
     {
         bfx::SystemCreate( bfx::SystemParams( 2.0f, bfx::Z_UP ), &m_allocator );
         bfx::RegisterPlannerSystem();
+        bfx::RegisterNavigatorSystem();
+        bfx::RegisterMoverSystem();
         bfx::SystemStart();
     }
 

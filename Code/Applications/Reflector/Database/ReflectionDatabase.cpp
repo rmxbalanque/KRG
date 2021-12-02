@@ -65,7 +65,7 @@ namespace KRG::TypeSystem::Reflection
         {
             sqlite3_close( m_pDatabase );
             m_pDatabase = nullptr;
-            m_errorMessage = String( "Couldn't open sqlite database: %s" ) + databasePath;
+            m_errorMessage.sprintf( "Couldn't open sqlite database: %s", databasePath.c_str() );
             return false;
         }
 
@@ -90,7 +90,7 @@ namespace KRG::TypeSystem::Reflection
     {
         if ( result != SQLITE_OK )
         {
-            m_errorMessage = String( sqlite3_errstr( result ) ) + " (" + sqlite3_errmsg( m_pDatabase ) + ")";
+            m_errorMessage.sprintf( "%s ( %s )", sqlite3_errstr(result), sqlite3_errmsg(m_pDatabase) );
             return false;
         }
 

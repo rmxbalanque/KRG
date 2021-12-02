@@ -34,6 +34,7 @@
     <ClCompile Include="NavmeshData.cpp" />
     <ClCompile Include="NavmeshSystem.cpp" />
     <ClCompile Include="Debug\NavmeshDebugRenderer.cpp" />
+    <ClCompile Include="Navpower.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\DebugView_Navmesh.h">

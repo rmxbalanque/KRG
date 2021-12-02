@@ -4,6 +4,7 @@
 #include "System/Core/Types/Percentage.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Types/BitFlags.h"
+#include "System/Core/Types/Tag.h"
 #include "System/Core/Time/Time.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Math/NumericRange.h"
@@ -30,6 +31,7 @@ namespace KRG::TypeSystem
         Double,
         UUID,
         StringID,
+        Tag,
         TypeID,
         String,
         Color,
@@ -137,6 +139,7 @@ namespace KRG::TypeSystem
     template<> inline bool IsCoreType<double>() { return true; }
     template<> inline bool IsCoreType<UUID>() { return true; }
     template<> inline bool IsCoreType<StringID>() { return true; }
+    template<> inline bool IsCoreType<Tag>() { return true; }
     template<> inline bool IsCoreType<TypeID>() { return true; }
     template<> inline bool IsCoreType<String>() { return true; }
     template<> inline bool IsCoreType<Color>() { return true; }
@@ -184,6 +187,7 @@ namespace KRG::TypeSystem
     template<> inline TypeID GetCoreTypeID<double>() { return GetCoreTypeID( CoreTypeID::Double ); }
     template<> inline TypeID GetCoreTypeID<UUID>() { return GetCoreTypeID( CoreTypeID::UUID ); }
     template<> inline TypeID GetCoreTypeID<StringID>() { return GetCoreTypeID( CoreTypeID::StringID ); }
+    template<> inline TypeID GetCoreTypeID<Tag>() { return GetCoreTypeID( CoreTypeID::Tag ); }
     template<> inline TypeID GetCoreTypeID<TypeID>() { return GetCoreTypeID( CoreTypeID::TypeID ); }
     template<> inline TypeID GetCoreTypeID<String>() { return GetCoreTypeID( CoreTypeID::String ); }
     template<> inline TypeID GetCoreTypeID<Color>() { return GetCoreTypeID( CoreTypeID::Color ); }

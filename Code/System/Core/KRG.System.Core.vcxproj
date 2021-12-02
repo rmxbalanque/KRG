@@ -461,6 +461,7 @@
     <ClInclude Include="Types\ScopedValue.h" />
     <ClInclude Include="Types\String.h" />
     <ClInclude Include="Types\StringID.h" />
+    <ClInclude Include="Types\Tag.h" />
     <ClInclude Include="Types\UUID.h" />
     <ClInclude Include="Update\UpdateContext.h" />
     <ClInclude Include="Update\UpdateStage.h" />
@@ -525,6 +526,7 @@
     <ClCompile Include="Time\TimeStamp.cpp" />
     <ClCompile Include="Types\Percentage.cpp" />
     <ClCompile Include="Types\StringID.cpp" />
+    <ClCompile Include="Types\Tag.cpp" />
     <ClCompile Include="Types\UUID.cpp" />
     <ClCompile Include="Types\Platform\Types_Win32.cpp" />
     <ClCompile Include="Update\UpdateContext.cpp" />

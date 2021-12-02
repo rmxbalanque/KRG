@@ -14,20 +14,18 @@ namespace KRG::Player
     public:
 
         void PredictMovement();
-        virtual Transform TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& deltaRotation, Vector const& deltaTranslation ) override;
+        virtual Transform TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, float const deltaTime, Quaternion const& deltaRotation, Vector const& deltaTranslation ) override;
 
     private:
 
         virtual void Activate() override;
         virtual void Deactivate() override;
 
+        Vector SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& rotation, Vector const& startPos, Vector const& endPos, int32 Idx );
+
     public:
 
         Vector m_deltaMovementHack = Vector::Zero;
         Quaternion m_deltaRotationHack = Quaternion::Identity;
-
-    private:
-
-        float m_verticalVelocity = 0.0f;
     };
 }

@@ -9,8 +9,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-map data://testscenes/ClothMesh.map</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-map data://testscenes/ClothMesh.map</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-map data://maps/br_nav.map</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-map data://maps/br_nav.map</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup>
     <ShowAllFiles>true</ShowAllFiles>

@@ -147,26 +147,46 @@ namespace KRG::Player
 
         //-------------------------------------------------------------------------
 
-        if ( ctx.GetUpdateStage() == UpdateStage::PrePhysics )
+        // Update gameplay action
+        UpdateStateMachine();
         {
-            UpdateStateMachine();
+            // Convert input into desired displacement
+            // Prediction if required (gameplay physic state)
+            // update animation controller
         }
-        else if ( ctx.GetUpdateStage() == UpdateStage::PostPhysics )
+
+        // Update animation component
+
+        // Move character capsule (gameplay physic state)
+
+        // update camera
+
+        auto pPhysicsSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
+        auto pLocomotionPhysicsState = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
+
+        // Move character
+        Transform const finalPosition = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState()->TryMoveCapsule( pPhysicsSystem, m_actionContext.m_pCapsuleComponent, ctx.GetDeltaTime(), Quaternion::Identity, pLocomotionPhysicsState->m_deltaMovementHack );
+        Transform const fromCapsuleToRoot = m_actionContext.m_pRootComponent->GetWorldTransform() * m_actionContext.m_pCapsuleComponent->GetWorldTransform().GetInverse();
+
+        Transform newTransform = fromCapsuleToRoot * finalPosition;
+        newTransform.SetRotation( pLocomotionPhysicsState->m_deltaRotationHack );
+
+        m_actionContext.m_pRootComponent->SetWorldTransform( newTransform );
+        m_actionContext.m_pCameraComponent->FinalizeCameraPosition();
+
+        //-------------------------------------------------------------------------
+        // DEBUG
+        pPhysicsSystem->AcquireReadLock();
+        Physics::QueryFilter filter;
+        Physics::OverlapResults overlapResult;
+        filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
+        filter.AddIgnoredEntity( m_actionContext.m_pCapsuleComponent->GetEntityID() );
+        if( pPhysicsSystem->CapsuleOverlap( m_actionContext.m_pCapsuleComponent->GetCylinderPortionHalfHeight(), m_actionContext.m_pCapsuleComponent->GetRadius(), m_actionContext.m_pCapsuleComponent->GetOrientation(), m_actionContext.m_pCapsuleComponent->GetPosition(), filter, overlapResult ) )
         {
-            auto pPhysicsWorld = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
-            auto pLocomotionPhysicsState = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
-
-            // Move character
-            auto pPhysicsSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
-            Transform const finalPosition = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState()->TryMoveCapsule( pPhysicsSystem, m_actionContext.m_pCapsuleComponent, Quaternion::Identity, pLocomotionPhysicsState->m_deltaMovementHack );
-            Transform const fromCapsuleToRoot = m_actionContext.m_pRootComponent->GetWorldTransform() * m_actionContext.m_pCapsuleComponent->GetWorldTransform().GetInverse();
-
-            Transform newTransform = fromCapsuleToRoot * finalPosition;
-            newTransform.SetRotation( pLocomotionPhysicsState->m_deltaRotationHack );
-            
-            m_actionContext.m_pRootComponent->SetWorldTransform( newTransform );
-            m_actionContext.m_pCameraComponent->FinalizeCameraPosition();
+            KRG_LOG_MESSAGE( "Physics", "Ended the frame in overlap" );
         }
+        pPhysicsSystem->ReleaseReadLock();
+        //-------------------------------------------------------------------------
     }
 
     //-------------------------------------------------------------------------

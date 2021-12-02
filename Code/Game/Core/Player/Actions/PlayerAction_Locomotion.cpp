@@ -16,22 +16,21 @@ namespace KRG::Player
 
         // Update camera rotation
         //-------------------------------------------------------------------------
-
         Vector cameraInputs = pControllerState->GetRightAnalogStickValue();
 
         Radians const maxAngularVelocity = Math::Pi;
-        Radians maxAngularVelocityForThisFrame = maxAngularVelocity * ctx.GetDeltaTime();
+        Radians const maxAngularVelocityForThisFrame = maxAngularVelocity * ctx.GetDeltaTime();
 
         cameraInputs.Normalize2();
         cameraInputs *= maxAngularVelocityForThisFrame;
         ctx.m_pCameraComponent->AdjustOrbitAngle( cameraInputs.m_x, cameraInputs.m_y );
 
-        // Move Player
+        // Calculate desired player displacement
         //-------------------------------------------------------------------------
         Float2 movementInputs = pControllerState->GetLeftAnalogStickValue();
 
         float const maxLinearVelocity = 12.0f;
-        float maxLinearVelocityForThisFrame = maxLinearVelocity * ctx.GetDeltaTime();
+        float const maxLinearVelocityForThisFrame = maxLinearVelocity * ctx.GetDeltaTime();
 
         auto const camFwd = ctx.m_pCameraComponent->GetCameraRelativeForwardVector().GetNormalized2();
         auto const camRight = ctx.m_pCameraComponent->GetCameraRelativeRightVector().GetNormalized2();
@@ -40,14 +39,24 @@ namespace KRG::Player
         auto forward = camFwd * movementInputs.m_y;
         auto right = camRight * movementInputs.m_x;
 
+        Vector const desiredDeltaDisplacement = ( forward * maxLinearVelocityForThisFrame ) + ( right * maxLinearVelocityForThisFrame );
+        // For now the desired delta rotation is the actual rotation and not a delta because it would be hard to calculate because of the hackery for the animation
+        Quaternion const desiredDeltaRotation = !desiredDeltaDisplacement.IsZero2() ? Quaternion::FromNormalizedOrientationVector( desiredDeltaDisplacement.GetNormalized2() ) : Quaternion::Identity;
+
+        // Run physic Prediction if required
+        //-------------------------------------------------------------------------
+        // nothing for now
+        
+        // Update animation controller
+        //-------------------------------------------------------------------------
+        // nothing for now
+
+        // HACK (this is only because we don't have animation yet)
+        //-------------------------------------------------------------------------
         auto pLocomotionPhysicsState = ctx.m_pPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
-
-        pLocomotionPhysicsState->m_deltaMovementHack = ( forward * maxLinearVelocityForThisFrame ) + ( right * maxLinearVelocityForThisFrame );
-
-        if ( !pLocomotionPhysicsState->m_deltaMovementHack.IsZero2() )
-        {
-            pLocomotionPhysicsState->m_deltaRotationHack = Quaternion::FromNormalizedOrientationVector( pLocomotionPhysicsState->m_deltaMovementHack.GetNormalized2() );
-        }
+        pLocomotionPhysicsState->m_deltaMovementHack = desiredDeltaDisplacement;
+        pLocomotionPhysicsState->m_deltaRotationHack = desiredDeltaRotation;
+        //-------------------------------------------------------------------------
 
         return Status::Running;
     }

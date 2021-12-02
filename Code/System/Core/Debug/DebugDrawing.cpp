@@ -348,10 +348,10 @@ namespace KRG::Debug
         Vector const origin = worldTransform.GetTranslation();
         Vector const halfHeightOffset = ( axisZ * halfHeight );
 
-        Transform const cylinderTop( Quaternion::Identity, origin + halfHeightOffset );
+        Transform const cylinderTop( worldTransform.GetRotation(), origin + halfHeightOffset );
 
         // Rotate the transform 180 degrees
-        static Quaternion const Rotation( EulerAngles( 0, 180, 0 ) );
+        Quaternion const Rotation( Quaternion( EulerAngles( 0, 180, 0 ) ) * worldTransform.GetRotation() );
         Transform const cylinderBottom( Rotation, origin - halfHeightOffset );
 
         // Caps

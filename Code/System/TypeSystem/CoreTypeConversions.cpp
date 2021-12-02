@@ -4,6 +4,7 @@
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/Time/Time.h"
+#include "System/Core/Types/Tag.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Types/UUID.h"
 #include "System/Core/Types/StringID.h"
@@ -210,7 +211,7 @@ namespace KRG::TypeSystem::Conversion
                     return false;
                 }
 
-                strValue += label.ToString();
+                strValue += label.c_str();
                 strValue += "|";
             }
         }
@@ -381,6 +382,12 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypeID::StringID :
                 {
                     *reinterpret_cast<StringID*>( pValue ) = StringID( str.c_str() );
+                }
+                break;
+
+                case CoreTypeID::Tag:
+                {
+                    *reinterpret_cast<Tag*>( pValue ) = Tag::FromTagFormatString( str );
                 }
                 break;
 
@@ -747,9 +754,15 @@ namespace KRG::TypeSystem::Conversion
 
                 case CoreTypeID::StringID:
                 {
-                    char const* pStr = reinterpret_cast<StringID const*>( pValue )->ToString();
+                    char const* pStr = reinterpret_cast<StringID const*>( pValue )->c_str();
                     KRG_ASSERT( pStr != nullptr );
                     strValue = pStr;
+                }
+                break;
+
+                case CoreTypeID::Tag:
+                {
+                    strValue = reinterpret_cast<Tag const*>( pValue )->ToString();
                 }
                 break;
 
@@ -1116,6 +1129,12 @@ namespace KRG::TypeSystem::Conversion
                 }
                 break;
 
+                case CoreTypeID::Tag:
+                {
+                    archive << *reinterpret_cast<Tag const*>( pValue );
+                }
+                break;
+
                 case CoreTypeID::TypeID:
                 {
                     archive << reinterpret_cast<TypeID const*>( pValue )->ToStringID();
@@ -1417,6 +1436,12 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypeID::StringID:
                 {
                     archive >> *reinterpret_cast<StringID*>( pValue );
+                }
+                break;
+
+                case CoreTypeID::Tag:
+                {
+                   archive >> *reinterpret_cast<Tag*>( pValue );
                 }
                 break;
 
@@ -1724,6 +1749,12 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypeID::StringID:
                 {
                     return ConvertToBinary<StringID>( typeRegistry, typeID, templateArgumentTypeID, strValue, byteArray );
+                }
+                break;
+
+                case CoreTypeID::Tag:
+                {
+                    return ConvertToBinary<Tag>( typeRegistry, typeID, templateArgumentTypeID, strValue, byteArray );
                 }
                 break;
 

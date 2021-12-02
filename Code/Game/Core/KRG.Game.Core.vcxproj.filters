@@ -61,6 +61,10 @@
     <ClCompile Include="Player\Actions\PlayerAction_Locomotion.cpp" />
     <ClCompile Include="Player\Actions\PlayerOverlayAction_Shoot.cpp" />
     <ClCompile Include="Player\DebugViews\DebugView_Player.cpp" />
+    <ClCompile Include="AI\Systems\EntitySystem_AIController.cpp" />
+    <ClCompile Include="AI\Components\Component_AIPhysics.cpp" />
+    <ClCompile Include="AI\PhysicsStates\AIPhysicsState_AnimDriven.cpp" />
+    <ClCompile Include="AI\DebugViews\DebugView_AI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -105,5 +109,9 @@
     <ClInclude Include="Player\Actions\PlayerAction_Jump.h" />
     <ClInclude Include="Player\Actions\PlayerAction_Locomotion.h" />
     <ClInclude Include="Player\DebugViews\DebugView_Player.h" />
+    <ClInclude Include="AI\Systems\EntitySystem_AIController.h" />
+    <ClInclude Include="AI\Components\Component_AIPhysics.h" />
+    <ClInclude Include="AI\PhysicsStates\AIPhysicsState_AnimDriven.h" />
+    <ClInclude Include="AI\DebugViews\DebugView_AI.h" />
   </ItemGroup>
 </Project>

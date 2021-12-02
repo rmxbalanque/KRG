@@ -183,7 +183,7 @@ namespace KRG
                             FieldTypeInfo fieldTypeInfo;
                             GetFieldTypeInfo( pContext, pClass, type, fieldTypeInfo );
                             KRG_ASSERT( !fieldTypeInfo.m_name.empty() );
-                            auto fieldTypeID = StringID( fieldTypeInfo.m_name );
+                            StringID fieldTypeID( fieldTypeInfo.m_name );
 
                             // Additional processing for special types
                             //-------------------------------------------------------------------------

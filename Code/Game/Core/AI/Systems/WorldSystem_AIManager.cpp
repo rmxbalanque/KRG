@@ -1,5 +1,6 @@
 #include "WorldSystem_AIManager.h"
 #include "Game/Core/AI/Components/Component_AISpawn.h"
+#include "Game/Core/AI/Components/Component_AI.h"
 #include "Engine/Core/Entity/Entity.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "Engine/Core/Entity/EntityMap.h"
@@ -21,6 +22,11 @@ namespace KRG::AI
         {
             m_spawnPoints.emplace_back( pSpawnComponent );
         }
+
+        if ( auto pAIComponent = TryCast<AIComponent>( pComponent ) )
+        {
+            m_AIs.emplace_back( pAIComponent );
+        }
     }
 
     void AIManager::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
@@ -28,6 +34,11 @@ namespace KRG::AI
         if ( auto pSpawnComponent = TryCast<AISpawnComponent>( pComponent ) )
         {
             m_spawnPoints.erase_first_unsorted( pSpawnComponent );
+        }
+
+        if ( auto pAIComponent = TryCast<AIComponent>( pComponent ) )
+        {
+            m_AIs.erase_first( pAIComponent );
         }
     }
 

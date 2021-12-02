@@ -358,7 +358,7 @@ namespace KRG::CPP
         VPrintf( buffer, 256, pErrorFormat, args );
         va_end( args );
 
-        m_errorMessage = String( buffer );
+        m_errorMessage.assign( buffer );
         return false;
     }
 

@@ -30,12 +30,44 @@ namespace KRG::Physics
     template<int N>
     struct SweepResultBuffer : public physx::PxHitBuffer<physx::PxSweepHit>
     {
+        friend class PhysicsWorldSystem;
+
+    public:
+
         SweepResultBuffer() : physx::PxHitBuffer<physx::PxSweepHit>( m_hits, N ) {}
-        inline Vector GetCollisionPosition() const { KRG_ASSERT( hasBlock ); return Vector::MultiplyAdd( ( m_end - m_start ).GetNormalized3(), Float3( block.distance ), m_start ); }
+
+        KRG_FORCE_INLINE bool HadInitialOverlap() const { return hasBlock && block.hadInitialOverlap(); }
+        KRG_FORCE_INLINE Vector GetShapePosition() const { return m_finalShapePosition; }
+
+    private:
+
+        inline void CalculateFinalShapePosition( float epsilon )
+        {
+            if ( !hasBlock )
+            {
+                m_finalShapePosition = m_sweepEnd;
+            }
+            else if ( block.hadInitialOverlap() )
+            {
+                m_finalShapePosition = m_sweepStart;
+            }
+            else // Regular blocking hit
+            {
+                Vector sweepDirection;
+                float sweepDistance = 0.0f;
+                ( m_sweepEnd - m_sweepStart ).ToDirectionAndLength3( sweepDirection, sweepDistance );
+
+                Vector const finalSweepDistance( Math::Max( 0.0f, ( block.distance - epsilon ) ) );
+                m_finalShapePosition = Vector::MultiplyAdd( sweepDirection, finalSweepDistance, m_sweepStart );
+            }
+        }
+
+    public:
 
         Quaternion              m_orientation = Quaternion::Identity;
-        Vector                  m_start;
-        Vector                  m_end;
+        Vector                  m_sweepStart;
+        Vector                  m_sweepEnd;
+        Vector                  m_finalShapePosition;
         physx::PxSweepHit       m_hits[N];
     };
 

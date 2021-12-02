@@ -2,6 +2,10 @@
 #include "System/Core/Algorithm/Hash.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 
+#if KRG_DEVELOPMENT_TOOLS
+#include "imgui.h"
+#endif
+
 //-------------------------------------------------------------------------
 
 namespace KRG
@@ -60,6 +64,7 @@ namespace KRG::Player
 
         EntityUpdateContext const*              m_pEntityUpdateContext = nullptr;
         Input::InputSystem*                     m_pInputSystem = nullptr;
+
         MainPlayerComponent*                    m_pPlayerComponent = nullptr;
         SpatialEntityComponent*                 m_pRootComponent = nullptr;
         Physics::CapsuleComponent*              m_pCapsuleComponent = nullptr;
@@ -127,7 +132,11 @@ namespace KRG::Player
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
+        // Returns a friendly name for the action
         virtual char const* GetName() const = 0;
+
+        // Override this function to draw custom imgui controls in the action debugger UI
+        virtual void DrawDebugUI() { ImGui::Text( "No Debug" ); }
         #endif
 
     protected:

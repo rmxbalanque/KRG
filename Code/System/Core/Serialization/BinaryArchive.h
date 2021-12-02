@@ -115,7 +115,7 @@ namespace KRG
             {
                 KRG_ASSERT( m_mode == Mode::Write );
                 auto& archive = *reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
-                archive << std::forward<T>( type );
+                archive( std::forward<T>( type ) );
                 return *this;
             }
 
@@ -124,7 +124,7 @@ namespace KRG
             {
                 KRG_ASSERT( m_mode == Mode::Read );
                 auto& archive = *reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
-                archive >> std::forward<T>( type );
+                archive( std::forward<T>( type ) );
                 return *this;
             }
 

@@ -17,6 +17,8 @@ namespace KRG::Physics
 
         SphereComponent();
 
+        KRG_FORCE_INLINE float GetRadius() const { return m_radius; }
+
     private:
 
         virtual bool HasValidPhysicsSetup() const override final;

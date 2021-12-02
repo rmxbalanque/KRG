@@ -50,6 +50,7 @@ namespace KRG::TypeSystem
         REGISTER_TYPE_RECORD( CoreTypeID::Double, double );
         REGISTER_TYPE_RECORD( CoreTypeID::UUID, KRG::UUID );
         REGISTER_TYPE_RECORD( CoreTypeID::StringID, KRG::StringID );
+        REGISTER_TYPE_RECORD( CoreTypeID::Tag, KRG::Tag );
         REGISTER_TYPE_RECORD( CoreTypeID::TypeID, KRG::TypeSystem::TypeID );
         REGISTER_TYPE_RECORD( CoreTypeID::String, KRG::String );
         REGISTER_TYPE_RECORD( CoreTypeID::Color, KRG::Color );

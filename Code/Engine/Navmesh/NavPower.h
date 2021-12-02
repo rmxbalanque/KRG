@@ -8,6 +8,9 @@
 #include <bfxSystem.h>
 #include <bfxPlannerSpace.h>
 
+// HACK
+#include <bfxMover.h>
+
 //-------------------------------------------------------------------------
 
 namespace KRG::Debug { class DrawingSystem; }
@@ -73,10 +76,16 @@ namespace KRG::Navmesh
 
     class NavPowerAllocator final : public bfx::CustomAllocator
     {
-        virtual void* CustomMalloc( uint32 size ) override final { return KRG::Alloc( size ); }
-        virtual void* CustomAlignedMalloc( uint32 alignment, uint32 size ) override final { return KRG::Alloc( size, alignment ); }
+        virtual void* CustomMalloc( size_t size ) override final { return KRG::Alloc( size ); }
+        virtual void* CustomAlignedMalloc( uint32 alignment, size_t size ) override final { return KRG::Alloc( size, alignment ); }
         virtual void CustomFree( void* ptr ) override final { KRG::Free( ptr ); }
         virtual bool IsThreadSafe() const override final { return true; }
         virtual const char* GetName() const override { return "KRUGER"; }
     };
+
+    // HACK
+    //-------------------------------------------------------------------------
+
+    KRG_ENGINE_NAVMESH_API bfx::Mover* CreateMover( Vector const& pos, Quaternion const& rot, bfx::MoverTune* pTune );
+    KRG_ENGINE_NAVMESH_API void DestroyMover( bfx::Mover* pMover );
 }

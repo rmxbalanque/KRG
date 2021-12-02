@@ -136,6 +136,10 @@ namespace KRG
         KRG_EXPOSE FloatRange                                                   m_floatRange;
         KRG_EXPOSE FloatCurve                                                   m_floatCurve;
 
+        // Tags
+        KRG_EXPOSE Tag                                                          m_tag;
+        KRG_EXPOSE TVector<Tag>                                                 m_tags;
+
         // Enums
         KRG_EXPOSE InternalEnum                                                 m_internalEnum = InternalEnum::Cow;
         KRG_EXPOSE InternalTest::Enum                                           m_testInternalEnum = InternalTest::Enum::Bar;

@@ -30,7 +30,7 @@ namespace KRG::EntityModel
             writer.StartObject();
 
             writer.Key( "Name" );
-            writer.String( componentDesc.m_name.ToString() );
+            writer.String( componentDesc.m_name.c_str() );
 
             if ( componentDesc.m_spatialParentName.IsValid() )
             {
@@ -41,7 +41,7 @@ namespace KRG::EntityModel
             if ( componentDesc.m_attachmentSocketID.IsValid() )
             {
                 writer.Key( "AttachmentSocketID" );
-                writer.String( componentDesc.m_attachmentSocketID.ToString() );
+                writer.String( componentDesc.m_attachmentSocketID.c_str() );
             }
 
             //-------------------------------------------------------------------------
@@ -80,12 +80,12 @@ namespace KRG::EntityModel
             writer.StartObject();
 
             writer.Key( "Name" );
-            writer.String( entityDesc.m_name.ToString() );
+            writer.String( entityDesc.m_name.c_str() );
 
             if ( entityDesc.m_attachmentSocketID.IsValid() )
             {
                 writer.Key( "AttachmentSocketID" );
-                writer.String( entityDesc.m_attachmentSocketID.ToString() );
+                writer.String( entityDesc.m_attachmentSocketID.c_str() );
             }
 
             //-------------------------------------------------------------------------

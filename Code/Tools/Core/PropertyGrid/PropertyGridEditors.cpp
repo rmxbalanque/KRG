@@ -1641,6 +1641,72 @@ namespace KRG::TypeSystem
 
     //-------------------------------------------------------------------------
 
+    class TagEditor final : public PropertyEditor
+    {
+    public:
+
+        TagEditor( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
+            : PropertyEditor( typeRegistry, propertyInfo, m_pPropertyInstance )
+        {
+            TagEditor::ResetWorkingCopy();
+        }
+
+        virtual bool InternalUpdateAndDraw() override
+        {
+            //float const cellContentWidth = ImGui::GetContentRegionAvail().x;
+            //float const childWindowWidth = 80;
+            //float const textAreaWidth = cellContentWidth - childWindowWidth - g_itemSpacing;
+
+            ////-------------------------------------------------------------------------
+
+            //ImGui::SetNextItemWidth( childWindowWidth );
+            //ImGui::PushStyleColor( ImGuiCol_Text, Colors::LightGreen.ToUInt32_ABGR() );
+            //ImGui::InputText( "##IDString", m_IDString.data(), m_IDString.length(), ImGuiInputTextFlags_ReadOnly );
+            //ImGui::PopStyleColor();
+
+            ////-------------------------------------------------------------------------
+
+            //ImGui::SetNextItemWidth( textAreaWidth );
+            //ImGui::SameLine( 0, g_itemSpacing );
+            //ImGui::InputText( "##StringInput", m_buffer_imgui, 256 );
+            //return ImGui::IsItemDeactivatedAfterEdit();
+
+            ImGui::Text( "WIP" );
+            return false;
+        }
+
+        virtual void UpdateInstanceValue() override
+        {
+            /*auto pValue = reinterpret_cast<StringID*>( m_pPropertyInstance );
+            strcpy_s( m_buffer_cached, 256, m_buffer_imgui );
+            *pValue = StringID( m_buffer_cached );
+            m_IDString.sprintf( "%u", pValue->GetID() );*/
+        }
+
+        virtual void ResetWorkingCopy() override
+        {
+            /*auto pValue = reinterpret_cast<StringID*>( m_pPropertyInstance );
+            strcpy_s( m_buffer_imgui, 256, pValue->c_str() );
+            strcpy_s( m_buffer_cached, 256, pValue->c_str() );
+            m_IDString.sprintf( "%u", pValue->GetID() );*/
+        }
+
+        virtual void HandleExternalUpdate() override
+        {
+            /*auto pActualValue = reinterpret_cast<StringID*>( m_pPropertyInstance );
+            if ( strcmp( pActualValue->c_str(), m_buffer_cached ) != 0 )
+            {
+                strcpy_s( m_buffer_imgui, 256, pActualValue->c_str() );
+                strcpy_s( m_buffer_cached, 256, pActualValue->c_str() );
+                m_IDString.sprintf( "%u", pActualValue->GetID() );
+            }*/
+        }
+
+    private:
+    };
+
+    //-------------------------------------------------------------------------
+
     class IntRangeEditor final : public PropertyEditor
     {
     public:
@@ -2000,6 +2066,12 @@ namespace KRG::TypeSystem
                 case CoreTypeID::StringID:
                 {
                     return KRG::New<StringIDEditor>( typeRegistry, propertyInfo, m_pPropertyInstance );
+                }
+                break;
+
+                case CoreTypeID::Tag:
+                {
+                    return KRG::New<TagEditor>( typeRegistry, propertyInfo, m_pPropertyInstance );
                 }
                 break;
 

@@ -74,16 +74,51 @@ namespace KRG::Player
             }
             else
             {
-                for ( auto pBaseAction : pPlayerController->m_baseActions )
+                // Overlay Actions
+                //-------------------------------------------------------------------------
+
+                if ( ImGui::CollapsingHeader( "Overlay Actions", ImGuiTreeNodeFlags_DefaultOpen ) )
                 {
-                    ImVec4 const color = pBaseAction->IsActive() ? Colors::LimeGreen.ToFloat4() : (ImVec4) ImGuiX::Style::s_textColor;
-                    ImGui::TextColored( color, "%s", pBaseAction->GetName() );
+                    if ( ImGui::BeginTable( "OverlayActionsTable", 2, ImGuiTableFlags_Borders ) )
+                    {
+                        ImGui::TableSetupColumn( "Action", ImGuiTableColumnFlags_WidthStretch );
+                        ImGui::TableSetupColumn( "##State", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 16 );
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableHeadersRow();
+
+                        for ( auto pOverlayAction : pPlayerController->m_overlayActions )
+                        {
+                            ImVec4 const color = pOverlayAction->IsActive() ? Colors::LimeGreen.ToFloat4() : (ImVec4) ImGuiX::Style::s_textColor;
+
+                            ImGui::TableNextRow();
+
+                            ImGui::TableSetColumnIndex( 0 );
+                            ImGui::TextColored( color, "%s", pOverlayAction->GetName() );
+
+                            ImGui::TableSetColumnIndex( 1 );
+                            ImGui::TextColored( color, pOverlayAction->IsActive() ? KRG_ICON_CHECK : KRG_ICON_TIMES );
+                        }
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::EndTable();
+                    }
                 }
 
-                for ( auto pOverlayAction : pPlayerController->m_overlayActions )
+                // Base Actions
+                //-------------------------------------------------------------------------
+                
+                Action* pBaseAction = ( pPlayerController->m_activeBaseActionID != PlayerController::InvalidAction ) ? pPlayerController->m_baseActions[pPlayerController->m_activeBaseActionID] : nullptr;
+                InlineString<50> const headerString( InlineString<50>::CtorSprintf(), "Base Action: %s###BaseActionHeader", ( pBaseAction != nullptr ) ? pBaseAction->GetName() : "None" );
+
+                if ( ImGui::CollapsingHeader( headerString.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
                 {
-                    ImVec4 const color = pOverlayAction->IsActive() ? Colors::LimeGreen.ToFloat4() : (ImVec4) ImGuiX::Style::s_textColor;
-                    ImGui::TextColored( color, "%s", pOverlayAction->GetName() );
+                    if( pBaseAction != nullptr )
+                    {
+                        pBaseAction->DrawDebugUI();
+                    }
                 }
             }
         }

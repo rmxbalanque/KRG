@@ -289,7 +289,7 @@ namespace KRG::TypeSystem::Serialization
                 if ( propInfo.IsArrayProperty() )
                 {
                     // Try get serialized value
-                    const char* pPropertyName = propInfo.m_ID.ToString();
+                    const char* pPropertyName = propInfo.m_ID.c_str();
                     auto const propertyNameIter = currentJsonValue.FindMember( pPropertyName );
                     if ( propertyNameIter == currentJsonValue.MemberEnd() )
                     {
@@ -342,7 +342,7 @@ namespace KRG::TypeSystem::Serialization
                 else // Non-array type
                 {
                     // Try get serialized value
-                    const char* pPropertyName = propInfo.m_ID.ToString();
+                    const char* pPropertyName = propInfo.m_ID.c_str();
                     auto const propertyValueIter = currentJsonValue.FindMember( pPropertyName );
                     if ( propertyValueIter == currentJsonValue.MemberEnd() )
                     {
@@ -420,7 +420,7 @@ namespace KRG::TypeSystem::Serialization
             for ( auto const& propInfo : pTypeInfo->m_properties )
             {
                 // Write Key
-                const char* pPropertyName = propInfo.m_ID.ToString();
+                const char* pPropertyName = propInfo.m_ID.c_str();
                 KRG_ASSERT( pPropertyName != nullptr );
                 writer.Key( pPropertyName );
 
