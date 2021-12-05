@@ -1,6 +1,6 @@
 #include "ResourceBrowser.h"
 #include "System/Core/Profiling/Profiling.h"
-#include "RawFileInspectors/RawFileInspector.h"
+#include "RawResourceInspectors/RawResourceInspector.h"
 
 //-------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ namespace KRG
     {
         m_treeView.OnItemDoubleClicked().Unbind( m_onDoubleClickEventID );
 
-        KRG::Delete( m_pRawFileInspector );
+        KRG::Delete( m_pRawResourceInspector );
     }
 
     //-------------------------------------------------------------------------
@@ -42,11 +42,11 @@ namespace KRG
         // File Inspector dialog
         //-------------------------------------------------------------------------
 
-        if ( m_pRawFileInspector != nullptr )
+        if ( m_pRawResourceInspector != nullptr )
         {
-            if ( !m_pRawFileInspector->DrawDialog() )
+            if ( !m_pRawResourceInspector->DrawDialog() )
             {
-                KRG::Delete( m_pRawFileInspector );
+                KRG::Delete( m_pRawResourceInspector );
             }
         }
 
@@ -247,9 +247,9 @@ namespace KRG
         }
         else // Try create file inspector
         {
-            if ( RawFileInspectorFactory::CanCreateInspector( pResourceFileItem->GetFilePath() ) )
+            if ( Resource::RawResourceInspectorFactory::CanCreateInspector( pResourceFileItem->GetFilePath() ) )
             {
-                m_pRawFileInspector = RawFileInspectorFactory::TryCreateInspector( &m_model, pResourceFileItem->GetFilePath() );
+                m_pRawResourceInspector = Resource::RawResourceInspectorFactory::TryCreateInspector( *m_model.GetTypeRegistry(), m_model.GetSourceResourceDirectory(), pResourceFileItem->GetFilePath() );
             }
         }
     }

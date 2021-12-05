@@ -5,7 +5,7 @@
 #include "Game/Core/Player/Actions/PlayerAction.h"
 
 // HACK
-//#include "bfxMover.h"
+#include "bfxMover.h"
 
 //-------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ namespace KRG::AI
     private:
 
         // HACK
-        //bfx::MoverTune  m_tune;
-        //bfx::Mover*     m_pMover = nullptr;
+        bfx::MoverTune  m_tune;
+        bfx::Mover*     m_pMover = nullptr;
     };
 }

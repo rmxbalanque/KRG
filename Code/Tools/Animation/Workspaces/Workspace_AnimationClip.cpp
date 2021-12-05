@@ -9,6 +9,7 @@
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/DevUI/NumericUIHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -171,30 +172,26 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text( "Frame: %06.2f / %d", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetNumFrames(), m_pResource->GetNumFrames() );
+        ImGui::SetNextItemWidth( 46 );
+        if ( ImGui::BeginCombo( "##AnimOptions", KRG_ICON_COG, ImGuiComboFlags_HeightLarge ) )
+        {
+            ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 16, 16 ) );
+            ImGui::MenuItem( "Root Motion", nullptr, &m_isRootMotionEnabled );
+            ImGui::PopStyleVar();
 
-        ImGuiX::VerticalSeparator();
+            ImGui::EndCombo();
+        }
 
-        ImGui::Text( "Time: %05.2fs / %05.2fs", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetDuration(), m_pResource->GetDuration().ToFloat() );
+        ImGui::Indent();
 
-        ImGuiX::VerticalSeparator();
+        ImVec4 const color = ImGuiX::ConvertColor( Colors::Yellow );
+        ImGui::TextColored( color, "Avg Linear Velocity: %.2fm/s", m_pResource->GetAverageLinearVelocity() );
+        ImGui::TextColored( color, "Avg Angular Velocity: %.2fm/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
+        ImGui::TextColored( color, "Distance Covered: %.2fm", m_pResource->GetTotalRootMotionDelta().GetTranslation().GetLength3() );
+        ImGui::TextColored( color, "Frame: %.f/%d", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetNumFrames(), m_pResource->GetNumFrames() );
+        ImGui::TextColored( color, "Time: %.2fs/%0.2fs", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetDuration(), m_pResource->GetDuration().ToFloat() );
 
-        ImGui::Text( "Avg Linear Velocity: %.2fm/s", m_pResource->GetAverageLinearVelocity() );
-
-        ImGuiX::VerticalSeparator();
-
-        ImGui::Text( "Avg Angular Velocity: %.2fm/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
-
-        ImGuiX::VerticalSeparator();
-
-        ImGui::Text( "Distance Covered: %.2fm", m_pResource->GetTotalRootMotionDelta().GetTranslation().GetLength3() );
-
-        ImGuiX::VerticalSeparator();
-
-        ImGui::Checkbox( "Root Motion", &m_isRootMotionEnabled );
-
-        ImGuiX::VerticalSeparator();
+        ImGui::Unindent();
     }
 
     void AnimationClipWorkspace::DrawTimelineWindow( UpdateContext const& context )
@@ -263,33 +260,25 @@ namespace KRG::Animation
 
                         //-------------------------------------------------------------------------
 
-                        Transform const rootTransform = m_isRootMotionEnabled ? m_pResource->GetRootTransform( m_pAnimationComponent->GetAnimTime() ) : Transform::Identity;
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "0. Root" );
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "Rot: %s", Math::ToString( rootTransform.GetRotation() ).c_str() );
-                        ImGui::Text( "Tra: %s", Math::ToString( rootTransform.GetTranslation() ).c_str() );
-                        ImGui::Text( "Scl: %s", Math::ToString( rootTransform.GetScale() ).c_str() );
-
-                        //-------------------------------------------------------------------------
-
                         Skeleton const* pSkeleton = pPose->GetSkeleton();
                         int32 const numBones = pSkeleton->GetNumBones();
 
-                        for ( auto i = 1; i < numBones; i++ )
+                        ImGuiListClipper clipper;
+                        clipper.Begin( numBones );
+                        while ( clipper.Step() )
                         {
-                            Transform const& boneTransform = pPose->GetGlobalTransform( i );
+                            for ( int boneIdx = clipper.DisplayStart; boneIdx < clipper.DisplayEnd; boneIdx++ )
+                            {
+                                Transform const& boneTransform = ( boneIdx == 0 ) ? m_pResource->GetRootTransform( m_pAnimationComponent->GetAnimTime() ) : pPose->GetGlobalTransform( boneIdx );
 
-                            ImGui::TableNextColumn();
-                            ImGui::Text( "%d. %s", i, pSkeleton->GetBoneID( i ).c_str() );
+                                ImGui::TableNextColumn();
+                                ImGui::Text( "%d. %s", boneIdx, pSkeleton->GetBoneID( boneIdx ).c_str() );
 
-                            ImGui::TableNextColumn();
-                            ImGui::Text( "Rot: %s", Math::ToString( boneTransform.GetRotation() ).c_str() );
-                            ImGui::Text( "Tra: %s", Math::ToString( boneTransform.GetTranslation() ).c_str() );
-                            ImGui::Text( "Scl: %s", Math::ToString( boneTransform.GetScale() ).c_str() );
+                                ImGui::TableNextColumn();
+                                ImGuiX::DisplayTransform( boneTransform );
+                            }
                         }
+                        clipper.End();
 
                         ImGui::EndTable();
                     }

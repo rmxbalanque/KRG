@@ -42,6 +42,7 @@ namespace KRG
         // Get the debug drawing context for this world - threadsafe
         #if KRG_DEVELOPMENT_TOOLS
         Debug::DrawingContext GetDrawingContext() const;
+        Debug::DrawingSystem* GetDebugDrawingSystem() const;
         #endif
 
     private:

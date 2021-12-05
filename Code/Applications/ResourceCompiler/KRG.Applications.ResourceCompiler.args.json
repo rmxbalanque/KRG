@@ -75,6 +75,10 @@
       "Command": "Render",
       "Items": [
         {
+          "Id": "b9b28c3e-12b4-4135-acfe-9cecd538003e",
+          "Command": "-compile data://packs/br/characters/sk_chr_gothfemale_01.smsh"
+        },
+        {
           "Id": "d8672111-9c97-460e-a8d2-c8be98b7b7bb",
           "Command": "-compile data://packs/city/characters/sk_character_businessman_suit.smsh"
         },
@@ -116,6 +120,22 @@
       "Id": "c375fed6-8f52-4aa2-9ce9-12b2e4723ce7",
       "Command": "Animation",
       "Items": [
+        {
+          "Id": "cfd76197-83f5-462a-ad94-a17857433e4a",
+          "Command": "-compile data://test/ar_walk_fwd.anim"
+        },
+        {
+          "Id": "8cd2a9ba-a24d-4549-9a15-9c3a549c7a6e",
+          "Command": "-compile data://packs/br/characters/sk_chr_gothfemale_01.smsh"
+        },
+        {
+          "Id": "71618f6d-9aa2-4324-8bb1-6f17b1243534",
+          "Command": "-compile data://test/syntyskel.skel"
+        },
+        {
+          "Id": "21374f48-740a-4048-a7a3-41e6d784c18f",
+          "Command": "-compile data://test/test.anim"
+        },
         {
           "Id": "5f1791ee-5758-48e0-8206-8919902f6d7c",
           "Command": "-compile data://packs/amplify/walk/walk_fwd_v2.anim"

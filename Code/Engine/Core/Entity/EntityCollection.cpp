@@ -165,7 +165,7 @@ namespace KRG::EntityModel
 
         //-------------------------------------------------------------------------
 
-        struct EntityCreationTask : public IAsyncTask
+        struct EntityCreationTask : public ITaskSet
         {
             EntityCreationTask( TypeSystem::TypeRegistry const& typeRegistry, TVector<EntityDescriptor> const& descriptors, EntityCollection& targetCollection )
                 : m_typeRegistry( typeRegistry )

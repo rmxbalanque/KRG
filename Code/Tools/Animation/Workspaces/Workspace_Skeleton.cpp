@@ -1,11 +1,12 @@
 #include "Workspace_Skeleton.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Tools/Core/Widgets/InterfaceHelpers.h"
-#include "System/Core/Update/UpdateContext.h"
-#include "System/Core/Math/MathStringHelpers.h"
-#include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Animation/Components/Component_AnimatedMesh.h"
 #include "Engine/Animation/AnimationPose.h"
+#include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Core/DevUI/NumericUIHelpers.h"
+#include "System/Core/Update/UpdateContext.h"
+#include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ namespace KRG::Animation
         TResourceWorkspace<Skeleton>::Initialize( context );
 
         m_skeletonTreeWindowName.sprintf( "Skeleton##%u", GetID() );
-        m_infoWindowName.sprintf( "Info##%u", GetID() );
+        m_detailsWindowName.sprintf( "Details##%u", GetID() );
 
         //-------------------------------------------------------------------------
 
@@ -79,19 +80,13 @@ namespace KRG::Animation
         ImGuiDockNode* pViewportNode = ImGui::DockBuilderGetNode( viewportDockID );
         pViewportNode->LocalFlags |= ImGuiDockNodeFlags_HiddenTabBar | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
 
-        ImGuiDockNode* pLeftNode = ImGui::DockBuilderGetNode( leftDockID );
-        pLeftNode->LocalFlags |= ImGuiDockNodeFlags_HiddenTabBar;
-
-        ImGuiDockNode* pBottomNode = ImGui::DockBuilderGetNode( bottomDockID );
-        pBottomNode->LocalFlags |= ImGuiDockNodeFlags_HiddenTabBar;
-
         // Dock windows
         //-------------------------------------------------------------------------
 
         ImGui::DockBuilderDockWindow( GetViewportWindowID(), viewportDockID );
         ImGui::DockBuilderDockWindow( m_skeletonTreeWindowName.c_str(), leftDockID );
         ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomDockID );
-        ImGui::DockBuilderDockWindow( m_infoWindowName.c_str(), bottomDockID );
+        ImGui::DockBuilderDockWindow( m_detailsWindowName.c_str(), bottomDockID );
     }
 
     void SkeletonWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
@@ -102,20 +97,23 @@ namespace KRG::Animation
         if ( IsLoaded() )
         {
             auto drawingCtx = GetDrawingContext();
+
+            // Draw skeleton
             drawingCtx.Draw( *m_pResource.GetPtr(), Transform::Identity );
 
+            // Draw selected bone
             if ( m_selectedBoneID.IsValid() )
             {
                 int32 const boneIdx = m_pResource->GetBoneIndex( m_selectedBoneID );
-                KRG_ASSERT( boneIdx != InvalidIndex );
-                Transform const refGlobalTransform = m_pResource->GetBoneGlobalTransform( boneIdx );
+                if ( boneIdx != InvalidIndex )
+                {
+                    Transform const globalBoneTransform = m_pResource->GetBoneGlobalTransform( boneIdx );
+                    drawingCtx.DrawAxis( globalBoneTransform, 0.25f, 3.0f );
 
-                drawingCtx.DrawAxis( refGlobalTransform, 0.10f, 4.0f );
-
-                Vector textLocation = refGlobalTransform.GetTranslation() + Vector( 0, 0, 0.1f );
-                Vector const textLineLocation = textLocation - Vector( 0, 0, 0.01f );
-                drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
-                drawingCtx.DrawLine( textLineLocation, refGlobalTransform.GetTranslation(), Colors::Yellow, 2.0f );
+                    Vector textLocation = globalBoneTransform.GetTranslation();
+                    Vector const textLineLocation = textLocation - Vector( 0, 0, 0.01f );
+                    drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
+                }
             }
         }
 
@@ -123,75 +121,50 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         DrawDescriptorWindow( context, pWindowClass );
-        DrawInfoWindow( context, pWindowClass );
-        DrawSkeletonHierarchyWindow( context, pWindowClass );
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawSkeletonHierarchyWindow( context );
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawDetailsWindow( context );
     }
 
     void SkeletonWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
     }
 
-    void SkeletonWorkspace::DrawInfoWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void SkeletonWorkspace::DrawDetailsWindow( UpdateContext const& context )
     {
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 8 ) );
-        ImGui::SetNextWindowClass( pWindowClass );
-        if ( ImGui::Begin( m_infoWindowName.c_str() ) )
+        if ( ImGui::Begin( m_detailsWindowName.c_str() ) )
         {
-            if ( IsWaitingForResource() )
+            if ( m_selectedBoneID.IsValid() )
             {
-                ImGui::Text( "Loading:" );
-                ImGui::SameLine();
-                ImGuiX::DrawSpinner( "Loading" );
-            }
-            else if ( HasLoadingFailed() )
-            {
-                ImGui::Text( "Loading Failed: %s", m_pResource.GetResourceID().c_str() );
-                return;
-            }
-            else
-            {
-                if ( ImGui::BeginTable( "SkeletonDataTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg ) )
+                int32 const selectedBoneIdx = m_pResource->GetBoneIndex( m_selectedBoneID );
+                KRG_ASSERT( selectedBoneIdx != InvalidIndex );
+
                 {
-                    ImGui::TableSetupColumn( "Bone", ImGuiTableColumnFlags_WidthStretch );
-                    ImGui::TableSetupColumn( "Local Transform", ImGuiTableColumnFlags_WidthStretch );
-                    ImGui::TableSetupColumn( "Global Transform", ImGuiTableColumnFlags_WidthStretch );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableHeadersRow();
-
-                    int32 const numBones = m_pResource->GetNumBones();
-
-                    for ( auto i = 0; i < numBones; i++ )
-                    {
-                        Transform const& localBoneTransform = m_pResource->GetLocalReferencePose()[i];
-                        Transform const& globalBoneTransform = m_pResource->GetGlobalReferencePose()[i];
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "%d. %s", i, m_pResource->GetBoneID( i ).c_str() );
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "Rot: %s", Math::ToString( localBoneTransform.GetRotation() ).c_str() );
-                        ImGui::Text( "Tra: %s", Math::ToString( localBoneTransform.GetTranslation() ).c_str() );
-                        ImGui::Text( "Scl: %s", Math::ToString( localBoneTransform.GetScale() ).c_str() );
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "Rot: %s", Math::ToString( globalBoneTransform.GetRotation() ).c_str() );
-                        ImGui::Text( "Tra: %s", Math::ToString( globalBoneTransform.GetTranslation() ).c_str() );
-                        ImGui::Text( "Scl: %s", Math::ToString( globalBoneTransform.GetScale() ).c_str() );
-                    }
-
-                    ImGui::EndTable();
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::LargeBold );
+                    ImGui::Text( "%d. %s", selectedBoneIdx, m_pResource->GetBoneID( selectedBoneIdx ).c_str() );
                 }
+
+                ImGui::NewLine();
+                ImGui::Text( "Local Transform" );
+                Transform const& localBoneTransform = m_pResource->GetLocalReferencePose()[selectedBoneIdx];
+                ImGuiX::DisplayTransform( localBoneTransform );
+
+                ImGui::NewLine();
+                ImGui::Text( "Global Transform" );
+                Transform const& globalBoneTransform = m_pResource->GetGlobalReferencePose()[selectedBoneIdx];
+                ImGuiX::DisplayTransform( globalBoneTransform );
             }
         }
         ImGui::End();
         ImGui::PopStyleVar();
     }
 
-    void SkeletonWorkspace::DrawSkeletonHierarchyWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void SkeletonWorkspace::DrawSkeletonHierarchyWindow( UpdateContext const& context )
     {
-        ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( m_skeletonTreeWindowName.c_str() ) )
         {
             if ( IsLoaded() )

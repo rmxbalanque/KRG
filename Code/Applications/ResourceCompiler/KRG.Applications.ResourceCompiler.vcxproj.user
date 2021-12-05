@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-compile data://maps/br_nav.map</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://maps/br_nav.map</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-compile data://packs/br/characters/sk_chr_gothfemale_01.smsh -compile data://test/ar_walk_fwd.anim</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://packs/br/characters/sk_chr_gothfemale_01.smsh -compile data://test/ar_walk_fwd.anim</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>

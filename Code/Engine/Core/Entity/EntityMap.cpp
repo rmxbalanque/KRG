@@ -212,7 +212,7 @@ namespace KRG::EntityModel
 
         //-------------------------------------------------------------------------
 
-        struct EntityActivationTask : public IAsyncTask
+        struct EntityActivationTask : public ITaskSet
         {
             EntityActivationTask( EntityModel::ActivationContext& activationContext, TVector<Entity*>& entities )
                 : m_activationContext( activationContext )
@@ -263,7 +263,7 @@ namespace KRG::EntityModel
 
         //-------------------------------------------------------------------------
 
-        struct EntityDeactivationTask : public IAsyncTask
+        struct EntityDeactivationTask : public ITaskSet
         {
             EntityDeactivationTask( EntityModel::ActivationContext& activationContext, TVector<Entity*>& entities )
                 : m_activationContext( activationContext )
@@ -500,7 +500,7 @@ namespace KRG::EntityModel
 
     bool EntityMap::ProcessEntityLoadingAndActivation( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext )
     {
-        struct EntityLoadingTask : public IAsyncTask
+        struct EntityLoadingTask : public ITaskSet
         {
             EntityLoadingTask( EntityLoadingContext const& loadingContext, EntityModel::ActivationContext& activationContext, TVector<Entity*>& entitiesToLoad, bool isActivated )
                 : m_loadingContext( loadingContext )

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "API.h"
-#include "Engine/Navmesh/NavmeshSystem.h"
-#include "Engine/Navmesh/Debug/NavmeshDebugRenderer.h"
+#include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/ResourceLoaders/ResourceLoader_Navmesh.h"
 #include "Engine/Core/Modules/IEngineModule.h"
 
@@ -23,10 +22,6 @@ namespace KRG::Navmesh
 
         NavmeshSystem               m_navmeshSystem;
         NavmeshLoader               m_navmeshLoader;
-
-        #if KRG_DEVELOPMENT_TOOLS
-        NavmeshDebugRenderer        m_navmeshRenderer;
-        #endif
 
         bool                        m_initialized = false;
     };

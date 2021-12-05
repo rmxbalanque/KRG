@@ -148,7 +148,6 @@ namespace KRG::Player
         //-------------------------------------------------------------------------
 
         // Update gameplay action
-        UpdateStateMachine();
         {
             // Convert input into desired displacement
             // Prediction if required (gameplay physic state)
@@ -160,6 +159,8 @@ namespace KRG::Player
         // Move character capsule (gameplay physic state)
 
         // update camera
+
+        UpdateStateMachine();
 
         auto pPhysicsSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
         auto pLocomotionPhysicsState = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
@@ -173,20 +174,6 @@ namespace KRG::Player
 
         m_actionContext.m_pRootComponent->SetWorldTransform( newTransform );
         m_actionContext.m_pCameraComponent->FinalizeCameraPosition();
-
-        //-------------------------------------------------------------------------
-        // DEBUG
-        pPhysicsSystem->AcquireReadLock();
-        Physics::QueryFilter filter;
-        Physics::OverlapResults overlapResult;
-        filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
-        filter.AddIgnoredEntity( m_actionContext.m_pCapsuleComponent->GetEntityID() );
-        if( pPhysicsSystem->CapsuleOverlap( m_actionContext.m_pCapsuleComponent->GetCylinderPortionHalfHeight(), m_actionContext.m_pCapsuleComponent->GetRadius(), m_actionContext.m_pCapsuleComponent->GetOrientation(), m_actionContext.m_pCapsuleComponent->GetPosition(), filter, overlapResult ) )
-        {
-            KRG_LOG_MESSAGE( "Physics", "Ended the frame in overlap" );
-        }
-        pPhysicsSystem->ReleaseReadLock();
-        //-------------------------------------------------------------------------
     }
 
     //-------------------------------------------------------------------------

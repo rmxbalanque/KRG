@@ -1,7 +1,7 @@
 ﻿#include "PropertyGridEditors.h"
-#include "Tools/Core/Widgets/NumericEditors.h"
-#include "Tools/Core/Resource/DataFilePicker.h"
+#include "Tools/Core/Resource/ResourceFilePicker.h"
 #include "Tools/Core/Widgets/CurveEditor.h"
+#include "Engine/Core/DevUI/NumericUIHelpers.h"
 #include "System/TypeSystem/PropertyInfo.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/TypeSystem/TypeRegistry.h"
@@ -1146,7 +1146,7 @@ namespace KRG::TypeSystem
                 ImGui::SameLine( 0, g_itemSpacing );
                 if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick", ImVec2( g_iconButtonWidth - 1, 0 ) ) )
                 {
-                    if ( DataFilePicker::PickFile( m_rawResourceDirectoryPath, m_value_imgui ) )
+                    if ( ResourceFilePicker::PickFile( m_rawResourceDirectoryPath, m_value_imgui ) )
                     {
                         valueChanged = true;
                     }
@@ -1175,7 +1175,7 @@ namespace KRG::TypeSystem
                 ImGui::SameLine( 0, g_itemSpacing );
                 if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
                 {
-                    if ( DataFilePicker::PickResourceFile( m_rawResourceDirectoryPath, m_allowedResourceTypeIDs, m_value_imgui ) )
+                    if ( ResourceFilePicker::PickResourceFile( m_rawResourceDirectoryPath, m_allowedResourceTypeIDs, m_value_imgui ) )
                     {
                         valueChanged = true;
                     }

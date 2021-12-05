@@ -70,7 +70,6 @@
     <ClInclude Include="Components\Component_PhysicsMesh.h" />
     <ClInclude Include="Components\Component_PhysicsSphere.h" />
     <ClInclude Include="Debug\DebugView_Physics.h" />
-    <ClInclude Include="Helper\PhysicsHelper.h" />
     <ClInclude Include="PhysicsLayers.h" />
     <ClInclude Include="PhysicsSettings.h" />
     <ClInclude Include="PhysicsMaterial.h" />

@@ -21,7 +21,7 @@ namespace KRG::Player
         virtual void Activate() override;
         virtual void Deactivate() override;
 
-        Vector SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& rotation, Vector const& startPos, Vector const& endPos, int32 Idx );
+        Vector SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& rotation, Vector const& startPos, Vector const& endPos, int32& Idx );
 
     public:
 

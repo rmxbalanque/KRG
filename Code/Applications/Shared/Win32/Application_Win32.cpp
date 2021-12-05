@@ -3,6 +3,8 @@
 #include "iniparser/krg_ini.h"
 #include "System/Core/Logging/Log.h"
 
+#include "../Platform/PlatformHelpers_Win32.h"
+
 //-------------------------------------------------------------------------
 
 namespace KRG
@@ -36,6 +38,7 @@ namespace KRG
 
                     case WM_DESTROY:
                     {
+                        g_pApplicationInstance->OnWindowDestruction();
                         PostQuitMessage( 0 );
                     }
                     break;
@@ -80,6 +83,11 @@ namespace KRG
         return false;
     }
 
+    void Win32Application::OnWindowDestruction()
+    {
+        WriteLayoutSettings();
+    }
+
     //-------------------------------------------------------------------------
 
     void Win32Application::ReadLayoutSettings()
@@ -117,6 +125,8 @@ namespace KRG
         KRG_ASSERT( ( m_windowRect.right - m_windowRect.left ) > 0 );
         KRG_ASSERT( ( m_windowRect.bottom - m_windowRect.top ) > 0 );
 
+        layoutIni.TryGetBool( "WindowSettings:WasMaximized", m_startMaximized );
+
         //-------------------------------------------------------------------------
 
         uint32 flags = 0;
@@ -135,23 +145,26 @@ namespace KRG
         {
             WINDOWPLACEMENT wndPlacement;
             wndPlacement.length = sizeof( WINDOWPLACEMENT );
-            if ( GetWindowPlacement( m_windowHandle, &wndPlacement ) )
-            {
-                // Save window rect
-                layoutIni.CreateSection( "WindowSettings" );
-                layoutIni.SetInt( "WindowSettings:Left", (int32) wndPlacement.rcNormalPosition.left );
-                layoutIni.SetInt( "WindowSettings:Right", (int32) wndPlacement.rcNormalPosition.right );
-                layoutIni.SetInt( "WindowSettings:Top", (int32) wndPlacement.rcNormalPosition.top );
-                layoutIni.SetInt( "WindowSettings:Bottom", (int32) wndPlacement.rcNormalPosition.bottom );
+            bool const result = GetWindowPlacement( m_windowHandle, &wndPlacement );
 
-                // Save user flags
-                layoutIni.CreateSection( "Layout" );
-                layoutIni.SetInt( "Layout:UserFlags0", (uint32) m_userFlags );
-                layoutIni.SetInt( "Layout:UserFlags1", (uint32) ( m_userFlags >> 32 ) );
+            // We should always have a valid window handle when calling this function
+            KRG_ASSERT( result );
 
-                FileSystem::Path const layoutIniFilePath = FileSystem::Path( m_applicationNameNoWhitespace + ".layout.ini" );
-                layoutIni.SaveToFile( layoutIniFilePath );
-            }
+            // Save window rect
+            layoutIni.CreateSection( "WindowSettings" );
+            layoutIni.SetInt( "WindowSettings:Left", (int32) wndPlacement.rcNormalPosition.left );
+            layoutIni.SetInt( "WindowSettings:Right", (int32) wndPlacement.rcNormalPosition.right );
+            layoutIni.SetInt( "WindowSettings:Top", (int32) wndPlacement.rcNormalPosition.top );
+            layoutIni.SetInt( "WindowSettings:Bottom", (int32) wndPlacement.rcNormalPosition.bottom );
+            layoutIni.SetBool( "WindowSettings:WasMaximized", wndPlacement.showCmd == SW_MAXIMIZE );
+
+            // Save user flags
+            layoutIni.CreateSection( "Layout" );
+            layoutIni.SetInt( "Layout:UserFlags0", (uint32) m_userFlags );
+            layoutIni.SetInt( "Layout:UserFlags1", (uint32) ( m_userFlags >> 32 ) );
+
+            FileSystem::Path const layoutIniFilePath = FileSystem::Path( m_applicationNameNoWhitespace + ".layout.ini" );
+            layoutIni.SaveToFile( layoutIniFilePath );
         }
     }
 
@@ -201,7 +214,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        ShowWindow( m_windowHandle, SW_SHOW );
+        ShowWindow( m_windowHandle, m_startMaximized ? SW_MAXIMIZE : SW_SHOW );
         UpdateWindow( m_windowHandle );
         GetClientRect( m_windowHandle, &m_windowRect );
         return true;
@@ -268,11 +281,6 @@ namespace KRG
 
         FileSystem::Path const LogFilePath( m_applicationNameNoWhitespace + "Log.txt" );
         Log::SaveToFile( LogFilePath );
-
-        // Write Settings
-        //-------------------------------------------------------------------------
-
-        WriteLayoutSettings();
 
         //-------------------------------------------------------------------------
 

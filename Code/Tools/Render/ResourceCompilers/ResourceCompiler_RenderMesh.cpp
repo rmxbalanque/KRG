@@ -13,8 +13,11 @@
 
 namespace KRG::Render
 {
-    void MeshCompiler::TransferMeshGeometry( RawAssets::RawMesh const& rawMesh, Mesh& mesh ) const
+    void MeshCompiler::TransferMeshGeometry( RawAssets::RawMesh const& rawMesh, Mesh& mesh, int32 maxBoneInfluences ) const
     {
+        KRG_ASSERT( maxBoneInfluences > 0 && maxBoneInfluences <= 8 );
+        KRG_ASSERT( maxBoneInfluences <= 4 );// TEMP HACK - we dont support 8 bones for now
+
         // Merge all mesh geometries into the main vertex and index buffers
         //-------------------------------------------------------------------------
 
@@ -63,16 +66,27 @@ namespace KRG::Render
                     pVertex->m_UV0 = vert.m_texCoords[0];
                     pVertex->m_UV1 = ( geometrySection.GetNumUVChannels() > 1 ) ? vert.m_texCoords[1] : vert.m_texCoords[0];
 
-                    auto const numInfluences = vert.m_boneIndices.size();
-                    KRG_ASSERT( numInfluences <= 4 && vert.m_boneIndices.size() == vert.m_boneWeights.size() );
+                    int32 const numInfluences = (int32) vert.m_boneIndices.size();
+                    KRG_ASSERT( numInfluences <= maxBoneInfluences && vert.m_boneIndices.size() == vert.m_boneWeights.size() );
 
                     pVertex->m_boneIndices = Int4( InvalidIndex, InvalidIndex, InvalidIndex, InvalidIndex );
                     pVertex->m_boneWeights = Float4::Zero;
-                    for ( auto i = 0; i < numInfluences; i++ )
+
+                    int32 const numWeights = Math::Min( numInfluences, 4 );
+                    for ( int32 i = 0; i < numWeights; i++ )
                     {
                         pVertex->m_boneIndices[i] = vert.m_boneIndices[i];
                         pVertex->m_boneWeights[i] = vert.m_boneWeights[i];
                     }
+
+                    // Re-enable this when we add back support for 8 bone weights
+                    /*pVertex->m_boneIndices1 = Int4( InvalidIndex, InvalidIndex, InvalidIndex, InvalidIndex );
+                    pVertex->m_boneWeights1 = Float4::Zero;
+                    for ( int32 i = 4; i < numInfluences; i++ )
+                    {
+                        pVertex->m_boneIndices1[i - 4] = vert.m_boneIndices[i];
+                        pVertex->m_boneWeights1[i - 4] = vert.m_boneWeights[i];
+                    }*/
 
                     pVertexMemory++;
 
@@ -213,7 +227,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         StaticMesh staticMesh;
-        TransferMeshGeometry( *pRawMesh, staticMesh );
+        TransferMeshGeometry( *pRawMesh, staticMesh, 4 );
         OptimizeMeshGeometry( staticMesh );
         SetMeshDefaultMaterials( resourceDescriptor, staticMesh );
 
@@ -273,7 +287,8 @@ namespace KRG::Render
         }
 
         RawAssets::ReaderContext readerCtx = { [this]( char const* pString ) { Warning( pString ); }, [this] ( char const* pString ) { Error( pString ); } };
-        TUniquePtr<RawAssets::RawMesh> pRawMesh = RawAssets::ReadSkeletalMesh( readerCtx, meshFilePath, 4 );
+        int32 const maxBoneInfluences = 4;
+        TUniquePtr<RawAssets::RawMesh> pRawMesh = RawAssets::ReadSkeletalMesh( readerCtx, meshFilePath, maxBoneInfluences );
         if ( pRawMesh == nullptr )
         {
             return Error( "Failed to read mesh from source file" );
@@ -285,7 +300,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         SkeletalMesh skeletalMesh;
-        TransferMeshGeometry( *pRawMesh, skeletalMesh );
+        TransferMeshGeometry( *pRawMesh, skeletalMesh, maxBoneInfluences );
         OptimizeMeshGeometry( skeletalMesh );
         TransferSkeletalMeshData( *pRawMesh, skeletalMesh );
         SetMeshDefaultMaterials( resourceDescriptor, skeletalMesh );

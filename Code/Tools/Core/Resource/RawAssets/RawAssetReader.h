@@ -9,7 +9,6 @@
 
 namespace KRG::RawAssets
 {
-    struct RawAssetInfo;
     class RawMesh;
     class RawSkeleton;
     class RawAnimation;
@@ -25,8 +24,6 @@ namespace KRG::RawAssets
     };
 
     //-------------------------------------------------------------------------
-
-    KRG_TOOLS_CORE_API bool ReadFileInfo( FileSystem::Path const& sourceFilePath, RawAssetInfo& outInfo );
 
     KRG_TOOLS_CORE_API TUniquePtr<RawAssets::RawMesh> ReadStaticMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, String const& nameOfMeshToCompile = String() );
     KRG_TOOLS_CORE_API TUniquePtr<RawAssets::RawMesh> ReadSkeletalMesh( ReaderContext const& ctx, FileSystem::Path const& sourceFilePath, int32 maxBoneInfluences = 4 );

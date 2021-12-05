@@ -61,7 +61,7 @@ namespace KRG::Physics
 
     KRG_FORCE_INLINE Plane FromPx( physx::PxPlane const& v )
     {
-        return Plane( v.d, FromPx( v.n ) );
+        return Plane::FromNormalAndDistance( FromPx( v.n ), v.d );
     }
 
     KRG_FORCE_INLINE Matrix FromPx( physx::PxMat33 const& v )

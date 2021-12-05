@@ -41,11 +41,13 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
     <Import Project="..\..\PropertySheets\LivePP.props" />
+    <Import Project="..\..\PropertySheets\FBXSDK.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
     <Import Project="..\..\PropertySheets\LivePP.props" />
+    <Import Project="..\..\PropertySheets\FBXSDK.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -124,27 +126,29 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EditorDevUI.cpp" />
-    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_TreeView.cpp" />
     <ClCompile Include="Editor_Model.cpp" />
     <ClCompile Include="MapEditor\Workspace_MapEditor.cpp" />
-    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector.cpp" />
-    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_FBXAndGLTF.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp" />
+    <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector.cpp" />
+    <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_FBX.cpp" />
+    <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_GLTF.cpp" />
+    <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_ImageFormats.cpp" />
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
     <ClCompile Include="MapEditor\Workspace_GamePreviewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditorDevUI.h" />
-    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_TreeView.h" />
     <ClInclude Include="Editor_Model.h" />
     <ClInclude Include="MapEditor\Workspace_MapEditor.h" />
-    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector.h" />
-    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_FBXAndGLTF.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h" />
+    <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector.h" />
+    <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_FBX.h" />
+    <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_GLTF.h" />
+    <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_ImageFormats.h" />
     <ClInclude Include="Win32\Resource.h" />
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
     <ClInclude Include="MapEditor\Workspace_GamePreviewer.h" />

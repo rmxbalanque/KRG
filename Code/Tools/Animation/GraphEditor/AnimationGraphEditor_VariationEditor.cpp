@@ -1,5 +1,5 @@
 #include "AnimationGraphEditor_VariationEditor.h"
-#include "Tools/Core/Resource/DataFilePicker.h"
+#include "Tools/Core/Resource/ResourceFilePicker.h"
 
 //-------------------------------------------------------------------------
 
@@ -125,7 +125,7 @@ namespace KRG::Animation::Graph
         auto pGraph = m_graphModel.GetGraph();
         auto pVariation = pGraph->GetVariation( m_graphModel.GetSelectedVariationID() );
         ResourceID resourceID = pVariation->m_pSkeleton.GetResourceID();
-        if ( DataFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), Skeleton::GetStaticResourceTypeID(), &resourceID ) )
+        if ( ResourceFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), Skeleton::GetStaticResourceTypeID(), &resourceID ) )
         {
             pVariation->m_pSkeleton = resourceID;
         }
@@ -171,7 +171,7 @@ namespace KRG::Animation::Graph
                 if ( isDefaultVariationSelected )
                 {
                     ResourceID* pResourceID = pDataSlotNode->GetOverrideValueForVariation( currentVariationID );
-                    DataFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), pDataSlotNode->GetSlotResourceType(), pResourceID );
+                    ResourceFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), pDataSlotNode->GetSlotResourceType(), pResourceID );
                 }
                 else // Variation
                 {
@@ -179,7 +179,7 @@ namespace KRG::Animation::Graph
                     if ( pDataSlotNode->HasOverrideForVariation( currentVariationID ) )
                     {
                         ResourceID* pResourceID = pDataSlotNode->GetOverrideValueForVariation( currentVariationID );
-                        if ( DataFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), pDataSlotNode->GetSlotResourceType(), pResourceID ) )
+                        if ( ResourceFilePicker::DrawPickerControl( m_graphModel.GetSourceDataDirectory(), pDataSlotNode->GetSlotResourceType(), pResourceID ) )
                         {
                             // If we've cleared the resource ID and it's not the default, remove the override
                             if ( !pResourceID->IsValid() && !m_graphModel.IsDefaultVariationSelected() )

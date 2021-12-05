@@ -32,23 +32,4 @@ namespace KRG::RawAssets
     {
         String      m_name;
     };
-
-    //-------------------------------------------------------------------------
-
-    struct RawAssetInfo
-    {
-        inline void Reset()
-        {
-            m_meshes.clear();
-            m_animations.clear();
-            m_skeletons.clear();
-        }
-
-        TVector<RawMeshInfo>            m_meshes;
-        TVector<RawAnimationInfo>       m_animations;
-        TVector<RawSkeletonInfo>        m_skeletons;
-
-        float                           m_scale = 1.0f; // The scaling needed to convert to M
-        Axis                            m_upAxis = Axis::Z;
-    };
 }

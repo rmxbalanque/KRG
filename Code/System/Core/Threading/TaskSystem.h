@@ -16,7 +16,8 @@ namespace KRG
     //-------------------------------------------------------------------------
     // Note: Will also use main thread as a worker thread - when using blocking wait!
 
-    using IAsyncTask = enki::ITaskSet;
+    using ITaskSet = enki::ITaskSet;
+    using IPinnedTask = enki::IPinnedTask;
     using AsyncTask = enki::TaskSet;
     using TaskSetPartition = enki::TaskSetPartition;
 
@@ -42,13 +43,24 @@ namespace KRG
 
         inline void WaitForAll() { m_taskScheduler.WaitforAll(); }
 
-        inline void ScheduleTask( IAsyncTask* pTask )
+        inline void ScheduleTask( ITaskSet* pTask )
         {
             KRG_ASSERT( m_initialized );
             m_taskScheduler.AddTaskSetToPipe( pTask );
         }
 
-        inline void WaitForTask( IAsyncTask* pTask )
+        inline void ScheduleTask( IPinnedTask* pTask )
+        {
+            KRG_ASSERT( m_initialized );
+            m_taskScheduler.AddPinnedTask( pTask );
+        }
+
+        inline void WaitForTask( ITaskSet* pTask )
+        {
+            m_taskScheduler.WaitforTask( pTask );
+        }
+
+        inline void WaitForTask( IPinnedTask* pTask )
         {
             m_taskScheduler.WaitforTask( pTask );
         }

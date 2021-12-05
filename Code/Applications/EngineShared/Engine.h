@@ -101,7 +101,6 @@ namespace KRG
         Render::RenderingSystem                         m_renderingSystem;
         EntityWorldManager*                             m_pEntityWorldManager = nullptr;
         Input::InputSystem*                             m_pInputSystem = nullptr;
-        Navmesh::NavmeshSystem*                         m_pNavmeshSystem = nullptr;
         Physics::PhysicsSystem*                         m_pPhysicsSystem = nullptr;
 
         #if KRG_DEVELOPMENT_TOOLS

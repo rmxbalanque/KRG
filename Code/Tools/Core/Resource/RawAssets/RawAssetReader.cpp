@@ -1,13 +1,10 @@
 #include "RawAssetReader.h"
-#include "RawAssetInfo.h"
 #include "Fbx/FbxSkeleton.h"
 #include "Fbx/FbxAnimation.h"
 #include "Fbx/FbxMesh.h"
-#include "Fbx/FbxInfo.h"
 #include "gltf/gltfMesh.h"
 #include "gltf/gltfSkeleton.h"
 #include "gltf/gltfAnimation.h"
-#include "gltf/gltfInfo.h"
 
 //-------------------------------------------------------------------------
 
@@ -28,29 +25,6 @@ namespace KRG::RawAssets
             }
 
             return !pRawAsset->HasErrors() && pRawAsset->IsValid();
-        }
-
-        return false;
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool ReadFileInfo( FileSystem::Path const& sourceFilePath, RawAssetInfo& outInfo )
-    {
-        KRG_ASSERT( sourceFilePath.IsValid() );
-
-        outInfo.Reset();
-
-        //-------------------------------------------------------------------------
-
-        auto const extension = sourceFilePath.GetLowercaseExtensionAsString();
-        if ( extension == "fbx" )
-        {
-            return Fbx::ReadFileInfo( sourceFilePath, outInfo );
-        }
-        else if ( extension == "gltf" || extension == "glb" )
-        {
-            return gltf::ReadFileInfo( sourceFilePath, outInfo );
         }
 
         return false;

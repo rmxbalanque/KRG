@@ -6,7 +6,7 @@
 
 namespace KRG
 {
-    struct KRG_TOOLS_CORE_API DataFilePicker
+    struct KRG_TOOLS_CORE_API ResourceFilePicker
     {
         // Draw an imgui picker control, returns true if the type was edited
         static bool DrawPickerControl( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypeID, ResourceID* pResourceID );

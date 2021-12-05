@@ -94,7 +94,7 @@ namespace KRG
             {
                 ImGui::SetCursorPos( ImGui::GetWindowContentRegionMin() + ImGui::GetStyle().ItemSpacing );
                 ImGui::SetNextItemWidth( 46 );
-                if ( ImGui::BeginCombo( "##Test", KRG_ICON_EYE, ImGuiComboFlags_HeightLarge ) )
+                if ( ImGui::BeginCombo( "##RenderingOptions", KRG_ICON_EYE, ImGuiComboFlags_HeightLarge ) )
                 {
                     auto pRenderWorldSystem = GetWorld()->GetWorldSystem<Render::WorldRendererSystem>();
                     Render::RenderDebugView::DrawRenderVisualizationModesMenu( pRenderWorldSystem );

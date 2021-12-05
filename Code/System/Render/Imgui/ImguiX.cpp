@@ -2,33 +2,9 @@
 
 //-------------------------------------------------------------------------
 
+
 namespace KRG::ImGuiX
 {
-    void VerticalSeparator( ImVec2 const& size, ImColor const& color )
-    {
-        ImGui::SameLine( 0, 0 );
-
-        //-------------------------------------------------------------------------
-
-        auto const canvasPos = ImGui::GetCursorScreenPos();
-        auto const availableRegion = ImGui::GetContentRegionAvail();
-
-        ImVec2 const seperatorSize( size.x <= 0 ? 3 : size.x, size.y <= 0 ? ImGui::GetFrameHeight() : size.y );
-        ImGui::Dummy( seperatorSize );
-        ImGui::SameLine( 0, 0 );
-
-        //-------------------------------------------------------------------------
-
-        ImColor const separatorColor = ( (int) color == 0 ) ? ImColor( ImGuiX::Style::s_backgroundColorLight ) : ImColor( color );
-
-        float const startPosX = Math::Floor( canvasPos.x + ( seperatorSize.x / 2 ) );
-        float const startPosY = canvasPos.y + 1;
-        float const endPosY = startPosY + seperatorSize.y - 2;
-
-        ImDrawList* pDrawList = ImGui::GetWindowDrawList();
-        pDrawList->AddLine( ImVec2( startPosX, startPosY ), ImVec2( startPosX, endPosY ), separatorColor, 1 );
-    }
-
     ImVec2 const& GetClosestPointOnRect( ImRect const& rect, ImVec2 const& inPoint )
     {
         ImVec2 const points[4] =
@@ -113,5 +89,118 @@ namespace KRG::ImGuiX
         ImGui::PopID();
 
         return result;
+    }
+
+    //-------------------------------------------------------------------------
+
+    static void CenteredSeparator( float width )
+    {
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        if ( window->SkipItems )
+        {
+            return;
+        }
+
+        ImGuiContext& g = *GImGui;
+
+        // Horizontal Separator
+        float x1, x2;
+        if ( window->DC.CurrentColumns == nullptr && ( width == 0 ) )
+        {
+            // Span whole window
+            x1 = window->DC.CursorPos.x;
+            x2 = x1 + window->Size.x;
+        }
+        else
+        {
+            // Start at the cursor
+            x1 = window->DC.CursorPos.x;
+            if ( width != 0 )
+            {
+                x2 = x1 + width;
+            }
+            else
+            {
+                x2 = window->ClipRect.Max.x;
+
+                // Pad right side of columns (except the last one)
+                if ( window->DC.CurrentColumns && ( window->DC.CurrentColumns->Current < window->DC.CurrentColumns->Count - 1 ) )
+                {
+                    x2 -= g.Style.ItemSpacing.x;
+                }
+            }
+        }
+        float y1 = window->DC.CursorPos.y + int( window->DC.CurrLineSize.y / 2.0f );
+        float y2 = y1 + 1.0f;
+
+        window->DC.CursorPos.x += width; //+ g.Style.ItemSpacing.x;
+        x1 += window->DC.GroupOffset.x;
+
+        const ImRect bb( ImVec2( x1, y1 ), ImVec2( x2, y2 ) );
+        ImGui::ItemSize( ImVec2( 0.0f, 0.0f ) ); // NB: we don't provide our width so that it doesn't get feed back into AutoFit, we don't provide height to not alter layout.
+        if ( !ImGui::ItemAdd( bb, NULL ) )
+        {
+            return;
+        }
+
+        window->DrawList->AddLine( bb.Min, ImVec2( bb.Max.x, bb.Min.y ), ImGui::GetColorU32( ImGuiCol_Separator ) );
+    }
+
+    // Create a centered separator right after the current item.
+    void PostSeparator( float width )
+    {
+        ImGui::SameLine();
+        CenteredSeparator( width );
+    }
+
+    // Create a centered separator which can be immediately followed by a item
+    void PreSeparator( float width )
+    {
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        if ( window->DC.CurrLineSize.y == 0 )
+        {
+            window->DC.CurrLineSize.y = ImGui::GetTextLineHeight();
+        }
+        CenteredSeparator( width );
+        ImGui::SameLine();
+    }
+
+    // The value for width is arbitrary. But it looks nice.
+    void TextSeparator( char* text, float preWidth, float totalWidth )
+    {
+        PreSeparator( preWidth );
+        ImGui::Text( text );
+
+        // If we have a total width specified, calculate the post separator width
+        if ( totalWidth != 0 )
+        {
+            totalWidth = totalWidth - ( ImGui::CalcTextSize( text ).x + preWidth + ( ImGui::GetStyle().ItemSpacing.x * 2 ) );
+        }
+        PostSeparator( totalWidth );
+    }
+
+    void VerticalSeparator( ImVec2 const& size, ImColor const& color )
+    {
+        ImGui::SameLine( 0, 0 );
+
+        //-------------------------------------------------------------------------
+
+        auto const canvasPos = ImGui::GetCursorScreenPos();
+        auto const availableRegion = ImGui::GetContentRegionAvail();
+
+        ImVec2 const seperatorSize( size.x <= 0 ? 3 : size.x, size.y <= 0 ? ImGui::GetFrameHeight() : size.y );
+        ImGui::Dummy( seperatorSize );
+        ImGui::SameLine( 0, 0 );
+
+        //-------------------------------------------------------------------------
+
+        ImColor const separatorColor = ( (int) color == 0 ) ? ImColor( ImGuiX::Style::s_backgroundColorLight ) : ImColor( color );
+
+        float const startPosX = Math::Floor( canvasPos.x + ( seperatorSize.x / 2 ) );
+        float const startPosY = canvasPos.y + 1;
+        float const endPosY = startPosY + seperatorSize.y - 2;
+
+        ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+        pDrawList->AddLine( ImVec2( startPosX, startPosY ), ImVec2( startPosX, endPosY ), separatorColor, 1 );
     }
 }

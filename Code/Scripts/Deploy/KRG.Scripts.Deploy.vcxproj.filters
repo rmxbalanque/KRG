@@ -18,6 +18,7 @@
       <Filter>Scripts</Filter>
     </None>
     <None Include="Deploy.nmake" />
+    <None Include="FBXSDK.nmake" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Scripts">

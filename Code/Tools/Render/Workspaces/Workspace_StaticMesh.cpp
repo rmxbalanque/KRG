@@ -87,7 +87,7 @@ namespace KRG::Render
             ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 4, 2 ) );
             if ( ImGui::BeginTable( "MeshInfoTable", 2, ImGuiTableFlags_Borders ) )
             {
-                ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 110 );
+                ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 100 );
                 ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
 
                 //-------------------------------------------------------------------------
@@ -95,7 +95,7 @@ namespace KRG::Render
                 ImGui::TableNextRow();
 
                 ImGui::TableNextColumn();
-                ImGui::Text( "Data Path:" );
+                ImGui::Text( "Data Path" );
 
                 ImGui::TableNextColumn();
                 ImGui::Text( pMesh->GetResourceID().c_str() );
@@ -105,7 +105,7 @@ namespace KRG::Render
                 ImGui::TableNextRow();
 
                 ImGui::TableNextColumn();
-                ImGui::Text( "Num Vertices:" );
+                ImGui::Text( "Num Vertices" );
 
                 ImGui::TableNextColumn();
                 ImGui::Text( "%d", pMesh->GetNumVertices() );
@@ -113,7 +113,7 @@ namespace KRG::Render
                 ImGui::TableNextRow();
 
                 ImGui::TableNextColumn();
-                ImGui::Text( "Num Indices:" );
+                ImGui::Text( "Num Indices" );
 
                 ImGui::TableNextColumn();
                 ImGui::Text( "%d", pMesh->GetNumIndices() );
@@ -121,7 +121,7 @@ namespace KRG::Render
                 ImGui::TableNextRow();
 
                 ImGui::TableNextColumn();
-                ImGui::Text( "Geometry Sections:" );
+                ImGui::Text( "Mesh Sections" );
 
                 ImGui::TableNextColumn();
                 for ( auto const& section : pMesh->GetSections() )

@@ -38,6 +38,12 @@ namespace KRG::Animation
         if ( HasMeshResourceSet() )
         {
             GenerateBoneMap();
+
+            // Set mesh to animation reference pose
+            Pose referencePose( m_pSkeleton.GetPtr() );
+            referencePose.CalculateGlobalTransforms();
+            SetPose( &referencePose );
+            FinalizePose();
         }
     }
 

@@ -9,7 +9,7 @@ namespace KRG::Animation
 {
     class SkeletonCompiler : public Resource::Compiler
     {
-        static const int32 s_version = 1;
+        static const int32 s_version = 2;
 
     public:
 

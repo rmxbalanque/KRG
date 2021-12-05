@@ -26,6 +26,9 @@ namespace KRG
         // Win32 Window process
         virtual LRESULT WndProcess( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) = 0;
 
+        // Called just before destroying the window
+        void OnWindowDestruction();
+
     protected:
 
         bool FatalError( String const& error );
@@ -37,8 +40,8 @@ namespace KRG
         virtual bool ReadSettings( int32 argc, char** argv ) = 0;
 
         // These function allows the application to read/write any layout/positioning specific settings it needs
-        virtual void ReadLayoutSettings();
         virtual void WriteLayoutSettings();
+        virtual void ReadLayoutSettings();
 
         // Initialize/Shutdown
         virtual bool Initialize() = 0;
@@ -63,6 +66,7 @@ namespace KRG
 
     private:
 
+        bool                            m_startMaximized = false; // Read from the layout settings
         bool                            m_initialized = false;
         bool                            m_exitRequested = false;
     };

@@ -39,7 +39,7 @@ namespace KRG::Render
         {
             boneWorldTransform = m_bindPose[i] * worldTransform;
 
-            auto const parentBoneIdx = GetBoneParentIndex( i );
+            auto const parentBoneIdx = GetParentBoneIndex( i );
             Transform const parentBoneWorldTransform = m_bindPose[parentBoneIdx] * worldTransform;
 
             drawingContext.DrawLine( parentBoneWorldTransform.GetTranslation(), boneWorldTransform.GetTranslation(), Colors::Orange );

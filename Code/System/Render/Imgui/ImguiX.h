@@ -110,13 +110,26 @@ namespace KRG::ImGuiX
 
     KRG_SYSTEM_RENDER_API ImVec2 const& GetClosestPointOnRect( ImRect const& rect, ImVec2 const& inPoint );
 
-    // Draws a vertical separator on the current line and forces the next item to be on the same line. The size is the offset between the previous item and the next
-    KRG_SYSTEM_RENDER_API void VerticalSeparator( ImVec2 const& size = ImVec2( 9, -1 ), ImColor const& color = 0 );
-
     // Draw an arrow between two points
     KRG_SYSTEM_RENDER_API void DrawArrow( ImDrawList* pDrawList, ImVec2 const& arrowStart, ImVec2 const& arrowEnd, ImU32 col, float arrowWidth, float arrowHeadWidth = 5.0f );
 
     // Draw an overlaid icon in a window, returns true if clicked
     KRG_SYSTEM_RENDER_API bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID );
+
+    //-------------------------------------------------------------------------
+    // Separators
+    //-------------------------------------------------------------------------
+
+    // Create a centered separator which can be immediately followed by a item
+    KRG_SYSTEM_RENDER_API void PreSeparator( float width = 0 );
+
+    // Create a centered separator which can be immediately followed by a item
+    KRG_SYSTEM_RENDER_API void PostSeparator( float width = 0 );
+
+    // Create a labeled separator: --- TEXT ---------------
+    KRG_SYSTEM_RENDER_API void TextSeparator( char* text, float preWidth = 10.0f, float totalWidth = 0 );
+
+    // Draws a vertical separator on the current line and forces the next item to be on the same line. The size is the offset between the previous item and the next
+    KRG_SYSTEM_RENDER_API void VerticalSeparator( ImVec2 const& size = ImVec2( 9, -1 ), ImColor const& color = 0 );
 }
 #endif

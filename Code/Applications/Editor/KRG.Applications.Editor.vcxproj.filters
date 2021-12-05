@@ -1,36 +1,98 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="ResourceBrowser">
+      <UniqueIdentifier>{b4406568-f8ee-407c-86e0-122bf77b32d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MapEditor">
+      <UniqueIdentifier>{d3a321e6-5cae-487a-94aa-538f8b38556d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ResourceBrowser\RawResourceInspectors">
+      <UniqueIdentifier>{77666a90-30a5-442d-960d-1bdef093ea27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Win32">
+      <UniqueIdentifier>{64169b72-5b0c-4536-be77-918f642d1763}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp">
+      <Filter>ResourceBrowser</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceBrowser\ResourceBrowser_TreeView.cpp">
+      <Filter>ResourceBrowser</Filter>
+    </ClCompile>
+    <ClCompile Include="MapEditor\Workspace_MapEditor.cpp">
+      <Filter>MapEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp">
+      <Filter>ResourceBrowser</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector.cpp">
+      <Filter>ResourceBrowser\RawResourceInspectors</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_FBX.cpp">
+      <Filter>ResourceBrowser\RawResourceInspectors</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_GLTF.cpp">
+      <Filter>ResourceBrowser\RawResourceInspectors</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_ImageFormats.cpp">
+      <Filter>ResourceBrowser\RawResourceInspectors</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\EditorApplication_Win32.cpp">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="MapEditor\Workspace_GamePreviewer.cpp">
+      <Filter>MapEditor</Filter>
+    </ClCompile>
     <ClCompile Include="EditorDevUI.cpp" />
-    <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp" />
-    <ClCompile Include="ResourceBrowser\ResourceBrowser_TreeView.cpp" />
     <ClCompile Include="Editor_Model.cpp" />
-    <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
-    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector.cpp" />
-    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_FBXAndGLTF.cpp" />
-    <ClCompile Include="MapEditor\Workspace_MapEditor.cpp" />
-    <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp" />
-    <ClCompile Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.cpp" />
-    <ClCompile Include="MapEditor\Workspace_GamePreviewer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ResourceBrowser\ResourceBrowser.h">
+      <Filter>ResourceBrowser</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBrowser\ResourceBrowser_TreeView.h">
+      <Filter>ResourceBrowser</Filter>
+    </ClInclude>
+    <ClInclude Include="MapEditor\Workspace_MapEditor.h">
+      <Filter>MapEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h">
+      <Filter>ResourceBrowser</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector.h">
+      <Filter>ResourceBrowser\RawResourceInspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_FBX.h">
+      <Filter>ResourceBrowser\RawResourceInspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_GLTF.h">
+      <Filter>ResourceBrowser\RawResourceInspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_ImageFormats.h">
+      <Filter>ResourceBrowser\RawResourceInspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Resource.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\EditorApplication_Win32.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="MapEditor\Workspace_GamePreviewer.h">
+      <Filter>MapEditor</Filter>
+    </ClInclude>
     <ClInclude Include="EditorDevUI.h" />
-    <ClInclude Include="ResourceBrowser\ResourceBrowser.h" />
-    <ClInclude Include="ResourceBrowser\ResourceBrowser_TreeView.h" />
     <ClInclude Include="Editor_Model.h" />
-    <ClInclude Include="Win32\Resource.h" />
-    <ClInclude Include="Win32\EditorApplication_Win32.h" />
-    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector.h" />
-    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_FBXAndGLTF.h" />
-    <ClInclude Include="MapEditor\Workspace_MapEditor.h" />
-    <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h" />
-    <ClInclude Include="ResourceBrowser\RawFileInspectors\RawFileInspector_ImageFormats.h" />
-    <ClInclude Include="MapEditor\Workspace_GamePreviewer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Win32\Apps.Editor.rc" />
+    <ResourceCompile Include="Win32\Apps.Editor.rc">
+      <Filter>Win32</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Win32\Editor.ico" />
+    <Image Include="Win32\Editor.ico">
+      <Filter>Win32</Filter>
+    </Image>
   </ItemGroup>
 </Project>

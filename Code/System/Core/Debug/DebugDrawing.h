@@ -262,7 +262,7 @@ namespace KRG::Debug
             Vector const zAxis = worldTransform.GetAxisZ().GetNormalized3() * axisLength;
 
             DrawLine( worldTransform.GetTranslation(), worldTransform.GetTranslation() + xAxis, Colors::Red, axisThickness, depthTestState );
-            DrawLine( worldTransform.GetTranslation(), worldTransform.GetTranslation() + yAxis, Colors::Green, axisThickness, depthTestState );
+            DrawLine( worldTransform.GetTranslation(), worldTransform.GetTranslation() + yAxis, Colors::LimeGreen, axisThickness, depthTestState );
             DrawLine( worldTransform.GetTranslation(), worldTransform.GetTranslation() + zAxis, Colors::Blue, axisThickness, depthTestState );
         }
 

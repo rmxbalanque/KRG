@@ -418,7 +418,7 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            static FbxNode* FindSkeletonForSkin( FbxSkin* pSkin)
+            static FbxNode* FindSkeletonForSkin( FbxSkin* pSkin )
             {
                 FbxNode* pSkeletonRootNode = nullptr;
 
@@ -439,6 +439,16 @@ namespace KRG
                     else
                     {
                         pBoneNode = nullptr;
+                    }
+                }
+
+                // If the root of the skeleton has a null root, make that the root as this is a common practice
+                // TODO: should we make this a setting in the decscriptor?
+                if ( auto pParentNode = pSkeletonRootNode->GetParent() )
+                {
+                    if ( pParentNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eNull )
+                    {
+                        pSkeletonRootNode = pParentNode;
                     }
                 }
 
@@ -594,14 +604,14 @@ namespace KRG
                                 }
                             }
 
-                            vert.m_boneWeights.erase_unsorted( vert.m_boneWeights.begin() + smallestWeightIdx );
-                            vert.m_boneIndices.erase_unsorted( vert.m_boneIndices.begin() + smallestWeightIdx );
+                            vert.m_boneWeights.erase( vert.m_boneWeights.begin() + smallestWeightIdx );
+                            vert.m_boneIndices.erase( vert.m_boneIndices.begin() + smallestWeightIdx );
                         }
 
                         vertexInfluencesReduced = true;
 
                         // Re-normalize weights
-                        auto const totalWeight = vert.m_boneWeights[0] + vert.m_boneWeights[1] + vert.m_boneWeights[2] + vert.m_boneWeights[3];
+                        float const totalWeight = vert.m_boneWeights[0] + vert.m_boneWeights[1] + vert.m_boneWeights[2] + vert.m_boneWeights[3];
                         for ( auto i = 1; i < rawMesh.m_maxNumberOfBoneInfluences; i++ )
                         {
                             vert.m_boneWeights[i] /= totalWeight;

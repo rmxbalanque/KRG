@@ -105,7 +105,7 @@
     <ClInclude Include="TypeSystem\Serialization\TypeSerialization.h">
       <Filter>TypeSystem\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="Resource\DataFilePicker.h">
+    <ClInclude Include="Resource\ResourceFilePicker.h">
       <Filter>DataFileTools</Filter>
     </ClInclude>
     <ClInclude Include="Helpers\GlobalRegistryBase.h">
@@ -144,9 +144,6 @@
     <ClInclude Include="Resource\RawAssets\Fbx\FbxAnimation.h">
       <Filter>Resource\RawAssets\Fbx</Filter>
     </ClInclude>
-    <ClInclude Include="Resource\RawAssets\Fbx\FbxInfo.h">
-      <Filter>Resource\RawAssets\Fbx</Filter>
-    </ClInclude>
     <ClInclude Include="Resource\RawAssets\Fbx\FbxMesh.h">
       <Filter>Resource\RawAssets\Fbx</Filter>
     </ClInclude>
@@ -157,9 +154,6 @@
       <Filter>Resource\RawAssets\Fbx</Filter>
     </ClInclude>
     <ClInclude Include="Resource\RawAssets\gltf\gltfAnimation.h">
-      <Filter>Resource\RawAssets\gltf</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource\RawAssets\gltf\gltfInfo.h">
       <Filter>Resource\RawAssets\gltf</Filter>
     </ClInclude>
     <ClInclude Include="Resource\RawAssets\gltf\gltfMesh.h">
@@ -215,7 +209,6 @@
     </ClInclude>
     <ClInclude Include="Resource\ResourceDatabase.h" />
     <ClInclude Include="Widgets\InterfaceHelpers.h" />
-    <ClInclude Include="Widgets\NumericEditors.h" />
     <ClInclude Include="GraphEditor\GraphEditor.h" />
     <ClInclude Include="Workspaces\ResourceWorkspace.h" />
     <ClInclude Include="Helpers\CommonDialogs.h" />
@@ -247,7 +240,7 @@
     <ClCompile Include="TypeSystem\Serialization\TypeSerialization.cpp">
       <Filter>TypeSystem\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="Resource\DataFilePicker.cpp">
+    <ClCompile Include="Resource\ResourceFilePicker.cpp">
       <Filter>DataFileTools</Filter>
     </ClCompile>
     <ClCompile Include="GraphEditor\Flow\FlowGraph.cpp">
@@ -283,9 +276,6 @@
     <ClCompile Include="Resource\RawAssets\Fbx\FbxAnimation.cpp">
       <Filter>Resource\RawAssets\Fbx</Filter>
     </ClCompile>
-    <ClCompile Include="Resource\RawAssets\Fbx\FbxInfo.cpp">
-      <Filter>Resource\RawAssets\Fbx</Filter>
-    </ClCompile>
     <ClCompile Include="Resource\RawAssets\Fbx\FbxMesh.cpp">
       <Filter>Resource\RawAssets\Fbx</Filter>
     </ClCompile>
@@ -296,9 +286,6 @@
       <Filter>Resource\RawAssets\Fbx</Filter>
     </ClCompile>
     <ClCompile Include="Resource\RawAssets\gltf\gltfAnimation.cpp">
-      <Filter>Resource\RawAssets\gltf</Filter>
-    </ClCompile>
-    <ClCompile Include="Resource\RawAssets\gltf\gltfInfo.cpp">
       <Filter>Resource\RawAssets\gltf</Filter>
     </ClCompile>
     <ClCompile Include="Resource\RawAssets\gltf\gltfMesh.cpp">
@@ -342,7 +329,6 @@
     </ClCompile>
     <ClCompile Include="Resource\ResourceDatabase.cpp" />
     <ClCompile Include="Widgets\InterfaceHelpers.cpp" />
-    <ClCompile Include="Widgets\NumericEditors.cpp" />
     <ClCompile Include="GraphEditor\GraphEditor.cpp" />
     <ClCompile Include="Workspaces\ResourceWorkspace.cpp" />
     <ClCompile Include="Helpers\CommonDialogs.cpp" />

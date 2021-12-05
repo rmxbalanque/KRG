@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Deploy.nmake" />
+    <None Include="FBXSDK.nmake" />
     <None Include="Freetype.nmake" />
     <None Include="GameNetworkingSockets.nmake" />
     <None Include="KRG.ini" />

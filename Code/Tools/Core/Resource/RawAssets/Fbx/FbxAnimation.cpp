@@ -99,7 +99,7 @@ namespace KRG::RawAssets
             return pAnimation;
         }
 
-        static void ReadTrackData( Fbx::FbxSceneContext const& sceneCtx, FbxRawAnimation& rawAnimation )
+        static bool ReadTrackData( Fbx::FbxSceneContext const& sceneCtx, FbxRawAnimation& rawAnimation )
         {
             int32 const numBones = rawAnimation.m_skeleton.GetNumBones();
             float const samplingTimeStep = 1.0f / rawAnimation.m_samplingFrameRate;
@@ -124,7 +124,11 @@ namespace KRG::RawAssets
                     KRG_ASSERT( parentBoneIdx != InvalidIndex );
                     StringID const parentBoneName = rawAnimation.m_skeleton.GetBoneName( parentBoneIdx );
                     pParentBoneNode = sceneCtx.m_pScene->FindNodeByName( parentBoneName.c_str() );
-                    KRG_ASSERT( pParentBoneNode != nullptr );
+                    if ( pParentBoneNode == nullptr )
+                    {
+                        rawAnimation.LogError( "Error: Animation skeleton and animation data dont match. Skeleton bone (%s) not found in animation.", boneName.c_str() );
+                        return false;
+                    }
                 }
 
                 // Find a node that matches skeleton joint
@@ -174,6 +178,7 @@ namespace KRG::RawAssets
                     rawAnimation.m_end = currentTime;
                 }
             }
+            return true;
         }
     };
 }

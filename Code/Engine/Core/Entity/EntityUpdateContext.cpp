@@ -38,5 +38,10 @@ namespace KRG
     {
         return m_pWorld->m_debugDrawingSystem.GetDrawingContext();
     }
+
+    Debug::DrawingSystem* EntityUpdateContext::GetDebugDrawingSystem() const
+    {
+        return m_pWorld->GetDebugDrawingSystem();
+    }
     #endif
 }

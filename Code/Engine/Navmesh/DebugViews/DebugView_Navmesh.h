@@ -32,7 +32,6 @@ namespace KRG::Navmesh
 
     private:
 
-        NavmeshSystem*          m_pNavmeshSystem = nullptr;
         NavmeshWorldSystem*     m_pNavmeshWorldSystem = nullptr;
     };
 }

@@ -96,7 +96,7 @@ namespace KRG::Debug
 
     void DrawingContext::DrawPlane( Float4 const& planeEquation, Float4 const& color, DepthTestState depthTestState )
     {
-        auto const plane = Plane( planeEquation );
+        auto const plane = Plane::FromPlaneEquation( planeEquation );
         auto const translation = plane.ProjectPoint( Vector::UnitW );
         auto const rotation = Quaternion::FromRotationBetweenNormalizedVectors( Vector::UnitZ, plane.GetNormal() );
 

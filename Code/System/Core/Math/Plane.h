@@ -17,43 +17,24 @@ namespace KRG
 
     public:
 
+        // Explicit constructors since the default ones can be easily misused
+        static KRG_FORCE_INLINE Plane FromNormal( Vector const& normal ) { return Plane( normal ); }
+        static KRG_FORCE_INLINE Plane FromNormalAndPoint( Vector const& normal, Vector const& point ) { return Plane( normal, point ); }
+        static KRG_FORCE_INLINE Plane FromNormalAndDistance( Vector const& normal, float distance ) { return Plane( normal, distance ); }
+        static KRG_FORCE_INLINE Plane FromPoints( Vector const point0, Vector const point1, Vector const point2 ) { return Plane( point0, point1, point2 ); }
+        static KRG_FORCE_INLINE Plane FromPlaneEquation( Vector const& planeEquation ) { Plane p; p.m_data = planeEquation; return p; }
+
+    public:
+
         Plane() {}
 
-        Plane( float a, float b, float c, float d )
+        explicit Plane( float a, float b, float c, float d )
         {
             m_data = _mm_set_ps( d, c, b, a );
             Normalize();
         }
 
-        explicit Plane( Float3 const& point, Float3 const& normal ) : Plane( Vector( point ), Vector( normal ) ) {}
-        explicit Plane( float distance, Float3 const& normal ) : Plane( distance, Vector( normal ) ) {}
-        explicit Plane( Float3 const& point0, Float3 const& point1, Float3 const& point2 ) : Plane( Vector( point0 ), Vector( point1 ) , Vector( point2 ) ) {}
-        explicit Plane( Float4 const& planeEquation ) { m_data = _mm_set_ps( planeEquation.m_w, planeEquation.m_z, planeEquation.m_y, planeEquation.m_x ); }
-
-        explicit Plane( Vector const planeEquation ) : m_data( planeEquation.m_data ) {}
-
-        explicit Plane( float const& distance, Vector const normal )
-        {
-            KRG_ASSERT( normal.IsNormalized3() );
-            m_data = normal.m_data;
-            d = distance;
-        }
-
-        explicit Plane( Vector const point, Vector const normal )
-        {
-            KRG_ASSERT( normal.IsNormalized3() );
-            Vector const D = Vector::Dot3( point, normal ).GetNegated();
-            AsVector() = Vector::Select( D, normal, Vector( 1, 1, 1, 0 ) );
-        }
-
-        explicit Plane( Vector const point0, Vector const point1, Vector const point2 )
-        {
-            Vector const V10 = point0 - point1;
-            Vector const V20 = point0 - point2;
-            Vector const normal = Vector::Cross3( V10, V20 ).GetNormalized3();
-            Vector const D = Vector::Dot3( point0, normal ).GetNegated();
-            AsVector() = Vector::Select( D, normal, Vector( 1, 1, 1, 0 ) );
-        }
+    public:
 
         inline Vector ToVector() const { return AsVector(); }
         inline Float4 ToFloat4() const { return AsVector().ToFloat4(); }
@@ -113,7 +94,8 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        inline Vector ProjectPoint( Vector const point ) const
+        // Projects a point to the nearest point on the plane
+        inline Vector ProjectPoint( Vector const& point ) const
         {
             KRG_ASSERT( IsNormalized() );
             Vector const pointW1 = point.GetWithW1();
@@ -122,6 +104,40 @@ namespace KRG
             Vector const distanceToPlane = Vector::Dot4( pointW1, planeVector );
             Vector const projectedPoint = Vector::MultiplyAdd( planeNormal.GetNegated(), distanceToPlane, pointW1 );
             return projectedPoint;
+        }
+
+        // Align a vector onto the plane
+        inline Vector ProjectVector( Vector const& v )const
+        {
+            KRG_ASSERT( IsNormalized() );
+            Vector const planeVector = ToVector();
+            Vector const dot = v.Dot3( planeVector );
+            Vector const projectedVector = Vector::MultiplyAdd( planeVector.GetNegated(), dot, v );
+            return projectedVector;
+        }
+
+        // Project a point in 2D onto a plane. Basically intersects a vertical ray originating from the point with the plane
+        inline Vector ProjectPointVertically( Vector const& v )
+        {
+            KRG_ASSERT( !Math::IsNearZero( GetNormal().m_z ) );
+            Vector Intersection;
+            IntersectRay( v, Vector::UnitZ, Intersection );
+            return Intersection.GetWithW1();
+        }
+
+        // Project a vector vertically onto a plane. Basically intersects a vertical ray originating from the point with the plane
+        // Note: this operation will change the length of the vector!
+        inline Vector ProjectVectorVertically( Vector const& v )
+        {
+            KRG_ASSERT( !Math::IsNearZero( GetNormal().m_z ) );
+
+            // Get a copy of the plane at a distance of 0, since this operation is done in the plane referential, and not in world space.
+            Plane plane = *this;
+            plane.d = 0; 
+
+            Vector Intersection;
+            plane.IntersectRay( v, Vector::UnitZ, Intersection );
+            return Intersection;
         }
 
         //-------------------------------------------------------------------------
@@ -171,6 +187,34 @@ namespace KRG
         bool IntersectPlane( Plane const& otherPlane, Vector& outLineStart, Vector& outLineEnd ) const;
 
     private:
+
+        explicit Plane( Vector const normal )
+            : m_data( Vector::Select( normal.m_data, Vector::Zero, Vector::Select0001 ) )
+        {
+            KRG_ASSERT( normal.IsNormalized3() );
+        }
+
+        explicit Plane( Vector const normal, Vector const point )
+        {
+            KRG_ASSERT( normal.IsNormalized3() );
+            Vector const D = Vector::Dot3( point, normal ).GetNegated();
+            m_data = Vector::Select( D, normal, Vector( 1, 1, 1, 0 ) );
+        }
+
+        explicit Plane( Vector const normal, float const& distance )
+            : m_data( Vector::Select( normal.m_data, Vector( distance ), Vector::Select0001 ) )
+        {
+            KRG_ASSERT( normal.IsNormalized3() );
+        }
+
+        explicit Plane( Vector const point0, Vector const point1, Vector const point2 )
+        {
+            Vector const V10 = point0 - point1;
+            Vector const V20 = point0 - point2;
+            Vector const normal = Vector::Cross3( V10, V20 ).GetNormalized3();
+            Vector const D = Vector::Dot3( point0, normal ).GetNegated();
+            AsVector() = Vector::Select( D, normal, Vector( 1, 1, 1, 0 ) );
+        }
 
         inline Vector& AsVector() { return reinterpret_cast<Vector&>( *this ); }
         inline Vector const& AsVector() const { return reinterpret_cast<Vector const&>( *this ); }

@@ -2,6 +2,7 @@
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCapsule.h"
 #include "../Math/MathHelpers.h"
+#include "../Math/Vector.h"
 
 //------------------------------------------------------------------------- 
 
@@ -23,71 +24,39 @@ namespace KRG::Player
     {
         Transform const currentWorldTransform = pCapsuleComponent->GetWorldTransform();
         Transform finalWorldTransform = currentWorldTransform;
-        //Vector const deltaTranslationWithGravity = deltaTranslation - Vector( 0.0f, 0.0f, 5.0f * deltaTime );
 
-        if( deltaTranslation.GetLengthSquared3() == 0.0f )
-        {
-            return finalWorldTransform;
-        }
+        Vector const deltaTranslationWithGravity = deltaTranslation - Vector( 0.f, 0.f, 10.f * deltaTime );
+        //if( deltaTranslation.GetLengthSquared3() == 0.0f )
+        //{
+        //    return finalWorldTransform;
+        //}
 
         //-------------------------------------------------------------------------
 
         pPhysicsSystem->AcquireReadLock();
-
-        //-------------------------------------------------------------------------
-        // DEBUG 
-        {
-            Physics::QueryFilter filter;
-            filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
-            filter.AddIgnoredEntity( pCapsuleComponent->GetEntityID() );
-            Physics::OverlapResults overlapResult;
-            if( pPhysicsSystem->CapsuleOverlap( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), currentWorldTransform.GetRotation(), currentWorldTransform.GetTranslation(), filter, overlapResult ) )
-            {
-                KRG_LOG_MESSAGE( "Physics", "Started the move in overlap" );
-            }
-
-            Physics::SweepResults sweepResults;
-            bool sf = pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), currentWorldTransform.GetTranslation(), deltaTranslation.GetNormalized3(), deltaTranslation.GetLength3(), filter, sweepResults );
-            if( sweepResults.hasBlock && sweepResults.block.hadInitialOverlap() )
-            {
-                KRG_LOG_MESSAGE( "physics", "Sweep Fired" );
-            }
-        }
-
-        //-------------------------------------------------------------------------
-
-        {
-            Vector adjustedDeltaTranslation = SweepCapsule( pPhysicsSystem, pCapsuleComponent, currentWorldTransform.GetRotation(), currentWorldTransform.GetTranslation(), deltaTranslation, 0 );
-            finalWorldTransform.AddTranslationOffset( adjustedDeltaTranslation );
-        }
-
-        //-------------------------------------------------------------------------
-        // DEBUG 
-
-        {
-            Physics::QueryFilter filter;
-            filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
-            filter.AddIgnoredEntity( pCapsuleComponent->GetEntityID() );
-            Physics::OverlapResults overlapResult;
-            if( pPhysicsSystem->CapsuleOverlap( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), finalWorldTransform.GetRotation(), finalWorldTransform.GetTranslation(), filter, overlapResult ) )
-            {
-                KRG_LOG_MESSAGE( "Physics", "Ended the move in overlap" );
-            }
-        }
-        //-------------------------------------------------------------------------
-
+        int32 recursion = 0;
+        Vector const adjustedDeltaTranslation = SweepCapsule( pPhysicsSystem, pCapsuleComponent, currentWorldTransform.GetRotation(), currentWorldTransform.GetTranslation(), deltaTranslationWithGravity, recursion );
+        //KRG_LOG_MESSAGE( "Gameplay", "locomotion sweep took %d recursion", recursion );
         pPhysicsSystem->ReleaseReadLock();
+
+        //-------------------------------------------------------------------------
+
+        finalWorldTransform.AddTranslationOffset( adjustedDeltaTranslation );
         return finalWorldTransform;
     }
 
-    Vector PlayerLocomotionPhysicsState::SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& rotation, Vector const& startPos, Vector const& deltaTranslation, int32 Idx )
+    Vector PlayerLocomotionPhysicsState::SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& rotation, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx )
     {
+        Idx++;
+
         Vector moveDirection;
         float distance = 0.0f;
         deltaTranslation.ToDirectionAndLength3( moveDirection, distance );
 
+        // Don't sweep if the distance is insignificant
         if( distance < Math::LargeEpsilon )
         {
+            // No movement applied
             return Vector::Zero;
         }
 
@@ -98,83 +67,73 @@ namespace KRG::Player
         filter.AddIgnoredEntity( pCapsuleComponent->GetEntityID() );
 
         Physics::SweepResults sweepResults;
-        if( pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), startPos, moveDirection, distance, filter, sweepResults ) )
+        if( pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
         {
             if( sweepResults.hasBlock && sweepResults.block.hadInitialOverlap() )
             {
-                if( sweepResults.block.distance < 0.0f )
-                {
-                    // This should not really happen unless we have a really weird geo
-                    Vector const normal = Physics::FromPx( sweepResults.block.normal );
-                    float const penetrationDistance = sweepResults.block.distance;
-                    adjustedDeltaTranslation = normal * ( Math::Abs( penetrationDistance ) + Math::LargeEpsilon );
-                    KRG_LOG_MESSAGE( "Physics", "Initial penetration with actor : %s, %.4f", reinterpret_cast<EntityComponent*>( sweepResults.block.actor->userData )->GetName().c_str(), penetrationDistance );
-                }
-                else
-                {
-                    // Do nothing we are right next to the collision but not in penetration
-                    adjustedDeltaTranslation = Vector::Zero;
-                }
+                // Sometime PhysX will detect an initial overlap with 0.0 penetration depth,
+                // this is due to the discrepancy between math of the scene query (sweep) and the geo query (use for penetration dept calculation).
+                // Read this for more info : 
+                // https://gameworksdocs.nvidia.com/PhysX/4.1/documentation/physxguide/Manual/BestPractices.html#character-controller-systems-using-scene-queries-and-penetration-depth-computation
+
+                Vector const normal = Physics::FromPx( sweepResults.block.normal );
+                float const penetrationDistance = Math::Abs( sweepResults.block.distance ) + Math::HugeEpsilon;
+                Vector const AjustedStartPosition = startPosition + ( normal * penetrationDistance );
+                // Reduce the delta translation to prevent stack overflow
+                Vector const ReducedDeltaTranslation = moveDirection * Math::Max( 0.f, distance - Math::HugeEpsilon );
+
+                adjustedDeltaTranslation = SweepCapsule(pPhysicsSystem, pCapsuleComponent, rotation, AjustedStartPosition, ReducedDeltaTranslation, Idx);
             }
             else
             {
+                KRG_ASSERT( sweepResults.hasBlock );
+
                 // Purely vertical movement
                 if( moveDirection.GetLength2() == 0.f )
                 {
                     // Sweep down for collision
                     adjustedDeltaTranslation = sweepResults.GetShapePosition() - pCapsuleComponent->GetPosition();
                 }
-                else // 2D movement -> try reprojecting along the collision
+                else // 2D movement
                 {
-                    Vector const collisionPosition = sweepResults.GetShapePosition();
+                    KRG_ASSERT( moveDirection.GetLength2() > 0.f );
 
-                    //-------------------------------------------------------------------------
-                    // DEBUG
-                    Physics::OverlapResults overlapResult;
-                    if( pPhysicsSystem->CapsuleOverlap( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), rotation, collisionPosition, filter, overlapResult ) )
-                    {
-                        KRG_LOG_MESSAGE( "Physics", "The collision position is in penetration with %s", reinterpret_cast<EntityComponent*>( overlapResult.getAnyHit( 0 ).actor->userData )->GetName().c_str() );
-                    }
-                    //-------------------------------------------------------------------------
+                    Vector const collisionPosition = sweepResults.GetShapePosition();
+                    Vector const TranslationDone = collisionPosition - startPosition;
 
                     Vector const normal = Physics::FromPx( sweepResults.block.normal );
-                    //float const slopeAngle = Math::ACos( normal.GetDot3( Vector::UnitZ ) );
-                    //if( slopeAngle < Math::PiDivTwo ) // Test for floor. i.e. Slope Angle < 45 degree
+                    float const slopeAngle = Math::GetAngleBetweenNormalizedVectors( normal, Vector::UnitZ );
+
+                    // Collision with the floor
+                    static float const MaxNavigableSlopeAngle = Math::PiDivFour;
+                    if( slopeAngle < MaxNavigableSlopeAngle )
                     {
-                        float const remainingDistance = Math::Max( 0.0f, distance - sweepResults.block.distance - Math::LargeEpsilon );
-                        Vector const unitProjection = ( adjustedDeltaTranslation - ( normal * adjustedDeltaTranslation.GetDot3( normal ) ) ).GetNormalized3();
-                        Vector const newDeltaMovement = unitProjection * remainingDistance;
-                        Vector const newEndPosition = collisionPosition + newDeltaMovement;
+                        // Re-project the displacement vertically on the new ground
+                        float const remainingDistance = sweepResults.GetRemainingDistance();
+                        // the vertical projection is required since a simple projection tend to "suck" the direction along the perpendicular side of the slope
+                        Vector const ProjectedDeltaTranslation = Plane::FromNormal( normal ).ProjectVectorVertically( deltaTranslation );
+                        Vector const unitProjection = ProjectedDeltaTranslation.GetNormalized3();
+                        Vector const newDeltaMovement = unitProjection * Math::Max( 0.f, remainingDistance - Math::HugeEpsilon );
+                        KRG_ASSERT( !deltaTranslation.IsEqual3( newDeltaMovement ) );
 
-                        adjustedDeltaTranslation = collisionPosition - startPos;
-
-                        //-------------------------------------------------------------------------
-                        // DEBUG
-                        if( pPhysicsSystem->CapsuleOverlap( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), rotation, startPos + adjustedDeltaTranslation, filter, overlapResult ) )
-                        {
-                            KRG_LOG_MESSAGE( "Physics", "The adjusted position is in penetration with %s", reinterpret_cast<EntityComponent*>( overlapResult.getAnyHit( 0 ).actor->userData )->GetName().c_str() );
-                        }
-                        //-------------------------------------------------------------------------
-
-                        adjustedDeltaTranslation += SweepCapsule( pPhysicsSystem, pCapsuleComponent, rotation, collisionPosition, newDeltaMovement, Idx+1 );
+                        adjustedDeltaTranslation = TranslationDone + SweepCapsule( pPhysicsSystem, pCapsuleComponent, rotation, collisionPosition, newDeltaMovement, Idx );
                     }
-                    //else
-                    //{
-                    //    // Basic wall collision
-                    //    adjustedDeltaTranslation = collisionPosition - startPosition - ( moveDirection * Math::Min( 0.01f, distance ) );
-                    //}
+                    // collision with a wall / unnavigable slope
+                    else
+                    {
+                        // Re-project the displacement along the wall
+                        float const remainingDistance = sweepResults.GetRemainingDistance();
+                        // use a regular vector projection since we want to keep the vertically momentum when sliding along a wall;
+                        Vector const ProjectedDeltaTranslation = Plane::FromNormal( normal ).ProjectVector( deltaTranslation );
+                        Vector const unitProjection = ProjectedDeltaTranslation.GetNormalized3();
+                        Vector const newDeltaMovement = unitProjection * Math::Max( 0.f, remainingDistance - Math::HugeEpsilon );
+                        KRG_ASSERT( !deltaTranslation.IsEqual3( newDeltaMovement ) );
+
+                        adjustedDeltaTranslation = TranslationDone + SweepCapsule( pPhysicsSystem, pCapsuleComponent, rotation, collisionPosition, newDeltaMovement, Idx );
+                    }
                 }
             }
         }
-
-        //-------------------------------------------------------------------------
-        // DEBUG
-        Physics::OverlapResults overlapResult;
-        if( pPhysicsSystem->CapsuleOverlap( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), rotation, startPos + adjustedDeltaTranslation, filter, overlapResult ) )
-        {
-            KRG_LOG_MESSAGE( "Physics", "The \"no\" collision position is in penetration with " );
-        }
-        //-------------------------------------------------------------------------
 
         return adjustedDeltaTranslation;
     }

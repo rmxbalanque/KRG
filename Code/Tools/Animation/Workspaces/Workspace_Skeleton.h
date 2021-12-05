@@ -49,8 +49,8 @@ namespace KRG::Animation
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
 
-        void DrawInfoWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass );
-        void DrawSkeletonHierarchyWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass );
+        void DrawDetailsWindow( UpdateContext const& context );
+        void DrawSkeletonHierarchyWindow( UpdateContext const& context );
 
         void CreateSkeletonTree();
         void DestroySkeletonTree();
@@ -59,12 +59,13 @@ namespace KRG::Animation
     private:
 
         String                          m_skeletonTreeWindowName;
-        String                          m_infoWindowName;
+        String                          m_detailsWindowName;
 
         BoneInfo*                       m_pSkeletonTreeRoot = nullptr;
         StringID                        m_selectedBoneID;
 
         Entity*                         m_pPreviewEntity = nullptr;
         AnimatedMeshComponent*          m_pMeshComponent = nullptr;
+        bool                            m_poseReset = true;
     };
 }

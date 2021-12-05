@@ -1,10 +1,14 @@
 #pragma once
 
 #include "Engine/Navmesh/_Module/API.h"
+#include "Engine/Navmesh/NavPower.h"
 #include "Engine/Core/Entity/EntityWorldSystem.h"
 #include "System/Core/Update/UpdateContext.h"
+#include "bfxMover.h"
 
 //-------------------------------------------------------------------------
+
+namespace KRG { class TaskSystem; }
 
 namespace KRG::Navmesh
 {
@@ -30,14 +34,21 @@ namespace KRG::Navmesh
     public:
 
         KRG_REGISTER_TYPE( NavmeshWorldSystem );
-        KRG_ENTITY_WORLD_SYSTEM( NavmeshWorldSystem );
+        KRG_ENTITY_WORLD_SYSTEM( NavmeshWorldSystem, RequiresUpdate( UpdateStage::Physics ) );
 
     public:
 
         NavmeshWorldSystem() = default;
 
+        KRG_FORCE_INLINE bfx::SpaceHandle GetSpaceHandle() const { return bfx::GetDefaultSpaceHandle( m_pInstance ); }
+
+        bfx::Mover* CreateMover( TaskSystem* pTaskSystem );
+        void DestroyMover( bfx::Mover* );
+        void SetMoverGoal( bfx::Mover* pMover, Vector const& pos );
+
     private:
 
+        virtual void InitializeSystem( SystemRegistry const& systemRegistry ) override;
         virtual void ShutdownSystem() override;
 
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
@@ -46,13 +57,18 @@ namespace KRG::Navmesh
         void RegisterNavmesh( NavmeshComponent* pComponent );
         void UnregisterNavmesh( NavmeshComponent* pComponent );
 
+        void UpdateSystem( EntityUpdateContext const& ctx ) override;
+
     private:
 
+        bfx::Instance*                                  m_pInstance = nullptr;
         TVector<NavmeshComponent*>                      m_navmeshComponents;
         TVector<RegisteredNavmesh>                      m_registeredNavmeshes;
 
+
+        bfx::Mover* m_pMover = nullptr;
         #if KRG_DEVELOPMENT_TOOLS
-        bool                                            m_disableDebugDrawDepthTest = false;
+        NavpowerRenderer                                m_renderer;
         #endif
     };
 }

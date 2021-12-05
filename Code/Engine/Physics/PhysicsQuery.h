@@ -37,7 +37,8 @@ namespace KRG::Physics
         SweepResultBuffer() : physx::PxHitBuffer<physx::PxSweepHit>( m_hits, N ) {}
 
         KRG_FORCE_INLINE bool HadInitialOverlap() const { return hasBlock && block.hadInitialOverlap(); }
-        KRG_FORCE_INLINE Vector GetShapePosition() const { return m_finalShapePosition; }
+        KRG_FORCE_INLINE Vector const& GetShapePosition() const { return m_finalShapePosition; }
+        KRG_FORCE_INLINE float GetRemainingDistance() const { return m_remainingDistance; }
 
     private:
 
@@ -46,19 +47,23 @@ namespace KRG::Physics
             if ( !hasBlock )
             {
                 m_finalShapePosition = m_sweepEnd;
+                m_remainingDistance = 0.f;
             }
             else if ( block.hadInitialOverlap() )
             {
                 m_finalShapePosition = m_sweepStart;
+                m_remainingDistance = ( m_sweepEnd - m_sweepStart ).GetLength3();
             }
             else // Regular blocking hit
             {
                 Vector sweepDirection;
-                float sweepDistance = 0.0f;
-                ( m_sweepEnd - m_sweepStart ).ToDirectionAndLength3( sweepDirection, sweepDistance );
+                float originalSweepDistance = 0.0f;
+                ( m_sweepEnd - m_sweepStart ).ToDirectionAndLength3( sweepDirection, originalSweepDistance );
 
-                Vector const finalSweepDistance( Math::Max( 0.0f, ( block.distance - epsilon ) ) );
-                m_finalShapePosition = Vector::MultiplyAdd( sweepDirection, finalSweepDistance, m_sweepStart );
+                // Calculate the final shape position and remaining distance (including the epsilon)
+                float const finalSweepDistance( Math::Max( 0.0f, ( block.distance - epsilon ) ) );
+                m_finalShapePosition = Vector::MultiplyAdd( sweepDirection, Vector( finalSweepDistance ), m_sweepStart );
+                m_remainingDistance = originalSweepDistance - finalSweepDistance;
             }
         }
 
@@ -68,6 +73,7 @@ namespace KRG::Physics
         Vector                  m_sweepStart;
         Vector                  m_sweepEnd;
         Vector                  m_finalShapePosition;
+        float                   m_remainingDistance;
         physx::PxSweepHit       m_hits[N];
     };
 

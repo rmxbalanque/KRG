@@ -10,7 +10,7 @@
 
 namespace KRG::Resource
 {
-    class ResourceServerWorker final : public IAsyncTask
+    class ResourceServerWorker final : public ITaskSet
     {
     public:
 

@@ -56,10 +56,21 @@ namespace KRG::RawAssets
             {
                 for ( auto& pSkeletonNode : skeletonRootNodes )
                 {
+                    // Check skeleton node name
                     if ( pSkeletonNode->GetNameWithoutNameSpacePrefix() == skeletonRootBoneName )
                     {
                         pSkeletonToUse = pSkeletonNode;
                         break;
+                    }
+
+                    // Check null parents
+                    if ( auto pParentNode = pSkeletonNode->GetParent() )
+                    {
+                        if ( pParentNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eNull )
+                        {
+                            pSkeletonToUse = pParentNode;
+                            break;
+                        }
                     }
                 }
 
@@ -84,7 +95,7 @@ namespace KRG::RawAssets
 
         static void ReadBoneHierarchy( FbxRawSkeleton& rawSkeleton, Fbx::FbxSceneContext const& sceneCtx, fbxsdk::FbxNode* pNode, int32 parentIdx )
         {
-            KRG_ASSERT( pNode != nullptr && pNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton );
+            KRG_ASSERT( pNode != nullptr && ( pNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton || pNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eNull ) );
 
             auto const boneIdx = (int32) rawSkeleton.m_bones.size();
             rawSkeleton.m_bones.push_back( RawSkeleton::BoneData( (char const*) pNode->GetNameWithoutNameSpacePrefix() ) );
@@ -101,7 +112,7 @@ namespace KRG::RawAssets
             {
                 FbxNode* pChildNode = pNode->GetChild( i );
                 auto const attributeType = pChildNode->GetNodeAttribute()->GetAttributeType();
-                if ( attributeType == FbxNodeAttribute::eSkeleton )
+                if ( attributeType == FbxNodeAttribute::eSkeleton ) // We only support a null root node, all children need to be bones
                 {
                     ReadBoneHierarchy( rawSkeleton, sceneCtx, pChildNode, boneIdx );
                 }

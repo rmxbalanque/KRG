@@ -18,7 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Debug\DebugView_Navmesh.cpp">
+    <ClCompile Include="DebugViews\DebugView_Navmesh.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
     <ClCompile Include="_Module\Module.cpp">
@@ -32,12 +32,9 @@
     </ClCompile>
     <ClCompile Include="Systems\WorldSystem_Navmesh.cpp" />
     <ClCompile Include="NavmeshData.cpp" />
-    <ClCompile Include="NavmeshSystem.cpp" />
-    <ClCompile Include="Debug\NavmeshDebugRenderer.cpp" />
-    <ClCompile Include="Navpower.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Debug\DebugView_Navmesh.h">
+    <ClInclude Include="DebugViews\DebugView_Navmesh.h">
       <Filter>Debug</Filter>
     </ClInclude>
     <ClInclude Include="_Module\Module.h">
@@ -54,9 +51,7 @@
     </ClInclude>
     <ClInclude Include="Systems\WorldSystem_Navmesh.h" />
     <ClInclude Include="NavmeshData.h" />
-    <ClInclude Include="NavmeshSystem.h" />
     <ClInclude Include="NavPower.h" />
-    <ClInclude Include="Debug\NavmeshDebugRenderer.h" />
     <ClInclude Include="Components\Component_NavmeshVolumes.h" />
   </ItemGroup>
 </Project>

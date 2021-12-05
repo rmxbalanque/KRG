@@ -42,19 +42,22 @@ namespace KRG::Render
 
         void CreateSkeletonTree();
         void DestroySkeletonTree();
-        ImRect RenderSkeletonTree( BoneInfo* pBone ) const;
+        ImRect RenderSkeletonTree( BoneInfo* pBone );
 
-        void DrawInfoWindow( UpdateContext const& context );
         void DrawSkeletonTreeWindow( UpdateContext const& context );
+        void DrawMeshInfoWindow( UpdateContext const& context );
+        void DrawDetailsWindow( UpdateContext const& context );
 
     private:
 
         Entity*                 m_pPreviewEntity = nullptr;
         SkeletalMeshComponent*  m_pMeshComponent = nullptr;
         BoneInfo*               m_pSkeletonTreeRoot = nullptr;
+        StringID                m_selectedBoneID;
 
         String                  m_skeletonTreeWindowName;
-        String                  m_infoWindowName;
+        String                  m_meshInfoWindowName;
+        String                  m_detailsWindowName;
 
         bool                    m_showNormals = false;
         bool                    m_showVertices = false;

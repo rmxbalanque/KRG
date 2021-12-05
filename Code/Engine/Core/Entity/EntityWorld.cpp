@@ -227,7 +227,7 @@ namespace KRG
         KRG_ASSERT( Threading::IsMainThread() );
         KRG_ASSERT( !m_isSuspended );
 
-        struct EntityUpdateTask : public IAsyncTask
+        struct EntityUpdateTask : public ITaskSet
         {
             EntityUpdateTask( EntityUpdateContext const& context, TVector<Entity*>& updateList )
                 : m_context( context )
@@ -289,8 +289,11 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         EntityUpdateTask entityUpdateTask( entityUpdateContext, m_entityUpdateList );
-        m_pTaskSystem->ScheduleTask( &entityUpdateTask );
-        m_pTaskSystem->WaitForTask( &entityUpdateTask );
+        //m_pTaskSystem->ScheduleTask( &entityUpdateTask );
+        //m_pTaskSystem->WaitForTask( &entityUpdateTask );
+
+        // Force execution on main thread for debugging purposes
+        entityUpdateTask.ExecuteRange( { 0u, (uint32) m_entityUpdateList.size() }, 0 );
 
         // Update systems
         //-------------------------------------------------------------------------
@@ -336,7 +339,7 @@ namespace KRG
     void EntityWorld::ProcessComponentRegistrationRequests()
     {
         // Create a task that splits per-system registration across multiple threads
-        struct ComponentRegistrationTask : public IAsyncTask
+        struct ComponentRegistrationTask : public ITaskSet
         {
             ComponentRegistrationTask( TVector<IWorldEntitySystem*> const& worldSystems, TVector< TPair<Entity*, EntityComponent*> > const& componentsToRegister, TVector< TPair<Entity*, EntityComponent*> > const& componentsToUnregister )
                 : m_worldSystems( worldSystems )

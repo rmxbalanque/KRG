@@ -7,7 +7,7 @@
 
 namespace KRG
 {
-    class RawFileInspector;
+    namespace Resource{ class RawResourceInspector; }
 
     //-------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ namespace KRG
         bool                                                m_showRawFiles = false;
 
         ResourceBrowserTreeView                             m_treeView;
-        RawFileInspector*                                   m_pRawFileInspector = nullptr;
+        Resource::RawResourceInspector*                     m_pRawResourceInspector = nullptr;
         EventBindingID                                      m_onDoubleClickEventID;
     };
 }

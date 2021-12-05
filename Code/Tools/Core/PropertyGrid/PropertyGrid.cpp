@@ -1,7 +1,6 @@
 #include "PropertyGrid.h"
 #include "PropertyGridEditors.h"
-#include "Tools/Core/Resource/DataFilePicker.h"
-#include "Tools/Core/Widgets/NumericEditors.h"
+#include "Tools/Core/Resource/ResourceFilePicker.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/PropertyInfo.h"
 

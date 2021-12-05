@@ -193,7 +193,6 @@ namespace KRG
         }
 
         m_pPhysicsSystem = m_pSystemRegistry->GetSystem<Physics::PhysicsSystem>();
-        m_pNavmeshSystem = m_pSystemRegistry->GetSystem<Navmesh::NavmeshSystem>();
 
         m_updateContext.m_pSystemRegistry = m_pSystemRegistry;
 
@@ -458,8 +457,7 @@ namespace KRG
                 m_updateContext.m_stage = UpdateStage::PostPhysics;
 
                 //-------------------------------------------------------------------------
-                
-                m_pNavmeshSystem->Update( m_updateContext );
+
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 

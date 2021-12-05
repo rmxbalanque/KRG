@@ -73,9 +73,9 @@ namespace KRG
 
             inline Vector GetViewPosition() const { return m_worldMatrix.GetTranslation(); }
             inline Quaternion GetViewOrientation() const { return m_worldMatrix.GetRotation(); }
-            inline Vector GetForwardVector() const { return m_worldMatrix.GetUnitAxisY(); }
-            inline Vector GetRightVector() const { return m_worldMatrix.GetUnitAxisX(); }
-            inline Vector GetUpVector() const { return m_worldMatrix.GetUnitAxisZ(); }
+            inline Vector GetForwardVector() const { return m_worldMatrix.GetForwardVector(); }
+            inline Vector GetRightVector() const { return m_worldMatrix.GetRightVector(); }
+            inline Vector GetUpVector() const { return m_worldMatrix.GetUpVector(); }
 
             inline Matrix const& GetWorldMatrix() const { return m_worldMatrix; }
             inline Matrix const& GetViewMatrix() const { return m_viewMatrix; }

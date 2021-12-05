@@ -288,7 +288,7 @@ namespace KRG::ImGuiX
 
         // Find the start point on the rotation plane
         LineSegment mouseRay = viewport.ScreenSpaceToWorldSpace( m_rotationStartMousePosition );
-        Plane planeOfRotation( m_origin_WS, axisOfRotation_ws );
+        Plane planeOfRotation = Plane::FromNormalAndPoint( axisOfRotation_ws, m_origin_WS );
         Vector intersectionPoint;
         bool const intersectionResult = planeOfRotation.IntersectLine( mouseRay, intersectionPoint );
 
@@ -437,7 +437,7 @@ namespace KRG::ImGuiX
             }
             else
             {
-                Plane rotationPlane( m_origin_WS, m_rotationAxis );
+                Plane rotationPlane = Plane::FromNormalAndPoint( m_rotationAxis, m_origin_WS );
 
                 LineSegment const startMouseRay = viewport.ScreenSpaceToWorldSpace( m_rotationStartMousePosition );
                 LineSegment const newMouseRay = viewport.ScreenSpaceToWorldSpace( mousePos );
@@ -660,7 +660,7 @@ namespace KRG::ImGuiX
 
             if ( m_isAxisHoveredX )
             {
-                Plane const viewPlane( origin, viewport.GetViewForwardDirection() );
+                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewForwardDirection(), origin );
                 if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisX() );
@@ -672,7 +672,7 @@ namespace KRG::ImGuiX
             }
             else if ( m_isAxisHoveredY )
             {
-                Plane const viewPlane( origin, viewport.GetViewForwardDirection() );
+                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewForwardDirection(), origin );
                 if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisY() );
@@ -684,7 +684,7 @@ namespace KRG::ImGuiX
             }
             else if ( m_isAxisHoveredZ )
             {
-                Plane const viewPlane( origin, viewport.GetViewForwardDirection() );
+                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewForwardDirection(), origin );
                 if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisZ() );
@@ -696,7 +696,7 @@ namespace KRG::ImGuiX
             }
             else if ( m_isPlaneHoveredXY )
             {
-                Plane translationPlane( origin, m_manipulationTransform.GetAxisZ() );
+                Plane translationPlane = Plane::FromNormalAndPoint( m_manipulationTransform.GetAxisZ(), origin );
                 if ( translationPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     m_translationOffset = projectedPoint - origin;
@@ -706,7 +706,7 @@ namespace KRG::ImGuiX
             }
             else if ( m_isPlaneHoveredXZ )
             {
-                Plane translationPlane( origin, m_manipulationTransform.GetAxisY() );
+                Plane translationPlane = Plane::FromNormalAndPoint( m_manipulationTransform.GetAxisY(), origin );
                 if ( translationPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     m_translationOffset = projectedPoint - origin;
@@ -716,7 +716,7 @@ namespace KRG::ImGuiX
             }
             else if ( m_isPlaneHoveredYZ )
             {
-                Plane translationPlane( origin, m_manipulationTransform.GetAxisX() );
+                Plane translationPlane = Plane::FromNormalAndPoint( m_manipulationTransform.GetAxisX(), origin );
                 if ( translationPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     m_translationOffset = projectedPoint - origin;
@@ -751,7 +751,7 @@ namespace KRG::ImGuiX
             {
                 if ( m_manipulationMode == ManipulationMode::TranslateX )
                 {
-                    Plane const viewPlane( origin, viewport.GetViewForwardDirection() );
+                    Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewForwardDirection(), origin );
                     if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                     {
                         LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisX() );
@@ -762,7 +762,7 @@ namespace KRG::ImGuiX
 
                 else if ( m_manipulationMode == ManipulationMode::TranslateY )
                 {
-                    Plane const viewPlane( origin, viewport.GetViewForwardDirection() );
+                    Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewForwardDirection(), origin );
                     if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                     {
                         LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisY() );
@@ -773,7 +773,7 @@ namespace KRG::ImGuiX
 
                 else if ( m_manipulationMode == ManipulationMode::TranslateZ )
                 {
-                    Plane const viewPlane( origin, viewport.GetViewForwardDirection() );
+                    Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewForwardDirection(), origin );
                     if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                     {
                         LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisZ() );
@@ -784,7 +784,7 @@ namespace KRG::ImGuiX
 
                 else if ( m_manipulationMode == ManipulationMode::TranslateXY )
                 {
-                    Plane translationPlane( origin, m_manipulationTransform.GetAxisZ() );
+                    Plane translationPlane = Plane::FromNormalAndPoint( m_manipulationTransform.GetAxisZ(), origin );
                     if ( translationPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                     {
                         translationDelta = ( projectedPoint - origin - m_translationOffset );
@@ -793,7 +793,7 @@ namespace KRG::ImGuiX
 
                 else if ( m_manipulationMode == ManipulationMode::TranslateXZ )
                 {
-                    Plane translationPlane( origin, m_manipulationTransform.GetAxisY() );
+                    Plane translationPlane = Plane::FromNormalAndPoint( m_manipulationTransform.GetAxisY(), origin );
                     if ( translationPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                     {
                         translationDelta = ( projectedPoint - origin - m_translationOffset );
@@ -802,7 +802,7 @@ namespace KRG::ImGuiX
 
                 else if ( m_manipulationMode == ManipulationMode::TranslateYZ )
                 {
-                    Plane translationPlane( origin, m_manipulationTransform.GetAxisX() );
+                    Plane translationPlane = Plane::FromNormalAndPoint( m_manipulationTransform.GetAxisX(), origin );
                     if ( translationPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                     {
                         translationDelta = ( projectedPoint - origin - m_translationOffset );
@@ -1030,7 +1030,7 @@ namespace KRG::ImGuiX
             }
             else if ( m_isAxisHoveredX )
             {
-                Plane const viewPlane( origin, viewport.GetViewVolume().GetForwardVector() );
+                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewVolume().GetForwardVector(), origin );
                 if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisX() );
@@ -1042,7 +1042,7 @@ namespace KRG::ImGuiX
             }
             else if ( m_isAxisHoveredY )
             {
-                Plane const viewPlane( origin, viewport.GetViewVolume().GetForwardVector() );
+                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewVolume().GetForwardVector(), origin );
                 if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisY() );
@@ -1054,7 +1054,7 @@ namespace KRG::ImGuiX
             }
             else if ( m_isAxisHoveredZ )
             {
-                Plane const viewPlane( origin, viewport.GetViewVolume().GetForwardVector() );
+                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewVolume().GetForwardVector(), origin );
                 if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
                 {
                     LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisZ() );

@@ -1,0 +1,11 @@
+FBX_LIB_DIR = $(EXTERNAL_DEPENDENCY_DIR)lib\vs2017\x64\release\
+
+##########################################
+# FILE OPERATIONS
+##########################################
+
+prebuild:
+    xcopy /y /i /D "$(FBX_LIB_DIR)\libfbxsdk.dll" "$(OUT_DIR)"
+
+clean:
+    del /F /Q "$(OUT_DIR)libfbxsdk.dll"

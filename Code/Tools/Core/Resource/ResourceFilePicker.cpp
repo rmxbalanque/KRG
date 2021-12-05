@@ -1,4 +1,4 @@
-#include "DataFilePicker.h"
+#include "ResourceFilePicker.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -8,7 +8,7 @@
 
 namespace KRG
 {
-    bool DataFilePicker::DrawPickerControl( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypeID, ResourceID* pResourceID )
+    bool ResourceFilePicker::DrawPickerControl( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypeID, ResourceID* pResourceID )
     {
         KRG_ASSERT( FileSystem::Exists( sourceDataPath ) );
         KRG_ASSERT( allowedResourceTypeID.IsValid() && pResourceID != nullptr );
@@ -46,7 +46,7 @@ namespace KRG
         if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
         {
             ResourcePath pickedDataPath;
-            if ( DataFilePicker::PickResourceFile( sourceDataPath, allowedResourceTypeID, pickedDataPath ) )
+            if ( ResourceFilePicker::PickResourceFile( sourceDataPath, allowedResourceTypeID, pickedDataPath ) )
             {
                 *pResourceID = ResourceID( pickedDataPath );
                 valueUpdated = true;
@@ -63,7 +63,7 @@ namespace KRG
         return valueUpdated;
     }
 
-    bool DataFilePicker::PickFile( FileSystem::Path const & sourceDataPath, ResourcePath& outPath )
+    bool ResourceFilePicker::PickFile( FileSystem::Path const & sourceDataPath, ResourcePath& outPath )
     {
         auto const selectedFiles = pfd::open_file( "Choose Data File", sourceDataPath.c_str(), { "All Files", "*" }, pfd::opt::none ).result();
         if ( selectedFiles.empty() )
@@ -76,7 +76,7 @@ namespace KRG
         return true;
     }
 
-    bool DataFilePicker::PickResourceFile( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypes, ResourcePath& outPath )
+    bool ResourceFilePicker::PickResourceFile( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypes, ResourcePath& outPath )
     {
         KRG_ASSERT( allowedResourceTypes.IsValid() );
 
@@ -98,7 +98,7 @@ namespace KRG
         return true;
     }
 
-    bool DataFilePicker::PickResourceFile( FileSystem::Path const& sourceDataPath, TVector<ResourceTypeID> const& allowedResourceTypes, ResourcePath& outPath )
+    bool ResourceFilePicker::PickResourceFile( FileSystem::Path const& sourceDataPath, TVector<ResourceTypeID> const& allowedResourceTypes, ResourcePath& outPath )
     {
         KRG_ASSERT( !allowedResourceTypes.empty() );
 

@@ -25,7 +25,7 @@ namespace KRG::Render
 
     protected:
 
-        void TransferMeshGeometry( RawAssets::RawMesh const& rawMesh, Mesh& mesh ) const;
+        void TransferMeshGeometry( RawAssets::RawMesh const& rawMesh, Mesh& mesh, int32 maxBoneInfluences ) const;
         void OptimizeMeshGeometry( Mesh& mesh ) const;
         void SetMeshDefaultMaterials( MeshResourceDescriptor const& descriptor, Mesh& mesh ) const;
         void SetMeshInstallDependencies( Mesh const& mesh, Resource::ResourceHeader& hdr ) const;
@@ -35,7 +35,7 @@ namespace KRG::Render
 
     class StaticMeshCompiler : public MeshCompiler
     {
-        static const int32 s_version = 0;
+        static const int32 s_version = 1;
 
     public:
 
@@ -47,7 +47,7 @@ namespace KRG::Render
 
     class SkeletalMeshCompiler : public MeshCompiler
     {
-        static const int32 s_version = 0;
+        static const int32 s_version = 4;
 
     public:
 
