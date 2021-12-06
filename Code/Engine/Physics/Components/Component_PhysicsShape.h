@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../_Module/API.h"
+#include "Engine/Physics/_Module/API.h"
 #include "Engine/Physics/PhysX.h"
 #include "Engine/Physics/PhysicsMaterial.h"
 #include "Engine/Physics/PhysicsLayers.h"
@@ -41,9 +41,9 @@ namespace KRG::Physics
     // Each physics component will create a new actor in the scene
     // TODO: provide option to simple weld the shape from the component to its parent actor
 
-    class KRG_ENGINE_PHYSICS_API PhysicsComponent : public SpatialEntityComponent
+    class KRG_ENGINE_PHYSICS_API PhysicsShapeComponent : public SpatialEntityComponent
     {
-        KRG_REGISTER_ENTITY_COMPONENT( PhysicsComponent );
+        KRG_REGISTER_ENTITY_COMPONENT( PhysicsShapeComponent );
 
         friend class PhysicsWorldSystem;
 
@@ -73,7 +73,7 @@ namespace KRG::Physics
         void TeleportTo( Transform const& newWorldTransform );
 
         // This will set the component's world transform and request that the kinematic actor be moved to the desired location, correctly interacting with other actors on it's path.
-        // Note: the actor physics actor will only be moved during the next physics simulation step
+        // Note: the actual physics actor will only be moved during the next physics simulation step
         void MoveTo( Transform const& newWorldTransform );
 
     protected:
@@ -84,8 +84,7 @@ namespace KRG::Physics
         // Get physics materials for this component
         virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const = 0;
 
-    private:
-
+        // Update physics world position for this shape
         virtual void OnWorldTransformUpdated() override final;
 
     protected:

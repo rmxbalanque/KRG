@@ -272,10 +272,11 @@ namespace KRG::Physics
     {
         // Create default physics material
         StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
-        auto pxMaterial = m_pPhysics->createMaterial( PhysicsMaterial::DefaultStaticFriction, PhysicsMaterial::DefaultDynamicFriction, PhysicsMaterial::DefaultRestitution );
-        m_materials.insert( TPair<StringID, PhysicsMaterial>( defaultMaterialID, PhysicsMaterial( defaultMaterialID, pxMaterial ) ) );
+        m_pDefaultMaterial = m_pPhysics->createMaterial( PhysicsMaterial::DefaultStaticFriction, PhysicsMaterial::DefaultDynamicFriction, PhysicsMaterial::DefaultRestitution );
+        m_materials.insert( TPair<StringID, PhysicsMaterial>( defaultMaterialID, PhysicsMaterial( defaultMaterialID, m_pDefaultMaterial ) ) );
 
-        // Create physX material
+        // Create physX materials
+        physx::PxMaterial* pxMaterial = nullptr;
         for ( auto const& materialSettings : materials )
         {
             pxMaterial = m_pPhysics->createMaterial( materialSettings.m_staticFriction, materialSettings.m_dynamicFriction, materialSettings.m_restitution );

@@ -137,6 +137,14 @@ namespace KRG
         ImGui::End();
     }
 
+    void GenericResourceWorkspace::DrawWorkspaceToolbar( UpdateContext const& context )
+    {
+        if ( ImGui::MenuItem( KRG_ICON_CLONE" Copy Path" ) )
+        {
+            ImGui::SetClipboardText( m_descriptorID.c_str() );
+        }
+    }
+
     void GenericResourceWorkspace::DrawDescriptorWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::SetNextWindowClass( pWindowClass );

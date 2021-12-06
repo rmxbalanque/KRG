@@ -87,6 +87,11 @@ namespace KRG::Animation::Graph
         return m_pGraphComponent->IsNodeActive( nodeIdx );
     }
 
+    PoseNodeDebugInfo DebugContext::GetPoseNodeDebugInfo( NodeIndex runtimeNodeIdx ) const
+    {
+        return m_pGraphComponent->GetPoseNodeDebugInfo( runtimeNodeIdx );
+    }
+
     //-------------------------------------------------------------------------
 
     constexpr static float const g_playbackBarMinimumWidth = 120;

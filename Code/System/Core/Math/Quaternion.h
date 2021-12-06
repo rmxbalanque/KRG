@@ -30,9 +30,12 @@ namespace KRG
         // // Calculate the rotation require to align the forward vector (-Y) to the target vector
         inline static Quaternion FromOrientationVector( Vector const& targetVector ) { return FromRotationBetweenNormalizedVectors( Vector::WorldForward, targetVector.GetNormalized3() ); }
 
-        inline static Quaternion NLerp( Quaternion from, Quaternion const& to, float t );
+        inline static Quaternion NLerp( Quaternion const& from, Quaternion const& to, float t );
         inline static Quaternion SLerp( Quaternion const& from, Quaternion const& to, float t );
         inline static Quaternion SQuad( Quaternion const& q0, Quaternion const& q1, Quaternion const& q2, Quaternion const& q3, float t );
+
+        // Calculate the delta quaternion needed to rotate 'from' onto 'to'
+        inline static Quaternion Delta( Quaternion const& from, Quaternion const& to ) { return to * from.GetInverse(); }
 
         inline static Vector Dot( Quaternion const& q0, Quaternion const& q1 ) { return Vector::Dot4( q0.AsVector(), q1.AsVector() ); }
         inline static Radians Distance( Quaternion const& q0, Quaternion const& q1 );
@@ -325,17 +328,19 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    inline Quaternion Quaternion::NLerp( Quaternion from, Quaternion const& to, float T )
+    inline Quaternion Quaternion::NLerp( Quaternion const& from, Quaternion const& to, float T )
     {
         KRG_ASSERT( T >= 0.0f && T <= 1.0f );
+
+        Quaternion adjustedFrom( from );
 
         // Ensure that the rotations are in the same direction
         if ( Quaternion::Dot( from, to ).IsLessThan4( Vector::Zero ) )
         {
-            from.Negate();
+            adjustedFrom.Negate();
         }
 
-        Quaternion result( Vector::Lerp( from.ToVector(), to.ToVector(), T ) );
+        Quaternion result( Vector::Lerp( adjustedFrom.ToVector(), to.ToVector(), T ) );
         result.Normalize();
         return result;
     }

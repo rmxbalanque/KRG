@@ -24,15 +24,36 @@ namespace KRG::Animation
         virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
         virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
 
-        //-------------------------------------------------------------------------
+        // Get the graph variation ID
+        inline ResourceID const& GetGraphVariationID() const { return m_pGraphVariation.GetResourceID(); }
 
         // This function will change the graph and data-set used! Note: this can only be called for unloaded components
         void SetGraphVariation( ResourceID graphResourceID );
 
-        // Debug Interface
+        // Control Parameters
+        //-------------------------------------------------------------------------
+
+        template<typename ParameterType>
+        void SetControlParameterValue( NodeIndex parameterIdx, ParameterType const& value )
+        {
+            m_pGraphInstance->SetControlParameterValue( m_graphContext, parameterIdx, value );
+        }
+
+        KRG_FORCE_INLINE NodeIndex GetControlParameterIndex( StringID parameterID ) const
+        {
+            return m_pGraphInstance->GetControlParameterIndex( parameterID );
+        }
+
+        KRG_FORCE_INLINE ValueType GetControlParameterValueType( NodeIndex parameterIdx ) const
+        {
+            return m_pGraphInstance->GetControlParameterType( parameterIdx );
+        }
+
+        // Development Interface
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
+
         inline bool IsNodeActive( NodeIndex nodeIdx ) const
         {
             KRG_ASSERT( m_pGraphInstance != nullptr );

@@ -289,11 +289,11 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         EntityUpdateTask entityUpdateTask( entityUpdateContext, m_entityUpdateList );
-        //m_pTaskSystem->ScheduleTask( &entityUpdateTask );
-        //m_pTaskSystem->WaitForTask( &entityUpdateTask );
+        m_pTaskSystem->ScheduleTask( &entityUpdateTask );
+        m_pTaskSystem->WaitForTask( &entityUpdateTask );
 
         // Force execution on main thread for debugging purposes
-        entityUpdateTask.ExecuteRange( { 0u, (uint32) m_entityUpdateList.size() }, 0 );
+        //entityUpdateTask.ExecuteRange( { 0u, (uint32) m_entityUpdateList.size() }, 0 );
 
         // Update systems
         //-------------------------------------------------------------------------

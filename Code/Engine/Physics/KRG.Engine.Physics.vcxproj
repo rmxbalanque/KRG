@@ -64,12 +64,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Components\Component_Physics.h" />
+    <ClInclude Include="Components\Component_PhysicsShape.h" />
     <ClInclude Include="Components\Component_PhysicsBox.h" />
     <ClInclude Include="Components\Component_PhysicsCapsule.h" />
     <ClInclude Include="Components\Component_PhysicsMesh.h" />
     <ClInclude Include="Components\Component_PhysicsSphere.h" />
+    <ClInclude Include="Components\Component_PhysicsCharacter.h" />
     <ClInclude Include="Debug\DebugView_Physics.h" />
+    <ClInclude Include="PhysicsStateController.h" />
     <ClInclude Include="PhysicsLayers.h" />
     <ClInclude Include="PhysicsSettings.h" />
     <ClInclude Include="PhysicsMaterial.h" />
@@ -86,12 +88,14 @@
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Components\Component_Physics.cpp" />
+    <ClCompile Include="Components\Component_PhysicsShape.cpp" />
     <ClCompile Include="Components\Component_PhysicsBox.cpp" />
     <ClCompile Include="Components\Component_PhysicsCapsule.cpp" />
     <ClCompile Include="Components\Component_PhysicsMesh.cpp" />
     <ClCompile Include="Components\Component_PhysicsSphere.cpp" />
+    <ClCompile Include="Components\Component_PhysicsCharacter.cpp" />
     <ClCompile Include="Debug\DebugView_Physics.cpp" />
+    <ClCompile Include="PhysicsStateController.cpp" />
     <ClCompile Include="PhysicsSettings.cpp" />
     <ClCompile Include="PhysicsMaterial.cpp" />
     <ClCompile Include="PhysicsSimulationFilter.cpp" />

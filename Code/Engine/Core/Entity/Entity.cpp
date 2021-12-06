@@ -179,18 +179,6 @@ namespace KRG
             m_pRootSpatialComponent->CalculateWorldTransform( false );
         }
 
-        // Components
-        //-------------------------------------------------------------------------
-
-        for ( auto pComponent : m_components )
-        {
-            if ( pComponent->IsInitialized() )
-            {
-                RegisterComponentWithLocalSystems( pComponent );
-                activationContext.m_componentsToRegister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
-            }
-        }
-
         // Systems
         //-------------------------------------------------------------------------
 
@@ -204,6 +192,18 @@ namespace KRG
             GenerateSystemUpdateList();
             activationContext.m_registerForEntityUpdate.enqueue( this );
             m_updateRegistrationStatus = RegistrationStatus::QueuedForRegister;
+        }
+
+        // Components
+        //-------------------------------------------------------------------------
+
+        for ( auto pComponent : m_components )
+        {
+            if ( pComponent->IsInitialized() )
+            {
+                RegisterComponentWithLocalSystems( pComponent );
+                activationContext.m_componentsToRegister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
+            }
         }
 
         // Spatial Attachments
@@ -263,6 +263,22 @@ namespace KRG
             DestroySpatialAttachment();
         }
 
+        // Components
+        //-------------------------------------------------------------------------
+
+        for ( auto pComponent : m_components )
+        {
+            if ( pComponent->m_isRegisteredWithWorld )
+            {
+                activationContext.m_componentsToUnregister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
+            }
+
+            if ( pComponent->m_isRegisteredWithEntity )
+            {
+                UnregisterComponentFromLocalSystems( pComponent );
+            }
+        }
+
         // Systems
         //-------------------------------------------------------------------------
 
@@ -282,22 +298,6 @@ namespace KRG
             for ( auto pSystem : m_systems )
             {
                 pSystem->Deactivate();
-            }
-        }
-
-        // Components
-        //-------------------------------------------------------------------------
-
-        for ( auto pComponent : m_components )
-        {
-            if ( pComponent->m_isRegisteredWithWorld )
-            {
-                activationContext.m_componentsToUnregister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
-            }
-
-            if ( pComponent->m_isRegisteredWithEntity )
-            {
-                UnregisterComponentFromLocalSystems( pComponent );
             }
         }
 

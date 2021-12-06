@@ -755,8 +755,14 @@ namespace KRG::TypeSystem::Conversion
                 case CoreTypeID::StringID:
                 {
                     char const* pStr = reinterpret_cast<StringID const*>( pValue )->c_str();
-                    KRG_ASSERT( pStr != nullptr );
-                    strValue = pStr;
+                    if ( pStr != nullptr )
+                    {
+                        strValue = pStr;
+                    }
+                    else
+                    {
+                        strValue.clear();
+                    }
                 }
                 break;
 

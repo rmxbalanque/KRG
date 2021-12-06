@@ -45,12 +45,6 @@
     <ClCompile Include="AI\Systems\WorldSystem_AIManager.cpp">
       <Filter>AI\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="GameplayPhysics\Component_GameplayPhysics.cpp">
-      <Filter>GameplayPhysics</Filter>
-    </ClCompile>
-    <ClCompile Include="Player\Components\Component_PlayerPhysics.cpp">
-      <Filter>Player\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Player\PhysicsStates\PlayerPhysicsState_Locomotion.cpp">
       <Filter>Player\PhysicsStates</Filter>
     </ClCompile>
@@ -62,9 +56,11 @@
     <ClCompile Include="Player\Actions\PlayerOverlayAction_Shoot.cpp" />
     <ClCompile Include="Player\DebugViews\DebugView_Player.cpp" />
     <ClCompile Include="AI\Systems\EntitySystem_AIController.cpp" />
-    <ClCompile Include="AI\Components\Component_AIPhysics.cpp" />
-    <ClCompile Include="AI\PhysicsStates\AIPhysicsState_AnimDriven.cpp" />
     <ClCompile Include="AI\DebugViews\DebugView_AI.cpp" />
+    <ClCompile Include="AI\PhysicsStates\AIPhysicsState_AnimDriven.cpp" />
+    <ClCompile Include="Player\GraphControllers\PlayerGraphController_Locomotion.cpp" />
+    <ClCompile Include="Player\GraphControllers\PlayerGraphController_PlayerState.cpp" />
+    <ClCompile Include="Player\Actions\PlayerAction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -81,15 +77,6 @@
     </ClInclude>
     <ClInclude Include="AI\Systems\WorldSystem_AIManager.h">
       <Filter>AI\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="GameplayPhysics\Component_GameplayPhysics.h">
-      <Filter>GameplayPhysics</Filter>
-    </ClInclude>
-    <ClInclude Include="GameplayPhysics\GameplayPhysicsState.h">
-      <Filter>GameplayPhysics</Filter>
-    </ClInclude>
-    <ClInclude Include="Player\Components\Component_PlayerPhysics.h">
-      <Filter>Player\Components</Filter>
     </ClInclude>
     <ClInclude Include="Player\Actions\PlayerAction.h">
       <Filter>Player\GameplayStates</Filter>
@@ -110,8 +97,9 @@
     <ClInclude Include="Player\Actions\PlayerAction_Locomotion.h" />
     <ClInclude Include="Player\DebugViews\DebugView_Player.h" />
     <ClInclude Include="AI\Systems\EntitySystem_AIController.h" />
-    <ClInclude Include="AI\Components\Component_AIPhysics.h" />
-    <ClInclude Include="AI\PhysicsStates\AIPhysicsState_AnimDriven.h" />
     <ClInclude Include="AI\DebugViews\DebugView_AI.h" />
+    <ClInclude Include="AI\PhysicsStates\AIPhysicsState_AnimDriven.h" />
+    <ClInclude Include="Player\GraphControllers\PlayerGraphController_Locomotion.h" />
+    <ClInclude Include="Player\GraphControllers\PlayerGraphController_PlayerState.h" />
   </ItemGroup>
 </Project>

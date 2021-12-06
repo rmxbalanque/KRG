@@ -44,11 +44,13 @@
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PhysX.cpp" />
     <ClCompile Include="Systems\WorldSystem_Physics.cpp" />
-    <ClCompile Include="Components\Component_Physics.cpp" />
+    <ClCompile Include="Components\Component_PhysicsShape.cpp" />
     <ClCompile Include="Components\Component_PhysicsBox.cpp" />
     <ClCompile Include="Components\Component_PhysicsCapsule.cpp" />
     <ClCompile Include="Components\Component_PhysicsMesh.cpp" />
     <ClCompile Include="Components\Component_PhysicsSphere.cpp" />
+    <ClCompile Include="Components\Component_PhysicsCharacter.cpp" />
+    <ClCompile Include="PhysicsStateController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\DebugView_Physics.h">
@@ -79,10 +81,11 @@
     <ClInclude Include="Systems\WorldSystem_Physics.h" />
     <ClInclude Include="PhysicsLayers.h" />
     <ClInclude Include="Components\Component_PhysicsSphere.h" />
-    <ClInclude Include="Components\Component_Physics.h" />
+    <ClInclude Include="Components\Component_PhysicsShape.h" />
     <ClInclude Include="Components\Component_PhysicsBox.h" />
     <ClInclude Include="Components\Component_PhysicsCapsule.h" />
     <ClInclude Include="Components\Component_PhysicsMesh.h" />
-    <ClInclude Include="Helper\PhysicsHelper.h" />
+    <ClInclude Include="Components\Component_PhysicsCharacter.h" />
+    <ClInclude Include="PhysicsStateController.h" />
   </ItemGroup>
 </Project>

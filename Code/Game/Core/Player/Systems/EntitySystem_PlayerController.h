@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Game/Core/_Module/API.h"
-#include "Engine/Core/Entity/EntitySystem.h"
 #include "Game/Core/Player/Actions/PlayerAction.h"
+#include "Engine/Core/Entity/EntitySystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ namespace KRG::Player
                 return ( m_availability == Availability::Always ) || ( stateUpdateResult == Action::Status::Completed );
             }
 
-            ActionID     m_targetStateID;
+            ActionID            m_targetStateID;
             Availability        m_availability;
         };
 

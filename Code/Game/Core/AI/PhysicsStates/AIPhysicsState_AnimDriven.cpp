@@ -1,6 +1,6 @@
 #include "AIPhysicsState_AnimDriven.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
-#include "Engine/Physics/Components/Component_PhysicsCapsule.h"
+#include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 
 //------------------------------------------------------------------------- 
 
@@ -14,11 +14,10 @@ namespace KRG::AI
     {
     }
 
-    Transform AnimDrivenPhysicsState::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, float const deltaTime, Quaternion const& deltaRotation, Vector const& deltaTranslation )
+    bool AnimDrivenPhysicsState::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent* pCharacterComponent, float const deltaTime, Transform const& deltaTransform )
     {
-        Transform newTransform = pCapsuleComponent->GetWorldTransform();
-        newTransform.SetRotation( deltaRotation * newTransform.GetRotation() );
-        newTransform.AddTranslationOffset( deltaTranslation );
-        return newTransform;
+        Transform const newTransform = deltaTransform * pCharacterComponent->GetWorldTransform();
+        pCharacterComponent->SetWorldTransform( newTransform );
+        return true;
     }
 }

@@ -1,19 +1,19 @@
 #pragma once
-#include "Game/Core/GameplayPhysics/GameplayPhysicsState.h"
+#include "Engine/Physics/PhysicsStateController.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::AI
 {
-    class AnimDrivenPhysicsState final : public GameplayPhysics::PhysicsState
+    class AnimDrivenPhysicsState final : public Physics::PhysicsState
     {
     public:
 
-        KRG_GAMEPLAY_PHYSICS_STATE_ID( AnimDrivenPhysicsState );
+        KRG_PHYSICS_STATE_ID( AnimDrivenPhysicsState );
 
     public:
 
-        virtual Transform TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, float const deltaTime, Quaternion const& deltaRotation, Vector const& deltaTranslation ) override;
+        virtual bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent* pCharacterComponent, float const deltaTime, Transform const& deltaTransform ) override;
 
     private:
 

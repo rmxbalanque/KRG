@@ -34,6 +34,7 @@ namespace KRG
         virtual void Shutdown( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawWorkspaceToolbar( UpdateContext const& context );
         virtual bool IsDirty() const override { return m_descriptorPropertyGrid.IsDirty(); }
         virtual bool Save() override;
 

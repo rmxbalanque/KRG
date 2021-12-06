@@ -8,8 +8,6 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG { class TaskSystem; }
-
 namespace KRG::Navmesh
 {
     class NavmeshComponent;
@@ -42,7 +40,8 @@ namespace KRG::Navmesh
 
         KRG_FORCE_INLINE bfx::SpaceHandle GetSpaceHandle() const { return bfx::GetDefaultSpaceHandle( m_pInstance ); }
 
-        bfx::Mover* CreateMover( TaskSystem* pTaskSystem );
+        // HACK
+        bfx::Mover* CreateMover();
         void DestroyMover( bfx::Mover* );
         void SetMoverGoal( bfx::Mover* pMover, Vector const& pos );
 
@@ -65,8 +64,6 @@ namespace KRG::Navmesh
         TVector<NavmeshComponent*>                      m_navmeshComponents;
         TVector<RegisteredNavmesh>                      m_registeredNavmeshes;
 
-
-        bfx::Mover* m_pMover = nullptr;
         #if KRG_DEVELOPMENT_TOOLS
         NavpowerRenderer                                m_renderer;
         #endif

@@ -42,7 +42,7 @@ namespace KRG::Physics
 
     void PhysicsMeshComponent::Initialize()
     {
-        PhysicsComponent::Initialize();
+        PhysicsShapeComponent::Initialize();
 
         KRG_ASSERT( !m_pPhysicsMesh.IsValid() || m_pPhysicsMesh.IsLoaded() );
     }

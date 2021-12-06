@@ -26,6 +26,7 @@
     <ClInclude Include="Events\AnimationEvent_Foot.h" />
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
+    <ClInclude Include="Graph\AnimationGraphController.h" />
     <ClInclude Include="Graph\AnimationGraphInstance.h" />
     <ClInclude Include="Graph\AnimationGraphBoneMaskPool.h" />
     <ClInclude Include="Graph\AnimationGraphCommon.h" />
@@ -115,6 +116,7 @@
     <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Blend.cpp" />
     <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_DefaultPose.cpp" />
     <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Sample.cpp" />
+    <ClCompile Include="Graph\AnimationGraphController.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationClipLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationSkeletonLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationGraphLoader.cpp" />

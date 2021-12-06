@@ -73,7 +73,7 @@ namespace KRG::Animation::Graph
             NodeIndex runtimeNodeIdx = pDebugContext->GetRuntimeNodeIndex( GetID() );
             if ( runtimeNodeIdx != InvalidIndex && pDebugContext->IsNodeActive( runtimeNodeIdx ) )
             {
-                PoseNodeDebugInfo const debugInfo = pDebugContext->m_pGraphComponent->GetPoseNodeDebugInfo( runtimeNodeIdx );
+                PoseNodeDebugInfo const debugInfo = pDebugContext->GetPoseNodeDebugInfo( runtimeNodeIdx );
                 DrawPoseNodeDebugInfo( ctx, GetSize().x, debugInfo );
                 shouldDrawEmptyDebugInfoBlock = false;
             }

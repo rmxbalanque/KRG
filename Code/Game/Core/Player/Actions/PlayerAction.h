@@ -13,15 +13,15 @@ namespace KRG
     class EntityComponent;
     class SpatialEntityComponent;
     class OrbitCameraComponent;
-    namespace Physics { class CapsuleComponent; }
+    namespace Physics { class CharacterComponent; class PhysicsStateController; }
     namespace Input { class InputSystem; }
+    namespace Animation { class GraphControllerRegistry; }
 }
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Player
 {
-    class PlayerPhysicsComponent;
     class MainPlayerComponent;
 
     //-------------------------------------------------------------------------
@@ -30,13 +30,10 @@ namespace KRG::Player
     {
         ~ActionContext()
         {
-            KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pPlayerComponent == nullptr && m_pRootComponent == nullptr && m_pCapsuleComponent == nullptr && m_pCameraComponent == nullptr && m_pPhysicsComponent == nullptr );
+            KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pPlayerComponent == nullptr && m_pCharacterComponent == nullptr && m_pCameraComponent == nullptr && m_pPhysicsController == nullptr );
         }
 
-        inline bool IsValid() const
-        {
-            return m_pEntityUpdateContext != nullptr && m_pInputSystem != nullptr && m_pPlayerComponent != nullptr && m_pRootComponent != nullptr && m_pCapsuleComponent != nullptr && m_pCameraComponent != nullptr && m_pPhysicsComponent != nullptr;
-        }
+        bool IsValid() const;
 
         template<typename T>
         T* GetComponentByType() const
@@ -62,15 +59,15 @@ namespace KRG::Player
 
     public:
 
-        EntityUpdateContext const*              m_pEntityUpdateContext = nullptr;
-        Input::InputSystem*                     m_pInputSystem = nullptr;
+        EntityUpdateContext const*                  m_pEntityUpdateContext = nullptr;
+        Input::InputSystem*                         m_pInputSystem = nullptr;
 
-        MainPlayerComponent*                    m_pPlayerComponent = nullptr;
-        SpatialEntityComponent*                 m_pRootComponent = nullptr;
-        Physics::CapsuleComponent*              m_pCapsuleComponent = nullptr;
-        OrbitCameraComponent*                   m_pCameraComponent = nullptr;
-        PlayerPhysicsComponent*                 m_pPhysicsComponent = nullptr;
-        TInlineVector<EntityComponent*, 10>     m_components;
+        MainPlayerComponent*                        m_pPlayerComponent = nullptr;
+        Physics::PhysicsStateController*            m_pPhysicsController = nullptr;
+        Physics::CharacterComponent*                m_pCharacterComponent = nullptr;
+        Animation::GraphControllerRegistry*         m_pAnimationControllerRegistry = nullptr;
+        OrbitCameraComponent*                       m_pCameraComponent = nullptr;
+        TInlineVector<EntityComponent*, 10>         m_components;
     };
 
     //-------------------------------------------------------------------------

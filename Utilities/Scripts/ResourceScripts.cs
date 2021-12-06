@@ -414,17 +414,17 @@ namespace Scripts
                         writer.WritePropertyName("TypeID");
                         writer.WriteValue("KRG::Animation::AnimationClipResourceDescriptor");
 
-                        writer.WritePropertyName("m_animationDataPath");
+                        writer.WritePropertyName("m_animationPath");
                         writer.WriteValue( dataPath );
 
                         writer.WritePropertyName("m_pSkeleton");
-                        writer.WriteValue("data://animation/amplify/amplifyskeleton.skel");
+                        writer.WriteValue("data://packs/amplify/amplifyskeleton.skel");
 
                         writer.WritePropertyName("m_animationEventData");
                         writer.WriteValue("");
 
                         writer.WritePropertyName("m_animationName");
-                        writer.WriteValue("Scene");
+                        writer.WriteValue( Path.GetFileNameWithoutExtension( file.Name ) );
 
                         writer.WriteEndObject();
                     }

@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-compile data://maps/br_minimal.map -compile data://packs/amplify/amplifycharacter.smsh -compile data://test/ar_walk_fwd.anim</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://maps/br_minimal.map -compile data://packs/amplify/amplifycharacter.smsh -compile data://test/ar_walk_fwd.anim</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-compile data://packs/amplify/ar_aim_crouch_enter.anim</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://packs/amplify/ar_aim_crouch_enter.anim</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>

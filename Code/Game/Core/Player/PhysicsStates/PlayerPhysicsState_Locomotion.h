@@ -1,31 +1,38 @@
 #pragma once
-#include "Game/Core/GameplayPhysics/GameplayPhysicsState.h"
+#include "Engine/Physics/PhysicsStateController.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Player
 {
-    class PlayerLocomotionPhysicsState final : public GameplayPhysics::PhysicsState
+    class PlayerLocomotionPhysicsState final : public Physics::PhysicsState
     {
     public:
 
-        KRG_GAMEPLAY_PHYSICS_STATE_ID( PlayerLocomotionPhysicsState );
+        KRG_PHYSICS_STATE_ID( PlayerLocomotionPhysicsState );
 
     public:
 
         void PredictMovement();
-        virtual Transform TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, float const deltaTime, Quaternion const& deltaRotation, Vector const& deltaTranslation ) override;
+        virtual bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent* pCharacterComponent, float const deltaTime, Transform const& deltaTransform ) override;
+
+        // HACK
+        void SetHackDesires( Vector const& headingVelocity, Quaternion const& facing )
+        {
+            m_headingHack = headingVelocity;
+            m_facingHack = facing;
+        }
 
     private:
 
         virtual void Activate() override;
         virtual void Deactivate() override;
 
-        Vector SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& rotation, Vector const& startPos, Vector const& endPos, int32& Idx );
+        Vector SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent const* pCharacterComponent, Quaternion const& rotation, Vector const& startPos, Vector const& endPos, int32& Idx );
 
     public:
 
-        Vector m_deltaMovementHack = Vector::Zero;
-        Quaternion m_deltaRotationHack = Quaternion::Identity;
+        Vector m_headingHack = Vector::Zero;
+        Quaternion m_facingHack = Quaternion::Identity;
     };
 }

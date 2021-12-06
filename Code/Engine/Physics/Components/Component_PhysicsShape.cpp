@@ -1,10 +1,10 @@
-#include "Component_Physics.h"
+#include "Component_PhysicsShape.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Physics
 {
-    void PhysicsComponent::OnWorldTransformUpdated()
+    void PhysicsShapeComponent::OnWorldTransformUpdated()
     {
         if ( m_pPhysicsActor != nullptr && IsKinematic() )
         {
@@ -18,7 +18,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsComponent::TeleportTo( Transform const& newWorldTransform )
+    void PhysicsShapeComponent::TeleportTo( Transform const& newWorldTransform )
     {
         KRG_ASSERT( m_pPhysicsActor != nullptr && IsKinematic() );
         SetWorldTransformDirectly( newWorldTransform, false ); // Do not fire callback as we dont want to lock the scene twice
@@ -32,13 +32,13 @@ namespace KRG::Physics
         physicsScene->unlockWrite();
     }
 
-    void PhysicsComponent::MoveTo( Transform const& newWorldTransform )
+    void PhysicsShapeComponent::MoveTo( Transform const& newWorldTransform )
     {
         KRG_ASSERT( m_pPhysicsActor != nullptr && IsKinematic() );
         SetWorldTransform( newWorldTransform ); // The callback will update the kinematic target
     }
 
-    void PhysicsComponent::SetVelocity( Float3 newVelocity )
+    void PhysicsShapeComponent::SetVelocity( Float3 newVelocity )
     {
         KRG_ASSERT( m_pPhysicsActor != nullptr && IsDynamic() );
         KRG_UNIMPLEMENTED_FUNCTION();

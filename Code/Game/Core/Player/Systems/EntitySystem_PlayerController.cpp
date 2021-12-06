@@ -1,24 +1,51 @@
 #include "EntitySystem_PlayerController.h"
-#include "Game/Core/Player/Actions/PlayerAction_Locomotion.h"
-#include "Game/Core/Player/Actions/PlayerAction_Jump.h"
-#include "Game/Core/Player/Actions/PlayerOverlayAction_Shoot.h"
-#include "Game/Core/Player/Components/Component_PlayerPhysics.h"
 #include "Game/Core/Player/Components/Component_MainPlayer.h"
-#include "Game/Core/GameplayPhysics/GameplayPhysicsState.h"
+#include "Engine/Animation/Graph/AnimationGraphController.h"
+#include "Engine/Physics/PhysicsStateController.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
-#include "Engine/Physics/Components/Component_PhysicsCapsule.h"
+#include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Core/Components/Component_Cameras.h"
 #include "Engine/Core/Components/Component_Player.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Types/ScopedValue.h"
 
-// HACK
+// Actions
+#include "Game/Core/Player/Actions/PlayerAction_Locomotion.h"
+#include "Game/Core/Player/Actions/PlayerAction_Jump.h"
+#include "Game/Core/Player/Actions/PlayerOverlayAction_Shoot.h"
+
+// Physics States
 #include "Game/Core/Player/PhysicsStates/PlayerPhysicsState_Locomotion.h"
+
+// Anim controllers
+#include "Game/Core/Player/GraphControllers/PlayerGraphController_PlayerState.h"
+#include "Game/Core/Player/GraphControllers/PlayerGraphController_Locomotion.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Player
 {
+    class PlayerPhysicsController final : public Physics::PhysicsStateController
+    {
+        virtual void CreatePhysicsStatesInternal() override
+        {
+            m_registeredStates.emplace_back( KRG::New<PlayerLocomotionPhysicsState>() );
+            m_pActiveState = m_registeredStates.back();
+            m_pActiveState->Activate();
+        }
+    };
+
+    class PlayerAnimationControllers final : public Animation::GraphControllerRegistry
+    {
+        virtual void CreateControllersInternal( Animation::AnimationGraphComponent* pGraphComponent ) override
+        {
+            m_controllers.emplace_back( KRG::New<PlayerStateGraphController>( pGraphComponent ) );
+            m_controllers.emplace_back( KRG::New<LocomotionGraphController>( pGraphComponent ) );
+        }
+    };
+
+    //-------------------------------------------------------------------------
+
     PlayerController::~PlayerController()
     {
         for ( auto pBaseAction : m_baseActions )
@@ -33,32 +60,36 @@ namespace KRG::Player
 
     void PlayerController::Activate()
     {
+        // Physics States
+        m_actionContext.m_pPhysicsController = KRG::New<PlayerPhysicsController>();
+        m_actionContext.m_pPhysicsController->CreatePhysicsStates();
+
+        // Animation Controllers
+        m_actionContext.m_pAnimationControllerRegistry = KRG::New<PlayerAnimationControllers>();
+
+        // Player Actions
         InitializeStateMachine();
     }
 
     void PlayerController::Deactivate()
     {
         ShutdownStateMachine();
+
+        KRG::Delete( m_actionContext.m_pAnimationControllerRegistry );
+
+        m_actionContext.m_pPhysicsController->DestroyPhysicsStates();
+        KRG::Delete( m_actionContext.m_pPhysicsController );
     }
 
     //-------------------------------------------------------------------------
 
     void PlayerController::RegisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
-        {
-            if ( pSpatialComponent->IsRootComponent() )
-            {
-                KRG_ASSERT( m_actionContext.m_pRootComponent == nullptr );
-                m_actionContext.m_pRootComponent = pSpatialComponent;
-            }
-        }
-
-        if ( auto pCapsuleComponent = TryCast<Physics::CapsuleComponent>( pComponent ) )
+        if ( auto pCharacterComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
         {
             // TODO: handle multiple comps per player
-            KRG_ASSERT( m_actionContext.m_pCapsuleComponent == nullptr );
-            m_actionContext.m_pCapsuleComponent = pCapsuleComponent;
+            KRG_ASSERT( m_actionContext.m_pCharacterComponent == nullptr );
+            m_actionContext.m_pCharacterComponent = pCharacterComponent;
         }
 
         if ( auto pCameraComponent = TryCast<OrbitCameraComponent>( pComponent ) )
@@ -73,12 +104,9 @@ namespace KRG::Player
             m_actionContext.m_pPlayerComponent = pPlayerComponent;
         }
 
-        if ( auto pGameplayPhysicsComponent = TryCast<PlayerPhysicsComponent>( pComponent ) )
+        if ( auto pGraphComponent = TryCast<Animation::AnimationGraphComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pPhysicsComponent == nullptr );
-            m_actionContext.m_pPhysicsComponent = pGameplayPhysicsComponent;
-            pGameplayPhysicsComponent->CreatePhysicsStates();
-            KRG_ASSERT( pGameplayPhysicsComponent->GetActivePhysicsState() != nullptr );
+            m_actionContext.m_pAnimationControllerRegistry->CreateControllers( pGraphComponent ); 
         }
 
         //-------------------------------------------------------------------------
@@ -92,19 +120,11 @@ namespace KRG::Player
 
         //-------------------------------------------------------------------------
 
-        if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
+        if ( auto pCharacterComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
         {
-            if ( pSpatialComponent->IsRootComponent() && m_actionContext.m_pRootComponent == pSpatialComponent )
+            if ( m_actionContext.m_pCharacterComponent == pCharacterComponent )
             {
-                m_actionContext.m_pRootComponent = nullptr;
-            }
-        }
-
-        if ( auto pCapsuleComponent = TryCast<Physics::CapsuleComponent>( pComponent ) )
-        {
-            if ( m_actionContext.m_pCapsuleComponent == pCapsuleComponent )
-            {
-                m_actionContext.m_pCapsuleComponent = nullptr;
+                m_actionContext.m_pCharacterComponent = nullptr;
             }
         }
 
@@ -120,11 +140,9 @@ namespace KRG::Player
             m_actionContext.m_pPlayerComponent = nullptr;
         }
 
-        if ( auto pGameplayPhysicsComponent = TryCast<PlayerPhysicsComponent>( pComponent ) )
+        if ( auto pGraphComponent = TryCast<Animation::AnimationGraphComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pPhysicsComponent == pGameplayPhysicsComponent );
-            m_actionContext.m_pPhysicsComponent->DestroyPhysicsStates();
-            m_actionContext.m_pPhysicsComponent = nullptr;
+            m_actionContext.m_pAnimationControllerRegistry->DestroyControllers();
         }
     }
 
@@ -140,39 +158,19 @@ namespace KRG::Player
             return;
         }
 
-        if ( !m_actionContext.m_pPlayerComponent->IsPlayerEnabled() )
-        {
-            return;
-        }
-
         //-------------------------------------------------------------------------
-
-        // Update gameplay action
-        {
-            // Convert input into desired displacement
-            // Prediction if required (gameplay physic state)
-            // update animation controller
-        }
-
-        // Update animation component
-
-        // Move character capsule (gameplay physic state)
-
-        // update camera
 
         UpdateStateMachine();
 
-        auto pPhysicsSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
-        auto pLocomotionPhysicsState = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
+        // Update animation and get root motion delta
+        auto pLocomotionPhysicsState = m_actionContext.m_pPhysicsController->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
+        Transform const deltaTransform( pLocomotionPhysicsState->m_facingHack, pLocomotionPhysicsState->m_headingHack );
 
         // Move character
-        Transform const finalPosition = m_actionContext.m_pPhysicsComponent->GetActivePhysicsState()->TryMoveCapsule( pPhysicsSystem, m_actionContext.m_pCapsuleComponent, ctx.GetDeltaTime(), Quaternion::Identity, pLocomotionPhysicsState->m_deltaMovementHack );
-        Transform const fromCapsuleToRoot = m_actionContext.m_pRootComponent->GetWorldTransform() * m_actionContext.m_pCapsuleComponent->GetWorldTransform().GetInverse();
+        auto pPhysicsSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
+        m_actionContext.m_pPhysicsController->GetActivePhysicsState()->TryMoveCapsule( pPhysicsSystem, m_actionContext.m_pCharacterComponent, ctx.GetDeltaTime(), deltaTransform );
 
-        Transform newTransform = fromCapsuleToRoot * finalPosition;
-        newTransform.SetRotation( pLocomotionPhysicsState->m_deltaRotationHack );
-
-        m_actionContext.m_pRootComponent->SetWorldTransform( newTransform );
+        // Update camera position relative to new character position
         m_actionContext.m_pCameraComponent->FinalizeCameraPosition();
     }
 

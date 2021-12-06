@@ -1,18 +1,17 @@
-#include "Component_GameplayPhysics.h"
-#include "GameplayPhysicsState.h"
+#include "PhysicsStateController.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::GameplayPhysics
+namespace KRG::Physics
 {
-    void GameplayPhysicsComponent::CreatePhysicsStates()
+    void PhysicsStateController::CreatePhysicsStates()
     {
         KRG_ASSERT( m_registeredStates.empty() );
         CreatePhysicsStatesInternal();
         KRG_ASSERT( !m_registeredStates.empty() );
     }
 
-    void GameplayPhysicsComponent::DestroyPhysicsStates()
+    void PhysicsStateController::DestroyPhysicsStates()
     {
         KRG_ASSERT( !m_registeredStates.empty() );
         m_pActiveState->Deactivate();

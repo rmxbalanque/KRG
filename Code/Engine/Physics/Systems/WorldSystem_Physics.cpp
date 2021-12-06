@@ -1,5 +1,6 @@
 #include "WorldSystem_Physics.h"
 #include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Physics/Components/Component_PhysicsMesh.h"
 #include "Engine/Physics/Components/Component_PhysicsCapsule.h"
 #include "Engine/Physics/Components/Component_PhysicsSphere.h"
@@ -39,17 +40,17 @@ namespace KRG::Physics
         m_pPhysicsSystem->DestroyScene( m_pScene );
         m_pPhysicsSystem = nullptr;
 
-        KRG_ASSERT( m_registeredPhysicsComponents.empty() );
-        KRG_ASSERT( m_dynamicComponents.empty() );
+        KRG_ASSERT( m_physicsShapeComponents.empty() );
+        KRG_ASSERT( m_dynamicShapeComponents.empty() );
     }
 
     //-------------------------------------------------------------------------
 
     void PhysicsWorldSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        if ( auto pPhysicsComponent = TryCast<PhysicsComponent>( pComponent ) )
+        if ( auto pPhysicsComponent = TryCast<PhysicsShapeComponent>( pComponent ) )
         {
-            m_registeredPhysicsComponents.Add( pPhysicsComponent );
+            m_physicsShapeComponents.Add( pPhysicsComponent );
 
             //-------------------------------------------------------------------------
 
@@ -94,21 +95,52 @@ namespace KRG::Physics
 
             if ( pPhysicsComponent->m_actorType != ActorType::Static )
             {
-                m_dynamicComponents.Add( pPhysicsComponent );
+                m_dynamicShapeComponents.Add( pPhysicsComponent );
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( auto pCharacterComponent = TryCast<CharacterComponent>( pComponent ) )
+        {
+            m_characterComponents.Add( pCharacterComponent );
+
+            //-------------------------------------------------------------------------
+
+            if ( !pCharacterComponent->HasValidPhysicsSetup() )
+            {
+                KRG_LOG_ERROR( "Physics", "No Physics Material set for component: %s (%u), no physics actors will be created!", pCharacterComponent->GetName().c_str(), pCharacterComponent->GetID() );
+                return;
+            }
+
+            #if KRG_DEVELOPMENT_TOOLS
+            pCharacterComponent->m_debugName = pCharacterComponent->GetName().c_str();
+            #endif
+
+            if ( CreateCharacterActorAndShape( pCharacterComponent ) )
+            {
+                m_pScene->lockWrite();
+                m_pScene->addActor( *pCharacterComponent->m_pPhysicsActor );
+                m_pScene->unlockWrite();
+            }
+            else
+            {
+                KRG_LOG_ERROR( "Physics", "Failed to create physics actor/shape for character %s (%u)!", pCharacterComponent->GetName().c_str(), pCharacterComponent->GetID() );
+                return;
             }
         }
     }
 
     void PhysicsWorldSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
-        if ( auto pPhysicsComponent = TryCast<PhysicsComponent>( pComponent ) )
+        if ( auto pPhysicsComponent = TryCast<PhysicsShapeComponent>( pComponent ) )
         {
             // Remove from dynamic components list
             //-------------------------------------------------------------------------
 
             if ( pPhysicsComponent->m_pPhysicsActor != nullptr && pPhysicsComponent->m_actorType != ActorType::Static )
             {
-                m_dynamicComponents.Remove( pPhysicsComponent->GetID() );
+                m_dynamicShapeComponents.Remove( pPhysicsComponent->GetID() );
             }
 
             // Destroy physics actor (if one exists)
@@ -136,13 +168,45 @@ namespace KRG::Physics
 
             //-------------------------------------------------------------------------
 
-            m_registeredPhysicsComponents.Remove( pComponent->GetID() );
+            m_physicsShapeComponents.Remove( pComponent->GetID() );
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( auto pCharacterComponent = TryCast<CharacterComponent>( pComponent ) )
+        {
+            // Destroy physics actor (if one exists)
+            //-------------------------------------------------------------------------
+
+            if ( pCharacterComponent->m_pPhysicsActor != nullptr )
+            {
+                m_pScene->lockWrite();
+                m_pScene->removeActor( *pCharacterComponent->m_pPhysicsActor );
+                m_pScene->unlockWrite();
+
+                pCharacterComponent->m_pPhysicsActor->release();
+            }
+
+            // Clear component data
+            //-------------------------------------------------------------------------
+
+            pCharacterComponent->m_pCapsuleShape = nullptr;
+            pCharacterComponent->m_pPhysicsActor = nullptr;
+            pCharacterComponent->SetLocalBounds( OBB() );
+
+            #if KRG_DEVELOPMENT_TOOLS
+            pCharacterComponent->m_debugName.clear();
+            #endif
+
+            //-------------------------------------------------------------------------
+
+            m_characterComponents.Remove( pComponent->GetID() );
         }
     }
 
     //-------------------------------------------------------------------------
 
-    physx::PxRigidActor* PhysicsWorldSystem::CreateActor( PhysicsComponent* pComponent ) const
+    physx::PxRigidActor* PhysicsWorldSystem::CreateActor( PhysicsShapeComponent* pComponent ) const
     {
         KRG_ASSERT( pComponent != nullptr );
 
@@ -151,8 +215,8 @@ namespace KRG::Physics
         // Create and setup actor
         //-------------------------------------------------------------------------
 
-        Transform const& worldTransform = pComponent->GetWorldTransform();
-        PxTransform const bodyPose( ToPx( worldTransform.GetTranslation() ), ToPx( worldTransform.GetRotation() ) );
+        Transform const& physicsTransform = pComponent->GetWorldTransform();
+        PxTransform const bodyPose( ToPx( physicsTransform.GetTranslation() ), ToPx( physicsTransform.GetRotation() ) );
 
         physx::PxRigidActor* pPhysicsActor = nullptr;
 
@@ -194,7 +258,7 @@ namespace KRG::Physics
         return pPhysicsActor;
     }
 
-    physx::PxShape* PhysicsWorldSystem::CreateShape( PhysicsComponent* pComponent, physx::PxRigidActor* pPhysicsActor ) const
+    physx::PxShape* PhysicsWorldSystem::CreateShape( PhysicsShapeComponent* pComponent, physx::PxRigidActor* pPhysicsActor ) const
     {
         KRG_ASSERT( pComponent != nullptr && pPhysicsActor != nullptr );
 
@@ -255,8 +319,8 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
         // We also calculate and set the component local bounds
 
-        Transform const& worldTransform = pComponent->GetWorldTransform();
-        Vector const& scale = worldTransform.GetScale();
+        Transform const& physicsComponentTransform = pComponent->GetWorldTransform();
+        Vector const& scale = physicsComponentTransform.GetScale();
 
         PxPhysics& physics = m_pPhysicsSystem->GetPxPhysics();
         OBB localBounds;
@@ -314,7 +378,7 @@ namespace KRG::Physics
         pPhysicsShape->setSimulationFilterData( PxFilterData( pComponent->m_layers.Get(), 0, 0, 0 ) );
         pPhysicsShape->setQueryFilterData( PxFilterData( pComponent->m_layers.Get(), 0, 0, 0 ) );
 
-        pPhysicsShape->userData = const_cast<PhysicsComponent*>( pComponent );
+        pPhysicsShape->userData = const_cast<PhysicsShapeComponent*>( pComponent );
         pComponent->m_pPhysicsShape = pPhysicsShape;
 
         #if KRG_DEVELOPMENT_TOOLS
@@ -332,6 +396,53 @@ namespace KRG::Physics
         return pPhysicsShape;
     }
 
+    bool PhysicsWorldSystem::CreateCharacterActorAndShape( CharacterComponent* pComponent ) const
+    {
+        KRG_ASSERT( pComponent != nullptr );
+        PxPhysics& physics = m_pPhysicsSystem->GetPxPhysics();
+
+        // Create actor
+        //-------------------------------------------------------------------------
+
+        PxTransform const bodyPose( ToPx( pComponent->m_capsuleWorldTransform.GetTranslation() ), ToPx( pComponent->m_capsuleWorldTransform.GetRotation() ) );
+
+        PxRigidDynamic* pRigidDynamicActor = physics.createRigidDynamic( bodyPose );
+        pRigidDynamicActor->setRigidBodyFlag( PxRigidBodyFlag::eKINEMATIC, true );
+        pRigidDynamicActor->userData = pComponent;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        pRigidDynamicActor->setName( pComponent->m_debugName.c_str() );
+        #endif
+
+        pComponent->m_pPhysicsActor = pRigidDynamicActor;
+
+        // Create Capsule Shape
+        //-------------------------------------------------------------------------
+
+        PxMaterial* const defaultMaterial[1] = { m_pPhysicsSystem->GetDefaultMaterial() };
+        PxShapeFlags shapeFlags( PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE );
+        PxCapsuleGeometry const capsuleGeo( pComponent->m_radius, pComponent->m_cylinderPortionHalfHeight );
+
+        pComponent->m_pCapsuleShape = physics.createShape( capsuleGeo, defaultMaterial, 1, true, shapeFlags );
+        pComponent->m_pCapsuleShape->setSimulationFilterData( PxFilterData( pComponent->m_layers.Get(), 0, 0, 0 ) );
+        pComponent->m_pCapsuleShape->setQueryFilterData( PxFilterData( pComponent->m_layers.Get(), 0, 0, 0 ) );
+        pComponent->m_pCapsuleShape->userData = pComponent;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        pComponent->m_pCapsuleShape->setName( pComponent->m_debugName.c_str() );
+        #endif
+
+        pComponent->m_pPhysicsActor->attachShape( *pComponent->m_pCapsuleShape );
+        pComponent->m_pCapsuleShape->release();
+
+        // Set Component Bounds
+        //-------------------------------------------------------------------------
+
+        OBB const localBounds( Vector::Origin, Vector( pComponent->m_cylinderPortionHalfHeight + pComponent->m_radius, pComponent->m_radius, pComponent->m_radius ) );
+        pComponent->SetLocalBounds( localBounds );
+        return true;
+    }
+
     //-------------------------------------------------------------------------
     
     void PhysicsWorldSystem::UpdateSystem( EntityUpdateContext const& ctx )
@@ -342,7 +453,7 @@ namespace KRG::Physics
 
         AcquireReadLock();
 
-        for ( auto const& pDynamicPhysicsComponent : m_dynamicComponents )
+        for ( auto const& pDynamicPhysicsComponent : m_dynamicShapeComponents )
         {
             // Transfer physics pose back to component
             if ( pDynamicPhysicsComponent->m_pPhysicsActor != nullptr && pDynamicPhysicsComponent->m_actorType == ActorType::Dynamic )

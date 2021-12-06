@@ -160,7 +160,7 @@ namespace KRG::Physics
         ImGui::SetNextWindowBgAlpha( 0.5f );
         if ( ImGui::Begin( "Physics Components", &m_isComponentWindowOpen ) )
         {
-            for ( PhysicsComponent* pPhysicsComponent : m_pPhysicsWorldSystem->m_registeredPhysicsComponents )
+            for ( PhysicsShapeComponent* pPhysicsComponent : m_pPhysicsWorldSystem->m_physicsShapeComponents )
             {
                 bool isSelectedComponent = pPhysicsComponent == m_pSelectedComponent;
                 selectedComponentValid |= isSelectedComponent;
@@ -195,7 +195,7 @@ namespace KRG::Physics
         {
             if ( m_pSelectedComponent != nullptr )
             {
-                DrawComponentVisualization( context, reinterpret_cast<PhysicsComponent*>( m_pSelectedComponent ) );
+                DrawComponentVisualization( context, reinterpret_cast<PhysicsShapeComponent*>( m_pSelectedComponent ) );
             }
         }
         else
@@ -204,7 +204,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsDebugView::DrawComponentVisualization( EntityUpdateContext const& context, PhysicsComponent const* pComponent ) const
+    void PhysicsDebugView::DrawComponentVisualization( EntityUpdateContext const& context, PhysicsShapeComponent const* pComponent ) const
     {
         auto drawingContext = context.GetDrawingContext();
 

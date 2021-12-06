@@ -1,19 +1,43 @@
 #pragma once
-
-#include "Game/Core/_Module/API.h"
-#include "Engine/Core/Entity/EntitySpatialComponent.h"
+#include "_Module/API.h"
+#include "System/Core/Math/Transform.h"
+#include "System/Core/Algorithm/Hash.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::GameplayPhysics
+namespace KRG::Physics
 {
-    class PhysicsState;
+    class CharacterComponent;
+    class PhysicsWorldSystem;
+}
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Physics
+{
+    class PhysicsState
+    {
+    public:
+
+        virtual ~PhysicsState() = default;
+
+        // Get the ID for this physics state
+        virtual uint32 GetPhysicsStateID() const = 0;
+
+        // Called whenever we switch to this state
+        virtual void Activate() {}
+
+        // Called whenever we leave this state
+        virtual void Deactivate() {}
+
+        // Try to move the capsule, delta rotation/translation are in world space. Returns true if the capsule was able to be moved
+        virtual bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent* pCharacterComponent, float const deltaTime, Transform const& deltaTransform ) = 0;
+    };
 
     //-------------------------------------------------------------------------
 
-    class KRG_GAME_CORE_API GameplayPhysicsComponent : public EntityComponent
+    class KRG_ENGINE_PHYSICS_API PhysicsStateController
     {
-        KRG_REGISTER_SINGLETON_ENTITY_COMPONENT( GameplayPhysicsComponent );
 
     public:
 
@@ -31,7 +55,7 @@ namespace KRG::GameplayPhysics
         void DestroyPhysicsStates();
 
         // Get the currently active physics state
-        inline GameplayPhysics::PhysicsState* GetActivePhysicsState() const { return m_pActiveState; }
+        inline PhysicsState* GetActivePhysicsState() const { return m_pActiveState; }
 
         // Get the currently active physics state
         template<typename T>
@@ -46,14 +70,14 @@ namespace KRG::GameplayPhysics
         template<typename T>
         inline T* SetPhysicsState( SetStateOption const option = SetStateOption::CrashIfAlreadyActive ) const
         {
-            static_assert( std::is_base_of<KRG::GameplayPhysics::PhysicsState, T>::value, "T is not derived from GameplayPhysics::State" );
+            static_assert( std::is_base_of<KRG::PhysicsState, T>::value, "T is not derived from GameplayPhysics::State" );
             KRG_ASSERT( m_pActiveState != nullptr );
 
             // Find the new state
             //-------------------------------------------------------------------------
 
-            GameplayPhysics::PhysicsState* pNewState = nullptr;
-            for ( GameplayPhysics::PhysicsState* pState : m_registeredStates )
+            PhysicsState* pNewState = nullptr;
+            for ( PhysicsState* pState : m_registeredStates )
             {
                 if ( pState->GetPhysicsStateID() == T::s_physicsStateID )
                 {
@@ -71,7 +95,7 @@ namespace KRG::GameplayPhysics
             {
                 switch ( option )
                 {
-                    case CrashIfAlreadyActive :
+                    case CrashIfAlreadyActive:
                     {
                         KRG_HALT();
                     }
@@ -107,7 +131,13 @@ namespace KRG::GameplayPhysics
 
     protected:
 
-        GameplayPhysics::PhysicsState*                      m_pActiveState = nullptr;
-        TInlineVector<GameplayPhysics::PhysicsState*, 6>    m_registeredStates;
+        PhysicsState*                      m_pActiveState = nullptr;
+        TInlineVector<PhysicsState*, 6>    m_registeredStates;
     };
 }
+
+//-------------------------------------------------------------------------
+
+#define KRG_PHYSICS_STATE_ID( TypeName ) \
+constexpr static uint32 const s_physicsStateID = Hash::FNV1a::GetHash32( #TypeName ); \
+virtual uint32 GetPhysicsStateID() const override final { return TypeName::s_physicsStateID; }

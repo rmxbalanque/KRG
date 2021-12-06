@@ -52,6 +52,7 @@ namespace KRG::Animation
             }
 
             bool IsNodeActive( NodeIndex nodeIdx ) const;
+            PoseNodeDebugInfo GetPoseNodeDebugInfo( NodeIndex runtimeNodeIdx ) const;
 
         public:
 

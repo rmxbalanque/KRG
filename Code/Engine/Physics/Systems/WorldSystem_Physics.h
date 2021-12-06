@@ -14,7 +14,8 @@
 namespace KRG::Physics
 {
     class PhysicsSystem;
-    class PhysicsComponent;
+    class PhysicsShapeComponent;
+    class CharacterComponent;
 
     //-------------------------------------------------------------------------
 
@@ -27,7 +28,7 @@ namespace KRG::Physics
         {
             inline bool IsEmpty() const { return m_components.empty(); }
 
-            TVector<PhysicsComponent*>                  m_components;
+            TVector<PhysicsShapeComponent*>                  m_components;
         };
 
     public:
@@ -70,6 +71,7 @@ namespace KRG::Physics
         // Queries
         //-------------------------------------------------------------------------
         // The  versions of the queries allow you to provide your own result container, generally only useful if you hit the 32 hit limit the default results provides
+        // NOTE!!! Make sure to always use the Physics world transform for the shape and not the component transforms directly!!!!
         // WARNING!!! None of these function acquire read locks, the user is expected to manually lock/unlock the scene, since they are often doing more than one query
 
         template<int N>
@@ -153,6 +155,8 @@ namespace KRG::Physics
 
         //-------------------------------------------------------------------------
 
+        // Sweep a capsule
+        // Note: the capsule half-height is along the X-axis
         template<int N>
         bool CapsuleSweep( float cylinderPortionHalfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
@@ -175,6 +179,8 @@ namespace KRG::Physics
             return result;
         }
 
+        // Sweep a capsule
+        // Note: the capsule half-height is along the X-axis
         template<int N>
         bool CapsuleSweep( float cylinderPortionHalfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
@@ -195,6 +201,7 @@ namespace KRG::Physics
 
         // Perform an overlap query. NOTE: This overlap may not agree with the results of a sweep query with regards to the initially overlapping state
         // Note: Overlap results will never have the block hit set!
+        // Note: the capsule half-height is along the X-axis
         template<int N>
         bool CapsuleOverlap( float cylinderPortionHalfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
@@ -388,26 +395,29 @@ namespace KRG::Physics
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UpdateSystem( EntityUpdateContext const& ctx ) override final;
 
-        physx::PxRigidActor* CreateActor( PhysicsComponent* pComponent ) const;
-        physx::PxShape* CreateShape( PhysicsComponent* pComponent, physx::PxRigidActor* pActor ) const;
+        physx::PxRigidActor* CreateActor( PhysicsShapeComponent* pComponent ) const;
+        physx::PxShape* CreateShape( PhysicsShapeComponent* pComponent, physx::PxRigidActor* pActor ) const;
+
+        bool CreateCharacterActorAndShape( CharacterComponent* pComponent ) const;
 
     private:
 
-        PhysicsSystem*                                  m_pPhysicsSystem = nullptr;
-        physx::PxScene*                                 m_pScene = nullptr;
+        PhysicsSystem*                                          m_pPhysicsSystem = nullptr;
+        physx::PxScene*                                         m_pScene = nullptr;
 
-        TIDVector<ComponentID, PhysicsComponent*>       m_registeredPhysicsComponents;
-        TIDVector<ComponentID, PhysicsComponent*>       m_dynamicComponents; // TODO: profile and see if we need to use a dynamic pool
+        TIDVector<ComponentID, CharacterComponent*>             m_characterComponents;
+        TIDVector<ComponentID, PhysicsShapeComponent*>          m_physicsShapeComponents;
+        TIDVector<ComponentID, PhysicsShapeComponent*>          m_dynamicShapeComponents; // TODO: profile and see if we need to use a dynamic pool
 
         #if KRG_DEVELOPMENT_TOOLS
-        std::atomic<bool>                               m_readLockAcquired = false;     // Assertion helper
-        std::atomic<bool>                               m_writeLockAcquired = false;    // Assertion helper
+        std::atomic<bool>                                       m_readLockAcquired = false;     // Assertion helper
+        std::atomic<bool>                                       m_writeLockAcquired = false;    // Assertion helper
 
-        bool                                            m_drawDynamicActorBounds = false;
-        bool                                            m_drawKinematicActorBounds = false;
+        bool                                                    m_drawDynamicActorBounds = false;
+        bool                                                    m_drawKinematicActorBounds = false;
 
-        uint32                                          m_sceneDebugFlags = 0;
-        float                                           m_debugDrawDistance = 10.0f;
+        uint32                                                  m_sceneDebugFlags = 0;
+        float                                                   m_debugDrawDistance = 10.0f;
         #endif
     };
 }

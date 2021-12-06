@@ -127,64 +127,11 @@ namespace KRG::Navmesh
 
     //-------------------------------------------------------------------------
 
-    bfx::Mover* NavmeshWorldSystem::CreateMover( TaskSystem* pTaskSystem )
-    {/*
-        struct TestTask : public IPinnedTask
-        {
-            using IPinnedTask::IPinnedTask;
-
-            virtual void Execute() override final
-            {
-                bfx::MoverTune m_tune;
-                auto spaceHandle = bfx::GetDefaultSpaceHandle( m_pInstance );
-                m_pMover = bfx::CreateMover( spaceHandle, Navmesh::ToBfx( Vector::Zero ), Navmesh::ToBfx( Quaternion::Identity ), &m_tune );
-            }
-
-            bfx::Instance* m_pInstance;
-            bfx::Mover* m_pMover;
-        };
-
-        TestTask tt( 4 );
-        tt.m_pInstance = m_pInstance;
-        pTaskSystem->ScheduleTask( &tt );
-        pTaskSystem->WaitForTask( &tt );
-
-        return tt.m_pMover;*/
-
-        auto spaceHandle = GetSpaceHandle();
-        bfx::MoverTune m_tune;
-        return bfx::CreateMover( spaceHandle, Navmesh::ToBfx( Vector::Zero ), Navmesh::ToBfx( Quaternion::Identity ), &m_tune );
-    }
-
-    void NavmeshWorldSystem::SetMoverGoal( bfx::Mover* pMover, Vector const& pos )
-    {
-        pMover->GotoPos( Navmesh::ToBfx( pos ) );
-    }
-
-    void NavmeshWorldSystem::DestroyMover( bfx::Mover* pMover )
-    {
-        KRG_ASSERT( pMover != nullptr );
-        bfx::DestroyMover( pMover );
-    }
-
-    //-------------------------------------------------------------------------
-
     void NavmeshWorldSystem::UpdateSystem( EntityUpdateContext const& ctx )
     {
         {
             KRG_PROFILE_SCOPE_NAVIGATION( "Navmesh Simulate" );
             bfx::SystemSimulate( m_pInstance, ctx.GetDeltaTime() );
-        }
-
-        if ( m_pMover == nullptr )
-        {
-            m_pMover = CreateMover( ctx.GetSystem<TaskSystem>() );
-        }
-
-        if ( m_pMover != nullptr && !m_pMover->IsGotoPos() )
-        {
-            Vector randomPos( Math::GetRandomFloat( -40, 40 ), Math::GetRandomFloat( -40, 40 ), 0.2f );
-            m_pMover->GotoPos( Navmesh::ToBfx( randomPos ) );
         }
 
         //-------------------------------------------------------------------------
@@ -206,5 +153,27 @@ namespace KRG::Navmesh
             bfx::SystemDraw( m_pInstance, &cullParams );
         }
         #endif
+    }
+
+    //-------------------------------------------------------------------------
+    // HACK HACK HACK
+    //-------------------------------------------------------------------------
+
+    bfx::Mover* NavmeshWorldSystem::CreateMover()
+    {
+        auto spaceHandle = GetSpaceHandle();
+        bfx::MoverTune m_tune;
+        return bfx::CreateMover( spaceHandle, Navmesh::ToBfx( Vector::Zero ), Navmesh::ToBfx( Quaternion::Identity ), &m_tune );
+    }
+
+    void NavmeshWorldSystem::SetMoverGoal( bfx::Mover* pMover, Vector const& pos )
+    {
+        pMover->GotoPos( Navmesh::ToBfx( pos ) );
+    }
+
+    void NavmeshWorldSystem::DestroyMover( bfx::Mover* pMover )
+    {
+        KRG_ASSERT( pMover != nullptr );
+        bfx::DestroyMover( pMover );
     }
 }

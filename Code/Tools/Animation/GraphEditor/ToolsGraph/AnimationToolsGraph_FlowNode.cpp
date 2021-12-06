@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
         {
             if ( pDebugContext != nullptr && pDebugContext->IsNodeActive( runtimeNodeIdx ) )
             {
-                PoseNodeDebugInfo const debugInfo = pDebugContext->m_pGraphComponent->GetPoseNodeDebugInfo( runtimeNodeIdx );
+                PoseNodeDebugInfo const debugInfo = pDebugContext->GetPoseNodeDebugInfo( runtimeNodeIdx );
                 DrawPoseNodeDebugInfo( ctx, GetSize().x, debugInfo );
             }
             else

@@ -42,7 +42,7 @@ namespace KRG
         // Get world space position
         inline Vector const& GetPosition() const { return m_worldTransform.GetTranslation(); }
 
-        // Get world space position
+        // Get world space orientation
         inline Quaternion const& GetOrientation() const { return m_worldTransform.GetRotation(); }
         
         // Get world space forward vector
@@ -146,12 +146,13 @@ namespace KRG
             // Calculate world bounds
             m_worldBounds = m_bounds.GetTransformed( m_worldTransform );
 
-            // Propagate the world transforms on the children
+            // Propagate the world transforms on the children - children will always have their callbacks fired!
             for ( auto pChild : m_spatialChildren )
             {
-                pChild->CalculateWorldTransform( triggerCallback );
+                pChild->CalculateWorldTransform();
             }
 
+            // Should we fire the transform updated callback?
             if ( triggerCallback )
             {
                 OnWorldTransformUpdated();

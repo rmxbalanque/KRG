@@ -51,6 +51,8 @@ namespace KRG::Physics
 
         void FillMaterialDatabase( TVector<PhysicsMaterialSettings> const& materials );
         void ClearMaterialDatabase();
+
+        physx::PxMaterial* GetDefaultMaterial() const { return m_pDefaultMaterial; }
         physx::PxMaterial* GetMaterial( StringID materialID ) const;
 
         // Debug
@@ -78,6 +80,7 @@ namespace KRG::Physics
         physx::PxSimulationEventCallback*               m_pEventCallbackHandler = nullptr;
 
         THashMap<StringID, PhysicsMaterial>             m_materials;
+        physx::PxMaterial*                              m_pDefaultMaterial = nullptr;
         TInlineVector<physx::PxScene*, 4>               m_scenes;
 
         #if KRG_DEVELOPMENT_TOOLS

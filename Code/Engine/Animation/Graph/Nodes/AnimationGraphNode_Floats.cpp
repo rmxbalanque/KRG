@@ -345,7 +345,7 @@ namespace KRG::Animation::Graph
     {
         auto pNode = CreateNode<FloatComparisonNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
-        SetNodePtrFromIndex( nodePtrs, m_comparandValueNodeIdx, pNode->m_pComparandValueNode );
+        SetOptionalNodePtrFromIndex( nodePtrs, m_comparandValueNodeIdx, pNode->m_pComparandValueNode );
     }
 
     void FloatComparisonNode::InitializeInternal( GraphContext& context )

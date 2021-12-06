@@ -14,7 +14,7 @@ namespace KRG::Physics
 {
     class PhysicsSystem;
     class PhysicsWorldSystem;
-    class PhysicsComponent;
+    class PhysicsShapeComponent;
 
     //-------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ namespace KRG::Physics
         void DrawComponentsWindow( EntityUpdateContext const& context );
         void DrawMaterialDatabaseWindow( EntityUpdateContext const& context );
 
-        void DrawComponentVisualization( EntityUpdateContext const& context, PhysicsComponent const* pComponent ) const;
+        void DrawComponentVisualization( EntityUpdateContext const& context, PhysicsShapeComponent const* pComponent ) const;
 
     private:
 

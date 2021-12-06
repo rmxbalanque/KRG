@@ -1,8 +1,8 @@
 #include "PlayerPhysicsState_Locomotion.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
-#include "Engine/Physics/Components/Component_PhysicsCapsule.h"
-#include "../Math/MathHelpers.h"
-#include "../Math/Vector.h"
+#include "Engine/Physics/Components/Component_PhysicsCharacter.h"
+#include "System/Core/Math/MathHelpers.h"
+#include "System/Core/Math/Vector.h"
 
 //------------------------------------------------------------------------- 
 
@@ -20,32 +20,32 @@ namespace KRG::Player
     {
     }
 
-    Transform PlayerLocomotionPhysicsState::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, float const deltaTime, Quaternion const& deltaRotation, Vector const& deltaTranslation )
+    bool PlayerLocomotionPhysicsState::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent* pCharacterComponent, float const deltaTime, Transform const& deltaTransform )
     {
-        Transform const currentWorldTransform = pCapsuleComponent->GetWorldTransform();
-        Transform finalWorldTransform = currentWorldTransform;
-
-        Vector const deltaTranslationWithGravity = deltaTranslation - Vector( 0.f, 0.f, 10.f * deltaTime );
-        //if( deltaTranslation.GetLengthSquared3() == 0.0f )
-        //{
-        //    return finalWorldTransform;
-        //}
+        Transform const capsuleWorldTransform = pCharacterComponent->GetCapsuleWorldTransform();
+        Vector const deltaTranslationWithGravity = deltaTransform.GetTranslation() - Vector( 0.f, 0.f, 10.f * deltaTime );
 
         //-------------------------------------------------------------------------
 
         pPhysicsSystem->AcquireReadLock();
         int32 recursion = 0;
-        Vector const adjustedDeltaTranslation = SweepCapsule( pPhysicsSystem, pCapsuleComponent, currentWorldTransform.GetRotation(), currentWorldTransform.GetTranslation(), deltaTranslationWithGravity, recursion );
+        Vector const adjustedDeltaTranslation = SweepCapsule( pPhysicsSystem, pCharacterComponent, capsuleWorldTransform.GetRotation(), capsuleWorldTransform.GetTranslation(), deltaTranslationWithGravity, recursion );
         //KRG_LOG_MESSAGE( "Gameplay", "locomotion sweep took %d recursion", recursion );
         pPhysicsSystem->ReleaseReadLock();
 
         //-------------------------------------------------------------------------
 
-        finalWorldTransform.AddTranslationOffset( adjustedDeltaTranslation );
-        return finalWorldTransform;
+        Transform finalPhysicsWorldTransform = capsuleWorldTransform;
+        finalPhysicsWorldTransform.AddTranslationOffset( adjustedDeltaTranslation );
+
+        auto wt = pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalPhysicsWorldTransform );
+        wt.SetRotation( deltaTransform.GetRotation() * wt.GetRotation() );
+        pCharacterComponent->SetWorldTransform( wt );
+
+        return true;
     }
 
-    Vector PlayerLocomotionPhysicsState::SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CapsuleComponent const* pCapsuleComponent, Quaternion const& rotation, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx )
+    Vector PlayerLocomotionPhysicsState::SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent const* pCapsuleComponent, Quaternion const& rotation, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx )
     {
         Idx++;
 
@@ -67,7 +67,7 @@ namespace KRG::Player
         filter.AddIgnoredEntity( pCapsuleComponent->GetEntityID() );
 
         Physics::SweepResults sweepResults;
-        if( pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
+        if( pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCylinderPortionHalfHeight(), pCapsuleComponent->GetCapsuleRadius(), pCapsuleComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
         {
             if( sweepResults.hasBlock && sweepResults.block.hadInitialOverlap() )
             {
@@ -92,7 +92,7 @@ namespace KRG::Player
                 if( moveDirection.GetLength2() == 0.f )
                 {
                     // Sweep down for collision
-                    adjustedDeltaTranslation = sweepResults.GetShapePosition() - pCapsuleComponent->GetPosition();
+                    adjustedDeltaTranslation = sweepResults.GetShapePosition() - pCapsuleComponent->GetCapsulePosition();
                 }
                 else // 2D movement
                 {

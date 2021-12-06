@@ -1,6 +1,7 @@
 #include "PlayerAction_Locomotion.h"
-#include "Game/Core/Player/Components/Component_PlayerPhysics.h"
 #include "Game/Core/Player/PhysicsStates/PlayerPhysicsState_Locomotion.h"
+#include "Game/Core/Player/GraphControllers/PlayerGraphController_Locomotion.h"
+#include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Core/Components/Component_Cameras.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Math/Vector.h"
@@ -41,7 +42,13 @@ namespace KRG::Player
 
         Vector const desiredDeltaDisplacement = ( forward * maxLinearVelocityForThisFrame ) + ( right * maxLinearVelocityForThisFrame );
         // For now the desired delta rotation is the actual rotation and not a delta because it would be hard to calculate because of the hackery for the animation
-        Quaternion const desiredDeltaRotation = !desiredDeltaDisplacement.IsZero2() ? Quaternion::FromNormalizedOrientationVector( desiredDeltaDisplacement.GetNormalized2() ) : Quaternion::Identity;
+
+        Quaternion deltaOrientation = Quaternion::Identity;
+        if ( !desiredDeltaDisplacement.IsZero2() )
+        {
+            Quaternion const desiredOrientation = Quaternion::FromNormalizedOrientationVector( desiredDeltaDisplacement.GetNormalized2() );
+            deltaOrientation = Quaternion::Delta( ctx.m_pCharacterComponent->GetOrientation(), desiredOrientation );
+        }
 
         // Run physic Prediction if required
         //-------------------------------------------------------------------------
@@ -49,13 +56,15 @@ namespace KRG::Player
         
         // Update animation controller
         //-------------------------------------------------------------------------
-        // nothing for now
+
+        auto pLocomotionGraphController = ctx.m_pAnimationControllerRegistry->GetController<LocomotionGraphController>();
+        float const desiredSpeed = desiredDeltaDisplacement.GetLength3() / ctx.GetDeltaTime();
+        pLocomotionGraphController->SetSpeed( desiredSpeed );
 
         // HACK (this is only because we don't have animation yet)
         //-------------------------------------------------------------------------
-        auto pLocomotionPhysicsState = ctx.m_pPhysicsComponent->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
-        pLocomotionPhysicsState->m_deltaMovementHack = desiredDeltaDisplacement;
-        pLocomotionPhysicsState->m_deltaRotationHack = desiredDeltaRotation;
+        auto pLocomotionPhysicsState = ctx.m_pPhysicsController->GetActivePhysicsState<PlayerLocomotionPhysicsState>();
+        pLocomotionPhysicsState->SetHackDesires( desiredDeltaDisplacement, deltaOrientation );
         //-------------------------------------------------------------------------
 
         return Status::Running;

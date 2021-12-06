@@ -76,7 +76,7 @@ namespace KRG::Animation
     {
         ImGuiID topDockID = 0;
         ImGuiID bottomLeftDockID = 0;
-        ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.5f, nullptr, &topDockID );
+        ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.6f, nullptr, &topDockID );
         ImGuiID bottomRightDockID = ImGui::DockBuilderSplitNode( bottomDockID, ImGuiDir_Right, 0.25f, nullptr, &bottomLeftDockID );
 
         // Dock viewport
