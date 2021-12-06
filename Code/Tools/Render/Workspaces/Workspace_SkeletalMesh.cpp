@@ -94,19 +94,16 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        ImGui::Checkbox( "Show Normals", &m_showNormals );
+        ImGui::SetNextItemWidth( 46 );
+        if ( ImGui::BeginCombo( "##AnimOptions", KRG_ICON_COG, ImGuiComboFlags_HeightLarge ) )
+        {
+            ImGui::MenuItem( "Show Normals", nullptr, &m_showNormals );
+            ImGui::MenuItem( "Show Vertices", nullptr, &m_showVertices );
+            ImGui::MenuItem( "Show Bind Pose", nullptr, &m_showBindPose );
+            ImGui::MenuItem( "Show Bounds", nullptr, &m_showBounds );
 
-        ImGui::SameLine();
-
-        ImGui::Checkbox( "Show Vertices", &m_showVertices );
-
-        ImGui::SameLine();
-
-        ImGui::Checkbox( "Show Bind Pose", &m_showBindPose );
-
-        ImGui::SameLine();
-
-        ImGui::Checkbox( "Show Bounds", &m_showBounds );
+            ImGui::EndCombo();
+        }
     }
 
     void SkeletalMeshWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )

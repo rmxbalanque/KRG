@@ -25,6 +25,7 @@ namespace KRG::Animation
 
         virtual void Initialize( UpdateContext const& context ) override;
         virtual void Shutdown( UpdateContext const& context ) override;
+        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 

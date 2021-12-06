@@ -27,10 +27,11 @@ namespace KRG
         explicit ResourceTypeID( char const* pStr );
         inline explicit ResourceTypeID( String const& str ) : ResourceTypeID( str.c_str() ) {}
 
+        inline bool IsValid() const { return m_ID != 0 && m_ID != Unknown; }
+        void Clear() { m_ID = Unknown; }
+
         inline operator uint32() const { return m_ID; }
         inline operator uint32&() { return m_ID; }
-
-        inline bool IsValid() const { return m_ID != 0 && m_ID != Unknown; }
 
         //-------------------------------------------------------------------------
 

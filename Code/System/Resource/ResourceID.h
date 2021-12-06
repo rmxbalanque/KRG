@@ -50,6 +50,8 @@ namespace KRG
         inline ResourcePath const& GetResourcePath() const { return m_path; }
         inline ResourceTypeID GetResourceTypeID() const { return m_type; }
 
+        void Clear() { m_path.Clear(); m_type.Clear(); }
+
         //-------------------------------------------------------------------------
 
         inline String const& ToString() const { return m_path.GetString(); }

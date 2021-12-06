@@ -66,10 +66,13 @@ namespace KRG::RawAssets
                     // Check null parents
                     if ( auto pParentNode = pSkeletonNode->GetParent() )
                     {
-                        if ( pParentNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eNull )
+                        if ( auto pNodeAttribute = pParentNode->GetNodeAttribute() )
                         {
-                            pSkeletonToUse = pParentNode;
-                            break;
+                            if ( pNodeAttribute->GetAttributeType() == FbxNodeAttribute::eNull )
+                            {
+                                pSkeletonToUse = pParentNode;
+                                break;
+                            }
                         }
                     }
                 }

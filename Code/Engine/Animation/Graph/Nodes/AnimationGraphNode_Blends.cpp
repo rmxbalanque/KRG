@@ -108,17 +108,17 @@ namespace KRG::Animation::Graph
 
         PoseNode::InitializeInternal( context, initialTime );
 
-        for ( auto pSourceNode : m_sourceNodes )
-        {
-            pSourceNode->Initialize( context, initialTime );
-        }
-
-        m_pInputParameterValueNode->Initialize( context );
-
         //-------------------------------------------------------------------------
 
         if ( IsValid() )
         {
+            for ( auto pSourceNode : m_sourceNodes )
+            {
+                pSourceNode->Initialize( context, initialTime );
+            }
+
+            m_pInputParameterValueNode->Initialize( context );
+
             InitializeParameterization( context );
             SelectBlendRange( context );
             auto const& blendRange = GetParameterization().m_blendRanges[m_selectedRangeIdx];
@@ -151,15 +151,15 @@ namespace KRG::Animation::Graph
         if ( IsValid() )
         {
             ShutdownParameterization( context );
-        }
 
-        //-------------------------------------------------------------------------
+            //-------------------------------------------------------------------------
 
-        m_pInputParameterValueNode->Shutdown( context );
+            m_pInputParameterValueNode->Shutdown( context );
 
-        for ( auto Source : m_sourceNodes )
-        {
-            Source->Shutdown( context );
+            for ( auto Source : m_sourceNodes )
+            {
+                Source->Shutdown( context );
+            }
         }
 
         PoseNode::ShutdownInternal( context );

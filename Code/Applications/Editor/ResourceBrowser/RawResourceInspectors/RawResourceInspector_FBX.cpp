@@ -69,26 +69,28 @@ namespace KRG::Resource
             NullSkeletonRootInfo* pNullSkeletonRoot = nullptr;
             if ( auto pParentNode = pSkeletonNode->GetParent() )
             {
-                auto attributeType = pParentNode->GetNodeAttribute()->GetAttributeType();
-                if ( attributeType == FbxNodeAttribute::eNull )
+                if ( auto pNodeAttribute = pParentNode->GetNodeAttribute() )
                 {
-                    StringID const parentID( pParentNode->GetName() );
-
-                    // Try find existing skeleton with this ID
-                    for ( auto& nullSkeletonRoot : m_nullSkeletonRoots )
+                    if ( pNodeAttribute->GetAttributeType() == FbxNodeAttribute::eNull )
                     {
-                        if ( nullSkeletonRoot.m_nameID == parentID )
+                        StringID const parentID( pParentNode->GetName() );
+
+                        // Try find existing skeleton with this ID
+                        for ( auto& nullSkeletonRoot : m_nullSkeletonRoots )
                         {
-                            pNullSkeletonRoot = &nullSkeletonRoot;
-                            break;
+                            if ( nullSkeletonRoot.m_nameID == parentID )
+                            {
+                                pNullSkeletonRoot = &nullSkeletonRoot;
+                                break;
+                            }
                         }
-                    }
 
-                    // Create new parent skeleton
-                    if ( pNullSkeletonRoot == nullptr )
-                    {
-                        pNullSkeletonRoot = &m_nullSkeletonRoots.emplace_back();
-                        pNullSkeletonRoot->m_nameID = parentID;
+                        // Create new parent skeleton
+                        if ( pNullSkeletonRoot == nullptr )
+                        {
+                            pNullSkeletonRoot = &m_nullSkeletonRoots.emplace_back();
+                            pNullSkeletonRoot->m_nameID = parentID;
+                        }
                     }
                 }
             }

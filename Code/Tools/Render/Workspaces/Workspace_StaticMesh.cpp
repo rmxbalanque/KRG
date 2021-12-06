@@ -53,11 +53,14 @@ namespace KRG::Render
 
     void StaticMeshWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
-        ImGui::MenuItem( "Show Normals", nullptr, &m_showNormals );
+        ImGui::SetNextItemWidth( 46 );
+        if ( ImGui::BeginCombo( "##AnimOptions", KRG_ICON_COG, ImGuiComboFlags_HeightLarge ) )
+        {
+            ImGui::MenuItem( "Show Normals", nullptr, &m_showNormals );
+            ImGui::MenuItem( "Show Vertices", nullptr, &m_showVertices );
 
-        ImGuiX::VerticalSeparator();
-
-        ImGui::MenuItem( "Show Vertices", nullptr, &m_showVertices );
+            ImGui::EndCombo();
+        }
     }
 
     void StaticMeshWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )

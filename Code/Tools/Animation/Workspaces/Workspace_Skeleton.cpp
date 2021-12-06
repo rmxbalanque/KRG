@@ -33,21 +33,8 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        // Load resource descriptor for skeleton to get the preview mesh
-        FileSystem::Path const resourceDescPath = m_pResource.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
-        SkeletonResourceDescriptor resourceDesc;
-        TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
-
         // We dont own the entity as soon as we add it to the map
         m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
-        m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
-        m_pMeshComponent->SetSkeleton( m_pResource.GetResourceID() );
-        if( resourceDesc.m_previewMesh.GetResourceID().IsValid() )
-        {
-            m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
-        }
-        m_pPreviewEntity->AddComponent( m_pMeshComponent );
-
         m_pWorld->GetPersistentMap()->AddEntity( m_pPreviewEntity );
 
         //-------------------------------------------------------------------------
@@ -66,6 +53,12 @@ namespace KRG::Animation
         m_pMeshComponent = nullptr;
 
         TResourceWorkspace<Skeleton>::Shutdown( context );
+    }
+
+    void SkeletonWorkspace::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
+    {
+        m_pPreviewEntity->DestroyComponent( m_pMeshComponent );
+        m_pMeshComponent = nullptr;
     }
 
     void SkeletonWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
@@ -114,6 +107,30 @@ namespace KRG::Animation
                     Vector const textLineLocation = textLocation - Vector( 0, 0, 0.01f );
                     drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
                 }
+            }
+        }
+
+        // Preview Mesh
+        //-------------------------------------------------------------------------
+
+        if ( IsLoaded() )
+        {
+            // Initialize preview mesh
+            if ( m_pMeshComponent == nullptr && m_pPreviewEntity->IsActivated() )
+            {
+                // Load resource descriptor for skeleton to get the preview mesh
+                FileSystem::Path const resourceDescPath = m_pResource->GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+                SkeletonResourceDescriptor resourceDesc;
+                TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
+
+                // Create a preview mesh component
+                m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
+                m_pMeshComponent->SetSkeleton( m_pResource->GetResourceID() );
+                if ( resourceDesc.m_previewMesh.IsValid() )
+                {
+                    m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
+                }
+                m_pPreviewEntity->AddComponent( m_pMeshComponent );
             }
         }
 

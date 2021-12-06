@@ -412,7 +412,14 @@ namespace KRG
                         m_pEntityWorldManager->BeginHotReload( m_pResourceSystem->GetUsersToBeReloaded() );
                         m_pDevToolsUI->BeginHotReload( m_pResourceSystem->GetResourcesToBeReloaded() );
                         m_pResourceSystem->ClearHotReloadRequests();
-                        m_pResourceSystem->Update( true );
+
+                        // Ensure that all resource requests (both load/unload are completed before continuing with the hot-reload)
+                        while ( m_pResourceSystem->IsBusy() )
+                        {
+                            Network::NetworkSystem::Update();
+                            m_pResourceSystem->Update( true );
+                        }
+
                         m_pEntityWorldManager->EndHotReload();
                         m_pDevToolsUI->EndHotReload();
                     }

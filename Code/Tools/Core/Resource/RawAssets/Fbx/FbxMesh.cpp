@@ -443,12 +443,15 @@ namespace KRG
                 }
 
                 // If the root of the skeleton has a null root, make that the root as this is a common practice
-                // TODO: should we make this a setting in the decscriptor?
+                // TODO: should we make this a setting in the descriptor?
                 if ( auto pParentNode = pSkeletonRootNode->GetParent() )
                 {
-                    if ( pParentNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eNull )
+                    if ( auto pNodeAttribute = pParentNode->GetNodeAttribute() )
                     {
-                        pSkeletonRootNode = pParentNode;
+                        if ( pNodeAttribute->GetAttributeType() == FbxNodeAttribute::eNull )
+                        {
+                            pSkeletonRootNode = pParentNode;
+                        }
                     }
                 }
 

@@ -17,7 +17,7 @@ namespace KRG::Animation::Graph
         NodeCompilationState const state = context.GetSettings<GenericEventConditionNode>( this, pSettings );
         if ( state == NodeCompilationState::NeedCompilation )
         {
-            pSettings->m_sourceStateNodeIdx = context.GetConduitSourceStateIndex();
+            pSettings->m_sourceStateNodeIdx = context.IsCompilingConduit() ? context.GetConduitSourceStateIndex() : InvalidIndex;
             pSettings->m_operator = m_operator;
             pSettings->m_searchMode = m_searchMode;
 
@@ -89,7 +89,7 @@ namespace KRG::Animation::Graph
         NodeCompilationState const state = context.GetSettings<GenericEventPercentageThroughNode>( this, pSettings );
         if ( state == NodeCompilationState::NeedCompilation )
         {
-            pSettings->m_sourceStateNodeIdx = context.GetConduitSourceStateIndex();
+            pSettings->m_sourceStateNodeIdx = context.IsCompilingConduit() ? context.GetConduitSourceStateIndex() : InvalidIndex;
             pSettings->m_searchMode = m_searchMode;
             pSettings->m_preferHighestPercentageThrough = m_preferHighestPercentageThrough;
             pSettings->m_eventID = m_eventID;
@@ -116,7 +116,7 @@ namespace KRG::Animation::Graph
         NodeCompilationState const state = context.GetSettings<FootEventConditionNode>( this, pSettings );
         if ( state == NodeCompilationState::NeedCompilation )
         {
-            pSettings->m_sourceStateNodeIdx = context.GetConduitSourceStateIndex();
+            pSettings->m_sourceStateNodeIdx = context.IsCompilingConduit() ? context.GetConduitSourceStateIndex() : InvalidIndex;
             pSettings->m_phaseCondition = m_phaseCondition;
             pSettings->m_preferHighestPercentageThrough = m_preferHighestPercentageThrough;
         }
@@ -137,7 +137,7 @@ namespace KRG::Animation::Graph
         NodeCompilationState const state = context.GetSettings<FootstepEventPercentageThroughNode>( this, pSettings );
         if ( state == NodeCompilationState::NeedCompilation )
         {
-            pSettings->m_sourceStateNodeIdx = context.GetConduitSourceStateIndex();
+            pSettings->m_sourceStateNodeIdx = context.IsCompilingConduit() ? context.GetConduitSourceStateIndex() : InvalidIndex;
             pSettings->m_phaseCondition = m_phaseCondition;
             pSettings->m_preferHighestPercentageThrough = m_preferHighestPercentageThrough;
         }
@@ -158,7 +158,7 @@ namespace KRG::Animation::Graph
         NodeCompilationState const state = context.GetSettings<SyncEventConditionNode>( this, pSettings );
         if ( state == NodeCompilationState::NeedCompilation )
         {
-            pSettings->m_sourceStateNodeIdx = context.GetConduitSourceStateIndex();
+            pSettings->m_sourceStateNodeIdx = context.IsCompilingConduit() ? context.GetConduitSourceStateIndex() : InvalidIndex;
             pSettings->m_triggerMode = m_triggerMode;
             pSettings->m_syncEventIdx = m_syncEventIdx;
         }
@@ -179,7 +179,7 @@ namespace KRG::Animation::Graph
         NodeCompilationState const state = context.GetSettings<CurrentSyncEventNode>( this, pSettings );
         if ( state == NodeCompilationState::NeedCompilation )
         {
-            pSettings->m_sourceStateNodeIdx = context.GetConduitSourceStateIndex();
+            pSettings->m_sourceStateNodeIdx = context.IsCompilingConduit() ? context.GetConduitSourceStateIndex() : InvalidIndex;
         }
         return pSettings->m_nodeIdx;
     }

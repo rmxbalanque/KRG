@@ -117,6 +117,12 @@ namespace KRG::Animation::Graph
             m_conduitSourceStateCompiledNodeIdx = InvalidIndex;
         }
 
+        // Some nodes optionally need the conduit index so we need to have a way to know what mode we are in
+        inline NodeIndex IsCompilingConduit() const
+        {
+            return m_conduitSourceStateCompiledNodeIdx != InvalidIndex;
+        }
+
         inline NodeIndex GetConduitSourceStateIndex() const 
         {
             KRG_ASSERT( m_conduitSourceStateCompiledNodeIdx != InvalidIndex );

@@ -66,6 +66,12 @@ namespace KRG::Animation
         TResourceWorkspace<AnimationClip>::Shutdown( context );
     }
 
+    void AnimationClipWorkspace::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
+    {
+        m_pPreviewEntity->DestroyComponent( m_pMeshComponent );
+        m_pMeshComponent = nullptr;
+    }
+
     void AnimationClipWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
     {
         ImGuiID topDockID = 0;
@@ -96,7 +102,7 @@ namespace KRG::Animation
             }
 
             // Initialize preview mesh
-            if ( m_pMeshComponent == nullptr )
+            if ( m_pMeshComponent == nullptr && m_pPreviewEntity->IsActivated() )
             {
                 // Load resource descriptor for skeleton to get the preview mesh
                 FileSystem::Path const resourceDescPath = m_pResource->GetSkeleton()->GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
@@ -175,9 +181,7 @@ namespace KRG::Animation
         ImGui::SetNextItemWidth( 46 );
         if ( ImGui::BeginCombo( "##AnimOptions", KRG_ICON_COG, ImGuiComboFlags_HeightLarge ) )
         {
-            ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 16, 16 ) );
             ImGui::MenuItem( "Root Motion", nullptr, &m_isRootMotionEnabled );
-            ImGui::PopStyleVar();
 
             ImGui::EndCombo();
         }

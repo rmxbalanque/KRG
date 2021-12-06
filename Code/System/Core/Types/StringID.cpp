@@ -93,9 +93,6 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    constexpr static char const* const g_invalidString = "Invalid";
-    uint32 const g_invalidStringHash = Hash::GetHash32( g_invalidString );
-
     StringID const StringID::InvalidID;
 
     //-------------------------------------------------------------------------
@@ -105,16 +102,14 @@ namespace KRG
         if ( pStr != nullptr )
         {
             m_ID = Hash::GetHash32( pStr );
-            if ( m_ID != g_invalidStringHash )
+
+            // Cache the string
+            Threading::ScopeLock lock( g_stringCacheMutex );
+            auto iter = StringID::s_stringCache.find( m_ID );
+            if ( iter == StringID::s_stringCache.end() )
             {
-                // Cache the string
-                Threading::ScopeLock lock( g_stringCacheMutex );
-                auto iter = StringID::s_stringCache.find( m_ID );
-                if ( iter == StringID::s_stringCache.end() )
-                {
-                    auto& nonConstStringMap = const_cast<StringID::StringCache&>( StringID::s_stringCache );
-                    nonConstStringMap[m_ID] = StringID::CachedString( pStr );
-                }
+                auto& nonConstStringMap = const_cast<StringID::StringCache&>( StringID::s_stringCache );
+                nonConstStringMap[m_ID] = StringID::CachedString( pStr );
             }
         }
     }
@@ -123,7 +118,7 @@ namespace KRG
     {
         if ( m_ID == 0 )
         {
-            return g_invalidString;
+            return nullptr;
         }
 
         {

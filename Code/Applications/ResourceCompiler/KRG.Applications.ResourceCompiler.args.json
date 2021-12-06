@@ -108,7 +108,7 @@
         },
         {
           "Id": "43330e5f-5d0e-4711-8040-48b47946f12c",
-          "Command": "-compile data://amplifycharacter.smsh"
+          "Command": "-compile data://packs/amplify/amplifycharacter.smsh"
         },
         {
           "Id": "2464fa86-53b9-4f1e-832a-21d36c275665",

@@ -732,9 +732,8 @@ namespace KRG
             // Root removal validation
             if ( pComponent == m_pRootSpatialComponent )
             {
-                // You are only remove the root component if it has a single child or no children. Otherwise we cant fix the spatial hierarchy for this entity.
+                // You are only allowed to remove the root component if it has a single child or no children. Otherwise we cant fix the spatial hierarchy for this entity.
                 KRG_ASSERT( m_pRootSpatialComponent->m_spatialChildren.size() <= 1 );
-                return;
             }
 
             DestroyComponentImmediate( pComponent );

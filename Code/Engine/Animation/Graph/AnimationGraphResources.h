@@ -32,8 +32,12 @@ namespace KRG::Animation
         inline AnimationClip const* GetAnimationClip( DataSetSlotIndex const& ID ) const
         {
             KRG_ASSERT( ID >= 0 && ID < m_resources.size() );
-            TResourcePtr<AnimationClip> pAnimationClip( m_resources[ID] );
-            return pAnimationClip.GetPtr();
+            if ( m_resources[ID].IsValid() )
+            {
+                return TResourcePtr<AnimationClip>( m_resources[ID] ).GetPtr();
+            }
+
+            return nullptr;
         }
 
     private:

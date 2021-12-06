@@ -120,15 +120,22 @@ namespace KRG
             // Can't change a loaded resource, unload it first
             KRG_ASSERT( m_pResource == nullptr || m_pResource->IsUnloaded() );
 
-            if ( rhs.GetResourceTypeID() == T::GetStaticResourceTypeID() )
+            if ( rhs.IsValid() )
             {
-                TResourcePtr<T> const& castPtr = reinterpret_cast<TResourcePtr<T> const&>( rhs );
-                m_resourceID = castPtr.m_resourceID;
-                m_pResource = castPtr.m_pResource;
+                if ( rhs.GetResourceTypeID() == T::GetStaticResourceTypeID() )
+                {
+                    TResourcePtr<T> const& castPtr = reinterpret_cast<TResourcePtr<T> const&>( rhs );
+                    m_resourceID = castPtr.m_resourceID;
+                    m_pResource = castPtr.m_pResource;
+                }
+                else // Invalid Assignment
+                {
+                    KRG_HALT();
+                }
             }
-            else // Invalid Assignment
+            else
             {
-                KRG_HALT();
+                m_resourceID.Clear();
             }
 
             return *this;
