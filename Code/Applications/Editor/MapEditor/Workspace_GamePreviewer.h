@@ -22,7 +22,6 @@ namespace KRG
 
         virtual uint32 GetID() const override { return 0xFFFFFFFE; }
         virtual bool HasWorkspaceToolbar() const override { return true; }
-        virtual bool ShouldDrawFileMenu() const override { return false; }
         virtual bool HasViewportToolbar() const override { return false; }
         virtual bool HasViewportOrientationGuide() const override { return false; }
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;

@@ -36,9 +36,9 @@ namespace KRG
     {
         float cx, cy, cz, sx, sy, sz, czsx, cxcz, sysz;
 
-        sx = sinf( eulerAngles.m_x ); cx = cosf( eulerAngles.m_x );
-        sy = sinf( eulerAngles.m_y ); cy = cosf( eulerAngles.m_y );
-        sz = sinf( eulerAngles.m_z ); cz = cosf( eulerAngles.m_z );
+        sx = sinf( (float) eulerAngles.m_x ); cx = cosf( (float) eulerAngles.m_x );
+        sy = sinf( (float) eulerAngles.m_y ); cy = cosf( (float) eulerAngles.m_y );
+        sz = sinf( (float) eulerAngles.m_z ); cz = cosf( (float) eulerAngles.m_z );
 
         czsx = cz * sx;
         cxcz = cx * cz;
@@ -66,14 +66,14 @@ namespace KRG
     {
         EulerAngles result;
 
-        result.m_x = Math::ATan2( m_values[1][2], m_values[2][2] );
+        result.m_x = Radians( Math::ATan2( m_values[1][2], m_values[2][2] ) );
 
         float const c2 = Math::Sqrt( ( m_values[0][0] * m_values[0][0] ) + ( m_values[0][1] * m_values[0][1] ) );
-        result.m_y = Math::ATan2( -m_values[0][2], c2 );
+        result.m_y = Radians( Math::ATan2( -m_values[0][2], c2 ) );
 
-        float const s1 = Math::Sin( result.m_x );
-        float const c1 = Math::Cos( result.m_x );
-        result.m_z = Math::ATan2( ( s1 * m_values[2][0] ) - ( c1 * m_values[1][0] ), ( c1 * m_values[1][1] ) - ( s1 * m_values[2][1] ) );
+        float const s1 = Math::Sin( (float) result.m_x );
+        float const c1 = Math::Cos( (float) result.m_x );
+        result.m_z = Radians( Math::ATan2( ( s1 * m_values[2][0] ) - ( c1 * m_values[1][0] ), ( c1 * m_values[1][1] ) - ( s1 * m_values[2][1] ) ) );
 
         return result;
     }

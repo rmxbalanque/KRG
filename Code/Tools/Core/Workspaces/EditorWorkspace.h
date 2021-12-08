@@ -57,9 +57,6 @@ namespace KRG
         // Get a unique ID for this workspace
         virtual uint32 GetID() const = 0;
 
-        // Should we draw the default workspace file menu
-        virtual bool ShouldDrawFileMenu() const { return true; }
-
         // Should this workspace display a viewport?
         virtual bool HasViewportWindow() const { return true; }
 

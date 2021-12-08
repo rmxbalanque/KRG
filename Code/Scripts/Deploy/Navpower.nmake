@@ -1,0 +1,11 @@
+NAVPOWER_LIB_DIR = $(EXTERNAL_DEPENDENCY_DIR)lib\x64_vs2019\ReleaseMD\
+
+##########################################
+# FILE OPERATIONS
+##########################################
+
+prebuild:
+    xcopy /y /i /D "$(NAVPOWER_LIB_DIR)\AllNavPowerDll_CMT.dll" "$(OUT_DIR)"
+
+clean:
+    del /F /Q "$(OUT_DIR)AllNavPowerDll_CMT.dll"

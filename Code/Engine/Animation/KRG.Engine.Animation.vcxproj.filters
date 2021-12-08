@@ -168,7 +168,7 @@
     <ClCompile Include="AnimationEvent.cpp" />
     <ClCompile Include="AnimationTarget.cpp" />
     <ClCompile Include="AnimationBlender.cpp" />
-    <ClCompile Include="Components\Component_AnimatedMesh.cpp" />
+    <ClCompile Include="Components\Component_AnimatedMeshes.cpp" />
     <ClCompile Include="Components\Component_AnimationGraph.cpp" />
     <ClCompile Include="Components\Component_AnimationClipPlayer.cpp" />
     <ClCompile Include="Graph\AnimationGraphController.cpp" />
@@ -313,7 +313,7 @@
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
     <ClInclude Include="AnimationBlender.h" />
-    <ClInclude Include="Components\Component_AnimatedMesh.h" />
+    <ClInclude Include="Components\Component_AnimatedMeshes.h" />
     <ClInclude Include="Components\Component_Animation.h" />
     <ClInclude Include="Components\Component_AnimationGraph.h" />
     <ClInclude Include="Components\Component_AnimationClipPlayer.h" />

@@ -1,17 +1,20 @@
-#include "PhysicsStateController.h"
+#include "PhysicsState.h"
+#include "imgui.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Physics
 {
-    void PhysicsStateController::CreatePhysicsStates()
+    #if KRG_DEVELOPMENT_TOOLS
+    void PhysicsState::DrawDebugUI()
     {
-        KRG_ASSERT( m_registeredStates.empty() );
-        CreatePhysicsStatesInternal();
-        KRG_ASSERT( !m_registeredStates.empty() );
+        ImGui::Text( "No Debug" );
     }
+    #endif
 
-    void PhysicsStateController::DestroyPhysicsStates()
+    //-------------------------------------------------------------------------
+
+    PhysicsStateController::~PhysicsStateController()
     {
         KRG_ASSERT( !m_registeredStates.empty() );
         m_pActiveState->Deactivate();

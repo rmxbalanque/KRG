@@ -137,7 +137,7 @@ namespace KRG::Animation::Graph
 
                 // Apply max angular velocity limit
                 float const maxAngularValue = context.m_deltaTime * maxAngularVelocity;
-                float const desiredRotationAngle = deltaRotation.ToAxisAngle().m_angle;
+                float const desiredRotationAngle = (float) deltaRotation.ToAxisAngle().m_angle;
                 if ( desiredRotationAngle > maxAngularValue )
                 {
                     float const T = 1.0f - ( ( desiredRotationAngle - maxAngularValue ) / desiredRotationAngle );

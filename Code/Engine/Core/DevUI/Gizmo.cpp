@@ -310,7 +310,7 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        if ( Math::Abs( m_rotationDeltaAngle ) < Degrees( 3.0f ) )
+        if ( Math::Abs( (float) m_rotationDeltaAngle ) < (float) Degrees( 3.0f ) )
         {
             Vector const pointOnCircle_WS = m_origin_WS + ( startRotationVector.GetNormalized3() * scaleMultiplier );
             Float2 const pointOnCircle_SS = viewport.WorldSpaceToScreenSpace( pointOnCircle_WS );
@@ -465,7 +465,7 @@ namespace KRG::ImGuiX
 
             //-------------------------------------------------------------------------
 
-            if ( !Math::IsNearZero( m_rotationDeltaAngle, Degrees( 1.0f ).ToRadians() ) )
+            if ( !Math::IsNearZero( (float) m_rotationDeltaAngle, (float) Degrees( 1.0f ).ToRadians() ) )
             {
                 // Calculate rotation delta and apply it
                 Quaternion const rotationDelta( m_rotationAxis, m_rotationDeltaAngle );

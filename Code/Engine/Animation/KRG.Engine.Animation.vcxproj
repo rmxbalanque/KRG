@@ -18,7 +18,7 @@
     <ClInclude Include="AnimationPose.h" />
     <ClInclude Include="AnimationSkeleton.h" />
     <ClInclude Include="AnimationSyncTrack.h" />
-    <ClInclude Include="Components\Component_AnimatedMesh.h" />
+    <ClInclude Include="Components\Component_AnimatedMeshes.h" />
     <ClInclude Include="Components\Component_Animation.h" />
     <ClInclude Include="Components\Component_AnimationGraph.h" />
     <ClInclude Include="Components\Component_AnimationClipPlayer.h" />
@@ -78,7 +78,7 @@
     <ClCompile Include="AnimationSkeleton.cpp" />
     <ClCompile Include="AnimationSyncTrack.cpp" />
     <ClCompile Include="AnimationEvent.cpp" />
-    <ClCompile Include="Components\Component_AnimatedMesh.cpp" />
+    <ClCompile Include="Components\Component_AnimatedMeshes.cpp" />
     <ClCompile Include="Components\Component_AnimationGraph.cpp" />
     <ClCompile Include="Components\Component_AnimationClipPlayer.cpp" />
     <ClCompile Include="Events\AnimationEvent_ID.cpp" />

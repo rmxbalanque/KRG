@@ -94,7 +94,7 @@ namespace KRG
 
     void OrbitCameraComponent::AdjustOrbitAngle( Radians deltaHorizontalAngle, Radians deltaVerticalAngle )
     {
-        if ( Math::IsNearZero( deltaVerticalAngle ) && Math::IsNearZero( deltaVerticalAngle ) )
+        if ( Math::IsNearZero( (float) deltaVerticalAngle ) && Math::IsNearZero( (float) deltaVerticalAngle ) )
         {
             return;
         }

@@ -9,7 +9,9 @@ namespace KRG::Physics
     {
         static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
         m_physicsMaterialID = defaultMaterialID;
-        SetLocalTransform( Transform( Quaternion( AxisAngle( Vector::UnitY, Math::PiDivTwo ) ) ) );
+
+        static Transform const rotatedUpright( Quaternion( Vector::UnitY, Radians( Math::PiDivTwo ) ) );
+        SetLocalTransform( rotatedUpright );
     }
 
     bool CapsuleComponent::HasValidPhysicsSetup() const

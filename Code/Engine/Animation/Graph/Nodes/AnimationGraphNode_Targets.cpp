@@ -157,19 +157,19 @@ namespace KRG::Animation::Graph
 
                     case Info::DeltaOrientationX:
                     {
-                        m_value = inputTargetTransform.GetRotation().ToEulerAngles().m_x;
+                        m_value = (float) inputTargetTransform.GetRotation().ToEulerAngles().m_x;
                     }
                     break;
 
                     case Info::DeltaOrientationY:
                     {
-                        m_value = inputTargetTransform.GetRotation().ToEulerAngles().m_y;
+                        m_value = (float) inputTargetTransform.GetRotation().ToEulerAngles().m_y;
                     }
                     break;
 
                     case Info::DeltaOrientationZ:
                     {
-                        m_value = inputTargetTransform.GetRotation().ToEulerAngles().m_z;
+                        m_value = (float) inputTargetTransform.GetRotation().ToEulerAngles().m_z;
                     }
                     break;
                     }

@@ -44,7 +44,6 @@ namespace KRG::EntityModel
 
         virtual uint32 GetID() const override { return 0xFFFFFFFF; }
 
-        virtual bool ShouldDrawFileMenu() const { return false; }
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void DrawWorkspaceToolbar( UpdateContext const& context ) override;

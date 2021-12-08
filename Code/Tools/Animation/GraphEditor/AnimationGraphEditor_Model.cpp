@@ -3,7 +3,7 @@
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Engine/Animation/Systems/EntitySystem_Animation.h"
-#include "Engine/Animation/Components/Component_AnimatedMesh.h"
+#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------

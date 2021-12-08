@@ -119,7 +119,7 @@ namespace KRG
 
     inline Radians Quaternion::Distance( Quaternion const& q0, Quaternion const& q1 )
     {
-        return 2 * Math::ACos( Math::Abs( Dot( q0, q1 ).ToFloat() ) );
+        return Radians( 2 * Math::ACos( Math::Abs( Dot( q0, q1 ).ToFloat() ) ) );
     }
 
     inline Quaternion& Quaternion::Conjugate()
@@ -267,7 +267,7 @@ namespace KRG
 
     inline AxisAngle Quaternion::ToAxisAngle() const
     {
-        return AxisAngle( AsVector(), 2.0f * Math::ACos( m_w ) );
+        return AxisAngle( AsVector(), Radians( 2.0f * Math::ACos( m_w ) ) );
     }
 
     inline Vector Quaternion::RotateVector( Vector const& vector ) const

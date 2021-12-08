@@ -47,7 +47,7 @@ namespace KRG::Input
         KRG_FORCE_INLINE bool WasReleased( MouseButton buttonID, Seconds* pHeldDownDuration = nullptr ) const { return ButtonStates::WasReleased( (uint32) buttonID, pHeldDownDuration ); }
 
         // Is the button being held down?
-        KRG_FORCE_INLINE bool IsHeldDown( MouseButton buttonID ) const { return ButtonStates::IsHeldDown( (uint32) buttonID ); }
+        KRG_FORCE_INLINE bool IsHeldDown( MouseButton buttonID, Seconds* pHeldDownDuration = nullptr ) const { return ButtonStates::IsHeldDown( (uint32) buttonID, pHeldDownDuration ); }
 
         // How long has the button been held down for?
         KRG_FORCE_INLINE Seconds GetHeldDuration( MouseButton buttonID ) const { return ButtonStates::GetHeldDuration( (uint32) buttonID ); }

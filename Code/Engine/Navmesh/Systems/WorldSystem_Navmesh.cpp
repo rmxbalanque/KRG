@@ -6,10 +6,8 @@
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Profiling/Profiling.h"
 
-#include <bfxNavigatorSpace.h>
-#include <bfxMoverSpace.h>
-#include "../Math/Random.h"
-#include "../Threading/TaskSystem.h"
+#include "bfxNavigatorSpace.h"
+#include "bfxMoverSpace.h"
 
 //-------------------------------------------------------------------------
 
@@ -153,27 +151,5 @@ namespace KRG::Navmesh
             bfx::SystemDraw( m_pInstance, &cullParams );
         }
         #endif
-    }
-
-    //-------------------------------------------------------------------------
-    // HACK HACK HACK
-    //-------------------------------------------------------------------------
-
-    bfx::Mover* NavmeshWorldSystem::CreateMover()
-    {
-        auto spaceHandle = GetSpaceHandle();
-        bfx::MoverTune m_tune;
-        return bfx::CreateMover( spaceHandle, Navmesh::ToBfx( Vector::Zero ), Navmesh::ToBfx( Quaternion::Identity ), &m_tune );
-    }
-
-    void NavmeshWorldSystem::SetMoverGoal( bfx::Mover* pMover, Vector const& pos )
-    {
-        pMover->GotoPos( Navmesh::ToBfx( pos ) );
-    }
-
-    void NavmeshWorldSystem::DestroyMover( bfx::Mover* pMover )
-    {
-        KRG_ASSERT( pMover != nullptr );
-        bfx::DestroyMover( pMover );
     }
 }

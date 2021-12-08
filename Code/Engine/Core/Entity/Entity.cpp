@@ -179,23 +179,13 @@ namespace KRG
             m_pRootSpatialComponent->CalculateWorldTransform( false );
         }
 
-        // Systems
+        // Systems and Components
         //-------------------------------------------------------------------------
 
-        if ( !m_systems.empty() )
+        for ( auto pSystem : m_systems )
         {
-            for ( auto pSystem : m_systems )
-            {
-                pSystem->Activate();
-            }
-
-            GenerateSystemUpdateList();
-            activationContext.m_registerForEntityUpdate.enqueue( this );
-            m_updateRegistrationStatus = RegistrationStatus::QueuedForRegister;
+            pSystem->Initialize();
         }
-
-        // Components
-        //-------------------------------------------------------------------------
 
         for ( auto pComponent : m_components )
         {
@@ -204,6 +194,19 @@ namespace KRG
                 RegisterComponentWithLocalSystems( pComponent );
                 activationContext.m_componentsToRegister.enqueue( TPair<Entity*, EntityComponent*>( this, pComponent ) );
             }
+        }
+
+        for ( auto pSystem : m_systems )
+        {
+            pSystem->Activate();
+        }
+
+        // Register for system updates
+        if ( !m_systems.empty() )
+        {
+            GenerateSystemUpdateList();
+            activationContext.m_registerForEntityUpdate.enqueue( this );
+            m_updateRegistrationStatus = RegistrationStatus::QueuedForRegister;
         }
 
         // Spatial Attachments
@@ -263,8 +266,28 @@ namespace KRG
             DestroySpatialAttachment();
         }
 
-        // Components
+        // Systems and Components
         //-------------------------------------------------------------------------
+
+        // Unregister from system updates
+        if ( !m_systems.empty() )
+        {
+            if ( m_updateRegistrationStatus == RegistrationStatus::Registered )
+            {
+                activationContext.m_unregisterForEntityUpdate.enqueue( this );
+                m_updateRegistrationStatus = RegistrationStatus::QueuedForUnregister;
+            }
+
+            for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
+            {
+                m_systemUpdateLists[i].clear();
+            }
+        }
+
+        for ( auto pSystem : m_systems )
+        {
+            pSystem->Deactivate();
+        }
 
         for ( auto pComponent : m_components )
         {
@@ -279,26 +302,9 @@ namespace KRG
             }
         }
 
-        // Systems
-        //-------------------------------------------------------------------------
-
-        if ( !m_systems.empty() )
+        for ( auto pSystem : m_systems )
         {
-            if ( m_updateRegistrationStatus == RegistrationStatus::Registered )
-            {
-                activationContext.m_unregisterForEntityUpdate.enqueue( this );
-                m_updateRegistrationStatus = RegistrationStatus::QueuedForUnregister;
-            }
-
-            for ( int8 i = 0; i < (int8) UpdateStage::NumStages; i++ )
-            {
-                m_systemUpdateLists[i].clear();
-            }
-
-            for ( auto pSystem : m_systems )
-            {
-                pSystem->Deactivate();
-            }
+            pSystem->Shutdown();
         }
 
         //-------------------------------------------------------------------------

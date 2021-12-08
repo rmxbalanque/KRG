@@ -226,11 +226,6 @@ namespace KRG::Animation::Graph
                     return InvalidIndex;
                 }
             }
-            else
-            {
-                context.LogError( pBlendTreeRoot, "Disconnected blend tree root for state" );
-                return InvalidIndex;
-            }
 
             // Compile Layer Data
             //-------------------------------------------------------------------------

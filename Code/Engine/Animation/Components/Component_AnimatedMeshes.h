@@ -37,4 +37,15 @@ namespace KRG::Animation
         KRG_EXPOSE TResourcePtr<Skeleton>               m_pSkeleton = nullptr;
         TVector<int32>                                  m_animToMeshBoneMap;
     };
+
+    //-------------------------------------------------------------------------
+
+    // We often have the need to find the specific mesh component that is the main character mesh.
+    // This class makes it explicit, no need for name or tag matching!
+    class KRG_ENGINE_ANIMATION_API CharacterMeshComponent final : public AnimatedMeshComponent
+    {
+        KRG_REGISTER_SINGLETON_ENTITY_COMPONENT( CharacterMeshComponent );
+
+        using AnimatedMeshComponent::AnimatedMeshComponent;
+    };
 }

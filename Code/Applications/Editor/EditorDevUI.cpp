@@ -395,7 +395,7 @@ namespace KRG
         {
             if ( ImGui::BeginMenuBar() )
             {
-                if ( pWorkspace->ShouldDrawFileMenu() )
+                if ( !m_model.IsGamePreviewWorkspace( pWorkspace ) )
                 {
                     ImGui::BeginDisabled( !pWorkspace->IsDirty() );
                     if ( ImGui::MenuItem( KRG_ICON_FLOPPY_O" Save" ) )

@@ -125,7 +125,7 @@ namespace KRG::ImGuiX
         Float2              m_rotationStartMousePosition = Float2::Zero;
         Quaternion          m_originalStartRotation = Quaternion::Identity;
         Vector              m_rotationAxis = Vector::Zero;
-        Radians             m_rotationDeltaAngle = 0.0f;
+        Radians             m_rotationDeltaAngle = Radians( 0.0f );
 
         // Translation State
         Vector              m_translationOffset = Vector::Zero;

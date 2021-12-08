@@ -11,11 +11,10 @@
 namespace KRG
 {
     class EntityComponent;
-    class SpatialEntityComponent;
     class OrbitCameraComponent;
-    namespace Physics { class CharacterComponent; class PhysicsStateController; }
+    namespace Physics { class CharacterComponent; class PhysicsStateController; class PhysicsWorldSystem; }
     namespace Input { class InputSystem; }
-    namespace Animation { class GraphControllerRegistry; }
+    namespace Animation { class GraphController; }
 }
 
 //-------------------------------------------------------------------------
@@ -25,13 +24,13 @@ namespace KRG::Player
     class MainPlayerComponent;
 
     //-------------------------------------------------------------------------
+    // The context for all player actions
+    //-------------------------------------------------------------------------
+    // Provides the common set of systems and components needed for player actions
 
     struct ActionContext
     {
-        ~ActionContext()
-        {
-            KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pPlayerComponent == nullptr && m_pCharacterComponent == nullptr && m_pCameraComponent == nullptr && m_pPhysicsController == nullptr );
-        }
+        ~ActionContext();
 
         bool IsValid() const;
 
@@ -56,21 +55,26 @@ namespace KRG::Player
         KRG_FORCE_INLINE Seconds GetDeltaTime() const { return m_pEntityUpdateContext->GetDeltaTime(); }
         template<typename T> inline T* GetWorldSystem() const { return m_pEntityUpdateContext->GetWorldSystem<T>(); }
         template<typename T> inline T* GetSystem() const { return m_pEntityUpdateContext->GetSystem<T>(); }
+        template<typename T> inline T* GetAnimSubGraphController() const { return m_pAnimationController->GetSubGraphController<T>(); }
 
     public:
 
         EntityUpdateContext const*                  m_pEntityUpdateContext = nullptr;
         Input::InputSystem*                         m_pInputSystem = nullptr;
+        Physics::PhysicsWorldSystem*                m_pPhysicsWorld = nullptr;
 
         MainPlayerComponent*                        m_pPlayerComponent = nullptr;
         Physics::PhysicsStateController*            m_pPhysicsController = nullptr;
-        Physics::CharacterComponent*                m_pCharacterComponent = nullptr;
-        Animation::GraphControllerRegistry*         m_pAnimationControllerRegistry = nullptr;
+        Physics::CharacterComponent*                m_pCharacterPhysicsComponent = nullptr;
+        Animation::GraphController*                 m_pAnimationController = nullptr;
         OrbitCameraComponent*                       m_pCameraComponent = nullptr;
         TInlineVector<EntityComponent*, 10>         m_components;
     };
 
     //-------------------------------------------------------------------------
+    // The player action state
+    //-------------------------------------------------------------------------
+    // This defines a discrete action the player is currently undertaking i.e. moving, shooting, reloading, etc...
 
     class Action
     {
@@ -163,7 +167,7 @@ namespace KRG::Player
 
 //-------------------------------------------------------------------------
 
-#define KRG_PLAYER_GAMEPLAY_ACTION_ID( TypeName ) \
+#define KRG_PLAYER_ACTION_ID( TypeName ) \
 constexpr static uint32 const s_gameplayStateID = Hash::FNV1a::GetHash32( #TypeName ); \
 virtual uint32 GetActionID() const override final { return TypeName::s_gameplayStateID; }\
 KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( char const* GetName() const override final { return #TypeName; } )

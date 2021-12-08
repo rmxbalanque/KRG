@@ -67,6 +67,11 @@ namespace KRG::EntityModel
 
         static bool ReadAndConvertPropertyValue( ParsingContext& ctx, TypeSystem::TypeInfo const* pTypeInfo, RapidJsonValue::ConstMemberIterator memberIter, TypeSystem::PropertyDescriptor& outPropertyDesc )
         {
+            if ( !memberIter->value.IsString() )
+            {
+                return Error( "Property value for (%s) must be a string value.", memberIter->name.GetString() );
+            }
+
             ReadPropertyValue( ctx, memberIter, outPropertyDesc );
 
             //-------------------------------------------------------------------------
@@ -74,14 +79,14 @@ namespace KRG::EntityModel
             auto const pPropertyInfo = ctx.m_typeRegistry.ResolvePropertyPath( pTypeInfo, outPropertyDesc.m_path );
             if ( pPropertyInfo == nullptr )
             {
-                return false;
+                return Error( "Failed to resolve property path: %s, for type (%s)", outPropertyDesc.m_path.ToString().c_str(), pTypeInfo->m_ID.c_str());
             }
 
             if ( TypeSystem::IsCoreType( pPropertyInfo->m_typeID ) || pPropertyInfo->IsEnumProperty() || pPropertyInfo->IsBitFlagsProperty() )
             {
                 if ( !TypeSystem::Conversion::ConvertStringToBinary( ctx.m_typeRegistry, *pPropertyInfo, outPropertyDesc.m_stringValue, outPropertyDesc.m_byteValue ) )
                 {
-                    return false;
+                    return Error( "Failed to convert string value (%s) to binary for property: %s for type (%s)", outPropertyDesc.m_stringValue.c_str(), outPropertyDesc.m_path.ToString().c_str(), pTypeInfo->m_ID.c_str() );
                 }
             }
 

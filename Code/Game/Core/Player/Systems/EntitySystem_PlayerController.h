@@ -1,8 +1,16 @@
 #pragma once
 
 #include "Game/Core/_Module/API.h"
-#include "Game/Core/Player/Actions/PlayerAction.h"
+#include "Game/Core/Player/PlayerActionStateMachine.h"
 #include "Engine/Core/Entity/EntitySystem.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Animation
+{
+    class AnimationGraphComponent;
+    class CharacterMeshComponent;
+}
 
 //-------------------------------------------------------------------------
 
@@ -12,49 +20,7 @@ namespace KRG::Player
     {
         friend class PlayerDebugView;
 
-        KRG_REGISTER_ENTITY_SYSTEM( PlayerController, RequiresUpdate( UpdateStage::PrePhysics ) );
-
-        // List of all the state machine states
-        //-------------------------------------------------------------------------
-
-        enum ActionID : int8
-        {
-            InvalidAction = -1,
-            Locomotion = 0,
-            Jump = 1,
-
-            NumActions,
-            DefaultAction = Locomotion,
-        };
-
-        // Transitions in the state machine
-        //-------------------------------------------------------------------------
-
-        struct Transition
-        {
-            enum class Availability : uint8
-            {
-                Always,
-                OnlyOnCompleted
-            };
-
-            Transition( ActionID stateID, Availability availability = Availability::Always )
-                : m_targetStateID( stateID )
-                , m_availability( availability )
-            {}
-
-            inline bool IsAvailable( Action::Status stateUpdateResult ) const
-            {
-                return ( m_availability == Availability::Always ) || ( stateUpdateResult == Action::Status::Completed );
-            }
-
-            ActionID            m_targetStateID;
-            Availability        m_availability;
-        };
-
-    public:
-
-        virtual ~PlayerController();
+        KRG_REGISTER_ENTITY_SYSTEM( PlayerController, RequiresUpdate( UpdateStage::PrePhysics, UpdatePriority::Highest ), RequiresUpdate( UpdateStage::PostPhysics, UpdatePriority::Highest ) );
 
     private:
 
@@ -65,23 +31,12 @@ namespace KRG::Player
         virtual void UnregisterComponent( EntityComponent* pComponent ) override;
         virtual void Update( EntityUpdateContext const& ctx ) override;
 
-        // State Machine
-        //-------------------------------------------------------------------------
-
-        void InitializeStateMachine();
-        void ShutdownStateMachine();
-        void UpdateStateMachine();
-
     private:
 
         ActionContext                                           m_actionContext;
-        ActionID                                                m_activeBaseActionID = InvalidAction;
+        ActionStateMachine                                      m_actionStateMachine;
 
-        TArray<Action*, NumActions>                             m_baseActions;
-        TArray<TInlineVector<Transition, 6>, NumActions>        m_actionTransitions;
-        TInlineVector<Transition, 6>                            m_highPriorityGlobalTransitions;
-        TInlineVector<Transition, 6>                            m_lowPriorityGlobalTransitions;
-
-        TInlineVector<OverlayAction*, 5>                        m_overlayActions;
+        Animation::AnimationGraphComponent*                     m_pAnimGraphComponent = nullptr;
+        Animation::CharacterMeshComponent*                      m_pCharacterMeshComponent = nullptr;
     };
 }

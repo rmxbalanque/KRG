@@ -71,7 +71,7 @@
     <ClInclude Include="Components\Component_PhysicsSphere.h" />
     <ClInclude Include="Components\Component_PhysicsCharacter.h" />
     <ClInclude Include="Debug\DebugView_Physics.h" />
-    <ClInclude Include="PhysicsStateController.h" />
+    <ClInclude Include="PhysicsState.h" />
     <ClInclude Include="PhysicsLayers.h" />
     <ClInclude Include="PhysicsSettings.h" />
     <ClInclude Include="PhysicsMaterial.h" />
@@ -95,7 +95,7 @@
     <ClCompile Include="Components\Component_PhysicsSphere.cpp" />
     <ClCompile Include="Components\Component_PhysicsCharacter.cpp" />
     <ClCompile Include="Debug\DebugView_Physics.cpp" />
-    <ClCompile Include="PhysicsStateController.cpp" />
+    <ClCompile Include="PhysicsState.cpp" />
     <ClCompile Include="PhysicsSettings.cpp" />
     <ClCompile Include="PhysicsMaterial.cpp" />
     <ClCompile Include="PhysicsSimulationFilter.cpp" />

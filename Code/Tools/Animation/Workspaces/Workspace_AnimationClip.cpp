@@ -4,7 +4,7 @@
 #include "Tools/Core/Widgets/InterfaceHelpers.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "Engine/Animation/Components/Component_AnimationClipPlayer.h"
-#include "Engine/Animation/Components/Component_AnimatedMesh.h"
+#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
 #include "Engine/Animation/Systems/EntitySystem_Animation.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Core/Math/MathStringHelpers.h"

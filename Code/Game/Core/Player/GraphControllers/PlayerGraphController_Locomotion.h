@@ -5,20 +5,17 @@
 
 namespace KRG::Player
 {
-    class LocomotionGraphController final : public Animation::GraphController
+    class LocomotionGraphController final : public Animation::SubGraphController
     {
     public:
 
-        KRG_ANIM_GRAPH_CONTROLLER_ID( LocomotionGraphController );
+        KRG_ANIMATION_SUBGRAPH_CONTROLLER_ID( LocomotionGraphController );
 
     public:
 
-        LocomotionGraphController( Animation::AnimationGraphComponent* pGraphComponent );
+        LocomotionGraphController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent );
 
-        inline void SetSpeed( float speed )
-        {
-            SetControlParameterValue( m_speedParam, speed );
-        }
+        inline void SetSpeed( float speed ) { m_speedParam.Set( this, speed ); }
 
     private:
 

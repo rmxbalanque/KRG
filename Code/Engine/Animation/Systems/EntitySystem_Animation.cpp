@@ -1,6 +1,6 @@
 #include "EntitySystem_Animation.h"
 #include "Engine/Animation/Components/Component_Animation.h"
-#include "Engine/Animation/Components/Component_AnimatedMesh.h"
+#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
@@ -66,22 +66,40 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        auto const updateStage = ctx.GetUpdateStage();
+        auto GetMeshWorldTransform = [this] ()
+        {
+            if ( m_meshComponents.empty() )
+            {
+                return Transform::Identity;
+            }
+            else
+            {
+                return m_meshComponents[0]->GetWorldTransform();
+            }
+        };
+
+        //-------------------------------------------------------------------------
+
+        UpdateStage const updateStage = ctx.GetUpdateStage();
         if ( updateStage == UpdateStage::PrePhysics )
         {
-            m_pAnimComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), GetCharacterWorldTransform() );
+            if ( !m_pAnimComponent->RequiresManualUpdate() )
+            {
+                m_pAnimComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), GetMeshWorldTransform() );
+            }
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {
-            auto const& characterWorldTransform = GetCharacterWorldTransform();
-            m_pAnimComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), characterWorldTransform );
+            if ( !m_pAnimComponent->RequiresManualUpdate() )
+            {
+                m_pAnimComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), GetMeshWorldTransform() );
+            }
 
+            // Transfer Pose
             //-------------------------------------------------------------------------
 
             auto const* pPose = m_pAnimComponent->GetPose();
             KRG_ASSERT( pPose->HasGlobalTransforms() );
-
-            //-------------------------------------------------------------------------
 
             for ( auto pMeshComponent : m_meshComponents )
             {
@@ -98,20 +116,6 @@ namespace KRG::Animation
                 pMeshComponent->SetPose( pPose );
                 pMeshComponent->FinalizePose();
             }
-        }
-    }
-
-    //-------------------------------------------------------------------------
-    
-    Transform const& AnimationSystem::GetCharacterWorldTransform() const
-    {
-        if ( m_meshComponents.empty() )
-        {
-            return Transform::Identity;
-        }
-        else
-        {
-            return m_meshComponents[0]->GetWorldTransform();
         }
     }
 }

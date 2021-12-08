@@ -24,6 +24,7 @@ namespace KRG::Physics
     void CharacterComponent::OnWorldTransformUpdated()
     {
         m_capsuleWorldTransform = CalculateCapsuleTransformFromWorldTransform( GetWorldTransform() );
+        m_linearVelocity = Vector::Zero;
 
         if ( m_pPhysicsActor != nullptr )
         {
@@ -37,25 +38,17 @@ namespace KRG::Physics
         }
     }
 
-    void CharacterComponent::TeleportTo( Transform const& newWorldTransform )
+    void CharacterComponent::MoveCharacter( Seconds const deltaTime, Transform const& newWorldTransform )
     {
-        KRG_ASSERT( m_pPhysicsActor != nullptr );
-        SetWorldTransformDirectly( newWorldTransform, false ); // Do not fire callback as we dont want to lock the scene twice
-        m_capsuleWorldTransform = CalculateCapsuleTransformFromWorldTransform( GetWorldTransform() );
+        KRG_ASSERT( deltaTime > 0.0f );
 
-        // Teleport kinematic body
-        auto physicsScene = m_pPhysicsActor->getScene();
-        physicsScene->lockWrite();
-        auto pKinematicActor = m_pPhysicsActor->is<physx::PxRigidDynamic>();
-        KRG_ASSERT( pKinematicActor->getRigidBodyFlags().isSet( physx::PxRigidBodyFlag::eKINEMATIC ) );
-        pKinematicActor->setGlobalPose( ToPx( m_capsuleWorldTransform ) );
-        physicsScene->unlockWrite();
-    }
+        Vector const deltaTranslation = newWorldTransform.GetTranslation() - GetPosition();
+        m_linearVelocity = deltaTranslation / deltaTime;
 
-    void CharacterComponent::MoveTo( Transform const& newWorldTransform )
-    {
+        //-------------------------------------------------------------------------
+
         KRG_ASSERT( m_pPhysicsActor != nullptr  );
-        SetWorldTransformDirectly( newWorldTransform, false ); // Do not fire callback as we dont want to lock the scene twice
+        SetWorldTransformDirectly( newWorldTransform, false ); // Do not fire callback as we dont want to teleport the character
         m_capsuleWorldTransform = CalculateCapsuleTransformFromWorldTransform( GetWorldTransform() );
 
         // Request the kinematic body be moved by the physics simulation

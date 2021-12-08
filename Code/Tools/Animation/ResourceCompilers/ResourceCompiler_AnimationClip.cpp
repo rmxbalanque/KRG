@@ -171,7 +171,7 @@ namespace KRG::Animation
                 // We use the negative world forward since deltas are relative to the identity transform
                 Vector const deltaForward2D = deltaRoot.GetForwardVector().GetNormalized2();
                 Radians const deltaAngle = Math::GetYawAngleBetweenVectors( deltaForward2D, Vector::WorldBackward ).GetClamped360();
-                totalRotation += Math::Abs( deltaAngle );
+                totalRotation += Math::Abs( (float) deltaAngle );
             }
         }
 

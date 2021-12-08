@@ -97,7 +97,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Property Sheets", "6. Pr
 		Code\PropertySheets\LLVM.props = Code\PropertySheets\LLVM.props
 		Code\PropertySheets\MeshOptimizer.props = Code\PropertySheets\MeshOptimizer.props
 		Code\PropertySheets\NavPower.props = Code\PropertySheets\NavPower.props
-		Code\PropertySheets\NavPowerBuilder.props = Code\PropertySheets\NavPowerBuilder.props
 		Code\PropertySheets\Optick.props = Code\PropertySheets\Optick.props
 		Code\PropertySheets\PhysX.props = Code\PropertySheets\PhysX.props
 		Code\PropertySheets\SQLite.props = Code\PropertySheets\SQLite.props

@@ -11,14 +11,17 @@ namespace KRG::Player
     {
     public:
 
-        KRG_PLAYER_GAMEPLAY_ACTION_ID( JumpAction );
+        KRG_PLAYER_ACTION_ID( JumpAction );
 
         virtual bool TryStartInternal( ActionContext const& ctx ) override;
         virtual Status UpdateInternal( ActionContext const& ctx ) override;
         virtual void StopInternal( ActionContext const& ctx, StopReason reason ) override;
 
+        inline bool IsChargedJumpReady() const { return m_isChargedJumpReady; }
+
     private:
 
-        EngineTimer m_timer;
+        EngineTimer     m_timer;
+        bool            m_isChargedJumpReady = false;
     };
 }

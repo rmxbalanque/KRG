@@ -32,14 +32,14 @@ namespace KRG
             inline static Radians ConvertVerticalToHorizontalFOV( float width, float height, Radians VerticalAngle )
             {
                 KRG_ASSERT( !Math::IsNearZero( height ) );
-                Radians const horizontalFOV = 2.0f * Math::ATan( width / height * Math::Tan( VerticalAngle / 2.0f ) );
+                Radians const horizontalFOV( 2.0f * Math::ATan( width / height * Math::Tan( (float) VerticalAngle / 2.0f ) ) );
                 return horizontalFOV;
             }
 
             inline static Radians ConvertHorizontalToVerticalFOV( float width, float height, Radians HorizontalAngle )
             {
                 KRG_ASSERT( !Math::IsNearZero( width ) );
-                Radians const verticalFOV = 2.0f * Math::ATan( height / width * Math::Tan( HorizontalAngle / 2.0f ) );
+                Radians const verticalFOV( 2.0f * Math::ATan( height / width * Math::Tan( (float) HorizontalAngle / 2.0f ) ) );
                 return verticalFOV;
             }
 
@@ -128,8 +128,8 @@ namespace KRG
             Plane                   m_viewPlanes[6];                        // Cached view planes for this volume
 
             Float2                  m_viewDimensions = Float2::Zero;        // The dimensions of the view volume
-            Radians                 m_FOV = 0.0f;                           // The horizontal field of view angle (only for perspective projection)
-            FloatRange              m_depthRange = FloatRange( 0 );        // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
+            Radians                 m_FOV = Radians( 0.0f );                // The horizontal field of view angle (only for perspective projection)
+            FloatRange              m_depthRange = FloatRange( 0 );         // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
             ProjectionType          m_type = ProjectionType::Perspective;   // The projection type
         };
     }

@@ -26,8 +26,6 @@ namespace KRG::Animation
         virtual void UnregisterComponent( EntityComponent* pComponent ) override;
         virtual void Update( EntityUpdateContext const& ctx ) override;
 
-        Transform const& GetCharacterWorldTransform() const;
-
     private:
 
         AnimationComponent*                     m_pAnimComponent = nullptr;

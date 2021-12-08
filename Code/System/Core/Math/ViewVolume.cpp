@@ -116,7 +116,7 @@ namespace KRG::Math
 
         if ( m_type == ProjectionType::Perspective )
         {
-            if ( Math::IsNearZero( m_FOV ) )
+            if ( Math::IsNearZero( (float) m_FOV ) )
             {
                 return false;
             }
@@ -167,7 +167,7 @@ namespace KRG::Math
         else
         {
             Radians const verticalFOV = ConvertHorizontalToVerticalFOV( m_viewDimensions.m_x, m_viewDimensions.m_y, m_FOV );
-            m_projectionMatrix = Matrix::PerspectiveProjectionMatrix( verticalFOV, GetAspectRatio(), m_depthRange.m_start, m_depthRange.m_end );
+            m_projectionMatrix = Matrix::PerspectiveProjectionMatrix( (float) verticalFOV, GetAspectRatio(), m_depthRange.m_start, m_depthRange.m_end );
         }
 
         UpdateInternals();
@@ -239,7 +239,7 @@ namespace KRG::Math
             // Get projected viewport extents on near/far planes
             Radians const verticalFOV = ConvertHorizontalToVerticalFOV( m_viewDimensions.m_x, m_viewDimensions.m_y, m_FOV );
             float const aspectRatio = GetAspectRatio();
-            float e = Math::Tan( verticalFOV * 0.5f );
+            float e = Math::Tan( (float) verticalFOV * 0.5f );
             float extentUpNear = e * m_depthRange.m_start;
             float extentRightNear = extentUpNear * aspectRatio;
             float extentUpFar = e * m_depthRange.m_end;

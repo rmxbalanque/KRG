@@ -101,13 +101,13 @@ namespace KRG::Math
 
         if ( a.IsNearEqual3( b ) )
         {
-            return 0.0f;
+            return Radians( 0.0f );
         }
 
         Vector const dot = Vector::Dot3( a, b );
         Vector const reciprocal = a.InverseLength3() * b.InverseLength3();
         Vector const CosAngle = Vector::Clamp( dot * reciprocal, Vector::NegativeOne, Vector::One );
-        return Vector::ACos( CosAngle ).ToFloat();
+        return Radians( Vector::ACos( CosAngle ).ToFloat() );
     }
 
     // Returns the shortest angle between two vectors (always positive)
@@ -121,7 +121,7 @@ namespace KRG::Math
     {
         Vector const nr = reference.GetNormalized2();
         Vector const nv = v.GetNormalized2();
-        Radians horizontalAngle = GetAngleBetweenVectors( nr, nv ).ToFloat();
+        Radians horizontalAngle = GetAngleBetweenVectors( nr, nv );
 
         Vector const cross = Vector::Cross3( nr, nv );
         Vector const dot = Vector::Dot3( cross, Vector::UnitZ );
@@ -136,9 +136,7 @@ namespace KRG::Math
     // Returns the angle between two 2D vectors, relative to the reference vector (i.e. negative values mean below the reference, positive means above )
     inline Radians GetPitchAngleBetweenNormalizedVectors( Vector const& reference, Vector const& v )
     {
-        Radians const ar = Math::ASin( reference.m_z );
-        Radians const av = Math::ASin( v.m_z );
-        return av - ar;
+        return Radians( Math::ASin( v.m_z ) - Math::ASin( reference.m_z ) );
     }
 
     // Returns the angle between two 2D vectors, relative to the reference vector (i.e. negative values mean below the reference, positive means above )

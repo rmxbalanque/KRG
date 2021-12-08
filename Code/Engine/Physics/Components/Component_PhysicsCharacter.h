@@ -26,6 +26,23 @@ namespace KRG::Physics
         // The character total height
         KRG_FORCE_INLINE float GetCharacterHeight() const { return ( m_radius + m_cylinderPortionHalfHeight ) * 2; }
 
+        // Get the current linear velocity (m/s)
+        KRG_FORCE_INLINE Vector const GetCharacterVelocity() const { return m_linearVelocity; }
+
+        // Clear character velocity
+        KRG_FORCE_INLINE void ClearCharacterVelocity() { m_linearVelocity = Vector::Zero; }
+
+        // This will set the component's world transform and request that the kinematic actor be moved to the desired location, correctly interacting with other actors on it's path.
+        // This function takes a delta time so that it can update the tracked velocities of the character
+        // Note: the actual physics actor will only be moved during the next physics simulation step
+        // Note: if you call the SetWorldTransform function on the component, it will teleport the character!!
+        void MoveCharacter( Seconds deltaTime, Transform const& newWorldTransform );
+
+        // This will set the component's world transform and teleport the physics actor to the desired location.
+        // Note: This will reset the character velocity
+        // Note: This is the same as directly moving the component
+        void TeleportCharacter( Transform const& newWorldTransform ) { SetWorldTransform( newWorldTransform ); }
+
         // Capsule Info
         //-------------------------------------------------------------------------
 
@@ -33,7 +50,7 @@ namespace KRG::Physics
         KRG_FORCE_INLINE float GetCapsuleRadius() const { return m_radius; }
 
         // The half-height of the cylinder portion of the character capsule
-        KRG_FORCE_INLINE float GetCylinderPortionHalfHeight() const { return m_cylinderPortionHalfHeight; }
+        KRG_FORCE_INLINE float GetCapsuleCylinderPortionHalfHeight() const { return m_cylinderPortionHalfHeight; }
 
         // Get the full height of the character capsule
         KRG_FORCE_INLINE float GetCapsuleHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ) * 2; }
@@ -49,15 +66,6 @@ namespace KRG::Physics
 
         // Get the physics capsule world space orientation
         KRG_FORCE_INLINE Quaternion const& GetCapsuleOrientation() const { return m_capsuleWorldTransform.GetRotation(); }
-
-        // Get physics capsule world space forward vector
-        KRG_FORCE_INLINE Vector GetCapsuleForwardVector() const { return m_capsuleWorldTransform.GetForwardVector(); }
-
-        // Get physics capsule world space up vector
-        KRG_FORCE_INLINE Vector GetCapsuleUpVector() const { return m_capsuleWorldTransform.GetUpVector(); }
-
-        // Get physics capsule world space right vector
-        KRG_FORCE_INLINE Vector GetCapsuleRightVector() const { return m_capsuleWorldTransform.GetRightVector(); }
 
         // Calculate the Z=height capsule transform from a given world transform
         KRG_FORCE_INLINE Transform CalculateCapsuleTransformFromWorldTransform( Transform const& worldTransform ) const
@@ -78,21 +86,26 @@ namespace KRG::Physics
 
         bool HasValidPhysicsSetup() const;
 
-        // This will set the component's world transform and teleport the physics actor to the desired location
-        void TeleportTo( Transform const& newWorldTransform );
-
-        // This will set the component's world transform and request that the kinematic actor be moved to the desired location, correctly interacting with other actors on it's path.
-        // Note: the actual physics actor will only be moved during the next physics simulation step
-        void MoveTo( Transform const& newWorldTransform );
-
     protected:
 
         virtual void Initialize() override;
 
     private:
 
+        // Override this function to change access specifier
+        // Use the MoveCharacter or TeleportCharacter functions instead!
+        KRG_FORCE_INLINE void SetWorldTransform( Transform const& newTransform )
+        {
+            SpatialEntityComponent::SetWorldTransform( newTransform );
+        }
+
         // Update physics world position for this shape
         virtual void OnWorldTransformUpdated() override final;
+
+    public: 
+
+        Vector                                              m_deltaTranslationHACK = Vector::Zero;
+        Quaternion                                          m_deltaRotationHACK = Quaternion::Identity;
 
     protected:
 
@@ -108,6 +121,7 @@ namespace KRG::Physics
         physx::PxRigidActor*                                m_pPhysicsActor = nullptr;
         physx::PxShape*                                     m_pCapsuleShape = nullptr;
         Transform                                           m_capsuleWorldTransform;
+        Vector                                              m_linearVelocity = Vector::Zero;
 
         #if KRG_DEVELOPMENT_TOOLS
         String                                              m_debugName; // Keep a debug name here since the physx SDK doesnt store the name data

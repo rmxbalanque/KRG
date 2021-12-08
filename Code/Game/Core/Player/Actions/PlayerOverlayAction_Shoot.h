@@ -9,7 +9,7 @@ namespace KRG::Player
     {
     public:
 
-        KRG_PLAYER_GAMEPLAY_ACTION_ID( ShootOverlayAction );
+        KRG_PLAYER_ACTION_ID( ShootOverlayAction );
 
         virtual bool TryStartInternal( ActionContext const& ctx ) override;
         virtual Status UpdateInternal( ActionContext const& ctx ) override;

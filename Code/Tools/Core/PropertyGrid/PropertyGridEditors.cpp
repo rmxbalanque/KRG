@@ -1576,6 +1576,8 @@ namespace KRG::TypeSystem
 
     class StringIDEditor final : public PropertyEditor
     {
+        constexpr static uint32 const s_bufferSize = 256;
+
     public:
 
         StringIDEditor( TypeRegistry const& typeRegistry, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
@@ -1594,49 +1596,76 @@ namespace KRG::TypeSystem
 
             ImGui::SetNextItemWidth( childWindowWidth );
             ImGui::PushStyleColor( ImGuiCol_Text, Colors::LightGreen.ToUInt32_ABGR() );
-            ImGui::InputText( "##IDString", m_IDString.data(), m_IDString.length(), ImGuiInputTextFlags_ReadOnly );
+            ImGui::InputText( "##IDString", m_IDString.data(), m_IDString.length(), ImGuiInputTextFlags_ReadOnly);
             ImGui::PopStyleColor();
 
             //-------------------------------------------------------------------------
 
             ImGui::SetNextItemWidth( textAreaWidth );
             ImGui::SameLine( 0, g_itemSpacing );
-            ImGui::InputText( "##StringInput", m_buffer_imgui, 256 );
+            ImGui::InputText( "##StringInput", m_buffer_imgui, s_bufferSize );
             return ImGui::IsItemDeactivatedAfterEdit();
         }
 
         virtual void UpdateInstanceValue() override
         {
             auto pValue = reinterpret_cast<StringID*>( m_pPropertyInstance );
-            strcpy_s( m_buffer_cached, 256, m_buffer_imgui );
-            *pValue = StringID( m_buffer_cached );
-            m_IDString.sprintf( "%u", pValue->GetID() );
+
+            if ( strlen( m_buffer_imgui ) > 0 )
+            {
+                m_buffer_cached = m_buffer_imgui;
+                *pValue = StringID( m_buffer_imgui );
+                m_IDString.sprintf( "%u", pValue->GetID() );
+            }
+            else
+            {
+                pValue->Clear();
+                m_buffer_cached.clear();
+                m_IDString = "Invalid";
+            }
         }
 
         virtual void ResetWorkingCopy() override
         {
             auto pValue = reinterpret_cast<StringID*>( m_pPropertyInstance );
-            strcpy_s( m_buffer_imgui, 256, pValue->c_str() );
-            strcpy_s( m_buffer_cached, 256, pValue->c_str() );
-            m_IDString.sprintf( "%u", pValue->GetID() );
+            if ( pValue->IsValid() )
+            {
+                strcpy_s( m_buffer_imgui, 256, pValue->c_str() );
+                m_buffer_cached = pValue->c_str();
+                m_IDString.sprintf( "%u", pValue->GetID() );
+            }
+            else
+            {
+                Memory::MemsetZero( m_buffer_imgui, s_bufferSize );
+                m_buffer_cached.clear();
+                m_IDString = "Invalid";
+            }
         }
 
         virtual void HandleExternalUpdate() override
         {
-            auto pActualValue = reinterpret_cast<StringID*>( m_pPropertyInstance );
-            if ( strcmp( pActualValue->c_str(), m_buffer_cached ) != 0 )
+            StringID const* pActualValue = reinterpret_cast<StringID*>( m_pPropertyInstance );
+            if ( pActualValue->IsValid() )
             {
-                strcpy_s( m_buffer_imgui, 256, pActualValue->c_str() );
-                strcpy_s( m_buffer_cached, 256, pActualValue->c_str() );
-                m_IDString.sprintf( "%u", pActualValue->GetID() );
+                if ( m_buffer_cached != pActualValue->c_str() )
+                {
+                    ResetWorkingCopy();
+                }
+            }
+            else // Invalid String ID
+            {
+                if ( !m_buffer_cached.empty() )
+                {
+                    ResetWorkingCopy();
+                }
             }
         }
 
     private:
 
-        char    m_buffer_imgui[256];
-        char    m_buffer_cached[256];
-        String  m_IDString;
+        char                            m_buffer_imgui[s_bufferSize];
+        InlineString<s_bufferSize>      m_buffer_cached;
+        InlineString<s_bufferSize>      m_IDString;
     };
 
     //-------------------------------------------------------------------------

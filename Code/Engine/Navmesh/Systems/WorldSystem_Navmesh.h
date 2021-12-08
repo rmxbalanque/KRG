@@ -40,11 +40,6 @@ namespace KRG::Navmesh
 
         KRG_FORCE_INLINE bfx::SpaceHandle GetSpaceHandle() const { return bfx::GetDefaultSpaceHandle( m_pInstance ); }
 
-        // HACK
-        bfx::Mover* CreateMover();
-        void DestroyMover( bfx::Mover* );
-        void SetMoverGoal( bfx::Mover* pMover, Vector const& pos );
-
     private:
 
         virtual void InitializeSystem( SystemRegistry const& systemRegistry ) override;

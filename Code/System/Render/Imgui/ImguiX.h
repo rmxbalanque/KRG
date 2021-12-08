@@ -127,7 +127,7 @@ namespace KRG::ImGuiX
     KRG_SYSTEM_RENDER_API void PostSeparator( float width = 0 );
 
     // Create a labeled separator: --- TEXT ---------------
-    KRG_SYSTEM_RENDER_API void TextSeparator( char* text, float preWidth = 10.0f, float totalWidth = 0 );
+    KRG_SYSTEM_RENDER_API void TextSeparator( char const* text, float preWidth = 10.0f, float totalWidth = 0 );
 
     // Draws a vertical separator on the current line and forces the next item to be on the same line. The size is the offset between the previous item and the next
     KRG_SYSTEM_RENDER_API void VerticalSeparator( ImVec2 const& size = ImVec2( 9, -1 ), ImColor const& color = 0 );

@@ -1,11 +1,16 @@
 #pragma once
 
 #include "Game/Core/_Module/API.h"
+#include "Game/Core/AI/AIActionController.h"
 #include "Engine/Core/Entity/EntitySystem.h"
-#include "Game/Core/Player/Actions/PlayerAction.h"
 
-// HACK
-#include "bfxMover.h"
+//-------------------------------------------------------------------------
+
+namespace KRG::Animation
+{
+    class AnimationGraphComponent;
+    class CharacterMeshComponent;
+}
 
 //-------------------------------------------------------------------------
 
@@ -16,10 +21,6 @@ namespace KRG::AI
         friend class AIDebugView;
 
         KRG_REGISTER_ENTITY_SYSTEM( AIController, RequiresUpdate( UpdateStage::PrePhysics ), RequiresUpdate( UpdateStage::PostPhysics ) );
-
-    public:
-
-        virtual ~AIController();
 
     private:
 
@@ -32,8 +33,10 @@ namespace KRG::AI
 
     private:
 
-        // HACK
-        bfx::MoverTune  m_tune;
-        bfx::Mover*     m_pMover = nullptr;
+        ActionContext                                           m_actionContext;
+        ActionController                                        m_actionController;
+
+        Animation::AnimationGraphComponent*                     m_pAnimGraphComponent = nullptr;
+        Animation::CharacterMeshComponent*                      m_pCharacterMeshComponent = nullptr;
     };
 }

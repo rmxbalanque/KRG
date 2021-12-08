@@ -2,6 +2,7 @@
 #include "_Module/API.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Algorithm/Hash.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 
@@ -15,7 +16,7 @@ namespace KRG::Physics
 
 namespace KRG::Physics
 {
-    class PhysicsState
+    class KRG_ENGINE_PHYSICS_API PhysicsState
     {
     public:
 
@@ -31,13 +32,24 @@ namespace KRG::Physics
         virtual void Deactivate() {}
 
         // Try to move the capsule, delta rotation/translation are in world space. Returns true if the capsule was able to be moved
-        virtual bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent* pCharacterComponent, float const deltaTime, Transform const& deltaTransform ) = 0;
+        virtual bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent* pCharacterComponent, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation ) = 0;
+
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        // Returns a friendly name for the action
+        virtual char const* GetName() const = 0;
+
+        // Override this function to draw custom imgui controls in the physics state debugger UI
+        virtual void DrawDebugUI();
+        #endif
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_PHYSICS_API PhysicsStateController
     {
+        friend class PhysicsDebugView;
 
     public:
 
@@ -50,9 +62,9 @@ namespace KRG::Physics
 
     public:
 
+        virtual ~PhysicsStateController();
+
         inline bool HasCreatedPhysicsStates() const { return !m_registeredStates.empty(); }
-        void CreatePhysicsStates();
-        void DestroyPhysicsStates();
 
         // Get the currently active physics state
         inline PhysicsState* GetActivePhysicsState() const { return m_pActiveState; }
@@ -68,10 +80,9 @@ namespace KRG::Physics
 
         // Set new physics state
         template<typename T>
-        inline T* SetPhysicsState( SetStateOption const option = SetStateOption::CrashIfAlreadyActive ) const
+        inline T* SetPhysicsState( SetStateOption const option = SetStateOption::CrashIfAlreadyActive )
         {
-            static_assert( std::is_base_of<KRG::PhysicsState, T>::value, "T is not derived from GameplayPhysics::State" );
-            KRG_ASSERT( m_pActiveState != nullptr );
+            static_assert( std::is_base_of<PhysicsState, T>::value, "T is not derived from GameplayPhysics::State" );
 
             // Find the new state
             //-------------------------------------------------------------------------
@@ -103,7 +114,8 @@ namespace KRG::Physics
 
                     case DoNothingIfAlreadyActive:
                     {
-                        return m_pActiveState;
+                        KRG_ASSERT( m_pActiveState != nullptr );
+                        return static_cast<T*>(m_pActiveState);
                     }
                     break;
 
@@ -117,17 +129,16 @@ namespace KRG::Physics
 
             // Switch state
             //-------------------------------------------------------------------------
-
-            m_pActiveState->Deactivate();
+            if( m_pActiveState != nullptr ) // Can happen on the first frame
+            {
+                m_pActiveState->Deactivate();
+            }
             m_pActiveState = static_cast<T*>( pNewState );
             m_pActiveState->Activate();
 
-            return m_pActiveState;
+            KRG_ASSERT( m_pActiveState != nullptr );
+            return static_cast<T*>( m_pActiveState );
         }
-
-    protected:
-
-        virtual void CreatePhysicsStatesInternal() = 0;
 
     protected:
 
@@ -140,4 +151,5 @@ namespace KRG::Physics
 
 #define KRG_PHYSICS_STATE_ID( TypeName ) \
 constexpr static uint32 const s_physicsStateID = Hash::FNV1a::GetHash32( #TypeName ); \
-virtual uint32 GetPhysicsStateID() const override final { return TypeName::s_physicsStateID; }
+virtual uint32 GetPhysicsStateID() const override final { return TypeName::s_physicsStateID; }\
+KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( char const* GetName() const override final { return #TypeName; } )

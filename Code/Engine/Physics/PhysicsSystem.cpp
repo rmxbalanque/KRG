@@ -20,7 +20,7 @@ namespace KRG::Physics
 
         //-------------------------------------------------------------------------
 
-        Radians const anglePerSide( Math::TwoPi / numSides );
+        float const anglePerSide( Math::TwoPi / numSides );
         PxVec3 const rotationAxis( 1, 0, 0 );
         PxVec3 const vertVector( 0, 0, -0.5f );
         PxVec3 const cylinderTopOffset( -0.5f, 0, 0 );
@@ -34,7 +34,7 @@ namespace KRG::Physics
         convexVerts[0] = vertVector + cylinderTopOffset;
         convexVerts[numSides] = vertVector + cylinderBottomOffset;
 
-        Radians currentAngle = anglePerSide;
+        float currentAngle = anglePerSide;
         for ( uint32 i = 1; i < numSides; i++ )
         {
             PxQuat const rotation( currentAngle, rotationAxis );

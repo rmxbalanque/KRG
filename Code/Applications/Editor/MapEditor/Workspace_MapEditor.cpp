@@ -2,6 +2,7 @@
 #include "Tools/Entity/Serialization/EntityCollectionDescriptorWriter.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Core/Helpers/CommonDialogs.h"
+#include "Game/Core/AI/Components/Component_AISpawn.h"
 #include "Engine/Render/Components/Component_Lights.h"
 #include "Engine/Core/Components/Component_PlayerSpawn.h"
 #include "Engine/Core/Entity/EntityWorld.h"
@@ -20,6 +21,8 @@ namespace KRG::EntityModel
 
         m_preEditBindingID = m_propertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& eventInfo ) { PreEdit( eventInfo ); } );
         m_postEditBindingID = m_propertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& eventInfo ) { PostEdit( eventInfo ); } );
+
+        SetDisplayName( "Map Editor" );
     }
 
     EntityMapEditor::~EntityMapEditor()
@@ -238,7 +241,7 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawWorkspaceToolbar( UpdateContext const& context )
     {
-        if ( ImGui::BeginMenu( "File" ) )
+        if ( ImGui::BeginMenu( "Map" ) )
         {
             if ( ImGui::MenuItem( "Create New Map" ) )
             {
@@ -406,14 +409,33 @@ namespace KRG::EntityModel
             }
         }
 
-        auto const& registeredSpawns = m_pWorld->GetAllRegisteredComponentsOfType<Player::PlayerSpawnComponent>();
-        for ( auto pComponent : registeredSpawns )
+        auto const& registeredPlayerSpawns = m_pWorld->GetAllRegisteredComponentsOfType<Player::PlayerSpawnComponent>();
+        for ( auto pComponent : registeredPlayerSpawns )
         {
             if ( pComponent != m_pSelectedComponent )
             {
                 auto pSpawnComponent = const_cast<Player::PlayerSpawnComponent*>( pComponent );
                 ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
                 if ( ImGuiX::DrawOverlayIcon( componentPositionScreenSpace, KRG_ICON_GAMEPAD, pSpawnComponent ) )
+                {
+                    auto pEntity = pEditedMap->FindEntity( pSpawnComponent->GetEntityID() );
+                    SelectEntity( pEntity );
+                    SelectComponent( pSpawnComponent );
+                }
+            }
+
+            auto const& spawnTransform = pComponent->GetWorldTransform();
+            drawingCtx.DrawArrow( spawnTransform.GetTranslation(), spawnTransform.GetForwardVector(), 0.5f, Colors::Yellow, 3.0f );
+        }
+
+        auto const& registeredAISpawns = m_pWorld->GetAllRegisteredComponentsOfType<AI::AISpawnComponent>();
+        for ( auto pComponent : registeredAISpawns )
+        {
+            if ( pComponent != m_pSelectedComponent )
+            {
+                auto pSpawnComponent = const_cast<AI::AISpawnComponent*>( pComponent );
+                ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
+                if ( ImGuiX::DrawOverlayIcon( componentPositionScreenSpace, KRG_ICON_USER_SECRET, pSpawnComponent ) )
                 {
                     auto pEntity = pEditedMap->FindEntity( pSpawnComponent->GetEntityID() );
                     SelectEntity( pEntity );

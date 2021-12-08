@@ -5,19 +5,40 @@
 
 namespace KRG::Animation
 {
-    void GraphControllerRegistry::CreateControllers( AnimationGraphComponent* pGraphComponent )
+    namespace Internal
     {
-        KRG_ASSERT( m_controllers.empty() );
-        CreateControllersInternal( pGraphComponent );
-        KRG_ASSERT( !m_controllers.empty() );
+        GraphControllerBase::GraphControllerBase( AnimationGraphComponent* pGraphComponent, AnimatedMeshComponent* pMeshComponent )
+            : m_pGraphComponent( pGraphComponent )
+            , m_pAnimatedMeshComponent( pMeshComponent )
+        {
+            KRG_ASSERT( m_pGraphComponent != nullptr && pMeshComponent != nullptr );
+        }
     }
 
-    void GraphControllerRegistry::DestroyControllers()
+    //-------------------------------------------------------------------------
+
+    GraphController::~GraphController()
     {
-        for ( auto pController : m_controllers )
+        for ( auto pController : m_subGraphControllers )
         {
             KRG::Delete( pController );
         }
-        m_controllers.clear();
+        m_subGraphControllers.clear();
+    }
+
+    void GraphController::PreGraphUpdate( Seconds deltaTime )
+    {
+        for ( auto pController : m_subGraphControllers )
+        {
+            pController->PreGraphUpdate( deltaTime );
+        }
+    }
+
+    void GraphController::PostGraphUpdate( Seconds deltaTime )
+    {
+        for ( auto pController : m_subGraphControllers )
+        {
+            pController->PostGraphUpdate( deltaTime );
+        }
     }
 }

@@ -98,7 +98,7 @@ namespace KRG
             Vector const axis = Cross3( normalizedFrom, normalizedTo ).Normalize3();
             Vector const interpolatedAngle = Lerp( Zero, angle, t );
 
-            Quaternion const rotation( axis, interpolatedAngle.m_x );
+            Quaternion const rotation( axis, Radians( interpolatedAngle.ToFloat() ) );
             Vector const finalDirection = rotation.RotateVector( normalizedFrom );
             result = finalDirection.GetNormalized3() * finalLength;
         }

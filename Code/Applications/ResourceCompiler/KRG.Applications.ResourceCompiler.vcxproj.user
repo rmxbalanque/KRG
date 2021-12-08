@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-compile data://packs/amplify/ar_aim_crouch_enter.anim</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://packs/amplify/ar_aim_crouch_enter.anim</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-compile data://player/player.ec</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-compile data://player/player.ec</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>

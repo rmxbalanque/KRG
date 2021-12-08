@@ -3,17 +3,18 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <NAVPOWER_DIR>$(SolutionDir)External\Navpower\</NAVPOWER_DIR>
-    <NAVPOWER_LIB_DIR Condition="$(Configuration) == 'Debug'">$(NAVPOWER_DIR)lib\x64_vs2019\Release\</NAVPOWER_LIB_DIR>
-    <NAVPOWER_LIB_DIR Condition="$(Configuration) == 'Release'">$(NAVPOWER_DIR)lib\x64_vs2019\Release\</NAVPOWER_LIB_DIR>
+    <NAVPOWER_LIB_DIR Condition="$(Configuration) == 'Debug'">$(NAVPOWER_DIR)lib\x64_vs2019\ReleaseMD\</NAVPOWER_LIB_DIR>
+    <NAVPOWER_LIB_DIR Condition="$(Configuration) == 'Release'">$(NAVPOWER_DIR)lib\x64_vs2019\ReleaseMD\</NAVPOWER_LIB_DIR>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(NAVPOWER_DIR)include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BFXDLL_IMPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(NAVPOWER_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>bfxSystem.lib;bfxPlanner.lib;bfxNavigator.lib;bfxMover.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AllNavPowerDll_CMT.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>

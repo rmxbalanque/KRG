@@ -20,7 +20,7 @@ namespace KRG::Debug
 
         static void CreateCircleVertices( Float4* pVerts, Vector planeVector, Vector upAxis )
         {
-            Radians const radiansPerEdge = Math::TwoPi / g_numCircleVertices;
+            Radians const radiansPerEdge( Math::TwoPi / g_numCircleVertices );
             Quaternion const rotation( upAxis, radiansPerEdge );
             for ( auto i = 0; i < g_numCircleVertices; i++ )
             {

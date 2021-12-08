@@ -818,8 +818,8 @@ namespace KRG::Render
             innerAngle.Clamp( 0, 90 );
             outerAngle.Clamp( 0, 90 );
 
-            float cosInner = cos( innerAngle.ToRadians() );
-            float cosOuter = cos( outerAngle.ToRadians() );
+            float cosInner = Math::Cos( (float) innerAngle.ToRadians() );
+            float cosOuter = Math::Cos( (float) outerAngle.ToRadians() );
             renderData.m_lightData.m_punctualLights[lightIndex].m_spotAngles = Vector( cosOuter, 1.0f / std::max( cosInner - cosOuter, 0.001f ), 0.0f );
             ++lightIndex;
         }

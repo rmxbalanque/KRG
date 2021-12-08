@@ -15,12 +15,17 @@ namespace KRG::Physics
     class PhysicsSystem;
     class PhysicsWorldSystem;
     class PhysicsShapeComponent;
+    class PhysicsStateController;
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_PHYSICS_API PhysicsDebugView : public EntityWorldDebugView
     {
         KRG_REGISTER_TYPE( PhysicsDebugView );
+
+    public:
+
+        static void DrawPhysicsStateDebugger( PhysicsStateController const& stateController );
 
     public:
 

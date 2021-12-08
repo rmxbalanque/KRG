@@ -564,47 +564,47 @@ namespace KRG
         inline Degrees( float degrees ) : m_value( degrees ) {}
         inline explicit Degrees( Radians const& radians );
 
-        KRG_FORCE_INLINE operator float() const { return m_value; }
+        KRG_FORCE_INLINE explicit operator float() const { return m_value; }
         KRG_FORCE_INLINE operator Radians() const;
         KRG_FORCE_INLINE float ToFloat() const { return m_value; }
         KRG_FORCE_INLINE Radians ToRadians() const;
 
         inline Degrees operator-() const { return Degrees( -m_value ); }
 
-        inline Degrees operator+( Degrees const& rhs ) const { return m_value + rhs.m_value; }
-        inline Degrees operator-( Degrees const& rhs ) const { return m_value - rhs.m_value; }
-        inline Degrees operator*( Degrees const& rhs ) const { return m_value * rhs.m_value; }
-        inline Degrees operator/( Degrees const& rhs ) const { return m_value / rhs.m_value; }
+        inline Degrees operator+( Degrees const& rhs ) const { return Degrees( m_value + rhs.m_value ); }
+        inline Degrees operator-( Degrees const& rhs ) const { return Degrees( m_value - rhs.m_value ); }
+        inline Degrees operator*( Degrees const& rhs ) const { return Degrees( m_value * rhs.m_value ); }
+        inline Degrees operator/( Degrees const& rhs ) const { return Degrees( m_value / rhs.m_value ); }
 
         inline Degrees& operator+=( Degrees const& rhs ) { m_value += rhs.m_value; return *this; }
         inline Degrees& operator-=( Degrees const& rhs ) { m_value -= rhs.m_value; return *this; }
         inline Degrees& operator*=( Degrees const& rhs ) { m_value *= rhs.m_value; return *this; }
         inline Degrees& operator/=( Degrees const& rhs ) { m_value /= rhs.m_value; return *this; }
 
-        inline Degrees operator+( float const& rhs ) const { return m_value + rhs; }
-        inline Degrees operator-( float const& rhs ) const { return m_value - rhs; }
-        inline Degrees operator*( float const& rhs ) const { return m_value * rhs; }
-        inline Degrees operator/( float const& rhs ) const { return m_value / rhs; }
+        inline Degrees operator+( float const& rhs ) const { return Degrees( m_value + rhs ); }
+        inline Degrees operator-( float const& rhs ) const { return Degrees( m_value - rhs ); }
+        inline Degrees operator*( float const& rhs ) const { return Degrees( m_value * rhs ); }
+        inline Degrees operator/( float const& rhs ) const { return Degrees( m_value / rhs ); }
 
         inline Degrees& operator+=( float const& rhs ) { m_value += rhs; return *this; }
         inline Degrees& operator-=( float const& rhs ) { m_value -= rhs; return *this; }
         inline Degrees& operator*=( float const& rhs ) { m_value *= rhs; return *this; }
         inline Degrees& operator/=( float const& rhs ) { m_value /= rhs; return *this; }
 
-        inline Degrees operator+( int32 const& rhs ) const { return m_value + rhs; }
-        inline Degrees operator-( int32 const& rhs ) const { return m_value - rhs; }
-        inline Degrees operator*( int32 const& rhs ) const { return m_value * rhs; }
-        inline Degrees operator/( int32 const& rhs ) const { return m_value / rhs; }
+        inline Degrees operator+( int32 const& rhs ) const { return Degrees( m_value + rhs ); }
+        inline Degrees operator-( int32 const& rhs ) const { return Degrees( m_value - rhs ); }
+        inline Degrees operator*( int32 const& rhs ) const { return Degrees( m_value * rhs ); }
+        inline Degrees operator/( int32 const& rhs ) const { return Degrees( m_value / rhs ); }
 
         inline Degrees& operator+=( int32 const& rhs ) { m_value += rhs; return *this; }
         inline Degrees& operator-=( int32 const& rhs ) { m_value -= rhs; return *this; }
         inline Degrees& operator*=( int32 const& rhs ) { m_value *= rhs; return *this; }
         inline Degrees& operator/=( int32 const& rhs ) { m_value /= rhs; return *this; }
 
-        inline Degrees operator+( uint32 const& rhs ) const { return m_value + rhs; }
-        inline Degrees operator-( uint32 const& rhs ) const { return m_value - rhs; }
-        inline Degrees operator*( uint32 const& rhs ) const { return m_value * rhs; }
-        inline Degrees operator/( uint32 const& rhs ) const { return m_value / rhs; }
+        inline Degrees operator+( uint32 const& rhs ) const { return Degrees( m_value + rhs ); }
+        inline Degrees operator-( uint32 const& rhs ) const { return Degrees( m_value - rhs ); }
+        inline Degrees operator*( uint32 const& rhs ) const { return Degrees( m_value * rhs ); }
+        inline Degrees operator/( uint32 const& rhs ) const { return Degrees( m_value / rhs ); }
 
         inline Degrees& operator+=( uint32 const& rhs ) { m_value += rhs; return *this; }
         inline Degrees& operator-=( uint32 const& rhs ) { m_value -= rhs; return *this; }
@@ -717,47 +717,47 @@ namespace KRG
         inline Radians( float radians ) : m_value( radians ) {}
         inline explicit Radians( Degrees const& degrees );
 
-        KRG_FORCE_INLINE operator float() const { return m_value; }
+        KRG_FORCE_INLINE explicit operator float() const { return m_value; }
         KRG_FORCE_INLINE operator Degrees() const { return ToDegrees(); }
         KRG_FORCE_INLINE float ToFloat() const { return m_value; }
-        KRG_FORCE_INLINE Degrees ToDegrees() const { return m_value * Math::RadiansToDegrees; }
+        KRG_FORCE_INLINE Degrees ToDegrees() const { return Degrees( m_value * Math::RadiansToDegrees ); }
 
         inline Radians operator-() const { return Radians( -m_value ); }
 
-        inline Radians operator+( Radians const& rhs ) const { return m_value + rhs.m_value; }
-        inline Radians operator-( Radians const& rhs ) const { return m_value - rhs.m_value; }
-        inline Radians operator*( Radians const& rhs ) const { return m_value * rhs.m_value; }
-        inline Radians operator/( Radians const& rhs ) const { return m_value / rhs.m_value; }
+        inline Radians operator+( Radians const& rhs ) const { return Radians( m_value + rhs.m_value ); }
+        inline Radians operator-( Radians const& rhs ) const { return Radians( m_value - rhs.m_value ); }
+        inline Radians operator*( Radians const& rhs ) const { return Radians( m_value * rhs.m_value ); }
+        inline Radians operator/( Radians const& rhs ) const { return Radians( m_value / rhs.m_value ); }
 
         inline Radians& operator+=( Radians const& rhs ) { m_value += rhs.m_value; return *this; }
         inline Radians& operator-=( Radians const& rhs ) { m_value -= rhs.m_value; return *this; }
         inline Radians& operator*=( Radians const& rhs ) { m_value *= rhs.m_value; return *this; }
         inline Radians& operator/=( Radians const& rhs ) { m_value /= rhs.m_value; return *this; }
 
-        inline Radians operator+( float const& rhs ) const { return m_value + rhs; }
-        inline Radians operator-( float const& rhs ) const { return m_value - rhs; }
-        inline Radians operator*( float const& rhs ) const { return m_value * rhs; }
-        inline Radians operator/( float const& rhs ) const { return m_value / rhs; }
+        inline Radians operator+( float const& rhs ) const { return Radians( m_value + rhs ); }
+        inline Radians operator-( float const& rhs ) const { return Radians( m_value - rhs ); }
+        inline Radians operator*( float const& rhs ) const { return Radians( m_value * rhs ); }
+        inline Radians operator/( float const& rhs ) const { return Radians( m_value / rhs ); }
 
         inline Radians& operator+=( float const& rhs ) { m_value += rhs; return *this; }
         inline Radians& operator-=( float const& rhs ) { m_value -= rhs; return *this; }
         inline Radians& operator*=( float const& rhs ) { m_value *= rhs; return *this; }
         inline Radians& operator/=( float const& rhs ) { m_value /= rhs; return *this; }
 
-        inline Radians operator+( int32 const& rhs ) const { return m_value + rhs; }
-        inline Radians operator-( int32 const& rhs ) const { return m_value - rhs; }
-        inline Radians operator*( int32 const& rhs ) const { return m_value * rhs; }
-        inline Radians operator/( int32 const& rhs ) const { return m_value / rhs; }
+        inline Radians operator+( int32 const& rhs ) const { return Radians( m_value + rhs ); }
+        inline Radians operator-( int32 const& rhs ) const { return Radians( m_value - rhs ); }
+        inline Radians operator*( int32 const& rhs ) const { return Radians( m_value * rhs ); }
+        inline Radians operator/( int32 const& rhs ) const { return Radians( m_value / rhs ); }
 
         inline Radians& operator+=( int32 const& rhs ) { m_value += rhs; return *this; }
         inline Radians& operator-=( int32 const& rhs ) { m_value -= rhs; return *this; }
         inline Radians& operator*=( int32 const& rhs ) { m_value *= rhs; return *this; }
         inline Radians& operator/=( int32 const& rhs ) { m_value /= rhs; return *this; }
 
-        inline Radians operator+( uint32 const& rhs ) const { return m_value + rhs; }
-        inline Radians operator-( uint32 const& rhs ) const { return m_value - rhs; }
-        inline Radians operator*( uint32 const& rhs ) const { return m_value * rhs; }
-        inline Radians operator/( uint32 const& rhs ) const { return m_value / rhs; }
+        inline Radians operator+( uint32 const& rhs ) const { return Radians( m_value + rhs ); }
+        inline Radians operator-( uint32 const& rhs ) const { return Radians( m_value - rhs ); }
+        inline Radians operator*( uint32 const& rhs ) const { return Radians( m_value * rhs ); }
+        inline Radians operator/( uint32 const& rhs ) const { return Radians( m_value / rhs ); }
 
         inline Radians& operator+=( uint32 const& rhs ) { m_value += rhs; return *this; }
         inline Radians& operator-=( uint32 const& rhs ) { m_value -= rhs; return *this; }
@@ -890,7 +890,7 @@ namespace KRG
 
     inline Radians Degrees::ToRadians() const
     {
-        return m_value * Math::DegreesToRadians;
+        return Radians( m_value * Math::DegreesToRadians );
     }
 
     inline Degrees::operator Radians() const
@@ -932,10 +932,22 @@ namespace KRG
 
         EulerAngles() = default;
 
-        inline EulerAngles( Degrees inX, Degrees inY, Degrees inZ )
+        inline explicit EulerAngles( Degrees inX, Degrees inY, Degrees inZ )
             : m_x( inX )
             , m_y( inY )
             , m_z( inZ )
+        {}
+
+        inline explicit EulerAngles( Radians inX, Radians inY, Radians inZ )
+            : m_x( inX )
+            , m_y( inY )
+            , m_z( inZ )
+        {}
+
+        inline explicit EulerAngles( float inDegreesX, float inDegreesY, float inDegreesZ )
+            : m_x( Math::DegreesToRadians * inDegreesX )
+            , m_y( Math::DegreesToRadians * inDegreesY )
+            , m_z( Math::DegreesToRadians * inDegreesZ )
         {}
 
         inline EulerAngles( Float3 const& anglesInDegrees )
@@ -975,9 +987,9 @@ namespace KRG
 
     public:
 
-        Radians m_x = 0;
-        Radians m_y = 0;
-        Radians m_z = 0;
+        Radians m_x = 0.0f;
+        Radians m_y = 0.0f;
+        Radians m_z = 0.0f;
     };
 
     //-------------------------------------------------------------------------
@@ -991,7 +1003,8 @@ namespace KRG
     public:
 
         inline AxisAngle() = default;
-        inline AxisAngle( Float3 axis, Radians angle ) : m_axis( axis ), m_angle( angle ) {}
+        inline explicit AxisAngle( Float3 axis, Radians angle ) : m_axis( axis ), m_angle( angle ) {}
+        inline explicit AxisAngle( Float3 axis, Degrees angle ) : m_axis( axis ), m_angle( angle.ToRadians() ) {}
 
         inline bool IsValid() const
         {
@@ -1002,6 +1015,6 @@ namespace KRG
     public:
 
         Float3      m_axis = Float3::Zero;
-        Radians     m_angle = 0.0f;
+        Radians     m_angle = Radians( 0.0f );
     };
 }

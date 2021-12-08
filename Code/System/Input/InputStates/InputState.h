@@ -93,15 +93,20 @@ namespace KRG::Input
             return false;
         }
 
-        inline bool IsHeldDown( uint32 buttonIdx ) const
+        inline bool IsHeldDown( uint32 buttonIdx, Seconds* pHeldDownDuration = nullptr ) const
         {
+            if ( pHeldDownDuration != nullptr )
+            {
+                *pHeldDownDuration = GetHeldDuration( buttonIdx );
+            }
+
             return WasPressed( buttonIdx ) || m_buttons[buttonIdx].IsHeldDown();
         }
 
         inline Seconds GetHeldDuration( uint32 buttonIdx ) const
         {
             KRG_ASSERT( buttonIdx < NumButtons );
-            return WasPressed( buttonIdx ) ? m_buttons[buttonIdx].GetTimeHeld() : 0.0f;
+            return m_buttons[buttonIdx].IsHeldDown() ? m_buttons[buttonIdx].GetTimeHeld() : 0.0f;
         }
 
     protected:

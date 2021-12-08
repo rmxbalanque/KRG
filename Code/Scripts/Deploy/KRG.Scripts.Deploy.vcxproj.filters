@@ -19,6 +19,7 @@
     </None>
     <None Include="Deploy.nmake" />
     <None Include="FBXSDK.nmake" />
+    <None Include="Navpower.nmake" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Scripts">

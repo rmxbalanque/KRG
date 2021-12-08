@@ -166,7 +166,7 @@ namespace KRG::ImGuiX
     }
 
     // The value for width is arbitrary. But it looks nice.
-    void TextSeparator( char* text, float preWidth, float totalWidth )
+    void TextSeparator( char const* text, float preWidth, float totalWidth )
     {
         PreSeparator( preWidth );
         ImGui::Text( text );
