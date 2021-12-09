@@ -48,6 +48,7 @@ namespace KRG::Player
             Locomotion = 0,
             Falling,
             Jump,
+            Dash,
 
             NumActions,
             DefaultAction = Locomotion,
@@ -80,13 +81,14 @@ namespace KRG::Player
 
     public:
 
-        ActionStateMachine();
+        ActionStateMachine( ActionContext const& context );
         ~ActionStateMachine();
 
-        void Update( ActionContext const& context );
+        void Update();
 
     private:
 
+        ActionContext const&                                    m_actionContext;
         ActionID                                                m_activeBaseActionID = InvalidAction;
 
         TArray<Action*, NumActions>                             m_baseActions;

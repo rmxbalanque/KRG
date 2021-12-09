@@ -3,13 +3,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-compile data://player/player.ec</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://player/player.ec</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-compile data://testscenes/ClothMesh/cloth_mesh.txtr</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-compile data://testscenes/ClothMesh/cloth_mesh.txtr</RemoteDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

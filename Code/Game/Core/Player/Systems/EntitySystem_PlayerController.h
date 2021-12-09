@@ -6,10 +6,15 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation
+namespace KRG
 {
-    class AnimationGraphComponent;
-    class CharacterMeshComponent;
+    class OrbitCameraComponent;
+
+    namespace Animation
+    {
+        class AnimationGraphComponent;
+        class CharacterMeshComponent;
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -34,9 +39,10 @@ namespace KRG::Player
     private:
 
         ActionContext                                           m_actionContext;
-        ActionStateMachine                                      m_actionStateMachine;
+        ActionStateMachine                                      m_actionStateMachine = ActionStateMachine( m_actionContext );
 
         Animation::AnimationGraphComponent*                     m_pAnimGraphComponent = nullptr;
         Animation::CharacterMeshComponent*                      m_pCharacterMeshComponent = nullptr;
+        OrbitCameraComponent*                                   m_pCameraComponent = nullptr;
     };
 }

@@ -58,7 +58,8 @@ namespace KRG::Animation
         m_graphContext.Update( deltaTime, characterTransform );
 
         m_pTaskSystem->Reset();
-        m_pGraphInstance->UpdateGraph( m_graphContext );
+        Graph::PoseNodeResult const result = m_pGraphInstance->UpdateGraph( m_graphContext );
+        m_rootMotionDelta = result.m_rootMotionDelta;
         m_pTaskSystem->UpdatePrePhysics( m_graphContext.m_deltaTime, m_graphContext.m_worldTransform, m_graphContext.m_worldTransformInverse );
     }
 

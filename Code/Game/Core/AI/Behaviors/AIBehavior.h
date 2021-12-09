@@ -11,7 +11,7 @@
 namespace KRG
 {
     class EntityComponent;
-    namespace Physics { class CharacterComponent; class PhysicsStateController; class PhysicsWorldSystem; }
+    namespace Physics { class CharacterComponent; class PhysicsWorldSystem; }
     namespace Navmesh { class NavmeshWorldSystem; }
     namespace Animation { class GraphController; }
 }
@@ -21,15 +21,16 @@ namespace KRG
 namespace KRG::AI
 {
     class AIComponent;
+    class CharacterPhysicsController;
 
     //-------------------------------------------------------------------------
-    // The context for all AI actions
+    // The context for all AI behaviors
     //-------------------------------------------------------------------------
-    // Provides the common set of systems and components needed for AI actions
+    // Provides the common set of systems and components needed for AI behaviors/actions
 
-    struct ActionContext
+    struct BehaviorContext
     {
-        ~ActionContext();
+        ~BehaviorContext();
 
         bool IsValid() const;
 
@@ -63,16 +64,17 @@ namespace KRG::AI
         Navmesh::NavmeshWorldSystem*                m_pNavmeshSystem = nullptr;
 
         AIComponent*                                m_pAIComponent = nullptr;
-        Physics::PhysicsStateController*            m_pPhysicsController = nullptr;
+        CharacterPhysicsController*                 m_pCharacterPhysicsController = nullptr;
         Physics::CharacterComponent*                m_pCharacterPhysicsComponent = nullptr;
         Animation::GraphController*                 m_pAnimationController = nullptr;
         TInlineVector<EntityComponent*, 10>         m_components;
     };
 
     //-------------------------------------------------------------------------
-    // The AI action state
+    // An AI Action
     //-------------------------------------------------------------------------
-    // This defines a discrete action the AI is currently undertaking i.e. moving, shooting, reloading, etc...
+    // A specific actuation task (move, play anim, etc...) that a behavior requests to help achieve its goal
+    // Each derived action needs to define a StartInternal( ActionContext const& ctx, ARGS... ) function that will start the AI action
 
     class Action
     {
@@ -81,18 +83,40 @@ namespace KRG::AI
         enum class Status : uint8
         {
             Running,
-            Completed
+            Completed,
+            Failed
+        };
+
+    public:
+
+    };
+
+
+    //-------------------------------------------------------------------------
+    // An AI behavior
+    //-------------------------------------------------------------------------
+    // This defines a behavior i.e. a sequence of actions to achieve a specified goal
+
+    class Behavior
+    {
+    public:
+
+        enum class Status : uint8
+        {
+            Running,
+            Completed,
+            Failed
         };
 
         enum class StopReason : uint8
         {
-            ActionCompleted,
+            Completed,
             Interrupted
         };
 
     public:
 
-        virtual ~Action() = default;
+        virtual ~Behavior() = default;
 
         // Get the ID for this action
         virtual uint32 GetActionID() const = 0;
@@ -101,23 +125,22 @@ namespace KRG::AI
         inline bool IsActive() const { return m_isActive; }
 
         // Try to start this action - this is where you check all the start preconditions
-        template<typename... ConstructorParams>
-        inline void Start( ActionContext const& ctx, ConstructorParams&&... params )
+        inline void Start( BehaviorContext const& ctx )
         {
             KRG_ASSERT( !m_isActive );
-            StartInternal( ctx, std::forward<ConstructorParams>( params )... );
+            StartInternal( ctx );
             m_isActive = true;
         }
 
         // Called to update this action, this will be called directly after the try start if it succeeds
-        inline Status Update( ActionContext const& ctx )
+        inline Status Update( BehaviorContext const& ctx )
         {
             KRG_ASSERT( m_isActive );
             return UpdateInternal( ctx );
         }
 
         // Called to stop this action
-        inline void Stop( ActionContext const& ctx, StopReason reason )
+        inline void Stop( BehaviorContext const& ctx, StopReason reason )
         {
             KRG_ASSERT( m_isActive );
             StopInternal( ctx, reason );
@@ -136,31 +159,24 @@ namespace KRG::AI
 
     protected:
 
-        // Each action needs to define a StartInternal( ActionContext const& ctx, ARGS... ) function that will start the AI action
+        // Called to start this action
+        virtual void StartInternal( BehaviorContext const& ctx ) = 0;
 
         // Called to update this action, this will be called directly after the try start if it succeeds
-        virtual Status UpdateInternal( ActionContext const& ctx ) = 0;
+        virtual Status UpdateInternal( BehaviorContext const& ctx ) = 0;
 
         // Called to stop this action
-        virtual void StopInternal( ActionContext const& ctx, StopReason reason ) = 0;
+        virtual void StopInternal( BehaviorContext const& ctx, StopReason reason ) = 0;
 
     private:
 
         bool    m_isActive = false;
     };
-
-    //-------------------------------------------------------------------------
-
-    // Needed for type safety
-    class OverlayAction : public Action
-    {
-
-    };
 }
 
 //-------------------------------------------------------------------------
 
-#define KRG_AI_ACTION_ID( TypeName ) \
+#define KRG_AI_BEHAVIOR_ID( TypeName ) \
 constexpr static uint32 const s_gameplayStateID = Hash::FNV1a::GetHash32( #TypeName ); \
 virtual uint32 GetActionID() const override final { return TypeName::s_gameplayStateID; }\
 KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( char const* GetName() const override final { return #TypeName; } )

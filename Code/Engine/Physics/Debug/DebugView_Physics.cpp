@@ -1,6 +1,5 @@
 #include "DebugView_Physics.h"
 #include "Engine/Physics/PhysicsSystem.h"
-#include "Engine/Physics/PhysicsState.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCapsule.h"
 #include "Engine/Physics/Components/Component_PhysicsSphere.h"
@@ -230,19 +229,6 @@ namespace KRG::Physics
         if ( m_isMaterialDatabaseWindowOpen )
         {
             m_isMaterialDatabaseWindowOpen = PhysicsMaterialDatabaseDebugView::Draw( context );
-        }
-    }
-
-    void PhysicsDebugView::DrawPhysicsStateDebugger( PhysicsStateController const& stateController )
-    {
-        if ( stateController.m_pActiveState != nullptr )
-        {
-            ImGui::Text( "Active State: %s", stateController.m_pActiveState->GetName() );
-            stateController.m_pActiveState->DrawDebugUI();
-        }
-        else
-        {
-            ImGui::Text( "No active physics state" );
         }
     }
 

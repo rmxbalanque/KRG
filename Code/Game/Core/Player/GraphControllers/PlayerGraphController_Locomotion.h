@@ -15,7 +15,7 @@ namespace KRG::Player
 
         LocomotionGraphController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent );
 
-        inline void SetSpeed( float speed ) { m_speedParam.Set( this, speed ); }
+        void SetLocomotionDesires( Seconds const deltaTime, Vector const& headingVelocityWS, Vector const& facingDirectionWS );
 
     private:
 

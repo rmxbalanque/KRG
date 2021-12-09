@@ -9,8 +9,8 @@ namespace KRG::Player
 {
     ActionContext::~ActionContext()
     {
-        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pInputSystem == nullptr && m_pPhysicsWorld == nullptr && m_pCameraComponent == nullptr && m_pPhysicsController == nullptr );
-        KRG_ASSERT( m_pPlayerComponent == nullptr && m_pCharacterPhysicsComponent == nullptr && m_pAnimationController == nullptr );
+        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pInputSystem == nullptr && m_pPhysicsWorld == nullptr && m_pCharacterPhysicsController == nullptr );
+        KRG_ASSERT( m_pPlayerComponent == nullptr && m_pCharacterPhysicsComponent == nullptr && m_pAnimationController == nullptr && m_pCameraController == nullptr );
     }
 
     bool ActionContext::IsValid() const
@@ -30,6 +30,6 @@ namespace KRG::Player
             return false;
         }
 
-        return m_pEntityUpdateContext != nullptr && m_pInputSystem != nullptr && m_pPhysicsWorld != nullptr && m_pCameraComponent != nullptr && m_pPhysicsController != nullptr;
+        return m_pEntityUpdateContext != nullptr && m_pCameraController != nullptr && m_pInputSystem != nullptr && m_pPhysicsWorld != nullptr && m_pCharacterPhysicsController != nullptr;
     }
 }

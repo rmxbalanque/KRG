@@ -1,0 +1,96 @@
+#include "PlayerAction_Dash.h"
+#include "Game/Core/Player/GraphControllers/PlayerGraphController_Locomotion.h"
+#include "Game/Core/Player/PlayerPhysicsController.h"
+#include "Game/Core/Player/PlayerCameraController.h"
+#include "Engine/Physics/Components/Component_PhysicsCharacter.h"
+#include "System/Input/InputSystem.h"
+#include "System/Core/Math/Vector.h"
+#include "Game/Core/Player/Components/Component_MainPlayer.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Player
+{
+    bool DashAction::TryStartInternal( ActionContext const& ctx )
+    {
+        if( ctx.m_pInputSystem->GetControllerState()->WasPressed( Input::ControllerButton::FaceButtonRight ) )
+        {
+            if( m_isFirstUse || m_timer.GetElapsedTimeSeconds() > m_dashCooldown )
+            {
+                ctx.m_pCharacterPhysicsController->DisableGravity();
+
+                auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
+                KRG_ASSERT( pControllerState != nullptr );
+
+                // Use last frame camera orientation
+                Vector movementInputs = pControllerState->GetLeftAnalogStickValue();
+
+                if( movementInputs.GetLength2() > 0 )
+                {
+                    auto const& camFwd = ctx.m_pCameraController->GetCameraRelativeForwardVector2D();
+                    auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
+                    auto const forward = camFwd * movementInputs.m_y;
+                    auto const right = camRight * movementInputs.m_x;
+                    m_dashDirection = forward + right;
+                }
+                else
+                {
+                    m_dashDirection = ctx.m_pCharacterPhysicsComponent->GetForwardVector();
+                }
+                m_initialVelocity = ctx.m_pCharacterPhysicsComponent->GetCharacterVelocity() * Vector( 1.f, 1.f, 0.f );
+
+                m_isFirstUse = false;
+                m_timer.Start();
+                m_isInSettle = false;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Action::Status DashAction::UpdateInternal( ActionContext const& ctx )
+    {
+        auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
+        KRG_ASSERT( pControllerState != nullptr );
+
+        // Calculate desired player displacement
+        //-------------------------------------------------------------------------
+
+        Vector const desiredVelocity = m_dashDirection * m_dashLinearSpeed;
+        Quaternion deltaOrientation = Quaternion::Identity;
+
+        // Run physic Prediction if required
+        //-------------------------------------------------------------------------
+        // nothing for now
+        
+        // Update animation controller
+        //-------------------------------------------------------------------------
+        auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
+        pLocomotionGraphController->SetLocomotionDesires(ctx.GetDeltaTime(), desiredVelocity, ctx.m_pCharacterPhysicsComponent->GetForwardVector() );
+
+        if( m_timer.GetElapsedTimeSeconds() > m_dashDuration && !m_isInSettle )
+        {
+            m_settleTimer.Start();
+            m_isInSettle = true;
+        }
+
+        if( m_isInSettle  )
+        {
+            pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), m_initialVelocity, ctx.m_pCharacterPhysicsComponent->GetForwardVector() );
+
+            if( m_settleTimer.GetElapsedTimeMilliseconds() > 100.f )
+            {
+                return Status::Completed;
+            }
+        }
+
+        return Status::Running;
+    }
+
+    void DashAction::StopInternal( ActionContext const& ctx, StopReason reason )
+    {
+        m_timer.Start();
+    }
+}

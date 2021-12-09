@@ -1,7 +1,8 @@
 #include "PlayerAction_Locomotion.h"
-#include "Game/Core/Player/PhysicsStates/PlayerPhysicsState_Ground.h"
+#include "Game/Core/Player/PlayerPhysicsController.h"
 #include "Game/Core/Player/GraphControllers/PlayerGraphController_Locomotion.h"
-#include "Engine/Core/Components/Component_Cameras.h"
+#include "Game/Core/Player/Components/Component_MainPlayer.h"
+#include "Game/Core/Player/PlayerCameraController.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/Math/Vector.h"
@@ -12,7 +13,7 @@ namespace KRG::Player
 {
     bool LocomotionAction::TryStartInternal( ActionContext const& ctx )
     {
-        ctx.m_pPhysicsController->SetPhysicsState<GroundPhysicsState>( Physics::PhysicsStateController::DoNothingIfAlreadyActive );
+        ctx.m_pCharacterPhysicsController->EnableGravity();
         return true;
     }
 
@@ -21,37 +22,41 @@ namespace KRG::Player
         auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
         KRG_ASSERT( pControllerState != nullptr );
 
-        // Update camera rotation
-        //-------------------------------------------------------------------------
-        Vector cameraInputs = pControllerState->GetRightAnalogStickValue();
-
-        Radians const maxAngularVelocity = Math::Pi;
-        Radians const maxAngularVelocityForThisFrame = maxAngularVelocity * ctx.GetDeltaTime();
-
-        cameraInputs.Normalize2();
-        cameraInputs *= (float) maxAngularVelocityForThisFrame;
-        ctx.m_pCameraComponent->AdjustOrbitAngle( cameraInputs.m_x * 0.5f, cameraInputs.m_y * 0.5f );
-
         // Calculate desired player displacement
         //-------------------------------------------------------------------------
-        Float2 movementInputs = pControllerState->GetLeftAnalogStickValue();
+        Vector movementInputs = pControllerState->GetLeftAnalogStickValue();
 
-        float const maxLinearVelocity = 12.0f;
-        float const maxLinearVelocityForThisFrame = maxLinearVelocity * ctx.GetDeltaTime();
+        auto const& camFwd = ctx.m_pCameraController->GetCameraRelativeForwardVector2D();
+        auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
 
-        auto const camFwd = ctx.m_pCameraComponent->GetCameraRelativeForwardVector().GetNormalized2();
-        auto const camRight = ctx.m_pCameraComponent->GetCameraRelativeRightVector().GetNormalized2();
+        // Check for sprint
+        float const stickAmplitude = movementInputs.GetLength2();
+        float const currentLinearSpeed = ctx.m_pCharacterPhysicsComponent->GetCharacterVelocity().GetLength3();
+        if( stickAmplitude > m_sprintStickAmplitude && currentLinearSpeed > 4.8f )
+        {
+            if( !m_timerStarted )
+            {
+                m_timer.Start();
+                m_timerStarted = true;
+            }
+            else if( m_timer.GetElapsedTimeSeconds() > m_sprintThreshold )
+            {
+                ctx.m_pPlayerComponent->m_sprintFlag = true;
+            }
+        }
+        else
+        {
+            m_timer.Reset();
+            m_timerStarted = false;
+            ctx.m_pPlayerComponent->m_sprintFlag = false;
+        }
+
+        float const Speed = ctx.m_pPlayerComponent->m_sprintFlag ? m_maxSprintLinearSpeed : m_maxWalkLinearSpeed;
 
         // Use last frame camera orientation
-        auto forward = camFwd * movementInputs.m_y;
-        auto right = camRight * movementInputs.m_x;
-
-        Vector const desiredDeltaDisplacement = ( forward * maxLinearVelocityForThisFrame ) + ( right * maxLinearVelocityForThisFrame );
-        Quaternion deltaOrientation = Quaternion::Identity;
-        if( !desiredDeltaDisplacement.IsZero2() )
-        {
-            deltaOrientation = Quaternion::FromRotationBetweenNormalizedVectors( ctx.m_pCharacterPhysicsComponent->GetForwardVector().GetNormalized2(), desiredDeltaDisplacement.GetNormalized2() );
-        }
+        Vector const forward = camFwd * movementInputs.m_y;
+        Vector const right = camRight * movementInputs.m_x;
+        Vector const desiredHeadingVelocity = ( forward + right ) * Speed;
 
         // Run physic Prediction if required
         //-------------------------------------------------------------------------
@@ -59,15 +64,9 @@ namespace KRG::Player
         
         // Update animation controller
         //-------------------------------------------------------------------------
-        auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
-        float const desiredSpeed = desiredDeltaDisplacement.GetLength3() / ctx.GetDeltaTime();
-        pLocomotionGraphController->SetSpeed( desiredSpeed );
 
-        // HACK (this is only because we don't have animation yet)
-        //-------------------------------------------------------------------------
-        ctx.m_pCharacterPhysicsComponent->m_deltaTranslationHACK = desiredDeltaDisplacement;
-        ctx.m_pCharacterPhysicsComponent->m_deltaRotationHACK = deltaOrientation;
-        //-------------------------------------------------------------------------
+        auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
+        pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), desiredHeadingVelocity, desiredHeadingVelocity.GetNormalized2() );
 
         return Status::Running;
     }

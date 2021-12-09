@@ -10,5 +10,9 @@ namespace KRG::Player
     class KRG_GAME_CORE_API MainPlayerComponent : public PlayerComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( MainPlayerComponent );
+
+    public:
+
+        bool m_sprintFlag = false;
     };
 }

@@ -6,12 +6,14 @@
 #include "Game/Core/Player/Actions/PlayerAction_Jump.h"
 #include "Game/Core/Player/Actions/PlayerOverlayAction_Shoot.h"
 #include "Game/Core/Player/Actions/PlayerAction_Falling.h"
+#include "Game/Core/Player/Actions/PlayerAction_Dash.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Player
 {
-    ActionStateMachine::ActionStateMachine()
+    ActionStateMachine::ActionStateMachine( ActionContext const& context )
+        : m_actionContext( context )
     {
         //-------------------------------------------------------------------------
         // Overlay Actions
@@ -26,15 +28,21 @@ namespace KRG::Player
         m_baseActions[Locomotion] = KRG::New<LocomotionAction>();
         m_baseActions[Falling] = KRG::New<FallingAction>();
         m_baseActions[Jump] = KRG::New<JumpAction>();
+        m_baseActions[Dash] = KRG::New<DashAction>();
 
         //-------------------------------------------------------------------------
         // Transitions
         //-------------------------------------------------------------------------
 
         m_actionTransitions[Locomotion].emplace_back( Jump, Transition::Availability::Always );
+        //m_actionTransitions[Locomotion].emplace_back( Falling, Transition::Availability::Always );
+        m_actionTransitions[Locomotion].emplace_back( Dash, Transition::Availability::Always );
         m_actionTransitions[Jump].emplace_back( Falling, Transition::Availability::OnlyOnCompleted );
         m_actionTransitions[Jump].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
         m_actionTransitions[Falling].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
+        m_actionTransitions[Falling].emplace_back( Dash, Transition::Availability::Always );
+        m_actionTransitions[Dash].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
+        m_actionTransitions[Dash].emplace_back( Falling, Transition::Availability::OnlyOnCompleted );
     }
 
     ActionStateMachine::~ActionStateMachine()
@@ -74,13 +82,13 @@ namespace KRG::Player
 
     //-------------------------------------------------------------------------
 
-    void ActionStateMachine::Update( ActionContext const& context )
+    void ActionStateMachine::Update()
     {
-        KRG_ASSERT( context.IsValid() );
+        KRG_ASSERT( m_actionContext.IsValid() );
 
         //-------------------------------------------------------------------------
 
-        auto EvaluateTransitions = [this, &context] ( Action::Status const activeStateStatus, TInlineVector<Transition, 6> const& transitions )
+        auto EvaluateTransitions = [this] ( Action::Status const activeStateStatus, TInlineVector<Transition, 6> const& transitions )
         {
             for ( auto const& transition : transitions )
             {
@@ -89,23 +97,23 @@ namespace KRG::Player
                     continue;
                 }
 
-                if ( m_baseActions[transition.m_targetStateID]->TryStart( context ) )
+                if ( m_baseActions[transition.m_targetStateID]->TryStart( m_actionContext ) )
                 {
                     #if KRG_DEVELOPMENT_TOOLS
-                    m_actionLog.emplace_back( context.m_pEntityUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), ( activeStateStatus == Action::Status::Completed ) ? LoggedStatus::ActionCompleted : LoggedStatus::ActionInterrupted );
-                    m_actionLog.emplace_back( context.m_pEntityUpdateContext->GetFrameID(), m_baseActions[transition.m_targetStateID]->GetName(), LoggedStatus::ActionStarted );
+                    m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), ( activeStateStatus == Action::Status::Completed ) ? LoggedStatus::ActionCompleted : LoggedStatus::ActionInterrupted );
+                    m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), m_baseActions[transition.m_targetStateID]->GetName(), LoggedStatus::ActionStarted );
                     #endif
 
                     // Stop the currently active state
-                    Action::StopReason const stopReason = ( activeStateStatus == Action::Status::Completed ) ? Action::StopReason::ActionCompleted : Action::StopReason::TransitionFired;
-                    m_baseActions[m_activeBaseActionID]->Stop( context, stopReason );
+                    Action::StopReason const stopReason = ( activeStateStatus == Action::Status::Completed ) ? Action::StopReason::Completed : Action::StopReason::Interrupted;
+                    m_baseActions[m_activeBaseActionID]->Stop( m_actionContext, stopReason );
                     m_activeBaseActionID = InvalidAction;
 
                     //-------------------------------------------------------------------------
 
                     // Start the new state
                     m_activeBaseActionID = transition.m_targetStateID;
-                    Action::Status const newActionStatus = m_baseActions[m_activeBaseActionID]->Update( context );
+                    Action::Status const newActionStatus = m_baseActions[m_activeBaseActionID]->Update( m_actionContext );
                     KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
 
                     return true;
@@ -123,7 +131,7 @@ namespace KRG::Player
         {
             // Evaluate the current active state
             ActionID const initialStateID = m_activeBaseActionID;
-            Action::Status const status = m_baseActions[m_activeBaseActionID]->Update( context );
+            Action::Status const status = m_baseActions[m_activeBaseActionID]->Update( m_actionContext );
 
             // Evaluate Transitions
             bool transitionFired = EvaluateTransitions( status, m_highPriorityGlobalTransitions );
@@ -141,7 +149,7 @@ namespace KRG::Player
             // Stop the current state if it completed and we didnt fire any transition
             if ( !transitionFired && status == Action::Status::Completed )
             {
-                m_baseActions[m_activeBaseActionID]->Stop( context, Action::StopReason::ActionCompleted );
+                m_baseActions[m_activeBaseActionID]->Stop( m_actionContext, Action::StopReason::Completed );
                 m_activeBaseActionID = InvalidAction;
             }
         }
@@ -155,11 +163,11 @@ namespace KRG::Player
             }
 
             m_activeBaseActionID = DefaultAction;
-            bool const tryStartResult = m_baseActions[m_activeBaseActionID]->TryStart( context );
+            bool const tryStartResult = m_baseActions[m_activeBaseActionID]->TryStart( m_actionContext );
             KRG_ASSERT( tryStartResult ); // The default state MUST always be able to start
 
             #if KRG_DEVELOPMENT_TOOLS
-            m_actionLog.emplace_back( context.m_pEntityUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), LoggedStatus::ActionStarted );
+            m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), LoggedStatus::ActionStarted );
             #endif
         }
 
@@ -172,23 +180,23 @@ namespace KRG::Player
             // Update running actions
             if ( pOverlayAction->IsActive() )
             {
-                if ( pOverlayAction->Update( context ) == Action::Status::Completed )
+                if ( pOverlayAction->Update( m_actionContext ) == Action::Status::Completed )
                 {
-                    pOverlayAction->Stop( context, Action::StopReason::ActionCompleted );
+                    pOverlayAction->Stop( m_actionContext, Action::StopReason::Completed );
 
                     #if KRG_DEVELOPMENT_TOOLS
-                    m_actionLog.emplace_back( context.m_pEntityUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionCompleted, false );
+                    m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionCompleted, false );
                     #endif
                 }
             }
             // Try to start action
-            else if ( pOverlayAction->TryStart( context ) )
+            else if ( pOverlayAction->TryStart( m_actionContext ) )
             {
-                Action::Status const newActionStatus = pOverlayAction->Update( context );
+                Action::Status const newActionStatus = pOverlayAction->Update( m_actionContext );
                 KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_actionLog.emplace_back( context.m_pEntityUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionStarted, false );
+                m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionStarted, false );
                 #endif
             }
         }

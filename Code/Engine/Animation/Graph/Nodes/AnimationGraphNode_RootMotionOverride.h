@@ -32,8 +32,8 @@ namespace KRG::Animation::Graph
             NodeIndex                        m_desiredFacingDirectionNodeIdx = InvalidIndex;
             NodeIndex                        m_linearVelocityLimitNodeIdx = InvalidIndex;
             NodeIndex                        m_angularVelocityLimitNodeIdx = InvalidIndex;
-            float                            m_maxLinearVelocity = 0.0f;
-            float                            m_maxAngularVelocity = 0.0f;
+            float                            m_maxLinearVelocity = -1.0f;
+            float                            m_maxAngularVelocity = -1.0f;
             TBitFlags<OverrideFlags>         m_overrideFlags;
         };
 

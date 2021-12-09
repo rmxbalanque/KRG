@@ -1,4 +1,4 @@
-#include "AIAction.h"
+#include "AIBehavior.h"
 #include "Engine/Animation/Graph/AnimationGraphController.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Game/Core/Player/Components/Component_MainPlayer.h"
@@ -7,13 +7,13 @@
 
 namespace KRG::AI
 {
-    ActionContext::~ActionContext()
+    BehaviorContext::~BehaviorContext()
     {
-        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pNavmeshSystem == nullptr && m_pPhysicsWorld == nullptr && m_pPhysicsController == nullptr );
+        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pNavmeshSystem == nullptr && m_pPhysicsWorld == nullptr && m_pCharacterPhysicsController == nullptr );
         KRG_ASSERT( m_pAIComponent == nullptr && m_pCharacterPhysicsComponent == nullptr && m_pAnimationController == nullptr );
     }
 
-    bool ActionContext::IsValid() const
+    bool BehaviorContext::IsValid() const
     {
         if ( m_pAIComponent == nullptr )
         {
@@ -30,6 +30,6 @@ namespace KRG::AI
             return false;
         }
 
-        return m_pEntityUpdateContext != nullptr && m_pNavmeshSystem != nullptr && m_pPhysicsWorld != nullptr && m_pPhysicsController != nullptr;
+        return m_pEntityUpdateContext != nullptr && m_pNavmeshSystem != nullptr && m_pPhysicsWorld != nullptr && m_pCharacterPhysicsController != nullptr;
     }
 }

@@ -11,6 +11,7 @@ namespace KRG::Animation::Graph
         SetOptionalNodePtrFromIndex( nodePtrs, m_desiredFacingDirectionNodeIdx, pNode->m_pDesiredFacingDirectionNode );
         SetOptionalNodePtrFromIndex( nodePtrs, m_linearVelocityLimitNodeIdx, pNode->m_pLinearVelocityLimitNode );
         SetOptionalNodePtrFromIndex( nodePtrs, m_angularVelocityLimitNodeIdx, pNode->m_pAngularVelocityLimitNode );
+        PassthroughNode::Settings::InstantiateNode( nodePtrs, pDataSet, GraphNode::Settings::InitOptions::OnlySetPointers );
     }
 
     void RootMotionOverrideNode::InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime )
@@ -80,14 +81,6 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         bool isHeadingModificationAllowed = m_pDesiredHeadingVelocityNode != nullptr && pSettings->m_overrideFlags.AreAnyFlagsSet( OverrideFlags::HeadingX, OverrideFlags::HeadingY, OverrideFlags::HeadingZ );
-
-        float maxLinearVelocity = pSettings->m_maxLinearVelocity;
-        if ( m_pLinearVelocityLimitNode != nullptr )
-        {
-            maxLinearVelocity = Math::Abs( m_pLinearVelocityLimitNode->GetValue<float>( context ) * 100 );
-            isHeadingModificationAllowed = !Math::IsNearZero( maxLinearVelocity );
-        }
-
         if ( isHeadingModificationAllowed )
         {
             Vector const desiredHeadingVelocity = m_pDesiredHeadingVelocityNode->GetValue<Vector>( context );
@@ -99,11 +92,20 @@ namespace KRG::Animation::Graph
             translation.m_z = pSettings->m_overrideFlags.IsFlagSet( OverrideFlags::HeadingZ ) ? desiredHeadingVelocity.m_z * context.m_deltaTime : translation.m_z;
 
             // Apply max linear velocity limit
-            float const maxLinearValue = context.m_deltaTime * maxLinearVelocity;
-            if ( translation.GetLengthSquared3() > ( maxLinearValue * maxLinearValue ) )
+            float maxLinearVelocity = pSettings->m_maxLinearVelocity;
+            if ( m_pLinearVelocityLimitNode != nullptr )
             {
-                translation.Normalize3();
-                translation *= maxLinearValue;
+                maxLinearVelocity = Math::Abs( m_pLinearVelocityLimitNode->GetValue<float>( context ) * 100 );
+            }
+
+            if ( maxLinearVelocity >= 0 )
+            {
+                float const maxLinearValue = context.m_deltaTime * maxLinearVelocity;
+                if ( translation.GetLengthSquared3() > ( maxLinearValue * maxLinearValue ) )
+                {
+                    translation.Normalize3();
+                    translation *= maxLinearValue;
+                }
             }
 
             AdjustedDisplacementDelta.SetTranslation( translation );
@@ -113,14 +115,6 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         bool isFacingModificationAllowed = ( m_pDesiredFacingDirectionNode != nullptr ) && pSettings->m_overrideFlags.AreAnyFlagsSet( OverrideFlags::FacingX, OverrideFlags::FacingY, OverrideFlags::FacingZ );
-
-        float maxAngularVelocity = pSettings->m_maxAngularVelocity;
-        if ( m_pAngularVelocityLimitNode != nullptr )
-        {
-            maxAngularVelocity = Math::Abs( Math::DegreesToRadians * m_pAngularVelocityLimitNode->GetValue<float>( context ) );
-            isFacingModificationAllowed = !Math::IsNearZero( maxAngularVelocity );
-        }
-
         if ( isFacingModificationAllowed )
         {
             Vector desiredFacing = m_pDesiredFacingDirectionNode->GetValue<Vector>( context );
@@ -136,12 +130,21 @@ namespace KRG::Animation::Graph
                 Quaternion deltaRotation = Quaternion::FromRotationBetweenNormalizedVectors( Vector::WorldForward, desiredFacing );
 
                 // Apply max angular velocity limit
-                float const maxAngularValue = context.m_deltaTime * maxAngularVelocity;
-                float const desiredRotationAngle = (float) deltaRotation.ToAxisAngle().m_angle;
-                if ( desiredRotationAngle > maxAngularValue )
+                float maxAngularVelocity = pSettings->m_maxAngularVelocity;
+                if ( m_pAngularVelocityLimitNode != nullptr )
                 {
-                    float const T = 1.0f - ( ( desiredRotationAngle - maxAngularValue ) / desiredRotationAngle );
-                    deltaRotation = Quaternion::SLerp( Quaternion::Identity, deltaRotation, T );
+                    maxAngularVelocity = Math::Abs( Math::DegreesToRadians * m_pAngularVelocityLimitNode->GetValue<float>( context ) );
+                }
+
+                if ( maxAngularVelocity >= 0 )
+                {
+                    float const maxAngularValue = context.m_deltaTime * maxAngularVelocity;
+                    float const desiredRotationAngle = (float) deltaRotation.ToAxisAngle().m_angle;
+                    if (  desiredRotationAngle > maxAngularValue )
+                    {
+                        float const T = 1.0f - ( ( desiredRotationAngle - maxAngularValue ) / desiredRotationAngle );
+                        deltaRotation = Quaternion::SLerp( Quaternion::Identity, deltaRotation, T );
+                    }
                 }
 
                 AdjustedDisplacementDelta.SetRotation( deltaRotation );

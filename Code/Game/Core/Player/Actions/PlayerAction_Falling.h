@@ -22,6 +22,12 @@ namespace KRG::Player
         virtual void StopInternal( ActionContext const& ctx, StopReason reason ) override;
 
     private:
+
         bool ProbeForGround( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent const* pCapsuleComponent, Vector const& startPosition );
+
+    private:
+
+        Radians             m_maxAngularSpeed = Radians( Degrees( 90 ) );    // radians
+        float               m_maxLinearSpeed = 6.0f;                         // meters/seconds
     };
 }

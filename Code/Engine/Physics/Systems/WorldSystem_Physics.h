@@ -24,6 +24,9 @@ namespace KRG::Physics
         friend class PhysicsDebugView;
         friend class PhysicsRenderer;
 
+        // The distance that the shape is pushed away from a detected collision after a sweep - currently set to 5mm as that is a relatively standard value
+        static constexpr float const s_sweepSeperationDistance = 0.005f;
+
         struct EntityPhysicsRecord
         {
             inline bool IsEmpty() const { return m_components.empty(); }
@@ -118,7 +121,7 @@ namespace KRG::Physics
 
             physx::PxSphereGeometry const sphereGeo( radius );
             bool const result = m_pScene->sweep( sphereGeo, physx::PxTransform( ToPx( start ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -133,7 +136,7 @@ namespace KRG::Physics
 
             physx::PxSphereGeometry const sphereGeo( radius );
             bool const result = m_pScene->sweep( sphereGeo, physx::PxTransform( ToPx( start ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -175,7 +178,7 @@ namespace KRG::Physics
             physx::PxTransform Test( ToPx( start ), ToPx( orientation ) );
             KRG_ASSERT( Test.isValid() );
             bool const result = m_pScene->sweep( capsuleGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -195,7 +198,7 @@ namespace KRG::Physics
             physx::PxTransform Test( ToPx( start ), ToPx( orientation ) );
             KRG_ASSERT( Test.isValid() );
             bool const result = m_pScene->sweep( capsuleGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -233,7 +236,7 @@ namespace KRG::Physics
 
             physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( radius, radius, halfHeight ) ) );
             bool const result = m_pScene->sweep( cylinderGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -250,7 +253,7 @@ namespace KRG::Physics
 
             physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( radius, radius, halfHeight ) ) );
             bool const result = m_pScene->sweep( cylinderGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -285,7 +288,7 @@ namespace KRG::Physics
 
             physx::PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
             bool const result = m_pScene->sweep( boxGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -304,7 +307,7 @@ namespace KRG::Physics
 
             physx::PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
             bool const result = m_pScene->sweep( boxGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -338,7 +341,7 @@ namespace KRG::Physics
             outResults.m_orientation = orientation;
 
             bool const result = m_pScene->sweep( pShape->getGeometry().any(), ToPx( Transform( orientation, start ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 
@@ -355,7 +358,7 @@ namespace KRG::Physics
             outResults.m_orientation = orientation;
 
             bool const result = m_pScene->sweep( pShape->getGeometry().any(), ToPx( Transform( orientation, start ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
-            outResults.CalculateFinalShapePosition( Math::HugeEpsilon );
+            outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
 

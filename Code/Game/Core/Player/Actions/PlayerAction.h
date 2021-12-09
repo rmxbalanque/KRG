@@ -11,8 +11,7 @@
 namespace KRG
 {
     class EntityComponent;
-    class OrbitCameraComponent;
-    namespace Physics { class CharacterComponent; class PhysicsStateController; class PhysicsWorldSystem; }
+    namespace Physics { class CharacterComponent; class PhysicsWorldSystem; }
     namespace Input { class InputSystem; }
     namespace Animation { class GraphController; }
 }
@@ -22,6 +21,8 @@ namespace KRG
 namespace KRG::Player
 {
     class MainPlayerComponent;
+    class CharacterPhysicsController;
+    class CameraController;
 
     //-------------------------------------------------------------------------
     // The context for all player actions
@@ -64,10 +65,10 @@ namespace KRG::Player
         Physics::PhysicsWorldSystem*                m_pPhysicsWorld = nullptr;
 
         MainPlayerComponent*                        m_pPlayerComponent = nullptr;
-        Physics::PhysicsStateController*            m_pPhysicsController = nullptr;
+        CharacterPhysicsController*                 m_pCharacterPhysicsController = nullptr;
         Physics::CharacterComponent*                m_pCharacterPhysicsComponent = nullptr;
+        CameraController*                           m_pCameraController = nullptr;
         Animation::GraphController*                 m_pAnimationController = nullptr;
-        OrbitCameraComponent*                       m_pCameraComponent = nullptr;
         TInlineVector<EntityComponent*, 10>         m_components;
     };
 
@@ -88,8 +89,8 @@ namespace KRG::Player
 
         enum class StopReason : uint8
         {
-            ActionCompleted,
-            TransitionFired
+            Completed,
+            Interrupted
         };
 
     public:

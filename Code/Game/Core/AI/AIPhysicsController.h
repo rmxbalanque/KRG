@@ -1,20 +1,23 @@
 #pragma once
+#include "System/Core/Math/Quaternion.h"
+#include "System/Core/Time/Time.h"
 
-#include "Game/Core/AI/PhysicsStates/AIPhysicsState_Ground.h"
+//-------------------------------------------------------------------------
+
+namespace KRG::Physics
+{
+    class CharacterComponent;
+    class PhysicsWorldSystem;
+}
 
 //-------------------------------------------------------------------------
 
 namespace KRG::AI
 {
-    class AIPhysicsController final : public Physics::PhysicsStateController
+    class CharacterPhysicsController final
     {
     public:
 
-        AIPhysicsController::AIPhysicsController()
-        {
-            m_registeredStates.emplace_back( KRG::New<GroundPhysicsState>() );
-            m_pActiveState = m_registeredStates.back();
-            m_pActiveState->Activate();
-        }
+        bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent* pCharacterComponent, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation );
     };
 }

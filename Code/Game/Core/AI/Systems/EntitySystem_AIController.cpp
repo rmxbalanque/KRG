@@ -4,7 +4,6 @@
 #include "Game/Core/AI/Components/Component_AI.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/Systems/WorldSystem_Navmesh.h"
-#include "Engine/Physics/PhysicsState.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
@@ -16,18 +15,18 @@ namespace KRG::AI
 {
     void AIController::Activate()
     {
-        m_actionContext.m_pPhysicsController = KRG::New<AIPhysicsController>();
+        m_behaviorContext.m_pCharacterPhysicsController = KRG::New<CharacterPhysicsController>();
 
         if ( m_pAnimGraphComponent != nullptr && m_pCharacterMeshComponent != nullptr )
         {
-            m_actionContext.m_pAnimationController = KRG::New<AIAnimationController>( m_pAnimGraphComponent, m_pCharacterMeshComponent );
+            m_behaviorContext.m_pAnimationController = KRG::New<AIAnimationController>( m_pAnimGraphComponent, m_pCharacterMeshComponent );
         }
     }
 
     void AIController::Deactivate()
     {
-        KRG::Delete( m_actionContext.m_pAnimationController );
-        KRG::Delete( m_actionContext.m_pPhysicsController );
+        KRG::Delete( m_behaviorContext.m_pAnimationController );
+        KRG::Delete( m_behaviorContext.m_pCharacterPhysicsController );
     }
 
     //-------------------------------------------------------------------------
@@ -36,14 +35,14 @@ namespace KRG::AI
     {
         if ( auto pCharacterComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pCharacterPhysicsComponent == nullptr );
-            m_actionContext.m_pCharacterPhysicsComponent = pCharacterComponent;
+            KRG_ASSERT( m_behaviorContext.m_pCharacterPhysicsComponent == nullptr );
+            m_behaviorContext.m_pCharacterPhysicsComponent = pCharacterComponent;
         }
 
         else if ( auto pAIComponent = TryCast<AIComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pAIComponent == nullptr );
-            m_actionContext.m_pAIComponent = pAIComponent;
+            KRG_ASSERT( m_behaviorContext.m_pAIComponent == nullptr );
+            m_behaviorContext.m_pAIComponent = pAIComponent;
         }
 
         else if ( auto pCharacterMeshComponent = TryCast<Animation::CharacterMeshComponent>( pComponent ) )
@@ -61,25 +60,25 @@ namespace KRG::AI
 
         //-------------------------------------------------------------------------
 
-        m_actionContext.m_components.emplace_back( pComponent );
+        m_behaviorContext.m_components.emplace_back( pComponent );
     }
 
     void AIController::UnregisterComponent( EntityComponent* pComponent )
     {
-        m_actionContext.m_components.erase_first( pComponent );
+        m_behaviorContext.m_components.erase_first( pComponent );
 
         //-------------------------------------------------------------------------
 
         if ( auto pCharacterComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pCharacterPhysicsComponent == pCharacterComponent );
-            m_actionContext.m_pCharacterPhysicsComponent = nullptr;
+            KRG_ASSERT( m_behaviorContext.m_pCharacterPhysicsComponent == pCharacterComponent );
+            m_behaviorContext.m_pCharacterPhysicsComponent = nullptr;
         }
 
         else if ( auto pAIComponent = TryCast<AIComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pAIComponent == pAIComponent );
-            m_actionContext.m_pAIComponent = nullptr;
+            KRG_ASSERT( m_behaviorContext.m_pAIComponent == pAIComponent );
+            m_behaviorContext.m_pAIComponent = nullptr;
         }
 
         else if ( auto pCharacterMeshComponent = TryCast<Animation::CharacterMeshComponent>( pComponent ) )
@@ -100,11 +99,11 @@ namespace KRG::AI
 
     void AIController::Update( EntityUpdateContext const& ctx )
     {
-        TScopedGuardValue const contextGuardValue( m_actionContext.m_pEntityUpdateContext, &ctx );
-        TScopedGuardValue const navmeshSystemGuardValue( m_actionContext.m_pNavmeshSystem, ctx.GetWorldSystem<Navmesh::NavmeshWorldSystem>() );
-        TScopedGuardValue const physicsSystemGuard( m_actionContext.m_pPhysicsWorld, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>() );
+        TScopedGuardValue const contextGuardValue( m_behaviorContext.m_pEntityUpdateContext, &ctx );
+        TScopedGuardValue const navmeshSystemGuardValue( m_behaviorContext.m_pNavmeshSystem, ctx.GetWorldSystem<Navmesh::NavmeshWorldSystem>() );
+        TScopedGuardValue const physicsSystemGuard( m_behaviorContext.m_pPhysicsWorld, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>() );
 
-        if ( !m_actionContext.IsValid() )
+        if ( !m_behaviorContext.IsValid() )
         {
             return;
         }
@@ -114,7 +113,7 @@ namespace KRG::AI
         UpdateStage const updateStage = ctx.GetUpdateStage();
         if ( updateStage == UpdateStage::PrePhysics )
         {
-            // RUN AI & ACTIONS
+            m_behaviorSelector.Update();
 
             // Update animation and get root motion delta
             m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform() );

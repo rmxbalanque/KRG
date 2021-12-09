@@ -45,9 +45,6 @@
     <ClCompile Include="AI\Systems\WorldSystem_AIManager.cpp">
       <Filter>AI\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="Player\PhysicsStates\PlayerPhysicsState_Ground.cpp">
-      <Filter>Player\PhysicsStates</Filter>
-    </ClCompile>
     <ClCompile Include="Player\Systems\EntitySystem_PlayerController.cpp">
       <Filter>Player\Systems</Filter>
     </ClCompile>
@@ -62,14 +59,18 @@
     <ClCompile Include="Player\Actions\PlayerAction_Falling.cpp">
       <Filter>Player\GameplayStates</Filter>
     </ClCompile>
-    <ClCompile Include="Player\PhysicsStates\PlayerPhysicsState_Air.cpp" />
     <ClCompile Include="Player\PlayerActionStateMachine.cpp" />
-    <ClCompile Include="AI\PhysicsStates\AIPhysicsState_Ground.cpp" />
     <ClCompile Include="Player\PlayerAnimationController.cpp" />
     <ClCompile Include="AI\AIAnimationController.cpp" />
-    <ClCompile Include="AI\Actions\AIAction.cpp" />
-    <ClCompile Include="AI\AIActionController.cpp" />
+    <ClCompile Include="AI\Behaviors\AIBehavior.cpp" />
+    <ClCompile Include="AI\AIBehaviorSelector.cpp" />
     <ClCompile Include="AI\GraphControllers\AIGraphController_Locomotion.cpp" />
+    <ClCompile Include="AI\Behaviors\AIBehavior_Wander.cpp" />
+    <ClCompile Include="Player\PhysicsStates\PlayerPhysicsState_Air.cpp" />
+    <ClCompile Include="Player\Actions\PlayerAction_Dash.cpp" />
+    <ClCompile Include="Player\PlayerPhysicsController.cpp" />
+    <ClCompile Include="AI\AIPhysicsController.cpp" />
+    <ClCompile Include="Player\PlayerCameraController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -90,9 +91,6 @@
     <ClInclude Include="Player\Actions\PlayerAction.h">
       <Filter>Player\GameplayStates</Filter>
     </ClInclude>
-    <ClInclude Include="Player\PhysicsStates\PlayerPhysicsState_Ground.h">
-      <Filter>Player\PhysicsStates</Filter>
-    </ClInclude>
     <ClInclude Include="Player\Systems\EntitySystem_PlayerController.h">
       <Filter>Player\Systems</Filter>
     </ClInclude>
@@ -111,15 +109,17 @@
     <ClInclude Include="Player\Actions\PlayerAction_Falling.h">
       <Filter>Player\GameplayStates</Filter>
     </ClInclude>
-    <ClInclude Include="Player\PhysicsStates\PlayerPhysicsState_Air.h" />
     <ClInclude Include="Player\PlayerActionStateMachine.h" />
-    <ClInclude Include="AI\PhysicsStates\AIPhysicsState_Ground.h" />
     <ClInclude Include="Player\PlayerPhysicsController.h" />
     <ClInclude Include="Player\PlayerAnimationController.h" />
     <ClInclude Include="AI\AIPhysicsController.h" />
     <ClInclude Include="AI\AIAnimationController.h" />
-    <ClInclude Include="AI\Actions\AIAction.h" />
-    <ClInclude Include="AI\AIActionController.h" />
+    <ClInclude Include="AI\Behaviors\AIBehavior.h" />
+    <ClInclude Include="AI\AIBehaviorSelector.h" />
     <ClInclude Include="AI\GraphControllers\AIGraphController_Locomotion.h" />
+    <ClInclude Include="AI\Behaviors\AIBehavior_Wander.h" />
+    <ClInclude Include="Player\PhysicsStates\PlayerPhysicsState_Air.h" />
+    <ClInclude Include="Player\Actions\PlayerAction_Dash.h" />
+    <ClInclude Include="Player\PlayerCameraController.h" />
   </ItemGroup>
 </Project>

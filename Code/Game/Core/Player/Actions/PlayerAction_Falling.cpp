@@ -1,6 +1,6 @@
 #include "PlayerAction_Falling.h"
-#include "Game/Core/Player/PhysicsStates/PlayerPhysicsState_Air.h"
-#include "Engine/Core/Components/Component_Cameras.h"
+#include "Game/Core/Player/PlayerPhysicsController.h"
+#include "Game/Core/Player/PlayerCameraController.h"
 #include "Engine/Physics/PhysicsQuery.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
@@ -17,6 +17,7 @@ namespace KRG::Player
     {
         if( !ProbeForGround( ctx.m_pPhysicsWorld, ctx.m_pCharacterPhysicsComponent, ctx.m_pCharacterPhysicsComponent->GetCapsulePosition() ) )
         {
+            ctx.m_pCharacterPhysicsController->EnableGravity();
             return true;
         }
 
@@ -28,37 +29,17 @@ namespace KRG::Player
         auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
         KRG_ASSERT( pControllerState != nullptr );
 
-        // Update camera rotation
-        //-------------------------------------------------------------------------
-        Vector cameraInputs = pControllerState->GetRightAnalogStickValue();
-
-        Radians const maxAngularVelocity = Math::Pi;
-        Radians const maxAngularVelocityForThisFrame = maxAngularVelocity * ctx.GetDeltaTime();
-
-        cameraInputs.Normalize2();
-        cameraInputs *= (float) maxAngularVelocityForThisFrame;
-        ctx.m_pCameraComponent->AdjustOrbitAngle( cameraInputs.m_x, cameraInputs.m_y );
-
         // Calculate desired player displacement
         //-------------------------------------------------------------------------
         Float2 movementInputs = pControllerState->GetLeftAnalogStickValue();
 
-        float const maxLinearVelocity = 6.0f;
-        float const maxLinearVelocityForThisFrame = maxLinearVelocity * ctx.GetDeltaTime();
-
-        auto const camFwd = ctx.m_pCameraComponent->GetCameraRelativeForwardVector().GetNormalized2();
-        auto const camRight = ctx.m_pCameraComponent->GetCameraRelativeRightVector().GetNormalized2();
+        auto const& camFwd = ctx.m_pCameraController->GetCameraRelativeForwardVector2D();
+        auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
 
         // Use last frame camera orientation
-        auto forward = camFwd * movementInputs.m_y;
-        auto right = camRight * movementInputs.m_x;
-
-        Vector const desiredDeltaDisplacement = ( forward * maxLinearVelocityForThisFrame ) + ( right * maxLinearVelocityForThisFrame );
-        Quaternion deltaOrientation = Quaternion::Identity;
-        if( !desiredDeltaDisplacement.IsZero2() )
-        {
-            deltaOrientation = Quaternion::FromRotationBetweenNormalizedVectors( ctx.m_pCharacterPhysicsComponent->GetForwardVector().GetNormalized2(), desiredDeltaDisplacement.GetNormalized2() );
-        }
+        Vector const forward = camFwd * movementInputs.m_y;
+        Vector const right = camRight * movementInputs.m_x;
+        Vector const desiredHeadingVelocity = ( forward + right ) * 6.0f;
 
         // Run physic Prediction if required
         //-------------------------------------------------------------------------
@@ -67,14 +48,7 @@ namespace KRG::Player
         // Update animation controller
         //-------------------------------------------------------------------------
         auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
-        float const desiredSpeed = desiredDeltaDisplacement.GetLength3() / ctx.GetDeltaTime();
-        pLocomotionGraphController->SetSpeed( 0.f );
-
-        // HACK (this is only because we don't have animation yet)
-        //-------------------------------------------------------------------------
-        ctx.m_pCharacterPhysicsComponent->m_deltaTranslationHACK = desiredDeltaDisplacement;
-        ctx.m_pCharacterPhysicsComponent->m_deltaRotationHACK = deltaOrientation;
-        //-------------------------------------------------------------------------
+        pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), desiredHeadingVelocity, desiredHeadingVelocity.GetNormalized2() );
 
         if( ProbeForGround( ctx.m_pPhysicsWorld, ctx.m_pCharacterPhysicsComponent, ctx.m_pCharacterPhysicsComponent->GetCapsulePosition() ) )
         {

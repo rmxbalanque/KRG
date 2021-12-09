@@ -2,8 +2,8 @@
 #include "Game/Core/Player/Components/Component_MainPlayer.h"
 #include "Game/Core/Player/PlayerPhysicsController.h"
 #include "Game/Core/Player/PlayerAnimationController.h"
+#include "Game/Core/Player/PlayerCameraController.h"
 #include "Engine/Animation/Graph/AnimationGraphController.h"
-#include "Engine/Physics/PhysicsState.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Core/Components/Component_Cameras.h"
@@ -18,18 +18,24 @@ namespace KRG::Player
 {
     void PlayerController::Activate()
     {
-        m_actionContext.m_pPhysicsController = KRG::New<PlayerPhysicsController>();
+        m_actionContext.m_pCharacterPhysicsController = KRG::New<CharacterPhysicsController>();
 
         if ( m_pAnimGraphComponent != nullptr && m_pCharacterMeshComponent != nullptr )
         {
             m_actionContext.m_pAnimationController = KRG::New<PlayerAnimationController>( m_pAnimGraphComponent, m_pCharacterMeshComponent );
         }
+
+        if ( m_pCameraComponent != nullptr )
+        {
+            m_actionContext.m_pCameraController = KRG::New<CameraController>( m_pCameraComponent );
+        }
     }
 
     void PlayerController::Deactivate()
     {
+        KRG::Delete( m_actionContext.m_pCameraController );
         KRG::Delete( m_actionContext.m_pAnimationController );
-        KRG::Delete( m_actionContext.m_pPhysicsController );
+        KRG::Delete( m_actionContext.m_pCharacterPhysicsController );
     }
 
     //-------------------------------------------------------------------------
@@ -44,8 +50,8 @@ namespace KRG::Player
 
         else if ( auto pCameraComponent = TryCast<OrbitCameraComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pCameraComponent == nullptr );
-            m_actionContext.m_pCameraComponent = pCameraComponent;
+            KRG_ASSERT( m_pCameraComponent == nullptr );
+            m_pCameraComponent = pCameraComponent;
         }
 
         else if ( auto pPlayerComponent = TryCast<MainPlayerComponent>( pComponent ) )
@@ -86,8 +92,8 @@ namespace KRG::Player
 
         else if ( auto pCameraComponent = TryCast<OrbitCameraComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pCameraComponent == pCameraComponent );
-            m_actionContext.m_pCameraComponent = nullptr;
+            KRG_ASSERT( m_pCameraComponent == pCameraComponent );
+            m_pCameraComponent = nullptr;
         }
 
         else if ( auto pPlayerComponent = TryCast<MainPlayerComponent>( pComponent ) )
@@ -128,18 +134,22 @@ namespace KRG::Player
         UpdateStage const updateStage = ctx.GetUpdateStage();
         if ( updateStage == UpdateStage::PrePhysics )
         {
-            m_actionStateMachine.Update( m_actionContext );
+            // Update camera
+            m_actionContext.m_pCameraController->UpdateCamera( ctx );
 
-            // Update animation and get root motion delta
+            // Update player actions
+            m_actionStateMachine.Update();
+
+            // Update animation and get root motion delta (remember that root motion is in character space, so we need to convert the displacement to world space)
             m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform() );
-            Vector const& deltaTranslation = m_actionContext.m_pCharacterPhysicsComponent->m_deltaTranslationHACK; // m_actionContext.m_pGraphComponent->GetRootMotionDelta().GetTranslation();
-            Quaternion const& deltaRotation = m_actionContext.m_pCharacterPhysicsComponent->m_deltaRotationHACK; // m_actionContext.m_pGraphComponent->GetRootMotionDelta().GetRotation();
+            Vector const& deltaTranslation = m_pCharacterMeshComponent->GetWorldTransform().RotateVector( m_pAnimGraphComponent->GetRootMotionDelta().GetTranslation() );
+            Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
-            m_actionContext.m_pPhysicsController->GetActivePhysicsState()->TryMoveCapsule( m_actionContext.m_pPhysicsWorld, m_actionContext.m_pCharacterPhysicsComponent, ctx.GetDeltaTime(), deltaTranslation, deltaRotation );
+            m_actionContext.m_pCharacterPhysicsController->TryMoveCapsule( m_actionContext.m_pPhysicsWorld, m_actionContext.m_pCharacterPhysicsComponent, ctx.GetDeltaTime(), deltaTranslation, deltaRotation );
 
             // Update camera position relative to new character position
-            m_actionContext.m_pCameraComponent->FinalizeCameraPosition();
+            m_actionContext.m_pCameraController->FinalizeCamera();
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {

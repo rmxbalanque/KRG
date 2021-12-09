@@ -87,6 +87,20 @@ namespace KRG::Animation
             // Optional update that runs after the graph evaluation allowing you to read events and clear transient state
             virtual void PostGraphUpdate( Seconds deltaTime ) {}
 
+            //-------------------------------------------------------------------------
+
+            KRG_FORCE_INLINE Vector ConvertWorldSpacePointToCharacterSpace( Vector const& worldPoint ) const
+            {
+                return m_pAnimatedMeshComponent->GetWorldTransform().GetInverse().TransformPoint( worldPoint );
+            }
+
+            KRG_FORCE_INLINE Vector ConvertWorldSpaceVectorToCharacterSpace( Vector const& worldVector ) const
+            {
+                return m_pAnimatedMeshComponent->GetWorldTransform().GetInverse().RotateVector( worldVector );
+            }
+
+            //-------------------------------------------------------------------------
+
             #if KRG_DEVELOPMENT_TOOLS
             // Returns a friendly name for this controller
             virtual char const* GetName() const = 0;

@@ -6,9 +6,6 @@
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Profiling/Profiling.h"
 
-#include "bfxNavigatorSpace.h"
-#include "bfxMoverSpace.h"
-
 //-------------------------------------------------------------------------
 
 namespace KRG::Navmesh
@@ -21,8 +18,6 @@ namespace KRG::Navmesh
         bfx::SetCurrentInstance( nullptr );
 
         bfx::RegisterPlannerSystem( m_pInstance );
-        bfx::RegisterNavigatorSystem( m_pInstance );
-        bfx::RegisterMoverSystem( m_pInstance );
         bfx::SystemStart( m_pInstance );
 
         #if KRG_DEVELOPMENT_TOOLS

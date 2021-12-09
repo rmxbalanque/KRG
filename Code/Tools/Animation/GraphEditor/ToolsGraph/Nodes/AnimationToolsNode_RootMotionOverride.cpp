@@ -9,7 +9,7 @@ namespace KRG::Animation::Graph
     void Tools_RootMotionOverrideNode::Initialize( GraphEditor::BaseGraph* pParent )
     {
         Tools_GraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
+        CreateOutputPin( "Result", ValueType::Pose, true );
         CreateInputPin( "Input", ValueType::Pose );
         CreateInputPin( "Desired Heading Velocity (Character)", ValueType::Vector );
         CreateInputPin( "Desired Facing Direction (Character)", ValueType::Vector );
@@ -33,13 +33,13 @@ namespace KRG::Animation::Graph
                 }
                 else
                 {
-                    return false;
+                    return InvalidIndex;
                 }
             }
             else
             {
                 context.LogError( this, "Disconnected input pin!" );
-                return false;
+                return InvalidIndex;
             }
 
             //-------------------------------------------------------------------------
@@ -54,13 +54,13 @@ namespace KRG::Animation::Graph
                 }
                 else
                 {
-                    return false;
+                    return InvalidIndex;
                 }
             }
             else
             {
-                context.LogError( this, "Disconnected input pin!" );
-                return false;
+                context.LogError( this, "Disconnected Heading Velocity pin!" );
+                return InvalidIndex;
             }
 
             //-------------------------------------------------------------------------
@@ -75,13 +75,13 @@ namespace KRG::Animation::Graph
                 }
                 else
                 {
-                    return false;
+                    return InvalidIndex;
                 }
             }
             else
             {
-                context.LogError( this, "Disconnected input pin!" );
-                return false;
+                context.LogError( this, "Disconnected Facing Direction pin!" );
+                return InvalidIndex;
             }
 
             //-------------------------------------------------------------------------
@@ -96,13 +96,8 @@ namespace KRG::Animation::Graph
                 }
                 else
                 {
-                    return false;
+                    return InvalidIndex;
                 }
-            }
-            else
-            {
-                context.LogError( this, "Disconnected input pin!" );
-                return false;
             }
 
             //-------------------------------------------------------------------------
@@ -117,13 +112,8 @@ namespace KRG::Animation::Graph
                 }
                 else
                 {
-                    return false;
+                    return InvalidIndex;
                 }
-            }
-            else
-            {
-                context.LogError( this, "Disconnected input pin!" );
-                return false;
             }
 
             //-------------------------------------------------------------------------

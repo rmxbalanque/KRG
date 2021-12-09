@@ -1,0 +1,39 @@
+#pragma once
+#include "System/Core/Math/Vector.h"
+
+
+//-------------------------------------------------------------------------
+
+namespace KRG
+{
+    class OrbitCameraComponent;
+    class EntityUpdateContext;
+}
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Player
+{
+    class CameraController
+    {
+    public:
+
+        CameraController( OrbitCameraComponent* pCamera );
+
+        void UpdateCamera( EntityUpdateContext const& ctx );
+        void FinalizeCamera();
+
+        inline Vector const& GetCameraRelativeForwardVector() const { return m_cameraRelativeForwardVector; }
+        inline Vector const& GetCameraRelativeRightVector() const { return m_cameraRelativeRightVector; }
+        inline Vector const& GetCameraRelativeForwardVector2D() const { return m_cameraRelativeForwardVector2D; }
+        inline Vector const& GetCameraRelativeRightVector2D() const { return m_cameraRelativeRightVector2D; }
+
+    private:
+
+        OrbitCameraComponent*   m_pCamera = nullptr;
+        Vector                  m_cameraRelativeForwardVector;
+        Vector                  m_cameraRelativeRightVector;
+        Vector                  m_cameraRelativeForwardVector2D;
+        Vector                  m_cameraRelativeRightVector2D;
+    };
+}

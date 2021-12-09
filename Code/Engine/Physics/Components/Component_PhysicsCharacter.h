@@ -102,11 +102,6 @@ namespace KRG::Physics
         // Update physics world position for this shape
         virtual void OnWorldTransformUpdated() override final;
 
-    public: 
-
-        Vector                                              m_deltaTranslationHACK = Vector::Zero;
-        Quaternion                                          m_deltaRotationHACK = Quaternion::Identity;
-
     protected:
 
         KRG_EXPOSE StringID                                 m_physicsMaterialID;

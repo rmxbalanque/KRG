@@ -25,10 +25,6 @@ namespace KRG::Physics
 
     public:
 
-        static void DrawPhysicsStateDebugger( PhysicsStateController const& stateController );
-
-    public:
-
         PhysicsDebugView();
 
     private:

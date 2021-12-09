@@ -50,7 +50,6 @@
     <ClCompile Include="Components\Component_PhysicsMesh.cpp" />
     <ClCompile Include="Components\Component_PhysicsSphere.cpp" />
     <ClCompile Include="Components\Component_PhysicsCharacter.cpp" />
-    <ClCompile Include="PhysicsState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\DebugView_Physics.h">
@@ -86,6 +85,5 @@
     <ClInclude Include="Components\Component_PhysicsCapsule.h" />
     <ClInclude Include="Components\Component_PhysicsMesh.h" />
     <ClInclude Include="Components\Component_PhysicsCharacter.h" />
-    <ClInclude Include="PhysicsState.h" />
   </ItemGroup>
 </Project>

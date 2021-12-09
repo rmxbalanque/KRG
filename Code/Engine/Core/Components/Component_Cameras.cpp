@@ -85,7 +85,7 @@ namespace KRG
     void OrbitCameraComponent::FinalizeCameraPosition()
     {
         Transform const& parentTransform = GetSpatialParentWorldTransform();
-        Vector const orbitTarget = parentTransform.GetTranslation() + m_orbitTargetOffset;
+        Vector const orbitTarget = parentTransform.GetTranslation() + parentTransform.RotateVector( m_orbitTargetOffset );
 
         Transform camWorldTransform = m_orbitTransform;
         camWorldTransform.AddTranslationOffset( orbitTarget );

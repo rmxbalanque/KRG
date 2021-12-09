@@ -1,0 +1,20 @@
+#pragma once
+#include "AIBehavior.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG::AI
+{
+    class WanderBehavior : public Behavior
+    {
+    public:
+
+        KRG_AI_BEHAVIOR_ID( WanderBehavior );
+
+    private:
+
+        virtual void StartInternal( BehaviorContext const& ctx ) override;
+        virtual Status UpdateInternal( BehaviorContext const& ctx ) override;
+        virtual void StopInternal( BehaviorContext const& ctx, StopReason reason ) override;
+    };
+}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Game/Core/_Module/API.h"
-#include "Game/Core/AI/AIActionController.h"
+#include "Game/Core/AI/AIBehaviorSelector.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 
 //-------------------------------------------------------------------------
@@ -33,8 +33,8 @@ namespace KRG::AI
 
     private:
 
-        ActionContext                                           m_actionContext;
-        ActionController                                        m_actionController;
+        BehaviorContext                                         m_behaviorContext;
+        BehaviorSelector                                        m_behaviorSelector = BehaviorSelector( m_behaviorContext );
 
         Animation::AnimationGraphComponent*                     m_pAnimGraphComponent = nullptr;
         Animation::CharacterMeshComponent*                      m_pCharacterMeshComponent = nullptr;

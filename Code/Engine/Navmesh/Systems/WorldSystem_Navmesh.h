@@ -4,9 +4,13 @@
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Core/Entity/EntityWorldSystem.h"
 #include "System/Core/Update/UpdateContext.h"
-#include "bfxMover.h"
 
 //-------------------------------------------------------------------------
+// Navmesh World System
+//-------------------------------------------------------------------------
+// This is the main system responsible for managing navmesh within a specific world
+// Manages navmesh registration, obstacles creation/destruction, etc...
+// Primarily also needed to get the space handle needed for any queries ( GetSpaceHandle )
 
 namespace KRG::Navmesh
 {

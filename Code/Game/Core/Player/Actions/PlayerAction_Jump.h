@@ -4,7 +4,7 @@
 #include "System/Core/Time/Timers.h"
 
 //-------------------------------------------------------------------------
-
+ 
 namespace KRG::Player
 {
     class JumpAction final : public Action
@@ -23,5 +23,8 @@ namespace KRG::Player
 
         EngineTimer     m_timer;
         bool            m_isChargedJumpReady = false;
+
+        float           m_smallJumpVelocity = 4.0f;
+        float           m_bigJumpVelocity = 7.0f;
     };
 }
