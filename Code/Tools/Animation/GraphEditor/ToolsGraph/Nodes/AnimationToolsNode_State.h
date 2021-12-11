@@ -51,6 +51,6 @@ namespace KRG::Animation::Graph
 
         virtual char const* GetTypeName() const override { return "Off State"; }
         virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( Colors::PaleVioletRed ); }
-        virtual void DrawExtraControls( GraphEditor::DrawingContext const& ctx ) override;
+        virtual void DrawExtraControls( GraphEditor::DrawContext const& ctx ) override;
     };
 }

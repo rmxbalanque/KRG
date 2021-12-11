@@ -27,7 +27,7 @@ namespace KRG::Animation::Graph
 
     protected:
 
-        virtual void DrawExtraControls( GraphEditor::DrawingContext const& ctx ) override;
+        virtual void DrawExtraControls( GraphEditor::DrawContext const& ctx ) override;
 
     protected:
 

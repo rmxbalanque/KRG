@@ -105,7 +105,7 @@ namespace KRG::Render
     {
         Float2                          m_pos;
         Float2                          m_texcoord;
-        uint32                             m_color;
+        uint32                          m_color;
     };
 
     //-------------------------------------------------------------------------
@@ -138,9 +138,9 @@ namespace KRG::Render
         public:
 
             TVector<DebugFontGlyph>     m_glyphs;
-            float                         m_ascent = 0.0f;
-            float                         m_descent = 0.0f;
-            float                         m_lineGap = 0.0f;
+            float                       m_ascent = 0.0f;
+            float                       m_descent = 0.0f;
+            float                       m_lineGap = 0.0f;
         };
 
     public:
@@ -155,7 +155,7 @@ namespace KRG::Render
         inline Byte const* GetAtlasData() const { return m_atlasData.data(); }
 
         // Get a list of glyphs indices that correspond to the supplied string
-        void GetGlyphsForString( uint32 fontIdx, String const& str, TInlineVector<int32, 100>& outGlyphIndices ) const;
+        void GetGlyphsForString( uint32 fontIdx, InlineString<24> const& str, TInlineVector<int32, 100>& outGlyphIndices ) const;
 
         // Get a list of glyphs indices that correspond to the supplied string
         void GetGlyphsForString( uint32 fontIdx, char const* pStr, TInlineVector<int32, 100>& outGlyphIndices ) const;

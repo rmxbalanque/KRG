@@ -318,6 +318,21 @@ namespace KRG
 
             ImGuiX::VerticalSeparator();
 
+            ImGui::SetNextItemWidth( 100 );
+            ImGui::SliderFloat( "##TimeScale", const_cast<float*>( &context.m_timeScale ), 0.1f, 3.5f, "%.2f", ImGuiSliderFlags_NoInput );
+            ImGuiX::ItemTooltip( "Time Scale" );
+            ImGui::SameLine( 0, 0 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Small );
+                if ( ImGui::Button( KRG_ICON_UNDO"##ResetTimeScale" ) )
+                {
+                    const_cast<float&>( context.m_timeScale ) = 1.0f;
+                }
+                ImGuiX::ItemTooltip( "Reset TimeScale" );
+            }
+
+            ImGuiX::VerticalSeparator();
+
             if ( ImGui::Button( KRG_ICON_SLIDERS" Debug Settings" ) )
             {
                 m_isDebugSettingsWindowOpen = true;

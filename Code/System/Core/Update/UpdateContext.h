@@ -2,7 +2,7 @@
 #include "UpdateStage.h"
 #include "System/Core/Math/ViewVolume.h"
 #include "System/Core/Time/Time.h"
-#include "System/Core/Debug/DebugDrawingSystem.h"
+#include "System/Core/Drawing/DebugDrawingSystem.h"
 #include "System/Core/Systems/SystemRegistry.h"
 
 //-------------------------------------------------------------------------
@@ -13,6 +13,7 @@ namespace KRG
 {
     class KRG_SYSTEM_CORE_API UpdateContext
     {
+        friend class EngineDevUI;
 
     public:
 

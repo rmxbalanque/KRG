@@ -102,7 +102,7 @@ namespace KRG::GraphEditor
     protected:
 
         // Override this if you want to add extra controls to this node (the derived nodes will determine where this content is placed)
-        virtual void DrawExtraControls( DrawingContext const& ctx ) {}
+        virtual void DrawExtraControls( DrawContext const& ctx ) {}
 
         // Set and initialize the secondary graph
         void SetSecondaryGraph( BaseGraph* pGraph );

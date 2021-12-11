@@ -66,11 +66,11 @@
     <ClCompile Include="AI\AIBehaviorSelector.cpp" />
     <ClCompile Include="AI\GraphControllers\AIGraphController_Locomotion.cpp" />
     <ClCompile Include="AI\Behaviors\AIBehavior_Wander.cpp" />
-    <ClCompile Include="Player\PhysicsStates\PlayerPhysicsState_Air.cpp" />
     <ClCompile Include="Player\Actions\PlayerAction_Dash.cpp" />
     <ClCompile Include="Player\PlayerPhysicsController.cpp" />
     <ClCompile Include="AI\AIPhysicsController.cpp" />
     <ClCompile Include="Player\PlayerCameraController.cpp" />
+    <ClCompile Include="AI\Behaviors\Actions\AIAction_MoveTo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -118,8 +118,8 @@
     <ClInclude Include="AI\AIBehaviorSelector.h" />
     <ClInclude Include="AI\GraphControllers\AIGraphController_Locomotion.h" />
     <ClInclude Include="AI\Behaviors\AIBehavior_Wander.h" />
-    <ClInclude Include="Player\PhysicsStates\PlayerPhysicsState_Air.h" />
     <ClInclude Include="Player\Actions\PlayerAction_Dash.h" />
     <ClInclude Include="Player\PlayerCameraController.h" />
+    <ClInclude Include="AI\Behaviors\Actions\AIAction_MoveTo.h" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #include "AnimationClip.h"
 #include "AnimationPose.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -189,7 +189,7 @@ namespace KRG::Animation
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void AnimationClip::DrawRootMotionPath( Debug::DrawingContext& ctx, Transform const& worldTransform ) const
+    void AnimationClip::DrawRootMotionPath( Drawing::DrawContext& ctx, Transform const& worldTransform ) const
     {
         constexpr static float const axisSize = 0.02f;
         constexpr static float const axisThickness = 2.0f;

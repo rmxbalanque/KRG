@@ -27,7 +27,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_GenericEventConditionNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    void Tools_GenericEventConditionNode::DrawInfoText( GraphEditor::DrawContext const& ctx )
     {
         switch ( m_searchMode )
         {
@@ -97,7 +97,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_GenericEventPercentageThroughNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    void Tools_GenericEventPercentageThroughNode::DrawInfoText( GraphEditor::DrawContext const& ctx )
     {
 
     }

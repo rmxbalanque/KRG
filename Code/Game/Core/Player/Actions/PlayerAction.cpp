@@ -1,7 +1,8 @@
 #include "PlayerAction.h"
+#include "Game/Core/Player/Components/Component_MainPlayer.h"
+#include "Game/Core/Player/PlayerPhysicsController.h"
 #include "Engine/Animation/Graph/AnimationGraphController.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
-#include "Game/Core/Player/Components/Component_MainPlayer.h"
 
 //-------------------------------------------------------------------------
 
@@ -9,8 +10,9 @@ namespace KRG::Player
 {
     ActionContext::~ActionContext()
     {
-        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pInputSystem == nullptr && m_pPhysicsWorld == nullptr && m_pCharacterPhysicsController == nullptr );
-        KRG_ASSERT( m_pPlayerComponent == nullptr && m_pCharacterPhysicsComponent == nullptr && m_pAnimationController == nullptr && m_pCameraController == nullptr );
+        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pInputSystem == nullptr && m_pPhysicsWorld == nullptr && m_pCharacterController == nullptr );
+        KRG_ASSERT( m_pCharacterComponent == nullptr && m_pCharacterController == nullptr );
+        KRG_ASSERT( m_pPlayerComponent == nullptr && m_pAnimationController == nullptr && m_pCameraController == nullptr );
     }
 
     bool ActionContext::IsValid() const
@@ -20,7 +22,7 @@ namespace KRG::Player
             return false;
         }
 
-        if ( m_pCharacterPhysicsComponent == nullptr || !m_pCharacterPhysicsComponent->IsRootComponent() )
+        if ( m_pCharacterComponent == nullptr || m_pCharacterController == nullptr || !m_pCharacterComponent->IsRootComponent() )
         {
             return false;
         }
@@ -30,6 +32,6 @@ namespace KRG::Player
             return false;
         }
 
-        return m_pEntityUpdateContext != nullptr && m_pCameraController != nullptr && m_pInputSystem != nullptr && m_pPhysicsWorld != nullptr && m_pCharacterPhysicsController != nullptr;
+        return m_pEntityUpdateContext != nullptr && m_pCameraController != nullptr && m_pInputSystem != nullptr && m_pPhysicsWorld != nullptr && m_pCharacterController != nullptr;
     }
 }

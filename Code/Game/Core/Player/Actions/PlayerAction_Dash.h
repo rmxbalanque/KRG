@@ -19,6 +19,10 @@ namespace KRG::Player
 
     private:
 
+        void DrawDebugUI() override;
+
+    private:
+
         EngineTimer                 m_timer;
         EngineTimer                 m_settleTimer;
         Vector                      m_dashDirection = Vector::Zero;
@@ -26,9 +30,6 @@ namespace KRG::Player
         bool                        m_isFirstUse = true;
         bool                        m_isInSettle = false;
 
-        Radians                     m_maxAngularSpeed = Radians( Degrees( 90 ) );   // radians
-        float                       m_dashLinearSpeed = 50.0f;                      // meter/seconds
-        Seconds                     m_dashDuration = 0.15f;                         // seconds
-        Seconds                     m_dashCooldown = 0.0f;                         // seconds
+        Vector                      m_debugStartPosition = Vector::Zero;
     };
 }

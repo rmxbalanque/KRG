@@ -48,20 +48,30 @@ namespace KRG::Player
 
     public:
 
-        void EnableGravity() { m_isGravityEnable = true; }
-        void DisableGravity() { m_isGravityEnable = false; }
+        CharacterPhysicsController( Physics::CharacterComponent* pCharacterComponent )
+            : m_pCharacterComponent( pCharacterComponent )
+        {
+            KRG_ASSERT( m_pCharacterComponent != nullptr );
+        }
 
-        bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent* pCharacterComponent, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation );
+        // Controller Settings
+        //-------------------------------------------------------------------------
+
+        inline void EnableGravity() { m_isGravityEnabled = true; }
+        inline void DisableGravity() { m_isGravityEnabled = false; }
+
+        bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation );
 
     private:
 
-        MoveResult SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent const* pCapsuleComponent, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx );
+        MoveResult SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx );
 
     public:
 
-        bool        m_isGravityEnable = true;
-        float       m_gravityAcceleration = 30.f;
-        Radians     m_wallSlideAngle = Radians( Degrees( 60 ) );
-        Radians     m_maxNavigableSlopeAngle = Radians( Degrees( 45 ) );
+        Physics::CharacterComponent*        m_pCharacterComponent = nullptr;
+        float                               m_gravitationalAcceleration = 30.f;
+        Radians                             m_wallSlideAngle = Radians( Degrees( 60 ) );
+        Radians                             m_maxNavigableSlopeAngle = Radians( Degrees( 45 ) );
+        bool                                m_isGravityEnabled = true;
     };
 }

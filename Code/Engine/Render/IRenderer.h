@@ -3,6 +3,7 @@
 #include "Engine/Render/_Module/API.h"
 #include "System/Core/Types/IntegralTypes.h"
 #include "System/Core/Algorithm/Hash.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 
@@ -35,8 +36,8 @@ namespace KRG::Render
         virtual uint32 GetRendererID() const = 0;
         virtual int32 GetPriority() const = 0;
 
-        virtual void RenderWorld( RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) {};
-        virtual void RenderViewport( RenderTarget const& target, Viewport const& viewport ) {};
+        virtual void RenderWorld( Seconds const deltaTime, RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) {};
+        virtual void RenderViewport( Seconds const deltaTime, RenderTarget const& target, Viewport const& viewport ) {};
     };
 }
 

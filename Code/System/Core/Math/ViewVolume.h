@@ -9,7 +9,7 @@
 
 namespace KRG
 {
-    namespace Debug { class DrawingContext; }
+    namespace Drawing { class DrawContext; }
 
     //-------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ namespace KRG
             //-------------------------------------------------------------------------
 
             #if KRG_DEVELOPMENT_TOOLS
-            void DrawDebug( Debug::DrawingContext& drawingContext ) const;
+            void DrawDebug( Drawing::DrawContext& drawingContext ) const;
             #endif
 
         private:

@@ -6,7 +6,7 @@
 
 namespace KRG::Animation::Graph
 {
-    void Tools_StateBaseNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_StateBaseNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         // State events
         //-------------------------------------------------------------------------

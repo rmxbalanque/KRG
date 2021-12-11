@@ -7,7 +7,7 @@
 #include "Engine/Core/Entity/EntityWorldManager.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/TypeSystem/TypeRegistry.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 #include "System/Core/Systems/SystemRegistry.h"
 
 //-------------------------------------------------------------------------

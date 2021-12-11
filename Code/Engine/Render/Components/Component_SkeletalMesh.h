@@ -57,7 +57,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        void DrawPose( Debug::DrawingContext& drawingContext ) const;
+        void DrawPose( Drawing::DrawContext& drawingContext ) const;
         #endif
 
     protected:

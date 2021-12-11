@@ -173,7 +173,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void GraphView::StateMachineGraphView::DrawExtraInformation( GraphEditor::DrawingContext const& ctx )
+    void GraphView::StateMachineGraphView::DrawExtraInformation( GraphEditor::DrawContext const& ctx )
     {
         auto pToolsGraph = static_cast<StateMachineGraph*>( m_pGraph );
         auto pGlobalTransitionsNode = pToolsGraph->GetGlobalTransitionsNode();

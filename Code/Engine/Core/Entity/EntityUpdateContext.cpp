@@ -34,12 +34,12 @@ namespace KRG
     }
 
     #if KRG_DEVELOPMENT_TOOLS
-    Debug::DrawingContext EntityUpdateContext::GetDrawingContext() const
+    Drawing::DrawContext EntityUpdateContext::GetDrawingContext() const
     {
         return m_pWorld->m_debugDrawingSystem.GetDrawingContext();
     }
 
-    Debug::DrawingSystem* EntityUpdateContext::GetDebugDrawingSystem() const
+    Drawing::DrawingSystem* EntityUpdateContext::GetDebugDrawingSystem() const
     {
         return m_pWorld->GetDebugDrawingSystem();
     }

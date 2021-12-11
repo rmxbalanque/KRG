@@ -211,7 +211,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    void PhysicsRenderer::RenderWorld( Render::RenderTarget const& target, Render::Viewport const& viewport, EntityWorld* pWorld )
+    void PhysicsRenderer::RenderWorld( Seconds const deltaTime, Render::RenderTarget const& target, Render::Viewport const& viewport, EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();

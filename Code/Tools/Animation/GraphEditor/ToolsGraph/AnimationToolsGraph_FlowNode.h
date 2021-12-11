@@ -55,10 +55,10 @@ namespace KRG::Animation::Graph
         KRG_FORCE_INLINE void CreateInputPin( char const* pPinName, ValueType pinType ) { GraphEditor::Flow::Node::CreateInputPin( pPinName, (uint32) pinType ); }
         KRG_FORCE_INLINE void CreateOutputPin( char const* pPinName, ValueType pinType, bool allowMultipleOutputConnections = false ) { GraphEditor::Flow::Node::CreateOutputPin( pPinName, (uint32) pinType, allowMultipleOutputConnections ); }
 
-        virtual void DrawExtraControls( GraphEditor::DrawingContext const& ctx ) override;
+        virtual void DrawExtraControls( GraphEditor::DrawContext const& ctx ) override;
 
         // Draw any extra information about the node
-        virtual void DrawInfoText( GraphEditor::DrawingContext const& ctx ) {}
+        virtual void DrawInfoText( GraphEditor::DrawContext const& ctx ) {}
     };
 
     //-------------------------------------------------------------------------

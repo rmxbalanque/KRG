@@ -1,5 +1,5 @@
 #include "ViewVolume.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -260,7 +260,7 @@ namespace KRG::Math
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void ViewVolume::DrawDebug( Debug::DrawingContext& drawingContext ) const
+    void ViewVolume::DrawDebug( Drawing::DrawContext& drawingContext ) const
     {
         Vector corners[8];
         GetCorners( corners );

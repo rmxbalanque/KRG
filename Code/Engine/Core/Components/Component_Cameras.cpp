@@ -88,7 +88,7 @@ namespace KRG
         Vector const orbitTarget = parentTransform.GetTranslation() + parentTransform.RotateVector( m_orbitTargetOffset );
 
         Transform camWorldTransform = m_orbitTransform;
-        camWorldTransform.AddTranslationOffset( orbitTarget );
+        camWorldTransform.AddTranslation( orbitTarget );
         SetWorldTransform( camWorldTransform );
     }
 

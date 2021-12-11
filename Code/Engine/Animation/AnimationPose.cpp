@@ -1,5 +1,5 @@
 #include "AnimationPose.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -160,7 +160,7 @@ namespace KRG::Animation
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void Pose::DrawDebug( Debug::DrawingContext& ctx, Transform const& worldTransform ) const
+    void Pose::DrawDebug( Drawing::DrawContext& ctx, Transform const& worldTransform ) const
     {
         auto const& parentIndices = m_pSkeleton->GetParentBoneIndices();
 

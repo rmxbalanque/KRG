@@ -38,7 +38,7 @@ namespace KRG::Render
         cbuffers.clear();
 
         // Create VB and input binding
-        m_vertexBuffer.m_byteStride = sizeof( Float4 ) * 2;
+        m_vertexBuffer.m_byteStride = sizeof( float ) * 9;
         m_vertexBuffer.m_byteSize = m_vertexBuffer.m_byteStride * MaxPointsPerDrawCall;
         m_vertexBuffer.m_type = RenderBuffer::Type::Vertex;
         m_vertexBuffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
@@ -205,7 +205,7 @@ namespace KRG::Render
         cbuffers.clear();
 
         // Create VB and input binding
-        m_vertexBuffer.m_byteStride = sizeof( Float4 ) * 2;
+        m_vertexBuffer.m_byteStride = sizeof( float ) * 9;
         m_vertexBuffer.m_byteSize = m_vertexBuffer.m_byteStride * 2 * MaxLinesPerDrawCall;
         m_vertexBuffer.m_type = RenderBuffer::Type::Vertex;
         m_vertexBuffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
@@ -375,7 +375,7 @@ namespace KRG::Render
         cbuffers.clear();
 
         // Create vertex buffer
-        m_vertexBuffer.m_byteStride = sizeof( Float4 ) * 2;
+        m_vertexBuffer.m_byteStride = sizeof( float ) * 9;
         m_vertexBuffer.m_byteSize = m_vertexBuffer.m_byteStride * 3 * MaxTrianglesPerDrawCall;
         m_vertexBuffer.m_type = RenderBuffer::Type::Vertex;
         m_vertexBuffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
@@ -770,7 +770,7 @@ namespace KRG::Render
         return true;
     }
 
-    void DebugTextFontAtlas::GetGlyphsForString( uint32 fontIdx, String const& str, TInlineVector<int32, 100>& outGlyphIndices ) const
+    void DebugTextFontAtlas::GetGlyphsForString( uint32 fontIdx, InlineString<24> const& str, TInlineVector<int32, 100>& outGlyphIndices ) const
     {
         KRG_ASSERT( fontIdx < m_fonts.size() );
         auto const& fontInfo = m_fonts[fontIdx];
@@ -809,7 +809,7 @@ namespace KRG::Render
         int32 const spaceIdx = ' ' - glyphRange.m_start;
 
         int32 const strLen = (int32) strlen( pStr );
-        outGlyphIndices.reserve( (int32) ( strLen * 1.5f ) );
+        outGlyphIndices.reserve( Math::CeilingToInt( strLen * 1.5f ) );
 
         for ( int32 i = 0; i < strLen; i++ )
         {

@@ -19,7 +19,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void Tools_GraphNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_GraphNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         NodeIndex runtimeNodeIdx = InvalidIndex;
         auto pDebugContext = reinterpret_cast<DebugContext*>( ctx.m_pUserContext );

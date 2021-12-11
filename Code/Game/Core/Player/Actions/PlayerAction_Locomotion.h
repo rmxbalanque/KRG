@@ -19,14 +19,13 @@ namespace KRG::Player
 
     private:
 
+        virtual void DrawDebugUI() override;
+
+    private:
+
         EngineTimer                 m_timer;
         bool                        m_timerStarted = false;
 
-        Radians                     m_maxAngularSpeed = Radians( Degrees( 90 ) );   // radians
-        float                       m_maxSprintLinearSpeed = 6.5f;                 // meter/seconds
-        float                       m_maxWalkLinearSpeed = 5.0f;                   // meters/seconds
-        Seconds                     m_sprintThreshold = 1.0f;                       // seconds
-        float                       m_sprintStickAmplitude = 0.8f;                  // [0,1]
-        float                       m_sprintSpeedThreshold = 10.0f;                 // meters/seconds
+        float                       m_debugSpeed = 0.0f;
     };
 }

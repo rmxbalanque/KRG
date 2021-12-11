@@ -18,7 +18,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "Floats"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
-        virtual void DrawInfoText( GraphEditor::DrawingContext const& ctx ) override;
+        virtual void DrawInfoText( GraphEditor::DrawContext const& ctx ) override;
 
     public:
 
@@ -119,7 +119,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "Floats"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
-        virtual void DrawInfoText( GraphEditor::DrawingContext const& ctx ) override;
+        virtual void DrawInfoText( GraphEditor::DrawContext const& ctx ) override;
 
     private:
 
@@ -142,7 +142,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "Floats"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
         virtual NodeIndex Compile( ToolsGraphCompilationContext& context ) const override;
-        virtual void DrawInfoText( GraphEditor::DrawingContext const& ctx ) override;
+        virtual void DrawInfoText( GraphEditor::DrawContext const& ctx ) override;
 
     private:
 

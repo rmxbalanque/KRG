@@ -240,13 +240,13 @@
     <ClCompile Include="Types\Platform\Types_Win32.cpp">
       <Filter>Types\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\DebugDrawingSystem.cpp">
+    <ClCompile Include="Drawing\DebugDrawingSystem.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\DebugDrawingCommands.cpp">
+    <ClCompile Include="Drawing\DebugDrawingCommands.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\DebugDrawing.cpp">
+    <ClCompile Include="Drawing\DebugDrawing.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
     <ClCompile Include="Memory\Memory.cpp">
@@ -470,13 +470,13 @@
     <ClInclude Include="Types\UUID.h">
       <Filter>Types</Filter>
     </ClInclude>
-    <ClInclude Include="Debug\DebugDrawingSystem.h">
+    <ClInclude Include="Drawing\DebugDrawingSystem.h">
       <Filter>Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Debug\DebugDrawingCommands.h">
+    <ClInclude Include="Drawing\DebugDrawingCommands.h">
       <Filter>Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Debug\DebugDrawing.h">
+    <ClInclude Include="Drawing\DebugDrawing.h">
       <Filter>Debug</Filter>
     </ClInclude>
     <ClInclude Include="Memory\Memory.h">

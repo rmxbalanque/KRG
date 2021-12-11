@@ -9,8 +9,9 @@ namespace KRG::AI
 {
     BehaviorContext::~BehaviorContext()
     {
-        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pNavmeshSystem == nullptr && m_pPhysicsWorld == nullptr && m_pCharacterPhysicsController == nullptr );
-        KRG_ASSERT( m_pAIComponent == nullptr && m_pCharacterPhysicsComponent == nullptr && m_pAnimationController == nullptr );
+        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pNavmeshSystem == nullptr && m_pPhysicsWorld == nullptr );
+        KRG_ASSERT( m_pCharacter == nullptr && m_pCharacterController == nullptr );
+        KRG_ASSERT( m_pAIComponent == nullptr && m_pAnimationController == nullptr );
     }
 
     bool BehaviorContext::IsValid() const
@@ -20,7 +21,7 @@ namespace KRG::AI
             return false;
         }
 
-        if ( m_pCharacterPhysicsComponent == nullptr || !m_pCharacterPhysicsComponent->IsRootComponent() )
+        if ( m_pCharacter == nullptr || m_pCharacterController == nullptr || !m_pCharacter->IsRootComponent() )
         {
             return false;
         }
@@ -30,6 +31,6 @@ namespace KRG::AI
             return false;
         }
 
-        return m_pEntityUpdateContext != nullptr && m_pNavmeshSystem != nullptr && m_pPhysicsWorld != nullptr && m_pCharacterPhysicsController != nullptr;
+        return m_pEntityUpdateContext != nullptr && m_pNavmeshSystem != nullptr && m_pPhysicsWorld != nullptr;
     }
 }

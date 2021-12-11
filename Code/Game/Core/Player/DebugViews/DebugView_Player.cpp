@@ -242,7 +242,7 @@ namespace KRG::Player
         ImGui::SetNextWindowBgAlpha( 0.9f );
         if ( ImGui::Begin( "Player Physics States", &m_isPhysicsStateDebuggerWindowOpen ) )
         {
-            if ( pPlayerController->m_actionContext.m_pCharacterPhysicsController != nullptr )
+            if ( pPlayerController->m_actionContext.m_pCharacterController != nullptr )
             {
                 // TODO: Debug...
             }

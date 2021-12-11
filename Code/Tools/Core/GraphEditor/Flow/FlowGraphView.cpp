@@ -37,7 +37,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::DrawNodeTitle( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize )
+    void FlowGraphView::DrawNodeTitle( DrawContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize )
     {
         KRG_ASSERT( pNode != nullptr );
 
@@ -52,7 +52,7 @@ namespace KRG::GraphEditor
         newNodeSize.y += g_spacingBetweenTitleAndNodeContents;
     }
 
-    void FlowGraphView::DrawNodePins( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize )
+    void FlowGraphView::DrawNodePins( DrawContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize )
     {
         KRG_ASSERT( pNode != nullptr );
 
@@ -181,7 +181,7 @@ namespace KRG::GraphEditor
         newNodeSize.y += pinRectSize.y;
     }
 
-    void FlowGraphView::DrawNodeBackground( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize )
+    void FlowGraphView::DrawNodeBackground( DrawContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize )
     {
         KRG_ASSERT( pNode != nullptr );
 
@@ -205,7 +205,7 @@ namespace KRG::GraphEditor
         }
     }
 
-    void FlowGraphView::DrawNode( DrawingContext const& ctx, Flow::Node* pNode )
+    void FlowGraphView::DrawNode( DrawContext const& ctx, Flow::Node* pNode )
     {
         KRG_ASSERT( pNode != nullptr );
 
@@ -285,7 +285,7 @@ namespace KRG::GraphEditor
         {
             auto pWindow = ImGui::GetCurrentWindow();
 
-            DrawingContext drawingContext;
+            DrawContext drawingContext;
             drawingContext.m_pDrawList = ImGui::GetWindowDrawList();
             drawingContext.m_viewOffset = m_viewOffset;
             drawingContext.m_windowRect = pWindow->Rect();
@@ -372,7 +372,7 @@ namespace KRG::GraphEditor
         EndDrawCanvas();
     }
 
-    void FlowGraphView::HandleClicks( DrawingContext const& ctx )
+    void FlowGraphView::HandleClicks( DrawContext const& ctx )
     {
         if ( !ctx.IsMouseInViewWindow() )
         {
@@ -438,7 +438,7 @@ namespace KRG::GraphEditor
         }
     }
 
-    void FlowGraphView::HandleContextMenu( DrawingContext const& ctx )
+    void FlowGraphView::HandleContextMenu( DrawContext const& ctx )
     {
         if ( ctx.IsMouseInViewWindow() && ImGui::IsMouseReleased( ImGuiMouseButton_Right ) )
         {
@@ -473,7 +473,7 @@ namespace KRG::GraphEditor
         }
     }
 
-    void FlowGraphView::HandleDragging( DrawingContext const& ctx )
+    void FlowGraphView::HandleDragging( DrawContext const& ctx )
     {
         if ( !ctx.IsMouseInViewWindow() )
         {
@@ -605,14 +605,14 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::StartDraggingView( DrawingContext const& ctx )
+    void FlowGraphView::StartDraggingView( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::View;
         m_dragState.m_startValue = m_viewOffset;
     }
 
-    void FlowGraphView::OnDragView( DrawingContext const& ctx )
+    void FlowGraphView::OnDragView( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::View );
 
@@ -628,21 +628,21 @@ namespace KRG::GraphEditor
         m_viewOffset = m_dragState.m_startValue - mouseDragDelta;
     }
 
-    void FlowGraphView::StopDraggingView( DrawingContext const& ctx )
+    void FlowGraphView::StopDraggingView( DrawContext const& ctx )
     {
         m_dragState.Reset();
     }
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::StartDraggingSelection( DrawingContext const& ctx )
+    void FlowGraphView::StartDraggingSelection( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Selection;
         m_dragState.m_startValue = ImGui::GetMousePos();
     }
 
-    void FlowGraphView::OnDragSelection( DrawingContext const& ctx )
+    void FlowGraphView::OnDragSelection( DrawContext const& ctx )
     {
         if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
         {
@@ -654,7 +654,7 @@ namespace KRG::GraphEditor
         ctx.m_pDrawList->AddRect( m_dragState.m_startValue, ImGui::GetMousePos(), ImGuiX::Style::s_selectionBoxOutlineColor );
     }
 
-    void FlowGraphView::StopDraggingSelection( DrawingContext const& ctx )
+    void FlowGraphView::StopDraggingSelection( DrawContext const& ctx )
     {
         ImVec2 const mousePos = ImGui::GetMousePos();
         ImVec2 const min( Math::Min( m_dragState.m_startValue.x, mousePos.x ), Math::Min( m_dragState.m_startValue.y, mousePos.y ) );
@@ -677,7 +677,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::StartDraggingNode( DrawingContext const& ctx )
+    void FlowGraphView::StartDraggingNode( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Node;
@@ -685,7 +685,7 @@ namespace KRG::GraphEditor
         m_dragState.m_startValue = m_pHoveredNode->m_canvasPosition;
     }
 
-    void FlowGraphView::OnDragNode( DrawingContext const& ctx )
+    void FlowGraphView::OnDragNode( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::Node );
 
@@ -708,14 +708,14 @@ namespace KRG::GraphEditor
         }
     }
 
-    void FlowGraphView::StopDraggingNode( DrawingContext const& ctx )
+    void FlowGraphView::StopDraggingNode( DrawContext const& ctx )
     {
         m_dragState.Reset();
     }
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::StartDraggingConnection( DrawingContext const& ctx )
+    void FlowGraphView::StartDraggingConnection( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Connection;
@@ -724,7 +724,7 @@ namespace KRG::GraphEditor
         m_dragState.m_pDraggedPin = m_pHoveredPin;
     }
 
-    void FlowGraphView::OnDragConnection( DrawingContext const& ctx )
+    void FlowGraphView::OnDragConnection( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::Connection );
 
@@ -772,7 +772,7 @@ namespace KRG::GraphEditor
         ctx.m_pDrawList->AddBezierCubic( p1, p1 + ImVec2( +50, 0 ), p2 + ImVec2( -50, 0 ), p2, connectionColor, 3.0f );
     }
 
-    void FlowGraphView::StopDraggingConnection( DrawingContext const& ctx )
+    void FlowGraphView::StopDraggingConnection( DrawContext const& ctx )
     {
         if ( m_pHoveredPin != nullptr && m_pHoveredPin->m_direction != m_dragState.m_pDraggedPin->m_direction )
         {

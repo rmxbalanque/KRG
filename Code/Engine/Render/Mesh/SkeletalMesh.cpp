@@ -1,5 +1,5 @@
 #include "SkeletalMesh.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ namespace KRG::Render
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void SkeletalMesh::DrawBindPose( Debug::DrawingContext& drawingContext, Transform const& worldTransform ) const
+    void SkeletalMesh::DrawBindPose( Drawing::DrawContext& drawingContext, Transform const& worldTransform ) const
     {
         auto const numBones = GetNumBones();
 

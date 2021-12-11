@@ -1438,7 +1438,7 @@ private:
 		inline void add(N* node)
 		{
 #ifdef MCDBGQ_NOLOCKFREE_FREELIST
-			debug::DebugLock lock(mutex);
+			Drawing::DebugLock lock(mutex);
 #endif		
 			// We know that the should-be-on-freelist bit is 0 at this point, so it's safe to
 			// set it using a fetch_add
@@ -1452,7 +1452,7 @@ private:
 		inline N* try_get()
 		{
 #ifdef MCDBGQ_NOLOCKFREE_FREELIST
-			debug::DebugLock lock(mutex);
+			Drawing::DebugLock lock(mutex);
 #endif		
 			auto head = freeListHead.load(std::memory_order_acquire);
 			while (head != nullptr) {
@@ -1524,7 +1524,7 @@ private:
 	static const std::uint32_t SHOULD_BE_ON_FREELIST = 0x80000000;
 		
 #ifdef MCDBGQ_NOLOCKFREE_FREELIST
-		debug::DebugMutex mutex;
+		Drawing::DebugMutex mutex;
 #endif
 	};
 	
@@ -2481,7 +2481,7 @@ private:
 					return false;
 				}
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODBLOCKINDEX
-				debug::DebugLock lock(mutex);
+				Drawing::DebugLock lock(mutex);
 #endif
 				// Find out where we'll be inserting this block in the block index
 				BlockIndexEntry* idxEntry;
@@ -2557,7 +2557,7 @@ private:
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODBLOCKINDEX
 						// Note: Acquiring the mutex with every dequeue instead of only when a block
 						// is released is very sub-optimal, but it is, after all, purely debug code.
-						debug::DebugLock lock(producer->mutex);
+						Drawing::DebugLock lock(producer->mutex);
 #endif
 						struct Guard {
 							Block* block;
@@ -2584,7 +2584,7 @@ private:
 						if (block->ConcurrentQueue::Block::template set_empty<implicit_context>(index)) {
 							{
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODBLOCKINDEX
-								debug::DebugLock lock(mutex);
+								Drawing::DebugLock lock(mutex);
 #endif
 								// Add the block back into the global free pool (and remove from block index)
 								entry->value.store(nullptr, std::memory_order_relaxed);
@@ -2629,7 +2629,7 @@ private:
 			index_t currentTailIndex = (startTailIndex - 1) & ~static_cast<index_t>(BLOCK_SIZE - 1);
 			if (blockBaseDiff > 0) {
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODBLOCKINDEX
-				debug::DebugLock lock(mutex);
+				Drawing::DebugLock lock(mutex);
 #endif
 				do {
 					blockBaseDiff -= static_cast<index_t>(BLOCK_SIZE);
@@ -2824,7 +2824,7 @@ private:
 									
 									if (block->ConcurrentQueue::Block::template set_many_empty<implicit_context>(blockStartIndex, static_cast<size_t>(endIndex - blockStartIndex))) {
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODBLOCKINDEX
-										debug::DebugLock lock(mutex);
+										Drawing::DebugLock lock(mutex);
 #endif
 										entry->value.store(nullptr, std::memory_order_relaxed);
 										this->parent->add_block_to_free_list(block);
@@ -2842,7 +2842,7 @@ private:
 						if (block->ConcurrentQueue::Block::template set_many_empty<implicit_context>(blockStartIndex, static_cast<size_t>(endIndex - blockStartIndex))) {
 							{
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODBLOCKINDEX
-								debug::DebugLock lock(mutex);
+								Drawing::DebugLock lock(mutex);
 #endif
 								// Note that the set_many_empty above did a release, meaning that anybody who acquires the block
 								// we're about to free can use it safely since our writes (and reads!) will have happened-before then.
@@ -2931,7 +2931,7 @@ private:
 		inline size_t get_block_index_index_for_index(index_t index, BlockIndexHeader*& localBlockIndex) const
 		{
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODBLOCKINDEX
-			debug::DebugLock lock(mutex);
+			Drawing::DebugLock lock(mutex);
 #endif
 			index &= ~static_cast<index_t>(BLOCK_SIZE - 1);
 			localBlockIndex = blockIndex.load(std::memory_order_acquire);
@@ -3007,7 +3007,7 @@ private:
 #endif
 
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODBLOCKINDEX
-		mutable debug::DebugMutex mutex;
+		mutable Drawing::DebugMutex mutex;
 #endif
 #ifdef MCDBGQ_TRACKMEM
 		friend struct MemStats;
@@ -3211,7 +3211,7 @@ private:
 	ProducerBase* recycle_or_create_producer(bool isExplicit, bool& recycled)
 	{
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODHASH
-		debug::DebugLock lock(implicitProdMutex);
+		Drawing::DebugLock lock(implicitProdMutex);
 #endif
 		// Try to re-use one first
 		for (auto ptr = producerListTail.load(std::memory_order_acquire); ptr != nullptr; ptr = ptr->next_prod()) {
@@ -3384,7 +3384,7 @@ private:
 		// Code and algorithm adapted from http://preshing.com/20130605/the-worlds-simplest-lock-free-hash-table
 		
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODHASH
-		debug::DebugLock lock(implicitProdMutex);
+		Drawing::DebugLock lock(implicitProdMutex);
 #endif
 		
 		auto id = details::thread_id();
@@ -3531,7 +3531,7 @@ private:
 		
 		// Remove from hash
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODHASH
-		debug::DebugLock lock(implicitProdMutex);
+		Drawing::DebugLock lock(implicitProdMutex);
 #endif
 		auto hash = implicitProducerHash.load(std::memory_order_acquire);
 		assert(hash != nullptr);		// The thread exit listener is only registered if we were added to a hash in the first place
@@ -3652,7 +3652,7 @@ private:
 #ifndef MCDBGQ_USEDEBUGFREELIST
 	FreeList<Block> freeList;
 #else
-	debug::DebugFreeList<Block> freeList;
+	Drawing::DebugFreeList<Block> freeList;
 #endif
 	
 	std::atomic<ImplicitProducerHash*> implicitProducerHash;
@@ -3665,7 +3665,7 @@ private:
 	std::atomic<std::uint32_t> globalExplicitConsumerOffset;
 	
 #ifdef MCDBGQ_NOLOCKFREE_IMPLICITPRODHASH
-	debug::DebugMutex implicitProdMutex;
+	Drawing::DebugMutex implicitProdMutex;
 #endif
 	
 #ifdef MOODYCAMEL_QUEUE_INTERNAL_DEBUG

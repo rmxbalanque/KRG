@@ -82,7 +82,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_TargetInfoNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    void Tools_TargetInfoNode::DrawInfoText( GraphEditor::DrawContext const& ctx )
     {
         InlineString<150> infoText;
         

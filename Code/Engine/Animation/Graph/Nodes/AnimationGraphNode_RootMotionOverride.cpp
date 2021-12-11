@@ -117,17 +117,17 @@ namespace KRG::Animation::Graph
         bool isFacingModificationAllowed = ( m_pDesiredFacingDirectionNode != nullptr ) && pSettings->m_overrideFlags.AreAnyFlagsSet( OverrideFlags::FacingX, OverrideFlags::FacingY, OverrideFlags::FacingZ );
         if ( isFacingModificationAllowed )
         {
-            Vector desiredFacing = m_pDesiredFacingDirectionNode->GetValue<Vector>( context );
-            desiredFacing.m_x = pSettings->m_overrideFlags.IsFlagSet( OverrideFlags::FacingX ) ? desiredFacing.m_x * context.m_deltaTime : 0;
-            desiredFacing.m_y = pSettings->m_overrideFlags.IsFlagSet( OverrideFlags::FacingY ) ? desiredFacing.m_y * context.m_deltaTime : 0;
-            desiredFacing.m_z = pSettings->m_overrideFlags.IsFlagSet( OverrideFlags::FacingZ ) ? desiredFacing.m_z * context.m_deltaTime : 0;
+            Vector desiredFacingCS = m_pDesiredFacingDirectionNode->GetValue<Vector>( context );
+            desiredFacingCS.m_x = pSettings->m_overrideFlags.IsFlagSet( OverrideFlags::FacingX ) ? desiredFacingCS.m_x * context.m_deltaTime : 0;
+            desiredFacingCS.m_y = pSettings->m_overrideFlags.IsFlagSet( OverrideFlags::FacingY ) ? desiredFacingCS.m_y * context.m_deltaTime : 0;
+            desiredFacingCS.m_z = pSettings->m_overrideFlags.IsFlagSet( OverrideFlags::FacingZ ) ? desiredFacingCS.m_z * context.m_deltaTime : 0;
 
-            if ( !desiredFacing.IsNearZero3() )
+            if ( !desiredFacingCS.IsNearZero3() )
             {
-                desiredFacing.Normalize3();
+                desiredFacingCS.Normalize3();
 
                 // Get the total delta rotation between our current facing and the desired facing
-                Quaternion deltaRotation = Quaternion::FromRotationBetweenNormalizedVectors( Vector::WorldForward, desiredFacing );
+                Quaternion deltaRotation = Quaternion::LookAt( Vector::WorldForward, desiredFacingCS, Vector::UnitZ );
 
                 // Apply max angular velocity limit
                 float maxAngularVelocity = pSettings->m_maxAngularVelocity;

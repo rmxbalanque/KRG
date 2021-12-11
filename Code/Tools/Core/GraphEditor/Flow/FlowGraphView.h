@@ -53,36 +53,36 @@ namespace KRG::GraphEditor
         // Visuals
         //-------------------------------------------------------------------------
 
-        void DrawNode( DrawingContext const& ctx, Flow::Node* pNode );
-        void DrawNodeTitle( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
-        void DrawNodePins( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
-        void DrawNodeBackground( DrawingContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
+        void DrawNode( DrawContext const& ctx, Flow::Node* pNode );
+        void DrawNodeTitle( DrawContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
+        void DrawNodePins( DrawContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
+        void DrawNodeBackground( DrawContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize );
 
         // Events
         //-------------------------------------------------------------------------
 
-        void HandleClicks( DrawingContext const& ctx );
-        void HandleContextMenu( DrawingContext const& ctx );
-        void HandleDragging( DrawingContext const& ctx );
+        void HandleClicks( DrawContext const& ctx );
+        void HandleContextMenu( DrawContext const& ctx );
+        void HandleDragging( DrawContext const& ctx );
 
         // Dragging
         //-------------------------------------------------------------------------
 
-        virtual void StartDraggingView( DrawingContext const& ctx ) override;
-        virtual void OnDragView( DrawingContext const& ctx ) override;
-        virtual void StopDraggingView( DrawingContext const& ctx ) override;
+        virtual void StartDraggingView( DrawContext const& ctx ) override;
+        virtual void OnDragView( DrawContext const& ctx ) override;
+        virtual void StopDraggingView( DrawContext const& ctx ) override;
 
-        virtual void StartDraggingSelection( DrawingContext const& ctx ) override;
-        virtual void OnDragSelection( DrawingContext const& ctx ) override;
-        virtual void StopDraggingSelection( DrawingContext const& ctx ) override;
+        virtual void StartDraggingSelection( DrawContext const& ctx ) override;
+        virtual void OnDragSelection( DrawContext const& ctx ) override;
+        virtual void StopDraggingSelection( DrawContext const& ctx ) override;
 
-        virtual void StartDraggingNode( DrawingContext const& ctx ) override;
-        virtual void OnDragNode( DrawingContext const& ctx ) override;
-        virtual void StopDraggingNode( DrawingContext const& ctx ) override;
+        virtual void StartDraggingNode( DrawContext const& ctx ) override;
+        virtual void OnDragNode( DrawContext const& ctx ) override;
+        virtual void StopDraggingNode( DrawContext const& ctx ) override;
 
-        virtual void StartDraggingConnection( DrawingContext const& ctx ) override;
-        virtual void OnDragConnection( DrawingContext const& ctx ) override;
-        virtual void StopDraggingConnection( DrawingContext const& ctx ) override;
+        virtual void StartDraggingConnection( DrawContext const& ctx ) override;
+        virtual void OnDragConnection( DrawContext const& ctx ) override;
+        virtual void StopDraggingConnection( DrawContext const& ctx ) override;
 
         // Context Menus
         //-------------------------------------------------------------------------

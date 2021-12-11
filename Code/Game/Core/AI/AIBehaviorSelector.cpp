@@ -28,13 +28,14 @@ namespace KRG::AI
         KRG_ASSERT( m_actionContext.IsValid() );
 
         //-------------------------------------------------------------------------
-        // HACK HACK HACK
 
+        // HACK HACK HACK
         if ( m_pActiveBehavior == nullptr )
         {
             m_pActiveBehavior = m_behaviors.back();
             m_pActiveBehavior->Start( m_actionContext );
         }
+        // HACK HACK HACK
 
         //-------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Debug { class DrawingContext; }
+namespace KRG::Drawing { class DrawContext; }
 
 //-------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        void DrawDebug( Debug::DrawingContext& ctx, Transform const& worldTransform ) const;
+        void DrawDebug( Drawing::DrawContext& ctx, Transform const& worldTransform ) const;
         #endif
 
     private:

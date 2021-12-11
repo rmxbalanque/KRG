@@ -7,7 +7,7 @@
 #include "EntityMap.h"
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Types/Containers.h"
-#include "System/Core/Debug/DebugDrawingSystem.h"
+#include "System/Core/Drawing/DebugDrawingSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ namespace KRG
         void InitializeDebugViews( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> debugViewTypeInfos );
         void ShutdownDebugViews();
 
-        inline Debug::DrawingSystem* GetDebugDrawingSystem() { return &m_debugDrawingSystem; }
+        inline Drawing::DrawingSystem* GetDebugDrawingSystem() { return &m_debugDrawingSystem; }
         inline void ResetDebugDrawingSystem() { m_debugDrawingSystem.Reset(); }
         #endif
 
@@ -182,7 +182,7 @@ namespace KRG
 
         #if KRG_DEVELOPMENT_TOOLS
         THashMap<TypeSystem::TypeID, TVector<EntityComponent const*>>           m_componentTypeLookup;
-        Debug::DrawingSystem                                                    m_debugDrawingSystem;
+        Drawing::DrawingSystem                                                    m_debugDrawingSystem;
         TVector<EntityWorldDebugView*>                                          m_debugViews;
         #endif
     };

@@ -65,8 +65,8 @@ namespace KRG::Player
         Physics::PhysicsWorldSystem*                m_pPhysicsWorld = nullptr;
 
         MainPlayerComponent*                        m_pPlayerComponent = nullptr;
-        CharacterPhysicsController*                 m_pCharacterPhysicsController = nullptr;
-        Physics::CharacterComponent*                m_pCharacterPhysicsComponent = nullptr;
+        Physics::CharacterComponent*                m_pCharacterComponent = nullptr;
+        CharacterPhysicsController*                 m_pCharacterController = nullptr;
         CameraController*                           m_pCameraController = nullptr;
         Animation::GraphController*                 m_pAnimationController = nullptr;
         TInlineVector<EntityComponent*, 10>         m_components;

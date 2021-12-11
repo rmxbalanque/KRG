@@ -15,7 +15,10 @@ namespace KRG::AI
 {
     void AIController::Activate()
     {
-        m_behaviorContext.m_pCharacterPhysicsController = KRG::New<CharacterPhysicsController>();
+        if ( m_behaviorContext.m_pCharacter != nullptr )
+        {
+            m_behaviorContext.m_pCharacterController = KRG::New<CharacterPhysicsController>( m_behaviorContext.m_pCharacter );
+        }
 
         if ( m_pAnimGraphComponent != nullptr && m_pCharacterMeshComponent != nullptr )
         {
@@ -23,10 +26,10 @@ namespace KRG::AI
         }
     }
 
-    void AIController::Deactivate()
+    void AIController::Shutdown()
     {
-        KRG::Delete( m_behaviorContext.m_pAnimationController );
-        KRG::Delete( m_behaviorContext.m_pCharacterPhysicsController );
+        KRG_ASSERT( m_behaviorContext.m_pAnimationController == nullptr );
+        KRG_ASSERT( m_behaviorContext.m_pCharacterController == nullptr );
     }
 
     //-------------------------------------------------------------------------
@@ -35,8 +38,8 @@ namespace KRG::AI
     {
         if ( auto pCharacterComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_behaviorContext.m_pCharacterPhysicsComponent == nullptr );
-            m_behaviorContext.m_pCharacterPhysicsComponent = pCharacterComponent;
+            KRG_ASSERT( m_behaviorContext.m_pCharacter == nullptr );
+            m_behaviorContext.m_pCharacter = pCharacterComponent;
         }
 
         else if ( auto pAIComponent = TryCast<AIComponent>( pComponent ) )
@@ -53,7 +56,7 @@ namespace KRG::AI
 
         else if ( auto pGraphComponent = TryCast<Animation::AnimationGraphComponent>( pComponent ) )
         {
-            // We only support one component atm - animgraph comps are not singletons
+            // We only support one component ATM - animation graph comps are not singletons
             KRG_ASSERT( m_pAnimGraphComponent == nullptr );
             m_pAnimGraphComponent = pGraphComponent;
         }
@@ -71,8 +74,10 @@ namespace KRG::AI
 
         if ( auto pCharacterComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_behaviorContext.m_pCharacterPhysicsComponent == pCharacterComponent );
-            m_behaviorContext.m_pCharacterPhysicsComponent = nullptr;
+            KRG_ASSERT( m_behaviorContext.m_pCharacter == pCharacterComponent );
+            m_behaviorContext.m_pCharacter = nullptr;
+
+            KRG::Delete( m_behaviorContext.m_pCharacterController );
         }
 
         else if ( auto pAIComponent = TryCast<AIComponent>( pComponent ) )
@@ -85,13 +90,16 @@ namespace KRG::AI
         {
             KRG_ASSERT( m_pCharacterMeshComponent != nullptr );
             m_pCharacterMeshComponent = nullptr;
+
+            KRG::Delete( m_behaviorContext.m_pAnimationController );
         }
 
         else if ( auto pGraphComponent = TryCast<Animation::AnimationGraphComponent>( pComponent ) )
         {
-            // We only support one component atm - animgraph comps are not singletons
             KRG_ASSERT( m_pAnimGraphComponent != nullptr );
             m_pAnimGraphComponent = nullptr;
+
+            KRG::Delete( m_behaviorContext.m_pAnimationController );
         }
     }
 
@@ -115,13 +123,14 @@ namespace KRG::AI
         {
             m_behaviorSelector.Update();
 
-            // Update animation and get root motion delta
+            // Update animation and get root motion delta (remember that root motion is in character space, so we need to convert the displacement to world space)
             m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform() );
-            //Vector const& deltaTranslation = m_actionContext.m_pCharacterPhysicsComponent->m_deltaTranslationHACK; // m_actionContext.m_pGraphComponent->GetRootMotionDelta().GetTranslation();
-            //Quaternion const& deltaRotation = m_actionContext.m_pCharacterPhysicsComponent->m_deltaRotationHACK; // m_actionContext.m_pGraphComponent->GetRootMotionDelta().GetRotation();
+            Vector const& deltaTranslation = m_pCharacterMeshComponent->GetWorldTransform().RotateVector( m_pAnimGraphComponent->GetRootMotionDelta().GetTranslation() );
+            Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
-            //m_actionContext.m_pPhysicsController->GetActivePhysicsState()->TryMoveCapsule( m_actionContext.m_pPhysicsWorld, m_actionContext.m_pCharacterPhysicsComponent, ctx.GetDeltaTime(), deltaTranslation, deltaRotation );
+            m_behaviorContext.m_pCharacterController->TryMoveCapsule( m_behaviorContext.m_pPhysicsWorld, ctx.GetDeltaTime(), deltaTranslation, deltaRotation );
+
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {

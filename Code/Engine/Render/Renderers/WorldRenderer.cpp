@@ -731,7 +731,7 @@ namespace KRG::Render
         }
     }
 
-    void WorldRenderer::RenderWorld( RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld )
+    void WorldRenderer::RenderWorld( Seconds const deltaTime, RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();

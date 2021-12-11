@@ -7,10 +7,20 @@
 
 namespace KRG::AI
 {
-    bool CharacterPhysicsController::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent* pCharacterComponent, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation )
+    bool CharacterPhysicsController::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation )
     {
-        Transform const newTransform = Transform( deltaRotation, deltaTranslation ) * pCharacterComponent->GetWorldTransform();
-        pCharacterComponent->MoveCharacter( deltaTime, newTransform );
+        Transform newTransform = m_pCharacterComponent->GetWorldTransform();
+        newTransform.AddTranslation( deltaTranslation );
+
+        auto oq = m_pCharacterComponent->GetOrientation();
+        Vector oup = Transform( oq ).GetUpVector();
+
+        newTransform.AddRotation( deltaRotation );
+        
+        Vector nup = newTransform.GetUpVector();
+        KRG_ASSERT( Vector::Dot3( nup, Vector::UnitZ ).ToFloat() > 0 );
+        
+        m_pCharacterComponent->MoveCharacter( deltaTime, newTransform );
         return true;
     }
 }

@@ -38,7 +38,7 @@ namespace KRG::GraphEditor
     // Drawing Context
     //-------------------------------------------------------------------------
 
-    struct DrawingContext
+    struct DrawContext
     {
         KRG_FORCE_INLINE bool IsMouseInViewWindow() const
         {

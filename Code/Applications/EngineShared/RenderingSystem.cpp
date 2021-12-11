@@ -248,17 +248,17 @@ namespace KRG::Render
             // Draw
             //-------------------------------------------------------------------------
 
-            m_pWorldRenderer->RenderWorld( *mainRT, *pViewport, pWorld );
+            m_pWorldRenderer->RenderWorld( ctx.GetDeltaTime(), *mainRT, *pViewport, pWorld );
 
             for ( auto const& pCustomRenderer : m_customRenderers )
             {
-                pCustomRenderer->RenderWorld( *mainRT, *pViewport, pWorld );
-                pCustomRenderer->RenderViewport( *mainRT, *pViewport );
+                pCustomRenderer->RenderWorld( ctx.GetDeltaTime(), *mainRT, *pViewport, pWorld );
+                pCustomRenderer->RenderViewport( ctx.GetDeltaTime(), *mainRT, *pViewport );
             }
 
             #if KRG_DEVELOPMENT_TOOLS
-            m_pDebugRenderer->RenderWorld( *mainRT, *pViewport, pWorld );
-            m_pDebugRenderer->RenderViewport( *mainRT, *pViewport );
+            m_pDebugRenderer->RenderWorld( ctx.GetDeltaTime(), *mainRT, *pViewport, pWorld );
+            m_pDebugRenderer->RenderViewport( ctx.GetDeltaTime(), *mainRT, *pViewport );
             #endif
         }
 
@@ -268,7 +268,7 @@ namespace KRG::Render
         #if KRG_DEVELOPMENT_TOOLS
         if ( m_pImguiRenderer != nullptr )
         {
-            m_pImguiRenderer->RenderViewport( m_pRenderDevice->GetPrimaryWindowRenderTarget(), m_toolsViewport );
+            m_pImguiRenderer->RenderViewport( ctx.GetDeltaTime(), m_pRenderDevice->GetPrimaryWindowRenderTarget(), m_toolsViewport );
         }
         #endif
 

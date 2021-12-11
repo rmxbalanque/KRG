@@ -30,7 +30,7 @@ namespace KRG::Player
     private:
 
         virtual void Activate() override;
-        virtual void Deactivate() override;
+        virtual void Shutdown() override;
 
         virtual void RegisterComponent( EntityComponent* pComponent ) override;
         virtual void UnregisterComponent( EntityComponent* pComponent ) override;

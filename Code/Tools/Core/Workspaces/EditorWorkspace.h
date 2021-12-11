@@ -3,7 +3,7 @@
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Resource/ResourceID.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ namespace KRG
 
     protected:
 
-        inline Debug::DrawingContext GetDrawingContext();
+        inline Drawing::DrawContext GetDrawingContext();
         void SetDisplayName( String const& name );
 
         // Disable copies

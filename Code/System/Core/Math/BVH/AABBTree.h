@@ -7,7 +7,7 @@
 
 namespace KRG
 {
-    namespace Debug { class DrawingContext; }
+    namespace Drawing { class DrawContext; }
 
     //-------------------------------------------------------------------------
 
@@ -29,12 +29,12 @@ namespace KRG
 
                 AABB            m_bounds = AABB( Vector::Zero );
 
-                int32             m_leftNodeIdx = InvalidIndex;
-                int32             m_rightNodeIdx = InvalidIndex;
-                int32             m_parentNodeIdx = InvalidIndex;
-                float             m_volume = 0;
+                int32           m_leftNodeIdx = InvalidIndex;
+                int32           m_rightNodeIdx = InvalidIndex;
+                int32           m_parentNodeIdx = InvalidIndex;
+                float           m_volume = 0;
 
-                uint64             m_userData = 0xFFFFFFFFFFFFFFFF;
+                uint64          m_userData = 0xFFFFFFFFFFFFFFFF;
                 bool            m_isFree = true;
             };
 
@@ -59,7 +59,7 @@ namespace KRG
             }
 
             #if KRG_DEVELOPMENT_TOOLS
-            void DrawDebug( Debug::DrawingContext& drawingContext ) const;
+            void DrawDebug( Drawing::DrawContext& drawingContext ) const;
             #endif
 
         private:
@@ -75,15 +75,15 @@ namespace KRG
             void FindAllOverlappingLeafNodes( int32 currentNodeIdx, AABB const& queryBox, TVector<uint64>& outResults ) const;
 
             #if KRG_DEVELOPMENT_TOOLS
-            void DrawBranch( Debug::DrawingContext& drawingContext, int32 nodeIdx ) const;
-            void DrawLeaf( Debug::DrawingContext& drawingContext, int32 nodeIdx ) const;
+            void DrawBranch( Drawing::DrawContext& drawingContext, int32 nodeIdx ) const;
+            void DrawLeaf( Drawing::DrawContext& drawingContext, int32 nodeIdx ) const;
             #endif
 
         private:
 
-            TVector<Node>   m_nodes;
-            int32             m_rootNodeIdx = InvalidIndex;
-            int32             m_freeNodeIdx = 0;
+            TVector<Node>       m_nodes;
+            int32               m_rootNodeIdx = InvalidIndex;
+            int32               m_freeNodeIdx = 0;
         };
     }
 }

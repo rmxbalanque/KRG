@@ -298,7 +298,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        Debug::DrawingContext drawCtx = ctx.GetDrawingContext();
+        Drawing::DrawContext drawCtx = ctx.GetDrawingContext();
 
         if ( g_showStaticMeshBounds )
         {

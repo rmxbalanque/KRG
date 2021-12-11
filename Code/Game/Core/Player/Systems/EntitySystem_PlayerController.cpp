@@ -18,7 +18,10 @@ namespace KRG::Player
 {
     void PlayerController::Activate()
     {
-        m_actionContext.m_pCharacterPhysicsController = KRG::New<CharacterPhysicsController>();
+        if ( m_actionContext.m_pCharacterComponent != nullptr )
+        {
+            m_actionContext.m_pCharacterController = KRG::New<CharacterPhysicsController>( m_actionContext.m_pCharacterComponent );
+        }
 
         if ( m_pAnimGraphComponent != nullptr && m_pCharacterMeshComponent != nullptr )
         {
@@ -31,21 +34,21 @@ namespace KRG::Player
         }
     }
 
-    void PlayerController::Deactivate()
+    void PlayerController::Shutdown()
     {
-        KRG::Delete( m_actionContext.m_pCameraController );
-        KRG::Delete( m_actionContext.m_pAnimationController );
-        KRG::Delete( m_actionContext.m_pCharacterPhysicsController );
+        KRG_ASSERT( m_actionContext.m_pCameraController == nullptr );
+        KRG_ASSERT( m_actionContext.m_pAnimationController == nullptr );
+        KRG_ASSERT( m_actionContext.m_pCharacterController == nullptr );
     }
 
     //-------------------------------------------------------------------------
 
     void PlayerController::RegisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pCharacterComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
+        if ( auto pCharacterPhysicsComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pCharacterPhysicsComponent == nullptr );
-            m_actionContext.m_pCharacterPhysicsComponent = pCharacterComponent;
+            KRG_ASSERT( m_actionContext.m_pCharacterComponent == nullptr );
+            m_actionContext.m_pCharacterComponent = pCharacterPhysicsComponent;
         }
 
         else if ( auto pCameraComponent = TryCast<OrbitCameraComponent>( pComponent ) )
@@ -68,7 +71,7 @@ namespace KRG::Player
 
         else if ( auto pGraphComponent = TryCast<Animation::AnimationGraphComponent>( pComponent ) )
         {
-            // We only support one component atm - animgraph comps are not singletons
+            // We only support one component ATM - animation graph comps are not singletons
             KRG_ASSERT( m_pAnimGraphComponent == nullptr );
             m_pAnimGraphComponent = pGraphComponent;
         }
@@ -84,16 +87,20 @@ namespace KRG::Player
 
         //-------------------------------------------------------------------------
 
-        if ( auto pCharacterComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
+        if ( auto pCharacterPhysicsComponent = TryCast<Physics::CharacterComponent>( pComponent ) )
         {
-            KRG_ASSERT( m_actionContext.m_pCharacterPhysicsComponent == pCharacterComponent );
-            m_actionContext.m_pCharacterPhysicsComponent = nullptr;
+            KRG_ASSERT( m_actionContext.m_pCharacterComponent == pCharacterPhysicsComponent );
+            m_actionContext.m_pCharacterComponent = nullptr;
+
+            KRG::Delete( m_actionContext.m_pCharacterController );
         }
 
         else if ( auto pCameraComponent = TryCast<OrbitCameraComponent>( pComponent ) )
         {
             KRG_ASSERT( m_pCameraComponent == pCameraComponent );
             m_pCameraComponent = nullptr;
+
+            KRG::Delete( m_actionContext.m_pCameraController );
         }
 
         else if ( auto pPlayerComponent = TryCast<MainPlayerComponent>( pComponent ) )
@@ -106,6 +113,8 @@ namespace KRG::Player
         {
             KRG_ASSERT( m_pCharacterMeshComponent != nullptr );
             m_pCharacterMeshComponent = nullptr;
+
+            KRG::Delete( m_actionContext.m_pAnimationController );
         }
 
         else if ( auto pGraphComponent = TryCast<Animation::AnimationGraphComponent>( pComponent ) )
@@ -113,6 +122,8 @@ namespace KRG::Player
             // We only support one component atm - animgraph comps are not singletons
             KRG_ASSERT( m_pAnimGraphComponent != nullptr );
             m_pAnimGraphComponent = nullptr;
+
+            KRG::Delete( m_actionContext.m_pAnimationController );
         }
     }
 
@@ -146,7 +157,7 @@ namespace KRG::Player
             Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
-            m_actionContext.m_pCharacterPhysicsController->TryMoveCapsule( m_actionContext.m_pPhysicsWorld, m_actionContext.m_pCharacterPhysicsComponent, ctx.GetDeltaTime(), deltaTranslation, deltaRotation );
+            m_actionContext.m_pCharacterController->TryMoveCapsule( m_actionContext.m_pPhysicsWorld, ctx.GetDeltaTime(), deltaTranslation, deltaRotation );
 
             // Update camera position relative to new character position
             m_actionContext.m_pCameraController->FinalizeCamera();

@@ -8,7 +8,7 @@
 
 namespace KRG
 {
-    Debug::DrawingContext EditorWorkspace::GetDrawingContext()
+    Drawing::DrawContext EditorWorkspace::GetDrawingContext()
     {
         return m_pWorld->GetDebugDrawingSystem()->GetDrawingContext();
     }

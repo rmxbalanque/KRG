@@ -21,10 +21,11 @@ namespace KRG::Player
 
     private:
 
+        virtual void DrawDebugUI() override;
+
+    private:
+
         EngineTimer     m_timer;
         bool            m_isChargedJumpReady = false;
-
-        float           m_smallJumpVelocity = 4.0f;
-        float           m_bigJumpVelocity = 7.0f;
     };
 }

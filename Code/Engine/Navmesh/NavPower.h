@@ -3,11 +3,14 @@
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Memory/Memory.h"
-#include "System/Core/Debug/DebugDrawingSystem.h"
 #include "System/Core/Systems/ISystem.h"
 
 #include <bfxSystemSpace.h>
 #include <bfxPlannerSpace.h>
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Drawing { class DrawingSystem; }
 
 //-------------------------------------------------------------------------
 
@@ -73,7 +76,7 @@ namespace KRG::Navmesh
 
     public:
 
-        void SetDebugDrawingSystem( Debug::DrawingSystem* pDebugDrawingSystem )
+        void SetDebugDrawingSystem( Drawing::DrawingSystem* pDebugDrawingSystem )
         {
             m_pDebugDrawingSystem = pDebugDrawingSystem;
         }
@@ -88,42 +91,14 @@ namespace KRG::Navmesh
 
     private:
 
-        virtual void DrawLineList( bfx::LineSegment const* pLines, uint32 numLines, bfx::Color const& color ) override
-        {
-            auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-            for ( auto i = 0u; i < numLines; i++ )
-            {
-                bfx::LineSegment const& line = pLines[i];
-                ctx.DrawLine( FromBfx( line.m_v0 ), FromBfx( line.m_v1 ), FromBfx( color ), 1.0f, m_depthTestEnabled ? Debug::DepthTestState::On : Debug::DepthTestState::Off );
-            }
-        }
-
-        virtual void DrawTriList( bfx::Triangle const* pTris, uint32 numTris, bfx::Color const& color ) override
-        {
-            auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-            for ( auto i = 0u; i < numTris; i++ )
-            {
-                bfx::Triangle const& tri = pTris[i];
-                ctx.DrawTriangle( FromBfx( tri.m_v0 ), FromBfx( tri.m_v1 ), FromBfx( tri.m_v2 ), FromBfx( color ), m_depthTestEnabled ? Debug::DepthTestState::On : Debug::DepthTestState::Off );
-            }
-        }
-
-        virtual void DrawString( bfx::Color const& color, char const* str ) override
-        {
-            auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-            ctx.DrawText2D( m_statsPos, str, FromBfx( color ), Debug::TextSize::Small );
-            m_statsPos += Float2( 0, 15 );
-        }
-
-        virtual void DrawString( bfx::Color const& color, bfx::Vector3 const& pos, char const* str ) override
-        {
-            auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
-            ctx.DrawText3D( FromBfx( pos ), str, FromBfx( color ), Debug::TextSize::Small );
-        }
+        virtual void DrawLineList( bfx::LineSegment const* pLines, uint32 numLines, bfx::Color const& color ) override;
+        virtual void DrawTriList( bfx::Triangle const* pTris, uint32 numTris, bfx::Color const& color ) override;
+        virtual void DrawString( bfx::Color const& color, char const* str ) override;
+        virtual void DrawString( bfx::Color const& color, bfx::Vector3 const& pos, char const* str ) override;
 
     private:
 
-        Debug::DrawingSystem*                       m_pDebugDrawingSystem = nullptr;
+        Drawing::DrawingSystem*                     m_pDebugDrawingSystem = nullptr;
         Float2                                      m_statsPos = Float2::Zero;
         bool                                        m_depthTestEnabled = true;
     };

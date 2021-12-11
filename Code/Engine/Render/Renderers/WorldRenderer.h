@@ -105,7 +105,7 @@ namespace KRG::Render
         bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
 
-        virtual void RenderWorld( RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) override final;
+        virtual void RenderWorld( Seconds const deltaTime, RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) override final;
 
     private:
 

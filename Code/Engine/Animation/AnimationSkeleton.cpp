@@ -1,5 +1,5 @@
 #include "AnimationSkeleton.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ namespace KRG::Animation
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void Skeleton::DrawDebug( Debug::DrawingContext& ctx, Transform const& worldTransform ) const
+    void Skeleton::DrawDebug( Drawing::DrawContext& ctx, Transform const& worldTransform ) const
     {
         auto const numBones = m_localReferencePose.size();
         if ( numBones > 0 )

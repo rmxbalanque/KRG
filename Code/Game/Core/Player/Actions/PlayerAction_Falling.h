@@ -3,11 +3,6 @@
 #include "PlayerAction.h"
 
 //-------------------------------------------------------------------------
-namespace KRG::Physics
-{
-    class PhysicsWorldSystem;
-    class CharacterComponent;
-}
 
 namespace KRG::Player
 {
@@ -23,11 +18,8 @@ namespace KRG::Player
 
     private:
 
+        virtual void DrawDebugUI() override;
+
         bool ProbeForGround( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent const* pCapsuleComponent, Vector const& startPosition );
-
-    private:
-
-        Radians             m_maxAngularSpeed = Radians( Degrees( 90 ) );    // radians
-        float               m_maxLinearSpeed = 6.0f;                         // meters/seconds
     };
 }

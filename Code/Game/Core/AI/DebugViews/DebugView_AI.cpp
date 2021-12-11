@@ -41,9 +41,18 @@ namespace KRG::AI
 
     void AIDebugView::DrawMenu( EntityUpdateContext const& context )
     {
+        ImGui::Text( "Num AI: %u", m_pAIManager->m_AIs.size() );
+
         if ( ImGui::MenuItem( "Overview" ) )
         {
             m_isOverviewWindowOpen = true;
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( ImGui::Button( "Hack Spawn" ) )
+        {
+            m_pAIManager->TrySpawnAI( context );
         }
     }
 

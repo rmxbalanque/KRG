@@ -1,6 +1,6 @@
 #include "AABBTree.h"
 #include "System/Core/Types/Color.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -274,7 +274,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        void AABBTree::DrawDebug( Debug::DrawingContext& drawingContext ) const
+        void AABBTree::DrawDebug( Drawing::DrawContext& drawingContext ) const
         {
             if ( m_rootNodeIdx == InvalidIndex )
             {
@@ -293,11 +293,11 @@ namespace KRG
             }
         }
 
-        void AABBTree::DrawBranch( Debug::DrawingContext& drawingContext, int32 nodeIdx ) const
+        void AABBTree::DrawBranch( Drawing::DrawContext& drawingContext, int32 nodeIdx ) const
         {
             auto const& currentNode = m_nodes[nodeIdx];
             KRG_ASSERT( !currentNode.IsLeafNode() );
-            drawingContext.DrawWireBox( currentNode.m_bounds, Colors::Cyan, 1.0f, Debug::DepthTestState::On );
+            drawingContext.DrawWireBox( currentNode.m_bounds, Colors::Cyan, 1.0f, Drawing::DepthTestState::EnableDepthTest );
 
             // Left
             if ( m_nodes[currentNode.m_leftNodeIdx].IsLeafNode() )
@@ -320,10 +320,10 @@ namespace KRG
             }
         }
 
-        void AABBTree::DrawLeaf( Debug::DrawingContext& drawingContext, int32 nodeIdx ) const
+        void AABBTree::DrawLeaf( Drawing::DrawContext& drawingContext, int32 nodeIdx ) const
         {
             KRG_ASSERT( m_nodes[nodeIdx].IsLeafNode() );
-            drawingContext.DrawWireBox( m_nodes[nodeIdx].m_bounds, Colors::Lime, 2.0f, Debug::DepthTestState::On );
+            drawingContext.DrawWireBox( m_nodes[nodeIdx].m_bounds, Colors::Lime, 2.0f, Drawing::DepthTestState::EnableDepthTest );
         }
         #endif
     }

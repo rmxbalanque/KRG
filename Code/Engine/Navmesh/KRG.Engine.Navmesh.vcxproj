@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugViews\DebugView_Navmesh.cpp" />
+    <ClCompile Include="Navpower.cpp" />
     <ClCompile Include="Systems\WorldSystem_Navmesh.cpp" />
     <ClCompile Include="NavmeshData.cpp" />
     <ClCompile Include="ResourceLoaders\ResourceLoader_Navmesh.cpp" />

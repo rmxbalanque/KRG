@@ -50,7 +50,7 @@ namespace KRG::EntityModel
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) override;
-        virtual bool IsDirty() const override{ return false; } // TODO
+        virtual bool IsDirty() const override{ return true; } // TODO
         virtual bool Save() override;
 
         void SelectEntity( Entity* pEntity );

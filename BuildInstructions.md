@@ -3,9 +3,8 @@
 ## Building Kruger
 
 1. Open the KRG.sln
-2. Open the NavPower.props file (it's under the '6. Property Sheets' solution folder) and change this line: <NAVPOWER_INCLUDED>true</NAVPOWER_INCLUDED> to <NAVPOWER_INCLUDED>false</NAVPOWER_INCLUDED>
-3. Build "KRG.Scripts.Reflect" - this will generate all the kruger reflection data
-4. Build the "Application" solution folder - this will build all the applications needed for KRG to run.
+2. Build "KRG.Scripts.Reflect" - this will generate all the kruger reflection data
+3. Build the "Application" solution folder - this will build all the applications needed for KRG to run.
 
 ## Quick Start
 

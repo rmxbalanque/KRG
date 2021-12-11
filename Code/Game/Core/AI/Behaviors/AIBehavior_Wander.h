@@ -1,5 +1,6 @@
 #pragma once
 #include "AIBehavior.h"
+#include "Actions/AIAction_MoveTo.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,5 +17,9 @@ namespace KRG::AI
         virtual void StartInternal( BehaviorContext const& ctx ) override;
         virtual Status UpdateInternal( BehaviorContext const& ctx ) override;
         virtual void StopInternal( BehaviorContext const& ctx, StopReason reason ) override;
+
+    private:
+
+        MoveToAction    m_moveToAction;
     };
 }

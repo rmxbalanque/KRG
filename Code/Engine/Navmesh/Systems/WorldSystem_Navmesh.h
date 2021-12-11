@@ -44,6 +44,8 @@ namespace KRG::Navmesh
 
         KRG_FORCE_INLINE bfx::SpaceHandle GetSpaceHandle() const { return bfx::GetDefaultSpaceHandle( m_pInstance ); }
 
+        AABB GetNavmeshBounds( uint32 layerIdx ) const;
+
     private:
 
         virtual void InitializeSystem( SystemRegistry const& systemRegistry ) override;

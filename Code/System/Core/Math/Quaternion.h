@@ -18,17 +18,20 @@ namespace KRG
 
         static Quaternion const Identity;
 
-        // Calculate the rotation require to align the source vector to the target vector
+        // Calculate the rotation required to align the source vector to the target vector (shortest path)
         inline static Quaternion FromRotationBetweenNormalizedVectors( Vector const& sourceVector, Vector const& targetVector );
         
-        // Calculate the rotation require to align the source vector to the target vector
+        // Calculate the rotation required to align the source vector to the target vector (shortest path)
         KRG_FORCE_INLINE static Quaternion FromRotationBetweenVectors( Vector const& sourceVector, Vector const& targetVector ) { return FromRotationBetweenNormalizedVectors( sourceVector.GetNormalized3(), targetVector.GetNormalized3() ); }
         
-        // // Calculate the rotation require to align the forward vector (-Y) to the target vector
+        // Calculate the rotation required to align the forward vector (-Y) to the target vector (shortest path)
         inline static Quaternion FromNormalizedOrientationVector( Vector const& targetVector ) { return FromRotationBetweenNormalizedVectors( Vector::WorldForward, targetVector ); }
 
-        // // Calculate the rotation require to align the forward vector (-Y) to the target vector
+        // Calculate the rotation required to align the forward vector (-Y) to the target vector (shortest path)
         inline static Quaternion FromOrientationVector( Vector const& targetVector ) { return FromRotationBetweenNormalizedVectors( Vector::WorldForward, targetVector.GetNormalized3() ); }
+
+        // Calculate the rotation required to align one vector onto another but also taking account an up vector
+        inline static Quaternion LookAt( Vector const& originalFrontVector, Vector const& desiredFrontVector, Vector const& upVector );
 
         inline static Quaternion NLerp( Quaternion const& from, Quaternion const& to, float t );
         inline static Quaternion SLerp( Quaternion const& from, Quaternion const& to, float t );
@@ -39,6 +42,7 @@ namespace KRG
 
         inline static Vector Dot( Quaternion const& q0, Quaternion const& q1 ) { return Vector::Dot4( q0.AsVector(), q1.AsVector() ); }
         inline static Radians Distance( Quaternion const& q0, Quaternion const& q1 );
+
     public:
 
         inline Quaternion() = default;
@@ -324,6 +328,21 @@ namespace KRG
         vResult = _mm_add_ps( vResult, Q2Y );
 
         return Quaternion( vResult );
+    }
+
+    inline Quaternion Quaternion::LookAt( Vector const& originalFrontVector, Vector const& desiredFrontVector, Vector const& upVector )
+    {
+        KRG_ASSERT( originalFrontVector.IsNormalized3() && desiredFrontVector.IsNormalized3() );
+
+        Vector rotationAxis = originalFrontVector.Cross3( desiredFrontVector ).GetNormalized3();
+        if ( rotationAxis.GetLengthSquared3() == 0 )
+        {
+            rotationAxis = upVector;
+        }
+
+        float const dot = originalFrontVector.GetDot3( desiredFrontVector );
+        float const angle = Math::ACos( dot );
+        return Quaternion( rotationAxis, angle );
     }
 
     //-------------------------------------------------------------------------

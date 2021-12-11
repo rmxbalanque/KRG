@@ -39,15 +39,6 @@ namespace KRG::Navmesh
             }
         };
 
-        auto CreateMoverCheckboxForFlag = [this] ( char const* pLabel, bfx::MoverDebugFlag flag )
-        {
-            bool isEnabled = bfx::GetGlobalDebugFlag( m_pNavmeshWorldSystem->m_pInstance, flag );
-            if ( ImGui::Checkbox( pLabel, &isEnabled ) )
-            {
-                bfx::SetGlobalDebugFlag( m_pNavmeshWorldSystem->m_pInstance, flag, isEnabled );
-            }
-        };
-
         //-------------------------------------------------------------------------
 
         bool isDrawingNavpowerStats = bfx::GetGlobalDebugFlag( m_pNavmeshWorldSystem->m_pInstance, bfx::BFX_DRAW_STATS );
@@ -80,29 +71,35 @@ namespace KRG::Navmesh
 
         //-------------------------------------------------------------------------
 
-        if ( ImGui::BeginMenu( "Movers" ) )
+        if ( ImGui::BeginMenu( "Obstacles" ) )
         {
-            CreateMoverCheckboxForFlag( "Draw Mover Cylinders", bfx::BFX_DRAW_MOVER_CYLINDERS );
-            CreateMoverCheckboxForFlag( "Draw Mover Goals", bfx::BFX_DRAW_MOVER_GOALS );
-            CreateMoverCheckboxForFlag( "Draw Mover Goals Reached", bfx::BFX_DRAW_MOVER_GOALS_REACHED );
-            CreateMoverCheckboxForFlag( "Draw Mover Debug Names", bfx::BFX_DRAW_MOVER_DEBUG_NAMES );
-            CreateMoverCheckboxForFlag( "Draw Mover State", bfx::BFX_DRAW_MOVER_STATE );
-            CreateMoverCheckboxForFlag( "Draw Mover Attractions", bfx::BFX_DRAW_MOVER_ATTRACTIONS );
-            CreateMoverCheckboxForFlag( "Draw Mover Client Motion", bfx::BFX_DRAW_CLIENT_MOTION );
-            CreateMoverCheckboxForFlag( "Draw Mover Splines", bfx::BFX_DRAW_SPLINE );
-            CreateMoverCheckboxForFlag( "Draw Mover Path Section", bfx::BFX_DRAW_CUR_PATH_SECTION );
-            CreateMoverCheckboxForFlag( "Draw Mover Follower Goals", bfx::BFX_DRAW_FOLLOWER_GOALS );
-            CreateMoverCheckboxForFlag( "Draw Mover Trails", bfx::BFX_DRAW_MOVER_TRAIL );
+            CreatePlannerCheckboxForFlag( "Draw Obstacles", bfx::BFX_DRAW_OBSTACLES );
+            CreatePlannerCheckboxForFlag( "Draw Obstacle Flags", bfx::BFX_DRAW_OBSTACLE_FLAGS );
 
             ImGui::EndMenu();
         }
 
         //-------------------------------------------------------------------------
 
-        if ( ImGui::BeginMenu( "Obstacles" ) )
+        if ( ImGui::BeginMenu( "Links" ) )
         {
-            CreatePlannerCheckboxForFlag( "Draw Obstacles", bfx::BFX_DRAW_OBSTACLES );
-            CreatePlannerCheckboxForFlag( "Draw Obstacle Flags", bfx::BFX_DRAW_OBSTACLE_FLAGS );
+            CreatePlannerCheckboxForFlag( "Draw line usage distances", bfx::BFX_DRAW_LINK_USAGE_DISTANCES );
+            CreatePlannerCheckboxForFlag( "Draw link usage flags", bfx::BFX_DRAW_LINK_USAGE_FLAGS );
+            CreatePlannerCheckboxForFlag( "Draw link user data", bfx::BFX_DRAW_LINK_USER_DATA );
+            CreatePlannerCheckboxForFlag( "Draw original link locations", bfx::BFX_DRAW_ORIGINAL_LINK_LOCATIONS );
+            CreatePlannerCheckboxForFlag( "Disable all link drawing", bfx::BFX_DISABLE_ALL_LINK_DRAWING );
+
+            ImGui::EndMenu();
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( ImGui::BeginMenu( "Queries" ) )
+        {
+            CreatePlannerCheckboxForFlag( "Draw Probes", bfx::BFX_DRAW_RECENT_NAVPROBES );
+            CreatePlannerCheckboxForFlag( "Draw Box Fit Queries", bfx::BFX_DRAW_RECENT_CHECKBOXFIT );
+            CreatePlannerCheckboxForFlag( "Draw Polyline Paths", bfx::BFX_DRAW_RECENT_CREATEPOLYLINEPATHS );
+            CreatePlannerCheckboxForFlag( "Draw Spline Paths", bfx::BFX_DRAW_RECENT_CREATESPLINEPATHS );
 
             ImGui::EndMenu();
         }

@@ -15,7 +15,7 @@ namespace KRG::Animation::Graph
         CreateInputPin( "Sync Event Override", ValueType::Float );
     }
 
-    void Tools_TransitionNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    void Tools_TransitionNode::DrawInfoText( GraphEditor::DrawContext const& ctx )
     {
         switch ( m_rootMotionBlend )
         {

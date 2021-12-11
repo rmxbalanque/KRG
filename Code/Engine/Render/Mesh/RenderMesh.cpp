@@ -13,7 +13,7 @@ namespace KRG::Render
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void Mesh::DrawNormals( Debug::DrawingContext& drawingContext, Transform const& worldTransform ) const
+    void Mesh::DrawNormals( Drawing::DrawContext& drawingContext, Transform const& worldTransform ) const
     {
         KRG_UNIMPLEMENTED_FUNCTION();
     }

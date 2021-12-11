@@ -23,7 +23,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_ConstBoolNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_ConstBoolNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         ImGui::Text( m_value ? "True" : "False" );
     }
@@ -46,7 +46,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_ConstIDNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_ConstIDNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         ImGui::Text( m_value.c_str() );
     }
@@ -69,7 +69,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_ConstIntNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_ConstIntNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         ImGui::Text( "%d", m_value );
     }
@@ -92,7 +92,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_ConstFloatNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_ConstFloatNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         ImGui::Text( "%.3f", m_value );
     }
@@ -115,7 +115,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_ConstVectorNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_ConstVectorNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         ImGui::Text( "X: %.2f, Y: %.2f, Z: %.2f, W: %.2f", m_value.m_x, m_value.m_y, m_value.m_z, m_value.m_w );
     }
@@ -138,7 +138,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_ConstTargetNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_ConstTargetNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         ImGui::Text( "Transform - TODO" );
     }

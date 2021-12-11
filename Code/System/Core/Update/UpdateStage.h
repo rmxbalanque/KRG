@@ -22,6 +22,8 @@ namespace KRG
         PostPhysics,
         FrameEnd,
 
+        Paused, // Special stage that runs only when the game is paused
+
         NumStages,
     };
 

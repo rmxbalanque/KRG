@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
         return dataNodes[0];
     }
 
-    void Tools_OffStateNode::DrawExtraControls( GraphEditor::DrawingContext const& ctx )
+    void Tools_OffStateNode::DrawExtraControls( GraphEditor::DrawContext const& ctx )
     {
         {
             ImGuiX::ScopedFont font( ImGuiX::Font::Large, Colors::Red );

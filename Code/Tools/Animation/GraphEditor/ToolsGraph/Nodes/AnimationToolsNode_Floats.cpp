@@ -45,7 +45,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_FloatRemapNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    void Tools_FloatRemapNode::DrawInfoText( GraphEditor::DrawContext const& ctx )
     {
         ImGui::Text( "[%.2f, %.2f] to [%.2f, %.2f]", m_inputRange.m_start, m_inputRange.m_end, m_outputRange.m_start, m_outputRange.m_end );
     }
@@ -273,7 +273,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_FloatComparisonNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    void Tools_FloatComparisonNode::DrawInfoText( GraphEditor::DrawContext const& ctx )
     {
         static char const* comparisionStr[] =
         {
@@ -329,7 +329,7 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    void Tools_FloatRangeComparisonNode::DrawInfoText( GraphEditor::DrawingContext const& ctx )
+    void Tools_FloatRangeComparisonNode::DrawInfoText( GraphEditor::DrawContext const& ctx )
     {
         if ( m_isInclusiveCheck )
         {

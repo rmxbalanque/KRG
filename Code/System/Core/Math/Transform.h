@@ -72,13 +72,14 @@ namespace KRG
 
         inline Quaternion const& GetRotation() const { return m_rotation; }
         inline void SetRotation( Quaternion const& rotation ) { KRG_ASSERT( rotation.IsNormalized() ); m_rotation = rotation; }
+        inline void AddRotation( Quaternion const& delta ) { m_rotation = delta * m_rotation; }
 
         // Translation
         //-------------------------------------------------------------------------
 
         inline Vector const& GetTranslation() const { return m_translation; }
         inline void SetTranslation( Vector const& translation ) { m_translation = translation.GetWithW0(); }
-        inline void AddTranslationOffset( Vector const& offset ) { m_translation += offset; }
+        inline void AddTranslation( Vector const& delta ) { m_translation += delta; }
 
         // Scale
         //-------------------------------------------------------------------------

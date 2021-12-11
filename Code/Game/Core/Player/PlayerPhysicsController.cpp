@@ -8,17 +8,17 @@
 
 namespace KRG::Player
 {
-    bool CharacterPhysicsController::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent* pCharacterComponent, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation )
+    bool CharacterPhysicsController::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation )
     {
         // Be careful that deltaTransform only rotate the Z axis !
 
-        Transform const capsuleWorldTransform = pCharacterComponent->GetCapsuleWorldTransform();
-        Vector const CurrentVelocity = pCharacterComponent->GetCharacterVelocity();
+        Transform const capsuleWorldTransform = m_pCharacterComponent->GetCapsuleWorldTransform();
+        Vector const CurrentVelocity = m_pCharacterComponent->GetCharacterVelocity();
 
         float VerticalSpeed = 0.0f;
-        if ( m_isGravityEnable )
+        if ( m_isGravityEnabled )
         {
-            VerticalSpeed += CurrentVelocity.m_z - ( m_gravityAcceleration * deltaTime );
+            VerticalSpeed += CurrentVelocity.m_z - ( m_gravitationalAcceleration * deltaTime );
         }
         Vector const deltaTranslationWithGravity = deltaTranslation + Vector( 0.f, 0.f, VerticalSpeed * deltaTime );
 
@@ -27,7 +27,7 @@ namespace KRG::Player
         pPhysicsWorld->AcquireReadLock();
 
         int32 recursion = 0;
-        auto MoveResult = SweepCapsule( pPhysicsWorld, pCharacterComponent, capsuleWorldTransform.GetTranslation(), deltaTranslationWithGravity, recursion );
+        auto MoveResult = SweepCapsule( pPhysicsWorld, capsuleWorldTransform.GetTranslation(), deltaTranslationWithGravity, recursion );
         pPhysicsWorld->ReleaseReadLock();
 
         //-------------------------------------------------------------------------
@@ -38,23 +38,23 @@ namespace KRG::Player
             Transform finalCapsuleWorldTransform = capsuleWorldTransform;
             finalCapsuleWorldTransform.SetTranslation( MoveResult.m_correctedPosition );
 
-            auto CharacterWorldTransform = pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalCapsuleWorldTransform );
+            auto CharacterWorldTransform = m_pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalCapsuleWorldTransform );
             CharacterWorldTransform.SetRotation( deltaRotation * CharacterWorldTransform.GetRotation() );
             // this is only needed since we don't want to account for the depenetration displacement in the velocity
-            pCharacterComponent->TeleportCharacter( CharacterWorldTransform );
+            m_pCharacterComponent->TeleportCharacter( CharacterWorldTransform );
         }
 
         Transform finalCapsuleWorldTransform = capsuleWorldTransform;
         finalCapsuleWorldTransform.SetTranslation( MoveResult.m_finalPosition );
 
-        auto CharacterWorldTransform = pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalCapsuleWorldTransform );
+        auto CharacterWorldTransform = m_pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalCapsuleWorldTransform );
         CharacterWorldTransform.SetRotation( deltaRotation * CharacterWorldTransform.GetRotation() );
-        pCharacterComponent->MoveCharacter( deltaTime, CharacterWorldTransform );
+        m_pCharacterComponent->MoveCharacter( deltaTime, CharacterWorldTransform );
 
         return true;
     }
 
-    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent const* pCapsuleComponent, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx )
+    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx )
     {
         MoveResult moveResult( startPosition );
         Idx++;
@@ -76,10 +76,10 @@ namespace KRG::Player
 
         Physics::QueryFilter filter;
         filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
-        filter.AddIgnoredEntity( pCapsuleComponent->GetEntityID() );
+        filter.AddIgnoredEntity( m_pCharacterComponent->GetEntityID() );
 
         Physics::SweepResults sweepResults;
-        if ( pPhysicsSystem->CapsuleSweep( pCapsuleComponent->GetCapsuleCylinderPortionHalfHeight(), pCapsuleComponent->GetCapsuleRadius(), pCapsuleComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
+        if ( pPhysicsSystem->CapsuleSweep( m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight(), m_pCharacterComponent->GetCapsuleRadius(), m_pCharacterComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
         {
             if ( sweepResults.hasBlock && sweepResults.block.hadInitialOverlap() )
             {
@@ -92,7 +92,7 @@ namespace KRG::Player
                 float const penetrationDistance = Math::Abs( sweepResults.block.distance ) + Math::HugeEpsilon;
                 Vector const correctedStartPosition = startPosition + ( normal * penetrationDistance );
 
-                auto const depenetratedResult = SweepCapsule( pPhysicsSystem, pCapsuleComponent, correctedStartPosition, deltaTranslation, Idx );
+                auto const depenetratedResult = SweepCapsule( pPhysicsSystem, correctedStartPosition, deltaTranslation, Idx );
                 moveResult.ApplyCorrectiveMove( depenetratedResult );
             }
             else
@@ -103,7 +103,7 @@ namespace KRG::Player
                 if ( moveDirection.GetLength2() == 0.f )
                 {
                     // Sweep down for collision
-                    adjustedDeltaTranslation = sweepResults.GetShapePosition() - pCapsuleComponent->GetPosition();
+                    adjustedDeltaTranslation = sweepResults.GetShapePosition() - m_pCharacterComponent->GetPosition();
                 }
                 else // 2D movement
                 {
@@ -136,7 +136,7 @@ namespace KRG::Player
                             newDeltaMovement.m_y *= ratio;
                         }
 
-                        auto const reprojectedResult = SweepCapsule( pPhysicsSystem, pCapsuleComponent, collisionPosition, newDeltaMovement, Idx );
+                        auto const reprojectedResult = SweepCapsule( pPhysicsSystem, collisionPosition, newDeltaMovement, Idx );
                         moveResult.ApplySubsequentMove( reprojectedResult );
                     }
                     // collision with a wall / unnavigable slope
@@ -163,7 +163,7 @@ namespace KRG::Player
                                 newDeltaMovement.m_y *= ratio;
                             }
 
-                            auto const reprojectedResult = SweepCapsule( pPhysicsSystem, pCapsuleComponent, collisionPosition, newDeltaMovement, Idx );
+                            auto const reprojectedResult = SweepCapsule( pPhysicsSystem, collisionPosition, newDeltaMovement, Idx );
                             moveResult.ApplySubsequentMove( reprojectedResult );
                         }
                         else

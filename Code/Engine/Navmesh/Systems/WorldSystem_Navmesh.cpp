@@ -147,4 +147,22 @@ namespace KRG::Navmesh
         }
         #endif
     }
+
+    AABB NavmeshWorldSystem::GetNavmeshBounds( uint32 layerIdx ) const
+    {
+        bfx::SpaceHandle spaceHandle = bfx::GetDefaultSpaceHandle( m_pInstance );
+
+        auto s = bfx::GetLayersLoaded( spaceHandle );
+
+        AABB bounds;
+
+        bfx::Vector3 center, extents;
+        if ( bfx::GetNavGraphBounds( spaceHandle, 1 << layerIdx, center, extents ) )
+        {
+            bounds.m_center = FromBfx( center );
+            bounds.m_extents = FromBfx( extents );
+        }
+
+        return bounds;
+    }
 }

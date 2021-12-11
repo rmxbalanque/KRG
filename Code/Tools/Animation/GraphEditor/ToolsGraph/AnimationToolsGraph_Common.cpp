@@ -99,7 +99,7 @@ namespace KRG::Animation::Graph
     constexpr static float const g_playbackBarHeight = 10;
     constexpr static float const g_playbackBarMarkerSize = 4;
 
-    void DrawPoseNodeDebugInfo( GraphEditor::DrawingContext const& ctx, float width, PoseNodeDebugInfo const& debugInfo )
+    void DrawPoseNodeDebugInfo( GraphEditor::DrawContext const& ctx, float width, PoseNodeDebugInfo const& debugInfo )
     {
         float const availableWidth = Math::Max( width, g_playbackBarMinimumWidth );
         ImVec2 const playbackBarSize = ImVec2( availableWidth, g_playbackBarHeight );
@@ -145,7 +145,7 @@ namespace KRG::Animation::Graph
         ImGui::Text( "Event: %d, %.1f%%", debugInfo.m_currentSyncTime.m_eventIdx, debugInfo.m_currentSyncTime.m_percentageThrough.ToFloat() * 100 );
     }
 
-    void DrawEmptyPoseNodeDebugInfo( GraphEditor::DrawingContext const& ctx, float width )
+    void DrawEmptyPoseNodeDebugInfo( GraphEditor::DrawContext const& ctx, float width )
     {
         float const availableWidth = Math::Max( width, g_playbackBarMinimumWidth );
         ImVec2 const playbackBarSize = ImVec2( availableWidth, g_playbackBarHeight );

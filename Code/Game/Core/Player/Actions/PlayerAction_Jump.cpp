@@ -11,11 +11,19 @@
 
 namespace KRG::Player
 {
+    static Radians  maxAngularSpeed = Radians( Degrees( 90 ) ); // radians/second
+    static float    maxAirControlSpeed = 6.0f;                  // meters/second
+    static float    smallJumpVelocity = 4.0f;                   // meters/second
+    static float    bigJumpVelocity = 7.0f;                     // meters/second
+    static Seconds  BigJumpHoldTime = 0.3f;                     // seconds
+
+    //-------------------------------------------------------------------------
+
     bool JumpAction::TryStartInternal( ActionContext const& ctx )
     {
         if( ctx.m_pInputSystem->GetControllerState()->WasReleased( Input::ControllerButton::FaceButtonDown ) )
         {
-            ctx.m_pCharacterPhysicsController->EnableGravity();
+            ctx.m_pCharacterController->EnableGravity();
             m_timer.Start();
             return true;
         }
@@ -25,7 +33,7 @@ namespace KRG::Player
             Seconds jumpHoldTime = 0.0f;
             if( ctx.m_pInputSystem->GetControllerState()->IsHeldDown( Input::ControllerButton::FaceButtonDown, &jumpHoldTime ) )
             {
-                if( jumpHoldTime > 0.3f )
+                if( jumpHoldTime > BigJumpHoldTime )
                 {
                     m_isChargedJumpReady = true;
                 }
@@ -37,7 +45,8 @@ namespace KRG::Player
 
     Action::Status JumpAction::UpdateInternal( ActionContext const& ctx )
     {
-        if ( m_timer.GetElapsedTimeSeconds() >= 0.1f )
+        // Hack for the launch duration this should be reading the animation for the end of the launch
+        if ( m_timer.GetElapsedTimeSeconds() >= 0.1f ) 
         {
             return Status::Completed;
         }
@@ -48,23 +57,22 @@ namespace KRG::Player
 
             // Calculate desired player displacement
             //-------------------------------------------------------------------------
-            Float2 movementInputs = pControllerState->GetLeftAnalogStickValue();
-
+            Vector const movementInputs = pControllerState->GetLeftAnalogStickValue();
             auto const& camFwd = ctx.m_pCameraController->GetCameraRelativeForwardVector2D();
             auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
 
             // Use last frame camera orientation
             Vector const forward = camFwd * movementInputs.m_y;
             Vector const right = camRight * movementInputs.m_x;
-            Vector desiredHeadingVelocity = ( forward + right ) * 6.0f;
+            Vector desiredHeadingVelocity = ( forward + right ) * maxAirControlSpeed;
 
             if( m_isChargedJumpReady )
             {
-                desiredHeadingVelocity += Vector( 0.f, 0.f, m_bigJumpVelocity );
+                desiredHeadingVelocity += Vector( 0.f, 0.f, bigJumpVelocity );
             }
             else
             {
-                desiredHeadingVelocity += Vector( 0.f, 0.f, m_smallJumpVelocity );
+                desiredHeadingVelocity += Vector( 0.f, 0.f, smallJumpVelocity );
             }
 
             // Run physic Prediction if required
@@ -84,5 +92,20 @@ namespace KRG::Player
     void JumpAction::StopInternal( ActionContext const& ctx, StopReason reason )
     {
 
+    }
+
+    void JumpAction::DrawDebugUI()
+    {
+        ImGui::Dummy( ImVec2( 0, 10 ) );
+        ImGui::Text( "Settings :" );
+        ImGui::Separator();
+
+        ImGui::Dummy( ImVec2( 0, 10 ) );
+        ImGui::Text( "Debug Values :" );
+        ImGui::Separator();
+
+        ImGui::Dummy( ImVec2( 0, 10 ) );
+        ImGui::Text( "Debug drawings :" );
+        ImGui::Separator();
     }
 }

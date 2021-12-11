@@ -30,7 +30,7 @@ namespace KRG::Render
 
         // Debug
         #if KRG_DEVELOPMENT_TOOLS
-        void DrawBindPose( Debug::DrawingContext& drawingContext, Transform const& worldTransform ) const;
+        void DrawBindPose( Drawing::DrawContext& drawingContext, Transform const& worldTransform ) const;
         #endif
 
     private:

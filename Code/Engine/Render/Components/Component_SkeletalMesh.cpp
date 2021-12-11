@@ -1,5 +1,5 @@
 #include "Component_SkeletalMesh.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 #include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
@@ -120,7 +120,7 @@ namespace KRG::Render
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void SkeletalMeshComponent::DrawPose( Debug::DrawingContext& drawingContext ) const
+    void SkeletalMeshComponent::DrawPose( Drawing::DrawContext& drawingContext ) const
     {
         KRG_ASSERT( IsInitialized() );
 

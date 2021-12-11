@@ -64,8 +64,8 @@ namespace KRG::AI
         Navmesh::NavmeshWorldSystem*                m_pNavmeshSystem = nullptr;
 
         AIComponent*                                m_pAIComponent = nullptr;
-        CharacterPhysicsController*                 m_pCharacterPhysicsController = nullptr;
-        Physics::CharacterComponent*                m_pCharacterPhysicsComponent = nullptr;
+        Physics::CharacterComponent*                m_pCharacter = nullptr;
+        CharacterPhysicsController*                 m_pCharacterController = nullptr;
         Animation::GraphController*                 m_pAnimationController = nullptr;
         TInlineVector<EntityComponent*, 10>         m_components;
     };

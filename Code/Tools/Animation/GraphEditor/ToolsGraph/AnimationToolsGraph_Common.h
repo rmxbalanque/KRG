@@ -6,7 +6,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::GraphEditor { struct DrawingContext; }
+namespace KRG::GraphEditor { struct DrawContext; }
 
 //-------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ namespace KRG::Animation
             THashMap<UUID, NodeIndex>       m_nodeIDtoIndexMap;
         };
 
-        void DrawPoseNodeDebugInfo( GraphEditor::DrawingContext const& ctx, float width, PoseNodeDebugInfo const& debugInfo );
-        void DrawEmptyPoseNodeDebugInfo( GraphEditor::DrawingContext const& ctx, float width );
+        void DrawPoseNodeDebugInfo( GraphEditor::DrawContext const& ctx, float width, PoseNodeDebugInfo const& debugInfo );
+        void DrawEmptyPoseNodeDebugInfo( GraphEditor::DrawContext const& ctx, float width );
     }
 }

@@ -35,7 +35,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void StateMachineGraphView::DrawNodeTitle( DrawingContext const& ctx, SM::Node* pNode, ImVec2& newNodeSize )
+    void StateMachineGraphView::DrawNodeTitle( DrawContext const& ctx, SM::Node* pNode, ImVec2& newNodeSize )
     {
         KRG_ASSERT( pNode != nullptr );
 
@@ -50,7 +50,7 @@ namespace KRG::GraphEditor
         newNodeSize.y += g_spacingBetweenTitleAndNodeContents;
     }
 
-    void StateMachineGraphView::DrawNodeBackground( DrawingContext const& ctx, SM::Node* pNode, ImVec2& newNodeSize )
+    void StateMachineGraphView::DrawNodeBackground( DrawContext const& ctx, SM::Node* pNode, ImVec2& newNodeSize )
     {
         KRG_ASSERT( pNode != nullptr );
 
@@ -104,7 +104,7 @@ namespace KRG::GraphEditor
         }
     }
 
-    void StateMachineGraphView::DrawNode( DrawingContext const& ctx, SM::Node* pNode )
+    void StateMachineGraphView::DrawNode( DrawContext const& ctx, SM::Node* pNode )
     {
         KRG_ASSERT( pNode != nullptr );
 
@@ -162,7 +162,7 @@ namespace KRG::GraphEditor
         endPoint = ImGuiX::GetClosestPointOnRect( endNodeRect, midPoint );
     }
 
-    void StateMachineGraphView::DrawTransitionConduit( DrawingContext const& ctx, SM::TransitionConduit* pTransition )
+    void StateMachineGraphView::DrawTransitionConduit( DrawContext const& ctx, SM::TransitionConduit* pTransition )
     {
         KRG_ASSERT( pTransition != nullptr );
         KRG_ASSERT( pTransition->m_startStateID.IsValid() && pTransition->m_endStateID.IsValid() );
@@ -226,7 +226,7 @@ namespace KRG::GraphEditor
             auto pWindow = ImGui::GetCurrentWindow();
             ImVec2 const mousePos = ImGui::GetMousePos();
 
-            DrawingContext drawingContext;
+            DrawContext drawingContext;
             drawingContext.m_pDrawList = ImGui::GetWindowDrawList();
             drawingContext.m_viewOffset = m_viewOffset;
             drawingContext.m_windowRect = pWindow->Rect();
@@ -291,7 +291,7 @@ namespace KRG::GraphEditor
         EndDrawCanvas();
     }
 
-    void StateMachineGraphView::HandleClicks( DrawingContext const& ctx )
+    void StateMachineGraphView::HandleClicks( DrawContext const& ctx )
     {
         if ( !ctx.IsMouseInViewWindow() )
         {
@@ -354,7 +354,7 @@ namespace KRG::GraphEditor
         }
     }
 
-    void StateMachineGraphView::HandleContextMenu( DrawingContext const& ctx )
+    void StateMachineGraphView::HandleContextMenu( DrawContext const& ctx )
     {
         if ( ctx.IsMouseInViewWindow() && ImGui::IsMouseReleased( ImGuiMouseButton_Right ) )
         {
@@ -388,7 +388,7 @@ namespace KRG::GraphEditor
         }
     }
 
-    void StateMachineGraphView::HandleDragging( DrawingContext const& ctx )
+    void StateMachineGraphView::HandleDragging( DrawContext const& ctx )
     {
         if ( !ctx.IsMouseInViewWindow() )
         {
@@ -500,14 +500,14 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void StateMachineGraphView::StartDraggingView( DrawingContext const& ctx )
+    void StateMachineGraphView::StartDraggingView( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::View;
         m_dragState.m_startValue = m_viewOffset;
     }
 
-    void StateMachineGraphView::OnDragView( DrawingContext const& ctx )
+    void StateMachineGraphView::OnDragView( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::View );
 
@@ -523,21 +523,21 @@ namespace KRG::GraphEditor
         m_viewOffset = m_dragState.m_startValue - mouseDragDelta;
     }
 
-    void StateMachineGraphView::StopDraggingView( DrawingContext const& ctx )
+    void StateMachineGraphView::StopDraggingView( DrawContext const& ctx )
     {
         m_dragState.Reset();
     }
 
     //-------------------------------------------------------------------------
 
-    void StateMachineGraphView::StartDraggingSelection( DrawingContext const& ctx )
+    void StateMachineGraphView::StartDraggingSelection( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Selection;
         m_dragState.m_startValue = ImGui::GetMousePos();
     }
 
-    void StateMachineGraphView::OnDragSelection( DrawingContext const& ctx )
+    void StateMachineGraphView::OnDragSelection( DrawContext const& ctx )
     {
         if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
         {
@@ -549,7 +549,7 @@ namespace KRG::GraphEditor
         ctx.m_pDrawList->AddRect( m_dragState.m_startValue, ImGui::GetMousePos(), ImGuiX::Style::s_selectionBoxOutlineColor );
     }
 
-    void StateMachineGraphView::StopDraggingSelection( DrawingContext const& ctx )
+    void StateMachineGraphView::StopDraggingSelection( DrawContext const& ctx )
     {
         ImVec2 const mousePos = ImGui::GetMousePos();
         ImVec2 const min( Math::Min( m_dragState.m_startValue.x, mousePos.x ), Math::Min( m_dragState.m_startValue.y, mousePos.y ) );
@@ -572,7 +572,7 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void StateMachineGraphView::StartDraggingNode( DrawingContext const& ctx )
+    void StateMachineGraphView::StartDraggingNode( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Node;
@@ -580,7 +580,7 @@ namespace KRG::GraphEditor
         m_dragState.m_startValue = m_pHoveredNode->m_canvasPosition;
     }
 
-    void StateMachineGraphView::OnDragNode( DrawingContext const& ctx )
+    void StateMachineGraphView::OnDragNode( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::Node );
 
@@ -603,14 +603,14 @@ namespace KRG::GraphEditor
         }
     }
 
-    void StateMachineGraphView::StopDraggingNode( DrawingContext const& ctx )
+    void StateMachineGraphView::StopDraggingNode( DrawContext const& ctx )
     {
         m_dragState.Reset();
     }
 
     //-------------------------------------------------------------------------
 
-    void StateMachineGraphView::StartDraggingConnection( DrawingContext const& ctx )
+    void StateMachineGraphView::StartDraggingConnection( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Connection;
@@ -618,7 +618,7 @@ namespace KRG::GraphEditor
         m_dragState.m_startValue = ctx.CanvasPositionToScreenPosition( m_pHoveredNode->GetCanvasPosition() );
     }
 
-    void StateMachineGraphView::OnDragConnection( DrawingContext const& ctx )
+    void StateMachineGraphView::OnDragConnection( DrawContext const& ctx )
     {
         KRG_ASSERT( m_dragState.m_mode == DragMode::Connection );
 
@@ -643,7 +643,7 @@ namespace KRG::GraphEditor
         ImGuiX::DrawArrow( ctx.m_pDrawList, ctx.CanvasPositionToScreenPosition( GetNodeCanvasRect( m_dragState.m_pNode ).GetCenter() ), ctx.m_mouseScreenPos, connectionColor, g_transitionArrowWidth );
     }
 
-    void StateMachineGraphView::StopDraggingConnection( DrawingContext const& ctx )
+    void StateMachineGraphView::StopDraggingConnection( DrawContext const& ctx )
     {
         auto pStartState = Cast<SM::State>( m_dragState.m_pNode );
         auto pEndState = TryCast<SM::State>( m_pHoveredNode );

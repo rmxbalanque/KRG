@@ -18,6 +18,16 @@ namespace KRG::AI
     {
     public:
 
-        bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Physics::CharacterComponent* pCharacterComponent, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation );
+        CharacterPhysicsController( Physics::CharacterComponent* pCharacterComponent )
+            : m_pCharacterComponent( pCharacterComponent )
+        {
+            KRG_ASSERT( m_pCharacterComponent != nullptr );
+        }
+
+        bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation );
+
+    public:
+
+        Physics::CharacterComponent*        m_pCharacterComponent = nullptr;
     };
 }

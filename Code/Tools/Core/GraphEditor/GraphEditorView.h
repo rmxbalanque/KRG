@@ -81,7 +81,7 @@ namespace KRG::GraphEditor
         void EndDrawCanvas();
 
         // User implementable function to draw any additional information needed in the graph (called after everything is drawn)
-        virtual void DrawExtraInformation( DrawingContext const& ctx ) {}
+        virtual void DrawExtraInformation( DrawContext const& ctx ) {}
     
         // Dragging
         //-------------------------------------------------------------------------
@@ -94,21 +94,21 @@ namespace KRG::GraphEditor
         inline bool IsDraggingNode() const { return GetDragMode() == DragMode::Node; }
         inline bool IsDraggingConnection() const { return GetDragMode() == DragMode::Connection; }
 
-        virtual void StartDraggingView( DrawingContext const& ctx ) = 0;
-        virtual void OnDragView( DrawingContext const& ctx ) = 0;
-        virtual void StopDraggingView( DrawingContext const& ctx ) = 0;
+        virtual void StartDraggingView( DrawContext const& ctx ) = 0;
+        virtual void OnDragView( DrawContext const& ctx ) = 0;
+        virtual void StopDraggingView( DrawContext const& ctx ) = 0;
 
-        virtual void StartDraggingSelection( DrawingContext const& ctx ) = 0;
-        virtual void OnDragSelection( DrawingContext const& ctx ) = 0;
-        virtual void StopDraggingSelection( DrawingContext const& ctx ) = 0;
+        virtual void StartDraggingSelection( DrawContext const& ctx ) = 0;
+        virtual void OnDragSelection( DrawContext const& ctx ) = 0;
+        virtual void StopDraggingSelection( DrawContext const& ctx ) = 0;
 
-        virtual void StartDraggingNode( DrawingContext const& ctx ) = 0;
-        virtual void OnDragNode( DrawingContext const& ctx ) = 0;
-        virtual void StopDraggingNode( DrawingContext const& ctx ) = 0;
+        virtual void StartDraggingNode( DrawContext const& ctx ) = 0;
+        virtual void OnDragNode( DrawContext const& ctx ) = 0;
+        virtual void StopDraggingNode( DrawContext const& ctx ) = 0;
 
-        virtual void StartDraggingConnection( DrawingContext const& ctx ) = 0;
-        virtual void OnDragConnection( DrawingContext const& ctx ) = 0;
-        virtual void StopDraggingConnection( DrawingContext const& ctx ) = 0;
+        virtual void StartDraggingConnection( DrawContext const& ctx ) = 0;
+        virtual void OnDragConnection( DrawContext const& ctx ) = 0;
+        virtual void StopDraggingConnection( DrawContext const& ctx ) = 0;
 
         // Selection
         //-------------------------------------------------------------------------

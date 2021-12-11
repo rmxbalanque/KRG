@@ -60,6 +60,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AI\Behaviors\Actions\AIAction_MoveTo.h" />
     <ClInclude Include="AI\Behaviors\AIBehavior.h" />
     <ClInclude Include="AI\AIPhysicsController.h" />
     <ClInclude Include="AI\Behaviors\AIBehavior_Wander.h" />
@@ -89,6 +90,7 @@
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AI\Behaviors\Actions\AIAction_MoveTo.cpp" />
     <ClCompile Include="AI\Behaviors\AIBehavior.cpp" />
     <ClCompile Include="AI\Behaviors\AIBehavior_Wander.cpp" />
     <ClCompile Include="AI\DebugViews\DebugView_AI.cpp" />

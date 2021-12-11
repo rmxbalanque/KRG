@@ -31,7 +31,7 @@ namespace KRG::AI
     private:
 
         EntityWorld const*              m_pWorld = nullptr;
-        AIManager const*                m_pAIManager = nullptr;
+        AIManager*                      m_pAIManager = nullptr;
         bool                            m_isOverviewWindowOpen = false;
     };
 }

@@ -10,10 +10,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Debug
-{
-    class DrawingContext;
-}
+namespace KRG::Drawing { class DrawContext; }
 
 //-------------------------------------------------------------------------
 // Base Mesh Data
@@ -78,7 +75,7 @@ namespace KRG::Render
 
         // Debug
         #if KRG_DEVELOPMENT_TOOLS
-        void DrawNormals( Debug::DrawingContext& drawingContext, Transform const& worldTransform ) const;
+        void DrawNormals( Drawing::DrawContext& drawingContext, Transform const& worldTransform ) const;
         #endif
 
     protected:

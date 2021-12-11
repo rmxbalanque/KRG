@@ -26,7 +26,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "State Machine"; }
         virtual bool IsUserCreatable() const override { return true; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree ); }
-        virtual void DrawInfoText( GraphEditor::DrawingContext const& ctx ) override;
+        virtual void DrawInfoText( GraphEditor::DrawContext const& ctx ) override;
 
     protected:
 

@@ -15,7 +15,6 @@ namespace KRG
         KRG_ASSERT( deltaTime >= 0 );
 
         // Update internal time
-        m_timeScale = 1.0f;
         m_deltaTime = deltaTime.ToSeconds();
         m_frameID++;
     }

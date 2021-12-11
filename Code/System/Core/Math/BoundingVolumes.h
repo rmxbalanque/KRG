@@ -97,6 +97,14 @@ namespace KRG
         inline void Reset() { m_center = Vector::Zero; m_extents = Vector::NegativeOne; }
         inline void Reset( Float3 center ) { m_center = center; m_extents = Vector::Zero; }
 
+        KRG_FORCE_INLINE Vector const& GetCenter() const { return m_center; }
+        KRG_FORCE_INLINE Vector const& GetExtents() const { return m_extents; }
+        KRG_FORCE_INLINE Vector GetMin() const { return m_center - m_extents; }
+        KRG_FORCE_INLINE Vector GetMax() const { return m_center + m_extents; }
+
+        KRG_FORCE_INLINE void GetCorners( Vector corners[8] ) const;
+        KRG_FORCE_INLINE float GetVolume() const;
+
         //-------------------------------------------------------------------------
 
         KRG_FORCE_INLINE void AddPoint( Vector const& point )
@@ -113,11 +121,6 @@ namespace KRG
             m_center = min + m_extents;
         }
 
-        //-------------------------------------------------------------------------
-
-        // Positioning
-        //-------------------------------------------------------------------------
-
         KRG_FORCE_INLINE void SetCenter( Vector const& newCenter ) { m_center = newCenter; }
 
         // Move the AABB by the amount in deltaVector
@@ -133,35 +136,28 @@ namespace KRG
             return result;
         }
 
-        //-------------------------------------------------------------------------
+        KRG_FORCE_INLINE void Shrink( Vector const& shrinkSize )
+        {
+            m_extents -= shrinkSize;
+        }
 
-        KRG_FORCE_INLINE Vector const& GetCenter() const { return m_center; }
-        KRG_FORCE_INLINE Vector const& GetExtents() const { return m_extents; }
-        KRG_FORCE_INLINE Vector GetMin() const { return m_center - m_extents; }
-        KRG_FORCE_INLINE Vector GetMax() const { return m_center + m_extents; }
-
-        KRG_FORCE_INLINE void GetCorners( Vector corners[8] ) const;
-        KRG_FORCE_INLINE float GetVolume() const;
+        KRG_FORCE_INLINE void Grow( Vector const& growSize )
+        {
+            m_extents += growSize;
+        }
 
         // Queries
         //-------------------------------------------------------------------------
 
         KRG_FORCE_INLINE bool ContainsPoint( Vector const& point ) const { return ( point - m_center ).Abs().IsLessThanEqual3( m_extents ); }
 
-        //-------------------------------------------------------------------------
-
-        KRG_FORCE_INLINE OverlapResult OverlapTest( AABB const& other ) const;
-        KRG_FORCE_INLINE bool Overlaps( AABB const& other ) const; // Fast overlap test
-
-        //-------------------------------------------------------------------------
-
+        OverlapResult OverlapTest( AABB const& other ) const;
         OverlapResult OverlapTest( Sphere const& sphere ) const;
-        KRG_FORCE_INLINE bool Overlaps( Sphere const& sphere ) const; // Fast overlap test
-
-        //-------------------------------------------------------------------------
-
         OverlapResult OverlapTest( OBB const& box ) const;
-        KRG_FORCE_INLINE bool Overlaps( OBB const& box ) const; // Fast overlap test
+        
+        KRG_FORCE_INLINE bool Overlaps( AABB const& other ) const;
+        KRG_FORCE_INLINE bool Overlaps( Sphere const& sphere ) const;
+        KRG_FORCE_INLINE bool Overlaps( OBB const& box ) const;
 
         //-------------------------------------------------------------------------
 

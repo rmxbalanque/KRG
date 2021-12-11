@@ -3,7 +3,7 @@
 #include "DebugRenderStates.h"
 #include "Engine/Render/IRenderer.h"
 #include "System/Render/RenderDevice.h"
-#include "System/Core/Debug/DebugDrawing.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
@@ -21,14 +21,14 @@ namespace KRG::Render
         bool IsInitialized() const { return m_initialized; }
         bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
-        void RenderWorld( RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) override final;
+        void RenderWorld( Seconds const deltaTime, RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) override final;
 
     private:
 
-        void DrawPoints( RenderContext const& renderContext, Viewport const& viewport, TVector<Debug::Drawing::PointCommand> const& commands );
-        void DrawLines( RenderContext const& renderContext, Viewport const& viewport, TVector<Debug::Drawing::LineCommand> const& commands );
-        void DrawTriangles( RenderContext const& renderContext, Viewport const& viewport, TVector<Debug::Drawing::TriangleCommand> const& commands );
-        void DrawText( RenderContext const& renderContext, Viewport const& viewport, TVector<Debug::Drawing::TextCommand> const& commands, IntRange cmdRange );
+        void DrawPoints( RenderContext const& renderContext, Viewport const& viewport, TVector<Drawing::PointCommand> const& commands );
+        void DrawLines( RenderContext const& renderContext, Viewport const& viewport, TVector<Drawing::LineCommand> const& commands );
+        void DrawTriangles( RenderContext const& renderContext, Viewport const& viewport, TVector<Drawing::TriangleCommand> const& commands );
+        void DrawText( RenderContext const& renderContext, Viewport const& viewport, TVector<Drawing::TextCommand> const& commands, IntRange cmdRange );
 
     private:
 
@@ -39,7 +39,7 @@ namespace KRG::Render
         DebugPrimitiveRenderState                   m_primitiveRS;
         DebugTextRenderState                        m_textRS;
 
-        Debug::Drawing::FrameCommandBuffer          m_drawCommands;
+        Drawing::FrameCommandBuffer                 m_drawCommands;
         bool                                        m_initialized = false;
 
         // Text rendering
